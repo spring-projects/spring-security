@@ -1,27 +1,28 @@
 package org.springframework.security.web.authentication.www;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.security.core.codec.Hex;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-abstract class DigestAuthUtils {
+final class DigestAuthUtils {
 
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
-    public final static String encodePasswordInA1Format(String username, String realm, String password) {
+    static String encodePasswordInA1Format(String username, String realm, String password) {
         String a1 = username + ":" + realm + ":" + password;
-        String a1Md5 = new String(DigestUtils.md5Hex(a1));
+        String a1Md5 = md5Hex(a1);
 
         return a1Md5;
     }
 
-
-    final static String[] splitIgnoringQuotes(String str, char separatorChar) {
+    static String[] splitIgnoringQuotes(String str, char separatorChar) {
         if (str == null) {
             return null;
         }
@@ -87,12 +88,12 @@ abstract class DigestAuthUtils {
      * @return the MD5 of the digest authentication response, encoded in hex
      * @throws IllegalArgumentException if the supplied qop value is unsupported.
      */
-    final static String generateDigest(boolean passwordAlreadyEncoded, String username, String realm, String password,
+    static String generateDigest(boolean passwordAlreadyEncoded, String username, String realm, String password,
                                         String httpMethod, String uri, String qop, String nonce, String nc, String cnonce)
             throws IllegalArgumentException {
         String a1Md5 = null;
         String a2 = httpMethod + ":" + uri;
-        String a2Md5 = new String(DigestUtils.md5Hex(a2));
+        String a2Md5 = md5Hex(a2);
 
         if (passwordAlreadyEncoded) {
             a1Md5 = password;
@@ -112,7 +113,7 @@ abstract class DigestAuthUtils {
             throw new IllegalArgumentException("This method does not support a qop: '" + qop + "'");
         }
 
-        String digestMd5 = new String(DigestUtils.md5Hex(digest));
+        String digestMd5 = new String(md5Hex(digest));
 
         return digestMd5;
     }
@@ -130,7 +131,7 @@ abstract class DigestAuthUtils {
      * @return a <code>Map</code> representing the array contents, or <code>null</code> if the array to process was
      *         null or empty
      */
-    final static Map<String, String> splitEachArrayElementAndCreateMap(String[] array, String delimiter, String removeCharacters) {
+    static Map<String, String> splitEachArrayElementAndCreateMap(String[] array, String delimiter, String removeCharacters) {
         if ((array == null) || (array.length == 0)) {
             return null;
         }
@@ -169,7 +170,7 @@ abstract class DigestAuthUtils {
      *         (neither element includes the delimiter)
      * @throws IllegalArgumentException if an argument was invalid
      */
-    final static String[] split(String toSplit, String delimiter) {
+    static String[] split(String toSplit, String delimiter) {
         Assert.hasLength(toSplit, "Cannot split a null or empty string");
         Assert.hasLength(delimiter, "Cannot use a null or empty delimiter to split a string");
 
@@ -187,5 +188,16 @@ abstract class DigestAuthUtils {
         String afterDelimiter = toSplit.substring(offset + 1);
 
         return new String[]{beforeDelimiter, afterDelimiter};
+    }
+
+    static String md5Hex(String data) {
+        MessageDigest digest;
+        try {
+            digest = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("No MD5 algorithm available!");
+        }
+
+        return new String(Hex.encode(digest.digest(data.getBytes())));
     }
 }

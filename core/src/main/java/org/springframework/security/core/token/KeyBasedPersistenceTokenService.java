@@ -4,31 +4,31 @@ import java.io.UnsupportedEncodingException;
 import java.security.SecureRandom;
 import java.util.Date;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.core.codec.Base64;
+import org.springframework.security.core.codec.Hex;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
  * Basic implementation of {@link TokenService} that is compatible with clusters and across machine restarts,
  * without requiring database persistence.
- * 
+ *
  * <p>
  * Keys are produced in the format:
  * </p>
- * 
+ *
  * <p>
  * Base64(creationTime + ":" + hex(pseudoRandomNumber) + ":" + extendedInformation + ":" +
  * Sha512Hex(creationTime + ":" + hex(pseudoRandomNumber) + ":" + extendedInformation + ":" + serverSecret) )
  * </p>
- * 
+ *
  * <p>
  * In the above, <code>creationTime</code>, <code>tokenKey</code> and <code>extendedInformation</code>
  * are equal to that stored in {@link Token}. The <code>Sha512Hex</code> includes the same payload,
  * plus a <code>serverSecret</code>.
  * </p>
- * 
+ *
  * <p>
  * The <code>serverSecret</code> varies every millisecond. It relies on two static server-side secrets. The first
  * is a password, and the second is a server integer. Both of these must remain the same for any issued keys
@@ -39,7 +39,7 @@ import org.springframework.util.StringUtils;
  * to the computed hash). Recall that framework features depending on token services should reject tokens
  * that are relatively old in any event.
  * </p>
- * 
+ *
  * <p>
  * A further consideration of this class is the requirement for cryptographically strong pseudo-random numbers.
  * To this end, the use of {@link SecureRandomFactoryBean} is recommended to inject the property.
@@ -48,7 +48,7 @@ import org.springframework.util.StringUtils;
  * <p>
  * This implementation uses UTF-8 encoding internally for string manipulation.
  * </p>
- * 
+ *
  * @author Ben Alex
  *
  */
@@ -57,7 +57,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
     private String serverSecret;
     private Integer serverInteger;
     private SecureRandom secureRandom;
-    
+
     public Token allocateToken(String extendedInformation) {
         Assert.notNull(extendedInformation, "Must provided non-null extendedInformation (but it can be empty)");
         long creationTime = new Date().getTime();
@@ -68,8 +68,8 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
         // Compute key
         String sha512Hex = Sha512DigestUtils.shaHex(content + ":" + serverSecret);
         String keyPayload = content + ":" + sha512Hex;
-        String key = convertToString(Base64.encodeBase64(convertToBytes(keyPayload)));
-        
+        String key = convertToString(Base64.encode(convertToBytes(keyPayload)));
+
         return new DefaultToken(key, creationTime, extendedInformation);
     }
 
@@ -77,19 +77,19 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
         if (key == null || "".equals(key)) {
             return null;
         }
-        String[] tokens = StringUtils.delimitedListToStringArray(convertToString(Base64.decodeBase64(convertToBytes(key))), ":");
+        String[] tokens = StringUtils.delimitedListToStringArray(convertToString(Base64.decode(convertToBytes(key))), ":");
         Assert.isTrue(tokens.length >= 4, "Expected 4 or more tokens but found " + tokens.length);
-        
+
         long creationTime;
         try {
             creationTime = Long.decode(tokens[0]).longValue();
         } catch (NumberFormatException nfe) {
             throw new IllegalArgumentException("Expected number but found " + tokens[0]);
         }
-        
+
         String serverSecret = computeServerSecretApplicableAt(creationTime);
         String pseudoRandomNumber = tokens[1];
-        
+
         // Permit extendedInfo to itself contain ":" characters
         StringBuffer extendedInfo = new StringBuffer();
         for (int i = 2; i < tokens.length-1; i++) {
@@ -98,17 +98,17 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
             }
             extendedInfo.append(tokens[i]);
         }
-        
+
         String sha1Hex = tokens[tokens.length-1];
-        
+
         // Verification
         String content = new Long(creationTime).toString() + ":" + pseudoRandomNumber + ":" + extendedInfo.toString();
         String expectedSha512Hex = Sha512DigestUtils.shaHex(content + ":" + serverSecret);
         Assert.isTrue(expectedSha512Hex.equals(sha1Hex), "Key verification failure");
-        
+
         return new DefaultToken(key, creationTime, extendedInfo.toString());
     }
-    
+
     private byte[] convertToBytes(String input) {
         try {
             return input.getBytes("UTF-8");
@@ -116,7 +116,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
             throw new RuntimeException(e);
         }
     }
-    
+
     private String convertToString(byte[] bytes) {
         try {
             return new String(bytes, "UTF-8");
@@ -124,16 +124,16 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
             throw new RuntimeException(e);
         }
     }
-    
+
     /**
      * @return a pseduo random number (hex encoded)
      */
     private String generatePseudoRandomNumber() {
         byte[] randomizedBits = new byte[pseudoRandomNumberBits];
         secureRandom.nextBytes(randomizedBits);
-        return new String(Hex.encodeHex(randomizedBits));
+        return new String(Hex.encode(randomizedBits));
     }
-    
+
     private String computeServerSecretApplicableAt(long time) {
         return serverSecret + ":" + new Long(time % serverInteger.intValue()).intValue();
     }
@@ -144,11 +144,11 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
     public void setServerSecret(String serverSecret) {
         this.serverSecret = serverSecret;
     }
-    
+
     public void setSecureRandom(SecureRandom secureRandom) {
         this.secureRandom = secureRandom;
     }
-    
+
     /**
      * @param pseudoRandomNumberBits changes the number of bits issued (must be >= 0; defaults to 256)
      */

@@ -16,12 +16,11 @@
 package org.springframework.security.authentication.encoding;
 
 
-import org.apache.commons.codec.binary.Base64;
-
-import org.springframework.util.Assert;
-
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
+
+import org.springframework.security.core.codec.Base64;
+import org.springframework.util.Assert;
 
 
 /**
@@ -103,13 +102,13 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
             prefix = forceLowerCasePrefix ? SSHA_PREFIX_LC : SSHA_PREFIX;
         }
 
-        return prefix + new String(Base64.encodeBase64(hash));
+        return prefix + new String(Base64.encode(hash));
     }
 
     private byte[] extractSalt(String encPass) {
         String encPassNoLabel = encPass.substring(6);
 
-        byte[] hashAndSalt = Base64.decodeBase64(encPassNoLabel.getBytes());
+        byte[] hashAndSalt = Base64.decode(encPassNoLabel.getBytes());
         int saltLength = hashAndSalt.length - SHA_LENGTH;
         byte[] salt = new byte[saltLength];
         System.arraycopy(hashAndSalt, SHA_LENGTH, salt, 0, saltLength);

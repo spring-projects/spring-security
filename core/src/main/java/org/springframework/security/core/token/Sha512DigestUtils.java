@@ -3,15 +3,15 @@ package org.springframework.security.core.token;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.apache.commons.codec.binary.Hex;
+import org.springframework.security.core.codec.Hex;
 
 /**
  * Provides SHA512 digest methods.
- * 
+ *
  * <p>
  * Based on Commons Codec, which does not presently provide SHA512 support.
  * </p>
- * 
+ *
  * @author Ben Alex
  * @since 2.0.1
  *
@@ -43,7 +43,7 @@ public abstract class Sha512DigestUtils  {
     }
 
     /**
-     * Calculates the SHA digest and returns the value as a 
+     * Calculates the SHA digest and returns the value as a
      * <code>byte[]</code>.
      *
      * @param data Data to digest
@@ -54,7 +54,7 @@ public abstract class Sha512DigestUtils  {
     }
 
     /**
-     * Calculates the SHA digest and returns the value as a 
+     * Calculates the SHA digest and returns the value as a
      * <code>byte[]</code>.
      *
      * @param data Data to digest
@@ -71,7 +71,7 @@ public abstract class Sha512DigestUtils  {
      * @return SHA digest as a hex string
      */
     public static String shaHex(byte[] data) {
-        return new String(Hex.encodeHex(sha(data)));
+        return new String(Hex.encode(sha(data)));
     }
 
     /**
@@ -81,7 +81,7 @@ public abstract class Sha512DigestUtils  {
      * @return SHA digest as a hex string
      */
     public static String shaHex(String data) {
-        return new String(Hex.encodeHex(sha(data)));
+        return new String(Hex.encode(sha(data)));
     }
 
 }

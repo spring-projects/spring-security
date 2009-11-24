@@ -24,13 +24,13 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.codec.binary.Base64;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.codec.Base64;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.NullRememberMeServices;
@@ -117,7 +117,7 @@ public class BasicAuthenticationFilter extends GenericFilterBean {
 
         if ((header != null) && header.startsWith("Basic ")) {
             byte[] base64Token = header.substring(6).getBytes("UTF-8");
-            String token = new String(Base64.decodeBase64(base64Token), getCredentialsCharset(request));
+            String token = new String(Base64.decode(base64Token), getCredentialsCharset(request));
 
             String username = "";
             String password = "";

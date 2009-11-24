@@ -4,6 +4,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
@@ -16,11 +18,14 @@ import org.springframework.util.StringUtils;
  * @since 3.0
  */
 public class WebSecurityExpressionRoot extends SecurityExpressionRoot {
-    private FilterInvocation filterInvocation;
+    //private FilterInvocation filterInvocation;
+    /** Allows direct access to the request object */
+    public final HttpServletRequest request;
 
     public WebSecurityExpressionRoot(Authentication a, FilterInvocation fi) {
         super(a);
-        this.filterInvocation = fi;
+        //this.filterInvocation = fi;
+        this.request = fi.getRequest();
     }
 
     /**
@@ -39,7 +44,7 @@ public class WebSecurityExpressionRoot extends SecurityExpressionRoot {
         }
 
         InetAddress requiredAddress = parseAddress(ipAddress);
-        InetAddress remoteAddress = parseAddress(filterInvocation.getHttpRequest().getRemoteAddr());
+        InetAddress remoteAddress = parseAddress(request.getRemoteAddr());
 
         if (!requiredAddress.getClass().equals(remoteAddress.getClass())) {
             throw new IllegalArgumentException("IP Address in expression must be the same type as " +

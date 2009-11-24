@@ -1,6 +1,9 @@
 package org.springframework.security.web.authentication.rememberme;
 
-import org.apache.commons.codec.binary.Base64;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -11,6 +14,7 @@ import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.codec.Base64;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,10 +24,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Base class for RememberMeServices implementations.
@@ -160,11 +160,11 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
             cookieValue = cookieValue + "=";
         }
 
-        if (!Base64.isArrayByteBase64(cookieValue.getBytes())) {
+        if (!Base64.isBase64(cookieValue.getBytes())) {
             throw new InvalidCookieException( "Cookie token was not Base64 encoded; value was '" + cookieValue + "'");
         }
 
-        String cookieAsPlainText = new String(Base64.decodeBase64(cookieValue.getBytes()));
+        String cookieAsPlainText = new String(Base64.decode(cookieValue.getBytes()));
 
         return StringUtils.delimitedListToStringArray(cookieAsPlainText, DELIMITER);
     }
@@ -187,7 +187,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 
         String value = sb.toString();
 
-        sb = new StringBuffer(new String(Base64.encodeBase64(value.getBytes())));
+        sb = new StringBuffer(new String(Base64.encode(value.getBytes())));
 
         while (sb.charAt(sb.length() - 1) == '=') {
             sb.deleteCharAt(sb.length() - 1);

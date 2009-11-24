@@ -23,8 +23,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESedeKeySpec;
 
-import org.apache.commons.codec.binary.Base64;
 import org.springframework.core.NestedRuntimeException;
+import org.springframework.security.core.codec.Base64;
 import org.springframework.util.Assert;
 
 /**
@@ -102,7 +102,7 @@ public final class EncryptionUtils {
     public static String encrypt(String key, String inputString) throws EncryptionException {
         isValidKey(key);
         final byte[] cipherText = cipher(key, stringToByteArray(inputString), Cipher.ENCRYPT_MODE);
-        return byteArrayToString(Base64.encodeBase64(cipherText));
+        return byteArrayToString(Base64.encode(cipherText));
     }
 
     /**
@@ -115,7 +115,7 @@ public final class EncryptionUtils {
      */
     public static byte[] encrypt(String key, byte[] inputBytes) throws EncryptionException {
         isValidKey(key);
-        return Base64.encodeBase64(cipher(key, inputBytes, Cipher.ENCRYPT_MODE));
+        return Base64.encode(cipher(key, inputBytes, Cipher.ENCRYPT_MODE));
     }
 
     /**
@@ -128,7 +128,7 @@ public final class EncryptionUtils {
      */
     public static String decrypt(String key, String inputString) throws EncryptionException {
         Assert.hasText(key, "A key is required to attempt decryption");
-        final byte[] cipherText = cipher(key, Base64.decodeBase64(stringToByteArray(inputString)), Cipher.DECRYPT_MODE);
+        final byte[] cipherText = cipher(key, Base64.decode(stringToByteArray(inputString)), Cipher.DECRYPT_MODE);
         return byteArrayToString(cipherText);
     }
 
@@ -142,7 +142,7 @@ public final class EncryptionUtils {
      */
     public static byte[] decrypt(String key, byte[] inputBytes) throws EncryptionException {
         Assert.hasText(key, "A key is required to attempt decryption");
-        return cipher(key, Base64.decodeBase64(inputBytes), Cipher.DECRYPT_MODE);
+        return cipher(key, Base64.decode(inputBytes), Cipher.DECRYPT_MODE);
     }
 
     private static void isValidKey(String key) {

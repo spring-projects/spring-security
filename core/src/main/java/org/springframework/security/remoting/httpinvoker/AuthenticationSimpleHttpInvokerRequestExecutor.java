@@ -15,18 +15,15 @@
 
 package org.springframework.security.remoting.httpinvoker;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import java.io.IOException;
+import java.net.HttpURLConnection;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.remoting.httpinvoker.SimpleHttpInvokerRequestExecutor;
-
-import java.io.IOException;
-
-import java.net.HttpURLConnection;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.codec.Base64;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 
 /**
@@ -71,7 +68,7 @@ public class AuthenticationSimpleHttpInvokerRequestExecutor extends SimpleHttpIn
 
         if ((auth != null) && (auth.getName() != null) && (auth.getCredentials() != null)) {
             String base64 = auth.getName() + ":" + auth.getCredentials().toString();
-            con.setRequestProperty("Authorization", "Basic " + new String(Base64.encodeBase64(base64.getBytes())));
+            con.setRequestProperty("Authorization", "Basic " + new String(Base64.encode(base64.getBytes())));
 
             if (logger.isDebugEnabled()) {
                 logger.debug("HttpInvocation now presenting via BASIC authentication SecurityContextHolder-derived: "

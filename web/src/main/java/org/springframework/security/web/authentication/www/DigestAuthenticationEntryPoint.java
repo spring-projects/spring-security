@@ -21,14 +21,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.Ordered;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.codec.Base64;
+import org.springframework.security.web.AuthenticationEntryPoint;
 
 
 /**
@@ -82,9 +81,9 @@ public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint,
         // format of nonce is:
         //   base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
         long expiryTime = System.currentTimeMillis() + (nonceValiditySeconds * 1000);
-        String signatureValue = new String(DigestUtils.md5Hex(expiryTime + ":" + key));
+        String signatureValue = new String(DigestAuthUtils.md5Hex(expiryTime + ":" + key));
         String nonceValue = expiryTime + ":" + signatureValue;
-        String nonceValueBase64 = new String(Base64.encodeBase64(nonceValue.getBytes()));
+        String nonceValueBase64 = new String(Base64.encode(nonceValue.getBytes()));
 
         // qop is quality of protection, as defined by RFC 2617.
         // we do not use opaque due to IE violation of RFC 2617 in not

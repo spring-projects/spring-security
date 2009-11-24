@@ -25,8 +25,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.MessageSource;
@@ -38,6 +36,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.codec.Base64;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -96,7 +95,7 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 
 
 
-	@Override
+    @Override
     public void afterPropertiesSet() {
         Assert.notNull(userDetailsService, "A UserDetailsService is required");
         Assert.notNull(authenticationEntryPoint, "A DigestAuthenticationEntryPoint is required");
@@ -168,7 +167,7 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
             }
 
             // Check nonce was a Base64 encoded (as sent by DigestAuthenticationEntryPoint)
-            if (!Base64.isArrayByteBase64(nonce.getBytes())) {
+            if (!Base64.isBase64(nonce.getBytes())) {
                 fail(request, response,
                         new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.nonceEncoding",
                                 new Object[]{nonce}, "Nonce is not encoded in Base64; received nonce {0}")));
@@ -179,7 +178,7 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
             // Decode nonce from Base64
             // format of nonce is:
             //   base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
-            String nonceAsPlainText = new String(Base64.decodeBase64(nonce.getBytes()));
+            String nonceAsPlainText = new String(Base64.decode(nonce.getBytes()));
             String[] nonceTokens = StringUtils.delimitedListToStringArray(nonceAsPlainText, ":");
 
             if (nonceTokens.length != 2) {
@@ -205,7 +204,7 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
             }
 
             // Check signature of nonce matches this expiry time
-            String expectedNonceSignature = DigestUtils.md5Hex(nonceExpiryTime + ":"
+            String expectedNonceSignature = DigestAuthUtils.md5Hex(nonceExpiryTime + ":"
                     + this.getAuthenticationEntryPoint().getKey());
 
             if (!expectedNonceSignature.equals(nonceTokens[1])) {
@@ -305,11 +304,11 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 
             UsernamePasswordAuthenticationToken authRequest;
             if (createAuthenticatedToken) {
-            	   authRequest = new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
+                   authRequest = new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
             }
             else
             {
-            	authRequest = new UsernamePasswordAuthenticationToken(user, user.getPassword());
+                authRequest = new UsernamePasswordAuthenticationToken(user, user.getPassword());
             }
 
             authRequest.setDetails(authenticationDetailsSource.buildDetails((HttpServletRequest) request));
@@ -367,23 +366,23 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
     public void setUserDetailsService(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
-    
-    
-    /** 
+
+
+    /**
      * If you set this property, the Authentication object, which is
      * created after the successful digest authentication will be marked
-     * as <b>authenticated</b> and filled with the authorities loaded by 
+     * as <b>authenticated</b> and filled with the authorities loaded by
      * the UserDetailsService. It therefore will not be re-authenticated
      * by your AuthenticationProvider. This means, that only the password
      * of the user is checked, but not the flags like isEnabled() or
-     * isAccountNonExpired(). You will save some time by enabling this flag, 
+     * isAccountNonExpired(). You will save some time by enabling this flag,
      * as otherwise your UserDetailsService will be called twice. A more secure
      * option would be to introduce a cache around your UserDetailsService, but
      * if you don't use these flags, you can also safely enable this option.
-     * 
+     *
      * @param createAuthenticatedToken default is false
      */
     public void setCreateAuthenticatedToken(boolean createAuthenticatedToken) {
-		this.createAuthenticatedToken = createAuthenticatedToken;
-	}
+        this.createAuthenticatedToken = createAuthenticatedToken;
+    }
 }

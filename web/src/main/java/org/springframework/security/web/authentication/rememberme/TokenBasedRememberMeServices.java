@@ -16,13 +16,15 @@
 package org.springframework.security.web.authentication.rememberme;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.codec.Hex;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
 
-import org.apache.commons.codec.digest.DigestUtils;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -129,7 +131,15 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
      * MD5 ("username:tokenExpiryTime:password:key")
      */
     protected String makeTokenSignature(long tokenExpiryTime, String username, String password) {
-        return DigestUtils.md5Hex(username + ":" + tokenExpiryTime + ":" + password + ":" + getKey());
+        String data = username + ":" + tokenExpiryTime + ":" + password + ":" + getKey();
+        MessageDigest digest;
+        try {
+            digest = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("No MD5 algorithm available!");
+        }
+
+        return new String(Hex.encode(digest.digest(data.getBytes())));
     }
 
     protected boolean isTokenExpired(long tokenExpiryTime) {

@@ -1,11 +1,11 @@
 package org.springframework.security.authentication.encoding;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Hex;
-
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
+import org.springframework.security.core.codec.Base64;
+import org.springframework.security.core.codec.Hex;
 
 /**
  * Base for digest password encoders.
@@ -74,7 +74,7 @@ public class MessageDigestPasswordEncoder extends BaseDigestPasswordEncoder {
         MessageDigest messageDigest = getMessageDigest();
 
         byte[] digest;
-        
+
         try {
             digest = messageDigest.digest(saltedPass.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException e) {
@@ -82,9 +82,9 @@ public class MessageDigestPasswordEncoder extends BaseDigestPasswordEncoder {
         }
 
         if (getEncodeHashAsBase64()) {
-            return new String(Base64.encodeBase64(digest));
+            return new String(Base64.encode(digest));
         } else {
-            return new String(Hex.encodeHex(digest));
+            return new String(Hex.encode(digest));
         }
     }
 

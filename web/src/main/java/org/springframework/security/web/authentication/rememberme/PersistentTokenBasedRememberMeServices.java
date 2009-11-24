@@ -7,9 +7,9 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.codec.binary.Base64;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.codec.Base64;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.util.Assert;
@@ -151,13 +151,13 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
     protected String generateSeriesData() {
         byte[] newSeries = new byte[seriesLength];
         random.nextBytes(newSeries);
-        return new String(Base64.encodeBase64(newSeries));
+        return new String(Base64.encode(newSeries));
     }
 
     protected String generateTokenData() {
         byte[] newToken = new byte[tokenLength];
         random.nextBytes(newToken);
-        return new String(Base64.encodeBase64(newToken));
+        return new String(Base64.encode(newToken));
     }
 
     private void addCookie(PersistentRememberMeToken token, HttpServletRequest request, HttpServletResponse response) {
