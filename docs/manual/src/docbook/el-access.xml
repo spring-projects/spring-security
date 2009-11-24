@@ -6,7 +6,87 @@
         authorization mechanism in addition to the simple use of configuration attributes and
         access-decision voters which have seen before. Expression-based access control is built on
         the same architecture but allows complicated boolean logic to be encapsulated in a single
-        expression. </para>
+        expression.</para>
+    <section>
+        <title>Overview</title>
+        <para>Spring Security uses Spring EL for expression support and you should look at how that
+            works if you are interested in understanding the topic in more depth. Expressions are
+            evaluated with a <quote>root object</quote> as part of the evaluation context. Spring
+            Security uses specific classes for web and method security as the root object, in order
+            to provide built-in expressions and access to values such as the current
+            principal.</para>
+        <section>
+            <title>Common Built-In Expressions</title>
+            <para>The base class for expression root objects is
+                    <classname>SecurityExpressionRoot</classname>. This provides some common
+                expressions which are available in both web and method security.</para>
+            <table frame="none">
+                <title>Common built-in expressions</title>
+                <tgroup cols="2">
+                    <colspec colname="c1" colnum="1" colwidth="1.0*"/>
+                    <colspec colname="c2" colnum="2" colwidth="2.0*"/>
+                    <thead>
+                        <row>
+                            <entry>Expression</entry>
+                            <entry>Description</entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry><literal>hasRole([role])</literal></entry>
+                            <entry>Returns <literal>true</literal> if the current principal has the
+                                specified role.</entry>
+                        </row>
+                        <row>
+                            <entry><literal>hasAnyRole([role1,role2])</literal></entry>
+                            <entry>Returns <literal>true</literal> if the current principal has any
+                                of the supplied roles (given as a comma-separated list of
+                                strings)</entry>
+                        </row>
+                        <row>
+                            <entry><literal>principal</literal></entry>
+                            <entry>Allows direct access to the principal object representing the
+                                current user</entry>
+                        </row>
+                        <row>
+                            <entry><literal>authentication</literal></entry>
+                            <entry>Allows direct access to the current
+                                    <interfacename>Authentication</interfacename> object obtained
+                                from the <interfacename>SecurityContext</interfacename></entry>
+                        </row>
+                        <row>
+                            <entry><literal>permitAll</literal></entry>
+                            <entry>Always evaluates to <literal>true</literal></entry>
+                        </row>
+                        <row>
+                            <entry><literal>denyAll</literal></entry>
+                            <entry>Always evaluates to <literal>false</literal></entry>
+                        </row>
+                        <row>
+                            <entry><literal>isAnonymous()</literal></entry>
+                            <entry>Returns <literal>true</literal> if the current principal is an
+                                anonymous user</entry>
+                        </row>
+                        <row>
+                            <entry><literal>isRememberMe()</literal></entry>
+                            <entry>Returns <literal>true</literal> if the current principal is a
+                                remember-me user</entry>
+                        </row>
+                        <row>
+                            <entry><literal>isAuthenticated()</literal></entry>
+                            <entry>Returns <literal>true</literal> if the user is not
+                                anonymous</entry>
+                        </row>
+                        <row>
+                            <entry><literal>isFullyAuthenticated()</literal></entry>
+                            <entry>Returns <literal>true</literal> if the user is not an anonyous or
+                                a remember-me user</entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+        </section>
+    </section>
     <section xml:id="el-access-web">
         <title>Web Security Expressions</title>
         <para> To use expressions to secure individual URLs, you would first need to set the
@@ -20,16 +100,16 @@
         access="hasRole('admin') and hasIpAddress('192.168.1.0/24')"/>
     ...
   </http>
-]]></programlisting>Here we have defined that the "admin" area of an application should only be
-            available to users who have the granted authority <quote>admin</quote> and whose IP
-            address matches a local subnet. The expressions <literal>hasRole</literal> and
-                <literal>hasIpAddress</literal> are both built in expressions, which are defined by
-            the <classname>WebSecurityExpressionRoot</classname> class, an instance of which is used
-            as the expression root object when evaluation web-access expressions. See the
-            documentation for Spring EL in the main Spring Framework reference if you want to know
-            more about the details of expression evaluation. This object also directly exposed the
-                <interfacename>HttpServletRequest</interfacename> object under the name
-                <quote>request</quote> so you can invoke the request directly in an
+]]></programlisting>Here we have defined that the <quote>admin</quote> area of an application
+            (defined by the URL pattern) should only be available to users who have the granted
+            authority <quote>admin</quote> and whose IP address matches a local subnet. We've
+            already seen the built-in <literal>hasRole</literal> expression in the previous section.
+            The expression <literal>hasIpAddress</literal> is an additional built-in expression
+            which is specific to web security. It is defined by the
+                <classname>WebSecurityExpressionRoot</classname> class, an instance of which is used
+            as the expression root object when evaluation web-access expressions. This object also
+            directly exposed the <interfacename>HttpServletRequest</interfacename> object under the
+            name <literal>request</literal> so you can invoke the request directly in an
             expression.</para>
         <para>If expressions are being used, a <classname>WebExpressionVoter</classname> will be
             added to the <interfacename>AccessDecisionManager</interfacename> which is used by the
@@ -38,11 +118,76 @@
     </section>
     <section>
         <title>Method Security Expressions</title>
-        <para>Method security expressions in Spring Security 3.0 are supported through the use of
-            special annotations which allow pre and post-invocation authorization checks.
-            Expressions can also be used to filter collections or arrays, based on the permissions
-            of the principal invoking the method. Values can be removed from a collection argument
-            prior to the invocation of the method or, post-invocation, a returned collection can be
-            filtered to remove items to which the user should not have access.</para>
+        <para>Method security is a bit more complicated than a simple allow or deny rule. Spring
+            Security 3.0 introduced some new annotations in order to allow comprehensive support for
+            the use of expressions.</para>
+        <section>
+            <title><literal>@Pre</literal> and <literal>@Post</literal> Annotations</title>
+            <para>There are four annotations which support expression attributes to allow pre and
+                post-invocation authorization checks and also to support filtering of submitted
+                collection arguments or return values. They are <literal>@PreAuthorize</literal>,
+                    <literal>@PreFilter</literal>, <literal>@PostAuthorize</literal> and
+                    <literal>@PostFilter</literal>. Their use is enabled through the
+                    <literal>global-method-security</literal> namespace
+                element:<programlisting><![CDATA[<global-method-security pre-post-annotations="enabled"/>]]></programlisting></para>
+            <section>
+                <title>Access Control using <literal>@PreAuthorize</literal> and
+                        <literal>@PostAuthorize</literal></title>
+                <para>The most obviously useful annotation is <literal>@PreAuthorize</literal> which
+                    decides whether a method can actually be invoked or not. For example (from the
+                        <quote>Contacts</quote> sample
+                    application)<programlisting>  @PreAuthorize("hasRole('ROLE_USER')")
+  public void create(Contact contact);</programlisting>which
+                    means that access will only be allowed for users with the role "ROLE_USER".
+                    Obviously the same thing could easily be achieved using a traditional
+                    configuration and a simple configuration attribute for the required role. But
+                    what
+                    about:<programlisting>  @PreAuthorize("hasPermission(#contact, 'admin')")
+  public void deletePermission(Contact contact, Sid recipient, Permission permission);</programlisting>Here
+                    we're actually using a method argument as part of the expression to decide
+                    whether the current user has the <quote>admin</quote>permission for the given
+                    contact. The built-in <literal>hasPermission()</literal> expression is linked
+                    into the Spring Security ACL module through the application context. You can
+                    access any of the method arguments by name as expression variables, provided
+                    your code has debug information compiled in. Any Spring-EL functionality is
+                    available within the expression, so you can also access properties on the
+                    arguments. For example, if you wanted a particular method to only allow access
+                    to a user whose username matched that of the contact, you could write</para>
+                <programlisting>  @PreAuthorize("#contact.name == principal.name)")
+  public void doSomething(Contact contact);</programlisting>
+                <para>Here we are accessing another built–in expression, which is the
+                        <literal>principal</literal> of the current Spring Security
+                        <interfacename>Authentication</interfacename> object obtained from the
+                    security context. You can also access the
+                        <interfacename>Authentication</interfacename> object itself directly using
+                    the expression name <literal>authentication</literal>.</para>
+                <para>Less commonly, you may wish to perform an access-control check after the
+                    method has been invoked. This can be achieved using the
+                        <literal>@PostAuthorize</literal> annotation. To access the return value
+                    from a method, use the built–in name <literal>returnObject</literal> in the
+                    expression.</para>
+            </section>
+            <section>
+                <title>Filtering using <literal>@PreFilter</literal> and
+                        <literal>@PostFilter</literal></title>
+                <para>As you may already be aware, Spring Security supports filtering of collections
+                    and arrays and this can now be achieved using expressions. This is most commonly
+                    performed on the return value of a method. For
+                    example:<programlisting>  @PreAuthorize("hasRole('ROLE_USER')")
+  @PostFilter("hasPermission(filterObject, 'read') or hasPermission(filterObject, 'admin')")
+  public List&lt;Contact> getAll();</programlisting>When
+                    using the <literal>@PostFilter</literal> annotation, Spring Security iterates
+                    through the returned collection and removes any elements for which the supplied
+                    expression is false. The name <literal>filterObject</literal> refers to the
+                    current object in the collection. You can also filter before the method call,
+                    using <literal>@PreFilter</literal>, though this is a less common requirement.
+                    The syntax is just the same, but if there is more than one argument which is a
+                    collection type then you have to select one by name using the
+                        <literal>filterTarget</literal> property of this annotation.</para>
+                <para>Note that filtering is obviously not a substitute for tuning your data
+                    retrieval queries. If you are filtering large collections and removing many of
+                    the entries then this is likely to be inefficient.</para>
+            </section>
+        </section>
     </section>
 </chapter>
