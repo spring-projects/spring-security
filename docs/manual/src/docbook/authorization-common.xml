@@ -221,12 +221,15 @@ boolean supports(Class clazz);
       that there is at least one configuration attribute that an
         <interfacename>AccessDecisionVoter</interfacename> will vote to grant access for. This
       latter (recommended) approach is usually achieved through a <literal>ROLE_USER</literal> or
-        <literal>ROLE_AUTHENTICATED</literal> configuration attribute</para>
+        <literal>ROLE_AUTHENTICATED</literal> configuration attribute.</para>
+    
+    <!-- TODO: Move to ACL section and add reference here -->
+<!--    
     <section xml:id="after-invocation-acl-aware">
       <info>
         <title>ACL-Aware AfterInvocationProviders</title>
       </info>
-      <!-- TODO: Move to ACL section and add reference here -->
+
       <para>A common services layer method we've all written at one stage or another looks like
         this:</para>
       <para>
@@ -279,8 +282,10 @@ boolean supports(Class clazz);
           <literal>requirePermission</literal>s.</para>
       <para>The Contacts sample application demonstrates these two
           <literal>AfterInvocationProvider</literal>s.</para>
-    </section>
+          </section>   -->
   </section>
+
+<!-- TODO: Move taglibs to a separate chapter which describes them all  
   <section xml:id="authorization-taglibs">
     <info>
       <title>Authorization Tag Libraries</title>
@@ -350,5 +355,5 @@ boolean supports(Class clazz);
     <para><literal>AclTag</literal> is part of the old ACL module and should be considered
       deprecated. For the sake of historical reference, works exactly the samae as
         <literal>AccessControlListTag</literal>.</para>
-  </section>
+  </section> -->
 </chapter>

@@ -2,18 +2,22 @@
 
 use strict;
 
-# Get list of links to class src packages
-system("curl http://static.springframework.org/spring-security/site/xref/allclasses-frame.html > allclasses-frame.html");
+# Get list of links to class src packages from Javadoc
+#system("curl http://static.springsource.org/spring-security/site/docs/3.0.x/apidocs/allclasses-frame.html > allclasses-frame.html");
 my @all_classes = `cat allclasses-frame.html`;
 
-$#all_classes > 0 || die "No lines in xref";
+$#all_classes > 0 || die "No lines in Javadoc";
 
+# Src XREF format
 #<a href="org/springframework/security/vote/AbstractAccessDecisionManager.html" target="classFrame">AbstractAccessDecisionManager</a>
+# Javadoc format
+#<A HREF="org/springframework/security/acls/afterinvocation/AbstractAclProvider.html" title="class in org.springframework.security.acls.afterinvocation" target="classFrame">AbstractAclProvider</A>
 
 my %classnames_to_src;
 
 while ($_ = pop @all_classes) {
-	next unless $_ =~ /<a href="(.*)" target="classFrame">(([a-zA-Z0-9_]+?))<\/a>/;
+	next unless $_ =~ /<A HREF="(.*)" title.*>(([a-zA-Z0-9_]+?))<\/A>/;
+	print "Adding class $1, $2\n";
 	$classnames_to_src{$2} = $1;
 }
 

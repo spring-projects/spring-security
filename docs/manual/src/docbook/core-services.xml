@@ -97,9 +97,8 @@
                 returned from the configured <interfacename>UserDetailsService</interfacename>. A
                     <interfacename>SaltSource</interfacename> enables the passwords to be populated
                 with a "salt", which enhances the security of the passwords in the authentication
-                repository. These will be discussed in more detail in ???.
-                <!-- TODO: Add sections on password encoding and user caching to advaced topics -->
-            </para>
+                repository. These will be discussed in more detail <link
+                    xlink:href="core-services-password-encodin">below</link>. </para>
         </section>
     </section>
     <section>
@@ -201,6 +200,80 @@
                 implementation provided with Spring Security is intended for typical situations, rather
                 than catering for all possible requirements.</para>
             -->
+        </section>
+    </section>
+    <section xml:id="core-services-password-encoding">
+        <title>Password Encoding</title>
+        <para>Spring Security's <interfacename>PasswordEncoder</interfacename> interface is used to
+            support the use of passwords which are encoded in some way in persistent storage. This
+            will normally mean that the passwords are <quote>hashed</quote> using a digest alogirthm
+            such as MD5 or SHA.</para>
+        <section>
+            <title>What is a hash?</title>
+            <para>Password hashing is not unique to Spring Security but is a common source of
+                confusion for users who are not familiar with the concept. A hash (or digest)
+                algorithm is a one-way function which produces a piece of fixed-length output data
+                (the hash) from some input data, such as a password. As an example, the MD5 hash of
+                the string <quote>password</quote> (in hexadecimal) is
+                <programlisting>
+    5f4dcc3b5aa765d61d8327deb882cf99
+</programlisting> A hash is
+                    <quote>one-way</quote> in the sense that it is very difficult (effectively
+                impossible) to obtain the original input given the hash value, or indeed any
+                possible input which would produce that hash value. This property makes hash values
+                very useful for authentication purposes. They can be stored in your user database as
+                an alternative to plaintext passwords and even if the values are compromised they do
+                not immediately reveal a password which can be used to login. Note that this also
+                means you have no way of recovering the password once it is encoded.</para>
+        </section>
+        <section>
+            <title>Adding Salt to a Hash</title>
+            <para> One potential problem with the use of password hashes that it is relatively easy
+                to get round the one-way property of the hash if a common word is used for the
+                input. For example, if you search for the hash value
+                    <literal>5f4dcc3b5aa765d61d8327deb882cf99</literal> using google, you will
+                quickly find the original word <quote>password</quote>. In a similar way, an
+                attacker can build a dictionary of hashes from a standard word list and use this to
+                lookup the original password. One way to help prevent this is to have a suitably
+                strong password policy to try to prevent common words from being used. Another is to
+                use a <quote>salt</quote> when calculating the hashes. This is an additional string
+                of known data for each user which is combined with the password before calculating
+                the hash. Ideally the data should be as random as possible, but in practice any salt
+                value is usually preferable to none. Spring Security has a
+                    <interfacename>SaltSource</interfacename> interface which can be used by an
+                authentication provider to generate a salt value for a particular user. Using a salt
+                means that an attacker has to build a separate dictionary of hashes for each salt
+                value, making the attack more complicated (but not impossible).</para>
+        </section>
+        <section>
+            <title> Hashing and Authentication</title>
+            <para>When an authentication provider (such as Spring Security's
+                    <classname>DaoAuthenticationProvider</classname> needs to check the password in
+                a submitted authentication request against the known value for a user, and the
+                stored password is encoded in some way, then the submitted value must be encoded
+                using exactly the same algorithm. It's up to you to check that these are compatible
+                as Spring Security has no control over the persistent values. If you add password
+                hashing to your authentication configuration in Spring Security, and your database
+                contains plaintext passwords, then there is no way authentication can succeed. Even
+                if you are aware that your database is using MD5 to encode the passwords, for
+                example, and your application is configured to use Spring Security's
+                    <classname>Md5PasswordEncoder</classname>, there are still things that can go
+                wrong. The database may have the passwords encoded in Base 64, for example while the
+                enocoder is using hexadecimal strings (the default)<footnote><para>You can configure
+                        the encoder to use Base 64 instead of hex by setting the
+                            <literal>encodeHashAsBase64</literal> property to
+                            <literal>true</literal>. Check the Javadoc for
+                            <classname>MessageDigestPasswordEncoder</classname> and its parent
+                        classes for more information.</para></footnote>. Alternatively your database
+                may be using upper-case while the output from the encoder is lower-case. Make sure
+                you write a test to check the output from your configured password encoder with a
+                known password and salt combination and check that it matches the database value
+                before going further and attempting to authenticate through your application. For
+                more information on the default method for merging salt and password, see the
+                Javadoc for <classname>BasePasswordEncoder</classname>. If you want to generate
+                encoded passwords directly in Java for storage in your user database, then you can
+                use the <methodname>encodePassword</methodname> method on the
+                    <interfacename>PasswordEncoder</interfacename>.</para>
         </section>
     </section>
 </chapter>

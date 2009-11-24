@@ -159,6 +159,7 @@
     </partintro>
     <xi:include href="authorization-common.xml"/>
     <xi:include href="secured-objects.xml"/>
+    <xi:include href="el-access.xml"/>
   </part>
   <part xml:id="advanced-topics">
     <title>Advanced Topics</title>

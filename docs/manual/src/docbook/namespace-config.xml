@@ -461,7 +461,11 @@
   <user name="http://jimi.hendrix.myopenid.com/" password="notused" 
           authorities="ROLE_USER" />
   ]]></programlisting> You should be able to login using the <literal>myopenid.com</literal> site to
-        authenticate. </para>
+        authenticate. It is also possible to select a specific
+          <interfacename>UserDetailsService</interfacename> bean for use OpenID by setting the
+          <literal>user-service-ref</literal> attribute on the <literal>openid-login</literal>
+        element. See the previous section on <link xlink:href="#ns-auth-providers">authentication
+          providers</link> for more information. </para>
     </section>
     <section xml:id="ns-custom-filters">
       <title>Adding in Your Own Filters</title>
@@ -564,10 +568,11 @@
     <title>Method Security</title>
     <para>From version 2.0 onwards Spring Security has improved support substantially for adding
       security to your service layer methods. It provides support for JSR-250 security as well as
-      the framework's native <literal>@Secured</literal> annotation. You can apply security to a
-      single bean, using the <literal>intercept-methods</literal> element to decorate the bean
-      declaration, or you can secure multiple beans across the entire service layer using the
-      AspectJ style pointcuts. </para>
+      the framework's original <literal>@Secured</literal> annotation. From 3.0 you can also make
+      use of new <link xlink:href="el-access">expression-based annotations</link>. 
+      You can apply security to a single bean, using the
+        <literal>intercept-methods</literal> element to decorate the bean declaration, or you can
+      secure multiple beans across the entire service layer using the AspectJ style pointcuts. </para>
     <section xml:id="ns-global-method">
       <title>The <literal>&lt;global-method-security&gt;</literal> Element</title>
       <para> This element is used to enable annotation-based security in your application (by
@@ -581,9 +586,7 @@
 </programlisting> Adding an annotation to a method (on an class or interface) would then limit
         the access to that method accordingly. Spring Security's native annotation support defines a
         set of attributes for the method. These will be passed to the
-          <interfacename>AccessDecisionManager</interfacename> for it to make the actual decision.
-        This example is taken from the <link xlink:href="#tutorial-sample">tutorial sample</link>,
-        which is a good starting point if you want to use method security in your application:
+          <interfacename>AccessDecisionManager</interfacename> for it to make the actual decision:
         <programlisting language="java">
   public interface BankService {
   
@@ -597,6 +600,22 @@
     public Account post(Account account, double amount);
   }
 </programlisting></para>
+      <para>To use the new expression-based syntax, you would use <programlisting><![CDATA[
+  <global-method-security pre-post-annotations="enabled" />
+  ]]></programlisting>and the equivalent Java code would
+        be<programlisting language="java">
+   public interface BankService {
+
+     @PreAuthorize("isAnonymous()")
+     public Account readAccount(Long id);
+     
+     @PreAuthorize("isAnonymous()")
+     public Account[] findAccounts();
+     
+     @PreAuthorize("hasAuthority('ROLE_TELLER')")
+     public Account post(Account account, double amount);
+   }
+        </programlisting></para>
       <section xml:id="ns-protect-pointcut">
         <title>Adding Security Pointcuts using <literal>protect-pointcut</literal></title>
         <para> The use of <literal>protect-pointcut</literal> is particularly powerful, as it allows
@@ -642,7 +661,7 @@
     ... 
   </global-method-security>
   ]]></programlisting></para>
-      <para> The syntax for web security is the same, but on the <literal>http</literal> element: <programlisting  language="xml"><![CDATA[
+      <para> The syntax for web security is the same, but on the <literal>http</literal> element: <programlisting language="xml"><![CDATA[
   <http access-decision-manager-ref="myAccessDecisionManagerBean">
     ... 
   </http>

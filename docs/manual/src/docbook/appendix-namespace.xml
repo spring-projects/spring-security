@@ -488,8 +488,8 @@
         configuration as web security, but this can be overridden as explained above <xref
           xlink:href="#nsa-access-decision-manager-ref"/>, using the same attribute. </para>
       <section>
-        <title>The <literal>&lt;secured-annotations&gt;</literal> and
-            <literal>&lt;jsr250-annotations&gt;</literal> Attributes</title>
+        <title>The <literal>secured-annotations</literal> and
+            <literal>jsr250-annotations</literal> Attributes</title>
         <para> Setting these to "true" will enable support for Spring Security's own
             <literal>@Secured</literal> annotations and JSR-250 annotations, respectively. They are
           both disabled by default. Use of JSR-250 annotations also adds a
