@@ -1,5 +1,6 @@
 package org.springframework.security.openid;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.springframework.util.Assert;
@@ -14,7 +15,7 @@ import org.springframework.util.Assert;
  * @version $Id$
  * @since 3.0
  */
-public class OpenIDAttribute {
+public class OpenIDAttribute implements Serializable {
     private final String name;
     private final String typeIdentifier;
     private boolean required = false;
