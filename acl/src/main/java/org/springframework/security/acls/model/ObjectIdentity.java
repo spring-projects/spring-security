@@ -52,7 +52,7 @@ public interface ObjectIdentity extends Serializable {
      * business meaning, as that business meaning may change in the future such change will cascade to the ACL
      * subsystem data.</p>
      *
-     * @return the identifier (unique within this <tt>javaType</tt>; never <tt>null</tt>)
+     * @return the identifier (unique within this <tt>type</tt>; never <tt>null</tt>)
      */
     Serializable getIdentifier();
 
