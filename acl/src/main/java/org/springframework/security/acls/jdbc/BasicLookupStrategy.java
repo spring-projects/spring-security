@@ -20,9 +20,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -172,57 +172,6 @@ public final class BasicLookupStrategy implements LookupStrategy {
         return sqlStringBldr.toString();
     }
 
-    /**
-     * The final phase of converting the <code>Map</code> of <code>AclImpl</code> instances which contain
-     * <code>StubAclParent</code>s into proper, valid <code>AclImpl</code>s with correct ACL parents.
-     *
-     * @param inputMap the unconverted <code>AclImpl</code>s
-     * @param currentIdentity the current<code>Acl</code> that we wish to convert (this may be
-     *
-     */
-    private AclImpl convert(Map<Long,AclImpl> inputMap, Long currentIdentity) {
-        Assert.notEmpty(inputMap, "InputMap required");
-        Assert.notNull(currentIdentity, "CurrentIdentity required");
-
-        // Retrieve this Acl from the InputMap
-        Acl uncastAcl = (Acl) inputMap.get(currentIdentity);
-        Assert.isInstanceOf(AclImpl.class, uncastAcl, "The inputMap contained a non-AclImpl");
-
-        AclImpl inputAcl = (AclImpl) uncastAcl;
-
-        Acl parent = inputAcl.getParentAcl();
-
-        if ((parent != null) && parent instanceof StubAclParent) {
-            // Lookup the parent
-            StubAclParent stubAclParent = (StubAclParent) parent;
-            parent = convert(inputMap, stubAclParent.getId());
-        }
-
-        // Now we have the parent (if there is one), create the true AclImpl
-        AclImpl result = new AclImpl(inputAcl.getObjectIdentity(), (Long) inputAcl.getId(), aclAuthorizationStrategy,
-                auditLogger, parent, null, inputAcl.isEntriesInheriting(), inputAcl.getOwner());
-
-        // Copy the "aces" from the input to the destination
-
-        // Obtain the "aces" from the input ACL
-        List<AccessControlEntryImpl> aces = readAces(inputAcl);
-
-        // Create a list in which to store the "aces" for the "result" AclImpl instance
-        List<AccessControlEntryImpl> acesNew = new ArrayList<AccessControlEntryImpl>();
-
-        // Iterate over the "aces" input and replace each nested AccessControlEntryImpl.getAcl() with the new "result" AclImpl instance
-        // This ensures StubAclParent instances are removed, as per SEC-951
-        for (AccessControlEntryImpl ace : aces) {
-            setAclOnAce(ace, result);
-            acesNew.add(ace);
-        }
-
-        // Finally, now that the "aces" have been converted to have the "result" AclImpl instance, modify the "result" AclImpl instance
-        setAces(result, acesNew);
-
-        return result;
-    }
-
     @SuppressWarnings("unchecked")
     private List<AccessControlEntryImpl> readAces(AclImpl acl) {
         try {
@@ -305,19 +254,20 @@ public final class BasicLookupStrategy implements LookupStrategy {
         // Map<ObjectIdentity,Acl>
         Map<ObjectIdentity, Acl> result = new HashMap<ObjectIdentity, Acl>(); // contains FULLY loaded Acl objects
 
-        Set<ObjectIdentity> currentBatchToLoad = new HashSet<ObjectIdentity>(); // contains ObjectIdentitys
+        Set<ObjectIdentity> currentBatchToLoad = new HashSet<ObjectIdentity>();
 
         for (int i = 0; i < objects.size(); i++) {
+            final ObjectIdentity oid = objects.get(i);
             boolean aclFound = false;
 
             // Check we don't already have this ACL in the results
-            if (result.containsKey(objects.get(i))) {
+            if (result.containsKey(oid)) {
                 aclFound = true;
             }
 
             // Check cache for the present ACL entry
             if (!aclFound) {
-                Acl acl = aclCache.getFromCache(objects.get(i));
+                Acl acl = aclCache.getFromCache(oid);
 
                 // Ensure any cached element supports all the requested SIDs
                 // (they should always, as our base impl doesn't filter on SID)
@@ -335,22 +285,21 @@ public final class BasicLookupStrategy implements LookupStrategy {
 
             // Load the ACL from the database
             if (!aclFound) {
-                currentBatchToLoad.add(objects.get(i));
+                currentBatchToLoad.add(oid);
             }
 
             // Is it time to load from JDBC the currentBatchToLoad?
             if ((currentBatchToLoad.size() == this.batchSize) || ((i + 1) == objects.size())) {
                 if (currentBatchToLoad.size() > 0) {
-                    Map<ObjectIdentity, Acl> loadedBatch = lookupObjectIdentities(currentBatchToLoad.toArray(new ObjectIdentity[] {}), sids);
+                    Map<ObjectIdentity, Acl> loadedBatch = lookupObjectIdentities(currentBatchToLoad, sids);
 
                     // Add loaded batch (all elements 100% initialized) to results
                     result.putAll(loadedBatch);
 
                     // Add the loaded batch to the cache
-                    Iterator<Acl> loadedAclIterator = loadedBatch.values().iterator();
 
-                    while (loadedAclIterator.hasNext()) {
-                        aclCache.putInCache((AclImpl) loadedAclIterator.next());
+                    for (Acl loadedAcl : loadedBatch.values()) {
+                        aclCache.putInCache((AclImpl) loadedAcl);
                     }
 
                     currentBatchToLoad.clear();
@@ -371,31 +320,31 @@ public final class BasicLookupStrategy implements LookupStrategy {
      * parent ACLs.
      *
      */
-    @SuppressWarnings("unchecked")
-    private Map<ObjectIdentity, Acl> lookupObjectIdentities(final ObjectIdentity[] objectIdentities, List<Sid> sids) {
+    private Map<ObjectIdentity, Acl> lookupObjectIdentities(final Collection<ObjectIdentity> objectIdentities, List<Sid> sids) {
         Assert.notEmpty(objectIdentities, "Must provide identities to lookup");
 
-        final Map acls = new HashMap(); // contains Acls with StubAclParents
+        final Map<Serializable, Acl> acls = new HashMap<Serializable, Acl>(); // contains Acls with StubAclParents
 
         // Make the "acls" map contain all requested objectIdentities
         // (including markers to each parent in the hierarchy)
-        String sql = computeRepeatingSql(lookupObjectIdentitiesWhereClause ,
-                objectIdentities.length);
+        String sql = computeRepeatingSql(lookupObjectIdentitiesWhereClause, objectIdentities.size());
 
-        Set parentsToLookup = (Set) jdbcTemplate.query(sql,
+        Set<Long> parentsToLookup = jdbcTemplate.query(sql,
             new PreparedStatementSetter() {
                 public void setValues(PreparedStatement ps) throws SQLException {
-                    for (int i = 0; i < objectIdentities.length; i++) {
+                    int i = 0;
+                    for (ObjectIdentity oid : objectIdentities) {
                         // Determine prepared statement values for this iteration
-                        String javaType = objectIdentities[i].getType();
+                        String type = oid.getType();
 
                         // No need to check for nulls, as guaranteed non-null by ObjectIdentity.getIdentifier() interface contract
-                        String identifier = objectIdentities[i].getIdentifier().toString();
+                        String identifier = oid.getIdentifier().toString();
                         long id = (Long.valueOf(identifier)).longValue();
 
                         // Inject values
                         ps.setLong((2 * i) + 1, id);
-                        ps.setString((2 * i) + 2, javaType);
+                        ps.setString((2 * i) + 2, type);
+                        i++;
                     }
                 }
             }, new ProcessResultSet(acls, sids));
@@ -407,10 +356,8 @@ public final class BasicLookupStrategy implements LookupStrategy {
 
         // Finally, convert our "acls" containing StubAclParents into true Acls
         Map<ObjectIdentity, Acl> resultMap = new HashMap<ObjectIdentity, Acl>();
-        Iterator iter = acls.values().iterator();
 
-        while (iter.hasNext()) {
-            Acl inputAcl = (Acl) iter.next();
+        for (Acl inputAcl : acls.values()) {
             Assert.isInstanceOf(AclImpl.class, inputAcl, "Map should have contained an AclImpl");
             Assert.isInstanceOf(Long.class, ((AclImpl) inputAcl).getId(), "Acl.getId() must be Long");
 
@@ -419,6 +366,57 @@ public final class BasicLookupStrategy implements LookupStrategy {
         }
 
         return resultMap;
+    }
+
+    /**
+     * The final phase of converting the <code>Map</code> of <code>AclImpl</code> instances which contain
+     * <code>StubAclParent</code>s into proper, valid <code>AclImpl</code>s with correct ACL parents.
+     *
+     * @param inputMap the unconverted <code>AclImpl</code>s
+     * @param currentIdentity the current<code>Acl</code> that we wish to convert (this may be
+     *
+     */
+    private AclImpl convert(Map<Serializable, Acl> inputMap, Long currentIdentity) {
+        Assert.notEmpty(inputMap, "InputMap required");
+        Assert.notNull(currentIdentity, "CurrentIdentity required");
+
+        // Retrieve this Acl from the InputMap
+        Acl uncastAcl = inputMap.get(currentIdentity);
+        Assert.isInstanceOf(AclImpl.class, uncastAcl, "The inputMap contained a non-AclImpl");
+
+        AclImpl inputAcl = (AclImpl) uncastAcl;
+
+        Acl parent = inputAcl.getParentAcl();
+
+        if ((parent != null) && parent instanceof StubAclParent) {
+            // Lookup the parent
+            StubAclParent stubAclParent = (StubAclParent) parent;
+            parent = convert(inputMap, stubAclParent.getId());
+        }
+
+        // Now we have the parent (if there is one), create the true AclImpl
+        AclImpl result = new AclImpl(inputAcl.getObjectIdentity(), (Long) inputAcl.getId(), aclAuthorizationStrategy,
+                auditLogger, parent, null, inputAcl.isEntriesInheriting(), inputAcl.getOwner());
+
+        // Copy the "aces" from the input to the destination
+
+        // Obtain the "aces" from the input ACL
+        List<AccessControlEntryImpl> aces = readAces(inputAcl);
+
+        // Create a list in which to store the "aces" for the "result" AclImpl instance
+        List<AccessControlEntryImpl> acesNew = new ArrayList<AccessControlEntryImpl>();
+
+        // Iterate over the "aces" input and replace each nested AccessControlEntryImpl.getAcl() with the new "result" AclImpl instance
+        // This ensures StubAclParent instances are removed, as per SEC-951
+        for (AccessControlEntryImpl ace : aces) {
+            setAclOnAce(ace, result);
+            acesNew.add(ace);
+        }
+
+        // Finally, now that the "aces" have been converted to have the "result" AclImpl instance, modify the "result" AclImpl instance
+        setAces(result, acesNew);
+
+        return result;
     }
 
     /**
