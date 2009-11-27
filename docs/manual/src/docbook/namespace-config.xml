@@ -16,12 +16,12 @@
       complexity from the user. A simple element may conceal the fact that multiple beans and
       processing steps are being added to the application context. For example, adding the following
       element from the security namespace to an application context will start up an embedded LDAP
-      server for testing use within the application: <programlisting><![CDATA[ 
+      server for testing use within the application: <programlisting language="xml"><![CDATA[ 
   <security:ldap-server />
 ]]></programlisting> This is much simpler than wiring up the equivalent Apache Directory Server
       beans. The most common alternative configuration requirements are supported by attributes on
       the <literal>ldap-server</literal> element and the user is isolated from worrying about which
-      beans they need create and what the bean property names are. <footnote><para>You can find out
+      beans they need to create and what the bean property names are. <footnote><para>You can find out
           more about the use of the <literal>ldap-server</literal> element in the chapter on <link
             xlink:href="#ldap">LDAP</link>.</para></footnote>. Use of a good XML editor while
       editing the application context file should provide information on the attributes and elements
@@ -380,11 +380,11 @@
         <title>Detecting Timeouts</title>
         <para> You can configure Spring Security to detect the submission of an invalid session ID
           and redirect the user to an appropriate URL. This is achieved through the
-            <literal>session-management</literal> element:<![CDATA[     
+            <literal>session-management</literal> element: <programlisting language="xml"><![CDATA[     
   <http>
     ...
     <session-management invalid-session-url="/sessionTimeout.htm" />
-  </http>]]></para>
+  </http>]]></programlisting></para>
       </section>
       <section xml:id="ns-concurrent-sessions">
         <title>Concurrent Session Control</title>
@@ -392,13 +392,13 @@
           application, Spring Security supports this out of the box with the following simple
           additions. First you need to add the following listener to your
             <filename>web.xml</filename> file to keep Spring Security updated about session
-          lifecycle events: <![CDATA[         
+          lifecycle events: <programlisting language="xml"><![CDATA[         
   <listener>
     <listener-class>
       org.springframework.security.web.session.HttpSessionEventPublisher
     </listener-class>
   </listener>
-]]> Then add the following lines to your application context: <programlisting language="xml"><![CDATA[     
+]]></programlisting> Then add the following lines to your application context: <programlisting language="xml"><![CDATA[     
   <http>
     ...
     <session-management>
@@ -457,7 +457,7 @@
   </http>
   ]]></programlisting> You should then register yourself with an OpenID provider (such as
         myopenid.com), and add the user information to your in-memory
-          <literal>&lt;user-service&gt;</literal>: <programlisting><![CDATA[
+          <literal>&lt;user-service&gt;</literal>: <programlisting language="xml"><![CDATA[
   <user name="http://jimi.hendrix.myopenid.com/" password="notused" 
           authorities="ROLE_USER" />
   ]]></programlisting> You should be able to login using the <literal>myopenid.com</literal> site to
@@ -689,7 +689,6 @@
   </authentication-manager>
   <bean id="casAuthenticationProvider" 
       class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
-    <security:custom-authentication-provider />
     ...
   </bean>
   ]]></programlisting></para>

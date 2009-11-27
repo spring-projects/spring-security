@@ -15,7 +15,7 @@
             Security uses specific classes for web and method security as the root object, in order
             to provide built-in expressions and access to values such as the current
             principal.</para>
-        <section>
+        <section  xml:id="el-common-built-in">
             <title>Common Built-In Expressions</title>
             <para>The base class for expression root objects is
                     <classname>SecurityExpressionRoot</classname>. This provides some common
@@ -121,7 +121,7 @@
         <para>Method security is a bit more complicated than a simple allow or deny rule. Spring
             Security 3.0 introduced some new annotations in order to allow comprehensive support for
             the use of expressions.</para>
-        <section>
+        <section  xml:id="el-pre-post-annotations">
             <title><literal>@Pre</literal> and <literal>@Post</literal> Annotations</title>
             <para>There are four annotations which support expression attributes to allow pre and
                 post-invocation authorization checks and also to support filtering of submitted
@@ -147,8 +147,9 @@
                     we're actually using a method argument as part of the expression to decide
                     whether the current user has the <quote>admin</quote>permission for the given
                     contact. The built-in <literal>hasPermission()</literal> expression is linked
-                    into the Spring Security ACL module through the application context. You can
-                    access any of the method arguments by name as expression variables, provided
+                    into the Spring Security ACL module through the application context, as we'll 
+                    <link xlink:href="#el-permission-evaluator">see
+                    below</link>. You can access any of the method arguments by name as expression variables, provided
                     your code has debug information compiled in. Any Spring-EL functionality is
                     available within the expression, so you can also access properties on the
                     arguments. For example, if you wanted a particular method to only allow access
@@ -187,6 +188,53 @@
                 <para>Note that filtering is obviously not a substitute for tuning your data
                     retrieval queries. If you are filtering large collections and removing many of
                     the entries then this is likely to be inefficient.</para>
+            </section>
+        </section>
+        <section xml:id="el-method-built-in">
+            <title>Built-In Expressions</title>
+            <para>There are some built-in expressions which are specific to method security, which
+                we have already seen in use above. The <literal>filterTarget</literal> and
+                    <literal>returnValue</literal> values are simple enough, but the use of the
+                    <literal>hasPermission()</literal> expression warrants a closer look.</para>
+            <section  xml:id="el-permission-evaluator">
+                <title>The <interfacename>PermissionEvaluator</interfacename> interface</title>
+                <para><literal>hasPermission()</literal> expressions are delegated to an instance of
+                        <interfacename>PermissionEvaluator</interfacename>. It is intended to bridge
+                    between the expression system and Spring Security's ACL system, allowing you to
+                    specify authorization constraints on domain objects, based on abstract
+                    permissions. It has no explicit dependencies on the ACL module, so you could
+                    swap that out for an alternative implementation if required. The interface has
+                    two methods:
+                    <programlisting language="java">  boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission);
+
+  boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission);</programlisting>which
+                    map directly to the available versions of the expression, with the exception
+                    that the first argument (the <interfacename>Authentication</interfacename>
+                    object) is not supplied. The first is used in situations where the domain
+                    object, to which access is being controlled, is already loaded. Then expression
+                    will return true if the current user has the given permission for that object.
+                    The second version is used in cases where the object is not loaded, but its
+                    identifier is known. An abstract <quote>type</quote> specifier for the domain
+                    object is also required, allowing the correct ACL permissions to be loaded. This
+                    has traditionally been the Java class of the object, but does not have to be as
+                    long as it is consistent with how the permissions are loaded.</para>
+                <para>To use <literal>hasPermission()</literal> expressions, you have to explicitly
+                    configure a <interfacename>PermissionEvaluator</interfacename> in your
+                    application context. This would look something like
+                    this:<programlisting language="xml"> <![CDATA[ <security:global-method-security pre-post-annotations="enabled">
+    <security:expression-handler ref="expressionHandler"/>
+  </security:global-method-security>
+
+  <bean id="expressionHandler" 
+      class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
+        <property name="permissionEvaluator" ref="myPermissionEvaluator"/>
+  </bean>]]></programlisting>Where
+                        <literal>myPermissionEvaluator</literal> is the bean which implements
+                        <interfacename>PermissionEvaluator</interfacename>. Usually this will be the
+                    implementation from the ACL module which is called
+                        <classname>AclPermissionEvaluator</classname>. See the
+                        <quote>Contacts</quote> sample application configuration for more
+                    details.</para>
             </section>
         </section>
     </section>

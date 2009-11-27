@@ -284,7 +284,7 @@ Successfully authenticated. Security context contains: \
         here to show that the question of what actually constitutes authentication in Spring
         Security has quite a simple answer. A user is authenticated when the
           <classname>SecurityContextHolder</classname> contains a fully populated
-          <interfacename>Authentiation</interfacename> object.</para>
+          <interfacename>Authentication</interfacename> object.</para>
       <section>
         <title>Setting the SecurityContextHolder Contents Directly</title>
         <para>In fact, Spring Security doesn't mind how you put the
@@ -424,7 +424,7 @@ Successfully authenticated. Security context contains: \
   <section xml:id="tech-intro-access-control">
     <title>Access-Control (Authorization) in Spring Security</title>
     <para> The main interface resposible for making access-control decisions in Spring Security is
-      the <interfacename>AccessDecisionMananger</interfacename>. It has a
+      the <interfacename>AccessDecisionManager</interfacename>. It has a
         <methodname>decide</methodname> method which takes an
         <interfacename>Authentication</interfacename> object representing the principal requesting
       access, a <quote>secure object</quote> (see below) and a list of security metadata attributes

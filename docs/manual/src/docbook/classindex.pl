@@ -1,9 +1,22 @@
 #! /usr/bin/perl
 
+# Intended to generate an index of classnames to references in the manual (using the interfacename and classname elements).
+#
+# Builds an index of classnames to Javadoc (or src xref) links, from the allclasses-frame.html file.
+# Processes the ref manual docbook files, building an index of classname to section ids where the class is referenced
+# 
+#
+# $Id$
+
 use strict;
 
 # Get list of links to class src packages from Javadoc
 #system("curl http://static.springsource.org/spring-security/site/docs/3.0.x/apidocs/allclasses-frame.html > allclasses-frame.html");
+# Manual front page gives us section numbers
+#system("curl http://static.springsource.org/spring-security/site/docs/3.0.x/reference/springsecurity.html > springsecurity.html");
+
+my $index_page = `cat springsecurity.html`;
+
 my @all_classes = `cat allclasses-frame.html`;
 
 $#all_classes > 0 || die "No lines in Javadoc";
@@ -16,12 +29,17 @@ $#all_classes > 0 || die "No lines in Javadoc";
 my %classnames_to_src;
 
 while ($_ = pop @all_classes) {
-	next unless $_ =~ /<A HREF="(.*)" title.*>(([a-zA-Z0-9_]+?))<\/A>/;
-	print "Adding class $1, $2\n";
+    chomp;
+# Get rid of the italic tags round interface names
+    $_ =~ s/<I>//;
+    $_ =~ s/<\/I>//;    
+	next unless $_ =~ /<A HREF="(.*)" title=.*>(([a-zA-Z0-9_]+?))<\/A>.*/;
+#	print "Adding class $1, $2\n";
 	$classnames_to_src{$2} = $1;
 }
 
 #my @docbook = glob("*.xml");
+# The list of docbook files xincluded in the manual
 my @docbook;
 
 # Read the includes rather than using globbing to get the ordering right for the index.
@@ -34,12 +52,11 @@ while(<MAINDOC>) {
 
 # Hash of xml:id (i.e. anchor) to filename.html#anchor
 my %id_to_html;
-my %class_index;
 
 # Build map of html pages links
 while (my $file = pop @docbook) {
 	open FILE, $file or die "$!";	
-	print "\nProcessing: $file\n\n";
+#	print "\nProcessing: $file\n\n";
 	my $file_id;
 	while(<FILE>) {
 		if (/.* xml:id="([a-z0-9-]+?)"/) {
@@ -48,11 +65,11 @@ while (my $file = pop @docbook) {
 		}
 	}
 
-	$id_to_html{$file_id} = "$file_id.html#$file_id";
+	$id_to_html{$file_id} = "$file_id.html";
  
 	while (<FILE>) {
 		next unless /.* xml:id="([a-z0-9-]+?)"/;
-		print "$1\n";
+#		print "$1\n";
 		$id_to_html{$1} = "$file_id.html#$1";
 	}
 	close FILE;
@@ -84,10 +101,15 @@ foreach my $class (sort keys %classnames_to_ids) {
 	}
 	print INDEX ">\n";
 	foreach my $id (@{$classnames_to_ids{$class}}) {
-		print INDEX "    <link href='$id_to_html{$id}' title='$id_to_title{$id}'/>\n";
+	    my $href = $id_to_html{$id};
+	    $index_page =~ /$href">([AB0-9\.]* )/;
+	    my $section = $1 ? "$1" : "";
+	    print "$id $href $section\n";
+	    my $title = $id_to_title{$id};
+#	    print "$section$title\n";
+		print INDEX "    <link href='$href' title='$section$title'/>\n";
 	}
 	print INDEX "</class>\n"
-	
 	
 }
 print INDEX "</index>\n";
