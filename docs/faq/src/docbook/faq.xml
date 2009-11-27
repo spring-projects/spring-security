@@ -283,6 +283,29 @@
                         the chapters on namespace parsing in the standard Spring Framework reference
                         documentation first. </para></answer>
             </qandaentry>
+            <qandaentry xml:id="faq-role-prefix">
+                <question><para>What does <quote>ROLE_</quote> mean and why do I need it on my role names?</para></question>
+                <answer>
+                    <para>Spring Security has a voter-based architecture which means that an access
+                        decision is made by a series of <interfacename>AccessDecisionVoter</interfacename>s.
+                        The voters act on the <quote>configuration attributes</quote> which are specified for a 
+                        secured resource (such as a method invocation). With this approach, not all attributes may
+                        be relevant to all voters and a voter needs to know when it should ignore an attribute (abstain) and
+                        when it should vote to grant or deny access based on the attribute value. 
+                        The most common voter is the <classname>RoleVoter</classname> which by default votes
+                        whenever it finds an attribute with the <quote>ROLE_</quote> prefix. It makes a simple comparison
+                        of the attribute (such as <quote>ROLE_USER</quote>) with the name names of the authorities which
+                        the current user has been assigned. If it finds a match (they have an authority called 
+                        <quote>ROLE_USER</quote>), it votes to grant access, otherwise it votes to deny access. 
+                    </para>
+                    <para>
+                        The prefix can be changed by setting the <literal>rolePrefix</literal> property of 
+                        <classname>RoleVoter</classname>. If you only need to use roles in your application and have
+                        no need for other custom voters, then you can set the prefix to a blank string, in which case the 
+                        <classname>RoleVoter</classname> will treat all attributes as roles.
+                    </para>
+                </answer>
+            </qandaentry>
         </qandadiv>
         <qandadiv>
             <title>Common <quote>Howto</quote> Requests</title>
