@@ -154,8 +154,7 @@ boolean supports(Class clazz);
               <literal>ConfigAttribute</literal> starting with <literal>ROLE_</literal>, the
               <literal>RoleVoter</literal> will vote to deny access. If no
               <literal>ConfigAttribute</literal> begins with <literal>ROLE_</literal>, the voter
-            will abstain. <literal>RoleVoter</literal> is case sensitive on comparisons as well as
-            the <literal>ROLE_</literal> prefix.</para>
+            will abstain. The comparisons of attributes and</para>
         </section>
         <section>
           <title>Custom Voters</title>
@@ -190,22 +189,17 @@ boolean supports(Class clazz);
       that integrate with its ACL capabilities.</para>
     <para><xref linkend="authz-after-invocation"/> illustrates Spring Security's
         <literal>AfterInvocationManager</literal> and its concrete implementations. <figure
-        xml:id="authz-after-invocation">
-        <title>After Invocation Implementation</title>
-        <mediaobject>
-          <imageobject>
+        xml:id="authz-after-invocation"><title>After Invocation
+            Implementation</title><mediaobject><imageobject>
             <imagedata align="center" scalefit="1" fileref="images/AfterInvocation.gif" format="GIF"
             />
-          </imageobject>
-        </mediaobject>
-      </figure></para>
+          </imageobject></mediaobject></figure></para>
     <para>Like many other parts of Spring Security, <literal>AfterInvocationManager</literal> has a
       single concrete implementation, <literal>AfterInvocationProviderManager</literal>, which polls
       a list of <literal>AfterInvocationProvider</literal>s. Each
         <literal>AfterInvocationProvider</literal> is allowed to modify the return object or throw
       an <literal>AccessDeniedException</literal>. Indeed multiple providers can modify the object,
-      as the result of the previous provider is passed to the next in the list. Let's now consider
-      our ACL-aware implementations of <literal>AfterInvocationProvider</literal>.</para>
+      as the result of the previous provider is passed to the next in the list.</para>
     <para>Please be aware that if you're using <literal>AfterInvocationManager</literal>, you will
       still need configuration attributes that allow the
         <classname>MethodSecurityInterceptor</classname>'s
@@ -222,9 +216,8 @@ boolean supports(Class clazz);
         <interfacename>AccessDecisionVoter</interfacename> will vote to grant access for. This
       latter (recommended) approach is usually achieved through a <literal>ROLE_USER</literal> or
         <literal>ROLE_AUTHENTICATED</literal> configuration attribute.</para>
-    
     <!-- TODO: Move to ACL section and add reference here -->
-<!--    
+    <!--    
     <section xml:id="after-invocation-acl-aware">
       <info>
         <title>ACL-Aware AfterInvocationProviders</title>
@@ -284,8 +277,7 @@ boolean supports(Class clazz);
           <literal>AfterInvocationProvider</literal>s.</para>
           </section>   -->
   </section>
-
-<!-- TODO: Move taglibs to a separate chapter which describes them all  
+  <!-- TODO: Move taglibs to a separate chapter which describes them all  
   <section xml:id="authorization-taglibs">
     <info>
       <title>Authorization Tag Libraries</title>
