@@ -21,7 +21,7 @@ import org.springframework.util.Assert;
 
 
 /**
- * A bsaic implementation of {@link AuditLogger}.
+ * A basic implementation of {@link AuditLogger}.
  *
  * @author Ben Alex
  * @version $Id$
