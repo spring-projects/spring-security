@@ -55,7 +55,14 @@ public abstract class AbstractMethodSecurityMetadataSource implements MethodSecu
 
         if (object instanceof JoinPoint) {
             JoinPoint jp = (JoinPoint) object;
-            Class<?> targetClass = jp.getTarget().getClass();
+            Class<?> targetClass;
+
+            if (jp.getTarget() != null) {
+                targetClass = jp.getTarget().getClass();
+            } else {
+                // SEC-1295: target may be null if an ITD is in use
+                targetClass = jp.getSignature().getDeclaringType();
+            }
             String targetMethodName = jp.getStaticPart().getSignature().getName();
             Class<?>[] types = ((CodeSignature) jp.getStaticPart().getSignature()).getParameterTypes();
             Class<?> declaringType = ((CodeSignature) jp.getStaticPart().getSignature()).getDeclaringType();
