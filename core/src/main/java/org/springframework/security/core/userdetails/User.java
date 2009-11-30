@@ -15,11 +15,11 @@
 
 package org.springframework.security.core.userdetails;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.Comparator;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -40,7 +40,7 @@ public class User implements UserDetails {
     //~ Instance fields ================================================================================================
     private final String password;
     private final String username;
-    private final List<GrantedAuthority> authorities;
+    private final Set<GrantedAuthority> authorities;
     private final boolean accountNonExpired;
     private final boolean accountNonLocked;
     private final boolean credentialsNonExpired;
@@ -78,7 +78,7 @@ public class User implements UserDetails {
      *
      * @throws IllegalArgumentException if a <code>null</code> value was passed
      *         either as a parameter or as an element in the
-     *         <code>GrantedAuthority[]</code> array
+     *         <code>GrantedAuthority</code> collection
      */
     public User(String username, String password, boolean enabled, boolean accountNonExpired,
             boolean credentialsNonExpired, boolean accountNonLocked, Collection<GrantedAuthority> authorities) {
@@ -93,7 +93,7 @@ public class User implements UserDetails {
         this.accountNonExpired = accountNonExpired;
         this.credentialsNonExpired = credentialsNonExpired;
         this.accountNonLocked = accountNonLocked;
-        this.authorities = Collections.unmodifiableList(sortAuthorities(authorities));
+        this.authorities = Collections.unmodifiableSet(sortAuthorities(authorities));
     }
 
     //~ Methods ========================================================================================================
@@ -105,7 +105,7 @@ public class User implements UserDetails {
 
         User user = (User) rhs;
 
-        // We rely on constructor to guarantee any User has non-null and >0
+        // We rely on constructor to guarantee any User has non-null
         // authorities
         if (!authorities.equals(user.authorities)) {
             return false;
@@ -134,10 +134,8 @@ public class User implements UserDetails {
     public int hashCode() {
         int code = 9792;
 
-        if (this.getAuthorities() != null) {
-            for (int i = 0; i < this.getAuthorities().size(); i++) {
-                code = code * (authorities.get(i).hashCode() % 7);
-            }
+        for (GrantedAuthority authority : getAuthorities()) {
+            code = code * (authority.hashCode() % 7);
         }
 
         if (this.getPassword() != null) {
@@ -183,18 +181,30 @@ public class User implements UserDetails {
         return enabled;
     }
 
-    private static List<GrantedAuthority> sortAuthorities(Collection<GrantedAuthority> authorities) {
-        Assert.notNull(authorities, "Cannot pass a null GrantedAuthority array");
-        // Ensure array iteration order is predictable (as per UserDetails.getAuthorities() contract and SEC-xxx)
-        SortedSet<GrantedAuthority> sorter = new TreeSet<GrantedAuthority>();
+    private static SortedSet<GrantedAuthority> sortAuthorities(Collection<GrantedAuthority> authorities) {
+        Assert.notNull(authorities, "Cannot pass a null GrantedAuthority collection");
+        // Ensure array iteration order is predictable (as per UserDetails.getAuthorities() contract and SEC-717)
+        SortedSet<GrantedAuthority> sortedAuthorities =
+            new TreeSet<GrantedAuthority>(new Comparator<GrantedAuthority>() {
+                public int compare(GrantedAuthority g1, GrantedAuthority g2) {
+                    // Neither should ever be null as each entry is checked before adding it to the set.
+                    // If the authority is null, it is a custom authority and should precede others.
+                    if (g2.getAuthority() == null) {
+                        return -1;
+                    }
+
+                    if (g1.getAuthority() == null) {
+                        return 1;
+                    }
+
+                    return g1.getAuthority().compareTo(g2.getAuthority());
+                }
+            });
 
         for (GrantedAuthority grantedAuthority : authorities) {
             Assert.notNull(grantedAuthority, "GrantedAuthority list cannot contain any null elements");
-            sorter.add(grantedAuthority);
+            sortedAuthorities.add(grantedAuthority);
         }
-
-        List<GrantedAuthority> sortedAuthorities = new ArrayList<GrantedAuthority>(sorter.size());
-        sortedAuthorities.addAll(sorter);
 
         return sortedAuthorities;
     }
@@ -212,12 +222,14 @@ public class User implements UserDetails {
         if (this.getAuthorities() != null) {
             sb.append("Granted Authorities: ");
 
-            for (int i = 0; i < authorities.size(); i++) {
-                if (i > 0) {
+            boolean first = true;
+            for (GrantedAuthority auth : authorities) {
+                if (!first) {
                     sb.append(", ");
+                    first = false;
                 }
 
-                sb.append(authorities.get(i));
+                sb.append(auth);
             }
         } else {
             sb.append("Not granted any authorities");
