@@ -71,19 +71,6 @@ public abstract class HierarchicalRolesTestHelper {
                 public String getAuthority() {
                     return role;
                 }
-
-                public int compareTo(GrantedAuthority ga) {
-                    if (ga != null) {
-                        String rhsRole = ga.getAuthority();
-
-                        if (rhsRole == null) {
-                            return -1;
-                        }
-
-                        return role.compareTo(rhsRole);
-                    }
-                    return -1;
-                }
             });
         }
 
