@@ -1,19 +1,18 @@
 package org.springframework.security.config.http;
 
-import org.springframework.security.config.Elements;
-import org.springframework.security.web.PortMapperImpl;
-import org.springframework.beans.factory.xml.BeanDefinitionParser;
-import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.util.StringUtils;
-import org.springframework.util.xml.DomUtils;
-
-import org.w3c.dom.Element;
-
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
+
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.support.ManagedMap;
+import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.beans.factory.xml.BeanDefinitionParser;
+import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.security.config.Elements;
+import org.springframework.security.web.PortMapperImpl;
+import org.springframework.util.StringUtils;
+import org.springframework.util.xml.DomUtils;
+import org.w3c.dom.Element;
 
 /**
  * Parses a port-mappings element, producing a single {@link org.springframework.security.web.PortMapperImpl}
@@ -37,7 +36,7 @@ class PortMappingsBeanDefinitionParser implements BeanDefinitionParser {
                 parserContext.getReaderContext().error("No port-mapping child elements specified", element);
             }
 
-            Map mappings = new HashMap();
+            Map mappings = new ManagedMap();
 
             for (Element elt : mappingElts) {
                 String httpPort = elt.getAttribute(ATT_HTTP_PORT);

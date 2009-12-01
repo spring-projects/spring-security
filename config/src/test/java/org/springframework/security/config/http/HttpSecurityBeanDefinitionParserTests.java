@@ -329,7 +329,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     // SEC-1201
     @Test
     public void interceptUrlsAndFormLoginSupportPropertyPlaceholders() throws Exception {
-        System.setProperty("secure.url", "/secure");
+        System.setProperty("secure.Url", "/Secure");
         System.setProperty("secure.role", "ROLE_A");
         System.setProperty("login.page", "/loginPage");
         System.setProperty("default.target", "/defaultTarget");
@@ -337,11 +337,32 @@ public class HttpSecurityBeanDefinitionParserTests {
         setContext(
                 "<b:bean class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>" +
                 "<http>" +
-                "    <intercept-url pattern='${secure.url}' access='${secure.role}' />" +
+                "    <intercept-url pattern='${secure.Url}' access='${secure.role}' />" +
                 "    <form-login login-page='${login.page}' default-target-url='${default.target}' " +
                 "        authentication-failure-url='${auth.failure}' />" +
                 "</http>" + AUTH_PROVIDER_XML);
+        checkPropertyValues() ;
+    }
 
+    // SEC-1309
+    @Test
+    public void interceptUrlsAndFormLoginSupportEL() throws Exception {
+        System.setProperty("secure.url", "/Secure");
+        System.setProperty("secure.role", "ROLE_A");
+        System.setProperty("login.page", "/loginPage");
+        System.setProperty("default.target", "/defaultTarget");
+        System.setProperty("auth.failure", "/authFailure");
+        setContext(
+                "<b:bean class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>" +
+                "<http>" +
+                "    <intercept-url pattern=\"#{systemProperties['secure.url']}\" access=\"#{systemProperties['secure.role']}\" />" +
+                "    <form-login login-page=\"#{systemProperties['login.page']}\" default-target-url=\"#{systemProperties['default.target']}\" " +
+                "        authentication-failure-url=\"#{systemProperties['auth.failure']}\" />" +
+                "</http>" + AUTH_PROVIDER_XML);
+        checkPropertyValues() ;
+    }
+
+    private void checkPropertyValues() throws Exception {
         // Check the security attribute
         FilterSecurityInterceptor fis = (FilterSecurityInterceptor) getFilter(FilterSecurityInterceptor.class);
         FilterInvocationSecurityMetadataSource fids = fis.getSecurityMetadataSource();
@@ -452,14 +473,14 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     @Test
-    public void portMappingsWorkWithPlaceholders() throws Exception {
+    public void portMappingsWorkWithPlaceholdersAndEL() throws Exception {
         System.setProperty("http", "9080");
         System.setProperty("https", "9443");
         setContext(
                 "    <b:bean id='configurer' class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>" +
                 "    <http auto-config='true'>" +
                 "        <port-mappings>" +
-                "            <port-mapping http='${http}' https='${https}'/>" +
+                "            <port-mapping http='#{systemProperties.http}' https='${https}'/>" +
                 "        </port-mappings>" +
                 "    </http>" + AUTH_PROVIDER_XML);
 
@@ -475,7 +496,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     @Test
-    public void accessDeniedPageWorkWithPlaceholders() throws Exception {
+    public void accessDeniedPageWorksWithPlaceholders() throws Exception {
         System.setProperty("accessDenied", "/go-away");
         setContext(
                 "    <b:bean id='configurer' class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>" +
@@ -485,10 +506,10 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     @Test
-    public void accessDeniedHandlerPageIsSetCorectly() throws Exception {
+    public void accessDeniedHandlerPageWorksWithEL() throws Exception {
         setContext(
                 "    <http auto-config='true'>" +
-                "        <access-denied-handler error-page='/go-away'/>" +
+                "        <access-denied-handler error-page=\"#{'/go' + '-away'} \" />" +
                 "    </http>" + AUTH_PROVIDER_XML);
         ExceptionTranslationFilter filter = (ExceptionTranslationFilter) getFilter(ExceptionTranslationFilter.class);
         assertEquals("/go-away", FieldUtils.getFieldValue(filter, "accessDeniedHandler.errorPage"));
@@ -507,7 +528,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     @Test(expected=BeanDefinitionParsingException.class)
-    public void accessDeniedHandlerAndAccessDeniedHandlerAreMutuallyExclusive() throws Exception {
+    public void accessDeniedPageAndAccessDeniedHandlerAreMutuallyExclusive() throws Exception {
         setContext(
                 "    <http auto-config='true' access-denied-page='/go-away'>" +
                 "        <access-denied-handler error-page='/go-away'/>" +
@@ -595,11 +616,11 @@ public class HttpSecurityBeanDefinitionParserTests {
     public void rememberMeServiceWorksWithExternalServicesImpl() throws Exception {
         setContext(
                 "<http auto-config='true'>" +
-                "    <remember-me key='ourkey' services-ref='rms'/>" +
+                "    <remember-me key=\"#{'our' + 'key'}\" services-ref='rms'/>" +
                 "</http>" +
                 "<b:bean id='rms' class='"+ TokenBasedRememberMeServices.class.getName() +"'> " +
                 "    <b:property name='userDetailsService' ref='us'/>" +
-                "    <b:property name='key' value='ourkey'/>" +
+                "    <b:property name='key' value='ourkey' />" +
                 "    <b:property name='tokenValiditySeconds' value='5000'/>" +
                 "</b:bean>" +
                 AUTH_PROVIDER_XML);

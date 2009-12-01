@@ -65,11 +65,10 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 
     static BeanDefinition createSecurityMetadataSource(List<Element> interceptUrls, Element elt, ParserContext pc) {
         UrlMatcher matcher = HttpSecurityBeanDefinitionParser.createUrlMatcher(elt);
-        boolean convertPathsToLowerCase = (matcher instanceof AntUrlPathMatcher) && matcher.requiresLowerCaseUrl();
         boolean useExpressions = isUseExpressions(elt);
 
         ManagedMap<BeanDefinition, BeanDefinition> requestToAttributesMap = parseInterceptUrlsForFilterInvocationRequestMap(
-                interceptUrls, convertPathsToLowerCase, useExpressions, pc);
+                interceptUrls, useExpressions, pc);
         BeanDefinitionBuilder fidsBuilder;
 
         if (useExpressions) {
@@ -105,7 +104,7 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
     }
 
     private static ManagedMap<BeanDefinition, BeanDefinition> parseInterceptUrlsForFilterInvocationRequestMap(List<Element> urlElts,
-            boolean useLowerCasePaths, boolean useExpressions, ParserContext parserContext) {
+            boolean useExpressions, ParserContext parserContext) {
 
         ManagedMap<BeanDefinition, BeanDefinition> filterInvocationDefinitionMap = new ManagedMap<BeanDefinition, BeanDefinition>();
 
@@ -121,16 +120,10 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
                 parserContext.getReaderContext().error("path attribute cannot be empty or null", urlElt);
             }
 
-            if (useLowerCasePaths) {
-                path = path.toLowerCase();
-            }
-
             String method = urlElt.getAttribute(ATT_HTTP_METHOD);
             if (!StringUtils.hasText(method)) {
                 method = null;
             }
-
-            // Use beans to
 
             BeanDefinitionBuilder keyBldr = BeanDefinitionBuilder.rootBeanDefinition(RequestKey.class);
             keyBldr.addConstructorArgValue(path);
@@ -141,7 +134,7 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 
             if (useExpressions) {
                 logger.info("Creating access control expression attribute '" + access + "' for " + path);
-                // The expression will be parsed later by the ExpressionFilterInvocationSecurityMetadataSource
+                // The single expression will be parsed later by the ExpressionFilterInvocationSecurityMetadataSource
                 attributeBuilder.setFactoryMethod("createList");
 
             } else {
@@ -159,6 +152,5 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 
         return filterInvocationDefinitionMap;
     }
-
 
 }
