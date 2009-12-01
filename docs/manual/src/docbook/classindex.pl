@@ -28,6 +28,8 @@ $#all_classes > 0 || die "No lines in Javadoc";
 
 my %classnames_to_src;
 
+print "Extracting classnames to links map from Javadoc...\n";
+
 while ($_ = pop @all_classes) {
     chomp;
 # Get rid of the italic tags round interface names
@@ -42,6 +44,8 @@ while ($_ = pop @all_classes) {
 # The list of docbook files xincluded in the manual
 my @docbook;
 
+print "Building list of docbook source files...\n";
+
 # Read the includes rather than using globbing to get the ordering right for the index.
 open MAINDOC, "<springsecurity.xml";
 while(<MAINDOC>) {
@@ -54,6 +58,7 @@ while(<MAINDOC>) {
 my %id_to_html;
 
 # Build map of html pages links
+print "Building map of section xml:ids to reference manual links...\n";
 while (my $file = pop @docbook) {
 	open FILE, $file or die "$!";	
 #	print "\nProcessing: $file\n\n";
@@ -76,11 +81,12 @@ while (my $file = pop @docbook) {
 }
 
 # Get the list of class/interface names and their section ids/titles
+print "Obtaining class and interface references from manual...\n";
 my @class_references = split /;/,`xsltproc --xinclude index-classes.xsl springsecurity.xml`;
 # Get unique values
 my %seen = ();
 @class_references = grep { !$seen{$_}++} @class_references;
-print "\nThere are $#class_references references to classes and interfaces.\n";
+print "There are $#class_references references to classes and interfaces.\n";
 
 my %id_to_title;
 my %classnames_to_ids = ();
@@ -92,6 +98,8 @@ foreach my $class_id_title (@class_references) {
 	$id_to_title{$id} = $title;
 	push( @{$classnames_to_ids{$class}}, $id );
 }
+
+print "Writing index file...\n";
 open INDEX, ">classindex.xml" || die "Couldn't open output file\n";
 print INDEX "<index>\n";
 foreach my $class (sort keys %classnames_to_ids) {
@@ -104,7 +112,7 @@ foreach my $class (sort keys %classnames_to_ids) {
 	    my $href = $id_to_html{$id};
 	    $index_page =~ /$href">([AB0-9\.]* )/;
 	    my $section = $1 ? "$1" : "";
-	    print "$id $href $section\n";
+#	    print "$id $href $section\n";
 	    my $title = $id_to_title{$id};
 #	    print "$section$title\n";
 		print INDEX "    <link href='$href' title='$section$title'/>\n";
@@ -114,3 +122,7 @@ foreach my $class (sort keys %classnames_to_ids) {
 }
 print INDEX "</index>\n";
 close INDEX;
+
+print "Generating HTML file...\n"; 
+
+system("xsltproc class-index-html.xsl classindex.xml > class-index.html");

@@ -9,7 +9,7 @@
     <para> Namespace configuration has been available since version 2.0 of the Spring framework. It
       allows you to supplement the traditional Spring beans application context syntax with elements
       from additional XML schema. You can find more information in the Spring <link
-        xlink:href="http://static.springframework.org/spring/docs/2.5.x/reference/xsd-config.html">
+        xlink:href="http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/apc.html">
         Reference Documentation</link>. A namespace element can be used simply to allow a more
       concise way of configuring an individual bean or, more powerfully, to define an alternative
       configuration syntax which more closely matches the problem domain and hides the underlying
@@ -687,15 +687,16 @@
   <authentication-manager>
     <authentication-provider ref="casAuthenticationProvider"/>
   </authentication-manager>
+
   <bean id="casAuthenticationProvider" 
       class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
     ...
   </bean>
   ]]></programlisting></para>
     <para> Another common requirement is that another bean in the context may require a reference to
-      the <interfacename>AuthenticationManager</interfacename>. There is a special element which
-      lets you register an alias for the <interfacename>AuthenticationManager</interfacename> and
-      you can then use this name elsewhere in your application context. <programlisting language="xml"><![CDATA[        
+      the <interfacename>AuthenticationManager</interfacename>. You can easily
+      register an alias for the <interfacename>AuthenticationManager</interfacename> and
+      use this name elsewhere in your application context. <programlisting language="xml"><![CDATA[        
   <security:authentication-manager alias="authenticationManager"> 
      ...
   </security:authentication-manager>
