@@ -40,25 +40,25 @@ public class LoggerListener implements ApplicationListener<AbstractAuthenticatio
     //~ Methods ========================================================================================================
 
     public void onApplicationEvent(AbstractAuthenticationEvent event) {
-        if (event instanceof AbstractAuthenticationEvent) {
-            AbstractAuthenticationEvent authEvent = (AbstractAuthenticationEvent) event;
+        if (!logInteractiveAuthenticationSuccessEvents && event instanceof InteractiveAuthenticationSuccessEvent) {
+            return;
+        }
 
-            if (!logInteractiveAuthenticationSuccessEvents && authEvent instanceof InteractiveAuthenticationSuccessEvent) {
-                return;
+        if (logger.isWarnEnabled()) {
+            final StringBuilder builder = new StringBuilder();
+            builder.append("Authentication event ");
+            builder.append(ClassUtils.getShortName(event.getClass()));
+            builder.append(": ");
+            builder.append(event.getAuthentication().getName());
+            builder.append("; details: ");
+            builder.append(event.getAuthentication().getDetails());
+
+            if (event instanceof AbstractAuthenticationFailureEvent) {
+                builder.append("; exception: ");
+                builder.append(((AbstractAuthenticationFailureEvent) event).getException().getMessage());
             }
 
-            if (logger.isWarnEnabled()) {
-                String message = "Authentication event " + ClassUtils.getShortName(authEvent.getClass()) + ": "
-                    + authEvent.getAuthentication().getName() + "; details: "
-                    + authEvent.getAuthentication().getDetails();
-
-                if (event instanceof AbstractAuthenticationFailureEvent) {
-                    message = message + "; exception: "
-                        + ((AbstractAuthenticationFailureEvent) event).getException().getMessage();
-                }
-
-                logger.warn(message);
-            }
+            logger.warn(builder.toString());
         }
     }
 
