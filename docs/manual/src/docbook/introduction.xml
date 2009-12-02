@@ -164,13 +164,13 @@
     </section>
     <section xml:id="history">
         <title>History</title>
-        <para>Spring Security began in late 2003 as "The Acegi Security System for Spring". A
-            question was posed on the Spring Developers' mailing list asking whether there had been
-            any consideration given to a Spring-based security implementation. At the time the
-            Spring community was relatively small (especially by today's size!), and indeed Spring
-            itself had only existed as a SourceForge project from early 2003. The response to the
-            question was that it was a worthwhile area, although a lack of time currently prevented
-            its exploration.</para>
+        <para>Spring Security began in late 2003 as <quote>The Acegi Security System for
+                Spring</quote>. A question was posed on the Spring Developers' mailing list asking
+            whether there had been any consideration given to a Spring-based security
+            implementation. At the time the Spring community was relatively small (especially
+            compared with the size today!), and indeed Spring itself had only existed as a
+            SourceForge project from early 2003. The response to the question was that it was a
+            worthwhile area, although a lack of time currently prevented its exploration.</para>
         <para>With that in mind, a simple security implementation was built and not released. A few
             weeks later another member of the Spring community inquired about security, and at the
             time this code was offered to them. Several other requests followed, and by January 2004

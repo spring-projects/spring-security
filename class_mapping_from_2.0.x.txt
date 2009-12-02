@@ -1,0 +1,57 @@
+Class Mapping from 2.0.x to 3.0.x
+------------------------------------
+
+Approximate mapping of classes which have new names, or new implementations in 3.0. These may not be a 
+straightforward replacement, but the listed classes and interfaces from 3.0 will give some indication of where to
+look in the APIs when upgrading.
+
+AbstractProcessingFilter, AbstractAuthenticationProcessingFilter
+AbstractFallbackMethodDefinitionSource, AbstractFallbackMethodSecurityMetadataSource
+AnonymousProcessingFilter, AnonymousAuthenticationFilter
+AuthenticationFailureConcurrentLoginEvent
+AuthenticationProcessingFilter, UsernamePasswordAuthenticationFilter
+AuthenticationProcessingFilterEntryPoint, LoginUrlAuthenticationEntryPoint
+
+BasicProcessingFilter, BasicAuthenticationFilter
+BasicProcessingFilterEntryPoint, BasicAuthenticationEntryPoint
+
+CasProcessingFilter, CasAuthenticationFilter
+CasProcessingFilterEntryPoint, CasAuthenticationEntryPoint
+ConcurrentSessionController, ConcurrentSessionControlStrategy (Now implemented through the SessionManagementFilter)
+ConfigAttributeDefinition, Collection<ConfigAttribute>
+
+DefaultFilterInvocationDefinitionSource, DefaultFilterInvocationSecurityMetadataSource
+DigestProcessingFilter, DigestAuthenticationFilter
+DigestProcessingFilterEntryPoint, DigestAuthenticationEntryPoint
+
+FilterInvocationDefinitionSource, FilterInvocationSecurityMetadataSource
+
+HttpSessionContextIntegrationFilter, SecurityContextPersistenceFilter (see also SecurityContextRepository)
+
+Jsr250MethodDefinitionSource, Jsr250MethodSecurityMetadataSource
+
+MapBasedMethodDefinitionSource, MapBasedMethodSecurityMetadataSource
+MethodDefinitionAttributes
+MethodDefinitionSource, MethodSecurityMetadataSource
+MethodDefinitionSourceAdvisor, MethodSecurityMetadataSourceAdvisor
+MethodDefinitionSourceEditor, MethodSecurityMetadataSourceEditor
+
+ObjectDefinitionSource SecurityMetadataSource
+OpenIDAuthenticationProcessingFilter, OpenIDAuthenticationFilter
+
+RedirectUtils, DefaultRedirectStrategy
+RememberMeProcessingFilter, RememberMeAuthenticationFilter
+RequestHeaderPreAuthenticatedProcessingFilter, RequestHeaderAuthenticationFilter
+
+SecuredMethodDefinitionSource, SecuredAnnotationSecurityMetadataSource
+SessionFixationProtectionFilter, SessionManagementFilter (See also SessionAuthenticationStrategy, SessionFixationProtectionStrategy)
+SpringSecurityContextSource, LdapContextSource (from Spring LDAP 1.3, which introduced the ability to bind as a specific user)
+SwitchUserFilter, SwitchUserProcessingFilter
+
+TargetUrlResolver, AuthenticationSuccessHandler (see also AuthenticationFailureHandler)
+TargetUrlResolverImpl, SavedRequestAwareAuthenticationSuccessHandler (see also SimpleUrlAuthenticationSuccessHandler)
+
+WASSecurityHelper, DefaultWASUsernameAndGroupsExtractor
+
+X509PreAuthenticatedProcessingFilter, X509AuthenticationFilter
+

@@ -11,7 +11,12 @@
       xlink:href="#ns-config">introductory chapter</link> on namespace configuration, as this is
     intended as a supplement to the information there. Using a good quality XML editor while editing
     a configuration based on the schema is recommended as this will provide contextual information
-    on which elements and attributes are available as well as comments explaining their purpose. </para>
+    on which elements and attributes are available as well as comments explaining their purpose. The
+    namespace is captured in <link xlink:href="http://www.relaxng.org/">RELAX NG</link> Compact
+    format and later converted into an XSD schema. If you are familiar with this format, you may
+    wish to examine the <link
+      xlink:href="https://src.springsource.org/svn/spring-security/trunk/config/src/main/resources/org/springframework/security/config/spring-security-3.0.rnc"
+      >schema file</link>.</para>
   <section xml:id="nsa-http">
     <title>Web Application Security - the <literal>&lt;http&gt;</literal> Element</title>
     <para> The <literal>&lt;http&gt;</literal> element encapsulates the security configuration for
@@ -488,8 +493,8 @@
         configuration as web security, but this can be overridden as explained above <xref
           xlink:href="#nsa-access-decision-manager-ref"/>, using the same attribute. </para>
       <section>
-        <title>The <literal>secured-annotations</literal> and
-            <literal>jsr250-annotations</literal> Attributes</title>
+        <title>The <literal>secured-annotations</literal> and <literal>jsr250-annotations</literal>
+          Attributes</title>
         <para> Setting these to "true" will enable support for Spring Security's own
             <literal>@Secured</literal> annotations and JSR-250 annotations, respectively. They are
           both disabled by default. Use of JSR-250 annotations also adds a
