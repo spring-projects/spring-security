@@ -270,14 +270,20 @@
       Instead, the user will need to re-enter their username and password in order to gain access to
       the service.</para>
     <para>The following beans should be configured to commence the CAS authentication
-      process:</para>
+      process (assuming you're using a namespace configuration):</para>
     <para>
       <programlisting><![CDATA[
-<security:authentication-manager alias="authenticationManager"/>      
+<security:authentication-manager alias="authenticationManager">
+  ...
+</security:authentication-manager>
+      
+<security:http>
+   ...
+   <custom-filter position="FORM_LOGIN_FILTER" ref="myFilter" />
+</security:http>
       
 <bean id="casFilter" 
       class="org.springframework.security.cas.web.CasAuthenticationFilter">
-  <security:custom-filter after="CAS_PROCESSING_FILTER"/>
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="authenticationFailureUrl" value="/casfailed.jsp"/>
   <property name="defaultTargetUrl" value="/"/>
