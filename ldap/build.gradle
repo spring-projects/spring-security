@@ -1,0 +1,21 @@
+// Ldap build file
+
+test.exclude('**/OpenLDAPIntegrationTestSuite.class')
+
+dependencies {
+    compile project(':core'),
+            "org.springframework:spring-core:$springVersion",
+            "org.springframework:spring-beans:$springVersion",
+            "org.springframework:spring-context:$springVersion",
+            "org.springframework:spring-tx:$springVersion",
+            'org.springframework.ldap:spring-ldap-core:1.3.0.RELEASE',
+            'org.apache.directory.server:apacheds-core:1.5.5',
+            'org.apache.directory.server:apacheds-core-entry:1.5.5',
+            'org.apache.directory.server:apacheds-protocol-shared:1.5.5',
+            'org.apache.directory.server:apacheds-protocol-ldap:1.5.5', 
+            'org.apache.directory.server:apacheds-server-jndi:1.5.5',
+            'org.apache.directory.shared:shared-ldap:0.9.15',             
+            'ldapsdk:ldapsdk:4.1'
+
+    runtime 'org.slf4j:slf4j-log4j12:1.4.3'
+}

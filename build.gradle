@@ -1,0 +1,34 @@
+usePlugin('java')
+
+version = '3.0.0.CI-SNAPSHOT'
+
+allprojects {
+    repositories {
+        mavenRepo name:'localRepo', urls:'file:///Users/luke/.m2/repository'
+        mavenCentral()
+    }
+}
+
+subprojects {
+    usePlugin 'java'
+    springVersion = '3.0.0.RC2'
+
+    dependencies {
+        compile     'commons-logging:commons-logging:1.1.1'
+
+        testCompile 'junit:junit:4.6',
+                    'org.mockito:mockito-core:1.7',
+                    'org.jmock:jmock:2.5.1',
+                    'org.jmock:jmock-junit4:2.5.1',
+                    'org.hamcrest:hamcrest-core:1.1',
+                    'org.hamcrest:hamcrest-library:1.1',
+                    "org.springframework:spring-test:$springVersion"
+    }
+    
+    test {
+        options.fork(forkMode: ForkMode.ONCE, jvmArgs: ["-ea", '-Xms128m', '-Xmx1g', '-XX:MaxPermSize=128m', '-XX:+HeapDumpOnOutOfMemoryError'])
+    }
+
+    group = 'org.springframework.security'
+}
+
