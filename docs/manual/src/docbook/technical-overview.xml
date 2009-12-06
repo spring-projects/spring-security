@@ -285,28 +285,29 @@ Successfully authenticated. Security context contains: \
         Security has quite a simple answer. A user is authenticated when the
           <classname>SecurityContextHolder</classname> contains a fully populated
           <interfacename>Authentication</interfacename> object.</para>
-      <section>
-        <title>Setting the SecurityContextHolder Contents Directly</title>
-        <para>In fact, Spring Security doesn't mind how you put the
-            <interfacename>Authentication</interfacename> object inside the
-            <classname>SecurityContextHolder</classname>. The only critical requirement is that the
-            <classname>SecurityContextHolder</classname> contains an
-            <interfacename>Authentication</interfacename> that represents a principal before the
-            <classname>AbstractSecurityInterceptor</classname> (which we'll see more about later)
-          needs to authorize a user operation.</para>
-        <para>You can (and many users do) write their own filters or MVC controllers to provide
-          interoperability with authentication systems that are not based on Spring Security. For
-          example, you might be using Container-Managed Authentication which makes the current user
-          available from a ThreadLocal or JNDI location. Or you might work for a company that has a
-          legacy proprietary authentication system, which is a corporate "standard" over which you
-          have little control. In situations like this it's quite easy to get Spring Security to
-          work, and still provide authorization capabilities. All you need to do is write a filter
-          (or equivalent) that reads the third-party user information from a location, build a
-          Spring Security-specific <interfacename>Authentication</interfacename> object, and put it
-          into the <classname>SecurityContextHolder</classname>.</para>
-        <para> If you're wondering how the <interfacename>AuthenticationManager</interfacename>
-          manager is implemented in a real world example, we'll look at that in </para>
-      </section>
+    </section>
+    <section>
+      <title>Setting the SecurityContextHolder Contents Directly</title>
+      <para>In fact, Spring Security doesn't mind how you put the
+          <interfacename>Authentication</interfacename> object inside the
+          <classname>SecurityContextHolder</classname>. The only critical requirement is that the
+          <classname>SecurityContextHolder</classname> contains an
+          <interfacename>Authentication</interfacename> which represents a principal before the
+          <classname>AbstractSecurityInterceptor</classname> (which we'll see more about later)
+        needs to authorize a user operation.</para>
+      <para>You can (and many users do) write their own filters or MVC controllers to provide
+        interoperability with authentication systems that are not based on Spring Security. For
+        example, you might be using Container-Managed Authentication which makes the current user
+        available from a ThreadLocal or JNDI location. Or you might work for a company that has a
+        legacy proprietary authentication system, which is a corporate "standard" over which you
+        have little control. In situations like this it's quite easy to get Spring Security to work,
+        and still provide authorization capabilities. All you need to do is write a filter (or
+        equivalent) that reads the third-party user information from a location, build a Spring
+        Security-specific <interfacename>Authentication</interfacename> object, and put it into the
+          <classname>SecurityContextHolder</classname>.</para>
+      <para> If you're wondering how the <interfacename>AuthenticationManager</interfacename>
+        manager is implemented in a real world example, we'll look at that in the <link
+          xlink:href="#core-services-authentication-manager">core services chapter</link>.</para>
     </section>
   </section>
   <section xml:id="tech-intro-web-authentication">
@@ -419,6 +420,24 @@ Successfully authenticated. Security context contains: \
         that the <classname>SecurityContextPersistenceFilter</classname> is included in the chain to
         make sure that the <classname>SecurityContextHolder</classname> is cleared after each
         request.</para>
+      <note>
+        <para>In an application which receives concurrent requests in a single session, the same
+            <interfacename>SecurityContext</interfacename> instance will be shared between threads.
+          Even though a <classname>ThreadLocal</classname> is being used, it is the same instance
+          that is retrieved from the <interfacename>HttpSession</interfacename> for each thread.
+          This has implications if you wish to temporarily change the context under which a thread
+          is running. If you just use
+            <code>SecurityContextHolder.getContext().setAuthentication(anAuthentication)</code>,
+          then the <interfacename>Authentication</interfacename> object will change in
+            <emphasis>all</emphasis> concurrent threads which share the same
+            <interfacename>SecurityContext</interfacename> instance. You can customize the behaviour
+          of <classname>SecurityContextPersistenceFilter</classname> to create a completely new
+            <interfacename>SecurityContext</interfacename> for each request, preventing changes in
+          one thread from affecting another. Alternatively you can create a new instance just at the
+          point where you temporarily change the context. The method
+            <code>SecurityContextHolder.createEmptyContext()</code> always returns a new context
+          instance.</para>
+      </note>
     </section>
   </section>
   <section xml:id="tech-intro-access-control">
