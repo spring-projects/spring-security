@@ -5,8 +5,10 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
@@ -142,6 +144,20 @@ public class HttpSessionSecurityContextRepositoryTests {
         SecurityContextHolder.setContext(repo.loadContext(holder));
         SecurityContextHolder.getContext().setAuthentication(testToken);
         request.getSession().invalidate();
+        repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
+        assertNull(request.getSession(false));
+    }
+
+    // SEC-1315
+    @Test
+    public void noSessionIsCreatedIfAnonymousTokenIsUsed() throws Exception {
+        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
+        SecurityContextHolder.setContext(repo.loadContext(holder));
+        SecurityContextHolder.getContext().setAuthentication(
+                new AnonymousAuthenticationToken("key", "anon", AuthorityUtils.createAuthorityList("ANON")));
         repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
         assertNull(request.getSession(false));
     }

@@ -325,6 +325,14 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
          */
         @Override
         void saveContext(SecurityContext context) {
+            // See SEC-776
+            if (authenticationTrustResolver.isAnonymous(context.getAuthentication())) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("SecurityContext contents are anonymous - context will not be stored in HttpSession. ");
+                }
+                return;
+            }
+
             HttpSession httpSession = request.getSession(false);
 
             if (httpSession == null) {
@@ -334,18 +342,10 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
             // If HttpSession exists, store current SecurityContextHolder contents but only if
             // the SecurityContext has actually changed (see JIRA SEC-37)
             if (httpSession != null && context.hashCode() != contextHashBeforeChainExecution) {
-                // See SEC-776
-                // TODO: Move this so that a session isn't created if user is anonymous
-                if (authenticationTrustResolver.isAnonymous(context.getAuthentication())) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("SecurityContext contents are anonymous - context will not be stored in HttpSession. ");
-                    }
-                } else {
-                    httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY, context);
+                httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY, context);
 
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("SecurityContext stored to HttpSession: '" + context + "'");
-                    }
+                if (logger.isDebugEnabled()) {
+                    logger.debug("SecurityContext stored to HttpSession: '" + context + "'");
                 }
             }
         }
@@ -374,7 +374,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 
             if (contextObject.equals(context)) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("HttpSession is null, but SecurityContext has not changed from default: ' "
+                    logger.debug("HttpSession is null, but SecurityContext has not changed from default empty context: ' "
                             + context
                             + "'; not creating HttpSession or storing SecurityContext");
                 }
