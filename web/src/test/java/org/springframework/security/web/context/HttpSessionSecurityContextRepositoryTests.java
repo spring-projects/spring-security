@@ -17,11 +17,13 @@ public class HttpSessionSecurityContextRepositoryTests {
     private final TestingAuthenticationToken testToken = new TestingAuthenticationToken("someone", "passwd", "ROLE_A");
 
     @Test(expected=IllegalArgumentException.class)
+    @Deprecated
     public void detectsInvalidContextClass() throws Exception {
         HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
         repo.setSecurityContextClass(String.class);
     }
 
+    @Deprecated
     @Test(expected=IllegalArgumentException.class)
     public void cannotSetNullContextClass() throws Exception {
         HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
@@ -145,6 +147,7 @@ public class HttpSessionSecurityContextRepositoryTests {
     }
 
     @Test
+    @Deprecated
     public void settingCloneFromContextLoadsClonedContextObject() throws Exception {
         HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
         repo.setCloneFromHttpSession(true);
@@ -160,6 +163,7 @@ public class HttpSessionSecurityContextRepositoryTests {
     }
 
     @Test
+    @Deprecated
     public void generateNewContextWorksWithContextClass() throws Exception {
         HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
         repo.setSecurityContextClass(MockContext.class);

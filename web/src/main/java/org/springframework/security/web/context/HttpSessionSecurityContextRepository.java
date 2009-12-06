@@ -17,15 +17,13 @@ import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
 /**
- * A <tt>SecurityContextRepository</tt> implementation which stores the security context in the HttpSession between
- * requests.
+ * A {@code SecurityContextRepository} implementation which stores the security context in the {@code HttpSession}
+ * between requests.
  * <p>
- * The <code>HttpSession</code> will be queried to retrieve the <code>SecurityContext</code> in the <tt>loadContext</tt>
- * method (using the key {@link #SPRING_SECURITY_CONTEXT_KEY}). If a valid <code>SecurityContext</code> cannot be
- * obtained from the <code>HttpSession</code> for whatever reason, a fresh <code>SecurityContext</code> will be created
- * and returned instead. The created object will be an instance of the class set using the
- * {@link #setSecurityContextClass(Class)} method. If this hasn't been set, a default context implementation
- * as returned by {@link SecurityContextHolder#createEmptyContext()} will be used.
+ * The {@code HttpSession} will be queried to retrieve the {@code SecurityContext} in the <tt>loadContext</tt>
+ * method (using the key {@link #SPRING_SECURITY_CONTEXT_KEY}). If a valid {@code SecurityContext} cannot be
+ * obtained from the {@code HttpSession} for whatever reason, a fresh {@code SecurityContext} will be created
+ * by calling by {@link SecurityContextHolder#createEmptyContext()} and this instance will be returned instead.
  * <p>
  * When <tt>saveContext</tt> is called, the context will be stored under the same key, provided
  * <ol>
@@ -34,21 +32,20 @@ import org.springframework.util.ReflectionUtils;
  * user</li>
  * </ol>
  * <p>
- * With the standard configuration, no <code>HttpSession</code> will be created during <tt>loadContext</tt> if one does
+ * With the standard configuration, no {@code HttpSession} will be created during <tt>loadContext</tt> if one does
  * not already exist. When <tt>saveContext</tt> is called at the end of the web request, and no session exists, a new
- * <code>HttpSession</code> will <b>only</b> be created if the supplied <tt>SecurityContext</tt> is not equal
- * to a <code>new</code> instance of the {@link #setContextClass(Class) contextClass} (or an empty
- * <tt>SecurityContextImpl</tt> if the class has not been set. This avoids needless <code>HttpSession</code> creation,
+ * {@code HttpSession} will <b>only</b> be created if the supplied {@code SecurityContext} is not equal
+ * to an empty {@code SecurityContext} instance. This avoids needless <code>HttpSession</code> creation,
  * but automates the storage of changes made to the context during the request. Note that if
  * {@link SecurityContextPersistenceFilter} is configured to eagerly create sessions, then the session-minimisation
  * logic applied here will not make any difference. If you are using eager session creation, then you should
  * ensure that the <tt>allowSessionCreation</tt> property of this class is set to <tt>true</tt> (the default).
  * <p>
- * If for whatever reason no <code>HttpSession</code> should <b>ever</b> be created (e.g. Basic authentication is being
- * used or similar clients that will never present the same <code>jsessionid</code> etc), then
+ * If for whatever reason no {@code HttpSession} should <b>ever</b> be created (for example, if
+ * Basic authentication is being used or similar clients that will never present the same {@literal jsessionid}), then
  * {@link #setAllowSessionCreation(boolean) allowSessionCreation} should be set to <code>false</code>.
  * Only do this if you really need to conserve server memory and ensure all classes using the
- * <code>SecurityContextHolder</code> are designed to have no persistence of the <code>SecurityContext</code>
+ * {@code SecurityContextHolder} are designed to have no persistence of the {@code SecurityContext}
  * between web requests.
  *
  * @author Luke Taylor
@@ -226,6 +223,13 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
     }
 
     @SuppressWarnings("unchecked")
+    @Deprecated
+    /**
+     * Sets the {@code SecurityContext} implementation class.
+     *
+     * @deprecated use a custom {@code SecurityContextHolderStrategy} where the {@code createEmptyContext} method
+     *      returns the correct implementation.
+     */
     public void setSecurityContextClass(Class contextClass) {
         if (contextClass == null || (!SecurityContext.class.isAssignableFrom(contextClass))) {
             throw new IllegalArgumentException("securityContextClass must implement SecurityContext "
@@ -237,6 +241,17 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
         contextObject = generateNewContext();
     }
 
+    /**
+     * Normally, the {@code SecurityContext} retrieved from the session is stored directly in the
+     * {@code SecurityContextHolder}, meaning that it is shared between concurrent threads.
+     * In this case, if one thread modifies the contents of the context, all threads will see the same
+     * change.
+     *
+     * @param cloneFromHttpSession set to true to clone the security context retrieved from the session.
+     *          Defaults to false.
+     * @deprecated Override the {@code loadContext} method and copy the created context instead.
+     */
+    @Deprecated
     public void setCloneFromHttpSession(boolean cloneFromHttpSession) {
         this.cloneFromHttpSession = cloneFromHttpSession;
     }
