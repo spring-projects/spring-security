@@ -163,11 +163,11 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     /**
-     * Creates the internal AuthentiationManager bean which uses the externally registered (global) one as
+     * Creates the internal AuthenticationManager bean which uses the externally registered (global) one as
      * a parent.
      *
      * All the providers registered by this &lt;http&gt; block will be registered with the internal
-     * authentication manager, along with the ConcurrentSessionController (if necessary).
+     * authentication manager.
      */
     private BeanReference createAuthenticationManager(Element element, ParserContext pc,
             ManagedList<BeanReference> authenticationProviders, BeanReference concurrencyController) {
