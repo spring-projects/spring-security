@@ -1131,6 +1131,23 @@ public class HttpSecurityBeanDefinitionParserTests {
                 AUTH_PROVIDER_XML);
     }
 
+    @Test
+    public void httpConfigWithNoAuthProvidersWorksOk() throws Exception {
+        setContext(
+                "<http>" +
+                "   <form-login />" +
+                "   <anonymous enabled='false' />" +
+                "</http>" +
+                AUTH_PROVIDER_XML);
+        FilterChainProxy fcp = (FilterChainProxy) appContext.getBean(BeanIds.FILTER_CHAIN_PROXY);
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/j_spring_security_check");
+        request.setServletPath("/j_spring_security_check");
+        request.addParameter("j_username", "bob");
+        request.addParameter("j_password", "bob");
+        fcp.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
+    }
+
+
     private void setContext(String context) {
         appContext = new InMemoryXmlApplicationContext(context);
     }
@@ -1168,6 +1185,5 @@ public class HttpSecurityBeanDefinitionParserTests {
     private RememberMeServices getRememberMeServices() throws Exception {
         return ((RememberMeAuthenticationFilter)getFilter(RememberMeAuthenticationFilter.class)).getRememberMeServices();
     }
-
 
 }
