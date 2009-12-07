@@ -31,7 +31,7 @@ import javax.servlet.http.HttpSessionListener;
  * Declared in web.xml as
  * <pre>
  * &lt;listener&gt;
- *     &lt;listener-class&gt;org.springframework.security.ui.session.HttpSessionEventPublisher&lt;/listener-class&gt;
+ *     &lt;listener-class&gt;org.springframework.security.web.session.HttpSessionEventPublisher&lt;/listener-class&gt;
  * &lt;/listener&gt;
  * </pre>
  *
@@ -40,13 +40,12 @@ import javax.servlet.http.HttpSessionListener;
  * javax.servlet.http.HttpSessionListener.sessionDestroyed() to {@link HttpSessionDestroyedEvent}.
  *
  * @author Ray Krueger
+ * @version $Id$
  */
 public class HttpSessionEventPublisher implements HttpSessionListener {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log log = LogFactory.getLog(HttpSessionEventPublisher.class);
-
-    //~ Instance fields ================================================================================================
 
     //~ Methods ========================================================================================================
 
