@@ -15,6 +15,7 @@
 
 package org.springframework.security.web.authentication;
 
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
@@ -26,8 +27,9 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import junit.framework.TestCase;
-
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -45,27 +47,22 @@ import org.springframework.security.core.userdetails.memory.UserAttribute;
  * @author Ben Alex
  * @version $Id$
  */
-public class AnonymousAuthenticationFilterTests extends TestCase {
+public class AnonymousAuthenticationFilterTests {
 
     //~ Methods ========================================================================================================
 
     private void executeFilterInContainerSimulator(FilterConfig filterConfig, Filter filter, ServletRequest request,
         ServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-//        filter.init(filterConfig);
         filter.doFilter(request, response, filterChain);
-//        filter.destroy();
     }
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    @After
+    public void clearContext() throws Exception {
         SecurityContextHolder.clearContext();
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        SecurityContextHolder.clearContext();
-    }
-
+    @Test(expected=IllegalArgumentException.class)
     public void testDetectsMissingKey() throws Exception {
         UserAttribute user = new UserAttribute();
         user.setPassword("anonymousUsername");
@@ -73,27 +70,17 @@ public class AnonymousAuthenticationFilterTests extends TestCase {
 
         AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter();
         filter.setUserAttribute(user);
-
-        try {
-            filter.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+        filter.afterPropertiesSet();
     }
 
+    @Test(expected=IllegalArgumentException.class)
     public void testDetectsUserAttribute() throws Exception {
         AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter();
         filter.setKey("qwerty");
-
-        try {
-            filter.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+        filter.afterPropertiesSet();
     }
 
+    @Test
     public void testGettersSetters() throws Exception {
         UserAttribute user = new UserAttribute();
         user.setPassword("anonymousUsername");
@@ -102,15 +89,13 @@ public class AnonymousAuthenticationFilterTests extends TestCase {
         AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter();
         filter.setKey("qwerty");
         filter.setUserAttribute(user);
-        assertTrue(filter.isRemoveAfterRequest());
         filter.afterPropertiesSet();
 
         assertEquals("qwerty", filter.getKey());
         assertEquals(user, filter.getUserAttribute());
-        filter.setRemoveAfterRequest(false);
-        assertFalse(filter.isRemoveAfterRequest());
     }
 
+    @Test
     public void testOperationWhenAuthenticationExistsInContextHolder()
         throws Exception {
         // Put an Authentication object into the SecurityContextHolder
@@ -138,6 +123,7 @@ public class AnonymousAuthenticationFilterTests extends TestCase {
         assertEquals(originalAuth, SecurityContextHolder.getContext().getAuthentication());
     }
 
+    @Test
     public void testOperationWhenNoAuthenticationInSecurityContextHolder() throws Exception {
         UserAttribute user = new UserAttribute();
         user.setPassword("anonymousUsername");
@@ -146,7 +132,6 @@ public class AnonymousAuthenticationFilterTests extends TestCase {
         AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter();
         filter.setKey("qwerty");
         filter.setUserAttribute(user);
-        filter.setRemoveAfterRequest(false); // set to non-default value
         filter.afterPropertiesSet();
 
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -158,12 +143,6 @@ public class AnonymousAuthenticationFilterTests extends TestCase {
         assertEquals("anonymousUsername", auth.getPrincipal());
         assertTrue(AuthorityUtils.authorityListToSet(auth.getAuthorities()).contains("ROLE_ANONYMOUS"));
         SecurityContextHolder.getContext().setAuthentication(null); // so anonymous fires again
-
-        // Now test operation if we have removeAfterRequest = true
-        filter.setRemoveAfterRequest(true); // set to default value
-        executeFilterInContainerSimulator(mock(FilterConfig.class), filter, request, new MockHttpServletResponse(),
-            new MockFilterChain(true));
-        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     //~ Inner Classes ==================================================================================================
@@ -175,11 +154,8 @@ public class AnonymousAuthenticationFilterTests extends TestCase {
             this.expectToProceed = expectToProceed;
         }
 
-        public void doFilter(ServletRequest request, ServletResponse response)
-            throws IOException, ServletException {
-            if (expectToProceed) {
-                assertTrue(true);
-            } else {
+        public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
+            if (!expectToProceed) {
                 fail("Did not expect filter chain to proceed");
             }
         }

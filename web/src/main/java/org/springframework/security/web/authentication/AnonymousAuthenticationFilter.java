@@ -23,7 +23,6 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -36,7 +35,7 @@ import org.springframework.web.filter.GenericFilterBean;
 
 
 /**
- * Detects if there is no <code>Authentication</code> object in the <code>SecurityContextHolder</code>,  and
+ * Detects if there is no {@code Authentication} object in the {@code SecurityContextHolder}, and
  * populates it with one if needed.
  *
  * @author Ben Alex
@@ -49,7 +48,6 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean  implements
     private AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
     private String key;
     private UserAttribute userAttribute;
-    private boolean removeAfterRequest = true;
 
     //~ Methods ========================================================================================================
 
@@ -57,6 +55,28 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean  implements
     public void afterPropertiesSet() {
         Assert.notNull(userAttribute);
         Assert.hasLength(key);
+    }
+
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+            throws IOException, ServletException {
+
+        if (applyAnonymousForThisRequest((HttpServletRequest) req)) {
+            if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                SecurityContextHolder.getContext().setAuthentication(createAuthentication((HttpServletRequest) req));
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Populated SecurityContextHolder with anonymous token: '"
+                        + SecurityContextHolder.getContext().getAuthentication() + "'");
+                }
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("SecurityContextHolder not populated with anonymous token, as it already contained: '"
+                        + SecurityContextHolder.getContext().getAuthentication() + "'");
+                }
+            }
+        }
+
+        chain.doFilter(req, res);
     }
 
     /**
@@ -77,43 +97,9 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean  implements
     protected Authentication createAuthentication(HttpServletRequest request) {
         AnonymousAuthenticationToken auth = new AnonymousAuthenticationToken(key, userAttribute.getPassword(),
                 userAttribute.getAuthorities());
-        auth.setDetails(authenticationDetailsSource.buildDetails((HttpServletRequest) request));
+        auth.setDetails(authenticationDetailsSource.buildDetails(request));
 
         return auth;
-    }
-
-    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
-            throws IOException, ServletException {
-        HttpServletRequest request = (HttpServletRequest) req;
-        HttpServletResponse response = (HttpServletResponse) res;
-
-        boolean addedToken = false;
-
-        if (applyAnonymousForThisRequest(request)) {
-            if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                SecurityContextHolder.getContext().setAuthentication(createAuthentication(request));
-                addedToken = true;
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Populated SecurityContextHolder with anonymous token: '"
-                        + SecurityContextHolder.getContext().getAuthentication() + "'");
-                }
-            } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("SecurityContextHolder not populated with anonymous token, as it already contained: '"
-                        + SecurityContextHolder.getContext().getAuthentication() + "'");
-                }
-            }
-        }
-
-        try {
-            chain.doFilter(request, response);
-        } finally {
-            if (addedToken && removeAfterRequest
-                && createAuthentication(request).equals(SecurityContextHolder.getContext().getAuthentication())) {
-                SecurityContextHolder.getContext().setAuthentication(null);
-            }
-        }
     }
 
     public String getKey() {
@@ -124,10 +110,6 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean  implements
         return userAttribute;
     }
 
-    public boolean isRemoveAfterRequest() {
-        return removeAfterRequest;
-    }
-
     public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
         Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource required");
         this.authenticationDetailsSource = authenticationDetailsSource;
@@ -135,21 +117,6 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean  implements
 
     public void setKey(String key) {
         this.key = key;
-    }
-
-    /**
-     * Controls whether the filter will remove the Anonymous token after the request is complete. Generally
-     * this is desired to avoid the expense of a session being created by {@link
-     * org.springframework.security.web.context.HttpSessionContextIntegrationFilter HttpSessionContextIntegrationFilter}
-     * simply to store the Anonymous authentication token.
-     * <p>
-     * Defaults to <code>true</code>, being the most optimal and appropriate
-     * option &ndash; <code>AnonymousAuthenticationFilter</code> will clear the token at the end of each request,
-     * thus avoiding session creation overhead in a typical configuration.
-     *
-     */
-    public void setRemoveAfterRequest(boolean removeAfterRequest) {
-        this.removeAfterRequest = removeAfterRequest;
     }
 
     public void setUserAttribute(UserAttribute userAttributeDefinition) {
