@@ -15,15 +15,15 @@
 
 package org.springframework.security.cas.web;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
-import org.springframework.security.MockAuthenticationManager;
-import org.springframework.security.cas.web.CasAuthenticationFilter;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-
+import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 
 
 /**
@@ -32,41 +32,40 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * @author Ben Alex
  * @version $Id$
  */
-public class CasAuthenticationFilterTests extends TestCase {
+public class CasAuthenticationFilterTests {
     //~ Methods ========================================================================================================
 
+    @Test
     public void testGetters() {
         CasAuthenticationFilter filter = new CasAuthenticationFilter();
         assertEquals("/j_spring_cas_security_check", filter.getFilterProcessesUrl());
     }
 
+    @Test
     public void testNormalOperation() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addParameter("ticket", "ST-0-ER94xMJmn6pha35CQRoZ");
 
-        MockAuthenticationManager authMgr = new MockAuthenticationManager(true);
-
         CasAuthenticationFilter filter = new CasAuthenticationFilter();
-        filter.setAuthenticationManager(authMgr);
+        filter.setAuthenticationManager(new AuthenticationManager() {
+            public Authentication authenticate(Authentication a) {
+                return a;
+            }
+        });
 
         Authentication result = filter.attemptAuthentication(request, new MockHttpServletResponse());
         assertTrue(result != null);
     }
 
-    public void testNullServiceTicketHandledGracefully()
-        throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest();
-
-        MockAuthenticationManager authMgr = new MockAuthenticationManager(false);
-
+    @Test(expected=AuthenticationException.class)
+    public void testNullServiceTicketHandledGracefully() throws Exception {
         CasAuthenticationFilter filter = new CasAuthenticationFilter();
-        filter.setAuthenticationManager(authMgr);
+        filter.setAuthenticationManager(new AuthenticationManager() {
+            public Authentication authenticate(Authentication a) {
+                throw new BadCredentialsException("Rejected");
+            }
+        });
 
-        try {
-            filter.attemptAuthentication(request, new MockHttpServletResponse());
-            fail("Should have thrown AuthenticationException");
-        } catch (AuthenticationException expected) {
-            assertTrue(true);
-        }
+        filter.attemptAuthentication(new MockHttpServletRequest(), new MockHttpServletResponse());
     }
 }
