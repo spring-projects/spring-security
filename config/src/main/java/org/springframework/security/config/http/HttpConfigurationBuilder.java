@@ -213,12 +213,10 @@ class HttpConfigurationBuilder {
         }
 
         if (!StringUtils.hasText(sessionFixationAttribute)) {
-            if (StringUtils.hasText(sessionAuthStratRef)) {
-                pc.getReaderContext().error(ATT_SESSION_FIXATION_PROTECTION + " attribute cannot be used" +
-                        " in combination with " + ATT_SESSION_AUTH_STRATEGY_REF, pc.extractSource(sessionCtrlElt));
-            }
-
             sessionFixationAttribute = OPT_SESSION_FIXATION_MIGRATE_SESSION;
+        } else if (StringUtils.hasText(sessionAuthStratRef)) {
+            pc.getReaderContext().error(ATT_SESSION_FIXATION_PROTECTION + " attribute cannot be used" +
+                    " in combination with " + ATT_SESSION_AUTH_STRATEGY_REF, pc.extractSource(sessionCtrlElt));
         }
 
         boolean sessionFixationProtectionRequired = !sessionFixationAttribute.equals(OPT_SESSION_FIXATION_NO_PROTECTION);

@@ -730,6 +730,17 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     @Test
+    public void externalSessionStrategyIsSupported() throws Exception {
+        setContext(
+                "<http auto-config='true'>" +
+                "    <session-management session-authentication-strategy-ref='ss'/>" +
+                "</http>" +
+                "<b:bean id='ss' class='org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy'/>"
+                + AUTH_PROVIDER_XML);
+        //session-authentication-strategy-ref
+    }
+
+    @Test
     public void externalSessionRegistryBeanIsConfiguredCorrectly() throws Exception {
         setContext(
                 "<http auto-config='true'>" +
