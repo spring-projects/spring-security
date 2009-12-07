@@ -178,10 +178,6 @@ public class ProviderManager extends AbstractAuthenticationManager implements Me
     }
 
     public List<AuthenticationProvider> getProviders() {
-        if (providers == null || providers.size() == 0) {
-            throw new IllegalArgumentException("A list of AuthenticationProviders is required");
-        }
-
         return providers;
     }
 
@@ -194,6 +190,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements Me
     }
 
     public void setAuthenticationEventPublisher(AuthenticationEventPublisher eventPublisher) {
+        Assert.notNull(eventPublisher, "AuthenticationEventPublisher cannot be null");
         this.eventPublisher = eventPublisher;
     }
 
@@ -207,7 +204,7 @@ public class ProviderManager extends AbstractAuthenticationManager implements Me
      */
     @SuppressWarnings("unchecked")
     public void setProviders(List providers) {
-        Assert.notNull(providers);
+        Assert.notNull(providers, "Providers list cannot be null");
         for(Object currentObject : providers) {
             Assert.isInstanceOf(AuthenticationProvider.class, currentObject, "Can only provide AuthenticationProvider instances");
         }
