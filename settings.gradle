@@ -1,1 +1,1 @@
-include 'core', 'web', 'ldap', 'acl', 'config', 'openid'
+include 'core', 'web', 'ldap', 'acl', 'config', 'cas', 'openid'

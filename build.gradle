@@ -11,7 +11,8 @@ allprojects {
 
 subprojects {
     usePlugin 'java'
-    springVersion = '3.0.0.RC2'
+    springVersion = '3.0.0.RC3'
+    ehcacheVersion = '1.6.2'
 
     dependencies {
         compile     'commons-logging:commons-logging:1.1.1'
