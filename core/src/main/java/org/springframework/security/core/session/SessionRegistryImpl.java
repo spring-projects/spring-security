@@ -129,6 +129,10 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
         }
 
         sessionsUsedByPrincipal.add(sessionId);
+
+        if (logger.isTraceEnabled()) {
+            logger.trace("Sessions used by '" + principal + "' : " + sessionsUsedByPrincipal);
+        }
     }
 
     public void removeSessionInformation(String sessionId) {
@@ -140,7 +144,7 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
             return;
         }
 
-        if (logger.isDebugEnabled()) {
+        if (logger.isTraceEnabled()) {
             logger.debug("Removing session " + sessionId + " from set of registered sessions");
         }
 
@@ -166,6 +170,10 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
                 }
                 principals.remove(info.getPrincipal());
             }
+        }
+
+        if (logger.isTraceEnabled()) {
+            logger.trace("Sessions used by '" + info.getPrincipal() + "' : " + sessionsUsedByPrincipal);
         }
     }
 }
