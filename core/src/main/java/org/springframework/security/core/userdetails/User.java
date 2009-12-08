@@ -225,9 +225,9 @@ public class User implements UserDetails {
             boolean first = true;
             for (GrantedAuthority auth : authorities) {
                 if (!first) {
-                    sb.append(", ");
-                    first = false;
+                    sb.append(",");
                 }
+                first = false;
 
                 sb.append(auth);
             }
