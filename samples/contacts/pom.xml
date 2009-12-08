@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-samples</artifactId>
-        <version>3.0.0.CI-SNAPSHOT</version>
+        <version>3.0.0.RC2</version>
     </parent>
     <artifactId>spring-security-samples-contacts</artifactId>
     <name>Spring Security - Contacts sample</name>
