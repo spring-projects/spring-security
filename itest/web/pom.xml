@@ -19,9 +19,9 @@
           <classifier>jdk15</classifier>
         </dependency>
         <dependency>
-            <groupId>jwebunit</groupId>
-            <artifactId>jwebunit</artifactId>
-            <version>1.2</version>
+            <groupId>net.sourceforge.jwebunit</groupId>
+            <artifactId>jwebunit-htmlunit-plugin</artifactId>
+            <version>2.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>

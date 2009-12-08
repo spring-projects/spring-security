@@ -1,22 +1,21 @@
 package org.springframework.security.integration;
 
-import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
-import org.springframework.web.servlet.DispatcherServlet;
-import org.springframework.util.StringUtils;
+import javax.servlet.ServletContext;
 
-import net.sourceforge.jwebunit.WebTester;
+import net.sourceforge.jwebunit.junit.WebTester;
 
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.jetty.webapp.WebAppContext;
-
-import javax.servlet.ServletContext;
-
-import org.testng.annotations.*;
-
-import com.meterware.httpunit.WebConversation;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.util.StringUtils;
+import org.springframework.web.context.ContextLoaderListener;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.web.servlet.DispatcherServlet;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 
 /**
  * Base class which allows the application to be started with a particular Spring application
@@ -63,6 +62,7 @@ public abstract class AbstractWebServerIntegrationTests {
 
         if (StringUtils.hasText(getContextConfigLocations())) {
             webCtx.addEventListener(new ContextLoaderListener());
+            webCtx.addEventListener(new HttpSessionEventPublisher());
             webCtx.getInitParams().put("contextConfigLocation", getContextConfigLocations());
         }
 
@@ -86,10 +86,10 @@ public abstract class AbstractWebServerIntegrationTests {
 
     @AfterMethod
     public void resetWebConversation() {
-        tester.getTestContext().setWebClient(new WebConversation());
+        tester.closeBrowser();
     }
 
-    private final String getBaseUrl() {
+    protected final String getBaseUrl() {
         int port = server.getConnectors()[0].getLocalPort();
         return "http://localhost:" + port + getContextPath() + "/";
     }
@@ -117,8 +117,8 @@ public abstract class AbstractWebServerIntegrationTests {
         tester.beginAt(url);
     }
 
-    protected final void setFormElement(String name, String value) {
-        tester.setFormElement(name, value);
+    protected final void setTextField(String name, String value) {
+        tester.setTextField(name, value);
     }
 
     protected final void assertFormPresent() {
@@ -133,8 +133,8 @@ public abstract class AbstractWebServerIntegrationTests {
 
     protected void login(String username, String password) {
         assertFormPresent();
-        setFormElement("j_username", username);
-        setFormElement("j_password", password);
+        setTextField("j_username", username);
+        setTextField("j_password", password);
         submit();
     }
 }
