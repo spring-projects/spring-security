@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-parent</artifactId>
-        <version>3.0.0.RC2</version>
+        <version>3.0.0.CI-SNAPSHOT</version>
     </parent>
     <packaging>jar</packaging>
     <artifactId>spring-security-ldap</artifactId>
