@@ -106,9 +106,9 @@
   </beans:bean>
   
   <beans:bean id="myAuthFilter" 
-      class="org.springframework.security.web.authentcation.UsernamePasswordAuthenticationFilter">
+      class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
     <beans:property name="sessionAuthenticationStrategy" ref="sas" />
-    ...
+    <beans:property name="authenticationManager" ref="authenticationManager" />
   </beans:bean>
   
   <beans:bean id="sas" 
