@@ -1,11 +1,8 @@
 package heavyduty.security.ui;
 
-import org.springframework.security.web.authentication.AuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-public class HeavyDutyAuthenticationProcessingFilter extends AuthenticationProcessingFilter {
-
-
-
+public class HeavyDutyAuthenticationProcessingFilter extends UsernamePasswordAuthenticationFilter {
 
 
 }

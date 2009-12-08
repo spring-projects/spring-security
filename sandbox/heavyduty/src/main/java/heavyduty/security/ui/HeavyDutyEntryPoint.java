@@ -1,8 +1,8 @@
 package heavyduty.security.ui;
 
-import org.springframework.security.web.authentication.AuthenticationProcessingFilterEntryPoint;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
-public class HeavyDutyEntryPoint extends AuthenticationProcessingFilterEntryPoint {
+public class HeavyDutyEntryPoint extends LoginUrlAuthenticationEntryPoint {
 
 
 

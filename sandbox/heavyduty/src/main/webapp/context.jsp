@@ -1,6 +1,6 @@
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
-<%@page import="org.springframework.security.providers.ldap.LdapAuthenticationProvider"%>
-<%@page import="org.springframework.security.providers.ProviderManager"%>
+<%@page import="org.springframework.security.ldap.authentication.LdapAuthenticationProvider"%>
+<%@page import="org.springframework.security.authentication.ProviderManager"%>
 
 <html>
 <body>
@@ -19,7 +19,7 @@ Providers: <br />
 
 <%=
 ((ProviderManager)WebApplicationContextUtils.getRequiredWebApplicationContext(
-        session.getServletContext()).getBean("_authenticationManager")).getProviders() %>
+        session.getServletContext()).getBean("org.springframework.security.authenticationManager")).getProviders() %>
 </p>
 
 

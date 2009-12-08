@@ -1,10 +1,10 @@
 package sample;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.vote.AccessDecisionVoter;
+import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.core.Authentication;
 
 public class TestVoter implements AccessDecisionVoter {
@@ -17,7 +17,7 @@ public class TestVoter implements AccessDecisionVoter {
         return MethodInvocation.class.isAssignableFrom(clazz);
     }
 
-    public int vote(Authentication authentication, Object object, List<ConfigAttribute> config) {
+    public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> config) {
         MethodInvocation mi = (MethodInvocation) object;
 
         mi.getMethod().getParameterAnnotations();

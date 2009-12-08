@@ -11,10 +11,10 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:aop="http://www.springframework.org/schema/aop"
     xmlns:context="http://www.springframework.org/schema/context"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-                        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
-                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
-                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.2.xsd">
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd">
 
     <!--b:import resource="appContext-misc.xml"/-->
     <context:component-scan base-package='sample'/>
@@ -48,7 +48,7 @@
         <x509 user-service-ref="daoUserService"/>
 -->
         <form-login default-target-url="/secure/index.jsp" login-page="/login.jsp" authentication-failure-url="/login.jsp?login-error=1" always-use-default-target="false"/>
-        <anonymous />
+
         <!-- http-basic / -->
         <logout />
         <remember-me key='doesntmatter' token-repository-ref='tokenRepo' user-service-ref='daoUserService'/>
@@ -56,11 +56,12 @@
 <!--          <remember-me user-service-ref="daoUserService"/> -->
 
         <!-- Uncomment to limit the number of sessions a user can have -->
-        <concurrent-session-control max-sessions="1" exception-if-maximum-exceeded="true" session-registry-ref='sessionRegistry'/>
-
+        <session-management>
+            <concurrency-control max-sessions="1" error-if-maximum-exceeded="true" session-registry-ref='sessionRegistry'/>
+        </session-management>
+        
+        <!-- custom-filter position="AUTHENTICATION_PROCESSING_FILTER" ref="customAuthFilter" / -->        
     </http>
-
-    <authentication-manager alias="authenticationManager" />
 
     <b:bean id='tokenRepo' class='org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl'/>
 
@@ -71,14 +72,10 @@
         <b:property name="sessionRegistry" ref='sessionRegistry'/>
     </b:bean>
 
-    <b:bean id='sessionController' class="org.springframework.security.concurrent.ConcurrentSessionControllerImpl">
-        <b:property name='sessionRegistry' ref='sessionRegistry'/>
-    </b:bean>
  -->
-    <b:bean id='sessionRegistry' class="org.springframework.security.authentication.concurrent.SessionRegistryImpl"/>
+    <b:bean id='sessionRegistry' class="org.springframework.security.core.session.SessionRegistryImpl"/>
 <!--
     <b:bean id="customAuthFilter" class="heavyduty.security.ui.HeavyDutyAuthenticationProcessingFilter">
-        <custom-filter position="AUTHENTICATION_PROCESSING_FILTER"/>
         <b:property name="defaultTargetUrl" value="/"/>
         <b:property name="authenticationManager" ref="authenticationManager"/>
     </b:bean>
@@ -93,20 +90,22 @@
         <b:constructor-arg ref="customAuthFilter"/>
     </b:bean>
  -->
+    <authentication-manager alias="authenticationManager" >
 
-    <authentication-provider user-service-ref="daoUserService">
-        <password-encoder hash="md5" />
-    </authentication-provider>
-
-    <authentication-provider>
-        <password-encoder hash="md5"/>
-        <user-service>
-            <user name="rod" password="a564de63c2d0da68cf47586ee05984d7" authorities="ROLE_SUPERVISOR, ROLE_USER, ROLE_TELLER" />
-            <user name="dianne" password="65d15fe9156f9c4bbffd98085992a44e" authorities="ROLE_USER,ROLE_TELLER" />
-            <user name="scott" password="2b58af6dddbd072ed27ffc86725d7d3a" authorities="ROLE_USER" />
-            <user name="peter" password="22b5c9accc6e1ba628cedc63a72d57f8" authorities="ROLE_USER" />
-        </user-service>
-    </authentication-provider>
+        <authentication-provider user-service-ref="daoUserService">
+            <password-encoder hash="md5" />
+        </authentication-provider>
+    
+        <authentication-provider>
+            <password-encoder hash="md5"/>
+            <user-service>
+                <user name="rod" password="a564de63c2d0da68cf47586ee05984d7" authorities="ROLE_SUPERVISOR, ROLE_USER, ROLE_TELLER" />
+                <user name="dianne" password="65d15fe9156f9c4bbffd98085992a44e" authorities="ROLE_USER,ROLE_TELLER" />
+                <user name="scott" password="2b58af6dddbd072ed27ffc86725d7d3a" authorities="ROLE_USER" />
+                <user name="peter" password="22b5c9accc6e1ba628cedc63a72d57f8" authorities="ROLE_USER" />
+            </user-service>
+        </authentication-provider>
+    </authentication-manager>
 
     <ldap-server id="ldapServer"/>
 
@@ -125,6 +124,5 @@
         </b:property>
         <!-- b:property name="server" ref="mbeanServer"/-->
     </b:bean>
-
 
 </b:beans>
