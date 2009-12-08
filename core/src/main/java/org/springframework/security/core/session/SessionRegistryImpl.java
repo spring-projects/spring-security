@@ -34,27 +34,26 @@ import org.springframework.util.Assert;
  * Base implementation of {@link org.springframework.security.core.session.SessionRegistry}
  * which also listens for {@link org.springframework.security.web.session.HttpSessionDestroyedEvent}s
  * published in the Spring application context.
- *
  * <p>
- * NB: It is important that you register the {@link org.springframework.security.web.session.HttpSessionEventPublisher} in
- * <code>web.xml</code> so that this class is notified of sessions that expire.
+ * NB: It is important that you register the {@link org.springframework.security.web.session.HttpSessionEventPublisher}
+ * in <code>web.xml</code> so that this class is notified of sessions that expire.
  *
  * @author Ben Alex
+ * @author Luke Taylor
  * @version $Id$
  */
 public class SessionRegistryImpl implements SessionRegistry, ApplicationListener<SessionDestroyedEvent> {
-    //~ Static fields/initializers =====================================================================================
 
-    protected static final Log logger = LogFactory.getLog(SessionRegistryImpl.class);
+    //~ Instance fields ================================================================================================
 
-    // ~ Instance fields ===============================================================================================
+    protected final Log logger = LogFactory.getLog(SessionRegistryImpl.class);
 
     /** <principal:Object,SessionIdSet> */
-    private Map<Object,Set<String>> principals = Collections.synchronizedMap(new HashMap<Object,Set<String>>());
+    private final Map<Object,Set<String>> principals = Collections.synchronizedMap(new HashMap<Object,Set<String>>());
     /** <sessionId:Object,SessionInformation> */
-    private Map<String, SessionInformation> sessionIds = Collections.synchronizedMap(new HashMap<String, SessionInformation>());
+    private final Map<String, SessionInformation> sessionIds = Collections.synchronizedMap(new HashMap<String, SessionInformation>());
 
-    // ~ Methods =======================================================================================================
+    //~ Methods ========================================================================================================
 
     public List<Object> getAllPrincipals() {
         return Arrays.asList(principals.keySet().toArray());
