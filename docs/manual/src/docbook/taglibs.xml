@@ -1,0 +1,36 @@
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="taglibs"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+
+    <title>JSP Tag Libraries</title>
+    
+    <para>
+        Spring Security has its own taglib which provides basic support for accessing security information
+        and applying security constraints in JSPs.
+    </para>
+    
+    <section>
+        <title>Declaring the Taglib</title>
+        <para>To use any of the tags, you must have the security taglib declared in your JSP:
+        
+<programlisting>
+    <![CDATA[<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>]]>
+</programlisting>        
+        
+        </para>
+    </section>
+    
+    <section>
+        <title>The <literal>authorize</literal> Tag</title>
+        <para>
+            This tag is used to determine whether its contents should be evaluated or not. In Spring Security
+            3.0, it can be used in two ways <footnote><para>The legacy options from Spring Security 2.0 are also supported,
+            but discouraged.</para></footnote>. The first approach uses a <link xlink:href="el-access-we">web-security expression</link>,
+            specified in the <literal>access</literal> attribute of the tag.
+        </para>
+        
+    </section>
+    
+    
+
+
+</chapter>
