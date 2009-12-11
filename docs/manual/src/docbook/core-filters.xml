@@ -174,11 +174,11 @@
     </section>
     <section xml:id="security-context-persistence-filter">
         <title><classname>SecurityContextPersistenceFilter</classname></title>
-        <para> We covered the purpose of this all-important filter in <link
-                xlink:href="#tech-intro-sec-context-persistence"/> so you might want to re-read that
-            section at this point. Let's first take a look at how you would configure it for use
-            with a <classname>FilterChainProxy</classname>. A basic configuration only requires the
-            bean itself <programlisting><![CDATA[
+        <para> We covered the purpose of this all-important filter in the <link
+                xlink:href="#tech-intro-sec-context-persistence">Technical Overview</link> chapter 
+            so you might want to re-read that section at this point. Let's first take a look at how 
+            you would configure it for use with a <classname>FilterChainProxy</classname>. A basic 
+            configuration only requires the bean itself <programlisting><![CDATA[
 <bean id="securityContextPersistenceFilter"
 class="org.springframework.security.web.context.SecurityContextPersistenceFilter"/>
 ]]></programlisting> As we saw previously, this filter has two main tasks. It is responsible for
@@ -195,8 +195,9 @@ class="org.springframework.security.web.context.SecurityContextPersistenceFilter
                 now delegated to a separate strategy interface:
                 <programlisting language="java">
 public interface SecurityContextRepository {
-SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder);
-void saveContext(SecurityContext context, HttpServletRequest request, HttpServletResponse response);    
+  SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder);
+  void saveContext(SecurityContext context, HttpServletRequest request, 
+         HttpServletResponse response);    
 }
 </programlisting>
                 The <classname>HttpRequestResponseHolder</classname> is simply a container for the
