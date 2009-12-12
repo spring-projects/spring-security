@@ -29,6 +29,13 @@ public class InMemoryProviderWebAppTests extends AbstractWebServerIntegrationTes
         tester.gotoPage("/logout");
     }
 
+    @Test
+    public void basicAuthenticationIsSuccessful() throws Exception {
+        tester.getTestContext().setAuthorization("johnc", "johncspassword");
+        beginAt("secure/index.html");
+        beginAt("secure/index.html");
+    }
+
     /*
      * Checks use of <jsp:include> with parameters in the secured page.
      */
