@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <book version="5.0" xml:id="spring-security-reference-guide" xmlns="http://docbook.org/ns/docbook"
   xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude">
-  <info><title>Spring Security</title><subtitle>Reference
-        Documentation</subtitle><authorgroup><author>
+  <info><title>Spring Security</title><subtitle>Reference Documentation</subtitle><authorgroup>
+      <author>
         <personname>Ben Alex</personname>
-      </author><author>
+      </author>
+      <author>
         <personname>Luke Taylor</personname>
-      </author></authorgroup>
+      </author>
+    </authorgroup>
     <productname>Spring Security</productname>
     <releaseinfo>3.0.0.RC2</releaseinfo>
   </info>
@@ -77,9 +79,9 @@
       <para> We'll also take a look at the sample applications that are available. It's worth trying
         to run these and experimenting with them a bit even before you read the later sections - you
         can dip back into them as your understanding of the framework increases. Please also check
-        out the <link xlink:href="http://static.springsource.org/spring-security/site/index.html">project website</link> as
-        it has useful information on building the project, plus links to articles, videos and tutorials.
-      </para>
+        out the <link xlink:href="http://static.springsource.org/spring-security/site/index.html"
+          >project website</link> as it has useful information on building the project, plus links
+        to articles, videos and tutorials. </para>
     </partintro>
     <xi:include href="introduction.xml"/>
     <xi:include href="namespace-config.xml"/>

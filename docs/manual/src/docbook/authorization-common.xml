@@ -1,9 +1,9 @@
-<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="authorization-common"
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="authz-arch"
   xmlns:xlink="http://www.w3.org/1999/xlink">
   <info>
-    <title>Common Authorization Concepts</title>
+    <title>Authorization Architecture</title>
   </info>
-  <section xml:id="authorities">
+  <section xml:id="authz-authorities">
     <info>
       <title>Authorities</title>
     </info>
@@ -45,7 +45,7 @@
         <literal>GrantedAuthorityImpl</literal> to populate the
         <interfacename>Authentication</interfacename> object.</para>
   </section>
-  <section xml:id="pre-invocation">
+  <section xml:id="authz-pre-invocation">
     <info>
       <title>Pre-Invocation Handling</title>
     </info>
@@ -53,7 +53,7 @@
       chapter, Spring Security provides interceptors which control access to secure objects such as
       method invocations or web requests. A pre-invocation decision on whether the invocation is
       allowed to proceed is made by the <interfacename>AccessDecisionManager</interfacename>. </para>
-    <section>
+    <section xml:id="authz-access-decision-manager">
       <title>The AccessDecisionManager</title>
       <para>The <interfacename>AccessDecisionManager</interfacename> is called by the
           <classname>AbstractSecurityInterceptor</classname> and is responsible for making final
@@ -82,102 +82,110 @@
         called by a security interceptor implementation to ensure the configured
           <interfacename>AccessDecisionManager</interfacename> supports the type of secure object
         that the security interceptor will present.</para>
-      <section>
-        <title>Voting-Based AccessDecisionManager Implementations</title>
-        <para>Whilst users can implement their own
-            <interfacename>AccessDecisionManager</interfacename> to control all aspects of
-          authorization, Spring Security includes several
-            <interfacename>AccessDecisionManager</interfacename> implementations that are based on
-          voting. <xref linkend="authz-access-voting"/> illustrates the relevant classes.</para>
-        <figure xml:id="authz-access-voting">
-          <title>Voting Decision Manager</title>
-          <mediaobject>
-            <!--        
-        <imageobject role="fo">
-          <imagedata align="center" fileref="resources/images/AccessDecisionVoting.gif" format="GIF"/>
-        </imageobject>
+    </section>
+    <section xml:id="authz-voting-based">
+      <title>Voting-Based AccessDecisionManager Implementations</title>
+      <para>Whilst users can implement their own
+          <interfacename>AccessDecisionManager</interfacename> to control all aspects of
+        authorization, Spring Security includes several
+          <interfacename>AccessDecisionManager</interfacename> implementations that are based on
+        voting. <xref linkend="authz-access-voting"/> illustrates the relevant classes.</para>
+      <figure xml:id="authz-access-voting">
+        <title>Voting Decision Manager</title>
+        <mediaobject>
+          <!--        
+      <imageobject role="fo">
+        <imagedata align="center" fileref="resources/images/AccessDecisionVoting.gif" format="GIF"/>
+      </imageobject>
 -->
-            <imageobject>
-              <imagedata align="center" scalefit="1" fileref="images/AccessDecisionVoting.gif"
-                format="GIF"/>
-            </imageobject>
-          </mediaobject>
-        </figure>
-        <para>Using this approach, a series of <interfacename>AccessDecisionVoter</interfacename>
-          implementations are polled on an authorization decision. The
-            <interfacename>AccessDecisionManager</interfacename> then decides whether or not to
-          throw an <literal>AccessDeniedException</literal> based on its assessment of the
-          votes.</para>
-        <para>The <interfacename>AccessDecisionVoter</interfacename> interface has three methods:
-          <programlisting>
+          <imageobject>
+            <imagedata align="center" scalefit="1" fileref="images/AccessDecisionVoting.gif"
+              format="GIF" />
+          </imageobject>
+        </mediaobject>
+      </figure>
+      <para>Using this approach, a series of <interfacename>AccessDecisionVoter</interfacename>
+        implementations are polled on an authorization decision. The
+          <interfacename>AccessDecisionManager</interfacename> then decides whether or not to throw
+        an <literal>AccessDeniedException</literal> based on its assessment of the votes.</para>
+      <para>The <interfacename>AccessDecisionVoter</interfacename> interface has three methods:
+        <programlisting>
 int vote(Authentication authentication, Object object, List&lt;ConfigAttribute&gt; config);
 boolean supports(ConfigAttribute attribute);
 boolean supports(Class clazz);
 </programlisting>
-          Concrete implementations return an <literal>int</literal>, with possible values being
-          reflected in the <interfacename>AccessDecisionVoter</interfacename> static fields
-            <literal>ACCESS_ABSTAIN</literal>, <literal>ACCESS_DENIED</literal> and
-            <literal>ACCESS_GRANTED</literal>. A voting implementation will return
-            <literal>ACCESS_ABSTAIN</literal> if it has no opinion on an authorization decision. If
-          it does have an opinion, it must return either <literal>ACCESS_DENIED</literal> or
-            <literal>ACCESS_GRANTED</literal>.</para>
-        <para>There are three concrete <interfacename>AccessDecisionManager</interfacename>s
-          provided with Spring Security that tally the votes. The <literal>ConsensusBased</literal>
-          implementation will grant or deny access based on the consensus of non-abstain votes.
-          Properties are provided to control behavior in the event of an equality of votes or if all
-          votes are abstain. The <literal>AffirmativeBased</literal> implementation will grant
-          access if one or more <literal>ACCESS_GRANTED</literal> votes were received (i.e. a deny
-          vote will be ignored, provided there was at least one grant vote). Like the
-            <literal>ConsensusBased</literal> implementation, there is a parameter that controls the
-          behavior if all voters abstain. The <literal>UnanimousBased</literal> provider expects
-          unanimous <literal>ACCESS_GRANTED</literal> votes in order to grant access, ignoring
-          abstains. It will deny access if there is any <literal>ACCESS_DENIED</literal> vote. Like
-          the other implementations, there is a parameter that controls the behaviour if all voters
+        Concrete implementations return an <literal>int</literal>, with possible values being
+        reflected in the <interfacename>AccessDecisionVoter</interfacename> static fields
+          <literal>ACCESS_ABSTAIN</literal>, <literal>ACCESS_DENIED</literal> and
+          <literal>ACCESS_GRANTED</literal>. A voting implementation will return
+          <literal>ACCESS_ABSTAIN</literal> if it has no opinion on an authorization decision. If it
+        does have an opinion, it must return either <literal>ACCESS_DENIED</literal> or
+          <literal>ACCESS_GRANTED</literal>.</para>
+      <para>There are three concrete <interfacename>AccessDecisionManager</interfacename>s provided
+        with Spring Security that tally the votes. The <literal>ConsensusBased</literal>
+        implementation will grant or deny access based on the consensus of non-abstain votes.
+        Properties are provided to control behavior in the event of an equality of votes or if all
+        votes are abstain. The <literal>AffirmativeBased</literal> implementation will grant access
+        if one or more <literal>ACCESS_GRANTED</literal> votes were received (i.e. a deny vote will
+        be ignored, provided there was at least one grant vote). Like the
+          <literal>ConsensusBased</literal> implementation, there is a parameter that controls the
+        behavior if all voters abstain. The <literal>UnanimousBased</literal> provider expects
+        unanimous <literal>ACCESS_GRANTED</literal> votes in order to grant access, ignoring
+        abstains. It will deny access if there is any <literal>ACCESS_DENIED</literal> vote. Like
+        the other implementations, there is a parameter that controls the behaviour if all voters
+        abstain.</para>
+      <para>It is possible to implement a custom
+          <interfacename>AccessDecisionManager</interfacename> that tallies votes differently. For
+        example, votes from a particular <interfacename>AccessDecisionVoter</interfacename> might
+        receive additional weighting, whilst a deny vote from a particular voter may have a veto
+        effect.</para>
+      <section xml:id="authz-role-voter">
+        <title><classname>RoleVoter</classname></title>
+        <para> The most commonly used <interfacename>AccessDecisionVoter</interfacename> provided
+          with Spring Security is the simple <classname>RoleVoter</classname>, which treats
+          configuration attributes as simple role names and votes to grant access if the user has
+          been assigned that role.</para>
+        <para>It will vote if any <interfacename>ConfigAttribute</interfacename> begins with the
+          prefix <literal>ROLE_</literal>. It will vote to grant access if there is a
+            <interfacename>GrantedAuthority</interfacename> which returns a
+            <literal>String</literal> representation (via the <literal>getAuthority()</literal>
+          method) exactly equal to one or more <literal>ConfigAttributes</literal> starting with
+            <literal>ROLE_</literal>. If there is no exact match of any
+            <literal>ConfigAttribute</literal> starting with <literal>ROLE_</literal>, the
+            <literal>RoleVoter</literal> will vote to deny access. If no
+            <literal>ConfigAttribute</literal> begins with <literal>ROLE_</literal>, the voter will
           abstain.</para>
-        <para>It is possible to implement a custom
-            <interfacename>AccessDecisionManager</interfacename> that tallies votes differently. For
-          example, votes from a particular <interfacename>AccessDecisionVoter</interfacename> might
-          receive additional weighting, whilst a deny vote from a particular voter may have a veto
-          effect.</para>
-        <section>
-          <title><classname>RoleVoter</classname></title>
-          <para> The most commonly used <interfacename>AccessDecisionVoter</interfacename> provided
-            with Spring Security is the simple <classname>RoleVoter</classname>, which treats
-            configuration attributes as simple role names and votes to grant access if the user has
-            been assigned that role.</para>
-          <para>It will vote if any ConfigAttribute begins with the prefix <literal>ROLE_</literal>.
-            It will vote to grant access if there is a
-              <interfacename>GrantedAuthority</interfacename> which returns a
-              <literal>String</literal> representation (via the <literal>getAuthority()</literal>
-            method) exactly equal to one or more <literal>ConfigAttributes</literal> starting with
-              <literal>ROLE_</literal>. If there is no exact match of any
-              <literal>ConfigAttribute</literal> starting with <literal>ROLE_</literal>, the
-              <literal>RoleVoter</literal> will vote to deny access. If no
-              <literal>ConfigAttribute</literal> begins with <literal>ROLE_</literal>, the voter
-            will abstain. The comparisons of attributes and</para>
-        </section>
-        <section>
-          <title>Custom Voters</title>
-          <para>It is also possible to implement a custom
-              <interfacename>AccessDecisionVoter</interfacename>. Several examples are provided in
-            Spring Security unit tests, including <literal>ContactSecurityVoter</literal> and
-              <literal>DenyVoter</literal>. The <literal>ContactSecurityVoter</literal> abstains
-            from voting decisions where a <literal>CONTACT_OWNED_BY_CURRENT_USER</literal>
-            <literal>ConfigAttribute</literal> is not found. If voting, it queries the
-              <classname>MethodInvocation</classname> to extract the owner of the
-              <literal>Contact</literal> object that is subject of the method call. It votes to
-            grant access if the <literal>Contact</literal> owner matches the principal presented in
-            the <interfacename>Authentication</interfacename> object. It could have just as easily
-            compared the <literal>Contact</literal> owner with some
-              <interfacename>GrantedAuthority</interfacename> the
-              <interfacename>Authentication</interfacename> object presented. All of this is
-            achieved with relatively few lines of code and demonstrates the flexibility of the
-            authorization model.</para>
-        </section>
+      </section>
+      <section xml:id="authz-authenticated-voter">
+        <title><classname>AuthenticatedVoter</classname></title>
+        <para> Another voter which we've implicitly seen is the
+            <classname>AuthenticatedVoter</classname>, which can be used to differentiate between
+          anonymous, fully-authenticated and remember-me authenticated users. When we've used the
+          attribute <literal>IS_AUTHENTICATED_ANONYMOUSLY</literal> to grant anonymous access, this
+          attribute was being processed by the <classname>AuthenticatedVoter</classname>. See the
+          Javadoc for this class for more information. </para>
+      </section>
+      <section>
+        <title>Custom Voters</title>
+        <para>It is also possible to implement a custom
+            <interfacename>AccessDecisionVoter</interfacename>. Several examples are provided in
+          Spring Security unit tests, including <literal>ContactSecurityVoter</literal> and
+            <literal>DenyVoter</literal>. The <literal>ContactSecurityVoter</literal> abstains from
+          voting decisions where a <literal>CONTACT_OWNED_BY_CURRENT_USER</literal>
+          <literal>ConfigAttribute</literal> is not found. If voting, it queries the
+            <classname>MethodInvocation</classname> to extract the owner of the
+            <literal>Contact</literal> object that is subject of the method call. It votes to grant
+          access if the <literal>Contact</literal> owner matches the principal presented in the
+            <interfacename>Authentication</interfacename> object. It could have just as easily
+          compared the <literal>Contact</literal> owner with some
+            <interfacename>GrantedAuthority</interfacename> the
+            <interfacename>Authentication</interfacename> object presented. All of this is achieved
+          with relatively few lines of code and demonstrates the flexibility of the authorization
+          model.</para>
       </section>
     </section>
   </section>
-  <section xml:id="after-invocation">
+  <section xml:id="authz-after-invocation-handling">
     <info>
       <title>After Invocation Handling</title>
     </info>
@@ -189,11 +197,15 @@ boolean supports(Class clazz);
       that integrate with its ACL capabilities.</para>
     <para><xref linkend="authz-after-invocation"/> illustrates Spring Security's
         <literal>AfterInvocationManager</literal> and its concrete implementations. <figure
-        xml:id="authz-after-invocation"><title>After Invocation
-            Implementation</title><mediaobject><imageobject>
+        xml:id="authz-after-invocation">
+        <title>After Invocation Implementation</title>
+        <mediaobject>
+          <imageobject>
             <imagedata align="center" scalefit="1" fileref="images/AfterInvocation.gif" format="GIF"
             />
-          </imageobject></mediaobject></figure></para>
+          </imageobject>
+        </mediaobject>
+      </figure></para>
     <para>Like many other parts of Spring Security, <literal>AfterInvocationManager</literal> has a
       single concrete implementation, <literal>AfterInvocationProviderManager</literal>, which polls
       a list of <literal>AfterInvocationProvider</literal>s. Each

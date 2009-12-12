@@ -189,31 +189,50 @@ if (principal instanceof UserDetails) {
       own proprietary authentication system. </para>
     <section>
       <title>What is authentication in Spring Security?</title>
-      <para> Let's consider a standard authentication scenario that everyone is familiar with.
-              <orderedlist><listitem><para>A user is prompted to log in with a username and
-              password.</para></listitem><listitem><para>The system (successfully) verifies that the
-              password is correct for the username.</para></listitem><listitem><para>The context
-              information for that user is obtained (their list of roles and so
-            on).</para></listitem><listitem><para>A security context is established for the
-              user</para></listitem><listitem><para>The user proceeds, potentially to perform some
-              operation which is potentially protected by an access control mechanism which checks
-              the required permissions for the operation against the current security context
-              information. </para></listitem></orderedlist> The first three items constitute the
-        authentication process so we'll take a look at how these take place within Spring
-              Security.<orderedlist><listitem><para>The username and password are obtained and
-              combined into an instance of
+      <para> Let's consider a standard authentication scenario that everyone is familiar with. <orderedlist>
+          <listitem>
+            <para>A user is prompted to log in with a username and password.</para>
+          </listitem>
+          <listitem>
+            <para>The system (successfully) verifies that the password is correct for the
+              username.</para>
+          </listitem>
+          <listitem>
+            <para>The context information for that user is obtained (their list of roles and so
+              on).</para>
+          </listitem>
+          <listitem>
+            <para>A security context is established for the user</para>
+          </listitem>
+          <listitem>
+            <para>The user proceeds, potentially to perform some operation which is potentially
+              protected by an access control mechanism which checks the required permissions for the
+              operation against the current security context information. </para>
+          </listitem>
+        </orderedlist> The first three items constitute the authentication process so we'll take a
+        look at how these take place within Spring Security.<orderedlist>
+          <listitem>
+            <para>The username and password are obtained and combined into an instance of
                 <classname>UsernamePasswordAuthenticationToken</classname> (an instance of the
                 <interfacename>Authentication</interfacename> interface, which we saw
-              earlier).</para></listitem><listitem><para>The token is passed to an instance of
-                <interfacename>AuthenticationManager</interfacename> for
-            validation.</para></listitem><listitem><para>The
-                <interfacename>AuthenticationManager</interfacename> returns a fully populated
+              earlier).</para>
+          </listitem>
+          <listitem>
+            <para>The token is passed to an instance of
+                <interfacename>AuthenticationManager</interfacename> for validation.</para>
+          </listitem>
+          <listitem>
+            <para>The <interfacename>AuthenticationManager</interfacename> returns a fully populated
                 <interfacename>Authentication</interfacename> instance on successful
-              authentication.</para></listitem><listitem><para>The security context is established
-              by calling <code>SecurityContextHolder.getContext().setAuthentication(...)</code>,
-              passing in the returned authentication object.</para></listitem></orderedlist>From
-        that point on, the user is considered to be authenticated. Let's look at some code as an
-        example.
+              authentication.</para>
+          </listitem>
+          <listitem>
+            <para>The security context is established by calling
+                <code>SecurityContextHolder.getContext().setAuthentication(...)</code>, passing in
+              the returned authentication object.</para>
+          </listitem>
+        </orderedlist>From that point on, the user is considered to be authenticated. Let's look at
+        some code as an example.
         <programlisting language="java">import org.springframework.security.authentication.*;
 import org.springframework.security.core.*;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
@@ -484,17 +503,29 @@ Successfully authenticated. Security context contains: \
           <interfacename>Authentication</interfacename> if the principal has been
         authenticated.</para>
       <para><classname>AbstractSecurityInterceptor</classname> provides a consistent workflow for
-        handling secure object requests, typically: <orderedlist><listitem><para>Look up the
-                <quote>configuration attributes</quote> associated with the present
-            request</para></listitem><listitem><para>Submitting the secure object, current
+        handling secure object requests, typically: <orderedlist>
+          <listitem>
+            <para>Look up the <quote>configuration attributes</quote> associated with the present
+              request</para>
+          </listitem>
+          <listitem>
+            <para>Submitting the secure object, current
                 <interfacename>Authentication</interfacename> and configuration attributes to the
                 <interfacename>AccessDecisionManager</interfacename> for an authorization
-              decision</para></listitem><listitem><para>Optionally change the
-                <interfacename>Authentication</interfacename> under which the invocation takes
-              place</para></listitem><listitem><para>Allow the secure object invocation to proceed
-              (assuming access was granted)</para></listitem><listitem><para>Call the
-                <interfacename>AfterInvocationManager</interfacename> if configured, once the
-              invocation has returned.</para></listitem></orderedlist></para>
+              decision</para>
+          </listitem>
+          <listitem>
+            <para>Optionally change the <interfacename>Authentication</interfacename> under which
+              the invocation takes place</para>
+          </listitem>
+          <listitem>
+            <para>Allow the secure object invocation to proceed (assuming access was granted)</para>
+          </listitem>
+          <listitem>
+            <para>Call the <interfacename>AfterInvocationManager</interfacename> if configured, once
+              the invocation has returned.</para>
+          </listitem>
+        </orderedlist></para>
       <section xml:id="tech-intro-config-attributes">
         <title>What are Configuration Attributes?</title>
         <para> A <quote>configuration attribute</quote> can be thought of as a String that has
@@ -507,8 +538,16 @@ Successfully authenticated. Security context contains: \
             <interfacename>SecurityMetadataSource</interfacename> which it uses to look up the
           attributes for a secure object. Usually this configuration will be hidden from the user.
           Configuration attributes will be entered as annotations on secured methods or as access
-          attributes on secured URLs (using the namespace <literal>&lt;intercept-url&gt;</literal>
-          syntax).</para>
+          attributes on secured URLs. For example, when we saw something like
+            <literal>&lt;intercept-url pattern='/secure/**' access='ROLE_A,ROLE_B'/></literal> in
+          the namespace introduction, this is saying that the configuration attributes
+            <literal>ROLE_A</literal> and <literal>ROLE_B</literal> apply to web requests matching
+          the given pattern. In practice, with the default
+            <interfacename>AccessDecisionManager</interfacename> configuration, this means that
+          anyone who has a <interfacename>GrantedAuthority</interfacename> matching either of these
+          two attributes will be allowed access. Strictly speaking though, they are just attributes
+          and the interpretation is dependent on the
+            <interfacename>AccessDecisionManager</interfacename> implementation.</para>
       </section>
       <section>
         <title>RunAsManager</title>
@@ -539,10 +578,14 @@ Successfully authenticated. Security context contains: \
           or not change it in any way as it chooses.</para>
         <para><classname>AbstractSecurityInterceptor</classname> and its related objects are shown
           in <xref linkend="abstract-security-interceptor"/>. <figure
-            xml:id="abstract-security-interceptor"><title>Security interceptors and the
-                <quote>secure object</quote> model</title><mediaobject><imageobject>
+            xml:id="abstract-security-interceptor">
+            <title>Security interceptors and the <quote>secure object</quote> model</title>
+            <mediaobject>
+              <imageobject>
                 <imagedata align="center" fileref="images/security-interception.png" format="PNG"/>
-              </imageobject></mediaobject></figure></para>
+              </imageobject>
+            </mediaobject>
+          </figure></para>
       </section>
       <section>
         <title>Extending the Secure Object Model</title>

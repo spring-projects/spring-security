@@ -28,8 +28,8 @@
 	<xsl:import href="http://docbook.sourceforge.net/release/xsl/current/fo/highlight.xsl"/>
 
 	<xsl:param name="admon.graphics">'1'</xsl:param>
-	<xsl:param name="admon.graphics.path">images/</xsl:param>
-	<xsl:param name="draft.watermark.image" select="'images/draft.png'"/>
+	<xsl:param name="admon.graphics.path">src/docbook/images/</xsl:param>
+	<!-- xsl:param name="draft.watermark.image" select="'images/draft.png'"/ -->
 	<xsl:param name="paper.type" select="'A4'"/>
 
 	<xsl:param name="page.margin.top" select="'1cm'"/>

@@ -22,15 +22,16 @@
     <para> The <literal>&lt;http&gt;</literal> element encapsulates the security configuration for
       the web layer of your application. It creates a <classname>FilterChainProxy</classname> bean
       named "springSecurityFilterChain" which maintains the stack of security filters which make up
-      the web security configuration <footnote><para>See the <link xlink:href="#ns-web-xml">
-            introductory chapter</link> for how to set up the mapping from your
-            <literal>web.xml</literal></para></footnote>. Some core filters are always created and
-      others will be added to the stack depending on the attributes child elements which are
-      present. The positions of the standard filters are fixed (see <link xlink:href="#filter-stack"
-        >the filter order table</link> in the namespace introduction), removing a common source of
-      errors with previous versions of the framework when users had to configure the filter chain
-      explicitly in the<classname>FilterChainProxy</classname> bean. You can, of course, still do
-      this if you need full control of the configuration. </para>
+      the web security configuration <footnote>
+        <para>See the <link xlink:href="#ns-web-xml"> introductory chapter</link> for how to set up
+          the mapping from your <literal>web.xml</literal></para>
+      </footnote>. Some core filters are always created and others will be added to the stack
+      depending on the attributes child elements which are present. The positions of the standard
+      filters are fixed (see <link xlink:href="#filter-stack">the filter order table</link> in the
+      namespace introduction), removing a common source of errors with previous versions of the
+      framework when users had to configure the filter chain explicitly in
+        the<classname>FilterChainProxy</classname> bean. You can, of course, still do this if you
+      need full control of the configuration. </para>
     <para> All filters which require a reference to the
         <interfacename>AuthenticationManager</interfacename> will be automatically injected with the
       internal instance created by the namespace configuration (see the <link
@@ -112,7 +113,7 @@
       </section>
     </section>
     <section xml:id="nsa-access-denied-handler">
-      <title><literal>access-denied-handler</literal></title>
+      <title><literal>&lt;access-denied-handler></literal></title>
       <para> This element allows you to set the <literal>errorPage</literal> property for the
         default <interfacename>AccessDeniedHandler</interfacename> used by the
           <classname>ExceptionTranslationFilter</classname>, (using the
@@ -129,7 +130,10 @@
           <classname>FilterSecurityInterceptor</classname> and to exclude particular patterns from
         the filter chain entirely (by setting the attribute <literal>filters="none"</literal>). It
         is also responsible for configuring a <classname>ChannelAuthenticationFilter</classname> if
-        particular URLs need to be accessed by HTTPS, for example. </para>
+        particular URLs need to be accessed by HTTPS, for example. When matching the specified
+        patterns against an incoming request, the matching is done in the order in which the
+        elements are declared. So the most specific matches patterns should come first and the most
+        general should come last.</para>
       <section xml:id="nsa-pattern">
         <title><literal>pattern</literal></title>
         <para> The pattern which defines the URL path. The content will depend on the
@@ -139,30 +143,39 @@
       <section xml:id="nsa-method">
         <title><literal>method</literal></title>
         <para> The HTTP Method which will be used in combination with the pattern to match an
-          incoming request. If omitted, any method will match. </para>
+          incoming request. If omitted, any method will match. If an identical pattern is specified
+          with and without a method, the method-specific match will take precedence.</para>
       </section>
       <section xml:id="nsa-access">
         <title><literal>access</literal></title>
         <para> Lists the access attributes which will be stored in the
             <interfacename>FilterInvocationDefinitionSource</interfacename> for the defined URL
-          pattern/method combination. This should be a comma-separated list of the attributes (such
-          as role names). </para>
+          pattern/method combination. This should be a comma-separated list of the security
+          configuration attributes (such as role names). </para>
       </section>
       <section xml:id="nsa-requires-channel">
         <title><literal>requires-channel</literal></title>
-        <para> Can be "http" or "https" depending on whether a particular URL pattern should be
-          accessed over HTTP or HTTPS respectively. Alternatively the value "any" can be used when
-          there is no preference. If this attribute is present on any
-            <literal>&lt;intercept-url&gt;</literal> element, then a
+        <para> Can be <quote>http</quote> or <quote>https</quote> depending on whether a particular
+          URL pattern should be accessed over HTTP or HTTPS respectively. Alternatively the value
+            <quote>any</quote> can be used when there is no preference. If this attribute is present
+          on any <literal>&lt;intercept-url&gt;</literal> element, then a
             <classname>ChannelAuthenticationFilter</classname> will be added to the filter stack and
-          its additional dependencies added to the application context.
-          <!--See the chapter on <link
+          its additional dependencies added to the application
+          context.<!--See the chapter on <link
             xlink:href="#channel-security-config">channel security</link> for an example
           configuration using traditional beans. --></para>
         <para> If a <literal>&lt;port-mappings&gt;</literal> configuration is added, this will be
           used to by the <classname>SecureChannelProcessor</classname> and
             <classname>InsecureChannelProcessor</classname> beans to determine the ports used for
           redirecting to HTTP/HTTPS. </para>
+      </section>
+      <section>
+        <title><literal>filters</literal></title>
+        <para>Can only take the value <quote>none</quote>. This will cause any matching request to
+          bypass the Spring Security filter chain entirely. None of the rest of the
+            <literal>&lt;http></literal> configuration will have any effect on the request and there
+          will be no security context available for its duration. Access to secured methods during
+          the request will fail.</para>
       </section>
     </section>
     <section>
@@ -180,13 +193,14 @@
         filter stack and an <classname>LoginUrlAuthenticationEntryPoint</classname> to the
         application context to provide authentication on demand. This will always take precedence
         over other namespace-created entry points. If no attributes are supplied, a login page will
-        be generated automatically at the URL "/spring-security-login" <footnote><para>This feature
-            is really just provided for convenience and is not intended for production (where a view
-            technology will have been chosen and can be used to render a customized login page). The
-            class <classname>DefaultLoginPageGeneratingFilter</classname> is responsible for
-            rendering the login page and will provide login forms for both normal form login and/or
-            OpenID if required.</para></footnote> The behaviour can be customized using the
-        following attributes. </para>
+        be generated automatically at the URL "/spring-security-login" <footnote>
+          <para>This feature is really just provided for convenience and is not intended for
+            production (where a view technology will have been chosen and can be used to render a
+            customized login page). The class
+              <classname>DefaultLoginPageGeneratingFilter</classname> is responsible for rendering
+            the login page and will provide login forms for both normal form login and/or OpenID if
+            required.</para>
+        </footnote> The behaviour can be customized using the following attributes. </para>
       <section>
         <title><literal>login-page</literal></title>
         <para> The URL that should be used to render the login page. Maps to the
@@ -279,9 +293,11 @@
         <title>The <literal>key</literal> Attribute</title>
         <para>Maps to the "key" property of <classname>AbstractRememberMeServices</classname>.
           Should be set to a unique value to ensure that remember-me cookies are only valid within
-          the one application <footnote><para>This doesn't affect the use of
+          the one application <footnote>
+            <para>This doesn't affect the use of
                 <classname>PersistentTokenBasedRememberMeServices</classname>, where the tokens are
-              stored on the server side.</para></footnote>. </para>
+              stored on the server side.</para>
+          </footnote>. </para>
       </section>
       <section>
         <title><literal>token-validity-seconds</literal></title>
@@ -507,11 +523,15 @@
         <para> Rather than defining security attributes on an individual method or class basis using
           the <literal>@Secured</literal> annotation, you can define cross-cutting security
           constraints across whole sets of methods and interfaces in your service layer using the
-            <literal>&lt;protect-pointcut&gt;</literal> element. This has two attributes:
-                  <itemizedlist><listitem><para><literal>expression</literal> - the pointcut
-                expression</para></listitem><listitem><para><literal>access</literal> - the security
-                attributes which apply</para></listitem></itemizedlist> You can find an example in
-          the <link xlink:href="#ns-protect-pointcut">namespace introduction</link>. </para>
+            <literal>&lt;protect-pointcut&gt;</literal> element. This has two attributes: <itemizedlist>
+            <listitem>
+              <para><literal>expression</literal> - the pointcut expression</para>
+            </listitem>
+            <listitem>
+              <para><literal>access</literal> - the security attributes which apply</para>
+            </listitem>
+          </itemizedlist> You can find an example in the <link xlink:href="#ns-protect-pointcut"
+            >namespace introduction</link>. </para>
       </section>
       <section xml:id="nsa-custom-after-invocation">
         <title>The <literal>&lt;after-invocation-provider&gt;</literal> Element</title>
