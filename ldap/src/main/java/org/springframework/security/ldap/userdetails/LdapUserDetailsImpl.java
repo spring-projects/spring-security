@@ -17,6 +17,8 @@ package org.springframework.security.ldap.userdetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import javax.naming.Name;
 
@@ -140,7 +142,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
      */
     public static class Essence {
         protected LdapUserDetailsImpl instance = createTarget();
-        private Collection<GrantedAuthority> mutableAuthorities = new ArrayList<GrantedAuthority>();
+        private List<GrantedAuthority> mutableAuthorities = new ArrayList<GrantedAuthority>();
 
         public Essence() { }
 
@@ -184,7 +186,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
             Assert.notNull(instance.username, "username must not be null");
             Assert.notNull(instance.getDn(), "Distinguished name must not be null");
 
-            instance.authorities = getGrantedAuthorities();
+            instance.authorities = Collections.unmodifiableList(mutableAuthorities);
 
             LdapUserDetails newInstance = instance;
 
@@ -206,7 +208,8 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
         }
 
         public void setAuthorities(Collection<GrantedAuthority> authorities) {
-            mutableAuthorities = authorities;
+            mutableAuthorities = new ArrayList<GrantedAuthority>();
+            mutableAuthorities.addAll(authorities);
         }
 
         public void setCredentialsNonExpired(boolean credentialsNonExpired) {

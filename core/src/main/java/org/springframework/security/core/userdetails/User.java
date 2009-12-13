@@ -74,7 +74,7 @@ public class User implements UserDetails {
      *        locked
      * @param authorities the authorities that should be granted to the caller
      *        if they presented the correct username and password and the user
-     *        is enabled
+     *        is enabled. Not null.
      *
      * @throws IllegalArgumentException if a <code>null</code> value was passed
      *         either as a parameter or as an element in the
@@ -210,7 +210,7 @@ public class User implements UserDetails {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(super.toString()).append(": ");
         sb.append("Username: ").append(this.username).append("; ");
         sb.append("Password: [PROTECTED]; ");
@@ -219,7 +219,7 @@ public class User implements UserDetails {
         sb.append("credentialsNonExpired: ").append(this.credentialsNonExpired).append("; ");
         sb.append("AccountNonLocked: ").append(this.accountNonLocked).append("; ");
 
-        if (this.getAuthorities() != null) {
+        if (!authorities.isEmpty()) {
             sb.append("Granted Authorities: ");
 
             boolean first = true;

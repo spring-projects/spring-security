@@ -22,6 +22,7 @@ import java.util.Collections;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 
 
@@ -46,26 +47,23 @@ public abstract class AbstractAuthenticationToken implements Authentication {
     /**
      * Creates a token with the supplied array of authorities.
      *
-     * @param authorities the list of <tt>GrantedAuthority</tt>s for the
-     *                    principal represented by this authentication object. A
-     *                    <code>null</code> value indicates that no authorities have been
-     *                    granted (pursuant to the interface contract specified by {@link
-     *                    Authentication#getAuthorities()}<code>null</code> should only be
-     *                    presented if the principal has not been authenticated).
+     * @param authorities the collection of <tt>GrantedAuthority</tt>s for the
+     *                    principal represented by this authentication object.
      */
     public AbstractAuthenticationToken(Collection<GrantedAuthority> authorities) {
         if (authorities == null) {
-            this.authorities = null;
-        } else {
-            for (GrantedAuthority a: authorities) {
-                if(a == null) {
-                    throw new IllegalArgumentException("Authorities collection cannot contain any null elements");
-                }
-            }
-            ArrayList<GrantedAuthority> temp = new ArrayList<GrantedAuthority>(authorities.size());
-            temp.addAll(authorities);
-            this.authorities = Collections.unmodifiableList(temp);
+            this.authorities = AuthorityUtils.NO_AUTHORITIES;
+            return;
         }
+
+        for (GrantedAuthority a: authorities) {
+            if (a == null) {
+                throw new IllegalArgumentException("Authorities collection cannot contain any null elements");
+            }
+        }
+        ArrayList<GrantedAuthority> temp = new ArrayList<GrantedAuthority>(authorities.size());
+        temp.addAll(authorities);
+        this.authorities = Collections.unmodifiableList(temp);
     }
 
     //~ Methods ========================================================================================================
@@ -77,14 +75,8 @@ public abstract class AbstractAuthenticationToken implements Authentication {
 
         AbstractAuthenticationToken test = (AbstractAuthenticationToken) obj;
 
-        if (!(authorities == null && test.authorities == null)) {
-            // Not both null
-            if (authorities == null || test.authorities == null) {
-                return false;
-            }
-            if(!authorities.equals(test.authorities)) {
-                return false;
-            }
+        if (!authorities.equals(test.authorities)) {
+            return false;
         }
 
         if ((this.details == null) && (test.getDetails() != null)) {
@@ -141,10 +133,8 @@ public abstract class AbstractAuthenticationToken implements Authentication {
     public int hashCode() {
         int code = 31;
 
-        if (authorities != null) {
-            for (GrantedAuthority authority : authorities) {
-                code ^= authority.hashCode();
-            }
+        for (GrantedAuthority authority : authorities) {
+            code ^= authority.hashCode();
         }
 
         if (this.getPrincipal() != null) {
@@ -179,14 +169,14 @@ public abstract class AbstractAuthenticationToken implements Authentication {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(super.toString()).append(": ");
         sb.append("Principal: ").append(this.getPrincipal()).append("; ");
         sb.append("Password: [PROTECTED]; ");
         sb.append("Authenticated: ").append(this.isAuthenticated()).append("; ");
         sb.append("Details: ").append(this.getDetails()).append("; ");
 
-        if (authorities != null) {
+        if (!authorities.isEmpty()) {
             sb.append("Granted Authorities: ");
 
             int i = 0;

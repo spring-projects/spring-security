@@ -51,10 +51,14 @@ public interface Authentication extends Principal, Serializable {
     /**
      * Set by an <code>AuthenticationManager</code> to indicate the authorities that the principal has been
      * granted. Note that classes should not rely on this value as being valid unless it has been set by a trusted
-     * <code>AuthenticationManager</code>.<p>Implementations should ensure that modifications to the returned
-     * array do not affect the state of the Authentication object (e.g. by returning an array copy).</p>
+     * <code>AuthenticationManager</code>.
+     * <p>
+     * Implementations should ensure that modifications to the returned collection
+     * array do not affect the state of the Authentication object, or use an unmodifiable instance.
+     * </p>
      *
-     * @return the authorities granted to the principal, or <code>null</code> if authentication has not been completed
+     * @return the authorities granted to the principal, or an empty collection if the token has not been authenticated.
+     * Never null.
      */
     Collection<GrantedAuthority> getAuthorities();
 

@@ -68,8 +68,7 @@ public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
             return true;
         }
 
-        if ((authentication == null) || (authentication.getAuthorities() == null)
-            || (authentication.getAuthorities().isEmpty())) {
+        if (authentication == null || authentication.getAuthorities().isEmpty()) {
             return false;
         }
 

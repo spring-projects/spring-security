@@ -185,10 +185,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
 
             // Create a set to hold the authorities, and add any that have already been applied.
             authorities = new HashSet<GrantedAuthority>();
-
-            if (request.getAuthorities() != null) {
-                authorities.addAll(request.getAuthorities());
-            }
+            authorities.addAll(request.getAuthorities());
 
             // Get the subject principals and pass them to each of the AuthorityGranters
             Set<Principal> principals = loginContext.getSubject().getPrincipals();

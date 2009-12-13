@@ -125,10 +125,6 @@ public class LegacyAuthorizeTag extends TagSupport {
             return Collections.emptyList();
         }
 
-        if ((null == currentUser.getAuthorities())) {
-            return Collections.emptyList();
-        }
-
         return currentUser.getAuthorities();
     }
 

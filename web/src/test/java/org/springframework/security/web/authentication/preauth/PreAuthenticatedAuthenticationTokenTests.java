@@ -25,7 +25,7 @@ public class PreAuthenticatedAuthenticationTokenTests extends TestCase {
         assertEquals(principal, token.getPrincipal());
         assertEquals(credentials, token.getCredentials());
         assertEquals(details, token.getDetails());
-        assertNull(token.getAuthorities());
+        assertTrue(token.getAuthorities().isEmpty());
     }
 
     public void testPreAuthenticatedAuthenticationTokenRequestWithoutDetails() {
@@ -35,7 +35,7 @@ public class PreAuthenticatedAuthenticationTokenTests extends TestCase {
         assertEquals(principal, token.getPrincipal());
         assertEquals(credentials, token.getCredentials());
         assertNull(token.getDetails());
-        assertNull(token.getAuthorities());
+        assertTrue(token.getAuthorities().isEmpty());
     }
 
     public void testPreAuthenticatedAuthenticationTokenResponse() {
