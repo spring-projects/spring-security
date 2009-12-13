@@ -56,7 +56,7 @@ import org.springframework.util.Assert;
  * org.springframework.security.authentication.UsernamePasswordAuthenticationToken} requests contain the correct username and
  * password.</p>
  * <p>This implementation is backed by a <a
- * href="http://java.sun.com/j2se/1.4.2/docs/guide/security/jaas/JAASRefGuide.html">JAAS</a> configuration. The
+ * href="http://java.sun.com/j2se/1.5.0/docs/guide/security/jaas/JAASRefGuide.html">JAAS</a> configuration. The
  * loginConfig property must be set to a given JAAS configuration file. This setter accepts a Spring {@link
  * org.springframework.core.io.Resource} instance. It should point to a JAAS configuration file containing an index
  * matching the {@link #setLoginContextName(java.lang.String) loginContextName} property.
@@ -83,9 +83,9 @@ import org.springframework.util.Assert;
  * </pre>
  * </p>
  *  <p>When using JAAS login modules as the authentication source, sometimes the
- * <a href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/login/LoginContext.html">LoginContext</a> will
+ * <a href="http://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/login/LoginContext.html">LoginContext</a> will
  * require <i>CallbackHandler</i>s. The JaasAuthenticationProvider uses an internal
- * <a href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/CallbackHandler.html">CallbackHandler
+ * <a href="http://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/callback/CallbackHandler.html">CallbackHandler
  * </a> to wrap the {@link JaasAuthenticationCallbackHandler}s configured in the ApplicationContext.
  * When the LoginContext calls the internal CallbackHandler, control is passed to each
  * {@link JaasAuthenticationCallbackHandler} for each Callback passed.
@@ -140,6 +140,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
     private AuthorityGranter[] authorityGranters;
     private JaasAuthenticationCallbackHandler[] callbackHandlers;
     private ApplicationEventPublisher applicationEventPublisher;
+    private boolean refreshConfigurationOnStartup = true;
 
     //~ Methods ========================================================================================================
 
@@ -225,7 +226,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
     }
 
     /**
-     * Hook method for configuring Jaas
+     * Hook method for configuring Jaas. If {@code
      *
      * @param loginConfig URL to Jaas login configuration
      *
@@ -234,8 +235,10 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
     protected void configureJaas(Resource loginConfig) throws IOException {
         configureJaasUsingLoop();
 
-        // Overcome issue in SEC-760
-        Configuration.getConfiguration().refresh();
+        if (refreshConfigurationOnStartup) {
+            // Overcome issue in SEC-760
+            Configuration.getConfiguration().refresh();
+        }
     }
 
     /**
@@ -249,7 +252,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
         boolean alreadySet = false;
 
         int n = 1;
-        String prefix = "login.config.url.";
+        final String prefix = "login.config.url.";
         String existing = null;
 
         while ((existing = Security.getProperty(prefix + n)) != null) {
@@ -267,41 +270,6 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
             log.debug("Setting security property [" + key + "] to: " + loginConfigUrl);
             Security.setProperty(key, loginConfigUrl);
         }
-    }
-
-    /**
-     * Returns the AuthorityGrannter array that was passed to the {@link
-     * #setAuthorityGranters(AuthorityGranter[])} method, or null if it none were ever set.
-     *
-     * @return The AuthorityGranter array, or null
-     *
-     * @see #setAuthorityGranters(AuthorityGranter[])
-     */
-    public AuthorityGranter[] getAuthorityGranters() {
-        return authorityGranters;
-    }
-
-    /**
-     * Returns the current JaasAuthenticationCallbackHandler array, or null if none are set.
-     *
-     * @return the JAASAuthenticationCallbackHandlers.
-     *
-     * @see #setCallbackHandlers(JaasAuthenticationCallbackHandler[])
-     */
-    public JaasAuthenticationCallbackHandler[] getCallbackHandlers() {
-        return callbackHandlers;
-    }
-
-    public Resource getLoginConfig() {
-        return loginConfig;
-    }
-
-    public String getLoginContextName() {
-        return loginContextName;
-    }
-
-    public LoginExceptionResolver getLoginExceptionResolver() {
-        return loginExceptionResolver;
     }
 
     /**
@@ -368,6 +336,18 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
     }
 
     /**
+     * Returns the AuthorityGrannter array that was passed to the {@link
+     * #setAuthorityGranters(AuthorityGranter[])} method, or null if it none were ever set.
+     *
+     * @return The AuthorityGranter array, or null
+     *
+     * @see #setAuthorityGranters(AuthorityGranter[])
+     */
+    AuthorityGranter[] getAuthorityGranters() {
+        return authorityGranters;
+    }
+
+    /**
      * Set the AuthorityGranters that should be consulted for role names to be granted to the Authentication.
      *
      * @param authorityGranters AuthorityGranter array
@@ -376,6 +356,17 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
      */
     public void setAuthorityGranters(AuthorityGranter[] authorityGranters) {
         this.authorityGranters = authorityGranters;
+    }
+
+    /**
+     * Returns the current JaasAuthenticationCallbackHandler array, or null if none are set.
+     *
+     * @return the JAASAuthenticationCallbackHandlers.
+     *
+     * @see #setCallbackHandlers(JaasAuthenticationCallbackHandler[])
+     */
+    JaasAuthenticationCallbackHandler[] getCallbackHandlers() {
+        return callbackHandlers;
     }
 
     /**
@@ -388,17 +379,23 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
         this.callbackHandlers = callbackHandlers;
     }
 
+    public Resource getLoginConfig() {
+        return loginConfig;
+    }
+
     /**
      * Set the JAAS login configuration file.
      *
-     * @param loginConfig <a
-     *        href="http://www.springframework.org/docs/api/org/springframework/core/io/Resource.html">Spring
-     *        Resource</a>
+     * @param loginConfig
      *
-     * @see <a href="http://java.sun.com/j2se/1.4.2/docs/guide/security/jaas/JAASRefGuide.html">JAAS Reference</a>
+     * @see <a href="http://java.sun.com/j2se/1.5.0/docs/guide/security/jaas/JAASRefGuide.html">JAAS Reference</a>
      */
     public void setLoginConfig(Resource loginConfig) {
         this.loginConfig = loginConfig;
+    }
+
+    String getLoginContextName() {
+        return loginContextName;
     }
 
     /**
@@ -411,8 +408,25 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
         this.loginContextName = loginContextName;
     }
 
+    LoginExceptionResolver getLoginExceptionResolver() {
+        return loginExceptionResolver;
+    }
+
     public void setLoginExceptionResolver(LoginExceptionResolver loginExceptionResolver) {
         this.loginExceptionResolver = loginExceptionResolver;
+    }
+
+    /**
+     * If set, a call to {@code Configuration#refresh()} will be made by {@code #configureJaas(Resource) }
+     * method. Defaults to {@literal true}.
+     *
+     * @see <a href="https://jira.springsource.org/browse/SEC-1320">SEC-1230</a>
+     *
+     * @param refreshConfigurationOnStartup set to {@literal false} to disable reloading of the configuration.
+     * May be useful in some environments.
+     */
+    public void setRefreshConfigurationOnStartup(boolean refresh) {
+        this.refreshConfigurationOnStartup = refresh;
     }
 
     public boolean supports(Class<? extends Object> aClass) {
