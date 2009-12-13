@@ -226,7 +226,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
     }
 
     /**
-     * Hook method for configuring Jaas. If {@code
+     * Hook method for configuring Jaas.
      *
      * @param loginConfig URL to Jaas login configuration
      *
