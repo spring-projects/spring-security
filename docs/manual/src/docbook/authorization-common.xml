@@ -100,7 +100,7 @@
 -->
           <imageobject>
             <imagedata align="center" scalefit="1" fileref="images/AccessDecisionVoting.gif"
-              format="GIF" />
+              format="GIF"/>
           </imageobject>
         </mediaobject>
       </figure>
@@ -160,10 +160,13 @@ boolean supports(Class clazz);
         <title><classname>AuthenticatedVoter</classname></title>
         <para> Another voter which we've implicitly seen is the
             <classname>AuthenticatedVoter</classname>, which can be used to differentiate between
-          anonymous, fully-authenticated and remember-me authenticated users. When we've used the
-          attribute <literal>IS_AUTHENTICATED_ANONYMOUSLY</literal> to grant anonymous access, this
-          attribute was being processed by the <classname>AuthenticatedVoter</classname>. See the
-          Javadoc for this class for more information. </para>
+          anonymous, fully-authenticated and remember-me authenticated users. Many sites allow
+          certain limited access under remember-me authentication, but require a user to confirm
+          their identity by logging in for full access.</para>
+        <para>When we've used the attribute <literal>IS_AUTHENTICATED_ANONYMOUSLY</literal> to grant
+          anonymous access, this attribute was being processed by the
+            <classname>AuthenticatedVoter</classname>. See the Javadoc for this class for more
+          information. </para>
       </section>
       <section>
         <title>Custom Voters</title>
@@ -197,15 +200,11 @@ boolean supports(Class clazz);
       that integrate with its ACL capabilities.</para>
     <para><xref linkend="authz-after-invocation"/> illustrates Spring Security's
         <literal>AfterInvocationManager</literal> and its concrete implementations. <figure
-        xml:id="authz-after-invocation">
-        <title>After Invocation Implementation</title>
-        <mediaobject>
-          <imageobject>
+        xml:id="authz-after-invocation"><title>After Invocation
+            Implementation</title><mediaobject><imageobject>
             <imagedata align="center" scalefit="1" fileref="images/AfterInvocation.gif" format="GIF"
             />
-          </imageobject>
-        </mediaobject>
-      </figure></para>
+          </imageobject></mediaobject></figure></para>
     <para>Like many other parts of Spring Security, <literal>AfterInvocationManager</literal> has a
       single concrete implementation, <literal>AfterInvocationProviderManager</literal>, which polls
       a list of <literal>AfterInvocationProvider</literal>s. Each
