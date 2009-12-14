@@ -180,6 +180,21 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
         assertEquals(userAttrs, attrs);
     }
 
+    @Test
+    public void methodSpecificMatchTakesPrecdenceRegardlessOfOrdering() throws Exception {
+        // Unfortunate but unavoidable
+        LinkedHashMap requestMap = new LinkedHashMap();
+        Collection<ConfigAttribute> userAttrs = SecurityConfig.createList("A");
+        requestMap.put(new RequestKey("/secure/specific.html", null), SecurityConfig.createList("B"));
+        requestMap.put(new RequestKey("/secure/*.html", "GET"), userAttrs);
+        fids = new DefaultFilterInvocationSecurityMetadataSource(new AntUrlPathMatcher(), requestMap);
+        fids.setStripQueryStringFromUrls(true);
+
+        FilterInvocation fi = createFilterInvocation("/secure/specific.html", "GET");
+        Collection<ConfigAttribute> attrs = fids.getAttributes(fi);
+        assertEquals(userAttrs, attrs);
+    }
+
     /**
      * Check fixes for SEC-321
      */
