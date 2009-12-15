@@ -257,7 +257,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
     }
 
     /**
-     * If set to true (the default), a new session will be created if to store the security context if it is determined
+     * If set to true (the default), a new session will be created to store the security context if it is determined
      * that it's contents are different from the default.
      *
      * @param allowSessionCreation
