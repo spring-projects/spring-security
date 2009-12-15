@@ -134,9 +134,8 @@
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <description>
-                A comma separated list of integers, each representing a
-                required bit mask permission from a subclass of
-                org.springframework.security.acl.basic.AbstractBasicAclEntry.
+                A comma separated list of permissions, which will be converted to
+                Permission instances by the configured PermissionFactory.
             </description>
         </attribute>
         <attribute>
