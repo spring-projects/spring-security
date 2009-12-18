@@ -305,7 +305,7 @@ public class FilterChainProxy extends GenericFilterBean {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("FilterChainProxy[");
         sb.append(" UrlMatcher = ").append(matcher);
         sb.append("; Filter Chains: ");

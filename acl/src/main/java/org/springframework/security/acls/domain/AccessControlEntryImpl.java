@@ -160,7 +160,7 @@ public class AccessControlEntryImpl implements AccessControlEntry, AuditableAcce
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("AccessControlEntryImpl[");
         sb.append("id: ").append(this.id).append("; ");
         sb.append("granting: ").append(this.granting).append("; ");

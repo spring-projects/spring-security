@@ -59,7 +59,7 @@ public class AuthenticationDetails implements Serializable {
    }
 
    public String toString() {
-       StringBuffer sb = new StringBuffer();
+       StringBuilder sb = new StringBuilder();
        sb.append(super.toString() + ": ");
        sb.append("Context: " + this.getContext());
 

@@ -132,7 +132,7 @@ public class WebAuthenticationDetails implements SessionIdentifierAware, Seriali
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(super.toString() + ": ");
         sb.append("RemoteIpAddress: " + this.getRemoteAddress() + "; ");
         sb.append("SessionId: " + this.getSessionId());

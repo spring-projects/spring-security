@@ -29,7 +29,7 @@ public class PreAuthenticatedGrantedAuthoritiesAuthenticationDetails extends Aut
      * @return The String representation of this object.
      */
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(super.toString() + "; ");
         sb.append("preAuthenticatedGrantedAuthorities: " + preAuthenticatedGrantedAuthorities);
         return sb.toString();

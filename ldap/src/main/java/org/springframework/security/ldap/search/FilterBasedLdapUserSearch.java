@@ -168,7 +168,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append("[ searchFilter: '").append(searchFilter).append("', ");
         sb.append("searchBase: '").append(searchBase).append("'");

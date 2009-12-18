@@ -52,7 +52,7 @@ public class RedirectUrlBuilder {
     }
 
     public String getUrl() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         Assert.notNull(scheme);
         Assert.notNull(serverName);

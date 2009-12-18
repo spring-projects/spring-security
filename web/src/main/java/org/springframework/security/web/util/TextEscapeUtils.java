@@ -13,7 +13,7 @@ public abstract class TextEscapeUtils {
             return s;
         }
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         for (int i=0; i < s.length(); i++) {
             char c = s.charAt(i);

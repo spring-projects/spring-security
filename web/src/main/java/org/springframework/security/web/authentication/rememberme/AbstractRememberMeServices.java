@@ -176,7 +176,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
      * @return base64 encoding of the tokens concatenated with the ":" delimiter.
      */
     protected String encodeCookie(String[] cookieTokens) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for(int i=0; i < cookieTokens.length; i++) {
             sb.append(cookieTokens[i]);
 
@@ -187,7 +187,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 
         String value = sb.toString();
 
-        sb = new StringBuffer(new String(Base64.encode(value.getBytes())));
+        sb = new StringBuilder(new String(Base64.encode(value.getBytes())));
 
         while (sb.charAt(sb.length() - 1) == '=') {
             sb.deleteCharAt(sb.length() - 1);

@@ -199,7 +199,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 
                             SearchResult searchResult = resultsEnum.next();
                             // Work out the DN of the matched entry
-                            StringBuffer dn = new StringBuffer(searchResult.getName());
+                            StringBuilder dn = new StringBuilder(searchResult.getName());
 
                             if (base.length() > 0) {
                                 dn.append(",");

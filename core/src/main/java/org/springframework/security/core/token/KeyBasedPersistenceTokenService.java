@@ -91,7 +91,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
         String pseudoRandomNumber = tokens[1];
 
         // Permit extendedInfo to itself contain ":" characters
-        StringBuffer extendedInfo = new StringBuffer();
+        StringBuilder extendedInfo = new StringBuilder();
         for (int i = 2; i < tokens.length-1; i++) {
             if (i > 2) {
                 extendedInfo.append(":");

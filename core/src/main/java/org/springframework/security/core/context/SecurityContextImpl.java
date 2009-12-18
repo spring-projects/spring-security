@@ -66,7 +66,7 @@ public class SecurityContextImpl implements SecurityContext {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(super.toString());
 
         if (this.authentication == null) {

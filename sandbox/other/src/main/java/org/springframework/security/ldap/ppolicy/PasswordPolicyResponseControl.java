@@ -176,7 +176,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
      * @return error and warning messages
      */
     public String toString() {
-        StringBuffer sb = new StringBuffer("PasswordPolicyResponseControl");
+        StringBuilder sb = new StringBuilder("PasswordPolicyResponseControl");
 
         if (hasError()) {
             sb.append(", error: ").append(errorText[errorCode]);

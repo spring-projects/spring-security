@@ -56,7 +56,7 @@ public class RequestKey {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer(url.length() + 7);
+        StringBuilder sb = new StringBuilder(url.length() + 7);
         sb.append("[");
         if (method != null) {
             sb.append(method).append(",");

@@ -70,7 +70,7 @@ public abstract class AbstractElement {
             currentElement = currentElement.getParent();
         }
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         String lastCharacter = null;
         for (Iterator<String> i = strings.iterator(); i.hasNext();) {
             String token = i.next();

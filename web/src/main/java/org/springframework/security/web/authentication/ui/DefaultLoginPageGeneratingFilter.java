@@ -109,7 +109,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
             }
         }
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append("<html><head><title>Login Page</title></head>");
 

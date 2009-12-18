@@ -19,7 +19,7 @@ public class GrantedAuthoritiesContainerImpl implements MutableGrantedAuthoritie
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("Authorities: ").append(authorities);
         return sb.toString();
     }

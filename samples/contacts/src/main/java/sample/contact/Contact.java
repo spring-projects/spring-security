@@ -82,7 +82,7 @@ public class Contact implements Serializable {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(super.toString() + ": ");
         sb.append("Id: " + this.getId() + "; ");
         sb.append("Name: " + this.getName() + "; ");
