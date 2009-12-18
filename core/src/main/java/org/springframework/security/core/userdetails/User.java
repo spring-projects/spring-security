@@ -15,6 +15,7 @@
 
 package org.springframework.security.core.userdetails;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -195,7 +196,7 @@ public class User implements UserDetails {
         return sortedAuthorities;
     }
 
-    private static class AuthorityComparator implements Comparator<GrantedAuthority> {
+    private static class AuthorityComparator implements Comparator<GrantedAuthority>, Serializable {
         public int compare(GrantedAuthority g1, GrantedAuthority g2) {
             // Neither should ever be null as each entry is checked before adding it to the set.
             // If the authority is null, it is a custom authority and should precede others.
