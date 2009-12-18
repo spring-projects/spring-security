@@ -66,7 +66,8 @@ public class SimpleUrlAuthenticationFailureHandler implements AuthenticationFail
      * @param defaultFailureUrl the failure URL, for example "/loginFailed.jsp".
      */
     public void setDefaultFailureUrl(String defaultFailureUrl) {
-        Assert.isTrue(UrlUtils.isValidRedirectUrl(defaultFailureUrl));
+        Assert.isTrue(UrlUtils.isValidRedirectUrl(defaultFailureUrl),
+                "'" + defaultFailureUrl + "' is not a valid redirect URL");
         this.defaultFailureUrl = defaultFailureUrl;
     }
 
