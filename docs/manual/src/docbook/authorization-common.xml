@@ -149,8 +149,8 @@ boolean supports(Class clazz);
           prefix <literal>ROLE_</literal>. It will vote to grant access if there is a
             <interfacename>GrantedAuthority</interfacename> which returns a
             <literal>String</literal> representation (via the <literal>getAuthority()</literal>
-          method) exactly equal to one or more <literal>ConfigAttributes</literal> starting with
-            <literal>ROLE_</literal>. If there is no exact match of any
+          method) exactly equal to one or more <literal>ConfigAttributes</literal> starting with the
+          prefix <literal>ROLE_</literal>. If there is no exact match of any
             <literal>ConfigAttribute</literal> starting with <literal>ROLE_</literal>, the
             <literal>RoleVoter</literal> will vote to deny access. If no
             <literal>ConfigAttribute</literal> begins with <literal>ROLE_</literal>, the voter will
@@ -200,11 +200,15 @@ boolean supports(Class clazz);
       that integrate with its ACL capabilities.</para>
     <para><xref linkend="authz-after-invocation"/> illustrates Spring Security's
         <literal>AfterInvocationManager</literal> and its concrete implementations. <figure
-        xml:id="authz-after-invocation"><title>After Invocation
-            Implementation</title><mediaobject><imageobject>
+        xml:id="authz-after-invocation">
+        <title>After Invocation Implementation</title>
+        <mediaobject>
+          <imageobject>
             <imagedata align="center" scalefit="1" fileref="images/AfterInvocation.gif" format="GIF"
             />
-          </imageobject></mediaobject></figure></para>
+          </imageobject>
+        </mediaobject>
+      </figure></para>
     <para>Like many other parts of Spring Security, <literal>AfterInvocationManager</literal> has a
       single concrete implementation, <literal>AfterInvocationProviderManager</literal>, which polls
       a list of <literal>AfterInvocationProvider</literal>s. Each

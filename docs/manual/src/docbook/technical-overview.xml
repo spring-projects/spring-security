@@ -547,7 +547,12 @@ Successfully authenticated. Security context contains: \
           anyone who has a <interfacename>GrantedAuthority</interfacename> matching either of these
           two attributes will be allowed access. Strictly speaking though, they are just attributes
           and the interpretation is dependent on the
-            <interfacename>AccessDecisionManager</interfacename> implementation.</para>
+            <interfacename>AccessDecisionManager</interfacename> implementation. The use of the
+          prefix <literal>ROLE_</literal> is a marker to indicate that these attributes are roles
+          and should be consumed by Spring Security's <classname>RoleVoter</classname>. This is only
+          relevant when a voter-based  <interfacename>AccessDecisionManager</interfacename> is in
+          use. We'll see how the  <interfacename>AccessDecisionManager</interfacename> is
+          implemented in the <link xlink:href="authz-arch">authorization chapter</link>.</para>
       </section>
       <section>
         <title>RunAsManager</title>

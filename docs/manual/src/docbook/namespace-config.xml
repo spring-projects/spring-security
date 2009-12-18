@@ -21,13 +21,13 @@
 ]]></programlisting> This is much simpler than wiring up the equivalent Apache Directory Server
       beans. The most common alternative configuration requirements are supported by attributes on
       the <literal>ldap-server</literal> element and the user is isolated from worrying about which
-      beans they need to create and what the bean property names are. <footnote><para>You can find
-          out more about the use of the <literal>ldap-server</literal> element in the chapter on
-            <link xlink:href="#ldap">LDAP</link>.</para></footnote>. Use of a good XML editor while
-      editing the application context file should provide information on the attributes and elements
-      that are available. We would recommend that you try out the <link
-        xlink:href="http://www.springsource.com/products/sts">SpringSource Tool Suite</link> as it
-      has special features for working with standard Spring namespaces. </para>
+      beans they need to create and what the bean property names are. <footnote>
+        <para>You can find out more about the use of the <literal>ldap-server</literal> element in
+          the chapter on <link xlink:href="#ldap">LDAP</link>.</para>
+      </footnote>. Use of a good XML editor while editing the application context file should
+      provide information on the attributes and elements that are available. We would recommend that
+      you try out the <link xlink:href="http://www.springsource.com/products/sts">SpringSource Tool
+        Suite</link> as it has special features for working with standard Spring namespaces. </para>
     <para> To start using the security namespace in your application context, all you need to do is
       add the schema declaration to your application context file: <programlisting language="xml">
   <![CDATA[
@@ -61,25 +61,41 @@
       <para> The namespace is designed to capture the most common uses of the framework and provide
         a simplified and concise syntax for enabling them within an application. The design is based
         around the large-scale dependencies within the framework, and can be divided up into the
-        following areas: <itemizedlist><listitem><para>
+        following areas: <itemizedlist>
+          <listitem>
+            <para>
               <emphasis>Web/HTTP Security</emphasis> - the most complex part. Sets up the filters
               and related service beans used to apply the framework authentication mechanisms, to
-              secure URLs, render login and error pages and much
-              more.</para></listitem><listitem><para>
+              secure URLs, render login and error pages and much more.</para>
+          </listitem>
+          <listitem>
+            <para>
               <emphasis>Business Object (Method) Security</emphasis> - options for securing the
-              service layer.</para></listitem><listitem><para>
+              service layer.</para>
+          </listitem>
+          <listitem>
+            <para>
               <emphasis>AuthenticationManager</emphasis> - handles authentication requests from
-              other parts of the framework.</para></listitem><listitem><para>
+              other parts of the framework.</para>
+          </listitem>
+          <listitem>
+            <para>
               <emphasis>AccessDecisionManager</emphasis> - provides access decisions for web and
               method security. A default one will be registered, but you can also choose to use a
-              custom one, declared using normal Spring bean
-              syntax.</para></listitem><listitem><para>
+              custom one, declared using normal Spring bean syntax.</para>
+          </listitem>
+          <listitem>
+            <para>
               <emphasis>AuthenticationProvider</emphasis>s - mechanisms against which the
               authentication manager authenticates users. The namespace provides supports for
               several standard options and also a means of adding custom beans declared using a
-              traditional syntax. </para></listitem><listitem><para>
+              traditional syntax. </para>
+          </listitem>
+          <listitem>
+            <para>
               <emphasis>UserDetailsService</emphasis> - closely related to authentication providers,
-              but often also required by other beans.</para></listitem>
+              but often also required by other beans.</para>
+          </listitem>
           <!-- todo: diagram and link to other sections which describe the interfaces -->
         </itemizedlist></para>
       <para>We'll see how to configure these in the following sections.</para>
@@ -131,13 +147,16 @@
         ant path style syntax. The <literal>access</literal> attribute defines the access
         requirements for requests matching the given pattern. With the default configuration, this
         is typically a comma-separated list of roles, one of which a user must have to be allowed to
-        make the request. Access-control in Spring Security is not limited to the use of simple
-        roles, however, and we'll see later how the interpretation can vary<footnote><para>The
-            interpretation of the comma-separated values in the <literal>access</literal> attribute
-            depends on the implementation of the <link xlink:href="#ns-access-manager"
+        make the request. The prefix <quote>ROLE_</quote> is a marker which indicates that a simple
+        comparison with the user's authorities should be made. In other words, a normal role-based
+        check should be used. Access-control in Spring Security is not limited to the use of simple
+        roles (hence the use of the prefix to differentiate between different types of security
+        attributes). We'll see later how the interpretation can vary<footnote>
+          <para>The interpretation of the comma-separated values in the <literal>access</literal>
+            attribute depends on the implementation of the <link xlink:href="#ns-access-manager"
               >AccessDecisionManager</link> which is used. In Spring Security 3.0, the attribute can
-            also be populated with an <link xlink:href="#el-access">EL
-          expression</link>.</para></footnote>.</para>
+            also be populated with an <link xlink:href="#el-access">EL expression</link>.</para>
+        </footnote>.</para>
       <note>
         <para>You can use multiple <literal>&lt;intercept-url&gt;</literal> elements to define
           different access requirements for different sets of URLs, but they will be evaluated in
@@ -201,14 +220,15 @@
     <logout />
   </http>
   ]]></programlisting> These other elements are responsible for setting up form-login, basic
-          authentication and logout handling services respectively <footnote><para>In versions prior
-              to 3.0, this list also included remember-me functionality. This could cause some
-              confusing errors with some configurations and was removed in 3.0. In 3.0, the addition
-              of an <classname>AnonymousAuthenticationFilter</classname> is part of the default
-                <literal>&lt;http></literal> configuration, so the <literal>&lt;anonymous
-                /></literal> element is added regardless of whether <literal>auto-config</literal>
-              is enabled.</para></footnote> . They each have attributes which can be used to alter
-          their behaviour. </para>
+          authentication and logout handling services respectively <footnote>
+            <para>In versions prior to 3.0, this list also included remember-me functionality. This
+              could cause some confusing errors with some configurations and was removed in 3.0. In
+              3.0, the addition of an <classname>AnonymousAuthenticationFilter</classname> is part
+              of the default <literal>&lt;http></literal> configuration, so the
+                <literal>&lt;anonymous /></literal> element is added regardless of whether
+                <literal>auto-config</literal> is enabled.</para>
+          </footnote> . They each have attributes which can be used to alter their behaviour.
+        </para>
       </section>
       <section xml:id="ns-form-and-basic">
         <title>Form and Basic Login Options</title>
@@ -229,15 +249,16 @@
         </programlisting> Note that you can still use <literal>auto-config</literal>. The
             <literal>form-login</literal> element just overrides the default settings. Also note
           that we've added an extra <literal>intercept-url</literal> element to say that any
-          requests for the login page should be available to anonymous users <footnote><para>See the
-              chapter on <link xlink:href="#anonymous">anonymous authentication</link> and also the
-                <link xlink:href="#authz-authenticated-voter">AuthenticatedVoter</link> class for
-              more details on how the value <literal>IS_AUTHENTICATED_ANONYMOUSLY</literal> is
-              processed.</para></footnote>. Otherwise the request would be matched by the pattern
-            <literal>/**</literal> and it wouldn't be possible to access the login page itself! This
-          is a common configuration error and will result in an infinite loop in the application.
-          Spring Security will emit a warning in the log if your login page appears to be secured.
-          It is also possible to have all requests matching a particular pattern bypass the security
+          requests for the login page should be available to anonymous users <footnote>
+            <para>See the chapter on <link xlink:href="#anonymous">anonymous authentication</link>
+              and also the <link xlink:href="#authz-authenticated-voter">AuthenticatedVoter</link>
+              class for more details on how the value
+                <literal>IS_AUTHENTICATED_ANONYMOUSLY</literal> is processed.</para>
+          </footnote>. Otherwise the request would be matched by the pattern <literal>/**</literal>
+          and it wouldn't be possible to access the login page itself! This is a common
+          configuration error and will result in an infinite loop in the application. Spring
+          Security will emit a warning in the log if your login page appears to be secured. It is
+          also possible to have all requests matching a particular pattern bypass the security
           filter chain completely: <programlisting language="xml"><![CDATA[
   <http auto-config='true'>
     <intercept-url pattern="/css/**" filters="none"/>  
@@ -458,14 +479,20 @@
           logs in. If you don't require this protection, or it conflicts with some other
           requirement, you can control the behaviour using the
             <literal>session-fixation-protection</literal> attribute on
-            <literal>&lt;session-management&gt;</literal>, which has three options
-                  <itemizedlist><listitem><para><literal>migrateSession</literal> - creates a new
-                session and copies the existing session attributes to the new session. This is the
-                default.</para></listitem><listitem><para><literal>none</literal> - Don't do
-                anything. The original session will be
-                  retained.</para></listitem><listitem><para><literal>newSession</literal> - Create
-                a new "clean" session, without copying the existing session
-            data.</para></listitem></itemizedlist></para>
+            <literal>&lt;session-management&gt;</literal>, which has three options <itemizedlist>
+            <listitem>
+              <para><literal>migrateSession</literal> - creates a new session and copies the
+                existing session attributes to the new session. This is the default.</para>
+            </listitem>
+            <listitem>
+              <para><literal>none</literal> - Don't do anything. The original session will be
+                retained.</para>
+            </listitem>
+            <listitem>
+              <para><literal>newSession</literal> - Create a new "clean" session, without copying
+                the existing session data.</para>
+            </listitem>
+          </itemizedlist></para>
       </section>
     </section>
     <section xml:id="ns-openid">
@@ -478,15 +505,18 @@
   </http>
   ]]></programlisting> You should then register yourself with an OpenID provider (such as
         myopenid.com), and add the user information to your in-memory
-          <literal>&lt;user-service&gt;</literal>: <programlisting language="xml"><![CDATA[
-  <user name="http://jimi.hendrix.myopenid.com/" password="notused" 
-          authorities="ROLE_USER" />
+          <literal>&lt;user-service&gt;</literal> : <programlisting language="xml"><![CDATA[
+  <user name="http://jimi.hendrix.myopenid.com/" authorities="ROLE_USER" />
   ]]></programlisting> You should be able to login using the <literal>myopenid.com</literal> site to
         authenticate. It is also possible to select a specific
           <interfacename>UserDetailsService</interfacename> bean for use OpenID by setting the
           <literal>user-service-ref</literal> attribute on the <literal>openid-login</literal>
         element. See the previous section on <link xlink:href="#ns-auth-providers">authentication
-          providers</link> for more information. </para>
+          providers</link> for more information. Note that we have omitted the password attribute
+        from the above user configuration, since this set of user data is only being used to load
+        the authorities for the user. A random password will be generate internally, preventing you
+        from accidentally using this user data as an authentication source elsewhere in your
+        configuration.</para>
     </section>
     <section xml:id="ns-custom-filters">
       <title>Adding in Your Own Filters</title>
@@ -502,48 +532,112 @@
       <para>The order of the filters is always strictly enforced when using the namespace. When the
         application context is being created, the filter beans are sorted by the namespace handling
         code and the standard Spring Security filters each have an alias in the namespace and a
-        well-known position.<note><para>In previous versions, the sorting took place after the
-            filter instances had been created, during post-processing of the application context. In
-            version 3.0+ the sorting is now done at the bean metadata level, before the classes have
-            been instantiated. This has implications for how you add your own filters to the stack
-            as the entire filter list must be known during the parsing of the
-              <literal>&lt;http></literal> element, so the syntax has changed slightly in
-            3.0.</para></note>The filters, aliases and namespace elements/attributes which create
-        the filters are shown in <xref linkend="filter-stack"/>. The filters are listed in the order
-        in which they occur in the filter chain. <table xml:id="filter-stack"><title>Standard Filter
-            Aliases and Ordering</title><tgroup cols="3" align="left"><thead><row><entry
-                  align="center">Alias</entry><entry align="center">Filter Class</entry><entry
-                  align="center">Namespace Element or
-                  Attribute</entry></row></thead><tbody><row><entry>
-                    CHANNEL_FILTER</entry><entry><literal>ChannelProcessingFilter</literal></entry><entry><literal>http/intercept-url@requires-channel</literal></entry></row><row><entry>
-                  CONCURRENT_SESSION_FILTER</entry><entry><literal>ConcurrentSessionFilter</literal>
-                </entry><entry><literal>session-management/concurrency-control</literal></entry></row><row><entry>
-                  SECURITY_CONTEXT_FILTER</entry><entry><classname>SecurityContextPersistenceFilter</classname></entry><entry><literal>http</literal></entry></row><row><entry>
-                  LOGOUT_FILTER
-                    </entry><entry><literal>LogoutFilter</literal></entry><entry><literal>http/logout</literal></entry></row><row><entry>
-                  X509_FILTER
-                    </entry><entry><literal>X509AuthenticationFilter</literal></entry><entry><literal>http/x509</literal></entry></row><row><entry>
-                  PRE_AUTH_FILTER
-                    </entry><entry><literal>AstractPreAuthenticatedProcessingFilter</literal>
-                  Subclasses</entry><entry>N/A</entry></row><row><entry> CAS_FILTER
-                    </entry><entry><literal>CasAuthenticationFilter</literal></entry><entry>N/A</entry></row><row><entry>
-                  FORM_LOGIN_FILTER
-                    </entry><entry><literal>UsernamePasswordAuthenticationFilter</literal></entry><entry><literal>http/form-login</literal></entry></row><row><entry>
-                  BASIC_AUTH_FILTER
-                  </entry><entry><literal>BasicAuthenticationFilter</literal></entry><entry><literal>http/http-basic</literal></entry></row><row><entry>
-                  SERVLET_API_SUPPORT_FILTER</entry><entry><literal>SecurityContextHolderAwareFilter</literal></entry><entry><literal>http/@servlet-api-provision</literal></entry></row><row><entry>
-                  REMEMBER_ME_FILTER
-                    </entry><entry><classname>RememberMeAuthenticationFilter</classname></entry><entry><literal>http/remember-me</literal></entry></row><row><entry>
-                  ANONYMOUS_FILTER
-                  </entry><entry><literal>AnonymousAuthenticationFilter</literal></entry><entry><literal>http/anonymous</literal></entry></row><row><entry>
-                  SESSION_MANAGEMENT_FILTER</entry><entry><literal>SessionManagementFilter</literal></entry><entry><literal>session-management</literal></entry></row><row><entry>EXCEPTION_TRANSLATION_FILTER
-                    </entry><entry><classname>ExceptionTranslationFilter</classname></entry><entry><literal>http</literal></entry></row><row><entry>
-                  FILTER_SECURITY_INTERCEPTOR
-                    </entry><entry><classname>FilterSecurityInterceptor</classname></entry><entry><literal>http</literal></entry></row><row><entry>
-                  SWITCH_USER_FILTER
-                  </entry><entry><literal>SwitchUserFilter</literal></entry><entry>N/A</entry></row></tbody></tgroup></table>
-        You can add your own filter to the stack, using the <literal>custom-filter</literal> element
-        and one of these names to specify the position your filter should appear at: <programlisting language="xml"><![CDATA[
+        well-known position.<note>
+          <para>In previous versions, the sorting took place after the filter instances had been
+            created, during post-processing of the application context. In version 3.0+ the sorting
+            is now done at the bean metadata level, before the classes have been instantiated. This
+            has implications for how you add your own filters to the stack as the entire filter list
+            must be known during the parsing of the <literal>&lt;http></literal> element, so the
+            syntax has changed slightly in 3.0.</para>
+        </note>The filters, aliases and namespace elements/attributes which create the filters are
+        shown in <xref linkend="filter-stack"/>. The filters are listed in the order in which they
+        occur in the filter chain. <table xml:id="filter-stack">
+          <title>Standard Filter Aliases and Ordering</title>
+          <tgroup cols="3" align="left">
+            <thead>
+              <row>
+                <entry align="center">Alias</entry>
+                <entry align="center">Filter Class</entry>
+                <entry align="center">Namespace Element or Attribute</entry>
+              </row>
+            </thead>
+            <tbody>
+              <row>
+                <entry> CHANNEL_FILTER</entry>
+                <entry><literal>ChannelProcessingFilter</literal></entry>
+                <entry><literal>http/intercept-url@requires-channel</literal></entry>
+              </row>
+              <row>
+                <entry> CONCURRENT_SESSION_FILTER</entry>
+                <entry><literal>ConcurrentSessionFilter</literal>
+                </entry>
+                <entry><literal>session-management/concurrency-control</literal></entry>
+              </row>
+              <row>
+                <entry> SECURITY_CONTEXT_FILTER</entry>
+                <entry><classname>SecurityContextPersistenceFilter</classname></entry>
+                <entry><literal>http</literal></entry>
+              </row>
+              <row>
+                <entry> LOGOUT_FILTER </entry>
+                <entry><literal>LogoutFilter</literal></entry>
+                <entry><literal>http/logout</literal></entry>
+              </row>
+              <row>
+                <entry> X509_FILTER </entry>
+                <entry><literal>X509AuthenticationFilter</literal></entry>
+                <entry><literal>http/x509</literal></entry>
+              </row>
+              <row>
+                <entry> PRE_AUTH_FILTER </entry>
+                <entry><literal>AstractPreAuthenticatedProcessingFilter</literal> Subclasses</entry>
+                <entry>N/A</entry>
+              </row>
+              <row>
+                <entry> CAS_FILTER </entry>
+                <entry><literal>CasAuthenticationFilter</literal></entry>
+                <entry>N/A</entry>
+              </row>
+              <row>
+                <entry> FORM_LOGIN_FILTER </entry>
+                <entry><literal>UsernamePasswordAuthenticationFilter</literal></entry>
+                <entry><literal>http/form-login</literal></entry>
+              </row>
+              <row>
+                <entry> BASIC_AUTH_FILTER </entry>
+                <entry><literal>BasicAuthenticationFilter</literal></entry>
+                <entry><literal>http/http-basic</literal></entry>
+              </row>
+              <row>
+                <entry> SERVLET_API_SUPPORT_FILTER</entry>
+                <entry><literal>SecurityContextHolderAwareFilter</literal></entry>
+                <entry><literal>http/@servlet-api-provision</literal></entry>
+              </row>
+              <row>
+                <entry> REMEMBER_ME_FILTER </entry>
+                <entry><classname>RememberMeAuthenticationFilter</classname></entry>
+                <entry><literal>http/remember-me</literal></entry>
+              </row>
+              <row>
+                <entry> ANONYMOUS_FILTER </entry>
+                <entry><literal>AnonymousAuthenticationFilter</literal></entry>
+                <entry><literal>http/anonymous</literal></entry>
+              </row>
+              <row>
+                <entry> SESSION_MANAGEMENT_FILTER</entry>
+                <entry><literal>SessionManagementFilter</literal></entry>
+                <entry><literal>session-management</literal></entry>
+              </row>
+              <row>
+                <entry>EXCEPTION_TRANSLATION_FILTER </entry>
+                <entry><classname>ExceptionTranslationFilter</classname></entry>
+                <entry><literal>http</literal></entry>
+              </row>
+              <row>
+                <entry> FILTER_SECURITY_INTERCEPTOR </entry>
+                <entry><classname>FilterSecurityInterceptor</classname></entry>
+                <entry><literal>http</literal></entry>
+              </row>
+              <row>
+                <entry> SWITCH_USER_FILTER </entry>
+                <entry><literal>SwitchUserFilter</literal></entry>
+                <entry>N/A</entry>
+              </row>
+            </tbody>
+          </tgroup>
+        </table> You can add your own filter to the stack, using the
+          <literal>custom-filter</literal> element and one of these names to specify the position
+        your filter should appear at: <programlisting language="xml"><![CDATA[
   <http>
      <custom-filter position="FORM_LOGIN_FILTER" ref="myFilter" />
   </http>
