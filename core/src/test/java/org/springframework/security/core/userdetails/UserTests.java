@@ -15,16 +15,16 @@
 
 package org.springframework.security.core.userdetails;
 
+import static org.junit.Assert.*;
+
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.List;
 
-import junit.framework.TestCase;
-
-
+import org.junit.Test;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 
 
 /**
@@ -33,10 +33,11 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @author Ben Alex
  * @version $Id$
  */
-public class UserTests extends TestCase {
+public class UserTests {
     private static final List<GrantedAuthority> ROLE_12 = AuthorityUtils.createAuthorityList("ROLE_ONE","ROLE_TWO");
     //~ Methods ========================================================================================================
 
+    @Test
     public void testEquals() {
         User user1 = new User("rod", "koala", true, true, true, true,ROLE_12);
 
@@ -57,6 +58,7 @@ public class UserTests extends TestCase {
                 AuthorityUtils.createAuthorityList("ROLE_ONE"))));
     }
 
+    @Test
     public void testNoArgConstructorDoesntExist() {
         Class<User> clazz = User.class;
 
@@ -67,6 +69,7 @@ public class UserTests extends TestCase {
         }
     }
 
+    @Test
     public void testNullValuesRejected() throws Exception {
         try {
             new User(null, "koala", true, true, true, true,ROLE_12);
@@ -89,6 +92,7 @@ public class UserTests extends TestCase {
         }
     }
 
+    @Test
     public void testNullWithinGrantedAuthorityElementIsRejected() throws Exception {
         try {
             List<GrantedAuthority> auths = AuthorityUtils.createAuthorityList("ROLE_ONE");
@@ -100,6 +104,7 @@ public class UserTests extends TestCase {
         }
     }
 
+    @Test
     public void testUserGettersSetter() throws Exception {
         UserDetails user = new User("rod", "koala", true, true, true, true,
                 AuthorityUtils.createAuthorityList("ROLE_TWO","ROLE_ONE"));
@@ -111,8 +116,19 @@ public class UserTests extends TestCase {
         assertTrue(user.toString().indexOf("rod") != -1);
     }
 
+    @Test
     public void testUserIsEnabled() throws Exception {
         UserDetails user = new User("rod", "koala", false, true, true, true, ROLE_12);
         assertTrue(!user.isEnabled());
+    }
+
+    @Test
+    public void useIsSerializable() throws Exception {
+        UserDetails user = new User("rod", "koala", false, true, true, true, ROLE_12);
+        // Serialize to a byte array
+        ByteArrayOutputStream bos = new ByteArrayOutputStream() ;
+        ObjectOutputStream out = new ObjectOutputStream(bos) ;
+        out.writeObject(user);
+        out.close();
     }
 }
