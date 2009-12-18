@@ -61,3 +61,8 @@ div.table td {
 .question {
   font-weight: bold;
 }
+
+.question p {
+  margin-top: 0; 
+  padding-top: 20px;
+}
