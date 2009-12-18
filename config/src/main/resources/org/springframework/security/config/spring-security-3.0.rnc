@@ -533,7 +533,7 @@ x509.attlist &=
     user-service-ref?
 
 authentication-manager =
-    ## Registers the AuthenticationManager instance and allows its list of AuthenticationProviders to be defined. should use. Also allows you to define an alias to allow you to reference the AuthenticationManager in your own beans. 
+    ## Registers the AuthenticationManager instance and allows its list of AuthenticationProviders to be defined. Also allows you to define an alias to allow you to reference the AuthenticationManager in your own beans. 
     element authentication-manager {authman.attlist & authentication-provider* & ldap-authentication-provider*}
 authman.attlist &=
     ## The alias you wish to use for the AuthenticationManager bean
@@ -562,8 +562,8 @@ user.attlist &=
 	  ## The username assigned to the user.
     attribute name {xsd:token}
 user.attlist &=
-	  ## The password assigned to the user. This may be hashed if the corresponding authentication provider supports hashing (remember to set the "hash" attribute of the "user-service" element).
-    attribute password {xsd:string}
+	  ## The password assigned to the user. This may be hashed if the corresponding authentication provider supports hashing (remember to set the "hash" attribute of the "user-service" element). This attribute be omitted in the case where the data will not be used for authentication, but only for accessing authorities. If omitted, the namespace will generate a random value, preventing its accidental use for authentication. Cannot be empty.
+    attribute password {xsd:string}?
 user.attlist &=
 	  ## One of more authorities granted to the user. Separate authorities with a comma (but no space). For example, "ROLE_USER,ROLE_ADMINISTRATOR"
     attribute authorities {xsd:token}

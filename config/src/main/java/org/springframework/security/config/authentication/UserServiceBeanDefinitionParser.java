@@ -14,6 +14,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Iterator;
 
@@ -31,6 +33,8 @@ public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceB
     static final String ATT_PROPERTIES = "properties";
     static final String ATT_DISABLED = "disabled";
     static final String ATT_LOCKED = "locked";
+
+    private SecureRandom random;
 
     protected String getBeanClassName(Element element) {
         return "org.springframework.security.core.userdetails.memory.InMemoryDaoImpl";
@@ -65,6 +69,11 @@ public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceB
             Element userElt = (Element) i.next();
             String userName = userElt.getAttribute(ATT_NAME);
             String password = userElt.getAttribute(ATT_PASSWORD);
+
+            if (!StringUtils.hasLength(password)) {
+                password = generateRandomPassword();
+            }
+
             boolean locked = "true".equals(userElt.getAttribute(ATT_LOCKED));
             boolean disabled = "true".equals(userElt.getAttribute(ATT_DISABLED));
 
@@ -73,5 +82,17 @@ public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceB
         }
 
         builder.addPropertyValue("userMap", users);
+    }
+
+    private String generateRandomPassword() {
+        if (random == null) {
+            try {
+                random = SecureRandom.getInstance("SHA1PRNG");
+            } catch (NoSuchAlgorithmException e) {
+                // Shouldn't happen...
+                throw new RuntimeException("Failed find SHA1PRNG algorithm!");
+            }
+        }
+        return Long.toString(random.nextLong());
     }
 }

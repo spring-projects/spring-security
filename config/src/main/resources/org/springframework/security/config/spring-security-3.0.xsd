@@ -1096,7 +1096,7 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="authentication-manager"><xs:annotation>
-      <xs:documentation>Registers the AuthenticationManager instance and allows its list of AuthenticationProviders to be defined. should use. Also allows you to define an alias to allow you to reference the AuthenticationManager in your own beans. </xs:documentation>
+      <xs:documentation>Registers the AuthenticationManager instance and allows its list of AuthenticationProviders to be defined. Also allows you to define an alias to allow you to reference the AuthenticationManager in your own beans. </xs:documentation>
     </xs:annotation><xs:complexType>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element name="authentication-provider"><xs:annotation>
@@ -1223,9 +1223,9 @@
         <xs:documentation>The username assigned to the user.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="password" use="required" type="xs:string">
+    <xs:attribute name="password" type="xs:string">
       <xs:annotation>
-        <xs:documentation>The password assigned to the user. This may be hashed if the corresponding authentication provider supports hashing (remember to set the "hash" attribute of the "user-service" element).</xs:documentation>
+        <xs:documentation>The password assigned to the user. This may be hashed if the corresponding authentication provider supports hashing (remember to set the "hash" attribute of the "user-service" element). This attribute be omitted in the case where the data will not be used for authentication, but only for accessing authorities. If omitted, the namespace will generate a random value, preventing its accidental use for authentication. Cannot be empty.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="authorities" use="required" type="xs:token">

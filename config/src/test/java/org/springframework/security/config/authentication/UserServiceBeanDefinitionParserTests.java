@@ -46,6 +46,18 @@ public class UserServiceBeanDefinitionParserTests {
     }
 
     @Test
+    public void embeddedUsersWithNoPasswordIsGivenGeneratedValue() {
+        setContext(
+                "<user-service id='service'>" +
+                "    <user name='joe' authorities='ROLE_A'/>" +
+                "</user-service>");
+        UserDetailsService userService = (UserDetailsService) appContext.getBean("service");
+        UserDetails joe = userService.loadUserByUsername("joe");
+        assertTrue(joe.getPassword().length() > 0);
+        Long.parseLong(joe.getPassword());
+    }
+
+    @Test
     public void disabledAndEmbeddedFlagsAreSupported() {
         setContext(
                 "<user-service id='service'>" +
@@ -58,8 +70,8 @@ public class UserServiceBeanDefinitionParserTests {
         UserDetails bob = userService.loadUserByUsername("bob");
         assertFalse(bob.isEnabled());
     }
-    
-    
+
+
     @Test(expected=FatalBeanException.class)
     public void userWithBothPropertiesAndEmbeddedUsersThrowsException() {
         setContext(
