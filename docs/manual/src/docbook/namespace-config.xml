@@ -496,18 +496,18 @@
       </section>
     </section>
     <section xml:id="ns-openid">
-      <title>OpenID Login</title>
+      <title>OpenID Support</title>
       <para>The namespace supports <link xlink:href="http://openid.net/">OpenID</link> login either
         instead of, or in addition to normal form-based login, with a simple change: <programlisting language="xml"><![CDATA[
   <http>
     <intercept-url pattern="/**" access="ROLE_USER" />
     <openid-login />
   </http>
-  ]]></programlisting> You should then register yourself with an OpenID provider (such as
+]]></programlisting>You should then register yourself with an OpenID provider (such as
         myopenid.com), and add the user information to your in-memory
           <literal>&lt;user-service&gt;</literal> : <programlisting language="xml"><![CDATA[
   <user name="http://jimi.hendrix.myopenid.com/" authorities="ROLE_USER" />
-  ]]></programlisting> You should be able to login using the <literal>myopenid.com</literal> site to
+]]></programlisting> You should be able to login using the <literal>myopenid.com</literal> site to
         authenticate. It is also possible to select a specific
           <interfacename>UserDetailsService</interfacename> bean for use OpenID by setting the
           <literal>user-service-ref</literal> attribute on the <literal>openid-login</literal>
@@ -517,6 +517,32 @@
         the authorities for the user. A random password will be generate internally, preventing you
         from accidentally using this user data as an authentication source elsewhere in your
         configuration.</para>
+      <section>
+        <title>Attribute Exchange</title>
+        <para>Support for OpenID <link
+            xlink:href="http://openid.net/specs/openid-attribute-exchange-1_0.html">attribute
+            exchange</link>. As an example, the following configuration would attempt to retrieve
+          the email and full name from the OpenID provider, for use by the application:<programlisting language="xml"><![CDATA[
+  <openid-login>
+    <attribute-exchange>
+      <openid-attribute name="email" type="http://axschema.org/contact/email" required="true" />
+      <openid-attribute name="name" type="http://axschema.org/namePerson" />
+    </attribute-exchange>
+  </openid-login>]]></programlisting>The <quote>type</quote> of each OpenID attribute is a URI,
+          determined by a particular schema, in this case <link xlink:href="http://axschema.org/"
+            >http://axschema.org/</link>. If an attribute must be retrieved for successful
+          authentication, the <literal>required</literal> attribute can be set. The exact schema and
+          attributes supported will depend on your OpenID provider. The attribute values are
+          returned as part of the authentication process and can be accessed afterwards using the
+          following
+          code:<programlisting language="java">OpenIDAuthenticationToken token = SecurityContextHolder.getContext().getAuthentication();
+List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
+            <classname>OpenIDAttribute</classname> contains the attribute type and the retrieved
+          value (or values in the case of multi-valued attributes). We'll see more about how the
+            <classname>SecurityContextHolder</classname> class is used when we look at core Spring
+          Security components in the <link xlink:href="core-components">technical overview</link>
+          chapter.</para>
+      </section>
     </section>
     <section xml:id="ns-custom-filters">
       <title>Adding in Your Own Filters</title>
