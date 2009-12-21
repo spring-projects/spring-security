@@ -26,14 +26,18 @@ import org.springframework.web.filter.GenericFilterBean;
 
 /**
  * Base class for processing filters that handle pre-authenticated authentication requests. Subclasses must implement
- * the getPreAuthenticatedPrincipal() and getPreAuthenticatedCredentials() methods.
+ * the {@code getPreAuthenticatedPrincipal()} and {@code getPreAuthenticatedCredentials()} methods.
+ * <p>
+ * If the security context already contains an {@code Authentication} object (either from a invocation of the
+ * filter or because of some other authentication mechanism), the filter will do nothing by default. You can force
+ * it to check for a change in the principal by setting the {@link #setCheckForPrincipalChanges(boolean)
+ * checkForPrincipalChanges} property.
  * <p>
  * By default, the filter chain will proceed when an authentication attempt fails in order to allow other
  * authentication mechanisms to process the request. To reject the credentials immediately, set the
  * <tt>continueFilterChainOnUnsuccessfulAuthentication</tt> flag to false. The exception raised by the
  * <tt>AuthenticationManager</tt> will the be re-thrown. Note that this will not affect cases where the principal
  * returned by {@link #getPreAuthenticatedPrincipal} is null, when the chain will still proceed as normal.
- *
  *
  * @author Luke Taylor
  * @author Ruud Senden
