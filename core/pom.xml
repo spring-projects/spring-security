@@ -80,10 +80,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>annotations-api</artifactId>
-            <optional>true</optional>
-        </dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>jsr250-api</artifactId>
+            <optional>true</optional>            
+        </dependency>       
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>

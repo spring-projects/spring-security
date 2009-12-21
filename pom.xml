@@ -651,16 +651,23 @@
                 <artifactId>commons-collections</artifactId>
                 <version>3.2</version>
             </dependency>
+<!--            
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>annotations-api</artifactId>
-                <version>6.0.14</version>
+                <version>6.0.20</version>
             </dependency>
+-->
+            <dependency>
+                <groupId>javax.annotation</groupId>
+                <artifactId>jsr250-api</artifactId>
+                <version>1.0</version>
+            </dependency>
+            
             <dependency>
                 <groupId>hsqldb</groupId>
                 <artifactId>hsqldb</artifactId>
-                <version>1.8.0.7</version>
-                <scope>runtime</scope>
+                <version>1.8.0.10</version>
             </dependency>
             <dependency>
                 <groupId>commons-logging</groupId>

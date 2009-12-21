@@ -6,7 +6,7 @@ dependencies {
     compile project(':core'),
             project(':web'),
             "javax.servlet:servlet-api:2.5",
-            'org.aspectj:aspectjweaver:1.6.5',
+            "org.aspectj:aspectjweaver:$aspectjVersion",
             "org.springframework:spring-aop:$springVersion",
             "org.springframework:spring-core:$springVersion",
             "org.springframework:spring-context:$springVersion",
@@ -17,8 +17,9 @@ dependencies {
     testCompile project(':ldap'),
                 project(':openid'),
                 files(this.project(':core').sourceSets.test.classesDir),
+                'javax.annotation:jsr250-api:1.0',
                 'aopalliance:aopalliance:1.0',
-                'org.springframework.ldap:spring-ldap-core:1.3.0.RELEASE',
+                "org.springframework.ldap:spring-ldap-core:$springLdapVersion",
                 "org.springframework:spring-jdbc:$springVersion"
 }
 

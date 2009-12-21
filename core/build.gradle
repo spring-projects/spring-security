@@ -11,11 +11,11 @@ dependencies {
             "org.springframework:spring-jdbc:$springVersion",
             "org.springframework:spring-tx:$springVersion",
             "org.springframework:spring-web:$springVersion",
-            'org.aspectj:aspectjrt:1.6.5',
-            'org.aspectj:aspectjweaver:1.6.5',
-            'org.apache.tomcat:annotations-api:6.0.14'
+            "org.aspectj:aspectjrt:$aspectjVersion",
+            "org.aspectj:aspectjweaver:$aspectjVersion",
+            'javax.annotation:jsr250-api:1.0'
 
-    runtime 'hsqldb:hsqldb:1.8.0.7'
+    runtime 'hsqldb:hsqldb:1.8.0.10'
 
     testCompile 'commons-collections:commons-collections:3.2',
                 "org.springframework:spring-test:$springVersion"

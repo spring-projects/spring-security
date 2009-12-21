@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Collection;
 
-import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 
@@ -22,7 +21,6 @@ public class Jsr250MethodDefinitionSourceTests {
     Jsr250MethodSecurityMetadataSource mds = new Jsr250MethodSecurityMetadataSource();
     A a = new A();
     UserAllowedClass userAllowed = new UserAllowedClass();
-    DenyAllClass denyAll = new DenyAllClass();
 
     private ConfigAttribute[] findAttributes(String methodName) throws Exception {
         return mds.findAttributes(a.getClass().getMethod(methodName), null).toArray(new ConfigAttribute[0]);
@@ -40,20 +38,6 @@ public class Jsr250MethodDefinitionSourceTests {
         ConfigAttribute[] accessAttributes = findAttributes("permitAllMethod");
         assertEquals(1, accessAttributes.length);
         assertEquals("javax.annotation.security.PermitAll", accessAttributes[0].toString());
-    }
-
-    @Test
-    public void noRoleMethodHasDenyAllAttributeWithDenyAllClass() throws Exception {
-        ConfigAttribute[] accessAttributes = mds.findAttributes(denyAll.getClass()).toArray(new ConfigAttribute[0]);
-        assertEquals(1, accessAttributes.length);
-        assertEquals("javax.annotation.security.DenyAll", accessAttributes[0].toString());
-    }
-
-    @Test
-    public void adminMethodHasAdminAttributeWithDenyAllClass() throws Exception {
-        Collection<ConfigAttribute> accessAttributes = mds.findAttributes(denyAll.getClass().getMethod("adminMethod"), null);
-        assertEquals(1, accessAttributes.size());
-        assertEquals("ADMIN", accessAttributes.toArray()[0].toString());
     }
 
     @Test
@@ -95,16 +79,4 @@ public class Jsr250MethodDefinitionSourceTests {
         @RolesAllowed("ADMIN")
         public void adminMethod() {}
     }
-
-    @DenyAll
-    public static class DenyAllClass {
-
-        public void noRoleMethod()  {}
-
-        @RolesAllowed("ADMIN")
-        public void adminMethod() {}
-    }
-
-
-
 }
