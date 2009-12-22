@@ -53,6 +53,26 @@
         <url>https://build.springframework.org/browse/SEC</url>
     </ciManagement>
 
+    <distributionManagement>
+        <repository>
+            <id>spring-milestone</id>
+            <name>Spring Milestone Repository</name>
+            <url>s3://maven.springframework.org/milestone</url>
+        </repository>
+
+        <snapshotRepository>
+            <id>spring-snapshot</id>
+            <name>Spring Snapshot Repository</name>
+            <url>s3://maven.springframework.org/snapshot</url>
+        </snapshotRepository>
+
+        <site>
+            <id>local</id>
+            <name>Local Site Directory</name>
+            <url>file:///${user.dir}/site</url>
+        </site>
+    </distributionManagement>
+
     <pluginRepositories>
         <pluginRepository>
             <id>com.springsource.repository.maven.milestone</id>
