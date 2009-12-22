@@ -201,7 +201,7 @@ stop_jetty
 
 cd ../cas
 
-if [[ -e ./server/cas-server-webapp-3.3.3.war ]]
+if [[ -e ./server/cas-server-webapp-3.3.5.war ]]
 then
    echo "Found cas server war. Running cas sample"
    cd server
