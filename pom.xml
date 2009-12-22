@@ -53,52 +53,6 @@
         <url>https://build.springframework.org/browse/SEC</url>
     </ciManagement>
 
-    <distributionManagement>
-        <repository>
-            <id>spring-milestone</id>
-            <name>Spring Milestone Repository</name>
-            <url>s3://maven.springframework.org/milestone</url>
-        </repository>
-
-        <snapshotRepository>
-            <id>spring-snapshot</id>
-            <name>Spring Snapshot Repository</name>
-            <url>s3://maven.springframework.org/snapshot</url>
-        </snapshotRepository>
-
-        <site>
-            <id>local</id>
-            <name>Local Site Directory</name>
-            <url>file:///${user.dir}/site</url>
-        </site>
-    </distributionManagement>
-
-    <repositories>            
-        <repository>
-            <releases>
-              <enabled>false</enabled>
-            </releases>
-            <snapshots>
-              <enabled>true</enabled>
-            </snapshots>            
-            <id>com.springsource.repository.maven.snapshot</id>
-            <name>SpringSource Enterprise Bundle Maven Repository - SpringSource Snapshot Releases</name>
-            <url>http://maven.springframework.org/snapshot</url>
-        </repository>
-      
-        <repository>
-            <releases>
-              <enabled>true</enabled>
-            </releases>
-            <snapshots>
-              <enabled>false</enabled>
-            </snapshots>            
-            <id>com.springsource.repository.maven.milestone</id>
-            <name>Spring Framework Maven Milestone Releases (Maven Central Format)</name>
-            <url>http://maven.springframework.org/milestone</url>
-        </repository>      
-    </repositories>
-
     <pluginRepositories>
         <pluginRepository>
             <id>com.springsource.repository.maven.milestone</id>
