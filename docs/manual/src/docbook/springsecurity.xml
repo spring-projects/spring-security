@@ -10,7 +10,7 @@
       </author>
     </authorgroup>
     <productname>Spring Security</productname>
-    <releaseinfo>3.0.0.RC2</releaseinfo>
+    <releaseinfo>3.0.0.RELEASE</releaseinfo>
   </info>
   <toc/>
   <preface xml:id="preface">
@@ -164,18 +164,18 @@
     <xi:include href="el-access.xml"/>
   </part>
   <part xml:id="advanced-topics">
-    <title>Advanced Topics</title>
+    <title>Additional Topics</title>
     <!-- 
       Essentially standalone features which do not have to follow on directly from earlier chapters 
     -->
     <partintro>
-      <para> In this part we cover some of the more advanced and less-commonly used features of the
-        framework.</para>
+      <para> In this part we cover features which require a knowledge of previous chapters  as well
+        as some of the more advanced and less-commonly used features of the framework.</para>
     </partintro>
     <xi:include href="domain-acls.xml"/>
     <xi:include href="preauth.xml"/>
     <xi:include href="ldap-auth-provider.xml"/>
-    <xi:include href="taglibs.xml"/>    
+    <xi:include href="taglibs.xml"/>
     <xi:include href="jaas-auth-provider.xml"/>
     <xi:include href="cas-auth-provider.xml"/>
     <xi:include href="x509-auth-provider.xml"/>
