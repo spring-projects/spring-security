@@ -12,10 +12,10 @@ Import-Template:
  org.springframework.security.core.*;version="[${version}, 3.1.0)",
  org.springframework.security.authentication.*;version="[${version}, 3.1.0)",
  org.springframework.security.web.*;version="[${version}, 3.1.0)", 
- org.springframework.beans.factory;version="[3.0.0, 3.1.0)",
- org.springframework.context.*;version="[3.0.0, 3.1.0)",
- org.springframework.dao;version="[3.0.0, 3.1.0)",
- org.springframework.util;version="[3.0.0, 3.1.0)", 
+ org.springframework.beans.factory;version="[${spring.version}, 3.1.0)",
+ org.springframework.context.*;version="[${spring.version}, 3.1.0)",
+ org.springframework.dao;version="[${spring.version}, 3.1.0)",
+ org.springframework.util;version="[${spring.version}, 3.1.0)", 
  net.sf.ehcache.*;version="[1.4.1, 2.0.0)";resolution:=optional, 
  javax.servlet.*;version="0"
   

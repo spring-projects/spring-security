@@ -8,17 +8,17 @@ Ignored-Existing-Headers:
  Export-Package
 Import-Template: 
  org.apache.commons.logging.*;version="[1.0.4, 2.0.0)",
- org.aspectj.*;version="[1.5.2, 1.7.0)";resolution:=optional, 
+ org.aspectj.*;version="[1.6.0, 1.7.0)";resolution:=optional, 
  org.springframework.security.access.*;version="[${version}, 3.1.0)",
  org.springframework.security.authentication.*;version="[${version}, 3.1.0)",
  org.springframework.security.core.*;version="[${version}, 3.1.0)", 
  org.springframework.security.util;version="[${version}, 3.1.0)",
  org.springframework.security.web.*;version="[${version}, 3.1.0)";resolution:=optional,
- org.springframework.aop.*;version="[3.0.0, 3.1.0)";resolution:=optional,
- org.springframework.beans.*;version="[3.0.0, 3.1.0)",
- org.springframework.context.*;version="[3.0.0, 3.1.0)",
- org.springframework.core.*;version="[3.0.0, 3.1.0)",
- org.springframework.util.*;version="[3.0.0, 3.1.0)",
+ org.springframework.aop.*;version="[${spring.version}, 3.1.0)";resolution:=optional,
+ org.springframework.beans.*;version="[${spring.version}, 3.1.0)",
+ org.springframework.context.*;version="[${spring.version}, 3.1.0)",
+ org.springframework.core.*;version="[${spring.version}, 3.1.0)",
+ org.springframework.util.*;version="[${spring.version}, 3.1.0)",
  javax.servlet;version="0";resolution:=optional,
  javax.naming.directory;version="0";resolution:=optional,
  org.w3c.dom;version="0";resolution:=optional

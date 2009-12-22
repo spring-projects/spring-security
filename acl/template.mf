@@ -11,11 +11,11 @@ Import-Template:
  org.springframework.security.core.*;version="[${version}, 3.1.0)",
  org.springframework.security.access.*;version="[${version}, 3.1.0)",
  org.springframework.security.util.*;version="[${version}, 3.1.0)",
- org.springframework.context.*;version="[3.0.0, 3.1.0)";resolution:=optional, 
- org.springframework.dao.*;version="[3.0.0, 3.1.0)";resolution:=optional,
- org.springframework.jdbc.core.*;version="[3.0.0, 3.1.0)";resolution:=optional,
- org.springframework.transaction.support.*;version="[3.0.0, 3.1.0)";resolution:=optional,
- org.springframework.util.*;version="[3.0.0, 3.1.0)";resolution:=optional, 
+ org.springframework.context.*;version="[${spring.version}, 3.1.0)";resolution:=optional, 
+ org.springframework.dao.*;version="[${spring.version}, 3.1.0)";resolution:=optional,
+ org.springframework.jdbc.core.*;version="[${spring.version}, 3.1.0)";resolution:=optional,
+ org.springframework.transaction.support.*;version="[${spring.version}, 3.1.0)";resolution:=optional,
+ org.springframework.util.*;version="[${spring.version}, 3.1.0)";resolution:=optional, 
  net.sf.ehcache.*;version="[1.4.1, 2.0.0)";resolution:=optional,
  javax.sql.*;version="0";resolution:=optional 
  
