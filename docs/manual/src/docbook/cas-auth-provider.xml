@@ -9,8 +9,8 @@
       supports CAS, and provides an easy migration path from single-application deployments of
       Spring Security through to multiple-application deployments secured by an enterprise-wide CAS
       server.</para>
-    <para>You can learn more about CAS at <literal>http://www.ja-sig.org/products/cas/</literal>.
-      You will also need to visit this site to download the CAS Server files.</para>
+    <para>You can learn more about CAS at <literal>http://www.ja-sig.org/cas</literal>. You will
+      also need to visit this site to download the CAS Server files.</para>
   </section>
   <section xml:id="cas-how-it-works">
     <info>
@@ -269,8 +269,8 @@
       parameter does is tell the CAS login service that a single sign on login is unacceptable.
       Instead, the user will need to re-enter their username and password in order to gain access to
       the service.</para>
-    <para>The following beans should be configured to commence the CAS authentication
-      process (assuming you're using a namespace configuration):</para>
+    <para>The following beans should be configured to commence the CAS authentication process
+      (assuming you're using a namespace configuration):</para>
     <para>
       <programlisting><![CDATA[
 <security:authentication-manager alias="authenticationManager">
@@ -304,8 +304,8 @@
     <para>The <literal>CasAuthenticationFilter</literal> has very similar properties to the
         <literal>UsernamePasswordAuthenticationFilter</literal> (used for form-based logins). Each
       property is self-explanatory. Note that we've also used the namespace syntax for setting up an
-      alias to the authentication mnager, since the <literal>CasAuthenticationFilter</literal> needs
-      a reference to it.</para>
+      alias to the authentication manager, since the <literal>CasAuthenticationFilter</literal>
+      needs a reference to it.</para>
     <para>For CAS to operate, the <classname>ExceptionTranslationFilter</classname> must have its
         <literal>authenticationEntryPoint</literal> property set to the
         <literal>CasAuthenticationEntryPoint</literal> bean.</para>

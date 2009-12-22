@@ -37,7 +37,7 @@
                 namespace</link> by means of the <literal>requires-channel</literal> attribute on
             the <literal>&lt;intercept-url&gt;</literal> element and this is the simplest (and
             recommended approach).</para>
-        <para>To confiure channel security explicitly, you would define the following the filter in
+        <para>To configure channel security explicitly, you would define the following the filter in
             your application context: <programlisting><![CDATA[
 <bean id="channelProcessingFilter" 
     class="org.springframework.security.web.access.channel.ChannelProcessingFilter">

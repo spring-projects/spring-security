@@ -17,8 +17,8 @@
             enhancement requests if you include corresponding unit tests. This is necessary to
             ensure project test coverage is adequately maintained.</para>
         <para>You can access the issue tracker at <link
-                xlink:href="http://jira.springframework.org/browse/SEC"
-                >http://jira.springframework.org/browse/SEC</link>. </para>
+                xlink:href="http://jira.springsource.org/browse/SEC"
+                >http://jira.springsource.org/browse/SEC</link>. </para>
     </section>
     <section xml:id="becoming-involved">
         <info>
@@ -41,10 +41,8 @@
             <title>Further Information</title>
         </info>
         <para>Questions and comments on Spring Security are welcome. You can use the Spring
-            Community Forum web site at <uri xlink:href="http://forum.springframework.org"
+            Community Forum web site at <uri xlink:href="http://forum.springsource.org"
                 >http://forum.springsource.org</uri> to discuss Spring Security with other users of
-            the framework. Remember to use JIRA for bug reports, as explained above. Everyone is
-            also welcome to join the Acegisecurity-developer mailing list and participate in design
-            discussions. The traffic volume is very light.</para>
+            the framework. Remember to use JIRA for bug reports, as explained above.</para>
     </section>
 </chapter>
