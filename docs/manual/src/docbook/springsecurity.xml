@@ -175,6 +175,7 @@
     <xi:include href="domain-acls.xml"/>
     <xi:include href="preauth.xml"/>
     <xi:include href="ldap-auth-provider.xml"/>
+    <xi:include href="taglibs.xml"/>    
     <xi:include href="jaas-auth-provider.xml"/>
     <xi:include href="cas-auth-provider.xml"/>
     <xi:include href="x509-auth-provider.xml"/>
