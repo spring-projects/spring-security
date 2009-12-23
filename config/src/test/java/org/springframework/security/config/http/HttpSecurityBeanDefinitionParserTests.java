@@ -1004,7 +1004,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     public void expressionBasedAccessAllowsAndDeniesAccessAsExpected() throws Exception {
         setContext(
                 "    <http auto-config='true' use-expressions='true'>" +
-                "        <intercept-url pattern='/secure*' access=\"hasRole('ROLE_A')\" />" +
+                "        <intercept-url pattern='/secure*' access=\"hasAnyRole('ROLE_A','ROLE_C')\" />" +
                 "        <intercept-url pattern='/**' access='permitAll()' />" +
                 "    </http>" + AUTH_PROVIDER_XML);
 

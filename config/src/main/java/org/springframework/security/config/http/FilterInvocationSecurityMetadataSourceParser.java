@@ -135,7 +135,7 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
             if (useExpressions) {
                 logger.info("Creating access control expression attribute '" + access + "' for " + path);
                 // The single expression will be parsed later by the ExpressionFilterInvocationSecurityMetadataSource
-                attributeBuilder.setFactoryMethod("createList");
+                attributeBuilder.setFactoryMethod("createSingleAttributeList");
 
             } else {
                 attributeBuilder.setFactoryMethod("createListFromCommaDelimitedString");
