@@ -101,6 +101,7 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
 
     /**
      * Template method for you to do your own pre-processing before the redirect occurs.
+     * 
      * @param request the HttpServletRequest
      * @param response the HttpServletResponse
      */
