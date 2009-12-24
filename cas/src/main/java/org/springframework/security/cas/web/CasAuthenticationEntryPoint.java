@@ -56,7 +56,9 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
      * disable the session encoding is provided for backwards compatibility.
      *
      * By default, encoding is enabled.
+     * @deprecated since 3.0.0 because CAS is currently on 3.3.5.
      */
+    @Deprecated
     private boolean encodeServiceUrlWithSessionId = true;
 
     //~ Methods ========================================================================================================
@@ -66,13 +68,44 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
         Assert.notNull(this.serviceProperties, "serviceProperties must be specified");
     }
 
-    public void commence(final HttpServletRequest servletRequest, final HttpServletResponse response,
+    public final void commence(final HttpServletRequest servletRequest, final HttpServletResponse response,
             final AuthenticationException authenticationException) throws IOException, ServletException {
 
-        final String urlEncodedService = CommonUtils.constructServiceUrl(null, response, this.serviceProperties.getService(), null, this.serviceProperties.getArtifactParameter(), this.encodeServiceUrlWithSessionId);
-        final String redirectUrl = CommonUtils.constructRedirectUrl(this.loginUrl, this.serviceProperties.getServiceParameter(), urlEncodedService, this.serviceProperties.isSendRenew(), false);
+        final String urlEncodedService = createServiceUrl(servletRequest, response);
+        final String redirectUrl = createRedirectUrl(urlEncodedService);
+
+        preCommence(servletRequest, response);
 
         response.sendRedirect(redirectUrl);
+    }
+
+    /**
+     * Constructs a new Service Url.  The default implementation relies on the CAS client to do the bulk of the work.
+     * @param request the HttpServletRequest
+     * @param response the HttpServlet Response
+     * @return the constructed service url.  CANNOT be NULL.  
+     */
+    protected String createServiceUrl(final HttpServletRequest request, final HttpServletResponse response) {
+        return CommonUtils.constructServiceUrl(null, response, this.serviceProperties.getService(), null, this.serviceProperties.getArtifactParameter(), this.encodeServiceUrlWithSessionId);
+    }
+
+    /**
+     * Constructs the Url for Redirection to the CAS server.  Default implementation relies on the CAS client to do the bulk of the work.
+     *
+     * @param serviceUrl the service url that should be included.
+     * @return the redirect url.  CANNOT be NULL.
+     */
+    protected String createRedirectUrl(final String serviceUrl) {
+        return CommonUtils.constructRedirectUrl(this.loginUrl, this.serviceProperties.getServiceParameter(), serviceUrl, this.serviceProperties.isSendRenew(), false);
+    }
+
+    /**
+     * Template method for you to do your own pre-processing before the redirect occurs.
+     * @param request the HttpServletRequest
+     * @param response the HttpServletResponse
+     */
+    protected void preCommence(final HttpServletRequest request, final HttpServletResponse response) {
+
     }
 
     /**
@@ -81,23 +114,41 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
      *
      * @return the enterprise-wide CAS login URL
      */
-    public String getLoginUrl() {
+    public final String getLoginUrl() {
         return this.loginUrl;
     }
 
-    public ServiceProperties getServiceProperties() {
+    public final ServiceProperties getServiceProperties() {
         return this.serviceProperties;
     }
 
-    public void setLoginUrl(final String loginUrl) {
+    public final void setLoginUrl(final String loginUrl) {
         this.loginUrl = loginUrl;
     }
 
-    public void setServiceProperties(final ServiceProperties serviceProperties) {
+    public final void setServiceProperties(final ServiceProperties serviceProperties) {
         this.serviceProperties = serviceProperties;
     }
 
-    public void setEncodeServiceUrlWithSessionId(final boolean encodeServiceUrlWithSessionId) {
+    /**
+     * Sets whether to encode the service url with the session id or not.
+     *
+     * @param encodeServiceUrlWithSessionId whether to encode the service url with the session id or not.
+     * @deprecated since 3.0.0 because CAS is currently on 3.3.5.
+     */
+    @Deprecated
+    public final void setEncodeServiceUrlWithSessionId(final boolean encodeServiceUrlWithSessionId) {
         this.encodeServiceUrlWithSessionId = encodeServiceUrlWithSessionId;
+    }
+
+    /**
+     * Sets whether to encode the service url with the session id or not.
+     * @return whether to encode the service url with the session id or not.
+     *
+     * @deprecated since 3.0.0 because CAS is currently on 3.3.5.
+     */
+    @Deprecated
+    protected boolean getEncodeServiceUrlWithSessionId() {
+        return this.encodeServiceUrlWithSessionId;
     }
 }
