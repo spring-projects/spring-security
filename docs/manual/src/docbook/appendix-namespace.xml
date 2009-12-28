@@ -453,7 +453,7 @@
     <section>
       <title>The <literal>&lt;authentication-manager&gt;</literal> Element</title>
       <para> Every Spring Security application which uses the namespace must have include this
-        element somewhere. It is resposible for registering the
+        element somewhere. It is responsible for registering the
           <interfacename>AuthenticationManager</interfacename> which provides authentication
         services to the application. It also allows you to define an alias name for the internal
         instance for use in your own configuration. Its use is described in the <link

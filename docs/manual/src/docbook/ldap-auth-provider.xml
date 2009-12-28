@@ -254,7 +254,7 @@
             <info>
                 <title>LDAP Search Objects</title>
             </info>
-            <para>Often more a more complicated strategy than simple DN-matching is required to
+            <para>Often a more complicated strategy than simple DN-matching is required to
                 locate a user entry in the directory. This can be encapsulated in an
                     <interfacename>LdapUserSearch</interfacename> instance which can be supplied to
                 the authenticator implementations, for example, to allow them to locate a user. The
@@ -372,7 +372,7 @@ public interface UserDetailsContextMapper {
                 parameter is the name used to authenticate and the final parameter is the collection
                 of authorities loaded for the user. </para>
             <para> The way the context data is loaded varies slightly depending on the type of
-                authentication you are using. With the <classname>BindAuthenticatior</classname>,
+                authentication you are using. With the <classname>BindAuthenticator</classname>,
                 the context returned from the bind operation will be used to read the attributes,
                 otherwise the data will be read using the standard context obtained from the
                 configured <interfacename>ContextSource</interfacename> (when a search is configured

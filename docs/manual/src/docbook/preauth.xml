@@ -26,7 +26,7 @@
       in a structured fashion, without having to write everything from scratch. You don't need to
       know about these classes if you want to use something like <link xlink:href="#x509">X.509
         authentication</link>, as it already has a namespace configuration option which is simpler
-      to use and get started with. If you need to use explicit bean confiuration or are planning on
+      to use and get started with. If you need to use explicit bean configuration or are planning on
       writing your own implementation then an understanding of how the provided implementations work
       will be useful. You will find classes under the
         <package>org.springframework.security.web.authentication.preauth</package>. We just provide
@@ -122,7 +122,7 @@
     <section>
       <title>Request-Header Authentication (Siteminder)</title>
       <para> An external authentication system may supply information to the application by setting
-        specific headers on the HTTP request. A well known example of this is is Siteminder, which
+        specific headers on the HTTP request. A well known example of this is Siteminder, which
         passes the username in a header called <literal>SM_USER</literal>. This mechanism is
         supported by the class <classname>RequestHeaderAuthenticationFilter</classname> which simply
         extracts the username from the header. It defaults to using the name
@@ -132,7 +132,7 @@
           checks at all and it is <emphasis>extremely</emphasis> important that the external system
           is configured properly and protects all access to the application. If an attacker is able
           to forge the headers in their original request without this being detected then they could
-          potentially choose any userame they wished. </para>
+          potentially choose any username they wished. </para>
       </tip>
       <section>
         <title>Siteminder Example Configuration</title>
@@ -177,7 +177,7 @@ class="org.springframework.security.web.authentication.preauth.PreAuthenticatedA
       <title>J2EE Container Authentication</title>
       <para> The class <classname>J2eePreAuthenticatedProcessingFilter</classname> will extract the
         username from the <literal>userPrincipal</literal> property of the
-          <interfacename>HttpServletRequest</interfacename>. use of this filter would usually be
+          <interfacename>HttpServletRequest</interfacename>. Use of this filter would usually be
         combined with the use of J2EE roles as described above in <xref
           linkend="j2ee-preauth-details"/>. </para>
       <para> There is a sample application in the codebase which uses this approach, so get hold of

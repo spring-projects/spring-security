@@ -21,10 +21,10 @@
             customisable security features.</para>
         <para>As you probably know two major areas of application security are
                 <quote>authentication</quote> and <quote>authorization</quote> (or
-                <quote>access-control</quote>). These are the the two main areas that Spring
-            Security targets. <quote>Authentication</quote> is the process of establishing a
-            principal is who they claim to be (a <quote>principal</quote> generally means a user,
-            device or some other system which can perform an action in your application).
+                <quote>access-control</quote>). These are the two main areas that Spring Security
+            targets. <quote>Authentication</quote> is the process of establishing a principal is who
+            they claim to be (a <quote>principal</quote> generally means a user, device or some
+            other system which can perform an action in your application).
                 <quote>Authorization</quote> refers to the process of deciding whether a principal
             is allowed to perform an action within your application. To arrive at the point where an
             authorization decision is needed, the identity of the principal has already been

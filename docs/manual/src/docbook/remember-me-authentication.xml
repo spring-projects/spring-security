@@ -64,12 +64,11 @@
         <para>This approach is based on the article <link
                 xlink:href="http://jaspan.com/improved_persistent_login_cookie_best_practice"
                 >http://jaspan.com/improved_persistent_login_cookie_best_practice</link> with some
-            minor modifications <footnote>
-                <para>Essentially, the username is not included in the cookie, to prevent exposing a
-                    valid login name unecessarily. There is a discussion on this in the comments
-                    section of this article.</para>
-            </footnote>. To use the this approach with namespace configuration, you would supply a
-            datasource reference: <programlisting><![CDATA[
+            minor modifications <footnote><para>Essentially, the username is not included in the
+                    cookie, to prevent exposing a valid login name unecessarily. There is a
+                    discussion on this in the comments section of this article.</para></footnote>.
+            To use the this approach with namespace configuration, you would supply a datasource
+            reference: <programlisting><![CDATA[
   <http>
     ...
     <remember-me data-source-ref="someDataSource"/>
@@ -110,7 +109,7 @@
             authentication-related events, and delegates to the implementation whenever a candidate
             web request might contain a cookie and wish to be remembered. This design allows any
             number of remember-me implementation strategies. We've seen above that Spring Security
-            provides two implementations. We'll look at thes in turn.</para>
+            provides two implementations. We'll look at these in turn.</para>
         <section>
             <title>TokenBasedRememberMeServices</title>
             <para> This implementation supports the simpler approach described in <xref
@@ -162,16 +161,12 @@
             <para> This class can be used in the same way as
                     <classname>TokenBasedRememberMeServices</classname>, but it additionally needs
                 to be configured with a <interfacename>PersistentTokenRepository</interfacename> to
-                store the tokens. There are two standard implementations. <itemizedlist>
-                    <listitem>
-                        <para><classname>InMemoryTokenRepositoryImpl</classname> which is intended
-                            for testing only.</para>
-                    </listitem>
-                    <listitem>
-                        <para><classname>JdbcTokenRepositoryImpl</classname> which stores the tokens
-                            in a database. </para>
-                    </listitem>
-                </itemizedlist> The database schema is described above in <xref
+                store the tokens. There are two standard implementations.
+                                <itemizedlist><listitem><para><classname>InMemoryTokenRepositoryImpl</classname>
+                            which is intended for testing
+                                only.</para></listitem><listitem><para><classname>JdbcTokenRepositoryImpl</classname>
+                            which stores the tokens in a database. </para></listitem></itemizedlist>
+                The database schema is described above in <xref
                     linkend="remember-me-persistent-token"/>. </para>
         </section>
     </section>

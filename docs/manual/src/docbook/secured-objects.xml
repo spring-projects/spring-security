@@ -24,7 +24,7 @@
         <literal>&lt;intercept-methods&gt;</literal> or <literal>&lt;protect-point&gt;</literal>
       elements. Other implementations will be used to handle annotation-based configuration. </para>
     <section>
-      <title>Explicit MethodSecurityIterceptor Configuration</title>
+      <title>Explicit MethodSecurityInterceptor Configuration</title>
       <para> You can of course configure a <classname>MethodSecurityIterceptor</classname> directly
         in your application context for use with one of Spring AOP's proxying mechanisms: <programlisting><![CDATA[
 <bean id="bankManagerSecurity"

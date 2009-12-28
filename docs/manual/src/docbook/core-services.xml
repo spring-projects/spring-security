@@ -77,8 +77,8 @@
         <section xml:id="core-services-dao-provider">
             <title><literal>DaoAuthenticationProvider</literal></title>
             <para>The simplest <interfacename>AuthenticationProvider</interfacename> implemented by
-                Spring Security is <literal>DaoAuthenticationProvider</literal>, which is is also
-                one of the earliest supported by the framework. It leverages a
+                Spring Security is <literal>DaoAuthenticationProvider</literal>, which is also one
+                of the earliest supported by the framework. It leverages a
                     <interfacename>UserDetailsService</interfacename> (as a DAO) in order to lookup
                 the username, password and <interfacename>GrantedAuthority</interfacename>s. It
                 authenticates the user simply by comparing the password submitted in a
@@ -206,7 +206,7 @@
         <title>Password Encoding</title>
         <para>Spring Security's <interfacename>PasswordEncoder</interfacename> interface is used to
             support the use of passwords which are encoded in some way in persistent storage. This
-            will normally mean that the passwords are <quote>hashed</quote> using a digest alogirthm
+            will normally mean that the passwords are <quote>hashed</quote> using a digest algorithm
             such as MD5 or SHA.</para>
         <section>
             <title>What is a hash?</title>

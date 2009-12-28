@@ -80,7 +80,7 @@ JAASTest {
                 internal mechanics.</para>
             
             <para>For those needing full control over the callback behavior,
-                internally <literal>JaasAutheticationProvider</literal> wraps these
+                internally <literal>JaasAuthenticationProvider</literal> wraps these
                 <literal>JaasAuthenticationCallbackHandler</literal>s with an
                 <literal>InternalCallbackHandler</literal>. The
                 <literal>InternalCallbackHandler</literal> is the class that

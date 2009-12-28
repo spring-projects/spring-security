@@ -13,7 +13,7 @@
     <title>SessionManagementFilter</title>
     <para>The <classname>SessionManagementFilter</classname> checks the contents of the
         <interfacename>SecurityContextRepository</interfacename> against the current contents of the
-        <classname>SecurityContextHolder</classname> to deterine whether a user has been
+        <classname>SecurityContextHolder</classname> to determine whether a user has been
       authenticated during the current request, typically by a non-interactive authentication
       mechanism, such as pre-authentication or remember-me <footnote><para>Authentication by
           mechanisms which perform a redirect after authenticating (such as form-login) will not be

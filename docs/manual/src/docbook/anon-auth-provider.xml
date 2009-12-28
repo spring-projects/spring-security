@@ -78,7 +78,7 @@
                     it is possible for an authenticating client to construct the
                         <interfacename>Authentication</interfacename> object (such as with RMI
                     invocations), then a malicious client could submit an
-                        <classname>AnonyousAuthenticationToken</classname> which it had created
+                        <classname>AnonymousAuthenticationToken</classname> which it had created
                     itself (with chosen username and authority list). If the <literal>key</literal>
                     is guessable or can be found out, then the token would be accepted by the
                     anonymous provider. This isn't a problem with normal usage but if you are using
@@ -132,7 +132,7 @@
             the use of the <classname>AuthenticatedVoter</classname> which we will see in the <link
                 xlink:href="#authz-authenticated-voter">authorization chapter</link>. It uses an
                 <interfacename>AuthenticationTrustResolver</interfacename> to process this
-            particular configuration attribute and grant access to aonymous users. The
+            particular configuration attribute and grant access to anonymous users. The
                 <classname>AuthenticatedVoter</classname> approach is more powerful, since it allows
             you to differentiate between anonymous, remember-me and fully-authenticated users. If
             you don't need this functionality though, then you can stick with

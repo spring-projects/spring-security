@@ -15,7 +15,7 @@
             Security uses specific classes for web and method security as the root object, in order
             to provide built-in expressions and access to values such as the current
             principal.</para>
-        <section  xml:id="el-common-built-in">
+        <section xml:id="el-common-built-in">
             <title>Common Built-In Expressions</title>
             <para>The base class for expression root objects is
                     <classname>SecurityExpressionRoot</classname>. This provides some common
@@ -79,8 +79,8 @@
                         </row>
                         <row>
                             <entry><literal>isFullyAuthenticated()</literal></entry>
-                            <entry>Returns <literal>true</literal> if the user is not an anonyous or
-                                a remember-me user</entry>
+                            <entry>Returns <literal>true</literal> if the user is not an anonymous
+                                or a remember-me user</entry>
                         </row>
                     </tbody>
                 </tgroup>
@@ -121,7 +121,7 @@
         <para>Method security is a bit more complicated than a simple allow or deny rule. Spring
             Security 3.0 introduced some new annotations in order to allow comprehensive support for
             the use of expressions.</para>
-        <section  xml:id="el-pre-post-annotations">
+        <section xml:id="el-pre-post-annotations">
             <title><literal>@Pre</literal> and <literal>@Post</literal> Annotations</title>
             <para>There are four annotations which support expression attributes to allow pre and
                 post-invocation authorization checks and also to support filtering of submitted
@@ -147,13 +147,13 @@
                     we're actually using a method argument as part of the expression to decide
                     whether the current user has the <quote>admin</quote>permission for the given
                     contact. The built-in <literal>hasPermission()</literal> expression is linked
-                    into the Spring Security ACL module through the application context, as we'll 
-                    <link xlink:href="#el-permission-evaluator">see
-                    below</link>. You can access any of the method arguments by name as expression variables, provided
-                    your code has debug information compiled in. Any Spring-EL functionality is
-                    available within the expression, so you can also access properties on the
-                    arguments. For example, if you wanted a particular method to only allow access
-                    to a user whose username matched that of the contact, you could write</para>
+                    into the Spring Security ACL module through the application context, as we'll
+                        <link xlink:href="#el-permission-evaluator">see below</link>. You can access
+                    any of the method arguments by name as expression variables, provided your code
+                    has debug information compiled in. Any Spring-EL functionality is available
+                    within the expression, so you can also access properties on the arguments. For
+                    example, if you wanted a particular method to only allow access to a user whose
+                    username matched that of the contact, you could write</para>
                 <programlisting>  @PreAuthorize("#contact.name == principal.name)")
   public void doSomething(Contact contact);</programlisting>
                 <para>Here we are accessing another built–in expression, which is the
@@ -196,7 +196,7 @@
                 we have already seen in use above. The <literal>filterTarget</literal> and
                     <literal>returnValue</literal> values are simple enough, but the use of the
                     <literal>hasPermission()</literal> expression warrants a closer look.</para>
-            <section  xml:id="el-permission-evaluator">
+            <section xml:id="el-permission-evaluator">
                 <title>The <interfacename>PermissionEvaluator</interfacename> interface</title>
                 <para><literal>hasPermission()</literal> expressions are delegated to an instance of
                         <interfacename>PermissionEvaluator</interfacename>. It is intended to bridge
@@ -220,18 +220,16 @@
                     long as it is consistent with how the permissions are loaded.</para>
                 <para>To use <literal>hasPermission()</literal> expressions, you have to explicitly
                     configure a <interfacename>PermissionEvaluator</interfacename> in your
-                    application context. This would look something like
-                    this:<programlisting language="xml"> <![CDATA[ <security:global-method-security pre-post-annotations="enabled">
+                    application context. This would look something like this:<programlisting language="xml"> <![CDATA[ <security:global-method-security pre-post-annotations="enabled">
     <security:expression-handler ref="expressionHandler"/>
   </security:global-method-security>
 
   <bean id="expressionHandler" 
       class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
         <property name="permissionEvaluator" ref="myPermissionEvaluator"/>
-  </bean>]]></programlisting>Where
-                        <literal>myPermissionEvaluator</literal> is the bean which implements
-                        <interfacename>PermissionEvaluator</interfacename>. Usually this will be the
-                    implementation from the ACL module which is called
+  </bean>]]></programlisting>Where <literal>myPermissionEvaluator</literal> is the bean which
+                    implements <interfacename>PermissionEvaluator</interfacename>. Usually this will
+                    be the implementation from the ACL module which is called
                         <classname>AclPermissionEvaluator</classname>. See the
                         <quote>Contacts</quote> sample application configuration for more
                     details.</para>
