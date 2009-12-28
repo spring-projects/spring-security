@@ -62,10 +62,14 @@
     <para>Spring Security is able to prevent a principal from concurrently authenticating to the
       same application more than a specified number of times. Many ISVs take advantage of this to
       enforce licensing, whilst network administrators like this feature because it helps prevent
-      people from sharing login names. You can, for example, stop user "Batman" from logging onto
-      the web application from two different sessions.</para>
-    <para>This feature is supported by the namespace, so please check the earlier namespace chapter
-      for the simplest configuration. Sometimes you need to customize things though. </para>
+      people from sharing login names. You can, for example, stop user <quote>Batman</quote> from
+      logging onto the web application from two different sessions. You can either expire their
+      previous login or you can report an error when they try to log in again, preventing the second
+      login. Note that if you are using the second approach, a user who has not explicitly logged
+      out (but who has just closed their browser, for example) will not be able to log in again
+      until their original session expires.</para>
+    <para>Concurrency control is supported by the namespace, so please check the earlier namespace
+      chapter for the simplest configuration. Sometimes you need to customize things though. </para>
     <para>The implementation uses a specialized version of
         <interfacename>SessionAuthenticationStrategy</interfacename>, called
         <classname>ConcurrentSessionControlStrategy</classname>. <note><para>Previously the
