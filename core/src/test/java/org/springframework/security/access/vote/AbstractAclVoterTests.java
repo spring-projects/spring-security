@@ -60,6 +60,7 @@ public class AbstractAclVoterTests {
         assertEquals("The Argument", voter.getDomainObjectInstance(mi));
     }
 
+    @SuppressWarnings("unused")
     private static class TestClass {
         public void methodTakingAString(String arg) {
         }

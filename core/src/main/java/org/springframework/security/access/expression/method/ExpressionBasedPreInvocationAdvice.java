@@ -53,8 +53,7 @@ public class ExpressionBasedPreInvocationAdvice implements PreInvocationAuthoriz
             }
         } else if (mi.getArguments().length == 1) {
             Object arg = mi.getArguments()[0];
-            if (arg.getClass().isArray() ||
-                arg instanceof Collection) {
+            if (arg.getClass().isArray() || arg instanceof Collection<?>) {
                 filterTarget = arg;
             }
             if (filterTarget == null) {

@@ -14,20 +14,20 @@ import junit.framework.TestCase;
  */
 public class ObjectIdentityRetrievalStrategyImplTests extends TestCase {
     //~ Methods ========================================================================================================
-    
+
     public void testObjectIdentityCreation() throws Exception {
         MockIdDomainObject domain = new MockIdDomainObject();
         domain.setId(new Integer(1));
-        
+
         ObjectIdentityRetrievalStrategy retStrategy = new ObjectIdentityRetrievalStrategyImpl();
         ObjectIdentity identity = retStrategy.getObjectIdentity(domain);
-        
+
         assertNotNull(identity);
         assertEquals(identity, new ObjectIdentityImpl(domain));
     }
-    
+
     //~ Inner Classes ==================================================================================================
-    
+    @SuppressWarnings("unused")
     private class MockIdDomainObject {
         private Object id;
 

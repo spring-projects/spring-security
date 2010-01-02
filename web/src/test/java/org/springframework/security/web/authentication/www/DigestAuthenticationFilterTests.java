@@ -297,7 +297,7 @@ public class DigestAuthenticationFilterTests {
                 ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
         assertFalse(SecurityContextHolder.getContext().getAuthentication().isAuthenticated());
     }
-    
+
     @Test
     public void testNormalOperationWhenPasswordNotAlreadyEncodedAndWithoutReAuthentication() throws Exception {
         String responseDigest = DigestAuthUtils.generateDigest(false, USERNAME, REALM, PASSWORD, "GET",
@@ -313,8 +313,8 @@ public class DigestAuthenticationFilterTests {
         assertEquals(USERNAME,
                 ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
         assertTrue(SecurityContextHolder.getContext().getAuthentication().isAuthenticated());
-        assertEquals(AuthorityUtils.createAuthorityList("ROLE_ONE","ROLE_TWO"), 
-        		SecurityContextHolder.getContext().getAuthentication().getAuthorities());
+        assertEquals(AuthorityUtils.createAuthorityList("ROLE_ONE","ROLE_TWO"),
+                SecurityContextHolder.getContext().getAuthentication().getAuthorities());
     }
 
     @Test

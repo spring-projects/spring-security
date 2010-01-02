@@ -107,7 +107,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper implements Attributes2G
         if ( value == null ) {
             return;
         }
-        if ( value instanceof Collection ) {
+        if ( value instanceof Collection<?> ) {
             addGrantedAuthorityCollection(result,(Collection<?>)value);
         } else if ( value instanceof Object[] ) {
             addGrantedAuthorityCollection(result,(Object[])value);

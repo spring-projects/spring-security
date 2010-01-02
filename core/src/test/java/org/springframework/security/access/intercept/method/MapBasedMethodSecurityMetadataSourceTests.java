@@ -47,6 +47,7 @@ public class MapBasedMethodSecurityMetadataSourceTests {
         assertEquals(ROLE_B, mds.getAttributes(someMethodString, MockService.class));
     }
 
+    @SuppressWarnings("unused")
     private class MockService {
         public void someMethod(String s) {
         }

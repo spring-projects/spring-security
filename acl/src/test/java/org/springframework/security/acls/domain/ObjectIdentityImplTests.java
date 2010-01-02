@@ -12,6 +12,7 @@ import org.springframework.security.acls.model.ObjectIdentity;
  *
  * @author Andrei Stefan
  */
+@SuppressWarnings("unused")
 public class ObjectIdentityImplTests {
 
     private static final String DOMAIN_CLASS =
@@ -174,7 +175,6 @@ public class ObjectIdentityImplTests {
         }
     }
 
-    @SuppressWarnings("unused")
     private class MockOtherIdDomainObject {
         private Object id;
 

@@ -36,7 +36,7 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
     private final String key;
 
     RememberMeBeanDefinitionParser(String key) {
-    	this.key = key;
+        this.key = key;
     }
 
     public BeanDefinition parse(Element element, ParserContext pc) {

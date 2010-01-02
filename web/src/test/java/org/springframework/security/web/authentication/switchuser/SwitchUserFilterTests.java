@@ -405,9 +405,5 @@ public class SwitchUserFilterTests {
                 throw new UsernameNotFoundException("Could not find: " + username);
             }
         }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
     }
 }

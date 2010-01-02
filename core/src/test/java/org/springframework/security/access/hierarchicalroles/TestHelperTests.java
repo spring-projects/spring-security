@@ -83,19 +83,19 @@ public class TestHelperTests {
         authoritiesStrings5.add("ROLE_A");
 
         assertTrue(CollectionUtils.isEqualCollection(
-                HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities1),	authoritiesStrings1));
+                HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities1), authoritiesStrings1));
 
         assertTrue(CollectionUtils.isEqualCollection(
-                HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities2),	authoritiesStrings2));
+                HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities2), authoritiesStrings2));
 
         assertTrue(CollectionUtils.isEqualCollection(
-                HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities3),	authoritiesStrings3));
+                HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities3), authoritiesStrings3));
 
         assertTrue(CollectionUtils.isEqualCollection(
-                HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities4),	authoritiesStrings4));
+                HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities4), authoritiesStrings4));
 
         assertTrue(CollectionUtils.isEqualCollection(
-                HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities5),	authoritiesStrings5));
+                HierarchicalRolesTestHelper.toCollectionOfAuthorityStrings(authorities5), authoritiesStrings5));
     }
 
     // SEC-863

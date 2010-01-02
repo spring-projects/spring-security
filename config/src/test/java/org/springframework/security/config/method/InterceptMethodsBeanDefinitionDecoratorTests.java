@@ -44,7 +44,7 @@ public class InterceptMethodsBeanDefinitionDecoratorTests {
         assertEquals(1, appContext.getBeanNamesForType(ApplicationListener.class).length);
         appContext.publishEvent(new AuthenticationSuccessEvent(new TestingAuthenticationToken("user", "")));
 
-        assertTrue(target instanceof ApplicationListener);
+        assertTrue(target instanceof ApplicationListener<?>);
     }
 
     @Test

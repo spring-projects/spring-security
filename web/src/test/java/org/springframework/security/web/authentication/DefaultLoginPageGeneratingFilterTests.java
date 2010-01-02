@@ -42,6 +42,7 @@ public class DefaultLoginPageGeneratingFilterTests {
     }
 
     // Fake OpenID filter (since it's not in this module
+    @SuppressWarnings("unused")
     private static class MockProcessingFilter extends AbstractAuthenticationProcessingFilter {
         protected MockProcessingFilter() {
             super("/someurl");

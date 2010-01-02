@@ -89,10 +89,6 @@ public class GrantedAuthorityImplTests {
             this.role = role;
         }
 
-        public int compareTo(GrantedAuthority o) {
-            throw new UnsupportedOperationException();
-        }
-
         public String getAuthority() {
             return this.role;
         }

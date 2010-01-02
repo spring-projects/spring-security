@@ -817,6 +817,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 etf.getAuthenticationEntryPoint() instanceof MockEntryPoint);
     }
 
+    @SuppressWarnings("unused")
     private static class MockEntryPoint extends LoginUrlAuthenticationEntryPoint {
         public MockEntryPoint() {
             super.setLoginFormUrl("/notused");
