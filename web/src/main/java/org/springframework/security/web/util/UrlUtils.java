@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
  * URL formatting conventions will affect all users.</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public final class UrlUtils {
     //~ Methods ========================================================================================================
@@ -94,7 +93,6 @@ public final class UrlUtils {
 
     /**
      * Obtains the web application-specific fragment of the URL.
-
      */
     private static String buildRequestUrl(String servletPath, String requestURI, String contextPath, String pathInfo,
         String queryString) {

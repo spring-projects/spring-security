@@ -31,7 +31,6 @@ import org.springframework.web.filter.GenericFilterBean;
  *
  * @author Martin Algesten
  * @author Luke Taylor
- * @version $Id$
  * @since 2.0
  */
 public class SessionManagementFilter extends GenericFilterBean {
@@ -87,6 +86,8 @@ public class SessionManagementFilter extends GenericFilterBean {
                     if (invalidSessionUrl != null) {
                         logger.debug("Redirecting to '" + invalidSessionUrl + "'");
                         redirectStrategy.sendRedirect(request, response, invalidSessionUrl);
+
+                        return;
                     }
                 }
             }

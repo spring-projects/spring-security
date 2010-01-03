@@ -15,79 +15,70 @@
 
 package org.springframework.security.web.concurrent;
 
-import junit.framework.TestCase;
-import org.springframework.mock.web.MockFilterConfig;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+import java.util.Date;
+
+import javax.servlet.FilterChain;
+
+import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import java.io.IOException;
-import java.util.Date;
 
 
 /**
  * Tests {@link ConcurrentSessionFilter}.
  *
  * @author Ben Alex
- * @version $Id$
+ * @author Luke Taylor
  */
-public class ConcurrentSessionFilterTests extends TestCase {
+public class ConcurrentSessionFilterTests {
 
-    //~ Methods ========================================================================================================
-
-    private void executeFilterInContainerSimulator(FilterConfig filterConfig, Filter filter, ServletRequest request,
-        ServletResponse response, FilterChain filterChain)
-        throws ServletException, IOException {
-        filter.init(filterConfig);
-        filter.doFilter(request, response, filterChain);
-        filter.destroy();
-    }
-
-    public void testDetectsExpiredSessions() throws Exception {
+    @Test
+    public void detectsExpiredSessions() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpSession session = new MockHttpSession();
         request.setSession(session);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-        MockFilterConfig config = new MockFilterConfig(null, null);
-
-        // Setup our expectation that the filter chain will not be invoked, as we redirect to expiredUrl
-        MockFilterChain chain = new MockFilterChain(false);
 
         // Setup our test fixture and registry to want this session to be expired
         ConcurrentSessionFilter filter = new ConcurrentSessionFilter();
+        filter.setRedirectStrategy(new DefaultRedirectStrategy());
+        filter.setLogoutHandlers(new LogoutHandler[] {new SecurityContextLogoutHandler()});
+
         SessionRegistry registry = new SessionRegistryImpl();
         registry.registerNewSession(session.getId(), "principal");
         registry.getSessionInformation(session.getId()).expireNow();
         filter.setSessionRegistry(registry);
         filter.setExpiredUrl("/expired.jsp");
+        filter.afterPropertiesSet();
 
-        // Test
-        executeFilterInContainerSimulator(config, filter, request, response, chain);
+        FilterChain fc = mock(FilterChain.class);
+        filter.doFilter(request, response, fc);
+        // Expect that the filter chain will not be invoked, as we redirect to expiredUrl
+        verifyZeroInteractions(fc);
 
         assertEquals("/expired.jsp", response.getRedirectedUrl());
     }
 
     // As above, but with no expiredUrl set.
-    public void testReturnsExpectedMessageWhenNoExpiredUrlSet() throws Exception {
+    @Test
+    public void returnsExpectedMessageWhenNoExpiredUrlSet() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpSession session = new MockHttpSession();
         request.setSession(session);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-        MockFilterConfig config = new MockFilterConfig(null, null);
-
-        MockFilterChain chain = new MockFilterChain(false);
 
         ConcurrentSessionFilter filter = new ConcurrentSessionFilter();
         SessionRegistry registry = new SessionRegistryImpl();
@@ -95,35 +86,36 @@ public class ConcurrentSessionFilterTests extends TestCase {
         registry.getSessionInformation(session.getId()).expireNow();
         filter.setSessionRegistry(registry);
 
-        executeFilterInContainerSimulator(config, filter, request, response, chain);
+        FilterChain fc = mock(FilterChain.class);
+        filter.doFilter(request, response, fc);
+        verifyZeroInteractions(fc);
 
         assertEquals("This session has been expired (possibly due to multiple concurrent logins being " +
                 "attempted as the same user).", response.getContentAsString());
     }
 
-    public void testDetectsMissingSessionRegistry() throws Exception {
+    @Test(expected=IllegalArgumentException.class)
+    public void detectsMissingSessionRegistry() throws Exception {
         ConcurrentSessionFilter filter = new ConcurrentSessionFilter();
-        filter.setExpiredUrl("xcx");
-
-        try {
-            filter.afterPropertiesSet();
-            fail("Should have thrown IAE");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+        filter.afterPropertiesSet();
     }
 
-    public void testUpdatesLastRequestTime() throws Exception {
+    @Test(expected=IllegalArgumentException.class)
+    public void detectsInvalidUrl() throws Exception {
+        ConcurrentSessionFilter filter = new ConcurrentSessionFilter();
+        filter.setExpiredUrl("ImNotValid");
+        filter.afterPropertiesSet();
+    }
+
+    @Test
+    public void lastRequestTimeUpdatesCorrectly() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpSession session = new MockHttpSession();
         request.setSession(session);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-        MockFilterConfig config = new MockFilterConfig(null, null);
-
-        // Setup our expectation that the filter chain will be invoked, as our session hasn't expired
-        MockFilterChain chain = new MockFilterChain(true);
+        FilterChain fc = mock(FilterChain.class);
 
         // Setup our test fixture
         ConcurrentSessionFilter filter = new ConcurrentSessionFilter();
@@ -136,28 +128,9 @@ public class ConcurrentSessionFilterTests extends TestCase {
 
         Thread.sleep(1000);
 
-        // Test
-        executeFilterInContainerSimulator(config, filter, request, response, chain);
+        filter.doFilter(request, response, fc);
 
+        verify(fc).doFilter(request, response);
         assertTrue(registry.getSessionInformation(session.getId()).getLastRequest().after(lastRequest));
-    }
-
-    //~ Inner Classes ==================================================================================================
-
-    private class MockFilterChain implements FilterChain {
-        private boolean expectToProceed;
-
-        public MockFilterChain(boolean expectToProceed) {
-            this.expectToProceed = expectToProceed;
-        }
-
-        public void doFilter(ServletRequest request, ServletResponse response)
-            throws IOException, ServletException {
-            if (expectToProceed) {
-                assertTrue(true);
-            } else {
-                fail("Did not expect filter chain to proceed");
-            }
-        }
     }
 }

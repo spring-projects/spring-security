@@ -53,7 +53,6 @@ import org.springframework.web.filter.GenericFilterBean;
  * {@link org.springframework.security.web.session.HttpSessionEventPublisher} registered in <code>web.xml</code>.</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class ConcurrentSessionFilter extends GenericFilterBean {
     //~ Instance fields ================================================================================================
@@ -91,6 +90,8 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 
                     if (targetUrl != null) {
                         redirectStrategy.sendRedirect(request, response, targetUrl);
+
+                        return;
                     } else {
                         response.getWriter().print("This session has been expired (possibly due to multiple concurrent " +
                                 "logins being attempted as the same user).");
