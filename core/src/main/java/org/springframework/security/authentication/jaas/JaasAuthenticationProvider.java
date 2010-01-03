@@ -17,6 +17,7 @@ package org.springframework.security.authentication.jaas;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.security.Principal;
 import java.security.Security;
 import java.util.ArrayList;
@@ -244,8 +245,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
      *
      */
     private void configureJaasUsingLoop() throws IOException {
-        File loginConfigFile = loginConfig.getFile();
-        String loginConfigUrl = loginConfigFile.toURL().toString();
+        String loginConfigUrl = convertLoginConfigToUrl();
         boolean alreadySet = false;
 
         int n = 1;
@@ -267,6 +267,17 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
             log.debug("Setting security property [" + key + "] to: " + loginConfigUrl);
             Security.setProperty(key, loginConfigUrl);
         }
+    }
+
+    private String convertLoginConfigToUrl() throws IOException {
+        String loginConfigPath = loginConfig.getFile().getAbsolutePath();
+        loginConfigPath.replace(File.separatorChar, '/');
+
+        if (!loginConfigPath.startsWith("/")) {
+            loginConfigPath = "/" + loginConfigPath;
+        }
+
+        return new URL("file", "", loginConfigPath).toString();
     }
 
     /**
