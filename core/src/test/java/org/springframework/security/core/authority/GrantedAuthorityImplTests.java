@@ -61,29 +61,11 @@ public class GrantedAuthorityImplTests {
         assertEquals("TEST", auth.toString());
     }
 
-    @Test
-    public void compareToGrantedAuthorityWithSameValueReturns0() {
-        assertEquals(0, new GrantedAuthorityImpl("TEST").compareTo(new MockGrantedAuthority("TEST")));
-    }
-
-    @Test
-    public void compareToNullReturnsNegativeOne() {
-        assertEquals(-1, new GrantedAuthorityImpl("TEST").compareTo(null));
-    }
-
-    /* SEC-899 */
-    @Test
-    public void compareToHandlesCustomAuthorityWhichReturnsNullFromGetAuthority() {
-        assertEquals(-1, new GrantedAuthorityImpl("TEST").compareTo(new MockGrantedAuthority()));
-    }
 
     //~ Inner Classes ==================================================================================================
 
     private class MockGrantedAuthority implements GrantedAuthority {
         private String role;
-
-        public MockGrantedAuthority() {
-        }
 
         public MockGrantedAuthority(String role) {
             this.role = role;

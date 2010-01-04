@@ -32,7 +32,6 @@ import org.springframework.util.Assert;
  * method will return -1, so the custom authority will take precedence.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class GrantedAuthorityImpl implements GrantedAuthority, Serializable {
     //~ Instance fields ================================================================================================
@@ -73,18 +72,5 @@ public class GrantedAuthorityImpl implements GrantedAuthority, Serializable {
 
     public String toString() {
         return this.role;
-    }
-
-    public int compareTo(GrantedAuthority ga) {
-        if (ga != null) {
-            String rhsRole = ga.getAuthority();
-
-            if (rhsRole == null) {
-                return -1;
-            }
-
-            return role.compareTo(rhsRole);
-        }
-        return -1;
     }
 }
