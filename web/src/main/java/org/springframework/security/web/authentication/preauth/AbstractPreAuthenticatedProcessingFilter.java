@@ -25,8 +25,19 @@ import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
 
 /**
- * Base class for processing filters that handle pre-authenticated authentication requests. Subclasses must implement
- * the {@code getPreAuthenticatedPrincipal()} and {@code getPreAuthenticatedCredentials()} methods.
+ * Base class for processing filters that handle pre-authenticated authentication requests, where it is assumed
+ * that the principal has already been authenticated by an external system.
+ * <p>
+ * The purpose is then only to extract the necessary information on the principal from the incoming request, rather
+ * than to authenticate them. External authentication systems may provide this information via request data such as
+ * headers or cookies which the pre-authentication system can extract. It is assumed that the external system is
+ * responsible for the accuracy of the data and preventing the submission of forged values.
+ *
+ * Subclasses must implement the {@code getPreAuthenticatedPrincipal()} and {@code getPreAuthenticatedCredentials()}
+ * methods. Subclasses of this filter are typically used in combination with a
+ * {@code PreAuthenticatedAuthenticationProvider}, which is used to load additional data for the user.
+ * This provider will reject null credentials, so the {@link #getPreAuthenticatedCredentials} method should not return
+ * null for a valid principal.
  * <p>
  * If the security context already contains an {@code Authentication} object (either from a invocation of the
  * filter or because of some other authentication mechanism), the filter will do nothing by default. You can force
@@ -47,15 +58,10 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
         InitializingBean, ApplicationEventPublisherAware {
 
     private ApplicationEventPublisher eventPublisher = null;
-
     private AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
-
     private AuthenticationManager authenticationManager = null;
-
     private boolean continueFilterChainOnUnsuccessfulAuthentication = true;
-
     private boolean checkForPrincipalChanges;
-
     private boolean invalidateSessionOnPrincipalChange = true;
 
     /**
@@ -229,8 +235,8 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
     protected abstract Object getPreAuthenticatedPrincipal(HttpServletRequest request);
 
     /**
-     * Override to extract the credentials (if applicable) from the current request. Some implementations
-     * may return a dummy value.
+     * Override to extract the credentials (if applicable) from the current request. Should not return null for a valid
+     * principal, though some implementations may return a dummy value.
      */
     protected abstract Object getPreAuthenticatedCredentials(HttpServletRequest request);
 }
