@@ -1,28 +1,28 @@
 package org.springframework.security.config.authentication;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Iterator;
+import java.util.List;
+
+import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.memory.UserMap;
-import org.springframework.util.StringUtils;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
-
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.List;
-import java.util.Iterator;
 
 /**
  * @author Luke Taylor
  * @author Ben Alex
- * @version $Id$
  */
 public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceBeanDefinitionParser {
 
@@ -63,7 +63,8 @@ public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceB
                 "properties file (using the '" + ATT_PROPERTIES + "' attribute)" );
         }
 
-        UserMap users = new UserMap();
+        BeanDefinition userMap = new RootBeanDefinition(UserMap.class);
+        ManagedMap<String, BeanDefinition> users = new ManagedMap<String, BeanDefinition>();
 
         for (Iterator i = userElts.iterator(); i.hasNext();) {
             Element userElt = (Element) i.next();
@@ -76,12 +77,25 @@ public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceB
 
             boolean locked = "true".equals(userElt.getAttribute(ATT_LOCKED));
             boolean disabled = "true".equals(userElt.getAttribute(ATT_DISABLED));
+            BeanDefinitionBuilder authorities = BeanDefinitionBuilder.rootBeanDefinition(AuthorityUtils.class);
+            authorities.addConstructorArgValue(userElt.getAttribute(ATT_AUTHORITIES));
+            authorities.setFactoryMethod("commaSeparatedStringToAuthorityList");
 
-            users.addUser(new User(userName, password, !disabled, true, true, !locked,
-                    AuthorityUtils.commaSeparatedStringToAuthorityList(userElt.getAttribute(ATT_AUTHORITIES))));
+            BeanDefinitionBuilder user = BeanDefinitionBuilder.rootBeanDefinition(User.class);
+            user.addConstructorArgValue(userName);
+            user.addConstructorArgValue(password);
+            user.addConstructorArgValue(!disabled);
+            user.addConstructorArgValue(true);
+            user.addConstructorArgValue(true);
+            user.addConstructorArgValue(!locked);
+            user.addConstructorArgValue(authorities.getBeanDefinition());
+
+            users.put(userName, user.getBeanDefinition());
         }
 
-        builder.addPropertyValue("userMap", users);
+        userMap.getPropertyValues().addPropertyValue("users", users);
+
+        builder.addPropertyValue("userMap", userMap);
     }
 
     private String generateRandomPassword() {

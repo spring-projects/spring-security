@@ -13,7 +13,6 @@ import org.junit.After;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class UserServiceBeanDefinitionParserTests {
     private AbstractXmlApplicationContext appContext;
@@ -43,6 +42,22 @@ public class UserServiceBeanDefinitionParserTests {
                 "</user-service>");
         UserDetailsService userService = (UserDetailsService) appContext.getBean("service");
         userService.loadUserByUsername("joe");
+    }
+
+    @Test
+    public void namePasswordAndAuthoritiesSupportPlaceholders() {
+        System.setProperty("principal.name", "joe");
+        System.setProperty("principal.pass", "joespassword");
+        System.setProperty("principal.authorities", "ROLE_A,ROLE_B");
+        setContext(
+                "<b:bean class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>" +
+                "<user-service id='service'>" +
+                "    <user name='${principal.name}' password='${principal.pass}' authorities='${principal.authorities}'/>" +
+                "</user-service>");
+        UserDetailsService userService = (UserDetailsService) appContext.getBean("service");
+        UserDetails joe = userService.loadUserByUsername("joe");
+        assertEquals("joespassword", joe.getPassword());
+        assertEquals(2, joe.getAuthorities().size());
     }
 
     @Test
