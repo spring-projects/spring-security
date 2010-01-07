@@ -511,7 +511,7 @@
           attributes supported will depend on your OpenID provider. The attribute values are
           returned as part of the authentication process and can be accessed afterwards using the
           following
-          code:<programlisting language="java">OpenIDAuthenticationToken token = SecurityContextHolder.getContext().getAuthentication();
+          code:<programlisting language="java">OpenIDAuthenticationToken token = (OpenIDAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
 List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
             <classname>OpenIDAttribute</classname> contains the attribute type and the retrieved
           value (or values in the case of multi-valued attributes). We'll see more about how the
