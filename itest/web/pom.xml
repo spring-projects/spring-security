@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-itest</artifactId>
-        <version>3.0.0.CI-SNAPSHOT</version>
+        <version>3.0.1.CI-SNAPSHOT</version>
     </parent>
     <artifactId>spring-security-itest-web</artifactId>
     <name>Spring Security - Web Integration Tests</name>
