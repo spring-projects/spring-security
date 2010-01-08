@@ -70,4 +70,3 @@ Links to the forums, and other useful resources are
 available from the web site.
 
 
-$Id$

@@ -50,7 +50,6 @@ import java.util.Collection;
  * @see UserCache
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface UserDetails extends Serializable {
     //~ Methods ========================================================================================================

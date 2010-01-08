@@ -37,7 +37,6 @@ import org.springframework.security.web.access.intercept.FilterInvocationSecurit
  * Tests {@link ChannelProcessingFilter}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class ChannelProcessingFilterTests {
     //~ Methods ========================================================================================================

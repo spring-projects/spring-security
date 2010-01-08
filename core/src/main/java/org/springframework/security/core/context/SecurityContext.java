@@ -29,7 +29,6 @@ import java.io.Serializable;
  * </p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface SecurityContext extends Serializable {
     //~ Methods ========================================================================================================

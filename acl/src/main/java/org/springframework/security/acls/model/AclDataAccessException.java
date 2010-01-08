@@ -4,7 +4,6 @@ package org.springframework.security.acls.model;
  * Abstract base class for Acl data operations.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public abstract class AclDataAccessException extends RuntimeException {

@@ -33,7 +33,6 @@ import org.junit.Test;
  *
  * @author Mike Wiesner
  * @since 3.0
- * @version $Id$
  */
 public class JndiDnsResolverTest {
 

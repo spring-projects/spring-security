@@ -40,7 +40,6 @@ import java.util.Properties;
  * does honour the user enabled/disabled flag as described above.</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class UserMapEditor extends PropertyEditorSupport {
     //~ Methods ========================================================================================================

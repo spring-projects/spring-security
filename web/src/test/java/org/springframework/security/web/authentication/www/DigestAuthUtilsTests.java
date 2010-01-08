@@ -26,7 +26,6 @@ import java.util.Map;
  * Tests {@link org.springframework.security.util.StringSplitUtils}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class DigestAuthUtilsTests extends TestCase {
     //~ Constructors ===================================================================================================

@@ -9,7 +9,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 /**
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class HttpSessionRequestCacheTests {

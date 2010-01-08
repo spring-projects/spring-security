@@ -12,7 +12,6 @@ import org.springframework.security.core.Authentication;
  * attacks.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since
  */
 public interface SessionAuthenticationStrategy {

@@ -31,7 +31,6 @@ import org.springframework.ldap.core.ContextExecutor;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class SpringSecurityLdapTemplateTests extends AbstractLdapIntegrationTests {
     //~ Instance fields ================================================================================================

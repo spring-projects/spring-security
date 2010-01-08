@@ -57,7 +57,6 @@ import org.springframework.security.web.savedrequest.DefaultSavedRequest;
  * Tests {@link AbstractAuthenticationProcessingFilter}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AbstractAuthenticationProcessingFilterTests extends TestCase {
     SavedRequestAwareAuthenticationSuccessHandler successHandler;

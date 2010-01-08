@@ -16,7 +16,6 @@ import org.springframework.security.config.util.InMemoryXmlApplicationContext;
  * transform has not been applied.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class InvalidConfigurationTests {
     private InMemoryXmlApplicationContext appContext;

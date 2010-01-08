@@ -23,7 +23,6 @@ import org.springframework.util.Assert;
  * org.springframework.security.core.context.SecurityContextHolderStrategy}.
  *
  * @author Ben Alex
- * @version $Id$
  *
  * @see java.lang.ThreadLocal
  * @see org.springframework.security.core.context.web.SecurityContextPersistenceFilter

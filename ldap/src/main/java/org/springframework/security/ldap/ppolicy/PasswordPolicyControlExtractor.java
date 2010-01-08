@@ -11,7 +11,6 @@ import org.apache.commons.logging.LogFactory;
  * Obtains the <tt>PasswordPolicyControl</tt> from a context for use by other classes.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class PasswordPolicyControlExtractor {

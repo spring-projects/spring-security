@@ -24,7 +24,6 @@ import org.springframework.security.core.userdetails.UserDetails;
  * Does not perform any caching.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class NullUserCache implements UserCache {
     //~ Methods ========================================================================================================

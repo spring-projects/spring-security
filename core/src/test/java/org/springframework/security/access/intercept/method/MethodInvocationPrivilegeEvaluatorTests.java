@@ -45,7 +45,6 @@ import org.springframework.security.util.MethodInvocationUtils;
  * Tests {@link org.springframework.security.access.intercept.MethodInvocationPrivilegeEvaluator}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class MethodInvocationPrivilegeEvaluatorTests {
     private Mockery jmock = new JUnit4Mockery();

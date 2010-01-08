@@ -38,7 +38,6 @@ import org.springframework.security.access.AccessDeniedException;
  * from the key {@link #SPRING_SECURITY_ACCESS_DENIED_EXCEPTION_KEY}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
     //~ Static fields/initializers =====================================================================================

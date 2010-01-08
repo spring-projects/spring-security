@@ -11,7 +11,6 @@ import org.springframework.security.core.Authentication;
  * from the implementation of the underlying expression objects.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public interface MethodSecurityExpressionHandler {

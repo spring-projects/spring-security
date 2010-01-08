@@ -32,7 +32,6 @@ import org.springframework.security.util.SimpleMethodInvocation;
  * <code>MethodSecurityInterceptorTests</code> class.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AbstractSecurityInterceptorTests {
     private Mockery jmock = new JUnit4Mockery();

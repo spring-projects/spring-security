@@ -27,7 +27,6 @@ import org.springframework.security.web.PortMapperImpl;
  * Tests {@link PortMapperImpl}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class PortMapperImplTests extends TestCase {
     //~ Methods ========================================================================================================

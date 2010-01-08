@@ -120,7 +120,7 @@
     <xi:include href="session-mgmt.xml"/>
     <xi:include href="anon-auth-provider.xml"/>
   </part>
-  <!--  
+  <!--
   <part xml:id="authentication">
     <title>Authentication</title>
     <partintro>
@@ -165,8 +165,8 @@
   </part>
   <part xml:id="advanced-topics">
     <title>Additional Topics</title>
-    <!-- 
-      Essentially standalone features which do not have to follow on directly from earlier chapters 
+    <!--
+      Essentially standalone features which do not have to follow on directly from earlier chapters
     -->
     <partintro>
       <para> In this part we cover features which require a knowledge of previous chapters  as well

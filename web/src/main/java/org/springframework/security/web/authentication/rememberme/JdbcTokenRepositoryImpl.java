@@ -17,7 +17,6 @@ import java.util.Date;
  * JDBC based persistent login token repository implementation.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 2.0
  */
 public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements PersistentTokenRepository {

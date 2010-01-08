@@ -12,7 +12,6 @@ import org.apache.commons.logging.LogFactory;
  * Simple implementation of <tt>RedirectStrategy</tt> which is the default used throughout the framework.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class DefaultRedirectStrategy implements RedirectStrategy {

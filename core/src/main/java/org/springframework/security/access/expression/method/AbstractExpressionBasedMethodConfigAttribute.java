@@ -14,7 +14,6 @@ import org.springframework.util.Assert;
  * Either filter or authorization expressions may be null, but not both.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 abstract class AbstractExpressionBasedMethodConfigAttribute implements ConfigAttribute {

@@ -22,7 +22,6 @@ import java.lang.annotation.Target;
  * expression to refer to the current object which is being evaluated.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 @Target({ElementType.METHOD, ElementType.TYPE})

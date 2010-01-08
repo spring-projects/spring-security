@@ -19,7 +19,6 @@ package org.springframework.security.access.annotation.test;
  * An extended version of <code>Entity</code>.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class Organisation extends Entity {
     //~ Instance fields ================================================================================================

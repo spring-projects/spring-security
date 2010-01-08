@@ -27,7 +27,6 @@ import org.springframework.security.access.SecurityMetadataSource;
  * that are designed to perform lookups keyed on <code>Method</code>s.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface MethodSecurityMetadataSource extends SecurityMetadataSource {
     public Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass);

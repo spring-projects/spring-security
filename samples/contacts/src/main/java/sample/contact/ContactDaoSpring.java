@@ -33,7 +33,6 @@ import javax.sql.DataSource;
  * Base implementation of {@link ContactDao} that uses Spring JDBC services.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class ContactDaoSpring extends JdbcDaoSupport implements ContactDao {
     //~ Instance fields ================================================================================================

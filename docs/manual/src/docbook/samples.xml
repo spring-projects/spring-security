@@ -47,15 +47,15 @@
             <literallayout>
 Security Debug Information
 
-Authentication object is of type: 
+Authentication object is of type:
 org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 
 Authentication object as a String:
 
 org.springframework.security.authentication.UsernamePasswordAuthenticationToken@1f127853:
 Principal: org.springframework.security.core.userdetails.User@b07ed00: Username: rod; \
-Password: [PROTECTED]; Enabled: true; AccountNonExpired: true; 
-credentialsNonExpired: true; AccountNonLocked: true; \ 
+Password: [PROTECTED]; Enabled: true; AccountNonExpired: true;
+credentialsNonExpired: true; AccountNonLocked: true; \
 Granted Authorities: ROLE_SUPERVISOR, ROLE_USER; \
 Password: [PROTECTED]; Authenticated: true; \
 Details: org.springframework.security.web.authentication.WebAuthenticationDetails@0: \
@@ -67,7 +67,7 @@ Authentication object holds the following granted authorities:
 ROLE_SUPERVISOR (getAuthority(): ROLE_SUPERVISOR)
 ROLE_USER (getAuthority(): ROLE_USER)
 
-Success! Your web filters appear to be properly configured!        
+Success! Your web filters appear to be properly configured!
     </literallayout></para>
         <para>Once you successfully receive the above message, return to the sample application's
             home page and click "Manage". You can then try out the application. Notice that only the

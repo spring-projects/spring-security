@@ -49,7 +49,6 @@ import org.springframework.security.web.util.ThrowableAnalyzer;
  * Tests {@link ExceptionTranslationFilter}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class ExceptionTranslationFilterTests {
 

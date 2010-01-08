@@ -22,7 +22,6 @@ import org.springframework.util.Assert;
  * A <code>ThreadLocal</code>-based implementation of {@link SecurityContextHolderStrategy}.
  *
  * @author Ben Alex
- * @version $Id$
  *
  * @see java.lang.ThreadLocal
  * @see org.springframework.security.core.context.web.SecurityContextPersistenceFilter

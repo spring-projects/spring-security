@@ -28,12 +28,12 @@
             contributing, including reading the forum and responding to questions from other people,
             writing new code, improving existing code, assisting with documentation, developing
             samples or tutorials, or simply making suggestions.</para>
-        <!-- TODO: Not currently there on SSec 2.0    
+        <!-- TODO: Not currently there on SSec 2.0
     <para>Please read our project policies web page that is available on
         Spring Security home page. This explains the path to become a
         committer, and the administration approaches we use within the
         project.</para>
-        
+
         -->
     </section>
     <section xml:id="further-info">

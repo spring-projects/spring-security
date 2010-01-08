@@ -43,7 +43,6 @@ import org.springframework.dao.DataRetrievalFailureException;
  *
  * @author Stefan Zoerner
  * @author Luke Taylor
- * @version $Id: PasswordPolicyResponseControl.java,v 1.4 2009/03/04 07:25:07 itslxt Exp $
  *
  * @see org.springframework.security.ldap.ppolicy.PasswordPolicyControl
  * @see <a href="http://www.ibm.com/developerworks/tivoli/library/t-ldap-controls/">Stefan Zoerner's IBM developerworks

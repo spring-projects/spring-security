@@ -4,7 +4,6 @@ package org.springframework.security.web.util;
  * Strategy for deciding whether configured path matches a submitted candidate URL.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 2.0
  */
 public interface UrlMatcher {

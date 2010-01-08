@@ -19,7 +19,6 @@ package org.springframework.security.access.vote;
  * Simple domain object, used by {@link BasicAclEntryVoterTests}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class SomeDomainObject {
     //~ Instance fields ================================================================================================

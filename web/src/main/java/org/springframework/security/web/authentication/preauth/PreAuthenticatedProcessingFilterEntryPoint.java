@@ -8,7 +8,6 @@ import org.springframework.security.web.authentication.Http403ForbiddenEntryPoin
  * See {@link Http403ForbiddenEntryPoint}.
  *
  * @author Luke Taylor
- * @version $Id$
  * @deprecated Use Http403ForbiddenEntryPoint instead.
  */
 public class PreAuthenticatedProcessingFilterEntryPoint extends Http403ForbiddenEntryPoint {

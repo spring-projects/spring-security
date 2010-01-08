@@ -19,7 +19,6 @@ import org.springframework.security.core.Authentication;
  * voter-based <tt>AccessDecisionManager</tt> implementations used by Spring Security.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class PreInvocationAuthorizationAdviceVoter implements AccessDecisionVoter {

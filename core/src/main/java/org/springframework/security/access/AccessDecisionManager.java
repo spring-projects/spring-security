@@ -24,7 +24,6 @@ import org.springframework.security.core.Authentication;
  * Makes a final access control (authorization) decision.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface AccessDecisionManager {
     //~ Methods ========================================================================================================

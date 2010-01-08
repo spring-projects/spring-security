@@ -31,7 +31,6 @@ import org.springframework.security.core.authority.GrantedAuthorityImpl;
  * Tests {@link User}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class UserTests {
     private static final List<GrantedAuthority> ROLE_12 = AuthorityUtils.createAuthorityList("ROLE_ONE","ROLE_TWO");

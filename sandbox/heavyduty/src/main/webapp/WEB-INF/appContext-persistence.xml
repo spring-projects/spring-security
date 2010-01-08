@@ -13,7 +13,7 @@
     http://www.springframework.org/schema/config http://www.springframework.org/schema/config/spring-config-2.5.xsd
     http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.xsd
     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
-  
+
   <bean id="AllPropertiesConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="location" value="classpath:jdbc.properties"/>
   </bean>
@@ -21,13 +21,13 @@
   <tx:annotation-driven transaction-manager="transactionManager" />
 
   <bean id="userDAO" class="sample.dao.impl.UserDAOImpl"/>
-  
+
   <bean id="daoUserService" class="sample.service.impl.UserServiceImpl"/>
 
   <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor">
     <!--  property name="order" value="0"/ -->
   </bean>
-  
+
   <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
     <property name="entityManagerFactory" ref="entityManagerFactory" />
     <property name="dataSource" ref="dataSource" />

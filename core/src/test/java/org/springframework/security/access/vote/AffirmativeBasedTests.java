@@ -36,7 +36,6 @@ import org.springframework.security.core.Authentication;
  * Tests {@link AffirmativeBased}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AffirmativeBasedTests {
     private final List<ConfigAttribute> attrs = new ArrayList<ConfigAttribute>();

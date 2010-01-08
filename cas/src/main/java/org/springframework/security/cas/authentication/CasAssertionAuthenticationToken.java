@@ -24,7 +24,6 @@ import org.springframework.security.core.GrantedAuthority;
  * Temporary authentication object needed to load the user details service.
  *
  * @author Scott Battaglia
- * @version $Id$
  * @since 3.0
  */
 public final class CasAssertionAuthenticationToken extends AbstractAuthenticationToken {

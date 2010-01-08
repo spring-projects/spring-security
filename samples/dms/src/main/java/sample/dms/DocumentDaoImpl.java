@@ -14,7 +14,6 @@ import org.springframework.util.Assert;
  * Basic JDBC implementation of {@link DocumentDao}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class DocumentDaoImpl extends JdbcDaoSupport implements DocumentDao {
 

@@ -3,7 +3,6 @@
 <!--
   - Sample namespace-based configuration
   -
-  - $Id: applicationContext-security-ns.xml 2396 2007-12-23 16:36:44Z luke_t $
   -->
 
 <b:beans xmlns="http://www.springframework.org/schema/security"

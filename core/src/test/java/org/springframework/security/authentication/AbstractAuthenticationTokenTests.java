@@ -30,7 +30,6 @@ import org.springframework.security.core.authority.GrantedAuthorityImpl;
  * Tests {@link AbstractAuthenticationToken}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AbstractAuthenticationTokenTests {
     //~ Instance fields ================================================================================================

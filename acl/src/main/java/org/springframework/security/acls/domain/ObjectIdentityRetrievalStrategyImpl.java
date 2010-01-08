@@ -26,7 +26,6 @@ import org.springframework.security.acls.model.ObjectIdentityRetrievalStrategy;
  * that uses the constructors of {@link ObjectIdentityImpl} to create the {@link ObjectIdentity}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class ObjectIdentityRetrievalStrategyImpl implements ObjectIdentityRetrievalStrategy, ObjectIdentityGenerator {
     //~ Methods ========================================================================================================

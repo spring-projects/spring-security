@@ -30,7 +30,6 @@ import org.springframework.web.context.support.StaticWebApplicationContext;
  * The HttpSessionEventPublisher tests
  *
  * @author Ray Krueger
- * @version $Id$
  */
 public class HttpSessionEventPublisherTests {
     //~ Methods ========================================================================================================

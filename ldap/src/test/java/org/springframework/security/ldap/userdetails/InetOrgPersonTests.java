@@ -8,7 +8,6 @@ import org.springframework.security.ldap.userdetails.InetOrgPerson;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class InetOrgPersonTests extends TestCase {
 
@@ -38,7 +37,7 @@ public class InetOrgPersonTests extends TestCase {
         assertEquals("Ghengis Khan", p.getCn()[0]);
         assertEquals("00001", p.getEmployeeNumber());
         assertEquals("+442075436521", p.getTelephoneNumber());
-        assertEquals("Steppes", p.getHomePostalAddress());        
+        assertEquals("Steppes", p.getHomePostalAddress());
         assertEquals("+467575436521", p.getHomePhone());
         assertEquals("Hordes", p.getO());
         assertEquals("Horde1", p.getOu());
@@ -57,7 +56,7 @@ public class InetOrgPersonTests extends TestCase {
 
         assertEquals("pillage", p.getPassword());
     }
-    
+
     public void testMappingBackToContextMatchesOriginalData() {
         DirContextAdapter ctx1 = createUserContext();
         DirContextAdapter ctx2 = new DirContextAdapter();
@@ -65,7 +64,7 @@ public class InetOrgPersonTests extends TestCase {
         ctx2.setDn(new DistinguishedName("ignored=ignored"));
         InetOrgPerson p = (InetOrgPerson) (new InetOrgPerson.Essence(ctx1)).createUserDetails();
         p.populateContext(ctx2);
-        
+
         assertEquals(ctx1, ctx2);
     }
 
@@ -78,9 +77,9 @@ public class InetOrgPersonTests extends TestCase {
         InetOrgPerson p2 = (InetOrgPerson) new InetOrgPerson.Essence(p).createUserDetails();
         p2.populateContext(ctx2);
 
-        assertEquals(ctx1, ctx2);        
-    }    
-    
+        assertEquals(ctx1, ctx2);
+    }
+
     private DirContextAdapter createUserContext() {
         DirContextAdapter ctx = new DirContextAdapter();
 

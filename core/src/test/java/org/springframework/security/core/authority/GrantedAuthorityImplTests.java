@@ -26,7 +26,6 @@ import org.springframework.security.core.authority.GrantedAuthorityImpl;
  * Tests {@link GrantedAuthorityImpl}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class GrantedAuthorityImplTests {
 

@@ -27,7 +27,6 @@ import org.w3c.dom.Node;
  * @author Luke Taylor
  * @author Ben Alex
  *
- * @version $Id$
  */
 public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDecorator {
     private BeanDefinitionDecorator delegate = new InternalInterceptMethodsBeanDefinitionDecorator();

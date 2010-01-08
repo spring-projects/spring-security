@@ -17,7 +17,6 @@ import org.w3c.dom.Element;
  * ProviderManager.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class AuthenticationProviderBeanDefinitionParser implements BeanDefinitionParser {
     private static String ATT_USER_DETAILS_REF = "user-service-ref";

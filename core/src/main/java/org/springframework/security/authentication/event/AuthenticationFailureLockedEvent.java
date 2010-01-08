@@ -23,7 +23,6 @@ import org.springframework.security.core.AuthenticationException;
  * Application event which indicates authentication failure due to the user's account having been locked.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AuthenticationFailureLockedEvent extends AbstractAuthenticationFailureEvent {
     //~ Constructors ===================================================================================================

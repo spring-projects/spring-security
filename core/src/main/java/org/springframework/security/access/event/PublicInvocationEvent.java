@@ -22,7 +22,6 @@ package org.springframework.security.access.event;
  *  <p>Published just before the secure object attempts to proceed.</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class PublicInvocationEvent extends AbstractAuthorizationEvent {
     //~ Constructors ===================================================================================================

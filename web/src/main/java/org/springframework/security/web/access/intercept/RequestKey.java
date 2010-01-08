@@ -2,7 +2,6 @@ package org.springframework.security.web.access.intercept;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  * @since 2.0
  */
 public class RequestKey {
@@ -17,7 +16,7 @@ public class RequestKey {
         this.url = url;
         this.method = method;
     }
-    
+
     String getUrl() {
         return url;
     }
@@ -29,7 +28,7 @@ public class RequestKey {
     public int hashCode() {
         int code = 31;
         code ^= url.hashCode();
-        
+
         if (method != null) {
             code ^= method.hashCode();
         }
@@ -47,12 +46,12 @@ public class RequestKey {
         if (!url.equals(key.url)) {
             return false;
         }
-        
+
         if (method == null) {
             return key.method == null;
         }
 
-        return method.equals(key.method);        
+        return method.equals(key.method);
     }
 
     public String toString() {
@@ -63,7 +62,7 @@ public class RequestKey {
         }
         sb.append(url);
         sb.append("]");
-        
+
         return sb.toString();
     }
 }

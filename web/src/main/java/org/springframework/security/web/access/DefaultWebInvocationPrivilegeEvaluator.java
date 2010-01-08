@@ -52,7 +52,6 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPrivilegeEvaluator {

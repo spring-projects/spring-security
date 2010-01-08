@@ -7,7 +7,6 @@ import org.springframework.security.access.annotation.Secured;
  *
  * @author Mike Wiesner
  * @since 1.0
- * @version $Id$
  */
 public class Service {
 

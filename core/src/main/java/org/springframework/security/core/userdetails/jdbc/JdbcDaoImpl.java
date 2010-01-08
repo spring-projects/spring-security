@@ -90,7 +90,6 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @author colin sampaleanu
  * @author Luke Taylor
- * @version $Id$
  */
 public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
     //~ Static fields/initializers =====================================================================================

@@ -54,7 +54,6 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
  * By default this filter processes the URL <tt>/j_spring_cas_security_check</tt>.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
     //~ Static fields/initializers =====================================================================================

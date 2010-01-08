@@ -16,7 +16,6 @@ import org.springframework.security.core.context.SecurityContext;
  * be used to store the context.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  *
  * @see SecurityContextPersistenceFilter

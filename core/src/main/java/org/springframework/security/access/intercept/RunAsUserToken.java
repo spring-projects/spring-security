@@ -27,7 +27,6 @@ import org.springframework.security.core.GrantedAuthority;
  * An immutable {@link org.springframework.security.core.Authentication}  implementation that supports {@link RunAsManagerImpl}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class RunAsUserToken extends AbstractAuthenticationToken {
     //~ Instance fields ================================================================================================

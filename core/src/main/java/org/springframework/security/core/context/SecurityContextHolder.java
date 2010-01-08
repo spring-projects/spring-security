@@ -41,7 +41,6 @@ import java.lang.reflect.Constructor;
  * #MODE_GLOBAL} is definitely inappropriate for server use).
  *
  * @author Ben Alex
- * @version $Id$
  *
  */
 public class SecurityContextHolder {

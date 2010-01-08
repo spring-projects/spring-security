@@ -15,7 +15,6 @@ import org.springframework.security.config.BeanIds;
  * the &lt;authentication-manager&gt; element.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class AuthenticationManagerFactoryBean implements FactoryBean<AuthenticationManager>, BeanFactoryAware {

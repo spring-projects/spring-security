@@ -32,7 +32,6 @@ import org.springframework.security.web.access.channel.SecureChannelProcessor;
  * Tests {@link SecureChannelProcessor}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class SecureChannelProcessorTests extends TestCase {
     //~ Methods ========================================================================================================

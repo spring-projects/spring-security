@@ -28,7 +28,6 @@ import org.springframework.security.core.GrantedAuthority;
  * <code>GrantedAuthority</code>s that apply.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class RememberMeAuthenticationToken extends AbstractAuthenticationToken implements Serializable {
     //~ Instance fields ================================================================================================

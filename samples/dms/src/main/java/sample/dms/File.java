@@ -6,7 +6,6 @@ import org.springframework.util.Assert;
 /**
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class File extends AbstractElement {
     /** Content of the file, which can be null */

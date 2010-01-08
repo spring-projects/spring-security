@@ -30,7 +30,6 @@ import org.springframework.util.Assert;
  * Not bound to any particular ACL system.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public abstract class AbstractAclVoter implements AccessDecisionVoter {
     //~ Instance fields ================================================================================================

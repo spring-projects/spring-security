@@ -31,7 +31,6 @@ import java.util.NoSuchElementException;
  *
  * @author Craig McClanahan
  * @author Andrey Grebnev
- * @version $Id$
  */
 public class Enumerator<T> implements Enumeration<T> {
     //~ Instance fields ================================================================================================

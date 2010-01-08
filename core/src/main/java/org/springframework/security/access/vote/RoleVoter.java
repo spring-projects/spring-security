@@ -48,7 +48,6 @@ import org.springframework.security.core.GrantedAuthority;
  *
  * @author Ben Alex
  * @author colin sampaleanu
- * @version $Id$
  */
 public class RoleVoter implements AccessDecisionVoter {
     //~ Instance fields ================================================================================================

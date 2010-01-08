@@ -20,7 +20,6 @@ import java.util.List;
 
 /**
  * @author Greg Turnquist
- * @version $Id$
  */
 public interface SampleService {
     //~ Methods ========================================================================================================

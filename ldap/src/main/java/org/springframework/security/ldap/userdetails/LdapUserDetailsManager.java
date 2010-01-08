@@ -69,7 +69,6 @@ import java.util.ListIterator;
  *
  * @author Luke Taylor
  * @since 2.0
- * @version $Id$
  */
 public class LdapUserDetailsManager implements UserDetailsManager {
     private final Log logger = LogFactory.getLog(LdapUserDetailsManager.class);

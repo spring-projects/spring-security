@@ -101,7 +101,6 @@ import org.springframework.web.filter.GenericFilterBean;
  * <tt>sessionRegistry</tt> property to make sure that the session information is updated consistently.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public abstract class AbstractAuthenticationProcessingFilter extends GenericFilterBean implements
         ApplicationEventPublisherAware, MessageSourceAware {
@@ -394,7 +393,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 
     /**
      * The session handling strategy which will be invoked immediately after an authentication request is
-     * successfully processed by the <tt>AuthenticationManager</tt>. Used, for example, to handle changing of the 
+     * successfully processed by the <tt>AuthenticationManager</tt>. Used, for example, to handle changing of the
      * session identifier to prevent session fixation attacks.
      *
      * @param sessionStrategy the implementation to use. If not set a null implementation is

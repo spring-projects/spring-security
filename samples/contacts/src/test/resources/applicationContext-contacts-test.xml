@@ -4,7 +4,6 @@
   -
   - Only used by unit tests.
   -
-  - $Id$
   -->
 
 <b:beans xmlns="http://www.springframework.org/schema/security"

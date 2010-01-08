@@ -111,7 +111,7 @@
   <property name="authenticationEntryPoint" ref="authenticationEntryPoint"/>
   <property name="accessDeniedHandler" ref="accessDeniedHandler"/>
 </bean>
-            
+
 <bean id="authenticationEntryPoint"
      class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
   <property name="loginFormUrl" value="/login.jsp"/>
@@ -196,8 +196,8 @@ class="org.springframework.security.web.context.SecurityContextPersistenceFilter
                 <programlisting language="java">
 public interface SecurityContextRepository {
   SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder);
-  void saveContext(SecurityContext context, HttpServletRequest request, 
-         HttpServletResponse response);    
+  void saveContext(SecurityContext context, HttpServletRequest request,
+         HttpServletResponse response);
 }
 </programlisting>
                 The <classname>HttpRequestResponseHolder</classname> is simply a container for the
@@ -268,12 +268,12 @@ class="org.springframework.security.web.context.SecurityContextPersistenceFilter
             </orderedlist> The login form simply contains <literal>j_username</literal> and
                 <literal>j_password</literal> input fields, and posts to the URL that is monitored
             by the filter (by default this is <literal>/j_spring_security_check</literal>). The
-            basic filter configuration looks something like this: <programlisting><![CDATA[    
+            basic filter configuration looks something like this: <programlisting><![CDATA[
 <bean id="authenticationFilter" class=
 "org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="filterProcessesUrl" value="/j_spring_security_check"/>
-</bean> ]]>        
+</bean> ]]>
                 </programlisting></para>
         <section xml:id="form-login-flow-handling">
             <title>Application Flow on Authentication Success and Failure</title>

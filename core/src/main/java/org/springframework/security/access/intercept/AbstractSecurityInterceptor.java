@@ -90,7 +90,6 @@ import org.springframework.util.Assert;
  * </ol>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public abstract class AbstractSecurityInterceptor implements InitializingBean, ApplicationEventPublisherAware,
         MessageSourceAware {

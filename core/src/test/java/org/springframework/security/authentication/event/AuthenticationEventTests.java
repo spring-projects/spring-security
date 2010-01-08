@@ -32,7 +32,6 @@ import org.springframework.security.core.AuthenticationException;
  * Tests {@link AbstractAuthenticationEvent} and its subclasses.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AuthenticationEventTests extends TestCase {
     //~ Methods ========================================================================================================

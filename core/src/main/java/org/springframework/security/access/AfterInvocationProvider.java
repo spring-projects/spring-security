@@ -25,7 +25,6 @@ import org.springframework.security.core.Authentication;
  * Indicates a class is responsible for participating in an {@link AfterInvocationProviderManager} decision.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface AfterInvocationProvider {
     //~ Methods ========================================================================================================

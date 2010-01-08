@@ -9,7 +9,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
  *
  * @author Luke Taylor
  * @since 2.0
- * @version $Id$
  */
 public interface UserDetailsManager extends UserDetailsService {
 
@@ -31,7 +30,7 @@ public interface UserDetailsManager extends UserDetailsService {
     /**
      * Modify the current user's password. This should change the user's password in
      * the persistent user repository (datbase, LDAP etc) and should also modify the
-     * current security context to contain the new password. 
+     * current security context to contain the new password.
      *
      * @param oldPassword current password (for re-authentication if required)
      * @param newPassword the password to change to

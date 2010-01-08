@@ -7,7 +7,6 @@ import org.springframework.security.access.prepost.PreInvocationAttribute;
 /**
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 class PreInvocationExpressionAttribute extends AbstractExpressionBasedMethodConfigAttribute

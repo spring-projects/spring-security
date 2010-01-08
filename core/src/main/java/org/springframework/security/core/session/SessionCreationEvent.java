@@ -7,7 +7,6 @@ import org.springframework.context.ApplicationEvent;
  * represented by a security context) has begun.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public abstract class SessionCreationEvent extends ApplicationEvent {

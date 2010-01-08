@@ -57,7 +57,6 @@ package org.springframework.security.cas.authentication;
  * </p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface StatelessTicketCache {
     //~ Methods ================================================================

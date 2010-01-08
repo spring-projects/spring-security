@@ -34,11 +34,11 @@ public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails extends 
     public void setGrantedAuthorities(List<GrantedAuthority> authorities) {
         this.authoritiesContainer.setGrantedAuthorities(authorities);
     }
-    
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(super.toString() + "; ");
         sb.append(authoritiesContainer);
         return sb.toString();
-    }    
+    }
 }

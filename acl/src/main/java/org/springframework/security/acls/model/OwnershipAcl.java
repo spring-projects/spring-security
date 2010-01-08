@@ -24,7 +24,6 @@ package org.springframework.security.acls.model;
  * well as assign a new owner.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface OwnershipAcl extends MutableAcl {
     //~ Methods ========================================================================================================

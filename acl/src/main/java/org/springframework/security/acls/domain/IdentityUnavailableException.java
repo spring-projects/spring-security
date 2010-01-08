@@ -18,7 +18,6 @@ package org.springframework.security.acls.domain;
  * Thrown if an ACL identity could not be extracted from an object.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class IdentityUnavailableException extends RuntimeException {
     //~ Constructors ===================================================================================================

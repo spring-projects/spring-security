@@ -7,7 +7,6 @@ import org.springframework.security.util.InMemoryResource;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class InMemoryXmlApplicationContext extends AbstractXmlApplicationContext {
     private static final String BEANS_OPENING =

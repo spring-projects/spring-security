@@ -7,7 +7,6 @@ import org.springframework.security.access.ConfigAttribute;
  * Simple expression configuration attribute for use in web request authorizations.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 class WebExpressionConfigAttribute implements ConfigAttribute {

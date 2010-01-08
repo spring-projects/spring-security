@@ -41,7 +41,6 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @author Orlando Garcia Carmona
  * @author Ben Alex
  * @author Luke Taylor
- * @version $Id$
  */
 public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequestWrapper {
     //~ Instance fields ================================================================================================

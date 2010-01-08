@@ -9,7 +9,6 @@ import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 /**
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class SecurityNamespacehandlerTests {

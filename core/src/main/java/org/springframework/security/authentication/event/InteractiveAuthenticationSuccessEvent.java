@@ -25,7 +25,6 @@ import org.springframework.util.Assert;
  * <code>source</code> will be the <code>Authentication</code> object.</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class InteractiveAuthenticationSuccessEvent extends AbstractAuthenticationEvent {
     //~ Instance fields ================================================================================================

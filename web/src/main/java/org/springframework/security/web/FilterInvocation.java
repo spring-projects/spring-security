@@ -34,7 +34,6 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Ben Alex
  * @author colin sampaleanu
- * @version $Id$
  */
 public class FilterInvocation {
     //~ Instance fields ================================================================================================

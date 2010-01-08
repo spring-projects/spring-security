@@ -22,7 +22,6 @@ import org.springframework.security.core.AuthenticationException;
  * Thrown if an {@link UserDetailsService} implementation cannot locate a {@link User} by its username.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class UsernameNotFoundException extends AuthenticationException {
     //~ Constructors ===================================================================================================

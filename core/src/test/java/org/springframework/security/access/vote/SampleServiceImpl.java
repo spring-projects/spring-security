@@ -22,7 +22,6 @@ import java.util.Vector;
  * For label unit tests.
  *
  * @author Greg Turnquist
- * @version $Id$
  */
 public class SampleServiceImpl implements SampleService {
     //~ Methods ========================================================================================================

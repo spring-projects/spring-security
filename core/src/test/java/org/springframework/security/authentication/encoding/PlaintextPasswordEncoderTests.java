@@ -25,7 +25,6 @@ import junit.framework.TestCase;
  *
  * @author colin sampaleanu
  * @author Ben Alex
- * @version $Id$
  */
 public class PlaintextPasswordEncoderTests extends TestCase {
     //~ Methods ========================================================================================================

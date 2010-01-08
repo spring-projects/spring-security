@@ -29,7 +29,6 @@ import org.springframework.util.Assert;
  * Used by {@link InMemoryDaoImpl} to store a list of users and their corresponding granted authorities.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class UserMap {
     //~ Static fields/initializers =====================================================================================

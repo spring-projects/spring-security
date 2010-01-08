@@ -12,7 +12,6 @@ import org.springframework.security.core.userdetails.User;
 /**
  *
  * @author Scott Battaglia
- * @version $Id$
  * @since 2.0
  *
  */

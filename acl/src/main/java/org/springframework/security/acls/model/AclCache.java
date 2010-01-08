@@ -23,7 +23,6 @@ import java.io.Serializable;
  * A caching layer for {@link JdbcAclService}.
  *
  * @author Ben Alex
- * @version $Id$
  *
  */
 public interface AclCache {

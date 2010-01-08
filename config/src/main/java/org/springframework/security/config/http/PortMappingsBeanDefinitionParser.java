@@ -19,7 +19,6 @@ import org.w3c.dom.Element;
  * bean.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 class PortMappingsBeanDefinitionParser implements BeanDefinitionParser {
     public static final String ATT_HTTP_PORT = "http";

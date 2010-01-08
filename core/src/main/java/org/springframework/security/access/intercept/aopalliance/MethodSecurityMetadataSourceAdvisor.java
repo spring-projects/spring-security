@@ -45,7 +45,6 @@ import org.springframework.util.Assert;
  * Based on Spring's TransactionAttributeSourceAdvisor.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class MethodSecurityMetadataSourceAdvisor extends AbstractPointcutAdvisor implements BeanFactoryAware {
     //~ Instance fields ================================================================================================

@@ -48,7 +48,6 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  * @author colin sampaleanu
- * @version $Id$
  */
 public class RunAsManagerImpl implements RunAsManager, InitializingBean {
     //~ Instance fields ================================================================================================

@@ -24,7 +24,6 @@ import javax.servlet.ServletRequest;
  * Always returns the constructor-specified HTTP and HTTPS ports.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class MockPortResolver implements PortResolver {
     //~ Instance fields ================================================================================================

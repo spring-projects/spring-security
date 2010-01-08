@@ -41,7 +41,6 @@ import org.springframework.security.ldap.userdetails.PersonContextMapper;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
     private static final List<GrantedAuthority> TEST_AUTHORITIES = AuthorityUtils.createAuthorityList("ROLE_CLOWNS","ROLE_ACROBATS");

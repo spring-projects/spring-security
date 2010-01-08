@@ -37,7 +37,6 @@ import java.util.Map;
  * Tests {@link AuthenticationSimpleHttpInvokerRequestExecutor}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AuthenticationSimpleHttpInvokerRequestExecutorTests extends TestCase {
 

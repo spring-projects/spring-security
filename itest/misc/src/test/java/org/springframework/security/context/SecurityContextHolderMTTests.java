@@ -11,7 +11,7 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 
 /**
  * Multi-threaded tests for SecurityContextHolder
- * 
+ *
  * @author Ben Alex
  * @Author Luke Taylor
  */
@@ -23,8 +23,8 @@ public class SecurityContextHolderMTTests extends TestCase{
 
     public final void setUp() throws Exception {
         SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
-    }    
-    
+    }
+
     public void testSynchronizationCustomStrategyLoading() {
         SecurityContextHolder.setStrategyName(InheritableThreadLocalSecurityContextHolderStrategy.class.getName());
         assertTrue(new SecurityContextHolder().toString()
@@ -53,8 +53,8 @@ public class SecurityContextHolderMTTests extends TestCase{
         SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_THREADLOCAL);
         loadStartAndWaitForThreads(true, "Main_", NUM_THREADS, false, false);
         assertEquals("Thread errors detected; review log output for details", 0, errors);
-    }    
-    
+    }
+
     private void startAndRun(Thread[] threads) {
         // Start them up
         for (int i = 0; i < threads.length; i++) {
@@ -77,8 +77,8 @@ public class SecurityContextHolderMTTests extends TestCase{
         }
 
         return false;
-    }    
-    
+    }
+
     private void loadStartAndWaitForThreads(boolean topLevelThread, String prefix, int createThreads,
             boolean expectAllThreadsToUseIdenticalAuthentication, boolean expectChildrenToShareAuthenticationWithParent) {
         Thread[] threads = new Thread[createThreads];

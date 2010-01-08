@@ -11,7 +11,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class AuthorityUtilsTests {
 

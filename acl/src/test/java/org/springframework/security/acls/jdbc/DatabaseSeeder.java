@@ -30,7 +30,6 @@ import javax.sql.DataSource;
  * Seeds the database for {@link JdbcMutableAclServiceTests}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class DatabaseSeeder {
     //~ Constructors ===================================================================================================

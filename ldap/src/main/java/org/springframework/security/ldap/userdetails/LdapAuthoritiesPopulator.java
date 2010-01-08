@@ -30,7 +30,6 @@ import org.springframework.ldap.core.DirContextOperations;
  * </p>
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public interface LdapAuthoritiesPopulator {
     //~ Methods ========================================================================================================

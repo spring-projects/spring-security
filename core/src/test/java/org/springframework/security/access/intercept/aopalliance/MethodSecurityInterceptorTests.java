@@ -50,7 +50,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * Tests {@link MethodSecurityInterceptor}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 @SuppressWarnings("unchecked")
 public class MethodSecurityInterceptorTests {

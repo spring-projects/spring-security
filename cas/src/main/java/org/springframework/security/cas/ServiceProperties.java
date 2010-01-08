@@ -27,7 +27,6 @@ import org.springframework.util.Assert;
  * that is being secured by Spring Security.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class ServiceProperties implements InitializingBean {
 

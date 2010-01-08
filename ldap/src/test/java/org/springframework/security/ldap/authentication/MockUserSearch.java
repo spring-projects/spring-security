@@ -24,7 +24,6 @@ import org.springframework.ldap.core.DirContextOperations;
  *
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class MockUserSearch implements LdapUserSearch {
     //~ Instance fields ================================================================================================

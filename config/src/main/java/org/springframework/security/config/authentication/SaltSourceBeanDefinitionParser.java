@@ -13,7 +13,6 @@ import org.w3c.dom.Element;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  * @since 2.0
  */
 class SaltSourceBeanDefinitionParser {

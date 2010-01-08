@@ -102,7 +102,6 @@ import org.springframework.web.filter.GenericFilterBean;
  * @author Ben Alex
  * @author Luke Taylor
  *
- * @version $Id$
  */
 public class FilterChainProxy extends GenericFilterBean {
     //~ Static fields/initializers =====================================================================================

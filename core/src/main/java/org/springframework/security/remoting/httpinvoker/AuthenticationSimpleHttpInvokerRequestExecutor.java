@@ -30,7 +30,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * Adds BASIC authentication support to <code>SimpleHttpInvokerRequestExecutor</code>.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AuthenticationSimpleHttpInvokerRequestExecutor extends SimpleHttpInvokerRequestExecutor {
     //~ Static fields/initializers =====================================================================================

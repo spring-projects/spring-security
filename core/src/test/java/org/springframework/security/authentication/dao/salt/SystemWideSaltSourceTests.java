@@ -24,7 +24,6 @@ import junit.framework.TestCase;
  * Tests {@link SystemWideSaltSource}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class SystemWideSaltSourceTests extends TestCase {
     //~ Constructors ===================================================================================================

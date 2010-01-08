@@ -24,7 +24,6 @@ import junit.framework.TestCase;
  * Tests {@link ServiceProperties}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class ServicePropertiesTests extends TestCase {
     //~ Methods ========================================================================================================

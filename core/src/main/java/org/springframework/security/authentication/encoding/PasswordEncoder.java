@@ -24,7 +24,6 @@ import org.springframework.dao.DataAccessException;
  * </p>
  *
  * @author colin sampaleanu
- * @version $Id$
  */
 public interface PasswordEncoder {
     //~ Methods ========================================================================================================

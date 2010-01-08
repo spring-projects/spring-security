@@ -19,7 +19,6 @@ import org.springframework.security.access.prepost.PrePostInvocationAttributeFac
  * an expression to be evaluated at runtime.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class ExpressionBasedAnnotationAttributeFactory implements PrePostInvocationAttributeFactory {

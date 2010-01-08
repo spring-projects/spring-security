@@ -4,7 +4,6 @@ import java.util.Date;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class PersistentRememberMeToken {
     private String username;

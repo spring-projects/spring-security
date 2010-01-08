@@ -10,7 +10,6 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 /**
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class AuthenticationDetailsSourceImplTests {
 

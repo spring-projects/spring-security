@@ -25,7 +25,6 @@ import org.springframework.util.StringUtils;
  * Property editor that creates a {@link UserAttribute} from a  comma separated list of values.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class UserAttributeEditor extends PropertyEditorSupport {
     //~ Methods ========================================================================================================

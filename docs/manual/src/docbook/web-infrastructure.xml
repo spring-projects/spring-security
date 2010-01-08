@@ -29,7 +29,7 @@
         interfaces. Spring's <classname>DelegatingFilterProxy</classname> provides the link between
           <filename>web.xml</filename> and the application context. </para>
       <para>When using <classname>DelegatingFilterProxy</classname>, you will see something like
-        this in the <filename>web.xml</filename> file: <programlisting><![CDATA[    
+        this in the <filename>web.xml</filename> file: <programlisting><![CDATA[
   <filter>
     <filter-name>myFilter</filter-name>
     <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
@@ -77,7 +77,7 @@
            filterSecurityInterceptor" />
   </sec:filter-chain-map>
 </bean>
-]]>         
+]]>
       </programlisting> The namespace element <literal>filter-chain-map</literal> is
         used to set up the security filter chain(s) which are required within the application<footnote>
           <para>Note that you'll need to include the security namespace in your application context
@@ -132,7 +132,7 @@
     <section>
       <title>Filter Ordering</title>
       <para>The order that filters are defined in the chain is very important. Irrespective of which
-        filters you are actually using, the order should be as follows: 
+        filters you are actually using, the order should be as follows:
         <orderedlist>
           <listitem>
             <para><classname>ChannelProcessingFilter</classname>, because it might need to redirect

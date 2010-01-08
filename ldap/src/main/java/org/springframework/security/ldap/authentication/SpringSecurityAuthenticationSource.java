@@ -18,7 +18,6 @@ import org.apache.commons.logging.LogFactory;
  * @author Mattias Arthursson
  * @author Luke Taylor
  * @since 2.0
- * @version $Id$
  */
 public class SpringSecurityAuthenticationSource implements AuthenticationSource {
     private static final Log log = LogFactory.getLog(SpringSecurityAuthenticationSource.class);
@@ -64,6 +63,6 @@ public class SpringSecurityAuthenticationSource implements AuthenticationSource 
             return "";
         }
 
-        return (String) authentication.getCredentials();        
+        return (String) authentication.getCredentials();
     }
 }

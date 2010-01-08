@@ -23,7 +23,6 @@ package org.springframework.security.web.access.channel;
  * other usage where a standard redirect would cause an issue.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class RetryWithHttpEntryPoint extends AbstractRetryEntryPoint {
 

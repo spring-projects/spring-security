@@ -6,7 +6,6 @@ import java.security.cert.X509Certificate;
  * Obtains the principal from an X509Certificate for use within the framework.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public interface X509PrincipalExtractor {
 

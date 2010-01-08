@@ -31,7 +31,6 @@ import javax.servlet.http.HttpServletResponse;
  * this delegation.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface ChannelEntryPoint {
     //~ Methods ========================================================================================================

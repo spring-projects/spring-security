@@ -32,7 +32,6 @@ import org.springframework.util.Assert;
  * {@link #getKey()}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AnonymousAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
 

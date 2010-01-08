@@ -41,7 +41,6 @@ import org.springframework.security.web.util.UrlUtils;
  * Tests {@link org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class DefaultWebInvocationPrivilegeEvaluatorTests {
     private AccessDecisionManager adm;

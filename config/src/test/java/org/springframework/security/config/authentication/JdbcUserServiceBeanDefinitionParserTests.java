@@ -23,7 +23,6 @@ import org.w3c.dom.Element;
 /**
  * @author Ben Alex
  * @author Luke Taylor
- * @version $Id$
  */
 public class JdbcUserServiceBeanDefinitionParserTests {
     private static String USER_CACHE_XML = "<b:bean id='userCache' class='org.springframework.security.authentication.dao.MockUserCache'/>";

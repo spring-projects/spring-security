@@ -83,7 +83,6 @@ import org.springframework.web.filter.GenericFilterBean;
  * they will be authenticated using the remember-me mechanism.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class BasicAuthenticationFilter extends GenericFilterBean {
 

@@ -32,7 +32,6 @@ import org.springframework.util.Assert;
  * <code>AuthenticationManager</code> to resolve an authentication request.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class RemoteAuthenticationManagerImpl implements RemoteAuthenticationManager, InitializingBean {
     //~ Instance fields ================================================================================================

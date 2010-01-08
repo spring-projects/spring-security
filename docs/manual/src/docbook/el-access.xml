@@ -96,7 +96,7 @@
             elements to contain Spring EL expressions. The expressions should evaluate to a boolean,
             defining whether access should be allowed or not. For example:<programlisting><![CDATA[
   <http use-expressions="true">
-    <intercept-url pattern="/admin*" 
+    <intercept-url pattern="/admin*"
         access="hasRole('admin') and hasIpAddress('192.168.1.0/24')"/>
     ...
   </http>
@@ -224,7 +224,7 @@
     <security:expression-handler ref="expressionHandler"/>
   </security:global-method-security>
 
-  <bean id="expressionHandler" 
+  <bean id="expressionHandler"
       class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
         <property name="permissionEvaluator" ref="myPermissionEvaluator"/>
   </bean>]]></programlisting>Where <literal>myPermissionEvaluator</literal> is the bean which

@@ -15,7 +15,7 @@ import org.springframework.security.core.token.Token;
 
 /**
  * Tests {@link KeyBasedPersistenceTokenService}.
- * 
+ *
  * @author Ben Alex
  *
  */
@@ -35,7 +35,7 @@ public class KeyBasedPersistenceTokenServiceTests {
         }
         return service;
     }
-    
+
     @Test
     public void testOperationWithSimpleExtendedInformation() {
         KeyBasedPersistenceTokenService service = getService();
@@ -61,7 +61,7 @@ public class KeyBasedPersistenceTokenServiceTests {
         Token result = service.verifyToken(token.getKey());
         Assert.assertEquals(token, result);
     }
-    
+
     @Test
     public void testOperationWithNoExtendedInformation() {
         KeyBasedPersistenceTokenService service = getService();
@@ -69,14 +69,14 @@ public class KeyBasedPersistenceTokenServiceTests {
         Token result = service.verifyToken(token.getKey());
         Assert.assertEquals(token, result);
     }
-    
+
     @Test(expected=IllegalArgumentException.class)
     public void testOperationWithMissingKey() {
         KeyBasedPersistenceTokenService service = getService();
         Token token = new DefaultToken("", new Date().getTime(), "");
         service.verifyToken(token.getKey());
     }
-    
+
     @Test(expected=IllegalArgumentException.class)
     public void testOperationWithTamperedKey() {
         KeyBasedPersistenceTokenService service = getService();

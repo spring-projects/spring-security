@@ -28,7 +28,6 @@ import org.springframework.security.core.userdetails.UserDetails;
  * Tests {@link ReflectionSaltSource}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class ReflectionSaltSourceTests {
     private UserDetails user = new User("scott", "wombat", true, true, true, true,

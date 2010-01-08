@@ -48,7 +48,6 @@ import org.springframework.util.Assert;
  * framework public API.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class ApacheDSContainer implements InitializingBean, DisposableBean, Lifecycle, ApplicationContextAware {
     private Log logger = LogFactory.getLog(getClass());

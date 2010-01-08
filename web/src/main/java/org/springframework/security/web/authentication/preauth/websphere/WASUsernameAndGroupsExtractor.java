@@ -9,7 +9,6 @@ import java.util.List;
  * Only for internal use.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0.0
  */
 interface WASUsernameAndGroupsExtractor {

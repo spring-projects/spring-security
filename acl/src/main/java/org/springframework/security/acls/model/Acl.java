@@ -31,7 +31,7 @@ import java.util.List;
  * </p>
  *
  * <p>
- * Implementing classes may elect to return instances that represent 
+ * Implementing classes may elect to return instances that represent
  * {@link org.springframework.security.acls.model.Permission} information for either
  * some OR all {@link org.springframework.security.acls.model.Sid}
  * instances. Therefore, an instance may NOT necessarily contain ALL <tt>Sid</tt>s
@@ -39,23 +39,22 @@ import java.util.List;
  * </p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface Acl extends Serializable {
 
     /**
      * Returns all of the entries represented by the present <tt>Acl</tt>. Entries associated with
      * the <tt>Acl</tt> parents are not returned.
-     * 
+     *
      * <p>This method is typically used for administrative purposes.</p>
-     * 
+     *
      * <p>The order that entries appear in the array is important for methods declared in the
      * {@link MutableAcl} interface. Furthermore, some implementations MAY use ordering as
      * part of advanced permission checking.</p>
-     * 
+     *
      * <p>Do <em>NOT</em> use this method for making authorization decisions. Instead use {@link
      * #isGranted(List, List, boolean)}.</p>
-     * 
+     *
      * <p>This method must operate correctly even if the <tt>Acl</tt> only represents a subset of
      * <tt>Sid</tt>s. The caller is responsible for correctly handling the result if only a subset of
      * <tt>Sid</tt>s is represented.</p>
@@ -84,11 +83,11 @@ public interface Acl extends Serializable {
     /**
      * A domain object may have a parent for the purpose of ACL inheritance. If there is a parent, its ACL can
      * be accessed via this method. In turn, the parent's parent (grandparent) can be accessed and so on.
-     * 
+     *
      * <p>This method solely represents the presence of a navigation hierarchy between the parent <tt>Acl</tt> and this
      * <tt>Acl</tt>. For actual inheritance to take place, the {@link #isEntriesInheriting()} must also be
      * <tt>true</tt>.</p>
-     * 
+     *
      * <p>This method must operate correctly even if the <tt>Acl</tt> only represents a subset of
      * <tt>Sid</tt>s. The caller is responsible for correctly handling the result if only a subset of
      * <tt>Sid</tt>s is represented.</p>
@@ -111,13 +110,13 @@ public interface Acl extends Serializable {
     /**
      * This is the actual authorization logic method, and must be used whenever ACL authorization decisions are
      * required.
-     * 
+     *
      * <p>An array of <tt>Sid</tt>s are presented, representing security identifies of the current
      * principal. In addition, an array of <tt>Permission</tt>s is presented which will have one or more bits set
      * in order to indicate the permissions needed for an affirmative authorization decision. An array is presented
      * because holding <em>any</em> of the <tt>Permission</tt>s inside the array will be sufficient for an
      * affirmative authorization.</p>
-     * 
+     *
      * <p>The actual approach used to make authorization decisions is left to the implementation and is not
      * specified by this interface. For example, an implementation <em>MAY</em> search the current ACL in the order
      * the ACL entries have been stored. If a single entry is found that has the same active bits as are shown in a
@@ -127,9 +126,9 @@ public interface Acl extends Serializable {
      * ACL, provided that {@link #isEntriesInheriting()} is <tt>true</tt>, the authorization decision may be
      * passed to the parent ACL. If there is no matching entry, the implementation MAY throw an exception, or make a
      * predefined authorization decision.</p>
-     * 
+     *
      * <p>This method must operate correctly even if the <tt>Acl</tt> only represents a subset of <tt>Sid</tt>s,
-     * although the implementation is permitted to throw one of the signature-defined exceptions if the method 
+     * although the implementation is permitted to throw one of the signature-defined exceptions if the method
      * is called requesting an authorization decision for a {@link Sid} that was never loaded in this <tt>Acl</tt>.
      * </p>
      *

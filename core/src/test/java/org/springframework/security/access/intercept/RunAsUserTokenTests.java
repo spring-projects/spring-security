@@ -28,7 +28,6 @@ import org.springframework.security.core.authority.GrantedAuthorityImpl;
  * Tests {@link RunAsUserToken}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class RunAsUserTokenTests extends TestCase {
     //~ Constructors ===================================================================================================

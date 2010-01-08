@@ -13,7 +13,6 @@ import org.springframework.ldap.core.support.AbstractContextSource;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegrationTests {
 

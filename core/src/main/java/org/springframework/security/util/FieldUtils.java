@@ -26,7 +26,6 @@ import java.lang.reflect.Field;
  * Offers static methods for directly manipulating static fields.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public final class FieldUtils {
     //~ Constructors ===================================================================================================

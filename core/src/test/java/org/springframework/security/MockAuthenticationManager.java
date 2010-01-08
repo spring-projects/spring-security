@@ -25,7 +25,6 @@ import org.springframework.security.core.AuthenticationException;
  *
  * @author Ben Alex
  * @author Wesley Hall
- * @version $Id$
  */
 public class MockAuthenticationManager extends AbstractAuthenticationManager {
     //~ Instance fields ================================================================================================

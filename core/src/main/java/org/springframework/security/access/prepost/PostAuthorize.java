@@ -11,7 +11,6 @@ import java.lang.annotation.Target;
  * Annotation for specifying a method access-control expression which will be evaluated after a method has been invoked.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 @Target({ElementType.METHOD, ElementType.TYPE})

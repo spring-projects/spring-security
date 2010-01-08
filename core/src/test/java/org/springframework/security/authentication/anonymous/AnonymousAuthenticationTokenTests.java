@@ -29,7 +29,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * Tests {@link AnonymousAuthenticationToken}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AnonymousAuthenticationTokenTests extends TestCase {
 

@@ -28,7 +28,6 @@ import org.w3c.dom.Element;
  * Allows for convenient creation of a {@link FilterInvocationSecurityMetadataSource} bean for use with a FilterSecurityInterceptor.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinitionParser {
     private static final String ATT_USE_EXPRESSIONS = "use-expressions";

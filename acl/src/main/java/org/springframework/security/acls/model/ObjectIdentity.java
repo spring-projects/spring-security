@@ -30,7 +30,6 @@ import java.io.Serializable;
  * </p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface ObjectIdentity extends Serializable {
     //~ Methods ========================================================================================================

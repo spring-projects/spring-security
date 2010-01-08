@@ -43,7 +43,6 @@ import org.springframework.util.Assert;
  * by setting up the <tt>labelMap</tt> in the application context.</p>
  *
  * @author Greg Turnquist
- * @version $Id$
  *
  * @see org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor
  * @deprecated Use new spring-security-acl module instead

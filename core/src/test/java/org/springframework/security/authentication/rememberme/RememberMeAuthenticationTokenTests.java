@@ -29,7 +29,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * Tests {@link RememberMeAuthenticationToken}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class RememberMeAuthenticationTokenTests extends TestCase {
     private static final List<GrantedAuthority> ROLES_12 = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");

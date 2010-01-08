@@ -22,7 +22,6 @@ package org.springframework.security.authentication.encoding;
  *
  * @author colin sampaleanu
  * @author Ben Alex
- * @version $Id$
  */
 public class PlaintextPasswordEncoder extends BasePasswordEncoder {
     //~ Instance fields ================================================================================================

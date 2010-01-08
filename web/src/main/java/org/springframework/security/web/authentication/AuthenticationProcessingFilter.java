@@ -6,7 +6,6 @@ package org.springframework.security.web.authentication;
  * See {@link UsernamePasswordAuthenticationFilter}.
  *
  * @author Luke Taylor
- * @version $Id$
  * @deprecated Use UsernamePasswordAuthenticationFilter instead.
  */
 

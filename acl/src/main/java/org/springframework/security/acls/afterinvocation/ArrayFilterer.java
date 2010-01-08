@@ -30,7 +30,6 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author Ben Alex
  * @author Paulo Neves
- * @version $Id$
  */
 class ArrayFilterer<T> implements Filterer<T> {
     //~ Static fields/initializers =====================================================================================

@@ -22,7 +22,6 @@ import java.util.List;
  * Provides access to the application's persistence layer.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface ContactDao {
     //~ Methods ========================================================================================================

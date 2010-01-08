@@ -33,7 +33,6 @@ import java.net.URISyntaxException;
  * LDAP Utility methods.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public final class LdapUtils {
     //~ Static fields/initializers =====================================================================================

@@ -3,7 +3,6 @@
 <!--
   - Sample namespace-based configuration
   -
-  - $Id: applicationContext-security-ns.xml 2923 2008-04-12 17:17:46Z luke_t $
   -->
 
 <b:beans xmlns="http://www.springframework.org/schema/security"
@@ -59,8 +58,8 @@
         <session-management>
             <concurrency-control max-sessions="1" error-if-maximum-exceeded="true" session-registry-ref='sessionRegistry'/>
         </session-management>
-        
-        <!-- custom-filter position="AUTHENTICATION_PROCESSING_FILTER" ref="customAuthFilter" / -->        
+
+        <!-- custom-filter position="AUTHENTICATION_PROCESSING_FILTER" ref="customAuthFilter" / -->
     </http>
 
     <b:bean id='tokenRepo' class='org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl'/>
@@ -95,7 +94,7 @@
         <authentication-provider user-service-ref="daoUserService">
             <password-encoder hash="md5" />
         </authentication-provider>
-    
+
         <authentication-provider>
             <password-encoder hash="md5"/>
             <user-service>

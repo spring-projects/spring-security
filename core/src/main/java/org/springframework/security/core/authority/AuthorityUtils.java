@@ -16,7 +16,6 @@ import org.springframework.util.StringUtils;
  * Mainly intended for internal use.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public abstract class AuthorityUtils {
     public static final List<GrantedAuthority> NO_AUTHORITIES = Collections.emptyList();

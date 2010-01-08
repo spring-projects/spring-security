@@ -20,7 +20,6 @@ import sample.dms.DocumentDaoImpl;
  * Adds extra {@link SecureDocumentDao} methods.
  *
  * @author Ben Alex
- * @version $Id$
  *
  */
 public class SecureDocumentDaoImpl extends DocumentDaoImpl implements SecureDocumentDao {

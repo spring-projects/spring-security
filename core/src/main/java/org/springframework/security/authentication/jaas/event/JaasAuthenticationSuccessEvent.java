@@ -24,7 +24,6 @@ import org.springframework.security.core.Authentication;
  * AuthorityGranters.
  *
  * @author Ray Krueger
- * @version $Id$
  */
 public class JaasAuthenticationSuccessEvent extends JaasAuthenticationEvent {
     //~ Constructors ===================================================================================================

@@ -26,9 +26,8 @@ import org.springframework.ldap.core.DirContextOperations;
  * The username will be mapped from the <tt>uid</tt> attribute by default.
  *
  * @author Luke
- * @version $Id$
  */
-public class InetOrgPerson extends Person {    
+public class InetOrgPerson extends Person {
     private String carLicense;
     // Person.cn
     private String destinationIndicator;
@@ -55,7 +54,7 @@ public class InetOrgPerson extends Person {
     public String getUid() {
         return uid;
     }
-    
+
     public String getMail() {
         return mail;
     }
@@ -63,7 +62,7 @@ public class InetOrgPerson extends Person {
     public String getEmployeeNumber() {
         return employeeNumber;
     }
-    
+
     public String getInitials() {
         return initials;
     }
@@ -71,10 +70,10 @@ public class InetOrgPerson extends Person {
     public String getDestinationIndicator() {
         return destinationIndicator;
     }
-    
+
     public String getO() {
         return o;
-    }    
+    }
 
     public String getOu() {
         return ou;
@@ -95,11 +94,11 @@ public class InetOrgPerson extends Person {
     public String getDisplayName() {
         return displayName;
     }
-    
+
     public String getHomePhone() {
         return homePhone;
     }
-    
+
     public String getRoomNumber() {
         return roomNumber;
     }
@@ -128,7 +127,7 @@ public class InetOrgPerson extends Person {
         super.populateContext(adapter);
         adapter.setAttributeValue("carLicense", carLicense);
         adapter.setAttributeValue("departmentNumber", departmentNumber);
-        adapter.setAttributeValue("destinationIndicator", destinationIndicator);        
+        adapter.setAttributeValue("destinationIndicator", destinationIndicator);
         adapter.setAttributeValue("displayName", displayName);
         adapter.setAttributeValue("employeeNumber", employeeNumber);
         adapter.setAttributeValue("homePhone", homePhone);
@@ -191,7 +190,7 @@ public class InetOrgPerson extends Person {
             setRoomNumber(ctx.getStringAttribute("roomNumber"));
             setStreet(ctx.getStringAttribute("street"));
             setTitle(ctx.getStringAttribute("title"));
-            setUid(ctx.getStringAttribute("uid"));            
+            setUid(ctx.getStringAttribute("uid"));
         }
 
         protected LdapUserDetailsImpl createTarget() {
@@ -209,10 +208,10 @@ public class InetOrgPerson extends Person {
                 setUsername(uid);
             }
         }
-        
+
         public void setInitials(String initials) {
             ((InetOrgPerson) instance).initials = initials;
-        }        
+        }
 
         public void setO(String organization) {
             ((InetOrgPerson) instance).o = organization;
@@ -221,23 +220,23 @@ public class InetOrgPerson extends Person {
         public void setOu(String ou) {
             ((InetOrgPerson) instance).ou = ou;
         }
-        
+
         public void setRoomNumber(String no) {
             ((InetOrgPerson) instance).roomNumber = no;
-        }        
-        
+        }
+
         public void setTitle(String title) {
             ((InetOrgPerson) instance).title = title;
         }
-        
+
         public void setCarLicense(String carLicense) {
             ((InetOrgPerson) instance).carLicense = carLicense;
         }
-        
+
         public void setDepartmentNumber(String departmentNumber) {
             ((InetOrgPerson) instance).departmentNumber = departmentNumber;
         }
-        
+
         public void setDisplayName(String displayName) {
             ((InetOrgPerson) instance).displayName = displayName;
         }
@@ -249,10 +248,10 @@ public class InetOrgPerson extends Person {
         public void setDestinationIndicator(String destination) {
             ((InetOrgPerson) instance).destinationIndicator = destination;
         }
-        
+
         public void setHomePhone(String homePhone) {
             ((InetOrgPerson) instance).homePhone = homePhone;
-        }  
+        }
 
         public void setStreet(String street) {
             ((InetOrgPerson) instance).street = street;

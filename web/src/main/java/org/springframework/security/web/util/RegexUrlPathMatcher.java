@@ -4,7 +4,6 @@ import java.util.regex.Pattern;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class RegexUrlPathMatcher implements UrlMatcher {
     private boolean requiresLowerCaseUrl = false;

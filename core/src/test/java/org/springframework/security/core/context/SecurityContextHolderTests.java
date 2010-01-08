@@ -24,7 +24,6 @@ import org.springframework.security.core.context.SecurityContextImpl;
  * Tests {@link SecurityContextHolder}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class SecurityContextHolderTests extends TestCase {
 

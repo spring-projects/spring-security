@@ -22,7 +22,6 @@ import org.springframework.util.ClassUtils;
  *
  * @author Ben Alex
  * @author Luke taylor
- * @version $Id$
  * @since 2.0
  */
 public abstract class AbstractFallbackMethodSecurityMetadataSource extends AbstractMethodSecurityMetadataSource {

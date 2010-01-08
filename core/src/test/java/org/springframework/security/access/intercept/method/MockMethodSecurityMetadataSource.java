@@ -29,7 +29,6 @@ import org.springframework.security.access.method.MethodSecurityMetadataSource;
 
 /**
  * @author Ben Alex
- * @version $Id$
  */
 public class MockMethodSecurityMetadataSource implements MethodSecurityMetadataSource {
     //~ Instance fields ================================================================================================

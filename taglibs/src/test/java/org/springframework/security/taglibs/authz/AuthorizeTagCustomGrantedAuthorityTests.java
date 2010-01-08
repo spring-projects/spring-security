@@ -30,7 +30,6 @@ import javax.servlet.jsp.tagext.Tag;
 /**
  *
  * @author Francois Beausoleil
- * @version $Id$
  */
 public class AuthorizeTagCustomGrantedAuthorityTests extends TestCase {
     //~ Instance fields ================================================================================================

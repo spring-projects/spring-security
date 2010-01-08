@@ -26,7 +26,7 @@ import org.springframework.dao.DataAccessException;
  *
  * @author Michael Mayr
  * @deprecated use a {@link RoleHierarchyVoter} instead of populating the user Authentication object
- * with the additional authorities.  
+ * with the additional authorities.
  */
 public class UserDetailsServiceWrapper implements UserDetailsService {
 

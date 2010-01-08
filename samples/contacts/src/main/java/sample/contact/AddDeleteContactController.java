@@ -14,7 +14,6 @@ import org.springframework.web.servlet.ModelAndView;
 /**
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 @Controller

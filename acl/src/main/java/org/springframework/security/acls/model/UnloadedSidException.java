@@ -20,7 +20,6 @@ package org.springframework.security.acls.model;
  * the caller has requested details for an unloaded <code>Sid</code>.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class UnloadedSidException extends AclDataAccessException {
     //~ Constructors ===================================================================================================

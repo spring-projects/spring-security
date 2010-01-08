@@ -24,7 +24,6 @@ import org.springframework.util.StringUtils;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class AbstractRememberMeServicesTests {
     static User joe = new User("joe", "password", true, true,true,true, AuthorityUtils.createAuthorityList("ROLE_A"));

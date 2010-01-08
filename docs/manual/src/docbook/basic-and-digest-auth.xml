@@ -32,7 +32,7 @@
                 its required collaborator:</para>
             <para>
                 <programlisting language="xml"><![CDATA[
-<bean id="basicAuthenticationFilter" 
+<bean id="basicAuthenticationFilter"
   class="org.springframework.security.web.authentication.www.BasicAuthenticationFilter">
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="authenticationEntryPoint" ref="authenticationEntryPoint"/>
@@ -41,7 +41,7 @@
 <bean id="authenticationEntryPoint"
   class="org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint">
   <property name="realmName" value="Name Of Your Realm"/>
-</bean>]]> 
+</bean>]]>
                 </programlisting>
             </para>
             <para>The configured <interfacename>AuthenticationManager</interfacename> processes each
@@ -83,7 +83,7 @@
         <para>
             <programlisting>
                 base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
-                
+
                 expirationTime:   The date and time when the nonce expires, expressed in milliseconds
                 key:              A private key to prevent modification of the nonce token
             </programlisting>

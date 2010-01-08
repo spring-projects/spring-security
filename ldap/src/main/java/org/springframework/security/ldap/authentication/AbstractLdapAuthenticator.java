@@ -34,7 +34,6 @@ import java.util.List;
  * Base class for the authenticator implementations.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, InitializingBean, MessageSourceAware {
     //~ Instance fields ================================================================================================

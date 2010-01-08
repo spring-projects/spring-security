@@ -21,7 +21,6 @@ import org.springframework.security.core.userdetails.UserDetails;
  * Captures the information for a user's LDAP entry.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public interface LdapUserDetails extends UserDetails {
     //~ Methods ========================================================================================================

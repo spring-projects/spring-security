@@ -27,7 +27,6 @@ import javax.security.auth.spi.LoginModule;
 
 /**
  * @author Ray Krueger
- * @version $Id$
  */
 public class TestLoginModule implements LoginModule {
     //~ Instance fields ================================================================================================

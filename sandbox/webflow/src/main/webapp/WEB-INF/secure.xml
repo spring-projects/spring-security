@@ -3,17 +3,17 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
 
-	<secured attributes="ROLE_USER" />
-	
-	<input name="x"/>
-	
-	<view-state id="form">
-		<transition on="submit" to="finish" />
-	</view-state>
-	
-	<end-state id="finish">
-	    <output name="x"/>
-	</end-state>
+    <secured attributes="ROLE_USER" />
 
-			
+    <input name="x"/>
+
+    <view-state id="form">
+        <transition on="submit" to="finish" />
+    </view-state>
+
+    <end-state id="finish">
+        <output name="x"/>
+    </end-state>
+
+
 </flow>

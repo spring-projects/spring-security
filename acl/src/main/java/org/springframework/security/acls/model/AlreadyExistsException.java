@@ -19,7 +19,6 @@ package org.springframework.security.acls.model;
  * Thrown if an <code>Acl</code> entry already exists for the object.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AlreadyExistsException extends AclDataAccessException {
     //~ Constructors ===================================================================================================

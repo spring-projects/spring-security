@@ -9,7 +9,6 @@ import org.w3c.dom.Element;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class JdbcUserServiceBeanDefinitionParser extends AbstractUserDetailsServiceBeanDefinitionParser {
     static final String ATT_DATA_SOURCE = "data-source-ref";

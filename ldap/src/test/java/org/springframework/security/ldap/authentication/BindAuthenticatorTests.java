@@ -31,7 +31,6 @@ import org.springframework.security.ldap.AbstractLdapIntegrationTests;
  * Tests for {@link BindAuthenticator}.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
     //~ Instance fields ================================================================================================

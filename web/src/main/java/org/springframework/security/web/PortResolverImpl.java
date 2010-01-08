@@ -31,7 +31,6 @@ import javax.servlet.ServletRequest;
  * {@link PortMapper}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class PortResolverImpl implements PortResolver {
     //~ Instance fields ================================================================================================

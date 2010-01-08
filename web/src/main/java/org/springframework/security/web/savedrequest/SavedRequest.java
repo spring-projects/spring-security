@@ -13,7 +13,6 @@ import javax.servlet.http.Cookie;
  * reproducing the original request data.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public interface SavedRequest extends java.io.Serializable {

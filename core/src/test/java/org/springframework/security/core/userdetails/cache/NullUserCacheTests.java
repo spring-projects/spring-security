@@ -26,7 +26,6 @@ import org.springframework.security.core.userdetails.cache.NullUserCache;
  * Tests {@link NullUserCache}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class NullUserCacheTests extends TestCase {
 

@@ -22,7 +22,6 @@ package org.springframework.security.remoting.dns;
  *
  * @author Mike Wiesner
  * @since 3.0
- * @version $Id$
  */
 public class DnsEntryNotFoundException extends DnsLookupException {
 

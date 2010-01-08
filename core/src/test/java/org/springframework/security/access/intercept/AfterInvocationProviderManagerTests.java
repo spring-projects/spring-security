@@ -35,7 +35,6 @@ import org.springframework.security.util.SimpleMethodInvocation;
  * Tests {@link AfterInvocationProviderManager}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 @SuppressWarnings("unchecked")
 public class AfterInvocationProviderManagerTests extends TestCase {

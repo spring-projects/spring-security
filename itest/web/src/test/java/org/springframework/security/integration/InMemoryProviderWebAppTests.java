@@ -6,7 +6,6 @@ import org.testng.annotations.Test;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class InMemoryProviderWebAppTests extends AbstractWebServerIntegrationTests {
 

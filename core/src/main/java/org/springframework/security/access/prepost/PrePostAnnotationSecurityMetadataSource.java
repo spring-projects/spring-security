@@ -27,7 +27,6 @@ import org.springframework.util.ClassUtils;
  *
  * @author Luke Taylor
  * @since 3.0
- * @version $Id$
  */
 public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecurityMetadataSource {
 

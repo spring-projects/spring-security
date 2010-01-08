@@ -18,7 +18,6 @@ import org.springframework.security.acls.model.AuditableAccessControlEntry;
  * Test class for {@link ConsoleAuditLogger}.
  *
  * @author Andrei Stefan
- * @version $Id$
  */
 public class AuditLoggerTests {
     //~ Instance fields ================================================================================================

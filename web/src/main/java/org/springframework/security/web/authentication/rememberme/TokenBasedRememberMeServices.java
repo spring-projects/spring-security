@@ -76,7 +76,6 @@ import java.util.Date;
  *
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 

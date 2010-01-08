@@ -23,7 +23,6 @@ import org.springframework.validation.Validator;
  * Validates {@link WebContact}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class WebContactValidator implements Validator {
     //~ Methods ========================================================================================================

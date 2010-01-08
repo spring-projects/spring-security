@@ -30,7 +30,6 @@ import javax.servlet.ServletRequest;
  * </p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface PortResolver {
     //~ Methods ========================================================================================================

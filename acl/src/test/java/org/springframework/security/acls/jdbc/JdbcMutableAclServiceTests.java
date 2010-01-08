@@ -57,7 +57,6 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author Ben Alex
  * @author Andrei Stefan
- * @version $Id:JdbcMutableAclServiceTests.java 1754 2006-11-17 02:01:21Z benalex $
  */
 @ContextConfiguration(locations={"/jdbcMutableAclServiceTests-context.xml"})
 public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4SpringContextTests {

@@ -12,7 +12,6 @@ import java.lang.annotation.Target;
  * method invocation is allowed or not.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 @Target({ElementType.METHOD, ElementType.TYPE})

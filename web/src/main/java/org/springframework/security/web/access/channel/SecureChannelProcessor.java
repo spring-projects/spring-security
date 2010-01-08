@@ -37,7 +37,6 @@ import org.springframework.util.Assert;
  * The default <code>secureKeyword</code> is <code>REQUIRES_SECURE_CHANNEL</code>.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class SecureChannelProcessor implements InitializingBean, ChannelProcessor {
     //~ Instance fields ================================================================================================

@@ -20,7 +20,6 @@ import org.springframework.util.ObjectUtils;
  *
  * @author Ben Alex
  * @author Luke Taylor
- * @version $Id$
  */
 public final class DelegatingMethodSecurityMetadataSource extends AbstractMethodSecurityMetadataSource implements InitializingBean {
     private final static List<ConfigAttribute> NULL_CONFIG_ATTRIBUTE = Collections.emptyList();

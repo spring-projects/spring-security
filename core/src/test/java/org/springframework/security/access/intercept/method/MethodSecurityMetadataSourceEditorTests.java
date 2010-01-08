@@ -37,7 +37,6 @@ import org.springframework.security.access.method.MethodSecurityMetadataSourceEd
  * Tests {@link MethodSecurityMetadataSourceEditor} and its associated {@link MapBasedMethodSecurityMetadataSource}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 @SuppressWarnings("deprecation")
 public class MethodSecurityMetadataSourceEditorTests extends TestCase {

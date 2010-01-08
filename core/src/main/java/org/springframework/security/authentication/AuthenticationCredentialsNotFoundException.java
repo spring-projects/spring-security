@@ -23,7 +23,6 @@ import org.springframework.security.core.AuthenticationException;
  * org.springframework.security.core.context.SecurityContext SecurityContext}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AuthenticationCredentialsNotFoundException extends AuthenticationException {
     //~ Constructors ===================================================================================================

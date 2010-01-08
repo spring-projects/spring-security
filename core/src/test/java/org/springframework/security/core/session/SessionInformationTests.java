@@ -26,7 +26,6 @@ import org.springframework.security.core.session.SessionInformation;
  * Tests {@link SessionInformation}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class SessionInformationTests extends TestCase {
     //~ Methods ========================================================================================================

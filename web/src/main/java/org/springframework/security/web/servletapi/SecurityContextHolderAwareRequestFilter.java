@@ -36,7 +36,6 @@ import org.springframework.web.filter.GenericFilterBean;
  * @author Orlando Garcia Carmona
  * @author Ben Alex
  * @author Luke Taylor
- * @version $Id$
  */
 public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
     //~ Instance fields ================================================================================================

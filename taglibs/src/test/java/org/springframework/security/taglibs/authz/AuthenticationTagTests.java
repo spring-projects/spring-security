@@ -31,7 +31,6 @@ import org.springframework.security.core.userdetails.User;
  * Tests {@link AuthenticationTag}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AuthenticationTagTests extends TestCase {
     //~ Instance fields ================================================================================================

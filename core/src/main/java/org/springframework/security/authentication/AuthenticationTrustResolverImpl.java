@@ -27,7 +27,6 @@ import org.springframework.security.core.Authentication;
  * always return <code>false</code>.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AuthenticationTrustResolverImpl implements AuthenticationTrustResolver {
     //~ Instance fields ================================================================================================

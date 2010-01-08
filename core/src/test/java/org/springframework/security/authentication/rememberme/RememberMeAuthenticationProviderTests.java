@@ -29,7 +29,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * Tests {@link RememberMeAuthenticationProvider}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class RememberMeAuthenticationProviderTests extends TestCase {
     //~ Methods ========================================================================================================

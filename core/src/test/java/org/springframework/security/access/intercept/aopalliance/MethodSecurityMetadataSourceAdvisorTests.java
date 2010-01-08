@@ -29,7 +29,6 @@ import org.springframework.security.access.method.MethodSecurityMetadataSourceEd
  * Tests {@link MethodSecurityMetadataSourceAdvisor}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 @SuppressWarnings("deprecation")
 public class MethodSecurityMetadataSourceAdvisorTests extends TestCase {

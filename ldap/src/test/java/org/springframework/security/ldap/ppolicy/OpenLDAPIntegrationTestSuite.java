@@ -17,7 +17,6 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsImpl;
  * <p>
  * Run the script in the module root to start the server and import the data before running.
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class OpenLDAPIntegrationTestSuite {

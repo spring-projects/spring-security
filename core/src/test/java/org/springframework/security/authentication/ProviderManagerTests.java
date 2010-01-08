@@ -34,7 +34,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * Tests {@link ProviderManager}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 @SuppressWarnings("unchecked")
 public class ProviderManagerTests {

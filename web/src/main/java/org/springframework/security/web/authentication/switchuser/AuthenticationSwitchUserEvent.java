@@ -25,7 +25,6 @@ import org.springframework.security.core.userdetails.UserDetails;
  * Application event which indicates that a user context switch.
  *
  * @author Mark St.Godard
- * @version $Id$
  */
 public class AuthenticationSwitchUserEvent extends AbstractAuthenticationEvent {
     //~ Instance fields ================================================================================================

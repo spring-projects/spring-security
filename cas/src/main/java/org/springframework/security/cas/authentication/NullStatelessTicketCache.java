@@ -22,9 +22,8 @@ package org.springframework.security.cas.authentication;
  * This is the default StatelessTicketCache of the @link {@link CasAuthenticationProvider} to
  * eliminate the unnecessary dependency on EhCache that applications have even if they are not using
  * the stateless session management.
- * 
+ *
  * @author Scott Battaglia
- * @version $Id$
  *
  *@see CasAuthenticationProvider
  */

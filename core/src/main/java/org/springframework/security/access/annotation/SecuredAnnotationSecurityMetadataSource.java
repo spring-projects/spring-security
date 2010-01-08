@@ -31,7 +31,6 @@ import org.springframework.security.access.method.AbstractFallbackMethodSecurity
  * Sources method security metadata from Spring Security's {@link Secured} annotation.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class SecuredAnnotationSecurityMetadataSource extends AbstractFallbackMethodSecurityMetadataSource {
 

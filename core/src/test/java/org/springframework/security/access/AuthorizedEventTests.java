@@ -26,7 +26,6 @@ import org.springframework.security.util.SimpleMethodInvocation;
  * Tests {@link AuthorizedEvent}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AuthorizedEventTests {
 

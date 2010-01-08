@@ -25,7 +25,6 @@ import org.springframework.util.StringUtils;
  * Stores a {@link ConfigAttribute} as a <code>String</code>.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class SecurityConfig implements ConfigAttribute {
     //~ Instance fields ================================================================================================

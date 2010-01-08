@@ -36,7 +36,6 @@ import org.junit.Test;
  * Tests for {@link PasswordComparisonAuthenticator}.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegrationTests {
     //~ Instance fields ================================================================================================

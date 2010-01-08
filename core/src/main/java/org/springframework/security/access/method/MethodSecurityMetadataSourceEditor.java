@@ -36,7 +36,6 @@ import org.springframework.util.StringUtils;
  *
  * @author Ben Alex
  * @deprecated use method annotations or the protect-pointcut support from the namespace
- * @version $Id$
  */
 public class MethodSecurityMetadataSourceEditor extends PropertyEditorSupport {
     //~ Methods ========================================================================================================

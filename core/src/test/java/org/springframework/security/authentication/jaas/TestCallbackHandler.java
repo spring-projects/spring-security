@@ -29,7 +29,6 @@ import javax.security.auth.callback.UnsupportedCallbackException;
  * TestCallbackHandler
  *
  * @author Ray Krueger
- * @version $Id$
  */
 public class TestCallbackHandler implements JaasAuthenticationCallbackHandler {
     //~ Methods ========================================================================================================

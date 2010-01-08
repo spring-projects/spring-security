@@ -29,7 +29,6 @@ import java.util.Set;
  *
  * @author Ben Alex
  * @author Paulo Neves
- * @version $Id$
  */
 class CollectionFilterer<T> implements Filterer<T> {
     //~ Static fields/initializers =====================================================================================

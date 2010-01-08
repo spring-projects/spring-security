@@ -10,7 +10,6 @@ import javax.annotation.security.PermitAll;
 /**
  *
  * @author Luke Taylor
- * @version $Id$
  */
 @PermitAll
 public class Jsr250BusinessServiceImpl implements BusinessService {

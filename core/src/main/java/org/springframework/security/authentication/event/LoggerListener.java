@@ -27,7 +27,6 @@ import org.springframework.util.ClassUtils;
  * All authentication events are logged at the warning level.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class LoggerListener implements ApplicationListener<AbstractAuthenticationEvent> {
     //~ Static fields/initializers =====================================================================================

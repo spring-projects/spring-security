@@ -28,7 +28,6 @@ import org.springframework.context.ApplicationListener;
  * </p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class LoggerListener implements ApplicationListener<AbstractAuthorizationEvent> {
     //~ Static fields/initializers =====================================================================================

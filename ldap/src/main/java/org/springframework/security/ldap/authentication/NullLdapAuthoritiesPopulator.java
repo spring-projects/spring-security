@@ -10,7 +10,6 @@ import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 /**
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public final class NullLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator {

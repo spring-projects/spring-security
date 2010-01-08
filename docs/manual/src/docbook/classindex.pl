@@ -6,7 +6,6 @@
 # Processes the ref manual docbook files, building an index of classname to section ids where the class is referenced
 # 
 #
-# $Id$
 
 use strict;
 

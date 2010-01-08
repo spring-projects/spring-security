@@ -35,7 +35,6 @@ import org.springframework.util.Assert;
  * </p>
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 2.0
  */
 public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeServices {

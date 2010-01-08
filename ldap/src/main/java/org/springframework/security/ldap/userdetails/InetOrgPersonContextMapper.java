@@ -25,7 +25,6 @@ import org.springframework.util.Assert;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class InetOrgPersonContextMapper implements UserDetailsContextMapper {
 

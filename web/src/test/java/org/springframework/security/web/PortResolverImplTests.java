@@ -26,7 +26,6 @@ import org.springframework.security.web.PortResolverImpl;
  * Tests {@link PortResolverImpl}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class PortResolverImplTests extends TestCase {
     //~ Constructors ===================================================================================================

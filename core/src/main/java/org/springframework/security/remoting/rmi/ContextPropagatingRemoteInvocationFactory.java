@@ -28,7 +28,6 @@ import org.springframework.remoting.support.RemoteInvocationFactory;
  *
  * @author James Monaghan
  * @author Ben Alex
- * @version $Id$
  */
 public class ContextPropagatingRemoteInvocationFactory implements RemoteInvocationFactory {
     //~ Methods ========================================================================================================

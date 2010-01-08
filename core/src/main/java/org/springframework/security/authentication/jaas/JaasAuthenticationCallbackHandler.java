@@ -38,7 +38,6 @@ import javax.security.auth.callback.UnsupportedCallbackException;
  * </p>
  *
  * @author Ray Krueger
- * @version $Id$
  *
  * @see JaasNameCallbackHandler
  * @see JaasPasswordCallbackHandler

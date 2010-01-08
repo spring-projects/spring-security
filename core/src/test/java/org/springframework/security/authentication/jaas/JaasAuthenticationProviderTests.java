@@ -50,7 +50,6 @@ import org.springframework.security.core.session.SessionDestroyedEvent;
  * Tests for the JaasAuthenticationProvider
  *
  * @author Ray Krueger
- * @version $Id$
  */
 public class JaasAuthenticationProviderTests {
     //~ Instance fields ================================================================================================

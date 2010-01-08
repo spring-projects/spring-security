@@ -23,7 +23,6 @@ import org.springframework.util.Assert;
  *
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 2.0
  */
 public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedProcessingFilter {

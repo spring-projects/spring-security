@@ -36,7 +36,6 @@ import org.springframework.util.Assert;
  * the browser its credentials are no longer authorized, causing it to prompt the user to login again.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
     //~ Instance fields ================================================================================================

@@ -3,7 +3,6 @@
 <!--
   - Sample namespace-based configuration
   -
-  - $Id$
   -->
 
 <beans:beans xmlns="http://www.springframework.org/schema/security"

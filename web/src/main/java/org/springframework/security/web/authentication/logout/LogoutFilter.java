@@ -44,7 +44,6 @@ import org.springframework.web.filter.GenericFilterBean;
  * <tt>LogoutSuccessHandler</tt> or the <tt>logoutSuccessUrl</tt>, depending on which constructor was used.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class LogoutFilter extends GenericFilterBean {
 

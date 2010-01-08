@@ -20,7 +20,6 @@ package org.springframework.security.acls.model;
  * Provides support for creating and storing <code>Acl</code> instances.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface MutableAclService extends AclService {
     //~ Methods ========================================================================================================

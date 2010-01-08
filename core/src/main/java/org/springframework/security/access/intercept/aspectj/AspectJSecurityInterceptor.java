@@ -37,7 +37,6 @@ import org.aspectj.lang.JoinPoint;
  * Refer to {@link AbstractSecurityInterceptor} for details on the workflow.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AspectJSecurityInterceptor extends AbstractSecurityInterceptor {
     //~ Instance fields ================================================================================================

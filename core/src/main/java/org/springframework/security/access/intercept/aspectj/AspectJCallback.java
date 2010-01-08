@@ -22,7 +22,6 @@ package org.springframework.security.access.intercept.aspectj;
  * statement.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface AspectJCallback {
     //~ Methods ========================================================================================================

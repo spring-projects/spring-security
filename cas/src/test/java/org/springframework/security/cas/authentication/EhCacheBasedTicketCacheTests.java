@@ -32,7 +32,6 @@ import static org.junit.Assert.*;
  * Tests {@link EhCacheBasedTicketCache}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class EhCacheBasedTicketCacheTests extends AbstractStatelessTicketCacheTests {
     private static CacheManager cacheManager;
@@ -55,7 +54,7 @@ public class EhCacheBasedTicketCacheTests extends AbstractStatelessTicketCacheTe
         EhCacheBasedTicketCache cache = new EhCacheBasedTicketCache();
         cache.setCache(cacheManager.getCache("castickets"));
         cache.afterPropertiesSet();
-        
+
         final CasAuthenticationToken token = getToken();
 
         // Check it gets stored in the cache

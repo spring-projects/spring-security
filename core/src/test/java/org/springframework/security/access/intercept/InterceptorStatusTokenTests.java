@@ -33,7 +33,6 @@ import org.springframework.security.util.SimpleMethodInvocation;
  * Tests {@link InterceptorStatusToken}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class InterceptorStatusTokenTests {
 

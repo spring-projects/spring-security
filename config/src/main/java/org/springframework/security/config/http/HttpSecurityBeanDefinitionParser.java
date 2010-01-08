@@ -42,7 +42,6 @@ import org.w3c.dom.Element;
  * @author Luke Taylor
  * @author Ben Alex
  * @since 2.0
- * @version $Id$
  */
 public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     private static final Log logger = LogFactory.getLog(HttpSecurityBeanDefinitionParser.class);

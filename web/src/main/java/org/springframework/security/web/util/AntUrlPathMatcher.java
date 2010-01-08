@@ -7,7 +7,6 @@ import org.springframework.util.AntPathMatcher;
  * Ant path strategy for URL matching.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class AntUrlPathMatcher implements UrlMatcher {
     private boolean requiresLowerCaseUrl = true;
@@ -47,5 +46,5 @@ public class AntUrlPathMatcher implements UrlMatcher {
 
     public String toString() {
         return getClass().getName() + "[requiresLowerCase='" + requiresLowerCaseUrl + "']";
-    }    
+    }
 }

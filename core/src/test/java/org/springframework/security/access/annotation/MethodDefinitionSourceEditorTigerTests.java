@@ -36,7 +36,6 @@ import org.springframework.security.access.method.MethodSecurityMetadataSourceEd
  * Extra tests to demonstrate generics behaviour with <code>MapBasedMethodDefinitionSource</code>.
  *
  * @author Ben Alex
- * @version $Id$
  */
 @SuppressWarnings("deprecation")
 public class MethodDefinitionSourceEditorTigerTests {

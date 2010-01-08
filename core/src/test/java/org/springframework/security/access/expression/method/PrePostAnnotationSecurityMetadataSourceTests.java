@@ -17,7 +17,6 @@ import org.springframework.security.access.prepost.PrePostAnnotationSecurityMeta
 /**
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class PrePostAnnotationSecurityMetadataSourceTests {

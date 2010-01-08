@@ -32,7 +32,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * @author Greg Turnquist
- * @version $Id$
  */
 @ContextConfiguration(locations={"/org/springframework/security/vote/labelBasedSecurityApplicationContext.xml"})
 @RunWith(SpringJUnit4ClassRunner.class)

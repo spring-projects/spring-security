@@ -59,7 +59,6 @@ import org.springframework.util.StringUtils;
  * @author colin sampaleanu
  * @author Omri Spector
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {

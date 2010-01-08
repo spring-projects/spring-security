@@ -34,7 +34,6 @@ import org.springframework.security.access.method.AbstractFallbackMethodSecurity
  * Sources method security metadata from major JSR 250 security annotations.
  *
  * @author Ben Alex
- * @version $Id$
  * @since 2.0
  */
 public class Jsr250MethodSecurityMetadataSource extends AbstractFallbackMethodSecurityMetadataSource {

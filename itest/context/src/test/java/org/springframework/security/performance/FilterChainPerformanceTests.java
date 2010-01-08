@@ -29,7 +29,6 @@ import org.springframework.util.StopWatch;
 /**
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 2.0
  */
 @ContextConfiguration(locations={"/filter-chain-performance-app-context.xml"})

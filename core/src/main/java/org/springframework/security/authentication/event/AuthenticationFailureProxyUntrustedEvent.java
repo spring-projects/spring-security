@@ -24,7 +24,6 @@ import org.springframework.security.core.AuthenticationException;
  * untrusted proxy.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AuthenticationFailureProxyUntrustedEvent extends AbstractAuthenticationFailureEvent {
     //~ Constructors ===================================================================================================

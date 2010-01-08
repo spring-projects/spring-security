@@ -19,7 +19,6 @@ package org.springframework.security.acls.model;
  * A mutable ACL that provides audit capabilities.
  *
  * @author Ben Alex
- * @version $Id$
  *
  */
 public interface AuditableAcl extends MutableAcl {

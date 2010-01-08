@@ -41,7 +41,6 @@ import org.springframework.security.web.access.channel.ChannelProcessor;
  * Tests {@link ChannelDecisionManagerImpl}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 @SuppressWarnings("unchecked")
 public class ChannelDecisionManagerImplTests extends TestCase {

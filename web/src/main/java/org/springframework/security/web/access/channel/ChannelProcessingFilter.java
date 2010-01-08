@@ -43,7 +43,6 @@ import org.springframework.web.filter.GenericFilterBean;
  * the filter chain will not proceed.</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class ChannelProcessingFilter extends GenericFilterBean {
 

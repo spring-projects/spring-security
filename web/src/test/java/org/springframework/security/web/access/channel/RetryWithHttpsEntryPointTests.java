@@ -33,7 +33,6 @@ import java.util.Map;
  * Tests {@link RetryWithHttpsEntryPoint}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class RetryWithHttpsEntryPointTests extends TestCase {
     //~ Methods ========================================================================================================

@@ -39,23 +39,23 @@
             recommended approach).</para>
         <para>To configure channel security explicitly, you would define the following the filter in
             your application context: <programlisting><![CDATA[
-<bean id="channelProcessingFilter" 
+<bean id="channelProcessingFilter"
     class="org.springframework.security.web.access.channel.ChannelProcessingFilter">
   <property name="channelDecisionManager" ref="channelDecisionManager"/>
   <property name="securityMetadataSource">
     <security:filter-security-metadata-source path-type="regex">
-      <security:intercept-url pattern="\A/secure/.*\Z" 
+      <security:intercept-url pattern="\A/secure/.*\Z"
           access="REQUIRES_SECURE_CHANNEL"/>
-      <security:intercept-url pattern="\A/acegilogin.jsp.*\Z" 
+      <security:intercept-url pattern="\A/acegilogin.jsp.*\Z"
           access="REQUIRES_SECURE_CHANNEL"/>
-      <security:intercept-url pattern="\A/j_spring_security_check.*\Z" 
+      <security:intercept-url pattern="\A/j_spring_security_check.*\Z"
           access="REQUIRES_SECURE_CHANNEL"/>
       <security:intercept-url pattern="\A/.*\Z" access="ANY_CHANNEL"/>
-    </security:filter-security-metadata-source>                
+    </security:filter-security-metadata-source>
   </property>
 </bean>
-    
-<bean id="channelDecisionManager" 
+
+<bean id="channelDecisionManager"
     class="org.springframework.security.access.channel.ChannelDecisionManagerImpl">
   <property name="channelProcessors">
     <list>
@@ -64,11 +64,11 @@
     </list>
   </property>
 </bean>
-    
-<bean id="secureChannelProcessor" 
+
+<bean id="secureChannelProcessor"
   class="org.springframework.security.access.channel.SecureChannelProcessor"/>
-<bean id="insecureChannelProcessor" 
-  class="org.springframework.security.access.channel.InsecureChannelProcessor"/>]]>      
+<bean id="insecureChannelProcessor"
+  class="org.springframework.security.access.channel.InsecureChannelProcessor"/>]]>
 </programlisting>
             Like <classname>FilterSecurityInterceptor</classname>, Apache Ant style paths are also
             supported by the <literal>ChannelProcessingFilter</literal>.</para>

@@ -7,7 +7,6 @@ import org.springframework.security.core.AuthenticationException;
  * user account status (locked, disabled etc).
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public abstract class AccountStatusException extends AuthenticationException {
     public AccountStatusException(String msg) {

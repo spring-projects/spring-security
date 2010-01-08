@@ -29,7 +29,6 @@ import org.springframework.util.Assert;
  * All methods of this class return a {@link org.springframework.security.util.SimpleMethodInvocation}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public final class MethodInvocationUtils {
     //~ Constructors ===================================================================================================

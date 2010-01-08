@@ -16,14 +16,14 @@
         <module>preauth</module>
         <module>openid</module>
         <module>ldap</module>
-        <module>cas</module>   
-     	<!--module>aspectj</module-->
+        <module>cas</module>
+         <!--module>aspectj</module-->
     </modules>
     <dependencies>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>

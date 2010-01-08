@@ -6,7 +6,6 @@ package org.springframework.security.web.authentication;
  * See {@link AbstractAuthenticationProcessingFilter}.
  *
  * @author Luke Taylor
- * @version $Id$
  * @deprecated Use AbstractAuthenticationProcessingFilter instead.
  */
 @Deprecated

@@ -39,7 +39,6 @@ import org.springframework.security.web.AuthenticationEntryPoint;
  * automatically renegotiate with a new nonce value (ie without presenting a new password dialog box to the user).</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean, Ordered {
     //~ Static fields/initializers =====================================================================================

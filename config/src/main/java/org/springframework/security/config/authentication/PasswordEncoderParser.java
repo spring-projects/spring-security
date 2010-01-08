@@ -29,7 +29,6 @@ import org.w3c.dom.Element;
  * Will produce a PasswordEncoder and (optionally) a SaltSource.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class PasswordEncoderParser {
     static final String ATT_REF = "ref";

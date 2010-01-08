@@ -17,7 +17,6 @@ import org.w3c.dom.Element;
  * Ldap authentication provider namespace configuration.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 2.0
  */
 public class LdapProviderBeanDefinitionParser implements BeanDefinitionParser {

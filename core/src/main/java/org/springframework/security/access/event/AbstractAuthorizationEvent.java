@@ -22,7 +22,6 @@ import org.springframework.context.ApplicationEvent;
  * Abstract superclass for all security interception related events.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public abstract class AbstractAuthorizationEvent extends ApplicationEvent {
     //~ Constructors ===================================================================================================

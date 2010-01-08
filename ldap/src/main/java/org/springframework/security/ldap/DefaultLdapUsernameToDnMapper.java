@@ -9,7 +9,6 @@ import org.springframework.ldap.core.DistinguishedName;
  * <tt>uid=sam,cn=users</tt>.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class DefaultLdapUsernameToDnMapper implements LdapUsernameToDnMapper {
     private String userDnBase;

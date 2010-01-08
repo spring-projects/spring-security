@@ -34,7 +34,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * Tests {@link AuthenticatedVoter}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AuthenticatedVoterTests extends TestCase {
 

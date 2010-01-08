@@ -56,7 +56,6 @@ import org.springframework.security.web.authentication.switchuser.SwitchUserFilt
  *
  * @author Mark St.Godard
  * @author Luke Taylor
- * @version $Id$
  */
 public class SwitchUserFilterTests {
     private final static List<GrantedAuthority> ROLES_12 = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");

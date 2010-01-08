@@ -67,7 +67,6 @@ import org.springframework.web.filter.GenericFilterBean;
  *
  * @author Ben Alex
  * @author colin sampaleanu
- * @version $Id$
  */
 public class ExceptionTranslationFilter extends GenericFilterBean {
 

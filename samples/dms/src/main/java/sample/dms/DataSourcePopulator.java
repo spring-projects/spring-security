@@ -19,7 +19,6 @@ import org.springframework.util.Assert;
 * Populates the DMS in-memory database with document and ACL information.
 *
 * @author Ben Alex
-* @version $Id$
 */
 public class DataSourcePopulator implements InitializingBean {
     protected static final int LEVEL_NEGATE_READ = 0;

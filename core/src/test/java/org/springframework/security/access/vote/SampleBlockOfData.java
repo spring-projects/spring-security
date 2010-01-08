@@ -24,7 +24,6 @@ import java.io.Serializable;
  * For label unit tests.
  *
  * @author Greg Turnquist
- * @version $Id$
  */
 public class SampleBlockOfData implements Serializable, LabeledData {
     //~ Static fields/initializers =====================================================================================

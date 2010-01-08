@@ -22,7 +22,6 @@ import org.springframework.util.Assert;
  * The map of exception names to URLs should be injected by setting the <tt>exceptionMappings</tt> property.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class ExceptionMappingAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {

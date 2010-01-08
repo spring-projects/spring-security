@@ -26,7 +26,6 @@ import junit.framework.TestCase;
  * @author colin sampaleanu
  * @author Ben Alex
  * @author Ray Krueger
- * @version $Id$
  */
 public class Md5PasswordEncoderTests extends TestCase {
     //~ Methods ========================================================================================================
@@ -42,12 +41,12 @@ public class Md5PasswordEncoderTests extends TestCase {
         assertEquals("a68aafd90299d0b137de28fb4bb68573", encoded);
         assertEquals("MD5", pe.getAlgorithm());
     }
-    
+
     public void testNonAsciiPasswordHasCorrectHash() {
         Md5PasswordEncoder md5 = new Md5PasswordEncoder();
         String encodedPassword = md5.encodePassword("\u4F60\u597d", null);
-        assertEquals("7eca689f0d3389d9dea66ae112e5cfd7", encodedPassword);        
-    }    
+        assertEquals("7eca689f0d3389d9dea66ae112e5cfd7", encodedPassword);
+    }
 
     public void testBase64() throws Exception {
         Md5PasswordEncoder pe = new Md5PasswordEncoder();

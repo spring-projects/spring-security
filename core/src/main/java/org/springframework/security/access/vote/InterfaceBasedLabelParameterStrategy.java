@@ -24,7 +24,6 @@ import java.lang.reflect.Method;
  * or retrieval of the label.
  *
  * @author Greg Turnquist
- * @version $Id$
  */
 public class InterfaceBasedLabelParameterStrategy implements LabelParameterStrategy {
     //~ Instance fields ================================================================================================

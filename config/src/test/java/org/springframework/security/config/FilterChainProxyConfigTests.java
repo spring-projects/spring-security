@@ -43,7 +43,6 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
  *
  * @author Carlos Sanchez
  * @author Ben Alex
- * @version $Id$
  */
 public class FilterChainProxyConfigTests {
     private ClassPathXmlApplicationContext appCtx;

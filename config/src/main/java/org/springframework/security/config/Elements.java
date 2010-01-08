@@ -4,7 +4,6 @@ package org.springframework.security.config;
  * Contains all the element names used by Spring Security 2 namespace support.
  *
  * @author Ben Alex
- * @version $Id: Elements.java 3697 2009-06-08 12:59:13Z ltaylor $
  */
 public abstract class Elements {
 

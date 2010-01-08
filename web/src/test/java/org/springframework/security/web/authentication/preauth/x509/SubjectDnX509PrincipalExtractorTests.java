@@ -11,7 +11,6 @@ import static junit.framework.Assert.*;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class SubjectDnX509PrincipalExtractorTests {
     SubjectDnX509PrincipalExtractor extractor;

@@ -25,7 +25,6 @@ import org.springframework.core.NestedRuntimeException;
  * the remoting protocol.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class RemoteAuthenticationException extends NestedRuntimeException {
     //~ Constructors ===================================================================================================

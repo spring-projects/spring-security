@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletResponse;
  * <code>AccessDeniedException</code>.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface AccessDeniedHandler {
     //~ Methods ========================================================================================================

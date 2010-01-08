@@ -36,7 +36,6 @@ import org.springframework.web.filter.GenericFilterBean;
  * the filter chain executes (the default is <code>false</code>, as this is resource intensive and not recommended).
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class SecurityContextPersistenceFilter extends GenericFilterBean {

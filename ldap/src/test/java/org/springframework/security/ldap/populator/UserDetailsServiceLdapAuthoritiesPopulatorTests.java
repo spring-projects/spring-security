@@ -15,7 +15,6 @@ import org.springframework.security.ldap.authentication.UserDetailsServiceLdapAu
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class UserDetailsServiceLdapAuthoritiesPopulatorTests {
 

@@ -24,7 +24,6 @@ import org.springframework.security.core.AuthenticationException;
  * <code>AuthenticationProvider</code> that can process the request.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AuthenticationFailureProviderNotFoundEvent extends AbstractAuthenticationFailureEvent {
     //~ Constructors ===================================================================================================

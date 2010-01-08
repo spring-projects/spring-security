@@ -24,7 +24,6 @@ import org.springframework.util.Assert;
  * the destination instead of a redirect.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class SimpleUrlAuthenticationFailureHandler implements AuthenticationFailureHandler {

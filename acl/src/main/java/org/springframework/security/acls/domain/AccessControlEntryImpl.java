@@ -29,7 +29,6 @@ import java.io.Serializable;
  * An immutable default implementation of <code>AccessControlEntry</code>.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AccessControlEntryImpl implements AccessControlEntry, AuditableAccessControlEntry {
     //~ Instance fields ================================================================================================
@@ -77,7 +76,7 @@ public class AccessControlEntryImpl implements AccessControlEntry, AuditableAcce
             if (rhs.getAcl() == null) {
                 return false;
             }
-            
+
             // Both this.acl and rhs.acl are non-null, so do a comparison
             if (this.acl.getObjectIdentity() == null) {
                 if (rhs.acl.getObjectIdentity() != null) {
@@ -91,7 +90,7 @@ public class AccessControlEntryImpl implements AccessControlEntry, AuditableAcce
                 }
             }
         }
-        
+
         if (this.id == null) {
             if (rhs.id != null) {
                 return false;
@@ -108,7 +107,7 @@ public class AccessControlEntryImpl implements AccessControlEntry, AuditableAcce
                 return false;
             }
         }
-        
+
         if ((this.auditFailure != rhs.isAuditFailure()) || (this.auditSuccess != rhs.isAuditSuccess())
             || (this.granting != rhs.isGranting())
             || !this.permission.equals(rhs.getPermission()) || !this.sid.equals(rhs.getSid())) {

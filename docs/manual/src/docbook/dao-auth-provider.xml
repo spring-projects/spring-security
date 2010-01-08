@@ -35,7 +35,7 @@
   <property name="userDetailsService" ref="inMemoryDaoImpl"/>
   <property name="saltSource" ref bean="saltSource"/>
   <property name="passwordEncoder" ref="passwordEncoder"/>
-</bean>  ]]>      
+</bean>  ]]>
     </programlisting>
         </para>
         <para>The <literal>PasswordEncoder</literal> and <literal>SaltSource</literal> are optional.
@@ -68,20 +68,20 @@
   <property name="userDetailsService" ref="userDetailsService"/>
   <property name="userCache" ref="userCache"/>
 </bean>
-        
+
 <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
   <property name="configLocation" value="classpath:/ehcache-failsafe.xml"/>
 </bean>
-    
+
 <bean id="userCacheBackend" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
   <property name="cacheManager" ref="cacheManager"/>
   <property name="cacheName" value="userCache"/>
 </bean>
 
-<bean id="userCache" 
+<bean id="userCache"
     class="org.springframework.security.core.userdetails.cache.EhCacheBasedUserCache">
   <property name="cache" ref="userCacheBackend"/>
-</bean>]]>        
+</bean>]]>
     </programlisting>
         </para>
         <para>All Spring Security EH-CACHE implementations (including

@@ -21,7 +21,6 @@ package org.springframework.security.acls.model;
  * will be returned for a particular domain object
  *
  * @author Ben Alex
- * @version $Id$
  *
  */
 public interface ObjectIdentityRetrievalStrategy {

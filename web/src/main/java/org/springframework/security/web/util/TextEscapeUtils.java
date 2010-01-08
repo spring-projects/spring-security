@@ -4,7 +4,6 @@ package org.springframework.security.web.util;
  * Utility for escaping characters in HTML strings.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public abstract class TextEscapeUtils {
 

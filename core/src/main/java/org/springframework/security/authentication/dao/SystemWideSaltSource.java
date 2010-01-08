@@ -27,7 +27,6 @@ import org.springframework.beans.factory.InitializingBean;
  * password. Of benefit is the digested passwords will at least be more protected than if stored without any salt.</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class SystemWideSaltSource implements SaltSource, InitializingBean {
     //~ Instance fields ================================================================================================

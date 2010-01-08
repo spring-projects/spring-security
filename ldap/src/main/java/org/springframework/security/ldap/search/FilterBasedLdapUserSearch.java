@@ -38,7 +38,6 @@ import javax.naming.directory.SearchControls;
  *
  * @author Robert Sanders
  * @author Luke Taylor
- * @version $Id$
  *
  * @see SearchControls
  */
@@ -153,7 +152,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
     public void setSearchTimeLimit(int searchTimeLimit) {
         searchControls.setTimeLimit(searchTimeLimit);
     }
-    
+
     /**
      * Specifies the attributes that will be returned as part of the search.
      *<p>

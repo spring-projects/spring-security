@@ -10,7 +10,6 @@ package org.springframework.security.core.userdetails;
  * It should not involved in making any authentication decisions based on a submitted authentication request.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 2.0
  *
  * @see org.springframework.security.authentication.AccountStatusUserDetailsChecker

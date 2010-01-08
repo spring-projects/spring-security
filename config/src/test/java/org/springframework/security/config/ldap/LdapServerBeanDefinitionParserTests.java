@@ -9,7 +9,6 @@ import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class LdapServerBeanDefinitionParserTests {
     InMemoryXmlApplicationContext appCtx;

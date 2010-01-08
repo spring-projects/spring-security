@@ -12,7 +12,6 @@ import org.springframework.security.web.FilterInvocation;
 /**
  * Voter which handles web authorisation decisions.
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class WebExpressionVoter implements AccessDecisionVoter {

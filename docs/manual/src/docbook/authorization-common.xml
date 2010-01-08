@@ -60,7 +60,7 @@
         access control decisions. The <interfacename>AccessDecisionManager</interfacename> interface
         contains three methods:
         <programlisting>
- void decide(Authentication authentication, Object secureObject, 
+ void decide(Authentication authentication, Object secureObject,
      List&lt;ConfigAttribute&gt; config) throws AccessDeniedException;
  boolean supports(ConfigAttribute attribute);
  boolean supports(Class clazz);
@@ -93,7 +93,7 @@
       <figure xml:id="authz-access-voting">
         <title>Voting Decision Manager</title>
         <mediaobject>
-          <!--        
+          <!--
       <imageobject role="fo">
         <imagedata align="center" fileref="resources/images/AccessDecisionVoting.gif" format="GIF"/>
       </imageobject>
@@ -232,7 +232,7 @@ boolean supports(Class clazz);
       latter (recommended) approach is usually achieved through a <literal>ROLE_USER</literal> or
         <literal>ROLE_AUTHENTICATED</literal> configuration attribute.</para>
     <!-- TODO: Move to ACL section and add reference here -->
-    <!--    
+    <!--
     <section xml:id="after-invocation-acl-aware">
       <info>
         <title>ACL-Aware AfterInvocationProviders</title>
@@ -292,7 +292,7 @@ boolean supports(Class clazz);
           <literal>AfterInvocationProvider</literal>s.</para>
           </section>   -->
   </section>
-  <!-- TODO: Move taglibs to a separate chapter which describes them all  
+  <!-- TODO: Move taglibs to a separate chapter which describes them all
   <section xml:id="authorization-taglibs">
     <info>
       <title>Authorization Tag Libraries</title>

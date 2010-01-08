@@ -38,7 +38,6 @@ import org.springframework.util.Assert;
  * HREF="http://ehcache.sourceforge.net">EHCACHE</a>.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class EhCacheBasedUserCache implements UserCache, InitializingBean {
     //~ Static fields/initializers =====================================================================================

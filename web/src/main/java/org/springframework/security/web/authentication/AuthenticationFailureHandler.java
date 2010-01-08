@@ -18,7 +18,6 @@ import org.springframework.security.core.AuthenticationException;
  * user to change their password.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public interface AuthenticationFailureHandler {

@@ -16,7 +16,6 @@ import org.springframework.security.acls.model.Sid;
  * Tests for {@link AccessControlEntryImpl}.
  *
  * @author Andrei Stefan
- * @version $Id$
  */
 public class AccessControlImplEntryTests {
     Mockery jmock = new JUnit4Mockery();

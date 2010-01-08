@@ -48,7 +48,6 @@ import org.springframework.security.web.authentication.RememberMeServices;
  * Tests {@link RememberMeAuthenticationFilter}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class RememberMeAuthenticationFilterTests extends TestCase {
     Authentication remembered = new TestingAuthenticationToken("remembered", "password","ROLE_REMEMBERED");

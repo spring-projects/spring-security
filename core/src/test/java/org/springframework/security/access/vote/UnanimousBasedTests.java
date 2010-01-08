@@ -33,7 +33,6 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
  * Tests {@link UnanimousBased}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class UnanimousBasedTests extends TestCase {
 

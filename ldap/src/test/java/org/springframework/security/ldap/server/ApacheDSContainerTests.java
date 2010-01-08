@@ -7,7 +7,6 @@ import org.junit.Test;
  * Useful for debugging the container by itself.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class ApacheDSContainerTests {

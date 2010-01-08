@@ -26,7 +26,6 @@ import javax.servlet.ServletContext;
 /**
  *
  * @author Ben Alex
- * @version $Id$
  */
 @SuppressWarnings("unchecked")
 public class MockFilterConfig implements FilterConfig {

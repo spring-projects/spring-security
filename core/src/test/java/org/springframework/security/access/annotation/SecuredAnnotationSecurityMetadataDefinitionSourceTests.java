@@ -32,7 +32,6 @@ import org.springframework.util.StringUtils;
  * @author Mark St.Godard
  * @author Joe Scalise
  * @author Ben Alex
- * @version $Id$
  */
 public class SecuredAnnotationSecurityMetadataDefinitionSourceTests extends TestCase {
     //~ Instance fields ================================================================================================

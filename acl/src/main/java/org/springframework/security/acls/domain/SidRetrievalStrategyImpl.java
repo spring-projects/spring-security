@@ -35,7 +35,6 @@ import org.springframework.util.Assert;
  * The returned array will always contain the {@link PrincipalSid} before any {@link GrantedAuthoritySid} elements.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class SidRetrievalStrategyImpl implements SidRetrievalStrategy {
 

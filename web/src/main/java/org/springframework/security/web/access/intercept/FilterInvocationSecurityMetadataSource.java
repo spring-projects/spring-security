@@ -24,6 +24,5 @@ import org.springframework.security.web.FilterInvocation;
  * that are designed to perform lookups keyed on  {@link FilterInvocation}s.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface FilterInvocationSecurityMetadataSource extends SecurityMetadataSource {}

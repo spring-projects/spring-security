@@ -26,7 +26,6 @@ import org.springframework.util.Assert;
  * AuthenticationUserDetailsService implementation may still throw a UsernameNotFoundException, for example.
  *
  * @author Ruud Senden
- * @version $Id$
  * @since 2.0
  */
 public class PreAuthenticatedAuthenticationProvider implements AuthenticationProvider, InitializingBean, Ordered {

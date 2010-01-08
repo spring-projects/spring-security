@@ -23,7 +23,6 @@ import org.springframework.dao.DataAccessException;
  *
  * @author Mike Wiesner
  * @since 3.0
- * @version $Id$
  */
 public class DnsLookupException extends DataAccessException {
 

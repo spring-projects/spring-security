@@ -26,7 +26,6 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
  * the <code>SecurityContextHolder</code>.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AuthenticationCredentialsNotFoundEvent extends AbstractAuthorizationEvent {
     //~ Instance fields ================================================================================================

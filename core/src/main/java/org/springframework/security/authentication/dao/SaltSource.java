@@ -22,7 +22,6 @@ import org.springframework.security.core.userdetails.UserDetails;
  * Provides alternative sources of the salt to use for encoding passwords.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface SaltSource {
     //~ Methods ========================================================================================================

@@ -11,7 +11,6 @@ import org.aspectj.lang.JoinPoint;
  * AspectJ interceptor that supports @Aspect notation.
  *
  * @author Mike Wiesner
- * @version $Id$
  */
 public class AspectJAnnotationSecurityInterceptor extends AbstractSecurityInterceptor {
     //~ Instance fields ================================================================================================

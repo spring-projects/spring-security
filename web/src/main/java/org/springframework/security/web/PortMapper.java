@@ -21,7 +21,6 @@ package org.springframework.security.web;
  * and vice versa.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface PortMapper {
     //~ Methods ========================================================================================================

@@ -38,7 +38,6 @@ import org.springframework.security.web.util.AntUrlPathMatcher;
  * FilterInvocationDefinitionSourceEditorTests}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 @SuppressWarnings("unchecked")
 public class DefaultFilterInvocationSecurityMetadataSourceTests {

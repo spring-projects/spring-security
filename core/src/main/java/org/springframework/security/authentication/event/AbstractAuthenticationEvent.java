@@ -25,7 +25,6 @@ import org.springframework.context.ApplicationEvent;
  * be the <code>Authentication</code> object.</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public abstract class AbstractAuthenticationEvent extends ApplicationEvent {
     //~ Constructors ===================================================================================================

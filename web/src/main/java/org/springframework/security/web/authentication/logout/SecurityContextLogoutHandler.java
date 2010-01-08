@@ -31,7 +31,6 @@ import javax.servlet.http.HttpSession;
  * session is not <code>null</code>.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class SecurityContextLogoutHandler implements LogoutHandler {
     private boolean invalidateHttpSession = true;

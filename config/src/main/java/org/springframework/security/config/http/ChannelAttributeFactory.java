@@ -11,7 +11,6 @@ import org.springframework.security.web.access.channel.ChannelDecisionManagerImp
  * Used as a factory bean to create config attribute values for the <tt>requires-channel</tt> attribute.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class ChannelAttributeFactory {

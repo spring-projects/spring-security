@@ -49,7 +49,6 @@ import org.springframework.util.ReflectionUtils;
  * between web requests.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class HttpSessionSecurityContextRepository implements SecurityContextRepository {

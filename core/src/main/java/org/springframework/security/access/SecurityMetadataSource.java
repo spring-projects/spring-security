@@ -26,7 +26,6 @@ import org.springframework.security.access.intercept.AbstractSecurityInterceptor
  * invocation.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface SecurityMetadataSource extends AopInfrastructureBean {
     //~ Methods ========================================================================================================

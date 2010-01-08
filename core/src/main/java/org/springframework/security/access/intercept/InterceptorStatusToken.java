@@ -29,7 +29,6 @@ import org.springframework.security.core.Authentication;
  * can tidy up correctly.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class InterceptorStatusToken {
     //~ Instance fields ================================================================================================

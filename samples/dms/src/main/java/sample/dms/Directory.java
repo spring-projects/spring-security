@@ -3,7 +3,6 @@ package sample.dms;
 /**
  *
  * @author Ben Alex
- * @version $Id$
  *
  */
 public class Directory extends AbstractElement {
@@ -20,5 +19,5 @@ public class Directory extends AbstractElement {
     public String toString() {
         return "Directory[fullName='" + getFullName() + "'; name='" + getName() + "'; id='" + getId() + "'; parent='" + getParent() + "']";
     }
-    
+
 }

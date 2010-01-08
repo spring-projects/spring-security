@@ -18,7 +18,6 @@ package org.springframework.security.cas;
  * Sets the appropriate parameters for CAS's implementation of SAML (which is not guaranteed to be actually SAML compliant).
  *
  * @author Scott Battaglia
- * @version $Revision$ $Date$
  * @since 3.0
  */
 public final class SamlServiceProperties extends ServiceProperties {

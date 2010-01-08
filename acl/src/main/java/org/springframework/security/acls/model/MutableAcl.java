@@ -25,7 +25,6 @@ import java.io.Serializable;
  * before allowing access to its methods.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface MutableAcl extends Acl {
     //~ Methods ========================================================================================================

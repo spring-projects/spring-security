@@ -27,7 +27,6 @@ import org.jasig.cas.client.validation.Assertion;
  * useful when combined with a SAML-based response from the CAS Server/client.
  *
  * @author Scott Battaglia
- * @version $Revision$ $Date$
  * @since 3.0
  */
 public abstract class AbstractCasAssertionUserDetailsService implements AuthenticationUserDetailsService {

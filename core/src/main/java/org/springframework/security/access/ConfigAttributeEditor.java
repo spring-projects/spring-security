@@ -27,7 +27,6 @@ import java.beans.PropertyEditorSupport;
  *
  * @author Ben Alex
  * @deprecated
- * @version $Id$
  */
 public class ConfigAttributeEditor extends PropertyEditorSupport {
     //~ Methods ========================================================================================================

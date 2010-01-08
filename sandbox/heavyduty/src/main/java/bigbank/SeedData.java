@@ -13,9 +13,9 @@ public class SeedData implements InitializingBean{
         bankDao.createOrUpdateAccount(new Account("scott"));
         bankDao.createOrUpdateAccount(new Account("peter"));
     }
-    
+
     public void setBankDao(BankDao bankDao) {
         this.bankDao = bankDao;
     }
-    
+
 }

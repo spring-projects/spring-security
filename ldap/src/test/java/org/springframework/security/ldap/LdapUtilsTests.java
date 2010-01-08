@@ -32,7 +32,6 @@ import org.junit.runner.RunWith;
  * Tests {@link LdapUtils}
  *
  * @author Luke Taylor
- * @version $Id$
  */
 @RunWith(JMock.class)
 public class LdapUtilsTests {

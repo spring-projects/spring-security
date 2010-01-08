@@ -31,7 +31,6 @@ import org.w3c.dom.NodeList;
  * coming from.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class AuthenticationManagerBeanDefinitionParser implements BeanDefinitionParser {
     private static final String ATT_ALIAS = "alias";

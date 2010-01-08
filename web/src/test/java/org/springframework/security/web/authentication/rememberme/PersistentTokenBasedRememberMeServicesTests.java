@@ -21,7 +21,6 @@ import org.springframework.security.web.authentication.rememberme.RememberMeAuth
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class PersistentTokenBasedRememberMeServicesTests {
     private PersistentTokenBasedRememberMeServices services;
@@ -121,7 +120,7 @@ public class PersistentTokenBasedRememberMeServicesTests {
         Cookie returnedCookie = response.getCookie("mycookiename");
         assertNotNull(returnedCookie);
         assertEquals(0, returnedCookie.getMaxAge());
-        
+
         // SEC-1280
         services.logout(request, response, null);
     }

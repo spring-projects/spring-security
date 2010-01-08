@@ -14,7 +14,6 @@ import org.springframework.util.Assert;
  * returned from <tt>loadUserByUsername</tt> is created by the configured <tt>UserDetailsContextMapper</tt>.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class LdapUserDetailsService implements UserDetailsService {
     private LdapUserSearch userSearch;

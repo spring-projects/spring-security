@@ -23,7 +23,6 @@ import java.util.Iterator;
  *
  * @author Ben Alex
  * @author Paulo Neves
- * @version $Id$
  */
 interface Filterer<T> extends Iterable<T> {
     //~ Methods ========================================================================================================

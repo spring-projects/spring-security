@@ -4,7 +4,6 @@ import org.springframework.security.core.AuthenticationException;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class RememberMeAuthenticationException extends AuthenticationException {
 

@@ -3,7 +3,6 @@
 <!--
     XSL to manipulate trang's output XSD file. Contributed by Brian Ewins.
 
-    $Id$
 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0">

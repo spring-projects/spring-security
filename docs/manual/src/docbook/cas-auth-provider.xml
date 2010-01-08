@@ -41,7 +41,7 @@
     <!--
   <section xml:id="cas-sequence">
     <title>Spring Security and CAS Interaction Sequence</title>
-  
+
   TODO: Needs reviewed
     <para>The basic interaction between a web browser, CAS server and a
     Spring Security-secured service is as follows:</para>
@@ -255,9 +255,9 @@
       context. This represents your CAS service:</para>
     <para>
       <programlisting><![CDATA[
-  <bean id="serviceProperties" 
+  <bean id="serviceProperties"
         class="org.springframework.security.cas.ServiceProperties">
-    <property name="service" 
+    <property name="service"
         value="https://localhost:8443/cas-sample/j_spring_cas_security_check"/>
     <property name="sendRenew" value="false"/>
   </bean>]]>
@@ -277,13 +277,13 @@
    ...
    <custom-filter position="FORM_LOGIN_FILTER" ref="myFilter" />
 </security:http>
-      
-<bean id="casFilter" 
+
+<bean id="casFilter"
       class="org.springframework.security.cas.web.CasAuthenticationFilter">
   <property name="authenticationManager" ref="authenticationManager"/>
 </bean>
 
-<bean id="casEntryPoint" 
+<bean id="casEntryPoint"
     class="org.springframework.security.cas.web.CasAuthenticationEntryPoint">
   <property name="loginUrl" value="https://localhost:9443/cas/login"/>
   <property name="serviceProperties" ref="serviceProperties"/>
@@ -295,7 +295,7 @@
       authentication using <link xlink:href="ns-entry-point-ref"
         ><literal>entry-point-ref</literal></link>. </para>
     <para>The <classname>CasAuthenticationFilter</classname> has very similar properties to the
-        <classname>UsernamePasswordAuthenticationFilter</classname> (used for form-based logins). 
+        <classname>UsernamePasswordAuthenticationFilter</classname> (used for form-based logins).
     </para>
     <para>For CAS to operate, the <classname>ExceptionTranslationFilter</classname> must have its
         <literal>authenticationEntryPoint</literal> property set to the
@@ -305,10 +305,10 @@
       enterprise's CAS login server. This is where the user's browser will be redirected.</para>
     <para>Next you need to add a <literal>CasAuthenticationProvider</literal> and its collaborators: <programlisting><![CDATA[
   <security:authentication-manager alias="authenticationManager">
-    <security:authentication-provider ref="casAuthenticationProvider" />    
+    <security:authentication-provider ref="casAuthenticationProvider" />
   </security:authentication-manager>
 
-  <bean id="casAuthenticationProvider" 
+  <bean id="casAuthenticationProvider"
       class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
     <property name="userDetailsService" ref="userService"/>
     <property name="serviceProperties" ref="serviceProperties" />
@@ -319,11 +319,11 @@
     </property>
     <property name="key" value="an_id_for_this_auth_provider_only"/>
   </bean>
-  
+
   <security:user-service id="userService">
     <security:user name="joe" password="joe" authorities="ROLE_USER" />
     ...
-  </security:user-service>]]>      
+  </security:user-service>]]>
       </programlisting> The
         <classname>CasAuthenticationProvider</classname> uses a
         <interfacename>UserDetailsService</interfacename> instance to load the authorities for a
@@ -331,7 +331,7 @@
     <para>The beans are all reasonable self-explanatory if you refer back to the "How CAS Works"
       section.</para>
   </section>
-  <!-- 
+  <!--
     <para>Note the <literal>CasProxyTicketValidator</literal> has a
     remarked out <literal>trustStore</literal> property. This property
     might be helpful if you experience HTTPS certificate issues. Also note

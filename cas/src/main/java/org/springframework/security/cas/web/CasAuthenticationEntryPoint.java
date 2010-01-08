@@ -33,7 +33,7 @@ import org.springframework.util.Assert;
  * Used by the <code>ExceptionTranslationFilter</code> to commence authentication via the JA-SIG Central
  * Authentication Service (CAS).
  * <p>
- * The user's browser will be redirected to the JA-SIG CAS enterprise-wide login page. 
+ * The user's browser will be redirected to the JA-SIG CAS enterprise-wide login page.
  * This page is specified by the <code>loginUrl</code> property. Once login is complete, the CAS login page will
  * redirect to the page indicated by the <code>service</code> property. The <code>service</code> is a HTTP URL
  * belonging to the current application. The <code>service</code> URL is monitored by the {@link CasAuthenticationFilter},
@@ -41,7 +41,6 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  * @author Scott Battaglia
- * @version $Id$
  */
 public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
     //~ Instance fields ================================================================================================
@@ -83,7 +82,7 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
      * Constructs a new Service Url.  The default implementation relies on the CAS client to do the bulk of the work.
      * @param request the HttpServletRequest
      * @param response the HttpServlet Response
-     * @return the constructed service url.  CANNOT be NULL.  
+     * @return the constructed service url.  CANNOT be NULL.
      */
     protected String createServiceUrl(final HttpServletRequest request, final HttpServletResponse response) {
         return CommonUtils.constructServiceUrl(null, response, this.serviceProperties.getService(), null, this.serviceProperties.getArtifactParameter(), this.encodeServiceUrlWithSessionId);
@@ -101,7 +100,7 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
 
     /**
      * Template method for you to do your own pre-processing before the redirect occurs.
-     * 
+     *
      * @param request the HttpServletRequest
      * @param response the HttpServletResponse
      */

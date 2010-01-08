@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletResponse;
  * an authentication mechanism.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public interface RequestCache {

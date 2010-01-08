@@ -29,7 +29,6 @@ import java.util.Arrays;
  * <p>Used to create a bean factory from an XML string, rather than a file.</p>
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class InMemoryResource extends AbstractResource {
     //~ Instance fields ================================================================================================

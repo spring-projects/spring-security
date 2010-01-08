@@ -5,7 +5,6 @@
   -
   - Only used by "filter" artifact.
   -
-  - $Id: applicationContext-acegi-security.xml 1425 2006-04-28 06:43:50Z benalex $
   -->
 
 <b:beans xmlns="http://www.springframework.org/schema/security"

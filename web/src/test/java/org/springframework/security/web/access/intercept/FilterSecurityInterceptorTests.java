@@ -46,7 +46,6 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
  * Tests {@link FilterSecurityInterceptor}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class FilterSecurityInterceptorTests {
     private Mockery jmock = new JUnit4Mockery();

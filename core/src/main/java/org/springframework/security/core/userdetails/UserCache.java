@@ -33,7 +33,6 @@ package org.springframework.security.core.userdetails;
  * @see {@link org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider}
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface UserCache {
     //~ Methods ========================================================================================================

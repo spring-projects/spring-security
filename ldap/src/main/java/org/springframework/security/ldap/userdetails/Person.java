@@ -31,7 +31,6 @@ import java.util.Arrays;
  *
  * @author Luke
  * @since 2.0
- * @version $Id$
  */
 public class Person extends LdapUserDetailsImpl {
     private String sn;

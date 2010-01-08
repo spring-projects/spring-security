@@ -31,7 +31,6 @@ import org.springframework.util.StringUtils;
  * Tests {@link DigestAuthenticationEntryPoint}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class DigestAuthenticationEntryPointTests extends TestCase {
     //~ Methods ========================================================================================================

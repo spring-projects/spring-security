@@ -47,7 +47,6 @@ import org.springframework.util.StringUtils;
  *
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class SavedRequestAwareAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {

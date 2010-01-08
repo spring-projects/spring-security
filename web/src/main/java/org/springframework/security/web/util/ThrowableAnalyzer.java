@@ -17,7 +17,6 @@ import org.springframework.util.Assert;
  *
  * @author Andreas Senft
  * @since 2.0
- * @version $Id$
  */
 public class ThrowableAnalyzer {
 

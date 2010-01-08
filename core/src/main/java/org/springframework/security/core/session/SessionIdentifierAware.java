@@ -30,7 +30,6 @@ package org.springframework.security.core.session;
  * </p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface SessionIdentifierAware {
     //~ Methods ========================================================================================================

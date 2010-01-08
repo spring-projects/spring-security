@@ -28,7 +28,6 @@ import org.springframework.security.core.userdetails.memory.UserMap;
  * Tests {@link UserMap}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class UserMapTests extends TestCase {
 

@@ -34,7 +34,6 @@ import org.springframework.util.Assert;
  * Caches tickets using a Spring IoC defined <A HREF="http://ehcache.sourceforge.net">EHCACHE</a>.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class EhCacheBasedTicketCache implements StatelessTicketCache, InitializingBean {
     //~ Static fields/initializers =====================================================================================

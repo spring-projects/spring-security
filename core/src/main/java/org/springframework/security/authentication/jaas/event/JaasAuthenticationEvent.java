@@ -25,7 +25,6 @@ import org.springframework.context.ApplicationEvent;
  * JaasAuthenticationProvider}.
  *
  * @author Ray Krueger
- * @version $Id$
  */
 public abstract class JaasAuthenticationEvent extends ApplicationEvent {
     //~ Constructors ===================================================================================================

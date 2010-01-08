@@ -36,7 +36,6 @@ import org.springframework.util.Assert;
  *
  * @author Alan Stewart
  * @author Ben Alex
- * @version $Id$
  */
 public final class EncryptionUtils {
 

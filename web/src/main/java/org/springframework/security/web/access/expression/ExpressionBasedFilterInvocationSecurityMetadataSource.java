@@ -19,7 +19,6 @@ import org.springframework.util.Assert;
  * Expression-based <tt>FilterInvocationSecurityMetadataSource</tt>.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public final class ExpressionBasedFilterInvocationSecurityMetadataSource extends DefaultFilterInvocationSecurityMetadataSource {

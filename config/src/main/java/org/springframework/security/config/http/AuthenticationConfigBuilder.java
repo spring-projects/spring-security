@@ -44,7 +44,6 @@ import org.w3c.dom.Element;
  * Handles creation of authentication mechanism filters and related beans for &lt;http&gt; parsing.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 final class AuthenticationConfigBuilder {

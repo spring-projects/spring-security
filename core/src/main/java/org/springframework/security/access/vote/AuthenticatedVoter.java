@@ -40,7 +40,6 @@ import org.springframework.util.Assert;
  * All comparisons and prefixes are case sensitive.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AuthenticatedVoter implements AccessDecisionVoter {
     //~ Static fields/initializers =====================================================================================

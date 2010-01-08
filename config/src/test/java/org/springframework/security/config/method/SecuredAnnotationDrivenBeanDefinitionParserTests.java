@@ -14,7 +14,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * @author Ben Alex
- * @version $Id$
  */
 public class SecuredAnnotationDrivenBeanDefinitionParserTests {
     private InMemoryXmlApplicationContext appContext;

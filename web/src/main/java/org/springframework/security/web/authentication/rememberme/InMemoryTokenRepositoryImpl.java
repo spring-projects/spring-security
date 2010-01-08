@@ -11,7 +11,6 @@ import java.util.Map;
  * Simple <tt>PersistentTokenRepository</tt> implementation backed by a Map. Intended for testing only.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class InMemoryTokenRepositoryImpl implements PersistentTokenRepository {
     private Map<String, PersistentRememberMeToken> seriesTokens = new HashMap<String, PersistentRememberMeToken>();

@@ -28,7 +28,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * The corresponding authentication provider is  {@link TestingAuthenticationProvider}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class TestingAuthenticationToken extends AbstractAuthenticationToken {
     //~ Instance fields ================================================================================================

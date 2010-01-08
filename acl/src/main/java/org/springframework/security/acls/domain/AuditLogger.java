@@ -21,7 +21,6 @@ import org.springframework.security.acls.model.AccessControlEntry;
  * Used by <code>AclImpl</code> to log audit events.
  *
  * @author Ben Alex
- * @version $Id$
  *
  */
 public interface AuditLogger {

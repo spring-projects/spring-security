@@ -23,7 +23,6 @@ import java.util.Map;
  * Provides retrieval of {@link Acl} instances.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface AclService {
     //~ Methods ========================================================================================================

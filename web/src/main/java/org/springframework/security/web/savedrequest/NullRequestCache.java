@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletResponse;
  * Typically used when creation of a session is not desired.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class NullRequestCache implements RequestCache {

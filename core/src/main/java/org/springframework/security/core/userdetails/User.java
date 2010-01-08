@@ -35,7 +35,6 @@ import org.springframework.util.Assert;
  * scratch.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class User implements UserDetails {
     //~ Instance fields ================================================================================================

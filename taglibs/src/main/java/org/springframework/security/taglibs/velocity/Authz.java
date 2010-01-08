@@ -30,7 +30,6 @@ import org.springframework.context.ApplicationContext;
  * {@link AuthenticationTag}, {@link AclTag}, {@link LegacyAuthorizeTag}
  *
  * @author Wang Qi
- * @version $Id$
  */
 public interface Authz {
     //~ Methods ========================================================================================================

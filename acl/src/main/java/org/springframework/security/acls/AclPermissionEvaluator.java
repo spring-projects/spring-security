@@ -28,7 +28,6 @@ import org.springframework.security.core.Authentication;
  * {@link org.springframework.security.acls.AclEntryVoter AclEntryVoter}.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class AclPermissionEvaluator implements PermissionEvaluator {

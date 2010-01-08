@@ -40,7 +40,6 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  * @author Luke Taylor
- * @version $Id$
  */
 public class SessionRegistryImpl implements SessionRegistry, ApplicationListener<SessionDestroyedEvent> {
 

@@ -27,7 +27,6 @@ import org.springframework.security.core.authority.GrantedAuthorityImpl;
  * Used by {@link InMemoryDaoImpl} to temporarily store the attributes associated with a user.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class UserAttribute {
     //~ Instance fields ================================================================================================

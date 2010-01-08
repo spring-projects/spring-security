@@ -19,7 +19,6 @@ package org.springframework.security.acls.model;
  * Thrown if an ACL-related object cannot be found.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class NotFoundException extends AclDataAccessException {
     //~ Constructors ===================================================================================================

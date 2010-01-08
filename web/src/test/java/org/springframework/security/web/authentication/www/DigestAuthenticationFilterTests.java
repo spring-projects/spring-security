@@ -50,7 +50,6 @@ import org.springframework.util.StringUtils;
  *
  * @author Ben Alex
  * @author Luke Taylor
- * @version $Id$
  */
 public class DigestAuthenticationFilterTests {
     //~ Static fields/initializers =====================================================================================

@@ -16,7 +16,6 @@ import org.springframework.security.web.FilterInvocation;
  * from the implementation of the underlying expression objects.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class DefaultWebSecurityExpressionHandler implements WebSecurityExpressionHandler {

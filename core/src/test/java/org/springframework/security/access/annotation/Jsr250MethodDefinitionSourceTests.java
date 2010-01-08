@@ -15,7 +15,6 @@ import org.springframework.security.access.ConfigAttribute;
 /**
  * @author Luke Taylor
  * @author Ben Alex
- * @version $Id$
  */
 public class Jsr250MethodDefinitionSourceTests {
     Jsr250MethodSecurityMetadataSource mds = new Jsr250MethodSecurityMetadataSource();

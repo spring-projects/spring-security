@@ -80,7 +80,6 @@ import org.springframework.util.StringUtils;
  *  <p>All comparisons and prefixes are case sensitive.</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AclEntryVoter extends AbstractAclVoter {
     //~ Static fields/initializers =====================================================================================

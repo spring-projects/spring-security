@@ -49,7 +49,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetails;
  * Tests {@link BasicAuthenticationFilter}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class BasicAuthenticationFilterTests {
     //~ Instance fields ================================================================================================

@@ -20,7 +20,6 @@ package org.springframework.security.authentication;
  * assertion as to whether or not the credentials were valid.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class CredentialsExpiredException extends AccountStatusException {
     //~ Constructors ===================================================================================================

@@ -11,5 +11,5 @@ public class TextEscapeUtilsTests {
     public void charactersAreEscapedCorrectly() {
         assertEquals("a&lt;script&gt;&#034;&#039;", TextEscapeUtils.escapeEntities("a<script>\"'"));
     }
-    
+
 }

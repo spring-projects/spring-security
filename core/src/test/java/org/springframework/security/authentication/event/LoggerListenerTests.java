@@ -29,7 +29,6 @@ import org.springframework.security.core.Authentication;
  * Tests {@link LoggerListener}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class LoggerListenerTests extends TestCase {
     //~ Methods ========================================================================================================

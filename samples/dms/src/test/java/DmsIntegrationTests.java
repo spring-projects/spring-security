@@ -17,7 +17,6 @@ import sample.dms.DocumentDao;
  * Basic integration test for DMS sample.
  *
  * @author Ben Alex
- * @version $Id$
  *
  */
 @ContextConfiguration(locations={"classpath:applicationContext-dms-shared.xml", "classpath:applicationContext-dms-insecure.xml"})

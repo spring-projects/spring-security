@@ -39,7 +39,6 @@ import org.springframework.web.filter.GenericFilterBean;
  * populates it with one if needed.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AnonymousAuthenticationFilter extends GenericFilterBean  implements InitializingBean {
 

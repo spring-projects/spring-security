@@ -11,7 +11,6 @@ import org.springframework.security.core.Authentication;
 /**
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class RoleVoterTests {
     @Test

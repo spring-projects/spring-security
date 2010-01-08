@@ -24,7 +24,6 @@ import javax.sql.DataSource;
  * Singleton which provides a populated database connection for all JDBC-related unit tests.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class PopulatedDatabase {
     //~ Static fields/initializers =====================================================================================

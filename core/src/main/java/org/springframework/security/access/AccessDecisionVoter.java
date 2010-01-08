@@ -30,7 +30,6 @@ import org.springframework.security.core.Authentication;
  * </p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface AccessDecisionVoter {
     //~ Static fields/initializers =====================================================================================

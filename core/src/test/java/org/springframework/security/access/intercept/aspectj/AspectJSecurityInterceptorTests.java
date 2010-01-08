@@ -42,7 +42,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * Tests {@link AspectJSecurityInterceptor}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AspectJSecurityInterceptorTests {
     private Mockery jmock = new JUnit4Mockery();

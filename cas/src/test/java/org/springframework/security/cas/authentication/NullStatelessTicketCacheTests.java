@@ -24,21 +24,20 @@ import static org.junit.Assert.*;
 
 /**
  * Test cases for the @link {@link NullStatelessTicketCache}
- * 
+ *
  * @author Scott Battaglia
- * @version $Id$
  *
  */
 public class NullStatelessTicketCacheTests extends AbstractStatelessTicketCacheTests {
 
     private StatelessTicketCache cache = new NullStatelessTicketCache();
-    
+
     @Test
     public void testGetter() {
         assertNull(cache.getByTicketId(null));
         assertNull(cache.getByTicketId("test"));
     }
-    
+
     @Test
     public void testInsertAndGet() {
         final CasAuthenticationToken token = getToken();

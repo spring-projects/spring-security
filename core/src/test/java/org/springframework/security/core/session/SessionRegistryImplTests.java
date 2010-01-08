@@ -31,7 +31,6 @@ import org.springframework.security.core.session.SessionRegistryImpl;
  * Tests {@link SessionRegistryImpl}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class SessionRegistryImplTests {
     private SessionRegistryImpl sessionRegistry;

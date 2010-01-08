@@ -38,7 +38,6 @@ import org.springframework.security.util.FieldUtils;
 /**
  * @author Ben Alex
  * @author Luke Taylor
- * @version $Id$
  */
 public class GlobalMethodSecurityBeanDefinitionParserTests {
     private AbstractXmlApplicationContext appContext;

@@ -24,7 +24,6 @@ import org.springframework.security.core.GrantedAuthority;
  * Allows remote clients to attempt authentication.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface RemoteAuthenticationManager {
     //~ Methods ========================================================================================================

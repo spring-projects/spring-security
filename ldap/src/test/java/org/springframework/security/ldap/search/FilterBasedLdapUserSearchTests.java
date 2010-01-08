@@ -29,7 +29,6 @@ import org.junit.Test;
  * Tests for FilterBasedLdapUserSearch.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests {
     //~ Instance fields ================================================================================================
@@ -65,8 +64,8 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
         assertEquals("jerry", jerry.getStringAttribute("uid"));
 
         assertEquals(new DistinguishedName("cn=mouse\\, jerry,ou=people"), jerry.getDn());
-    }    
-    
+    }
+
     // Try some funny business with filters.
     @Test
     public void extraFilterPartToExcludeBob() throws Exception {

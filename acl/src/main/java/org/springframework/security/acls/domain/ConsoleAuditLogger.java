@@ -24,7 +24,6 @@ import org.springframework.util.Assert;
  * A basic implementation of {@link AuditLogger}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class ConsoleAuditLogger implements AuditLogger {
     //~ Methods ========================================================================================================

@@ -30,7 +30,6 @@ import org.springframework.security.core.AuthenticationException;
  * Tests {@link CasAuthenticationFilter}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class CasAuthenticationFilterTests {
     //~ Methods ========================================================================================================

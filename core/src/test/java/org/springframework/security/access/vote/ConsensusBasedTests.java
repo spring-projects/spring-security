@@ -36,7 +36,6 @@ import org.springframework.security.core.authority.GrantedAuthorityImpl;
  * Tests {@link ConsensusBased}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class ConsensusBasedTests {
 

@@ -51,7 +51,6 @@ import org.springframework.web.filter.GenericFilterBean;
  * via an <code>AuthenticationManager</code>-specific application event.</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class RememberMeAuthenticationFilter extends GenericFilterBean implements ApplicationEventPublisherAware {
 

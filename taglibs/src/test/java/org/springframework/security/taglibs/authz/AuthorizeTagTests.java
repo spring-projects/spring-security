@@ -39,7 +39,6 @@ import org.springframework.web.context.support.StaticWebApplicationContext;
 /**
  * @author Francois Beausoleil
  * @author Luke Taylor
- * @version $Id$
  */
 public class AuthorizeTagTests {
     //~ Instance fields ================================================================================================

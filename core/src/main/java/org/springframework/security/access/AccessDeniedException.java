@@ -20,7 +20,6 @@ package org.springframework.security.access;
  * required authority.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AccessDeniedException extends RuntimeException {
     //~ Constructors ===================================================================================================

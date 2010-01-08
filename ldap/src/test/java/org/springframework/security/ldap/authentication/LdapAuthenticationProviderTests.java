@@ -41,7 +41,6 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
  * Tests {@link LdapAuthenticationProvider}.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class LdapAuthenticationProviderTests {
     Mockery jmock = new JUnit4Mockery();

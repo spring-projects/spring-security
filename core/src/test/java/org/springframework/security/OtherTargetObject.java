@@ -24,7 +24,6 @@ package org.springframework.security;
  * its parent class or classes).</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class OtherTargetObject extends TargetObject implements ITargetObject {
     //~ Methods ========================================================================================================

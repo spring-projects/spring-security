@@ -25,7 +25,6 @@ import org.springframework.security.core.Authentication;
  * for an {@link Authentication}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface SidRetrievalStrategy {
     //~ Methods ========================================================================================================

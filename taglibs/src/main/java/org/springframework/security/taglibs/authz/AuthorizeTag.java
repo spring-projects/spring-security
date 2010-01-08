@@ -29,7 +29,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * <li>by evaluating the current user's right to access a particular URL (set using the "url" attribute).</li>
  * </ul>
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class AuthorizeTag extends LegacyAuthorizeTag {

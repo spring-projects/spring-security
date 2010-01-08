@@ -24,7 +24,7 @@
                 <literal>&lt;http></literal> namespace configuration to make sure this service is
             available). So, for example, you might
             have<programlisting>&lt;sec:authorize access="hasRole('supervisor')">
-    
+
 This content will only be visible to users who have
 the "supervisor" authority in their list of &lt;tt>GrantedAuthority&lt;/tt>s.
 

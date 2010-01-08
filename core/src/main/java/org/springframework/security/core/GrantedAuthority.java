@@ -28,7 +28,6 @@ import org.springframework.security.access.AccessDecisionManager;
  * AccessDecisionManager}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface GrantedAuthority extends Serializable {
     //~ Methods ========================================================================================================

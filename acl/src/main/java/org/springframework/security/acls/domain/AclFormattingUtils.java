@@ -22,7 +22,6 @@ import org.springframework.util.Assert;
  * Utility methods for displaying ACL information.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public abstract class AclFormattingUtils {
 

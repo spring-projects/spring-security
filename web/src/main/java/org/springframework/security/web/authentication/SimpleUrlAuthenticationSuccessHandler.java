@@ -15,7 +15,6 @@ import org.springframework.security.core.Authentication;
  * The logic used is that of the {@link AbstractAuthenticationTargetUrlRequestHandler parent class}.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class SimpleUrlAuthenticationSuccessHandler extends AbstractAuthenticationTargetUrlRequestHandler implements AuthenticationSuccessHandler {

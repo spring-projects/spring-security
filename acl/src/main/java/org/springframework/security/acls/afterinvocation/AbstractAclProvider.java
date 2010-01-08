@@ -39,7 +39,6 @@ import org.springframework.util.Assert;
  * Abstract {@link AfterInvocationProvider} which provides commonly-used ACL-related services.
  *
  * @author Ben Alex
- * @version $Id$
   */
 public abstract class AbstractAclProvider implements AfterInvocationProvider {
     //~ Instance fields ================================================================================================

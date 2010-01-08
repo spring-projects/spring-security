@@ -27,7 +27,6 @@ import java.lang.reflect.Method;
  * A mock AspectJ <code>JoinPoint</code>.
  *
  * @author Ben Alex
- * @version $Id$
  */
 @SuppressWarnings("unchecked")
 public class MockJoinPoint implements JoinPoint {

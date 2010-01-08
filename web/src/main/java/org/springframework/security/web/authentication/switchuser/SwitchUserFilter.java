@@ -95,7 +95,6 @@ import org.springframework.web.filter.GenericFilterBean;
  * </pre>
  *
  * @author Mark St.Godard
- * @version $Id$
  *
  * @see org.springframework.security.web.authentication.switchuser.SwitchUserGrantedAuthority
  */

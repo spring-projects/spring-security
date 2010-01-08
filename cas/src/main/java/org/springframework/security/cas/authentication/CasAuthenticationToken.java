@@ -28,7 +28,6 @@ import org.springframework.security.core.userdetails.UserDetails;
  *
  * @author Ben Alex
  * @author Scott Battaglia
- * @version $Id$
  */
 public class CasAuthenticationToken extends AbstractAuthenticationToken implements Serializable {
     //~ Instance fields ================================================================================================

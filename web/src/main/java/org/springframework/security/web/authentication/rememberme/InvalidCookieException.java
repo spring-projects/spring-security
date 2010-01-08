@@ -5,7 +5,6 @@ package org.springframework.security.web.authentication.rememberme;
  * that a submitted cookie is of an invalid format or has expired.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class InvalidCookieException extends RememberMeAuthenticationException {
     public InvalidCookieException(String message) {

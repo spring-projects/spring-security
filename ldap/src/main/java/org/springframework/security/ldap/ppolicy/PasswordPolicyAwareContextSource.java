@@ -20,7 +20,6 @@ import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
  * sent with the response, even if an exception occurs.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class PasswordPolicyAwareContextSource extends DefaultSpringSecurityContextSource {

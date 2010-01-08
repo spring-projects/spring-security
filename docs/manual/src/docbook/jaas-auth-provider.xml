@@ -6,26 +6,26 @@
         <para>Spring Security provides a package able to delegate
             authentication requests to the Java Authentication and Authorization
             Service (JAAS). This package is discussed in detail below.</para>
-        
+
         <para>Central to JAAS operation are login configuration files. To
             learn more about JAAS login configuration files, consult the JAAS
             reference documentation available from Sun Microsystems. We expect you
             to have a basic understanding of JAAS and its login configuration file
             syntax in order to understand this section.</para>
     </section>
-    
+
     <section xml:id="jaas-config">
         <info><title>Configuration</title></info>
         <para>The <literal>JaasAuthenticationProvider</literal> attempts to
             authenticate a user’s principal and credentials through JAAS.</para>
-        
+
         <para>Let’s assume we have a JAAS login configuration file,
             <literal>/WEB-INF/login.conf</literal>, with the following
             contents:
 <programlisting>
 JAASTest {
     sample.SampleLoginModule required;
-};</programlisting></para>      
+};</programlisting></para>
         <para>Like all Spring Security beans, the
             <classname>JaasAuthenticationProvider</classname> is configured via the
             application context. The following definitions would correspond to the
@@ -37,9 +37,9 @@ JAASTest {
  <property name="loginContextName" value="JAASTest"/>
  <property name="callbackHandlers">
   <list>
-   <bean 
+   <bean
      class="org.springframework.security.authentication.jaas.JaasNameCallbackHandler"/>
-   <bean 
+   <bean
      class="org.springframework.security.authentication.jaas.JaasPasswordCallbackHandler"/>
   </list>
   </property>
@@ -48,19 +48,19 @@ JAASTest {
       <bean class="org.springframework.security.authentication.jaas.TestAuthorityGranter"/>
     </list>
   </property>
-</bean> 
+</bean>
 ]]></programlisting></para>
-        
+
         <para>The <literal>CallbackHandler</literal>s and
             <interfacename>AuthorityGranter</interfacename>s are discussed below.</para>
-        
+
         <section xml:id="jaas-callbackhandler">
             <info><title xml:id="jaas-callback-handler">JAAS CallbackHandler</title></info>
-            
+
             <para>Most JAAS <literal>LoginModule</literal>s require a callback
                 of some sort. These callbacks are usually used to obtain the
                 username and password from the user.</para>
-            
+
             <para>In a Spring Security deployment, Spring Security is
                 responsible for this user interaction (via the authentication
                 mechanism). Thus, by the time the authentication request is
@@ -69,7 +69,7 @@ JAASTest {
                 <interfacename>Authentication</interfacename> object containing all the
                 information required by the JAAS
                 <literal>LoginModule</literal>.</para>
-            
+
             <para>Therefore, the JAAS package for Spring Security provides two
                 default callback handlers,
                 <literal>JaasNameCallbackHandler</literal> and
@@ -78,7 +78,7 @@ JAASTest {
                 <literal>JaasAuthenticationCallbackHandler</literal>. In most cases
                 these callback handlers can simply be used without understanding the
                 internal mechanics.</para>
-            
+
             <para>For those needing full control over the callback behavior,
                 internally <literal>JaasAuthenticationProvider</literal> wraps these
                 <literal>JaasAuthenticationCallbackHandler</literal>s with an
@@ -93,10 +93,10 @@ JAASTest {
                 passed to the <literal>JaasAuthenticationCallbackHandler</literal>s
                 being wrapped.</para>
         </section>
-        
+
         <section xml:id="jaas-authoritygranter">
             <info><title xml:id="jaas-authority-granter">JAAS AuthorityGranter</title></info>
-            
+
             <para>JAAS works with principals. Even "roles" are represented as
                 principals in JAAS. Spring Security, on the other hand, works with
                 <interfacename>Authentication</interfacename> objects. Each
@@ -105,10 +105,10 @@ JAASTest {
                 facilitate mapping between these different concepts, Spring
                 Security's JAAS package includes an
                 <literal>AuthorityGranter</literal> interface.</para>
-            
+
             <para>An <literal>AuthorityGranter</literal> is responsible for
-                inspecting a JAAS principal and returning a set of 
-                <literal>String</literal>s, representing the authorities assigned to the principal. 
+                inspecting a JAAS principal and returning a set of
+                <literal>String</literal>s, representing the authorities assigned to the principal.
                 For each returned authority string, the
                 <classname>JaasAuthenticationProvider</classname> creates a
                 <classname>JaasGrantedAuthority</classname> (which implements Spring
@@ -124,7 +124,7 @@ JAASTest {
                 <interfacename>AuthorityGranter</interfacename> defined against the
                 <literal>JaasAuthenticationProvider.setAuthorityGranters(List)</literal>
                 property.</para>
-            
+
             <para>Spring Security does not include any production
                 <interfacename>AuthorityGranter</interfacename>s given that every JAAS principal
                 has an implementation-specific meaning. However, there is a

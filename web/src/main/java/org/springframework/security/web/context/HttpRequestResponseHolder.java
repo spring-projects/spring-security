@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
  * value.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class HttpRequestResponseHolder {

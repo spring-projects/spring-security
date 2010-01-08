@@ -2,7 +2,6 @@
 <!--
   - Tutorial web application
   -
-  - $Id: web.xml 2809 2008-03-26 15:27:09Z luke_t $
   -->
 
 <web-app xmlns="http://java.sun.com/xml/ns/j2ee"

@@ -19,7 +19,6 @@ package org.springframework.security.acls.model;
  * Thrown if an {@link Acl} cannot be deleted because children <code>Acl</code>s exist.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class ChildrenExistException extends AclDataAccessException {
     //~ Constructors ===================================================================================================

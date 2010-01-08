@@ -27,7 +27,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * Tests {@link BasicAuthenticationEntryPoint}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class BasicAuthenticationEntryPointTests extends TestCase {
     //~ Constructors ===================================================================================================

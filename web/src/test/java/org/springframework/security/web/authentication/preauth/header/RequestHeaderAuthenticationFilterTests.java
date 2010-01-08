@@ -21,7 +21,6 @@ import org.springframework.security.web.authentication.preauth.RequestHeaderAuth
 /**
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class RequestHeaderAuthenticationFilterTests {
 

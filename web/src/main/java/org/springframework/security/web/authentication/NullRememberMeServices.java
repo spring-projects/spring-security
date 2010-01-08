@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletResponse;
  * classes.</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class NullRememberMeServices implements RememberMeServices {
     //~ Methods ========================================================================================================

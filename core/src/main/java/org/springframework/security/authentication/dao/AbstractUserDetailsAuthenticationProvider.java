@@ -68,7 +68,6 @@ import org.springframework.util.Assert;
  * each request. The default cache implementation is therefore {@link NullUserCache}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public abstract class AbstractUserDetailsAuthenticationProvider implements AuthenticationProvider, InitializingBean,
         MessageSourceAware {

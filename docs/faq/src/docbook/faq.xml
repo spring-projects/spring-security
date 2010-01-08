@@ -167,7 +167,7 @@
     DEBUG [ExceptionTranslationFilter] - Access is denied (user is anonymous); redirecting to authentication entry point
     org.springframework.security.AccessDeniedException: Access is denied
     at org.springframework.security.vote.AffirmativeBased.decide(AffirmativeBased.java:68)
-    at org.springframework.security.intercept.AbstractSecurityInterceptor.beforeInvocation(AbstractSecurityInterceptor.java:262)    				
+    at org.springframework.security.intercept.AbstractSecurityInterceptor.beforeInvocation(AbstractSecurityInterceptor.java:262)
                 </programlisting>
                         It is normal and shouldn't be anything to worry about. </para></answer>
             </qandaentry>
@@ -225,10 +225,10 @@
                 <answer><para>Make sure you have added the listener to your web.xml file. It is
                         essential to make sure that the Spring Security session registry is notified
                         when a session is destroyed. Without it, the session information will not be
-                        removed from the registry.</para><programlisting><![CDATA[    
+                        removed from the registry.</para><programlisting><![CDATA[
     <listener>
         <listener-class>org.springframework.security.ui.session.HttpSessionEventPublisher</listener-class>
-    </listener> ]]>   				
+    </listener> ]]>
             </programlisting></answer>
             </qandaentry>
             <qandaentry xml:id="faq-no-filters-no-context">
@@ -288,20 +288,20 @@
                 <answer>
                     <para>Spring Security has a voter-based architecture which means that an access
                         decision is made by a series of <interfacename>AccessDecisionVoter</interfacename>s.
-                        The voters act on the <quote>configuration attributes</quote> which are specified for a 
+                        The voters act on the <quote>configuration attributes</quote> which are specified for a
                         secured resource (such as a method invocation). With this approach, not all attributes may
                         be relevant to all voters and a voter needs to know when it should ignore an attribute (abstain) and
-                        when it should vote to grant or deny access based on the attribute value. 
+                        when it should vote to grant or deny access based on the attribute value.
                         The most common voter is the <classname>RoleVoter</classname> which by default votes
                         whenever it finds an attribute with the <quote>ROLE_</quote> prefix. It makes a simple comparison
                         of the attribute (such as <quote>ROLE_USER</quote>) with the name names of the authorities which
-                        the current user has been assigned. If it finds a match (they have an authority called 
-                        <quote>ROLE_USER</quote>), it votes to grant access, otherwise it votes to deny access. 
+                        the current user has been assigned. If it finds a match (they have an authority called
+                        <quote>ROLE_USER</quote>), it votes to grant access, otherwise it votes to deny access.
                     </para>
                     <para>
-                        The prefix can be changed by setting the <literal>rolePrefix</literal> property of 
+                        The prefix can be changed by setting the <literal>rolePrefix</literal> property of
                         <classname>RoleVoter</classname>. If you only need to use roles in your application and have
-                        no need for other custom voters, then you can set the prefix to a blank string, in which case the 
+                        no need for other custom voters, then you can set the prefix to a blank string, in which case the
                         <classname>RoleVoter</classname> will treat all attributes as roles.
                     </para>
                 </answer>
@@ -379,26 +379,26 @@
                             contain.</para></footnote>. A very basic outline would look something
                         like this: <programlisting language="java"><![CDATA[
   public class MyFilterSecurityMetadataSource implements FilterInvocationSecurityMetadataSource {
-    
+
     public List<ConfigAttribute> getAttributes(Object object) {
-      FilterInvocation fi = (FilterInvocation) object; 
+      FilterInvocation fi = (FilterInvocation) object;
         String url = fi.getRequestUrl();
         String httpMethod = fi.getRequest().getMethod();
         List<ConfigAttribute> attributes = new ArrayList<ConfigAttribute>();
 
         // Lookup your database (or other source) using this information and populate the
         // list of attributes
-        
+
         return attributes;
-    }    
+    }
 
     public Collection<ConfigAttribute> getAllConfigAttributes() {
       return null;
     }
-    
+
     public boolean supports(Class<?> clazz) {
       return FilterInvocation.class.isAssignableFrom(clazz);
-    }    
+    }
   }
   ]]></programlisting> For more information, look at the code for
                             <classname>DefaultFilterInvocationSecurityMetadataSource</classname>.
@@ -445,13 +445,13 @@
   public class MyAuthoritiesPopulator implements LdapAuthoritiesPopulator {
     @Autowired
     JdbcTemplate template;
-  
+
     List<GrantedAuthority> getGrantedAuthorities(DirContextOperations userData, String username) {
       List<GrantedAuthority> = template.query("select role from roles where username = ?", new String[] {username}, new RowMapper<GrantedAuthority>() {
-        /** 
-         *  We're assuming here that you're using the standard convention of using the role 
+        /**
+         *  We're assuming here that you're using the standard convention of using the role
          *  prefix "ROLE_" to mark attributes which are supported by Spring Security's RoleVoter.
-         */   
+         */
         public GrantedAuthority mapRow(ResultSet rs, int rowNum) throws SQLException {
           return new GrantedAuthorityImpl("ROLE_" + rs.getString(1);
         }

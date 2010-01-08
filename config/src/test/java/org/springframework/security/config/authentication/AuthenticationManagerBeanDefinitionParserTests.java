@@ -19,7 +19,6 @@ import org.springframework.security.util.FieldUtils;
 /**
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class AuthenticationManagerBeanDefinitionParserTests {
     private static final String CONTEXT =

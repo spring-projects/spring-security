@@ -37,7 +37,6 @@ import org.springframework.util.Assert;
  * {@link GrantedAuthority} and injected into the constructor.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
     //~ Instance fields ================================================================================================

@@ -27,7 +27,6 @@ import org.springframework.security.core.Authentication;
  * A single instance should usually be shared amongst the beans that require expression support.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExpressionHandler {

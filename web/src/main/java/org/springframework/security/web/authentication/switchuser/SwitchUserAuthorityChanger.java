@@ -13,7 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails;
  * <p>Configured against the {@link SwitchUserFilter}.
  *
  * @author Ben Alex
- * @version $Id$
  *
  */
 public interface SwitchUserAuthorityChanger {

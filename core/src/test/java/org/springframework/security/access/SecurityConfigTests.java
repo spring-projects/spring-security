@@ -26,7 +26,6 @@ import org.springframework.security.access.SecurityConfig;
  * Tests {@link SecurityConfig}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class SecurityConfigTests {
 
@@ -37,7 +36,7 @@ public class SecurityConfigTests {
         SecurityConfig config = new SecurityConfig("TEST");
         Assert.assertEquals("TEST".hashCode(), config.hashCode());
     }
-    
+
     @Test(expected=IllegalArgumentException.class)
     public void testCannotConstructWithNullAttribute() {
            new SecurityConfig(null); // SEC-727
@@ -84,7 +83,7 @@ public class SecurityConfigTests {
         SecurityConfig config = new SecurityConfig("TEST");
         Assert.assertEquals("TEST", config.toString());
     }
-    
+
     //~ Inner Classes ==================================================================================================
 
     private class MockConfigAttribute implements ConfigAttribute {

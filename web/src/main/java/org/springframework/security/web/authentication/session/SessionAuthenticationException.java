@@ -8,7 +8,6 @@ import org.springframework.security.core.AuthenticationException;
  * concurrently.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class SessionAuthenticationException extends AuthenticationException {

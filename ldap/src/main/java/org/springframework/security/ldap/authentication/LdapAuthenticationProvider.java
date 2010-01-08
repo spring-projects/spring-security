@@ -122,7 +122,6 @@ import org.springframework.util.StringUtils;
  *
  *
  * @author Luke Taylor
- * @version $Id$
  *
  * @see BindAuthenticator
  * @see DefaultLdapAuthoritiesPopulator

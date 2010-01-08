@@ -9,7 +9,6 @@
 <!--
   - Application context containing the ACL beans.
   -
-  - $Id$
   -->
 
   <!-- ========= ACL SERVICE  DEFINITIONS ========= -->

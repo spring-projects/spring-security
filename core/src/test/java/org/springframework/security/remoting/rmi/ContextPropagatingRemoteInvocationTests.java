@@ -37,7 +37,6 @@ import java.lang.reflect.Method;
  * Tests {@link ContextPropagatingRemoteInvocation} and {@link ContextPropagatingRemoteInvocationFactory}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class ContextPropagatingRemoteInvocationTests extends TestCase {
 

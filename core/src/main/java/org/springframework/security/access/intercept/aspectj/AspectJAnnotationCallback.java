@@ -6,7 +6,6 @@ package org.springframework.security.access.intercept.aspectj;
  * AspectJ processing to continue.
  *
  * @author Mike Wiesner
- * @version $Id$
  */
 
 public interface AspectJAnnotationCallback {

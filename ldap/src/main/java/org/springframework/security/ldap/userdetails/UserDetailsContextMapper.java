@@ -27,7 +27,6 @@ import org.springframework.ldap.core.DirContextAdapter;
  *
  * @author Luke Taylor
  * @since 2.0
- * @version $Id$
  */
 public interface UserDetailsContextMapper {
 

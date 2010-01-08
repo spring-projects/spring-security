@@ -9,14 +9,13 @@ import org.springframework.beans.factory.DisposableBean;
  * shuts down the database when the application context it is defined in is closed.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class TestDataSource extends DriverManagerDataSource implements DisposableBean {
     String name;
 
     public TestDataSource(String databaseName) {
         name = databaseName;
-        System.out.println("Creating database: " + name);        
+        System.out.println("Creating database: " + name);
         setDriverClassName("org.hsqldb.jdbcDriver");
         setUrl("jdbc:hsqldb:mem:" + databaseName);
         setUsername("sa");

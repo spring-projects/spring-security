@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- 
-    Test File for use in validating behaviour in an XML editor 
---> 
+<!--
+    Test File for use in validating behaviour in an XML editor
+-->
 
 <b:beans xmlns="http://www.springframework.org/schema/security"
     xmlns:b="http://www.springframework.org/schema/beans"
@@ -25,14 +25,14 @@
     <filter-security-metadata-source>
         <intercept-url pattern=""/>
     </filter-security-metadata-source>
-    
-    
+
+
     <http>
         <access-denied-handler error-page="/go-away.html"/>
         <intercept-url pattern="/**" access="ROLE_USER" />
 
         <form-login />
-        <openid-login/>        
+        <openid-login/>
         <anonymous />
         <http-basic />
         <concurrent-session-control expired-url="/session-expired" max-sessions="1" session-registry-alias="sessionRegistry"/>

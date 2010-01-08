@@ -29,7 +29,6 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
  * Tests {@link SecurityContextHolderAwareRequestWrapper}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class SecurityContextHolderAwareRequestWrapperTests extends TestCase {
 

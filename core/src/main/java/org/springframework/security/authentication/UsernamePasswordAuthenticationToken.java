@@ -30,7 +30,6 @@ import org.springframework.security.core.GrantedAuthority;
  * is <code>String</code>.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationToken {
     //~ Instance fields ================================================================================================

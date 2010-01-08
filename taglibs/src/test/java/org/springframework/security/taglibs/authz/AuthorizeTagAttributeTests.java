@@ -32,7 +32,6 @@ import javax.servlet.jsp.tagext.Tag;
  * DOCUMENT ME!
  *
  * @author Francois Beausoleil
- * @version $Id$
  */
 public class AuthorizeTagAttributeTests extends TestCase {
     //~ Instance fields ================================================================================================

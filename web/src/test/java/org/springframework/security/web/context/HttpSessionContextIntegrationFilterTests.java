@@ -41,7 +41,6 @@ import org.springframework.security.core.context.SecurityContextImpl;
  * Tests {@link HttpSessionContextIntegrationFilter}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 @SuppressWarnings("deprecation")
 public class HttpSessionContextIntegrationFilterTests {

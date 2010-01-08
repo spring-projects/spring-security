@@ -27,7 +27,6 @@ import java.util.Map;
  * Performs lookups for {@link org.springframework.security.acls.model.AclService}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface LookupStrategy {
     //~ Methods ========================================================================================================

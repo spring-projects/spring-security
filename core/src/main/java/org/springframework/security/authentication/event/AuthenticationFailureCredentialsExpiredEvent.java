@@ -23,7 +23,6 @@ import org.springframework.security.core.AuthenticationException;
  * Application event which indicates authentication failure due to the user's credentials having expired.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AuthenticationFailureCredentialsExpiredEvent extends AbstractAuthenticationFailureEvent {
     //~ Constructors ===================================================================================================

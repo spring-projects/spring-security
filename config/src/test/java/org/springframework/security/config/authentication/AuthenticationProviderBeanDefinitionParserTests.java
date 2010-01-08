@@ -22,7 +22,6 @@ import java.util.List;
  * Tests for {@link AuthenticationProviderBeanDefinitionParser}.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class AuthenticationProviderBeanDefinitionParserTests {
     private AbstractXmlApplicationContext appContext;

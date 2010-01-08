@@ -16,7 +16,7 @@
       complexity from the user. A simple element may conceal the fact that multiple beans and
       processing steps are being added to the application context. For example, adding the following
       element from the security namespace to an application context will start up an embedded LDAP
-      server for testing use within the application: <programlisting language="xml"><![CDATA[ 
+      server for testing use within the application: <programlisting language="xml"><![CDATA[
   <security:ldap-server />
 ]]></programlisting> This is much simpler than wiring up the equivalent Apache Directory Server
       beans. The most common alternative configuration requirements are supported by attributes on
@@ -34,10 +34,10 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
   xmlns:security="http://www.springframework.org/schema/security"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans 
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-          http://www.springframework.org/schema/security 
-          http://www.springframework.org/schema/security/spring-security-3.0.xsd">  
+          http://www.springframework.org/schema/security
+          http://www.springframework.org/schema/security/spring-security-3.0.xsd">
     ...
 </beans>
   ]]></programlisting> In many of the examples you will see (and in the sample) applications, we
@@ -49,10 +49,10 @@
 <beans:beans xmlns="http://www.springframework.org/schema/security"
   xmlns:beans="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans 
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-           http://www.springframework.org/schema/security 
-           http://www.springframework.org/schema/security/spring-security-3.0.xsd"> 
+           http://www.springframework.org/schema/security
+           http://www.springframework.org/schema/security/spring-security-3.0.xsd">
     ...
 </beans:beans>
 ]]></programlisting> We'll assume this syntax is being used from now on in this chapter. </para>
@@ -101,11 +101,11 @@
   <filter-name>springSecurityFilterChain</filter-name>
   <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
 </filter>
-  
+
 <filter-mapping>
   <filter-name>springSecurityFilterChain</filter-name>
   <url-pattern>/*</url-pattern>
-</filter-mapping>]]>   
+</filter-mapping>]]>
       </programlisting> This provides a hook into the Spring Security web
         infrastructure. <classname>DelegatingFilterProxy</classname> is a Spring Framework class
         which delegates to a filter implementation which is defined as a Spring bean in your
@@ -224,7 +224,7 @@
           customize these options. For example, if you want to supply your own login page, you could
           use: <programlisting language="xml"><![CDATA[
   <http auto-config='true'>
-    <intercept-url pattern="/login.jsp*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>  
+    <intercept-url pattern="/login.jsp*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
     <intercept-url pattern="/**" access="ROLE_USER" />
     <form-login login-page='/login.jsp'/>
   </http>
@@ -243,8 +243,8 @@
           It is also possible to have all requests matching a particular pattern bypass the security
           filter chain completely: <programlisting language="xml"><![CDATA[
   <http auto-config='true'>
-    <intercept-url pattern="/css/**" filters="none"/>  
-    <intercept-url pattern="/login.jsp*" filters="none"/>    
+    <intercept-url pattern="/css/**" filters="none"/>
+    <intercept-url pattern="/login.jsp*" filters="none"/>
     <intercept-url pattern="/**" access="ROLE_USER" />
     <form-login login-page='/login.jsp'/>
   </http>
@@ -276,9 +276,9 @@
               <literal>always-use-default-target</literal> attribute to "true". This is useful if
             your application always requires that the user starts at a "home" page, for example: <programlisting language="xml"><![CDATA[
   <http>
-    <intercept-url pattern='/login.htm*' filters='none'/>  
+    <intercept-url pattern='/login.htm*' filters='none'/>
     <intercept-url pattern='/**' access='ROLE_USER' />
-    <form-login login-page='/login.htm' default-target-url='/home.htm' 
+    <form-login login-page='/login.htm' default-target-url='/home.htm'
             always-use-default-target='true' />
   </http>
   ]]>
@@ -315,8 +315,8 @@
   <authentication-manager>
     <authentication-provider user-service-ref='myUserDetailsService'/>
   </authentication-manager>
-  
-  <beans:bean id="myUserDetailsService" 
+
+  <beans:bean id="myUserDetailsService"
       class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl">
     <beans:property name="dataSource" ref="dataSource"/>
   </beans:bean>
@@ -341,9 +341,9 @@
   <authentication-provider>
     <password-encoder hash="sha"/>
     <user-service>
-      <user name="jimi" password="d7e6351eaa13189a5a3641bab846c8e8c69ba39f" 
+      <user name="jimi" password="d7e6351eaa13189a5a3641bab846c8e8c69ba39f"
             authorities="ROLE_USER, ROLE_ADMIN" />
-      <user name="bob" password="4e7421b1b8765d8f9406d87e7cc6aa784c4ab97f" 
+      <user name="bob" password="4e7421b1b8765d8f9406d87e7cc6aa784c4ab97f"
             authorities="ROLE_USER" />
     </user-service>
   </authentication-provider>
@@ -380,7 +380,7 @@
           <literal>requires-channel</literal> attribute on <literal>&lt;intercept-url&gt;</literal>: <programlisting language="xml"><![CDATA[
   <http>
     <intercept-url pattern="/secure/**" access="ROLE_USER" requires-channel="https"/>
-    <intercept-url pattern="/**" access="ROLE_USER" requires-channel="any"/>  
+    <intercept-url pattern="/**" access="ROLE_USER" requires-channel="any"/>
     ...
   </http>]]>
         </programlisting>With this configuration in place, if a user attempts to access
@@ -388,7 +388,7 @@
         HTTPS URL. The available options are "http", "https" or "any". Using the value "any" means
         that either HTTP or HTTPS can be used. </para>
       <para>If your application uses non-standard ports for HTTP and/or HTTPS, you can specify a
-        list of port mappings as follows: <programlisting><![CDATA[     
+        list of port mappings as follows: <programlisting><![CDATA[
   <http>
     ...
     <port-mappings>
@@ -404,7 +404,7 @@
         <title>Detecting Timeouts</title>
         <para> You can configure Spring Security to detect the submission of an invalid session ID
           and redirect the user to an appropriate URL. This is achieved through the
-            <literal>session-management</literal> element: <programlisting language="xml"><![CDATA[     
+            <literal>session-management</literal> element: <programlisting language="xml"><![CDATA[
   <http>
     ...
     <session-management invalid-session-url="/sessionTimeout.htm" />
@@ -416,13 +416,13 @@
           application, Spring Security supports this out of the box with the following simple
           additions. First you need to add the following listener to your
             <filename>web.xml</filename> file to keep Spring Security updated about session
-          lifecycle events: <programlisting language="xml"><![CDATA[         
+          lifecycle events: <programlisting language="xml"><![CDATA[
   <listener>
     <listener-class>
       org.springframework.security.web.session.HttpSessionEventPublisher
     </listener-class>
   </listener>
-]]></programlisting> Then add the following lines to your application context: <programlisting language="xml"><![CDATA[     
+]]></programlisting> Then add the following lines to your application context: <programlisting language="xml"><![CDATA[
   <http>
     ...
     <session-management>
@@ -431,7 +431,7 @@
   </http>]]>
         </programlisting> This will prevent a user from logging in multiple times - a
           second login will cause the first to be invalidated. Often you would prefer to prevent a
-          second login, in which case you can use <programlisting language="xml"><![CDATA[     
+          second login, in which case you can use <programlisting language="xml"><![CDATA[
   <http>
     ...
     <session-management>
@@ -579,8 +579,8 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
   <http>
      <custom-filter position="FORM_LOGIN_FILTER" ref="myFilter" />
   </http>
-          
-  <beans:bean id="myFilter" class="com.mycompany.MySpecialAuthenticationFilter"/> 
+
+  <beans:bean id="myFilter" class="com.mycompany.MySpecialAuthenticationFilter"/>
   ]]>
   </programlisting> You can also use the <literal>after</literal> or <literal>before</literal>
         attributes if you want your filter to be inserted before or after another filter in the
@@ -642,13 +642,13 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
           <interfacename>AccessDecisionManager</interfacename> for it to make the actual decision:
         <programlisting language="java">
   public interface BankService {
-  
+
     @Secured("IS_AUTHENTICATED_ANONYMOUSLY")
     public Account readAccount(Long id);
-  
+
     @Secured("IS_AUTHENTICATED_ANONYMOUSLY")
     public Account[] findAccounts();
-  
+
     @Secured("ROLE_TELLER")
     public Account post(Account account, double amount);
   }
@@ -661,10 +661,10 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
 
      @PreAuthorize("isAnonymous()")
      public Account readAccount(Long id);
-     
+
      @PreAuthorize("isAnonymous()")
      public Account[] findAccounts();
-     
+
      @PreAuthorize("hasAuthority('ROLE_TELLER')")
      public Account post(Account account, double amount);
    }
@@ -675,7 +675,7 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
           you to apply security to many beans with only a simple declaration. Consider the following
           example: <programlisting language="xml"><![CDATA[
   <global-method-security>
-    <protect-pointcut expression="execution(* com.mycompany.*Service.*(..))" 
+    <protect-pointcut expression="execution(* com.mycompany.*Service.*(..))"
          access="ROLE_USER"/>
   </global-method-security>
 ]]>
@@ -712,12 +712,12 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
           <literal>global-method-security</literal> to the Id of the appropriate
           <interfacename>AccessDecisionManager</interfacename> bean in the application context: <programlisting language="xml"><![CDATA[
   <global-method-security access-decision-manager-ref="myAccessDecisionManagerBean">
-    ... 
+    ...
   </global-method-security>
   ]]></programlisting></para>
       <para> The syntax for web security is the same, but on the <literal>http</literal> element: <programlisting language="xml"><![CDATA[
   <http access-decision-manager-ref="myAccessDecisionManagerBean">
-    ... 
+    ...
   </http>
   ]]></programlisting></para>
     </section>
@@ -742,7 +742,7 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
     <authentication-provider ref="casAuthenticationProvider"/>
   </authentication-manager>
 
-  <bean id="casAuthenticationProvider" 
+  <bean id="casAuthenticationProvider"
       class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
     ...
   </bean>
@@ -750,12 +750,12 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
     <para> Another common requirement is that another bean in the context may require a reference to
       the <interfacename>AuthenticationManager</interfacename>. You can easily register an alias for
       the <interfacename>AuthenticationManager</interfacename> and use this name elsewhere in your
-      application context. <programlisting language="xml"><![CDATA[        
-  <security:authentication-manager alias="authenticationManager"> 
+      application context. <programlisting language="xml"><![CDATA[
+  <security:authentication-manager alias="authenticationManager">
      ...
   </security:authentication-manager>
 
-  <bean id="customizedFormLoginFilter" 
+  <bean id="customizedFormLoginFilter"
         class="com.somecompany.security.web.CustomFormLoginFilter">
      <property name="authenticationManager" ref="authenticationManager"/>
      ...

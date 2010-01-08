@@ -20,7 +20,6 @@ package org.springframework.security.core;
  * reason.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public abstract class AuthenticationException extends RuntimeException {
     //~ Instance fields ================================================================================================

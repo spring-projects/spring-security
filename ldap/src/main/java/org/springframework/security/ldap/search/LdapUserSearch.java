@@ -28,7 +28,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  * </p>
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public interface LdapUserSearch {
     //~ Methods ========================================================================================================

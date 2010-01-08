@@ -22,7 +22,6 @@ import org.springframework.security.web.access.intercept.DefaultFilterInvocation
 /**
  * Tests for {@link FilterInvocationSecurityMetadataSourceParser}.
  * @author Luke Taylor
- * @version $Id$
  */
 public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
     private AbstractXmlApplicationContext appContext;

@@ -26,7 +26,6 @@ import org.springframework.security.authentication.jaas.AuthorityGranter;
 /**
  *
  * @author Ray Krueger
- * @version $Id$
  */
 public class TestAuthorityGranter implements AuthorityGranter {
     //~ Methods ========================================================================================================

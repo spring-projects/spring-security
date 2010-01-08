@@ -26,7 +26,6 @@ import org.springframework.security.core.Authentication;
  * proceed.</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AuthorizedEvent extends AbstractAuthorizationEvent {
     //~ Instance fields ================================================================================================

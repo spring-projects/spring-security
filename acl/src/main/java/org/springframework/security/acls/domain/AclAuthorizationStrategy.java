@@ -23,7 +23,6 @@ import org.springframework.security.acls.model.Acl;
  * adminstrative methods on the <code>AclImpl</code>.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface AclAuthorizationStrategy {
     //~ Static fields/initializers =====================================================================================

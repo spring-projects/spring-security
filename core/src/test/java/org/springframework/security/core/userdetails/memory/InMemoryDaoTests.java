@@ -29,7 +29,6 @@ import java.util.Properties;
  * Tests {@link InMemoryDaoImpl}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class InMemoryDaoTests extends TestCase {
     //~ Constructors ===================================================================================================

@@ -60,7 +60,7 @@
             from the security namespace. This can be configured to point at an external LDAP server,
             using the <literal>url</literal> attribute: <programlisting><![CDATA[
   <ldap-server url="ldap://springframework.org:389/dc=springframework,dc=org" />
-]]> 
+]]>
             </programlisting></para>
         <section>
             <info>
@@ -70,7 +70,7 @@
                 embedded server, which can be very useful for testing and demonstrations. In this
                 case you use it without the <literal>url</literal> attribute: <programlisting><![CDATA[
   <ldap-server root="dc=springframework,dc=org"/>
- ]]> 
+ ]]>
     </programlisting> Here we've specified that the root DIT of the directory should be
                     <quote>dc=springframework,dc=org</quote>, which is the default. Used this way,
                 the namespace parser will create an embedded Apache Directory server and scan the
@@ -96,7 +96,7 @@
                 that user with the login password. This is OK if all your users are stored under a
                 single node in the directory. If instead you wished to configure an LDAP search
                 filter to locate the user, you could use the following: <programlisting><![CDATA[
-  <ldap-authentication-provider user-search-filter="(uid={0})" 
+  <ldap-authentication-provider user-search-filter="(uid={0})"
           user-search-base="ou=people"/>
                     ]]></programlisting> If used with the server definition above, this would
                 perform a search under the DN <literal>ou=people,dc=springframework,dc=org</literal>
@@ -134,7 +134,7 @@
                             on the login name.</para>
                     </listitem>
                 </itemizedlist> So if we used the following configuration <programlisting><![CDATA[
-  <ldap-authentication-provider user-dn-pattern="uid={0},ou=people" 
+  <ldap-authentication-provider user-dn-pattern="uid={0},ou=people"
           group-search-base="ou=groups" />
     ]]></programlisting> and authenticated successfully as user <quote>ben</quote>, the subsequent
                 loading of authorities would perform a search under the directory entry
@@ -314,7 +314,7 @@
    </bean>
  </constructor-arg>
  <constructor-arg>
-   <bean 
+   <bean
      class="org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator">
      <constructor-arg ref="contextSource"/>
      <constructor-arg value="ou=groups"/>
@@ -338,7 +338,7 @@
   <constructor-arg index="0" value=""/>
   <constructor-arg index="1" value="(uid={0})"/>
   <constructor-arg index="2" ref="contextSource" />
-</bean> ]]>                    
+</bean> ]]>
                 </programlisting> and use it by setting the
                     <classname>BindAuthenticator</classname> bean's <property>userSearch</property>
                 property. The authenticator would then call the search object to obtain the correct
@@ -359,11 +359,11 @@
                 provider's <interfacename>UserDetailsContextMapper</interfacename> strategy, which
                 is responsible for mapping user objects to and from LDAP context data: <programlisting><![CDATA[
 public interface UserDetailsContextMapper {
-  UserDetails mapUserFromContext(DirContextOperations ctx, String username, 
+  UserDetails mapUserFromContext(DirContextOperations ctx, String username,
           Collection<GrantedAuthority> authorities);
 
   void mapUserToContext(UserDetails user, DirContextAdapter ctx);
-}]]>                    
+}]]>
                 </programlisting> Only the first method is relevant for
                 authentication. If you provide an implementation of this interface, you can control
                 exactly how the UserDetails object is created. The first parameter is an instance of

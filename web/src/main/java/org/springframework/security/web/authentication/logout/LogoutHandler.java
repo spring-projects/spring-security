@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
  * Called by {@link LogoutFilter}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface LogoutHandler {
     //~ Methods ========================================================================================================

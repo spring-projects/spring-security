@@ -8,7 +8,6 @@ import org.springframework.security.core.context.SecurityContext;
  * represented by a security context) has ended.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public abstract class SessionDestroyedEvent extends ApplicationEvent {

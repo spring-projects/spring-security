@@ -26,7 +26,6 @@ import java.util.List;
  * Interface for the application's services layer.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface ContactManager {
     //~ Methods ========================================================================================================

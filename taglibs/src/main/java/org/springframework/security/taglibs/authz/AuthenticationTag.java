@@ -39,7 +39,6 @@ import javax.servlet.jsp.tagext.TagSupport;
  * Whilst JSPs can access the <code>SecurityContext</code> directly, this tag avoids handling <code>null</code> conditions.
  *
  * @author Thomas Champagne
- * @version $Id$
  */
 public class AuthenticationTag extends TagSupport {
 

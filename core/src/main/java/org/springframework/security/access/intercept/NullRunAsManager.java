@@ -27,7 +27,6 @@ import org.springframework.security.core.Authentication;
  * This class should be used if you do not require run-as authentication replacement functionality.
  *
  * @author Ben Alex
- * @version $Id$
  */
 final class NullRunAsManager implements RunAsManager {
     //~ Methods ========================================================================================================

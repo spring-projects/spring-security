@@ -20,7 +20,6 @@ import org.w3c.dom.Element;
 /**
  * @author Luke Taylor
  * @author Ben Alex
- * @version $Id$
  */
 class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_DATA_SOURCE = "data-source-ref";

@@ -43,7 +43,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * for you.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface Authentication extends Principal, Serializable {
     //~ Methods ========================================================================================================

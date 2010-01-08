@@ -27,7 +27,6 @@ import org.springframework.security.core.AuthenticationException;
  * on a production system</b>.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class TestingAuthenticationProvider implements AuthenticationProvider {
     //~ Methods ========================================================================================================

@@ -8,7 +8,6 @@ import org.springframework.util.Assert;
  * Could probably make more use of the classes in java.net for this.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 2.0
  */
 public class RedirectUrlBuilder {
@@ -79,7 +78,7 @@ public class RedirectUrlBuilder {
         if (query != null) {
             sb.append("?").append(query);
         }
-        
+
         return sb.toString();
     }
 }

@@ -26,7 +26,6 @@ import org.springframework.security.authentication.encoding.LdapShaPasswordEncod
  * Tests {@link LdapShaPasswordEncoder}.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class LdapShaPasswordEncoderTests {
     //~ Instance fields ================================================================================================

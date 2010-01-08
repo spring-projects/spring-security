@@ -20,7 +20,6 @@ package org.springframework.security.authentication;
  * whether or not the credentials were valid.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class DisabledException extends AccountStatusException {
     //~ Constructors ===================================================================================================

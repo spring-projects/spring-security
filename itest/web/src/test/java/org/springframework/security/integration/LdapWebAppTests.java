@@ -4,7 +4,6 @@ import org.testng.annotations.*;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class LdapWebAppTests extends AbstractWebServerIntegrationTests {
 

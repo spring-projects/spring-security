@@ -41,7 +41,6 @@ import org.springframework.util.StringUtils;
  * </li>
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public abstract class AbstractAuthenticationTargetUrlRequestHandler {

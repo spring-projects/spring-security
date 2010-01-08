@@ -26,7 +26,6 @@ import org.springframework.util.Assert;
  * wish to provide an alternative <code>Sid</code> implementation that uses some other identifier.</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class GrantedAuthoritySid implements Sid {
     //~ Instance fields ================================================================================================

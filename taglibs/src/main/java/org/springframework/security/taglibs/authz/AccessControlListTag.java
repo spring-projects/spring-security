@@ -66,7 +66,6 @@ import org.springframework.web.util.ExpressionEvaluationUtils;
  * implementations are found in the application context.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AccessControlListTag extends TagSupport {
     //~ Static fields/initializers =====================================================================================

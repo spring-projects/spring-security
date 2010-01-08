@@ -110,7 +110,7 @@ public class RoleHierarchyImplTests extends TestCase {
             fail("A cycle in role hierarchy was incorrectly detected!");
         }
     }
-    
+
     // SEC-863
     public void testSimpleRoleHierarchyWithCustomGrantedAuthorityImplementation() {
 

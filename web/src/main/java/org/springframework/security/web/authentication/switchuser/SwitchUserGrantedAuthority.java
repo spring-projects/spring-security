@@ -24,7 +24,6 @@ import org.springframework.security.core.authority.GrantedAuthorityImpl;
  * the <code>Authentication</code> object of the original user to be used later when 'exiting' from a user switch.</p>
  *
  * @author Mark St.Godard
- * @version $Id$
  *
  * @see org.springframework.security.web.authentication.switchuser.SwitchUserFilter
  */

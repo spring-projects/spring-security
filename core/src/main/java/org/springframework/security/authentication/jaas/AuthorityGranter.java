@@ -28,7 +28,6 @@ import java.util.Set;
  * role for instance.
  *
  * @author Ray Krueger
- * @version $Id$
  */
 public interface AuthorityGranter {
     //~ Methods ========================================================================================================

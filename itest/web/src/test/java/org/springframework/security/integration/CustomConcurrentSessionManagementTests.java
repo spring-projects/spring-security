@@ -7,7 +7,6 @@ import org.testng.annotations.Test;
 
 /**
  * @author Luke Taylor
- * @version $Id: InMemoryProviderWebAppTests.java 3949 2009-10-11 15:24:17Z ltaylor $
  */
 public class CustomConcurrentSessionManagementTests extends AbstractWebServerIntegrationTests {
 

@@ -16,7 +16,6 @@ import org.junit.Test;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class SpringSecurityAuthenticationSourceTests {
     @Before

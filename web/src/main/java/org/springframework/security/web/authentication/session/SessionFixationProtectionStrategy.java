@@ -29,7 +29,6 @@ import org.springframework.security.web.savedrequest.DefaultSavedRequest;
  * If concurrent session control is in use, then a <tt>SessionRegistry</tt> must be injected.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class SessionFixationProtectionStrategy implements SessionAuthenticationStrategy {

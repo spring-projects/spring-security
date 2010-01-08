@@ -25,7 +25,6 @@ import org.springframework.security.authentication.encoding.BasePasswordEncoder;
  * <p>TestCase for BasePasswordEncoder.</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class BasePasswordEncoderTests extends TestCase {
     //~ Methods ========================================================================================================

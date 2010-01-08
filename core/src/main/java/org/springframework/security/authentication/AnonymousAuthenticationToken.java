@@ -27,7 +27,6 @@ import java.util.List;
  * Represents an anonymous <code>Authentication</code>.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AnonymousAuthenticationToken extends AbstractAuthenticationToken implements Serializable {
     //~ Instance fields ================================================================================================

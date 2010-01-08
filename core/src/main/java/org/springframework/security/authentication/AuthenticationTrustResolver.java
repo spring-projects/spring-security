@@ -21,7 +21,6 @@ import org.springframework.security.core.Authentication;
  * Evaluates <code>Authentication</code> tokens
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface AuthenticationTrustResolver {
     //~ Methods ========================================================================================================

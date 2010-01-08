@@ -25,7 +25,6 @@ import org.springframework.util.Assert;
  * Abstract application event which indicates authentication failure for some reason.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public abstract class AbstractAuthenticationFailureEvent extends AbstractAuthenticationEvent {
     //~ Instance fields ================================================================================================

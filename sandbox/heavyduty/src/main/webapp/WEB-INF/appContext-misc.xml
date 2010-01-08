@@ -4,7 +4,6 @@
   |
   |  Miscellaneous beans added just to test configuration options
   |
-  |  $Id$ 
   -->
 
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -38,7 +37,7 @@
             ]]></value>
         </property>
     </bean>
-    
+
     <bean id="basicProcessingFilter" class="org.springframework.security.ui.basicauth.BasicProcessingFilter">
         <property name="authenticationManager" ref="authenticationManager"/>
         <property name="authenticationEntryPoint" ref="basicProcessingFilterEntryPoint"/>
@@ -47,20 +46,20 @@
     <bean id="basicProcessingFilterEntryPoint" class="org.springframework.security.ui.basicauth.BasicProcessingFilterEntryPoint">
         <property name="realmName"><value>My Realm</value></property>
     </bean>
-    
-	<bean id="bankServiceSecurityInterceptor"
-	    class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
-	  <property name="authenticationManager" ref="authenticationManager"/>
-	  <property name="accessDecisionManager" ref="accessDecisionManager"/>
-	  <!-- property name="afterInvocationManager" ref="afterInvocationManager"/ -->
-	  <property name="objectDefinitionSource">
-	    <value>
-	        bigbank.BankService.post*=ROLE_SUPERVISOR
-	        bigbank.BankService.find*=ROLE_SUPERVISOR
-	    </value>
-	  </property>
+
+    <bean id="bankServiceSecurityInterceptor"
+        class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor">
+      <property name="authenticationManager" ref="authenticationManager"/>
+      <property name="accessDecisionManager" ref="accessDecisionManager"/>
+      <!-- property name="afterInvocationManager" ref="afterInvocationManager"/ -->
+      <property name="objectDefinitionSource">
+        <value>
+            bigbank.BankService.post*=ROLE_SUPERVISOR
+            bigbank.BankService.find*=ROLE_SUPERVISOR
+        </value>
+      </property>
     </bean>
 
 </beans>
-                        
-                        
+
+

@@ -56,7 +56,6 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  * @author Johannes Zlattinger
- * @version $Id$
  */
 public class JdbcMutableAclService extends JdbcAclService implements MutableAclService {
     //~ Instance fields ================================================================================================

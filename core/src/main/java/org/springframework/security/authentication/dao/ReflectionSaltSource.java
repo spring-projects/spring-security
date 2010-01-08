@@ -37,7 +37,6 @@ import java.beans.PropertyDescriptor;
  * likely to change.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class ReflectionSaltSource implements SaltSource, InitializingBean {
     //~ Instance fields ================================================================================================

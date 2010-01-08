@@ -22,7 +22,6 @@ import org.springframework.security.core.AuthenticationException;
  * backend authentication repository is  unavailable.</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AuthenticationServiceException extends AuthenticationException {
     //~ Constructors ===================================================================================================

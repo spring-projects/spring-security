@@ -33,7 +33,6 @@ import org.springframework.security.core.userdetails.UserDetails;
  *
  * @author Ben Alex
  * @author Luke Taylor
- * @version $Id$
  */
 public abstract class AbstractAuthenticationToken implements Authentication {
     //~ Instance fields ================================================================================================

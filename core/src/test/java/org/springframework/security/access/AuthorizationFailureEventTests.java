@@ -27,7 +27,6 @@ import org.springframework.security.util.SimpleMethodInvocation;
  * Tests {@link AuthorizationFailureEvent}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AuthorizationFailureEventTests {
 

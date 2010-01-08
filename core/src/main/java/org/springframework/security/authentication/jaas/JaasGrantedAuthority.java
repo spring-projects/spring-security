@@ -25,7 +25,6 @@ import java.security.Principal;
  * Authority. <br>
  *
  * @author Ray Krueger
- * @version $Id$
  *
  * @see AuthorityGranter
  */

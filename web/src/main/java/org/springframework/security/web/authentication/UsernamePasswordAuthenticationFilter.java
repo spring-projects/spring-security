@@ -43,7 +43,6 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @author Colin Sampaleanu
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class UsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {

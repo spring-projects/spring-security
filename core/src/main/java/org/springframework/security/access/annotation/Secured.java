@@ -40,7 +40,6 @@ import java.lang.annotation.Target;
  *     public void delete(Contact contact);
  * </pre>
  * @author Mark St.Godard
- * @version $Id$
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)

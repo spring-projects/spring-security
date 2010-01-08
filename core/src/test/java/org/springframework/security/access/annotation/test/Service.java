@@ -22,7 +22,6 @@ import java.util.Collection;
  * An interface that uses Java 5 generics.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface Service<E extends Entity> {
     //~ Methods ========================================================================================================

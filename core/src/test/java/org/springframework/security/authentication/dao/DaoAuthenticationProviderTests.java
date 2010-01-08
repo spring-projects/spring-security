@@ -45,7 +45,6 @@ import org.springframework.security.core.userdetails.cache.NullUserCache;
  * Tests {@link DaoAuthenticationProvider}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class DaoAuthenticationProviderTests extends TestCase {
     private static final List<GrantedAuthority> ROLES_12 = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");

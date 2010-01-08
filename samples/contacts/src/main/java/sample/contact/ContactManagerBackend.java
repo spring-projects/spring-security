@@ -46,7 +46,6 @@ import java.util.Random;
  * Concrete implementation of {@link ContactManager}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 @Transactional
 public class ContactManagerBackend extends ApplicationObjectSupport implements ContactManager, InitializingBean {

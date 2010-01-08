@@ -14,7 +14,6 @@ import org.w3c.dom.Element;
 /**
  * @author Luke Taylor
  * @author Ben Alex
- * @version $Id$
  */
 class LogoutBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_LOGOUT_SUCCESS_URL = "logout-success-url";

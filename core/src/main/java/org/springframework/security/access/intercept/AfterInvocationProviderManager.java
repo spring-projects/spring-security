@@ -41,7 +41,6 @@ import org.springframework.util.Assert;
  * object invocation did not include a configuration attribute a given provider is configured to respond to).
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AfterInvocationProviderManager implements AfterInvocationManager, InitializingBean {
     //~ Static fields/initializers =====================================================================================

@@ -19,7 +19,6 @@ package sample.contact;
  * An object that represents user-editable sections of a {@link Contact}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class WebContact {
     //~ Instance fields ================================================================================================

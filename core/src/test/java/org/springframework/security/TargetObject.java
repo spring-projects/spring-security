@@ -23,7 +23,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * Represents a secured object.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class TargetObject implements ITargetObject {
     //~ Methods ========================================================================================================

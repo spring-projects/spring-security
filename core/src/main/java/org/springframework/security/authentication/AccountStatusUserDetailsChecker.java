@@ -7,7 +7,6 @@ import org.springframework.context.support.MessageSourceAccessor;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class AccountStatusUserDetailsChecker implements UserDetailsChecker {
 

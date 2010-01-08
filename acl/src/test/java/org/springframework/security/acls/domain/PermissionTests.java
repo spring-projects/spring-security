@@ -25,7 +25,6 @@ import org.springframework.security.acls.model.Permission;
  * Tests classes associated with Permission.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class PermissionTests {
 

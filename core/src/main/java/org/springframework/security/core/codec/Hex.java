@@ -7,7 +7,6 @@ package org.springframework.security.core.codec;
  * For internal use only.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public final class Hex {

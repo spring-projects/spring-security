@@ -7,7 +7,6 @@ import org.springframework.security.core.Authentication;
  * Interface that allows for retrieving a UserDetails object based on an <tt>Authentication</tt> object.
  *
  * @author Ruud Senden
- * @version $Id$
  * @since 2.0
  */
 public interface AuthenticationUserDetailsService {

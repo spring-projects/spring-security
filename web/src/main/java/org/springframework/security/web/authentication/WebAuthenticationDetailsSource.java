@@ -33,7 +33,6 @@ import javax.servlet.http.HttpServletRequest;
  * <code>HttpServletRequest</code> as its sole constructor can be used instead of this default.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class WebAuthenticationDetailsSource implements AuthenticationDetailsSource {
     //~ Instance fields ================================================================================================

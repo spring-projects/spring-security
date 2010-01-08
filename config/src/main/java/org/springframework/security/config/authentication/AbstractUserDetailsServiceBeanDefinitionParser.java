@@ -17,7 +17,6 @@ import org.w3c.dom.Element;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public abstract class AbstractUserDetailsServiceBeanDefinitionParser implements BeanDefinitionParser {
     static final String CACHE_REF = "cache-ref";

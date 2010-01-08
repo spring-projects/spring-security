@@ -592,7 +592,7 @@ Successfully authenticated. Security context contains: \
       below:</para>
     <para>
       <programlisting><![CDATA[
-<bean id="messageSource" 
+<bean id="messageSource"
     class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
   <property name="basename" value="org/springframework/security/messages"/>
 </bean>

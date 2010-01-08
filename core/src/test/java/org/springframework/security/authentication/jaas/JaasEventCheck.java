@@ -23,7 +23,6 @@ import org.springframework.security.authentication.jaas.event.JaasAuthentication
 
 /**
  * @author Ray Krueger
- * @version $Id$
  */
 public class JaasEventCheck implements ApplicationListener<JaasAuthenticationEvent> {
     //~ Instance fields ================================================================================================

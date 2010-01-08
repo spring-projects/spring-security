@@ -5,7 +5,6 @@
   -
   - Used by all artifacts.
   -
-  - $Id$
   -->
 
 <beans xmlns="http://www.springframework.org/schema/beans"

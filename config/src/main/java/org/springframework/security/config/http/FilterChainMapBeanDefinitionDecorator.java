@@ -20,7 +20,6 @@ import java.util.*;
  * Sets the filter chain Map for a FilterChainProxy bean declaration.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDecorator {
 

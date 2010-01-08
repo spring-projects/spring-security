@@ -27,7 +27,6 @@ import org.springframework.context.support.ResourceBundleMessageSource;
  * specified an alternative message source.</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class SpringSecurityMessageSource extends ResourceBundleMessageSource {
     //~ Constructors ===================================================================================================

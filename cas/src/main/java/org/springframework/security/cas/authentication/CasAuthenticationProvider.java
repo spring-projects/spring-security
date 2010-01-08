@@ -46,7 +46,6 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  * @author Scott Battaglia
- * @version $Id$
  */
 public class CasAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
 

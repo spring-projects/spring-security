@@ -28,7 +28,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * Tests {@link UsernamePasswordAuthenticationToken}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class UsernamePasswordAuthenticationTokenTests {
 

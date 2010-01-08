@@ -57,7 +57,6 @@ import org.springframework.security.core.Authentication;
  *
  * @author Ben Alex
  * @author Paulo Neves
- * @version $Id$
  */
 public class AclEntryAfterInvocationCollectionFilteringProvider extends AbstractAclProvider {
     //~ Static fields/initializers =====================================================================================

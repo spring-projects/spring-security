@@ -26,7 +26,6 @@ package org.springframework.security.authentication.encoding;
  * @author Ray Krueger
  * @author colin sampaleanu
  * @author Ben Alex
- * @version $Id$
  */
 public class Md5PasswordEncoder extends MessageDigestPasswordEncoder {
 

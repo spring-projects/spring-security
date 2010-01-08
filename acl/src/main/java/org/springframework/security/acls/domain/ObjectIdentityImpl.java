@@ -29,7 +29,6 @@ import org.springframework.util.ClassUtils;
  * reflection to build the identity information.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class ObjectIdentityImpl implements ObjectIdentity {
     //~ Instance fields ================================================================================================

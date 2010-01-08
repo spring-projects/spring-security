@@ -15,7 +15,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * Base root object for use in Spring Security expression evaluations.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public abstract class SecurityExpressionRoot {

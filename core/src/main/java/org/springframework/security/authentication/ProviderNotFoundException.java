@@ -24,7 +24,6 @@ import org.springframework.security.core.AuthenticationException;
  * presented {@link org.springframework.security.core.Authentication} object.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class ProviderNotFoundException extends AuthenticationException {
     //~ Constructors ===================================================================================================

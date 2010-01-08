@@ -33,7 +33,6 @@ import org.springframework.security.ldap.authentication.PasswordComparisonAuthen
 /**
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class PasswordComparisonAuthenticatorMockTests {
     Mockery jmock = new JUnit4Mockery();

@@ -62,7 +62,6 @@ import org.w3c.dom.Element;
  *
  * @author Ben Alex
  * @author Luke Taylor
- * @version $Id$
  * @since 2.0
  */
 public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {

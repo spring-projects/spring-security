@@ -33,7 +33,6 @@ import org.springframework.util.Assert;
  * The context mapper used by the LDAP authentication provider to create an LDAP user object.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class LdapUserDetailsMapper implements UserDetailsContextMapper {
     //~ Instance fields ================================================================================================

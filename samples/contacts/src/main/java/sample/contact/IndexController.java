@@ -20,7 +20,6 @@ import org.springframework.web.servlet.ModelAndView;
  * Controller which handles simple, single request use cases such as index pages and contact deletion.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 @Controller

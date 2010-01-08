@@ -86,7 +86,6 @@ import org.springframework.security.core.context.SecurityContextImpl;
  *
  * @deprecated Use SecurityContextPersistenceFilter instead.
  *
- * @version $Id$
  */
 public class HttpSessionContextIntegrationFilter extends SecurityContextPersistenceFilter implements InitializingBean {
     //~ Static fields/initializers =====================================================================================

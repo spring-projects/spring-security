@@ -38,7 +38,6 @@ import org.springframework.security.core.AuthenticationException;
  * Tests {@link UsernamePasswordAuthenticationFilter}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class UsernamePasswordAuthenticationFilterTests extends TestCase {
     //~ Methods ========================================================================================================

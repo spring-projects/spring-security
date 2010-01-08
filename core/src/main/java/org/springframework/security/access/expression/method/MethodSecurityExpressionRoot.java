@@ -11,7 +11,6 @@ import org.springframework.security.core.Authentication;
  * Extended expression root object which contains extra method-specific functionality.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 class MethodSecurityExpressionRoot extends SecurityExpressionRoot {

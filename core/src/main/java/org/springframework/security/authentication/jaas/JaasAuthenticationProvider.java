@@ -125,7 +125,6 @@ import org.springframework.util.Assert;
  * </p>
  *
  * @author Ray Krueger
- * @version $Id$
  */
 public class JaasAuthenticationProvider implements AuthenticationProvider, ApplicationEventPublisherAware,
         InitializingBean, ApplicationListener<SessionDestroyedEvent> {

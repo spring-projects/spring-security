@@ -89,7 +89,6 @@ import java.util.Set;
  * a search of the entire subtree under <tt>groupSearchBase</tt>.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator {
     //~ Static fields/initializers =====================================================================================

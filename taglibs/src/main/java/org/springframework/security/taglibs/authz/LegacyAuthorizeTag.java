@@ -37,7 +37,6 @@ import org.springframework.web.util.ExpressionEvaluationUtils;
  * are granted to the request's principal.
  *
  * @author Francois Beausoleil
- * @version $Id$
  */
 public class LegacyAuthorizeTag extends TagSupport {
     //~ Instance fields ================================================================================================

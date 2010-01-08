@@ -27,7 +27,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  * Tests {@link JdbcDaoImpl}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class JdbcDaoImplTests extends TestCase {
 

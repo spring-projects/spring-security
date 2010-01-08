@@ -28,7 +28,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * Tests {@link LdapUserDetailsMapper}.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class LdapUserDetailsMapperTests extends TestCase {
 

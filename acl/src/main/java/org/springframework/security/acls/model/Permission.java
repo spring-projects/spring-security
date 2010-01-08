@@ -20,7 +20,6 @@ import java.io.Serializable;
  * Represents a permission granted to a <tt>Sid</tt> for a given domain object.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface Permission extends Serializable {
     //~ Static fields/initializers =====================================================================================

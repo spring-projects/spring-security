@@ -32,7 +32,6 @@ import java.util.TimeZone;
  *
  * @author Remy Maucherat
  * @author Andrey Grebnev
- * @version $Id$
  */
 public class FastHttpDateFormat {
     //~ Static fields/initializers =====================================================================================

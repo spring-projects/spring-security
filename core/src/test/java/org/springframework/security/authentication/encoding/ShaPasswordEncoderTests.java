@@ -26,7 +26,6 @@ import junit.framework.TestCase;
  * @author colin sampaleanu
  * @author Ben Alex
  * @author Ray Krueger
- * @version $Id$
  */
 public class ShaPasswordEncoderTests extends TestCase {
     //~ Methods ========================================================================================================

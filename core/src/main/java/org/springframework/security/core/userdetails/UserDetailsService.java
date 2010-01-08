@@ -31,7 +31,6 @@ import org.springframework.dao.DataAccessException;
  * @see UserDetails
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface UserDetailsService {
     //~ Methods ========================================================================================================

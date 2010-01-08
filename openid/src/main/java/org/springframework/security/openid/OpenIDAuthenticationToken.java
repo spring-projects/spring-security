@@ -25,7 +25,6 @@ import org.springframework.security.core.GrantedAuthority;
  * OpenID Authentication Token
  *
  * @author Robin Bramley
- * @version $Id$
  */
 public class OpenIDAuthenticationToken extends AbstractAuthenticationToken {
     //~ Instance fields ================================================================================================

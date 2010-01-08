@@ -29,7 +29,6 @@ import java.net.URLEncoder;
  * Tests {@link CasAuthenticationEntryPoint}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class CasAuthenticationEntryPointTests extends TestCase {
     //~ Methods ========================================================================================================

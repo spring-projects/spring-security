@@ -13,7 +13,6 @@
   - declared in the application context in the same order. Collaborators
   - required by those filters are placed at the end of the file.
   -
-  - $Id: applicationContext-acegi-security.xml 2366 2007-12-11 19:18:44Z benalex $
   -->
 
 <beans>

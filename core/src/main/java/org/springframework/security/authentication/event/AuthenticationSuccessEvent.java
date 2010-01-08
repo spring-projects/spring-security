@@ -22,7 +22,6 @@ import org.springframework.security.core.Authentication;
  * Application event which indicates successful authentication.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AuthenticationSuccessEvent extends AbstractAuthenticationEvent {
     //~ Constructors ===================================================================================================

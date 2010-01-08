@@ -9,7 +9,6 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class LogoutHandlerTests extends TestCase {
     LogoutFilter filter;

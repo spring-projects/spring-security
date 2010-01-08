@@ -19,7 +19,6 @@ package org.springframework.security;
  * Represents the interface of a secured object.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface ITargetObject {
     //~ Methods ========================================================================================================

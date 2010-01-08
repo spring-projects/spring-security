@@ -59,7 +59,6 @@ import org.springframework.util.StringUtils;
  * @author Robin Bramley
  * @author Ray Krueger
  * @author Luke Taylor
- * @version $Id$
  * @since 2.0
  * @see OpenIDAuthenticationProvider
  */

@@ -25,7 +25,6 @@ import org.springframework.security.access.intercept.NullRunAsManager;
  * Tests {@link NullRunAsManager}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class NullRunAsManagerTests extends TestCase {
     //~ Methods ========================================================================================================

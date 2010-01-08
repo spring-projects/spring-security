@@ -7,7 +7,6 @@ package bigbank;
  * as opposed to what they ideally would be doing.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class Account {
     private long id = -1;

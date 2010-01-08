@@ -23,7 +23,6 @@ import java.lang.reflect.Method;
  * mechanism to define various ways to label data.
  *
  * @author Greg Turnquist
- * @version $Id$
  */
 public interface LabelParameterStrategy {
     //~ Methods ========================================================================================================

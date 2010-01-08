@@ -38,7 +38,6 @@ import java.util.List;
  * it's important that you take this into account when using this implementation for managing your users.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 2.0
  */
 public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsManager, GroupManager {

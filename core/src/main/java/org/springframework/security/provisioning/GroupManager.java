@@ -15,7 +15,6 @@ import org.springframework.security.core.GrantedAuthority;
  * are assigned to the group, providing more flexible administration options.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public interface GroupManager {
 

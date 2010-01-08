@@ -21,7 +21,6 @@ import org.springframework.security.util.FieldUtils;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class LdapProviderBeanDefinitionParserTests {
     InMemoryXmlApplicationContext appCtx;

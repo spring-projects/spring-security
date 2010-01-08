@@ -23,7 +23,6 @@ import org.springframework.security.core.AuthenticationException;
  * Application event which indicates authentication failure due to invalid credentials being presented.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AuthenticationFailureBadCredentialsEvent extends AbstractAuthenticationFailureEvent {
     //~ Constructors ===================================================================================================

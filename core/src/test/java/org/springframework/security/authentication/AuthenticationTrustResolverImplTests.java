@@ -28,7 +28,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * Tests {@link org.springframework.security.authentication.AuthenticationTrustResolverImpl}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AuthenticationTrustResolverImplTests extends TestCase {
 

@@ -36,7 +36,6 @@ import org.springframework.security.ldap.server.ApacheDSContainer;
  * Based on class borrowed from Spring Ldap project.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public abstract class AbstractLdapIntegrationTests {
 //    private static InMemoryXmlApplicationContext appContext;

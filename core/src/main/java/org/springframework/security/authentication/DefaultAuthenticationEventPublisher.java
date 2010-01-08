@@ -37,7 +37,6 @@ import org.springframework.util.Assert;
  * and provides its constructor. The <tt>additionalExceptionMappings</tt> will be merged with the default ones.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class DefaultAuthenticationEventPublisher implements AuthenticationEventPublisher,

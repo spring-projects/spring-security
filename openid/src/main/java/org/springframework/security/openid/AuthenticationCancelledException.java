@@ -21,7 +21,6 @@ import org.springframework.security.core.AuthenticationException;
  * Indicates that OpenID authentication was cancelled
  *
  * @author Robin Bramley, Opsera Ltd
- * @version $Id$
  */
 public class AuthenticationCancelledException extends AuthenticationException {
     //~ Constructors ===================================================================================================

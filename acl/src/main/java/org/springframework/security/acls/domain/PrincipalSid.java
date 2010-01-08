@@ -28,7 +28,6 @@ import org.springframework.util.Assert;
  * objects may wish to provide an alternative <code>Sid</code> implementation that uses some other identifier.</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class PrincipalSid implements Sid {
     //~ Instance fields ================================================================================================

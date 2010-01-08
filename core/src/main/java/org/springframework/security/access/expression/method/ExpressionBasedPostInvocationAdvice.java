@@ -14,7 +14,6 @@ import org.springframework.security.core.Authentication;
 /**
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class ExpressionBasedPostInvocationAdvice implements PostInvocationAuthorizationAdvice{

@@ -29,7 +29,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * Tests {@link RunAsManagerImpl}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class RunAsManagerImplTests extends TestCase {
     public void testAlwaysSupportsClass() {

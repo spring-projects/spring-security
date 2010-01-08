@@ -21,7 +21,6 @@ import org.springframework.security.acls.domain.BasePermission;
  * Model object for add permission use case.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AddPermission {
     //~ Instance fields ================================================================================================

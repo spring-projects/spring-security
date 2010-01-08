@@ -32,7 +32,6 @@ import org.springframework.security.core.userdetails.UserDetails;
  * Tests for {@link JdbcUserDetailsManager}
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class JdbcUserDetailsManagerTests {
     private static final String SELECT_JOE_SQL = "select * from users where username = 'joe'";

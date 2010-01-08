@@ -15,7 +15,6 @@ import org.springframework.security.core.Authentication;
  * passing it the <tt>PostInvocationAttribute</tt> created from @PostAuthorize and @PostFilter annotations.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class PostInvocationAdviceProvider implements AfterInvocationProvider {

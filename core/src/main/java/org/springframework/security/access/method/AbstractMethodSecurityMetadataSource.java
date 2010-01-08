@@ -38,7 +38,6 @@ import java.util.Collection;
  *
  * @author Ben Alex
  * @author Luke Taylor
- * @version $Id$
  */
 public abstract class AbstractMethodSecurityMetadataSource implements MethodSecurityMetadataSource {
 

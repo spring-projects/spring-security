@@ -80,7 +80,6 @@ import org.springframework.util.ReflectionUtils;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class HttpSecurityBeanDefinitionParserTests {
     private static final int AUTO_CONFIG_FILTERS = 11;

@@ -41,7 +41,6 @@ import org.springframework.util.Assert;
  * </p>
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData {
 

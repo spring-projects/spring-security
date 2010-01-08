@@ -40,7 +40,6 @@ import org.springframework.util.ClassUtils;
  * </p>
  *
  * @author Ben Alex
- * @version $Id$
  * @since 2.0
  */
 public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethodSecurityMetadataSource implements BeanClassLoaderAware {

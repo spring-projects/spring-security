@@ -37,7 +37,6 @@ import org.springframework.security.util.FieldUtils;
  * Tests {@link EhCacheBasedAclCache}
  *
  * @author Andrei Stefan
- * @version $Id$
  */
 public class EhCacheBasedAclCacheTests {
     private static final String TARGET_CLASS = "org.springframework.security.acls.TargetObject";

@@ -26,7 +26,6 @@ import org.w3c.dom.Element;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class LdapUserServiceBeanDefinitionParserTests {
     private InMemoryXmlApplicationContext appCtx;

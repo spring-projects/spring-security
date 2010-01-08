@@ -48,7 +48,6 @@ import org.apache.commons.logging.LogFactory;
  * @author Andrey Grebnev
  * @author Ben Alex
  * @author Luke Taylor
- * @version $Id$
  */
 class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
     //~ Static fields/initializers =====================================================================================

@@ -26,7 +26,6 @@ import org.springframework.ldap.core.DirContextOperations;
  * and obtain the information for that user from the directory.
  *
  * @author Luke Taylor
- * @version $Id$
  *
  * @see org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator
  * @see org.springframework.security.ldap.authentication.UserDetailsServiceLdapAuthoritiesPopulator

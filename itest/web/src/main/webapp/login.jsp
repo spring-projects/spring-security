@@ -10,13 +10,13 @@
 <body>
   <h1>Custom Spring Security Login</h1>
 
-<% 
+<%
 	if (request.getParameter("login_error") != null) {
 %>
       <font color="red">
         Your login attempt was not successful, try again.<br/><br/>
       </font>
-<% 
+<%
 	}
 %>
 

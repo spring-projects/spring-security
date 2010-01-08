@@ -13,7 +13,6 @@ import org.springframework.util.FileCopyUtils;
  *
  * @author Ben Alex
  * @since 2.0.1
- * @version $Id$
  */
 public class SecureRandomFactoryBean implements FactoryBean<SecureRandom> {
 

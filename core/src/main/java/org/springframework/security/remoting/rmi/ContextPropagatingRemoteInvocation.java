@@ -41,7 +41,6 @@ import java.lang.reflect.InvocationTargetException;
  *
  * @author James Monaghan
  * @author Ben Alex
- * @version $Id$
  */
 public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
     //~ Static fields/initializers =====================================================================================

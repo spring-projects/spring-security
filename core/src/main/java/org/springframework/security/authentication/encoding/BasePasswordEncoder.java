@@ -19,7 +19,6 @@ package org.springframework.security.authentication.encoding;
  * <p>Convenience base for all password encoders.</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public abstract class BasePasswordEncoder implements PasswordEncoder {
     //~ Methods ========================================================================================================

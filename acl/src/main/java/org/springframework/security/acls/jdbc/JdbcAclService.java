@@ -43,7 +43,6 @@ import org.springframework.util.Assert;
  * detect changed parameters easily.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class JdbcAclService implements AclService {
     //~ Static fields/initializers =====================================================================================

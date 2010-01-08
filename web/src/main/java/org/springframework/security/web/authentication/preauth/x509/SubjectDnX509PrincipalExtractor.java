@@ -24,7 +24,6 @@ import java.util.regex.Matcher;
  * user name "jimi@hendrix.org"
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor {
     //~ Instance fields ================================================================================================

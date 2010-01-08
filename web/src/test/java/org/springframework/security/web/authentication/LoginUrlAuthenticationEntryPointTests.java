@@ -34,7 +34,6 @@ import java.util.Map;
  *
  * @author Ben Alex
  * @author colin sampaleanu
- * @version $Id$
  */
 public class LoginUrlAuthenticationEntryPointTests extends TestCase {
     //~ Methods ========================================================================================================

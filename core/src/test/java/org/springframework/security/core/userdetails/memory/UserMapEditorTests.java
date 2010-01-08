@@ -26,7 +26,6 @@ import org.springframework.security.core.userdetails.memory.UserMapEditor;
  * Tests {@link UserMapEditor}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class UserMapEditorTests extends TestCase {
     //~ Constructors ===================================================================================================

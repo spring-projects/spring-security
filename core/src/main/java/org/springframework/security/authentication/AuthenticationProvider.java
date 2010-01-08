@@ -24,7 +24,6 @@ import org.springframework.security.core.AuthenticationException;
  * org.springframework.security.core.Authentication} implementation.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface AuthenticationProvider {
     //~ Methods ========================================================================================================

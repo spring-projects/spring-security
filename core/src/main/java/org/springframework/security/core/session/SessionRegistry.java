@@ -21,7 +21,6 @@ import java.util.List;
  * Maintains a registry of <code>SessionInformation</code> instances.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface SessionRegistry {
     //~ Methods ========================================================================================================

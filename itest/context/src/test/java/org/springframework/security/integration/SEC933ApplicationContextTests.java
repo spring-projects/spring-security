@@ -15,7 +15,7 @@ public class SEC933ApplicationContextTests {
 
     @Autowired
     private UserDetailsService userDetailsService;
-    
+
     @Test
     public void testSimpleApplicationContextBootstrap() throws Exception {
         assertNotNull(userDetailsService);

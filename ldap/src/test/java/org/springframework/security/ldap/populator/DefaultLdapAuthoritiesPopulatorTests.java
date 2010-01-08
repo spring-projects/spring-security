@@ -33,7 +33,6 @@ import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopul
 /**
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegrationTests {
     private DefaultLdapAuthoritiesPopulator populator;

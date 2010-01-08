@@ -12,7 +12,6 @@ import org.springframework.util.Assert;
  * fetch request, or to hold values for an attribute which are returned during the authentication process.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class OpenIDAttribute implements Serializable {

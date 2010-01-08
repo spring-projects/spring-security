@@ -22,7 +22,6 @@ import org.springframework.security.core.AuthenticationException;
  * thrown, it means the account is neither locked nor disabled.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class BadCredentialsException extends AuthenticationException {
     //~ Constructors ===================================================================================================

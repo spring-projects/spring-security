@@ -14,7 +14,6 @@ import org.w3c.dom.Element;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
     private static final String CONTEXT_SOURCE_CLASS="org.springframework.security.ldap.DefaultSpringSecurityContextSource";

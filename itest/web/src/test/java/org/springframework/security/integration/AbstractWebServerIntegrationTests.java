@@ -24,7 +24,6 @@ import org.testng.annotations.BeforeClass;
  * starting up the webapp.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public abstract class AbstractWebServerIntegrationTests {
     private Server server;

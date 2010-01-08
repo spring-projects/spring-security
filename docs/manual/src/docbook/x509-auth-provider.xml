@@ -1,8 +1,8 @@
 <chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="x509">
     <info><title>X.509 Authentication</title></info>
-    
+
     <section xml:id="x509-overview"><info><title>Overview</title></info>
-        
+
         <para>The most common use of X.509 certificate authentication is in verifying the identity
             of a server when using SSL, most commonly when using HTTPS from a browser. The browser
             will automatically check that the certificate presented by a server has been issued (ie
@@ -13,7 +13,7 @@
             will authenticate the client by checking that its certificate is signed by an
             acceptable authority. If a valid certificate has been provided, it can be obtained
             through the servlet API in an application. Spring Security X.509 module extracts the
-            certificate using a filter. It maps the certificate to an application user and loads that 
+            certificate using a filter. It maps the certificate to an application user and loads that
             user's set of granted authorities for use with the standard Spring Security infrastructure.</para>
         <para>You should be familiar with using certificates and setting up client authentication
             for your servlet container before attempting to use it with Spring Security. Most of the
@@ -22,7 +22,7 @@
             you get this working before trying it out with Spring Security</para>
     </section>
     <section><info><title>Adding X.509 Authentication to Your Web Application</title></info>
-        
+
         <para> Enabling X.509 client authentication is very straightforward. Just add the <literal>&lt;x509/&gt;</literal> element to your http security namespace configuration. <programlisting>
 &lt;http&gt;
  ...
@@ -55,31 +55,31 @@
     </section>
     <section xml:id="x509-ssl-config">
         <info><title>Setting up SSL in Tomcat</title></info>
-        
-        <para>There are some pre-generated certificates in the  
-            <filename>samples/certificate</filename> directory in the Spring Security project.  
+
+        <para>There are some pre-generated certificates in the
+            <filename>samples/certificate</filename> directory in the Spring Security project.
             You can use these to enable SSL for testing if you don't want to generate your own. The file
                 <filename>server.jks</filename> contains the server certificate, private key and the
-            issuing certificate authority certificate. There are also some client certificate files 
-            for the users from the sample applications. You can install these in your browser to enable 
+            issuing certificate authority certificate. There are also some client certificate files
+            for the users from the sample applications. You can install these in your browser to enable
             SSL client authentication.
         </para>
         <para>
-            To run tomcat with SSL support, drop the <filename>server.jks</filename> file into the 
+            To run tomcat with SSL support, drop the <filename>server.jks</filename> file into the
             tomcat <filename>conf</filename> directory and add the following connector to the
-            <filename>server.xml</filename> file 
-                <programlisting> 
+            <filename>server.xml</filename> file
+                <programlisting>
 &lt;Connector port="8443" protocol="HTTP/1.1" SSLEnabled="true" scheme="https" secure="true"
-            clientAuth="true" sslProtocol="TLS" 
+            clientAuth="true" sslProtocol="TLS"
             keystoreFile="${catalina.home}/conf/server.jks"
             keystoreType="JKS" keystorePass="password"
             truststoreFile="${catalina.home}/conf/server.jks"
             truststoreType="JKS" truststorePass="password"
-/&gt; 
+/&gt;
                 </programlisting>
             <parameter>clientAuth</parameter> can also be set to <parameter>want</parameter> if you still
             want SSL connections to succeed even if the client doesn't provide a certificate.
-            Clients which don't present a certificate won't be able to access any objects secured by 
+            Clients which don't present a certificate won't be able to access any objects secured by
             Spring Security unless you use a non-X.509 authentication mechanism, such as form authentication.
         </para>
     </section>

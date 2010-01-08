@@ -24,7 +24,6 @@ import junit.framework.TestCase;
  * Tests {@link org.springframework.security.web.authentication.NullRememberMeServices}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class NullRememberMeServicesTests extends TestCase {
     //~ Methods ========================================================================================================

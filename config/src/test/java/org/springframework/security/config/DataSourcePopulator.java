@@ -25,7 +25,6 @@ import org.springframework.util.Assert;
  * Populates a database with test data for JDBC testing.
  *
  * @author Ben Alex
- * @version $Id: DataSourcePopulator.java 2291 2007-12-03 02:56:52Z benalex $
  */
 public class DataSourcePopulator implements InitializingBean {
     //~ Instance fields ================================================================================================

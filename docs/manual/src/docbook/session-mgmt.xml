@@ -38,23 +38,23 @@
         <classname>AbstractAuthenticationProcessingFilter</classname>, so if you are using a
       customized form-login class, for example, you will need to inject it into both of these. In
       this case, a typical configuration, combining the namespace and custom beans might look like this:<programlisting><![CDATA[
-  <http>  
-    <custom-filter position="FORM_LOGIN_FILTER" ref="myAuthFilter" />     
-    <session-management session-authentication-strategy-ref="sas"/>      
+  <http>
+    <custom-filter position="FORM_LOGIN_FILTER" ref="myAuthFilter" />
+    <session-management session-authentication-strategy-ref="sas"/>
   </http>
-  
-  <beans:bean id="myAuthFilter" 
+
+  <beans:bean id="myAuthFilter"
       class="org.springframework.security.web.authentcation.UsernamePasswordAuthenticationFilter">
     <beans:property name="sessionAuthenticationStrategy" ref="sas" />
     ...
   </beans:bean>
-  
-  <beans:bean id="sas" 
+
+  <beans:bean id="sas"
       class="org.springframework.security.web.session.DefaultAuthenticatedSessionStrategy">
     <beans:property name="sessionRegistry" ref="sessionRegistry" />
     <beans:property name="maximumSessions" value="1" />
   </beans:bean>
-]]>       
+]]>
       </programlisting></para>
   </section>
   <section xml:id="concurrent-sessions">
@@ -87,7 +87,7 @@
     <listener-class>
       org.springframework.security.web.session.HttpSessionEventPublisher
     </listener-class>
-  </listener> ]]>       
+  </listener> ]]>
         </programlisting></para>
     <para>In addition, you will need to add the <literal>ConcurrentSessionFilter</literal> to your
         <classname>FilterChainProxy</classname>. The <classname>ConcurrentSessionFilter</classname>
@@ -97,32 +97,32 @@
       to create the <classname>FilterChainProxy</classname> and other default beans might look like
       this: <programlisting><![CDATA[
   <http>
-    <custom-filter position="CONCURRENT_SESSION_FILTER" ref="concurrencyFilter" />  
-    <custom-filter position="AUTHENTICATION_PROCESSING_FILTER" ref="myAuthFilter" />     
-        
-    <session-management session-authentication-strategy-ref="sas"/>      
+    <custom-filter position="CONCURRENT_SESSION_FILTER" ref="concurrencyFilter" />
+    <custom-filter position="AUTHENTICATION_PROCESSING_FILTER" ref="myAuthFilter" />
+
+    <session-management session-authentication-strategy-ref="sas"/>
   </http>
-  
-  <beans:bean id="concurrencyFilter" 
+
+  <beans:bean id="concurrencyFilter"
       class="org.springframework.security.web.session.ConcurrentSessionFilter">
     <beans:property name="sessionRegistry" ref="sessionRegistry" />
     <beans:property name="expiredUrl" value="/session-expired.htm" />
   </beans:bean>
-  
-  <beans:bean id="myAuthFilter" 
+
+  <beans:bean id="myAuthFilter"
       class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
     <beans:property name="sessionAuthenticationStrategy" ref="sas" />
     <beans:property name="authenticationManager" ref="authenticationManager" />
   </beans:bean>
-  
-  <beans:bean id="sas" 
+
+  <beans:bean id="sas"
       class="org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy">
     <beans:constructor-arg name="sessionRegistry" ref="sessionRegistry" />
     <beans:property name="maximumSessions" value="1" />
   </beans:bean>
-  
+
   <beans:bean id="sessionRegistry" class="org.springframework.security.core.session.SessionRegistryImpl" />
-]]>       
+]]>
     </programlisting></para>
     <para>Adding the listener to <filename>web.xml</filename> causes an
         <literal>ApplicationEvent</literal> to be published to the Spring

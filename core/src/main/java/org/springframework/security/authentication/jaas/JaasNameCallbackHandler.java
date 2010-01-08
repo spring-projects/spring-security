@@ -32,7 +32,6 @@ import javax.security.auth.callback.UnsupportedCallbackException;
  * handling the NameCallback. <br>
  *
  * @author Ray Krueger
- * @version $Id$
  *
  * @see <a href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/callback/Callback.html">Callback</a>
  * @see <a

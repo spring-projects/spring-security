@@ -25,7 +25,6 @@ import java.lang.reflect.Method;
  * Represents the AOP Alliance <code>MethodInvocation</code>.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class SimpleMethodInvocation implements MethodInvocation {
     //~ Instance fields ================================================================================================

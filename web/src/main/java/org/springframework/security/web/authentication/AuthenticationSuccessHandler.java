@@ -17,7 +17,6 @@ import org.springframework.security.core.Authentication;
  * (see {@link AbstractAuthenticationProcessingFilter} and subclasses). Other logic may also be included if required.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  * @see
  */

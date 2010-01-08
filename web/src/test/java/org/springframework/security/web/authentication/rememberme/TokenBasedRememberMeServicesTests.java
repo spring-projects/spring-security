@@ -45,7 +45,6 @@ import org.springframework.util.StringUtils;
  * Tests {@link org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class TokenBasedRememberMeServicesTests {
     private Mockery jmock = new JUnit4Mockery();

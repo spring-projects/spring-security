@@ -31,7 +31,6 @@ import org.w3c.dom.Node;
  * @author Luke Taylor
  * @author Ben Alex
  * @since 2.0
- * @version $Id$
  */
 public final class SecurityNamespaceHandler implements NamespaceHandler {
     private final Map<String, BeanDefinitionParser> parsers = new HashMap<String, BeanDefinitionParser>();

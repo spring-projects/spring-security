@@ -18,7 +18,6 @@ import org.springframework.security.core.Authentication;
  * Tests for {@link MethodSecurityExpressionRoot}
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class MethodSecurityExpressionRootTests {
     SpelExpressionParser parser = new SpelExpressionParser();

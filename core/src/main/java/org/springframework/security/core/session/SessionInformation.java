@@ -33,7 +33,6 @@ import java.io.Serializable;
  * reached). An "expired" session is removed as soon as possible by a <code>Filter</code>.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class SessionInformation implements Serializable {
     //~ Instance fields ================================================================================================

@@ -22,7 +22,6 @@ import org.springframework.security.core.AuthenticationException;
  * An abstract implementation of the {@link AuthenticationManager}.
  *
  * @author Wesley Hall
- * @version $Id$
  */
 public abstract class AbstractAuthenticationManager implements AuthenticationManager {
 
@@ -77,7 +76,7 @@ public abstract class AbstractAuthenticationManager implements AuthenticationMan
      * before rethrowing it. This is useful for use with remoting protocols where the information shouldn't
      * be serialized to the client. Defaults to 'false'.
      *
-     * @see org.springframework.security.core.AuthenticationException#getExtraInformation()  
+     * @see org.springframework.security.core.AuthenticationException#getExtraInformation()
      */
     public void setClearExtraInformation(boolean clearExtraInformation) {
         this.clearExtraInformation = clearExtraInformation;

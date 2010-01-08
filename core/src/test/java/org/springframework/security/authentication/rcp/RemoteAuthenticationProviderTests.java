@@ -29,7 +29,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * Tests {@link RemoteAuthenticationProvider}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class RemoteAuthenticationProviderTests extends TestCase {
     //~ Methods ========================================================================================================

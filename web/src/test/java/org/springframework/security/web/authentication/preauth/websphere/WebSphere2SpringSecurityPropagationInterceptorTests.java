@@ -21,7 +21,6 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 /**
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class WebSphere2SpringSecurityPropagationInterceptorTests {

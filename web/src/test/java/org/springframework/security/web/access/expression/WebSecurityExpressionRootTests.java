@@ -16,7 +16,6 @@ import org.springframework.security.web.access.expression.WebSecurityExpressionR
  * Tests for {@link WebSecurityExpressionRoot}.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class WebSecurityExpressionRootTests {

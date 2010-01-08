@@ -26,7 +26,6 @@ import org.springframework.security.util.SimpleMethodInvocation;
  * Tests {@link AuthenticationCredentialsNotFoundEvent}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AuthenticationCredentialsNotFoundEventTests {
 

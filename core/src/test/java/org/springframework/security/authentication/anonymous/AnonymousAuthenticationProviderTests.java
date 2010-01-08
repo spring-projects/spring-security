@@ -32,7 +32,6 @@ import org.springframework.security.core.authority.GrantedAuthorityImpl;
  * Tests {@link AnonymousAuthenticationProvider}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AnonymousAuthenticationProviderTests extends TestCase {
 

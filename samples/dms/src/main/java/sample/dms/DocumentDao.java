@@ -4,7 +4,6 @@ package sample.dms;
 /**
  *
  * @author Ben Alex
- * @version $Id$
  *
  */
 public interface DocumentDao {

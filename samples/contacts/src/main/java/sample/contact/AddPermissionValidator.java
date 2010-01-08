@@ -25,7 +25,6 @@ import org.springframework.validation.Validator;
  * Validates {@link AddPermission}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AddPermissionValidator implements Validator {
     //~ Methods ========================================================================================================

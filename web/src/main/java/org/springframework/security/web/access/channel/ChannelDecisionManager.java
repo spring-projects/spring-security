@@ -28,7 +28,6 @@ import javax.servlet.ServletException;
  * Decides whether a web channel provides sufficient security.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface ChannelDecisionManager {
     //~ Methods ========================================================================================================

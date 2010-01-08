@@ -39,7 +39,7 @@
         methods to obtain this information:
         <programlisting language="java">
   protected abstract Object getPreAuthenticatedPrincipal(HttpServletRequest request);
-  
+
   protected abstract Object getPreAuthenticatedCredentials(HttpServletRequest request);
 </programlisting>
         After calling these, the filter will create a
@@ -90,7 +90,7 @@
         <programlisting language="java">
   public interface AuthenticationUserDetailsService {
     UserDetails loadUserDetails(Authentication token) throws UsernameNotFoundException;
-  }  
+  }
 </programlisting>
         This interface may have also other uses but with pre-authentication it allows access to the
         authorities which were packaged in the <interfacename>Authentication</interfacename> object,
@@ -141,8 +141,8 @@
     <!-- Additional http configuration omitted -->
     <security:custom-filter ref="siteminderFilter" />
   </security:http>
-  
-	<bean id="siteminderFilter" class=
+
+    <bean id="siteminderFilter" class=
 "org.springframework.security.web.authentication.preauth.header.RequestHeaderAuthenticationFilter">
     <property name="principalRequestHeader" value="SM_USER"/>
     <property name="authenticationManager" ref="authenticationManager" />
@@ -151,17 +151,17 @@
   <bean id="preauthAuthProvider"
 class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">
     <property name="preAuthenticatedUserDetailsService">
-      <bean id="userDetailsServiceWrapper" 
+      <bean id="userDetailsServiceWrapper"
           class="org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper">
         <property name="userDetailsService" ref="userDetailsService"/>
-      </bean>    
+      </bean>
     </property>
-	</bean>
-	
-	<security:authentication-manager alias="authenticationManager">
-	  <security:authentication-provider ref="preauthAuthProvider" />
-	</security-authentication-manager>
-]]>  
+    </bean>
+
+    <security:authentication-manager alias="authenticationManager">
+      <security:authentication-provider ref="preauthAuthProvider" />
+    </security-authentication-manager>
+]]>
 </programlisting> We've assumed here that the security namespace is being used for
           configuration (hence the user of the <literal>custom-filter</literal>,
             <literal>authentication-manager</literal> and

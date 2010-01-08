@@ -42,7 +42,6 @@ import org.springframework.util.Assert;
  * be caught and displayed to the user, enabling them to retry with alternative credentials etc.</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class RemoteAuthenticationProvider implements AuthenticationProvider, InitializingBean {
     //~ Instance fields ================================================================================================

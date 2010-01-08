@@ -20,7 +20,6 @@ package org.springframework.security.access.vote;
  * <code>SomeDomainObject</code>.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class SomeDomainObjectManager {
     //~ Methods ========================================================================================================

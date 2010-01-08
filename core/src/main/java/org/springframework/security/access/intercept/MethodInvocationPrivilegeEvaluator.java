@@ -37,7 +37,6 @@ import org.springframework.util.Assert;
  * allowed to at least attempt to invoke the method, irrespective of the "after" invocation handling.</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
     //~ Static fields/initializers =====================================================================================

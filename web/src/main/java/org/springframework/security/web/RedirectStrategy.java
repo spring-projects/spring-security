@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
  * Encapsulates the redirection logic for all classes in the framework which perform redirects.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public interface RedirectStrategy {

@@ -16,7 +16,6 @@ import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 /**
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class DefaultSessionAuthenticationStrategyTests {
 

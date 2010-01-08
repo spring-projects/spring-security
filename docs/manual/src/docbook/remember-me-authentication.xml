@@ -28,12 +28,12 @@
             cookie is sent to the browser upon successful interactive authentication, with the
             cookie being composed as follows:
             <programlisting>
-    base64(username + ":" + expirationTime + ":" + 
+    base64(username + ":" + expirationTime + ":" +
              md5Hex(username + ":" + expirationTime + ":" password + ":" + key))
-    
+
     username:          As identifiable to the <interfacename>UserDetailsService</interfacename>
-    password:          That matches the one in the retrieved UserDetails 
-    expirationTime:    The date and time when the remember-me token expires, 
+    password:          That matches the one in the retrieved UserDetails
+    expirationTime:    The date and time when the remember-me token expires,
                        expressed in milliseconds
     key:               A private key to prevent modification of the remember-me token
         </programlisting></para>
@@ -78,7 +78,7 @@
                 <literal>persistent_logins</literal> table, created using the following SQL (or
             equivalent):
             <programlisting>
-    create table persistent_logins (username varchar(64) not null, series varchar(64) primary key, token varchar(64) not null, last_used timestamp not null)    
+    create table persistent_logins (username varchar(64) not null, series varchar(64) primary key, token varchar(64) not null, last_used timestamp not null)
 </programlisting></para>
         <!-- TODO: Add more info on the implementation and behaviour when tokens are stolen etc. Also some info for admins on invalidating tokens using key, or deleting info from db -->
     </section>
@@ -95,7 +95,7 @@
             <programlisting language="java">
   Authentication autoLogin(HttpServletRequest request, HttpServletResponse response);
   void loginFail(HttpServletRequest request, HttpServletResponse response);
-  void loginSuccess(HttpServletRequest request, HttpServletResponse response, 
+  void loginSuccess(HttpServletRequest request, HttpServletResponse response,
       Authentication successfulAuthentication);
     </programlisting>
             Please refer to the JavaDocs for a fuller discussion on what the methods do, although
@@ -129,24 +129,24 @@
                 so can be used with <classname>LogoutFilter</classname> to have the cookie cleared
                 automatically. </para>
             <para>The beans required in an application context to enable remember-me services are as
-                follows: <programlisting language="xml"><![CDATA[        
+                follows: <programlisting language="xml"><![CDATA[
 <bean id="rememberMeFilter" class=
  "org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter">
   <property name="rememberMeServices" ref="rememberMeServices"/>
-  <property name="authenticationManager" ref="theAuthenticationManager" />    
+  <property name="authenticationManager" ref="theAuthenticationManager" />
 </bean>
-        
+
 <bean id="rememberMeServices" class=
  "org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
   <property name="userDetailsService" ref="myUserDetailsService"/>
   <property name="key" value="springRocks"/>
 </bean>
-        
+
 <bean id="rememberMeAuthenticationProvider" class=
  "org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationProvider">
   <property name="key" value="springRocks"/>
 </bean>
-]]>        
+]]>
             </programlisting>Don't forget to add your
                     <interfacename>RememberMeServices</interfacename> implementation to your
                     <literal>UsernamePasswordAuthenticationFilter.setRememberMeServices()</literal>

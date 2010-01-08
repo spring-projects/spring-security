@@ -19,7 +19,6 @@ import org.springframework.security.ldap.authentication.NullLdapAuthoritiesPopul
  * Tests for {@link LdapUserDetailsService}
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class LdapUserDetailsServiceTests {
 

@@ -30,7 +30,6 @@ import org.springframework.security.web.FilterInvocation;
  *
  * @author Ben Alex
  * @author colin sampaleanu
- * @version $Id$
  */
 public class FilterInvocationTests {
 

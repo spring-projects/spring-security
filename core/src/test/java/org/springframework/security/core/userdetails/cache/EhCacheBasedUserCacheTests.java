@@ -32,7 +32,6 @@ import org.springframework.security.core.userdetails.cache.EhCacheBasedUserCache
  * Tests {@link EhCacheBasedUserCache}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class EhCacheBasedUserCacheTests {
     private static CacheManager cacheManager;

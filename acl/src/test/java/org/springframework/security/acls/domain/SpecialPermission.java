@@ -21,7 +21,6 @@ import org.springframework.security.acls.model.Permission;
  * A test permission.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class SpecialPermission extends BasePermission {
     public static final Permission ENTER = new SpecialPermission(1 << 5, 'E'); // 32

@@ -24,7 +24,6 @@ import org.springframework.security.core.AuthenticationException;
  * <code>AuthenticationManager</code>.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AuthenticationFailureServiceExceptionEvent extends AbstractAuthenticationFailureEvent {
     //~ Constructors ===================================================================================================

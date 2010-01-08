@@ -46,7 +46,6 @@ import javax.servlet.ServletException;
  * skipped (see SEC-494, SEC-335).
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class ChannelDecisionManagerImpl implements ChannelDecisionManager, InitializingBean {
 

@@ -22,7 +22,6 @@ import org.springframework.util.Assert;
  * An entity used in our generics testing.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class Entity {
     //~ Instance fields ================================================================================================

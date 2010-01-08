@@ -8,7 +8,6 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class X509AuthenticationFilter extends AbstractPreAuthenticatedProcessingFilter {
     private X509PrincipalExtractor principalExtractor = new SubjectDnX509PrincipalExtractor();

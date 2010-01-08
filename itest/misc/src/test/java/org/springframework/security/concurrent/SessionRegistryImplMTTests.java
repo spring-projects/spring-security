@@ -26,7 +26,6 @@ import java.util.Random;
  * Tests concurrency access to SessionRegistryImpl.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class SessionRegistryImplMTTests extends TestCase {
     private static final Random rnd = new Random();

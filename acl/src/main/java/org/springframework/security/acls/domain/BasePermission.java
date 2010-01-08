@@ -26,7 +26,6 @@ import org.springframework.security.acls.model.Permission;
  * </p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class BasePermission extends AbstractPermission {
     public static final Permission READ = new BasePermission(1 << 0, 'R'); // 1

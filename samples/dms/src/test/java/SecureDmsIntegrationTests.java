@@ -9,7 +9,6 @@ import org.springframework.test.context.ContextConfiguration;
  * Basic integration test for DMS sample when security has been added.
  *
  * @author Ben Alex
- * @version $Id$
  *
  */
 @ContextConfiguration(locations={"classpath:applicationContext-dms-shared.xml", "classpath:applicationContext-dms-secure.xml"})

@@ -25,7 +25,6 @@ import org.springframework.util.Assert;
  * same <code>SecurityContext</code>. This is generally useful with rich clients, such as Swing.
  *
  * @author Ben Alex
- * @version $Id$
  */
 final class GlobalSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
     //~ Static fields/initializers =====================================================================================

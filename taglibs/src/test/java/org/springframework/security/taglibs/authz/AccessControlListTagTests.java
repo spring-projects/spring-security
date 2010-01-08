@@ -27,7 +27,6 @@ import org.springframework.web.context.WebApplicationContext;
 /**
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 @SuppressWarnings("unchecked")

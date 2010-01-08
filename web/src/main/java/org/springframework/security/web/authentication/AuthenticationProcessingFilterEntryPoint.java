@@ -6,7 +6,6 @@ package org.springframework.security.web.authentication;
  * See {@link LoginUrlAuthenticationEntryPoint}.
  *
  * @author Luke Taylor
- * @version $Id$
  * @deprecated Use LoginUrlAuthenticationEntryPoint instead.
  */
 public class AuthenticationProcessingFilterEntryPoint extends LoginUrlAuthenticationEntryPoint{

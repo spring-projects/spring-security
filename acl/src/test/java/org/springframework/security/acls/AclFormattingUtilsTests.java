@@ -14,7 +14,7 @@ import junit.framework.TestCase;
 public class AclFormattingUtilsTests extends TestCase {
 
     //~ Methods ========================================================================================================
-    
+
     public final void testDemergePatternsParametersConstraints() throws Exception {
         try {
             AclFormattingUtils.demergePatterns(null, "SOME STRING");
@@ -58,7 +58,7 @@ public class AclFormattingUtilsTests extends TestCase {
         Assert.assertEquals("ABCDEF", AclFormattingUtils.demergePatterns("ABCDEF", "......"));
         Assert.assertEquals("......", AclFormattingUtils.demergePatterns("ABCDEF", "GHIJKL"));
     }
-    
+
     public final void testMergePatternsParametersConstraints() throws Exception {
         try {
             AclFormattingUtils.mergePatterns(null, "SOME STRING");
@@ -102,10 +102,10 @@ public class AclFormattingUtilsTests extends TestCase {
         Assert.assertEquals("ABCDEF", AclFormattingUtils.mergePatterns("ABCDEF", "......"));
         Assert.assertEquals("GHIJKL", AclFormattingUtils.mergePatterns("ABCDEF", "GHIJKL"));
     }
-    
+
     public final void testBinaryPrints() throws Exception {
         Assert.assertEquals("............................****", AclFormattingUtils.printBinary(15));
-        
+
         try {
             AclFormattingUtils.printBinary(15, Permission.RESERVED_ON);
             Assert.fail("It should have thrown IllegalArgumentException");
@@ -113,7 +113,7 @@ public class AclFormattingUtilsTests extends TestCase {
         catch (IllegalArgumentException notExpected) {
             Assert.assertTrue(true);
         }
-        
+
         try {
             AclFormattingUtils.printBinary(15, Permission.RESERVED_OFF);
             Assert.fail("It should have thrown IllegalArgumentException");
@@ -121,7 +121,7 @@ public class AclFormattingUtilsTests extends TestCase {
         catch (IllegalArgumentException notExpected) {
             Assert.assertTrue(true);
         }
-        
+
         Assert.assertEquals("............................xxxx", AclFormattingUtils.printBinary(15, 'x'));
     }
 }

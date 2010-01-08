@@ -26,7 +26,6 @@ import org.springframework.security.authentication.rcp.RemoteAuthenticationManag
  * Tests {@link RemoteAuthenticationManagerImpl}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class RemoteAuthenticationManagerImplTests extends TestCase {
     //~ Methods ========================================================================================================

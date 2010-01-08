@@ -73,30 +73,30 @@
         </site>
     </distributionManagement>
 
-    <repositories>            
+    <repositories>
         <repository>
             <releases>
               <enabled>false</enabled>
             </releases>
             <snapshots>
               <enabled>true</enabled>
-            </snapshots>            
+            </snapshots>
             <id>com.springsource.repository.maven.snapshot</id>
             <name>SpringSource Enterprise Bundle Maven Repository - SpringSource Snapshot Releases</name>
             <url>http://maven.springframework.org/snapshot</url>
         </repository>
-      
+
         <repository>
             <releases>
               <enabled>true</enabled>
             </releases>
             <snapshots>
               <enabled>false</enabled>
-            </snapshots>            
+            </snapshots>
             <id>com.springsource.repository.maven.milestone</id>
             <name>Spring Framework Maven Milestone Releases (Maven Central Format)</name>
             <url>http://maven.springframework.org/milestone</url>
-        </repository>      
+        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -104,7 +104,7 @@
             <id>com.springsource.repository.maven.milestone</id>
             <name>SpringSource Enterprise Bundle Repository - SpringSource Milestone Releases</name>
             <url>http://repository.springsource.com/maven/bundles/milestone</url>
-        </pluginRepository> 
+        </pluginRepository>
     </pluginRepositories>
 
     <mailingLists>
@@ -274,7 +274,7 @@
                 <groupId>org.springframework.build.aws</groupId>
                 <artifactId>org.springframework.build.aws.maven</artifactId>
                 <version>2.0.0.RELEASE</version>
-            </extension>            
+            </extension>
         </extensions>
         <pluginManagement>
             <plugins>
@@ -359,13 +359,13 @@
                 <executions>
                     <execution>
                         <id>attach-sources</id>
-                        <phase>verify</phase>                        
+                        <phase>verify</phase>
                         <goals>
                             <goal>jar</goal>
                         </goals>
                     </execution>
                 </executions>
-            </plugin>       
+            </plugin>
             <!-- Other -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -547,7 +547,7 @@
                     <exclusion>
                         <groupId>org.springframework</groupId>
                         <artifactId>spring-tx</artifactId>
-                    </exclusion>                    
+                    </exclusion>
                     <exclusion>
                         <groupId>org.springframework</groupId>
                         <artifactId>spring-beans</artifactId>
@@ -567,7 +567,7 @@
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjweaver</artifactId>
                 <version>1.6.5</version>
-            </dependency>       
+            </dependency>
             <dependency>
                 <groupId>cglib</groupId>
                 <artifactId>cglib-nodep</artifactId>
@@ -579,7 +579,7 @@
                 <groupId>net.sf.ehcache</groupId>
                 <artifactId>ehcache</artifactId>
                 <version>1.6.2</version>
-                <optional>true</optional>                
+                <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>commons-collections</groupId>
@@ -631,7 +631,7 @@
     </dependencyManagement>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>        
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring.version>3.0.0.RELEASE</spring.version>
         <jstl.version>1.1.2</jstl.version>
         <jetty.version>6.1.22</jetty.version>

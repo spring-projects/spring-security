@@ -22,7 +22,6 @@ package org.springframework.security.access;
  * argument, for example.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AuthorizationServiceException extends AccessDeniedException {
     //~ Constructors ===================================================================================================

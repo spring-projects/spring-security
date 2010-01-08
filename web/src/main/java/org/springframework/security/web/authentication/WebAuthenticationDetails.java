@@ -27,7 +27,6 @@ import javax.servlet.http.HttpSession;
  * A holder of selected HTTP details related to a web authentication request.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class WebAuthenticationDetails implements SessionIdentifierAware, Serializable {
     //~ Instance fields ================================================================================================

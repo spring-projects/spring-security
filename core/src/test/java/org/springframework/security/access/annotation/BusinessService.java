@@ -24,7 +24,6 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 /**
- * @version $Id$
  */
 @Secured({"ROLE_USER"})
 @PermitAll

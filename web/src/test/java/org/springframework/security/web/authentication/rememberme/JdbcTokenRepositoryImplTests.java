@@ -17,7 +17,6 @@ import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 @SuppressWarnings("unchecked")
 public class JdbcTokenRepositoryImplTests {

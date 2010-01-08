@@ -18,7 +18,6 @@ import org.springframework.security.util.MethodInvocationUtils;
 /**
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class AbstractAclVoterTests {
     private AbstractAclVoter voter = new AbstractAclVoter() {

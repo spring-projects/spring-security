@@ -4,7 +4,6 @@
 <!--
   - Application context representing the transaction, auto proxy and data source beans.
   -
-  - $Id$
   -->
 
 <beans>

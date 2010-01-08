@@ -32,7 +32,6 @@ import org.springframework.util.Assert;
  * use or when a null implementation is required.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class LdapShaPasswordEncoder implements PasswordEncoder {
     //~ Static fields/initializers =====================================================================================

@@ -3,7 +3,6 @@
 <!--
   - Application context representing the application WITH security services.
   -
-  - $Id$
   -->
 
 <beans xmlns="http://www.springframework.org/schema/beans"

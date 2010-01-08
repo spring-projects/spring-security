@@ -23,7 +23,6 @@ import org.springframework.security.core.Authentication;
  * HttpSessionContextIntegrationFilter}.</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class SecurityContextImpl implements SecurityContext {
     //~ Instance fields ================================================================================================

@@ -8,7 +8,6 @@ import org.springframework.security.access.ConfigAttribute;
  * Consumed by a {@link PreInvocationAuthorizationAdvice}.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public interface PreInvocationAttribute extends ConfigAttribute{

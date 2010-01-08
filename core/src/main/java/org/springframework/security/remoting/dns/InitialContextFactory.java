@@ -25,7 +25,6 @@ import javax.naming.directory.InitialDirContext;
  *
  * @author Mike Wiesner
  * @since 3.0
- * @version $Id$
  * @see InitialDirContext
  * @see DirContext
  * @see JndiDnsResolver

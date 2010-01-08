@@ -8,7 +8,6 @@ import org.springframework.util.Assert;
 
 /**
  * @author Ben Alex
- * @version $Id$
  *
  */
 public abstract class AbstractElement {

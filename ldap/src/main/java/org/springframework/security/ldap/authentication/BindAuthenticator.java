@@ -39,7 +39,6 @@ import org.springframework.util.StringUtils;
  * An authenticator which binds as a user.
  *
  * @author Luke Taylor
- * @version $Id$
  *
  * @see AbstractLdapAuthenticator
  */

@@ -16,7 +16,6 @@ import org.springframework.util.ClassUtils;
  * the server-ref attribute to link this to the other ldap definitions. See SEC-799.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 class ContextSourceSettingPostProcessor implements BeanFactoryPostProcessor, Ordered {

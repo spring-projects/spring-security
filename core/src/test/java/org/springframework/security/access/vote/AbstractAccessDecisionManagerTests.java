@@ -34,7 +34,6 @@ import java.util.Vector;
  * Tests {@link AbstractAccessDecisionManager}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 @SuppressWarnings("unchecked")
 public class AbstractAccessDecisionManagerTests extends TestCase {

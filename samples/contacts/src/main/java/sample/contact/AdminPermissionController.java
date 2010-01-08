@@ -35,7 +35,6 @@ import org.springframework.web.servlet.ModelAndView;
  * permissions for contacts.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 @Controller

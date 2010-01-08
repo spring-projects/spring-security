@@ -32,7 +32,6 @@ import org.springframework.security.core.userdetails.UserDetails;
  * Tests {@link CasAuthenticationToken}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class CasAuthenticationTokenTests extends TestCase {
     private final List<GrantedAuthority> ROLES = AuthorityUtils.createAuthorityList("ROLE_ONE","ROLE_TWO");

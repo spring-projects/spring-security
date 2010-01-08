@@ -39,7 +39,6 @@ import org.springframework.security.core.Authentication;
  * capability, as this will be implementation specific and requires no hooks into Spring Security.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface RememberMeServices {
     //~ Methods ========================================================================================================

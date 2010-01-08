@@ -17,7 +17,6 @@ import org.w3c.dom.Element;
 /**
  * @author Luke Taylor
  * @author Ben Alex
- * @version $Id$
  */
 public class FormLoginBeanDefinitionParser {
     protected final Log logger = LogFactory.getLog(getClass());

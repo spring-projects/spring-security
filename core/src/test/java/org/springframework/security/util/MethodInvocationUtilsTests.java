@@ -9,7 +9,6 @@ import org.springframework.security.access.annotation.BusinessServiceImpl;
 /**
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class MethodInvocationUtilsTests {
 

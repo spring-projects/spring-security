@@ -16,7 +16,6 @@ import java.io.IOException;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
     //~ Static fields/initializers =====================================================================================

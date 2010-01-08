@@ -45,7 +45,6 @@ import org.springframework.security.core.userdetails.memory.UserAttribute;
  * Tests {@link AnonymousAuthenticationFilter}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AnonymousAuthenticationFilterTests {
 

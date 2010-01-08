@@ -36,7 +36,6 @@ import org.springframework.util.Assert;
  * </p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class EhCacheBasedAclCache implements AclCache {
     //~ Instance fields ================================================================================================

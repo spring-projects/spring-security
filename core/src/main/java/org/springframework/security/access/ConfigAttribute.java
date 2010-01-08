@@ -33,7 +33,6 @@ import org.springframework.security.access.intercept.RunAsManager;
  * Stored at runtime with other <code>ConfigAttribute</code>s for the same secure object target.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface ConfigAttribute extends Serializable {
     //~ Methods ========================================================================================================

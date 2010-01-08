@@ -18,8 +18,6 @@ package org.springframework.security.access.annotation.test;
 /**
  * DOCUMENT ME!
  *
- * @author $author$
- * @version $Revision: 1496 $
   */
 public interface OrganisationService extends Service<Organisation> {
     //~ Methods ========================================================================================================

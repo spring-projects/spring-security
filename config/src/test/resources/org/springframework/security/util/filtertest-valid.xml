@@ -16,7 +16,6 @@
  * limitations under the License.
  *
  *
- * $Id: filtertest-valid.xml 3497 2008-12-20 00:16:49Z ltaylor $
 -->
 <beans default-lazy-init="true" xmlns="http://www.springframework.org/schema/beans"
     xmlns:sec="http://www.springframework.org/schema/security"

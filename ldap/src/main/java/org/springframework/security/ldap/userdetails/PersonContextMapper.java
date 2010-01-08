@@ -10,7 +10,6 @@ import org.springframework.util.Assert;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class PersonContextMapper implements UserDetailsContextMapper {
 

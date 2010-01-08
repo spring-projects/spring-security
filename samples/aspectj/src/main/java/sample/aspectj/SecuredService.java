@@ -7,7 +7,6 @@ import org.springframework.security.access.annotation.Secured;
  *
  * @author Mike Wiesner
  * @since 3.0
- * @version $Id$
  */
 @Secured("ROLE_USER")
 public class SecuredService {

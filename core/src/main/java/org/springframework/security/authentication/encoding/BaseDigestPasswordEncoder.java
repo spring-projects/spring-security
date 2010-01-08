@@ -19,7 +19,6 @@ package org.springframework.security.authentication.encoding;
  * <p>Convenience base for digest password encoders.</p>
  *
  * @author colin sampaleanu
- * @version $Id$
  */
 public abstract class BaseDigestPasswordEncoder extends BasePasswordEncoder {
     //~ Instance fields ================================================================================================

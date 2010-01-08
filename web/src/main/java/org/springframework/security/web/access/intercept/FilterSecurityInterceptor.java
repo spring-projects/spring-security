@@ -39,7 +39,6 @@ import org.springframework.security.web.FilterInvocation;
  * Refer to {@link AbstractSecurityInterceptor} for details on the workflow.</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class FilterSecurityInterceptor extends AbstractSecurityInterceptor implements Filter {
     //~ Static fields/initializers =====================================================================================

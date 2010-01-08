@@ -24,7 +24,6 @@ import javax.naming.ldap.ControlFactory;
  *
  * @author Stefan Zoerner
  * @author Luke Taylor
- * @version $Id$
  */
 public class PasswordPolicyControlFactory extends ControlFactory {
     //~ Methods ========================================================================================================

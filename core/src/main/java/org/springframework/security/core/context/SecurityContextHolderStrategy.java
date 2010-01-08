@@ -22,7 +22,6 @@ package org.springframework.security.core.context;
  * The preferred strategy is loaded by {@link SecurityContextHolder}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface SecurityContextHolderStrategy {
     //~ Methods ========================================================================================================

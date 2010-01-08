@@ -22,7 +22,6 @@ import org.springframework.security.core.Authentication;
  * Fired when LoginContext.login throws a LoginException, or if any other exception is thrown during that time.
  *
  * @author Ray Krueger
- * @version $Id$
  */
 public class JaasAuthenticationFailedEvent extends JaasAuthenticationEvent {
     //~ Instance fields ================================================================================================

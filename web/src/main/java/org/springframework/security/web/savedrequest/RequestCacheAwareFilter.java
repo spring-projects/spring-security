@@ -20,7 +20,6 @@ import org.springframework.web.filter.GenericFilterBean;
  * If null is returned by the cache, the original request is used and the filter has no effect.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class RequestCacheAwareFilter extends GenericFilterBean {

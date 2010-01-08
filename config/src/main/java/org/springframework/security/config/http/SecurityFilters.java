@@ -5,7 +5,6 @@ package org.springframework.security.config.http;
  * Stores the default order numbers of all Spring Security filters for use in configuration.
  *
  * @author Luke Taylor
- * @version $Id$
  */
 
 enum SecurityFilters {

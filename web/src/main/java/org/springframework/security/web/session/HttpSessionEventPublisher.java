@@ -40,7 +40,6 @@ import javax.servlet.http.HttpSessionListener;
  * javax.servlet.http.HttpSessionListener.sessionDestroyed() to {@link HttpSessionDestroyedEvent}.
  *
  * @author Ray Krueger
- * @version $Id$
  */
 public class HttpSessionEventPublisher implements HttpSessionListener {
     //~ Static fields/initializers =====================================================================================

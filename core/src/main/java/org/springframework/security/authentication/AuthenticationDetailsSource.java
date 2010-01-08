@@ -20,7 +20,6 @@ package org.springframework.security.authentication;
  * a given web request.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface AuthenticationDetailsSource {
     //~ Methods ========================================================================================================

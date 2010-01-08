@@ -28,7 +28,6 @@ import org.springframework.security.core.AuthenticationException;
  * level of authentication.</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class InsufficientAuthenticationException extends AuthenticationException {
     //~ Constructors ===================================================================================================

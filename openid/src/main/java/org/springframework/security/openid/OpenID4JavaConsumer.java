@@ -41,7 +41,6 @@ import org.openid4java.message.ax.FetchResponse;
 
 /**
  * @author Ray Krueger
- * @version $Id$
  */
 public class OpenID4JavaConsumer implements OpenIDConsumer {
     private static final String DISCOVERY_INFO_KEY = DiscoveryInformation.class.getName();

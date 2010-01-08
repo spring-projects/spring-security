@@ -17,7 +17,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  * valid, locked, disabled, credentialsExpired, expired. All passwords are "".
  *
  * @author Luke Taylor
- * @version $Id$
  */
 public class MockUserDetailsService implements UserDetailsService {
     private Map<String, User> users = new HashMap<String, User>();

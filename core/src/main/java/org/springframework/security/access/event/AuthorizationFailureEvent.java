@@ -31,7 +31,6 @@ import org.springframework.security.core.Authentication;
  * {@link org.springframework.security.access.intercept.AfterInvocationManager AfterInvocationManager}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class AuthorizationFailureEvent extends AbstractAuthorizationEvent {
     //~ Instance fields ================================================================================================

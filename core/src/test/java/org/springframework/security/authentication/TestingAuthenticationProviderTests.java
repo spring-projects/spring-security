@@ -26,7 +26,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * Tests {@link TestingAuthenticationProvider}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class TestingAuthenticationProviderTests extends TestCase {
 

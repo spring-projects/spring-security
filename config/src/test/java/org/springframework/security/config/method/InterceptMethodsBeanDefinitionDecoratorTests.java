@@ -18,7 +18,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * @author Luke Taylor
- * @version $Id$
  */
 public class InterceptMethodsBeanDefinitionDecoratorTests {
     private ClassPathXmlApplicationContext appContext;

@@ -34,7 +34,6 @@ import javax.servlet.ServletException;
  * action.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public interface ChannelProcessor {
     //~ Methods ========================================================================================================

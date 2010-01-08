@@ -12,7 +12,6 @@ import org.springframework.security.core.Authentication;
  * evaluation should not be required.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 class DenyAllPermissionEvaluator implements PermissionEvaluator {

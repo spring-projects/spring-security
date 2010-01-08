@@ -23,7 +23,6 @@ import org.springframework.web.filter.GenericFilterBean;
  * Will only work if a redirect is used to the login page.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 2.0
  */
 public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {

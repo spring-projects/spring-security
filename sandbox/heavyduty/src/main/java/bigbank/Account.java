@@ -5,15 +5,14 @@ package bigbank;
  * encapsulate business logic (methods) and state in the domain object.
  * Nevertheless, this demo is intended to reflect what people usually do,
  * as opposed to what they ideally would be doing.
- * 
+ *
  * @author Ben Alex
- * @version $Id$
  */
 public class Account {
     private long id = -1;
     private String holder;
     private double balance;
-    
+
     public Account(String holder) {
         super();
         this.holder = holder;
@@ -47,5 +46,5 @@ public class Account {
         return "Account[id=" + id + ",balance=" + balance +",holder=" + holder + "]";
     }
 
-    
+
 }

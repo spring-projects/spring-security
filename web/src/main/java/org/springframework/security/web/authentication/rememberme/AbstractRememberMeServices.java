@@ -29,7 +29,6 @@ import org.springframework.util.StringUtils;
  * Base class for RememberMeServices implementations.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 2.0
  */
 public abstract class AbstractRememberMeServices implements RememberMeServices, InitializingBean, LogoutHandler {

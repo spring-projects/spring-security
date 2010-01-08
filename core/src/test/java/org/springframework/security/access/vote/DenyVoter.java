@@ -29,7 +29,6 @@ import java.util.Iterator;
  *  <p>All comparisons are case sensitive.</p>
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class DenyVoter implements AccessDecisionVoter {
     //~ Methods ========================================================================================================

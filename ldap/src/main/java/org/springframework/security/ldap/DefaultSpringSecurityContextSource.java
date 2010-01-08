@@ -25,7 +25,6 @@ import org.springframework.util.Assert;
  * to {@link #getContext(String, String)} to authenticate as specific users.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 2.0
  */
 public class DefaultSpringSecurityContextSource extends LdapContextSource {

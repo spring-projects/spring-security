@@ -22,6 +22,6 @@ public class UserDAOImpl extends GenericDAOImpl<User, Long> implements
         return (User) getEntityManager().createNamedQuery("User.findByUsername")
                 .setParameter("username", username).getSingleResult();
     }
-    
+
 
 }

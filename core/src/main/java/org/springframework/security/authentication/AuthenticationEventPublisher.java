@@ -6,7 +6,6 @@ import org.springframework.security.core.AuthenticationException;
 /**
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public interface AuthenticationEventPublisher {

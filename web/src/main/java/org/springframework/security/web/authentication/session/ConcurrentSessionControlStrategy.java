@@ -36,7 +36,6 @@ import org.springframework.util.Assert;
  * {@link AbstractAuthenticationProcessingFilter} (typically {@link UsernamePasswordAuthenticationFilter}).
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class ConcurrentSessionControlStrategy extends SessionFixationProtectionStrategy

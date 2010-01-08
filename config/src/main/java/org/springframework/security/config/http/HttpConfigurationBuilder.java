@@ -53,7 +53,6 @@ import org.w3c.dom.Element;
  * Stateful class which helps HttpSecurityBDP to create the configuration for the &lt;http&gt; element.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 class HttpConfigurationBuilder {

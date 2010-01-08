@@ -9,7 +9,6 @@ import org.springframework.security.core.Authentication;
  * Performs filtering and authorization logic after a method is invoked.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public interface PostInvocationAuthorizationAdvice extends AopInfrastructureBean {

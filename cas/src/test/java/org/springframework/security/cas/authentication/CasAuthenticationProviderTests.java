@@ -46,7 +46,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  *
  * @author Ben Alex
  * @author Scott Battaglia
- * @version $Id$
  */
 public class CasAuthenticationProviderTests {
     //~ Methods ========================================================================================================

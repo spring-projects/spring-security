@@ -46,7 +46,6 @@ import org.springframework.util.Assert;
  * @author Craig McClanahan
  * @author Andrey Grebnev
  * @author Ben Alex
- * @version $Id$
  */
 public class DefaultSavedRequest implements SavedRequest {
     //~ Static fields/initializers =====================================================================================

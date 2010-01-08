@@ -3,7 +3,6 @@
 <!--
   - Contacts web application
   -
-  - $Id: web.xml 1741 2006-11-14 03:18:42Z benalex $
   -->
 
 <web-app xmlns="http://java.sun.com/xml/ns/j2ee"

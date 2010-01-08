@@ -15,7 +15,6 @@ import org.springframework.security.web.PortResolverImpl;
  * The {@link DefaultSavedRequest} class is used as the implementation.
  *
  * @author Luke Taylor
- * @version $Id$
  * @since 3.0
  */
 public class HttpSessionRequestCache implements RequestCache {

@@ -3,7 +3,6 @@
 
 <!--
   - Contacts web application
-  - $Id: remoting-servlet.xml 469 2004-11-20 05:28:20Z benalex $
   -->
 <beans>
 

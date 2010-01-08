@@ -22,7 +22,6 @@ import org.springframework.security.core.AuthenticationException;
  * Thrown if an authentication request is rejected because the digest nonce has expired.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class NonceExpiredException extends AuthenticationException {
     //~ Constructors ===================================================================================================

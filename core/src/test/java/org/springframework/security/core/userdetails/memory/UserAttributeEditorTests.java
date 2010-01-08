@@ -25,7 +25,6 @@ import org.springframework.security.core.userdetails.memory.UserAttributeEditor;
  * Tests {@link UserAttributeEditor} and associated {@link UserAttribute}.
  *
  * @author Ben Alex
- * @version $Id$
  */
 public class UserAttributeEditorTests extends TestCase {
 
