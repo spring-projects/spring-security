@@ -85,7 +85,7 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
             HttpServletResponse response) {
 
         if (cookieTokens.length != 3) {
-            throw new InvalidCookieException("Cookie token did not contain " + 2 +
+            throw new InvalidCookieException("Cookie token did not contain 3" +
                     " tokens, but contained '" + Arrays.asList(cookieTokens) + "'");
         }
 
