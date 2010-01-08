@@ -26,7 +26,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * Registers the bean definition parsers for the "security" namespace (http://www.springframework.org/schema/security).
+ * Parses elements from the "security" namespace (http://www.springframework.org/schema/security).
  *
  * @author Luke Taylor
  * @author Ben Alex
@@ -104,8 +104,8 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
         parsers.put(Elements.AUTHENTICATION_MANAGER, new AuthenticationManagerBeanDefinitionParser());
  //       registerBeanDefinitionDecorator(Elements.INTERCEPT_METHODS, new InterceptMethodsBeanDefinitionDecorator());
 
-        // Web-namespace stuff
-        if (ClassUtils.isPresent("org.springframework.security.web.FilterChainProxy", ClassUtils.getDefaultClassLoader())) {
+        // Only load the web-namespace parsers if the web classes are available
+        if (ClassUtils.isPresent("org.springframework.security.web.FilterChainProxy", getClass().getClassLoader())) {
             parsers.put(Elements.HTTP, new HttpSecurityBeanDefinitionParser());
             parsers.put(Elements.FILTER_INVOCATION_DEFINITION_SOURCE, new FilterInvocationSecurityMetadataSourceParser());
             parsers.put(Elements.FILTER_SECURITY_METADATA_SOURCE, new FilterInvocationSecurityMetadataSourceParser());
@@ -115,7 +115,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
     }
 
     /**
-     * Check that the schema location declared in the source file being parsed matches the Spring Batch version.
+     * Check that the schema location declared in the source file being parsed matches the Spring Security version.
      * The old 2.0 schema is not compatible with the new 3.0 parser, so it is an error to explicitly use
      * 3.0. It might be an error to declare spring-security.xsd as an alias, but you are only going to find that out
      * when one of the sub parsers breaks.
