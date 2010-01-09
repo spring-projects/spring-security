@@ -35,7 +35,7 @@ public class AbstractRememberMeServicesTests {
 
     @Test
     public void cookieShouldBeCorrectlyEncodedAndDecoded() {
-        String[] cookie = new String[] {"the", "cookie", "tokens", "blah"};
+        String[] cookie = new String[] {"http://name", "cookie", "tokens", "blah"};
         MockRememberMeServices services = new MockRememberMeServices();
 
         String encoded = services.encodeCookie(cookie);
@@ -44,7 +44,7 @@ public class AbstractRememberMeServicesTests {
         String[] decoded = services.decodeCookie(encoded);
 
         assertEquals(4, decoded.length);
-        assertEquals("the", decoded[0]);
+        assertEquals("http://name", decoded[0]);
         assertEquals("cookie", decoded[1]);
         assertEquals("tokens", decoded[2]);
         assertEquals("blah", decoded[3]);

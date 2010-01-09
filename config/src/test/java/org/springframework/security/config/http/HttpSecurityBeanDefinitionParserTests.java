@@ -8,12 +8,15 @@ import static org.springframework.security.config.http.AuthenticationConfigBuild
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.servlet.Filter;
+import javax.servlet.http.HttpServletRequest;
 
 import org.junit.After;
 import org.junit.Test;
@@ -39,6 +42,9 @@ import org.springframework.security.openid.OpenID4JavaConsumer;
 import org.springframework.security.openid.OpenIDAttribute;
 import org.springframework.security.openid.OpenIDAuthenticationFilter;
 import org.springframework.security.openid.OpenIDAuthenticationProvider;
+import org.springframework.security.openid.OpenIDAuthenticationToken;
+import org.springframework.security.openid.OpenIDConsumer;
+import org.springframework.security.openid.OpenIDConsumerException;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.FilterInvocation;
@@ -63,6 +69,7 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
+import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
@@ -1068,6 +1075,55 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertEquals("/spring_security_login", ap.getLoginFormUrl());
         // Default login filter should be present since we haven't specified any login URLs
         getFilter(DefaultLoginPageGeneratingFilter.class);
+    }
+
+    @Test
+    public void openIDAndRememberMeWorkTogether() throws Exception {
+        setContext(
+                "<http>" +
+                "   <intercept-url pattern='/**' access='ROLE_NOBODY'/>" +
+                "   <openid-login />" +
+                "   <remember-me />" +
+                "</http>" +
+                AUTH_PROVIDER_XML);
+        // Default login filter should be present since we haven't specified any login URLs
+        DefaultLoginPageGeneratingFilter loginFilter = getFilter(DefaultLoginPageGeneratingFilter.class);
+        OpenIDAuthenticationFilter openIDFilter = getFilter(OpenIDAuthenticationFilter.class);
+        openIDFilter.setConsumer(new OpenIDConsumer() {
+            public String beginConsumption(HttpServletRequest req, String claimedIdentity, String returnToUrl, String realm)
+                    throws OpenIDConsumerException {
+                return "http://testopenid.com?openid.return_to=" + returnToUrl;
+            }
+
+            public OpenIDAuthenticationToken endConsumption(HttpServletRequest req) throws OpenIDConsumerException {
+                throw new UnsupportedOperationException();
+            }
+        });
+        Set<String> returnToUrlParameters = new HashSet<String>();
+        returnToUrlParameters.add(AbstractRememberMeServices.DEFAULT_PARAMETER);
+        openIDFilter.setReturnToUrlParameters(returnToUrlParameters);
+        assertNotNull(FieldUtils.getFieldValue(loginFilter, "openIDrememberMeParameter"));
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        FilterChainProxy fcp = (FilterChainProxy) appContext.getBean(BeanIds.FILTER_CHAIN_PROXY);
+        request.setServletPath("/something.html");
+        fcp.doFilter(request, response, new MockFilterChain());
+        assertTrue(response.getRedirectedUrl().endsWith("/spring_security_login"));
+        request.setServletPath("/spring_security_login");
+        request.setRequestURI("/spring_security_login");
+        response = new MockHttpServletResponse();
+        fcp.doFilter(request, response, new MockFilterChain());
+        assertTrue(response.getContentAsString().contains(AbstractRememberMeServices.DEFAULT_PARAMETER));
+        request.setRequestURI("/j_spring_openid_security_check");
+        request.setParameter(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, "http://hey.openid.com/");
+        request.setParameter(AbstractRememberMeServices.DEFAULT_PARAMETER, "on");
+        response = new MockHttpServletResponse();
+        fcp.doFilter(request, response, new MockFilterChain());
+        String expectedReturnTo = request.getRequestURL().append("?")
+                                        .append(AbstractRememberMeServices.DEFAULT_PARAMETER)
+                                        .append("=").append("on").toString();
+        assertEquals("http://testopenid.com?openid.return_to=" + expectedReturnTo, response.getRedirectedUrl());
     }
 
     @Test

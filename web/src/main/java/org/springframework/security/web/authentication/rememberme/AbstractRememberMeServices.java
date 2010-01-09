@@ -165,7 +165,17 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 
         String cookieAsPlainText = new String(Base64.decode(cookieValue.getBytes()));
 
-        return StringUtils.delimitedListToStringArray(cookieAsPlainText, DELIMITER);
+        String[] tokens = StringUtils.delimitedListToStringArray(cookieAsPlainText, DELIMITER);
+
+        if (tokens[0].equalsIgnoreCase("http") && tokens[1].startsWith("//")) {
+            // Assume we've accidentally split a URL (OpenID identifier)
+            String[] newTokens = new String[tokens.length - 1];
+            newTokens[0] = "http:" + tokens[1];
+            System.arraycopy(tokens, 2, newTokens, 1, newTokens.length - 1);
+            tokens = newTokens;
+        }
+
+        return tokens;
     }
 
     /**

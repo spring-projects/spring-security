@@ -147,7 +147,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
             sb.append("    <tr><td>Identity:</td><td><input type='text' name='");
             sb.append(openIDusernameParameter).append("'/></td></tr>\n");
 
-            if (rememberMeParameter != null) {
+            if (openIDrememberMeParameter != null) {
                 sb.append("    <tr><td><input type='checkbox' name='").append(openIDrememberMeParameter).append("'></td><td>Remember me on this computer.</td></tr>\n");
             }
 

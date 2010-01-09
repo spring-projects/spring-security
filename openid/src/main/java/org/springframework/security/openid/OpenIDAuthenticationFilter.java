@@ -19,7 +19,10 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +34,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 
@@ -72,6 +77,7 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
     private OpenIDConsumer consumer;
     private String claimedIdentityFieldName = DEFAULT_CLAIMED_IDENTITY_FIELD;
     private Map<String,String> realmMapping = Collections.emptyMap();
+    private Set<String> returnToUrlParameters = Collections.emptySet();
 
     //~ Constructors ===================================================================================================
 
@@ -84,12 +90,19 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
     @Override
     public void afterPropertiesSet() {
         super.afterPropertiesSet();
+
         if (consumer == null) {
             try {
                 consumer = new OpenID4JavaConsumer();
             } catch (ConsumerException e) {
                 throw new IllegalArgumentException("Failed to initialize OpenID", e);
             }
+        }
+
+        if (returnToUrlParameters.isEmpty() &&
+                getRememberMeServices() instanceof AbstractRememberMeServices) {
+            returnToUrlParameters = new HashSet<String>();
+            returnToUrlParameters.add(((AbstractRememberMeServices)getRememberMeServices()).getParameter());
         }
     }
 
@@ -194,7 +207,32 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
      * @return The <tt>return_to</tt> URL.
      */
     protected String buildReturnToUrl(HttpServletRequest request) {
-        return request.getRequestURL().toString();
+        StringBuffer sb = request.getRequestURL();
+
+        Iterator<String> iterator = returnToUrlParameters.iterator();
+        boolean isFirst = true;
+
+        while (iterator.hasNext()) {
+            String name = iterator.next();
+            // Assume for simplicity that there is only one value
+            String value = request.getParameter(name);
+
+            if (value == null) {
+                continue;
+            }
+
+            if (isFirst) {
+                sb.append("?");
+                isFirst = false;
+            }
+            sb.append(name).append("=").append(value);
+
+            if (iterator.hasNext()) {
+                sb.append("&");
+            }
+        }
+
+        return sb.toString();
     }
 
     /**
@@ -231,5 +269,18 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 
     public void setConsumer(OpenIDConsumer consumer) {
         this.consumer = consumer;
+    }
+
+    /**
+     * Specifies any extra parameters submitted along with the identity field which should be appended to the
+     * {@literal return_to} URL which is assembled by {@link #buildReturnToUrl}.
+     *
+     * @param returnToUrlParameters
+     *      the set of parameter names. If not set, it will default to the parameter name used by the
+     *      {@code RememberMeServices} obtained from the parent class (if one is set).
+     */
+    public void setReturnToUrlParameters(Set<String> returnToUrlParameters) {
+        Assert.notNull(returnToUrlParameters, "returnToUrlParameters cannot be null");
+        this.returnToUrlParameters = returnToUrlParameters;
     }
 }
