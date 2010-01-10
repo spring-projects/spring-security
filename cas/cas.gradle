@@ -1,7 +1,7 @@
 
 dependencies {
-    compile project(':core'),
-            project(':web'),
+    compile project(':spring-security-core'),
+            project(':spring-security-web'),
             "javax.servlet:servlet-api:2.5",
             "org.springframework:spring-core:$springVersion",
             "org.springframework:spring-context:$springVersion",            

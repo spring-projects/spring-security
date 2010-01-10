@@ -1,10 +1,10 @@
 // Config Module build file
 
-compileTestJava.dependsOn(':core:compileTestJava')
+compileTestJava.dependsOn(':spring-security-core:compileTestJava')
 
 dependencies {
-    compile project(':core'),
-            project(':web'),
+    compile project(':spring-security-core'),
+            project(':spring-security-web'),
             "javax.servlet:servlet-api:2.5",
             "org.aspectj:aspectjweaver:$aspectjVersion",
             "org.springframework:spring-aop:$springVersion",
@@ -14,9 +14,9 @@ dependencies {
             "org.springframework:spring-beans:$springVersion",
             "org.springframework:spring-tx:$springVersion"
 
-    testCompile project(':ldap'),
-                project(':openid'),
-                files(this.project(':core').sourceSets.test.classesDir),
+    testCompile project(':spring-security-ldap'),
+                project(':spring-security-openid'),
+                files(this.project(':spring-security-core').sourceSets.test.classesDir),
                 'javax.annotation:jsr250-api:1.0',
                 'aopalliance:aopalliance:1.0',
                 "org.springframework.ldap:spring-ldap-core:$springLdapVersion",

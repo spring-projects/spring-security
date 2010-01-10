@@ -1,0 +1,13 @@
+// OpenID sample build file
+
+apply id: 'war'
+apply id: 'jetty'
+
+dependencies {
+    providedCompile 'javax.servlet:servlet-api:2.5@jar'
+
+    runtime project(':spring-security-web'),
+            project(':spring-security-config'),
+            project(':spring-security-openid'),
+            'log4j:log4j:1.2.15@jar'
+}

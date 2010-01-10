@@ -1,9 +1,8 @@
 // OpenID Module build file
 
 dependencies {
-    compile project(':core'),
-            project(':web'),
-            "javax.servlet:servlet-api:2.5",
+    compile project(':spring-security-core'),
+            project(':spring-security-web'),
             'org.openid4java:openid4java-nodeps:0.9.5',
             "org.springframework:spring-aop:$springVersion",
             "org.springframework:spring-core:$springVersion",
@@ -11,6 +10,8 @@ dependencies {
             "org.springframework:spring-beans:$springVersion",
             "org.springframework:spring-tx:$springVersion",            
             "org.springframework:spring-web:$springVersion"
+
+    provided "javax.servlet:servlet-api:2.5"
 
     runtime 'commons-httpclient:commons-httpclient:3.1'
 }

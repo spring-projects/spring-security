@@ -7,12 +7,12 @@ docbookHtml.stylesheet = new File(projectDir, 'src/xsl/html-custom.xsl')
 docbookFoPdf.stylesheet = new File(projectDir, 'src/xsl/pdf-custom.xsl')
 
 docbookHtml.doLast {
-	resourcesDir = new File(projectDir, 'src/resources')
-	ant {
-		docsDir = new File(buildDir, 'docs')
-		copy(toDir: docsDir) {fileset(dir: resourcesDir)}
-		copy(toDir: new File(docsDir, 'images')) {fileset(dir: new File(projectDir, 'src/docbook/images'))}		
-	}
+    resourcesDir = new File(projectDir, 'src/resources')
+    ant {
+        docsDir = new File(buildDir, 'docs')
+        copy(toDir: docsDir) {fileset(dir: resourcesDir)}
+        copy(toDir: new File(docsDir, 'images')) {fileset(dir: new File(projectDir, 'src/docbook/images'))}
+    }
 }
 
 /*docbookSrc = new File(project.buildDir, 'docbook/src')

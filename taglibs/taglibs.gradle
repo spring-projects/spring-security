@@ -1,0 +1,20 @@
+// Taglibs build file
+
+dependencies {
+    compile project(':spring-security-core'),
+            project(':spring-security-web'),
+            project(':spring-security-acl'),
+            "org.springframework:spring-core:$springVersion",
+            "org.springframework:spring-beans:$springVersion",
+            "org.springframework:spring-context:$springVersion",
+            "org.springframework:spring-expression:$springVersion",
+            "org.springframework:spring-web:$springVersion"
+
+    provided 'javax.servlet:jsp-api:2.0'
+    
+    testCompile 'javax.servlet:servlet-api:2.5',
+                'javax.servlet:jsp-api:2.0'
+    
+    testRuntime "taglibs:standard:$jstlVersion"
+
+}

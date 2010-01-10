@@ -1,8 +1,4 @@
 
-import org.gradle.api.tasks.diagnostics.GraphvizReportRenderer
-
-usePlugin('java')
-
 version = '3.0.0.CI-SNAPSHOT'
 
 allprojects {
@@ -13,18 +9,24 @@ allprojects {
 }
 
 subprojects {
-    usePlugin 'java'
-    usePlugin 'project-reports'
-    
+    apply id: 'java'
+
+    group = 'org.springframework.security'
+
     springVersion = '3.0.0.RELEASE'
     springLdapVersion = '1.3.0.RELEASE'
     ehcacheVersion = '1.6.2'
     aspectjVersion = '1.6.5'
-    apacheDsVersion = '1.5.5'    
+    apacheDsVersion = '1.5.5'
+    jstlVersion = '1.1.2'
 
 /*    dependencyReport {
         renderer = new GraphvizReportRenderer()
     }*/
+
+    configurations {
+        provided
+    }
 
     dependencies {
         compile     'commons-logging:commons-logging:1.1.1'
@@ -37,11 +39,18 @@ subprojects {
                     'org.hamcrest:hamcrest-library:1.1',
                     "org.springframework:spring-test:$springVersion"
     }
-    
+
+    sourceSets {
+        main {
+            compileClasspath = compileClasspath + configurations.provided
+        }
+        test {
+            compileClasspath = compileClasspath + configurations.provided
+        }
+    }
+
     test {
         options.fork(forkMode: ForkMode.ONCE, jvmArgs: ["-ea", '-Xms128m', '-Xmx1g', '-XX:MaxPermSize=128m', '-XX:+HeapDumpOnOutOfMemoryError'])
     }
-
-    group = 'org.springframework.security'
 }
 

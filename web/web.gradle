@@ -1,7 +1,7 @@
 // Web module build file
 
 dependencies {
-    compile project(':core'),
+    compile project(':spring-security-core'),
             'aopalliance:aopalliance:1.0',
             'javax.servlet:servlet-api:2.5',
             'org.aspectj:aspectjweaver:1.6.5',            

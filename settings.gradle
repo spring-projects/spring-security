@@ -1,1 +1,39 @@
-include 'core', 'web', 'ldap', 'acl', 'config', 'cas', 'openid'
+String[] modules = [
+    'core',
+    'web',
+    'ldap',
+    'acl',
+    'config',
+    'cas',
+    'openid',
+    'taglibs'
+]
+
+String[] samples = [
+    'tutorial',
+    'contacts',
+    'openid'
+]
+
+include modules
+
+modules.each {name ->
+    p = findProject(":${name}")
+    p.name = "spring-security-${name}"
+    p.buildFileName = "${name}.gradle"
+}
+
+include samples
+
+samples.each {name ->
+    p = findProject(":${name}")
+    p.name = "spring-security-samples-${name}"
+    p.buildFileName = "${name}.gradle"
+    p.projectDir = new File(settingsDir, "samples/${name}");
+}
+
+
+rootProject.children.each {project ->
+    assert project.buildFile.isFile()
+    assert project.projectDir.isDirectory()
+}

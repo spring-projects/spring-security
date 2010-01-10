@@ -3,7 +3,7 @@
 test.exclude('**/OpenLDAPIntegrationTestSuite.class')
 
 dependencies {
-    compile project(':core'),
+    compile project(':spring-security-core'),
             "org.springframework:spring-core:$springVersion",
             "org.springframework:spring-beans:$springVersion",
             "org.springframework:spring-context:$springVersion",

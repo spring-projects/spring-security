@@ -4,3 +4,4 @@ target/
 .settings/
 build/
 *.log
+.gradle/
