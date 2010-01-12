@@ -249,7 +249,7 @@ public class AbstractRememberMeServicesTests {
         MockRememberMeServices services = new MockRememberMeServices();
         Cookie cookie = new Cookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
                 services.encodeCookie(StringUtils.delimitedListToStringArray(cookieToken, ":")));
-
+        cookie.setPath("/");
         return new Cookie[] {cookie};
     }
 
