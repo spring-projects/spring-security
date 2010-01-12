@@ -147,7 +147,6 @@ public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPriv
     }
 
     private FilterInvocation createFilterInvocation(String contextPath, String uri, String method) {
-        Assert.hasText(contextPath, "contextPath required");
         Assert.hasText(uri, "URI required");
 
         DummyRequest req = new DummyRequest();
