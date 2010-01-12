@@ -109,6 +109,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 
     /**
      * Locates the Spring Security remember me cookie in the request and returns its value.
+     * The cookie is searched for by name and also by matching the context path to the cookie path.
      *
      * @param request the submitted request which is to be authenticated
      * @return the cookie value (if present), null otherwise.
@@ -120,13 +121,20 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
             return null;
         }
 
+        String requiredPath = getCookiePath(request);
+
         for (int i = 0; i < cookies.length; i++) {
-            if (cookieName.equals(cookies[i].getName())) {
+            if (cookieName.equals(cookies[i].getName()) && requiredPath.equals(cookies[i].getPath())) {
                 return cookies[i].getValue();
             }
         }
 
         return null;
+    }
+
+    private String getCookiePath(HttpServletRequest request) {
+        String contextPath = request.getContextPath();
+        return contextPath.length() > 0 ? contextPath : "/";
     }
 
     /**
@@ -295,7 +303,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
         logger.debug("Cancelling cookie");
         Cookie cookie = new Cookie(cookieName, null);
         cookie.setMaxAge(0);
-        cookie.setPath(StringUtils.hasLength(request.getContextPath()) ? request.getContextPath() : "/");
+        cookie.setPath(getCookiePath(request));
 
         response.addCookie(cookie);
     }
@@ -312,7 +320,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
         String cookieValue = encodeCookie(tokens);
         Cookie cookie = new Cookie(cookieName, cookieValue);
         cookie.setMaxAge(maxAge);
-        cookie.setPath(StringUtils.hasLength(request.getContextPath()) ? request.getContextPath() : "/");
+        cookie.setPath(getCookiePath(request));
         cookie.setSecure(useSecureCookie);
         response.addCookie(cookie);
     }
