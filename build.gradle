@@ -1,9 +1,10 @@
 import java.util.jar.Manifest
 import org.gradle.api.tasks.bundling.GradleManifest
 
-VERSION = '3.0.1.CI-SNAPSHOT'
-
 allprojects {
+    version = '3.0.1.CI-SNAPSHOT'
+    group = 'org.springframework.security'
+
     repositories {
         mavenRepo name:'Local', urls:'file:///Users/luke/.m2/repository'
         mavenCentral()
@@ -13,10 +14,6 @@ allprojects {
 
 subprojects {
     apply id: 'java'
-    apply id: 'maven'
-
-    group = 'org.springframework.security'
-    version = VERSION
 
     springVersion = '3.0.0.RELEASE'
     springLdapVersion = '1.3.0.RELEASE'
@@ -24,10 +21,6 @@ subprojects {
     aspectjVersion = '1.6.5'
     apacheDsVersion = '1.5.5'
     jstlVersion = '1.1.2'
-
-/*    dependencyReport {
-        renderer = new GraphvizReportRenderer()
-    }*/
 
     configurations {
         bundlor
@@ -66,13 +59,39 @@ subprojects {
         ant.taskdef(resource: 'com/springsource/bundlor/ant/antlib.xml', classpath: configurations.bundlor.asPath)
         File template = new File(projectDir, 'template.mf')
         if (template.exists()) {
-            ant.bundlor(inputPath: "${buildDir}/classes", outputPath: "${buildDir}/classes", manifestTemplatePath: "${projectDir}/template.mf") {
-                property(name: 'version', value: "${version}")
-                property(name: 'spring.version', value: "${springVersion}")
+            ant.bundlor(inputPath: "$buildDir/classes", outputPath: "$buildDir/classes", manifestTemplatePath: "$projectDir/template.mf") {
+                property(name: 'version', value: "$version")
+                property(name: 'spring.version', value: "$springVersion")
             }
             // See GRADLE-395 for support for using an existing manifest
-            jar.manifest = new GradleManifest(new Manifest(new File("${buildDir}/classes/META-INF/MANIFEST.MF").newInputStream()))
+            jar.manifest = new GradleManifest(new Manifest(new File("$buildDir/classes/META-INF/MANIFEST.MF").newInputStream()))
         }
     }
 }
 
+subprojects {
+    apply id: 'maven'
+
+    // Create a source jar for uploading
+    task sourceJar(type: Jar) {
+        classifier = 'sources'
+        from sourceSets.main.java
+    }
+
+    artifacts {
+        archives sourceJar
+    }
+
+    def deployer = null
+    uploadArchives {
+        repositories {
+            deployer = mavenDeployer {
+                repository(url: "file://localhost/${rootProject.projectDir}/pomRepo/")
+                snapshotRepository(url: "file://localhost/${rootProject.projectDir}/snapshotRepo/")
+            }
+        }
+    }
+
+    installer = install.repositories.mavenInstaller
+    conf2ScopeMappings.addMapping(1, configurations.provided, "provided")
+}

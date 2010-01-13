@@ -3,9 +3,8 @@
 dependencies {
     compile project(':spring-security-core'),
             'aopalliance:aopalliance:1.0',
-            'javax.servlet:servlet-api:2.5',
-            'org.aspectj:aspectjweaver:1.6.5',            
-            "org.springframework:spring-aop:$springVersion",            
+            "org.aspectj:aspectjweaver:$aspectjVersion",
+            "org.springframework:spring-aop:$springVersion",
             "org.springframework:spring-core:$springVersion",
             "org.springframework:spring-beans:$springVersion",
             "org.springframework:spring-context:$springVersion",
@@ -14,6 +13,8 @@ dependencies {
             "org.springframework:spring-tx:$springVersion",
             "org.springframework:spring-web:$springVersion",
             "org.springframework:spring-test:$springVersion"
-            
+
+    provided 'javax.servlet:servlet-api:2.5'
+
     testCompile 'commons-codec:commons-codec:1.3'
 }
