@@ -67,7 +67,7 @@
       <section xml:id="nsa-realm">
         <title><literal>realm</literal></title>
         <para> Sets the realm name used for basic authentication (if enabled). Corresponds to the
-            <literal>realmName</literal> proerty on
+            <literal>realmName</literal> property on
             <classname>BasicAuthenticationEntryPoint</classname>. </para>
       </section>
       <section xml:id="nsa-entry-point-ref">

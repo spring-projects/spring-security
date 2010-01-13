@@ -29,16 +29,16 @@ import org.springframework.util.Assert;
 
 
 /**
- * Processes an authentication form. Called <tt>AuthenticationProcessingFilter<tt> in previous versions
- * of the framework.
+ * Processes an authentication form submission. Called {@code AuthenticationProcessingFilter} prior to Spring Security
+ * 3.0.
  * <p>
  * Login forms must present two parameters to this filter: a username and
  * password. The default parameter names to use are contained in the
  * static fields {@link #SPRING_SECURITY_FORM_USERNAME_KEY} and {@link #SPRING_SECURITY_FORM_PASSWORD_KEY}.
- * The parameter names can also be changed by setting the <tt>usernameParameter</tt> and <tt>passwordParameter</tt>
+ * The parameter names can also be changed by setting the {@literal usernameParameter} and {@literal passwordParameter}
  * properties.
  * <p>
- * This filter by default responds to the URL <tt>/j_spring_security_check</tt>.
+ * This filter by default responds to the URL {@literal /j_spring_security_check}.
  *
  * @author Ben Alex
  * @author Colin Sampaleanu

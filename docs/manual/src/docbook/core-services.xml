@@ -34,10 +34,9 @@
             from a successful authentication and stored in the
                 <classname>SecurityContext</classname>. </para>
         <para> If you are using the namespace, an instance of
-                <classname>ProviderMananger</classname> is created and maintained internally, and
-            you add providers to it either by using the namespace authentication provider elements,
-            or by adding the <literal>&lt;custom-authentication-provider&gt;</literal> element to a
-            bean (see <link xlink:href="#ns-auth-manager">the namespace chapter</link>). In this
+                <classname>ProviderManager</classname> is created and maintained internally, and
+            you add providers to it by using the namespace authentication provider elements 
+            (see <link xlink:href="#ns-auth-manager">the namespace chapter</link>). In this
             case, you should not declare a <classname>ProviderManager</classname> bean in your
             application context. However, if you are not using the namespace then you would declare
             it like so: <programlisting language="xml"><![CDATA[

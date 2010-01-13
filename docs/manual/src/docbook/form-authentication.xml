@@ -51,7 +51,7 @@
             <interfacename>Authentication</interfacename> object will be placed into the
             <classname>SecurityContextHolder</classname>.
             The configured AuthenticationSuccessHandler will then be called to either redirect or forward
-            the user to the approprate destination. By default a <classname>SavedRequestAwareAuthenticationSuccessHandler</classname>
+            the user to the appropriate destination. By default a <classname>SavedRequestAwareAuthenticationSuccessHandler</classname>
             is used, which means that the user will be redirected to the original destination they requested before they were asked to
             login.
             <note>

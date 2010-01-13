@@ -134,7 +134,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
     }
 
     /**
-     * The current request will be checked for this parameter before and the value used as the target URL if resent.
+     * The current request will be checked for this parameter before and the value used as the target URL if present.
      *
      *  @param targetUrlParameter the name of the parameter containing the encoded target URL. Defaults
      *  to "redirect".
