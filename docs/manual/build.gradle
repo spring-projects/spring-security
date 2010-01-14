@@ -1,4 +1,4 @@
-usePlugin 'docbook'
+apply id: 'docbook'
 
 defaultTasks 'docbookHtml'
 
