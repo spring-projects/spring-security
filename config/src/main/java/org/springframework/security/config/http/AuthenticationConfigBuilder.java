@@ -143,7 +143,7 @@ final class AuthenticationConfigBuilder {
 
         provider.getPropertyValues().addPropertyValue("key", key);
 
-        String id = pc.getReaderContext().registerWithGeneratedName(provider);
+        String id = pc.getReaderContext().generateBeanName(provider);
         pc.registerBeanComponent(new BeanComponentDefinition(provider, id));
 
         rememberMeProviderRef = new RuntimeBeanReference(id);
@@ -168,7 +168,7 @@ final class AuthenticationConfigBuilder {
 
 
             // Id is required by login page filter
-            formFilterId = pc.getReaderContext().registerWithGeneratedName(formFilter);
+            formFilterId = pc.getReaderContext().generateBeanName(formFilter);
             pc.registerBeanComponent(new BeanComponentDefinition(formFilter, formFilterId));
             injectRememberMeServicesRef(formFilter, rememberMeServicesId);
         }
@@ -217,8 +217,7 @@ final class AuthenticationConfigBuilder {
             openIDFilter.getPropertyValues().addPropertyValue("allowSessionCreation", new Boolean(allowSessionCreation));
             openIDFilter.getPropertyValues().addPropertyValue("authenticationManager", authManager);
             // Required by login page filter
-            openIDFilterId = pc.getReaderContext().registerWithGeneratedName(openIDFilter);
-            pc.getRegistry().registerBeanDefinition(openIDFilterId, openIDFilter);
+            openIDFilterId = pc.getReaderContext().generateBeanName(openIDFilter);
             pc.registerBeanComponent(new BeanComponentDefinition(openIDFilter, openIDFilterId));
             injectRememberMeServicesRef(openIDFilter, rememberMeServicesId);
 
@@ -266,7 +265,7 @@ final class AuthenticationConfigBuilder {
 
             entryPoint.getPropertyValues().addPropertyValue("realmName", realm);
 
-            String entryPointId = pc.getReaderContext().registerWithGeneratedName(entryPoint);
+            String entryPointId = pc.getReaderContext().generateBeanName(entryPoint);
             pc.registerBeanComponent(new BeanComponentDefinition(entryPoint, entryPointId));
 
             filterBuilder.addPropertyValue("authenticationManager", authManager);
@@ -398,7 +397,7 @@ final class AuthenticationConfigBuilder {
         RootBeanDefinition anonymousProviderBean = new RootBeanDefinition(AnonymousAuthenticationProvider.class);
         anonymousProviderBean.setSource(anonymousFilter.getSource());
         anonymousProviderBean.getPropertyValues().addPropertyValue(keyPV);
-        String id = pc.getReaderContext().registerWithGeneratedName(anonymousProviderBean);
+        String id = pc.getReaderContext().generateBeanName(anonymousProviderBean);
         pc.registerBeanComponent(new BeanComponentDefinition(anonymousProviderBean, id));
 
         anonymousProviderRef = new RuntimeBeanReference(id);
@@ -430,7 +429,7 @@ final class AuthenticationConfigBuilder {
         requestCacheBldr.addPropertyValue("portResolver", portResolver.getBeanDefinition());
 
         BeanDefinition bean = requestCacheBldr.getBeanDefinition();
-        String id = pc.getReaderContext().registerWithGeneratedName(bean);
+        String id = pc.getReaderContext().generateBeanName(bean);
         pc.registerBeanComponent(new BeanComponentDefinition(bean, id));
 
         this.requestCache = new RuntimeBeanReference(id);

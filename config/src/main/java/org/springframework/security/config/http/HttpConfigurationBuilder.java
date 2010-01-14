@@ -175,7 +175,7 @@ class HttpConfigurationBuilder {
             }
 
             BeanDefinition repoBean = contextRepo.getBeanDefinition();
-            repoRef = pc.getReaderContext().registerWithGeneratedName(repoBean);
+            repoRef = pc.getReaderContext().generateBeanName(repoBean);
             pc.registerBeanComponent(new BeanComponentDefinition(repoBean, repoRef));
 
         }
@@ -261,7 +261,7 @@ class HttpConfigurationBuilder {
                 sessionStrategy.addPropertyValue("migrateSessionAttributes",
                         Boolean.valueOf(sessionFixationAttribute.equals(OPT_SESSION_FIXATION_MIGRATE_SESSION)));
             }
-            sessionAuthStratRef = pc.getReaderContext().registerWithGeneratedName(strategyBean);
+            sessionAuthStratRef = pc.getReaderContext().generateBeanName(strategyBean);
             pc.registerBeanComponent(new BeanComponentDefinition(strategyBean, sessionAuthStratRef));
         }
 
@@ -427,7 +427,7 @@ class HttpConfigurationBuilder {
         String accessManagerId = httpElt.getAttribute(ATT_ACCESS_MGR);
 
         if (!StringUtils.hasText(accessManagerId)) {
-            accessManagerId = pc.getReaderContext().registerWithGeneratedName(accessDecisionMgr);
+            accessManagerId = pc.getReaderContext().generateBeanName(accessDecisionMgr);
             pc.registerBeanComponent(new BeanComponentDefinition(accessDecisionMgr, accessManagerId));
         }
 
@@ -442,14 +442,14 @@ class HttpConfigurationBuilder {
 
         builder.addPropertyValue("securityMetadataSource", securityMds);
         BeanDefinition fsiBean = builder.getBeanDefinition();
-        String fsiId = pc.getReaderContext().registerWithGeneratedName(fsiBean);
+        String fsiId = pc.getReaderContext().generateBeanName(fsiBean);
         pc.registerBeanComponent(new BeanComponentDefinition(fsiBean,fsiId));
 
         // Create and register a DefaultWebInvocationPrivilegeEvaluator for use with taglibs etc.
         BeanDefinition wipe = new RootBeanDefinition(DefaultWebInvocationPrivilegeEvaluator.class);
         wipe.getConstructorArgumentValues().addGenericArgumentValue(new RuntimeBeanReference(fsiId));
-        String wipeId = pc.getReaderContext().registerWithGeneratedName(wipe);
-        pc.registerBeanComponent(new BeanComponentDefinition(wipe, wipeId));
+
+        pc.registerBeanComponent(new BeanComponentDefinition(wipe, pc.getReaderContext().generateBeanName(wipe)));
 
         this.fsi = new RuntimeBeanReference(fsiId);
     }

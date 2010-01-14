@@ -35,9 +35,8 @@ public abstract class AbstractUserDetailsServiceBeanDefinitionParser implements 
         doParse(element, parserContext, builder);
 
         RootBeanDefinition userService = (RootBeanDefinition) builder.getBeanDefinition();
-        String beanId = resolveId(element, userService, parserContext);
+        final String beanId = resolveId(element, userService, parserContext);
 
-        parserContext.getRegistry().registerBeanDefinition(beanId, userService);
         parserContext.registerBeanComponent(new BeanComponentDefinition(userService, beanId));
 
         String cacheRef = element.getAttribute(CACHE_REF);
@@ -49,7 +48,6 @@ public abstract class AbstractUserDetailsServiceBeanDefinitionParser implements 
 
             cachingUSBuilder.addPropertyValue("userCache", new RuntimeBeanReference(cacheRef));
             BeanDefinition cachingUserService = cachingUSBuilder.getBeanDefinition();
-            parserContext.getRegistry().registerBeanDefinition(beanId + CACHING_SUFFIX, cachingUserService);
             parserContext.registerBeanComponent(new BeanComponentDefinition(cachingUserService, beanId + CACHING_SUFFIX));
         }
 

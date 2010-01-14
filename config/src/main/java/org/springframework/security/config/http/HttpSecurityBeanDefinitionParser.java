@@ -155,7 +155,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         // Register the portMapper. A default will always be created, even if no element exists.
         BeanDefinition portMapper = new PortMappingsBeanDefinitionParser().parse(
                 DomUtils.getChildElementByTagName(elt, Elements.PORT_MAPPINGS), pc);
-        String portMapperName = pc.getReaderContext().registerWithGeneratedName(portMapper);
+        String portMapperName = pc.getReaderContext().generateBeanName(portMapper);
         pc.registerBeanComponent(new BeanComponentDefinition(portMapper, portMapperName));
 
         return portMapperName;
@@ -179,7 +179,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         }
         authManager.getRawBeanDefinition().setSource(pc.extractSource(element));
         BeanDefinition authMgrBean = authManager.getBeanDefinition();
-        String id = pc.getReaderContext().registerWithGeneratedName(authMgrBean);
+        String id = pc.getReaderContext().generateBeanName(authMgrBean);
         pc.registerBeanComponent(new BeanComponentDefinition(authMgrBean, id));
 
         return new RuntimeBeanReference(id);
@@ -263,9 +263,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         fcpBldr.addPropertyValue("stripQueryStringFromUrls", Boolean.valueOf(matcher instanceof AntUrlPathMatcher));
         fcpBldr.addPropertyValue("filterChainMap", filterChainMap);
         BeanDefinition fcpBean = fcpBldr.getBeanDefinition();
-        pc.getRegistry().registerBeanDefinition(BeanIds.FILTER_CHAIN_PROXY, fcpBean);
-        pc.getRegistry().registerAlias(BeanIds.FILTER_CHAIN_PROXY, BeanIds.SPRING_SECURITY_FILTER_CHAIN);
         pc.registerBeanComponent(new BeanComponentDefinition(fcpBean, BeanIds.FILTER_CHAIN_PROXY));
+        pc.getRegistry().registerAlias(BeanIds.FILTER_CHAIN_PROXY, BeanIds.SPRING_SECURITY_FILTER_CHAIN);
     }
 
     static UrlMatcher createUrlMatcher(Element element) {

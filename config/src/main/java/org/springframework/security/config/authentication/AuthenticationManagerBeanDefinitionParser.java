@@ -60,7 +60,7 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
                 } else {
                     BeanDefinition provider = resolver.resolve(providerElt.getNamespaceURI()).parse(providerElt, pc);
                     Assert.notNull(provider, "Parser for " + providerElt.getNodeName() + " returned a null bean definition");
-                    String id = pc.getReaderContext().registerWithGeneratedName(provider);
+                    String id = pc.getReaderContext().generateBeanName(provider);
                     pc.registerBeanComponent(new BeanComponentDefinition(provider, id));
                     providers.add(new RuntimeBeanReference(id));
                 }
@@ -74,13 +74,12 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
         providerManagerBldr.addPropertyValue("providers", providers);
         // Add the default event publisher
         BeanDefinition publisher = new RootBeanDefinition(DefaultAuthenticationEventPublisher.class);
-        String id = pc.getReaderContext().registerWithGeneratedName(publisher);
+        String id = pc.getReaderContext().generateBeanName(publisher);
         pc.registerBeanComponent(new BeanComponentDefinition(publisher, id));
         providerManagerBldr.addPropertyReference("authenticationEventPublisher", id);
 
-        BeanDefinition authManager = providerManagerBldr.getBeanDefinition();
-        pc.getRegistry().registerBeanDefinition(BeanIds.AUTHENTICATION_MANAGER, authManager);
-        pc.registerBeanComponent(new BeanComponentDefinition(authManager, BeanIds.AUTHENTICATION_MANAGER));
+        pc.registerBeanComponent(
+                new BeanComponentDefinition(providerManagerBldr.getBeanDefinition(), BeanIds.AUTHENTICATION_MANAGER));
 
         if (StringUtils.hasText(alias)) {
             pc.getRegistry().registerAlias(BeanIds.AUTHENTICATION_MANAGER, alias);

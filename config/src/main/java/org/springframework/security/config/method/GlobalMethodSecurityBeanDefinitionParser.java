@@ -128,7 +128,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
                     logger.info("Using bean '" + expressionHandlerRef + "' as method ExpressionHandler implementation");
                 } else {
                     BeanDefinition expressionHandler = new RootBeanDefinition(DefaultMethodSecurityExpressionHandler.class);
-                    expressionHandlerRef = pc.getReaderContext().registerWithGeneratedName(expressionHandler);
+                    expressionHandlerRef = pc.getReaderContext().generateBeanName(expressionHandler);
                     pc.registerBeanComponent(new BeanComponentDefinition(expressionHandler, expressionHandlerRef));
                     logger.info("Expressions were enabled for method security but no SecurityExpressionHandler was configured. " +
                             "All hasPermision() expressions will evaluate to false.");
@@ -167,7 +167,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
         if (pointcutMap.size() > 0) {
             // Only add it if there are actually any pointcuts defined.
             BeanDefinition mapBasedMetadataSource = new RootBeanDefinition(MapBasedMethodSecurityMetadataSource.class);
-            BeanReference ref = new RuntimeBeanReference(pc.getReaderContext().registerWithGeneratedName(mapBasedMetadataSource));
+            BeanReference ref = new RuntimeBeanReference(pc.getReaderContext().generateBeanName(mapBasedMetadataSource));
 
             delegates.add(ref);
             pc.registerBeanComponent(new BeanComponentDefinition(mapBasedMetadataSource, ref.getBeanName()));
@@ -226,7 +226,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
         accessMgrBuilder.addPropertyValue("decisionVoters", voters);
 
         BeanDefinition accessManager = accessMgrBuilder.getBeanDefinition();
-        String id = pc.getReaderContext().registerWithGeneratedName(accessManager);
+        String id = pc.getReaderContext().generateBeanName(accessManager);
         pc.registerBeanComponent(new BeanComponentDefinition(accessManager, id));
 
         return id;
@@ -238,7 +238,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
         delegatingMethodSecurityMetadataSource.setSource(source);
         delegatingMethodSecurityMetadataSource.getPropertyValues().addPropertyValue("methodSecurityMetadataSources", delegates);
 
-        String id = pc.getReaderContext().registerWithGeneratedName(delegatingMethodSecurityMetadataSource);
+        String id = pc.getReaderContext().generateBeanName(delegatingMethodSecurityMetadataSource);
         pc.registerBeanComponent(new BeanComponentDefinition(delegatingMethodSecurityMetadataSource, id));
 
         return new RuntimeBeanReference(id);
@@ -302,7 +302,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
         }
 
         BeanDefinition bean = bldr.getBeanDefinition();
-        String id = pc.getReaderContext().registerWithGeneratedName(bean);
+        String id = pc.getReaderContext().generateBeanName(bean);
         pc.registerBeanComponent(new BeanComponentDefinition(bean, id));
 
         return new RuntimeBeanReference(id);

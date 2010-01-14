@@ -32,6 +32,7 @@ public class InMemoryXmlApplicationContext extends AbstractXmlApplicationContext
     public InMemoryXmlApplicationContext(String xml, String secVersion, ApplicationContext parent) {
         String fullXml = BEANS_OPENING + secVersion + ".xsd'>\n" + xml + BEANS_CLOSE;
         inMemoryXml = new InMemoryResource(fullXml);
+        setAllowBeanDefinitionOverriding(false);
         setParent(parent);
         refresh();
     }

@@ -78,7 +78,7 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
                 logger.info("Using bean '" + expressionHandlerRef + "' as web SecurityExpressionHandler implementation");
             } else {
                 BeanDefinition expressionHandler = BeanDefinitionBuilder.rootBeanDefinition(DefaultWebSecurityExpressionHandler.class).getBeanDefinition();
-                expressionHandlerRef = pc.getReaderContext().registerWithGeneratedName(expressionHandler);
+                expressionHandlerRef = pc.getReaderContext().generateBeanName(expressionHandler);
                 pc.registerBeanComponent(new BeanComponentDefinition(expressionHandler, expressionHandlerRef));
             }
 

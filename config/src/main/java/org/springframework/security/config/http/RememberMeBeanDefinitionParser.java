@@ -105,7 +105,7 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
             }
             services.setSource(source);
             services.getPropertyValues().addPropertyValue("key", key);
-            servicesName = pc.getReaderContext().registerWithGeneratedName(services);
+            servicesName = pc.getReaderContext().generateBeanName(services);
             pc.registerBeanComponent(new BeanComponentDefinition(services, servicesName));
         } else {
             servicesName = rememberMeServicesRef;
