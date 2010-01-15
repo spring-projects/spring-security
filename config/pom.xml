@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-parent</artifactId>
-        <version>3.0.1.CI-SNAPSHOT</version>
+        <version>3.0.1.RELEASE</version>
     </parent>
     <packaging>jar</packaging>
     <artifactId>spring-security-config</artifactId>

@@ -16,9 +16,9 @@
     <para> Method security in enforced using a <classname>MethodSecurityInterceptor</classname>,
       which secures <classname>MethodInvocation</classname>s. Depending on the configuration
       approach, an interceptor may be specific to a single bean or shared between multiple beans.
-      The interceptor uses a <interfacename>MethodDefinitionSource</interfacename> instance to
+      The interceptor uses a <interfacename>MethodSecurityMetadataSource</interfacename> instance to
       obtain the configuration attributes that apply to a particular method invocation.
-        <classname>MapBasedMethodDefinitionSource</classname> is used to store configuration
+        <classname>MapBasedMethodSecurityMetadataSource</classname> is used to store configuration
       attributes keyed by method names (which can be wildcarded) and will be used internally when
       the attributes are defined in the application context using the
         <literal>&lt;intercept-methods&gt;</literal> or <literal>&lt;protect-point&gt;</literal>
