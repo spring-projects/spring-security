@@ -33,7 +33,7 @@
         <x509 />
 -->
         <!-- Uncomment to limit the number of sessions a user can have -->
-        <session-management>
+        <session-management invalid-session-url="/something">
             <concurrency-control max-sessions="1" error-if-maximum-exceeded="true" />
         </session-management>
 
