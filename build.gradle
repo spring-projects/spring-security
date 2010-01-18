@@ -3,6 +3,7 @@ import org.gradle.api.tasks.bundling.GradleManifest
 
 allprojects {
     version = '3.0.2.CI-SNAPSHOT'
+    releaseBuild = version.endsWith('RELEASE')
     group = 'org.springframework.security'
 
     repositories {
@@ -48,24 +49,34 @@ subprojects {
         }
         test {
             compileClasspath = compileClasspath + configurations.provided
+            runtimeClasspath = runtimeClasspath + configurations.provided
         }
     }
 
     test {
-        options.fork(forkMode: ForkMode.ONCE, jvmArgs: ["-ea", '-Xms128m', '-Xmx1g', '-XX:MaxPermSize=128m', '-XX:+HeapDumpOnOutOfMemoryError'])
+        options.fork(forkMode: ForkMode.ONCE, jvmArgs: ["-ea", '-Xms128m', '-Xmx500m', '-XX:MaxPermSize=128m', '-XX:+HeapDumpOnOutOfMemoryError'])
     }
 
-    compileJava.doLast {
+    task bundlor (dependsOn: compileJava) << {
+        if (!dependsOnTaskDidWork()) {
+            return
+        }
         ant.taskdef(resource: 'com/springsource/bundlor/ant/antlib.xml', classpath: configurations.bundlor.asPath)
         File template = new File(projectDir, 'template.mf')
+        mkdir(buildDir, 'bundlor')
         if (template.exists()) {
-            ant.bundlor(inputPath: "$buildDir/classes", outputPath: "$buildDir/classes", manifestTemplatePath: "$projectDir/template.mf") {
+            ant.bundlor(inputPath: "$buildDir/classes/main", outputPath: "$buildDir/bundlor", manifestTemplatePath: template) {
                 property(name: 'version', value: "$version")
                 property(name: 'spring.version', value: "$springVersion")
             }
             // See GRADLE-395 for support for using an existing manifest
-            jar.manifest = new GradleManifest(new Manifest(new File("$buildDir/classes/META-INF/MANIFEST.MF").newInputStream()))
+            jar.manifest = new GradleManifest(new Manifest(new File("$buildDir/bundlor/META-INF/MANIFEST.MF").newInputStream()))
         }
+    }
+
+    jar.dependsOn bundlor
+
+    compileJava.doLast {
     }
 }
 
@@ -78,20 +89,35 @@ subprojects {
         from sourceSets.main.java
     }
 
+    configurations {
+        deployerJars
+    }
+
     artifacts {
         archives sourceJar
     }
 
-    def deployer = null
+    dependencies {
+        deployerJars "org.springframework.build.aws:org.springframework.build.aws.maven:2.0.1.BUILD-SNAPSHOT"
+    }
+
     uploadArchives {
-        repositories {
-            deployer = mavenDeployer {
-                repository(url: "file://localhost/${rootProject.projectDir}/pomRepo/")
-                snapshotRepository(url: "file://localhost/${rootProject.projectDir}/snapshotRepo/")
+        repositories.mavenDeployer {
+            configuration = configurations.deployerJars
+            if (releaseBuild) {
+                // "mavenSyncRepoDir" should be set in properties
+                repository(url: mavenSyncRepoDir)
+            } else {
+                s3credentials = [userName: s3AccessKey, passphrase: s3SecretAccessKey]
+                repository(url: "s3://maven.springframework.org/milestone") {
+                    authentication(s3credentials)
+                }
+                snapshotRepository(url: "s3://maven.springframework.org/snapshot") {
+                    authentication(s3credentials)
+                }
             }
         }
     }
 
-    installer = install.repositories.mavenInstaller
     conf2ScopeMappings.addMapping(1, configurations.provided, "provided")
 }
