@@ -69,7 +69,7 @@ public class ConcurrentSessionControlStrategy extends SessionFixationProtectionS
 
         final List<SessionInformation> sessions = sessionRegistry.getAllSessions(authentication.getPrincipal(), false);
 
-        int sessionCount = sessions == null ? 0 : sessions.size();
+        int sessionCount = sessions.size();
         int allowedSessions = getMaximumSessionsForThisUser(authentication);
 
         if (sessionCount < allowedSessions) {

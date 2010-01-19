@@ -62,7 +62,7 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
         final Set<String> sessionsUsedByPrincipal = principals.get(principal);
 
         if (sessionsUsedByPrincipal == null) {
-            return null;
+            return Collections.emptyList();
         }
 
         List<SessionInformation> list = new ArrayList<SessionInformation>(sessionsUsedByPrincipal.size());

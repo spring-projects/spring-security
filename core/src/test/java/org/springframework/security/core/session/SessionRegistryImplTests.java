@@ -117,7 +117,7 @@ public class SessionRegistryImplTests {
 
         // Check attempts to retrieve cleared session return null
         assertNull(sessionRegistry.getSessionInformation(sessionId));
-        assertNull(sessionRegistry.getAllSessions(principal, false));
+        assertEquals(0, sessionRegistry.getAllSessions(principal, false).size());
     }
 
     @Test
@@ -168,7 +168,7 @@ public class SessionRegistryImplTests {
 
         sessionRegistry.removeSessionInformation(sessionId2);
         assertNull(sessionRegistry.getSessionInformation(sessionId2));
-        assertNull(sessionRegistry.getAllSessions(principal, false));
+        assertEquals(0, sessionRegistry.getAllSessions(principal, false).size());
     }
 
     private boolean contains(String sessionId, Object principal) {
