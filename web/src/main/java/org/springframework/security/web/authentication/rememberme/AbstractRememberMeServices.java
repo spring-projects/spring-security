@@ -121,20 +121,13 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
             return null;
         }
 
-        String requiredPath = getCookiePath(request);
-
         for (int i = 0; i < cookies.length; i++) {
-            if (cookieName.equals(cookies[i].getName()) && requiredPath.equals(cookies[i].getPath())) {
+            if (cookieName.equals(cookies[i].getName())) {
                 return cookies[i].getValue();
             }
         }
 
         return null;
-    }
-
-    private String getCookiePath(HttpServletRequest request) {
-        String contextPath = request.getContextPath();
-        return contextPath.length() > 0 ? contextPath : "/";
     }
 
     /**
@@ -323,6 +316,11 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
         cookie.setPath(getCookiePath(request));
         cookie.setSecure(useSecureCookie);
         response.addCookie(cookie);
+    }
+
+    private String getCookiePath(HttpServletRequest request) {
+        String contextPath = request.getContextPath();
+        return contextPath.length() > 0 ? contextPath : "/";
     }
 
     /**

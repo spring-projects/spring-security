@@ -109,24 +109,7 @@ public class TokenBasedRememberMeServicesTests {
     @Test
     public void autoLoginIgnoresUnrelatedCookie() throws Exception {
         Cookie cookie = new Cookie("unrelated_cookie", "foobar");
-        cookie.setPath("/");
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setCookies(new Cookie[] {cookie});
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        Authentication result = services.autoLogin(request, response);
-
-        assertNull(result);
-        assertNull(response.getCookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY));
-    }
-
-    // SEC-1356
-    @Test
-    public void autoLoginIgnoresCookieWithWrongPath() throws Exception {
-        Cookie cookie = new Cookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, "foobar");
-        cookie.setPath("/");
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setContextPath("not_root");
         request.setCookies(new Cookie[] {cookie});
         MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -140,7 +123,6 @@ public class TokenBasedRememberMeServicesTests {
     public void autoLoginReturnsNullForExpiredCookieAndClearsCookie() throws Exception {
         Cookie cookie = new Cookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
                 generateCorrectCookieContentForToken(System.currentTimeMillis() - 1000000, "someone", "password", "key"));
-        cookie.setPath("/");
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setCookies(new Cookie[] {cookie});
 
@@ -156,7 +138,6 @@ public class TokenBasedRememberMeServicesTests {
     public void autoLoginReturnsNullAndClearsCookieIfMissingThreeTokensInCookieValue() throws Exception {
         Cookie cookie = new Cookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
                 new String(Base64.encodeBase64("x".getBytes())));
-        cookie.setPath("/");
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setCookies(new Cookie[] {cookie});
 
@@ -172,7 +153,6 @@ public class TokenBasedRememberMeServicesTests {
     public void autoLoginClearsNonBase64EncodedCookie() throws Exception {
         Cookie cookie = new Cookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
                 "NOT_BASE_64_ENCODED");
-        cookie.setPath("/");
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setCookies(new Cookie[] {cookie});
 
@@ -190,7 +170,6 @@ public class TokenBasedRememberMeServicesTests {
         Cookie cookie = new Cookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
                 generateCorrectCookieContentForToken(System.currentTimeMillis() + 1000000, "someone", "password",
                     "WRONG_KEY"));
-        cookie.setPath("/");
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setCookies(new Cookie[] {cookie});
 
@@ -207,8 +186,6 @@ public class TokenBasedRememberMeServicesTests {
     public void autoLoginClearsCookieIfTokenDoesNotContainANumberInCookieValue() throws Exception {
         Cookie cookie = new Cookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
                 new String(Base64.encodeBase64("username:NOT_A_NUMBER:signature".getBytes())));
-        cookie.setPath("/");
-
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setCookies(new Cookie[] {cookie});
 
@@ -225,7 +202,6 @@ public class TokenBasedRememberMeServicesTests {
         jmock.checking(udsWillThrowNotFound);
         Cookie cookie = new Cookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
                 generateCorrectCookieContentForToken(System.currentTimeMillis() + 1000000, "someone", "password", "key"));
-        cookie.setPath("/");
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setCookies(new Cookie[] {cookie});
 
@@ -243,7 +219,6 @@ public class TokenBasedRememberMeServicesTests {
         jmock.checking(udsWillReturnUser);
         Cookie cookie = new Cookie(SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
                 generateCorrectCookieContentForToken(System.currentTimeMillis() + 1000000, "someone", "password", "key"));
-        cookie.setPath("/");
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setCookies(new Cookie[] {cookie});
 
