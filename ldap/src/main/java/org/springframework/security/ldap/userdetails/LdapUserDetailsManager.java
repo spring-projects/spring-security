@@ -224,30 +224,26 @@ public class LdapUserDetailsManager implements UserDetailsManager {
         return roleCollector.getList();
     }
 
-//    protected String getRoleFilter(DistinguishedName dn, String username) {
-//        return new EqualsFilter("uniquemember", dn.toString()).encode();
-//    }
-
     public void createUser(UserDetails user) {
         DirContextAdapter ctx = new DirContextAdapter();
         copyToContext(user, ctx);
         DistinguishedName dn = usernameMapper.buildDn(user.getUsername());
-        // Check for any existing authorities which might be set for this DN
+
+        logger.debug("Creating new user '"+ user.getUsername() + "' with DN '" + dn + "'");
+
+        template.bind(dn, ctx, null);
+
+        // Check for any existing authorities which might be set for this DN and remove them
         List<GrantedAuthority> authorities = getUserAuthorities(dn, user.getUsername());
 
         if(authorities.size() > 0) {
             removeAuthorities(dn, authorities);
         }
 
-        logger.debug("Creating new user '"+ user.getUsername() + "' with DN '" + dn + "'");
-
-        template.bind(dn, ctx, null);
-
         addAuthorities(dn, user.getAuthorities());
     }
 
     public void updateUser(UserDetails user) {
-//        Assert.notNull(attributesToRetrieve, "Configuration must specify a list of attributes in order to use update.");
         DistinguishedName dn = usernameMapper.buildDn(user.getUsername());
 
         logger.debug("Updating user '"+ user.getUsername() + "' with DN '" + dn + "'");
