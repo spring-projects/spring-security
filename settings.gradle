@@ -1,4 +1,4 @@
-String[] modules = [
+def String[] modules = [
     'core',
     'web',
     'ldap',
@@ -9,10 +9,15 @@ String[] modules = [
     'taglibs'
 ]
 
-String[] samples = [
+def String[] samples = [
     'tutorial',
     'contacts',
     'openid'
+]
+
+def String[] docs = [
+    'faq',
+    'manual'
 ]
 
 include modules
@@ -32,6 +37,13 @@ samples.each {name ->
     p.projectDir = new File(settingsDir, "samples/${name}");
 }
 
+include docs
+
+docs.each{ name ->
+    p = findProject(":${name}")
+    p.buildFileName = "${name}.gradle"
+    p.projectDir = new File(settingsDir, "docs/${name}");
+}
 
 rootProject.children.each {project ->
     assert project.buildFile.isFile()

@@ -1,19 +1,17 @@
+apply id: 'base'
 apply id: 'docbook'
-
-defaultTasks 'docbookHtml'
 
 docbookSrcFileName = 'springsecurity.xml'
 docbookHtml.stylesheet = new File(projectDir, 'src/xsl/html-custom.xsl')
 docbookFoPdf.stylesheet = new File(projectDir, 'src/xsl/pdf-custom.xsl')
 
-docbookHtml.doLast {
+task doc (dependsOn: [docbookHtml, docbookFoPdf]) << {
     resourcesDir = new File(projectDir, 'src/resources')
     ant {
         docsDir = new File(buildDir, 'docs')
         copy(toDir: docsDir) {fileset(dir: resourcesDir)}
         copy(toDir: new File(docsDir, 'images')) {fileset(dir: new File(projectDir, 'src/docbook/images'))}
+        // TODO: Add this to the plugin
+        delete { fileset(dir: docsDir, includes: "*.fo")}
     }
 }
-
-/*docbookSrc = new File(project.buildDir, 'docbook/src')
-docbookDir = new File(project.buildDir, 'docbook/stylesheets')*/

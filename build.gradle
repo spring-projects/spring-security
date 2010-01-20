@@ -1,6 +1,8 @@
 import java.util.jar.Manifest
 import org.gradle.api.tasks.bundling.GradleManifest
 
+apply id: 'base'
+
 allprojects {
     version = '3.0.2.CI-SNAPSHOT'
     releaseBuild = version.endsWith('RELEASE')
@@ -13,7 +15,7 @@ allprojects {
     }
 }
 
-subprojects {
+configure(javaProjects()) {
     apply id: 'java'
 
     springVersion = '3.0.0.RELEASE'
@@ -75,12 +77,9 @@ subprojects {
     }
 
     jar.dependsOn bundlor
-
-    compileJava.doLast {
-    }
 }
 
-subprojects {
+configure(javaProjects()) {
     apply id: 'maven'
 
     // Create a source jar for uploading
@@ -120,4 +119,45 @@ subprojects {
     }
 
     conf2ScopeMappings.addMapping(1, configurations.provided, "provided")
+}
+
+task apidocs(type: Javadoc) {
+    destinationDir = new File(buildDir, 'apidocs')
+    optionsFile = file("$buildDir/tmp/javadoc.options")
+
+    source coreModuleProjects().collect { project ->
+        project.sourceSets.main.allJava
+    }
+
+    classpath = files(coreModuleProjects().collect { project ->
+        project.sourceSets.main.compileClasspath })
+}
+
+task dist (type: Zip) {
+    def docsDir = new File(project(':manual').buildDir, 'docs')
+    into('docs/apidocs') {
+        from apidocs.destinationDir
+    }
+    into('docs/reference') {
+        from docsDir
+    }
+
+    into('dist') {
+        from coreModuleProjects().collect { project -> project.libsDir }
+    }
+}
+
+dist.dependsOn apidocs, ':manual:doc'
+dist.dependsOn subprojects.collect { "$it.path:assemble" }
+
+def javaProjects() {
+    subprojects.findAll { project -> project.name != 'faq' && project.name != 'manual' }
+}
+
+def sampleProjects() {
+    subprojects.findAll { project -> project.name.startsWith('spring-security-samples') }
+}
+
+def coreModuleProjects() {
+    javaProjects() - sampleProjects()
 }
