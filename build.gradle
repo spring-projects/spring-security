@@ -141,10 +141,13 @@ task dist (type: Zip) {
     into('docs/reference') {
         from docsDir
     }
-
     into('dist') {
         from coreModuleProjects().collect { project -> project.libsDir }
     }
+}
+
+dist.doLast {
+    ant.checksum(file: archivePath, algorithm: 'SHA1', fileext: '.sha1')
 }
 
 dist.dependsOn apidocs, ':manual:doc'
