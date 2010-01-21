@@ -6,12 +6,14 @@ apply id: 'base'
 allprojects {
     version = '3.0.2.CI-SNAPSHOT'
     releaseBuild = version.endsWith('RELEASE')
+    snapshotBuild = version.endsWith('SNAPSHOT')
+
     group = 'org.springframework.security'
 
     repositories {
         mavenRepo name:'Local', urls:'file:///Users/luke/.m2/repository'
         mavenCentral()
-        mavenRepo name:'SpringSource Milestone Repo', urls:'http://repository.springsource.com/maven/bundles/milestone'
+//        mavenRepo name:'SpringSource Milestone Repo', urls:'http://repository.springsource.com/maven/bundles/milestone'
     }
 }
 
@@ -121,6 +123,20 @@ configure(javaProjects()) {
     conf2ScopeMappings.addMapping(1, configurations.provided, "provided")
 }
 
+repositories {
+    // Required for ant s3 task
+    mavenRepo name: "s2.com release", urls: "http://repository.springsource.com/maven/bundles/release"
+}
+
+configurations {
+    antlibs
+}
+
+dependencies {
+    antlibs "org.springframework.build:org.springframework.build.aws.ant:3.0.3.RELEASE",
+            "net.java.dev.jets3t:jets3t:0.6.1"
+}
+
 task apidocs(type: Javadoc) {
     destinationDir = new File(buildDir, 'apidocs')
     optionsFile = file("$buildDir/tmp/javadoc.options")
@@ -133,25 +149,69 @@ task apidocs(type: Javadoc) {
         project.sourceSets.main.compileClasspath })
 }
 
-task dist (type: Zip) {
-    def docsDir = new File(project(':manual').buildDir, 'docs')
-    into('docs/apidocs') {
+task apitar(type: Tar, dependsOn: apidocs) {
+    compression = Compression.BZIP2
+    classifier = 'apidocs'
+    into('apidocs') {
         from apidocs.destinationDir
     }
-    into('docs/reference') {
-        from docsDir
-    }
-    into('dist') {
-        from coreModuleProjects().collect { project -> project.libsDir }
+}
+
+task login << {
+    ant.input("Please enter the ssh username for host '$sshHost'", addproperty: "ssh.username")
+    ant.input("Please enter the ssh password '$sshHost'", addproperty: "ssh.password")
+    def username = ant.properties['ssh.username']
+    def password = ant.properties['ssh.password']
+}
+
+task uploadApidocs (dependsOn: login) << {
+    ant.scp(file: apitar.archivePath, todir: "${login.username}@$sshHost:$remoteDocsDir", password: password)
+    ant.sshexec(host: sshHost, username: login.username, password: login.password, command: "cd $remoteDocsDir && tar -xjf ${apitar.archiveName}")
+    ant.sshexec(host: sshHost, username: login.username, password: login.password, command: "rm $remoteDocsDir/${apitar.archiveName}")
+}
+
+task dist (type: Zip) {
+    def docsDir = new File(project(':manual').buildDir, 'docs')
+    def zipRootDir = "${project.name}-$version"
+    into (zipRootDir) {
+        into('docs/apidocs') {
+            from apidocs.destinationDir
+        }
+        into('docs/reference') {
+            from docsDir
+        }
+        into('dist') {
+            from coreModuleProjects().collect { project -> project.libsDir }
+            from project(':spring-security-samples-tutorial').libsDir
+            from project(':spring-security-samples-contacts').libsDir
+        }
     }
 }
+
+dist.dependsOn apidocs, ':manual:doc'
+dist.dependsOn subprojects.collect { "$it.path:assemble" }
 
 dist.doLast {
     ant.checksum(file: archivePath, algorithm: 'SHA1', fileext: '.sha1')
 }
 
-dist.dependsOn apidocs, ':manual:doc'
-dist.dependsOn subprojects.collect { "$it.path:assemble" }
+task uploadDist << {
+    def shaFile = file("${dist.archivePath}.sha1")
+    assert dist.archivePath.isFile()
+    assert shaFile.isFile()
+    ant.taskdef(resource: 'org/springframework/build/aws/ant/antlib.xml', classpath: configurations.antlibs.asPath)
+    ant.s3(accessKey: s3AccessKey, secretKey: s3SecretAccessKey) {
+        upload(bucketName: 'dist.springframework.org', file: dist.archivePath,
+                toFile: releaseType() + "/SEC/${dist.archiveName}", publicRead: 'true') {
+            metadata(name: 'project.name', value: 'Spring Security')
+            metadata(name: 'release.type', value: releaseType())
+            metadata(name: 'bundle.version', value: version)
+            metadata(name: 'package.file.name', value: dist.archiveName)
+        }
+        upload(bucketName: 'dist.springframework.org', file: shaFile,
+                toFile: releaseType() + "/SEC/${dist.archiveName}.sha1", publicRead: 'true')
+    }
+}
 
 def javaProjects() {
     subprojects.findAll { project -> project.name != 'faq' && project.name != 'manual' }
@@ -164,3 +224,14 @@ def sampleProjects() {
 def coreModuleProjects() {
     javaProjects() - sampleProjects()
 }
+
+def releaseType() {
+    if (releaseBuild) {
+        'release'
+    } else if (snapshotBuild) {
+        'snapshot'
+    } else {
+        'milestone'
+    }
+}
+

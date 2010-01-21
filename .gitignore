@@ -5,3 +5,4 @@ target/
 build/
 *.log
 .gradle/
+gradle.properties
