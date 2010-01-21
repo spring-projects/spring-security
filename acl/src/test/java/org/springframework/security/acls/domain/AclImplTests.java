@@ -25,6 +25,7 @@ import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.OwnershipAcl;
 import org.springframework.security.acls.model.Permission;
+import org.springframework.security.acls.model.PermissionGrantingStrategy;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -50,7 +51,8 @@ public class AclImplTests {
 
     Authentication auth = new TestingAuthenticationToken("joe", "ignored", "ROLE_ADMINISTRATOR");
     Mockery jmockCtx = new Mockery();
-    AclAuthorizationStrategy mockAuthzStrategy;
+    AclAuthorizationStrategy authzStrategy;
+    PermissionGrantingStrategy pgs;
     AuditLogger mockAuditLogger;
     ObjectIdentity objectIdentity = new ObjectIdentityImpl(TARGET_CLASS, 100);
 
@@ -59,8 +61,9 @@ public class AclImplTests {
     @Before
     public void setUp() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(auth);
-        mockAuthzStrategy = mock(AclAuthorizationStrategy.class);
-        mockAuditLogger = mock(AuditLogger.class);;
+        authzStrategy = mock(AclAuthorizationStrategy.class);
+        mockAuditLogger = mock(AuditLogger.class);
+        pgs = new DefaultPermissionGrantingStrategy(mockAuditLogger);
         auth.setAuthenticated(true);
     }
 
@@ -72,25 +75,26 @@ public class AclImplTests {
     @Test(expected=IllegalArgumentException.class)
     public void constructorsRejectNullObjectIdentity() throws Exception {
         try {
-            new AclImpl(null, 1, mockAuthzStrategy, mockAuditLogger, null, null, true, new PrincipalSid("joe"));
+            new AclImpl(null, 1, authzStrategy, pgs, null, null, true, new PrincipalSid("joe"));
             fail("Should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
         }
-        new AclImpl(null, 1, mockAuthzStrategy, mockAuditLogger);
+        new AclImpl(null, 1, authzStrategy, mockAuditLogger);
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void constructorsRejectNullId() throws Exception {
         try {
-            new AclImpl(objectIdentity, null, mockAuthzStrategy, mockAuditLogger, null, null, true, new PrincipalSid("joe"));
+            new AclImpl(objectIdentity, null, authzStrategy, pgs, null, null, true, new PrincipalSid("joe"));
             fail("Should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {
         }
-        new AclImpl(objectIdentity, null, mockAuthzStrategy, mockAuditLogger);
+        new AclImpl(objectIdentity, null, authzStrategy, mockAuditLogger);
     }
 
+    @SuppressWarnings("deprecation")
     @Test(expected=IllegalArgumentException.class)
     public void constructorsRejectNullAclAuthzStrategy() throws Exception {
         try {
@@ -102,20 +106,9 @@ public class AclImplTests {
         new AclImpl(objectIdentity, 1, null, mockAuditLogger);
     }
 
-    @Test(expected=IllegalArgumentException.class)
-    public void constructorsRejectNullAuditLogger() throws Exception {
-        try {
-            new AclImpl(objectIdentity, 1, mockAuthzStrategy, null, null, null, true, new PrincipalSid("joe"));
-            fail("It should have thrown IllegalArgumentException");
-        }
-        catch (IllegalArgumentException expected) {
-        }
-        new AclImpl(objectIdentity, 1, mockAuthzStrategy, null);
-    }
-
     @Test
     public void insertAceRejectsNullParameters() throws Exception {
-        MutableAcl acl = new AclImpl(objectIdentity, 1, mockAuthzStrategy, mockAuditLogger, null, null, true, new PrincipalSid(
+        MutableAcl acl = new AclImpl(objectIdentity, 1, authzStrategy, pgs, null, null, true, new PrincipalSid(
                 "joe"));
         try {
             acl.insertAce(0, null, new GrantedAuthoritySid("ROLE_IGNORED"), true);
@@ -133,7 +126,7 @@ public class AclImplTests {
 
     @Test
     public void insertAceAddsElementAtCorrectIndex() throws Exception {
-        MutableAcl acl = new AclImpl(objectIdentity, 1, mockAuthzStrategy, mockAuditLogger, null, null, true, new PrincipalSid("joe"));
+        MutableAcl acl = new AclImpl(objectIdentity, 1, authzStrategy, pgs, null, null, true, new PrincipalSid("joe"));
         MockAclService service = new MockAclService();
 
         // Insert one permission
@@ -169,7 +162,7 @@ public class AclImplTests {
 
     @Test(expected=NotFoundException.class)
     public void insertAceFailsForNonExistentElement() throws Exception {
-        MutableAcl acl = new AclImpl(objectIdentity,1, mockAuthzStrategy, mockAuditLogger, null, null, true, new PrincipalSid(
+        MutableAcl acl = new AclImpl(objectIdentity,1, authzStrategy, pgs, null, null, true, new PrincipalSid(
                 "joe"));
         MockAclService service = new MockAclService();
 
@@ -182,8 +175,7 @@ public class AclImplTests {
 
     @Test
     public void deleteAceKeepsInitialOrdering() throws Exception {
-        MutableAcl acl = new AclImpl(objectIdentity,1, mockAuthzStrategy, mockAuditLogger, null, null, true, new PrincipalSid(
-                "joe"));
+        MutableAcl acl = new AclImpl(objectIdentity,1, authzStrategy, pgs, null, null, true, new PrincipalSid("joe"));
         MockAclService service = new MockAclService();
 
         // Add several permissions
@@ -217,8 +209,7 @@ public class AclImplTests {
         AclAuthorizationStrategyImpl strategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
                 new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
                 new GrantedAuthorityImpl("ROLE_GENERAL") });
-        AuditLogger auditLogger = new ConsoleAuditLogger();
-        MutableAcl acl = new AclImpl(objectIdentity, (1), strategy, auditLogger, null, null, true, new PrincipalSid(
+        MutableAcl acl = new AclImpl(objectIdentity, (1), strategy, pgs, null, null, true, new PrincipalSid(
                 "joe"));
         try {
             acl.deleteAce(99);
@@ -230,8 +221,7 @@ public class AclImplTests {
 
     @Test
     public void isGrantingRejectsEmptyParameters() throws Exception {
-        MutableAcl acl = new AclImpl(objectIdentity, 1, mockAuthzStrategy, mockAuditLogger, null, null, true, new PrincipalSid(
-                "joe"));
+        MutableAcl acl = new AclImpl(objectIdentity, 1, authzStrategy, pgs, null, null, true, new PrincipalSid("joe"));
         Sid ben = new PrincipalSid("ben");
         try {
             acl.isGranted(new ArrayList<Permission>(0), Arrays.asList(ben) , false);
@@ -255,8 +245,7 @@ public class AclImplTests {
         ObjectIdentity rootOid = new ObjectIdentityImpl(TARGET_CLASS, 100);
 
         // Create an ACL which owner is not the authenticated principal
-        MutableAcl rootAcl = new AclImpl(rootOid, 1, mockAuthzStrategy, mockAuditLogger, null, null, false, new PrincipalSid(
-                "joe"));
+        MutableAcl rootAcl = new AclImpl(rootOid, 1, authzStrategy, pgs, null, null, false, new PrincipalSid("joe"));
 
         // Grant some permissions
         rootAcl.insertAce(0, BasePermission.READ, new PrincipalSid("ben"), false);
@@ -299,16 +288,12 @@ public class AclImplTests {
         ObjectIdentity childOid2 = new ObjectIdentityImpl(TARGET_CLASS, 104);
 
         // Create ACLs
-        MutableAcl grandParentAcl = new AclImpl(grandParentOid, 1, mockAuthzStrategy, mockAuditLogger, null, null, false,
-                new PrincipalSid("joe"));
-        MutableAcl parentAcl1 = new AclImpl(parentOid1, 2, mockAuthzStrategy, mockAuditLogger, null, null, true,
-                new PrincipalSid("joe"));
-        MutableAcl parentAcl2 = new AclImpl(parentOid2, 3, mockAuthzStrategy, mockAuditLogger, null, null, true,
-                new PrincipalSid("joe"));
-        MutableAcl childAcl1 = new AclImpl(childOid1, 4, mockAuthzStrategy, mockAuditLogger, null, null, true,
-                new PrincipalSid("joe"));
-        MutableAcl childAcl2 = new AclImpl(childOid2, 4, mockAuthzStrategy, mockAuditLogger, null, null, false,
-                new PrincipalSid("joe"));
+        PrincipalSid joe = new PrincipalSid("joe");
+        MutableAcl grandParentAcl = new AclImpl(grandParentOid, 1, authzStrategy, pgs, null, null, false, joe);
+        MutableAcl parentAcl1 = new AclImpl(parentOid1, 2, authzStrategy, pgs, null, null, true, joe);
+        MutableAcl parentAcl2 = new AclImpl(parentOid2, 3, authzStrategy, pgs, null, null, true, joe);
+        MutableAcl childAcl1 = new AclImpl(childOid1, 4, authzStrategy, pgs, null, null, true, joe);
+        MutableAcl childAcl2 = new AclImpl(childOid2, 4, authzStrategy, pgs, null, null, false, joe);
 
         // Create hierarchies
         childAcl2.setParent(childAcl1);
@@ -366,8 +351,7 @@ public class AclImplTests {
         Authentication auth = new TestingAuthenticationToken("ben", "ignored","ROLE_GENERAL");
         auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
-        MutableAcl acl = new AclImpl(objectIdentity, 1, mockAuthzStrategy, mockAuditLogger, null, null, false, new PrincipalSid(
-                "joe"));
+        MutableAcl acl = new AclImpl(objectIdentity, 1, authzStrategy, pgs, null, null, false, new PrincipalSid("joe"));
         MockAclService service = new MockAclService();
 
         acl.insertAce(0, BasePermission.READ, new GrantedAuthoritySid("ROLE_USER_READ"), true);
@@ -384,7 +368,7 @@ public class AclImplTests {
         acl.updateAce(1, BasePermission.DELETE);
         acl.updateAce(2, BasePermission.READ);
 
-        // Check the change was successfuly made
+        // Check the change was successfully made
         assertEquals(acl.getEntries().get(0).getPermission(), BasePermission.CREATE);
         assertEquals(acl.getEntries().get(1).getPermission(), BasePermission.DELETE);
         assertEquals(acl.getEntries().get(2).getPermission(), BasePermission.READ);
@@ -395,8 +379,7 @@ public class AclImplTests {
         Authentication auth = new TestingAuthenticationToken("ben", "ignored", "ROLE_AUDITING", "ROLE_GENERAL");
         auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
-        MutableAcl acl = new AclImpl(objectIdentity, 1, mockAuthzStrategy, mockAuditLogger, null, null, false, new PrincipalSid(
-                "joe"));
+        MutableAcl acl = new AclImpl(objectIdentity, 1, authzStrategy, pgs, null, null, false, new PrincipalSid("joe"));
         MockAclService service = new MockAclService();
 
         acl.insertAce(0, BasePermission.READ, new GrantedAuthoritySid("ROLE_USER_READ"), true);
@@ -427,10 +410,8 @@ public class AclImplTests {
         SecurityContextHolder.getContext().setAuthentication(auth);
         ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, (100));
         ObjectIdentity identity2 = new ObjectIdentityImpl(TARGET_CLASS, (101));
-        MutableAcl acl = new AclImpl(identity, 1, mockAuthzStrategy, mockAuditLogger, null, null, true,
-                new PrincipalSid("joe"));
-        MutableAcl parentAcl = new AclImpl(identity2, 2, mockAuthzStrategy, mockAuditLogger, null, null, true,
-                new PrincipalSid("joe"));
+        MutableAcl acl = new AclImpl(identity, 1, authzStrategy, pgs, null, null, true, new PrincipalSid("joe"));
+        MutableAcl parentAcl = new AclImpl(identity2, 2, authzStrategy, pgs, null, null, true, new PrincipalSid("joe"));
         MockAclService service = new MockAclService();
         acl.insertAce(0, BasePermission.READ, new GrantedAuthoritySid("ROLE_USER_READ"), true);
         acl.insertAce(1, BasePermission.WRITE, new GrantedAuthoritySid("ROLE_USER_READ"), true);
@@ -456,7 +437,7 @@ public class AclImplTests {
     @Test
     public void isSidLoadedBehavesAsExpected() throws Exception {
         List<Sid> loadedSids = Arrays.asList(new PrincipalSid("ben"), new GrantedAuthoritySid("ROLE_IGNORED"));
-        MutableAcl acl = new AclImpl(objectIdentity, 1, mockAuthzStrategy, mockAuditLogger, null, loadedSids, true,
+        MutableAcl acl = new AclImpl(objectIdentity, 1, authzStrategy, pgs, null, loadedSids, true,
                 new PrincipalSid("joe"));
 
         assertTrue(acl.isSidLoaded(loadedSids));
@@ -472,22 +453,19 @@ public class AclImplTests {
 
     @Test(expected=NotFoundException.class)
     public void insertAceRaisesNotFoundExceptionForIndexLessThanZero() throws Exception {
-        AclImpl acl = new AclImpl(objectIdentity, 1, mockAuthzStrategy, mockAuditLogger, null, null, true,
-                new PrincipalSid("joe"));
+        AclImpl acl = new AclImpl(objectIdentity, 1, authzStrategy, pgs, null, null, true, new PrincipalSid("joe"));
         acl.insertAce(-1, mock(Permission.class), mock(Sid.class), true);
     }
 
     @Test(expected=NotFoundException.class)
     public void deleteAceRaisesNotFoundExceptionForIndexLessThanZero() throws Exception {
-        AclImpl acl = new AclImpl(objectIdentity, 1, mockAuthzStrategy, mockAuditLogger, null, null, true,
-                new PrincipalSid("joe"));
+        AclImpl acl = new AclImpl(objectIdentity, 1, authzStrategy, pgs, null, null, true, new PrincipalSid("joe"));
         acl.deleteAce(-1);
     }
 
     @Test(expected=NotFoundException.class)
     public void insertAceRaisesNotFoundExceptionForIndexGreaterThanSize() throws Exception {
-        AclImpl acl = new AclImpl(objectIdentity, 1, mockAuthzStrategy, mockAuditLogger, null, null, true,
-                new PrincipalSid("joe"));
+        AclImpl acl = new AclImpl(objectIdentity, 1, authzStrategy, pgs, null, null, true, new PrincipalSid("joe"));
         // Insert at zero, OK.
         acl.insertAce(0, mock(Permission.class), mock(Sid.class), true);
         // Size is now 1
@@ -497,8 +475,7 @@ public class AclImplTests {
     // SEC-1151
     @Test(expected=NotFoundException.class)
     public void deleteAceRaisesNotFoundExceptionForIndexEqualToSize() throws Exception {
-        AclImpl acl = new AclImpl(objectIdentity, 1, mockAuthzStrategy, mockAuditLogger, null, null, true,
-                new PrincipalSid("joe"));
+        AclImpl acl = new AclImpl(objectIdentity, 1, authzStrategy, pgs, null, null, true, new PrincipalSid("joe"));
         acl.insertAce(0, mock(Permission.class), mock(Sid.class), true);
         // Size is now 1
         acl.deleteAce(1);

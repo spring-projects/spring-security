@@ -26,6 +26,7 @@ import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.OwnershipAcl;
 import org.springframework.security.acls.model.Permission;
+import org.springframework.security.acls.model.PermissionGrantingStrategy;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.acls.model.UnloadedSidException;
 import org.springframework.util.Assert;
@@ -41,7 +42,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 
     private Acl parentAcl;
     private transient AclAuthorizationStrategy aclAuthorizationStrategy;
-    private transient AuditLogger auditLogger;
+    private transient PermissionGrantingStrategy permissionGrantingStrategy;
     private List<AccessControlEntry> aces = new ArrayList<AccessControlEntry>();
     private ObjectIdentity objectIdentity;
     private Serializable id;
@@ -69,7 +70,17 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
         this.objectIdentity = objectIdentity;
         this.id = id;
         this.aclAuthorizationStrategy = aclAuthorizationStrategy;
-        this.auditLogger = auditLogger;
+        this.permissionGrantingStrategy = new DefaultPermissionGrantingStrategy(auditLogger);
+    }
+
+    /**
+     * @deprecated Use the version which takes a  {@code PermissionGrantingStrategy} argument instead.
+     */
+    @Deprecated
+    public AclImpl(ObjectIdentity objectIdentity, Serializable id, AclAuthorizationStrategy aclAuthorizationStrategy,
+                    AuditLogger auditLogger, Acl parentAcl, List<Sid> loadedSids, boolean entriesInheriting, Sid owner) {
+        this(objectIdentity, id, aclAuthorizationStrategy, new DefaultPermissionGrantingStrategy(auditLogger),
+                parentAcl, loadedSids, entriesInheriting, owner);
     }
 
     /**
@@ -88,20 +99,20 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
      * @param owner the owner (required)
      */
     public AclImpl(ObjectIdentity objectIdentity, Serializable id, AclAuthorizationStrategy aclAuthorizationStrategy,
-                    AuditLogger auditLogger, Acl parentAcl, List<Sid> loadedSids, boolean entriesInheriting, Sid owner) {
+            PermissionGrantingStrategy grantingStrategy, Acl parentAcl, List<Sid> loadedSids, boolean entriesInheriting, Sid owner) {
         Assert.notNull(objectIdentity, "Object Identity required");
         Assert.notNull(id, "Id required");
         Assert.notNull(aclAuthorizationStrategy, "AclAuthorizationStrategy required");
         Assert.notNull(owner, "Owner required");
-        Assert.notNull(auditLogger, "AuditLogger required");
+
         this.objectIdentity = objectIdentity;
         this.id = id;
         this.aclAuthorizationStrategy = aclAuthorizationStrategy;
-        this.auditLogger = auditLogger;
         this.parentAcl = parentAcl; // may be null
         this.loadedSids = loadedSids; // may be null
         this.entriesInheriting = entriesInheriting;
         this.owner = owner;
+        this.permissionGrantingStrategy = grantingStrategy;
     }
 
     /**
@@ -168,35 +179,11 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
     }
 
     /**
-     * Determines authorization.  The order of the <code>permission</code> and <code>sid</code> arguments is
-     * <em>extremely important</em>! The method will iterate through each of the <code>permission</code>s in the order
-     * specified. For each iteration, all of the <code>sid</code>s will be considered, again in the order they are
-     * presented. A search will then be performed for the first {@link AccessControlEntry} object that directly
-     * matches that <code>permission:sid</code> combination. When the <em>first full match</em> is found (ie an ACE
-     * that has the SID currently being searched for and the exact permission bit mask being search for), the grant or
-     * deny flag for that ACE will prevail. If the ACE specifies to grant access, the method will return
-     * <code>true</code>. If the ACE specifies to deny access, the loop will stop and the next <code>permission</code>
-     * iteration will be performed. If each permission indicates to deny access, the first deny ACE found will be
-     * considered the reason for the failure (as it was the first match found, and is therefore the one most logically
-     * requiring changes - although not always). If absolutely no matching ACE was found at all for any permission,
-     * the parent ACL will be tried (provided that there is a parent and {@link #isEntriesInheriting()} is
-     * <code>true</code>. The parent ACL will also scan its parent and so on. If ultimately no matching ACE is found,
-     * a <code>NotFoundException</code> will be thrown and the caller will need to decide how to handle the permission
-     * check. Similarly, if any of the SID arguments presented to the method were not loaded by the ACL,
-     * <code>UnloadedSidException</code> will be thrown.
+     * Delegates to the {@link PermissionGrantingStrategy}.
      *
-     * @param permission the exact permissions to scan for (order is important)
-     * @param sids the exact SIDs to scan for (order is important)
-     * @param administrativeMode if <code>true</code> denotes the query is for administrative purposes and no auditing
-     *        will be undertaken
-     *
-     * @return <code>true</code> if one of the permissions has been granted, <code>false</code> if one of the
-     *         permissions has been specifically revoked
-     *
-     * @throws NotFoundException if an exact ACE for one of the permission bit masks and SID combination could not be
-     *         found
      * @throws UnloadedSidException if the passed SIDs are unknown to this ACL because the ACL was only loaded for a
      *         subset of SIDs
+     * @see DefaultPermissionGrantingStrategy
      */
     public boolean isGranted(List<Permission> permission, List<Sid> sids, boolean administrativeMode)
             throws NotFoundException, UnloadedSidException {
@@ -207,64 +194,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
             throw new UnloadedSidException("ACL was not loaded for one or more SID");
         }
 
-        AccessControlEntry firstRejection = null;
-
-        for (Permission p : permission) {
-            for (Sid sid: sids) {
-                // Attempt to find exact match for this permission mask and SID
-                boolean scanNextSid = true;
-
-                for (AccessControlEntry ace : aces ) {
-
-                    if ((ace.getPermission().getMask() == p.getMask()) && ace.getSid().equals(sid)) {
-                        // Found a matching ACE, so its authorization decision will prevail
-                        if (ace.isGranting()) {
-                            // Success
-                            if (!administrativeMode) {
-                                auditLogger.logIfNeeded(true, ace);
-                            }
-
-                            return true;
-                        }
-
-                        // Failure for this permission, so stop search
-                        // We will see if they have a different permission
-                        // (this permission is 100% rejected for this SID)
-                        if (firstRejection == null) {
-                            // Store first rejection for auditing reasons
-                            firstRejection = ace;
-                        }
-
-                        scanNextSid = false; // helps break the loop
-
-                        break; // exit aces loop
-                    }
-                }
-
-                if (!scanNextSid) {
-                    break; // exit SID for loop (now try next permission)
-                }
-            }
-        }
-
-        if (firstRejection != null) {
-            // We found an ACE to reject the request at this point, as no
-            // other ACEs were found that granted a different permission
-            if (!administrativeMode) {
-                auditLogger.logIfNeeded(false, firstRejection);
-            }
-
-            return false;
-        }
-
-        // No matches have been found so far
-        if (isEntriesInheriting() && (parentAcl != null)) {
-            // We have a parent, so let them try to find a matching ACE
-            return parentAcl.isGranted(permission, sids, false);
-        } else {
-            // We either have no parent, or we're the uppermost parent
-            throw new NotFoundException("Unable to locate a matching ACE for passed permissions and SIDs");
-        }
+        return permissionGrantingStrategy.isGranted(this, permission, sids, administrativeMode);
     }
 
     public boolean isSidLoaded(List<Sid> sids) {
@@ -320,39 +250,6 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
         return parentAcl;
     }
 
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("AclImpl[");
-        sb.append("id: ").append(this.id).append("; ");
-        sb.append("objectIdentity: ").append(this.objectIdentity).append("; ");
-        sb.append("owner: ").append(this.owner).append("; ");
-
-        int count = 0;
-
-        for (AccessControlEntry ace : aces) {
-            count++;
-
-            if (count == 1) {
-                sb.append("\r\n");
-            }
-
-            sb.append(ace).append("\r\n");
-        }
-
-        if (count == 0) {
-            sb.append("no ACEs; ");
-        }
-
-        sb.append("inheriting: ").append(this.entriesInheriting).append("; ");
-        sb.append("parent: ").append((this.parentAcl == null) ? "Null" : this.parentAcl.getObjectIdentity().toString());
-        sb.append("; ");
-        sb.append("aclAuthorizationStrategy: ").append(this.aclAuthorizationStrategy).append("; ");
-        sb.append("auditLogger: ").append(this.auditLogger);
-        sb.append("]");
-
-        return sb.toString();
-    }
-
     public void updateAce(int aceIndex, Permission permission)
         throws NotFoundException {
         aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
@@ -403,6 +300,39 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
             }
         }
         return false;
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("AclImpl[");
+        sb.append("id: ").append(this.id).append("; ");
+        sb.append("objectIdentity: ").append(this.objectIdentity).append("; ");
+        sb.append("owner: ").append(this.owner).append("; ");
+
+        int count = 0;
+
+        for (AccessControlEntry ace : aces) {
+            count++;
+
+            if (count == 1) {
+                sb.append("\n");
+            }
+
+            sb.append(ace).append("\n");
+        }
+
+        if (count == 0) {
+            sb.append("no ACEs; ");
+        }
+
+        sb.append("inheriting: ").append(this.entriesInheriting).append("; ");
+        sb.append("parent: ").append((this.parentAcl == null) ? "Null" : this.parentAcl.getObjectIdentity().toString());
+        sb.append("; ");
+        sb.append("aclAuthorizationStrategy: ").append(this.aclAuthorizationStrategy).append("; ");
+        sb.append("permissionGrantingStrategy: ").append(this.permissionGrantingStrategy);
+        sb.append("]");
+
+        return sb.toString();
     }
 
 }

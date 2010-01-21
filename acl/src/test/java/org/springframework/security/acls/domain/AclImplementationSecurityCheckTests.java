@@ -1,8 +1,10 @@
 package org.springframework.security.acls.domain;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.MutableAcl;
@@ -20,19 +22,22 @@ import org.springframework.security.core.context.SecurityContextHolder;
  *
  * @author Andrei Stefan
  */
-public class AclImplementationSecurityCheckTests extends TestCase {
+public class AclImplementationSecurityCheckTests {
     private static final String TARGET_CLASS = "org.springframework.security.acls.TargetObject";
 
     //~ Methods ========================================================================================================
 
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         SecurityContextHolder.clearContext();
     }
 
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         SecurityContextHolder.clearContext();
     }
 
+    @Test
     public void testSecurityCheckNoACEs() throws Exception {
         Authentication auth = new TestingAuthenticationToken("user", "password","ROLE_GENERAL","ROLE_AUDITING","ROLE_OWNERSHIP");
         auth.setAuthenticated(true);
@@ -57,24 +62,25 @@ public class AclImplementationSecurityCheckTests extends TestCase {
         // Check access in case the principal has no authorization rights
         try {
             aclAuthorizationStrategy2.securityCheck(acl2, AclAuthorizationStrategy.CHANGE_GENERAL);
-            Assert.fail("It should have thrown NotFoundException");
+            fail("It should have thrown NotFoundException");
         }
         catch (NotFoundException expected) {
         }
         try {
             aclAuthorizationStrategy2.securityCheck(acl2, AclAuthorizationStrategy.CHANGE_AUDITING);
-            Assert.fail("It should have thrown NotFoundException");
+            fail("It should have thrown NotFoundException");
         }
         catch (NotFoundException expected) {
         }
         try {
             aclAuthorizationStrategy2.securityCheck(acl2, AclAuthorizationStrategy.CHANGE_OWNERSHIP);
-            Assert.fail("It should have thrown NotFoundException");
+            fail("It should have thrown NotFoundException");
         }
         catch (NotFoundException expected) {
         }
     }
 
+    @Test
     public void testSecurityCheckWithMultipleACEs() throws Exception {
         // Create a simple authentication with ROLE_GENERAL
         Authentication auth = new TestingAuthenticationToken("user", "password",
@@ -101,13 +107,13 @@ public class AclImplementationSecurityCheckTests extends TestCase {
         // nor granting access
         try {
             aclAuthorizationStrategy.securityCheck(aclFirstDeny, AclAuthorizationStrategy.CHANGE_AUDITING);
-            Assert.fail("It should have thrown AccessDeniedException");
+            fail("It should have thrown AccessDeniedException");
         }
         catch (AccessDeniedException expected) {
         }
         try {
             aclAuthorizationStrategy.securityCheck(aclFirstDeny, AclAuthorizationStrategy.CHANGE_OWNERSHIP);
-            Assert.fail("It should have thrown AccessDeniedException");
+            fail("It should have thrown AccessDeniedException");
         }
         catch (AccessDeniedException expected) {
         }
@@ -118,7 +124,7 @@ public class AclImplementationSecurityCheckTests extends TestCase {
         // (false) will deny this access
         try {
             aclAuthorizationStrategy.securityCheck(aclFirstDeny, AclAuthorizationStrategy.CHANGE_AUDITING);
-            Assert.fail("It should have thrown AccessDeniedException");
+            fail("It should have thrown AccessDeniedException");
         }
         catch (AccessDeniedException expected) {
         }
@@ -138,31 +144,32 @@ public class AclImplementationSecurityCheckTests extends TestCase {
         aclFirstAllow.insertAce(1, BasePermission.ADMINISTRATION, new PrincipalSid(auth), false);
         try {
             aclAuthorizationStrategy.securityCheck(aclFirstAllow, AclAuthorizationStrategy.CHANGE_AUDITING);
-            Assert.assertTrue(true);
+            assertTrue(true);
         }
         catch (AccessDeniedException notExpected) {
-            Assert.fail("It shouldn't have thrown AccessDeniedException");
+            fail("It shouldn't have thrown AccessDeniedException");
         }
 
         // Create an ACL with no ACE
         MutableAcl aclNoACE = new AclImpl(identity, new Long(1), aclAuthorizationStrategy, new ConsoleAuditLogger());
         try {
             aclAuthorizationStrategy.securityCheck(aclNoACE, AclAuthorizationStrategy.CHANGE_AUDITING);
-            Assert.fail("It should have thrown NotFoundException");
+            fail("It should have thrown NotFoundException");
         }
         catch (NotFoundException expected) {
-            Assert.assertTrue(true);
+            assertTrue(true);
         }
         // and still grant access for CHANGE_GENERAL
         try {
             aclAuthorizationStrategy.securityCheck(aclNoACE, AclAuthorizationStrategy.CHANGE_GENERAL);
-            Assert.assertTrue(true);
+            assertTrue(true);
         }
         catch (NotFoundException expected) {
-            Assert.fail("It shouldn't have thrown NotFoundException");
+            fail("It shouldn't have thrown NotFoundException");
         }
     }
 
+    @Test
     public void testSecurityCheckWithInheritableACEs() throws Exception {
         // Create a simple authentication with ROLE_GENERAL
         Authentication auth = new TestingAuthenticationToken("user", "password",
@@ -186,10 +193,10 @@ public class AclImplementationSecurityCheckTests extends TestCase {
         // rights on CHANGE_OWNERSHIP
         try {
             aclAuthorizationStrategy.securityCheck(childAcl, AclAuthorizationStrategy.CHANGE_OWNERSHIP);
-            Assert.fail("It should have thrown NotFoundException");
+            fail("It should have thrown NotFoundException");
         }
         catch (NotFoundException expected) {
-            Assert.assertTrue(true);
+            assertTrue(true);
         }
 
         // Link the child with its parent and test again against the
@@ -198,10 +205,10 @@ public class AclImplementationSecurityCheckTests extends TestCase {
         childAcl.setEntriesInheriting(true);
         try {
             aclAuthorizationStrategy.securityCheck(childAcl, AclAuthorizationStrategy.CHANGE_OWNERSHIP);
-            Assert.assertTrue(true);
+            assertTrue(true);
         }
         catch (NotFoundException expected) {
-            Assert.fail("It shouldn't have thrown NotFoundException");
+            fail("It shouldn't have thrown NotFoundException");
         }
 
         // Create a root parent and link it to the middle parent
@@ -214,13 +221,15 @@ public class AclImplementationSecurityCheckTests extends TestCase {
         childAcl.setParent(parentAcl);
         try {
             aclAuthorizationStrategy.securityCheck(childAcl, AclAuthorizationStrategy.CHANGE_OWNERSHIP);
-            Assert.assertTrue(true);
+            assertTrue(true);
         }
         catch (NotFoundException expected) {
-            Assert.fail("It shouldn't have thrown NotFoundException");
+            fail("It shouldn't have thrown NotFoundException");
         }
     }
 
+    @SuppressWarnings("deprecation")
+    @Test
     public void testSecurityCheckPrincipalOwner() throws Exception {
         Authentication auth = new TestingAuthenticationToken("user", "password", new GrantedAuthority[] {
                 new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_ONE"),
@@ -237,24 +246,21 @@ public class AclImplementationSecurityCheckTests extends TestCase {
                 false, new PrincipalSid(auth));
         try {
             aclAuthorizationStrategy.securityCheck(acl, AclAuthorizationStrategy.CHANGE_GENERAL);
-            Assert.assertTrue(true);
         }
         catch (AccessDeniedException notExpected) {
-            Assert.fail("It shouldn't have thrown AccessDeniedException");
+            fail("It shouldn't have thrown AccessDeniedException");
         }
         try {
             aclAuthorizationStrategy.securityCheck(acl, AclAuthorizationStrategy.CHANGE_AUDITING);
-            Assert.fail("It shouldn't have thrown AccessDeniedException");
+            fail("It shouldn't have thrown AccessDeniedException");
         }
         catch (NotFoundException expected) {
-            Assert.assertTrue(true);
         }
         try {
             aclAuthorizationStrategy.securityCheck(acl, AclAuthorizationStrategy.CHANGE_OWNERSHIP);
-            Assert.assertTrue(true);
         }
         catch (AccessDeniedException notExpected) {
-            Assert.fail("It shouldn't have thrown AccessDeniedException");
+            fail("It shouldn't have thrown AccessDeniedException");
         }
     }
 }

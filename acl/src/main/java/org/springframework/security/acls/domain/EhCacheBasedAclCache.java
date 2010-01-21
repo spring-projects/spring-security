@@ -23,17 +23,17 @@ import net.sf.ehcache.Element;
 import org.springframework.security.acls.model.AclCache;
 import org.springframework.security.acls.model.MutableAcl;
 import org.springframework.security.acls.model.ObjectIdentity;
+import org.springframework.security.acls.model.PermissionGrantingStrategy;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.util.Assert;
 
 
 /**
  * Simple implementation of {@link AclCache} that delegates to EH-CACHE.
- *
  * <p>
  * Designed to handle the transient fields in {@link AclImpl}. Note that this implementation assumes all
- * {@link AclImpl} instances share the same {@link AuditLogger} and {@link AclAuthorizationStrategy} instance.
- * </p>
+ * {@link AclImpl} instances share the same {@link PermissionGrantingStrategy} and {@link AclAuthorizationStrategy}
+ * instances.
  *
  * @author Ben Alex
  */
@@ -41,7 +41,7 @@ public class EhCacheBasedAclCache implements AclCache {
     //~ Instance fields ================================================================================================
 
     private Ehcache cache;
-    private AuditLogger auditLogger;
+    private PermissionGrantingStrategy permissionGrantingStrategy;
     private AclAuthorizationStrategy aclAuthorizationStrategy;
 
     //~ Constructors ===================================================================================================
@@ -115,7 +115,7 @@ public class EhCacheBasedAclCache implements AclCache {
         if (this.aclAuthorizationStrategy == null) {
             if (acl instanceof AclImpl) {
                 this.aclAuthorizationStrategy = (AclAuthorizationStrategy) FieldUtils.getProtectedFieldValue("aclAuthorizationStrategy", acl);
-                this.auditLogger = (AuditLogger) FieldUtils.getProtectedFieldValue("auditLogger", acl);
+                this.permissionGrantingStrategy = (PermissionGrantingStrategy) FieldUtils.getProtectedFieldValue("permissionGrantingStrategy", acl);
             }
         }
 
@@ -130,7 +130,7 @@ public class EhCacheBasedAclCache implements AclCache {
     private MutableAcl initializeTransientFields(MutableAcl value) {
         if (value instanceof AclImpl) {
             FieldUtils.setProtectedFieldValue("aclAuthorizationStrategy", value, this.aclAuthorizationStrategy);
-            FieldUtils.setProtectedFieldValue("auditLogger", value, this.auditLogger);
+            FieldUtils.setProtectedFieldValue("permissionGrantingStrategy", value, this.permissionGrantingStrategy);
         }
 
         if (value.getParentAcl() != null) {

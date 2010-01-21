@@ -38,6 +38,7 @@ import org.springframework.security.acls.domain.AclAuthorizationStrategy;
 import org.springframework.security.acls.domain.AclImpl;
 import org.springframework.security.acls.domain.AuditLogger;
 import org.springframework.security.acls.domain.DefaultPermissionFactory;
+import org.springframework.security.acls.domain.DefaultPermissionGrantingStrategy;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PermissionFactory;
@@ -49,6 +50,7 @@ import org.springframework.security.acls.model.MutableAcl;
 import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.Permission;
+import org.springframework.security.acls.model.PermissionGrantingStrategy;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.acls.model.UnloadedSidException;
 import org.springframework.security.util.FieldUtils;
@@ -109,7 +111,7 @@ public final class BasicLookupStrategy implements LookupStrategy {
     private AclAuthorizationStrategy aclAuthorizationStrategy;
     private PermissionFactory permissionFactory = new DefaultPermissionFactory();
     private AclCache aclCache;
-    private AuditLogger auditLogger;
+    private PermissionGrantingStrategy grantingStrategy;
     private JdbcTemplate jdbcTemplate;
     private int batchSize = 50;
 
@@ -130,19 +132,28 @@ public final class BasicLookupStrategy implements LookupStrategy {
      * @param dataSource to access the database
      * @param aclCache the cache where fully-loaded elements can be stored
      * @param aclAuthorizationStrategy authorization strategy (required)
+     *
+     * @deprecated Use the version which takes a  {@code PermissionGrantingStrategy} argument instead.
      */
+    @Deprecated
     public BasicLookupStrategy(DataSource dataSource, AclCache aclCache,
-        AclAuthorizationStrategy aclAuthorizationStrategy, AuditLogger auditLogger) {
+            AclAuthorizationStrategy aclAuthorizationStrategy, AuditLogger auditLogger) {
+        this(dataSource, aclCache, aclAuthorizationStrategy, new DefaultPermissionGrantingStrategy(auditLogger));
+    }
+
+    public BasicLookupStrategy(DataSource dataSource, AclCache aclCache,
+            AclAuthorizationStrategy aclAuthorizationStrategy, PermissionGrantingStrategy grantingStrategy) {
         Assert.notNull(dataSource, "DataSource required");
         Assert.notNull(aclCache, "AclCache required");
         Assert.notNull(aclAuthorizationStrategy, "AclAuthorizationStrategy required");
-        Assert.notNull(auditLogger, "AuditLogger required");
+        Assert.notNull(grantingStrategy, "grantingStrategy required");
         jdbcTemplate = new JdbcTemplate(dataSource);
         this.aclCache = aclCache;
         this.aclAuthorizationStrategy = aclAuthorizationStrategy;
-        this.auditLogger = auditLogger;
+        this.grantingStrategy = grantingStrategy;
         fieldAces.setAccessible(true);
         fieldAcl.setAccessible(true);
+
     }
 
     //~ Methods ========================================================================================================
@@ -395,7 +406,7 @@ public final class BasicLookupStrategy implements LookupStrategy {
 
         // Now we have the parent (if there is one), create the true AclImpl
         AclImpl result = new AclImpl(inputAcl.getObjectIdentity(), (Long) inputAcl.getId(), aclAuthorizationStrategy,
-                auditLogger, parent, null, inputAcl.isEntriesInheriting(), inputAcl.getOwner());
+                grantingStrategy, parent, null, inputAcl.isEntriesInheriting(), inputAcl.getOwner());
 
         // Copy the "aces" from the input to the destination
 
@@ -555,7 +566,7 @@ public final class BasicLookupStrategy implements LookupStrategy {
                     owner = new GrantedAuthoritySid(rs.getString("acl_sid"));
                 }
 
-                acl = new AclImpl(objectIdentity, id, aclAuthorizationStrategy, auditLogger, parentAcl, null,
+                acl = new AclImpl(objectIdentity, id, aclAuthorizationStrategy, grantingStrategy, parentAcl, null,
                         entriesInheriting, owner);
 
                 acls.put(id, acl);

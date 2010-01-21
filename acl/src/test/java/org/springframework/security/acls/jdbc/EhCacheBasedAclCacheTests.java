@@ -150,7 +150,7 @@ public class EhCacheBasedAclCacheTests {
         Object retrieved1 = FieldUtils.getProtectedFieldValue("aclAuthorizationStrategy", retrieved);
         assertEquals(null, retrieved1);
 
-        Object retrieved2 = FieldUtils.getProtectedFieldValue("auditLogger", retrieved);
+        Object retrieved2 = FieldUtils.getProtectedFieldValue("permissionGrantingStrategy", retrieved);
         assertEquals(null, retrieved2);
     }
 
@@ -247,7 +247,7 @@ public class EhCacheBasedAclCacheTests {
         assertEquals(acl, aclFromCache);
         // SEC-951 check transient fields are set on parent
         assertNotNull(FieldUtils.getFieldValue(aclFromCache.getParentAcl(), "aclAuthorizationStrategy"));
-        assertNotNull(FieldUtils.getFieldValue(aclFromCache.getParentAcl(), "auditLogger"));
+        assertNotNull(FieldUtils.getFieldValue(aclFromCache.getParentAcl(), "permissionGrantingStrategy"));
         assertEquals(acl, myCache.getFromCache(identity));
         assertNotNull(FieldUtils.getFieldValue(aclFromCache, "aclAuthorizationStrategy"));
         AclImpl parentAclFromCache = (AclImpl) myCache.getFromCache(new Long(2));
