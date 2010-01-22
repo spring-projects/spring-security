@@ -316,7 +316,7 @@ public class HttpSecurityBeanDefinitionParserTests {
     public void lowerCaseComparisonIsRespectedBySecurityFilterInvocationDefinitionSource() throws Exception {
         setContext(
                 "    <http auto-config='true' path-type='ant' lowercase-comparisons='false'>" +
-                "        <intercept-url pattern='/Secure*' access='ROLE_A,ROLE_B' />" +
+                "        <intercept-url pattern='/Secure*' access='ROLE_A, ROLE_B' />" +
                 "        <intercept-url pattern='/**' access='ROLE_C' />" +
                 "    </http>" + AUTH_PROVIDER_XML);
 

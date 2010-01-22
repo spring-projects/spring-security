@@ -75,7 +75,7 @@ public class SecurityConfig implements ConfigAttribute {
         List<ConfigAttribute> attributes = new ArrayList<ConfigAttribute>(attributeNames.length);
 
         for (String attribute : attributeNames) {
-            attributes.add(new SecurityConfig(attribute));
+            attributes.add(new SecurityConfig(attribute.trim()));
         }
 
         return attributes;
