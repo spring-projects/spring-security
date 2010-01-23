@@ -30,6 +30,9 @@
 	<xsl:param name="chunk.section.depth">'5'</xsl:param>
 	<xsl:param name="use.id.as.filename">'1'</xsl:param>
 
+	<!-- Only use scaling in FO -->
+	<xsl:param name="ignore.image.scaling">1</xsl:param>
+
 	<!-- Use code syntax highlighting -->
 	<xsl:param name="highlight.source">1</xsl:param>
 

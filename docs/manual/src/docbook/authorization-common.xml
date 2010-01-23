@@ -93,14 +93,9 @@
       <figure xml:id="authz-access-voting">
         <title>Voting Decision Manager</title>
         <mediaobject>
-          <!--
-      <imageobject role="fo">
-        <imagedata align="center" fileref="resources/images/AccessDecisionVoting.gif" format="GIF"/>
-      </imageobject>
--->
           <imageobject>
-            <imagedata align="center" scalefit="1" fileref="images/AccessDecisionVoting.gif"
-              format="GIF"/>
+            <imagedata align="center" fileref="images/access-decision-voting.png"
+              format="PNG" scale="75"/>
           </imageobject>
         </mediaobject>
       </figure>
@@ -204,8 +199,7 @@ boolean supports(Class clazz);
         <title>After Invocation Implementation</title>
         <mediaobject>
           <imageobject>
-            <imagedata align="center" scalefit="1" fileref="images/AfterInvocation.gif" format="GIF"
-            />
+            <imagedata align="center" fileref="images/after-invocation.png" format="PNG" scale="75"/>
           </imageobject>
         </mediaobject>
       </figure></para>

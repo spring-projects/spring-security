@@ -554,7 +554,7 @@ Successfully authenticated. Security context contains: \
           in <xref linkend="abstract-security-interceptor"/>. <figure
             xml:id="abstract-security-interceptor"><title>Security interceptors and the
                 <quote>secure object</quote> model</title><mediaobject><imageobject>
-                <imagedata align="center" fileref="images/security-interception.png" format="PNG"/>
+                <imagedata align="center" fileref="images/security-interception.png" format="PNG" scale="75"/>
               </imageobject></mediaobject></figure></para>
       </section>
       <section>
