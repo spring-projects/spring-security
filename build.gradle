@@ -137,6 +137,8 @@ dependencies {
             "net.java.dev.jets3t:jets3t:0.6.1"
 }
 
+def docsDir = new File(project(':manual').buildDir, 'docs')
+
 task apidocs(type: Javadoc) {
     destinationDir = new File(buildDir, 'apidocs')
     optionsFile = file("$buildDir/tmp/javadoc.options")
@@ -157,21 +159,37 @@ task apitar(type: Tar, dependsOn: apidocs) {
     }
 }
 
+task doctar(type: Tar, dependsOn: ':manual:doc') {
+    compression = Compression.BZIP2
+    classifier = 'doc'
+    into('reference') {
+        from docsDir
+    }
+}
+
+def username;
+def password;
+
 task login << {
     ant.input("Please enter the ssh username for host '$sshHost'", addproperty: "ssh.username")
     ant.input("Please enter the ssh password '$sshHost'", addproperty: "ssh.password")
-    def username = ant.properties['ssh.username']
-    def password = ant.properties['ssh.password']
+    username = ant.properties['ssh.username']
+    password = ant.properties['ssh.password']
 }
 
 task uploadApidocs (dependsOn: login) << {
-    ant.scp(file: apitar.archivePath, todir: "${login.username}@$sshHost:$remoteDocsDir", password: password)
-    ant.sshexec(host: sshHost, username: login.username, password: login.password, command: "cd $remoteDocsDir && tar -xjf ${apitar.archiveName}")
-    ant.sshexec(host: sshHost, username: login.username, password: login.password, command: "rm $remoteDocsDir/${apitar.archiveName}")
+    ant.scp(file: apitar.archivePath, todir: "$username@$sshHost:$remoteDocsDir", password: password)
+    ant.sshexec(host: sshHost, username: username, password: password, command: "cd $remoteDocsDir && tar -xjf ${apitar.archiveName}")
+    ant.sshexec(host: sshHost, username: username, password: password, command: "rm $remoteDocsDir/${apitar.archiveName}")
+}
+
+task uploadManual (dependsOn: login) << {
+    ant.scp(file: doctar.archivePath, todir: "$username@$sshHost:$remoteDocsDir", password: password)
+    ant.sshexec(host: sshHost, username: username, password: password, command: "cd $remoteDocsDir && tar -xjf ${doctar.archiveName}")
+    ant.sshexec(host: sshHost, username: username, password: password, command: "rm $remoteDocsDir/${doctar.archiveName}")
 }
 
 task dist (type: Zip) {
-    def docsDir = new File(project(':manual').buildDir, 'docs')
     def zipRootDir = "${project.name}-$version"
     into (zipRootDir) {
         into('docs/apidocs') {
