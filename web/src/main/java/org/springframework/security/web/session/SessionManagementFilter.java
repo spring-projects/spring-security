@@ -84,7 +84,8 @@ public class SessionManagementFilter extends GenericFilterBean {
                     logger.debug("Requested session ID" + request.getRequestedSessionId() + " is invalid.");
 
                     if (invalidSessionUrl != null) {
-                        logger.debug("Redirecting to '" + invalidSessionUrl + "'");
+                        logger.debug("Starting new session (if required) and redirecting to '" + invalidSessionUrl + "'");
+                        request.getSession();
                         redirectStrategy.sendRedirect(request, response, invalidSessionUrl);
 
                         return;
