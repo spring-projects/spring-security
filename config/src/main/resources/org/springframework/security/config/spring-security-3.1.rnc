@@ -293,7 +293,6 @@ http.attlist &=
     ##
     attribute disable-url-rewriting {boolean}?
 
-
 access-denied-handler =
     ## Defines the access-denied strategy that should be used. An access denied page can be defined or a reference to an AccessDeniedHandler instance.
     element access-denied-handler {access-denied-handler.attlist, empty}
@@ -339,7 +338,6 @@ logout.attlist &=
     ## A reference to a LogoutSuccessHandler implementation which will be used to determine the destination to which the user is taken after logging out.
     attribute success-handler-ref {xsd:token}?
 
-
 request-cache =
     ## Allow the RequestCache used for saving requests during the login process to be set
     element request-cache {ref}
@@ -368,7 +366,6 @@ form-login.attlist &=
 form-login.attlist &=
     ## Reference to an AuthenticationFailureHandler bean which should be used to handle a failed authentication request. Should not be used in combination with authentication-failure-url as the implementation should always deal with navigation to the subsequent destination
     attribute authentication-failure-handler-ref {xsd:token}?
-
 
 openid-login =
     ## Sets up form login for authentication with an Open ID identity

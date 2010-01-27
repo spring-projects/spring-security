@@ -146,14 +146,14 @@
   <xs:attributeGroup name="user-property">
     <xs:attribute name="user-property" use="required" type="xs:token">
       <xs:annotation>
-        <xs:documentation>A property of the UserDetails object which will be used as salt by a password encoder. Typically something like "username" might be used. </xs:documentation>
+        <xs:documentation>A property of the UserDetails object which will be used as salt by a password encoder. Typically something like "username" might be used.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="system-wide">
     <xs:attribute name="system-wide" use="required" type="xs:token">
       <xs:annotation>
-        <xs:documentation>A single value that will be used as the salt for a password encoder. </xs:documentation>
+        <xs:documentation>A single value that will be used as the salt for a password encoder.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
@@ -173,12 +173,12 @@
   <xs:attributeGroup name="use-expressions">
     <xs:attribute name="use-expressions" use="required" type="security:boolean">
       <xs:annotation>
-        <xs:documentation>Enables the use of expressions in the 'access' attributes in &lt;intercept-url&gt; elements rather than the traditional list of configuration attributes. Defaults to 'false'. If enabled, each attribute should contain a single boolean expression. If the expression evaluates to 'true', access will be granted. </xs:documentation>
+        <xs:documentation>Enables the use of expressions in the 'access' attributes in &lt;intercept-url&gt; elements rather than the traditional list of configuration attributes. Defaults to 'false'. If enabled, each attribute should contain a single boolean expression. If the expression evaluates to 'true', access will be granted.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="ldap-server"><xs:annotation>
-      <xs:documentation>Defines an LDAP server location or starts an embedded server. The url indicates the location of a remote server. If no url is given, an embedded server will be started, listening on the supplied port number. The port is optional and defaults to 33389. A Spring LDAP ContextSource bean will be registered for the server with the id supplied. </xs:documentation>
+      <xs:documentation>Defines an LDAP server location or starts an embedded server. The url indicates the location of a remote server. If no url is given, an embedded server will be started, listening on the supplied port number. The port is optional and defaults to 33389. A Spring LDAP ContextSource bean will be registered for the server with the id supplied.</xs:documentation>
     </xs:annotation><xs:complexType>
       <xs:attributeGroup ref="security:ldap-server.attlist"/>
     </xs:complexType></xs:element>
@@ -200,7 +200,7 @@
     </xs:attribute>
     <xs:attribute name="manager-dn" type="xs:string">
       <xs:annotation>
-        <xs:documentation>Username (DN) of the "manager" user identity which will be used to authenticate to a (non-embedded) LDAP server. If omitted, anonymous access will be used. </xs:documentation>
+        <xs:documentation>Username (DN) of the "manager" user identity which will be used to authenticate to a (non-embedded) LDAP server. If omitted, anonymous access will be used.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="manager-password" type="xs:string">
@@ -222,7 +222,7 @@
   <xs:attributeGroup name="ldap-server-ref-attribute">
     <xs:attribute name="server-ref" use="required" type="xs:token">
       <xs:annotation>
-        <xs:documentation>The optional server to use. If omitted, and a default LDAP server is registered (using &lt;ldap-server&gt; with no Id), that server will be used. </xs:documentation>
+        <xs:documentation>The optional server to use. If omitted, and a default LDAP server is registered (using &lt;ldap-server&gt; with no Id), that server will be used.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
@@ -292,7 +292,7 @@
     </xs:attribute>
     <xs:attribute name="server-ref" type="xs:token">
       <xs:annotation>
-        <xs:documentation>The optional server to use. If omitted, and a default LDAP server is registered (using &lt;ldap-server&gt; with no Id), that server will be used. </xs:documentation>
+        <xs:documentation>The optional server to use. If omitted, and a default LDAP server is registered (using &lt;ldap-server&gt; with no Id), that server will be used.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="user-search-filter" type="xs:token">
@@ -351,7 +351,7 @@
   <xs:attributeGroup name="ldap-ap.attlist">
     <xs:attribute name="server-ref" type="xs:token">
       <xs:annotation>
-        <xs:documentation>The optional server to use. If omitted, and a default LDAP server is registered (using &lt;ldap-server&gt; with no Id), that server will be used. </xs:documentation>
+        <xs:documentation>The optional server to use. If omitted, and a default LDAP server is registered (using &lt;ldap-server&gt; with no Id), that server will be used.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="user-search-base" type="xs:token">
@@ -607,7 +607,7 @@
       <xs:attributeGroup ref="security:intercept-url.attlist"/>
     </xs:complexType></xs:element>
         <xs:element name="access-denied-handler"><xs:annotation>
-      <xs:documentation>Defines the access-denied strategy that should be used. An access denied page can be defined or a reference to an AccessDeniedHandler instance. </xs:documentation>
+      <xs:documentation>Defines the access-denied strategy that should be used. An access denied page can be defined or a reference to an AccessDeniedHandler instance.</xs:documentation>
     </xs:annotation><xs:complexType>
       <xs:attributeGroup ref="security:access-denied-handler.attlist"/>
     </xs:complexType></xs:element>
@@ -653,7 +653,7 @@
       <xs:attributeGroup ref="security:session-management.attlist"/>
     </xs:complexType></xs:element>
         <xs:element name="remember-me"><xs:annotation>
-      <xs:documentation>Sets up remember-me authentication. If used with the "key" attribute (or no attributes) the cookie-only implementation will be used. Specifying "token-repository-ref" or "remember-me-data-source-ref" will use the more secure, persisten token approach.     </xs:documentation>
+      <xs:documentation>Sets up remember-me authentication. If used with the "key" attribute (or no attributes) the cookie-only implementation will be used. Specifying "token-repository-ref" or "remember-me-data-source-ref" will use the more secure, persisten token approach.</xs:documentation>
     </xs:annotation><xs:complexType>
       <xs:attributeGroup ref="security:remember-me.attlist"/>
     </xs:complexType></xs:element>
@@ -708,7 +708,7 @@
     </xs:attribute>
     <xs:attribute name="request-matcher">
       <xs:annotation>
-        <xs:documentation>Superseded the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'iciRegex' for case-insensitive regular expressions.</xs:documentation>
+        <xs:documentation>Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'iciRegex' for case-insensitive regular expressions.</xs:documentation>
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
@@ -761,7 +761,7 @@
     </xs:attribute>
     <xs:attribute name="disable-url-rewriting" type="security:boolean">
       <xs:annotation>
-        <xs:documentation> </xs:documentation>
+        <xs:documentation/>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
@@ -774,14 +774,14 @@
     </xs:attribute>
     <xs:attribute name="error-page" type="xs:token">
       <xs:annotation>
-        <xs:documentation>The access denied page that an authenticated user will be redirected to if they request a page which they don't have the authority to access. </xs:documentation>
+        <xs:documentation>The access denied page that an authenticated user will be redirected to if they request a page which they don't have the authority to access.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="access-denied-handler-page">
     <xs:attribute name="error-page" use="required" type="xs:token">
       <xs:annotation>
-        <xs:documentation>The access denied page that an authenticated user will be redirected to if they request a page which they don't have the authority to access. </xs:documentation>
+        <xs:documentation>The access denied page that an authenticated user will be redirected to if they request a page which they don't have the authority to access.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
@@ -871,7 +871,7 @@
     </xs:attribute>
     <xs:attribute name="always-use-default-target" type="security:boolean">
       <xs:annotation>
-        <xs:documentation>Whether the user should always be redirected to the default-target-url after login. </xs:documentation>
+        <xs:documentation>Whether the user should always be redirected to the default-target-url after login.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="login-page" type="xs:token">
@@ -936,7 +936,7 @@
     </xs:attribute>
     <xs:attribute name="request-matcher">
       <xs:annotation>
-        <xs:documentation>Superseded the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'iciRegex' for case-insensitive regular expressions.</xs:documentation>
+        <xs:documentation>Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'iciRegex' for case-insensitive regular expressions.</xs:documentation>
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
@@ -953,7 +953,7 @@
     <xs:attribute name="filters" use="required" type="xs:token"/>
   </xs:attributeGroup>
   <xs:element name="filter-security-metadata-source"><xs:annotation>
-      <xs:documentation>Used to explicitly configure a FilterSecurityMetadataSource bean for use with a FilterSecurityInterceptor. Usually only needed if you are configuring a FilterChainProxy explicitly, rather than using the &lt;http&gt; element. The intercept-url elements used should only contain pattern, method and access attributes. Any others will result in a configuration error. </xs:documentation>
+      <xs:documentation>Used to explicitly configure a FilterSecurityMetadataSource bean for use with a FilterSecurityInterceptor. Usually only needed if you are configuring a FilterChainProxy explicitly, rather than using the &lt;http&gt; element. The intercept-url elements used should only contain pattern, method and access attributes. Any others will result in a configuration error.</xs:documentation>
     </xs:annotation><xs:complexType>
       <xs:sequence>
         <xs:element maxOccurs="unbounded" name="intercept-url"><xs:annotation>
@@ -967,7 +967,7 @@
   <xs:attributeGroup name="fsmds.attlist">
     <xs:attribute name="use-expressions" type="security:boolean">
       <xs:annotation>
-        <xs:documentation>Enables the use of expressions in the 'access' attributes in &lt;intercept-url&gt; elements rather than the traditional list of configuration attributes. Defaults to 'false'. If enabled, each attribute should contain a single boolean expression. If the expression evaluates to 'true', access will be granted. </xs:documentation>
+        <xs:documentation>Enables the use of expressions in the 'access' attributes in &lt;intercept-url&gt; elements rather than the traditional list of configuration attributes. Defaults to 'false'. If enabled, each attribute should contain a single boolean expression. If the expression evaluates to 'true', access will be granted.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="id" type="xs:ID">
@@ -993,7 +993,7 @@
     </xs:attribute>
     <xs:attribute name="request-matcher">
       <xs:annotation>
-        <xs:documentation>Superseded the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'iciRegex' for case-insensitive regular expressions.</xs:documentation>
+        <xs:documentation>Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'iciRegex' for case-insensitive regular expressions.</xs:documentation>
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
@@ -1043,7 +1043,7 @@
     </xs:attribute>
     <xs:attribute name="session-authentication-error-url" type="xs:token">
       <xs:annotation>
-        <xs:documentation>Defines the URL of the error page which should be shown when the SessionAuthenticationStrategy raises an exception. If not set, an unauthorized (402) error code will be returned to the client. Note that this attribute doesn't apply if the error occurs during a form-based login, where the URL for authentication failure will take precedence. </xs:documentation>
+        <xs:documentation>Defines the URL of the error page which should be shown when the SessionAuthenticationStrategy raises an exception. If not set, an unauthorized (402) error code will be returned to the client. Note that this attribute doesn't apply if the error occurs during a form-based login, where the URL for authentication failure will take precedence.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
@@ -1084,7 +1084,7 @@
     </xs:attribute>
     <xs:attribute name="token-repository-ref" type="xs:token">
       <xs:annotation>
-        <xs:documentation>Reference to a PersistentTokenRepository bean for use with the persistent token remember-me implementation. </xs:documentation>
+        <xs:documentation>Reference to a PersistentTokenRepository bean for use with the persistent token remember-me implementation.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="data-source-ref" type="xs:token">
@@ -1117,14 +1117,14 @@
   <xs:attributeGroup name="token-repository-ref">
     <xs:attribute name="token-repository-ref" use="required" type="xs:token">
       <xs:annotation>
-        <xs:documentation>Reference to a PersistentTokenRepository bean for use with the persistent token remember-me implementation. </xs:documentation>
+        <xs:documentation>Reference to a PersistentTokenRepository bean for use with the persistent token remember-me implementation.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="remember-me-services-ref">
     <xs:attribute name="services-ref" type="xs:token">
       <xs:annotation>
-        <xs:documentation>Allows a custom implementation of RememberMeServices to be used. Note that this implementation should return RememberMeAuthenticationToken instances with the same "key" value as specified in the remember-me element. Alternatively it should register its own AuthenticationProvider. </xs:documentation>
+        <xs:documentation>Allows a custom implementation of RememberMeServices to be used. Note that this implementation should return RememberMeAuthenticationToken instances with the same "key" value as specified in the remember-me element. Alternatively it should register its own AuthenticationProvider.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
@@ -1150,7 +1150,7 @@
     </xs:attribute>
     <xs:attribute name="enabled" type="security:boolean">
       <xs:annotation>
-        <xs:documentation>With the default namespace setup, the anonymous "authentication" facility is automatically enabled. You can disable it using this property. </xs:documentation>
+        <xs:documentation>With the default namespace setup, the anonymous "authentication" facility is automatically enabled. You can disable it using this property.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
@@ -1176,11 +1176,11 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="authentication-manager"><xs:annotation>
-      <xs:documentation>Registers the AuthenticationManager instance and allows its list of AuthenticationProviders to be defined. Also allows you to define an alias to allow you to reference the AuthenticationManager in your own beans. </xs:documentation>
+      <xs:documentation>Registers the AuthenticationManager instance and allows its list of AuthenticationProviders to be defined. Also allows you to define an alias to allow you to reference the AuthenticationManager in your own beans.</xs:documentation>
     </xs:annotation><xs:complexType>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element name="authentication-provider"><xs:annotation>
-      <xs:documentation>Indicates that the contained user-service should be used as an authentication source. </xs:documentation>
+      <xs:documentation>Indicates that the contained user-service should be used as an authentication source.</xs:documentation>
     </xs:annotation><xs:complexType>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element ref="security:any-user-service"/>
@@ -1193,12 +1193,12 @@
     </xs:annotation><xs:complexType>
       <xs:attribute name="user-property" type="xs:token">
         <xs:annotation>
-          <xs:documentation>A property of the UserDetails object which will be used as salt by a password encoder. Typically something like "username" might be used. </xs:documentation>
+          <xs:documentation>A property of the UserDetails object which will be used as salt by a password encoder. Typically something like "username" might be used.</xs:documentation>
         </xs:annotation>
       </xs:attribute>
       <xs:attribute name="system-wide" type="xs:token">
         <xs:annotation>
-          <xs:documentation>A single value that will be used as the salt for a password encoder. </xs:documentation>
+          <xs:documentation>A single value that will be used as the salt for a password encoder.</xs:documentation>
         </xs:annotation>
       </xs:attribute>
       <xs:attribute name="ref" type="xs:token">
@@ -1230,12 +1230,12 @@
     </xs:annotation><xs:complexType>
       <xs:attribute name="user-property" type="xs:token">
         <xs:annotation>
-          <xs:documentation>A property of the UserDetails object which will be used as salt by a password encoder. Typically something like "username" might be used. </xs:documentation>
+          <xs:documentation>A property of the UserDetails object which will be used as salt by a password encoder. Typically something like "username" might be used.</xs:documentation>
         </xs:annotation>
       </xs:attribute>
       <xs:attribute name="system-wide" type="xs:token">
         <xs:annotation>
-          <xs:documentation>A single value that will be used as the salt for a password encoder. </xs:documentation>
+          <xs:documentation>A single value that will be used as the salt for a password encoder.</xs:documentation>
         </xs:annotation>
       </xs:attribute>
       <xs:attribute name="ref" type="xs:token">
@@ -1368,7 +1368,7 @@
   </xs:attributeGroup>
   <xs:element name="any-user-service" abstract="true"/>
   <xs:element name="custom-filter"><xs:annotation>
-      <xs:documentation>Used to indicate that a filter bean declaration should be incorporated into the security filter chain. </xs:documentation>
+      <xs:documentation>Used to indicate that a filter bean declaration should be incorporated into the security filter chain.</xs:documentation>
     </xs:annotation><xs:complexType>
       <xs:attributeGroup ref="security:custom-filter.attlist"/>
     </xs:complexType></xs:element>
@@ -1376,7 +1376,7 @@
     <xs:attributeGroup ref="security:ref"/>
     <xs:attribute name="after" type="security:named-security-filter">
       <xs:annotation>
-        <xs:documentation>The filter immediately after which the custom-filter should be placed in the chain. This feature will only be needed by advanced users who wish to mix their own filters into the security filter chain and have some knowledge of the standard Spring Security filters. The filter names map to specific Spring Security implementation filters. </xs:documentation>
+        <xs:documentation>The filter immediately after which the custom-filter should be placed in the chain. This feature will only be needed by advanced users who wish to mix their own filters into the security filter chain and have some knowledge of the standard Spring Security filters. The filter names map to specific Spring Security implementation filters.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="before" type="security:named-security-filter">
@@ -1393,7 +1393,7 @@
   <xs:attributeGroup name="after">
     <xs:attribute name="after" use="required" type="security:named-security-filter">
       <xs:annotation>
-        <xs:documentation>The filter immediately after which the custom-filter should be placed in the chain. This feature will only be needed by advanced users who wish to mix their own filters into the security filter chain and have some knowledge of the standard Spring Security filters. The filter names map to specific Spring Security implementation filters. </xs:documentation>
+        <xs:documentation>The filter immediately after which the custom-filter should be placed in the chain. This feature will only be needed by advanced users who wish to mix their own filters into the security filter chain and have some knowledge of the standard Spring Security filters. The filter names map to specific Spring Security implementation filters.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
