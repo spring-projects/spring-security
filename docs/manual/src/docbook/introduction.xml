@@ -278,16 +278,16 @@
         <section xml:id="get-source">
             <title>Checking out the Source</title>
             <para> Since Spring Security is an Open Source project, we'd strongly encourage you to
-                check out the source code using subversion. This will give you full access to all
-                the sample applications and you can build the most up to date version of the project
+                check out the source code using git. This will give you full access to all the
+                sample applications and you can build the most up to date version of the project
                 easily. Having the source for a project is also a huge help in debugging. Exception
                 stack traces are no longer obscure black-box issues but you can get straight to the
                 line that's causing the problem and work out what's happening. The source is the
                 ultimate documentation for a project and often the simplest place to find out how
                 something actually works. </para>
-            <para> To obtain the source for the project trunk, use the following subversion command:
+            <para>To obtain the source for the project trunk, use the following git command:
                 <programlisting>
-        svn checkout https://src.springframework.org/svn/spring-security/trunk/
+  git clone git://git.springsource.org/spring-security/spring-security.git
     </programlisting>
                 You can checkout specific versions from
                     <literal>https://src.springframework.org/svn/spring-security/tags/</literal>.

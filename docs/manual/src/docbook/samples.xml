@@ -10,18 +10,17 @@
         the source as described in <link xlink:href="#get-source">the introduction</link> and it's
         easy to build the project using Maven. There is more information on the project web site at
             <link xlink:href="http://www.springsource.org/security/">
-            http://www.springsource.org/security/ </link> if you need it. All paths
-        referred to in this chapter are relative to the source directory, once you have checked it
-        out from subversion. </para>
+            http://www.springsource.org/security/ </link> if you need it. All paths referred to in
+        this chapter are relative to the project source directory. </para>
     <section xml:id="tutorial-sample">
         <title>Tutorial Sample</title>
         <para> The tutorial sample is a nice basic example to get you started. It uses simple
             namespace configuration throughout. The compiled application is included in the
             distribution zip file, ready to be deployed into your web container
                 (<filename>spring-security-samples-tutorial-3.0.x.war</filename>). The <link
-                    xlink:href="#ns-form-and-basic">form-based</link> authentication mechanism is used in combination
-            with the commonly-used <link xlink:href="#remember-me">remember-me</link> authentication
-            provider to automatically remember the login using cookies.</para>
+                xlink:href="#ns-form-and-basic">form-based</link> authentication mechanism is used
+            in combination with the commonly-used <link xlink:href="#remember-me">remember-me</link>
+            authentication provider to automatically remember the login using cookies.</para>
         <para>We recommend you start with the tutorial sample, as the XML is minimal and easy to
             follow. Most importantly, you can easily add this one XML file (and its corresponding
                 <literal>web.xml</literal> entries) to your existing application. Only when this
