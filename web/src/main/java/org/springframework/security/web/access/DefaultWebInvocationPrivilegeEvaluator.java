@@ -129,7 +129,7 @@ public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPriv
             return true;
         }
 
-        if (authentication == null || authentication.getAuthorities().isEmpty()) {
+        if (authentication == null) {
             return false;
         }
 
