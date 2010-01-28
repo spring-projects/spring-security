@@ -158,7 +158,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
                 }
             } catch (MessageException e) {
                 attributes.clear();
-                throw new OpenIDConsumerException("Attribute retrievel failed", e);
+                throw new OpenIDConsumerException("Attribute retrieval failed", e);
             }
             if (debug) {
                 logger.debug("Retrieved attributes" + attributes);
@@ -169,8 +169,9 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
         Identifier verified = verification.getVerifiedId();
 
         if (verified == null) {
+            Identifier id = discovered.getClaimedIdentifier();
             return new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.FAILURE,
-                    discovered.getClaimedIdentifier().getIdentifier(),
+                    id == null ? "Unknown" : id.getIdentifier(),
                     "Verification status message: [" + verification.getStatusMsg() + "]", attributes);
         }
 
