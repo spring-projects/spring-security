@@ -31,12 +31,13 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.util.Assert;
 
 /**
- * Base implementation of {@link org.springframework.security.core.session.SessionRegistry}
- * which also listens for {@link org.springframework.security.web.session.HttpSessionDestroyedEvent}s
+ * Default implementation of {@link org.springframework.security.core.session.SessionRegistry SessionRegistry}
+ * which listens for {@link org.springframework.security.core.session.SessionDestroyedEvent SessionDestroyedEvent}s
  * published in the Spring application context.
  * <p>
- * NB: It is important that you register the {@link org.springframework.security.web.session.HttpSessionEventPublisher}
- * in <code>web.xml</code> so that this class is notified of sessions that expire.
+ * For this class to function correctly in a web application, it is important that you register an
+ * {@link org.springframework.security.web.session.HttpSessionEventPublisher HttpSessionEventPublisher}
+ * in the <tt>web.xml</tt> file so that this class is notified of sessions that expire.
  *
  * @author Ben Alex
  * @author Luke Taylor
