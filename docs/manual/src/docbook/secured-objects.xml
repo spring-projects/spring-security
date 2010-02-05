@@ -124,7 +124,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
             throw new IllegalArgumentException("securityInterceptor required");
         }
     }
-}    
+}
 </programlisting>
     <para>In the above example, the security interceptor will be applied to every instance of
         <literal>PersistableEntity</literal>, which is an abstract class not shown (you can use any
@@ -140,7 +140,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
 <bean id="domainObjectInstanceSecurityAspect"
      class="org.springframework.security.samples.aspectj.DomainObjectInstanceSecurityAspect"
      factory-method="aspectOf">
-  <property name="securityInterceptor" ref="aspectJSecurityInterceptor"/>
+  <property name="securityInterceptor" ref="bankManagerSecurity"/>
 </bean>]]>
     </programlisting>
     <para>That's it! Now you can create your beans from anywhere within your application, using
