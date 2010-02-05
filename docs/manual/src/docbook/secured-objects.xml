@@ -28,7 +28,7 @@
       <para> You can of course configure a <classname>MethodSecurityIterceptor</classname> directly
         in your application context for use with one of Spring AOP's proxying mechanisms: <programlisting><![CDATA[
 <bean id="bankManagerSecurity"
-    class="org.springframework.security.intercept.aopalliance.MethodSecurityInterceptor">
+    class="org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor">
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="accessDecisionManager" ref="accessDecisionManager"/>
   <property name="afterInvocationManager" ref="afterInvocationManager"/>
@@ -61,7 +61,7 @@
       in the Spring application context:</para>
     <programlisting><![CDATA[
 <bean id="bankManagerSecurity"
-     class="org.springframework.security.intercept.aspectj.AspectJSecurityInterceptor">
+     class="org.springframework.security.access.intercept.aspectj.AspectJSecurityInterceptor">
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="accessDecisionManager" ref="accessDecisionManager"/>
   <property name="afterInvocationManager" ref="afterInvocationManager"/>
@@ -92,38 +92,40 @@ import org.springframework.beans.factory.InitializingBean;
 
 public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
 
-private AspectJSecurityInterceptor securityInterceptor;
+    private AspectJSecurityInterceptor securityInterceptor;
 
-pointcut domainObjectInstanceExecution(): target(PersistableEntity)
-     &amp;&amp; execution(public * *(..)) &amp;&amp; !within(DomainObjectInstanceSecurityAspect);
+    pointcut domainObjectInstanceExecution(): target(PersistableEntity)
+        &amp;&amp; execution(public * *(..)) &amp;&amp; !within(DomainObjectInstanceSecurityAspect);
 
-Object around(): domainObjectInstanceExecution() {
-  if (this.securityInterceptor == null) {
-    return proceed();
-  }
+    Object around(): domainObjectInstanceExecution() {
+        if (this.securityInterceptor == null) {
+            return proceed();
+        }
 
-  AspectJCallback callback = new AspectJCallback() {
-      public Object proceedWithObject() {
-        return proceed();
-      }
-  };
+        AspectJCallback callback = new AspectJCallback() {
+            public Object proceedWithObject() {
+                return proceed();
+            }
+        };
 
-  return this.securityInterceptor.invoke(thisJoinPoint, callback);
-}
+        return this.securityInterceptor.invoke(thisJoinPoint, callback);
+    }
 
-public AspectJSecurityInterceptor getSecurityInterceptor() {
-  return securityInterceptor;
-}
+    public AspectJSecurityInterceptor getSecurityInterceptor() {
+        return securityInterceptor;
+    }
 
-public void setSecurityInterceptor(AspectJSecurityInterceptor securityInterceptor) {
-  this.securityInterceptor = securityInterceptor;
-}
+    public void setSecurityInterceptor(AspectJSecurityInterceptor securityInterceptor) {
+        this.securityInterceptor = securityInterceptor;
+    }
 
-public void afterPropertiesSet() throws Exception {
-  if (this.securityInterceptor == null)
-    throw new IllegalArgumentException("securityInterceptor required");
-  }
-}</programlisting>
+    public void afterPropertiesSet() throws Exception {
+        if (this.securityInterceptor == null)
+            throw new IllegalArgumentException("securityInterceptor required");
+        }
+    }
+}    
+</programlisting>
     <para>In the above example, the security interceptor will be applied to every instance of
         <literal>PersistableEntity</literal>, which is an abstract class not shown (you can use any
       other class or <literal>pointcut</literal> expression you like). For those curious,
@@ -136,8 +138,8 @@ public void afterPropertiesSet() throws Exception {
       shown below:</para>
     <programlisting><![CDATA[
 <bean id="domainObjectInstanceSecurityAspect"
-   class="org.springframework.security.samples.aspectj.DomainObjectInstanceSecurityAspect"
-   factory-method="aspectOf">
+     class="org.springframework.security.samples.aspectj.DomainObjectInstanceSecurityAspect"
+     factory-method="aspectOf">
   <property name="securityInterceptor" ref="aspectJSecurityInterceptor"/>
 </bean>]]>
     </programlisting>
