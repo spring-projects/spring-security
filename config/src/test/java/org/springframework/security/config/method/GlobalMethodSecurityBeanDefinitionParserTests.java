@@ -269,6 +269,20 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
         assertEquals("bob", result[0]);
     }
 
+    // SEC-1392
+    @Test
+    public void customPermissionEvaluatorIsSupported() throws Exception {
+        setContext(
+                "<global-method-security pre-post-annotations='enabled'>" +
+                "   <expression-handler ref='expressionHandler'/>" +
+                "</global-method-security>" +
+                "<b:bean id='expressionHandler' class='org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler'>" +
+                "   <b:property name='permissionEvaluator' ref='myPermissionEvaluator'/>" +
+                "</b:bean>" +
+                "<b:bean id='myPermissionEvaluator' class='org.springframework.security.config.method.TestPermissionEvaluator'/>" +
+                AUTH_PROVIDER_XML);
+    }
+
     @Test
     public void runAsManagerIsSetCorrectly() throws Exception {
         StaticApplicationContext parent = new StaticApplicationContext();

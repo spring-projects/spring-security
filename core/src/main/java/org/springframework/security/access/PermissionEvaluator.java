@@ -2,6 +2,7 @@ package org.springframework.security.access;
 
 import java.io.Serializable;
 
+import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.security.core.Authentication;
 
 /**
@@ -12,7 +13,7 @@ import org.springframework.security.core.Authentication;
  * @author Luke Taylor
  * @since 3.0
  */
-public interface PermissionEvaluator {
+public interface PermissionEvaluator extends AopInfrastructureBean {
     /**
      *
      * @param authentication represents the user in question. Should not be null.

@@ -1,6 +1,7 @@
 package org.springframework.security.access.expression.method;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
@@ -13,7 +14,7 @@ import org.springframework.security.core.Authentication;
  * @author Luke Taylor
  * @since 3.0
  */
-public interface MethodSecurityExpressionHandler {
+public interface MethodSecurityExpressionHandler extends AopInfrastructureBean {
     /**
      * @return an expression parser for the expressions used by the implementation.
      */
