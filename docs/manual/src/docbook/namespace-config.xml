@@ -620,21 +620,21 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
   <section xml:id="ns-method-security">
     <title>Method Security</title>
     <para>From version 2.0 onwards Spring Security has improved support substantially for adding
-      security to your service layer methods. It provides support for JSR-250 security as well as
-      the framework's original <literal>@Secured</literal> annotation. From 3.0 you can also make
-      use of new <link xlink:href="el-access">expression-based annotations</link>. You can apply
-      security to a single bean, using the <literal>intercept-methods</literal> element to decorate
-      the bean declaration, or you can secure multiple beans across the entire service layer using
-      the AspectJ style pointcuts. </para>
+      security to your service layer methods. It provides support for JSR-250 annotation security as
+      well as the framework's original <literal>@Secured</literal> annotation. From 3.0 you can also
+      make use of new <link xlink:href="el-access">expression-based annotations</link>. You can
+      apply security to a single bean, using the <literal>intercept-methods</literal> element to
+      decorate the bean declaration, or you can secure multiple beans across the entire service
+      layer using the AspectJ style pointcuts. </para>
     <section xml:id="ns-global-method">
       <title>The <literal>&lt;global-method-security&gt;</literal> Element</title>
       <para> This element is used to enable annotation-based security in your application (by
         setting the appropriate attributes on the element), and also to group together security
         pointcut declarations which will be applied across your entire application context. You
         should only declare one <literal>&lt;global-method-security&gt;</literal> element. The
-        following declaration would enable support for both Spring Security's
-          <literal>@Secured</literal>, and JSR-250 annotations: <programlisting><![CDATA[
-  <global-method-security secured-annotations="enabled" jsr250-annotations="enabled"/>
+        following declaration would enable support for Spring Security's
+        <literal>@Secured</literal>: <programlisting><![CDATA[
+  <global-method-security secured-annotations="enabled" />
   ]]>
 </programlisting> Adding an annotation to a method (on an class or interface) would then limit
         the access to that method accordingly. Spring Security's native annotation support defines a
@@ -652,8 +652,14 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
     @Secured("ROLE_TELLER")
     public Account post(Account account, double amount);
   }
-</programlisting></para>
-      <para>To use the new expression-based syntax, you would use <programlisting><![CDATA[
+</programlisting>Support
+        for JSR-250 annotations can be enabled using <programlisting><![CDATA[
+  <global-method-security jsr250-annotations="enabled" />
+  ]]>
+        </programlisting>These are standards-based and allow simple role-based constraints to be
+        applied but do not have the power Spring Security's native annotations.
+        To use the new expression-based syntax, you would use
+<programlisting><![CDATA[
   <global-method-security pre-post-annotations="enabled" />
   ]]></programlisting>and the equivalent Java code would
         be<programlisting language="java">
@@ -668,7 +674,11 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
      @PreAuthorize("hasAuthority('ROLE_TELLER')")
      public Account post(Account account, double amount);
    }
-        </programlisting></para>
+        </programlisting>Expression-based
+        annotations are a good choice if you need to define simple rules that go beyond checking the
+        role names against the user's list of authorities. You can enable more than one type of
+        annotation in the same application, but you should avoid mixing annotations types in the
+        same interface or class to avoid confusion.</para>
       <section xml:id="ns-protect-pointcut">
         <title>Adding Security Pointcuts using <literal>protect-pointcut</literal></title>
         <para> The use of <literal>protect-pointcut</literal> is particularly powerful, as it allows
