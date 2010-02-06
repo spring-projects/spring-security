@@ -15,9 +15,9 @@
 
 package org.springframework.security.authentication.encoding;
 
-import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
+import static org.junit.Assert.*;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 
 /**
@@ -26,10 +26,12 @@ import junit.framework.TestCase;
  * @author colin sampaleanu
  * @author Ben Alex
  * @author Ray Krueger
+ * @author Luke Taylor
  */
-public class Md5PasswordEncoderTests extends TestCase {
+public class Md5PasswordEncoderTests {
     //~ Methods ========================================================================================================
 
+    @Test
     public void testBasicFunctionality() {
         Md5PasswordEncoder pe = new Md5PasswordEncoder();
         String raw = "abc123";
@@ -42,12 +44,14 @@ public class Md5PasswordEncoderTests extends TestCase {
         assertEquals("MD5", pe.getAlgorithm());
     }
 
-    public void testNonAsciiPasswordHasCorrectHash() {
+    @Test
+    public void nonAsciiPasswordHasCorrectHash() {
         Md5PasswordEncoder md5 = new Md5PasswordEncoder();
         String encodedPassword = md5.encodePassword("\u4F60\u597d", null);
         assertEquals("7eca689f0d3389d9dea66ae112e5cfd7", encodedPassword);
     }
 
+    @Test
     public void testBase64() throws Exception {
         Md5PasswordEncoder pe = new Md5PasswordEncoder();
         pe.setEncodeHashAsBase64(true);
@@ -58,5 +62,14 @@ public class Md5PasswordEncoderTests extends TestCase {
         assertTrue(pe.isPasswordValid(encoded, raw, salt));
         assertFalse(pe.isPasswordValid(encoded, badRaw, salt));
         assertTrue(encoded.length() != 32);
+    }
+
+    @Test
+    public void stretchFactorIsProcessedCorrectly() throws Exception {
+        Md5PasswordEncoder pe = new Md5PasswordEncoder();
+        pe.setIterations(2);
+        // Calculate value using:
+        // echo -n password{salt} | openssl md5 -binary | openssl md5
+        assertEquals("eb753fb0c370582b4ee01b30f304b9fc", pe.encodePassword("password", "salt"));
     }
 }
