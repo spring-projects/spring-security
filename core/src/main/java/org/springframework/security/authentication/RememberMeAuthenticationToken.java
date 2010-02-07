@@ -15,7 +15,6 @@
 
 package org.springframework.security.authentication;
 
-import java.io.Serializable;
 import java.util.Collection;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -28,8 +27,9 @@ import org.springframework.security.core.GrantedAuthority;
  * <code>GrantedAuthority</code>s that apply.
  *
  * @author Ben Alex
+ * @author Luke Taylor
  */
-public class RememberMeAuthenticationToken extends AbstractAuthenticationToken implements Serializable {
+public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
     //~ Instance fields ================================================================================================
 
     private final Object principal;

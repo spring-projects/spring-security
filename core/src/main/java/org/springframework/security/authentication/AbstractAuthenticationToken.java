@@ -22,6 +22,7 @@ import java.util.Collections;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -34,7 +35,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @author Ben Alex
  * @author Luke Taylor
  */
-public abstract class AbstractAuthenticationToken implements Authentication {
+public abstract class AbstractAuthenticationToken implements Authentication, CredentialsContainer {
     //~ Instance fields ================================================================================================
 
     private Object details;
@@ -97,6 +98,22 @@ public abstract class AbstractAuthenticationToken implements Authentication {
 
     public void setDetails(Object details) {
         this.details = details;
+    }
+
+    /**
+     * Checks the {@code credentials}, {@code principal} and {@code details} objects, invoking the
+     * {@code eraseCredentials} method on any which implement {@link CredentialsContainer}.
+     */
+    public void eraseCredentials() {
+        eraseSecret(getCredentials());
+        eraseSecret(getPrincipal());
+        eraseSecret(details);
+    }
+
+    private void eraseSecret(Object secret) {
+        if (secret instanceof CredentialsContainer) {
+            ((CredentialsContainer)secret).eraseCredentials();
+        }
     }
 
     @Override
@@ -174,7 +191,7 @@ public abstract class AbstractAuthenticationToken implements Authentication {
         StringBuilder sb = new StringBuilder();
         sb.append(super.toString()).append(": ");
         sb.append("Principal: ").append(this.getPrincipal()).append("; ");
-        sb.append("Password: [PROTECTED]; ");
+        sb.append("Credentials: [PROTECTED]; ");
         sb.append("Authenticated: ").append(this.isAuthenticated()).append("; ");
         sb.append("Details: ").append(this.getDetails()).append("; ");
 
