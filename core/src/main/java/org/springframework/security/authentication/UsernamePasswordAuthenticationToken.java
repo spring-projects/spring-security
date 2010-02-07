@@ -22,8 +22,8 @@ import org.springframework.security.core.GrantedAuthority;
 
 
 /**
- * An {@link org.springframework.security.core.Authentication} implementation that is designed for simple presentation of a
- * username and password.
+ * An {@link org.springframework.security.core.Authentication} implementation that is designed for simple presentation
+ * of a username and password.
  * <p>
  * The <code>principal</code> and <code>credentials</code> should be set with an <code>Object</code> that provides
  * the respective property via its <code>Object.toString()</code> method. The simplest such <code>Object</code> to use
@@ -34,8 +34,8 @@ import org.springframework.security.core.GrantedAuthority;
 public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationToken {
     //~ Instance fields ================================================================================================
 
-    private final Object credentials;
     private final Object principal;
+    private Object credentials;
 
     //~ Constructors ===================================================================================================
 
@@ -93,5 +93,11 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
         }
 
         super.setAuthenticated(false);
+    }
+
+    @Override
+    public void eraseCredentials() {
+        super.eraseCredentials();
+        credentials = null;
     }
 }

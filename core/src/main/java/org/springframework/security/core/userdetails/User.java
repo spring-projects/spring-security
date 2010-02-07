@@ -24,6 +24,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.CredentialsContainer;
 import org.springframework.util.Assert;
 
 /**
@@ -41,9 +42,9 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @author Luke Taylor
  */
-public class User implements UserDetails {
+public class User implements UserDetails, CredentialsContainer {
     //~ Instance fields ================================================================================================
-    private final String password;
+    private String password;
     private final String username;
     private final Set<GrantedAuthority> authorities;
     private final boolean accountNonExpired;
@@ -113,20 +114,24 @@ public class User implements UserDetails {
         return username;
     }
 
+    public boolean isEnabled() {
+        return enabled;
+    }
+
     public boolean isAccountNonExpired() {
         return accountNonExpired;
     }
 
     public boolean isAccountNonLocked() {
-        return this.accountNonLocked;
+        return accountNonLocked;
     }
 
     public boolean isCredentialsNonExpired() {
         return credentialsNonExpired;
     }
 
-    public boolean isEnabled() {
-        return enabled;
+    public void eraseCredentials() {
+        password = null;
     }
 
     private static SortedSet<GrantedAuthority> sortAuthorities(Collection<? extends GrantedAuthority> authorities) {

@@ -26,6 +26,7 @@ import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.util.Assert;
 
@@ -42,9 +43,16 @@ import org.springframework.util.Assert;
  * <code>AuthenticationException</code>, the last <code>AuthenticationException</code> received will be used.
  * If no provider returns a non-null response, or indicates it can even process an <code>Authentication</code>,
  * the <code>ProviderManager</code> will throw a <code>ProviderNotFoundException</code>.
+ * A parent {@code AuthenticationManager} can also be set, and this will also be tried if none of the configured
+ * providers can perform the authentication. This is intended to support namespace configuration options though and
+ * is not a feature that should normally be required.
  * <p>
  * The exception to this process is when a provider throws an {@link AccountStatusException}, in which case no
  * further providers in the list will be queried.
+ *
+ * Post-authentication, the credentials will be cleared from the returned {@code Authentication} object, if it
+ * implements the {@link CredentialsContainer} interface. This behaviour can be controlled by modifying the
+ * {@link #setEraseCredentialsAfterAuthentication(boolean) eraseCredentialsAfterAuthentication} property.
  *
  * <h2>Event Publishing</h2>
  * <p>
@@ -57,8 +65,9 @@ import org.springframework.util.Assert;
  * the <tt>&lt;http&gt;</tt> configuration, so you will receive events from the web part of your application automatically.
  * <p>
  * Note that the implementation also publishes authentication failure events when it obtains an authentication result
- * (or an exception) from the "parent" <tt>AuthenticationManager</tt> if one has been set. So in this situation, the
+ * (or an exception) from the "parent" {@code AuthenticationManager} if one has been set. So in this situation, the
  * parent should not generally be configured to publish events or there will be duplicates.
+ *
  *
  * @author Ben Alex
  * @author Luke Taylor
@@ -76,7 +85,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
     private List<AuthenticationProvider> providers = Collections.emptyList();
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private AuthenticationManager parent;
-
+    private boolean eraseCredentialsAfterAuthentication = true;
     private boolean clearExtraInformation = false;
 
     //~ Methods ========================================================================================================
@@ -150,6 +159,11 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
         }
 
         if (result != null) {
+            if (eraseCredentialsAfterAuthentication && (result instanceof CredentialsContainer)) {
+                // Authentication is complete. Remove credentials and other secret data from authentication
+                ((CredentialsContainer)result).eraseCredentials();
+            }
+
             eventPublisher.publishAuthenticationSuccess(result);
             return result;
         }
@@ -205,6 +219,22 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
     public void setAuthenticationEventPublisher(AuthenticationEventPublisher eventPublisher) {
         Assert.notNull(eventPublisher, "AuthenticationEventPublisher cannot be null");
         this.eventPublisher = eventPublisher;
+    }
+
+    /**
+     * If set to, a resulting {@code Authentication} which implements the {@code CredentialsContainer} interface
+     * will have its {@link CredentialsContainer#eraseCredentials() eraseCredentials} method called before it is returned
+     * from the {@code authenticate()} method.
+     *
+     * @param eraseSecretData set to {@literal false} to retain the credentials data in memory.
+     * Defaults to {@literal true}.
+     */
+    public void setEraseCredentialsAfterAuthentication(boolean eraseSecretData) {
+        this.eraseCredentialsAfterAuthentication = eraseSecretData;
+    }
+
+    public boolean isEraseCredentialsAfterAuthentication() {
+        return eraseCredentialsAfterAuthentication;
     }
 
     /**

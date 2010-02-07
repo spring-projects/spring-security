@@ -28,7 +28,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 
 /**
  * Tests {@link ProviderManager}.
@@ -40,12 +39,31 @@ public class ProviderManagerTests {
 
     @Test(expected=ProviderNotFoundException.class)
     public void authenticationFailsWithUnsupportedToken() throws Exception {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
+        Authentication token = new AbstractAuthenticationToken (null) {
+            public Object getCredentials() {
+                return "";
+            }
 
+            public Object getPrincipal() {
+                return "";
+            }
+        };
         ProviderManager mgr = makeProviderManager();
         mgr.setMessageSource(mock(MessageSource.class));
         mgr.authenticate(token);
+    }
+
+    @Test
+    public void credentialsAreClearedByDefault() throws Exception {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password");
+        ProviderManager mgr = makeProviderManager();
+        Authentication result = mgr.authenticate(token);
+        assertNull(result.getCredentials());
+
+        mgr.setEraseCredentialsAfterAuthentication(false);
+        token = new UsernamePasswordAuthenticationToken("Test", "Password");
+        result = mgr.authenticate(token);
+        assertNotNull(result.getCredentials());
     }
 
     @Test
@@ -126,6 +144,7 @@ public class ProviderManagerTests {
         request.setDetails(details);
 
         Authentication result = authMgr.authenticate(request);
+        assertNotNull(result.getCredentials());
         assertSame(details, result.getDetails());
     }
 
@@ -278,7 +297,8 @@ public class ProviderManagerTests {
         }
 
         public boolean supports(Class<? extends Object> authentication) {
-            if (TestingAuthenticationToken.class.isAssignableFrom(authentication)) {
+            if (TestingAuthenticationToken.class.isAssignableFrom(authentication) ||
+                    UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication)) {
                 return true;
             } else {
                 return false;
