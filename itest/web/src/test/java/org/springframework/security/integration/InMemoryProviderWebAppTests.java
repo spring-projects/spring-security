@@ -1,5 +1,9 @@
 package org.springframework.security.integration;
 
+import static org.testng.Assert.*;
+
+import javax.servlet.http.Cookie;
+
 import net.sourceforge.jwebunit.junit.WebTester;
 
 import org.testng.annotations.Test;
@@ -53,6 +57,20 @@ public class InMemoryProviderWebAppTests extends AbstractWebServerIntegrationTes
         beginAt("secure/file%3Fwith%3Fspecial%3Fchars.htm?someArg=1");
         login("jimi", "jimispassword");
         assertTextPresent("I'm file?with?special?chars.htm");
+    }
+
+    @Test
+    public void persistentLoginIsSuccesful() throws Exception {
+        beginAt("secure/index.html");
+        tester.checkCheckbox("_spring_security_remember_me");
+        login("jimi", "jimispassword");
+        Cookie rememberMe = getRememberMeCookie();
+        assertNotNull(rememberMe);
+        tester.closeBrowser();
+
+        tester.getTestContext().addCookie(rememberMe);
+        beginAt("secure/index.html");
+        assertTextPresent("A Secure Page");
     }
 
     @Test

@@ -1,0 +1,29 @@
+
+dependencies {
+    compile     "org.springframework:spring-context:$springVersion",
+                "org.springframework:spring-web:$springVersion",
+                'javax.servlet:servlet-api:2.5'
+
+    testCompile project(':spring-security-core'),
+                project(':spring-security-web'),
+                "org.springframework:spring-core:$springVersion",
+                "org.springframework:spring-beans:$springVersion",
+                "org.springframework:spring-webmvc:$springVersion",
+                "org.mortbay.jetty:jetty:$jettyVersion",
+                "org.mortbay.jetty:jetty-util:$jettyVersion",
+                'net.sourceforge.jwebunit:jwebunit-core:2.2',
+                "org.testng:testng:5.11:jdk15"
+
+    testRuntime project(':spring-security-config'),
+                project(':spring-security-ldap'),
+                "org.mortbay.jetty:jsp-2.1-jetty:$jettyVersion",
+                'net.sourceforge.jwebunit:jwebunit-htmlunit-plugin:2.2'
+}
+
+test {
+    useTestNG();
+    options {
+        jvmArgs = ["-ea", '-Xms128m', '-Xmx500m']
+        systemProperties = ['webapp.dir': "$projectDir/src/main/webapp"]
+    }
+}

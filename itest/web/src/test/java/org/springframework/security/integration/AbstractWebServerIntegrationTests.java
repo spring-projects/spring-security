@@ -1,6 +1,9 @@
 package org.springframework.security.integration;
 
+import java.util.List;
+
 import javax.servlet.ServletContext;
+import javax.servlet.http.Cookie;
 
 import net.sourceforge.jwebunit.junit.WebTester;
 
@@ -16,6 +19,7 @@ import org.springframework.web.servlet.DispatcherServlet;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 
 /**
  * Base class which allows the application to be started with a particular Spring application
@@ -50,14 +54,15 @@ public abstract class AbstractWebServerIntegrationTests {
                 server = new Server(0);
                 server.addHandler(createWebContext());
                 server.start();
-                tester.getTestContext().setBaseUrl(getBaseUrl());
             }
         }
     }
 
     @SuppressWarnings("unchecked")
     private WebAppContext createWebContext() {
-        WebAppContext webCtx = new WebAppContext("src/main/webapp", getContextPath());
+        String webappDir = System.getProperty("webapp.dir");
+
+        WebAppContext webCtx = new WebAppContext(webappDir == null ? "src/main/webapp" : webappDir, getContextPath());
 
         if (StringUtils.hasText(getContextConfigLocations())) {
             webCtx.addEventListener(new ContextLoaderListener());
@@ -83,9 +88,15 @@ public abstract class AbstractWebServerIntegrationTests {
         }
     }
 
+    @BeforeMethod
+    public void initializeTester() {
+        tester.getTestContext().setBaseUrl(getBaseUrl());
+    }
+
     @AfterMethod
     public void resetWebConversation() {
         tester.closeBrowser();
+        tester.setTestContext(null);
     }
 
     protected final String getBaseUrl() {
@@ -104,9 +115,16 @@ public abstract class AbstractWebServerIntegrationTests {
         return appCtx;
     }
 
-//    protected final HttpUnitDialog getDialog() {
-//        return tester.getDialog();
-//    }
+    @SuppressWarnings("unchecked")
+    protected Cookie getRememberMeCookie() {
+        List<Cookie> cookies = (List<Cookie>) tester.getTestingEngine().getCookies();
+        for (Cookie c : cookies) {
+            if (c.getName().equals("SPRING_SECURITY_REMEMBER_ME_COOKIE")) {
+                return c;
+            }
+        }
+        return null;
+    }
 
     protected final void submit() {
         tester.submit();

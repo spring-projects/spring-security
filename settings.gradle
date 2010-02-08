@@ -20,6 +20,10 @@ def String[] docs = [
     'manual'
 ]
 
+def String[] itest = [
+    'web'
+]
+
 include modules
 
 modules.each {name ->
@@ -37,15 +41,24 @@ samples.each {name ->
     p.projectDir = new File(settingsDir, "samples/${name}");
 }
 
+include itest
+
+itest.each { name ->
+    p = findProject(":${name}")
+    p.name = "itest-${name}"
+    p.buildFileName = "itest-${name}.gradle"
+    p.projectDir = new File(settingsDir, "itest/${name}");
+}
+
 include docs
 
-docs.each{ name ->
+docs.each { name ->
     p = findProject(":${name}")
     p.buildFileName = "${name}.gradle"
     p.projectDir = new File(settingsDir, "docs/${name}");
 }
 
 rootProject.children.each {project ->
-    assert project.buildFile.isFile()
     assert project.projectDir.isDirectory()
+    assert project.buildFile.isFile()
 }
