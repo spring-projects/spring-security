@@ -54,7 +54,7 @@
             interface which subclasses <interfacename>SecurityMetadataSource</interfacename>. It
             simply denotes the <interfacename>SecurityMetadataSource</interfacename> understands
                 <classname>FilterInvocation</classname>s. In the interests of simplicity we'll
-            continue to refer to the <interfacename>FilterInvocationDefinitionSource</interfacename>
+            continue to refer to the <interfacename>FilterInvocationSecurityMetadataSource</interfacename>
             as a <interfacename>SecurityMetadataSource</interfacename>, as the distinction is of
             little relevance to most users.</para>
         <para>The <interfacename>SecurityMetadataSource</interfacename> created by the namespace

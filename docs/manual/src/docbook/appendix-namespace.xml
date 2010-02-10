@@ -126,7 +126,7 @@
       <title>The <literal>&lt;intercept-url&gt;</literal> Element</title>
       <para> This element is used to define the set of URL patterns that the application is
         interested in and to configure how they should be handled. It is used to construct the
-          <interfacename>FilterInvocationDefinitionSource</interfacename> used by the
+          <interfacename>FilterInvocationSecurityMetadataSource</interfacename> used by the
           <classname>FilterSecurityInterceptor</classname> and to exclude particular patterns from
         the filter chain entirely (by setting the attribute <literal>filters="none"</literal>). It
         is also responsible for configuring a <classname>ChannelAuthenticationFilter</classname> if
@@ -149,7 +149,7 @@
       <section xml:id="nsa-access">
         <title><literal>access</literal></title>
         <para> Lists the access attributes which will be stored in the
-            <interfacename>FilterInvocationDefinitionSource</interfacename> for the defined URL
+            <interfacename>FilterInvocationSecurityMetadataSource</interfacename> for the defined URL
           pattern/method combination. This should be a comma-separated list of the security
           configuration attributes (such as role names). </para>
       </section>
