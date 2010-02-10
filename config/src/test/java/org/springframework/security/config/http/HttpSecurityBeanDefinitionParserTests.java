@@ -344,10 +344,12 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "<b:bean class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>" +
                 "<http>" +
                 "    <intercept-url pattern='${secure.Url}' access='${secure.role}' />" +
+                "    <intercept-url pattern='${login.page}' filters='none' />" +
                 "    <form-login login-page='${login.page}' default-target-url='${default.target}' " +
                 "        authentication-failure-url='${auth.failure}' />" +
                 "</http>" + AUTH_PROVIDER_XML);
-        checkPropertyValues() ;
+        checkPropertyValues();
+        assertEquals(0, getFilters("/loginPage").size());
     }
 
     // SEC-1309
