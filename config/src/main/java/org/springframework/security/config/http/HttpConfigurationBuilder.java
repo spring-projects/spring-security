@@ -83,8 +83,7 @@ class HttpConfigurationBuilder {
     private final List<Element> interceptUrls;
 
     // Use ManagedMap to allow placeholder resolution
-    private List<String> emptyFilterChainPaths;
-    private ManagedMap<String, List<BeanMetadataElement>> filterChainMap;
+    private ManagedMap<BeanDefinition, List<BeanMetadataElement>> filterChainMap;
 
     private BeanDefinition cpf;
     private BeanDefinition securityContextPersistenceFilter;
@@ -96,7 +95,6 @@ class HttpConfigurationBuilder {
     private BeanDefinition servApiFilter;
     private String portMapperName;
     private BeanReference fsi;
-
 
     public HttpConfigurationBuilder(Element element, ParserContext pc, UrlMatcher matcher, String portMapperName) {
         this.httpElt = element;
@@ -111,8 +109,7 @@ class HttpConfigurationBuilder {
     }
 
     void parseInterceptUrlsForEmptyFilterChains() {
-        emptyFilterChainPaths = new ArrayList<String>();
-        filterChainMap = new ManagedMap<String, List<BeanMetadataElement>>();
+        filterChainMap = new ManagedMap<BeanDefinition, List<BeanMetadataElement>>();
 
         for (Element urlElt : interceptUrls) {
             String path = urlElt.getAttribute(ATT_PATH_PATTERN);
@@ -121,9 +118,10 @@ class HttpConfigurationBuilder {
                 pc.getReaderContext().error("path attribute cannot be empty or null", urlElt);
             }
 
-            if (convertPathsToLowerCase) {
-                path = path.toLowerCase();
-            }
+            BeanDefinitionBuilder pathBean = BeanDefinitionBuilder.rootBeanDefinition(HttpConfigurationBuilder.class);
+            pathBean.setFactoryMethod("createPath");
+            pathBean.addConstructorArgValue(path);
+            pathBean.addConstructorArgValue(convertPathsToLowerCase);
 
             String filters = urlElt.getAttribute(ATT_FILTERS);
 
@@ -133,12 +131,15 @@ class HttpConfigurationBuilder {
                             "filters attribute", urlElt);
                 }
 
-                emptyFilterChainPaths.add(path);
-
                 List<BeanMetadataElement> noFilters = Collections.emptyList();
-                filterChainMap.put(path, noFilters);
+                filterChainMap.put(pathBean.getBeanDefinition(), noFilters);
             }
         }
+    }
+
+    // Needed to account for placeholders
+    static String createPath(String path, boolean lowerCase) {
+        return lowerCase ? path.toLowerCase() : path;
     }
 
     void createSecurityContextPersistenceFilter() {
@@ -463,8 +464,8 @@ class HttpConfigurationBuilder {
         return allowSessionCreation;
     }
 
-    List<String> getEmptyFilterChainPaths() {
-        return emptyFilterChainPaths;
+    public ManagedMap<BeanDefinition, List<BeanMetadataElement>> getFilterChainMap() {
+        return filterChainMap;
     }
 
     List<OrderDecorator> getFilters() {

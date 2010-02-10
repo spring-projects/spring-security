@@ -135,17 +135,12 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             filterChain.add(od.bean);
         }
 
-        ManagedMap<String, List<BeanMetadataElement>> filterChainMap = new ManagedMap<String, List<BeanMetadataElement>>();
-
-        for (String path : httpBldr.getEmptyFilterChainPaths()) {
-            filterChainMap.put(path, NO_FILTERS);
-        }
-
-        filterChainMap.put(matcher.getUniversalMatchPattern(), filterChain);
+        ManagedMap<BeanDefinition, List<BeanMetadataElement>> filterChainMap = httpBldr.getFilterChainMap();
+        BeanDefinition universalMatch = new RootBeanDefinition(String.class);
+        universalMatch.getConstructorArgumentValues().addGenericArgumentValue(matcher.getUniversalMatchPattern());
+        filterChainMap.put(universalMatch, filterChain);
 
         registerFilterChainProxy(pc, filterChainMap, matcher, source);
-
-
 
         pc.popAndRegisterContainingComponent();
         return null;
@@ -252,7 +247,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         return customFilters;
     }
 
-    private void registerFilterChainProxy(ParserContext pc, Map<String, List<BeanMetadataElement>> filterChainMap, UrlMatcher matcher, Object source) {
+    private void registerFilterChainProxy(ParserContext pc, Map<BeanDefinition, List<BeanMetadataElement>> filterChainMap, UrlMatcher matcher, Object source) {
         if (pc.getRegistry().containsBeanDefinition(BeanIds.FILTER_CHAIN_PROXY)) {
             pc.getReaderContext().error("Duplicate <http> element detected", source);
         }
