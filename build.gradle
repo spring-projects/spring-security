@@ -26,6 +26,7 @@ configure(javaProjects()) {
     aspectjVersion = '1.6.5'
     apacheDsVersion = '1.5.5'
     jstlVersion = '1.1.2'
+	jettyVersion = '6.1.22'
 
     configurations {
         bundlor
