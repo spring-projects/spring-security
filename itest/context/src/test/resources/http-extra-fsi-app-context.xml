@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  -
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:sec="http://www.springframework.org/schema/security"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <sec:http use-expressions="true">
+        <sec:intercept-url pattern="/**" access="permitAll" />
+        <sec:form-login />
+        <sec:custom-filter ref="fsi" after="FILTER_SECURITY_INTERCEPTOR " />
+    </sec:http>
+
+    <bean id="fsi" class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+        <property name="authenticationManager" ref="authenticationManager"/>
+        <property name="accessDecisionManager" ref="accessDecisionManager"/>
+        <property name="securityMetadataSource">
+            <sec:filter-security-metadata-source>
+                <sec:intercept-url pattern="/secure/extreme/**" access="ROLE_2"/>
+                <sec:intercept-url pattern="/secure/**" access="ROLE_1"/>
+            </sec:filter-security-metadata-source>
+        </property>
+        <property name="observeOncePerRequest" value="false" />
+    </bean>
+
+    <bean id="accessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
+        <property name="allowIfAllAbstainDecisions" value="false"/>
+        <property name="decisionVoters">
+            <list>
+                <bean class="org.springframework.security.access.vote.RoleVoter"/>
+            </list>
+        </property>
+    </bean>
+
+    <sec:authentication-manager alias="authenticationManager">
+        <sec:authentication-provider>
+            <sec:user-service id="userService">
+                <sec:user name="notused" password="notused" authorities="ROLE_0,ROLE_1"/>
+            </sec:user-service>
+        </sec:authentication-provider>
+    </sec:authentication-manager>
+
+</beans>

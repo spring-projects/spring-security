@@ -558,10 +558,12 @@ public class HttpSecurityBeanDefinitionParserTests {
         // Decorated user-filters should be added to stack. The others should be ignored.
         String contextHolderFilterClass = SecurityContextHolderAwareRequestFilter.class.getName();
         String contextPersistenceFilterClass = SecurityContextPersistenceFilter.class.getName();
+        System.setProperty("customFilterRef", "userFilter1");
 
         setContext(
+                "<b:bean class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>" +
                 "<http auto-config='true'>" +
-                "    <custom-filter position='FIRST' ref='userFilter1' />" +
+                "    <custom-filter position='FIRST' ref='${customFilterRef}' />" +
                 "    <custom-filter after='LOGOUT_FILTER' ref='userFilter' />" +
                 "    <custom-filter before='SECURITY_CONTEXT_FILTER' ref='userFilter3'/>" +
                 "</http>" + AUTH_PROVIDER_XML +
