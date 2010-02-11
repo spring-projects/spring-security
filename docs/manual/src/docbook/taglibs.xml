@@ -74,7 +74,8 @@ This content will only be visible to users who are authorized to send requests t
             don't, it will be skipped. An example might
             be<programlisting>&lt;sec:accesscontrollist hasPermission="1,2" domainObject="someObject">
 
-This will be shown if the user has either of the permissions represented by the values "1" or "2" on the given object.
+This will be shown if the user has either of the permissions 
+represented by the values "1" or "2" on the given object.
 
 &lt;/sec:accesscontrollist></programlisting></para>
         <para>The permissions are passed to the <interfacename>PermissionFactory</interfacename>

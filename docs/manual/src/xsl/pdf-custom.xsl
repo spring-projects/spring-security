@@ -27,6 +27,8 @@
     <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/fo/docbook.xsl"/>
     <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/fo/highlight.xsl"/>
 
+    <xsl:param name="fop1.extensions" select="1"/>
+
     <!-- xsl:param name="draft.watermark.image" select="'images/draft.png'"/ -->
     <xsl:param name="paper.type" select="'A4'"/>
 
