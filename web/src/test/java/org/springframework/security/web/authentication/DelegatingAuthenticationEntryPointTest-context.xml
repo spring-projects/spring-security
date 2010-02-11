@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<bean id="daep" class="org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint">
+		<constructor-arg>
+			<map>
+				<entry key="hasIpAddress('192.168.1.0/24') and hasHeader('User-Agent','Mozilla')" value-ref="firstAEP" />
+			</map>
+		</constructor-arg>
+		<property name="defaultEntryPoint" ref="defaultAEP"/>
+	</bean>
+	
+	<bean id="firstAEP" class="org.mockito.Mockito" factory-method="mock">
+		<constructor-arg value="org.springframework.security.web.AuthenticationEntryPoint"/>
+	</bean>
+	
+		
+	<bean id="defaultAEP" class="org.mockito.Mockito" factory-method="mock">
+		<constructor-arg value="org.springframework.security.web.AuthenticationEntryPoint"/>
+	</bean>
+
+	
+</beans>

@@ -23,8 +23,17 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.access.expression.ExpressionUtils;
+import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 
 /**
+ * A RequestMatcher implementation which uses a SpEL expression
+ * 
+ * <p>With the default EvalutationContext ({@link ELRequestMatcherContext}) you can use 
+ * <code>hasIpAdress()</code> and <code>hasHeader()</code></p> 
+ *   
+ * <p>See {@link DelegatingAuthenticationEntryPoint} for a example configuration.</p>
+ * 
+ * 
  * @author Mike Wiesner
  * @since 3.0.2
  * @version $Id:$
