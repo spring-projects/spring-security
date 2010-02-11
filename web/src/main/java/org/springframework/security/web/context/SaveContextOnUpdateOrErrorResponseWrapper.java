@@ -42,7 +42,7 @@ public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends HttpServ
      *
      * @param context the <tt>SecurityContext</tt> instance to store
      */
-    abstract void saveContext(SecurityContext context);
+    protected abstract void saveContext(SecurityContext context);
 
     /**
      * Makes sure the session is updated before calling the

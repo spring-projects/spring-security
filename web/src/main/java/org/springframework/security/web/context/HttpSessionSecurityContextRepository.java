@@ -98,7 +98,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
     }
 
     public void saveContext(SecurityContext context, HttpServletRequest request, HttpServletResponse response) {
-        SaveToSessionResponseWrapper responseWrapper = (SaveToSessionResponseWrapper)response;
+        SaveContextOnUpdateOrErrorResponseWrapper responseWrapper = (SaveContextOnUpdateOrErrorResponseWrapper)response;
         // saveContext() might already be called by the response wrapper
         // if something in the chain called sendError() or sendRedirect(). This ensures we only call it
         // once per request.
@@ -289,7 +289,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
      * Stores the necessary state from the start of the request in order to make a decision about whether
      * the security context has changed before saving it.
      */
-    class SaveToSessionResponseWrapper extends SaveContextOnUpdateOrErrorResponseWrapper {
+    final class SaveToSessionResponseWrapper extends SaveContextOnUpdateOrErrorResponseWrapper {
 
         private HttpServletRequest request;
         private boolean httpSessionExistedAtStartOfRequest;
@@ -327,7 +327,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
          *
          */
         @Override
-        void saveContext(SecurityContext context) {
+        protected void saveContext(SecurityContext context) {
             // See SEC-776
             if (authenticationTrustResolver.isAnonymous(context.getAuthentication())) {
                 if (logger.isDebugEnabled()) {

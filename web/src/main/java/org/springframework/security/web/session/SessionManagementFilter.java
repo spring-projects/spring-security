@@ -78,6 +78,9 @@ public class SessionManagementFilter extends GenericFilterBean {
 
                     return;
                 }
+                // Eagerly save the security context to make it available for any possible re-entrant
+                // requests which may occur before the current request completes. SEC-1396.
+                securityContextRepository.saveContext(SecurityContextHolder.getContext(), request, response);
             } else {
              // No security context or authentication present. Check for a session timeout
                 if (request.getRequestedSessionId() != null && !request.isRequestedSessionIdValid()) {

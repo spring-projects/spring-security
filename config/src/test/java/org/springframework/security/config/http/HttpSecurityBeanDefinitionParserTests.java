@@ -36,6 +36,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.PostProcessedMockUserDetailsService;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.openid.OpenID4JavaConsumer;
@@ -77,6 +78,7 @@ import org.springframework.security.web.authentication.rememberme.TokenBasedReme
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SaveContextOnUpdateOrErrorResponseWrapper;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
@@ -790,13 +792,17 @@ public class HttpSecurityBeanDefinitionParserTests {
         // Register 2 sessions and then check a third
 //        req.setSession(new MockHttpSession());
 //        auth.setDetails(new WebAuthenticationDetails(req));
-        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+        SaveContextOnUpdateOrErrorResponseWrapper response = new SaveContextOnUpdateOrErrorResponseWrapper(mockResponse, false) {
+            protected void saveContext(SecurityContext context) {
+            }
+        };
         seshFilter.doFilter(new MockHttpServletRequest(), response, new MockFilterChain());
-        assertNull(response.getRedirectedUrl());
+        assertNull(mockResponse.getRedirectedUrl());
         seshFilter.doFilter(new MockHttpServletRequest(), response, new MockFilterChain());
-        assertNull(response.getRedirectedUrl());
+        assertNull(mockResponse.getRedirectedUrl());
         seshFilter.doFilter(new MockHttpServletRequest(), response, new MockFilterChain());
-        assertEquals("/max-exceeded", response.getRedirectedUrl());
+        assertEquals("/max-exceeded", mockResponse.getRedirectedUrl());
     }
 
     @Test
