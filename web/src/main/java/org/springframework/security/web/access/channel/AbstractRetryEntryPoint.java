@@ -26,9 +26,9 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
     private PortMapper portMapper = new PortMapperImpl();
     private PortResolver portResolver = new PortResolverImpl();
     /** The scheme ("http://" or "https://") */
-    private String scheme;
+    private final String scheme;
     /** The standard port for the scheme (80 for http, 443 for https) */
-    private int standardPort;
+    private final int standardPort;
 
     //~ Constructors ===================================================================================================
 
@@ -39,9 +39,7 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 
     //~ Methods ========================================================================================================
 
-    public void commence(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
-        HttpServletRequest request = (HttpServletRequest) req;
-
+    public void commence(HttpServletRequest request, HttpServletResponse res) throws IOException, ServletException {
         String pathInfo = request.getPathInfo();
         String queryString = request.getQueryString();
         String contextPath = request.getContextPath();
@@ -64,7 +62,7 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
             logger.debug("Redirecting to: " + redirectUrl);
         }
 
-        ((HttpServletResponse) res).sendRedirect(((HttpServletResponse) res).encodeRedirectURL(redirectUrl));
+        res.sendRedirect(res.encodeRedirectURL(redirectUrl));
     }
 
     protected abstract Integer getMappedPort(Integer mapFromPort);

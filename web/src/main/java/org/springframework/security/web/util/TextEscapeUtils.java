@@ -1,11 +1,11 @@
 package org.springframework.security.web.util;
 
 /**
- * Internal utility for escaping characters in HTML strings.
+ * Internal utility for <a href="http://www.owasp.org/index.php/How_to_perform_HTML_entity_encoding_in_Java">escaping
+ * characters in HTML strings</a>.
  *
  * @author Luke Taylor
  *
- * @see http://www.owasp.org/index.php/How_to_perform_HTML_entity_encoding_in_Java
  */
 public abstract class TextEscapeUtils {
 

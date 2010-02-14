@@ -155,10 +155,10 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
     }
 
     /**
-     * Retrieves the primary key from acl_class, creating a new row if needed and the allowCreate property is
-     * true.
+     * Retrieves the primary key from {@code acl_class}, creating a new row if needed and the
+     * {@code allowCreate} property is {@code true}.
      *
-     * @param clazz to find or create an entry for (this implementation uses the fully-qualified class name String)
+     * @param type to find or create an entry for (often the fully-qualified class name)
      * @param allowCreate true if creation is permitted if not found
      *
      * @return the primary key or null if not found

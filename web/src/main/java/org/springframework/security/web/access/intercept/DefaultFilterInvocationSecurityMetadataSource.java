@@ -36,15 +36,12 @@ import org.springframework.security.web.util.UrlMatcher;
  * Stores an ordered map of compiled URL paths to <tt>ConfigAttribute</tt> lists and provides URL matching
  * against the items stored in this map using the configured <tt>UrlMatcher</tt>.
  * <p>
- * The order of registering the regular expressions using the
- * {@link #addSecureUrl(String, List<ConfigAttribute>)} is very important.
- * The system will identify the <b>first</b>  matching regular
- * expression for a given HTTP URL. It will not proceed to evaluate later regular expressions if a match has already
- * been found. Accordingly, the most specific regular expressions should be registered first, with the most general
- * regular expressions registered last.
+ * The order of the URL paths in the map is very important.
+ * The system will identify the <b>first</b>  matching path for a given HTTP URL. It will not proceed to evaluate
+ * later paths if a match has already been found. Accordingly, the most specific matches should be
+ * registered first, with the most general matches registered last.
  * <p>
- * If URLs are registered for a particular HTTP method using
- * {@link #addSecureUrl(String, String, List<ConfigAttribute>)}, then the method-specific matches will take
+ * If URL paths are registered for a particular HTTP method using, then the method-specific matches will take
  * precedence over any URLs which are registered without an HTTP method.
  *
  * @author Ben Alex

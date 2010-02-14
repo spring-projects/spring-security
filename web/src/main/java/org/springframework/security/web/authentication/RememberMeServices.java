@@ -25,8 +25,11 @@ import org.springframework.security.core.Authentication;
  * Implement by a class that is capable of providing a remember-me service.
  *
  * <p>
- * Spring Security filters (namely {@link org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter} and
- * {@link RememberMeAuthenticationFilter} will call the methods provided by an implementation of this interface.
+ * Spring Security filters (namely
+ * {@link org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter
+ * AbstractAuthenticationProcessingFilter} and
+ * {@link org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter
+ * RememberMeAuthenticationFilter} will call the methods provided by an implementation of this interface.
  * <p>
  * Implementations may implement any type of remember-me capability they wish.
  * Rolling cookies (as per <a href="http://fishbowl.pastiche.org/2004/01/19/persistent_login_cookie_best_practice">

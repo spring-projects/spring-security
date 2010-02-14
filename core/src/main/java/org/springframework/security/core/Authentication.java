@@ -31,7 +31,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * Once the request has been authenticated, the <tt>Authentication</tt> will usually be stored in a thread-local
  * <tt>SecurityContext</tt> managed by the {@link SecurityContextHolder} by the authentication mechanism which is
  * being used. An explicit authentication can be achieved, without using one of Spring Security's authentication
- * mechanisms,  by creating an <tt>Authentication</tt> instance and using the code:
+ * mechanisms, by creating an <tt>Authentication</tt> instance and using the code:
  *
  * <pre>
  * SecurityContextHolder.getContext().setAuthentication(anAuthentication);
@@ -84,14 +84,14 @@ public interface Authentication extends Principal, Serializable {
      * <p>
      * The <tt>AuthenticationManager</tt> implementation will often return an <tt>Authentication</tt> containing
      * richer information as the principal for use by the application. Many of the authentication providers will
-     * create a {@link UserDetails} object as the principal.
+     * create a {@code UserDetails} object as the principal.
      *
      * @return the <code>Principal</code> being authenticated or the authenticated principal after authentication.
      */
     Object getPrincipal();
 
     /**
-     * Used to indicate to <code>AbstractSecurityInterceptor</code> whether it should present the
+     * Used to indicate to {@code AbstractSecurityInterceptor} whether it should present the
      * authentication token to the <code>AuthenticationManager</code>. Typically an <code>AuthenticationManager</code>
      * (or, more often, one of its <code>AuthenticationProvider</code>s) will return an immutable authentication token
      * after successful authentication, in which case that token can safely return <code>true</code> to this method.

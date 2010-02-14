@@ -25,16 +25,11 @@ import org.springframework.security.core.Authentication;
  * Reviews the <code>Object</code> returned from a secure object invocation,
  * being able to modify the <code>Object</code> or throw an {@link
  * AccessDeniedException}.
- *
  * <p>
  * Typically used to ensure the principal is permitted to access the domain
  * object instance returned by a service layer bean. Can also be used to
  * mutate the domain object instance so the principal is only able to access
- * authorised bean properties or <code>Collection</code> elements. Often used
- * in conjunction with an {@link org.springframework.security.acl.AclManager} to
- * obtain the access control list applicable for the domain object instance.
- * </p>
- *
+ * authorised bean properties or <code>Collection</code> elements.
  * <p>
  * Special consideration should be given to using an
  * <code>AfterInvocationManager</code> on bean methods that modify a database.

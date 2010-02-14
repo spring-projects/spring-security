@@ -41,7 +41,7 @@ public interface UserDetailsService {
      * <code>UserDetails</code> object that comes back may have a username that is of a different case than what was
      * actually requested..
      *
-     * @param username the username presented to the {@link DaoAuthenticationProvider}
+     * @param username the username identifying the user whose data is required.
      *
      * @return a fully populated user record (never <code>null</code>)
      *

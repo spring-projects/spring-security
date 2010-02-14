@@ -39,11 +39,10 @@ import org.springframework.security.core.SpringSecurityMessageSource;
  * <p>
  * This after invocation provider will fire if any  {@link ConfigAttribute#getAttribute()} matches the {@link
  * #processConfigAttribute}. The provider will then lookup the ACLs from the <tt>AclService</tt> and ensure the
- * principal is {@link org.springframework.security.acls.Acl#isGranted(List,
-   List, boolean) Acl.isGranted(Permission[], Sid[], boolean)}
- * when presenting the {@link #requirePermission} array to that method.
+ * principal is {@link org.springframework.security.acls.model.Acl#isGranted(List, List, boolean)
+ * Acl.isGranted(List, List, boolean)} when presenting the {@link #requirePermission} array to that method.
  * <p>
- * Often users will setup an <code>AclEntryAfterInvocationProvider</code> with a {@link
+ * Often users will set up an <code>AclEntryAfterInvocationProvider</code> with a {@link
  * #processConfigAttribute} of <code>AFTER_ACL_READ</code> and a {@link #requirePermission} of
  * <code>BasePermission.READ</code>. These are also the defaults.
  * <p>

@@ -21,11 +21,11 @@ import org.springframework.dao.DataAccessException;
 
 /**
  * This class wraps Spring Security's <tt>UserDetailsService</tt> in a way that its <tt>loadUserByUsername()</tt>
- * method returns wrapped <tt>UserDetails</tt> that return all hierachically reachable authorities
+ * method returns wrapped <tt>UserDetails</tt> that return all hierarchically reachable authorities
  * instead of only the directly assigned authorities.
  *
  * @author Michael Mayr
- * @deprecated use a {@link RoleHierarchyVoter} instead of populating the user Authentication object
+ * @deprecated use a {@code RoleHierarchyVoter} instead of populating the user Authentication object
  * with the additional authorities.
  */
 public class UserDetailsServiceWrapper implements UserDetailsService {

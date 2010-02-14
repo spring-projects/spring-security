@@ -23,9 +23,9 @@ import org.springframework.security.core.AuthenticationException;
  * <p>
  * {@link org.springframework.security.access.AccessDecisionVoter}s will typically throw this exception if
  * they are dissatisfied with the level of the authentication, such as if performed using a remember-me mechanism or
- * anonymously. The commonly used {@link org.springframework.security.web.ExceptionTranslationFilter} will thus cause
- * the <code>AuthenticationEntryPoint</code> to be called, allowing the principal to authenticate with a stronger
- * level of authentication.</p>
+ * anonymously. The commonly used {@link org.springframework.security.web.access.ExceptionTranslationFilter
+ * ExceptionTranslationFilter} will thus cause the <code>AuthenticationEntryPoint</code> to be called, allowing
+ * the principal to authenticate with a stronger level of authentication.
  *
  * @author Ben Alex
  */

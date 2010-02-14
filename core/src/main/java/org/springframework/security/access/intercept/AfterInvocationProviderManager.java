@@ -34,11 +34,12 @@ import org.springframework.util.Assert;
  * <p>
  * Handles configuration of a bean context defined list of  {@link AfterInvocationProvider}s.
  * <p>
- * Every <code>AfterInvocationProvider</code> will be polled when the {@link #decide(Authentication, Object,
- * List<ConfigAttribute>, Object)} method is called. The <code>Object</code> returned from each provider will be
- * presented to the successive provider for processing. This means each provider <b>must</b> ensure they return the
- * <code>Object</code>, even if they are not interested in the "after invocation" decision (perhaps as the secure
- * object invocation did not include a configuration attribute a given provider is configured to respond to).
+ * Every <code>AfterInvocationProvider</code> will be polled when the
+ * {@link #decide(Authentication, Object, Collection, Object)} method is called. The <code>Object</code> returned
+ * from each provider will be presented to the successive provider for processing. This means each provider
+ * <b>must</b> ensure they return the <code>Object</code>, even if they are not interested in the "after invocation"
+ * decision (perhaps as the secure object invocation did not include a configuration attribute a given provider is
+ * configured to respond to).
  *
  * @author Ben Alex
  */

@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 
 /**
- * Strategy which creates an <tt>ObjectIdentity</tt> from an object identifier (such as a primary key)
+ * Strategy which creates an {@link ObjectIdentity} from an object identifier (such as a primary key)
  * and type information.
  * <p>
  * Differs from {@link ObjectIdentityRetrievalStrategy} in that it is used in situations when the actual object
@@ -18,8 +18,8 @@ public interface ObjectIdentityGenerator {
     /**
      *
      * @param id the identifier of the domain object, not null
-     * @param type the type of the object (usually a class name), not null
-     * @return
+     * @param type the type of the object (often a class name), not null
+     * @return the identity constructed using the supplied identifier and type information.
      */
     ObjectIdentity createObjectIdentity(Serializable id, String type);
 

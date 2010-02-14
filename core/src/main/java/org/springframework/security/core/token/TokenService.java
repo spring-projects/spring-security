@@ -29,9 +29,10 @@ public interface TokenService {
     /**
      * Forces the allocation of a new {@link Token}.
      *
-     * @param the extended information desired in the token (cannot be <code>null</code>, but can be empty)
+     * @param extendedInformation the extended information desired in the token
+     *          (cannot be <code>null</code>, but can be empty)
      * @return a new token that has not been issued previously, and is guaranteed to be recognised
-     * by this implementation's {@link #verifyToken(String)} at any future time.
+     *          by this implementation's {@link #verifyToken(String)} at any future time.
      */
     Token allocateToken(String extendedInformation);
 

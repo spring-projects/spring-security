@@ -15,7 +15,6 @@
 
 package org.springframework.security.core.userdetails;
 
-
 /**
  * Provides a cache of {@link UserDetails} objects.
  *
@@ -30,7 +29,7 @@ package org.springframework.security.core.userdetails;
  * a database or other persistent storage mechanism to validate would be excessive. In this case, you would configure
  * a cache to store the <tt>UserDetails</tt> information rather than loading it each time.
  *
- * @see {@link org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider}
+ * @see org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider
  *
  * @author Ben Alex
  */

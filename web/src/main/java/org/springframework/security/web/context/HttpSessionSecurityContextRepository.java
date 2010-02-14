@@ -42,7 +42,7 @@ import org.springframework.util.ReflectionUtils;
  * ensure that the <tt>allowSessionCreation</tt> property of this class is set to <tt>true</tt> (the default).
  * <p>
  * If for whatever reason no {@code HttpSession} should <b>ever</b> be created (for example, if
- * Basic authentication is being used or similar clients that will never present the same {@literal jsessionid}), then
+ * Basic authentication is being used or similar clients that will never present the same {@code jsessionid}), then
  * {@link #setAllowSessionCreation(boolean) allowSessionCreation} should be set to <code>false</code>.
  * Only do this if you really need to conserve server memory and ensure all classes using the
  * {@code SecurityContextHolder} are designed to have no persistence of the {@code SecurityContext}

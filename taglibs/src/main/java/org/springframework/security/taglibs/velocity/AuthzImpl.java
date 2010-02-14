@@ -73,13 +73,6 @@ public class AuthzImpl implements Authz {
 
     /**
      * implementation of LegacyAuthorizeTag
-     *
-     * @param roles DOCUMENT ME!
-     * @param grantType DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     *
-     * @throws IllegalArgumentException DOCUMENT ME!
      */
     private boolean ifGranted(String roles, int grantType) {
         LegacyAuthorizeTag authorizeTag = new LegacyAuthorizeTag();

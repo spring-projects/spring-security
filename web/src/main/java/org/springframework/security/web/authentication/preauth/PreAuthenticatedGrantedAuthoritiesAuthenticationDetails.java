@@ -26,16 +26,6 @@ public class PreAuthenticatedGrantedAuthoritiesAuthenticationDetails extends Aut
     }
 
     /**
-     * @return The String representation of this object.
-     */
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(super.toString() + "; ");
-        sb.append("preAuthenticatedGrantedAuthorities: " + preAuthenticatedGrantedAuthorities);
-        return sb.toString();
-    }
-
-    /**
      *
      * @see org.springframework.security.core.authority.GrantedAuthoritiesContainer#getGrantedAuthorities()
      */
@@ -46,9 +36,19 @@ public class PreAuthenticatedGrantedAuthoritiesAuthenticationDetails extends Aut
     }
 
     /**
-     * @see org.springframework.security.core.authority.MutableGrantedAuthoritiesContainer#setGrantedAuthorities()
+     * @see MutableGrantedAuthoritiesContainer#setGrantedAuthorities(List)
      */
     public void setGrantedAuthorities(List<GrantedAuthority> aJ2eeBasedGrantedAuthorities) {
         this.preAuthenticatedGrantedAuthorities = Collections.unmodifiableList(aJ2eeBasedGrantedAuthorities);
+    }
+
+    /**
+     * @return The String representation of this object.
+     */
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(super.toString() + "; ");
+        sb.append("preAuthenticatedGrantedAuthorities: " + preAuthenticatedGrantedAuthorities);
+        return sb.toString();
     }
 }

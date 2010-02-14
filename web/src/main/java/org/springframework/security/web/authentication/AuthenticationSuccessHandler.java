@@ -18,7 +18,6 @@ import org.springframework.security.core.Authentication;
  *
  * @author Luke Taylor
  * @since 3.0
- * @see
  */
 public interface AuthenticationSuccessHandler {
 

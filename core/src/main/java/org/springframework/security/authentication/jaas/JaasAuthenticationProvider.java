@@ -323,8 +323,8 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
      * Publishes the {@link JaasAuthenticationFailedEvent}. Can be overridden by subclasses for different
      * functionality
      *
-     * @param token The {@link UsernamePasswordAuthenticationToken} being processed
-     * @param ase The {@link SpringSecurityException} that caused the failure
+     * @param token The authentication token being processed
+     * @param ase The excetion that caused the authentication failure
      */
     protected void publishFailureEvent(UsernamePasswordAuthenticationToken token, AuthenticationException ase) {
         applicationEventPublisher.publishEvent(new JaasAuthenticationFailedEvent(token, ase));
@@ -334,7 +334,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
      * Publishes the {@link JaasAuthenticationSuccessEvent}. Can be overridden by subclasses for different
      * functionality.
      *
-     * @param token The {@link UsernamePasswordAuthenticationToken} being processed
+     * @param token The token being processed
      */
     protected void publishSuccessEvent(UsernamePasswordAuthenticationToken token) {
         if (applicationEventPublisher != null) {
@@ -425,11 +425,11 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
 
     /**
      * If set, a call to {@code Configuration#refresh()} will be made by {@code #configureJaas(Resource) }
-     * method. Defaults to {@literal true}.
+     * method. Defaults to {@code true}.
      *
      * @see <a href="https://jira.springsource.org/browse/SEC-1320">SEC-1230</a>
      *
-     * @param refreshConfigurationOnStartup set to {@literal false} to disable reloading of the configuration.
+     * @param refresh set to {@code false} to disable reloading of the configuration.
      * May be useful in some environments.
      */
     public void setRefreshConfigurationOnStartup(boolean refresh) {

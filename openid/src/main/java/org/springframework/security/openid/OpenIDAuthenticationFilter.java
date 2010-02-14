@@ -273,7 +273,7 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 
     /**
      * Specifies any extra parameters submitted along with the identity field which should be appended to the
-     * {@literal return_to} URL which is assembled by {@link #buildReturnToUrl}.
+     * {@code return_to} URL which is assembled by {@link #buildReturnToUrl}.
      *
      * @param returnToUrlParameters
      *      the set of parameter names. If not set, it will default to the parameter name used by the

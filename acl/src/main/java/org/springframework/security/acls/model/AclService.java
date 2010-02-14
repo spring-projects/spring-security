@@ -37,7 +37,7 @@ public interface AclService {
     List<ObjectIdentity> findChildren(ObjectIdentity parentIdentity);
 
     /**
-     * Same as {@link #readAclsById(Java.util.List<ObjectIdentity>)} except it returns only a single Acl.
+     * Same as {@link #readAclsById(List)} except it returns only a single Acl.
      * <p>
      * This method should not be called as it does not leverage the underlying implementation's potential ability to
      * filter <tt>Acl</tt> entries based on a {@link Sid} parameter.</p>

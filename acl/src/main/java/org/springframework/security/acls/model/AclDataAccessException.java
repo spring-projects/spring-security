@@ -13,7 +13,7 @@ public abstract class AclDataAccessException extends RuntimeException {
      * message and root cause.
      *
      * @param msg the detail message
-     * @param t the root cause
+     * @param cause the root cause
      */
     public AclDataAccessException(String msg, Throwable cause) {
         super(msg, cause);

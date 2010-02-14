@@ -30,7 +30,7 @@ public class AuthenticationDetails implements Serializable {
    /**
     * Provided so that subclasses can populate additional information.
     *
-    * @param request that the authentication request was received from
+    * @param context the existing contextual information
     */
    protected void doPopulateAdditionalInformation(Object context) {}
 

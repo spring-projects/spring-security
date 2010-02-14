@@ -20,7 +20,7 @@ public interface Attributes2GrantedAuthoritiesMapper {
      * GrantedAuthorities, all attributes can be mapped to a single Spring Security
      * GrantedAuthority, some attributes may not be mapped, etc.
      *
-     * @param attribute the attributes to be mapped
+     * @param attributes the attributes to be mapped
      * @return the list of mapped GrantedAuthorities
      */
     public List<GrantedAuthority> getGrantedAuthorities(Collection<String> attributes);

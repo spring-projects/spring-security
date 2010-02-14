@@ -22,7 +22,8 @@ public interface RequestCache {
 
     /**
      * Returns the saved request, leaving it cached.
-     * @param currentRequest the current
+     *
+     * @param request the current request
      * @return the saved request which was previously cached, or null if there is none.
      */
     SavedRequest getRequest(HttpServletRequest request, HttpServletResponse response);
@@ -39,8 +40,9 @@ public interface RequestCache {
     HttpServletRequest getMatchingRequest(HttpServletRequest request, HttpServletResponse response);
 
     /**
-     * Removes the cached request
-     * @param currentRequest
+     * Removes the cached request.
+     *
+     * @param request the current request, allowing access to the cache.
      */
     void removeRequest(HttpServletRequest request, HttpServletResponse response);
 

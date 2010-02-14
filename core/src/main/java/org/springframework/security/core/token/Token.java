@@ -31,7 +31,7 @@ public interface Token {
      * token must never have this creation time changed. If necessary, a new token can be
      * requested from the {@link TokenService} to replace the original token.
      *
-     * @return the time this token key was created, in the same format as specified by {@link Date#getTime()).
+     * @return the time this token key was created, in the same format as specified by {@link java.util.Date#getTime()}.
      */
     long getKeyCreationTime();
 

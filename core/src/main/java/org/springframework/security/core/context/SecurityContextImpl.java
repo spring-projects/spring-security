@@ -19,8 +19,9 @@ import org.springframework.security.core.Authentication;
 
 
 /**
- * Base implementation of {@link SecurityContext}.<p>Used by default by {@link SecurityContextHolder} and {@link
- * HttpSessionContextIntegrationFilter}.</p>
+ * Base implementation of {@link SecurityContext}.
+ * <p>
+ * Used by default by {@link SecurityContextHolder} strategies.
  *
  * @author Ben Alex
  */

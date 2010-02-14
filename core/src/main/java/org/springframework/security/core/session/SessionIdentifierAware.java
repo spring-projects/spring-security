@@ -18,16 +18,8 @@ package org.springframework.security.core.session;
 /**
  * Implemented by {@link org.springframework.security.core.Authentication#getDetails()}
  * implementations that are capable of returning a session ID.
- *
  * <p>
- * This interface is used by {@link
- * org.springframework.security.authentication.concurrent.SessionRegistryUtils} to extract the session
- * ID from an <code>Authentication</code> object. In turn,
- * <code>SessionRegistryUtils</code> is used by {@link
- * ConcurrentSessionControllerImpl}. If not using this latter implementation,
- * you do not need the <code>Authentication.getDetails()</code> object to
- * implement <code>SessionIdentifierAware</code>.
- * </p>
+ * Used to extract the session ID from an <code>Authentication</code> object.
  *
  * @author Ben Alex
  */

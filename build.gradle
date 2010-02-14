@@ -142,6 +142,7 @@ def docsDir = new File(project(':manual').buildDir, 'docs')
 
 task apidocs(type: Javadoc) {
     destinationDir = new File(buildDir, 'apidocs')
+    title = "Spring Security $version API"
     optionsFile = file("$buildDir/tmp/javadoc.options")
 
     source coreModuleProjects().collect { project ->
@@ -240,8 +241,12 @@ def sampleProjects() {
     subprojects.findAll { project -> project.name.startsWith('spring-security-samples') }
 }
 
+def itestProjects() {
+    subprojects.findAll { project -> project.name.startsWith('itest') }
+}
+
 def coreModuleProjects() {
-    javaProjects() - sampleProjects()
+    javaProjects() - sampleProjects() - itestProjects()
 }
 
 def releaseType() {

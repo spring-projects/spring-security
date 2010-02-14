@@ -38,7 +38,8 @@ import org.springframework.util.StringUtils;
  * If a {@link DefaultSavedRequest} is found in the <tt>RequestCache</tt> (as set by the {@link ExceptionTranslationFilter} to
  * record the original destination before the authentication process commenced), a redirect will be performed to the
  * Url of that original destination. The <tt>DefaultSavedRequest</tt> object will remain cached and be picked up
- * when the redirected request is received (See {@link SavedRequestAwareWrapper}).
+ * when the redirected request is received
+ * (See {@link org.springframework.security.web.savedrequest.SavedRequestAwareWrapper SavedRequestAwareWrapper}).
  * </li>
  * <li>
  * If no <tt>DefaultSavedRequest</tt> is found, it will delegate to the base class.

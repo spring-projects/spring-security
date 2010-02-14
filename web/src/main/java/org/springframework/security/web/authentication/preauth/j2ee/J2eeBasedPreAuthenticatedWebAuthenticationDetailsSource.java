@@ -11,15 +11,15 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * Implementation of AuthenticationDetailsSource which converts the user's J2EE roles (as obtained by calling
- * {@link HttpServletRequest#isUserInRole(String)}) into GrantedAuthoritys and stores these in the authentication
- * details object (.
+ * {@link HttpServletRequest#isUserInRole(String)}) into {@code GrantedAuthority}s and stores these in the authentication
+ * details object.
  *
  * @author Ruud Senden
  * @since 2.0
  */
 public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource extends AbstractPreAuthenticatedAuthenticationDetailsSource {
     /**
-     * Public constructor which overrides the default AuthenticationDetails
+     * Public constructor which overrides the default {@code WebAuthenticationDetails}
      * class to be used.
      */
     public J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource() {
@@ -30,10 +30,6 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource extends Abs
 
     /**
      * Obtains the list of user roles based on the current user's J2EE roles.
-     *
-     * @param request The request against which <tt>isUserInRole</tt> will be called for each role name
-     *                returned by the MappableAttributesRetriever.
-     * @return GrantedAuthority[] mapped from the user's J2EE roles.
      */
     protected Collection<String> getUserRoles(Object context, Set<String> mappableRoles) {
         ArrayList<String> j2eeUserRolesList = new ArrayList<String>();

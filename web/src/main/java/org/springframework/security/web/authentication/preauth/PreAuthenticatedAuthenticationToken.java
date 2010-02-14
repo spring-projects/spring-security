@@ -22,11 +22,6 @@ public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationT
      * org.springframework.security.core.Authentication#isAuthenticated()} will return
      * <code>false</code>.
      *
-     * @TODO Should we have only a single credentials parameter here? For
-     *       example for X509 the certificate is used as credentials, while
-     *       currently a J2EE username is specified as a principal but could as
-     *       well be set as credentials.
-     *
      * @param aPrincipal
      *            The pre-authenticated principal
      * @param aCredentials

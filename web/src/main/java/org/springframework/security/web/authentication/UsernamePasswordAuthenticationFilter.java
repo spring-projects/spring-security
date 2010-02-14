@@ -35,10 +35,10 @@ import org.springframework.util.Assert;
  * Login forms must present two parameters to this filter: a username and
  * password. The default parameter names to use are contained in the
  * static fields {@link #SPRING_SECURITY_FORM_USERNAME_KEY} and {@link #SPRING_SECURITY_FORM_PASSWORD_KEY}.
- * The parameter names can also be changed by setting the {@literal usernameParameter} and {@literal passwordParameter}
+ * The parameter names can also be changed by setting the {@code usernameParameter} and {@code passwordParameter}
  * properties.
  * <p>
- * This filter by default responds to the URL {@literal /j_spring_security_check}.
+ * This filter by default responds to the URL {@code /j_spring_security_check}.
  *
  * @author Ben Alex
  * @author Colin Sampaleanu

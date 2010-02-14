@@ -166,11 +166,12 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
      * to perform the authentication. There are then three possible outcomes:
      * <ol>
      * <li>An <tt>Authentication</tt> object is returned.
-     * The {@link #successfulAuthentication(HttpServletRequest, HttpServletResponse, Authentication)
-     * successfulAuthentication} method will be invoked</li>
+     * The configured {link SessionAuthenticationStrategy} will be invoked followed by the
+     * {@link #successfulAuthentication(HttpServletRequest, HttpServletResponse, Authentication)
+     * successfulAuthentication} method</li>
      * <li>An <tt>AuthenticationException</tt> occurs during authentication.
-     * The {@link #unSuccessfulAuthentication(HttpServletRequest, HttpServletResponse, Authentication)
-     * unSuccessfulAuthentication} method will be invoked</li>
+     * The {@link #unsuccessfulAuthentication(HttpServletRequest, HttpServletResponse, AuthenticationException)
+     * unsuccessfulAuthentication} method will be invoked</li>
      * <li>Null is returned, indicating that the authentication process is incomplete.
      * The method will then return immediately, assuming that the subclass has done any necessary work (such as
      * redirects) to continue the authentication process. The assumption is that a later request will be received

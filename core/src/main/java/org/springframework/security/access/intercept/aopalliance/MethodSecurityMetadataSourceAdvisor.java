@@ -36,8 +36,7 @@ import org.springframework.util.Assert;
  * Because the AOP framework caches advice calculations, this is normally faster than just letting the
  * <code>MethodSecurityInterceptor</code> run and find out itself that it has no work to do.
  * <p>
- * This class also allows the use of Spring's
- * {@link org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator}, which makes
+ * This class also allows the use of Spring's {@code DefaultAdvisorAutoProxyCreator}, which makes
  * configuration easier than setup a <code>ProxyFactoryBean</code> for each object requiring security. Note that
  * autoproxying is not supported for BeanFactory implementations, as post-processing is automatic only for application
  * contexts.
@@ -74,8 +73,8 @@ public class MethodSecurityMetadataSourceAdvisor extends AbstractPointcutAdvisor
      * bean name should be set. This prevents eager instantiation of the interceptor
      * (and hence the AuthenticationManager). See SEC-773, for example.
      * <p>
-     * This is essentially the approach taken by subclasses of {@link AbstractBeanFactoryPointcutAdvisor}, which this
-     * class should extend in future. The original hierarchy and constructor have been retained for backwards
+     * This is essentially the approach taken by subclasses of Spring's {@code AbstractBeanFactoryPointcutAdvisor},
+     * which this class should extend in future. The original hierarchy and constructor have been retained for backwards
      * compatibility.
      *
      * @param adviceBeanName name of the MethodSecurityInterceptor bean

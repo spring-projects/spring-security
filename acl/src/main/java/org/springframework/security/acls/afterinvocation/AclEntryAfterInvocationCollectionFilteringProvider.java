@@ -38,8 +38,7 @@ import org.springframework.security.core.Authentication;
  * <p>
  * This after invocation provider will fire if any {@link ConfigAttribute#getAttribute()} matches the {@link
  * #processConfigAttribute}. The provider will then lookup the ACLs from the <code>AclService</code> and ensure the
- * principal is {@link org.springframework.security.acls.Acl#isGranted(List,
- * List, boolean) Acl.isGranted(Permission[], Sid[], boolean)}
+ * principal is {@link org.springframework.security.acls.model.Acl#isGranted(List, List, boolean) Acl.isGranted()}
  * when presenting the {@link #requirePermission} array to that method.
  * <p>
  * If the principal does not have permission, that element will not be included in the returned

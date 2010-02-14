@@ -33,7 +33,7 @@ import org.springframework.util.Assert;
 
 /**
  * Provides lifecycle services for the embedded apacheDS server defined by the supplied configuration.
- * Used by {@link LdapServerBeanDefinitionParser}. An instance will be stored in the application context for
+ * Used by {code LdapServerBeanDefinitionParser}. An instance will be stored in the application context for
  * each embedded server instance. It will start the server when the context is initialized and shut it down when
  * it is closed. It is intended for temporary embedded use and will not retain changes across start/stop boundaries. The
  * working directory is deleted on shutdown.
