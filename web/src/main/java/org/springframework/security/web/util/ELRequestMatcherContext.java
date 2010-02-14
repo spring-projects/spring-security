@@ -28,22 +28,20 @@ class ELRequestMatcherContext {
         this.request = request;
     }
 
-    @SuppressWarnings("unused")
     public boolean hasIpAddress(String ipAddress) {
         return (new IpAddressMatcher(ipAddress).matches(request));
     }
-    
-    @SuppressWarnings("unused")
+
     public boolean hasHeader(String headerName, String value) {
         String header = request.getHeader(headerName);
         if (StringUtils.hasText(header) == false) {
             return false;
         }
-        
+
         if (header.contains(value)) {
             return true;
         }
-        
+
         return false;
     }
 
