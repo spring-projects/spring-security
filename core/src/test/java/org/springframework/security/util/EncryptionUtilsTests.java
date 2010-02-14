@@ -25,6 +25,7 @@ import org.springframework.security.util.EncryptionUtils.EncryptionException;
  * @author Alan Stewart
  * @author Ben Alex
  */
+@SuppressWarnings("deprecation")
 public class EncryptionUtilsTests extends TestCase {
     private final static String STRING_TO_ENCRYPT = "Alan K Stewart";
     private final static String ENCRYPTION_KEY = "123456789012345678901234567890";

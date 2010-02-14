@@ -36,7 +36,9 @@ import org.springframework.util.Assert;
  *
  * @author Alan Stewart
  * @author Ben Alex
+ * @deprecated Use a dedicated encryption library instead.
  */
+@Deprecated
 public final class EncryptionUtils {
 
     /**
