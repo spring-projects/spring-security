@@ -1,6 +1,5 @@
 package org.springframework.security.web.authentication;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,7 +18,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:org/springframework/security/web/authentication/DelegatingAuthenticationEntryPointTest-context.xml")
-public class DelegatinAuthenticationEntryPointContextTest {
+public class DelegatingAuthenticationEntryPointContextTest {
 
     @Autowired
     private DelegatingAuthenticationEntryPoint daep;
@@ -40,7 +39,7 @@ public class DelegatinAuthenticationEntryPointContextTest {
         request.addHeader("User-Agent", "Mozilla/5.0");
         daep.commence(request, null, null);
         verify(firstAEP).commence(request, null, null);
-        verify(defaultAEP, never()).commence(any(HttpServletRequest.class), 
+        verify(defaultAEP, never()).commence(any(HttpServletRequest.class),
                 any(HttpServletResponse.class),
                 any(AuthenticationException.class));
 
@@ -53,7 +52,7 @@ public class DelegatinAuthenticationEntryPointContextTest {
         request.setRemoteAddr("192.168.1.10");
         daep.commence(request, null, null);
         verify(defaultAEP).commence(request, null, null);
-        verify(firstAEP, never()).commence(any(HttpServletRequest.class), 
+        verify(firstAEP, never()).commence(any(HttpServletRequest.class),
                 any(HttpServletResponse.class),
                 any(AuthenticationException.class));
 

@@ -17,7 +17,6 @@ package org.springframework.security.web.authentication;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -34,27 +33,25 @@ import org.springframework.util.Assert;
 /**
  * An AuthenticationEntryPoint which selects a concrete EntryPoint based on a
  * RequestMatcher evaluation.
- * 
+ *
  * <p>A configuration might look like this:</p>
- * 
+ *
  * <pre>
  * &lt;bean id=&quot;daep&quot; class=&quot;org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint&quot;&gt;
  *     &lt;constructor-arg&gt;
  *         &lt;map&gt;
  *             &lt;entry key=&quot;hasIpAddress('192.168.1.0/24') and hasHeader('User-Agent','Mozilla')&quot; value-ref=&quot;firstAEP&quot; /&gt;
- *             &lt;entry key=&quot;hasHeader('User-Agent','MSIE')&quot; value-ref=&quot;secondAEP&quot; /&gt; 
+ *             &lt;entry key=&quot;hasHeader('User-Agent','MSIE')&quot; value-ref=&quot;secondAEP&quot; /&gt;
  *         &lt;/map&gt;
  *     &lt;/constructor-arg&gt;
  *     &lt;property name=&quot;defaultEntryPoint&quot; ref=&quot;defaultAEP&quot;/&gt;
  * &lt;/bean&gt;
  * </pre>
- * 
+ *
  * This example uses the {@link RequestMatcherEditor} which creates {@link ELRequestMatcher} instances for the map keys.
- * 
- * 
+ *
  * @author Mike Wiesner
  * @since 3.0.2
- * @version $Id:$
  */
 public class DelegatingAuthenticationEntryPoint implements
         AuthenticationEntryPoint, InitializingBean {
@@ -84,17 +81,17 @@ public class DelegatingAuthenticationEntryPoint implements
             {
                entryPoints.get(requestMatcher).commence(request, response, authException);
                return;
-            }   
+            }
         }
-        
+
         // No EntryPoint matched, use defaultEntryPoint
         defaultEntryPoint.commence(request, response, authException);
     }
 
     public void afterPropertiesSet() throws Exception {
        Assert.notEmpty(entryPoints, "entryPoints must be specified");
-       Assert.notNull(defaultEntryPoint, "defaultEntryPoint must be specified");  
+       Assert.notNull(defaultEntryPoint, "defaultEntryPoint must be specified");
     }
-    
-    
+
+
 }
