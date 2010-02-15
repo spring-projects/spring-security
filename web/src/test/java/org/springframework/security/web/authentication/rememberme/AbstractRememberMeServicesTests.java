@@ -35,19 +35,35 @@ public class AbstractRememberMeServicesTests {
 
     @Test
     public void cookieShouldBeCorrectlyEncodedAndDecoded() {
-        String[] cookie = new String[] {"http://name", "cookie", "tokens", "blah"};
+        String[] cookie = new String[] {"name", "cookie", "tokens", "blah"};
         MockRememberMeServices services = new MockRememberMeServices();
 
         String encoded = services.encodeCookie(cookie);
-        // '=' aren't alowed in version 0 cookies.
+        // '=' aren't allowed in version 0 cookies.
         assertFalse(encoded.endsWith("="));
         String[] decoded = services.decodeCookie(encoded);
 
         assertEquals(4, decoded.length);
-        assertEquals("http://name", decoded[0]);
+        assertEquals("name", decoded[0]);
         assertEquals("cookie", decoded[1]);
         assertEquals("tokens", decoded[2]);
         assertEquals("blah", decoded[3]);
+    }
+
+    @Test
+    public void cookieWithOpenIDidentifierAsNameIsEncodedAndDecoded() throws Exception {
+        String[] cookie = new String[] {"http://id.openid.zz", "cookie", "tokens", "blah"};
+        MockRememberMeServices services = new MockRememberMeServices();
+
+        String[] decoded = services.decodeCookie(services.encodeCookie(cookie));
+        assertEquals(4, decoded.length);
+        assertEquals("http://id.openid.zz", decoded[0]);
+
+        // Check https (SEC-1410)
+        cookie[0] = "https://id.openid.zz";
+        decoded = services.decodeCookie(services.encodeCookie(cookie));
+        assertEquals(4, decoded.length);
+        assertEquals("https://id.openid.zz", decoded[0]);
     }
 
     @Test
