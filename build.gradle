@@ -70,7 +70,7 @@ configure(javaProjects()) {
         File template = new File(projectDir, 'template.mf')
         mkdir(buildDir, 'bundlor')
         if (template.exists()) {
-            ant.bundlor(inputPath: "$buildDir/classes/main", outputPath: "$buildDir/bundlor", manifestTemplatePath: template) {
+            ant.bundlor(inputPath: sourceSets.main.classesDir, outputPath: "$buildDir/bundlor", manifestTemplatePath: template) {
                 property(name: 'version', value: "$version")
                 property(name: 'spring.version', value: "$springVersion")
             }
@@ -122,6 +122,11 @@ configure(javaProjects()) {
     }
 
     conf2ScopeMappings.addMapping(1, configurations.provided, "provided")
+}
+
+configure(coreModuleProjects()) {
+    // Gives better names in structure101 jar diagram
+    sourceSets.main.classesDir = new File(buildDir, "classes/" + project.name.substring("spring-security".length() + 1))
 }
 
 repositories {
