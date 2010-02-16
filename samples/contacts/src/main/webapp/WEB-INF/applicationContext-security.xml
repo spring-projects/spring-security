@@ -52,9 +52,15 @@
 
     <b:bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
         <b:property name="permissionEvaluator" ref="permissionEvaluator"/>
+        <b:property name="permissionCacheOptimizer">
+            <b:bean class="org.springframework.security.acls.AclPermissionCacheOptimizer">
+                <b:constructor-arg ref="aclService"/>
+            </b:bean>
+        </b:property>
     </b:bean>
 
     <b:bean id="permissionEvaluator" class="org.springframework.security.acls.AclPermissionEvaluator">
         <b:constructor-arg ref="aclService"/>
     </b:bean>
+
 </b:beans>

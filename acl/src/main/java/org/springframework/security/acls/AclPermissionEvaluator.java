@@ -70,24 +70,30 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
         List<Sid> sids = sidRetrievalStrategy.getSids(authentication);
         List<Permission> requiredPermission = resolvePermission(permission);
 
+        final boolean debug = logger.isDebugEnabled();
+
+        if (debug) {
+            logger.debug("Checking permission '" + permission + "' for object '" + oid + "'");
+        }
+
         try {
             // Lookup only ACLs for SIDs we're interested in
             Acl acl = aclService.readAclById(oid, sids);
 
             if (acl.isGranted(requiredPermission, sids, false)) {
-                if (logger.isDebugEnabled()) {
+                if (debug) {
                     logger.debug("Access is granted");
                 }
 
                 return true;
             }
 
-            if (logger.isDebugEnabled()) {
+            if (debug) {
                 logger.debug("Returning false - ACLs returned, but insufficient permissions for this principal");
             }
 
         } catch (NotFoundException nfe) {
-            if (logger.isDebugEnabled()) {
+            if (debug) {
                 logger.debug("Returning false - no ACLs apply for this principal");
             }
         }

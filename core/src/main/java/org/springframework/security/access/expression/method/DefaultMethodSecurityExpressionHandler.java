@@ -2,6 +2,7 @@ package org.springframework.security.access.expression.method;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -14,6 +15,7 @@ import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.security.access.PermissionCacheOptimizer;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -35,6 +37,7 @@ public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExp
 
     private ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
     private PermissionEvaluator permissionEvaluator = new DenyAllPermissionEvaluator();
+    private PermissionCacheOptimizer permissionCacheOptimizer = null;
     private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
     private ExpressionParser expressionParser = new SpelExpressionParser();
     private RoleHierarchy roleHierarchy;
@@ -57,12 +60,20 @@ public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExp
         return ctx;
     }
 
+    /**
+     * Filters the {@code filterTarget} object (which must be either a collection or an array), by evaluating the
+     * supplied expression.
+     * <p>
+     * If a {@Collection} is used, the original instance will be modified to contain the elements for which
+     * the permission expression evaluates to {@code true}. For an array, a new array instance will be returned.
+     */
     @SuppressWarnings("unchecked")
     public Object filter(Object filterTarget, Expression filterExpression, EvaluationContext ctx) {
         MethodSecurityExpressionRoot rootObject = (MethodSecurityExpressionRoot) ctx.getRootObject().getValue();
+        final boolean debug = logger.isDebugEnabled();
         List retainList;
 
-        if (logger.isDebugEnabled()) {
+        if (debug) {
             logger.debug("Filtering with expression: " + filterExpression.getExpressionString());
         }
 
@@ -70,9 +81,14 @@ public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExp
             Collection collection = (Collection)filterTarget;
             retainList = new ArrayList(collection.size());
 
-            if (logger.isDebugEnabled()) {
+            if (debug) {
                 logger.debug("Filtering collection with " + collection.size() + " elements");
             }
+
+            if (permissionCacheOptimizer != null) {
+                permissionCacheOptimizer.cachePermissionsFor(rootObject.getAuthentication(), collection);
+            }
+
             for (Object filterObject : (Collection)filterTarget) {
                 rootObject.setFilterObject(filterObject);
 
@@ -81,7 +97,7 @@ public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExp
                 }
             }
 
-            if (logger.isDebugEnabled()) {
+            if (debug) {
                 logger.debug("Retaining elements: " + retainList);
             }
 
@@ -95,8 +111,12 @@ public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExp
             Object[] array = (Object[])filterTarget;
             retainList = new ArrayList(array.length);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Filtering collection with " + array.length + " elements");
+            if (debug) {
+                logger.debug("Filtering array with " + array.length + " elements");
+            }
+
+            if (permissionCacheOptimizer != null) {
+                permissionCacheOptimizer.cachePermissionsFor(rootObject.getAuthentication(), Arrays.asList(array));
             }
 
             for (int i = 0; i < array.length; i++) {
@@ -107,7 +127,7 @@ public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExp
                 }
             }
 
-            if (logger.isDebugEnabled()) {
+            if (debug) {
                 logger.debug("Retaining elements: " + retainList);
             }
 
@@ -133,6 +153,10 @@ public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExp
 
     public void setPermissionEvaluator(PermissionEvaluator permissionEvaluator) {
         this.permissionEvaluator = permissionEvaluator;
+    }
+
+    public void setPermissionCacheOptimizer(PermissionCacheOptimizer permissionCacheOptimizer) {
+        this.permissionCacheOptimizer = permissionCacheOptimizer;
     }
 
     public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
