@@ -1,12 +1,12 @@
 package org.springframework.security.config;
 
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.security.core.session.SessionCreationEvent;
 
 /**
  * @author Luke Taylor
  */
-public class TestBusinessBeanImpl implements TestBusinessBean, ApplicationListener<ApplicationEvent> {
+public class TestBusinessBeanImpl implements TestBusinessBean, ApplicationListener<SessionCreationEvent> {
     public void setInteger(int i) {
     }
 
@@ -27,7 +27,7 @@ public class TestBusinessBeanImpl implements TestBusinessBean, ApplicationListen
     public void unprotected() {
     }
 
-    public void onApplicationEvent(ApplicationEvent event) {
+    public void onApplicationEvent(SessionCreationEvent event) {
         System.out.println(event);
     }
 }
