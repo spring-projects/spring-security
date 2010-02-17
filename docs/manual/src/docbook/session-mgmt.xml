@@ -92,13 +92,13 @@
     <para>In addition, you will need to add the <literal>ConcurrentSessionFilter</literal> to your
         <classname>FilterChainProxy</classname>. The <classname>ConcurrentSessionFilter</classname>
       requires two properties, <literal>sessionRegistry</literal>, which generally points to an
-      instance of <literal>SessionRegistryImpl</literal>, and <literal>expiredUrl</literal>, which
+      instance of <classname>SessionRegistryImpl</classname>, and <literal>expiredUrl</literal>, which
       points to the page to display when a session has expired. A configuration using the namespace
       to create the <classname>FilterChainProxy</classname> and other default beans might look like
       this: <programlisting><![CDATA[
   <http>
     <custom-filter position="CONCURRENT_SESSION_FILTER" ref="concurrencyFilter" />
-    <custom-filter position="AUTHENTICATION_PROCESSING_FILTER" ref="myAuthFilter" />
+    <custom-filter position="FORM_LOGIN_FILTER" ref="myAuthFilter" />
 
     <session-management session-authentication-strategy-ref="sas"/>
   </http>
