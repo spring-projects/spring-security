@@ -456,15 +456,14 @@
         element somewhere. It is responsible for registering the
           <interfacename>AuthenticationManager</interfacename> which provides authentication
         services to the application. It also allows you to define an alias name for the internal
-        instance for use in your own configuration. Its use is described in the <link
-          xlink:href="#ns-auth-manager">namespace introduction</link>. All elements which create
+        instance for use in your own configuration. Its use is described in the 
+          <link xlink:href="#ns-auth-manager">namespace introduction</link>. All elements which create
           <interfacename>AuthenticationProvider</interfacename> instances should be children of this
         element.</para>
       <section>
         <title>The <literal>&lt;authentication-provider&gt;</literal> Element</title>
-        <para> This element is basically a shorthand syntax for configuring a <link
-            xlink:href="#core-services-dao-provider"
-              ><classname>DaoAuthenticationProvider</classname></link>.
+        <para> Unless used with a <literal>ref</literal> attribute, this element is shorthand for configuring a
+            <link xlink:href="#core-services-dao-provider"><classname>DaoAuthenticationProvider</classname></link>.
             <classname>DaoAuthenticationProvider</classname> loads user information from a
             <interfacename>UserDetailsService</interfacename> and compares the username/password
           combination with the values supplied at login. The

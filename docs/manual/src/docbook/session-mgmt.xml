@@ -44,13 +44,13 @@
   </http>
 
   <beans:bean id="myAuthFilter"
-      class="org.springframework.security.web.authentcation.UsernamePasswordAuthenticationFilter">
+      class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
     <beans:property name="sessionAuthenticationStrategy" ref="sas" />
     ...
   </beans:bean>
 
   <beans:bean id="sas"
-      class="org.springframework.security.web.session.DefaultAuthenticatedSessionStrategy">
+      class="org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy">
     <beans:property name="sessionRegistry" ref="sessionRegistry" />
     <beans:property name="maximumSessions" value="1" />
   </beans:bean>

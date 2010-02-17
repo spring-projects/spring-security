@@ -86,8 +86,8 @@
     <programlisting language="java">
 package org.springframework.security.samples.aspectj;
 
-import org.springframework.security.intercept.aspectj.AspectJSecurityInterceptor;
-import org.springframework.security.intercept.aspectj.AspectJCallback;
+import org.springframework.security.access.intercept.aspectj.AspectJSecurityInterceptor;
+import org.springframework.security.access.intercept.aspectj.AspectJCallback;
 import org.springframework.beans.factory.InitializingBean;
 
 public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
@@ -138,7 +138,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
       shown below:</para>
     <programlisting><![CDATA[
 <bean id="domainObjectInstanceSecurityAspect"
-     class="org.springframework.security.samples.aspectj.DomainObjectInstanceSecurityAspect"
+     class="security.samples.aspectj.DomainObjectInstanceSecurityAspect"
      factory-method="aspectOf">
   <property name="securityInterceptor" ref="bankManagerSecurity"/>
 </bean>]]>

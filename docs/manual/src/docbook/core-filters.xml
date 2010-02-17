@@ -16,7 +16,7 @@
                 <classname>ExceptionTranslationFilter</classname>. A typical configuration example
             is shown below: <programlisting language="xml"><![CDATA[
 <bean id="filterSecurityInterceptor"
-        class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
+        class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="accessDecisionManager" ref="accessDecisionManager"/>
   <property name="securityMetadataSource">
@@ -54,8 +54,9 @@
             interface which subclasses <interfacename>SecurityMetadataSource</interfacename>. It
             simply denotes the <interfacename>SecurityMetadataSource</interfacename> understands
                 <classname>FilterInvocation</classname>s. In the interests of simplicity we'll
-            continue to refer to the <interfacename>FilterInvocationSecurityMetadataSource</interfacename>
-            as a <interfacename>SecurityMetadataSource</interfacename>, as the distinction is of
+            continue to refer to the
+                <interfacename>FilterInvocationSecurityMetadataSource</interfacename> as a
+                <interfacename>SecurityMetadataSource</interfacename>, as the distinction is of
             little relevance to most users.</para>
         <para>The <interfacename>SecurityMetadataSource</interfacename> created by the namespace
             syntax obtains the configuration attributes for a particular
@@ -69,7 +70,7 @@
             be written as follows:</para>
         <programlisting language="xml"><![CDATA[
 <bean id="filterInvocationInterceptor"
-     class="org.springframework.security.intercept.web.FilterSecurityInterceptor">
+     class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="accessDecisionManager" ref="accessDecisionManager"/>
   <property name="runAsManager" ref="runAsManager"/>
@@ -246,8 +247,9 @@ class="org.springframework.security.web.context.SecurityContextPersistenceFilter
                     was called <classname>AuthenticationProcessingFilterEntryPoint</classname>.
                     Since the framework now supports many different forms of authentication, they
                     have both been given more specific names in 3.0.</para>
-            </footnote>. It also provides the implementation used by the <literal>&lt;form-login&gt;</literal> element
-            from the namespace. There are three stages required to configure it. <orderedlist>
+            </footnote>. It also provides the implementation used by the
+                <literal>&lt;form-login&gt;</literal> element from the namespace. There are three
+            stages required to configure it. <orderedlist>
                 <listitem>
                     <para>Configure a <classname>LoginUrlAuthenticationEntryPoint</classname> with
                         the URL of the login page, just as we did above, and set it on the
@@ -298,8 +300,8 @@ class="org.springframework.security.web.context.SecurityContextPersistenceFilter
             <para>If authentication is successful, the resulting
                     <interfacename>Authentication</interfacename> object will be placed into the
                     <classname>SecurityContextHolder</classname>. The configured
-                <interfacename>AuthenticationSuccessHandler</interfacename> will then be called to either redirect or forward the
-                user to the appropriate destination. By default a
+                    <interfacename>AuthenticationSuccessHandler</interfacename> will then be called
+                to either redirect or forward the user to the appropriate destination. By default a
                     <classname>SavedRequestAwareAuthenticationSuccessHandler</classname> is used,
                 which means that the user will be redirected to the original destination they
                 requested before they were asked to login. <note>

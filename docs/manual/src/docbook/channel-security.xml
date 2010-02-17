@@ -56,7 +56,7 @@
 </bean>
 
 <bean id="channelDecisionManager"
-    class="org.springframework.security.access.channel.ChannelDecisionManagerImpl">
+    class="org.springframework.security.web.access.channel.ChannelDecisionManagerImpl">
   <property name="channelProcessors">
     <list>
     <ref bean="secureChannelProcessor"/>
@@ -66,9 +66,9 @@
 </bean>
 
 <bean id="secureChannelProcessor"
-  class="org.springframework.security.access.channel.SecureChannelProcessor"/>
+  class="org.springframework.security.web.access.channel.SecureChannelProcessor"/>
 <bean id="insecureChannelProcessor"
-  class="org.springframework.security.access.channel.InsecureChannelProcessor"/>]]>
+  class="org.springframework.security.web.access.channel.InsecureChannelProcessor"/>]]>
 </programlisting>
             Like <classname>FilterSecurityInterceptor</classname>, Apache Ant style paths are also
             supported by the <literal>ChannelProcessingFilter</literal>.</para>
