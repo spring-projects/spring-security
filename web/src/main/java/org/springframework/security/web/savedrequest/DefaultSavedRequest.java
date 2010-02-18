@@ -54,6 +54,8 @@ public class DefaultSavedRequest implements SavedRequest {
 
     public static final String SPRING_SECURITY_SAVED_REQUEST_KEY = "SPRING_SECURITY_SAVED_REQUEST_KEY";
 
+    private static final String HEADER_IF_NONE_MATCH = "If-None-Match";
+
     //~ Instance fields ================================================================================================
 
     private ArrayList<SavedCookie> cookies = new ArrayList<SavedCookie>();
@@ -92,6 +94,10 @@ public class DefaultSavedRequest implements SavedRequest {
 
         while (names.hasMoreElements()) {
             String name = names.nextElement();
+            // Skip If-None-Match header. SEC-1412.
+            if (HEADER_IF_NONE_MATCH.equalsIgnoreCase(name)) {
+                continue;
+            }
             Enumeration<String> values = request.getHeaders(name);
 
             while (values.hasMoreElements()) {

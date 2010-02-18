@@ -21,6 +21,15 @@ public class DefaultSavedRequestTests {
         assertEquals("Mozilla", saved.getHeaderValues("user-agent").get(0));
     }
 
+    // SEC-1412
+    @Test
+    public void discardsIfNoneMatchHeader() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("If-None-Match", "somehashvalue");
+        DefaultSavedRequest saved = new DefaultSavedRequest(request, new MockPortResolver(8080, 8443));
+        assertTrue(saved.getHeaderValues("if-none-match").isEmpty());
+    }
+
     // TODO: Why are parameters case insensitive. I think this is a mistake
     @Test
     public void parametersAreCaseInsensitive() throws Exception {
