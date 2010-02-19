@@ -10,7 +10,7 @@
       </author>
     </authorgroup>
     <productname>Spring Security</productname>
-    <releaseinfo>3.0.1.RELEASE</releaseinfo>
+    <releaseinfo>3.0.2.RELEASE</releaseinfo>
   </info>
   <toc/>
   <preface xml:id="preface">
