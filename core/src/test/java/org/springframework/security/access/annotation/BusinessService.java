@@ -15,19 +15,19 @@
 
 package org.springframework.security.access.annotation;
 
+import java.io.Serializable;
 import java.util.List;
 
-import javax.annotation.security.RolesAllowed;
 import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 /**
  */
 @Secured({"ROLE_USER"})
 @PermitAll
-public interface BusinessService {
+public interface BusinessService extends Serializable {
     //~ Methods ========================================================================================================
 
     @Secured({"ROLE_ADMIN"})

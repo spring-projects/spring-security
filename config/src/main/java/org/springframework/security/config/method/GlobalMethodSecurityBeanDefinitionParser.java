@@ -324,6 +324,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
         advisor.setSource(source);
         advisor.getConstructorArgumentValues().addGenericArgumentValue(interceptor.getBeanName());
         advisor.getConstructorArgumentValues().addGenericArgumentValue(metadataSource);
+        advisor.getConstructorArgumentValues().addGenericArgumentValue(metadataSource.getBeanName());
 
         parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_SECURITY_METADATA_SOURCE_ADVISOR, advisor);
     }
