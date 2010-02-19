@@ -58,7 +58,7 @@ public class MethodSecurityMetadataSourceAdvisor extends AbstractPointcutAdvisor
     private BeanFactory beanFactory;
     private String adviceBeanName;
     private String metadataSourceBeanName;
-    private final Serializable adviceMonitor = new Serializable() {};
+    private transient volatile Object adviceMonitor = new Object();
 
     //~ Constructors ===================================================================================================
 
@@ -117,7 +117,7 @@ public class MethodSecurityMetadataSourceAdvisor extends AbstractPointcutAdvisor
 
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
         ois.defaultReadObject();
-
+        adviceMonitor = new Object();
         attributeSource = beanFactory.getBean(metadataSourceBeanName, MethodSecurityMetadataSource.class);
     }
 
