@@ -20,10 +20,10 @@ allprojects {
 configure(javaProjects()) {
     apply id: 'java'
 
-    springVersion = '3.0.0.RELEASE'
+    springVersion = '3.0.1.RELEASE'
     springLdapVersion = '1.3.0.RELEASE'
     ehcacheVersion = '1.6.2'
-    aspectjVersion = '1.6.5'
+    aspectjVersion = '1.6.8'
     apacheDsVersion = '1.5.5'
     jstlVersion = '1.1.2'
 	jettyVersion = '6.1.22'

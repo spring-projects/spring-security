@@ -561,12 +561,12 @@
             <dependency>
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjrt</artifactId>
-                <version>1.6.5</version>
+                <version>1.6.8</version>
             </dependency>
             <dependency>
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjweaver</artifactId>
-                <version>1.6.5</version>
+                <version>1.6.8</version>
             </dependency>
             <dependency>
                 <groupId>cglib</groupId>
@@ -632,7 +632,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <spring.version>3.0.0.RELEASE</spring.version>
+        <spring.version>3.0.1.RELEASE</spring.version>
         <jstl.version>1.1.2</jstl.version>
         <jetty.version>6.1.22</jetty.version>
     </properties>
