@@ -3,7 +3,7 @@
     <groupId>org.springframework.security</groupId>
     <artifactId>spring-security-samples-webflow</artifactId>
     <name>Spring Security - Webflow sample</name>
-    <version>3.0.2.RELEASE</version>
+    <version>3.1.0.CI-SNAPSHOT</version>
     <packaging>war</packaging>
     <dependencies>
         <dependency>

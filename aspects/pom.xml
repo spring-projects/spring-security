@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-parent</artifactId>
-        <version>3.0.2.RELEASE</version>
+        <version>3.1.0.CI-SNAPSHOT</version>
     </parent>
     <packaging>jar</packaging>
     <artifactId>spring-security-aspects</artifactId>
@@ -22,7 +22,7 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
-            <version>3.0.2.RELEASE</version>
+            <version>3.1.0.CI-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <build>
@@ -39,12 +39,12 @@
                     <dependency>
                         <groupId>org.aspectj</groupId>
                         <artifactId>aspectjrt</artifactId>
-                        <version>1.6.5</version>
+                        <version>1.6.8</version>
                     </dependency>
                     <dependency>
                         <groupId>org.aspectj</groupId>
                         <artifactId>aspectjtools</artifactId>
-                        <version>1.6.5</version>
+                        <version>1.6.8</version>
                     </dependency>
                 </dependencies>
                 <executions>

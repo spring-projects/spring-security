@@ -4,7 +4,7 @@ import org.gradle.api.tasks.bundling.GradleManifest
 apply id: 'base'
 
 allprojects {
-    version = '3.0.2.RELEASE'
+    version = '3.1.0.CI-SNAPSHOT'
     releaseBuild = version.endsWith('RELEASE')
     snapshotBuild = version.endsWith('SNAPSHOT')
 
