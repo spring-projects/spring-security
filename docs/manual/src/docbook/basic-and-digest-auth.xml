@@ -82,10 +82,10 @@
             following format:</para>
         <para>
             <programlisting>
-                base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
+  base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
 
-                expirationTime:   The date and time when the nonce expires, expressed in milliseconds
-                key:              A private key to prevent modification of the nonce token
+  expirationTime:   The date and time when the nonce expires, expressed in milliseconds
+  key:              A private key to prevent modification of the nonce token
             </programlisting>
         </para>
         <para>The <classname>DigestAuthenticatonEntryPoint</classname> has a property specifying the

@@ -426,8 +426,8 @@ Successfully authenticated. Security context contains: \
           Even though a <classname>ThreadLocal</classname> is being used, it is the same instance
           that is retrieved from the <interfacename>HttpSession</interfacename> for each thread.
           This has implications if you wish to temporarily change the context under which a thread
-          is running. If you just use
-            <code>SecurityContextHolder.getContext().setAuthentication(anAuthentication)</code>,
+          is running. If you just use <code>SecurityContextHolder.getContext()</code>,
+           and call <code>setAuthentication(anAuthentication)</code> on the returned context object,
           then the <interfacename>Authentication</interfacename> object will change in
             <emphasis>all</emphasis> concurrent threads which share the same
             <interfacename>SecurityContext</interfacename> instance. You can customize the behaviour

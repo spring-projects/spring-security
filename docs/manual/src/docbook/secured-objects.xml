@@ -27,8 +27,8 @@
       <title>Explicit MethodSecurityInterceptor Configuration</title>
       <para> You can of course configure a <classname>MethodSecurityIterceptor</classname> directly
         in your application context for use with one of Spring AOP's proxying mechanisms: <programlisting><![CDATA[
-<bean id="bankManagerSecurity"
-    class="org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor">
+<bean id="bankManagerSecurity" class=
+    "org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor">
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="accessDecisionManager" ref="accessDecisionManager"/>
   <property name="afterInvocationManager" ref="afterInvocationManager"/>
@@ -60,8 +60,8 @@
     <para>Let's first consider how the <literal>AspectJSecurityInterceptor</literal> is configured
       in the Spring application context:</para>
     <programlisting><![CDATA[
-<bean id="bankManagerSecurity"
-     class="org.springframework.security.access.intercept.aspectj.AspectJSecurityInterceptor">
+<bean id="bankManagerSecurity" class=
+    "org.springframework.security.access.intercept.aspectj.AspectJSecurityInterceptor">
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="accessDecisionManager" ref="accessDecisionManager"/>
   <property name="afterInvocationManager" ref="afterInvocationManager"/>

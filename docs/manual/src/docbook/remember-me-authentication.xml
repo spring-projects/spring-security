@@ -78,7 +78,10 @@
                 <literal>persistent_logins</literal> table, created using the following SQL (or
             equivalent):
             <programlisting>
-    create table persistent_logins (username varchar(64) not null, series varchar(64) primary key, token varchar(64) not null, last_used timestamp not null)
+    create table persistent_logins (username varchar(64) not null,
+                                    series varchar(64) primary key,
+                                    token varchar(64) not null,
+                                    last_used timestamp not null)
 </programlisting></para>
         <!-- TODO: Add more info on the implementation and behaviour when tokens are stolen etc. Also some info for admins on invalidating tokens using key, or deleting info from db -->
     </section>

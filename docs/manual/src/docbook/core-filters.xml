@@ -16,7 +16,7 @@
                 <classname>ExceptionTranslationFilter</classname>. A typical configuration example
             is shown below: <programlisting language="xml"><![CDATA[
 <bean id="filterSecurityInterceptor"
-        class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+      class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="accessDecisionManager" ref="accessDecisionManager"/>
   <property name="securityMetadataSource">
@@ -70,7 +70,7 @@
             be written as follows:</para>
         <programlisting language="xml"><![CDATA[
 <bean id="filterInvocationInterceptor"
-     class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+      class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="accessDecisionManager" ref="accessDecisionManager"/>
   <property name="runAsManager" ref="runAsManager"/>
@@ -108,14 +108,14 @@
             doesn't do any actual security enforcement itself, but handles exceptions thrown by the
             security interceptors and provides suitable and HTTP responses. <programlisting language="xml"><![CDATA[
 <bean id="exceptionTranslationFilter"
-     class="org.springframework.security.web.access.ExceptionTranslationFilter">
-  <property name="authenticationEntryPoint" ref="authenticationEntryPoint"/>
-  <property name="accessDeniedHandler" ref="accessDeniedHandler"/>
+  class="org.springframework.security.web.access.ExceptionTranslationFilter">
+ <property name="authenticationEntryPoint" ref="authenticationEntryPoint"/>
+ <property name="accessDeniedHandler" ref="accessDeniedHandler"/>
 </bean>
 
 <bean id="authenticationEntryPoint"
-     class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
-  <property name="loginFormUrl" value="/login.jsp"/>
+  class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+ <property name="loginFormUrl" value="/login.jsp"/>
 </bean>
 
 <bean id="accessDeniedHandler"
@@ -181,7 +181,7 @@
             you would configure it for use with a <classname>FilterChainProxy</classname>. A basic
             configuration only requires the bean itself <programlisting><![CDATA[
 <bean id="securityContextPersistenceFilter"
-class="org.springframework.security.web.context.SecurityContextPersistenceFilter"/>
+  class="org.springframework.security.web.context.SecurityContextPersistenceFilter"/>
 ]]></programlisting> As we saw previously, this filter has two main tasks. It is responsible for
             storage of the <classname>SecurityContext</classname> contents between HTTP requests and
             for clearing the <classname>SecurityContextHolder</classname> when a request is

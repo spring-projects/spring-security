@@ -136,14 +136,16 @@
                 <para>The most obviously useful annotation is <literal>@PreAuthorize</literal> which
                     decides whether a method can actually be invoked or not. For example (from the
                         <quote>Contacts</quote> sample
-                    application)<programlisting>  @PreAuthorize("hasRole('ROLE_USER')")
-  public void create(Contact contact);</programlisting>which
+                    application)<programlisting>
+ @PreAuthorize("hasRole('ROLE_USER')")
+ public void create(Contact contact);</programlisting>which
                     means that access will only be allowed for users with the role "ROLE_USER".
                     Obviously the same thing could easily be achieved using a traditional
                     configuration and a simple configuration attribute for the required role. But
                     what
-                    about:<programlisting>  @PreAuthorize("hasPermission(#contact, 'admin')")
-  public void deletePermission(Contact contact, Sid recipient, Permission permission);</programlisting>Here
+                    about:<programlisting>
+ @PreAuthorize("hasPermission(#contact, 'admin')")
+ public void deletePermission(Contact contact, Sid recipient, Permission permission);</programlisting>Here
                     we're actually using a method argument as part of the expression to decide
                     whether the current user has the <quote>admin</quote>permission for the given
                     contact. The built-in <literal>hasPermission()</literal> expression is linked
@@ -154,8 +156,9 @@
                     within the expression, so you can also access properties on the arguments. For
                     example, if you wanted a particular method to only allow access to a user whose
                     username matched that of the contact, you could write</para>
-                <programlisting>  @PreAuthorize("#contact.name == principal.name)")
-  public void doSomething(Contact contact);</programlisting>
+                <programlisting>
+ @PreAuthorize("#contact.name == principal.name)")
+ public void doSomething(Contact contact);</programlisting>
                 <para>Here we are accessing another built–in expression, which is the
                         <literal>principal</literal> of the current Spring Security
                         <interfacename>Authentication</interfacename> object obtained from the
@@ -205,9 +208,13 @@
                     permissions. It has no explicit dependencies on the ACL module, so you could
                     swap that out for an alternative implementation if required. The interface has
                     two methods:
-                    <programlisting language="java">  boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission);
+                    <programlisting language="java">
+ boolean hasPermission(Authentication authentication, Object targetDomainObject,
+                             Object permission);
 
-  boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission);</programlisting>which
+ boolean hasPermission(Authentication authentication, Serializable targetId,
+                              String targetType, Object permission);
+</programlisting>which
                     map directly to the available versions of the expression, with the exception
                     that the first argument (the <interfacename>Authentication</interfacename>
                     object) is not supplied. The first is used in situations where the domain
@@ -220,14 +227,16 @@
                     long as it is consistent with how the permissions are loaded.</para>
                 <para>To use <literal>hasPermission()</literal> expressions, you have to explicitly
                     configure a <interfacename>PermissionEvaluator</interfacename> in your
-                    application context. This would look something like this:<programlisting language="xml"> <![CDATA[ <security:global-method-security pre-post-annotations="enabled">
-    <security:expression-handler ref="expressionHandler"/>
-  </security:global-method-security>
+                    application context. This would look something like this:
+<programlisting language="xml"> <![CDATA[
+<security:global-method-security pre-post-annotations="enabled">
+  <security:expression-handler ref="expressionHandler"/>
+</security:global-method-security>
 
-  <bean id="expressionHandler"
-      class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
-        <property name="permissionEvaluator" ref="myPermissionEvaluator"/>
-  </bean>]]></programlisting>Where <literal>myPermissionEvaluator</literal> is the bean which
+<bean id="expressionHandler" class=
+  "org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
+     <property name="permissionEvaluator" ref="myPermissionEvaluator"/>
+</bean>]]></programlisting>Where <literal>myPermissionEvaluator</literal> is the bean which
                     implements <interfacename>PermissionEvaluator</interfacename>. Usually this will
                     be the implementation from the ACL module which is called
                         <classname>AclPermissionEvaluator</classname>. See the

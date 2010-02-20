@@ -499,19 +499,22 @@
             xlink:href="http://openid.net/specs/openid-attribute-exchange-1_0.html">attribute
             exchange</link>. As an example, the following configuration would attempt to retrieve
           the email and full name from the OpenID provider, for use by the application:<programlisting language="xml"><![CDATA[
-  <openid-login>
-    <attribute-exchange>
-      <openid-attribute name="email" type="http://axschema.org/contact/email" required="true" />
-      <openid-attribute name="name" type="http://axschema.org/namePerson" />
-    </attribute-exchange>
-  </openid-login>]]></programlisting>The <quote>type</quote> of each OpenID attribute is a URI,
+ <openid-login>
+  <attribute-exchange>
+    <openid-attribute name="email" type="http://axschema.org/contact/email" required="true"/>
+    <openid-attribute name="name" type="http://axschema.org/namePerson"/>
+  </attribute-exchange>
+ </openid-login>]]></programlisting>The <quote>type</quote> of each OpenID attribute is a URI,
           determined by a particular schema, in this case <link xlink:href="http://axschema.org/"
             >http://axschema.org/</link>. If an attribute must be retrieved for successful
           authentication, the <literal>required</literal> attribute can be set. The exact schema and
           attributes supported will depend on your OpenID provider. The attribute values are
           returned as part of the authentication process and can be accessed afterwards using the
           following
-          code:<programlisting language="java">OpenIDAuthenticationToken token = (OpenIDAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
+          code:
+<programlisting language="java">
+OpenIDAuthenticationToken token = 
+    (OpenIDAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
 List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
             <classname>OpenIDAttribute</classname> contains the attribute type and the retrieved
           value (or values in the case of multi-valued attributes). We'll see more about how the
