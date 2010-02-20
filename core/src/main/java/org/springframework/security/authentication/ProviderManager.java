@@ -65,7 +65,7 @@ import org.springframework.util.Assert;
  *
  * @see DefaultAuthenticationEventPublisher
  */
-public class ProviderManager extends AbstractAuthenticationManager implements MessageSourceAware, InitializingBean {
+public class ProviderManager implements AuthenticationManager, MessageSourceAware, InitializingBean {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(ProviderManager.class);
@@ -76,6 +76,8 @@ public class ProviderManager extends AbstractAuthenticationManager implements Me
     private List<AuthenticationProvider> providers = Collections.emptyList();
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private AuthenticationManager parent;
+
+    private boolean clearExtraInformation = false;
 
     //~ Methods ========================================================================================================
 
@@ -104,17 +106,20 @@ public class ProviderManager extends AbstractAuthenticationManager implements Me
      *
      * @throws AuthenticationException if authentication fails.
      */
-    public Authentication doAuthentication(Authentication authentication) throws AuthenticationException {
+    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         Class<? extends Authentication> toTest = authentication.getClass();
         AuthenticationException lastException = null;
         Authentication result = null;
+        boolean debug = logger.isDebugEnabled();
 
         for (AuthenticationProvider provider : getProviders()) {
             if (!provider.supports(toTest)) {
                 continue;
             }
 
-            logger.debug("Authentication attempt using " + provider.getClass().getName());
+            if (debug) {
+                logger.debug("Authentication attempt using " + provider.getClass().getName());
+            }
 
             try {
                 result = provider.authenticate(authentication);
@@ -124,8 +129,8 @@ public class ProviderManager extends AbstractAuthenticationManager implements Me
                     break;
                 }
             } catch (AccountStatusException e) {
+                prepareException(e, authentication);
                 // SEC-546: Avoid polling additional providers if auth failure is due to invalid account status
-                eventPublisher.publishAuthenticationFailure(e, authentication);
                 throw e;
             } catch (AuthenticationException e) {
                 lastException = e;
@@ -157,8 +162,17 @@ public class ProviderManager extends AbstractAuthenticationManager implements Me
         }
 
         eventPublisher.publishAuthenticationFailure(lastException, authentication);
+        prepareException(lastException, authentication);
 
         throw lastException;
+    }
+
+    private void prepareException(AuthenticationException ex, Authentication auth) {
+        ex.setAuthentication(auth);
+
+        if (clearExtraInformation) {
+            ex.clearExtraInformation();
+        }
     }
 
     /**
@@ -209,6 +223,17 @@ public class ProviderManager extends AbstractAuthenticationManager implements Me
         }
 
         this.providers = providers;
+    }
+
+    /**
+     * If set to true, the <tt>extraInformation</tt> set on an <tt>AuthenticationException</tt> will be cleared
+     * before rethrowing it. This is useful for use with remoting protocols where the information shouldn't
+     * be serialized to the client. Defaults to 'false'.
+     *
+     * @see org.springframework.security.core.AuthenticationException#getExtraInformation()
+     */
+    public void setClearExtraInformation(boolean clearExtraInformation) {
+        this.clearExtraInformation = clearExtraInformation;
     }
 
     private static final class NullEventPublisher implements AuthenticationEventPublisher {

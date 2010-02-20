@@ -1,6 +1,7 @@
 package org.springframework.security.provisioning;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,10 +14,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.MockAuthenticationManager;
 import org.springframework.security.PopulatedDatabase;
 import org.springframework.security.TestDataSource;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -155,7 +156,10 @@ public class JdbcUserDetailsManagerTests {
     public void changePasswordSucceedsWithIfReAuthenticationSucceeds() {
         insertJoe();
         Authentication currentAuth = authenticateJoe();
-        manager.setAuthenticationManager(new MockAuthenticationManager(true));
+        AuthenticationManager am = mock(AuthenticationManager.class);
+        when(am.authenticate(currentAuth)).thenReturn(currentAuth);
+
+        manager.setAuthenticationManager(am);
         manager.changePassword("password", "newPassword");
         UserDetails newJoe = manager.loadUserByUsername("joe");
 
@@ -172,7 +176,10 @@ public class JdbcUserDetailsManagerTests {
     public void changePasswordFailsIfReAuthenticationFails() {
         insertJoe();
         authenticateJoe();
-        manager.setAuthenticationManager(new MockAuthenticationManager(false));
+        AuthenticationManager am = mock(AuthenticationManager.class);
+        when(am.authenticate(any(Authentication.class))).thenThrow(new BadCredentialsException(""));
+
+        manager.setAuthenticationManager(am);
 
         try {
             manager.changePassword("password", "newPassword");

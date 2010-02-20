@@ -57,7 +57,7 @@ public class RemoteAuthenticationManagerImpl implements RemoteAuthenticationMana
         }
     }
 
-    public AuthenticationManager getAuthenticationManager() {
+    protected AuthenticationManager getAuthenticationManager() {
         return authenticationManager;
     }
 
