@@ -47,6 +47,7 @@ public abstract class Elements {
     public static final String REQUEST_CACHE = "request-cache";
     public static final String X509 = "x509";
     public static final String FILTER_SECURITY_METADATA_SOURCE = "filter-security-metadata-source";
+    public static final String METHOD_SECURITY_METADATA_SOURCE = "method-security-metadata-source";
     @Deprecated
     public static final String FILTER_INVOCATION_DEFINITION_SOURCE = "filter-invocation-definition-source";
     public static final String LDAP_PASSWORD_COMPARE = "password-compare";

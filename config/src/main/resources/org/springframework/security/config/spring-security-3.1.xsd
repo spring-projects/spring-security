@@ -448,17 +448,41 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
+  <xs:element name="method-security-metadata-source"><xs:annotation>
+      <xs:documentation>Creates a MethodSecurityMetadataSource instance</xs:documentation>
+    </xs:annotation><xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" name="protect"><xs:annotation>
+      <xs:documentation>Defines a protected method and the access control configuration attributes that apply to it. We strongly advise you NOT to mix "protect" declarations with any services provided "global-method-security".</xs:documentation>
+    </xs:annotation><xs:complexType>
+      <xs:attributeGroup ref="security:protect.attlist"/>
+    </xs:complexType></xs:element>
+      </xs:sequence>
+      <xs:attributeGroup ref="security:msmds.attlist"/>
+    </xs:complexType></xs:element>
+  <xs:attributeGroup name="msmds.attlist">
+    <xs:attribute name="id" type="xs:ID">
+      <xs:annotation>
+        <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="use-expressions" type="security:boolean">
+      <xs:annotation>
+        <xs:documentation>Enables the use of expressions in the 'access' attributes in &lt;intercept-url&gt; elements rather than the traditional list of configuration attributes. Defaults to 'false'. If enabled, each attribute should contain a single boolean expression. If the expression evaluates to 'true', access will be granted.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
   <xs:element name="global-method-security"><xs:annotation>
       <xs:documentation>Provides method security for all beans registered in the Spring application context. Specifically, beans will be scanned for matches with the ordered list of "protect-pointcut" sub-elements, Spring Security annotations and/or. Where there is a match, the beans will automatically be proxied and security authorization applied to the methods accordingly. If you use and enable all four sources of method security metadata (ie "protect-pointcut" declarations, expression annotations, @Secured and also JSR250 security annotations), the metadata sources will be queried in that order. In practical terms, this enables you to use XML to override method security metadata expressed in annotations. If using annotations, the order of precedence is EL-based (@PreAuthorize etc.), @Secured and finally JSR-250.</xs:documentation>
     </xs:annotation><xs:complexType>
       <xs:sequence>
         <xs:choice minOccurs="0">
           <xs:element name="pre-post-annotation-handling"><xs:annotation>
-      <xs:documentation>Allows the default expression-based mechanism for handling Spring Security's pre and post invocation annotations (@PreFilter, @PreAuthorize, @PostFilter, @PostAuthorize) to be replace entirely. Only applies if these annotations are enabled. </xs:documentation>
+      <xs:documentation>Allows the default expression-based mechanism for handling Spring Security's pre and post invocation annotations (@PreFilter, @PreAuthorize, @PostFilter, @PostAuthorize) to be replace entirely. Only applies if these annotations are enabled.</xs:documentation>
     </xs:annotation><xs:complexType>
       <xs:sequence>
         <xs:element name="invocation-attribute-factory"><xs:annotation>
-      <xs:documentation>Defines the PrePostInvocationAttributeFactory instance which is used to generate pre and post invocation metadata from the annotated methods.  </xs:documentation>
+      <xs:documentation>Defines the PrePostInvocationAttributeFactory instance which is used to generate pre and post invocation metadata from the annotated methods.</xs:documentation>
     </xs:annotation><xs:complexType>
       <xs:attributeGroup ref="security:ref"/>
     </xs:complexType></xs:element>
