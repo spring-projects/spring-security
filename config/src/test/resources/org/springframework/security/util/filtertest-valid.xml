@@ -31,10 +31,16 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
     <bean id="sif" class="org.springframework.security.web.context.SecurityContextPersistenceFilter"/>
 
     <bean id="apf" class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
-       <property name="authenticationManager">
-           <bean class="org.springframework.security.MockAuthenticationManager"/>
-       </property>
+       <property name="authenticationManager" ref="authenticationManager"/>
     </bean>
+
+    <sec:authentication-manager alias="authenticationManager">
+        <sec:authentication-provider>
+            <sec:user-service>
+                <sec:user name="jemima" password="password" authorities="A"/>
+            </sec:user-service>
+        </sec:authentication-provider>
+    </sec:authentication-manager>
 
     <bean id="mockNotAFilter" class="org.springframework.security.web.util.AntUrlPathMatcher"/>
 
