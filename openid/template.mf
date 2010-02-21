@@ -3,16 +3,16 @@ Bundle-Name: Spring Security OpenID
 Bundle-Vendor: SpringSource
 Bundle-Version: ${version}
 Bundle-ManifestVersion: 2
-Ignored-Existing-Headers: 
+Ignored-Existing-Headers:
  Import-Package,
  Export-Package
-Import-Template: 
+Import-Template:
  org.apache.commons.logging.*;version="[1.0.4, 2.0.0)",
- org.springframework.security.core.*;version="[${version}, 3.1.0)",
- org.springframework.security.authentication.*;version="[${version}, 3.1.0)",
- org.springframework.security.web.*;version="[${version}, 3.1.0)", 
- org.springframework.beans.factory;version="[${spring.version}, 3.1.0)",
- org.springframework.util;version="[${spring.version}, 3.1.0)",
+ org.springframework.security.core.*;version="[${version}, 3.2.0)",
+ org.springframework.security.authentication.*;version="[${version}, 3.2.0)",
+ org.springframework.security.web.*;version="[${version}, 3.2.0)",
+ org.springframework.beans.factory;version="[${spring.version}, 3.2.0)",
+ org.springframework.util;version="[${spring.version}, 3.2.0)",
  org.openid4java.*;version="[0.9.5, 1.0.0)",
  javax.servlet.*;version="0"
  

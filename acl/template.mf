@@ -3,19 +3,19 @@ Bundle-Name: Spring Security Acls
 Bundle-Vendor: SpringSource
 Bundle-Version: ${version}
 Bundle-ManifestVersion: 2
-Ignored-Existing-Headers: 
+Ignored-Existing-Headers:
  Import-Package,
  Export-Package
-Import-Template: 
+Import-Template:
  org.apache.commons.logging.*;version="[1.0.4, 2.0.0)",
- org.springframework.security.core.*;version="[${version}, 3.1.0)",
- org.springframework.security.access.*;version="[${version}, 3.1.0)",
- org.springframework.security.util.*;version="[${version}, 3.1.0)",
- org.springframework.context.*;version="[${spring.version}, 3.1.0)";resolution:=optional, 
- org.springframework.dao.*;version="[${spring.version}, 3.1.0)";resolution:=optional,
- org.springframework.jdbc.core.*;version="[${spring.version}, 3.1.0)";resolution:=optional,
- org.springframework.transaction.support.*;version="[${spring.version}, 3.1.0)";resolution:=optional,
- org.springframework.util.*;version="[${spring.version}, 3.1.0)";resolution:=optional, 
+ org.springframework.security.core.*;version="[${version}, 3.2.0)",
+ org.springframework.security.access.*;version="[${version}, 3.2.0)",
+ org.springframework.security.util.*;version="[${version}, 3.2.0)",
+ org.springframework.context.*;version="[${spring.version}, 3.2.0)";resolution:=optional,
+ org.springframework.dao.*;version="[${spring.version}, 3.2.0)";resolution:=optional,
+ org.springframework.jdbc.core.*;version="[${spring.version}, 3.2.0)";resolution:=optional,
+ org.springframework.transaction.support.*;version="[${spring.version}, 3.2.0)";resolution:=optional,
+ org.springframework.util.*;version="[${spring.version}, 3.2.0)";resolution:=optional,
  net.sf.ehcache.*;version="[1.4.1, 2.0.0)";resolution:=optional,
- javax.sql.*;version="0";resolution:=optional 
+ javax.sql.*;version="0";resolution:=optional
  

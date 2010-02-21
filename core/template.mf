@@ -3,10 +3,10 @@ Bundle-Name: Spring Security Core
 Bundle-Vendor: SpringSource
 Bundle-Version: ${version}
 Bundle-ManifestVersion: 2
-Ignored-Existing-Headers: 
+Ignored-Existing-Headers:
  Import-Package,
  Export-Package
-Import-Template: 
+Import-Template:
  org.aopalliance.*;version="[1.0.0, 2.0.0)",
  org.aspectj.*;version="[1.6.0, 1.7.0)";resolution:=optional,
  org.apache.commons.logging.*;version="[1.0.4, 2.0.0)",
@@ -20,7 +20,7 @@ Import-Template:
  org.springframework.jdbc.*;version="[${spring.version}, 3.1.0)";resolution:=optional,
  org.springframework.transaction.*;version="[${spring.version}, 3.1.0)";resolution:=optional,
  org.springframework.util;version="[${spring.version}, 3.1.0)",
- net.sf.ehcache.*;version="[1.4.1, 2.0.0)";resolution:=optional, 
+ net.sf.ehcache.*;version="[1.4.1, 2.0.0)";resolution:=optional,
  javax.annotation.security.*;version="0";resolution:=optional,
  javax.crypto.*;version="0";resolution:=optional,
  javax.security.auth.*;version="0";resolution:=optional,
