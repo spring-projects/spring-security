@@ -27,8 +27,6 @@
     <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/fo/docbook.xsl"/>
     <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/fo/highlight.xsl"/>
 
-    <xsl:param name="fop1.extensions" select="1"/>
-
     <!-- xsl:param name="draft.watermark.image" select="'images/draft.png'"/ -->
     <xsl:param name="paper.type" select="'A4'"/>
 
@@ -40,6 +38,9 @@
     <xsl:param name="region.after.extent" select="'1cm'"/>
     <xsl:param name="page.margin.bottom" select="'1cm'"/>
     <xsl:param name="title.margin.left" select="'0cm'"/>
+
+    <xsl:param name="page.margin.inner" select="'2cm'"/>
+    <xsl:param name="page.margin.outer" select="'2cm'"/>
 
 <!--###################################################
         Header
@@ -191,12 +192,12 @@
         Extensions
     ################################################### -->
 
-    <!-- These extensions are required for table printing and other stuff
+    <!-- These extensions are required for table printing and other stuff -->
     <xsl:param name="use.extensions">1</xsl:param>
     <xsl:param name="tablecolumns.extension">0</xsl:param>
     <xsl:param name="callout.extensions">1</xsl:param>
-    <xsl:param name="fop.extensions">1</xsl:param>
-    -->
+    <xsl:param name="fop1.extensions">1</xsl:param>
+
 <!--###################################################
         Paper & Page Size
     ################################################### -->

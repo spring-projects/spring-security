@@ -545,11 +545,15 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
               <literal>&lt;http></literal> element, so the syntax has changed slightly in
             3.0.</para></note>The filters, aliases and namespace elements/attributes which create
         the filters are shown in <xref linkend="filter-stack"/>. The filters are listed in the order
-        in which they occur in the filter chain. <table xml:id="filter-stack"><title>Standard Filter
-            Aliases and Ordering</title><tgroup cols="3" align="left"><thead><row><entry
-                  align="center">Alias</entry><entry align="center">Filter Class</entry><entry
-                  align="center">Namespace Element or
-                  Attribute</entry></row></thead><tbody><row><entry>
+        in which they occur in the filter chain. 
+          <table xml:id="filter-stack"><title>Standard Filter Aliases and Ordering</title>
+              <tgroup cols="3" align="left">
+                  <colspec colnum="1" colname="col1" colwidth="2*"/>
+                  <colspec colnum="2" colname="col2" colwidth="2*"/>
+                  <colspec colnum="3" colname="col3" colwidth="1*"/>
+                  <thead><row><entry align="center">Alias</entry><entry align="center">Filter Class</entry><entry align="center">Namespace Element or Attribute</entry></row>
+                  </thead>
+               <tbody><row><entry>
                     CHANNEL_FILTER</entry><entry><literal>ChannelProcessingFilter</literal></entry><entry><literal>http/intercept-url@requires-channel</literal></entry></row><row><entry>
                   CONCURRENT_SESSION_FILTER</entry><entry><literal>ConcurrentSessionFilter</literal>
                 </entry><entry><literal>session-management/concurrency-control</literal></entry></row><row><entry>
