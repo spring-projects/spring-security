@@ -34,6 +34,7 @@ import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.codec.Base64;
@@ -74,6 +75,10 @@ import org.springframework.web.filter.GenericFilterBean;
  * Note there are limitations to Digest authentication, although it is a more comprehensive and secure solution
  * than Basic authentication. Please see RFC 2617 section 4 for a full discussion on the advantages of Digest
  * authentication over Basic authentication, including commentary on the limitations that it still imposes.
+ *
+ * @author Ben Alex
+ * @author Luke Taylor
+ * @since 1.0.0
  */
 public class DigestAuthenticationFilter extends GenericFilterBean implements MessageSourceAware {
     //~ Static fields/initializers =====================================================================================
@@ -93,8 +98,6 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 
     //~ Methods ========================================================================================================
 
-
-
     @Override
     public void afterPropertiesSet() {
         Assert.notNull(userDetailsService, "A UserDetailsService is required");
@@ -108,131 +111,37 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 
         String header = request.getHeader("Authorization");
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Authorization header received from user agent: " + header);
+        if (header == null || !header.startsWith("Digest ")) {
+            chain.doFilter(request, response);
+
+            return;
         }
 
-        if ((header != null) && header.startsWith("Digest ")) {
-            String section212response = header.substring(7);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Digest Authorization header received from user agent: " + header);
+        }
 
-            String[] headerEntries = DigestAuthUtils.splitIgnoringQuotes(section212response, ',');
-            Map<String,String> headerMap = DigestAuthUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
+        DigestData digestAuth = new DigestData(header);
 
-            String username = headerMap.get("username");
-            String realm = headerMap.get("realm");
-            String nonce = headerMap.get("nonce");
-            String uri = headerMap.get("uri");
-            String responseDigest = headerMap.get("response");
-            String qop = headerMap.get("qop"); // RFC 2617 extension
-            String nc = headerMap.get("nc"); // RFC 2617 extension
-            String cnonce = headerMap.get("cnonce"); // RFC 2617 extension
+        try {
+            digestAuth.validateAndDecode(authenticationEntryPoint.getKey(), authenticationEntryPoint.getRealmName());
+        } catch (BadCredentialsException e) {
+            fail(request, response, e);
 
-            // Check all required parameters were supplied (ie RFC 2069)
-            if ((username == null) || (realm == null) || (nonce == null) || (uri == null) || (response == null)) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("extracted username: '" + username + "'; realm: '" + username + "'; nonce: '"
-                            + username + "'; uri: '" + username + "'; response: '" + username + "'");
-                }
+            return;
+        }
 
-                fail(request, response,
-                        new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.missingMandatory",
-                                new Object[]{section212response}, "Missing mandatory digest value; received header {0}")));
+        // Lookup password for presented username
+        // NB: DAO-provided password MUST be clear text - not encoded/salted
+        // (unless this instance's passwordAlreadyEncoded property is 'false')
+        boolean cacheWasUsed = true;
+        UserDetails user = userCache.getUserFromCache(digestAuth.getUsername());
+        String serverDigestMd5;
 
-                return;
-            }
-
-            // Check all required parameters for an "auth" qop were supplied (ie RFC 2617)
-            if ("auth".equals(qop)) {
-                if ((nc == null) || (cnonce == null)) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("extracted nc: '" + nc + "'; cnonce: '" + cnonce + "'");
-                    }
-
-                    fail(request, response,
-                            new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.missingAuth",
-                                    new Object[]{section212response}, "Missing mandatory digest value; received header {0}")));
-
-                    return;
-                }
-            }
-
-            // Check realm name equals what we expected
-            if (!this.getAuthenticationEntryPoint().getRealmName().equals(realm)) {
-                fail(request, response,
-                        new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.incorrectRealm",
-                                new Object[]{realm, this.getAuthenticationEntryPoint().getRealmName()},
-                                "Response realm name '{0}' does not match system realm name of '{1}'")));
-
-                return;
-            }
-
-            // Check nonce was a Base64 encoded (as sent by DigestAuthenticationEntryPoint)
-            if (!Base64.isBase64(nonce.getBytes())) {
-                fail(request, response,
-                        new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.nonceEncoding",
-                                new Object[]{nonce}, "Nonce is not encoded in Base64; received nonce {0}")));
-
-                return;
-            }
-
-            // Decode nonce from Base64
-            // format of nonce is:
-            //   base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
-            String nonceAsPlainText = new String(Base64.decode(nonce.getBytes()));
-            String[] nonceTokens = StringUtils.delimitedListToStringArray(nonceAsPlainText, ":");
-
-            if (nonceTokens.length != 2) {
-                fail(request, response,
-                        new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.nonceNotTwoTokens",
-                                new Object[]{nonceAsPlainText}, "Nonce should have yielded two tokens but was {0}")));
-
-                return;
-            }
-
-            // Extract expiry time from nonce
-            long nonceExpiryTime;
-
-            try {
-                nonceExpiryTime = new Long(nonceTokens[0]).longValue();
-            } catch (NumberFormatException nfe) {
-                fail(request, response,
-                        new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.nonceNotNumeric",
-                                new Object[]{nonceAsPlainText},
-                                "Nonce token should have yielded a numeric first token, but was {0}")));
-
-                return;
-            }
-
-            // Check signature of nonce matches this expiry time
-            String expectedNonceSignature = DigestAuthUtils.md5Hex(nonceExpiryTime + ":"
-                    + this.getAuthenticationEntryPoint().getKey());
-
-            if (!expectedNonceSignature.equals(nonceTokens[1])) {
-                fail(request, response,
-                        new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.nonceCompromised",
-                                new Object[]{nonceAsPlainText}, "Nonce token compromised {0}")));
-
-                return;
-            }
-
-            // Lookup password for presented username
-            // NB: DAO-provided password MUST be clear text - not encoded/salted
-            // (unless this instance's passwordAlreadyEncoded property is 'false')
-            boolean loadedFromDao = false;
-            UserDetails user = userCache.getUserFromCache(username);
-
+        try {
             if (user == null) {
-                loadedFromDao = true;
-
-                try {
-                    user = userDetailsService.loadUserByUsername(username);
-                } catch (UsernameNotFoundException notFound) {
-                    fail(request, response,
-                            new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.usernameNotFound",
-                                    new Object[]{username}, "Username {0} not found")));
-
-                    return;
-                }
+                cacheWasUsed = false;
+                user = userDetailsService.loadUserByUsername(digestAuth.getUsername());
 
                 if (user == null) {
                     throw new AuthenticationServiceException(
@@ -242,81 +151,76 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
                 userCache.putUserInCache(user);
             }
 
-            // Compute the expected response-digest (will be in hex form)
-            String serverDigestMd5;
-
-            // Don't catch IllegalArgumentException (already checked validity)
-            serverDigestMd5 = DigestAuthUtils.generateDigest(passwordAlreadyEncoded, username, realm, user.getPassword(),
-                    request.getMethod(), uri, qop, nonce, nc, cnonce);
+            serverDigestMd5 = digestAuth.calculateServerDigest(user.getPassword(), request.getMethod());
 
             // If digest is incorrect, try refreshing from backend and recomputing
-            if (!serverDigestMd5.equals(responseDigest) && !loadedFromDao) {
+            if (!serverDigestMd5.equals(digestAuth.getResponse()) && cacheWasUsed) {
                 if (logger.isDebugEnabled()) {
                     logger.debug(
                             "Digest comparison failure; trying to refresh user from DAO in case password had changed");
                 }
 
-                try {
-                    user = userDetailsService.loadUserByUsername(username);
-                } catch (UsernameNotFoundException notFound) {
-                    // Would very rarely happen, as user existed earlier
-                    fail(request, response,
-                            new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.usernameNotFound",
-                                    new Object[]{username}, "Username {0} not found")));
-                }
-
+                user = userDetailsService.loadUserByUsername(digestAuth.getUsername());
                 userCache.putUserInCache(user);
-
-                // Don't catch IllegalArgumentException (already checked validity)
-                serverDigestMd5 = DigestAuthUtils.generateDigest(passwordAlreadyEncoded, username, realm, user.getPassword(),
-                        request.getMethod(), uri, qop, nonce, nc, cnonce);
+                serverDigestMd5 = digestAuth.calculateServerDigest(user.getPassword(), request.getMethod());
             }
 
-            // If digest is still incorrect, definitely reject authentication attempt
-            if (!serverDigestMd5.equals(responseDigest)) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Expected response: '" + serverDigestMd5 + "' but received: '" + responseDigest
-                            + "'; is AuthenticationDao returning clear text passwords?");
-                }
+        } catch (UsernameNotFoundException notFound) {
+            fail(request, response,
+                    new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.usernameNotFound",
+                            new Object[]{digestAuth.getUsername()}, "Username {0} not found")));
 
-                fail(request, response,
-                        new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.incorrectResponse",
-                                "Incorrect response")));
-                return;
-            }
-
-            // To get this far, the digest must have been valid
-            // Check the nonce has not expired
-            // We do this last so we can direct the user agent its nonce is stale
-            // but the request was otherwise appearing to be valid
-            if (nonceExpiryTime < System.currentTimeMillis()) {
-                fail(request, response,
-                        new NonceExpiredException(messages.getMessage("DigestAuthenticationFilter.nonceExpired",
-                                "Nonce has expired/timed out")));
-
-                return;
-            }
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("Authentication success for user: '" + username + "' with response: '" + responseDigest
-                        + "'");
-            }
-
-            UsernamePasswordAuthenticationToken authRequest;
-            if (createAuthenticatedToken) {
-                   authRequest = new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
-            }
-            else
-            {
-                authRequest = new UsernamePasswordAuthenticationToken(user, user.getPassword());
-            }
-
-            authRequest.setDetails(authenticationDetailsSource.buildDetails((HttpServletRequest) request));
-
-            SecurityContextHolder.getContext().setAuthentication(authRequest);
+            return;
         }
 
+
+        // If digest is still incorrect, definitely reject authentication attempt
+        if (!serverDigestMd5.equals(digestAuth.getResponse())) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Expected response: '" + serverDigestMd5 + "' but received: '" + digestAuth.getResponse()
+                        + "'; is AuthenticationDao returning clear text passwords?");
+            }
+
+            fail(request, response,
+                    new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.incorrectResponse",
+                            "Incorrect response")));
+            return;
+        }
+
+        // To get this far, the digest must have been valid
+        // Check the nonce has not expired
+        // We do this last so we can direct the user agent its nonce is stale
+        // but the request was otherwise appearing to be valid
+        if (digestAuth.isNonceExpired()) {
+            fail(request, response,
+                    new NonceExpiredException(messages.getMessage("DigestAuthenticationFilter.nonceExpired",
+                            "Nonce has expired/timed out")));
+
+            return;
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Authentication success for user: '" + digestAuth.getUsername()
+                    + "' with response: '" + digestAuth.getResponse() + "'");
+        }
+
+        SecurityContextHolder.getContext().setAuthentication(createSuccessfulAuthentication(request, user));
+
         chain.doFilter(request, response);
+    }
+
+    private Authentication createSuccessfulAuthentication(HttpServletRequest request, UserDetails user) {
+        UsernamePasswordAuthenticationToken authRequest;
+        if (createAuthenticatedToken) {
+            authRequest = new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
+        }
+        else {
+            authRequest = new UsernamePasswordAuthenticationToken(user, user.getPassword());
+        }
+
+        authRequest.setDetails(authenticationDetailsSource.buildDetails((HttpServletRequest) request));
+
+        return authRequest;
     }
 
     private void fail(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed)
@@ -330,7 +234,7 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
         authenticationEntryPoint.commence(request, response, failed);
     }
 
-    public DigestAuthenticationEntryPoint getAuthenticationEntryPoint() {
+    protected final DigestAuthenticationEntryPoint getAuthenticationEntryPoint() {
         return authenticationEntryPoint;
     }
 
@@ -384,5 +288,120 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
      */
     public void setCreateAuthenticatedToken(boolean createAuthenticatedToken) {
         this.createAuthenticatedToken = createAuthenticatedToken;
+    }
+
+    private class DigestData {
+        private String username;
+        private String realm;
+        private String nonce;
+        private String uri;
+        private String response;
+        private String qop;
+        private String nc;
+        private String cnonce;
+        private String section212response;
+        private long nonceExpiryTime;
+
+        DigestData(String header) {
+            section212response = header.substring(7);
+            String[] headerEntries = DigestAuthUtils.splitIgnoringQuotes(section212response, ',');
+            Map<String,String> headerMap = DigestAuthUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
+
+            username = headerMap.get("username");
+            realm = headerMap.get("realm");
+            nonce = headerMap.get("nonce");
+            uri = headerMap.get("uri");
+            response = headerMap.get("response");
+            qop = headerMap.get("qop"); // RFC 2617 extension
+            nc = headerMap.get("nc"); // RFC 2617 extension
+            cnonce = headerMap.get("cnonce"); // RFC 2617 extension
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Extracted username: '" + username + "'; realm: '" + realm + "'; nonce: '"
+                        + nonce + "'; uri: '" + uri + "'; response: '" + response + "'");
+            }
+        }
+
+        void validateAndDecode(String entryPointKey, String expectedRealm) throws BadCredentialsException {
+            // Check all required parameters were supplied (ie RFC 2069)
+            if ((username == null) || (realm == null) || (nonce == null) || (uri == null) || (response == null)) {
+                throw new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.missingMandatory",
+                            new Object[]{section212response}, "Missing mandatory digest value; received header {0}"));
+            }
+            // Check all required parameters for an "auth" qop were supplied (ie RFC 2617)
+            if ("auth".equals(qop)) {
+                if ((nc == null) || (cnonce == null)) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("extracted nc: '" + nc + "'; cnonce: '" + cnonce + "'");
+                    }
+
+                    throw new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.missingAuth",
+                            new Object[]{section212response}, "Missing mandatory digest value; received header {0}"));
+                }
+            }
+
+            // Check realm name equals what we expected
+            if (!expectedRealm.equals(realm)) {
+                throw new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.incorrectRealm",
+                            new Object[]{realm, expectedRealm},
+                            "Response realm name '{0}' does not match system realm name of '{1}'"));
+            }
+
+            // Check nonce was Base64 encoded (as sent by DigestAuthenticationEntryPoint)
+            if (!Base64.isBase64(nonce.getBytes())) {
+                throw new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.nonceEncoding",
+                           new Object[]{nonce}, "Nonce is not encoded in Base64; received nonce {0}"));
+            }
+
+            // Decode nonce from Base64
+            // format of nonce is:
+            // base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
+            String nonceAsPlainText = new String(Base64.decode(nonce.getBytes()));
+            String[] nonceTokens = StringUtils.delimitedListToStringArray(nonceAsPlainText, ":");
+
+            if (nonceTokens.length != 2) {
+                throw new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.nonceNotTwoTokens",
+                                new Object[]{nonceAsPlainText}, "Nonce should have yielded two tokens but was {0}"));
+            }
+
+            // Extract expiry time from nonce
+
+            try {
+                nonceExpiryTime = new Long(nonceTokens[0]).longValue();
+            } catch (NumberFormatException nfe) {
+                throw new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.nonceNotNumeric",
+                                new Object[]{nonceAsPlainText},
+                                "Nonce token should have yielded a numeric first token, but was {0}"));
+            }
+
+            // Check signature of nonce matches this expiry time
+            String expectedNonceSignature = DigestAuthUtils.md5Hex(nonceExpiryTime + ":" + entryPointKey);
+
+            if (!expectedNonceSignature.equals(nonceTokens[1])) {
+                new BadCredentialsException(messages.getMessage("DigestAuthenticationFilter.nonceCompromised",
+                                new Object[]{nonceAsPlainText}, "Nonce token compromised {0}"));
+            }
+        }
+
+        String calculateServerDigest(String password, String httpMethod) {
+            // Compute the expected response-digest (will be in hex form)
+
+            // Don't catch IllegalArgumentException (already checked validity)
+            return DigestAuthUtils.generateDigest(passwordAlreadyEncoded, username, realm, password,
+                    httpMethod, uri, qop, nonce, nc, cnonce);
+        }
+
+        boolean isNonceExpired() {
+            long now = System.currentTimeMillis();
+            return nonceExpiryTime < now;
+        }
+
+        String getUsername() {
+            return username;
+        }
+
+        String getResponse() {
+            return response;
+        }
     }
 }

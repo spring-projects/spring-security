@@ -32,11 +32,13 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 
 /**
  * Used by the <code>SecurityEnforcementFilter</code> to commence authentication via the {@link
- * DigestAuthenticationFilter}.<p>The nonce sent back to the user agent will be valid for the period indicated by
+ * DigestAuthenticationFilter}.
+ * <p>
+ * The nonce sent back to the user agent will be valid for the period indicated by
  * {@link #setNonceValiditySeconds(int)}. By default this is 300 seconds. Shorter times should be used if replay
  * attacks are a major concern. Larger values can be used if performance is a greater concern. This class correctly
- * presents the <code>stale=true</code> header when the nonce has expierd, so properly implemented user agents will
- * automatically renegotiate with a new nonce value (ie without presenting a new password dialog box to the user).</p>
+ * presents the <code>stale=true</code> header when the nonce has expired, so properly implemented user agents will
+ * automatically renegotiate with a new nonce value (i.e. without presenting a new password dialog box to the user).
  *
  * @author Ben Alex
  */
