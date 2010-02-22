@@ -1,18 +1,16 @@
 package org.springframework.security.config.authentication;
 
-import org.springframework.beans.factory.xml.BeanDefinitionParser;
-import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.beans.factory.BeanDefinitionStoreException;
+import org.springframework.beans.factory.xml.BeanDefinitionParser;
+import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.config.BeanIds;
-import org.springframework.security.config.Elements;
 import org.springframework.util.StringUtils;
-
 import org.w3c.dom.Element;
 
 /**
@@ -21,9 +19,6 @@ import org.w3c.dom.Element;
 public abstract class AbstractUserDetailsServiceBeanDefinitionParser implements BeanDefinitionParser {
     static final String CACHE_REF = "cache-ref";
     public static final String CACHING_SUFFIX = ".caching";
-
-    /**  UserDetailsService bean Id. For use in a stateful context (i.e. in AuthenticationProviderBDP) */
-    private String id;
 
     protected abstract String getBeanClassName(Element element);
 
@@ -51,34 +46,33 @@ public abstract class AbstractUserDetailsServiceBeanDefinitionParser implements 
             parserContext.registerBeanComponent(new BeanComponentDefinition(cachingUserService, beanId + CACHING_SUFFIX));
         }
 
-        id = beanId;
-
         return null;
     }
 
-    private String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext)
+    private String resolveId(Element element, AbstractBeanDefinition definition, ParserContext pc)
             throws BeanDefinitionStoreException {
 
         String id = element.getAttribute("id");
+
+        if (pc.isNested()) {
+            // We're inside an <authentication-provider> element
+            if (!StringUtils.hasText(id)) {
+                id = pc.getReaderContext().generateBeanName(definition);
+            }
+            BeanDefinition container = pc.getContainingBeanDefinition();
+            container.getPropertyValues().add("userDetailsService", new RuntimeBeanReference(id));
+        }
 
         if (StringUtils.hasText(id)) {
             return id;
         }
 
-        if(Elements.AUTHENTICATION_PROVIDER.equals(element.getParentNode().getNodeName())) {
-            return parserContext.getReaderContext().generateBeanName(definition);
-        }
-
         // If top level, use the default name or throw an exception if already used
-        if (parserContext.getRegistry().containsBeanDefinition(BeanIds.USER_DETAILS_SERVICE)) {
+        if (pc.getRegistry().containsBeanDefinition(BeanIds.USER_DETAILS_SERVICE)) {
             throw new BeanDefinitionStoreException("No id supplied and another " +
                     "bean is already registered as " + BeanIds.USER_DETAILS_SERVICE);
         }
 
         return BeanIds.USER_DETAILS_SERVICE;
-    }
-
-    String getId() {
-        return id;
     }
 }
