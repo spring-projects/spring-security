@@ -16,7 +16,7 @@
         <module>cas</module>
         <module>openid</module>
         <module>taglibs</module>
-        <!--module>aspects</module-->
+        <module>aspects</module>
         <module>samples</module>
         <!--module>itest</module-->
   </modules>
