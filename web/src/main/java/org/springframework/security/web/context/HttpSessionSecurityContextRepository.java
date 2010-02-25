@@ -10,6 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -91,8 +92,8 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 
         }
 
-        requestResponseHolder.setResponse(new SaveToSessionResponseWrapper(response, request,
-                httpSession != null, context.hashCode()));
+        requestResponseHolder.setResponse(
+                new SaveToSessionResponseWrapper(response, request, httpSession != null, context));
 
         return context;
     }
@@ -293,7 +294,8 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 
         private HttpServletRequest request;
         private boolean httpSessionExistedAtStartOfRequest;
-        private int contextHashBeforeChainExecution;
+        private SecurityContext contextBeforeExecution;
+        private Authentication authBeforeExecution;
 
         /**
          * Takes the parameters required to call <code>saveContext()</code> successfully in
@@ -303,17 +305,17 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
          * @param httpSessionExistedAtStartOfRequest indicates whether there was a session in place before the
          *        filter chain executed. If this is true, and the session is found to be null, this indicates that it was
          *        invalidated during the request and a new session will now be created.
-         * @param contextHashBeforeChainExecution the hashcode of the context before the filter chain executed.
-         *        The context will only be stored if it has a different hashcode, indicating that the context changed
-         *        during the request.
+         * @param context the context before the filter chain executed.
+         *        The context will only be stored if it or its contents changed during the request.
          */
         SaveToSessionResponseWrapper(HttpServletResponse response, HttpServletRequest request,
                                                       boolean httpSessionExistedAtStartOfRequest,
-                                                      int contextHashBeforeChainExecution) {
+                                                      SecurityContext context) {
             super(response, disableUrlRewriting);
             this.request = request;
             this.httpSessionExistedAtStartOfRequest = httpSessionExistedAtStartOfRequest;
-            this.contextHashBeforeChainExecution = contextHashBeforeChainExecution;
+            this.contextBeforeExecution = context;
+            this.authBeforeExecution = context.getAuthentication();
         }
 
         /**
@@ -331,7 +333,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
             // See SEC-776
             if (authenticationTrustResolver.isAnonymous(context.getAuthentication())) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("SecurityContext contents are anonymous - context will not be stored in HttpSession. ");
+                    logger.debug("SecurityContext contents are anonymous - context will not be stored in HttpSession.");
                 }
                 return;
             }
@@ -343,12 +345,18 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
             }
 
             // If HttpSession exists, store current SecurityContextHolder contents but only if
-            // the SecurityContext has actually changed (see JIRA SEC-37)
-            if (httpSession != null && context.hashCode() != contextHashBeforeChainExecution) {
-                httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY, context);
+            // the SecurityContext has actually changed in this thread (see JIRA SEC-37, SEC-1307)
+            if (httpSession != null) {
+                SecurityContext contextFromSession = (SecurityContext) httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY);
 
-                if (logger.isDebugEnabled()) {
-                    logger.debug("SecurityContext stored to HttpSession: '" + context + "'");
+                if (context != contextFromSession) {
+                    if (context != contextBeforeExecution || context.getAuthentication() != authBeforeExecution) {
+                        httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY, context);
+
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("SecurityContext stored to HttpSession: '" + context + "'");
+                        }
+                    }
                 }
             }
         }
