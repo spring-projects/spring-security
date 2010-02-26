@@ -3,6 +3,7 @@ package org.springframework.security.config.method;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +45,6 @@ import org.springframework.util.StringUtils;
  *
  * @author Ben Alex
  * @since 2.0
- *
  */
 final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 
@@ -52,6 +52,7 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 
     private Map<String,List<ConfigAttribute>> pointcutMap = new LinkedHashMap<String,List<ConfigAttribute>>();
     private MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource;
+    private Set<PointcutExpression> pointCutExpressions = new LinkedHashSet<PointcutExpression>();
     private PointcutParser parser;
 
     public ProtectPointcutPostProcessor(MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource) {
@@ -88,10 +89,7 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 
         // Check to see if any of those methods are compatible with our pointcut expressions
         for (int i = 0; i < methods.length; i++) {
-            for (String ex : pointcutMap.keySet()) {
-                // Parse the presented AspectJ pointcut expression
-                PointcutExpression expression = parser.parsePointcutExpression(ex);
-
+            for (PointcutExpression expression : pointCutExpressions) {
                 // Try for the bean class directly
                 if (attemptMatch(bean.getClass(), methods[i], expression, beanName)) {
                     // We've found the first expression that matches this method, so move onto the next method now
@@ -134,6 +132,8 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
         Assert.notNull(definition, "A List of ConfigAttributes is required");
         pointcutExpression = replaceBooleanOperators(pointcutExpression);
         pointcutMap.put(pointcutExpression, definition);
+     // Parse the presented AspectJ pointcut expression and add it to the cache
+        pointCutExpressions.add(parser.parsePointcutExpression(pointcutExpression));
 
         if (logger.isDebugEnabled()) {
             logger.debug("AspectJ pointcut expression '" + pointcutExpression + "' registered for security configuration attribute '" + definition + "'");
