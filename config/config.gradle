@@ -21,8 +21,6 @@ dependencies {
                 'aopalliance:aopalliance:1.0',
                 "org.springframework.ldap:spring-ldap-core:$springLdapVersion",
                 "org.springframework:spring-jdbc:$springVersion"
-}
 
-task show << {
-    println dependencies    
+    testRuntime "hsqldb:hsqldb:$hsqlVersion"
 }

@@ -22,5 +22,6 @@ dependencies {
             project(':spring-security-taglibs'),
             "org.springframework:spring-context-support:$springVersion",
             "net.sf.ehcache:ehcache:$ehcacheVersion",
+            "hsqldb:hsqldb:$hsqlVersion",
             'log4j:log4j:1.2.15@jar'
 }
