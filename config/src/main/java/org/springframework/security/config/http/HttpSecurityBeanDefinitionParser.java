@@ -1,7 +1,5 @@
 package org.springframework.security.config.http;
 
-import static org.springframework.security.config.http.SecurityFilters.REQUEST_CACHE_FILTER;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +26,6 @@ import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.Elements;
 import org.springframework.security.config.authentication.AuthenticationManagerFactoryBean;
 import org.springframework.security.web.FilterChainProxy;
-import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.util.AntUrlPathMatcher;
 import org.springframework.security.web.util.RegexUrlPathMatcher;
 import org.springframework.security.web.util.UrlMatcher;
@@ -85,33 +82,15 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         final String portMapperName = createPortMapper(element, pc);
         final UrlMatcher matcher = createUrlMatcher(element);
 
-        HttpConfigurationBuilder httpBldr = new HttpConfigurationBuilder(element, pc, matcher, portMapperName);
-
-        httpBldr.parseInterceptUrlsForEmptyFilterChains();
-        httpBldr.createSecurityContextPersistenceFilter();
-        httpBldr.createSessionManagementFilters();
-
         ManagedList<BeanReference> authenticationProviders = new ManagedList<BeanReference>();
         BeanReference authenticationManager = createAuthenticationManager(element, pc, authenticationProviders, null);
 
-        httpBldr.createServletApiFilter();
-        httpBldr.createChannelProcessingFilter();
-        httpBldr.createFilterSecurityInterceptor(authenticationManager);
+        HttpConfigurationBuilder httpBldr = new HttpConfigurationBuilder(element, pc, matcher,
+                portMapperName, authenticationManager);
 
         AuthenticationConfigBuilder authBldr = new AuthenticationConfigBuilder(element, pc,
-                httpBldr.isAllowSessionCreation(), portMapperName);
-
-        authBldr.createAnonymousFilter();
-        authBldr.createRememberMeFilter(authenticationManager);
-        authBldr.createRequestCache();
-        authBldr.createBasicFilter(authenticationManager);
-        authBldr.createFormLoginFilter(httpBldr.getSessionStrategy(), authenticationManager);
-        authBldr.createOpenIDLoginFilter(httpBldr.getSessionStrategy(), authenticationManager);
-        authBldr.createX509Filter(authenticationManager);
-        authBldr.createLogoutFilter();
-        authBldr.createLoginPageFilterIfNeeded();
-        authBldr.createUserServiceInjector();
-        authBldr.createExceptionTranslationFilter();
+                httpBldr.getSessionCreationPolicy(), httpBldr.getRequestCache(), authenticationManager,
+                httpBldr.getSessionStrategy());
 
         List<OrderDecorator> unorderedFilterChain = new ArrayList<OrderDecorator>();
 
@@ -119,10 +98,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         unorderedFilterChain.addAll(authBldr.getFilters());
 
         authenticationProviders.addAll(authBldr.getProviders());
-
-        BeanDefinition requestCacheAwareFilter = new RootBeanDefinition(RequestCacheAwareFilter.class);
-        requestCacheAwareFilter.getPropertyValues().addPropertyValue("requestCache", authBldr.getRequestCache());
-        unorderedFilterChain.add(new OrderDecorator(requestCacheAwareFilter, REQUEST_CACHE_FILTER));
 
         unorderedFilterChain.addAll(buildCustomFilterList(element, pc));
 

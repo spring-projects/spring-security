@@ -24,7 +24,6 @@ import org.springframework.security.authentication.AnonymousAuthenticationProvid
 import org.springframework.security.authentication.RememberMeAuthenticationProvider;
 import org.springframework.security.config.Elements;
 import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
-import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
@@ -33,9 +32,8 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
-import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -66,14 +64,11 @@ final class AuthenticationConfigBuilder {
 
     private static final String ATT_USER_SERVICE_REF = "user-service-ref";
 
-    private static final String ATT_REF = "ref";
-
     private Element httpElt;
     private ParserContext pc;
 
     private final boolean autoConfig;
     private final boolean allowSessionCreation;
-    private final String portMapperName;
 
     private RootBeanDefinition anonymousFilter;
     private BeanReference anonymousProviderRef;
@@ -101,19 +96,32 @@ final class AuthenticationConfigBuilder {
 
     final SecureRandom random;
 
-    public AuthenticationConfigBuilder(Element element, ParserContext pc, boolean allowSessionCreation,
-            String portMapperName) {
+    public AuthenticationConfigBuilder(Element element, ParserContext pc, SessionCreationPolicy sessionPolicy,
+            BeanReference requestCache, BeanReference authenticationManager, BeanReference sessionStrategy) {
         this.httpElt = element;
         this.pc = pc;
-        this.portMapperName = portMapperName;
+        this.requestCache = requestCache;
         autoConfig = "true".equals(element.getAttribute(ATT_AUTO_CONFIG));
-        this.allowSessionCreation = allowSessionCreation;
+        this.allowSessionCreation = sessionPolicy != SessionCreationPolicy.never
+                && sessionPolicy != SessionCreationPolicy.stateless;
         try {
             random = SecureRandom.getInstance("SHA1PRNG");
         } catch (NoSuchAlgorithmException e) {
             // Shouldn't happen...
             throw new RuntimeException("Failed find SHA1PRNG algorithm!");
         }
+
+        createAnonymousFilter();
+        createRememberMeFilter(authenticationManager);
+        createBasicFilter(authenticationManager);
+        createFormLoginFilter(sessionStrategy, authenticationManager);
+        createOpenIDLoginFilter(sessionStrategy, authenticationManager);
+        createX509Filter(authenticationManager);
+        createLogoutFilter();
+        createLoginPageFilterIfNeeded();
+        createUserServiceInjector();
+        createExceptionTranslationFilter();
+
     }
 
     void createRememberMeFilter(BeanReference authenticationManager) {
@@ -165,7 +173,6 @@ final class AuthenticationConfigBuilder {
         if (formFilter != null) {
             formFilter.getPropertyValues().addPropertyValue("allowSessionCreation", new Boolean(allowSessionCreation));
             formFilter.getPropertyValues().addPropertyValue("authenticationManager", authManager);
-
 
             // Id is required by login page filter
             formFilterId = pc.getReaderContext().generateBeanName(formFilter);
@@ -323,7 +330,6 @@ final class AuthenticationConfigBuilder {
         x509ProviderRef = new RuntimeBeanReference(x509ProviderId);
     }
 
-
     void createLoginPageFilterIfNeeded() {
         boolean needLoginPage = formFilter != null || openIDFilter != null;
         String formLoginPage = getLoginFormUrl(formEntryPoint);
@@ -413,28 +419,6 @@ final class AuthenticationConfigBuilder {
 
         etf = etfBuilder.getBeanDefinition();
     }
-
-    void createRequestCache() {
-        Element requestCacheElt = DomUtils.getChildElementByTagName(httpElt, Elements.REQUEST_CACHE);
-
-        if (requestCacheElt != null) {
-            requestCache = new RuntimeBeanReference(requestCacheElt.getAttribute(ATT_REF));
-            return;
-        }
-
-        BeanDefinitionBuilder requestCacheBldr = BeanDefinitionBuilder.rootBeanDefinition(HttpSessionRequestCache.class);
-        BeanDefinitionBuilder portResolver = BeanDefinitionBuilder.rootBeanDefinition(PortResolverImpl.class);
-        portResolver.addPropertyReference("portMapper", portMapperName);
-        requestCacheBldr.addPropertyValue("createSessionAllowed", allowSessionCreation);
-        requestCacheBldr.addPropertyValue("portResolver", portResolver.getBeanDefinition());
-
-        BeanDefinition bean = requestCacheBldr.getBeanDefinition();
-        String id = pc.getReaderContext().generateBeanName(bean);
-        pc.registerBeanComponent(new BeanComponentDefinition(bean, id));
-
-        this.requestCache = new RuntimeBeanReference(id);
-    }
-
 
     private BeanMetadataElement createAccessDeniedHandler(Element element, ParserContext pc) {
         String accessDeniedPage = element.getAttribute(ATT_ACCESS_DENIED_PAGE);
@@ -608,10 +592,6 @@ final class AuthenticationConfigBuilder {
         }
 
         return providers;
-    }
-
-    public BeanReference getRequestCache() {
-        return requestCache;
     }
 
 }

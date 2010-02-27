@@ -78,6 +78,7 @@ import org.springframework.security.web.authentication.rememberme.TokenBasedReme
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.NullSecurityContextRepository;
 import org.springframework.security.web.context.SaveContextOnUpdateOrErrorResponseWrapper;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -959,6 +960,23 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     @Test
+    public void settingCreateSessionToStatelessSetsFilterPropertiesCorrectly() throws Exception {
+        setContext("<http auto-config='true' create-session='stateless'/>" + AUTH_PROVIDER_XML);
+        SecurityContextPersistenceFilter filter = getFilter(SecurityContextPersistenceFilter.class);
+        assertEquals(Boolean.FALSE, FieldUtils.getFieldValue(filter, "forceEagerSessionCreation"));
+        assertTrue(FieldUtils.getFieldValue(filter, "repo") instanceof NullSecurityContextRepository);
+        assertNull("Session management filter should not be in stack", getFilter(SessionManagementFilter.class));
+        assertNull("Request cache filter should not be in stack", getFilter(RequestCacheAwareFilter.class));
+
+        // Check that an invocation doesn't create a session
+        FilterChainProxy fcp = (FilterChainProxy) appContext.getBean(BeanIds.FILTER_CHAIN_PROXY);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setServletPath("/anything");
+        fcp.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
+        assertNull(request.getSession(false));
+    }
+
+    @Test
     public void settingCreateSessionToIfRequiredDoesntCreateASessionForPublicInvocation() throws Exception {
         setContext("<http auto-config='true' create-session='ifRequired'/>" + AUTH_PROVIDER_XML);
         Object filter = getFilter(SecurityContextPersistenceFilter.class);
@@ -1000,15 +1018,6 @@ public class HttpSecurityBeanDefinitionParserTests {
         HttpSessionSecurityContextRepository repo = (HttpSessionSecurityContextRepository) appContext.getBean("repo");
         assertSame(repo, FieldUtils.getFieldValue(filter, "repo"));
         assertTrue((Boolean)FieldUtils.getFieldValue(filter, "forceEagerSessionCreation"));
-    }
-
-    @Test(expected=BeanDefinitionParsingException.class)
-    public void cantUseUnsupportedSessionCreationAttributeWithExternallyDefinedSecurityContextRepository() throws Exception {
-        setContext(
-                "<b:bean id='repo' class='" + HttpSessionSecurityContextRepository.class.getName() + "'/>" +
-                "<http create-session='never' security-context-repository-ref='repo'>" +
-                "    <http-basic />" +
-                "</http>" + AUTH_PROVIDER_XML);
     }
 
     @Test
@@ -1147,11 +1156,7 @@ public class HttpSecurityBeanDefinitionParserTests {
         ExceptionTranslationFilter etf = getFilter(ExceptionTranslationFilter.class);
         LoginUrlAuthenticationEntryPoint ap = (LoginUrlAuthenticationEntryPoint) etf.getAuthenticationEntryPoint();
         assertEquals("/form_login_page", ap.getLoginFormUrl());
-        try {
-            getFilter(DefaultLoginPageGeneratingFilter.class);
-            fail("Login page generating filter shouldn't be present");
-        } catch (Exception expected) {
-        }
+        assertNull(getFilter(DefaultLoginPageGeneratingFilter.class));
     }
 
     @Test
@@ -1250,7 +1255,7 @@ public class HttpSecurityBeanDefinitionParserTests {
             }
         }
 
-        throw new Exception("Filter not found");
+        return null;
     }
 
     private RememberMeServices getRememberMeServices() throws Exception {

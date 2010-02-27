@@ -258,8 +258,8 @@ http.attlist &=
 http.attlist &=
     use-expressions?
 http.attlist &=
-    ## Controls the eagerness with which an HTTP session is created. If not set, defaults to "ifRequired". Note that if a custom SecurityContextRepository is set using security-context-repository-ref, then the only value which can be set is "always". Otherwise the session creation behaviour will be determined by the repository bean implementation.
-    attribute create-session {"ifRequired" | "always" | "never" }?
+    ## Controls the eagerness with which an HTTP session is created by Spring Security classes. If not set, defaults to "ifRequired". If "stateless" is used, this implies that the application guarantees that it will not create a session. This differs from the use of "never" which mans that Spring Security will not create a session, but will make use of one if the application does. 
+    attribute create-session {"ifRequired" | "always" | "never" | "stateless"}?
 http.attlist &=
     ## A reference to a SecurityContextRepository bean. This can be used to customize how the SecurityContext is stored between requests.
     attribute security-context-repository-ref {xsd:token}?

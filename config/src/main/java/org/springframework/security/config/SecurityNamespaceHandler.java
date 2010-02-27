@@ -40,8 +40,8 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 
     public BeanDefinition parse(Element element, ParserContext pc) {
         if (!namespaceMatchesVersion(element)) {
-            pc.getReaderContext().fatal("You cannot use a spring-security-2.0.xsd schema with Spring Security 3.0." +
-                    " Please update your schema declarations to the 3.0 schema.", element);
+            pc.getReaderContext().fatal("You cannot use a spring-security-2.0.xsd schema with Spring Security 3." +
+                    " Please update your schema declarations to the 3.1 schema.", element);
         }
         String name = pc.getDelegate().getLocalName(element);
         BeanDefinitionParser parser = parsers.get(name);
@@ -131,7 +131,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 
     private boolean matchesVersionInternal(Element element) {
         String schemaLocation = element.getAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation");
-        return schemaLocation.matches("(?m).*spring-security-3.0.xsd.*")
+        return schemaLocation.matches("(?m).*spring-security-3.*.xsd.*")
                  || schemaLocation.matches("(?m).*spring-security.xsd.*")
                  || !schemaLocation.matches("(?m).*spring-security.*");
     }
