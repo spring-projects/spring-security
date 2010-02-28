@@ -1,6 +1,7 @@
 package org.springframework.security.web.authentication.rememberme;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -9,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -34,7 +36,29 @@ public class AbstractRememberMeServicesTests {
     }
 
     @Test
-    public void cookieShouldBeCorrectlyEncodedAndDecoded() {
+    public void setAndGetAreConsistent() throws Exception {
+        MockRememberMeServices services = new MockRememberMeServices();
+        assertNotNull(services.getCookieName());
+        assertNotNull(services.getParameter());
+        services.setKey("xxxx");
+        assertEquals("xxxx", services.getKey());
+        services.setParameter("rm");
+        assertEquals("rm", services.getParameter());
+        services.setCookieName("kookie");
+        assertEquals("kookie", services.getCookieName());
+        services.setTokenValiditySeconds(600);
+        assertEquals(600, services.getTokenValiditySeconds());
+        UserDetailsService uds = mock(UserDetailsService.class);
+        services.setUserDetailsService(uds);
+        assertSame(uds, services.getUserDetailsService());
+        AuthenticationDetailsSource ads = mock(AuthenticationDetailsSource.class);
+        services.setAuthenticationDetailsSource(ads);
+        assertSame(ads, services.getAuthenticationDetailsSource());
+        services.afterPropertiesSet();
+    }
+
+    @Test
+    public void cookieShouldBeCorrectlyEncodedAndDecoded() throws Exception {
         String[] cookie = new String[] {"name", "cookie", "tokens", "blah"};
         MockRememberMeServices services = new MockRememberMeServices();
 
@@ -86,9 +110,10 @@ public class AbstractRememberMeServicesTests {
     }
 
     @Test
-    public void successfulAutoLoginReturnsExpectedAuthentication() {
+    public void successfulAutoLoginReturnsExpectedAuthentication() throws Exception {
         MockRememberMeServices services = new MockRememberMeServices();
         services.setUserDetailsService(new MockUserDetailsService(joe, false));
+        services.afterPropertiesSet();
         assertNotNull(services.getUserDetailsService());
 
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -102,12 +127,38 @@ public class AbstractRememberMeServicesTests {
     }
 
     @Test
+    public void autoLoginShouldFailIfCookieIsNotBase64() throws Exception {
+        MockRememberMeServices services = new MockRememberMeServices();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        request.setCookies(new Cookie[] {
+                new Cookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, "ZZZ")});
+        Authentication result = services.autoLogin(request, response);
+        assertNull(result);
+        assertCookieCancelled(response);
+    }
+
+    @Test
+    public void autoLoginShouldFailIfCookieIsEmpty() throws Exception {
+        MockRememberMeServices services = new MockRememberMeServices();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        request.setCookies(new Cookie[] {
+                new Cookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, "")});
+        Authentication result = services.autoLogin(request, response);
+        assertNull(result);
+        assertCookieCancelled(response);
+    }
+
+    @Test
     public void autoLoginShouldFailIfInvalidCookieExceptionIsRaised() {
         MockRememberMeServices services = new MockRememberMeServices();
-        services.setUserDetailsService(new MockUserDetailsService(joe, true));
+//        services.setUserDetailsService(new MockUserDetailsService(joe, true));
 
         MockHttpServletRequest request = new MockHttpServletRequest();
-        // Wrong number of tokes
+        // Wrong number of tokens
         request.setCookies(createLoginCookie("cookie:1"));
         MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -162,6 +213,23 @@ public class AbstractRememberMeServicesTests {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         services.loginFail(request, response);
+
+        assertCookieCancelled(response);
+    }
+
+    @Test
+    public void logoutShouldCancelCookie() throws Exception {
+        MockRememberMeServices services = new MockRememberMeServices();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setContextPath("contextpath");
+        request.setCookies(createLoginCookie("cookie:1:2"));
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        services.logout(request, response, mock(Authentication.class));
+        // Try again with null  Authentication
+        response = new MockHttpServletResponse();
+
+        services.logout(request, response, null);
 
         assertCookieCancelled(response);
     }
