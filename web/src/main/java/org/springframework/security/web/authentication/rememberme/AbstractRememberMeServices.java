@@ -58,9 +58,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(key);
-        Assert.hasLength(parameter);
-        Assert.hasLength(cookieName);
-        Assert.notNull(userDetailsService);
+        Assert.notNull(userDetailsService, "A UserDetailsService is required");
     }
 
     /**
@@ -79,6 +77,12 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
         }
 
         logger.debug("Remember-me cookie detected");
+
+        if (rememberMeCookie.isEmpty()) {
+            logger.debug("Cookie was empty");
+            cancelCookie(request, response);
+            return null;
+        }
 
         UserDetails user = null;
 
@@ -335,6 +339,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     }
 
     public void setCookieName(String cookieName) {
+        Assert.hasLength(cookieName, "Cookie name cannot be empty or null");
         this.cookieName = cookieName;
     }
 
@@ -353,7 +358,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
      * @param parameter the HTTP request parameter
      */
     public void setParameter(String parameter) {
-        Assert.hasText(parameter, "Parameter name cannot be null");
+        Assert.hasText(parameter, "Parameter name cannot be empty or null");
         this.parameter = parameter;
     }
 
