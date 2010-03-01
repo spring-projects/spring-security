@@ -13,7 +13,8 @@ allprojects {
     repositories {
         mavenRepo name:'Local', urls:'file:///Users/luke/.m2/repository'
         mavenCentral()
-//        mavenRepo name:'SpringSource Milestone Repo', urls:'http://repository.springsource.com/maven/bundles/milestone'
+        mavenRepo name:'SpringSource Milestone Repo', urls:'http://repository.springsource.com/maven/bundles/milestone'
+        mavenRepo name:'SpringSource Maven Snapshot Repo', urls:'http://maven.springframework.org/snapshot/'
     }
 }
 
@@ -118,6 +119,12 @@ configure(javaProjects()) {
                 snapshotRepository(url: "s3://maven.springframework.org/snapshot") {
                     authentication(s3credentials)
                 }
+            }
+            pom.whenConfigured { pom ->
+                def optionalDeps = ['commons-logging', 'ehcache', 'log4j', 'apacheds-core', 'apacheds-server-jndi', 'jsp-api', 'slf4j-api', 'slf4j-log4j12', 'jsr250-api', 'ldapsdk']
+                def providedDeps = ['servlet-api']
+                pom.dependencies.findAll { dep -> optionalDeps.contains(dep.artifactId) }*.optional = true
+                pom.dependencies.findAll { dep -> providedDeps.contains(dep.artifactId) }*.scope = 'provided'
             }
         }
     }
