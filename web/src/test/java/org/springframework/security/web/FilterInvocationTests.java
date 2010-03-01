@@ -13,17 +13,20 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.access.intercept;
+package org.springframework.security.web;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
 import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.util.UrlUtils;
 
 /**
  * Tests {@link FilterInvocation}.
@@ -115,4 +118,18 @@ public class FilterInvocationTests {
         assertEquals("FilterInvocation: URL: /HelloWorld", fi.toString());
         assertEquals("http://www.example.com/mycontext/HelloWorld", fi.getFullRequestUrl());
     }
+
+    @Test(expected=UnsupportedOperationException.class)
+    public void dummyChainRejectsInvocation() throws Exception {
+        FilterInvocation.DUMMY_CHAIN.doFilter(mock(HttpServletRequest.class), mock(HttpServletResponse.class));
+    }
+
+    @Test
+    public void dummyRequestIsSupportedByUrlUtils() throws Exception {
+        DummyRequest request = new DummyRequest();
+        request.setContextPath("");
+        request.setRequestURI("/something");
+        UrlUtils.buildRequestUrl(request);
+    }
+
 }

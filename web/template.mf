@@ -27,6 +27,7 @@ Import-Template:
  org.springframework.dao;version="[${spring.version}, 3.2.0)";resolution:=optional,
  org.springframework.expression;version="[${spring.version}, 3.2.0)";resolution:=optional,
  org.springframework.expression.spel.*;version="[${spring.version}, 3.2.0)";resolution:=optional,
+ org.springframework.http.*;version="[${spring.version}, 3.2.0)",
  org.springframework.jdbc.*;version="[${spring.version}, 3.2.0)";resolution:=optional,
  org.springframework.mock.web;version="[${spring.version}, 3.2.0)";resolution:=optional,
  org.springframework.web.context.*;version="[${spring.version}, 3.2.0)";resolution:=optional,

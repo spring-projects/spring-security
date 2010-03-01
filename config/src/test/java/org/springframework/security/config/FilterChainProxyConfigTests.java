@@ -37,6 +37,9 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
+import org.springframework.security.web.util.AntPathRequestMatcher;
+import org.springframework.security.web.util.AnyRequestMatcher;
+import org.springframework.security.web.util.RequestMatcher;
 
 /**
  * Tests {@link FilterChainProxy}.
@@ -101,27 +104,15 @@ public class FilterChainProxyConfigTests {
         assertEquals(null, filterChainProxy.getFilters("/nomatch"));
     }
 
-    @Test
-    public void urlStrippingPropertyIsRespected() throws Exception {
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("newFilterChainProxyNoDefaultPath", FilterChainProxy.class);
-
-        // Should only match if we are stripping the query string
-        String url = "/blah.bar?x=something";
-        assertNotNull(filterChainProxy.getFilters(url));
-        assertEquals(2, filterChainProxy.getFilters(url).size());
-        filterChainProxy.setStripQueryStringFromUrls(false);
-        assertNull(filterChainProxy.getFilters(url));
-    }
-
     // SEC-1235
     @Test
     public void mixingPatternsAndPlaceholdersDoesntCauseOrderingIssues() throws Exception {
         FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("sec1235FilterChainProxy", FilterChainProxy.class);
 
-        String[] paths = filterChainProxy.getFilterChainMap().keySet().toArray(new String[0]);
-        assertEquals("/login*", paths[0]);
-        assertEquals("/logout", paths[1]);
-        assertEquals("/**", paths[2]);
+        RequestMatcher[] matchers = filterChainProxy.getFilterChainMap().keySet().toArray(new RequestMatcher[0]);
+        assertEquals("/login*", ((AntPathRequestMatcher)matchers[0]).getPattern());
+        assertEquals("/logout", ((AntPathRequestMatcher)matchers[1]).getPattern());
+        assertTrue(matchers[2] instanceof AnyRequestMatcher);
     }
 
     private void checkPathAndFilterOrder(FilterChainProxy filterChainProxy) throws Exception {

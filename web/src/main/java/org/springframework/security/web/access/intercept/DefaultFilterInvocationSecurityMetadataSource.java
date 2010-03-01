@@ -15,192 +15,75 @@
 
 package org.springframework.security.web.access.intercept;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.util.UrlMatcher;
+import org.springframework.security.web.util.RequestMatcher;
 
 
 /**
  * Default implementation of <tt>FilterInvocationDefinitionSource</tt>.
  * <p>
- * Stores an ordered map of compiled URL paths to <tt>ConfigAttribute</tt> lists and provides URL matching
- * against the items stored in this map using the configured <tt>UrlMatcher</tt>.
+ * Stores an ordered map of {@link RequestMatcher}s to <tt>ConfigAttribute</tt> collections and provides matching
+ * of {@code FilterInvocation}s against the items stored in the map.
  * <p>
- * The order of the URL paths in the map is very important.
- * The system will identify the <b>first</b>  matching path for a given HTTP URL. It will not proceed to evaluate
- * later paths if a match has already been found. Accordingly, the most specific matches should be
- * registered first, with the most general matches registered last.
+ * The order of the {@link RequestMatcher}s in the map is very important. The <b>first</b> one which matches the
+ * request will be used. Later matchers in the map will not be invoked if a match has already been found.
+ * Accordingly, the most specific matchers should be registered first, with the most general matches registered last.
  * <p>
- * If URL paths are registered for a particular HTTP method using, then the method-specific matches will take
- * precedence over any URLs which are registered without an HTTP method.
+ * The most common method creating an instance is using the Spring Security namespace. For example, the {@code pattern}
+ * and {@code access} attributes of the {@code &lt;intercept-url&gt;} elements defined as children of the
+ * {@code &lt;http&gt;} element are combined to build the instance used by the {@code FilterSecurityInterceptor}.
  *
  * @author Ben Alex
  * @author Luke Taylor
  */
 public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvocationSecurityMetadataSource {
 
-    private static final Set<String> HTTP_METHODS = new HashSet<String>(Arrays.asList("DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", "TRACE"));
-
     protected final Log logger = LogFactory.getLog(getClass());
 
-    //private Map<Object, List<ConfigAttribute>> requestMap = new LinkedHashMap<Object, List<ConfigAttribute>>();
-    /** Stores request maps keyed by specific HTTP methods. A null key matches any method */
-    private Map<String, Map<Object, Collection<ConfigAttribute>>> httpMethodMap =
-        new HashMap<String, Map<Object, Collection<ConfigAttribute>>>();
-
-    private UrlMatcher urlMatcher;
-
-    private boolean stripQueryStringFromUrls;
+    private final Map<RequestMatcher, Collection<ConfigAttribute>> requestMap;
 
     //~ Constructors ===================================================================================================
 
     /**
-     * Builds the internal request map from the supplied map. The key elements should be of type {@link RequestKey},
-     * which contains a URL path and an optional HTTP method (may be null). The path stored in the key will depend on
+     * Sets the internal request map from the supplied map. The key elements should be of type {@link RequestMatcher},
+     * which. The path stored in the key will depend on
      * the type of the supplied UrlMatcher.
      *
-     * @param urlMatcher typically an ant or regular expression matcher.
      * @param requestMap order-preserving map of request definitions to attribute lists
      */
-    public DefaultFilterInvocationSecurityMetadataSource(UrlMatcher urlMatcher,
-            LinkedHashMap<RequestKey, Collection<ConfigAttribute>> requestMap) {
-        this.urlMatcher = urlMatcher;
+    public DefaultFilterInvocationSecurityMetadataSource(
+            LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap) {
 
-        for (Map.Entry<RequestKey, Collection<ConfigAttribute>> entry : requestMap.entrySet()) {
-            addSecureUrl(entry.getKey().getUrl(), entry.getKey().getMethod(), entry.getValue());
-        }
+        this.requestMap = requestMap;
     }
 
     //~ Methods ========================================================================================================
 
-    /**
-     * Adds a URL,attribute-list pair to the request map, first allowing the <tt>UrlMatcher</tt> to
-     * process the pattern if required, using its <tt>compile</tt> method. The returned object will be used as the key
-     * to the request map and will be passed back to the <tt>UrlMatcher</tt> when iterating through the map to find
-     * a match for a particular URL.
-     */
-    private void addSecureUrl(String pattern, String method, Collection<ConfigAttribute> attrs) {
-        Map<Object, Collection<ConfigAttribute>> mapToUse = getRequestMapForHttpMethod(method);
-
-        mapToUse.put(urlMatcher.compile(pattern), attrs);
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Added URL pattern: " + pattern + "; attributes: " + attrs +
-                    (method == null ? "" : " for HTTP method '" + method + "'"));
-        }
-    }
-
-    /**
-     * Return the HTTP method specific request map, creating it if it doesn't already exist.
-     * @param method GET, POST etc
-     * @return map of URL patterns to <tt>ConfigAttribute</tt>s for this method.
-     */
-    private Map<Object, Collection<ConfigAttribute>> getRequestMapForHttpMethod(String method) {
-        if (method != null && !HTTP_METHODS.contains(method)) {
-            throw new IllegalArgumentException("Unrecognised HTTP method: '" + method + "'");
-        }
-
-        Map<Object, Collection<ConfigAttribute>> methodRequestMap = httpMethodMap.get(method);
-
-        if (methodRequestMap == null) {
-            methodRequestMap = new LinkedHashMap<Object, Collection<ConfigAttribute>>();
-            httpMethodMap.put(method, methodRequestMap);
-        }
-
-        return methodRequestMap;
-    }
-
     public Collection<ConfigAttribute> getAllConfigAttributes() {
         Set<ConfigAttribute> allAttributes = new HashSet<ConfigAttribute>();
 
-        for (Map.Entry<String, Map<Object, Collection<ConfigAttribute>>> entry : httpMethodMap.entrySet()) {
-            for (Collection<ConfigAttribute> attrs : entry.getValue().values()) {
-                allAttributes.addAll(attrs);
-            }
+        for (Map.Entry<RequestMatcher, Collection<ConfigAttribute>> entry : requestMap.entrySet()) {
+            allAttributes.addAll(entry.getValue());
         }
 
         return allAttributes;
     }
 
-
     public Collection<ConfigAttribute> getAttributes(Object object) {
-        if ((object == null) || !this.supports(object.getClass())) {
-            throw new IllegalArgumentException("Object must be a FilterInvocation");
-        }
-
-        String url = ((FilterInvocation) object).getRequestUrl();
-        String method = ((FilterInvocation) object).getHttpRequest().getMethod();
-
-        return lookupAttributes(url, method);
-    }
-
-    /**
-     * Performs the actual lookup of the relevant <tt>ConfigAttribute</tt>s for the given <code>FilterInvocation</code>.
-     * <p>
-     * By default, iterates through the stored URL map and calls the
-     * {@link UrlMatcher#pathMatchesUrl(Object path, String url)} method until a match is found.
-     *
-     * @param url the URI to retrieve configuration attributes for
-     * @param method the HTTP method (GET, POST, DELETE...), or null for any method.
-     *
-     * @return the <code>ConfigAttribute</code>s that apply to the specified <code>FilterInvocation</code>
-     * or null if no match is found
-     */
-    public final Collection<ConfigAttribute> lookupAttributes(String url, String method) {
-        if (stripQueryStringFromUrls) {
-            // Strip anything after a question mark symbol, as per SEC-161. See also SEC-321
-            int firstQuestionMarkIndex = url.indexOf("?");
-
-            if (firstQuestionMarkIndex != -1) {
-                url = url.substring(0, firstQuestionMarkIndex);
-            }
-        }
-
-        if (urlMatcher.requiresLowerCaseUrl()) {
-            url = url.toLowerCase();
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("Converted URL to lowercase, from: '" + url + "'; to: '" + url + "'");
-            }
-        }
-
-        // Obtain the map of request patterns to attributes for this method and lookup the url.
-        Collection<ConfigAttribute> attributes = extractMatchingAttributes(url, httpMethodMap.get(method));
-
-        // If no attributes found in method-specific map, use the general one stored under the null key
-        if (attributes == null) {
-            attributes = extractMatchingAttributes(url, httpMethodMap.get(null));
-        }
-
-        return attributes;
-    }
-
-    private Collection<ConfigAttribute> extractMatchingAttributes(String url, Map<Object, Collection<ConfigAttribute>> map) {
-        if (map == null) {
-            return null;
-        }
-
-        final boolean debug = logger.isDebugEnabled();
-
-        for (Map.Entry<Object, Collection<ConfigAttribute>> entry : map.entrySet()) {
-            Object p = entry.getKey();
-            boolean matched = urlMatcher.pathMatchesUrl(entry.getKey(), url);
-
-            if (debug) {
-                logger.debug("Candidate is: '" + url + "'; pattern is " + p + "; matched=" + matched);
-            }
-
-            if (matched) {
+        final HttpServletRequest request = ((FilterInvocation) object).getRequest();
+        for (Map.Entry<RequestMatcher, Collection<ConfigAttribute>> entry : requestMap.entrySet()) {
+            if (entry.getKey().matches(request)) {
                 return entry.getValue();
             }
         }
@@ -209,17 +92,5 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
 
     public boolean supports(Class<?> clazz) {
         return FilterInvocation.class.isAssignableFrom(clazz);
-    }
-
-    protected UrlMatcher getUrlMatcher() {
-        return urlMatcher;
-    }
-
-    public boolean isConvertUrlToLowercaseBeforeComparison() {
-        return urlMatcher.requiresLowerCaseUrl();
-    }
-
-    public void setStripQueryStringFromUrls(boolean stripQueryStringFromUrls) {
-        this.stripQueryStringFromUrls = stripQueryStringFromUrls;
     }
 }

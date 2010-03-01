@@ -19,9 +19,6 @@ import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.ApplicationEventPublisher;
@@ -34,7 +31,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
-import org.springframework.security.web.util.UrlUtils;
 
 
 /**
@@ -101,18 +97,5 @@ public class DefaultWebInvocationPrivilegeEvaluatorTests {
         doThrow(new AccessDeniedException("")).when(adm).decide(any(Authentication.class), anyObject(), anyList());
 
         assertFalse(wipe.isAllowed("/foo/index.jsp", token));
-    }
-
-    @Test(expected=UnsupportedOperationException.class)
-    public void dummyChainRejectsInvocation() throws Exception {
-        DefaultWebInvocationPrivilegeEvaluator.DUMMY_CHAIN.doFilter(mock(HttpServletRequest.class), mock(HttpServletResponse.class));
-    }
-
-    @Test
-    public void dummyRequestIsSupportedByUrlUtils() throws Exception {
-        DummyRequest request = new DummyRequest();
-        request.setContextPath("");
-        request.setRequestURI("/something");
-        UrlUtils.buildRequestUrl(request);
     }
 }

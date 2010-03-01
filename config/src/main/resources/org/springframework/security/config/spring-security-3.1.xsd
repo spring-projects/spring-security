@@ -31,6 +31,20 @@
       </xs:simpleType>
     </xs:attribute>
   </xs:attributeGroup>
+  <xs:attributeGroup name="request-matcher">
+    <xs:attribute name="request-matcher" use="required">
+      <xs:annotation>
+        <xs:documentation>Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'iciRegex' for case-insensitive regular expressions.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="ant"/>
+          <xs:enumeration value="regex"/>
+          <xs:enumeration value="ciRegex"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
   <xs:attributeGroup name="path-type">
     <xs:attribute name="path-type" use="required">
       <xs:annotation>
@@ -692,6 +706,18 @@
         <xs:documentation>A reference to a SecurityContextRepository bean. This can be used to customize how the SecurityContext is stored between requests.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="request-matcher">
+      <xs:annotation>
+        <xs:documentation>Superseded the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'iciRegex' for case-insensitive regular expressions.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="ant"/>
+          <xs:enumeration value="regex"/>
+          <xs:enumeration value="ciRegex"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
     <xs:attribute name="path-type">
       <xs:annotation>
         <xs:documentation>Defines the type of pattern used to specify URL paths (either JDK 1.4-compatible regular expressions, or Apache Ant expressions). Defaults to "ant" if unspecified.</xs:documentation>
@@ -702,11 +728,6 @@
           <xs:enumeration value="regex"/>
         </xs:restriction>
       </xs:simpleType>
-    </xs:attribute>
-    <xs:attribute name="lowercase-comparisons" type="security:boolean">
-      <xs:annotation>
-        <xs:documentation>Whether test URLs should be converted to lower case prior to comparing with defined path patterns. If unspecified, defaults to "true".</xs:documentation>
-      </xs:annotation>
     </xs:attribute>
     <xs:attribute name="servlet-api-provision" type="security:boolean">
       <xs:annotation>
@@ -902,7 +923,29 @@
       <xs:attributeGroup ref="security:filter-chain-map.attlist"/>
     </xs:complexType></xs:element>
   <xs:attributeGroup name="filter-chain-map.attlist">
-    <xs:attributeGroup ref="security:path-type"/>
+    <xs:attribute name="path-type">
+      <xs:annotation>
+        <xs:documentation>Defines the type of pattern used to specify URL paths (either JDK 1.4-compatible regular expressions, or Apache Ant expressions). Defaults to "ant" if unspecified.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="ant"/>
+          <xs:enumeration value="regex"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="request-matcher">
+      <xs:annotation>
+        <xs:documentation>Superseded the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'iciRegex' for case-insensitive regular expressions.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="ant"/>
+          <xs:enumeration value="regex"/>
+          <xs:enumeration value="ciRegex"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
   </xs:attributeGroup>
   
   <xs:attributeGroup name="filter-chain.attlist">
@@ -945,6 +988,18 @@
         <xs:restriction base="xs:token">
           <xs:enumeration value="ant"/>
           <xs:enumeration value="regex"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="request-matcher">
+      <xs:annotation>
+        <xs:documentation>Superseded the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'iciRegex' for case-insensitive regular expressions.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="ant"/>
+          <xs:enumeration value="regex"/>
+          <xs:enumeration value="ciRegex"/>
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>

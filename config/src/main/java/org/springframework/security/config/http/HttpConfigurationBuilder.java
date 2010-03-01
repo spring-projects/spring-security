@@ -35,7 +35,6 @@ import org.springframework.security.web.access.channel.SecureChannelProcessor;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
-import org.springframework.security.web.access.intercept.RequestKey;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy;
 import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
@@ -48,8 +47,6 @@ import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
-import org.springframework.security.web.util.AntUrlPathMatcher;
-import org.springframework.security.web.util.UrlMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -81,10 +78,9 @@ class HttpConfigurationBuilder {
 
     private final Element httpElt;
     private final ParserContext pc;
-    private final UrlMatcher matcher;
-    private final Boolean convertPathsToLowerCase;
     private final SessionCreationPolicy sessionPolicy;
     private final List<Element> interceptUrls;
+    private final MatcherType matcherType;
 
     // Use ManagedMap to allow placeholder resolution
     private ManagedMap<BeanDefinition, List<BeanMetadataElement>> filterChainMap;
@@ -102,15 +98,12 @@ class HttpConfigurationBuilder {
     private BeanReference fsi;
     private BeanReference requestCache;
 
-    public HttpConfigurationBuilder(Element element, ParserContext pc, UrlMatcher matcher,
+    public HttpConfigurationBuilder(Element element, ParserContext pc, MatcherType matcherType,
             String portMapperName, BeanReference authenticationManager) {
         this.httpElt = element;
         this.pc = pc;
         this.portMapperName = portMapperName;
-        this.matcher = matcher;
-        // SEC-501 - should paths stored in request maps be converted to lower case
-        // true if Ant path and using lower case
-        convertPathsToLowerCase = (matcher instanceof AntUrlPathMatcher) && matcher.requiresLowerCaseUrl();
+        this.matcherType = matcherType;
         interceptUrls = DomUtils.getChildElementsByTagName(element, Elements.INTERCEPT_URL);
         String createSession = element.getAttribute(ATT_CREATE_SESSION);
 
@@ -139,10 +132,7 @@ class HttpConfigurationBuilder {
                 pc.getReaderContext().error("path attribute cannot be empty or null", urlElt);
             }
 
-            BeanDefinitionBuilder pathBean = BeanDefinitionBuilder.rootBeanDefinition(HttpConfigurationBuilder.class);
-            pathBean.setFactoryMethod("createPath");
-            pathBean.addConstructorArgValue(path);
-            pathBean.addConstructorArgValue(convertPathsToLowerCase);
+            BeanDefinition matcher = matcherType.createMatcher(path, null);
 
             String filters = urlElt.getAttribute(ATT_FILTERS);
 
@@ -153,7 +143,7 @@ class HttpConfigurationBuilder {
                 }
 
                 List<BeanMetadataElement> noFilters = Collections.emptyList();
-                filterChainMap.put(pathBean.getBeanDefinition(), noFilters);
+                filterChainMap.put(matcher, noFilters);
             }
         }
     }
@@ -378,9 +368,8 @@ class HttpConfigurationBuilder {
 
         RootBeanDefinition channelFilter = new RootBeanDefinition(ChannelProcessingFilter.class);
         BeanDefinitionBuilder metadataSourceBldr = BeanDefinitionBuilder.rootBeanDefinition(DefaultFilterInvocationSecurityMetadataSource.class);
-        metadataSourceBldr.addConstructorArgValue(matcher);
         metadataSourceBldr.addConstructorArgValue(channelRequestMap);
-        metadataSourceBldr.addPropertyValue("stripQueryStringFromUrls", matcher instanceof AntUrlPathMatcher);
+//        metadataSourceBldr.addPropertyValue("stripQueryStringFromUrls", matcher instanceof AntUrlPathMatcher);
 
         channelFilter.getPropertyValues().addPropertyValue("securityMetadataSource", metadataSourceBldr.getBeanDefinition());
         RootBeanDefinition channelDecisionManager = new RootBeanDefinition(ChannelDecisionManagerImpl.class);
@@ -413,26 +402,22 @@ class HttpConfigurationBuilder {
 
         for (Element urlElt : interceptUrls) {
             String path = urlElt.getAttribute(ATT_PATH_PATTERN);
+            String method = urlElt.getAttribute(ATT_HTTP_METHOD);
 
             if(!StringUtils.hasText(path)) {
-                pc.getReaderContext().error("path attribute cannot be empty or null", urlElt);
-            }
-
-            if (convertPathsToLowerCase) {
-                path = path.toLowerCase();
+                pc.getReaderContext().error("pattern attribute cannot be empty or null", urlElt);
             }
 
             String requiredChannel = urlElt.getAttribute(ATT_REQUIRES_CHANNEL);
 
             if (StringUtils.hasText(requiredChannel)) {
-                BeanDefinition requestKey = new RootBeanDefinition(RequestKey.class);
-                requestKey.getConstructorArgumentValues().addGenericArgumentValue(path);
+                BeanDefinition matcher = matcherType.createMatcher(path, method);
 
                 RootBeanDefinition channelAttributes = new RootBeanDefinition(ChannelAttributeFactory.class);
                 channelAttributes.getConstructorArgumentValues().addGenericArgumentValue(requiredChannel);
                 channelAttributes.setFactoryMethodName("createChannelAttributes");
 
-                channelRequestMap.put(requestKey, channelAttributes);
+                channelRequestMap.put(matcher, channelAttributes);
             }
         }
 

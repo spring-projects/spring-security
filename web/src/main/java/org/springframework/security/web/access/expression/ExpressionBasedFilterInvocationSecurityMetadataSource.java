@@ -11,8 +11,7 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.ParseException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
-import org.springframework.security.web.access.intercept.RequestKey;
-import org.springframework.security.web.util.UrlMatcher;
+import org.springframework.security.web.util.RequestMatcher;
 import org.springframework.util.Assert;
 
 /**
@@ -24,21 +23,22 @@ import org.springframework.util.Assert;
 public final class ExpressionBasedFilterInvocationSecurityMetadataSource extends DefaultFilterInvocationSecurityMetadataSource {
     private final static Log logger = LogFactory.getLog(ExpressionBasedFilterInvocationSecurityMetadataSource.class);
 
-    public ExpressionBasedFilterInvocationSecurityMetadataSource(UrlMatcher urlMatcher,
-            LinkedHashMap<RequestKey, Collection<ConfigAttribute>> requestMap, WebSecurityExpressionHandler expressionHandler) {
-        super(urlMatcher, processMap(requestMap, expressionHandler.getExpressionParser()));
+    public ExpressionBasedFilterInvocationSecurityMetadataSource(
+            LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap,
+            WebSecurityExpressionHandler expressionHandler) {
+        super(processMap(requestMap, expressionHandler.getExpressionParser()));
         Assert.notNull(expressionHandler, "A non-null SecurityExpressionHandler is required");
     }
 
-    private static LinkedHashMap<RequestKey, Collection<ConfigAttribute>> processMap(
-            LinkedHashMap<RequestKey,Collection<ConfigAttribute>> requestMap, ExpressionParser parser) {
+    private static LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> processMap(
+            LinkedHashMap<RequestMatcher,Collection<ConfigAttribute>> requestMap, ExpressionParser parser) {
         Assert.notNull(parser, "SecurityExpressionHandler returned a null parser object");
 
-        LinkedHashMap<RequestKey, Collection<ConfigAttribute>> requestToExpressionAttributesMap =
-            new LinkedHashMap<RequestKey, Collection<ConfigAttribute>>(requestMap);
+        LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestToExpressionAttributesMap =
+            new LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>>(requestMap);
 
-        for (Map.Entry<RequestKey, Collection<ConfigAttribute>> entry : requestMap.entrySet()) {
-            RequestKey request = entry.getKey();
+        for (Map.Entry<RequestMatcher, Collection<ConfigAttribute>> entry : requestMap.entrySet()) {
+            RequestMatcher request = entry.getKey();
             Assert.isTrue(entry.getValue().size() == 1, "Expected a single expression attribute for " + request);
             ArrayList<ConfigAttribute> attributes = new ArrayList<ConfigAttribute>(1);
             String expression = entry.getValue().toArray(new ConfigAttribute[1])[0].getAttribute();

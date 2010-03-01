@@ -17,9 +17,6 @@ import org.springframework.security.web.access.expression.DefaultWebSecurityExpr
 import org.springframework.security.web.access.expression.ExpressionBasedFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
-import org.springframework.security.web.access.intercept.RequestKey;
-import org.springframework.security.web.util.AntUrlPathMatcher;
-import org.springframework.security.web.util.UrlMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -63,11 +60,11 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
     }
 
     static BeanDefinition createSecurityMetadataSource(List<Element> interceptUrls, Element elt, ParserContext pc) {
-        UrlMatcher matcher = HttpSecurityBeanDefinitionParser.createUrlMatcher(elt);
+        MatcherType matcherType = MatcherType.fromElement(elt);
         boolean useExpressions = isUseExpressions(elt);
 
         ManagedMap<BeanDefinition, BeanDefinition> requestToAttributesMap = parseInterceptUrlsForFilterInvocationRequestMap(
-                interceptUrls, useExpressions, pc);
+                matcherType, interceptUrls, useExpressions, pc);
         BeanDefinitionBuilder fidsBuilder;
 
         if (useExpressions) {
@@ -83,16 +80,14 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
             }
 
             fidsBuilder = BeanDefinitionBuilder.rootBeanDefinition(ExpressionBasedFilterInvocationSecurityMetadataSource.class);
-            fidsBuilder.addConstructorArgValue(matcher);
             fidsBuilder.addConstructorArgValue(requestToAttributesMap);
             fidsBuilder.addConstructorArgReference(expressionHandlerRef);
         } else {
             fidsBuilder = BeanDefinitionBuilder.rootBeanDefinition(DefaultFilterInvocationSecurityMetadataSource.class);
-            fidsBuilder.addConstructorArgValue(matcher);
             fidsBuilder.addConstructorArgValue(requestToAttributesMap);
         }
 
-        fidsBuilder.addPropertyValue("stripQueryStringFromUrls", matcher instanceof AntUrlPathMatcher);
+//        fidsBuilder.addPropertyValue("stripQueryStringFromUrls", matcher instanceof AntUrlPathMatcher);
         fidsBuilder.getRawBeanDefinition().setSource(pc.extractSource(elt));
 
         return fidsBuilder.getBeanDefinition();
@@ -102,8 +97,9 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
         return "true".equals(elt.getAttribute(ATT_USE_EXPRESSIONS));
     }
 
-    private static ManagedMap<BeanDefinition, BeanDefinition> parseInterceptUrlsForFilterInvocationRequestMap(List<Element> urlElts,
-            boolean useExpressions, ParserContext parserContext) {
+    private static ManagedMap<BeanDefinition, BeanDefinition>
+        parseInterceptUrlsForFilterInvocationRequestMap(MatcherType matcherType,
+                List<Element> urlElts, boolean useExpressions, ParserContext parserContext) {
 
         ManagedMap<BeanDefinition, BeanDefinition> filterInvocationDefinitionMap = new ManagedMap<BeanDefinition, BeanDefinition>();
 
@@ -124,10 +120,7 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
                 method = null;
             }
 
-            BeanDefinitionBuilder keyBldr = BeanDefinitionBuilder.rootBeanDefinition(RequestKey.class);
-            keyBldr.addConstructorArgValue(path);
-            keyBldr.addConstructorArgValue(method);
-
+            BeanDefinition matcher = matcherType.createMatcher(path, method);
             BeanDefinitionBuilder attributeBuilder = BeanDefinitionBuilder.rootBeanDefinition(SecurityConfig.class);
             attributeBuilder.addConstructorArgValue(access);
 
@@ -140,13 +133,11 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
                 attributeBuilder.setFactoryMethod("createListFromCommaDelimitedString");
             }
 
-            BeanDefinition key = keyBldr.getBeanDefinition();
-
-            if (filterInvocationDefinitionMap.containsKey(key)) {
+            if (filterInvocationDefinitionMap.containsKey(matcher)) {
                 logger.warn("Duplicate URL defined: " + path + ". The original attribute values will be overwritten");
             }
 
-            filterInvocationDefinitionMap.put(key, attributeBuilder.getBeanDefinition());
+            filterInvocationDefinitionMap.put(matcher, attributeBuilder.getBeanDefinition());
         }
 
         return filterInvocationDefinitionMap;

@@ -1,5 +1,10 @@
 package org.springframework.security.config.http;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -8,13 +13,10 @@ import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.xml.BeanDefinitionDecorator;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.config.Elements;
-import org.springframework.security.web.util.RegexUrlPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-
-import java.util.*;
 
 /**
  * Sets the filter chain Map for a FilterChainProxy bean declaration.
@@ -30,11 +32,7 @@ public class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDeco
         Map filterChainMap = new LinkedHashMap();
         Element elt = (Element)node;
 
-        String pathType = elt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_PATH_TYPE);
-
-        if (HttpSecurityBeanDefinitionParser.OPT_PATH_TYPE_REGEX.equals(pathType)) {
-            filterChainProxy.getPropertyValues().addPropertyValue("matcher", new RegexUrlPathMatcher());
-        }
+        MatcherType matcherType = MatcherType.fromElement(elt);
 
         List<Element> filterChainElts = DomUtils.getChildElementsByTagName(elt, Elements.FILTER_CHAIN);
 
@@ -52,8 +50,10 @@ public class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDeco
                     "'must not be empty", elt);
             }
 
+            BeanDefinition matcher = matcherType.createMatcher(path, null);
+
             if (filters.equals(HttpSecurityBeanDefinitionParser.OPT_FILTERS_NONE)) {
-                filterChainMap.put(path, Collections.EMPTY_LIST);
+                filterChainMap.put(matcher, Collections.EMPTY_LIST);
             } else {
                 String[] filterBeanNames = StringUtils.tokenizeToStringArray(filters, ",");
                 ManagedList filterChain = new ManagedList(filterBeanNames.length);
@@ -62,7 +62,7 @@ public class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDeco
                     filterChain.add(new RuntimeBeanReference(filterBeanNames[i]));
                 }
 
-                filterChainMap.put(path, filterChain);
+                filterChainMap.put(matcher, filterChain);
             }
         }
 

@@ -26,16 +26,15 @@ import java.util.Set;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
-import org.springframework.security.web.util.AntUrlPathMatcher;
-import org.springframework.security.web.util.UrlMatcher;
+import org.springframework.security.web.util.AnyRequestMatcher;
+import org.springframework.security.web.util.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.filter.GenericFilterBean;
@@ -45,26 +44,22 @@ import org.springframework.web.filter.GenericFilterBean;
  * Delegates <code>Filter</code> requests to a list of Spring-managed beans.
  * As of version 2.0, you shouldn't need to explicitly configure a <tt>FilterChainProxy</tt> bean in your application
  * context unless you need very fine control over the filter chain contents. Most cases should be adequately covered
- * by the default <tt>&lt;security:http /&gt</tt> namespace configuration options.
- *
- * <p>The <code>FilterChainProxy</code> is loaded via a standard Spring {@link DelegatingFilterProxy} declaration in
- * <code>web.xml</code>. <code>FilterChainProxy</code> will then pass {@link #init(FilterConfig)}, {@link #destroy()}
- * and {@link #doFilter(ServletRequest, ServletResponse, FilterChain)} invocations through to each <code>Filter</code>
- * defined against <code>FilterChainProxy</code>.
- *
- * <p>As of version 2.0, <tt>FilterChainProxy</tt> is configured using an ordered Map of path patterns to <tt>List</tt>s
- * of <tt>Filter</tt> objects. In previous
- * versions, a {@link FilterInvocationSecurityMetadataSource} was used. This is now deprecated in favour of namespace-based
- * configuration which provides a more robust and simplfied syntax.  The Map instance will normally be
- * created while parsing the namespace configuration, so doesn't have to be set explicitly.
- * Instead the &lt;filter-chain-map&gt; element should be used within the FilterChainProxy bean declaration.
+ * by the default <tt>&lt;security:http /&gt;</tt> namespace configuration options.
+ * <p>
+ * The <code>FilterChainProxy</code> is loaded via a standard Spring {@link DelegatingFilterProxy} declaration in
+ * <code>web.xml</code>.
+ * <p>
+ * As of version 3.1, <tt>FilterChainProxy</tt> is configured using an ordered Map of {@link RequestMatcher} instances
+ * to <tt>List</tt>s of <tt>Filter</tt>s. The Map instance will normally be created while parsing the namespace
+ * configuration, so doesn't have to be set explicitly. Instead the &lt;filter-chain-map&gt; element should be used
+ * within the FilterChainProxy bean declaration.
  * This in turn should have a list of child &lt;filter-chain&gt; elements which each define a URI pattern and the list
  * of filters (as comma-separated bean names) which should be applied to requests which match the pattern.
  * An example configuration might look like this:
  *
  * <pre>
  &lt;bean id="myfilterChainProxy" class="org.springframework.security.util.FilterChainProxy">
-     &lt;security:filter-chain-map pathType="ant">
+     &lt;security:filter-chain-map request-matcher="ant">
          &lt;security:filter-chain pattern="/do/not/filter" filters="none"/>
          &lt;security:filter-chain pattern="/**" filters="filter1,filter2,filter3"/>
      &lt;/security:filter-chain-map>
@@ -73,30 +68,24 @@ import org.springframework.web.filter.GenericFilterBean;
  *
  * The names "filter1", "filter2", "filter3" should be the bean names of <tt>Filter</tt> instances defined in the
  * application context. The order of the names defines the order in which the filters will be applied. As shown above,
- * use of the value "none" for the "filters" can be used to exclude
- * Please consult the security namespace schema file for a full list of available configuration options.
- *
+ * use of the value "none" for the "filters" can be used to exclude a request pattern from the security filter chain
+ * entirely. Please consult the security namespace schema file for a full list of available configuration options.
  * <p>
- * Each possible URI pattern that <code>FilterChainProxy</code> should service must be entered.
- * The first matching URI pattern for a given request will be used to define all of the
- * <code>Filter</code>s that apply to that request. NB: This means you must put most specific URI patterns at the top
- * of the list, and ensure all <code>Filter</code>s that should apply for a given URI pattern are entered against the
- * respective entry. The <code>FilterChainProxy</code> will not iterate the remainder of the URI patterns to locate
- * additional <code>Filter</code>s.
- *
- * <p><code>FilterChainProxy</code> respects normal handling of <code>Filter</code>s that elect not to call {@link
+ * Each possible pattern that <code>FilterChainProxy</code> should service must be entered.
+ * The first match for a given request will be used to define all of the <code>Filter</code>s that apply to that
+ * request. This means you must put most specific matches at the top of the list, and ensure all <code>Filter</code>s
+ * that should apply for a given matcher are entered against the respective entry.
+ * The <code>FilterChainProxy</code> will not iterate through the remainder of the map entries to locate additional
+ * <code>Filter</code>s.
+ * <p>
+ * <code>FilterChainProxy</code> respects normal handling of <code>Filter</code>s that elect not to call {@link
  * javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse,
  * javax.servlet.FilterChain)}, in that the remainder of the original or <code>FilterChainProxy</code>-declared filter
  * chain will not be called.
- *
- * <p>Note the <code>Filter</code> lifecycle mismatch between the servlet container and IoC
+ * <p>
+ * Note the <code>Filter</code> lifecycle mismatch between the servlet container and IoC
  * container. As described in the {@link DelegatingFilterProxy} JavaDocs, we recommend you allow the IoC
- * container to manage the lifecycle instead of the servlet container. By default the <code>DelegatingFilterProxy</code>
- * will never call this class' {@link #init(FilterConfig)} and {@link #destroy()} methods, which in turns means that
- * the corresponding methods on the filter beans managed by this class will never be called. If you do need your filters to be
- * initialized and destroyed, please set the <tt>targetFilterLifecycle</tt> initialization parameter against the
- * <code>DelegatingFilterProxy</code> to specify that servlet container lifecycle management should be used. You don't
- * need to worry about this in most cases.
+ * container to manage the lifecycle instead of the servlet container.
  *
  * @author Carlos Sanchez
  * @author Ben Alex
@@ -111,20 +100,15 @@ public class FilterChainProxy extends GenericFilterBean {
 
     //~ Instance fields ================================================================================================
 
-//    private ApplicationContext applicationContext;
-    /** Map of the original pattern Strings to filter chains */
-    private Map<String, List<Filter>> uncompiledFilterChainMap;
-    /** Compiled pattern version of the filter chain map */
-    private Map<Object, List<Filter>> filterChainMap;
-    private UrlMatcher matcher = new AntUrlPathMatcher();
-    private boolean stripQueryStringFromUrls = true;
+    private Map<RequestMatcher, List<Filter>> filterChainMap;
+
     private FilterChainValidator filterChainValidator = new NullFilterChainValidator();
 
     //~ Methods ========================================================================================================
 
     @Override
     public void afterPropertiesSet() {
-        Assert.notNull(uncompiledFilterChainMap, "filterChainMap must be set");
+        Assert.notNull(filterChainMap, "filterChainMap must be set");
         filterChainValidator.validate(this);
     }
 
@@ -132,7 +116,7 @@ public class FilterChainProxy extends GenericFilterBean {
             throws IOException, ServletException {
 
         FilterInvocation fi = new FilterInvocation(request, response, chain);
-        List<Filter> filters = getFilters(fi.getRequestUrl());
+        List<Filter> filters = getFilters(fi.getRequest());
 
         if (filters == null || filters.size() == 0) {
             if (logger.isDebugEnabled()) {
@@ -149,45 +133,33 @@ public class FilterChainProxy extends GenericFilterBean {
         virtualFilterChain.doFilter(fi.getRequest(), fi.getResponse());
     }
 
+
     /**
      * Returns the first filter chain matching the supplied URL.
      *
-     * @param url the request URL
+     * @param request the request to match
      * @return an ordered array of Filters defining the filter chain
      */
-    public List<Filter> getFilters(String url)  {
-        if (stripQueryStringFromUrls) {
-            // String query string - see SEC-953
-            int firstQuestionMarkIndex = url.indexOf("?");
+    private List<Filter> getFilters(HttpServletRequest request)  {
+        for (Map.Entry<RequestMatcher, List<Filter>> entry : filterChainMap.entrySet()) {
+            RequestMatcher matcher = entry.getKey();
 
-            if (firstQuestionMarkIndex != -1) {
-                url = url.substring(0, firstQuestionMarkIndex);
-            }
-        }
-
-        for (Map.Entry<Object, List<Filter>> entry : filterChainMap.entrySet()) {
-            Object path = entry.getKey();
-
-            if (matcher.requiresLowerCaseUrl()) {
-                url = url.toLowerCase();
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Converted URL to lowercase, from: '" + url + "'; to: '" + url + "'");
-                }
-            }
-
-            boolean matched = matcher.pathMatchesUrl(path, url);
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("Candidate is: '" + url + "'; pattern is " + path + "; matched=" + matched);
-            }
-
-            if (matched) {
+            if (matcher.matches(request)) {
                 return entry.getValue();
             }
         }
 
         return null;
+    }
+
+    /**
+     * Convenience method, mainly for testing.
+     *
+     * @param url the URL
+     * @return matching filter list
+     */
+    public List<Filter> getFilters(String url) {
+        return getFilters(new FilterInvocation(url, null).getRequest());
     }
 
     /**
@@ -225,15 +197,14 @@ public class FilterChainProxy extends GenericFilterBean {
     @SuppressWarnings("unchecked")
     public void setFilterChainMap(Map filterChainMap) {
         checkContents(filterChainMap);
-        uncompiledFilterChainMap = new LinkedHashMap<String, List<Filter>>(filterChainMap);
+        this.filterChainMap = new LinkedHashMap<RequestMatcher, List<Filter>>(filterChainMap);
         checkPathOrder();
-        createCompiledMap();
     }
 
     @SuppressWarnings("unchecked")
     private void checkContents(Map filterChainMap) {
         for (Object key : filterChainMap.keySet()) {
-            Assert.isInstanceOf(String.class, key, "Path key must be a String but found " + key);
+            Assert.isInstanceOf(RequestMatcher.class, key, "Path key must be a RequestMatcher but found " + key);
             Object filters = filterChainMap.get(key);
             Assert.isInstanceOf(List.class, filters, "Value must be a filter list");
             // Check the contents
@@ -248,23 +219,14 @@ public class FilterChainProxy extends GenericFilterBean {
 
     private void checkPathOrder() {
         // Check that the universal pattern is listed at the end, if at all
-        String[] paths = (String[]) uncompiledFilterChainMap.keySet().toArray(new String[0]);
-        String universalMatch = matcher.getUniversalMatchPattern();
+        RequestMatcher[] matchers = filterChainMap.keySet().toArray(new RequestMatcher[0]);
 
-        for (int i=0; i < paths.length-1; i++) {
-            if (paths[i].equals(universalMatch)) {
-                throw new IllegalArgumentException("A universal match pattern " + universalMatch + " is defined " +
+        for (int i=0; i < matchers.length-1; i++) {
+            if (matchers[i] instanceof AnyRequestMatcher) {
+                throw new IllegalArgumentException("A universal match pattern ('/**') is defined " +
                         " before other patterns in the filter chain, causing them to be ignored. Please check the " +
                         "ordering in your <security:http> namespace or FilterChainProxy bean configuration");
             }
-        }
-    }
-
-    private void createCompiledMap() {
-        filterChainMap = new LinkedHashMap<Object, List<Filter>>(uncompiledFilterChainMap.size());
-
-        for (String path : uncompiledFilterChainMap.keySet()) {
-            filterChainMap.put(matcher.compile(path), uncompiledFilterChainMap.get(path));
         }
     }
 
@@ -274,24 +236,8 @@ public class FilterChainProxy extends GenericFilterBean {
      *
      * @return the map of path pattern Strings to filter chain lists (with ordering guaranteed).
      */
-    public Map<String, List<Filter>> getFilterChainMap() {
-        return new LinkedHashMap<String, List<Filter>>(uncompiledFilterChainMap);
-    }
-
-    public void setMatcher(UrlMatcher matcher) {
-        this.matcher = matcher;
-    }
-
-    public UrlMatcher getMatcher() {
-        return matcher;
-    }
-
-    /**
-     * If set to 'true', the query string will be stripped from the request URL before
-     * attempting to find a matching filter chain. This is the default value.
-     */
-    public void setStripQueryStringFromUrls(boolean stripQueryStringFromUrls) {
-        this.stripQueryStringFromUrls = stripQueryStringFromUrls;
+    public Map<RequestMatcher, List<Filter>> getFilterChainMap() {
+        return new LinkedHashMap<RequestMatcher, List<Filter>>(filterChainMap);
     }
 
     /**
@@ -306,9 +252,8 @@ public class FilterChainProxy extends GenericFilterBean {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("FilterChainProxy[");
-        sb.append(" UrlMatcher = ").append(matcher);
-        sb.append("; Filter Chains: ");
-        sb.append(uncompiledFilterChainMap);
+        sb.append("Filter Chains: ");
+        sb.append(filterChainMap);
         sb.append("]");
 
         return sb.toString();

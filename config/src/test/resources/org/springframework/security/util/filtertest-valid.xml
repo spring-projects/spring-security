@@ -105,27 +105,44 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
     </bean>
 
     <bean id="newFilterChainProxyNonNamespace" class="org.springframework.security.web.FilterChainProxy">
-        <property name="matcher">
-            <bean class="org.springframework.security.web.util.AntUrlPathMatcher"/>
-        </property>
         <property name="filterChainMap">
             <map>
-                <entry key="/foo/**">
+                <entry>
+                    <key>
+                        <bean class="org.springframework.security.web.util.AntPathRequestMatcher">
+                            <constructor-arg value="/foo/**"/>
+                        </bean>
+                    </key>
                     <list>
                       <ref local="mockFilter"/>
                     </list>
                 </entry>
-                <entry key="/some/other/path/**">
+                <entry>
+                    <key>
+                        <bean class="org.springframework.security.web.util.AntPathRequestMatcher">
+                            <constructor-arg value="/some/other/path/**"/>
+                        </bean>
+                    </key>
                     <list>
                       <ref local="sif"/>
                       <ref local="mockFilter"/>
                       <ref local="mockFilter2"/>
                     </list>
                 </entry>
-                <entry key="/do/not/filter">
+                <entry>
+                    <key>
+                        <bean class="org.springframework.security.web.util.AntPathRequestMatcher">
+                            <constructor-arg value="/do/not/filter*"/>
+                        </bean>
+                    </key>
                     <list/>
                 </entry>
-                <entry key="/**">
+                <entry>
+                    <key>
+                        <bean class="org.springframework.security.web.util.AntPathRequestMatcher">
+                            <constructor-arg value="/**"/>
+                        </bean>
+                    </key>
                     <list>
                       <ref local="sif"/>
                       <ref local="apf"/>

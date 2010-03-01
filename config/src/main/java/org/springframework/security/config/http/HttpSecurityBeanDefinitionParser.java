@@ -26,9 +26,7 @@ import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.Elements;
 import org.springframework.security.config.authentication.AuthenticationManagerFactoryBean;
 import org.springframework.security.web.FilterChainProxy;
-import org.springframework.security.web.util.AntUrlPathMatcher;
-import org.springframework.security.web.util.RegexUrlPathMatcher;
-import org.springframework.security.web.util.UrlMatcher;
+import org.springframework.security.web.util.AnyRequestMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -44,16 +42,12 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     private static final Log logger = LogFactory.getLog(HttpSecurityBeanDefinitionParser.class);
 
     static final String ATT_PATH_PATTERN = "pattern";
-    static final String ATT_PATH_TYPE = "path-type";
-    static final String OPT_PATH_TYPE_REGEX = "regex";
-    private static final String DEF_PATH_TYPE_ANT = "ant";
+    static final String ATT_HTTP_METHOD = "method";
 
     static final String ATT_FILTERS = "filters";
     static final String OPT_FILTERS_NONE = "none";
 
     static final String ATT_REQUIRES_CHANNEL = "requires-channel";
-
-    private static final String ATT_LOWERCASE_COMPARISONS = "lowercase-comparisons";
 
     private static final String ATT_REF = "ref";
 
@@ -80,25 +74,25 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         final Object source = pc.extractSource(element);
 
         final String portMapperName = createPortMapper(element, pc);
-        final UrlMatcher matcher = createUrlMatcher(element);
+
+        MatcherType matcherType = MatcherType.fromElement(element);
 
         ManagedList<BeanReference> authenticationProviders = new ManagedList<BeanReference>();
         BeanReference authenticationManager = createAuthenticationManager(element, pc, authenticationProviders, null);
 
-        HttpConfigurationBuilder httpBldr = new HttpConfigurationBuilder(element, pc, matcher,
+        HttpConfigurationBuilder httpBldr = new HttpConfigurationBuilder(element, pc, matcherType,
                 portMapperName, authenticationManager);
 
         AuthenticationConfigBuilder authBldr = new AuthenticationConfigBuilder(element, pc,
                 httpBldr.getSessionCreationPolicy(), httpBldr.getRequestCache(), authenticationManager,
                 httpBldr.getSessionStrategy());
 
+        authenticationProviders.addAll(authBldr.getProviders());
+
         List<OrderDecorator> unorderedFilterChain = new ArrayList<OrderDecorator>();
 
         unorderedFilterChain.addAll(httpBldr.getFilters());
         unorderedFilterChain.addAll(authBldr.getFilters());
-
-        authenticationProviders.addAll(authBldr.getProviders());
-
         unorderedFilterChain.addAll(buildCustomFilterList(element, pc));
 
         Collections.sort(unorderedFilterChain, new OrderComparator());
@@ -111,11 +105,10 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         }
 
         ManagedMap<BeanDefinition, List<BeanMetadataElement>> filterChainMap = httpBldr.getFilterChainMap();
-        BeanDefinition universalMatch = new RootBeanDefinition(String.class);
-        universalMatch.getConstructorArgumentValues().addGenericArgumentValue(matcher.getUniversalMatchPattern());
+        BeanDefinition universalMatch = new RootBeanDefinition(AnyRequestMatcher.class);
         filterChainMap.put(universalMatch, filterChain);
 
-        registerFilterChainProxy(pc, filterChainMap, matcher, source);
+        registerFilterChainProxy(pc, filterChainMap, source);
 
         pc.popAndRegisterContainingComponent();
         return null;
@@ -222,55 +215,18 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         return customFilters;
     }
 
-    private void registerFilterChainProxy(ParserContext pc, Map<BeanDefinition, List<BeanMetadataElement>> filterChainMap, UrlMatcher matcher, Object source) {
+    private void registerFilterChainProxy(ParserContext pc, Map<BeanDefinition, List<BeanMetadataElement>> filterChainMap, Object source) {
         if (pc.getRegistry().containsBeanDefinition(BeanIds.FILTER_CHAIN_PROXY)) {
             pc.getReaderContext().error("Duplicate <http> element detected", source);
         }
 
         BeanDefinitionBuilder fcpBldr = BeanDefinitionBuilder.rootBeanDefinition(FilterChainProxy.class);
         fcpBldr.getRawBeanDefinition().setSource(source);
-        fcpBldr.addPropertyValue("matcher", matcher);
-        fcpBldr.addPropertyValue("stripQueryStringFromUrls", Boolean.valueOf(matcher instanceof AntUrlPathMatcher));
+//        fcpBldr.addPropertyValue("stripQueryStringFromUrls", Boolean.valueOf(matcher instanceof AntUrlPathMatcher));
         fcpBldr.addPropertyValue("filterChainMap", filterChainMap);
         BeanDefinition fcpBean = fcpBldr.getBeanDefinition();
         pc.registerBeanComponent(new BeanComponentDefinition(fcpBean, BeanIds.FILTER_CHAIN_PROXY));
         pc.getRegistry().registerAlias(BeanIds.FILTER_CHAIN_PROXY, BeanIds.SPRING_SECURITY_FILTER_CHAIN);
-    }
-
-    static UrlMatcher createUrlMatcher(Element element) {
-        String patternType = element.getAttribute(ATT_PATH_TYPE);
-        if (!StringUtils.hasText(patternType)) {
-            patternType = DEF_PATH_TYPE_ANT;
-        }
-
-        boolean useRegex = patternType.equals(OPT_PATH_TYPE_REGEX);
-
-        UrlMatcher matcher = new AntUrlPathMatcher();
-
-        if (useRegex) {
-            matcher = new RegexUrlPathMatcher();
-        }
-
-        // Deal with lowercase conversion requests
-        String lowercaseComparisons = element.getAttribute(ATT_LOWERCASE_COMPARISONS);
-        if (!StringUtils.hasText(lowercaseComparisons)) {
-            lowercaseComparisons = null;
-        }
-
-        // Only change from the defaults if the attribute has been set
-        if ("true".equals(lowercaseComparisons)) {
-            if (useRegex) {
-                ((RegexUrlPathMatcher)matcher).setRequiresLowerCaseUrl(true);
-            }
-            // Default for ant is already to force lower case
-        } else if ("false".equals(lowercaseComparisons)) {
-            if (!useRegex) {
-                ((AntUrlPathMatcher)matcher).setRequiresLowerCaseUrl(false);
-            }
-            // Default for regex is no change
-        }
-
-        return matcher;
     }
 
 }

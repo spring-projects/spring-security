@@ -2,7 +2,6 @@ package org.springframework.security.config.http;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.Filter;
 
@@ -11,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
@@ -22,18 +22,17 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
+import org.springframework.security.web.util.AnyRequestMatcher;
 
 public class DefaultFilterChainValidator implements FilterChainProxy.FilterChainValidator {
     private Log logger = LogFactory.getLog(getClass());
 
     public void validate(FilterChainProxy fcp) {
-        Map<String, List<Filter>> filterChainMap = fcp.getFilterChainMap();
-        for(String pattern : fcp.getFilterChainMap().keySet()) {
-            List<Filter> filters = filterChainMap.get(pattern);
+        for(List<Filter> filters : fcp.getFilterChainMap().values()) {
             checkFilterStack(filters);
         }
 
-        checkLoginPageIsntProtected(fcp, filterChainMap.get(fcp.getMatcher().getUniversalMatchPattern()));
+        checkLoginPageIsntProtected(fcp);
     }
 
     private Object getFilter(Class<?> type, List<Filter> filters) {
@@ -78,12 +77,14 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
     }
 
     /* Checks for the common error of having a login page URL protected by the security interceptor */
-    private void checkLoginPageIsntProtected(FilterChainProxy fcp, List<Filter> defaultFilters) {
+    private void checkLoginPageIsntProtected(FilterChainProxy fcp) {
+        List<Filter> defaultFilters = fcp.getFilterChainMap().get(new AnyRequestMatcher());
         ExceptionTranslationFilter etf = (ExceptionTranslationFilter)getFilter(ExceptionTranslationFilter.class, defaultFilters);
 
         if (etf.getAuthenticationEntryPoint() instanceof LoginUrlAuthenticationEntryPoint) {
             String loginPage =
                 ((LoginUrlAuthenticationEntryPoint)etf.getAuthenticationEntryPoint()).getLoginFormUrl();
+            FilterInvocation loginRequest = new FilterInvocation(loginPage, "POST");
             List<Filter> filters = fcp.getFilters(loginPage);
             logger.info("Checking whether login URL '" + loginPage + "' is accessible with your configuration");
 
@@ -100,7 +101,8 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
             FilterSecurityInterceptor fsi = (FilterSecurityInterceptor) getFilter(FilterSecurityInterceptor.class, filters);
             DefaultFilterInvocationSecurityMetadataSource fids =
                     (DefaultFilterInvocationSecurityMetadataSource) fsi.getSecurityMetadataSource();
-            Collection<ConfigAttribute> attributes = fids.lookupAttributes(loginPage, "POST");
+
+            Collection<ConfigAttribute> attributes = fids.getAttributes(loginRequest);
 
             if (attributes == null) {
                 logger.debug("No access attributes defined for login page URL");
@@ -122,7 +124,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
             AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("key", anonPF.getUserAttribute().getPassword(),
                             anonPF.getUserAttribute().getAuthorities());
             try {
-                fsi.getAccessDecisionManager().decide(token, new Object(), fids.lookupAttributes(loginPage, "POST"));
+                fsi.getAccessDecisionManager().decide(token, new Object(), attributes);
             } catch (Exception e) {
                 logger.warn("Anonymous access to the login page doesn't appear to be enabled. This is almost certainly " +
                         "an error. Please check your configuration allows unauthenticated access to the configured " +

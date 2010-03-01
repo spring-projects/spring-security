@@ -11,6 +11,9 @@ hash =
 base64 =
     ## Whether a string should be base64 encoded
     attribute base64 {"true" | "false"}
+request-matcher =
+    ## Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'iciRegex' for case-insensitive regular expressions.
+    attribute request-matcher {"ant" | "regex" | "ciRegex"}
 path-type =
     ## Defines the type of pattern used to specify URL paths (either JDK 1.4-compatible regular expressions, or Apache Ant expressions). Defaults to "ant" if unspecified.
     attribute path-type {"ant" | "regex"}
@@ -264,11 +267,10 @@ http.attlist &=
     ## A reference to a SecurityContextRepository bean. This can be used to customize how the SecurityContext is stored between requests.
     attribute security-context-repository-ref {xsd:token}?
 http.attlist &=
-    ## The path format used to define the paths in child elements.
-    path-type?
+    request-matcher?
 http.attlist &=
-    ## Whether test URLs should be converted to lower case prior to comparing with defined path patterns. If unspecified, defaults to "true".
-    attribute lowercase-comparisons {boolean}?
+    ## Deprecated. Use request-matcher instead.
+    path-type?
 http.attlist &=
     ## Provides versions of HttpServletRequest security methods such as isUserInRole() and getPrincipal() which are implemented by accessing the Spring SecurityContext. Defaults to "true".
     attribute servlet-api-provision {boolean}?
@@ -392,7 +394,10 @@ filter-chain-map =
     ## Used to explicitly configure a FilterChainProxy instance with a FilterChainMap
     element filter-chain-map {filter-chain-map.attlist, filter-chain+}
 filter-chain-map.attlist &=
-    path-type
+    ## Deprecated. Use request-matcher instead.
+    path-type?
+filter-chain-map.attlist &=
+    request-matcher?
 
 filter-chain =
     ## Used within filter-chain-map to define a specific URL pattern and the list of filters which apply to the URLs matching that pattern. When multiple filter-chain elements are used within a filter-chain-map element, the most specific patterns must be placed at the top of the list, with  most general ones at the bottom.
@@ -413,8 +418,10 @@ fsmds.attlist &=
     ## as for http element
     attribute lowercase-comparisons {boolean}?
 fsmds.attlist &=
-    ## as for http element
+    ## Deprecate. Use request-matcher instead.
     path-type?
+fsmds.attlist &=
+    request-matcher?
 
 filter-invocation-definition-source =
     ## Deprecated synonym for filter-security-metadata-source

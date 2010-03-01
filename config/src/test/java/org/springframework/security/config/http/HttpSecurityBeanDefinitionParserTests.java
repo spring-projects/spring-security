@@ -125,9 +125,6 @@ public class HttpSecurityBeanDefinitionParserTests {
         List<Filter> filterList = getFilters("/anyurl");
 
         checkAutoConfigFilters(filterList);
-
-        assertEquals(true, FieldUtils.getFieldValue(appContext.getBean(BeanIds.FILTER_CHAIN_PROXY), "stripQueryStringFromUrls"));
-        assertEquals(true, FieldUtils.getFieldValue(filterList.get(AUTO_CONFIG_FILTERS-1), "securityMetadataSource.stripQueryStringFromUrls"));
     }
 
     @Test(expected=BeanDefinitionParsingException.class)
@@ -136,8 +133,6 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     private void checkAutoConfigFilters(List<Filter> filterList) throws Exception {
-//        assertEquals("Expected " + AUTO_CONFIG_FILTERS + " filters in chain", AUTO_CONFIG_FILTERS, filterList.size());
-
         Iterator<Filter> filters = filterList.iterator();
 
         assertTrue(filters.next() instanceof SecurityContextPersistenceFilter);
@@ -184,37 +179,34 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertTrue(filters.size() == 0);
     }
 
-
     @Test
     public void regexPathsWorkCorrectly() throws Exception {
         setContext(
-                "    <http auto-config='true' path-type='regex'>" +
+                "    <http auto-config='true' request-matcher='regex'>" +
                 "        <intercept-url pattern='\\A\\/[a-z]+' filters='none' />" +
                 "    </http>" + AUTH_PROVIDER_XML);
         assertEquals(0, getFilters("/imlowercase").size());
-        // This will be matched by the default pattern ".*"
-        List<Filter> allFilters = getFilters("/ImCaughtByTheUniversalMatchPattern");
+        List<Filter> allFilters = getFilters("/ImCaughtByTheAnyRequestMatcher");
         checkAutoConfigFilters(allFilters);
-        assertEquals(false, FieldUtils.getFieldValue(appContext.getBean(BeanIds.FILTER_CHAIN_PROXY), "stripQueryStringFromUrls"));
-        assertEquals(false, FieldUtils.getFieldValue(allFilters.get(AUTO_CONFIG_FILTERS-1), "securityMetadataSource.stripQueryStringFromUrls"));
     }
 
     @Test
-    public void lowerCaseComparisonAttributeIsRespectedByFilterChainProxy() throws Exception {
+    public void ciRegexPathsWorkCorrectly() throws Exception {
         setContext(
-                "    <http auto-config='true' path-type='ant' lowercase-comparisons='false'>" +
-                "        <intercept-url pattern='/Secure*' filters='none' />" +
+                "    <http auto-config='true' request-matcher='ciRegex'>" +
+                "        <intercept-url pattern='\\A\\/[a-z]+' filters='none' />" +
                 "    </http>" + AUTH_PROVIDER_XML);
-        assertEquals(0, getFilters("/Secure").size());
-        // These will be matched by the default pattern "/**"
-        checkAutoConfigFilters(getFilters("/secure"));
-        checkAutoConfigFilters(getFilters("/ImCaughtByTheUniversalMatchPattern"));
+        assertEquals(0, getFilters("/imMixedCase").size());
+        // This will be matched by the default pattern ".*"
+        List<Filter> allFilters = getFilters("/Im_Caught_By_The_AnyRequestMatcher");
+        assertTrue(allFilters.size() > 0);
+        checkAutoConfigFilters(allFilters);
     }
 
     @Test
     public void formLoginWithNoLoginPageAddsDefaultLoginPageFilter() throws Exception {
         setContext(
-                "<http auto-config='true' path-type='ant' lowercase-comparisons='false'>" +
+                "<http auto-config='true' request-matcher='ant'>" +
                 "   <form-login />" +
                 "</http>" + AUTH_PROVIDER_XML);
         // These will be matched by the default pattern "/**"
@@ -315,26 +307,6 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertSame(appContext.getBean("logoutHandler"), handler);
     }
 
-    @Test
-    public void lowerCaseComparisonIsRespectedBySecurityFilterInvocationDefinitionSource() throws Exception {
-        setContext(
-                "    <http auto-config='true' path-type='ant' lowercase-comparisons='false'>" +
-                "        <intercept-url pattern='/Secure*' access='ROLE_A, ROLE_B' />" +
-                "        <intercept-url pattern='/**' access='ROLE_C' />" +
-                "    </http>" + AUTH_PROVIDER_XML);
-
-        FilterSecurityInterceptor fis = getFilter(FilterSecurityInterceptor.class);
-
-        FilterInvocationSecurityMetadataSource fids = fis.getSecurityMetadataSource();
-        Collection<ConfigAttribute> attrDef = fids.getAttributes(createFilterinvocation("/Secure", null));
-        assertEquals(2, attrDef.size());
-        assertTrue(attrDef.contains(new SecurityConfig("ROLE_A")));
-        assertTrue(attrDef.contains(new SecurityConfig("ROLE_B")));
-        attrDef = fids.getAttributes(createFilterinvocation("/secure", null));
-        assertEquals(1, attrDef.size());
-        assertTrue(attrDef.contains(new SecurityConfig("ROLE_C")));
-    }
-
     // SEC-1201
     @Test
     public void interceptUrlsAndFormLoginSupportPropertyPlaceholders() throws Exception {
@@ -395,9 +367,9 @@ public class HttpSecurityBeanDefinitionParserTests {
     public void httpMethodMatchIsSupported() throws Exception {
         setContext(
                 "    <http auto-config='true'>" +
-                "        <intercept-url pattern='/**' access='ROLE_C' />" +
                 "        <intercept-url pattern='/secure*' method='DELETE' access='ROLE_SUPERVISOR' />" +
                 "        <intercept-url pattern='/secure*' method='POST' access='ROLE_A,ROLE_B' />" +
+                "        <intercept-url pattern='/**' access='ROLE_C' />" +
                 "    </http>" + AUTH_PROVIDER_XML);
 
         FilterSecurityInterceptor fis = getFilter(FilterSecurityInterceptor.class);
@@ -692,7 +664,6 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "</http>" +
                 "<b:bean id='userService' class='org.springframework.security.core.userdetails.MockUserDetailsService'/> " +
                 AUTH_PROVIDER_XML);
-//        AbstractRememberMeServices rememberMeServices = (AbstractRememberMeServices) appContext.getBean(BeanIds.REMEMBER_ME_SERVICES);
     }
 
     @Test
@@ -746,7 +717,6 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "</http>" +
                 "<b:bean id='ss' class='org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy'/>"
                 + AUTH_PROVIDER_XML);
-        //session-authentication-strategy-ref
     }
 
     @Test
@@ -768,12 +738,10 @@ public class HttpSecurityBeanDefinitionParserTests {
                 getFilter(ConcurrentSessionFilter.class), "sessionRegistry");
         Object sessionRegistryFromFormLoginFilter = FieldUtils.getFieldValue(
                 getFilter(UsernamePasswordAuthenticationFilter.class),"sessionStrategy.sessionRegistry");
-//        Object sessionRegistryFromController = FieldUtils.getFieldValue(getConcurrentSessionController(),"sessionRegistry");
         Object sessionRegistryFromMgmtFilter = FieldUtils.getFieldValue(
                 getFilter(SessionManagementFilter.class),"sessionStrategy.sessionRegistry");
 
         assertSame(sessionRegistry, sessionRegistryFromConcurrencyFilter);
-//        assertSame(sessionRegistry, sessionRegistryFromController);
         assertSame(sessionRegistry, sessionRegistryFromMgmtFilter);
         // SEC-1143
         assertSame(sessionRegistry, sessionRegistryFromFormLoginFilter);
@@ -791,8 +759,6 @@ public class HttpSecurityBeanDefinitionParserTests {
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("bob", "pass");
         SecurityContextHolder.getContext().setAuthentication(auth);
         // Register 2 sessions and then check a third
-//        req.setSession(new MockHttpSession());
-//        auth.setDetails(new WebAuthenticationDetails(req));
         MockHttpServletResponse mockResponse = new MockHttpServletResponse();
         SaveContextOnUpdateOrErrorResponseWrapper response = new SaveContextOnUpdateOrErrorResponseWrapper(mockResponse, false) {
             protected void saveContext(SecurityContext context) {
@@ -1240,7 +1206,6 @@ public class HttpSecurityBeanDefinitionParserTests {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setMethod(method);
         request.setRequestURI(null);
-
         request.setServletPath(path);
 
         return new FilterInvocation(request, new MockHttpServletResponse(), new MockFilterChain());

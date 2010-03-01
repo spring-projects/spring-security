@@ -29,9 +29,8 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
-import org.springframework.security.web.access.intercept.RequestKey;
-import org.springframework.security.web.util.AntUrlPathMatcher;
+import org.springframework.security.web.util.AntPathRequestMatcher;
+import org.springframework.security.web.util.RequestMatcher;
 
 /**
  * Tests parts of {@link DefaultFilterInvocationSecurityMetadataSource} not tested by {@link
@@ -39,41 +38,25 @@ import org.springframework.security.web.util.AntUrlPathMatcher;
  *
  * @author Ben Alex
  */
-@SuppressWarnings("unchecked")
 public class DefaultFilterInvocationSecurityMetadataSourceTests {
     private DefaultFilterInvocationSecurityMetadataSource fids;
     private Collection<ConfigAttribute> def = SecurityConfig.createList("ROLE_ONE");
 
     //~ Methods ========================================================================================================
-    private void createFids(String url, String method) {
-        LinkedHashMap requestMap = new LinkedHashMap();
-        requestMap.put(new RequestKey(url, method), def);
-        fids = new DefaultFilterInvocationSecurityMetadataSource(new AntUrlPathMatcher(), requestMap);
-        fids.setStripQueryStringFromUrls(true);
-    }
-
-    private void createFids(String url, boolean convertToLowerCase) {
-        LinkedHashMap requestMap = new LinkedHashMap();
-        requestMap.put(new RequestKey(url), def);
-        fids = new DefaultFilterInvocationSecurityMetadataSource(new AntUrlPathMatcher(convertToLowerCase), requestMap);
-        fids.setStripQueryStringFromUrls(true);
-    }
-
-    @Test
-    public void convertUrlToLowercaseIsTrueByDefault() {
-        LinkedHashMap requestMap = new LinkedHashMap();
-        requestMap.put(new RequestKey("/something"), def);
-        fids = new DefaultFilterInvocationSecurityMetadataSource(new AntUrlPathMatcher(), requestMap);
-        assertTrue(fids.isConvertUrlToLowercaseBeforeComparison());
+    private void createFids(String pattern, String method) {
+        LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap =
+            new LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>>();
+        requestMap.put(new AntPathRequestMatcher(pattern, method), def);
+        fids = new DefaultFilterInvocationSecurityMetadataSource(requestMap);
     }
 
     @Test
     public void lookupNotRequiringExactMatchSucceedsIfNotMatching() {
         createFids("/secure/super/**", null);
 
-        FilterInvocation fi = createFilterInvocation("/SeCuRE/super/somefile.html", null);
+        FilterInvocation fi = createFilterInvocation("/SeCuRE/super/somefile.html", null, null, null);
 
-        assertEquals(def, fids.lookupAttributes(fi.getRequestUrl(), null));
+        assertEquals(def, fids.getAttributes(fi));
     }
 
     /**
@@ -83,29 +66,19 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
     public void lookupNotRequiringExactMatchSucceedsIfSecureUrlPathContainsUpperCase() {
         createFids("/SeCuRE/super/**", null);
 
-        FilterInvocation fi = createFilterInvocation("/secure/super/somefile.html", null);
+        FilterInvocation fi = createFilterInvocation("/secure", "/super/somefile.html", null, null);
 
-        Collection<ConfigAttribute> response = fids.lookupAttributes(fi.getRequestUrl(), null);
+        Collection<ConfigAttribute> response = fids.getAttributes(fi);
         assertEquals(def, response);
     }
 
     @Test
-    public void lookupRequiringExactMatchFailsIfNotMatching() {
-        createFids("/secure/super/**", false);
-
-        FilterInvocation fi = createFilterInvocation("/SeCuRE/super/somefile.html", null);
-
-        Collection<ConfigAttribute> response = fids.lookupAttributes(fi.getRequestUrl(), null);
-        assertEquals(null, response);
-    }
-
-    @Test
     public void lookupRequiringExactMatchIsSuccessful() {
-        createFids("/SeCurE/super/**", false);
+        createFids("/SeCurE/super/**", null);
 
-        FilterInvocation fi = createFilterInvocation("/SeCurE/super/somefile.html", null);
+        FilterInvocation fi = createFilterInvocation("/SeCurE/super/somefile.html", null, null, null);
 
-        Collection<ConfigAttribute> response = fids.lookupAttributes(fi.getRequestUrl(), null);
+        Collection<ConfigAttribute> response = fids.getAttributes(fi);
         assertEquals(def, response);
     }
 
@@ -113,9 +86,9 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
     public void lookupRequiringExactMatchWithAdditionalSlashesIsSuccessful() {
         createFids("/someAdminPage.html**", null);
 
-        FilterInvocation fi = createFilterInvocation("/someAdminPage.html?a=/test", null);
+        FilterInvocation fi = createFilterInvocation("/someAdminPage.html", null, "a=/test", null);
 
-        Collection<ConfigAttribute> response = fids.lookupAttributes(fi.getRequestUrl(), null);
+        Collection<ConfigAttribute> response = fids.getAttributes(fi);
         assertEquals(def, response); // see SEC-161 (it should truncate after ? sign)
     }
 
@@ -128,7 +101,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
     public void httpMethodLookupSucceeds() {
         createFids("/somepage**", "GET");
 
-        FilterInvocation fi = createFilterInvocation("/somepage", "GET");
+        FilterInvocation fi = createFilterInvocation("/somepage", null, null, "GET");
         Collection<ConfigAttribute> attrs = fids.getAttributes(fi);
         assertEquals(def, attrs);
     }
@@ -137,7 +110,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
     public void generalMatchIsUsedIfNoMethodSpecificMatchExists() {
         createFids("/somepage**", null);
 
-        FilterInvocation fi = createFilterInvocation("/somepage", "GET");
+        FilterInvocation fi = createFilterInvocation("/somepage", null, null, "GET");
         Collection<ConfigAttribute> attrs = fids.getAttributes(fi);
         assertEquals(def, attrs);
     }
@@ -146,50 +119,23 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
     public void requestWithDifferentHttpMethodDoesntMatch() {
         createFids("/somepage**", "GET");
 
-        FilterInvocation fi = createFilterInvocation("/somepage", null);
+        FilterInvocation fi = createFilterInvocation("/somepage", null, null, "POST");
         Collection<ConfigAttribute> attrs = fids.getAttributes(fi);
         assertNull(attrs);
-    }
-
-    @Test
-    public void httpMethodSpecificUrlTakesPrecedence() {
-        LinkedHashMap<RequestKey, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<RequestKey, Collection<ConfigAttribute>>();
-        // Even though this is added before the Http method-specific def, the latter should match
-        requestMap.put(new RequestKey("/**"), def);
-        Collection<ConfigAttribute> postOnlyDef = SecurityConfig.createList("ROLE_TWO");
-        requestMap.put(new RequestKey("/somepage**", "POST"), postOnlyDef);
-        fids = new DefaultFilterInvocationSecurityMetadataSource(new AntUrlPathMatcher(), requestMap);
-
-        Collection<ConfigAttribute> attrs = fids.getAttributes(createFilterInvocation("/somepage", "POST"));
-        assertEquals(postOnlyDef, attrs);
     }
 
     // SEC-1236
     @Test
     public void mixingPatternsWithAndWithoutHttpMethodsIsSupported() throws Exception {
-        LinkedHashMap requestMap = new LinkedHashMap();
+        LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap =
+            new LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>>();
         Collection<ConfigAttribute> userAttrs = SecurityConfig.createList("A");
-        requestMap.put(new RequestKey("/user/**", null), userAttrs);
-        requestMap.put(new RequestKey("/teller/**", "GET"), SecurityConfig.createList("B"));
-        fids = new DefaultFilterInvocationSecurityMetadataSource(new AntUrlPathMatcher(), requestMap);
-        fids.setStripQueryStringFromUrls(true);
 
-        FilterInvocation fi = createFilterInvocation("/user", "GET");
-        Collection<ConfigAttribute> attrs = fids.getAttributes(fi);
-        assertEquals(userAttrs, attrs);
-    }
+        requestMap.put(new AntPathRequestMatcher("/user/**", null), userAttrs);
+        requestMap.put(new AntPathRequestMatcher("/teller/**", "GET"),  SecurityConfig.createList("B"));
+        fids = new DefaultFilterInvocationSecurityMetadataSource(requestMap);
 
-    @Test
-    public void methodSpecificMatchTakesPrecdenceRegardlessOfOrdering() throws Exception {
-        // Unfortunate but unavoidable
-        LinkedHashMap requestMap = new LinkedHashMap();
-        Collection<ConfigAttribute> userAttrs = SecurityConfig.createList("A");
-        requestMap.put(new RequestKey("/secure/specific.html", null), SecurityConfig.createList("B"));
-        requestMap.put(new RequestKey("/secure/*.html", "GET"), userAttrs);
-        fids = new DefaultFilterInvocationSecurityMetadataSource(new AntUrlPathMatcher(), requestMap);
-        fids.setStripQueryStringFromUrls(true);
-
-        FilterInvocation fi = createFilterInvocation("/secure/specific.html", "GET");
+        FilterInvocation fi = createFilterInvocation("/user", null, null, "GET");
         Collection<ConfigAttribute> attrs = fids.getAttributes(fi);
         assertEquals(userAttrs, attrs);
     }
@@ -201,23 +147,24 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
     public void extraQuestionMarkStillMatches() {
         createFids("/someAdminPage.html*", null);
 
-        FilterInvocation fi = createFilterInvocation("/someAdminPage.html?x=2/aa?y=3", null);
+        FilterInvocation fi = createFilterInvocation("/someAdminPage.html", null, null, null);
 
-        Collection<ConfigAttribute> response = fids.lookupAttributes(fi.getRequestUrl(), null);
+        Collection<ConfigAttribute> response = fids.getAttributes(fi);
         assertEquals(def, response);
 
-        fi = createFilterInvocation("/someAdminPage.html??", null);
+        fi = createFilterInvocation("/someAdminPage.html", null, "?", null);
 
-        response = fids.lookupAttributes(fi.getRequestUrl(), null);
+        response = fids.getAttributes(fi);
         assertEquals(def, response);
     }
 
-    private FilterInvocation createFilterInvocation(String path, String method) {
+    private FilterInvocation createFilterInvocation(String servletPath, String pathInfo, String queryString, String method) {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI(null);
         request.setMethod(method);
-
-        request.setServletPath(path);
+        request.setServletPath(servletPath);
+        request.setPathInfo(pathInfo);
+        request.setQueryString(queryString);
 
         return new FilterInvocation(request, new MockHttpServletResponse(), mock(FilterChain.class));
     }
