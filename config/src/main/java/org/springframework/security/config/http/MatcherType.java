@@ -23,7 +23,7 @@ public enum MatcherType {
     regex (RegexRequestMatcher.class),
     ciRegex (RegexRequestMatcher.class);
 
-    private static final Log logger = LogFactory.getLog(HttpSecurityBeanDefinitionParser.class);
+    private static final Log logger = LogFactory.getLog(MatcherType.class);
 
     private static final String ATT_MATCHER_TYPE = "request-matcher";
     private static final String ATT_PATH_TYPE = "path-type";
