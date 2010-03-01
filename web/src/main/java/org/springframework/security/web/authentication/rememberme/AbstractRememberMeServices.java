@@ -78,7 +78,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 
         logger.debug("Remember-me cookie detected");
 
-        if (rememberMeCookie.isEmpty()) {
+        if (rememberMeCookie.length() == 0) {
             logger.debug("Cookie was empty");
             cancelCookie(request, response);
             return null;
