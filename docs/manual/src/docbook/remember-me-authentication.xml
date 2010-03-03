@@ -15,11 +15,10 @@
             One uses hashing to preserve the security of cookie-based tokens and the other uses a
             database or other persistent storage mechanism to store the generated tokens. </para>
         <para> Note that both implemementations require a
-                <interfacename>UserDetailsService</interfacename>. If you are using an
-            authentication provider which doesn't use a
-                <interfacename>UserDetailsService</interfacename> (for example, the LDAP provider)
-            then it won't work unless you also have a
-                <interfacename>UserDetailsService</interfacename> bean in your application context.
+            <interfacename>UserDetailsService</interfacename>. If you are using an authentication
+            provider which doesn't use a <interfacename>UserDetailsService</interfacename> (for
+            example, the LDAP provider) then it won't work unless you also have a
+            <interfacename>UserDetailsService</interfacename> bean in your application context.
         </para>
     </section>
     <section xml:id="remember-me-hash-token">
@@ -46,7 +45,7 @@
             more significant security is needed you should use the approach described in the next
             section. Alternatively remember-me services should simply not be used at all.</para>
         <para>If you are familiar with the topics discussed in the chapter on <link
-                xlink:href="#ns-config">namespace configuration</link>, you can enable remember-me
+            xlink:href="#ns-config">namespace configuration</link>, you can enable remember-me
             authentication just by adding the <literal>&lt;remember-me&gt;</literal> element: <programlisting><![CDATA[
   <http>
     ...
@@ -56,26 +55,27 @@
                 </programlisting> The <interfacename>UserDetailsService</interfacename> will
             normally be selected automatically. If you have more than one in your application
             context, you need to specify which one should be used with the
-                <literal>user-service-ref</literal> attribute, where the value is the name of your
-                <interfacename>UserDetailsService</interfacename> bean. </para>
+            <literal>user-service-ref</literal> attribute, where the value is the name of your
+            <interfacename>UserDetailsService</interfacename> bean. </para>
     </section>
     <section xml:id="remember-me-persistent-token">
         <title>Persistent Token Approach</title>
         <para>This approach is based on the article <link
-                xlink:href="http://jaspan.com/improved_persistent_login_cookie_best_practice"
-                >http://jaspan.com/improved_persistent_login_cookie_best_practice</link> with some
-            minor modifications <footnote><para>Essentially, the username is not included in the
-                    cookie, to prevent exposing a valid login name unecessarily. There is a
-                    discussion on this in the comments section of this article.</para></footnote>.
-            To use the this approach with namespace configuration, you would supply a datasource
-            reference: <programlisting><![CDATA[
+            xlink:href="http://jaspan.com/improved_persistent_login_cookie_best_practice"
+            >http://jaspan.com/improved_persistent_login_cookie_best_practice</link> with some minor
+            modifications <footnote>
+            <para>Essentially, the username is not included in the cookie, to prevent exposing a
+                valid login name unecessarily. There is a discussion on this in the comments section
+                of this article.</para>
+            </footnote>. To use the this approach with namespace configuration, you would supply a
+            datasource reference: <programlisting><![CDATA[
   <http>
     ...
     <remember-me data-source-ref="someDataSource"/>
   </http>
   ]]>
             </programlisting> The database should contain a
-                <literal>persistent_logins</literal> table, created using the following SQL (or
+            <literal>persistent_logins</literal> table, created using the following SQL (or
             equivalent):
             <programlisting>
     create table persistent_logins (username varchar(64) not null,
@@ -91,10 +91,10 @@
         </info>
         <para>Remember-me authentication is not used with basic authentication, given it is often
             not used with <literal>HttpSession</literal>s. Remember-me is used with
-                <literal>UsernamePasswordAuthenticationFilter</literal>, and is implemented via
-            hooks in the <literal>AbstractAuthenticationProcessingFilter</literal> superclass. The
-            hooks will invoke a concrete <interfacename>RememberMeServices</interfacename> at the
-            appropriate times. The interface looks like this:
+            <literal>UsernamePasswordAuthenticationFilter</literal>, and is implemented via hooks in
+            the <literal>AbstractAuthenticationProcessingFilter</literal> superclass. The hooks will
+            invoke a concrete <interfacename>RememberMeServices</interfacename> at the appropriate
+            times. The interface looks like this:
             <programlisting language="java">
   Authentication autoLogin(HttpServletRequest request, HttpServletResponse response);
   void loginFail(HttpServletRequest request, HttpServletResponse response);
@@ -105,9 +105,9 @@
             note at this stage that <literal>AbstractAuthenticationProcessingFilter</literal> only
             calls the <literal>loginFail()</literal> and <literal>loginSuccess()</literal> methods.
             The <literal>autoLogin()</literal> method is called by
-                <classname>RememberMeAuthenticationFilter</classname> whenever the
-                <classname>SecurityContextHolder</classname> does not contain an
-                <interfacename>Authentication</interfacename>. This interface therefore provides the
+            <classname>RememberMeAuthenticationFilter</classname> whenever the
+            <classname>SecurityContextHolder</classname> does not contain an
+            <interfacename>Authentication</interfacename>. This interface therefore provides the
             underlying remember-me implementation with sufficient notification of
             authentication-related events, and delegates to the implementation whenever a candidate
             web request might contain a cookie and wish to be remembered. This design allows any
@@ -116,18 +116,18 @@
         <section>
             <title>TokenBasedRememberMeServices</title>
             <para> This implementation supports the simpler approach described in <xref
-                    linkend="remember-me-hash-token"/>.
-                    <classname>TokenBasedRememberMeServices</classname> generates a
-                    <literal>RememberMeAuthenticationToken</literal>, which is processed by
-                    <literal>RememberMeAuthenticationProvider</literal>. A <literal>key</literal> is
+                linkend="remember-me-hash-token"/>.
+                <classname>TokenBasedRememberMeServices</classname> generates a
+                <literal>RememberMeAuthenticationToken</literal>, which is processed by
+                <literal>RememberMeAuthenticationProvider</literal>. A <literal>key</literal> is
                 shared between this authentication provider and the
-                    <literal>TokenBasedRememberMeServices</literal>. In addition,
-                    <literal>TokenBasedRememberMeServices</literal> requires A UserDetailsService
-                from which it can retrieve the username and password for signature comparison
-                purposes, and generate the <literal>RememberMeAuthenticationToken</literal> to
-                contain the correct <interfacename>GrantedAuthority</interfacename>[]s. Some sort of
-                logout command should be provided by the application that invalidates the cookie if
-                the user requests this. <classname>TokenBasedRememberMeServices</classname> also
+                <literal>TokenBasedRememberMeServices</literal>. In addition,
+                <literal>TokenBasedRememberMeServices</literal> requires A UserDetailsService from
+                which it can retrieve the username and password for signature comparison purposes,
+                and generate the <literal>RememberMeAuthenticationToken</literal> to contain the
+                correct <interfacename>GrantedAuthority</interfacename>[]s. Some sort of logout
+                command should be provided by the application that invalidates the cookie if the
+                user requests this. <classname>TokenBasedRememberMeServices</classname> also
                 implements Spring Security's <interfacename>LogoutHandler</interfacename> interface
                 so can be used with <classname>LogoutFilter</classname> to have the cookie cleared
                 automatically. </para>
@@ -151,26 +151,30 @@
 </bean>
 ]]>
             </programlisting>Don't forget to add your
-                    <interfacename>RememberMeServices</interfacename> implementation to your
-                    <literal>UsernamePasswordAuthenticationFilter.setRememberMeServices()</literal>
+                <interfacename>RememberMeServices</interfacename> implementation to your
+                <literal>UsernamePasswordAuthenticationFilter.setRememberMeServices()</literal>
                 property, include the <literal>RememberMeAuthenticationProvider</literal> in your
-                    <literal>AuthenticationManager.setProviders()</literal> list, and add
-                    <classname>RememberMeAuthenticationFilter</classname> into your
-                    <classname>FilterChainProxy</classname> (typically immediately after your
-                    <literal>UsernamePasswordAuthenticationFilter</literal>).</para>
+                <literal>AuthenticationManager.setProviders()</literal> list, and add
+                <classname>RememberMeAuthenticationFilter</classname> into your
+                <classname>FilterChainProxy</classname> (typically immediately after your
+                <literal>UsernamePasswordAuthenticationFilter</literal>).</para>
         </section>
         <section>
             <title>PersistentTokenBasedRememberMeServices</title>
             <para> This class can be used in the same way as
-                    <classname>TokenBasedRememberMeServices</classname>, but it additionally needs
-                to be configured with a <interfacename>PersistentTokenRepository</interfacename> to
-                store the tokens. There are two standard implementations.
-                                <itemizedlist><listitem><para><classname>InMemoryTokenRepositoryImpl</classname>
-                            which is intended for testing
-                                only.</para></listitem><listitem><para><classname>JdbcTokenRepositoryImpl</classname>
-                            which stores the tokens in a database. </para></listitem></itemizedlist>
-                The database schema is described above in <xref
-                    linkend="remember-me-persistent-token"/>. </para>
+                <classname>TokenBasedRememberMeServices</classname>, but it additionally needs to be
+                configured with a <interfacename>PersistentTokenRepository</interfacename> to store
+                the tokens. There are two standard implementations. <itemizedlist>
+                <listitem>
+                    <para><classname>InMemoryTokenRepositoryImpl</classname> which is intended for
+                        testing only.</para>
+                </listitem>
+                <listitem>
+                    <para><classname>JdbcTokenRepositoryImpl</classname> which stores the tokens in
+                        a database. </para>
+                </listitem>
+                </itemizedlist> The database schema is described above in <xref
+                linkend="remember-me-persistent-token"/>. </para>
         </section>
     </section>
 </chapter>

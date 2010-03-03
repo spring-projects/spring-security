@@ -18,8 +18,8 @@
         <section xml:id="el-common-built-in">
             <title>Common Built-In Expressions</title>
             <para>The base class for expression root objects is
-                    <classname>SecurityExpressionRoot</classname>. This provides some common
-                expressions which are available in both web and method security.</para>
+                <classname>SecurityExpressionRoot</classname>. This provides some common expressions
+                which are available in both web and method security.</para>
             <table frame="none">
                 <title>Common built-in expressions</title>
                 <tgroup cols="2">
@@ -51,8 +51,8 @@
                         <row>
                             <entry><literal>authentication</literal></entry>
                             <entry>Allows direct access to the current
-                                    <interfacename>Authentication</interfacename> object obtained
-                                from the <interfacename>SecurityContext</interfacename></entry>
+                                <interfacename>Authentication</interfacename> object obtained from
+                                the <interfacename>SecurityContext</interfacename></entry>
                         </row>
                         <row>
                             <entry><literal>permitAll</literal></entry>
@@ -90,9 +90,9 @@
     <section xml:id="el-access-web">
         <title>Web Security Expressions</title>
         <para> To use expressions to secure individual URLs, you would first need to set the
-                <literal>use-expressions</literal> attribute in the <literal>&lt;http></literal>
-            element to <literal>true</literal>. Spring Security will then expect the
-                <literal>access</literal> attributes of the <literal>&lt;intercept-url></literal>
+            <literal>use-expressions</literal> attribute in the <literal>&lt;http></literal> element
+            to <literal>true</literal>. Spring Security will then expect the
+            <literal>access</literal> attributes of the <literal>&lt;intercept-url></literal>
             elements to contain Spring EL expressions. The expressions should evaluate to a boolean,
             defining whether access should be allowed or not. For example:<programlisting><![CDATA[
   <http use-expressions="true">
@@ -106,8 +106,8 @@
             already seen the built-in <literal>hasRole</literal> expression in the previous section.
             The expression <literal>hasIpAddress</literal> is an additional built-in expression
             which is specific to web security. It is defined by the
-                <classname>WebSecurityExpressionRoot</classname> class, an instance of which is used
-            as the expression root object when evaluation web-access expressions. This object also
+            <classname>WebSecurityExpressionRoot</classname> class, an instance of which is used as
+            the expression root object when evaluation web-access expressions. This object also
             directly exposed the <interfacename>HttpServletRequest</interfacename> object under the
             name <literal>request</literal> so you can invoke the request directly in an
             expression.</para>
@@ -126,16 +126,16 @@
             <para>There are four annotations which support expression attributes to allow pre and
                 post-invocation authorization checks and also to support filtering of submitted
                 collection arguments or return values. They are <literal>@PreAuthorize</literal>,
-                    <literal>@PreFilter</literal>, <literal>@PostAuthorize</literal> and
-                    <literal>@PostFilter</literal>. Their use is enabled through the
-                    <literal>global-method-security</literal> namespace
+                <literal>@PreFilter</literal>, <literal>@PostAuthorize</literal> and
+                <literal>@PostFilter</literal>. Their use is enabled through the
+                <literal>global-method-security</literal> namespace
                 element:<programlisting><![CDATA[<global-method-security pre-post-annotations="enabled"/>]]></programlisting></para>
             <section>
                 <title>Access Control using <literal>@PreAuthorize</literal> and
-                        <literal>@PostAuthorize</literal></title>
+                    <literal>@PostAuthorize</literal></title>
                 <para>The most obviously useful annotation is <literal>@PreAuthorize</literal> which
                     decides whether a method can actually be invoked or not. For example (from the
-                        <quote>Contacts</quote> sample
+                    <quote>Contacts</quote> sample
                     application)<programlisting>
  @PreAuthorize("hasRole('ROLE_USER')")
  public void create(Contact contact);</programlisting>which
@@ -150,30 +150,30 @@
                     whether the current user has the <quote>admin</quote>permission for the given
                     contact. The built-in <literal>hasPermission()</literal> expression is linked
                     into the Spring Security ACL module through the application context, as we'll
-                        <link xlink:href="#el-permission-evaluator">see below</link>. You can access
-                    any of the method arguments by name as expression variables, provided your code
-                    has debug information compiled in. Any Spring-EL functionality is available
-                    within the expression, so you can also access properties on the arguments. For
-                    example, if you wanted a particular method to only allow access to a user whose
-                    username matched that of the contact, you could write</para>
+                    <link xlink:href="#el-permission-evaluator">see below</link>. You can access any
+                    of the method arguments by name as expression variables, provided your code has
+                    debug information compiled in. Any Spring-EL functionality is available within
+                    the expression, so you can also access properties on the arguments. For example,
+                    if you wanted a particular method to only allow access to a user whose username
+                    matched that of the contact, you could write</para>
                 <programlisting>
  @PreAuthorize("#contact.name == principal.name)")
  public void doSomething(Contact contact);</programlisting>
                 <para>Here we are accessing another built–in expression, which is the
-                        <literal>principal</literal> of the current Spring Security
-                        <interfacename>Authentication</interfacename> object obtained from the
-                    security context. You can also access the
-                        <interfacename>Authentication</interfacename> object itself directly using
-                    the expression name <literal>authentication</literal>.</para>
+                    <literal>principal</literal> of the current Spring Security
+                    <interfacename>Authentication</interfacename> object obtained from the security
+                    context. You can also access the <interfacename>Authentication</interfacename>
+                    object itself directly using the expression name
+                    <literal>authentication</literal>.</para>
                 <para>Less commonly, you may wish to perform an access-control check after the
                     method has been invoked. This can be achieved using the
-                        <literal>@PostAuthorize</literal> annotation. To access the return value
-                    from a method, use the built–in name <literal>returnObject</literal> in the
+                    <literal>@PostAuthorize</literal> annotation. To access the return value from a
+                    method, use the built–in name <literal>returnObject</literal> in the
                     expression.</para>
             </section>
             <section>
                 <title>Filtering using <literal>@PreFilter</literal> and
-                        <literal>@PostFilter</literal></title>
+                    <literal>@PostFilter</literal></title>
                 <para>As you may already be aware, Spring Security supports filtering of collections
                     and arrays and this can now be achieved using expressions. This is most commonly
                     performed on the return value of a method. For
@@ -187,7 +187,7 @@
                     using <literal>@PreFilter</literal>, though this is a less common requirement.
                     The syntax is just the same, but if there is more than one argument which is a
                     collection type then you have to select one by name using the
-                        <literal>filterTarget</literal> property of this annotation.</para>
+                    <literal>filterTarget</literal> property of this annotation.</para>
                 <para>Note that filtering is obviously not a substitute for tuning your data
                     retrieval queries. If you are filtering large collections and removing many of
                     the entries then this is likely to be inefficient.</para>
@@ -197,12 +197,12 @@
             <title>Built-In Expressions</title>
             <para>There are some built-in expressions which are specific to method security, which
                 we have already seen in use above. The <literal>filterTarget</literal> and
-                    <literal>returnValue</literal> values are simple enough, but the use of the
-                    <literal>hasPermission()</literal> expression warrants a closer look.</para>
+                <literal>returnValue</literal> values are simple enough, but the use of the
+                <literal>hasPermission()</literal> expression warrants a closer look.</para>
             <section xml:id="el-permission-evaluator">
                 <title>The <interfacename>PermissionEvaluator</interfacename> interface</title>
                 <para><literal>hasPermission()</literal> expressions are delegated to an instance of
-                        <interfacename>PermissionEvaluator</interfacename>. It is intended to bridge
+                    <interfacename>PermissionEvaluator</interfacename>. It is intended to bridge
                     between the expression system and Spring Security's ACL system, allowing you to
                     specify authorization constraints on domain objects, based on abstract
                     permissions. It has no explicit dependencies on the ACL module, so you could
@@ -227,8 +227,7 @@
                     long as it is consistent with how the permissions are loaded.</para>
                 <para>To use <literal>hasPermission()</literal> expressions, you have to explicitly
                     configure a <interfacename>PermissionEvaluator</interfacename> in your
-                    application context. This would look something like this:
-<programlisting language="xml"> <![CDATA[
+                    application context. This would look something like this: <programlisting language="xml"> <![CDATA[
 <security:global-method-security pre-post-annotations="enabled">
   <security:expression-handler ref="expressionHandler"/>
 </security:global-method-security>
@@ -239,9 +238,8 @@
 </bean>]]></programlisting>Where <literal>myPermissionEvaluator</literal> is the bean which
                     implements <interfacename>PermissionEvaluator</interfacename>. Usually this will
                     be the implementation from the ACL module which is called
-                        <classname>AclPermissionEvaluator</classname>. See the
-                        <quote>Contacts</quote> sample application configuration for more
-                    details.</para>
+                    <classname>AclPermissionEvaluator</classname>. See the <quote>Contacts</quote>
+                    sample application configuration for more details.</para>
             </section>
         </section>
     </section>

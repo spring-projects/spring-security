@@ -4,42 +4,40 @@
     <para> Now that we have a high-level overview of the Spring Security architecture and its core
         classes, let's take a closer look at one or two of the core interfaces and their
         implementations, in particular the <interfacename>AuthenticationManager</interfacename>,
-            <interfacename>UserDetailsService</interfacename> and the
-            <interfacename>AccessDecisionManager</interfacename>. These crop up regularly throughout
-        the remainder of this document so it's important you know how they are configured and how
-        they operate. </para>
+        <interfacename>UserDetailsService</interfacename> and the
+        <interfacename>AccessDecisionManager</interfacename>. These crop up regularly throughout the
+        remainder of this document so it's important you know how they are configured and how they
+        operate. </para>
     <section xml:id="core-services-authentication-manager">
         <title>The <interfacename>AuthenticationManager</interfacename>,
-                <classname>ProviderManager</classname> and
-                <classname>AuthenticationProvider</classname>s</title>
+            <classname>ProviderManager</classname> and
+            <classname>AuthenticationProvider</classname>s</title>
         <para>The <interfacename>AuthenticationManager</interfacename> is just an interface, so the
             implementation can be anything we choose, but how does it work in practice? What if we
             need to check multiple authentication databases or a combination of different
             authentication services such as a database and an LDAP server?</para>
         <para>The default implementation in Spring Security is called
-                <classname>ProviderManager</classname> and rather than handling the authentication
+            <classname>ProviderManager</classname> and rather than handling the authentication
             request itself, it delegates to a list of configured
-                <classname>AuthenticationProvider</classname>s, each of which is queried in turn to
-            see if it can perform the authentication. Each provider will either throw an exception
-            or return a fully populated <interfacename>Authentication</interfacename> object.
-            Remember our good friends, <interfacename>UserDetails</interfacename> and
-                <interfacename>UserDetailsService</interfacename>? If not, head back to the previous
+            <classname>AuthenticationProvider</classname>s, each of which is queried in turn to see
+            if it can perform the authentication. Each provider will either throw an exception or
+            return a fully populated <interfacename>Authentication</interfacename> object. Remember
+            our good friends, <interfacename>UserDetails</interfacename> and
+            <interfacename>UserDetailsService</interfacename>? If not, head back to the previous
             chapter and refresh your memory. The most common approach to verifying an authentication
             request is to load the corresponding <interfacename>UserDetails</interfacename> and
             check the loaded password against the one that has been entered by the user. This is the
             approach used by the <classname>DaoAuthenticationProvider</classname> (see below). The
             loaded <interfacename>UserDetails</interfacename> object - and particularly the
-                <literal>GrantedAuthority</literal>s it contains - will be used when building the
-            fully populated <interfacename>Authentication</interfacename> object which is returned
-            from a successful authentication and stored in the
-                <classname>SecurityContext</classname>. </para>
-        <para> If you are using the namespace, an instance of
-                <classname>ProviderManager</classname> is created and maintained internally, and
-            you add providers to it by using the namespace authentication provider elements
-            (see <link xlink:href="#ns-auth-manager">the namespace chapter</link>). In this
-            case, you should not declare a <classname>ProviderManager</classname> bean in your
-            application context. However, if you are not using the namespace then you would declare
-            it like so: <programlisting language="xml"><![CDATA[
+            <literal>GrantedAuthority</literal>s it contains - will be used when building the fully
+            populated <interfacename>Authentication</interfacename> object which is returned from a
+            successful authentication and stored in the <classname>SecurityContext</classname>. </para>
+        <para> If you are using the namespace, an instance of <classname>ProviderManager</classname>
+            is created and maintained internally, and you add providers to it by using the namespace
+            authentication provider elements (see <link xlink:href="#ns-auth-manager">the namespace
+            chapter</link>). In this case, you should not declare a
+            <classname>ProviderManager</classname> bean in your application context. However, if you
+            are not using the namespace then you would declare it like so: <programlisting language="xml"><![CDATA[
 <bean id="authenticationManager"
      class="org.springframework.security.authentication.ProviderManager">
   <property name="providers">
@@ -54,16 +52,16 @@
             is implied by the use of a <literal>List</literal>), with each provider able to attempt
             authentication, or skip authentication by simply returning <literal>null</literal>. If
             all implementations return null, the <literal>ProviderManager</literal> will throw a
-                <exceptionname>ProviderNotFoundException</exceptionname>. If you're interested in
+            <exceptionname>ProviderNotFoundException</exceptionname>. If you're interested in
             learning more about chaining providers, please refer to the
-                <literal>ProviderManager</literal> JavaDocs.</para>
+            <literal>ProviderManager</literal> JavaDocs.</para>
         <para> Authentication mechanisms such as a web form-login processing filter are injected
             with a reference to the <interfacename>ProviderManager</interfacename> and will call it
             to handle their authentication requests. The providers you require will sometimes be
             interchangeable with the authentication mechanisms, while at other times they will
             depend on a specific authentication mechanism. For example,
-                <classname>DaoAuthenticationProvider</classname> and
-                <classname>LdapAuthenticationProvider</classname> are compatible with any mechanism
+            <classname>DaoAuthenticationProvider</classname> and
+            <classname>LdapAuthenticationProvider</classname> are compatible with any mechanism
             which submits a simple username/password authentication request and so will work with
             form-based logins or HTTP Basic authentication. On the other hand, some authentication
             mechanisms create an authentication request object which can only be interpreted by a
@@ -78,49 +76,47 @@
             <para>The simplest <interfacename>AuthenticationProvider</interfacename> implemented by
                 Spring Security is <literal>DaoAuthenticationProvider</literal>, which is also one
                 of the earliest supported by the framework. It leverages a
-                    <interfacename>UserDetailsService</interfacename> (as a DAO) in order to lookup
-                the username, password and <interfacename>GrantedAuthority</interfacename>s. It
+                <interfacename>UserDetailsService</interfacename> (as a DAO) in order to lookup the
+                username, password and <interfacename>GrantedAuthority</interfacename>s. It
                 authenticates the user simply by comparing the password submitted in a
-                    <classname>UsernamePasswordAuthenticationToken</classname> against the one
-                loaded by the <interfacename>UserDetailsService</interfacename>. Configuring the
-                provider is quite simple: <programlisting language="xml"><![CDATA[
+                <classname>UsernamePasswordAuthenticationToken</classname> against the one loaded by
+                the <interfacename>UserDetailsService</interfacename>. Configuring the provider is
+                quite simple: <programlisting language="xml"><![CDATA[
 <bean id="daoAuthenticationProvider"
     class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
   <property name="userDetailsService" ref="inMemoryDaoImpl"/>
   <property name="saltSource" ref bean="saltSource"/>
   <property name="passwordEncoder" ref="passwordEncoder"/>
 </bean>]]></programlisting> The <interfacename>PasswordEncoder</interfacename> and
-                    <interfacename>SaltSource</interfacename> are optional. A
-                    <interfacename>PasswordEncoder</interfacename> provides encoding and decoding of
+                <interfacename>SaltSource</interfacename> are optional. A
+                <interfacename>PasswordEncoder</interfacename> provides encoding and decoding of
                 passwords presented in the <interfacename>UserDetails</interfacename> object that is
                 returned from the configured <interfacename>UserDetailsService</interfacename>. A
-                    <interfacename>SaltSource</interfacename> enables the passwords to be populated
-                with a "salt", which enhances the security of the passwords in the authentication
+                <interfacename>SaltSource</interfacename> enables the passwords to be populated with
+                a "salt", which enhances the security of the passwords in the authentication
                 repository. These will be discussed in more detail <link
-                    xlink:href="core-services-password-encodin">below</link>. </para>
+                xlink:href="core-services-password-encodin">below</link>. </para>
         </section>
     </section>
     <section>
         <title><interfacename>UserDetailsService</interfacename> Implementations</title>
         <para>As mentioned in the earlier in this reference guide, most authentication providers
             take advantage of the <interfacename>UserDetails</interfacename> and
-                <interfacename>UserDetailsService</interfacename> interfaces. Recall that the
-            contract for <interfacename>UserDetailsService</interfacename> is a single
-            method:</para>
+            <interfacename>UserDetailsService</interfacename> interfaces. Recall that the contract
+            for <interfacename>UserDetailsService</interfacename> is a single method:</para>
         <para>
             <programlisting>
   UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
-            </programlisting>
-        </para>
+            </programlisting> </para>
         <para>The returned <interfacename>UserDetails</interfacename> is an interface that provides
             getters that guarantee non-null provision of authentication information such as the
             username, password, granted authorities and whether the user account is enabled or
             disabled. Most authentication providers will use a
-                <interfacename>UserDetailsService</interfacename>, even if the username and password
-            are not actually used as part of the authentication decision. They may use the returned
-                <interfacename>UserDetails</interfacename> object just for its
-                <literal>GrantedAuthority</literal> information, because some other system (like
-            LDAP or X.509 or CAS etc) has undertaken the responsibility of actually validating the
+            <interfacename>UserDetailsService</interfacename>, even if the username and password are
+            not actually used as part of the authentication decision. They may use the returned
+            <interfacename>UserDetails</interfacename> object just for its
+            <literal>GrantedAuthority</literal> information, because some other system (like LDAP or
+            X.509 or CAS etc) has undertaken the responsibility of actually validating the
             credentials.</para>
         <para>Given <interfacename>UserDetailsService</interfacename> is so simple to implement, it
             should be easy for users to retrieve authentication information using a persistence
@@ -133,8 +129,8 @@
                 many applications do not require such complexity. This is particularly true if
                 you're building a prototype application or just starting integrating Spring
                 Security, when you don't really want to spend time configuring databases or writing
-                    <interfacename>UserDetailsService</interfacename> implementations. For this sort
-                of situation, a simple option is to use the <literal>user-service</literal> element
+                <interfacename>UserDetailsService</interfacename> implementations. For this sort of
+                situation, a simple option is to use the <literal>user-service</literal> element
                 from the security <link xlink:href="#ns-minimal">namespace</link>: <programlisting><![CDATA[
   <user-service id="userDetailsService">
     <user name="jimi" password="jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />
@@ -158,11 +154,10 @@
                 Spring JDBC is used, so it avoids the complexity of a fully-featured object
                 relational mapper (ORM) just to store user details. If your application does use an
                 ORM tool, you might prefer to write a custom
-                    <interfacename>UserDetailsService</interfacename> to reuse the mapping files
-                you've probably already created. Returning to <literal>JdbcDaoImpl</literal>, an
-                example configuration is shown below:</para>
-            <para>
-                <programlisting language="xml"><![CDATA[
+                <interfacename>UserDetailsService</interfacename> to reuse the mapping files you've
+                probably already created. Returning to <literal>JdbcDaoImpl</literal>, an example
+                configuration is shown below:</para>
+            <para> <programlisting language="xml"><![CDATA[
 <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
   <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
   <property name="url" value="jdbc:hsqldb:hsql://localhost:9001"/>
@@ -173,19 +168,17 @@
 <bean id="userDetailsService"
       class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl">
   <property name="dataSource" ref="dataSource"/>
-</bean> ]]>       </programlisting>
-            </para>
+</bean> ]]>       </programlisting> </para>
             <para>You can use different relational database management systems by modifying the
-                    <literal>DriverManagerDataSource</literal> shown above. You can also use a
-                global data source obtained from JNDI, as with any other Spring
-                configuration.</para>
+                <literal>DriverManagerDataSource</literal> shown above. You can also use a global
+                data source obtained from JNDI, as with any other Spring configuration.</para>
             <section>
                 <title>Authority Groups</title>
                 <para>By default, <classname>JdbcDaoImpl</classname> loads the authorities for a
                     single user with the assumption that the authorities are mapped directly to
                     users (see the <link xlink:href="#appendix-schema">database schema
-                        appendix</link>). An alternative approach is to partition the authorities
-                    into groups and assign groups to the user. Some people prefer this approach as a
+                    appendix</link>). An alternative approach is to partition the authorities into
+                    groups and assign groups to the user. Some people prefer this approach as a
                     means of administering user rights. See the <classname>JdbcDaoImpl</classname>
                     Javadoc for more information on how to enable the use of group authorities. The
                     group schema is also included in the appendix.</para>
@@ -218,7 +211,7 @@
                 <programlisting>
     5f4dcc3b5aa765d61d8327deb882cf99
 </programlisting> A hash is
-                    <quote>one-way</quote> in the sense that it is very difficult (effectively
+                <quote>one-way</quote> in the sense that it is very difficult (effectively
                 impossible) to obtain the original input given the hash value, or indeed any
                 possible input which would produce that hash value. This property makes hash values
                 very useful for authentication purposes. They can be stored in your user database as
@@ -231,16 +224,16 @@
             <para> One potential problem with the use of password hashes that it is relatively easy
                 to get round the one-way property of the hash if a common word is used for the
                 input. For example, if you search for the hash value
-                    <literal>5f4dcc3b5aa765d61d8327deb882cf99</literal> using google, you will
-                quickly find the original word <quote>password</quote>. In a similar way, an
-                attacker can build a dictionary of hashes from a standard word list and use this to
-                lookup the original password. One way to help prevent this is to have a suitably
-                strong password policy to try to prevent common words from being used. Another is to
-                use a <quote>salt</quote> when calculating the hashes. This is an additional string
-                of known data for each user which is combined with the password before calculating
-                the hash. Ideally the data should be as random as possible, but in practice any salt
+                <literal>5f4dcc3b5aa765d61d8327deb882cf99</literal> using google, you will quickly
+                find the original word <quote>password</quote>. In a similar way, an attacker can
+                build a dictionary of hashes from a standard word list and use this to lookup the
+                original password. One way to help prevent this is to have a suitably strong
+                password policy to try to prevent common words from being used. Another is to use a
+                <quote>salt</quote> when calculating the hashes. This is an additional string of
+                known data for each user which is combined with the password before calculating the
+                hash. Ideally the data should be as random as possible, but in practice any salt
                 value is usually preferable to none. Spring Security has a
-                    <interfacename>SaltSource</interfacename> interface which can be used by an
+                <interfacename>SaltSource</interfacename> interface which can be used by an
                 authentication provider to generate a salt value for a particular user. Using a salt
                 means that an attacker has to build a separate dictionary of hashes for each salt
                 value, making the attack more complicated (but not impossible).</para>
@@ -248,32 +241,32 @@
         <section>
             <title> Hashing and Authentication</title>
             <para>When an authentication provider (such as Spring Security's
-                    <classname>DaoAuthenticationProvider</classname> needs to check the password in
-                a submitted authentication request against the known value for a user, and the
-                stored password is encoded in some way, then the submitted value must be encoded
-                using exactly the same algorithm. It's up to you to check that these are compatible
-                as Spring Security has no control over the persistent values. If you add password
+                <classname>DaoAuthenticationProvider</classname> needs to check the password in a
+                submitted authentication request against the known value for a user, and the stored
+                password is encoded in some way, then the submitted value must be encoded using
+                exactly the same algorithm. It's up to you to check that these are compatible as
+                Spring Security has no control over the persistent values. If you add password
                 hashing to your authentication configuration in Spring Security, and your database
                 contains plaintext passwords, then there is no way authentication can succeed. Even
                 if you are aware that your database is using MD5 to encode the passwords, for
                 example, and your application is configured to use Spring Security's
-                    <classname>Md5PasswordEncoder</classname>, there are still things that can go
-                wrong. The database may have the passwords encoded in Base 64, for example while the
-                enocoder is using hexadecimal strings (the default)<footnote><para>You can configure
-                        the encoder to use Base 64 instead of hex by setting the
-                            <literal>encodeHashAsBase64</literal> property to
-                            <literal>true</literal>. Check the Javadoc for
-                            <classname>MessageDigestPasswordEncoder</classname> and its parent
-                        classes for more information.</para></footnote>. Alternatively your database
-                may be using upper-case while the output from the encoder is lower-case. Make sure
-                you write a test to check the output from your configured password encoder with a
-                known password and salt combination and check that it matches the database value
-                before going further and attempting to authenticate through your application. For
-                more information on the default method for merging salt and password, see the
-                Javadoc for <classname>BasePasswordEncoder</classname>. If you want to generate
-                encoded passwords directly in Java for storage in your user database, then you can
-                use the <methodname>encodePassword</methodname> method on the
-                    <interfacename>PasswordEncoder</interfacename>.</para>
+                <classname>Md5PasswordEncoder</classname>, there are still things that can go wrong.
+                The database may have the passwords encoded in Base 64, for example while the
+                enocoder is using hexadecimal strings (the default)<footnote>
+                <para>You can configure the encoder to use Base 64 instead of hex by setting the
+                    <literal>encodeHashAsBase64</literal> property to <literal>true</literal>. Check
+                    the Javadoc for <classname>MessageDigestPasswordEncoder</classname> and its
+                    parent classes for more information.</para>
+                </footnote>. Alternatively your database may be using upper-case while the output
+                from the encoder is lower-case. Make sure you write a test to check the output from
+                your configured password encoder with a known password and salt combination and
+                check that it matches the database value before going further and attempting to
+                authenticate through your application. For more information on the default method
+                for merging salt and password, see the Javadoc for
+                <classname>BasePasswordEncoder</classname>. If you want to generate encoded
+                passwords directly in Java for storage in your user database, then you can use the
+                <methodname>encodePassword</methodname> method on the
+                <interfacename>PasswordEncoder</interfacename>.</para>
         </section>
     </section>
 </chapter>

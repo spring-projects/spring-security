@@ -1,67 +1,68 @@
 <chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="form">
-    <info><title>Form Authentication Mechanism</title></info>
+    <info>
+        <title>Form Authentication Mechanism</title>
+    </info>
 
     <section xml:id="form-overview">
-        <info><title>Overview</title></info>
+        <info>
+            <title>Overview</title>
+        </info>
 
         <para>HTTP Form Authentication involves using the
-            <literal>UsernamePasswordAuthenticationFilter</literal> to process a login
-            form. This is the most common way for an application to authenticate end
-            users. Form-based authentication is entirely compatible with the DAO, LDAP
-            and JAAS authentication providers.</para>
+            <literal>UsernamePasswordAuthenticationFilter</literal> to process a login form. This is
+            the most common way for an application to authenticate end users. Form-based
+            authentication is entirely compatible with the DAO, LDAP and JAAS authentication
+            providers.</para>
         <para>This is also the mechanism used by the &lt;form-login&gt; element from the namespace
-            and it's recommended that you use that unless you have specific customization requirements.
-        </para>
+            and it's recommended that you use that unless you have specific customization
+            requirements. </para>
     </section>
 
     <section xml:id="form-config">
-        <info><title>Configuration</title></info>
+        <info>
+            <title>Configuration</title>
+        </info>
 
         <para>The login form simply contains <literal>j_username</literal> and
-            <literal>j_password</literal> input fields, and posts to a URL that is
-            monitored by the filter (by default
-            <literal>/j_spring_security_check</literal>). You should add an
-            <literal>UsernamePasswordAuthenticationFilter</literal> to your application context:
-            <programlisting><![CDATA[
+            <literal>j_password</literal> input fields, and posts to a URL that is monitored by the
+            filter (by default <literal>/j_spring_security_check</literal>). You should add an
+            <literal>UsernamePasswordAuthenticationFilter</literal> to your application context: <programlisting><![CDATA[
 <bean id="authenticationProcessingFilter" class=
 "org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="filterProcessesUrl" value="/j_spring_security_check"/>
 </bean> ]]>
             </programlisting></para>
-        <para>
-            The configured <interfacename>AuthenticationManager</interfacename>
-            processes each authentication request. The destination following a successful authentication
-            or an authentication failure is controlled by the <interfacename>AuthenticationSuccessHandler</interfacename>
-            and <interfacename>AuthenticationFailureHandler</interfacename> interfaces, respectively.
-            The filter has properties which allow you to set these
-            <footnote><para>In versions prior to 3.0, the application flow at this point had evolved to a stage
-                was controlled by a mix of properties on this class and strategy plugins. The
-            decision was made for 3.0 to refactor the code to make these two strategies entirely responsible.
-            </para></footnote>.
-            Some standard implementations are supplied for these such as
+        <para> The configured <interfacename>AuthenticationManager</interfacename> processes each
+            authentication request. The destination following a successful authentication or an
+            authentication failure is controlled by the
+            <interfacename>AuthenticationSuccessHandler</interfacename> and
+            <interfacename>AuthenticationFailureHandler</interfacename> interfaces, respectively.
+            The filter has properties which allow you to set these <footnote>
+            <para>In versions prior to 3.0, the application flow at this point had evolved to a
+                stage was controlled by a mix of properties on this class and strategy plugins. The
+                decision was made for 3.0 to refactor the code to make these two strategies entirely
+                responsible. </para>
+            </footnote>. Some standard implementations are supplied for these such as
             <classname>SimpleUrlAuthenticationSuccessHandler</classname>,
             <classname>SavedRequestAwareAuthenticationSuccessHandler</classname>,
             <classname>SimpleUrlAuthenticationFailureHandler</classname> and
-            <classname>ExceptionMappingAuthenticationFailureHandler</classname>. Have a look at the Javadoc
-            for these classes to see how they work.
-            </para>
+            <classname>ExceptionMappingAuthenticationFailureHandler</classname>. Have a look at the
+            Javadoc for these classes to see how they work. </para>
 
         <para>If authentication is successful, the resulting
             <interfacename>Authentication</interfacename> object will be placed into the
-            <classname>SecurityContextHolder</classname>.
-            The configured AuthenticationSuccessHandler will then be called to either redirect or forward
-            the user to the appropriate destination. By default a <classname>SavedRequestAwareAuthenticationSuccessHandler</classname>
-            is used, which means that the user will be redirected to the original destination they requested before they were asked to
-            login.
-            <note>
-                <para>
-                    The <classname>ExceptionTranslationFilter</classname> caches the original request a user makes.
-                    When the user authenticates, the request handler makes use of this cached request to obtain the original
-                    URL and redirect to it. The original request is then rebuilt and used as an alternative.
-                </para>
-            </note>
-            If authentication fails, the configured <interfacename>AuthenticationFailureHandler</interfacename> will be invoked.
-        </para>
+            <classname>SecurityContextHolder</classname>. The configured
+            AuthenticationSuccessHandler will then be called to either redirect or forward the user
+            to the appropriate destination. By default a
+            <classname>SavedRequestAwareAuthenticationSuccessHandler</classname> is used, which
+            means that the user will be redirected to the original destination they requested before
+            they were asked to login. <note>
+            <para> The <classname>ExceptionTranslationFilter</classname> caches the original request
+                a user makes. When the user authenticates, the request handler makes use of this
+                cached request to obtain the original URL and redirect to it. The original request
+                is then rebuilt and used as an alternative. </para>
+            </note> If authentication fails, the configured
+            <interfacename>AuthenticationFailureHandler</interfacename> will be invoked. </para>
     </section>
 </chapter>

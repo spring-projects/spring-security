@@ -1,92 +1,84 @@
-<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="runas"><info><title>Run-As Authentication Replacement</title></info>
-
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="runas">
+    <info>
+        <title>Run-As Authentication Replacement</title>
+    </info>
 
     <section xml:id="runas-overview">
-        <info><title>Overview</title></info>
+        <info>
+            <title>Overview</title>
+        </info>
 
-        <para>The <classname>AbstractSecurityInterceptor</classname> is able to
-            temporarily replace the <interfacename>Authentication</interfacename> object in
-            the <interfacename>SecurityContext</interfacename> and
-            <classname>SecurityContextHolder</classname> during the secure object
-            callback phase. This only occurs if the original
-            <interfacename>Authentication</interfacename> object was successfully processed by
-            the <interfacename>AuthenticationManager</interfacename> and
-            <interfacename>AccessDecisionManager</interfacename>. The
+        <para>The <classname>AbstractSecurityInterceptor</classname> is able to temporarily replace
+            the <interfacename>Authentication</interfacename> object in the
+            <interfacename>SecurityContext</interfacename> and
+            <classname>SecurityContextHolder</classname> during the secure object callback phase.
+            This only occurs if the original <interfacename>Authentication</interfacename> object
+            was successfully processed by the <interfacename>AuthenticationManager</interfacename>
+            and <interfacename>AccessDecisionManager</interfacename>. The
             <literal>RunAsManager</literal> will indicate the replacement
-            <interfacename>Authentication</interfacename> object, if any, that should be used
-            during the <literal>SecurityInterceptorCallback</literal>.</para>
+            <interfacename>Authentication</interfacename> object, if any, that should be used during
+            the <literal>SecurityInterceptorCallback</literal>.</para>
 
-        <para>By temporarily replacing the <interfacename>Authentication</interfacename>
-            object during the secure object callback phase, the secured invocation
-            will be able to call other objects which require different
-            authentication and authorization credentials. It will also be able to
-            perform any internal security checks for specific
+        <para>By temporarily replacing the <interfacename>Authentication</interfacename> object
+            during the secure object callback phase, the secured invocation will be able to call
+            other objects which require different authentication and authorization credentials. It
+            will also be able to perform any internal security checks for specific
             <interfacename>GrantedAuthority</interfacename> objects. Because Spring Security
-            provides a number of helper classes that automatically configure
-            remoting protocols based on the contents of the
-            <classname>SecurityContextHolder</classname>, these run-as replacements
-            are particularly useful when calling remote web services</para>
+            provides a number of helper classes that automatically configure remoting protocols
+            based on the contents of the <classname>SecurityContextHolder</classname>, these run-as
+            replacements are particularly useful when calling remote web services</para>
     </section>
 
     <section xml:id="runas-config">
-        <info><title>Configuration</title></info>
+        <info>
+            <title>Configuration</title>
+        </info>
         <para>A <literal>RunAsManager</literal> interface is provided by Spring Security:
             <programlisting>
   Authentication buildRunAs(Authentication authentication, Object object,
       List&lt;ConfigAttribute&gt; config);
   boolean supports(ConfigAttribute attribute);
   boolean supports(Class clazz);
-            </programlisting>
-        </para>
+            </programlisting> </para>
 
-        <para>The first method returns the <interfacename>Authentication</interfacename>
-            object that should replace the existing
-            <interfacename>Authentication</interfacename> object for the duration of the
-            method invocation. If the method returns <literal>null</literal>, it
-            indicates no replacement should be made. The second method is used by
-            the <classname>AbstractSecurityInterceptor</classname> as part of its
-            startup validation of configuration attributes. The
-            <literal>supports(Class)</literal> method is called by a security
-            interceptor implementation to ensure the configured
-            <literal>RunAsManager</literal> supports the type of secure object
-            that the security interceptor will present.</para>
+        <para>The first method returns the <interfacename>Authentication</interfacename> object that
+            should replace the existing <interfacename>Authentication</interfacename> object for the
+            duration of the method invocation. If the method returns <literal>null</literal>, it
+            indicates no replacement should be made. The second method is used by the
+            <classname>AbstractSecurityInterceptor</classname> as part of its startup validation of
+            configuration attributes. The <literal>supports(Class)</literal> method is called by a
+            security interceptor implementation to ensure the configured
+            <literal>RunAsManager</literal> supports the type of secure object that the security
+            interceptor will present.</para>
 
-        <para>One concrete implementation of a <literal>RunAsManager</literal>
-            is provided with Spring Security. The
-            <literal>RunAsManagerImpl</literal> class returns a replacement
-            <literal>RunAsUserToken</literal> if any
-            <literal>ConfigAttribute</literal> starts with
-            <literal>RUN_AS_</literal>. If any such
-            <literal>ConfigAttribute</literal> is found, the replacement
-            <literal>RunAsUserToken</literal> will contain the same principal,
+        <para>One concrete implementation of a <literal>RunAsManager</literal> is provided with
+            Spring Security. The <literal>RunAsManagerImpl</literal> class returns a replacement
+            <literal>RunAsUserToken</literal> if any <literal>ConfigAttribute</literal> starts with
+            <literal>RUN_AS_</literal>. If any such <literal>ConfigAttribute</literal> is found, the
+            replacement <literal>RunAsUserToken</literal> will contain the same principal,
             credentials and granted authorities as the original
             <interfacename>Authentication</interfacename> object, along with a new
-            <literal>GrantedAuthorityImpl</literal> for each
-            <literal>RUN_AS_</literal> <literal>ConfigAttribute</literal>. Each
-            new <literal>GrantedAuthorityImpl</literal> will be prefixed with
-            <literal>ROLE_</literal>, followed by the <literal>RUN_AS</literal>
-            <literal>ConfigAttribute</literal>. For example, a
+            <literal>GrantedAuthorityImpl</literal> for each <literal>RUN_AS_</literal>
+            <literal>ConfigAttribute</literal>. Each new <literal>GrantedAuthorityImpl</literal>
+            will be prefixed with <literal>ROLE_</literal>, followed by the
+            <literal>RUN_AS</literal> <literal>ConfigAttribute</literal>. For example, a
             <literal>RUN_AS_SERVER</literal> will result in the replacement
-            <literal>RunAsUserToken</literal> containing a
-            <literal>ROLE_RUN_AS_SERVER</literal> granted authority.</para>
+            <literal>RunAsUserToken</literal> containing a <literal>ROLE_RUN_AS_SERVER</literal>
+            granted authority.</para>
 
-        <para>The replacement <literal>RunAsUserToken</literal> is just like
-            any other <interfacename>Authentication</interfacename> object. It needs to be
-            authenticated by the <interfacename>AuthenticationManager</interfacename>,
-            probably via delegation to a suitable
-            <classname>AuthenticationProvider</classname>. The
-            <literal>RunAsImplAuthenticationProvider</literal> performs such
-            authentication. It simply accepts as valid any
-            <literal>RunAsUserToken</literal> presented.</para>
+        <para>The replacement <literal>RunAsUserToken</literal> is just like any other
+            <interfacename>Authentication</interfacename> object. It needs to be authenticated by
+            the <interfacename>AuthenticationManager</interfacename>, probably via delegation to a
+            suitable <classname>AuthenticationProvider</classname>. The
+            <literal>RunAsImplAuthenticationProvider</literal> performs such authentication. It
+            simply accepts as valid any <literal>RunAsUserToken</literal> presented.</para>
 
-        <para>To ensure malicious code does not create a
-            <literal>RunAsUserToken</literal> and present it for guaranteed
-            acceptance by the <literal>RunAsImplAuthenticationProvider</literal>,
-            the hash of a key is stored in all generated tokens. The
-            <literal>RunAsManagerImpl</literal> and
-            <literal>RunAsImplAuthenticationProvider</literal> is created in the
-            bean context with the same key:
-            <programlisting>
+        <para>To ensure malicious code does not create a <literal>RunAsUserToken</literal> and
+            present it for guaranteed acceptance by the
+            <literal>RunAsImplAuthenticationProvider</literal>, the hash of a key is stored in all
+            generated tokens. The <literal>RunAsManagerImpl</literal> and
+            <literal>RunAsImplAuthenticationProvider</literal> is created in the bean context with
+            the same key: <programlisting>
 <![CDATA[
 <bean id="runAsManager"
     class="org.springframework.security.access.intercept.RunAsManagerImpl">
@@ -97,10 +89,9 @@
     class="org.springframework.security.access.intercept.RunAsImplAuthenticationProvider">
   <property name="key" value="my_run_as_password"/>
 </bean>]]></programlisting></para>
-        <para>By using the same key, each <literal>RunAsUserToken</literal>
-            can be validated it was created by an approved
-            <literal>RunAsManagerImpl</literal>. The
-            <literal>RunAsUserToken</literal> is immutable after creation for
-            security reasons</para>
+        <para>By using the same key, each <literal>RunAsUserToken</literal> can be validated it was
+            created by an approved <literal>RunAsManagerImpl</literal>. The
+            <literal>RunAsUserToken</literal> is immutable after creation for security
+            reasons</para>
     </section>
 </chapter>

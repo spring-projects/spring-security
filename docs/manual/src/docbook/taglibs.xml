@@ -14,15 +14,15 @@
         <title>The <literal>authorize</literal> Tag</title>
         <para> This tag is used to determine whether its contents should be evaluated or not. In
             Spring Security 3.0, it can be used in two ways <footnote>
-                <para>The legacy options from Spring Security 2.0 are also supported, but
-                    discouraged.</para>
+            <para>The legacy options from Spring Security 2.0 are also supported, but
+                discouraged.</para>
             </footnote>. The first approach uses a <link xlink:href="el-access-we">web-security
-                expression</link>, specified in the <literal>access</literal> attribute of the tag.
-            The expression evaluation will be delegated to the
-                <interfacename>WebSecurityExpressionHandler</interfacename> defined in the
-            application context (you should have web expressions enabled in your
-                <literal>&lt;http></literal> namespace configuration to make sure this service is
-            available). So, for example, you might
+            expression</link>, specified in the <literal>access</literal> attribute of the tag. The
+            expression evaluation will be delegated to the
+            <interfacename>WebSecurityExpressionHandler</interfacename> defined in the application
+            context (you should have web expressions enabled in your <literal>&lt;http></literal>
+            namespace configuration to make sure this service is available). So, for example, you
+            might
             have<programlisting>&lt;sec:authorize access="hasRole('supervisor')">
 
 This content will only be visible to users who have
@@ -40,7 +40,7 @@ This content will only be visible to users who are authorized to send requests t
 
 &lt;/sec:authorize></programlisting>To
             use this tag there must also be an instance of
-                <interfacename>WebInvocationPrivilegeEvaluator</interfacename> in your application
+            <interfacename>WebInvocationPrivilegeEvaluator</interfacename> in your application
             context. If you are using the namespace, one will automatically be registered. This is
             an instance of <classname>DefaultWebInvocationPrivilegeEvaluator</classname>, which
             creates a dummy web request for the supplied URL and invokes the security interceptor to
@@ -56,15 +56,15 @@ This content will only be visible to users who are authorized to send requests t
         <para>This tag allows access to the current <interfacename>Authentication</interfacename>
             object stored in the security context. It renders a property of the object directly in
             the JSP. So, for example, if the <literal>principal</literal> property of the
-                <interfacename>Authentication</interfacename> is an instance of Spring Security's
-                <interfacename>UserDetails</interfacename> object, then using
-                <literal>&lt;sec:authentication property="principal.username" /></literal> will
-            render the name of the current user.</para>
+            <interfacename>Authentication</interfacename> is an instance of Spring Security's
+            <interfacename>UserDetails</interfacename> object, then using
+            <literal>&lt;sec:authentication property="principal.username" /></literal> will render
+            the name of the current user.</para>
         <para>Of course, it isn't necessary to use JSP tags for this kind of thing and some people
             prefer to keep as little logic as possible in the view. You can access the
-                <interfacename>Authentication</interfacename> object in your MVC controller (by
-            calling <code>SecurityContextHolder.getContext().getAuthentication()</code>) and add the
-            data directly to your model for rendering by the view.</para>
+            <interfacename>Authentication</interfacename> object in your MVC controller (by calling
+            <code>SecurityContextHolder.getContext().getAuthentication()</code>) and add the data
+            directly to your model for rendering by the view.</para>
     </section>
     <section>
         <title>The <literal>accesscontrollist</literal> Tag</title>
@@ -80,14 +80,14 @@ represented by the values "1" or "2" on the given object.
 &lt;/sec:accesscontrollist></programlisting></para>
         <para>The permissions are passed to the <interfacename>PermissionFactory</interfacename>
             defined in the application context, converting them to ACL
-                <interfacename>Permission</interfacename> instances, so they may be any format which
-            is supported by the factory - they don't have to be integers, they could be strings like
-                <literal>READ</literal> or <literal>WRITE</literal>. If no
-                <interfacename>PermissionFactory</interfacename> is found, an instance of
-                <classname>DefaultPermissionFactory</classname> will be used. The
-                <interfacename>AclService</interfacename>from the application context will be used
-            to load the <interfacename>Acl</interfacename> instance for the supplied object. The
-                <interfacename>Acl</interfacename> will be invoked with the required permissions to
+            <interfacename>Permission</interfacename> instances, so they may be any format which is
+            supported by the factory - they don't have to be integers, they could be strings like
+            <literal>READ</literal> or <literal>WRITE</literal>. If no
+            <interfacename>PermissionFactory</interfacename> is found, an instance of
+            <classname>DefaultPermissionFactory</classname> will be used. The
+            <interfacename>AclService</interfacename>from the application context will be used to
+            load the <interfacename>Acl</interfacename> instance for the supplied object. The
+            <interfacename>Acl</interfacename> will be invoked with the required permissions to
             check if any of them are granted.</para>
     </section>
 </chapter>

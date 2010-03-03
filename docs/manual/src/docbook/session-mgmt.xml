@@ -1,43 +1,46 @@
 <chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="session-mgmt"
-  xmlns:xlink="http://www.w3.org/1999/xlink">
-  <info>
-    <title>Session Management</title>
-  </info>
-  <para>HTTP session related functonality is handled by a combination of the
-      <classname>SessionManagementFilter</classname> and the
-      <interfacename>SessionAuthenticationStrategy</interfacename> interface, which the filter
-    delegates to. Typical usage includes session-fixation protection attack prevention, detection of
-    session timeouts and restrictions on how many sessions an authenticated user may have open
-    concurrently.</para>
-  <section>
-    <title>SessionManagementFilter</title>
-    <para>The <classname>SessionManagementFilter</classname> checks the contents of the
-        <interfacename>SecurityContextRepository</interfacename> against the current contents of the
-        <classname>SecurityContextHolder</classname> to determine whether a user has been
-      authenticated during the current request, typically by a non-interactive authentication
-      mechanism, such as pre-authentication or remember-me <footnote><para>Authentication by
-          mechanisms which perform a redirect after authenticating (such as form-login) will not be
-          detected by <classname>SessionManagementFilter</classname>, as the filter will not be
-          invoked during the authenticating request. Session-management functionality has to be
-          handled separately in these cases. </para></footnote>. If the repository contains a
-      security context, the filter does nothing. If it doesn't, and the thread-local
-        <interfacename>SecurityContext</interfacename> contains a (non-anonymous)
-        <interfacename>Authentication</interfacename> object, the filter assumes they have been
-      authenticated by a previous filter in the stack. It will then invoke the configured
-        <interfacename>SessionAuthenticationStrategy</interfacename>.</para>
-    <para>If the user is not currently authenticated, the filter will check whether an invalid
-      session ID has been requested (because of a timeout, for example) and will redirect to the
-      configured <literal>invalidSessionUrl</literal> if set. The easiest way to configure this is
-      through the namespace, <link xlink:href="#ns-session-mgmt">as described earlier</link>.</para>
-  </section>
-  <section>
-    <title><interfacename>SessionAuthenticationStrategy</interfacename></title>
-    <para>
-      <interfacename>SessionAuthenticationStrategy</interfacename> is used by both
-        <classname>SessionManagementFilter</classname> and
-        <classname>AbstractAuthenticationProcessingFilter</classname>, so if you are using a
-      customized form-login class, for example, you will need to inject it into both of these. In
-      this case, a typical configuration, combining the namespace and custom beans might look like this:<programlisting><![CDATA[
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+    <info>
+        <title>Session Management</title>
+    </info>
+    <para>HTTP session related functonality is handled by a combination of the
+        <classname>SessionManagementFilter</classname> and the
+        <interfacename>SessionAuthenticationStrategy</interfacename> interface, which the filter
+        delegates to. Typical usage includes session-fixation protection attack prevention,
+        detection of session timeouts and restrictions on how many sessions an authenticated user
+        may have open concurrently.</para>
+    <section>
+        <title>SessionManagementFilter</title>
+        <para>The <classname>SessionManagementFilter</classname> checks the contents of the
+            <interfacename>SecurityContextRepository</interfacename> against the current contents of
+            the <classname>SecurityContextHolder</classname> to determine whether a user has been
+            authenticated during the current request, typically by a non-interactive authentication
+            mechanism, such as pre-authentication or remember-me <footnote>
+            <para>Authentication by mechanisms which perform a redirect after authenticating (such
+                as form-login) will not be detected by
+                <classname>SessionManagementFilter</classname>, as the filter will not be invoked
+                during the authenticating request. Session-management functionality has to be
+                handled separately in these cases. </para>
+            </footnote>. If the repository contains a security context, the filter does nothing. If
+            it doesn't, and the thread-local <interfacename>SecurityContext</interfacename> contains
+            a (non-anonymous) <interfacename>Authentication</interfacename> object, the filter
+            assumes they have been authenticated by a previous filter in the stack. It will then
+            invoke the configured
+            <interfacename>SessionAuthenticationStrategy</interfacename>.</para>
+        <para>If the user is not currently authenticated, the filter will check whether an invalid
+            session ID has been requested (because of a timeout, for example) and will redirect to
+            the configured <literal>invalidSessionUrl</literal> if set. The easiest way to configure
+            this is through the namespace, <link xlink:href="#ns-session-mgmt">as described
+            earlier</link>.</para>
+    </section>
+    <section>
+        <title><interfacename>SessionAuthenticationStrategy</interfacename></title>
+        <para> <interfacename>SessionAuthenticationStrategy</interfacename> is used by both
+            <classname>SessionManagementFilter</classname> and
+            <classname>AbstractAuthenticationProcessingFilter</classname>, so if you are using a
+            customized form-login class, for example, you will need to inject it into both of these.
+            In this case, a typical configuration, combining the namespace and custom beans might
+            look like this:<programlisting><![CDATA[
 <http>
   <custom-filter position="FORM_LOGIN_FILTER" ref="myAuthFilter" />
   <session-management session-authentication-strategy-ref="sas"/>
@@ -56,46 +59,51 @@
 </beans:bean>
 ]]>
       </programlisting></para>
-  </section>
-  <section xml:id="concurrent-sessions">
-    <title>Concurrency Control</title>
-    <para>Spring Security is able to prevent a principal from concurrently authenticating to the
-      same application more than a specified number of times. Many ISVs take advantage of this to
-      enforce licensing, whilst network administrators like this feature because it helps prevent
-      people from sharing login names. You can, for example, stop user <quote>Batman</quote> from
-      logging onto the web application from two different sessions. You can either expire their
-      previous login or you can report an error when they try to log in again, preventing the second
-      login. Note that if you are using the second approach, a user who has not explicitly logged
-      out (but who has just closed their browser, for example) will not be able to log in again
-      until their original session expires.</para>
-    <para>Concurrency control is supported by the namespace, so please check the earlier namespace
-      chapter for the simplest configuration. Sometimes you need to customize things though. </para>
-    <para>The implementation uses a specialized version of
-        <interfacename>SessionAuthenticationStrategy</interfacename>, called
-        <classname>ConcurrentSessionControlStrategy</classname>. <note><para>Previously the
-          concurrent authentication check was made by the <classname>ProviderManager</classname>,
-          which could be injected with a <literal>ConcurrentSessionController</literal>. The latter
-          would check if the user was attempting to exceed the number of permitted sessions.
-          However, this approach required that an HTTP session be created in advance, which is
-          undesirable. In Spring Security 3, the user is first authenticated by the
-            <interfacename>AuthenticationManager</interfacename> and once they are successfully
-          authenticated, a session is created and the check is made whether they are allowed to have
-          another session open.</para></note></para>
-    <para>To use concurrent session support, you'll need to add the following to
-        <literal>web.xml</literal>: <programlisting><![CDATA[
+    </section>
+    <section xml:id="concurrent-sessions">
+        <title>Concurrency Control</title>
+        <para>Spring Security is able to prevent a principal from concurrently authenticating to the
+            same application more than a specified number of times. Many ISVs take advantage of this
+            to enforce licensing, whilst network administrators like this feature because it helps
+            prevent people from sharing login names. You can, for example, stop user
+            <quote>Batman</quote> from logging onto the web application from two different sessions.
+            You can either expire their previous login or you can report an error when they try to
+            log in again, preventing the second login. Note that if you are using the second
+            approach, a user who has not explicitly logged out (but who has just closed their
+            browser, for example) will not be able to log in again until their original session
+            expires.</para>
+        <para>Concurrency control is supported by the namespace, so please check the earlier
+            namespace chapter for the simplest configuration. Sometimes you need to customize things
+            though. </para>
+        <para>The implementation uses a specialized version of
+            <interfacename>SessionAuthenticationStrategy</interfacename>, called
+            <classname>ConcurrentSessionControlStrategy</classname>. <note>
+            <para>Previously the concurrent authentication check was made by the
+                <classname>ProviderManager</classname>, which could be injected with a
+                <literal>ConcurrentSessionController</literal>. The latter would check if the user
+                was attempting to exceed the number of permitted sessions. However, this approach
+                required that an HTTP session be created in advance, which is undesirable. In Spring
+                Security 3, the user is first authenticated by the
+                <interfacename>AuthenticationManager</interfacename> and once they are successfully
+                authenticated, a session is created and the check is made whether they are allowed
+                to have another session open.</para>
+            </note></para>
+        <para>To use concurrent session support, you'll need to add the following to
+            <literal>web.xml</literal>: <programlisting><![CDATA[
   <listener>
     <listener-class>
       org.springframework.security.web.session.HttpSessionEventPublisher
     </listener-class>
   </listener> ]]>
         </programlisting></para>
-    <para>In addition, you will need to add the <literal>ConcurrentSessionFilter</literal> to your
-        <classname>FilterChainProxy</classname>. The <classname>ConcurrentSessionFilter</classname>
-      requires two properties, <literal>sessionRegistry</literal>, which generally points to an
-      instance of <classname>SessionRegistryImpl</classname>, and <literal>expiredUrl</literal>, which
-      points to the page to display when a session has expired. A configuration using the namespace
-      to create the <classname>FilterChainProxy</classname> and other default beans might look like
-      this: <programlisting><![CDATA[
+        <para>In addition, you will need to add the <literal>ConcurrentSessionFilter</literal> to
+            your <classname>FilterChainProxy</classname>. The
+            <classname>ConcurrentSessionFilter</classname> requires two properties,
+            <literal>sessionRegistry</literal>, which generally points to an instance of
+            <classname>SessionRegistryImpl</classname>, and <literal>expiredUrl</literal>, which
+            points to the page to display when a session has expired. A configuration using the
+            namespace to create the <classname>FilterChainProxy</classname> and other default beans
+            might look like this: <programlisting><![CDATA[
 <http>
   <custom-filter position="CONCURRENT_SESSION_FILTER" ref="concurrencyFilter" />
   <custom-filter position="FORM_LOGIN_FILTER" ref="myAuthFilter" />
@@ -125,12 +133,12 @@
     class="org.springframework.security.core.session.SessionRegistryImpl" />
 ]]>
     </programlisting></para>
-    <para>Adding the listener to <filename>web.xml</filename> causes an
-        <literal>ApplicationEvent</literal> to be published to the Spring
-        <literal>ApplicationContext</literal> every time a <literal>HttpSession</literal> commences
-      or terminates. This is critical, as it allows the <classname>SessionRegistryImpl</classname>
-      to be notified when a session ends. Without it, a user will never be able to log back in again
-      once they have exceeded their session allowance, even if they log out of another session or it
-      times out.</para>
-  </section>
+        <para>Adding the listener to <filename>web.xml</filename> causes an
+            <literal>ApplicationEvent</literal> to be published to the Spring
+            <literal>ApplicationContext</literal> every time a <literal>HttpSession</literal>
+            commences or terminates. This is critical, as it allows the
+            <classname>SessionRegistryImpl</classname> to be notified when a session ends. Without
+            it, a user will never be able to log back in again once they have exceeded their session
+            allowance, even if they log out of another session or it times out.</para>
+    </section>
 </chapter>

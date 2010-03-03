@@ -20,13 +20,13 @@
             Security overcomes these problems, and also brings you dozens of other useful,
             customisable security features.</para>
         <para>As you probably know two major areas of application security are
-                <quote>authentication</quote> and <quote>authorization</quote> (or
-                <quote>access-control</quote>). These are the two main areas that Spring Security
+            <quote>authentication</quote> and <quote>authorization</quote> (or
+            <quote>access-control</quote>). These are the two main areas that Spring Security
             targets. <quote>Authentication</quote> is the process of establishing a principal is who
             they claim to be (a <quote>principal</quote> generally means a user, device or some
             other system which can perform an action in your application).
-                <quote>Authorization</quote> refers to the process of deciding whether a principal
-            is allowed to perform an action within your application. To arrive at the point where an
+            <quote>Authorization</quote> refers to the process of deciding whether a principal is
+            allowed to perform an action within your application. To arrive at the point where an
             authorization decision is needed, the identity of the principal has already been
             established by the authentication process. These concepts are common, and not at all
             specific to Spring Security. </para>
@@ -134,8 +134,8 @@
             </listitem>
         </itemizedlist>
         <para>(* Denotes provided by a third party; check our <link
-                xlink:href="http://acegisecurity.org/powering.html">integration page</link> for
-            links to the latest details)</para>
+            xlink:href="http://acegisecurity.org/powering.html">integration page</link> for links to
+            the latest details)</para>
         <para>Many independent software vendors (ISVs) adopt Spring Security because of this
             significant choice of flexible authentication models. Doing so allows them to quickly
             integrate their solutions with whatever their end clients need, without undertaking a
@@ -165,7 +165,7 @@
     <section xml:id="history">
         <title>History</title>
         <para>Spring Security began in late 2003 as <quote>The Acegi Security System for
-                Spring</quote>. A question was posed on the Spring Developers' mailing list asking
+            Spring</quote>. A question was posed on the Spring Developers' mailing list asking
             whether there had been any consideration given to a Spring-based security
             implementation. At the time the Spring community was relatively small (especially
             compared with the size today!), and indeed Spring itself had only existed as a
@@ -202,21 +202,21 @@
             you identify the effort (or lack thereof) involved in migrating to future releases of
             the project. Officially, we use the Apache Portable Runtime Project versioning
             guidelines, which can be viewed at
-                <literal>http://apr.apache.org/versioning.html</literal>. We quote the introduction
+            <literal>http://apr.apache.org/versioning.html</literal>. We quote the introduction
             contained on that page for your convenience:</para>
         <para><quote>Versions are denoted using a standard triplet of integers: MAJOR.MINOR.PATCH.
-                The basic intent is that MAJOR versions are incompatible, large-scale upgrades of
-                the API. MINOR versions retain source and binary compatibility with older minor
-                versions, and changes in the PATCH level are perfectly compatible, forwards and
-                backwards.</quote></para>
+            The basic intent is that MAJOR versions are incompatible, large-scale upgrades of the
+            API. MINOR versions retain source and binary compatibility with older minor versions,
+            and changes in the PATCH level are perfectly compatible, forwards and
+            backwards.</quote></para>
     </section>
     <section xml:id="get-spring-security">
         <title>Getting Spring Security</title>
         <para>You can get hold of Spring Security in several ways. You can download a packaged
             distribution from the main Spring <link
-                xlink:href="http://www.springsource.com/download/community?project=Spring%20Security"
-                >download page</link>, download individual jars (and sample WAR files) from the
-            Maven Central repository (or a SpringSource Maven repository for snapshot and milestone
+            xlink:href="http://www.springsource.com/download/community?project=Spring%20Security"
+            >download page</link>, download individual jars (and sample WAR files) from the Maven
+            Central repository (or a SpringSource Maven repository for snapshot and milestone
             releases) or, alternatively, you can build the project from source yourself. See the
             project web site for more details. </para>
         <section xml:id="modules">
@@ -233,28 +233,43 @@
                 <para>Contains core authentication and access-contol classes and interfaces,
                     remoting support and basic provisioning APIs. Required by any application which
                     uses Spring Security. Supports standalone applications, remote clients, method
-                    (service layer) security and JDBC user provisioning. Contains the top-level
-                                    packages:<itemizedlist><listitem><para><literal>org.springframework.security.core</literal></para></listitem><listitem><para><literal>org.springframework.security.access</literal></para></listitem><listitem><para><literal>org.springframework.security.authentication</literal></para></listitem><listitem><para><literal>org.springframework.security.provisioning</literal></para></listitem><listitem><para><literal>org.springframework.security.remoting</literal></para></listitem></itemizedlist></para>
+                    (service layer) security and JDBC user provisioning. Contains the top-level packages:<itemizedlist>
+                    <listitem>
+                        <para><literal>org.springframework.security.core</literal></para>
+                    </listitem>
+                    <listitem>
+                        <para><literal>org.springframework.security.access</literal></para>
+                    </listitem>
+                    <listitem>
+                        <para><literal>org.springframework.security.authentication</literal></para>
+                    </listitem>
+                    <listitem>
+                        <para><literal>org.springframework.security.provisioning</literal></para>
+                    </listitem>
+                    <listitem>
+                        <para><literal>org.springframework.security.remoting</literal></para>
+                    </listitem>
+                    </itemizedlist></para>
             </section>
             <section xml:id="spring-security-web">
                 <title>Web - <literal>spring-security-web.jar</literal></title>
                 <para>Contains filters and related web-security infrastructure code. Anything with a
                     servlet API dependency. You'll need it if you require Spring Security web
                     authentication services and URL-based access-control. The main package is
-                        <literal>org.springframework.security.web</literal>.</para>
+                    <literal>org.springframework.security.web</literal>.</para>
             </section>
             <section xml:id="spring-security-config">
                 <title>Config - <literal>spring-security-config.jar</literal></title>
                 <para>Contains the security namespace parsing code (and hence nothing that you are
                     likely yo use directly in your application). You need it if you are using the
                     Spring Security XML namespace for configuration. The main package is
-                        <literal>org.springframework.security.config</literal>.</para>
+                    <literal>org.springframework.security.config</literal>.</para>
             </section>
             <section xml:id="spring-security-ldap">
                 <title>LDAP - <literal>spring-security-ldap.jar</literal></title>
                 <para>LDAP authentication and provisioning code. Required if you need to use LDAP
                     authentication or manage LDAP user entries. The top-level package is
-                        <literal>org.springframework.security.ldap</literal>.</para>
+                    <literal>org.springframework.security.ldap</literal>.</para>
             </section>
             <section xml:id="spring-security-acl">
                 <title>ACL - <literal>spring-security-acl.jar</literal></title>
@@ -266,7 +281,7 @@
                 <title>CAS - <literal>spring-security-cas-client.jar</literal></title>
                 <para>Spring Security's CAS client integration. If you want to use Spring Security
                     web authentication with a CAS single sign-on server. The top-level package is
-                        <literal>org.springframework.security.cas</literal>.</para>
+                    <literal>org.springframework.security.cas</literal>.</para>
             </section>
             <section xml:id="spring-security-openid">
                 <title>OpenID - <literal>spring-security-openid.jar</literal></title>
@@ -290,7 +305,7 @@
   git clone git://git.springsource.org/spring-security/spring-security.git
     </programlisting>
                 You can checkout specific versions from
-                    <literal>https://src.springframework.org/svn/spring-security/tags/</literal>.
+                <literal>https://src.springframework.org/svn/spring-security/tags/</literal>.
             </para>
         </section>
     </section>

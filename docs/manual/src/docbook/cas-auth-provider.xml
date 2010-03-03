@@ -1,44 +1,46 @@
 <chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="cas"
-  xmlns:xlink="http://www.w3.org/1999/xlink">
-  <title>CAS Authentication</title>
-  <section xml:id="cas-overview">
-    <title>Overview</title>
-    <para>JA-SIG produces an enterprise-wide single sign on system known as CAS. Unlike other
-      initiatives, JA-SIG's Central Authentication Service is open source, widely used, simple to
-      understand, platform independent, and supports proxy capabilities. Spring Security fully
-      supports CAS, and provides an easy migration path from single-application deployments of
-      Spring Security through to multiple-application deployments secured by an enterprise-wide CAS
-      server.</para>
-    <para>You can learn more about CAS at <literal>http://www.ja-sig.org/cas</literal>. You will
-      also need to visit this site to download the CAS Server files.</para>
-  </section>
-  <section xml:id="cas-how-it-works">
-    <info>
-      <title>How CAS Works</title>
-    </info>
-    <para>Whilst the CAS web site contains documents that detail the architecture of CAS, we present
-      the general overview again here within the context of Spring Security. Spring Security 3.0
-      supports CAS 3. At the time of writing, the CAS server was at version 3.3.</para>
-    <para>Somewhere in your enterprise you will need to setup a CAS server. The CAS server is simply
-      a standard WAR file, so there isn't anything difficult about setting up your server. Inside
-      the WAR file you will customise the login and other single sign on pages displayed to
-      users.</para>
-    <para>When deploying a CAS 3.3 server, you will also need to specify an
-        <literal>AuthenticationHandler</literal> in the
-        <filename>deployerConfigContext.xml</filename> included with CAS. The
-        <literal>AuthenticationHandler</literal> has a simple method that returns a boolean as to
-      whether a given set of Credentials is valid. Your <literal>AuthenticationHandler</literal>
-      implementation will need to link into some type of backend authentication repository, such as
-      an LDAP server or database. CAS itself includes numerous
-        <literal>AuthenticationHandler</literal>s out of the box to assist with this. When you
-      download and deploy the server war file, it is set up to successfully authenticate users who
-      enter a password matching their username, which is useful for testing.</para>
-    <para>Apart from the CAS server itself, the other key players are of course the secure web
-      applications deployed throughout your enterprise. These web applications are known as
-      "services". There are two types of services: standard services and proxy services. A proxy
-      service is able to request resources from other services on behalf of the user. This will be
-      explained more fully later.</para>
-    <!--
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>CAS Authentication</title>
+    <section xml:id="cas-overview">
+        <title>Overview</title>
+        <para>JA-SIG produces an enterprise-wide single sign on system known as CAS. Unlike other
+            initiatives, JA-SIG's Central Authentication Service is open source, widely used, simple
+            to understand, platform independent, and supports proxy capabilities. Spring Security
+            fully supports CAS, and provides an easy migration path from single-application
+            deployments of Spring Security through to multiple-application deployments secured by an
+            enterprise-wide CAS server.</para>
+        <para>You can learn more about CAS at <literal>http://www.ja-sig.org/cas</literal>. You will
+            also need to visit this site to download the CAS Server files.</para>
+    </section>
+    <section xml:id="cas-how-it-works">
+        <info>
+            <title>How CAS Works</title>
+        </info>
+        <para>Whilst the CAS web site contains documents that detail the architecture of CAS, we
+            present the general overview again here within the context of Spring Security. Spring
+            Security 3.0 supports CAS 3. At the time of writing, the CAS server was at version
+            3.3.</para>
+        <para>Somewhere in your enterprise you will need to setup a CAS server. The CAS server is
+            simply a standard WAR file, so there isn't anything difficult about setting up your
+            server. Inside the WAR file you will customise the login and other single sign on pages
+            displayed to users.</para>
+        <para>When deploying a CAS 3.3 server, you will also need to specify an
+            <literal>AuthenticationHandler</literal> in the
+            <filename>deployerConfigContext.xml</filename> included with CAS. The
+            <literal>AuthenticationHandler</literal> has a simple method that returns a boolean as
+            to whether a given set of Credentials is valid. Your
+            <literal>AuthenticationHandler</literal> implementation will need to link into some type
+            of backend authentication repository, such as an LDAP server or database. CAS itself
+            includes numerous <literal>AuthenticationHandler</literal>s out of the box to assist
+            with this. When you download and deploy the server war file, it is set up to
+            successfully authenticate users who enter a password matching their username, which is
+            useful for testing.</para>
+        <para>Apart from the CAS server itself, the other key players are of course the secure web
+            applications deployed throughout your enterprise. These web applications are known as
+            "services". There are two types of services: standard services and proxy services. A
+            proxy service is able to request resources from other services on behalf of the user.
+            This will be explained more fully later.</para>
+        <!--
   <section xml:id="cas-sequence">
     <title>Spring Security and CAS Interaction Sequence</title>
 
@@ -243,36 +245,34 @@
     Let's now look at how this is configured</para>
   </section>
 -->
-  </section>
-  <section xml:id="cas-client">
-    <info>
-      <title>Configuration of CAS Client</title>
-    </info>
-    <para>The web application side of CAS is made easy due to Spring Security. It is assumed you
-      already know the basics of using Spring Security, so these are not covered again below. We'll
-      assume a namespace based configuration is being used and add in the CAS beans as required. </para>
-    <para>You will need to add a <classname>ServiceProperties</classname> bean to your application
-      context. This represents your CAS service:</para>
-    <para>
-      <programlisting><![CDATA[
+    </section>
+    <section xml:id="cas-client">
+        <info>
+            <title>Configuration of CAS Client</title>
+        </info>
+        <para>The web application side of CAS is made easy due to Spring Security. It is assumed you
+            already know the basics of using Spring Security, so these are not covered again below.
+            We'll assume a namespace based configuration is being used and add in the CAS beans as
+            required. </para>
+        <para>You will need to add a <classname>ServiceProperties</classname> bean to your
+            application context. This represents your CAS service:</para>
+        <para> <programlisting><![CDATA[
   <bean id="serviceProperties"
         class="org.springframework.security.cas.ServiceProperties">
     <property name="service"
         value="https://localhost:8443/cas-sample/j_spring_cas_security_check"/>
     <property name="sendRenew" value="false"/>
   </bean>]]>
-    </programlisting>
-    </para>
-    <para>The <literal>service</literal> must equal a URL that will be monitored by the
-        <literal>CasAuthenticationFilter</literal>. The <literal>sendRenew</literal> defaults to
-      false, but should be set to true if your application is particularly sensitive. What this
-      parameter does is tell the CAS login service that a single sign on login is unacceptable.
-      Instead, the user will need to re-enter their username and password in order to gain access to
-      the service.</para>
-    <para>The following beans should be configured to commence the CAS authentication process
-      (assuming you're using a namespace configuration):</para>
-    <para>
-      <programlisting><![CDATA[
+    </programlisting> </para>
+        <para>The <literal>service</literal> must equal a URL that will be monitored by the
+            <literal>CasAuthenticationFilter</literal>. The <literal>sendRenew</literal> defaults to
+            false, but should be set to true if your application is particularly sensitive. What
+            this parameter does is tell the CAS login service that a single sign on login is
+            unacceptable. Instead, the user will need to re-enter their username and password in
+            order to gain access to the service.</para>
+        <para>The following beans should be configured to commence the CAS authentication process
+            (assuming you're using a namespace configuration):</para>
+        <para> <programlisting><![CDATA[
 <security:http entry-point-ref="casEntryPoint">
    ...
    <custom-filter position="FORM_LOGIN_FILTER" ref="myFilter" />
@@ -289,21 +289,22 @@
   <property name="serviceProperties" ref="serviceProperties"/>
 </bean>
 ]]>
-    </programlisting>
-    </para>
-    <para> The <classname>CasAuthenticationEntryPoint</classname> should be selected to drive
-      authentication using <link xlink:href="ns-entry-point-ref"
-        ><literal>entry-point-ref</literal></link>. </para>
-    <para>The <classname>CasAuthenticationFilter</classname> has very similar properties to the
-        <classname>UsernamePasswordAuthenticationFilter</classname> (used for form-based logins).
-    </para>
-    <para>For CAS to operate, the <classname>ExceptionTranslationFilter</classname> must have its
-        <literal>authenticationEntryPoint</literal> property set to the
-        <classname>CasAuthenticationEntryPoint</classname> bean.</para>
-    <para>The <classname>CasAuthenticationEntryPoint</classname> must refer to the
-        <classname>ServiceProperties</classname> bean (discussed above), which provides the URL to the
-      enterprise's CAS login server. This is where the user's browser will be redirected.</para>
-    <para>Next you need to add a <literal>CasAuthenticationProvider</literal> and its collaborators: <programlisting><![CDATA[
+    </programlisting> </para>
+        <para> The <classname>CasAuthenticationEntryPoint</classname> should be selected to drive
+            authentication using <link xlink:href="ns-entry-point-ref"
+            ><literal>entry-point-ref</literal></link>. </para>
+        <para>The <classname>CasAuthenticationFilter</classname> has very similar properties to the
+            <classname>UsernamePasswordAuthenticationFilter</classname> (used for form-based
+            logins). </para>
+        <para>For CAS to operate, the <classname>ExceptionTranslationFilter</classname> must have
+            its <literal>authenticationEntryPoint</literal> property set to the
+            <classname>CasAuthenticationEntryPoint</classname> bean.</para>
+        <para>The <classname>CasAuthenticationEntryPoint</classname> must refer to the
+            <classname>ServiceProperties</classname> bean (discussed above), which provides the URL
+            to the enterprise's CAS login server. This is where the user's browser will be
+            redirected.</para>
+        <para>Next you need to add a <literal>CasAuthenticationProvider</literal> and its
+            collaborators: <programlisting><![CDATA[
   <security:authentication-manager alias="authenticationManager">
     <security:authentication-provider ref="casAuthenticationProvider" />
   </security:authentication-manager>
@@ -325,13 +326,14 @@
     ...
   </security:user-service>]]>
       </programlisting> The
-        <classname>CasAuthenticationProvider</classname> uses a
-        <interfacename>UserDetailsService</interfacename> instance to load the authorities for a
-      user, once they have been authentiated by CAS. We've shown a simple in-memory setup here. </para>
-    <para>The beans are all reasonable self-explanatory if you refer back to the "How CAS Works"
-      section.</para>
-  </section>
-  <!--
+            <classname>CasAuthenticationProvider</classname> uses a
+            <interfacename>UserDetailsService</interfacename> instance to load the authorities for a
+            user, once they have been authentiated by CAS. We've shown a simple in-memory setup
+            here. </para>
+        <para>The beans are all reasonable self-explanatory if you refer back to the "How CAS Works"
+            section.</para>
+    </section>
+    <!--
     <para>Note the <literal>CasProxyTicketValidator</literal> has a
     remarked out <literal>trustStore</literal> property. This property
     might be helpful if you experience HTTPS certificate issues. Also note

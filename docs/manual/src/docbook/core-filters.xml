@@ -9,12 +9,12 @@
         <title><classname>FilterSecurityInterceptor</classname></title>
         <para>We've already seen <classname>FilterSecurityInterceptor</classname> briefly when
             discussing <link xlink:href="#tech-intro-access-control">access-control in
-                general</link>, and we've already used it with the namespace where the
-                <literal>&lt;intercept-url></literal> elements are combined to configure it
-            internally. Now we'll see how to explicitly configure it for use with a
-                <classname>FilterChainProxy</classname>, along with its companion filter
-                <classname>ExceptionTranslationFilter</classname>. A typical configuration example
-            is shown below: <programlisting language="xml"><![CDATA[
+            general</link>, and we've already used it with the namespace where the
+            <literal>&lt;intercept-url></literal> elements are combined to configure it internally.
+            Now we'll see how to explicitly configure it for use with a
+            <classname>FilterChainProxy</classname>, along with its companion filter
+            <classname>ExceptionTranslationFilter</classname>. A typical configuration example is
+            shown below: <programlisting language="xml"><![CDATA[
 <bean id="filterSecurityInterceptor"
       class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
   <property name="authenticationManager" ref="authenticationManager"/>
@@ -28,43 +28,41 @@
 </bean>]]></programlisting></para>
         <para><classname>FilterSecurityInterceptor</classname> is responsible for handling the
             security of HTTP resources. It requires a reference to an
-                <interfacename>AuthenticationManager</interfacename> and an
-                <interfacename>AccessDecisionManager</interfacename>. It is also supplied with
+            <interfacename>AuthenticationManager</interfacename> and an
+            <interfacename>AccessDecisionManager</interfacename>. It is also supplied with
             configuration attributes that apply to different HTTP URL requests. Refer back to <link
-                xlink:href="#tech-intro-config-attributes">the original discussion on these</link>
-            in the technical introduction.</para>
+            xlink:href="#tech-intro-config-attributes">the original discussion on these</link> in
+            the technical introduction.</para>
         <para>The <classname>FilterSecurityInterceptor</classname> can be configured with
             configuration attributes in two ways. The first, which is shown above, is using the
-                <literal>&lt;filter-security-metadata-source&gt;</literal> namespace element. This
-            is similar to the <literal>&lt;filter-chain-map&gt;</literal> used to configure a
-                <classname>FilterChainProxy</classname> but the
-                <literal>&lt;intercept-url&gt;</literal> child elements only use the
-                <literal>pattern</literal> and <literal>access</literal> attributes. Commas are used
-            to delimit the different configuration attributes that apply to each HTTP URL. The
-            second option is to write your own
+            <literal>&lt;filter-security-metadata-source&gt;</literal> namespace element. This is
+            similar to the <literal>&lt;filter-chain-map&gt;</literal> used to configure a
+            <classname>FilterChainProxy</classname> but the <literal>&lt;intercept-url&gt;</literal>
+            child elements only use the <literal>pattern</literal> and <literal>access</literal>
+            attributes. Commas are used to delimit the different configuration attributes that apply
+            to each HTTP URL. The second option is to write your own
             <interfacename>SecurityMetadataSource</interfacename>, but this is beyond the scope of
             this document. Irrespective of the approach used, the
-                <interfacename>SecurityMetadataSource</interfacename> is responsible for returning a
-                <literal>List&lt;ConfigAttribute&gt;</literal> containing all of the configuration
+            <interfacename>SecurityMetadataSource</interfacename> is responsible for returning a
+            <literal>List&lt;ConfigAttribute&gt;</literal> containing all of the configuration
             attributes associated with a single secure HTTP URL.</para>
         <para>It should be noted that the
-                <literal>FilterSecurityInterceptor.setSecurityMetadataSource()</literal> method
-            actually expects an instance of
-                <interfacename>FilterSecurityMetadataSource</interfacename>. This is a marker
-            interface which subclasses <interfacename>SecurityMetadataSource</interfacename>. It
-            simply denotes the <interfacename>SecurityMetadataSource</interfacename> understands
-                <classname>FilterInvocation</classname>s. In the interests of simplicity we'll
-            continue to refer to the
-                <interfacename>FilterInvocationSecurityMetadataSource</interfacename> as a
-                <interfacename>SecurityMetadataSource</interfacename>, as the distinction is of
-            little relevance to most users.</para>
+            <literal>FilterSecurityInterceptor.setSecurityMetadataSource()</literal> method actually
+            expects an instance of <interfacename>FilterSecurityMetadataSource</interfacename>. This
+            is a marker interface which subclasses
+            <interfacename>SecurityMetadataSource</interfacename>. It simply denotes the
+            <interfacename>SecurityMetadataSource</interfacename> understands
+            <classname>FilterInvocation</classname>s. In the interests of simplicity we'll continue
+            to refer to the <interfacename>FilterInvocationSecurityMetadataSource</interfacename> as
+            a <interfacename>SecurityMetadataSource</interfacename>, as the distinction is of little
+            relevance to most users.</para>
         <para>The <interfacename>SecurityMetadataSource</interfacename> created by the namespace
             syntax obtains the configuration attributes for a particular
-                <classname>FilterInvocation</classname> by matching the request URL against the
+            <classname>FilterInvocation</classname> by matching the request URL against the
             configured <literal>pattern</literal> attributes. This behaves in the same way as it
             does for namespace configuration. The default is to treat all expressions as Apache Ant
             paths and regular expressions are also supported for more complex cases. The
-                <literal>path-type</literal> attribute is used to specify the type of pattern being
+            <literal>path-type</literal> attribute is used to specify the type of pattern being
             used. It is not possible to mix expression syntaxes within the same definition. As an
             example, the previous configuration using regular expressions instead of Ant paths would
             be written as follows:</para>
@@ -84,10 +82,10 @@
         <para>Patterns are always evaluated in the order they are defined. Thus it is important that
             more specific patterns are defined higher in the list than less specific patterns. This
             is reflected in our example above, where the more specific
-                <literal>/secure/super/</literal> pattern appears higher than the less specific
-                <literal>/secure/</literal> pattern. If they were reversed, the
-                <literal>/secure/</literal> pattern would always match and the
-                <literal>/secure/super/</literal> pattern would never be evaluated.</para>
+            <literal>/secure/super/</literal> pattern appears higher than the less specific
+            <literal>/secure/</literal> pattern. If they were reversed, the
+            <literal>/secure/</literal> pattern would always match and the
+            <literal>/secure/super/</literal> pattern would never be evaluated.</para>
         <!--
     TODO: Put in FAQ instead. Or drop.
         <para>As with other security interceptors, the <literal>validateConfigAttributes</literal>
@@ -101,10 +99,9 @@
 -->
     </section>
     <section xml:id="exception-translation-filter">
-        <title>
-            <classname>ExceptionTranslationFilter</classname></title>
+        <title> <classname>ExceptionTranslationFilter</classname></title>
         <para>The <classname>ExceptionTranslationFilter</classname> sits above the
-                <classname>FilterSecurityInterceptor</classname> in the security filter stack. It
+            <classname>FilterSecurityInterceptor</classname> in the security filter stack. It
             doesn't do any actual security enforcement itself, but handles exceptions thrown by the
             security interceptors and provides suitable and HTTP responses. <programlisting language="xml"><![CDATA[
 <bean id="exceptionTranslationFilter"
@@ -127,11 +124,11 @@
             <title><interfacename>AuthenticationEntryPoint</interfacename></title>
             <para> The <interfacename>AuthenticationEntryPoint</interfacename> will be called if the
                 user requests a secure HTTP resource but they are not authenticated. An appropriate
-                    <exceptionname>AuthenticationException</exceptionname> or
-                    <exceptionname>AccessDeniedException</exceptionname> will be thrown by a
-                security interceptor further down the call stack, triggering the
-                    <methodname>commence</methodname> method on the entry point. This does the job
-                of presenting the appropriate response to the user so that authentication can begin.
+                <exceptionname>AuthenticationException</exceptionname> or
+                <exceptionname>AccessDeniedException</exceptionname> will be thrown by a security
+                interceptor further down the call stack, triggering the
+                <methodname>commence</methodname> method on the entry point. This does the job of
+                presenting the appropriate response to the user so that authentication can begin.
                 The one we've used here is <classname>LoginUrlAuthenticationEntryPoint</classname>,
                 which redirects the request to a different URL (typically a login page). The actual
                 implementation used will depend on the authentication mechanism you want to be used
@@ -153,32 +150,31 @@
             <para>If an <exceptionname>AccessDeniedException</exceptionname> is thrown and a user
                 has already been authenticated, then this means that an operation has been attempted
                 for which they don't have enough permissions. In this case,
-                    <classname>ExceptionTranslationFilter</classname> will invoke a second strategy,
-                the <interfacename>AccessDeniedHandler</interfacename>. By default, an
-                    <classname>AccessDeniedHandlerImpl</classname> is used, which just sends a 403
+                <classname>ExceptionTranslationFilter</classname> will invoke a second strategy, the
+                <interfacename>AccessDeniedHandler</interfacename>. By default, an
+                <classname>AccessDeniedHandlerImpl</classname> is used, which just sends a 403
                 (Forbidden) response to the client. Alternatively you can configure an instance
                 explicitly (as in the above example) and set an error page URL which it will
                 forwards the request to <footnote>
-                    <para>We use a forward so that the SecurityContextHolder still contains details
-                        of the principal, which may be useful for displaying to the user. In old
-                        releases of Spring Security we relied upon the servlet container to handle a
-                        403 error message, which lacked this useful contextual information.</para>
+                <para>We use a forward so that the SecurityContextHolder still contains details of
+                    the principal, which may be useful for displaying to the user. In old releases
+                    of Spring Security we relied upon the servlet container to handle a 403 error
+                    message, which lacked this useful contextual information.</para>
                 </footnote>. This can be a simple <quote>access denied</quote> page, such as a JSP,
                 or it could be a more complex handler such as an MVC controller. And of course, you
                 can implement the interface yourself and use your own implementation. </para>
             <para>It's also possible to supply a custom
-                    <interfacename>AccessDeniedHandler</interfacename> when you're using the
-                namespace to configure your application. See <link
-                    xlink:href="#nsa-access-denied-handler">the namespace appendix</link> for more
-                details.</para>
+                <interfacename>AccessDeniedHandler</interfacename> when you're using the namespace
+                to configure your application. See <link xlink:href="#nsa-access-denied-handler">the
+                namespace appendix</link> for more details.</para>
         </section>
     </section>
     <section xml:id="security-context-persistence-filter">
         <title><classname>SecurityContextPersistenceFilter</classname></title>
         <para> We covered the purpose of this all-important filter in the <link
-                xlink:href="#tech-intro-sec-context-persistence">Technical Overview</link> chapter
-            so you might want to re-read that section at this point. Let's first take a look at how
-            you would configure it for use with a <classname>FilterChainProxy</classname>. A basic
+            xlink:href="#tech-intro-sec-context-persistence">Technical Overview</link> chapter so
+            you might want to re-read that section at this point. Let's first take a look at how you
+            would configure it for use with a <classname>FilterChainProxy</classname>. A basic
             configuration only requires the bean itself <programlisting><![CDATA[
 <bean id="securityContextPersistenceFilter"
   class="org.springframework.security.web.context.SecurityContextPersistenceFilter"/>
@@ -205,19 +201,19 @@ public interface SecurityContextRepository {
                 incoming request and response objects, allowing the implementation to replace these
                 with wrapper classes. The returned contents will be passed to the filter chain. </para>
             <para> The default implementation is
-                    <classname>HttpSessionSecurityContextRepository</classname>, which stores the
+                <classname>HttpSessionSecurityContextRepository</classname>, which stores the
                 security context as an <interfacename>HttpSession</interfacename> attribute <footnote>
-                    <para>In Spring Security 2.0 and earlier, this filter was called
-                            <classname>HttpSessionContextIntegrationFilter</classname> and performed
-                        all the work of storing the context was performed by the filter itself. If
-                        you were familiar with this class, then most of the configuration options
-                        which were available can now be found on
-                            <classname>HttpSessionSecurityContextRepository</classname>. </para>
+                <para>In Spring Security 2.0 and earlier, this filter was called
+                    <classname>HttpSessionContextIntegrationFilter</classname> and performed all the
+                    work of storing the context was performed by the filter itself. If you were
+                    familiar with this class, then most of the configuration options which were
+                    available can now be found on
+                    <classname>HttpSessionSecurityContextRepository</classname>. </para>
                 </footnote>. The most important configuration parameter for this implementation is
                 the <literal>allowSessionCreation</literal> property, which defaults to
-                    <literal>true</literal>, thus allowing the class to create a session if it needs
-                one to store the security context for an authenticated user (it won't create one
-                unless authentication has taken place and the contents of the security context have
+                <literal>true</literal>, thus allowing the class to create a session if it needs one
+                to store the security context for an authenticated user (it won't create one unless
+                authentication has taken place and the contents of the security context have
                 changed). If you don't want a session to be created, then you can set this property
                 to <literal>false</literal>: <programlisting language="xml"><![CDATA[
 <bean id="securityContextPersistenceFilter"
@@ -229,7 +225,7 @@ class="org.springframework.security.web.context.SecurityContextPersistenceFilter
 </property>
 </bean>
 ]]></programlisting> Alternatively you could provide a null implementation of the
-                    <interfacename>SecurityContextRepository</interfacename> interface, which will
+                <interfacename>SecurityContextRepository</interfacename> interface, which will
                 prevent the security context from being stored, even if a session has already been
                 created during the request. </para>
         </section>
@@ -242,35 +238,35 @@ class="org.springframework.security.web.context.SecurityContextPersistenceFilter
             alternatives. The only thing that's missing now is an actual authentication mechanism,
             something that will allow a user to authenticate. This filter is the most commonly used
             authentication filter and the one that is most often customized <footnote>
-                <para>For historical reasons, prior to Spring Security 3.0, this filter was called
-                        <classname>AuthenticationProcessingFilter</classname> and the entry point
-                    was called <classname>AuthenticationProcessingFilterEntryPoint</classname>.
-                    Since the framework now supports many different forms of authentication, they
-                    have both been given more specific names in 3.0.</para>
+            <para>For historical reasons, prior to Spring Security 3.0, this filter was called
+                <classname>AuthenticationProcessingFilter</classname> and the entry point was called
+                <classname>AuthenticationProcessingFilterEntryPoint</classname>. Since the framework
+                now supports many different forms of authentication, they have both been given more
+                specific names in 3.0.</para>
             </footnote>. It also provides the implementation used by the
-                <literal>&lt;form-login&gt;</literal> element from the namespace. There are three
-            stages required to configure it. <orderedlist>
-                <listitem>
-                    <para>Configure a <classname>LoginUrlAuthenticationEntryPoint</classname> with
-                        the URL of the login page, just as we did above, and set it on the
-                            <classname>ExceptionTranslationFilter</classname>. </para>
-                </listitem>
-                <listitem>
-                    <para>Implement the login page (using a JSP or MVC controller).</para>
-                </listitem>
-                <listitem>
-                    <para>Configure an instance of
-                            <classname>UsernamePasswordAuthenticationFilter</classname> in the
-                        application context</para>
-                </listitem>
-                <listitem>
-                    <para>Add the filter bean to your filter chain proxy (making sure you pay
-                        attention to the order). <!-- TODO: link --></para>
-                </listitem>
+            <literal>&lt;form-login&gt;</literal> element from the namespace. There are three stages
+            required to configure it. <orderedlist>
+            <listitem>
+                <para>Configure a <classname>LoginUrlAuthenticationEntryPoint</classname> with the
+                    URL of the login page, just as we did above, and set it on the
+                    <classname>ExceptionTranslationFilter</classname>. </para>
+            </listitem>
+            <listitem>
+                <para>Implement the login page (using a JSP or MVC controller).</para>
+            </listitem>
+            <listitem>
+                <para>Configure an instance of
+                    <classname>UsernamePasswordAuthenticationFilter</classname> in the application
+                    context</para>
+            </listitem>
+            <listitem>
+                <para>Add the filter bean to your filter chain proxy (making sure you pay attention
+                    to the order). <!-- TODO: link --></para>
+            </listitem>
             </orderedlist> The login form simply contains <literal>j_username</literal> and
-                <literal>j_password</literal> input fields, and posts to the URL that is monitored
-            by the filter (by default this is <literal>/j_spring_security_check</literal>). The
-            basic filter configuration looks something like this: <programlisting><![CDATA[
+            <literal>j_password</literal> input fields, and posts to the URL that is monitored by
+            the filter (by default this is <literal>/j_spring_security_check</literal>). The basic
+            filter configuration looks something like this: <programlisting><![CDATA[
 <bean id="authenticationFilter" class=
 "org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
   <property name="authenticationManager" ref="authenticationManager"/>
@@ -280,38 +276,37 @@ class="org.springframework.security.web.context.SecurityContextPersistenceFilter
         <section xml:id="form-login-flow-handling">
             <title>Application Flow on Authentication Success and Failure</title>
             <para> The filter calls the configured
-                    <interfacename>AuthenticationManager</interfacename> to process each
-                authentication request. The destination following a successful authentication or an
-                authentication failure is controlled by the
-                    <interfacename>AuthenticationSuccessHandler</interfacename> and
-                    <interfacename>AuthenticationFailureHandler</interfacename> strategy interfaces,
+                <interfacename>AuthenticationManager</interfacename> to process each authentication
+                request. The destination following a successful authentication or an authentication
+                failure is controlled by the
+                <interfacename>AuthenticationSuccessHandler</interfacename> and
+                <interfacename>AuthenticationFailureHandler</interfacename> strategy interfaces,
                 respectively. The filter has properties which allow you to set these so you can
                 customize the behaviour completely <footnote>
-                    <para>In versions prior to 3.0, the application flow at this point had evolved
-                        to a stage was controlled by a mix of properties on this class and strategy
-                        plugins. The decision was made for 3.0 to refactor the code to make these
-                        two strategies entirely responsible. </para>
+                <para>In versions prior to 3.0, the application flow at this point had evolved to a
+                    stage was controlled by a mix of properties on this class and strategy plugins.
+                    The decision was made for 3.0 to refactor the code to make these two strategies
+                    entirely responsible. </para>
                 </footnote>. Some standard implementations are supplied such as
-                    <classname>SimpleUrlAuthenticationSuccessHandler</classname>,
-                    <classname>SavedRequestAwareAuthenticationSuccessHandler</classname>,
-                    <classname>SimpleUrlAuthenticationFailureHandler</classname> and
-                    <classname>ExceptionMappingAuthenticationFailureHandler</classname>. Have a look
-                at the Javadoc for these classes to see how they work. </para>
+                <classname>SimpleUrlAuthenticationSuccessHandler</classname>,
+                <classname>SavedRequestAwareAuthenticationSuccessHandler</classname>,
+                <classname>SimpleUrlAuthenticationFailureHandler</classname> and
+                <classname>ExceptionMappingAuthenticationFailureHandler</classname>. Have a look at
+                the Javadoc for these classes to see how they work. </para>
             <para>If authentication is successful, the resulting
-                    <interfacename>Authentication</interfacename> object will be placed into the
-                    <classname>SecurityContextHolder</classname>. The configured
-                    <interfacename>AuthenticationSuccessHandler</interfacename> will then be called
-                to either redirect or forward the user to the appropriate destination. By default a
-                    <classname>SavedRequestAwareAuthenticationSuccessHandler</classname> is used,
-                which means that the user will be redirected to the original destination they
-                requested before they were asked to login. <note>
-                    <para> The <classname>ExceptionTranslationFilter</classname> caches the original
-                        request a user makes. When the user authenticates, the request handler makes
-                        use of this cached request to obtain the original URL and redirect to it.
-                        The original request is then rebuilt and used as an alternative. </para>
+                <interfacename>Authentication</interfacename> object will be placed into the
+                <classname>SecurityContextHolder</classname>. The configured
+                <interfacename>AuthenticationSuccessHandler</interfacename> will then be called to
+                either redirect or forward the user to the appropriate destination. By default a
+                <classname>SavedRequestAwareAuthenticationSuccessHandler</classname> is used, which
+                means that the user will be redirected to the original destination they requested
+                before they were asked to login. <note>
+                <para> The <classname>ExceptionTranslationFilter</classname> caches the original
+                    request a user makes. When the user authenticates, the request handler makes use
+                    of this cached request to obtain the original URL and redirect to it. The
+                    original request is then rebuilt and used as an alternative. </para>
                 </note> If authentication fails, the configured
-                    <interfacename>AuthenticationFailureHandler</interfacename> will be invoked.
-            </para>
+                <interfacename>AuthenticationFailureHandler</interfacename> will be invoked. </para>
         </section>
     </section>
 </chapter>

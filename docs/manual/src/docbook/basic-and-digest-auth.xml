@@ -18,7 +18,7 @@
             authenticating calls made by Spring remoting protocols (such as Hessian and Burlap), as
             well as normal browser user agents (such as Firefox and Internet Explorer). The standard
             governing HTTP Basic Authentication is defined by RFC 1945, Section 11, and
-                <literal>BasicAuthenticationFilter</literal> conforms with this RFC. Basic
+            <literal>BasicAuthenticationFilter</literal> conforms with this RFC. Basic
             Authentication is an attractive approach to authentication, because it is very widely
             deployed in user agents and implementation is extremely simple (it's just a Base64
             encoding of the username:password, specified in an HTTP header).</para>
@@ -27,11 +27,10 @@
                 <title>Configuration</title>
             </info>
             <para>To implement HTTP Basic Authentication, you need to add a
-                    <literal>BasicAuthenticationFilter</literal> to your filter chain. The
-                application context should contain <literal>BasicAuthenticationFilter</literal> and
-                its required collaborator:</para>
-            <para>
-                <programlisting language="xml"><![CDATA[
+                <literal>BasicAuthenticationFilter</literal> to your filter chain. The application
+                context should contain <literal>BasicAuthenticationFilter</literal> and its required
+                collaborator:</para>
+            <para> <programlisting language="xml"><![CDATA[
 <bean id="basicAuthenticationFilter"
   class="org.springframework.security.web.authentication.www.BasicAuthenticationFilter">
   <property name="authenticationManager" ref="authenticationManager"/>
@@ -42,21 +41,20 @@
   class="org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint">
   <property name="realmName" value="Name Of Your Realm"/>
 </bean>]]>
-                </programlisting>
-            </para>
+                </programlisting> </para>
             <para>The configured <interfacename>AuthenticationManager</interfacename> processes each
                 authentication request. If authentication fails, the configured
-                    <interfacename>AuthenticationEntryPoint</interfacename> will be used to retry
-                the authentication process. Usually you will use the filter in combination with a
-                    <literal>BasicAuthenticationEntryPoint</literal>, which returns a 401 response
-                with a suitable header to retry HTTP Basic authentication. If authentication is
+                <interfacename>AuthenticationEntryPoint</interfacename> will be used to retry the
+                authentication process. Usually you will use the filter in combination with a
+                <literal>BasicAuthenticationEntryPoint</literal>, which returns a 401 response with
+                a suitable header to retry HTTP Basic authentication. If authentication is
                 successful, the resulting <interfacename>Authentication</interfacename> object will
                 be placed into the <classname>SecurityContextHolder</classname> as usual.</para>
             <para>If the authentication event was successful, or authentication was not attempted
                 because the HTTP header did not contain a supported authentication request, the
                 filter chain will continue as normal. The only time the filter chain will be
                 interrupted is if authentication fails and the
-                    <interfacename>AuthenticationEntryPoint</interfacename> is called.</para>
+                <interfacename>AuthenticationEntryPoint</interfacename> is called.</para>
         </section>
     </section>
     <section xml:id="digest-processing-filter">
@@ -70,7 +68,7 @@
             the Digest Authentication standard prescribed by RFC 2069. Most user agents implement
             RFC 2617. Spring Security's <classname>DigestAuthenticationFilter</classname> is
             compatible with the "<literal>auth</literal>" quality of protection
-                (<literal>qop</literal>) prescribed by RFC 2617, which also provides backward
+            (<literal>qop</literal>) prescribed by RFC 2617, which also provides backward
             compatibility with RFC 2069. Digest Authentication is a more attractive option if you
             need to use unencrypted HTTP (i.e. no TLS/HTTPS) and wish to maximise security of the
             authentication process. Indeed Digest Authentication is a mandatory requirement for the
@@ -86,11 +84,10 @@
 
   expirationTime:   The date and time when the nonce expires, expressed in milliseconds
   key:              A private key to prevent modification of the nonce token
-            </programlisting>
-        </para>
+            </programlisting> </para>
         <para>The <classname>DigestAuthenticatonEntryPoint</classname> has a property specifying the
-                <literal>key</literal> used for generating the nonce tokens, along with a
-                <literal>nonceValiditySeconds</literal> property for determining the expiration time
+            <literal>key</literal> used for generating the nonce tokens, along with a
+            <literal>nonceValiditySeconds</literal> property for determining the expiration time
             (default 300, which equals five minutes). Whist ever the nonce is valid, the digest is
             computed by concatenating various strings including the username, password, nonce, URI
             being requested, a client-generated nonce (merely a random value which the user agent
@@ -99,11 +96,11 @@
             if they disagree on an included value (eg password). In Spring Security implementation,
             if the server-generated nonce has merely expired (but the digest was otherwise valid),
             the <classname>DigestAuthenticationEntryPoint</classname> will send a
-                <literal>"stale=true"</literal> header. This tells the user agent there is no need
-            to disturb the user (as the password and username etc is correct), but simply to try
-            again using a new nonce.</para>
+            <literal>"stale=true"</literal> header. This tells the user agent there is no need to
+            disturb the user (as the password and username etc is correct), but simply to try again
+            using a new nonce.</para>
         <para>An appropriate value for <classname>DigestAuthenticationEntryPoint</classname>'s
-                <literal>nonceValiditySeconds</literal> parameter will depend on your application.
+            <literal>nonceValiditySeconds</literal> parameter will depend on your application.
             Extremely secure applications should note that an intercepted authentication header can
             be used to impersonate the principal until the <literal>expirationTime</literal>
             contained in the nonce is reached. This is the key principle when selecting an
@@ -111,21 +108,19 @@
             running over TLS/HTTPS in the first instance.</para>
         <para>Because of the more complex implementation of Digest Authentication, there are often
             user agent issues. For example, Internet Explorer fails to present an
-                "<literal>opaque</literal>" token on subsequent requests in the same session. Spring
+            "<literal>opaque</literal>" token on subsequent requests in the same session. Spring
             Security filters therefore encapsulate all state information into the
-                "<literal>nonce</literal>" token instead. In our testing, Spring Security's
+            "<literal>nonce</literal>" token instead. In our testing, Spring Security's
             implementation works reliably with FireFox and Internet Explorer, correctly handling
             nonce timeouts etc.</para>
         <section xml:id="digest-config">
             <title>Configuration</title>
             <para>Now that we've reviewed the theory, let's see how to use it. To implement HTTP
                 Digest Authentication, it is necessary to define
-                    <literal>DigestAuthenticationFilter</literal> in the filter chain. The
-                application context will need to define the
-                    <literal>DigestAuthenticationFilter</literal> and its required
-                collaborators:</para>
-            <para>
-                <programlisting><![CDATA[
+                <literal>DigestAuthenticationFilter</literal> in the filter chain. The application
+                context will need to define the <literal>DigestAuthenticationFilter</literal> and
+                its required collaborators:</para>
+            <para> <programlisting><![CDATA[
 <bean id="digestFilter" class=
     "org.springframework.security.web.authentication.www.DigestAuthenticationFilter">
   <property name="userDetailsService" ref="jdbcDaoImpl"/>
@@ -139,18 +134,17 @@
   <property name="key" value="acegi"/>
   <property name="nonceValiditySeconds" value="10"/>
 </bean>]]>
-                </programlisting>
-            </para>
+                </programlisting> </para>
             <para>The configured <interfacename>UserDetailsService</interfacename> is needed because
-                    <literal>DigestAuthenticationFilter</literal> must have direct access to the
-                clear text password of a user. Digest Authentication will NOT work if you are using
+                <literal>DigestAuthenticationFilter</literal> must have direct access to the clear
+                text password of a user. Digest Authentication will NOT work if you are using
                 encoded passwords in your DAO. The DAO collaborator, along with the
-                    <literal>UserCache</literal>, are typically shared directly with a
-                    <classname>DaoAuthenticationProvider</classname>. The
-                    <literal>authenticationEntryPoint</literal> property must be
-                    <classname>DigestAuthenticationEntryPoint</classname>, so that
-                    <classname>DigestAuthenticationFilter</classname> can obtain the correct
-                    <literal>realmName</literal> and <literal>key</literal> for digest
+                <literal>UserCache</literal>, are typically shared directly with a
+                <classname>DaoAuthenticationProvider</classname>. The
+                <literal>authenticationEntryPoint</literal> property must be
+                <classname>DigestAuthenticationEntryPoint</classname>, so that
+                <classname>DigestAuthenticationFilter</classname> can obtain the correct
+                <literal>realmName</literal> and <literal>key</literal> for digest
                 calculations.</para>
             <para>Like <literal>BasicAuthenticationFilter</literal>, if authentication is successful
                 an <interfacename>Authentication</interfacename> request token will be placed into
