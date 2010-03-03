@@ -1,6 +1,3 @@
-import java.util.jar.Manifest
-import org.gradle.api.tasks.bundling.GradleManifest
-
 apply id: 'base'
 
 allprojects {
@@ -11,135 +8,24 @@ allprojects {
     group = 'org.springframework.security'
 
     repositories {
-        mavenRepo name:'Local', urls:'file:///Users/luke/.m2/repository'
+        mavenRepo name:'Local', urls: "file://" + System.properties['user.home'] + "/.m2/repository"
         mavenCentral()
-        mavenRepo name:'SpringSource Milestone Repo', urls:'http://repository.springsource.com/maven/bundles/milestone'
-        mavenRepo name:'SpringSource Maven Snapshot Repo', urls:'http://maven.springframework.org/snapshot/'
+        mavenRepo name: 'SpringSource Milestone Repo', urls: 'http://repository.springsource.com/maven/bundles/milestone'
+        mavenRepo name: 'SpringSource Maven Snapshot Repo', urls: 'http://maven.springframework.org/snapshot/'
+        mavenRepo name: 'SpringSource Enterprise Release', urls: 'http://repository.springsource.com/maven/bundles/release'
+        mavenRepo name: 'SpringSource Enterprise External', urls: 'http://repository.springsource.com/maven/bundles/external'
     }
 }
 
-configure(javaProjects()) {
-    apply id: 'java'
-
-    springVersion = '3.0.1.RELEASE'
-    springLdapVersion = '1.3.0.RELEASE'
-    ehcacheVersion = '1.6.2'
-    aspectjVersion = '1.6.8'
-    apacheDsVersion = '1.5.5'
-    jstlVersion = '1.1.2'
-    jettyVersion = '6.1.22'
-    hsqlVersion = '1.8.0.10'
-
-    configurations {
-        bundlor
-        provided
-    }
-
-    dependencies {
-        compile     'commons-logging:commons-logging:1.1.1'
-
-        testCompile 'junit:junit:4.7',
-                    'org.mockito:mockito-core:1.7',
-                    'org.jmock:jmock:2.5.1',
-                    'org.jmock:jmock-junit4:2.5.1',
-                    'org.hamcrest:hamcrest-core:1.1',
-                    'org.hamcrest:hamcrest-library:1.1',
-                    "org.springframework:spring-test:$springVersion"
-        bundlor     'com.springsource.bundlor:com.springsource.bundlor.ant:1.0.0.RC1',
-                    'com.springsource.bundlor:com.springsource.bundlor:1.0.0.RC1',
-                    'com.springsource.bundlor:com.springsource.bundlor.blint:1.0.0.RC1'
-    }
-
-    sourceSets {
-        main {
-            compileClasspath = compileClasspath + configurations.provided
-        }
-        test {
-            compileClasspath = compileClasspath + configurations.provided
-            runtimeClasspath = runtimeClasspath + configurations.provided
-        }
-    }
-
-    test {
-        jvmArgs = ['-ea', '-Xms128m', '-Xmx500m', '-XX:MaxPermSize=128m']
-    }
-
-    task bundlor (dependsOn: compileJava) << {
-        if (!dependsOnTaskDidWork()) {
-            return
-        }
-        ant.taskdef(resource: 'com/springsource/bundlor/ant/antlib.xml', classpath: configurations.bundlor.asPath)
-        File template = new File(projectDir, 'template.mf')
-        mkdir(buildDir, 'bundlor')
-        if (template.exists()) {
-            ant.bundlor(inputPath: sourceSets.main.classesDir, outputPath: "$buildDir/bundlor", manifestTemplatePath: template) {
-                property(name: 'version', value: "$version")
-                property(name: 'spring.version', value: "$springVersion")
-            }
-            // See GRADLE-395 for support for using an existing manifest
-            jar.manifest = new GradleManifest(new Manifest(new File("$buildDir/bundlor/META-INF/MANIFEST.MF").newInputStream()))
-        }
-    }
-
-    jar.dependsOn bundlor
+configure(javaProjects) {
+    apply url: "$rootDir/gradle/javaprojects.gradle"
+    apply url: "$rootDir/gradle/maven.gradle"
 }
 
-configure(javaProjects()) {
-    apply id: 'maven'
 
-    // Create a source jar for uploading
-    task sourceJar(type: Jar) {
-        classifier = 'sources'
-        from sourceSets.main.java
-    }
-
-    configurations {
-        deployerJars
-    }
-
-    artifacts {
-        archives sourceJar
-    }
-
-    dependencies {
-        deployerJars "org.springframework.build.aws:org.springframework.build.aws.maven:2.0.1.BUILD-SNAPSHOT"
-    }
-
-    uploadArchives {
-        repositories.mavenDeployer {
-            configuration = configurations.deployerJars
-            if (releaseBuild) {
-                // "mavenSyncRepoDir" should be set in properties
-                repository(url: mavenSyncRepoDir)
-            } else {
-                s3credentials = [userName: s3AccessKey, passphrase: s3SecretAccessKey]
-                repository(url: "s3://maven.springframework.org/milestone") {
-                    authentication(s3credentials)
-                }
-                snapshotRepository(url: "s3://maven.springframework.org/snapshot") {
-                    authentication(s3credentials)
-                }
-            }
-            pom.whenConfigured { pom ->
-                def optionalDeps = ['commons-logging', 'ehcache', 'log4j', 'apacheds-core', 'apacheds-server-jndi', 'jsp-api', 'slf4j-api', 'slf4j-log4j12', 'jsr250-api', 'ldapsdk']
-                def providedDeps = ['servlet-api']
-                pom.dependencies.findAll { dep -> optionalDeps.contains(dep.artifactId) }*.optional = true
-                pom.dependencies.findAll { dep -> providedDeps.contains(dep.artifactId) }*.scope = 'provided'
-            }
-        }
-    }
-
-    conf2ScopeMappings.addMapping(1, configurations.provided, "provided")
-}
-
-configure(coreModuleProjects()) {
+configure(coreModuleProjects) {
     // Gives better names in structure101 jar diagram
     sourceSets.main.classesDir = new File(buildDir, "classes/" + project.name.substring("spring-security".length() + 1))
-}
-
-repositories {
-    // Required for ant s3 task
-    mavenRepo name: "s2.com release", urls: "http://repository.springsource.com/maven/bundles/release"
 }
 
 configurations {
@@ -158,12 +44,13 @@ task apidocs(type: Javadoc) {
     title = "Spring Security $version API"
     optionsFile = file("$buildDir/tmp/javadoc.options")
 
-    source coreModuleProjects().collect { project ->
+    source coreModuleProjects.collect {project ->
         project.sourceSets.main.allJava
     }
 
-    classpath = files(coreModuleProjects().collect { project ->
-        project.sourceSets.main.compileClasspath })
+    classpath = files(coreModuleProjects.collect {project ->
+        project.sourceSets.main.compileClasspath
+    })
 }
 
 task apitar(type: Tar, dependsOn: apidocs) {
@@ -182,31 +69,39 @@ task doctar(type: Tar, dependsOn: ':manual:doc') {
     }
 }
 
-def username;
-def password;
-
-task login << {
-    ant.input("Please enter the ssh username for host '$sshHost'", addproperty: "ssh.username")
-    ant.input("Please enter the ssh password '$sshHost'", addproperty: "ssh.password")
-    username = ant.properties['ssh.username']
-    password = ant.properties['ssh.password']
+task login {
+    // add dynamic properties to login task
+    username = null
+    password = null
+    doFirst {
+        ant {
+            input("Please enter the ssh username for host '$sshHost'", addproperty: "ssh.username")
+            input("Please enter the ssh password '$sshHost'", addproperty: "ssh.password")
+        }
+        username = ant.properties['ssh.username']
+        password = ant.properties['ssh.password']
+    }
 }
 
-task uploadApidocs (dependsOn: login) << {
-    ant.scp(file: apitar.archivePath, todir: "$username@$sshHost:$remoteDocsDir", password: password)
-    ant.sshexec(host: sshHost, username: username, password: password, command: "cd $remoteDocsDir && tar -xjf ${apitar.archiveName}")
-    ant.sshexec(host: sshHost, username: username, password: password, command: "rm $remoteDocsDir/${apitar.archiveName}")
+task uploadApidocs(dependsOn: login) << {
+    ant {
+        scp(file: apitar.archivePath, todir: "$login.username@$sshHost:$remoteDocsDir", password: login.password)
+        sshexec(host: sshHost, username: login.username, password: login.password, command: "cd $remoteDocsDir && tar -xjf ${apitar.archiveName}")
+        sshexec(host: sshHost, username: login.username, password: login.password, command: "rm $remoteDocsDir/${apitar.archiveName}")
+    }
 }
 
-task uploadManual (dependsOn: login) << {
-    ant.scp(file: doctar.archivePath, todir: "$username@$sshHost:$remoteDocsDir", password: password)
-    ant.sshexec(host: sshHost, username: username, password: password, command: "cd $remoteDocsDir && tar -xjf ${doctar.archiveName}")
-    ant.sshexec(host: sshHost, username: username, password: password, command: "rm $remoteDocsDir/${doctar.archiveName}")
+task uploadManual(dependsOn: login) << {
+    ant {
+        scp(file: doctar.archivePath, todir: "$login.username@$sshHost:$remoteDocsDir", password: login.password)
+        sshexec(host: sshHost, username: login.username, password: login.password, command: "cd $remoteDocsDir && tar -xjf ${doctar.archiveName}")
+        sshexec(host: sshHost, username: login.username, password: login.password, command: "rm $remoteDocsDir/${doctar.archiveName}")
+    }
 }
 
-task dist (type: Zip) {
+task dist(type: Zip) {
     def zipRootDir = "${project.name}-$version"
-    into (zipRootDir) {
+    into(zipRootDir) {
         into('docs/apidocs') {
             from apidocs.destinationDir
         }
@@ -214,61 +109,81 @@ task dist (type: Zip) {
             from docsDir
         }
         into('dist') {
-            from coreModuleProjects().collect { project -> project.libsDir }
+            from coreModuleProjects.collect {project -> project.libsDir }
             from project(':spring-security-samples-tutorial').libsDir
             from project(':spring-security-samples-contacts').libsDir
         }
     }
 }
 
-dist.dependsOn apidocs, ':manual:doc'
-dist.dependsOn subprojects.collect { "$it.path:assemble" }
-
-dist.doLast {
-    ant.checksum(file: archivePath, algorithm: 'SHA1', fileext: '.sha1')
-}
-
-task uploadDist << {
-    def shaFile = file("${dist.archivePath}.sha1")
-    assert dist.archivePath.isFile()
-    assert shaFile.isFile()
-    ant.taskdef(resource: 'org/springframework/build/aws/ant/antlib.xml', classpath: configurations.antlibs.asPath)
-    ant.s3(accessKey: s3AccessKey, secretKey: s3SecretAccessKey) {
-        upload(bucketName: 'dist.springframework.org', file: dist.archivePath,
-                toFile: releaseType() + "/SEC/${dist.archiveName}", publicRead: 'true') {
-            metadata(name: 'project.name', value: 'Spring Security')
-            metadata(name: 'release.type', value: releaseType())
-            metadata(name: 'bundle.version', value: version)
-            metadata(name: 'package.file.name', value: dist.archiveName)
-        }
-        upload(bucketName: 'dist.springframework.org', file: shaFile,
-                toFile: releaseType() + "/SEC/${dist.archiveName}.sha1", publicRead: 'true')
+dist {
+    dependsOn apidocs, ':manual:doc', subprojects.collect { "$it.path:assemble" }
+    doLast {
+        ant.checksum(file: archivePath, algorithm: 'SHA1', fileext: '.sha1')
     }
 }
 
-def javaProjects() {
-    subprojects.findAll { project -> project.name != 'faq' && project.name != 'manual' }
+task uploadDist(type: UploadDist) {
+    archiveFile = dist.archivePath
+    shaFile = "${dist.archivePath}.sha1" as File
+    archiveName = dist.archiveName
 }
 
-def sampleProjects() {
-    subprojects.findAll { project -> project.name.startsWith('spring-security-samples') }
+def getJavaProjects() {
+    subprojects.findAll {project -> project.name != 'faq' && project.name != 'manual' }
 }
 
-def itestProjects() {
-    subprojects.findAll { project -> project.name.startsWith('itest') }
+def getSampleProjects() {
+    subprojects.findAll {project -> project.name.startsWith('spring-security-samples') }
 }
 
-def coreModuleProjects() {
-    javaProjects() - sampleProjects() - itestProjects()
+def getItestProjects() {
+    subprojects.findAll {project -> project.name.startsWith('itest') }
 }
 
-def releaseType() {
-    if (releaseBuild) {
-        'release'
-    } else if (snapshotBuild) {
-        'snapshot'
-    } else {
-        'milestone'
+def getCoreModuleProjects() {
+    javaProjects - sampleProjects - itestProjects
+}
+
+class UploadDist extends DefaultTask {
+    @InputFile
+    File shaFile
+
+    @InputFile
+    File archiveFile
+
+    @Input
+    String archiveName
+
+    @InputFiles
+    def classpath
+
+    @TaskAction
+    def upload() {
+        project.ant {
+            taskdef(resource: 'org/springframework/build/aws/ant/antlib.xml', classpath: classpath.asPath)
+            s3(accessKey: project.s3AccessKey, secretKey: project.s3SecretAccessKey) {
+                upload(bucketName: 'dist.springframework.org', file: archiveFile,
+                        toFile: releaseType() + "/SEC/${archiveName}", publicRead: 'true') {
+                    metadata(name: 'project.name', value: 'Spring Security')
+                    metadata(name: 'release.type', value: releaseType())
+                    metadata(name: 'bundle.version', value: project.version)
+                    metadata(name: 'package.file.name', value: archiveName)
+                }
+                upload(bucketName: 'dist.springframework.org', file: shaFile,
+                        toFile: releaseType() + "/SEC/${archiveName}.sha1", publicRead: 'true')
+            }
+        }
+    }
+
+    def releaseType() {
+        if (project.releaseBuild) {
+            'release'
+        } else if (project.snapshotBuild) {
+            'snapshot'
+        } else {
+            'milestone'
+        }
     }
 }
 

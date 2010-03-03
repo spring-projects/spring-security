@@ -10,11 +10,7 @@ dependencies {
             "org.springframework:spring-expression:$springVersion",
             "org.springframework:spring-web:$springVersion"
 
-    provided 'javax.servlet:jsp-api:2.0'
-    
-    testCompile 'javax.servlet:servlet-api:2.5',
-                'javax.servlet:jsp-api:2.0'
+    provided 'javax.servlet:jsp-api:2.0', 'javax.servlet:servlet-api:2.5'
     
     testRuntime "taglibs:standard:$jstlVersion"
-
 }

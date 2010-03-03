@@ -4,5 +4,6 @@ target/
 .settings/
 build/
 *.log
+*.iml
 .gradle/
 gradle.properties

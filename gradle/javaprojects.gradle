@@ -1,0 +1,59 @@
+import java.util.jar.Manifest
+import org.gradle.api.tasks.bundling.GradleManifest
+
+apply id: 'java'
+
+springVersion = '3.0.1.RELEASE'
+springLdapVersion = '1.3.0.RELEASE'
+ehcacheVersion = '1.6.2'
+aspectjVersion = '1.6.8'
+apacheDsVersion = '1.5.5'
+jstlVersion = '1.1.2'
+jettyVersion = '6.1.22'
+hsqlVersion = '1.8.0.10'
+
+configurations {
+    bundlor
+    provided
+    compile.extendsFrom provided
+}
+
+dependencies {
+    compile 'commons-logging:commons-logging:1.1.1'
+
+    testCompile 'junit:junit:4.7',
+            'org.mockito:mockito-core:1.7',
+            'org.jmock:jmock:2.5.1',
+            'org.jmock:jmock-junit4:2.5.1',
+            'org.hamcrest:hamcrest-core:1.1',
+            'org.hamcrest:hamcrest-library:1.1',
+            "org.springframework:spring-test:$springVersion"
+    bundlor 'com.springsource.bundlor:com.springsource.bundlor.ant:1.0.0.RC1',
+            'com.springsource.bundlor:com.springsource.bundlor:1.0.0.RC1',
+            'com.springsource.bundlor:com.springsource.bundlor.blint:1.0.0.RC1'
+}
+
+test {
+    jvmArgs = ['-ea', '-Xms128m', '-Xmx500m', '-XX:MaxPermSize=128m']
+}
+
+task bundlor(dependsOn: compileJava) {
+    onlyIf {
+        dependsOnTaskDidWork()
+    }
+    doFirst {
+        ant.taskdef(resource: 'com/springsource/bundlor/ant/antlib.xml', classpath: configurations.bundlor.asPath)
+        File template = new File(projectDir, 'template.mf')
+        mkdir(buildDir, 'bundlor')
+        if (template.exists()) {
+            ant.bundlor(inputPath: sourceSets.main.classesDir, outputPath: "$buildDir/bundlor", manifestTemplatePath: template) {
+                property(name: 'version', value: "$version")
+                property(name: 'spring.version', value: "$springVersion")
+            }
+            // See GRADLE-395 for support for using an existing manifest
+            jar.manifest = new GradleManifest(new Manifest(new File("$buildDir/bundlor/META-INF/MANIFEST.MF").newInputStream()))
+        }
+    }
+}
+
+jar.dependsOn bundlor

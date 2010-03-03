@@ -1,13 +1,15 @@
 apply id: 'base'
 apply id: 'docbook'
 
-docbookSrcFileName = 'springsecurity.xml'
+[docbookHtml, docbookFoPdf, docbookHtmlSingle]*.sourceFileName = 'springsecurity.xml';
+
 docbookHtml.stylesheet = new File(projectDir, 'src/xsl/html-custom.xsl')
+docbookHtmlSingle.stylesheet = new File(projectDir, 'src/xsl/html-single-custom.xsl')
 docbookFoPdf.stylesheet = new File(projectDir, 'src/xsl/pdf-custom.xsl')
 def imagesDir = new File(projectDir, 'src/docbook/images');
 docbookFoPdf.admonGraphicsPath = "${imagesDir}/"
 
-task doc (dependsOn: [docbookHtml, docbookFoPdf]) << {
+task doc (dependsOn: [docbookHtml, docbookHtmlSingle, docbookFoPdf]) << {
     resourcesDir = new File(projectDir, 'src/resources')
     ant {
         docsDir = new File(buildDir, 'docs')

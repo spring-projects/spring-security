@@ -3,7 +3,8 @@ apply id: 'docbook'
 
 defaultTasks 'docbookHtmlSingle'
 
-docbookSrcFileName = 'faq.xml'
+[docbookHtml, docbookFoPdf, docbookHtmlSingle]*.sourceFileName = 'faq.xml'
+
 docbookHtmlSingle.stylesheet = new File(projectDir, 'src/xsl/html-single-custom.xsl')
 
 docbookHtmlSingle.doLast {

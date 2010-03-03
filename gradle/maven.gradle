@@ -1,0 +1,55 @@
+apply id: 'maven'
+
+// Create a source jar for uploading
+task sourceJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.java
+}
+
+configurations {
+    deployerJars
+}
+
+artifacts {
+    archives sourceJar
+}
+
+dependencies {
+    deployerJars "org.springframework.build.aws:org.springframework.build.aws.maven:3.0.0.RELEASE"
+}
+
+gradle.taskGraph.whenReady {graph ->
+    if (graph.hasTask(uploadArchives)) {
+        // check properties defined and fail early
+        s3AccessKey
+        s3SecretAccessKey
+    }
+}
+
+uploadArchives {
+    def mavenDeployer = repositories.mavenDeployer {
+        configuration = configurations.deployerJars
+        pom.whenConfigured {pom ->
+            def optionalDeps = ['commons-logging', 'ehcache', 'log4j', 'apacheds-core', 'apacheds-server-jndi', 'jsp-api', 'slf4j-api', 'slf4j-log4j12', 'jsr250-api', 'ldapsdk']
+            def providedDeps = ['servlet-api']
+            pom.dependencies.findAll {dep -> optionalDeps.contains(dep.artifactId) }*.optional = true
+            pom.dependencies.findAll {dep -> providedDeps.contains(dep.artifactId) }*.scope = 'provided'
+        }
+    }
+    doFirst {
+        if (releaseBuild) {
+            // "mavenSyncRepoDir" should be set in properties
+            repository(url: mavenSyncRepoDir)
+        } else {
+            s3credentials = [userName: s3AccessKey, passphrase: s3SecretAccessKey]
+            repository(url: "s3://maven.springframework.org/milestone") {
+                authentication(s3credentials)
+            }
+            snapshotRepository(url: "s3://maven.springframework.org/snapshot") {
+                authentication(s3credentials)
+            }
+        }
+    }
+}
+
+conf2ScopeMappings.addMapping(1, configurations.provided, "provided")
