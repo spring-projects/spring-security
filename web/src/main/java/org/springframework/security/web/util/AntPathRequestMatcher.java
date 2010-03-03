@@ -11,7 +11,8 @@ import org.springframework.util.StringUtils;
 
 /**
  * Matcher which compares a pre-defined ant-style pattern against the URL of an
- * {@code HttpServletRequest}. Ignores the query string of the URL.
+ * {@code HttpServletRequest}. Ignores the query string of the URL and always performs
+ * case-insensitive matching.
  *
  * @author Luke Taylor
  * @since 3.1

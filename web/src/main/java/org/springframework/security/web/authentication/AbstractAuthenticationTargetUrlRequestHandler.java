@@ -39,6 +39,7 @@ import org.springframework.util.StringUtils;
  * <li>
  * As a fallback option, the <tt>defaultTargetUrl</tt> value will be used.
  * </li>
+ * </ul>
  *
  * @author Luke Taylor
  * @since 3.0
@@ -56,13 +57,26 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
     protected AbstractAuthenticationTargetUrlRequestHandler() {
     }
 
+    /**
+     * Invokes the configured {@code RedirectStrategy} with the URL returned by the {@code determineTargetUrl} method.
+     * <p>
+     * The redirect will not be performed if the response has already been committed.
+     */
     protected void handle(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException, ServletException {
         String targetUrl = determineTargetUrl(request, response);
 
+        if (response.isCommitted()) {
+            logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
+            return;
+        }
+
         redirectStrategy.sendRedirect(request, response, targetUrl);
     }
 
+    /**
+     * Builds the target URL according to the logic defined in the main class Javadoc.
+     */
     protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response) {
         if (isAlwaysUseDefaultTargetUrl()) {
             return defaultTargetUrl;
@@ -102,7 +116,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
      *
      * @return the defaultTargetUrl property
      */
-    protected String getDefaultTargetUrl() {
+    protected final String getDefaultTargetUrl() {
         return defaultTargetUrl;
     }
 
@@ -137,7 +151,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
      * The current request will be checked for this parameter before and the value used as the target URL if present.
      *
      *  @param targetUrlParameter the name of the parameter containing the encoded target URL. Defaults
-     *  to "redirect".
+     *  to "spring-security-redirect".
      */
     public void setTargetUrlParameter(String targetUrlParameter) {
         Assert.hasText("targetUrlParameter canot be null or empty");
