@@ -22,7 +22,7 @@ import org.springframework.util.Assert;
  * If the property has not been set it will send a 401 response to the client, with the error message from the
  * <tt>AuthenticationException</tt> which caused the failure.
  * <p>
- * If the <tt>forwardToDestination</tt> parameter is set, a <tt>RequestDispatcher.forward</tt> call will be made to
+ * If the {@code useForward} property is set, a {@code RequestDispatcher.forward} call will be made to
  * the destination instead of a redirect.
  *
  * @author Luke Taylor

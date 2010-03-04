@@ -15,7 +15,8 @@
 
 package org.springframework.security.web.authentication;
 
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -30,8 +31,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import junit.framework.TestCase;
-
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -44,10 +46,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.PortResolverImpl;
-import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.ExceptionMappingAuthenticationFailureHandler;
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
@@ -57,9 +55,10 @@ import org.springframework.security.web.savedrequest.DefaultSavedRequest;
  * Tests {@link AbstractAuthenticationProcessingFilter}.
  *
  * @author Ben Alex
+ * @author Luke Taylor
  */
 @SuppressWarnings("deprecation")
-public class AbstractAuthenticationProcessingFilterTests extends TestCase {
+public class AbstractAuthenticationProcessingFilterTests {
     SavedRequestAwareAuthenticationSuccessHandler successHandler;
     SimpleUrlAuthenticationFailureHandler failureHandler;
     //~ Methods ========================================================================================================
@@ -105,8 +104,8 @@ public class AbstractAuthenticationProcessingFilterTests extends TestCase {
 //        return new DefaultSavedRequest(request, new PortResolverImpl());
 //    }
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
         successHandler.setDefaultTargetUrl("/logged_in.jsp");
         failureHandler = new SimpleUrlAuthenticationFailureHandler();
@@ -114,11 +113,12 @@ public class AbstractAuthenticationProcessingFilterTests extends TestCase {
         SecurityContextHolder.clearContext();
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    @After
+    public void tearDown() throws Exception {
         SecurityContextHolder.clearContext();
     }
 
+    @Test
     public void testDefaultProcessesFilterUrlMatchesWithPathParameter() {
         MockHttpServletRequest request = createMockRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -129,6 +129,7 @@ public class AbstractAuthenticationProcessingFilterTests extends TestCase {
         assertTrue(filter.requiresAuthentication(request, response));
     }
 
+    @Test
     public void testFailedAuthenticationRedirectsAppropriately() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
@@ -166,6 +167,7 @@ public class AbstractAuthenticationProcessingFilterTests extends TestCase {
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
+    @Test
     public void testFilterProcessesUrlVariationsRespected() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
@@ -191,6 +193,7 @@ public class AbstractAuthenticationProcessingFilterTests extends TestCase {
         assertEquals("test", SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
     }
 
+    @Test
     public void testGettersSetters() throws Exception {
         AbstractAuthenticationProcessingFilter filter = new MockAuthenticationFilter();
         filter.setAuthenticationManager(mock(AuthenticationManager.class));
@@ -204,6 +207,7 @@ public class AbstractAuthenticationProcessingFilterTests extends TestCase {
         assertEquals("/p", filter.getFilterProcessesUrl());
     }
 
+    @Test
     public void testIgnoresAnyServletPathOtherThanFilterProcessesUrl() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
@@ -224,6 +228,7 @@ public class AbstractAuthenticationProcessingFilterTests extends TestCase {
         executeFilterInContainerSimulator(config, filter, request, response, chain);
     }
 
+    @Test
     public void testNormalOperationWithDefaultFilterProcessesUrl() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
@@ -255,6 +260,7 @@ public class AbstractAuthenticationProcessingFilterTests extends TestCase {
         assertEquals(sessionPreAuth, request.getSession());
     }
 
+    @Test
     public void testStartupDetectsInvalidAuthenticationManager() throws Exception {
         AbstractAuthenticationProcessingFilter filter = new MockAuthenticationFilter();
         filter.setAuthenticationFailureHandler(failureHandler);
@@ -270,6 +276,7 @@ public class AbstractAuthenticationProcessingFilterTests extends TestCase {
         }
     }
 
+    @Test
     public void testStartupDetectsInvalidFilterProcessesUrl() throws Exception {
         AbstractAuthenticationProcessingFilter filter = new MockAuthenticationFilter();
         filter.setAuthenticationFailureHandler(failureHandler);
@@ -285,6 +292,7 @@ public class AbstractAuthenticationProcessingFilterTests extends TestCase {
         }
     }
 
+    @Test
     public void testSuccessLoginThenFailureLoginResultsInSessionLosingToken() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
@@ -323,6 +331,7 @@ public class AbstractAuthenticationProcessingFilterTests extends TestCase {
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
+    @Test
     public void testSuccessfulAuthenticationButWithAlwaysUseDefaultTargetUrlCausesRedirectToDefaultTargetUrl()
             throws Exception {
         // Setup our HTTP request
@@ -349,6 +358,7 @@ public class AbstractAuthenticationProcessingFilterTests extends TestCase {
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
+    @Test
     public void testSuccessfulAuthenticationCausesRedirectToSessionSpecifiedUrl() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = createMockRequest();
@@ -374,6 +384,7 @@ public class AbstractAuthenticationProcessingFilterTests extends TestCase {
     /**
      * SEC-297 fix.
      */
+    @Test
     public void testFullDefaultTargetUrlDoesNotHaveContextPathPrepended() throws Exception {
         MockHttpServletRequest request = createMockRequest();
         MockFilterConfig config = new MockFilterConfig(null, null);
@@ -395,6 +406,7 @@ public class AbstractAuthenticationProcessingFilterTests extends TestCase {
     /**
      * SEC-571
      */
+    @Test
     public void testNoSessionIsCreatedIfAllowSessionCreationIsFalse() throws Exception {
         MockHttpServletRequest request = createMockRequest();
 
@@ -404,7 +416,7 @@ public class AbstractAuthenticationProcessingFilterTests extends TestCase {
 
         // Reject authentication, so exception would normally be stored in session
         MockAuthenticationFilter filter = new MockAuthenticationFilter(false);
-        filter.setAllowSessionCreation(false);
+        failureHandler.setAllowSessionCreation(false);
         filter.setAuthenticationFailureHandler(failureHandler);
         successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
         filter.setAuthenticationSuccessHandler(successHandler);
@@ -417,6 +429,7 @@ public class AbstractAuthenticationProcessingFilterTests extends TestCase {
     /**
      * SEC-462
      */
+    @Test
     public void testLoginErrorWithNoFailureUrlSendsUnauthorizedStatus() throws Exception {
         MockHttpServletRequest request = createMockRequest();
 
@@ -436,6 +449,7 @@ public class AbstractAuthenticationProcessingFilterTests extends TestCase {
     /**
      * SEC-462
      */
+    @Test
     public void testServerSideRedirectForwardsToFailureUrl() throws Exception {
         MockHttpServletRequest request = createMockRequest();
 
@@ -458,6 +472,7 @@ public class AbstractAuthenticationProcessingFilterTests extends TestCase {
     /**
      * SEC-213
      */
+    @Test
     public void testTargetUrlParameterIsUsedIfPresent() throws Exception {
         MockHttpServletRequest request = createMockRequest();
         request.setParameter("targetUrl", "/target");
