@@ -19,7 +19,7 @@ import org.springframework.security.authentication.event.InteractiveAuthenticati
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
@@ -176,7 +176,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
         if (logger.isDebugEnabled()) {
             logger.debug("Cleared security context due to exception", failed);
         }
-        request.getSession().setAttribute(AbstractAuthenticationProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY, failed);
+        request.getSession().setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, failed);
     }
 
     /**

@@ -8,6 +8,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.PortResolverImpl;
+import org.springframework.security.web.WebAttributes;
 
 /**
  * <tt>RequestCache</tt> which stores the <tt>SavedRequest</tt> in the HttpSession.
@@ -34,7 +35,7 @@ public class HttpSessionRequestCache implements RequestCache {
             if (createSessionAllowed || request.getSession(false) != null) {
                 // Store the HTTP request itself. Used by AbstractAuthenticationProcessingFilter
                 // for redirection after successful authentication (SEC-29)
-                request.getSession().setAttribute(DefaultSavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY, savedRequest);
+                request.getSession().setAttribute(WebAttributes.SAVED_REQUEST, savedRequest);
                 logger.debug("DefaultSavedRequest added to Session: " + savedRequest);
             }
         }
@@ -45,7 +46,7 @@ public class HttpSessionRequestCache implements RequestCache {
         HttpSession session = currentRequest.getSession(false);
 
         if (session != null) {
-            return (DefaultSavedRequest) session.getAttribute(DefaultSavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY);
+            return (DefaultSavedRequest) session.getAttribute(WebAttributes.SAVED_REQUEST);
         }
 
         return null;
@@ -56,7 +57,7 @@ public class HttpSessionRequestCache implements RequestCache {
 
         if (session != null) {
             logger.debug("Removing DefaultSavedRequest from session if present");
-            session.removeAttribute(DefaultSavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY);
+            session.removeAttribute(WebAttributes.SAVED_REQUEST);
         }
     }
 

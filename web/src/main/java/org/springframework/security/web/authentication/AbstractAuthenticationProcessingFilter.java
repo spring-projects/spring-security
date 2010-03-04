@@ -23,7 +23,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
@@ -37,6 +36,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.util.UrlUtils;
@@ -76,20 +76,16 @@ import org.springframework.web.filter.GenericFilterBean;
  *
  * <h4>Authentication Failure</h4>
  *
- * If authentication fails, the resulting <tt>AuthenticationException</tt> will be placed into the <tt>HttpSession</tt>
- * with the attribute defined by {@link #SPRING_SECURITY_LAST_EXCEPTION_KEY}. It will then delegate to the configured
- * {@link AuthenticationFailureHandler} to allow the failure information to be conveyed to the client.
- * The default implementation is {@link SimpleUrlAuthenticationFailureHandler}, which sends a 401 error code to the
- * client. It may also be configured with a failure URL as an alternative. Again you can inject whatever
- * behaviour you require here.
+ * If authentication fails, it will delegate to the configured {@link AuthenticationFailureHandler} to allow the
+ * failure information to be conveyed to the client. The default implementation is
+ * {@link SimpleUrlAuthenticationFailureHandler}, which sends a 401 error code to the client. It may also be configured
+ * with a failure URL as an alternative. Again you can inject whatever behaviour you require here.
  *
  * <h4>Event Publication</h4>
  *
- * If authentication is successful, an
- * {@link org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent
- * InteractiveAuthenticationSuccessEvent} will be published via the application context. No events will be published if
- * authentication was unsuccessful, because this would generally be recorded via an
- * <tt>AuthenticationManager</tt>-specific application event.
+ * If authentication is successful, an {@link InteractiveAuthenticationSuccessEvent} will be published via the
+ * application context. No events will be published if authentication was unsuccessful, because this would generally be
+ * recorded via an {@code AuthenticationManager}-specific application event.
  * <p>
  * The filter has an optional attribute <tt>invalidateSessionOnSuccessfulAuthentication</tt> that will invalidate
  * the current session on successful authentication. This is to protect against session fixation attacks (see
@@ -106,7 +102,11 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
         ApplicationEventPublisherAware, MessageSourceAware {
     //~ Static fields/initializers =====================================================================================
 
-    public static final String SPRING_SECURITY_LAST_EXCEPTION_KEY = "SPRING_SECURITY_LAST_EXCEPTION";
+    /**
+     * @deprecated Use the value in {@link WebAttributes} directly.
+     */
+    @Deprecated
+    public static final String SPRING_SECURITY_LAST_EXCEPTION_KEY = WebAttributes.AUTHENTICATION_EXCEPTION;
 
     //~ Instance fields ================================================================================================
 
@@ -319,12 +319,6 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
             logger.debug("Authentication request failed: " + failed.toString());
             logger.debug("Updated SecurityContextHolder to contain null Authentication");
             logger.debug("Delegating to authentication failure handler" + failureHandler);
-        }
-
-        HttpSession session = request.getSession(false);
-
-        if (session != null || allowSessionCreation) {
-            request.getSession().setAttribute(SPRING_SECURITY_LAST_EXCEPTION_KEY, failed);
         }
 
         rememberMeServices.loginFail(request, response);

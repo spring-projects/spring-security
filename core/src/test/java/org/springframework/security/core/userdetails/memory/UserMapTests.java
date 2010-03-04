@@ -16,14 +16,12 @@
 package org.springframework.security.core.userdetails.memory;
 
 import static org.junit.Assert.*;
-import junit.framework.TestCase;
 
 import org.junit.Test;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.core.userdetails.memory.UserMap;
 
 
 /**

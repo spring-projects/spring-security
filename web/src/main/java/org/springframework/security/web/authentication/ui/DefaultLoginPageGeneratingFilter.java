@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
@@ -100,7 +101,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 
             if(session != null) {
                 lastUser = (String) session.getAttribute(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_LAST_USERNAME_KEY);
-                AuthenticationException ex = (AuthenticationException) session.getAttribute(AbstractAuthenticationProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY);
+                AuthenticationException ex = (AuthenticationException) session.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
                 errorMsg = ex != null ? ex.getMessage() : "none";
                 if (lastUser == null) {
                     lastUser = "";

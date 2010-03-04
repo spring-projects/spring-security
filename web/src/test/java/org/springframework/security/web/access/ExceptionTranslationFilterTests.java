@@ -41,6 +41,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import org.springframework.security.web.util.ThrowableAnalyzer;
@@ -65,7 +66,7 @@ public class ExceptionTranslationFilterTests {
             return null;
         }
 
-        DefaultSavedRequest savedRequest = (DefaultSavedRequest) session.getAttribute(DefaultSavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY);
+        DefaultSavedRequest savedRequest = (DefaultSavedRequest) session.getAttribute(WebAttributes.SAVED_REQUEST);
 
         return savedRequest.getRedirectUrl();
     }
@@ -127,8 +128,7 @@ public class ExceptionTranslationFilterTests {
         MockHttpServletResponse response = new MockHttpServletResponse();
         filter.doFilter(request, response, fc);
         assertEquals(403, response.getStatus());
-        assertEquals(AccessDeniedException.class, request.getAttribute(
-                AccessDeniedHandlerImpl.SPRING_SECURITY_ACCESS_DENIED_EXCEPTION_KEY).getClass());
+        assertEquals(AccessDeniedException.class, request.getAttribute(WebAttributes.ACCESS_DENIED_403).getClass());
     }
 
     @Test
@@ -198,7 +198,7 @@ public class ExceptionTranslationFilterTests {
         doThrow(new BadCredentialsException("")).when(fc).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
         request.setMethod("POST");
         filter.doFilter(request, new MockHttpServletResponse(), fc);
-        assertTrue(request.getSession().getAttribute(DefaultSavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY) == null);
+        assertTrue(request.getSession().getAttribute(WebAttributes.SAVED_REQUEST) == null);
     }
 
     @Test(expected=IllegalArgumentException.class)

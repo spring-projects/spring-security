@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.web.WebAttributes;
 
 
 /**
@@ -35,14 +36,17 @@ import org.springframework.security.access.AccessDeniedException;
  * Being a "forward", the <code>SecurityContextHolder</code> will remain
  * populated. This is of benefit if the view (or a tag library or macro) wishes to access the
  * <code>SecurityContextHolder</code>. The request scope will also be populated with the exception itself, available
- * from the key {@link #SPRING_SECURITY_ACCESS_DENIED_EXCEPTION_KEY}.
+ * from the key {@link WebAttributes.ACCESS_DENIED_403}.
  *
  * @author Ben Alex
  */
 public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
     //~ Static fields/initializers =====================================================================================
-
-    public static final String SPRING_SECURITY_ACCESS_DENIED_EXCEPTION_KEY = "SPRING_SECURITY_403_EXCEPTION";
+    /**
+     * @deprecated Use the value in {@link WebAttributes} directly.
+     */
+    @Deprecated
+    public static final String SPRING_SECURITY_ACCESS_DENIED_EXCEPTION_KEY = WebAttributes.ACCESS_DENIED_403;
     protected static final Log logger = LogFactory.getLog(AccessDeniedHandlerImpl.class);
 
     //~ Instance fields ================================================================================================
@@ -56,7 +60,7 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
         if (!response.isCommitted()) {
             if (errorPage != null) {
                 // Put exception into request scope (perhaps of use to a view)
-                request.setAttribute(SPRING_SECURITY_ACCESS_DENIED_EXCEPTION_KEY, accessDeniedException);
+                request.setAttribute(WebAttributes.ACCESS_DENIED_403, accessDeniedException);
 
                 // Set the 403 status code.
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
