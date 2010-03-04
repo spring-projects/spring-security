@@ -23,6 +23,7 @@ import org.springframework.security.web.util.TextEscapeUtils;
 
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.BeansException;
+import org.springframework.web.util.ExpressionEvaluationUtils;
 import org.springframework.web.util.TagUtils;
 
 import java.io.IOException;
@@ -48,6 +49,7 @@ public class AuthenticationTag extends TagSupport {
     private String property;
     private int scope;
     private boolean scopeSpecified;
+    private boolean htmlEscape = true;
 
 
     //~ Methods ========================================================================================================
@@ -120,7 +122,11 @@ public class AuthenticationTag extends TagSupport {
                 }
             }
         } else {
-            writeMessage(TextEscapeUtils.escapeEntities(String.valueOf(result)));
+            if (htmlEscape) {
+                writeMessage(TextEscapeUtils.escapeEntities(String.valueOf(result)));
+            } else {
+                writeMessage(String.valueOf(result));
+            }
         }
         return EVAL_PAGE;
     }
@@ -131,5 +137,22 @@ public class AuthenticationTag extends TagSupport {
         } catch (IOException ioe) {
             throw new JspException(ioe);
         }
+    }
+
+
+    /**
+     * Set HTML escaping for this tag, as boolean value.
+     */
+    public void setHtmlEscape(String htmlEscape) throws JspException {
+        this.htmlEscape = ExpressionEvaluationUtils.evaluateBoolean("htmlEscape", htmlEscape, pageContext);
+    }
+
+    /**
+     * Return the HTML escaping setting for this tag,
+     * or the default setting if not overridden.
+     * @see #isDefaultHtmlEscape()
+     */
+    protected boolean isHtmlEscape() {
+        return htmlEscape;
     }
 }

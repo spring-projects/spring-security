@@ -15,8 +15,10 @@
 
 package org.springframework.security.core.userdetails.memory;
 
+import static org.junit.Assert.*;
 import junit.framework.TestCase;
 
+import org.junit.Test;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,9 +31,9 @@ import org.springframework.security.core.userdetails.memory.UserMap;
  *
  * @author Ben Alex
  */
-public class UserMapTests extends TestCase {
+public class UserMapTests {
 
-    //~ Methods ========================================================================================================
+    @Test
     public void testAddAndRetrieveUser() {
         UserDetails rod = new User("rod", "koala", true, true, true, true,
                 AuthorityUtils.createAuthorityList("ROLE_ONE","ROLE_TWO"));
@@ -50,7 +52,8 @@ public class UserMapTests extends TestCase {
         assertEquals(peter, map.getUser("peter"));
     }
 
-    public void testNullUserCannotBeAdded() {
+    @Test
+    public void nullUserCannotBeAdded() {
         UserMap map = new UserMap();
         assertEquals(0, map.getUserCount());
 
@@ -62,7 +65,8 @@ public class UserMapTests extends TestCase {
         }
     }
 
-    public void testUnknownUserIsNotRetrieved() {
+    @Test
+    public void unknownUserIsNotRetrieved() {
         UserDetails rod = new User("rod", "koala", true, true, true, true,
                 AuthorityUtils.createAuthorityList("ROLE_ONE","ROLE_TWO"));
         UserMap map = new UserMap();

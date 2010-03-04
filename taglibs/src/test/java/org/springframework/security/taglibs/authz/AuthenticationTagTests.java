@@ -15,11 +15,13 @@
 
 package org.springframework.security.taglibs.authz;
 
+import static org.junit.Assert.*;
+
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
 
-import junit.framework.TestCase;
-
+import org.junit.After;
+import org.junit.Test;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -32,7 +34,7 @@ import org.springframework.security.core.userdetails.User;
  *
  * @author Ben Alex
  */
-public class AuthenticationTagTests extends TestCase {
+public class AuthenticationTagTests {
     //~ Instance fields ================================================================================================
 
     private final MyAuthenticationTag authenticationTag = new MyAuthenticationTag();
@@ -41,10 +43,12 @@ public class AuthenticationTagTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() {
         SecurityContextHolder.clearContext();
     }
 
+    @Test
     public void testOperationWhenPrincipalIsAUserDetailsInstance()throws JspException {
         SecurityContextHolder.getContext().setAuthentication(auth);
 
@@ -54,6 +58,7 @@ public class AuthenticationTagTests extends TestCase {
         assertEquals("rodUserDetails", authenticationTag.getLastMessage());
     }
 
+    @Test
     public void testOperationWhenPrincipalIsAString() throws JspException {
         SecurityContextHolder.getContext().setAuthentication(
                 new TestingAuthenticationToken("rodAsString", "koala", AuthorityUtils.NO_AUTHORITIES ));
@@ -64,6 +69,7 @@ public class AuthenticationTagTests extends TestCase {
         assertEquals("rodAsString", authenticationTag.getLastMessage());
     }
 
+    @Test
     public void testNestedPropertyIsReadCorrectly() throws JspException {
         SecurityContextHolder.getContext().setAuthentication(auth);
 
@@ -73,6 +79,7 @@ public class AuthenticationTagTests extends TestCase {
         assertEquals("rodUserDetails", authenticationTag.getLastMessage());
     }
 
+    @Test
     public void testOperationWhenPrincipalIsNull() throws JspException {
         SecurityContextHolder.getContext().setAuthentication(
                 new TestingAuthenticationToken(null, "koala", AuthorityUtils.NO_AUTHORITIES ));
@@ -82,6 +89,7 @@ public class AuthenticationTagTests extends TestCase {
         assertEquals(Tag.EVAL_PAGE, authenticationTag.doEndTag());
     }
 
+    @Test
     public void testOperationWhenSecurityContextIsNull() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(null);
 
@@ -91,12 +99,14 @@ public class AuthenticationTagTests extends TestCase {
         assertEquals(null, authenticationTag.getLastMessage());
     }
 
+    @Test
     public void testSkipsBodyIfNullOrEmptyOperation() throws Exception {
         authenticationTag.setProperty("");
         assertEquals(Tag.SKIP_BODY, authenticationTag.doStartTag());
         assertEquals(Tag.EVAL_PAGE, authenticationTag.doEndTag());
     }
 
+    @Test
     public void testThrowsExceptionForUnrecognisedProperty() {
         SecurityContextHolder.getContext().setAuthentication(auth);
         authenticationTag.setProperty("qsq");
@@ -107,6 +117,25 @@ public class AuthenticationTagTests extends TestCase {
             fail("Should have throwns JspException");
         } catch (JspException expected) {
         }
+    }
+
+    @Test
+    public void htmlEscapingIsUsedByDefault() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("<>& ", ""));
+        authenticationTag.setProperty("name");
+        authenticationTag.doStartTag();
+        authenticationTag.doEndTag();
+        assertEquals("&lt;&gt;&amp;&#32;", authenticationTag.getLastMessage());
+    }
+
+    @Test
+    public void settingHtmlEscapeToFalsePreventsEscaping() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("<>& ", ""));
+        authenticationTag.setProperty("name");
+        authenticationTag.setHtmlEscape("false");
+        authenticationTag.doStartTag();
+        authenticationTag.doEndTag();
+        assertEquals("<>& ", authenticationTag.getLastMessage());
     }
 
     //~ Inner Classes ==================================================================================================
