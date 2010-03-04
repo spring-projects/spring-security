@@ -86,17 +86,16 @@ import org.springframework.web.filter.GenericFilterBean;
  * If authentication is successful, an {@link InteractiveAuthenticationSuccessEvent} will be published via the
  * application context. No events will be published if authentication was unsuccessful, because this would generally be
  * recorded via an {@code AuthenticationManager}-specific application event.
- * <p>
- * The filter has an optional attribute <tt>invalidateSessionOnSuccessfulAuthentication</tt> that will invalidate
- * the current session on successful authentication. This is to protect against session fixation attacks (see
- * <a href="http://en.wikipedia.org/wiki/Session_fixation">this Wikipedia article</a> for more information).
- * The behaviour is turned off by default. Additionally there is a property <tt>migrateInvalidatedSessionAttributes</tt>
- * which tells if on session invalidation we are to migrate all session attributes from the old session to a newly
- * created one. This is turned on by default, but not used unless <tt>invalidateSessionOnSuccessfulAuthentication</tt>
- * is true. If you are using this feature in combination with concurrent session control, you should set the
- * <tt>sessionRegistry</tt> property to make sure that the session information is updated consistently.
+ *
+ * <h4>Session Authentication</h4>
+ *
+ * The class has an optional {@link SessionAuthenticationStrategy} which will be invoked immediately after a
+ * successful call to {@code attemptAuthentication()}. Different implementations
+ * {@link #setSessionAuthenticationStrategy(SessionAuthenticationStrategy) can be injected} to enable things like
+ * session-fixation attack prevention or to control the number of simultaneous sessions a principal may have.
  *
  * @author Ben Alex
+ * @author Luke Taylor
  */
 public abstract class AbstractAuthenticationProcessingFilter extends GenericFilterBean implements
         ApplicationEventPublisherAware, MessageSourceAware {
