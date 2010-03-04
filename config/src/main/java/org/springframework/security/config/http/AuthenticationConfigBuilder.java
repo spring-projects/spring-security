@@ -163,7 +163,7 @@ final class AuthenticationConfigBuilder {
 
         if (formLoginElt != null || autoConfig) {
             FormLoginBeanDefinitionParser parser = new FormLoginBeanDefinitionParser("/j_spring_security_check",
-                    AUTHENTICATION_PROCESSING_FILTER_CLASS, requestCache, sessionStrategy);
+                    AUTHENTICATION_PROCESSING_FILTER_CLASS, requestCache, sessionStrategy, allowSessionCreation);
 
             parser.parse(formLoginElt, pc);
             formFilter = parser.getFilterBean();
@@ -171,7 +171,7 @@ final class AuthenticationConfigBuilder {
         }
 
         if (formFilter != null) {
-            formFilter.getPropertyValues().addPropertyValue("allowSessionCreation", new Boolean(allowSessionCreation));
+            formFilter.getPropertyValues().addPropertyValue("allowSessionCreation", allowSessionCreation);
             formFilter.getPropertyValues().addPropertyValue("authenticationManager", authManager);
 
             // Id is required by login page filter
@@ -186,7 +186,7 @@ final class AuthenticationConfigBuilder {
 
         if (openIDLoginElt != null) {
             FormLoginBeanDefinitionParser parser = new FormLoginBeanDefinitionParser("/j_spring_openid_security_check",
-                    OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS, requestCache, sessionStrategy);
+                    OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS, requestCache, sessionStrategy, allowSessionCreation);
 
             parser.parse(openIDLoginElt, pc);
             openIDFilter = parser.getFilterBean();
@@ -221,7 +221,7 @@ final class AuthenticationConfigBuilder {
         }
 
         if (openIDFilter != null) {
-            openIDFilter.getPropertyValues().addPropertyValue("allowSessionCreation", new Boolean(allowSessionCreation));
+            openIDFilter.getPropertyValues().addPropertyValue("allowSessionCreation", allowSessionCreation);
             openIDFilter.getPropertyValues().addPropertyValue("authenticationManager", authManager);
             // Required by login page filter
             openIDFilterId = pc.getReaderContext().generateBeanName(openIDFilter);
@@ -524,7 +524,8 @@ final class AuthenticationConfigBuilder {
     }
 
     void createUserServiceInjector() {
-        BeanDefinitionBuilder userServiceInjector = BeanDefinitionBuilder.rootBeanDefinition(UserDetailsServiceInjectionBeanPostProcessor.class);
+        BeanDefinitionBuilder userServiceInjector =
+            BeanDefinitionBuilder.rootBeanDefinition(UserDetailsServiceInjectionBeanPostProcessor.class);
         userServiceInjector.addConstructorArgValue(x509ProviderId);
         userServiceInjector.addConstructorArgValue(rememberMeServicesId);
         userServiceInjector.addConstructorArgValue(openIDProviderId);

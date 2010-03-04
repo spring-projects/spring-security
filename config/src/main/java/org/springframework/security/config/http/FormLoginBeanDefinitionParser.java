@@ -31,7 +31,8 @@ public class FormLoginBeanDefinitionParser {
     private static final String DEF_FORM_LOGIN_TARGET_URL = "/";
 
     private static final String ATT_FORM_LOGIN_AUTHENTICATION_FAILURE_URL = "authentication-failure-url";
-    private static final String DEF_FORM_LOGIN_AUTHENTICATION_FAILURE_URL = DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL + "?" + DefaultLoginPageGeneratingFilter.ERROR_PARAMETER_NAME;
+    private static final String DEF_FORM_LOGIN_AUTHENTICATION_FAILURE_URL =
+        DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL + "?" + DefaultLoginPageGeneratingFilter.ERROR_PARAMETER_NAME;
 
     private static final String ATT_SUCCESS_HANDLER_REF = "authentication-success-handler-ref";
     private static final String ATT_FAILURE_HANDLER_REF = "authentication-failure-handler-ref";
@@ -40,17 +41,19 @@ public class FormLoginBeanDefinitionParser {
     private final String filterClassName;
     private final BeanReference requestCache;
     private final BeanReference sessionStrategy;
+    private final boolean allowSessionCreation;
 
     private RootBeanDefinition filterBean;
     private RootBeanDefinition entryPointBean;
     private String loginPage;
 
     FormLoginBeanDefinitionParser(String defaultLoginProcessingUrl, String filterClassName,
-            BeanReference requestCache, BeanReference sessionStrategy) {
+            BeanReference requestCache, BeanReference sessionStrategy, boolean allowSessionCreation) {
         this.defaultLoginProcessingUrl = defaultLoginProcessingUrl;
         this.filterClassName = filterClassName;
         this.requestCache = requestCache;
         this.sessionStrategy = sessionStrategy;
+        this.allowSessionCreation = allowSessionCreation;
     }
 
     public BeanDefinition parse(Element elt, ParserContext pc) {
@@ -135,6 +138,7 @@ public class FormLoginBeanDefinitionParser {
                 }
             }
             failureHandler.addPropertyValue("defaultFailureUrl", authenticationFailureUrl);
+            failureHandler.addPropertyValue("allowSessionCreation", allowSessionCreation);
             filterBuilder.addPropertyValue("authenticationFailureHandler", failureHandler.getBeanDefinition());
         }
 

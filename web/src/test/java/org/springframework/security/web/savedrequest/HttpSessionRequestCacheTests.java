@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.web.WebAttributes;
 
 /**
  *
@@ -20,7 +21,7 @@ public class HttpSessionRequestCacheTests {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/destination");
         MockHttpServletResponse response = new MockHttpServletResponse();
         cache.saveRequest(request, response);
-        assertNotNull(request.getSession().getAttribute(DefaultSavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY));
+        assertNotNull(request.getSession().getAttribute(WebAttributes.SAVED_REQUEST));
         assertNotNull(cache.getRequest(request, response));
 
         MockHttpServletRequest newRequest = new MockHttpServletRequest("POST", "/destination");

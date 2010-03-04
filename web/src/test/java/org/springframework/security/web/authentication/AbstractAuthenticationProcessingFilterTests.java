@@ -58,6 +58,7 @@ import org.springframework.security.web.savedrequest.DefaultSavedRequest;
  *
  * @author Ben Alex
  */
+@SuppressWarnings("deprecation")
 public class AbstractAuthenticationProcessingFilterTests extends TestCase {
     SavedRequestAwareAuthenticationSuccessHandler successHandler;
     SimpleUrlAuthenticationFailureHandler failureHandler;
