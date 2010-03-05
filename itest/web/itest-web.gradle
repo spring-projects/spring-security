@@ -6,6 +6,7 @@ dependencies {
 
     testCompile project(':spring-security-core'),
                 project(':spring-security-web'),
+                project(':spring-security-taglibs'),
                 "org.springframework:spring-core:$springVersion",
                 "org.springframework:spring-beans:$springVersion",
                 "org.springframework:spring-webmvc:$springVersion",
