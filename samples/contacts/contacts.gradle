@@ -5,10 +5,10 @@ apply id: 'jetty'
 
 dependencies {
     providedCompile 'javax.servlet:servlet-api:2.5@jar'
+
     compile project(':spring-security-core'),
             project(':spring-security-acl'),
             "org.springframework:spring-aop:$springVersion",
-            "org.springframework:spring-core:$springVersion",
             "org.springframework:spring-beans:$springVersion",
             "org.springframework:spring-context:$springVersion",
             "org.springframework:spring-jdbc:$springVersion",

@@ -6,7 +6,8 @@ def String[] modules = [
     'config',
     'cas',
     'openid',
-    'taglibs'
+    'taglibs',
+    'aspects'
 ]
 
 def String[] samples = [

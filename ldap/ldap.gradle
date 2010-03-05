@@ -4,18 +4,22 @@ test.exclude('**/OpenLDAPIntegrationTestSuite.class')
 
 dependencies {
     compile project(':spring-security-core'),
-            "org.springframework:spring-core:$springVersion",
             "org.springframework:spring-beans:$springVersion",
             "org.springframework:spring-context:$springVersion",
             "org.springframework:spring-tx:$springVersion",
-            "org.springframework.ldap:spring-ldap-core:$springLdapVersion",
             "org.apache.directory.server:apacheds-core:$apacheDsVersion",
             "org.apache.directory.server:apacheds-core-entry:$apacheDsVersion",
             "org.apache.directory.server:apacheds-protocol-shared:$apacheDsVersion",
             "org.apache.directory.server:apacheds-protocol-ldap:$apacheDsVersion", 
             "org.apache.directory.server:apacheds-server-jndi:$apacheDsVersion",
-            'org.apache.directory.shared:shared-ldap:0.9.15',             
+            'org.apache.directory.shared:shared-ldap:0.9.15',
             'ldapsdk:ldapsdk:4.1'
+    compile ("org.springframework.ldap:spring-ldap-core:$springLdapVersion") {
+        exclude(group: 'commons-logging', module: 'commons-logging')
+        exclude(group: 'org.springframework', module: 'spring-core')
+        exclude(group: 'org.springframework', module: 'spring-tx')
+        exclude(group: 'org.springframework', module: 'spring-beans')
+    }
 
     runtime 'org.slf4j:slf4j-log4j12:1.4.3'
 }

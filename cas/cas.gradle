@@ -2,12 +2,12 @@
 dependencies {
     compile project(':spring-security-core'),
             project(':spring-security-web'),
-            "javax.servlet:servlet-api:2.5",
-            "org.springframework:spring-core:$springVersion",
-            "org.springframework:spring-context:$springVersion",            
+            "org.springframework:spring-context:$springVersion",
             "org.springframework:spring-beans:$springVersion",
             "org.springframework:spring-tx:$springVersion",
-            "org.springframework:spring-web:$springVersion",            
+            "org.springframework:spring-web:$springVersion",
             "org.jasig.cas:cas-client-core:3.1.9",
             "net.sf.ehcache:ehcache:$ehcacheVersion"
+
+    provided 'javax.servlet:servlet-api:2.5'
 }            
