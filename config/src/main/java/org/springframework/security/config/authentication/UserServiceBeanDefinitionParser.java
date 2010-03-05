@@ -58,7 +58,7 @@ public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceB
             return;
         }
 
-        if(CollectionUtils.isEmpty(userElts)) {
+        if (CollectionUtils.isEmpty(userElts)) {
             throw new BeanDefinitionStoreException("You must supply user definitions, either with <" + ELT_USER + "> child elements or a " +
                 "properties file (using the '" + ATT_PROPERTIES + "' attribute)" );
         }

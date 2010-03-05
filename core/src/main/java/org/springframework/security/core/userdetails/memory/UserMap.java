@@ -18,15 +18,18 @@ package org.springframework.security.core.userdetails.memory;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.Assert;
 
 
 /**
  * Used by {@link InMemoryDaoImpl} to store a list of users and their corresponding granted authorities.
+ * <p>
+ * Usernames are used as the lookup key and are stored in lower case, to allow case-insensitive lookups. So this class
+ * should not be used if usernames need to be case-sensitive.
  *
  * @author Ben Alex
  */
@@ -37,7 +40,7 @@ public class UserMap {
 
     //~ Instance fields ================================================================================================
 
-    private Map<String, UserDetails> userMap = new HashMap<String, UserDetails>();
+    private final Map<String, UserDetails> userMap = new HashMap<String, UserDetails>();
 
     //~ Methods ========================================================================================================
 
@@ -90,6 +93,9 @@ public class UserMap {
      * @since 1.1
      */
     public void setUsers(Map<String, UserDetails> users) {
-        this.userMap = users;
+        userMap.clear();
+        for (Map.Entry<String, UserDetails> entry : users.entrySet()) {
+            userMap.put(entry.getKey().toLowerCase(), entry.getValue());
+        }
     }
 }

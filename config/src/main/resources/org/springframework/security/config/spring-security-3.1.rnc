@@ -560,7 +560,7 @@ ap.attlist &=
     user-service-ref?
 
 user-service =
-    ## Creates an in-memory UserDetailsService from a properties file or a list of "user" child elements.
+    ## Creates an in-memory UserDetailsService from a properties file or a list of "user" child elements. Usernames are converted to lower-case internally to allow for case-insensitive lookups, so this should not be used if case-sensitivity is required.
     element user-service {id? & (properties-file | (user*))}
 properties-file =
     attribute properties {xsd:token}?
