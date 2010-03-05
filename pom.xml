@@ -97,6 +97,18 @@
             <name>Spring Framework Maven Milestone Releases (Maven Central Format)</name>
             <url>http://maven.springframework.org/milestone</url>
         </repository>
+
+        <repository>
+            <releases>
+              <enabled>true</enabled>
+            </releases>
+            <snapshots>
+              <enabled>false</enabled>
+            </snapshots>
+            <id>com.springsource.repository.maven.releases</id>
+            <name>Spring Framework Maven General Releases (Maven Central Format)</name>
+            <url>http://maven.springframework.org/release</url>
+        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -273,7 +285,7 @@
             <extension>
                 <groupId>org.springframework.build.aws</groupId>
                 <artifactId>org.springframework.build.aws.maven</artifactId>
-                <version>2.0.0.RELEASE</version>
+                <version>3.0.0.RELEASE</version>
             </extension>
         </extensions>
         <pluginManagement>
