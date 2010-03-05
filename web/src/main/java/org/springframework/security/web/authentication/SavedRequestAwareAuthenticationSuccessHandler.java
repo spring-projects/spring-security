@@ -46,7 +46,6 @@ import org.springframework.util.StringUtils;
  * </li>
  * </ul>
  *
- *
  * @author Luke Taylor
  * @since 3.0
  */
@@ -72,6 +71,8 @@ public class SavedRequestAwareAuthenticationSuccessHandler extends SimpleUrlAuth
 
             return;
         }
+
+        clearAuthenticationAttributes(request);
 
         // Use the DefaultSavedRequest URL
         String targetUrl = savedRequest.getRedirectUrl();
