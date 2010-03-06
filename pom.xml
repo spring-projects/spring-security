@@ -97,6 +97,18 @@
             <name>Spring Framework Maven Milestone Releases (Maven Central Format)</name>
             <url>http://maven.springframework.org/milestone</url>
         </repository>
+
+        <repository>
+            <releases>
+              <enabled>true</enabled>
+            </releases>
+            <snapshots>
+              <enabled>false</enabled>
+            </snapshots>
+            <id>com.springsource.repository.maven.releases</id>
+            <name>Spring Framework Maven General Releases (Maven Central Format)</name>
+            <url>http://maven.springframework.org/release</url>
+        </repository>        
     </repositories>
 
     <pluginRepositories>
