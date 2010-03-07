@@ -21,6 +21,10 @@ configurations {
 dependencies {
     compile 'commons-logging:commons-logging:1.1.1'
 
+    compile ("org.springframework:spring-core:$springVersion") {
+        exclude(group: 'commons-logging', module: 'commons-logging')
+    }
+
     testCompile 'junit:junit:4.7',
             'org.mockito:mockito-core:1.7',
             'org.jmock:jmock:2.5.1',
@@ -28,9 +32,9 @@ dependencies {
             'org.hamcrest:hamcrest-core:1.1',
             'org.hamcrest:hamcrest-library:1.1',
             "org.springframework:spring-test:$springVersion"
-    bundlor 'com.springsource.bundlor:com.springsource.bundlor.ant:1.0.0.RC1',
-            'com.springsource.bundlor:com.springsource.bundlor:1.0.0.RC1',
-            'com.springsource.bundlor:com.springsource.bundlor.blint:1.0.0.RC1'
+    bundlor 'com.springsource.bundlor:com.springsource.bundlor.ant:1.0.0.RELEASE',
+            'com.springsource.bundlor:com.springsource.bundlor:1.0.0.RELEASE',
+            'com.springsource.bundlor:com.springsource.bundlor.blint:1.0.0.RELEASE'
 }
 
 test {

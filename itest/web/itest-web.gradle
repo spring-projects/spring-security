@@ -1,13 +1,13 @@
 
 dependencies {
     compile     "org.springframework:spring-context:$springVersion",
-                "org.springframework:spring-web:$springVersion",
-                'javax.servlet:servlet-api:2.5'
+                "org.springframework:spring-web:$springVersion"
+
+    provided    'javax.servlet:servlet-api:2.5'
 
     testCompile project(':spring-security-core'),
                 project(':spring-security-web'),
                 project(':spring-security-taglibs'),
-                "org.springframework:spring-core:$springVersion",
                 "org.springframework:spring-beans:$springVersion",
                 "org.springframework:spring-webmvc:$springVersion",
                 "org.mortbay.jetty:jetty:$jettyVersion",

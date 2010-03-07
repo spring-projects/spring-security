@@ -1,23 +1,17 @@
-usePlugin('war')
-usePlugin('jetty')
-usePlugin('project-reports')
+apply: 'war'
+apply: 'jetty'
+//apply: 'project-reports'
 
-version = '3.0.0.CI-SNAPSHOT'
-springVersion = '3.0.0.RELEASE'
-targetCompatibility = '1.5' 
+version = '3.1.0.CI-SNAPSHOT'
+springVersion = '3.0.1.RELEASE'
+targetCompatibility = '1.5'
 sourceCompatibility = '1.5'
 
 repositories {
-    mavenRepo name:'localRepo', urls:'file:///Users/luke/.m2/repository'
-}
-
-configurations {
-//    runtime.excludeRules.add(org: 'org.apache.commons')
+    mavenRepo name:'Local', urls: "file://" + System.properties['user.home'] + "/.m2/repository"
 }
 
 dependencies {
-    //
-    // NB: Transient deps are all runtime deps (unlike maven)
     compile 'aopalliance:aopalliance:1.0',
             "org.springframework.security:spring-security-core:$version",
             "org.springframework.security:spring-security-web:$version",
@@ -27,27 +21,23 @@ dependencies {
             "org.springframework:spring-tx:$springVersion",
             "org.springframework:spring-web:$springVersion",
             "org.springframework:spring-webmvc:$springVersion",
-            'commons-logging:commons-logging:1.1.1',
-            "org.aspectj:aspectjrt:1.6.5",
-            'org.hibernate:ejb3-persistence:1.0.2.GA'
-            'javax.persistence:persistence-api:1.0'
+            'org.aspectj:aspectjrt:1.6.8',
+            'org.hibernate:ejb3-persistence:1.0.2.GA',
+            'javax.persistence:persistence-api:1.0',
+            'org.slf4j:jcl-over-slf4j:1.5.11'            
 
-    providedCompile "javax.servlet:servlet-api:2.5"
+    providedCompile 'javax.servlet:servlet-api:2.5'
 
     runtime 'org.hibernate:hibernate-entitymanager:3.4.0.GA',
-            "org.springframework:spring-context-support:$springVersion",    
-            "org.springframework.security:spring-security-ldap:$version",    
+            "org.springframework:spring-context-support:$springVersion",
+            "org.springframework.security:spring-security-ldap:$version",
             "org.springframework.security:spring-security-config:$version",
-            "org.springframework.security:spring-security-taglibs:$version",             
+            "org.springframework.security:spring-security-taglibs:$version",
             "org.springframework:spring-orm:$springVersion",
             'org.apache.directory.server:apacheds-core:1.5.5',
             'org.apache.directory.server:apacheds-server-jndi:1.5.5',
             'org.freemarker:freemarker:2.3.16',
             "hsqldb:hsqldb:1.8.0.10",
-            'org.slf4j:slf4j-log4j12:1.5.8',
+            'org.slf4j:slf4j-log4j12:1.5.11',
             'log4j:log4j:1.2.14'
-}
-
-task ('pcomp') {
-    println configurations.compile
 }

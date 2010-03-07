@@ -26,15 +26,11 @@ gradle.taskGraph.whenReady {graph ->
     }
 }
 
+def deployer = null
+
 uploadArchives {
-    def mavenDeployer = repositories.mavenDeployer {
+    deployer = repositories.mavenDeployer {
         configuration = configurations.deployerJars
-        pom.whenConfigured {pom ->
-            def optionalDeps = ['commons-logging', 'ehcache', 'log4j', 'apacheds-core', 'apacheds-server-jndi', 'jsp-api', 'slf4j-api', 'slf4j-log4j12', 'jsr250-api', 'ldapsdk']
-            def providedDeps = ['servlet-api']
-            pom.dependencies.findAll {dep -> optionalDeps.contains(dep.artifactId) }*.optional = true
-            pom.dependencies.findAll {dep -> providedDeps.contains(dep.artifactId) }*.scope = 'provided'
-        }
     }
     doFirst {
         if (releaseBuild) {
@@ -52,4 +48,23 @@ uploadArchives {
     }
 }
 
-conf2ScopeMappings.addMapping(1, configurations.provided, "provided")
+// Pom Customization
+
+installer = install.repositories.mavenInstaller
+
+def optionalDeps = ['commons-logging', 'ehcache', 'log4j', 'apacheds-core', 'jsp-api', 'jsr250-api', 'ldapsdk']
+
+[installer, deployer]*.pom*.whenConfigured { pom ->
+    pom.scopeMappings.addMapping(10, configurations.provided, 'provided')
+
+    pom.dependencies.findAll { dep ->
+        optionalDeps.contains(dep.artifactId) ||
+        dep.groupId.startsWith('org.apache.directory') ||
+        dep.groupId.startsWith('org.slf4j')
+    }*.optional = true
+
+    if (pom.artifactId == 'spring-security-config') {
+        pom.dependencies.find { dep -> dep.artifactId == 'spring-security-web'}.optional = true
+        pom.dependencies.find { dep -> dep.artifactId == 'spring-web'}.optional = true
+    }
+}

@@ -5,8 +5,8 @@ apply id: 'jetty'
 
 dependencies {
     providedCompile 'javax.servlet:servlet-api:2.5@jar'
+
     compile project(':spring-security-core'),
-            "org.springframework:spring-core:$springVersion",
             "org.springframework:spring-beans:$springVersion",
             "org.springframework:spring-web:$springVersion",
             "org.springframework:spring-webmvc:$springVersion",
