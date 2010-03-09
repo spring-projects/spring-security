@@ -2,11 +2,12 @@ package org.springframework.security.access.intercept.aspectj.aspect;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.*;
 import org.springframework.security.access.intercept.aspectj.AspectJCallback;
-import org.springframework.security.access.intercept.aspectj.AspectJSecurityInterceptor;
+import org.springframework.security.access.intercept.aspectj.AspectJMethodSecurityInterceptor;
 
 /**
- * Concrete AspectJ transaction aspect using Spring Security @Secured annotation
+ * Concrete AspectJ aspect using Spring Security @Secured annotation
  * for JDK 1.5+.
  *
  * <p>
@@ -16,8 +17,8 @@ import org.springframework.security.access.intercept.aspectj.AspectJSecurityInte
  * interfaces are <i>not</i> inherited. This will vary from Spring AOP.
  *
  * @author Mike Wiesner
- * @since 1.0
- * @version $Id$
+ * @author Luke Taylor
+ * @since 3.1
  */
 public aspect AnnotationSecurityAspect implements InitializingBean {
 
@@ -34,11 +35,19 @@ public aspect AnnotationSecurityAspect implements InitializingBean {
     private pointcut executionOfSecuredMethod() :
         execution(* *(..)) && @annotation(Secured);
 
+    /**
+     * Matches the execution of any method with Pre/Post annotations.
+     */
+    private pointcut executionOfPrePostAnnotatedMethod() :
+        execution(* *(..)) && (@annotation(PreAuthorize) || @annotation(PreFilter)
+                || @annotation(PostAuthorize) || @annotation(PostFilter));
+
     private pointcut securedMethodExecution() :
         executionOfAnyPublicMethodInAtSecuredType() ||
-        executionOfSecuredMethod();
+        executionOfSecuredMethod() ||
+        executionOfPrePostAnnotatedMethod();
 
-    private AspectJSecurityInterceptor securityInterceptor;
+    private AspectJMethodSecurityInterceptor securityInterceptor;
 
     Object around(): securedMethodExecution() {
         if (this.securityInterceptor == null) {
@@ -54,13 +63,14 @@ public aspect AnnotationSecurityAspect implements InitializingBean {
         return this.securityInterceptor.invoke(thisJoinPoint, callback);
     }
 
-    public void setSecurityInterceptor(AspectJSecurityInterceptor securityInterceptor) {
+    public void setSecurityInterceptor(AspectJMethodSecurityInterceptor securityInterceptor) {
         this.securityInterceptor = securityInterceptor;
     }
 
     public void afterPropertiesSet() throws Exception {
-        if (this.securityInterceptor == null)
+        if (this.securityInterceptor == null) {
             throw new IllegalArgumentException("securityInterceptor required");
+        }
     }
 
 }
