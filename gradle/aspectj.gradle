@@ -10,14 +10,37 @@ dependencies {
     compile "org.aspectj:aspectjrt:$aspectjVersion"
 }
 
-task compileJava(dependsOn: JavaPlugin.PROCESS_RESOURCES_TASK_NAME, overwrite: true, description: 'Compiles AspectJ Source') << {
-    println "Running ajc ..."
-    ant.taskdef(resource: "org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties", classpath: configurations.ajtools.asPath)
-    ant.iajc(classpath: configurations.compile.asPath, fork: 'true', destDir: sourceSets.main.classesDir.absolutePath, source: sourceCompatibility, target: targetCompatibility,
-            aspectPath: configurations.aspectpath.asPath, sourceRootCopyFilter: '**/*.java') {
-        sourceroots {
-            sourceSets.main.java.srcDirs.each {
-                pathelement(location: it.absolutePath)
+task compileJava(overwrite: true, description: 'Compiles AspectJ Source', type: Ajc) {
+    dependsOn processResources
+    sourceSet = sourceSets.main
+    aspectPath = configurations.aspectpath
+}
+
+task compileTestJava(overwrite: true, description: 'Compiles AspectJ Test Source', type: Ajc) {
+    dependsOn processTestResources, compileJava, jar
+    sourceSet = sourceSets.test
+    aspectPath = files(configurations.aspectpath, jar.archivePath)
+}
+
+class Ajc extends DefaultTask {
+    @Input
+    SourceSet sourceSet
+
+    @Input
+    FileCollection aspectPath
+
+    @TaskAction
+    def compile() {
+        println "Running ajc ..."
+        ant.taskdef(resource: "org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties", classpath: project.configurations.ajtools.asPath)
+        ant.iajc(classpath: sourceSet.compileClasspath.asPath, fork: 'true', destDir: sourceSet.classesDir.absolutePath,
+                source: project.convention.plugins.java.sourceCompatibility,
+                target: project.convention.plugins.java.targetCompatibility,
+                aspectPath: aspectPath.asPath, sourceRootCopyFilter: '**/*.java', showWeaveInfo: 'true') {
+            sourceroots {
+                sourceSet.java.srcDirs.each {
+                    pathelement(location: it.absolutePath)
+                }
             }
         }
     }

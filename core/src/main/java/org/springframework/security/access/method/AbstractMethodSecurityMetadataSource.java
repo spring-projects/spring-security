@@ -49,7 +49,13 @@ public abstract class AbstractMethodSecurityMetadataSource implements MethodSecu
         if (object instanceof MethodInvocation) {
             MethodInvocation mi = (MethodInvocation) object;
             Object target = mi.getThis();
-            return getAttributes(mi.getMethod(), target == null ? null : target.getClass());
+            Class<?> targetClass = null;
+
+            if (target != null) {
+                targetClass = target instanceof Class<?> ? (Class<?>)target : target.getClass();
+            }
+
+            return getAttributes(mi.getMethod(), targetClass);
         }
 
         if (object instanceof JoinPoint) {

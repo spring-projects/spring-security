@@ -15,26 +15,28 @@
 
 package org.springframework.security.access.intercept.aspectj;
 
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
 import java.lang.reflect.Method;
-import java.util.List;
+import java.util.Collection;
 
 import org.aspectj.lang.JoinPoint;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.security.MockJoinPoint;
 import org.springframework.security.TargetObject;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.access.intercept.aspectj.AspectJCallback;
-import org.springframework.security.access.intercept.aspectj.AspectJSecurityInterceptor;
 import org.springframework.security.access.method.MethodSecurityMetadataSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 
@@ -42,33 +44,33 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * Tests {@link AspectJSecurityInterceptor}.
  *
  * @author Ben Alex
+ * @author Luke Taylor
  */
+@SuppressWarnings("deprecation")
 public class AspectJSecurityInterceptorTests {
-    private Mockery jmock = new JUnit4Mockery();
     private TestingAuthenticationToken token;
     private AspectJSecurityInterceptor interceptor;
-    private AccessDecisionManager adm;
-    private MethodSecurityMetadataSource mds;
-    private AuthenticationManager authman;
-    private AspectJCallback aspectJCallback;
+    private @Mock AccessDecisionManager adm;
+    private @Mock MethodSecurityMetadataSource mds;
+    private @Mock AuthenticationManager authman;
+    private @Mock AspectJCallback aspectJCallback;
     private JoinPoint joinPoint;
 
     //~ Methods ========================================================================================================
 
     @Before
     public final void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
         SecurityContextHolder.clearContext();
         token = new TestingAuthenticationToken("Test", "Password");
         interceptor = new AspectJSecurityInterceptor();
-        adm = jmock.mock(AccessDecisionManager.class);
-        authman = jmock.mock(AuthenticationManager.class);
-        mds = jmock.mock(MethodSecurityMetadataSource.class);
         interceptor.setAccessDecisionManager(adm);
         interceptor.setAuthenticationManager(authman);
         interceptor.setSecurityMetadataSource(mds);
         Method method = TargetObject.class.getMethod("countLength", new Class[] {String.class});
         joinPoint = new MockJoinPoint(new TargetObject(), method);
-        aspectJCallback = jmock.mock(AspectJCallback.class);
+        when(mds.getAttributes(any(JoinPoint.class))).thenReturn(SecurityConfig.createList("ROLE_USER"));
+        when(authman.authenticate(token)).thenReturn(token);
     }
 
     @After
@@ -77,33 +79,23 @@ public class AspectJSecurityInterceptorTests {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void callbackIsInvokedWhenPermissionGranted() throws Exception {
-        jmock.checking(new Expectations() {{
-            oneOf(mds).getAttributes(with(any(JoinPoint.class))); will (returnValue(SecurityConfig.createList("ROLE_USER")));
-            oneOf(authman).authenticate(token); will(returnValue(token));
-            oneOf(adm).decide(with(token), with(aNonNull(JoinPoint.class)), with(aNonNull(List.class)));
-            oneOf(aspectJCallback).proceedWithObject();
-        }});
-
         SecurityContextHolder.getContext().setAuthentication(token);
         interceptor.invoke(joinPoint, aspectJCallback);
-        jmock.assertIsSatisfied();
+        verify(aspectJCallback).proceedWithObject();
     }
 
     @SuppressWarnings("unchecked")
-    @Test(expected=AccessDeniedException.class)
+    @Test
     public void callbackIsNotInvokedWhenPermissionDenied() throws Exception {
-        jmock.checking(new Expectations() {{
-            oneOf(mds).getAttributes(with(any(JoinPoint.class))); will (returnValue(SecurityConfig.createList("ROLE_USER")));
-            oneOf(authman).authenticate(token); will(returnValue(token));
-            oneOf(adm).decide(with(token), with(aNonNull(JoinPoint.class)), with(aNonNull(List.class)));
-                will(throwException(new AccessDeniedException("denied")));
-            never(aspectJCallback).proceedWithObject();
-        }});
+        doThrow(new AccessDeniedException("denied")).when(adm).decide(any(Authentication.class), any(), any(Collection.class));
 
         SecurityContextHolder.getContext().setAuthentication(token);
-        interceptor.invoke(joinPoint, aspectJCallback);
-        jmock.assertIsSatisfied();
+        try {
+            interceptor.invoke(joinPoint, aspectJCallback);
+            fail("Expected AccessDeniedException");
+        } catch (AccessDeniedException expected) {
+        }
+        verify(aspectJCallback, never()).proceedWithObject();
     }
 }

@@ -6,8 +6,9 @@ package org.springframework.security.access.intercept.aspectj;
  * AspectJ processing to continue.
  *
  * @author Mike Wiesner
+ * @deprecated
  */
-
+@Deprecated
 public interface AspectJAnnotationCallback {
     //~ Methods ========================================================================================================
 
