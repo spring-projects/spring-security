@@ -22,10 +22,14 @@ configure(javaProjects) {
     apply url: "$rootDir/gradle/maven.gradle"
 }
 
-
 configure(coreModuleProjects) {
+    apply url: "$rootDir/gradle/bundlor.gradle"
     // Gives better names in structure101 jar diagram
     sourceSets.main.classesDir = new File(buildDir, "classes/" + project.name.substring("spring-security".length() + 1))
+}
+
+configure (aspectjProjects) {
+    apply url: "$rootDir/gradle/aspectj.gradle"
 }
 
 configurations {
@@ -142,7 +146,11 @@ def getItestProjects() {
 }
 
 def getCoreModuleProjects() {
-    javaProjects - sampleProjects - itestProjects
+    javaProjects - sampleProjects - itestProjects - aspectjProjects
+}
+
+def getAspectjProjects() {
+    subprojects.findAll {project -> project.name == 'spring-security-aspects' || project.name == 'spring-security-samples-aspectj'}
 }
 
 class UploadDist extends DefaultTask {
