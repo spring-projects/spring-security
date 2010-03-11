@@ -15,21 +15,13 @@
 
 package org.springframework.security.access.method;
 
-import org.springframework.security.access.ConfigAttribute;
+import java.util.Collection;
 
 import org.aopalliance.intercept.MethodInvocation;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.reflect.CodeSignature;
-
-import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
-
-import java.lang.reflect.Method;
-import java.util.Collection;
+import org.springframework.security.access.ConfigAttribute;
 
 
 /**
@@ -58,27 +50,7 @@ public abstract class AbstractMethodSecurityMetadataSource implements MethodSecu
             return getAttributes(mi.getMethod(), targetClass);
         }
 
-        if (object instanceof JoinPoint) {
-            JoinPoint jp = (JoinPoint) object;
-            Class<?> targetClass;
-
-            if (jp.getTarget() != null) {
-                targetClass = jp.getTarget().getClass();
-            } else {
-                // SEC-1295: target may be null if an ITD is in use
-                targetClass = jp.getSignature().getDeclaringType();
-            }
-            String targetMethodName = jp.getStaticPart().getSignature().getName();
-            Class<?>[] types = ((CodeSignature) jp.getStaticPart().getSignature()).getParameterTypes();
-            Class<?> declaringType = ((CodeSignature) jp.getStaticPart().getSignature()).getDeclaringType();
-
-            Method method = ClassUtils.getMethodIfAvailable(declaringType, targetMethodName, types);
-            Assert.notNull(method, "Could not obtain target method from JoinPoint: '"+ jp + "'");
-
-            return getAttributes(method, targetClass);
-        }
-
-        throw new IllegalArgumentException("Object must be a non-null MethodInvocation or JoinPoint");
+        throw new IllegalArgumentException("Object must be a non-null MethodInvocation");
     }
 
     public final boolean supports(Class<?> clazz) {

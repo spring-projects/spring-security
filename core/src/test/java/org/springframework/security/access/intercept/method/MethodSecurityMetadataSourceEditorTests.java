@@ -24,7 +24,6 @@ import junit.framework.TestCase;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.security.ITargetObject;
-import org.springframework.security.MockJoinPoint;
 import org.springframework.security.OtherTargetObject;
 import org.springframework.security.TargetObject;
 import org.springframework.security.access.ConfigAttribute;
@@ -44,22 +43,6 @@ public class MethodSecurityMetadataSourceEditorTests extends TestCase {
 
     public final void setUp() throws Exception {
         super.setUp();
-    }
-
-    public void testAspectJJointPointLookup() throws Exception {
-        MethodSecurityMetadataSourceEditor editor = new MethodSecurityMetadataSourceEditor();
-        editor.setAsText("org.springframework.security.TargetObject.countLength=ROLE_ONE,ROLE_TWO,RUN_AS_ENTRY");
-
-        MapBasedMethodSecurityMetadataSource map = (MapBasedMethodSecurityMetadataSource) editor.getValue();
-
-        Class<TargetObject> clazz = TargetObject.class;
-        Method method = clazz.getMethod("countLength", new Class[] {String.class});
-        MockJoinPoint joinPoint = new MockJoinPoint(new TargetObject(), method);
-
-        Collection<ConfigAttribute> returnedCountLength = map.getAttributes(joinPoint);
-
-        List<ConfigAttribute> expectedCountLength = SecurityConfig.createList("ROLE_ONE", "ROLE_TWO", "RUN_AS_ENTRY");
-        assertEquals(expectedCountLength, returnedCountLength);
     }
 
     public void testClassNameNotFoundResultsInException() {
