@@ -18,11 +18,9 @@ package org.springframework.security.access.intercept.aopalliance;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 
 import org.aopalliance.aop.Advice;
-import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.AbstractPointcutAdvisor;
 import org.springframework.aop.support.StaticMethodMatcherPointcut;
@@ -127,46 +125,6 @@ public class MethodSecurityMetadataSourceAdvisor extends AbstractPointcutAdvisor
         @SuppressWarnings("unchecked")
         public boolean matches(Method m, Class targetClass) {
             return attributeSource.getAttributes(m, targetClass) != null;
-        }
-    }
-
-    /**
-     * Represents a <code>MethodInvocation</code>.
-     * <p>
-     * Required as <code>MethodSecurityMetadataSource</code> only supports lookup of configuration attributes for
-     * <code>MethodInvocation</code>s.
-     */
-    class InternalMethodInvocation implements MethodInvocation {
-        private Method method;
-        private Class<?> targetClass;
-
-        public InternalMethodInvocation(Method method, Class<?> targetClass) {
-            this.method = method;
-            this.targetClass = targetClass;
-        }
-
-        protected InternalMethodInvocation() {
-            throw new UnsupportedOperationException();
-        }
-
-        public Object[] getArguments() {
-            throw new UnsupportedOperationException();
-        }
-
-        public Method getMethod() {
-            return this.method;
-        }
-
-        public AccessibleObject getStaticPart() {
-            throw new UnsupportedOperationException();
-        }
-
-        public Object getThis() {
-            return this.targetClass;
-        }
-
-        public Object proceed() throws Throwable {
-            throw new UnsupportedOperationException();
         }
     }
 }

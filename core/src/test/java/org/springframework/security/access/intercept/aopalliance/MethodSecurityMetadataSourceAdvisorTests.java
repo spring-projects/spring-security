@@ -74,39 +74,4 @@ public class MethodSecurityMetadataSourceAdvisorTests extends TestCase {
             assertTrue(true);
         }
     }
-
-    public void testUnsupportedOperations() throws Throwable {
-        Class<TargetObject> clazz = TargetObject.class;
-        Method method = clazz.getMethod("countLength", new Class[] {String.class});
-
-        MethodSecurityMetadataSourceAdvisor.InternalMethodInvocation imi = new MethodSecurityMetadataSourceAdvisor(getInterceptor()).new InternalMethodInvocation(method, clazz);
-
-        try {
-            imi.getArguments();
-            fail("Should have thrown UnsupportedOperationException");
-        } catch (UnsupportedOperationException expected) {
-            assertTrue(true);
-        }
-
-        try {
-            imi.getStaticPart();
-            fail("Should have thrown UnsupportedOperationException");
-        } catch (UnsupportedOperationException expected) {
-            assertTrue(true);
-        }
-
-        try {
-            imi.proceed();
-            fail("Should have thrown UnsupportedOperationException");
-        } catch (UnsupportedOperationException expected) {
-            assertTrue(true);
-        }
-
-        try {
-            new MethodSecurityMetadataSourceAdvisor(getInterceptor()).new InternalMethodInvocation();
-            fail("Should have thrown UnsupportedOperationException");
-        } catch (UnsupportedOperationException expected) {
-            assertTrue(true);
-        }
-    }
 }
