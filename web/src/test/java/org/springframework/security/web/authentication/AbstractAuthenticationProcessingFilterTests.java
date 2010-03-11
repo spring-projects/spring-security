@@ -405,6 +405,7 @@ public class AbstractAuthenticationProcessingFilterTests extends TestCase {
         // Reject authentication, so exception would normally be stored in session
         MockAuthenticationFilter filter = new MockAuthenticationFilter(false);
         filter.setAllowSessionCreation(false);
+        failureHandler.setAllowSessionCreation(false);
         filter.setAuthenticationFailureHandler(failureHandler);
         successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
         filter.setAuthenticationSuccessHandler(successHandler);
