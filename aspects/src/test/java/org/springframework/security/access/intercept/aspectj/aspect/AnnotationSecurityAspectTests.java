@@ -1,6 +1,10 @@
 package org.springframework.security.access.intercept.aspectj.aspect;
 
+import static org.junit.Assert.*;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -14,8 +18,12 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.annotation.SecuredAnnotationSecurityMetadataSource;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.ExpressionBasedAnnotationAttributeFactory;
+import org.springframework.security.access.expression.method.ExpressionBasedPostInvocationAdvice;
 import org.springframework.security.access.expression.method.ExpressionBasedPreInvocationAdvice;
+import org.springframework.security.access.intercept.AfterInvocationProviderManager;
 import org.springframework.security.access.intercept.aspectj.AspectJMethodSecurityInterceptor;
+import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PostInvocationAdviceProvider;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreInvocationAuthorizationAdviceVoter;
 import org.springframework.security.access.prepost.PrePostAnnotationSecurityMetadataSource;
@@ -74,15 +82,33 @@ public class AnnotationSecurityAspectTests {
     // SEC-1262
     @Test(expected=AccessDeniedException.class)
     public void denyAllPreAuthorizeDeniesAccess() throws Exception {
+        configureForElAnnotations();
         SecurityContextHolder.getContext().setAuthentication(anne);
+        prePostSecured.denyAllMethod();
+    }
+
+    @Test
+    public void postFilterIsApplied() throws Exception {
+        configureForElAnnotations();
+        SecurityContextHolder.getContext().setAuthentication(anne);
+        List<String> objects = prePostSecured.postFilterMethod();
+        assertEquals(2, objects.size());
+        assertTrue(objects.contains("apple"));
+        assertTrue(objects.contains("aubergine"));
+    }
+
+    private void configureForElAnnotations() {
+        DefaultMethodSecurityExpressionHandler eh = new DefaultMethodSecurityExpressionHandler();
         interceptor.setSecurityMetadataSource(new PrePostAnnotationSecurityMetadataSource(
-                new ExpressionBasedAnnotationAttributeFactory(new DefaultMethodSecurityExpressionHandler())));
+                new ExpressionBasedAnnotationAttributeFactory(eh)));
         AffirmativeBased adm = new AffirmativeBased();
         AccessDecisionVoter[] voters = new AccessDecisionVoter[]
                        {new PreInvocationAuthorizationAdviceVoter(new ExpressionBasedPreInvocationAdvice())};
         adm.setDecisionVoters(Arrays.asList(voters));
         interceptor.setAccessDecisionManager(adm);
-        prePostSecured.denyAllMethod();
+        AfterInvocationProviderManager aim = new AfterInvocationProviderManager();
+        aim.setProviders(Arrays.asList(new PostInvocationAdviceProvider(new ExpressionBasedPostInvocationAdvice(eh))));
+        interceptor.setAfterInvocationManager(aim);
     }
 }
 
@@ -92,7 +118,6 @@ interface SecuredInterface {
 }
 
 class SecuredImpl implements SecuredInterface {
-
     // Not really secured because AspectJ doesn't inherit annotations from interfaces
     public void securedMethod() {
     }
@@ -103,8 +128,14 @@ class SecuredImpl implements SecuredInterface {
 }
 
 class PrePostSecured {
-
     @PreAuthorize("denyAll")
     public void denyAllMethod() {
+    }
+
+    @PostFilter("filterObject.startsWith('a')")
+    public List<String> postFilterMethod() {
+        ArrayList<String> objects = new ArrayList<String>();
+        objects.addAll(Arrays.asList(new String[] {"apple", "banana", "aubergine", "orange"}));
+        return objects;
     }
 }
