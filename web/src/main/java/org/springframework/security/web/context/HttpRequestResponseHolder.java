@@ -11,28 +11,28 @@ import javax.servlet.http.HttpServletResponse;
  * @author Luke Taylor
  * @since 3.0
  */
-public class HttpRequestResponseHolder {
-    HttpServletRequest request;
-    HttpServletResponse response;
+public final class HttpRequestResponseHolder {
+    private HttpServletRequest request;
+    private HttpServletResponse response;
 
     public HttpRequestResponseHolder(HttpServletRequest request, HttpServletResponse response) {
         this.request = request;
         this.response = response;
     }
 
-    HttpServletRequest getRequest() {
+    public HttpServletRequest getRequest() {
         return request;
     }
 
-    void setRequest(HttpServletRequest request) {
+    public void setRequest(HttpServletRequest request) {
         this.request = request;
     }
 
-    HttpServletResponse getResponse() {
+    public HttpServletResponse getResponse() {
         return response;
     }
 
-    void setResponse(HttpServletResponse response) {
+    public void setResponse(HttpServletResponse response) {
         this.response = response;
     }
 }
