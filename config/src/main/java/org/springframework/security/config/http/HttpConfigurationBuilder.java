@@ -83,7 +83,7 @@ class HttpConfigurationBuilder {
     private final List<Element> interceptUrls;
 
     // Use ManagedMap to allow placeholder resolution
-    private ManagedMap<BeanDefinition, List<BeanMetadataElement>> filterChainMap;
+    private ManagedMap<Object, List<BeanMetadataElement>> filterChainMap;
 
     private BeanDefinition cpf;
     private BeanDefinition securityContextPersistenceFilter;
@@ -109,7 +109,7 @@ class HttpConfigurationBuilder {
     }
 
     void parseInterceptUrlsForEmptyFilterChains() {
-        filterChainMap = new ManagedMap<BeanDefinition, List<BeanMetadataElement>>();
+        filterChainMap = new ManagedMap<Object, List<BeanMetadataElement>>();
 
         for (Element urlElt : interceptUrls) {
             String path = urlElt.getAttribute(ATT_PATH_PATTERN);
@@ -464,7 +464,7 @@ class HttpConfigurationBuilder {
         return allowSessionCreation;
     }
 
-    public ManagedMap<BeanDefinition, List<BeanMetadataElement>> getFilterChainMap() {
+    public ManagedMap<Object, List<BeanMetadataElement>> getFilterChainMap() {
         return filterChainMap;
     }
 

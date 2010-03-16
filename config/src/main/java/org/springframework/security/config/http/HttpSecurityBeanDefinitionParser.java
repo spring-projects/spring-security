@@ -135,10 +135,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             filterChain.add(od.bean);
         }
 
-        ManagedMap<BeanDefinition, List<BeanMetadataElement>> filterChainMap = httpBldr.getFilterChainMap();
-        BeanDefinition universalMatch = new RootBeanDefinition(String.class);
-        universalMatch.getConstructorArgumentValues().addGenericArgumentValue(matcher.getUniversalMatchPattern());
-        filterChainMap.put(universalMatch, filterChain);
+        ManagedMap<Object, List<BeanMetadataElement>> filterChainMap = httpBldr.getFilterChainMap();
+        filterChainMap.put(matcher.getUniversalMatchPattern(), filterChain);
 
         registerFilterChainProxy(pc, filterChainMap, matcher, source);
 
@@ -247,7 +245,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         return customFilters;
     }
 
-    private void registerFilterChainProxy(ParserContext pc, Map<BeanDefinition, List<BeanMetadataElement>> filterChainMap, UrlMatcher matcher, Object source) {
+    private void registerFilterChainProxy(ParserContext pc, Map<Object, List<BeanMetadataElement>> filterChainMap, UrlMatcher matcher, Object source) {
         if (pc.getRegistry().containsBeanDefinition(BeanIds.FILTER_CHAIN_PROXY)) {
             pc.getReaderContext().error("Duplicate <http> element detected", source);
         }
