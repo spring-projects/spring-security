@@ -37,6 +37,9 @@ public class Jsr250Voter implements AccessDecisionVoter {
 
     /**
      * Votes according to JSR 250.
+     * <p>
+     * If no JSR-250 attributes are found, it will abstain, otherwise it will grant or deny access
+     * based on the attributes that are found.
      *
      * @param authentication The authentication object.
      * @param object         The access object.
@@ -44,6 +47,8 @@ public class Jsr250Voter implements AccessDecisionVoter {
      * @return The vote.
      */
     public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> definition) {
+        boolean jsr250AttributeFound = false;
+
         for (ConfigAttribute attribute : definition) {
             if (Jsr250SecurityConfig.PERMIT_ALL_ATTRIBUTE.equals(attribute)) {
                 return ACCESS_GRANTED;
@@ -54,18 +59,17 @@ public class Jsr250Voter implements AccessDecisionVoter {
             }
 
             if (supports(attribute)) {
+                jsr250AttributeFound = true;
                 // Attempt to find a matching granted authority
                 for (GrantedAuthority authority : authentication.getAuthorities()) {
                     if (attribute.getAttribute().equals(authority.getAuthority())) {
                         return ACCESS_GRANTED;
                     }
                 }
-                // No match - deny access
-                return ACCESS_DENIED;
             }
         }
 
-        return ACCESS_ABSTAIN;
+        return jsr250AttributeFound ? ACCESS_DENIED : ACCESS_ABSTAIN;
     }
 }
 
