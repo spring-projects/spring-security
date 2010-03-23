@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -114,18 +115,16 @@ public class BasicAuthenticationFilter extends GenericFilterBean {
 
         String header = request.getHeader("Authorization");
 
-        if ((header != null) && header.startsWith("Basic ")) {
-            byte[] base64Token = header.substring(6).getBytes("UTF-8");
-            String token = new String(Base64.decode(base64Token), getCredentialsCharset(request));
+        if (header == null || !header.startsWith("Basic ")) {
+            chain.doFilter(request, response);
+            return;
+        }
 
-            String username = "";
-            String password = "";
-            int delim = token.indexOf(":");
+        try {
+            String[] tokens = extractAndDecodeHeader(header, request);
+            assert tokens.length == 2;
 
-            if (delim != -1) {
-                username = token.substring(0, delim);
-                password = token.substring(delim + 1);
-            }
+            String username = tokens[0];
 
             if (debug) {
                 logger.debug("Basic Authentication Authorization header found for user '" + username + "'");
@@ -133,37 +132,12 @@ public class BasicAuthenticationFilter extends GenericFilterBean {
 
             if (authenticationIsRequired(username)) {
                 UsernamePasswordAuthenticationToken authRequest =
-                        new UsernamePasswordAuthenticationToken(username, password);
+                        new UsernamePasswordAuthenticationToken(username, tokens[1]);
                 authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
+                Authentication authResult = authenticationManager.authenticate(authRequest);
 
-                Authentication authResult;
-
-                try {
-                    authResult = authenticationManager.authenticate(authRequest);
-                } catch (AuthenticationException failed) {
-                    // Authentication failed
-                    if (debug) {
-                        logger.debug("Authentication request for user: " + username + " failed: " + failed.toString());
-                    }
-
-                    SecurityContextHolder.getContext().setAuthentication(null);
-
-                    rememberMeServices.loginFail(request, response);
-
-                    onUnsuccessfulAuthentication(request, response, failed);
-
-                    if (ignoreFailure) {
-                        chain.doFilter(request, response);
-                    } else {
-                        authenticationEntryPoint.commence(request, response, failed);
-                    }
-
-                    return;
-                }
-
-                // Authentication success
                 if (debug) {
-                    logger.debug("Authentication success: " + authResult.toString());
+                    logger.debug("Authentication success: " + authResult);
                 }
 
                 SecurityContextHolder.getContext().setAuthentication(authResult);
@@ -172,9 +146,53 @@ public class BasicAuthenticationFilter extends GenericFilterBean {
 
                 onSuccessfulAuthentication(request, response, authResult);
             }
+
+        } catch (AuthenticationException failed) {
+            SecurityContextHolder.clearContext();
+
+            if (debug) {
+                logger.debug("Authentication request for failed: " + failed);
+            }
+
+            rememberMeServices.loginFail(request, response);
+
+            onUnsuccessfulAuthentication(request, response, failed);
+
+            if (ignoreFailure) {
+                chain.doFilter(request, response);
+            } else {
+                authenticationEntryPoint.commence(request, response, failed);
+            }
+
+            return;
         }
 
         chain.doFilter(request, response);
+    }
+
+    /**
+     * Decodes the header into a username and password.
+     * <p>
+     * @throws BadCredentialsException if the Basic header is not present or is not valid Base64
+     */
+    private String[] extractAndDecodeHeader(String header, HttpServletRequest request) throws IOException {
+
+        byte[] base64Token = header.substring(6).getBytes("UTF-8");
+        byte[] decoded;
+        try {
+            decoded = Base64.decode(base64Token);
+        } catch (IllegalArgumentException e) {
+            throw new BadCredentialsException("Failed to decode basic authentication token");
+        }
+
+        String token = new String(decoded, getCredentialsCharset(request));
+
+        int delim = token.indexOf(":");
+
+        if (delim == -1) {
+            throw new BadCredentialsException("Invalid basic authentication token");
+        }
+        return new String[] {token.substring(0, delim), token.substring(delim + 1)};
     }
 
     private boolean authenticationIsRequired(String username) {
