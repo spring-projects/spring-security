@@ -3,8 +3,8 @@ package org.springframework.security.access.method;
 import java.lang.reflect.Method;
 import java.util.Collection;
 
+import org.springframework.aop.support.AopUtils;
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.util.ClassUtils;
 
 /**
  * Abstract implementation of {@link MethodSecurityMetadataSource} that supports both Spring AOP and AspectJ and
@@ -29,7 +29,7 @@ public abstract class AbstractFallbackMethodSecurityMetadataSource extends Abstr
     public Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
         // The method may be on an interface, but we need attributes from the target class.
         // If the target class is null, the method will be unchanged.
-        Method specificMethod = ClassUtils.getMostSpecificMethod(method, targetClass);
+        Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
         // First try is the method in the target class.
         Collection<ConfigAttribute> attr = findAttributes(specificMethod, targetClass);
         if (attr != null) {

@@ -16,6 +16,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.context.support.StaticApplicationContext;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.annotation.BusinessService;
 import org.springframework.security.access.intercept.AfterInvocationProviderManager;
 import org.springframework.security.access.intercept.RunAsManagerImpl;
@@ -30,6 +32,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.ConfigTestUtils;
 import org.springframework.security.config.PostProcessedMockUserDetailsService;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -166,7 +169,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
                 "     'execution(* org.springframework.security.access.annotation.BusinessService.*(..)) " +
                 "       and not execution(* org.springframework.security.access.annotation.BusinessService.someOther(String)))' " +
                 "               access='ROLE_USER'/>" +
-                "</global-method-security>" + ConfigTestUtils.AUTH_PROVIDER_XML
+                "</global-method-security>" + AUTH_PROVIDER_XML
         );
         target = (BusinessService) appContext.getBean("target");
         // String method should not be protected
@@ -283,6 +286,20 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
                 AUTH_PROVIDER_XML);
     }
 
+    // SEC-1450
+    @Test(expected=AuthenticationException.class)
+    @SuppressWarnings("unchecked")
+    public void genericsAreMatchedByProtectPointcut() throws Exception {
+        setContext(
+                "<b:bean id='target' class='org.springframework.security.config.method.GlobalMethodSecurityBeanDefinitionParserTests$ConcreteFoo'/>" +
+                "<global-method-security>" +
+                "   <protect-pointcut expression='execution(* org..*Foo.foo(..))' access='ROLE_USER'/>" +
+                "</global-method-security>" + AUTH_PROVIDER_XML
+        );
+        Foo foo = (Foo) appContext.getBean("target");
+        foo.foo(new SecurityConfig("A"));
+    }
+
     @Test
     public void runAsManagerIsSetCorrectly() throws Exception {
         StaticApplicationContext parent = new StaticApplicationContext();
@@ -305,6 +322,14 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
     private void setContext(String context, ApplicationContext parent) {
         appContext = new InMemoryXmlApplicationContext(context, parent);
     }
+
+    interface Foo<T extends ConfigAttribute> {
+        void foo(T action);
+    }
+
+    public static class ConcreteFoo implements Foo<SecurityConfig> {
+        public void foo(SecurityConfig action) {
+        }
+    }
+
 }
-
-
