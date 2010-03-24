@@ -144,8 +144,8 @@
             <section xml:id="nsa-pattern">
                 <title><literal>pattern</literal></title>
                 <para> The pattern which defines the URL path. The content will depend on the
-                    <literal>path-type</literal> attribute from the containing http element, so will
-                    default to ant path syntax. </para>
+                    <literal>request-matcher</literal> attribute from the containing http element,
+                    so will default to ant path syntax. </para>
             </section>
             <section xml:id="nsa-method">
                 <title><literal>method</literal></title>
