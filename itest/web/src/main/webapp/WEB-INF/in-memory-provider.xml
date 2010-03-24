@@ -12,6 +12,7 @@
               <user name="miles" password="milespassword" authorities="ROLE_USER,ROLE_JAZZ,ROLE_TRUMPETER"/>
               <user name="johnc" password="johncspassword" authorities="ROLE_USER,ROLE_JAZZ,ROLE_SAXOPHONIST"/>
               <user name="jimi" password="jimispassword" authorities="ROLE_USER,ROLE_ROCK,ROLE_GUITARIST"/>
+              <user name="bessie" password="bessiespassword" authorities="ROLE_USER,ROLE_JAZZ,ROLE_SINGER"/>
               <user name="theescapist&lt;&gt;&amp;." password="theescapistspassword" authorities="ROLE_USER"/>
             </user-service>
         </authentication-provider>

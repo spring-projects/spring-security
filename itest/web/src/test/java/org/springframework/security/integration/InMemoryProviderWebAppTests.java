@@ -94,17 +94,4 @@ public class InMemoryProviderWebAppTests extends AbstractWebServerIntegrationTes
         tester.gotoPage("secure/index.html");
         tester.assertTextPresent("This session has been expired");
     }
-
-    @Test
-    public void authenticationTagEscapingWorksCorrectly() {
-        beginAt("secure/authenticationTagTestPage.jsp");
-        login("theescapist<>&.", "theescapistspassword");
-        String response = tester.getServerResponse();
-        assertTrue(response.contains("This is the unescaped authentication name: theescapist<>&."));
-        assertTrue(response.contains("This is the unescaped principal.username: theescapist<>&."));
-        assertTrue(response.contains("This is the authentication name: theescapist&lt;&gt;&amp;&#46;"));
-        assertTrue(response.contains("This is the principal.username: theescapist&lt;&gt;&amp;&#46;"));
-    }
-
-
 }

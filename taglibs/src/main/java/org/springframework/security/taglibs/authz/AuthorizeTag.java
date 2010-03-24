@@ -10,6 +10,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.expression.Expression;
@@ -35,6 +36,7 @@ public class AuthorizeTag extends LegacyAuthorizeTag {
     private String access;
     private String url;
     private String method;
+    private String var;
 
     // If access expression evaluates to "true" return
     public int doStartTag() throws JspException {
@@ -44,13 +46,21 @@ public class AuthorizeTag extends LegacyAuthorizeTag {
             return SKIP_BODY;
         }
 
+        int result;
+
         if (access != null && access.length() > 0) {
-            return authorizeUsingAccessExpression(currentUser);
+            result = authorizeUsingAccessExpression(currentUser);
         } else if (url != null && url.length() > 0) {
-            return authorizeUsingUrlCheck(currentUser);
+            result = authorizeUsingUrlCheck(currentUser);
+        } else {
+            result = super.doStartTag();
         }
 
-        return super.doStartTag();
+        if (var != null) {
+            pageContext.setAttribute(var, Boolean.valueOf(result == EVAL_BODY_INCLUDE), PageContext.PAGE_SCOPE);
+        }
+
+        return result;
     }
 
     private int authorizeUsingAccessExpression(Authentication currentUser) throws JspException {
@@ -89,6 +99,10 @@ public class AuthorizeTag extends LegacyAuthorizeTag {
 
     public void setMethod(String method) {
         this.method = method;
+    }
+
+    public void setVar(String var) {
+        this.var = var;
     }
 
     WebSecurityExpressionHandler getExpressionHandler() throws JspException {

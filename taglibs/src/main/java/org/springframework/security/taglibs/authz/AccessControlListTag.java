@@ -66,6 +66,7 @@ import org.springframework.web.util.ExpressionEvaluationUtils;
  * implementations are found in the application context.
  *
  * @author Ben Alex
+ * @author Luke Taylor
  */
 public class AccessControlListTag extends TagSupport {
     //~ Static fields/initializers =====================================================================================
@@ -81,12 +82,13 @@ public class AccessControlListTag extends TagSupport {
     private SidRetrievalStrategy sidRetrievalStrategy;
     private PermissionFactory permissionFactory;
     private String hasPermission = "";
+    private String var;
 
     //~ Methods ========================================================================================================
 
     public int doStartTag() throws JspException {
         if ((null == hasPermission) || "".equals(hasPermission)) {
-            return Tag.SKIP_BODY;
+            return skipBody();
         }
 
         initializeIfRequired();
@@ -111,7 +113,7 @@ public class AccessControlListTag extends TagSupport {
             }
 
             // Of course they have access to a null object!
-            return Tag.EVAL_BODY_INCLUDE;
+            return evalBody();
         }
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -120,7 +122,7 @@ public class AccessControlListTag extends TagSupport {
                     "SecurityContextHolder did not return a non-null Authentication object, so skipping tag body");
             }
 
-            return Tag.SKIP_BODY;
+            return skipBody();
         }
 
         List<Sid> sids = sidRetrievalStrategy.getSids(SecurityContextHolder.getContext().getAuthentication());
@@ -131,14 +133,29 @@ public class AccessControlListTag extends TagSupport {
             Acl acl = aclService.readAclById(oid, sids);
 
             if (acl.isGranted(requiredPermissions, sids, false)) {
-                return Tag.EVAL_BODY_INCLUDE;
+                return evalBody();
             } else {
-                return Tag.SKIP_BODY;
+                return skipBody();
             }
         } catch (NotFoundException nfe) {
-            return Tag.SKIP_BODY;
+            return skipBody();
         }
     }
+
+    private int skipBody() {
+        if (var != null) {
+            pageContext.setAttribute(var, Boolean.FALSE, PageContext.PAGE_SCOPE);
+        }
+        return SKIP_BODY;
+    }
+
+    private int evalBody() {
+        if (var != null) {
+            pageContext.setAttribute(var, Boolean.TRUE, PageContext.PAGE_SCOPE);
+        }
+        return EVAL_BODY_INCLUDE;
+    }
+
 
     /**
      * Allows test cases to override where application context obtained from.
@@ -232,5 +249,9 @@ public class AccessControlListTag extends TagSupport {
 
     public void setHasPermission(String hasPermission) {
         this.hasPermission = hasPermission;
+    }
+
+    public void setVar(String var) {
+        this.var = var;
     }
 }

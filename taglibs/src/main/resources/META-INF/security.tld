@@ -9,7 +9,6 @@
     <uri>http://www.springframework.org/security/tags</uri>
     <description>
         Spring Security Authorization Tag Library
-        $Id$
     </description>
 
     <tag>
@@ -51,6 +50,15 @@
             </description>
         </attribute>
 
+        <attribute>
+            <name>var</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                A page scoped variable into which the boolean result of the tag evaluation will be written, allowing the
+                same condition to be reused subsequently in the page without re-evaluation.
+            </description>
+        </attribute>
 
         <attribute>
             <name>ifNotGranted</name>
@@ -151,6 +159,15 @@
             <description>
                 The actual domain object instance for which permissions
                 are being evaluated.
+            </description>
+        </attribute>
+        <attribute>
+            <name>var</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                A page scoped variable into which the boolean result of the tag evaluation will be written, allowing the
+                same condition to be reused subsequently in the page without re-evaluation.
             </description>
         </attribute>
     </tag>

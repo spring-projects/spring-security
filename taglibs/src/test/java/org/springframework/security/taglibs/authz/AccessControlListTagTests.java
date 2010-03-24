@@ -1,6 +1,6 @@
 package org.springframework.security.taglibs.authz;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
@@ -33,6 +33,7 @@ import org.springframework.web.context.WebApplicationContext;
 public class AccessControlListTagTests {
     AccessControlListTag tag;
     Acl acl;
+    MockPageContext pageContext;
 
     @Before
     public void setup() {
@@ -44,9 +45,6 @@ public class AccessControlListTagTests {
         ObjectIdentity oid = mock(ObjectIdentity.class);
         ObjectIdentityRetrievalStrategy oidStrategy = mock(ObjectIdentityRetrievalStrategy.class);
         when(oidStrategy.getObjectIdentity(anyObject())).thenReturn(oid);
-//        AclPermissionEvaluator pe = new AclPermissionEvaluator(service);
-//        pe.setObjectIdentityRetrievalStrategy(oidStrategy);
-//        pe.setSidRetrievalStrategy(mock(SidRetrievalStrategy.class));
         acl = mock(Acl.class);
 
         when(service.readAclById(any(ObjectIdentity.class), anyList())).thenReturn(acl);
@@ -59,7 +57,8 @@ public class AccessControlListTagTests {
 
         MockServletContext servletCtx = new MockServletContext();
         servletCtx.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ctx);
-        tag.setPageContext(new MockPageContext(servletCtx, new MockHttpServletRequest(), new MockHttpServletResponse()));
+        pageContext = new MockPageContext(servletCtx, new MockHttpServletRequest(), new MockHttpServletResponse());
+        tag.setPageContext(pageContext);
     }
 
     @After
@@ -73,8 +72,10 @@ public class AccessControlListTagTests {
 
         tag.setDomainObject(new Object());
         tag.setHasPermission("READ");
+        tag.setVar("allowed");
 
         assertEquals(Tag.EVAL_BODY_INCLUDE, tag.doStartTag());
+        assertTrue((Boolean)pageContext.getAttribute("allowed"));
     }
 
     @Test
@@ -83,8 +84,10 @@ public class AccessControlListTagTests {
 
         tag.setDomainObject(new Object());
         tag.setHasPermission("READ");
+        tag.setVar("allowed");
 
         assertEquals(Tag.SKIP_BODY, tag.doStartTag());
+        assertFalse((Boolean)pageContext.getAttribute("allowed"));
     }
 
 }
