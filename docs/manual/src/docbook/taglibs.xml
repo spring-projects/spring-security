@@ -50,6 +50,10 @@ This content will only be visible to users who are authorized to send requests t
             duplicate the information (such as the required roles) within your JSPs. This approach
             can also be combined with a <literal>method</literal> attribute, supplying the HTTP
             method, for a more specific match.</para>
+        <para>The boolean result of evaluating the tag (whether it grants or denies access) can be
+            stored in a page context scope variable by setting the <literal>var</literal> attribute
+            to the variable name, avoiding the need for duplicating and re-evaluating the condition
+            at other points in the page.</para>
     </section>
     <section>
         <title>The <literal>authentication</literal>Tag</title>
@@ -89,5 +93,7 @@ represented by the values "1" or "2" on the given object.
             load the <interfacename>Acl</interfacename> instance for the supplied object. The
             <interfacename>Acl</interfacename> will be invoked with the required permissions to
             check if any of them are granted.</para>
+        <para>This tag also supports the <literal>var</literal> attribute, in the same way as the
+            <literal>authorize</literal> tag.</para>
     </section>
 </chapter>
