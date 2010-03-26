@@ -9,8 +9,7 @@ dependencies {
             "org.springframework:spring-aop:$springVersion",
             "org.springframework:spring-context:$springVersion",
             "org.springframework:spring-web:$springVersion",
-            "org.springframework:spring-beans:$springVersion",
-            "org.springframework:spring-tx:$springVersion"
+            "org.springframework:spring-beans:$springVersion"
 
     provided "javax.servlet:servlet-api:2.5"
 
@@ -20,7 +19,8 @@ dependencies {
                 'javax.annotation:jsr250-api:1.0',
                 'aopalliance:aopalliance:1.0',
                 "org.springframework.ldap:spring-ldap-core:$springLdapVersion",
-                "org.springframework:spring-jdbc:$springVersion"
+                "org.springframework:spring-jdbc:$springVersion",
+                "org.springframework:spring-tx:$springVersion"
 
     testRuntime "hsqldb:hsqldb:$hsqlVersion"
 }

@@ -17,9 +17,6 @@ package org.springframework.security.authentication.encoding;
 
 import junit.framework.TestCase;
 
-import org.springframework.dao.DataAccessException;
-import org.springframework.security.authentication.encoding.BasePasswordEncoder;
-
 
 /**
  * <p>TestCase for BasePasswordEncoder.</p>
@@ -126,13 +123,11 @@ public class BasePasswordEncoderTests extends TestCase {
     //~ Inner Classes ==================================================================================================
 
     private class MockPasswordEncoder extends BasePasswordEncoder {
-        public String encodePassword(String rawPass, Object salt)
-            throws DataAccessException {
+        public String encodePassword(String rawPass, Object salt) {
             throw new UnsupportedOperationException("mock method not implemented");
         }
 
-        public boolean isPasswordValid(String encPass, String rawPass, Object salt)
-            throws DataAccessException {
+        public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
             throw new UnsupportedOperationException("mock method not implemented");
         }
 

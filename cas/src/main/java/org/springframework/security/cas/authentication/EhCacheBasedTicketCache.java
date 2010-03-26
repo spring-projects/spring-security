@@ -15,23 +15,17 @@
 
 package org.springframework.security.cas.authentication;
 
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Element;
 import net.sf.ehcache.Ehcache;
-
+import net.sf.ehcache.Element;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.InitializingBean;
-
-import org.springframework.dao.DataRetrievalFailureException;
-
 import org.springframework.util.Assert;
 
 
 /**
- * Caches tickets using a Spring IoC defined <A HREF="http://ehcache.sourceforge.net">EHCACHE</a>.
+ * Caches tickets using a Spring IoC defined <a href="http://ehcache.sourceforge.net">EHCACHE</a>.
  *
  * @author Ben Alex
  */
@@ -51,18 +45,13 @@ public class EhCacheBasedTicketCache implements StatelessTicketCache, Initializi
     }
 
     public CasAuthenticationToken getByTicketId(final String serviceTicket) {
-        try {
-            final Element element = cache.get(serviceTicket);
+        final Element element = cache.get(serviceTicket);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Cache hit: " + (element != null) + "; service ticket: " + serviceTicket);
-            }
-
-            return element == null ? null : (CasAuthenticationToken) element.getValue();
-
-        } catch (CacheException cacheException) {
-            throw new DataRetrievalFailureException("Cache failure: " + cacheException.getMessage());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Cache hit: " + (element != null) + "; service ticket: " + serviceTicket);
         }
+
+        return element == null ? null : (CasAuthenticationToken) element.getValue();
     }
 
     public Ehcache getCache() {

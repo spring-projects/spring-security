@@ -1,9 +1,7 @@
 package org.springframework.security.config;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 public class PostProcessedMockUserDetailsService implements UserDetailsService {
     private String postProcessorWasHere;
@@ -20,8 +18,7 @@ public class PostProcessedMockUserDetailsService implements UserDetailsService {
         this.postProcessorWasHere = postProcessorWasHere;
     }
 
-    public UserDetails loadUserByUsername(String username)
-            throws UsernameNotFoundException, DataAccessException {
+    public UserDetails loadUserByUsername(String username) {
         throw new UnsupportedOperationException("Not for actual use");
     }
 }

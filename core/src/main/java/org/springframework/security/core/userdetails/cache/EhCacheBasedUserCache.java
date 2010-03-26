@@ -15,21 +15,14 @@
 
 package org.springframework.security.core.userdetails.cache;
 
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Element;
 import net.sf.ehcache.Ehcache;
-
-
-import org.springframework.security.core.userdetails.UserCache;
-import org.springframework.security.core.userdetails.UserDetails;
+import net.sf.ehcache.Element;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.InitializingBean;
-
-import org.springframework.dao.DataRetrievalFailureException;
-
+import org.springframework.security.core.userdetails.UserCache;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.Assert;
 
 
@@ -59,13 +52,7 @@ public class EhCacheBasedUserCache implements UserCache, InitializingBean {
     }
 
     public UserDetails getUserFromCache(String username) {
-        Element element = null;
-
-        try {
-            element = cache.get(username);
-        } catch (CacheException cacheException) {
-            throw new DataRetrievalFailureException("Cache failure: " + cacheException.getMessage());
-        }
+        Element element = cache.get(username);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Cache hit: " + (element != null) + "; username: " + username);

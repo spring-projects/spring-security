@@ -1,8 +1,7 @@
 package org.springframework.security.core.userdetails;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.dao.DataAccessException;
+import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
 /**
@@ -48,8 +47,7 @@ public class UserDetailsByNameServiceWrapper implements AuthenticationUserDetail
      * Get the UserDetails object from the wrapped UserDetailsService
      * implementation
      */
-    public UserDetails loadUserDetails(Authentication authentication) throws UsernameNotFoundException,
-            DataAccessException {
+    public UserDetails loadUserDetails(Authentication authentication) throws UsernameNotFoundException {
         return this.userDetailsService.loadUserByUsername(authentication.getName());
     }
 

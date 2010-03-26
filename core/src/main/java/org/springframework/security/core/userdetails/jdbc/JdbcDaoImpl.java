@@ -24,7 +24,6 @@ import java.util.Set;
 
 import org.springframework.context.ApplicationContextException;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.security.core.GrantedAuthority;
@@ -148,7 +147,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
         Assert.isTrue(enableAuthorities || enableGroups, "Use of either authorities or groups must be enabled");
     }
 
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         List<UserDetails> users = loadUsersByUsername(username);
 
         if (users.size() == 0) {

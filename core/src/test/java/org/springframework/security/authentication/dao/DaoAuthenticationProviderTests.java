@@ -19,7 +19,6 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -437,15 +436,13 @@ public class DaoAuthenticationProviderTests extends TestCase {
     //~ Inner Classes ==================================================================================================
 
     private class MockAuthenticationDaoReturnsNull implements UserDetailsService {
-        public UserDetails loadUserByUsername(String username)
-            throws UsernameNotFoundException, DataAccessException {
+        public UserDetails loadUserByUsername(String username) {
             return null;
         }
     }
 
     private class MockAuthenticationDaoSimulateBackendError implements UserDetailsService {
-        public UserDetails loadUserByUsername(String username)
-            throws UsernameNotFoundException, DataAccessException {
+        public UserDetails loadUserByUsername(String username) {
             throw new DataRetrievalFailureException("This mock simulator is designed to fail");
         }
     }
@@ -453,8 +450,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
     private class MockAuthenticationDaoUserrod implements UserDetailsService {
         private String password = "koala";
 
-        public UserDetails loadUserByUsername(String username)
-            throws UsernameNotFoundException, DataAccessException {
+        public UserDetails loadUserByUsername(String username) {
             if ("rod".equals(username)) {
                 return new User("rod", password, true, true, true, true, ROLES_12);
             } else {
@@ -468,8 +464,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
     }
 
     private class MockAuthenticationDaoUserrodWithSalt implements UserDetailsService {
-        public UserDetails loadUserByUsername(String username)
-            throws UsernameNotFoundException, DataAccessException {
+        public UserDetails loadUserByUsername(String username) {
             if ("rod".equals(username)) {
                 return new User("rod", "koala{SYSTEM_SALT_VALUE}", true, true, true, true, ROLES_12);
             } else {
@@ -479,8 +474,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
     }
 
     private class MockAuthenticationDaoUserPeter implements UserDetailsService {
-        public UserDetails loadUserByUsername(String username)
-            throws UsernameNotFoundException, DataAccessException {
+        public UserDetails loadUserByUsername(String username) {
             if ("peter".equals(username)) {
                 return new User("peter", "opal", false, true, true, true, ROLES_12);
             } else {
@@ -490,8 +484,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
     }
 
     private class MockAuthenticationDaoUserPeterAccountExpired implements UserDetailsService {
-        public UserDetails loadUserByUsername(String username)
-            throws UsernameNotFoundException, DataAccessException {
+        public UserDetails loadUserByUsername(String username) {
             if ("peter".equals(username)) {
                 return new User("peter", "opal", true, false, true, true, ROLES_12);
             } else {
@@ -501,8 +494,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
     }
 
     private class MockAuthenticationDaoUserPeterAccountLocked implements UserDetailsService {
-        public UserDetails loadUserByUsername(String username)
-            throws UsernameNotFoundException, DataAccessException {
+        public UserDetails loadUserByUsername(String username) {
             if ("peter".equals(username)) {
                 return new User("peter", "opal", true, true, true, false, ROLES_12);
             } else {
@@ -512,8 +504,7 @@ public class DaoAuthenticationProviderTests extends TestCase {
     }
 
     private class MockAuthenticationDaoUserPeterCredentialsExpired implements UserDetailsService {
-        public UserDetails loadUserByUsername(String username)
-            throws UsernameNotFoundException, DataAccessException {
+        public UserDetails loadUserByUsername(String username) {
             if ("peter".equals(username)) {
                 return new User("peter", "opal", true, true, false, true, ROLES_12);
             } else {

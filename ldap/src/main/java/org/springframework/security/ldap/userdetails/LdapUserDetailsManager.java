@@ -14,30 +14,11 @@
  */
 package org.springframework.security.ldap.userdetails;
 
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.ldap.LdapUsernameToDnMapper;
-import org.springframework.security.ldap.LdapUtils;
-import org.springframework.security.ldap.DefaultLdapUsernameToDnMapper;
-import org.springframework.security.provisioning.UserDetailsManager;
-import org.springframework.dao.DataAccessException;
-import org.springframework.ldap.core.AttributesMapper;
-import org.springframework.ldap.core.AttributesMapperCallbackHandler;
-import org.springframework.ldap.core.ContextExecutor;
-import org.springframework.ldap.core.ContextSource;
-import org.springframework.ldap.core.DirContextAdapter;
-import org.springframework.ldap.core.DistinguishedName;
-import org.springframework.ldap.core.LdapTemplate;
-import org.springframework.ldap.core.SearchExecutor;
-import org.springframework.util.Assert;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 
 import javax.naming.Context;
 import javax.naming.NameNotFoundException;
@@ -51,11 +32,29 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.ldap.core.AttributesMapper;
+import org.springframework.ldap.core.AttributesMapperCallbackHandler;
+import org.springframework.ldap.core.ContextExecutor;
+import org.springframework.ldap.core.ContextSource;
+import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.core.SearchExecutor;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.ldap.DefaultLdapUsernameToDnMapper;
+import org.springframework.security.ldap.LdapUsernameToDnMapper;
+import org.springframework.security.ldap.LdapUtils;
+import org.springframework.security.provisioning.UserDetailsManager;
+import org.springframework.util.Assert;
 
 /**
  * An Ldap implementation of UserDetailsManager.
@@ -123,7 +122,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
         template = new LdapTemplate(contextSource);
     }
 
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
+    public UserDetails loadUserByUsername(String username) {
         DistinguishedName dn = usernameMapper.buildDn(username);
         List<GrantedAuthority> authorities = getUserAuthorities(dn, username);
 

@@ -15,13 +15,9 @@
 
 package org.springframework.security.authentication.encoding;
 
-import org.springframework.dao.DataAccessException;
-
 
 /**
- * <p>
  * Interface for performing authentication operations on a password.
- * </p>
  *
  * @author colin sampaleanu
  */
@@ -48,11 +44,8 @@ public interface PasswordEncoder {
      *        <code>null</code> value is legal.
      *
      * @return encoded password
-     *
-     * @throws DataAccessException DOCUMENT ME!
      */
-    String encodePassword(String rawPass, Object salt)
-        throws DataAccessException;
+    String encodePassword(String rawPass, Object salt);
 
     /**
      * <p>Validates a specified "raw" password against an encoded password.</p>
@@ -67,9 +60,6 @@ public interface PasswordEncoder {
      *        <code>null</code> value is legal.
      *
      * @return true if the password is valid , false otherwise
-     *
-     * @throws DataAccessException DOCUMENT ME!
      */
-    boolean isPasswordValid(String encPass, String rawPass, Object salt)
-        throws DataAccessException;
+    boolean isPasswordValid(String encPass, String rawPass, Object salt);
 }

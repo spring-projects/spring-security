@@ -15,8 +15,6 @@
 
 package org.springframework.security.core.userdetails;
 
-import org.springframework.dao.DataAccessException;
-
 
 /**
  * Core interface which loads user-specific data.
@@ -46,8 +44,6 @@ public interface UserDetailsService {
      * @return a fully populated user record (never <code>null</code>)
      *
      * @throws UsernameNotFoundException if the user could not be found or the user has no GrantedAuthority
-     * @throws DataAccessException if user could not be found for a repository-specific reason
      */
-    UserDetails loadUserByUsername(String username)
-        throws UsernameNotFoundException, DataAccessException;
+    UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
 }

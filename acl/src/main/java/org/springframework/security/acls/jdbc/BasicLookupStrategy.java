@@ -29,7 +29,6 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -495,9 +494,8 @@ public final class BasicLookupStrategy implements LookupStrategy {
          * @param rs The {@link ResultSet} to be processed
          * @return a list of parent IDs remaining to be looked up (may be empty, but never <tt>null</tt>)
          * @throws SQLException
-         * @throws DataAccessException
          */
-        public Set<Long> extractData(ResultSet rs) throws SQLException, DataAccessException {
+        public Set<Long> extractData(ResultSet rs) throws SQLException {
             Set<Long> parentIdsToLookup = new HashSet<Long>(); // Set of parent_id Longs
 
             while (rs.next()) {

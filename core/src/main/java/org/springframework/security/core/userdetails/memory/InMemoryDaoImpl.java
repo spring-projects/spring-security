@@ -21,8 +21,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import org.springframework.beans.factory.InitializingBean;
 
-import org.springframework.dao.DataAccessException;
-
 import org.springframework.util.Assert;
 
 import java.util.Properties;
@@ -49,8 +47,7 @@ public class InMemoryDaoImpl implements UserDetailsService, InitializingBean {
         return userMap;
     }
 
-    public UserDetails loadUserByUsername(String username)
-        throws UsernameNotFoundException, DataAccessException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userMap.getUser(username);
     }
 

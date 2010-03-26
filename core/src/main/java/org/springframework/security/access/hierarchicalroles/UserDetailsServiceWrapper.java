@@ -16,8 +16,6 @@ package org.springframework.security.access.hierarchicalroles;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.dao.DataAccessException;
 
 /**
  * This class wraps Spring Security's <tt>UserDetailsService</tt> in a way that its <tt>loadUserByUsername()</tt>
@@ -42,7 +40,7 @@ public class UserDetailsServiceWrapper implements UserDetailsService {
         this.userDetailsService = userDetailsService;
     }
 
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
+    public UserDetails loadUserByUsername(String username) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         // wrapped UserDetailsService might throw UsernameNotFoundException or DataAccessException which will then bubble up
         return new UserDetailsWrapper(userDetails, roleHierarchy);

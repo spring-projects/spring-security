@@ -24,7 +24,7 @@ import org.springframework.security.authentication.encoding.PlaintextPasswordEnc
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.dao.DataAccessException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.Assert;
 
 /**
@@ -80,8 +80,9 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 
         try {
             loadedUser = this.getUserDetailsService().loadUserByUsername(username);
-        }
-        catch (DataAccessException repositoryProblem) {
+        } catch (UsernameNotFoundException notFound) {
+            throw notFound;
+        } catch (Exception repositoryProblem) {
             throw new AuthenticationServiceException(repositoryProblem.getMessage(), repositoryProblem);
         }
 

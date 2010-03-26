@@ -2,14 +2,8 @@ package org.springframework.security.core.userdetails;
 
 import junit.framework.TestCase;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 /**
  *
@@ -33,7 +27,7 @@ public class UserDetailsByNameServiceWrapperTests extends TestCase {
         UserDetailsByNameServiceWrapper svc = new UserDetailsByNameServiceWrapper();
         final User user = new User("dummy", "dummy", true, true, true, true, AuthorityUtils.NO_AUTHORITIES);
         svc.setUserDetailsService(new UserDetailsService() {
-            public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException, DataAccessException {
+            public UserDetails loadUserByUsername(String name) {
                 if (user != null && user.getUsername().equals(name)) {
                     return user;
                 } else {

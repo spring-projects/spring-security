@@ -9,10 +9,6 @@ import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
-import org.springframework.security.access.hierarchicalroles.UserDetailsServiceWrapper;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -38,7 +34,6 @@ public class UserDetailsServiceWrapperTests {
         jmockContext.checking( new Expectations() {{
             allowing(wrappedUserDetailsService).loadUserByUsername("EXISTING_USER"); will(returnValue(user));
             allowing(wrappedUserDetailsService).loadUserByUsername("USERNAME_NOT_FOUND_EXCEPTION"); will(throwException(new UsernameNotFoundException("USERNAME_NOT_FOUND_EXCEPTION")));
-            allowing(wrappedUserDetailsService).loadUserByUsername("DATA_ACCESS_EXCEPTION"); will(throwException(new EmptyResultDataAccessException(1234)));
         }});
         this.wrappedUserDetailsService = wrappedUserDetailsService;
         userDetailsServiceWrapper = new UserDetailsServiceWrapper();
@@ -63,16 +58,10 @@ public class UserDetailsServiceWrapperTests {
             userDetails = userDetailsServiceWrapper.loadUserByUsername("USERNAME_NOT_FOUND_EXCEPTION");
             fail("testLoadUserByUsername() - UsernameNotFoundException did not bubble up!");
         } catch (UsernameNotFoundException e) {}
-
-        try {
-            userDetails = userDetailsServiceWrapper.loadUserByUsername("DATA_ACCESS_EXCEPTION");
-            fail("testLoadUserByUsername() - DataAccessException did not bubble up!");
-        } catch (DataAccessException e) {}
     }
 
     @Test
     public void testGetWrappedUserDetailsService() {
         assertTrue(userDetailsServiceWrapper.getWrappedUserDetailsService() == wrappedUserDetailsService);
     }
-
 }

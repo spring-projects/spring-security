@@ -4,13 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 /**
  * A test UserDetailsService containing a set of standard usernames corresponding to their account status:
@@ -30,7 +25,7 @@ public class MockUserDetailsService implements UserDetailsService {
         users.put("expired", new User("expired", "",true,false,true,true,auths));
     }
 
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
+    public UserDetails loadUserByUsername(String username) {
         if (users.get(username) == null) {
             throw new UsernameNotFoundException("User not found: " + username);
         }
