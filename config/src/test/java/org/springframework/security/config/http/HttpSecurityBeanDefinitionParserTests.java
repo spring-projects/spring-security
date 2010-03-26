@@ -390,6 +390,20 @@ public class HttpSecurityBeanDefinitionParserTests {
     }
 
     @Test
+    public void httpBasicSupportsSeparateEntryPoint() throws Exception {
+        setContext("<http><http-basic entry-point-ref='ep' /></http>" +
+                   "<b:bean id='ep' class='org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint'>" +
+                   "    <b:property name='realmName' value='whocares'/>" +
+                   "</b:bean>" + AUTH_PROVIDER_XML);
+
+        BasicAuthenticationFilter baf = getFilter(BasicAuthenticationFilter.class);
+        assertSame(appContext.getBean("ep"), FieldUtils.getFieldValue(baf, "authenticationEntryPoint"));
+        // Since no other authentication system is in use, this should also end up on the ETF
+        ExceptionTranslationFilter etf = getFilter(ExceptionTranslationFilter.class);
+        assertSame(appContext.getBean("ep"), FieldUtils.getFieldValue(etf, "authenticationEntryPoint"));
+    }
+
+    @Test
     public void accessDeniedPageAttributeIsSupported() throws Exception {
         setContext("<http access-denied-page='/access-denied'><http-basic /></http>" + AUTH_PROVIDER_XML);
 

@@ -47,9 +47,6 @@
   </xs:attributeGroup>
   <xs:attributeGroup name="path-type">
     <xs:attribute name="path-type" use="required">
-      <xs:annotation>
-        <xs:documentation>Defines the type of pattern used to specify URL paths (either JDK 1.4-compatible regular expressions, or Apache Ant expressions). Defaults to "ant" if unspecified.</xs:documentation>
-      </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
           <xs:enumeration value="ant"/>
@@ -635,8 +632,10 @@
       <xs:attributeGroup ref="security:x509.attlist"/>
     </xs:complexType></xs:element>
         <xs:element name="http-basic"><xs:annotation>
-      <xs:documentation>Adds support for basic authentication (this is an element to permit future expansion, such as supporting an "ignoreFailure" attribute)</xs:documentation>
-    </xs:annotation><xs:complexType/></xs:element>
+      <xs:documentation>Adds support for basic authentication</xs:documentation>
+    </xs:annotation><xs:complexType>
+      <xs:attributeGroup ref="security:http-basic.attlist"/>
+    </xs:complexType></xs:element>
         <xs:element name="logout"><xs:annotation>
       <xs:documentation>Incorporates a logout processing filter. Most web applications require a logout filter, although you may not require one if you write a controller to provider similar logic.</xs:documentation>
     </xs:annotation><xs:complexType>
@@ -719,9 +718,6 @@
       </xs:simpleType>
     </xs:attribute>
     <xs:attribute name="path-type">
-      <xs:annotation>
-        <xs:documentation>Defines the type of pattern used to specify URL paths (either JDK 1.4-compatible regular expressions, or Apache Ant expressions). Defaults to "ant" if unspecified.</xs:documentation>
-      </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
           <xs:enumeration value="ant"/>
@@ -746,7 +742,7 @@
     </xs:attribute>
     <xs:attribute name="entry-point-ref" type="xs:token">
       <xs:annotation>
-        <xs:documentation>Allows a customized AuthenticationEntryPoint to be used.</xs:documentation>
+        <xs:documentation>Allows a customized AuthenticationEntryPoint to be set on the ExceptionTranslationFilter. </xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="once-per-request" type="security:boolean">
@@ -924,9 +920,6 @@
     </xs:complexType></xs:element>
   <xs:attributeGroup name="filter-chain-map.attlist">
     <xs:attribute name="path-type">
-      <xs:annotation>
-        <xs:documentation>Defines the type of pattern used to specify URL paths (either JDK 1.4-compatible regular expressions, or Apache Ant expressions). Defaults to "ant" if unspecified.</xs:documentation>
-      </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
           <xs:enumeration value="ant"/>
@@ -981,9 +974,6 @@
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="path-type">
-      <xs:annotation>
-        <xs:documentation>Defines the type of pattern used to specify URL paths (either JDK 1.4-compatible regular expressions, or Apache Ant expressions). Defaults to "ant" if unspecified.</xs:documentation>
-      </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
           <xs:enumeration value="ant"/>
@@ -1017,6 +1007,13 @@
       <xs:attributeGroup ref="security:fsmds.attlist"/>
     </xs:complexType></xs:element>
   
+  <xs:attributeGroup name="http-basic.attlist">
+    <xs:attribute name="entry-point-ref" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>Sets the AuthenticationEntryPoint which is used by the BasicAuthenticationFilter.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
   
   <xs:attributeGroup name="session-management.attlist">
     <xs:attribute name="session-fixation-protection">
@@ -1277,7 +1274,7 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="user-service" substitutionGroup="security:any-user-service"><xs:annotation>
-      <xs:documentation>Creates an in-memory UserDetailsService from a properties file or a list of "user" child elements.</xs:documentation>
+      <xs:documentation>Creates an in-memory UserDetailsService from a properties file or a list of "user" child elements. Usernames are converted to lower-case internally to allow for case-insensitive lookups, so this should not be used if case-sensitivity is required.</xs:documentation>
     </xs:annotation><xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" maxOccurs="unbounded" name="user"><xs:annotation>

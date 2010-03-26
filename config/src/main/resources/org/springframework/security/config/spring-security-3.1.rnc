@@ -15,7 +15,6 @@ request-matcher =
     ## Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'iciRegex' for case-insensitive regular expressions.
     attribute request-matcher {"ant" | "regex" | "ciRegex"}
 path-type =
-    ## Defines the type of pattern used to specify URL paths (either JDK 1.4-compatible regular expressions, or Apache Ant expressions). Defaults to "ant" if unspecified.
     attribute path-type {"ant" | "regex"}
 port =
     ## Specifies an IP port number. Used to configure an embedded LDAP server, for example.
@@ -281,7 +280,7 @@ http.attlist &=
     ## Optional attribute specifying the realm name that will be used for all authentication features that require a realm name (eg BASIC and Digest authentication). If unspecified, defaults to "Spring Security Application".
     attribute realm {xsd:token}?
 http.attlist &=
-    ## Allows a customized AuthenticationEntryPoint to be used.
+    ## Allows a customized AuthenticationEntryPoint to be set on the ExceptionTranslationFilter. 
     attribute entry-point-ref {xsd:token}?
 http.attlist &=
     ## Corresponds to the observeOncePerRequest property of FilterSecurityInterceptor. Defaults to "true"
@@ -425,8 +424,12 @@ filter-invocation-definition-source =
     element filter-invocation-definition-source {fsmds.attlist, intercept-url+}
 
 http-basic =
-    ## Adds support for basic authentication (this is an element to permit future expansion, such as supporting an "ignoreFailure" attribute)
-    element http-basic {empty}
+    ## Adds support for basic authentication
+    element http-basic {http-basic.attlist, empty}
+
+http-basic.attlist &=
+    ## Sets the AuthenticationEntryPoint which is used by the BasicAuthenticationFilter.
+    attribute entry-point-ref {xsd:token}?
 
 session-management =
     element session-management {session-management.attlist, concurrency-control?}
