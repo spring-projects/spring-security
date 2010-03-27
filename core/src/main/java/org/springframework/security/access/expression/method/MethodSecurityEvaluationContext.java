@@ -3,11 +3,13 @@ package org.springframework.security.access.expression.method;
 import java.lang.reflect.Method;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.core.Authentication;
-import org.springframework.util.ClassUtils;
 
 /**
  * Internal security-specific EvaluationContext implementation which lazily adds the
@@ -18,6 +20,8 @@ import org.springframework.util.ClassUtils;
  * @since 3.0
  */
 class MethodSecurityEvaluationContext extends StandardEvaluationContext {
+    private static Log logger = LogFactory.getLog(MethodSecurityEvaluationContext.class);
+
     private ParameterNameDiscoverer parameterNameDiscoverer;
     private boolean argumentsAdded;
     private MethodInvocation mi;
@@ -58,9 +62,20 @@ class MethodSecurityEvaluationContext extends StandardEvaluationContext {
 
     private void addArgumentsAsVariables() {
         Object[] args = mi.getArguments();
+
+        if (args.length == 0) {
+            return;
+        }
+
         Object targetObject = mi.getThis();
-        Method method = ClassUtils.getMostSpecificMethod(mi.getMethod(), targetObject.getClass());
+        Method method = AopUtils.getMostSpecificMethod(mi.getMethod(), targetObject.getClass());
         String[] paramNames = parameterNameDiscoverer.getParameterNames(method);
+
+        if (paramNames == null) {
+            logger.warn("Unable to resolve method parameter names for method: " + method
+                    + ". Debug symbol information is required if you are using parameter names in expressions.");
+            return;
+        }
 
         for(int i=0; i < args.length; i++) {
             super.setVariable(paramNames[i], args[i]);
