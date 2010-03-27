@@ -24,6 +24,7 @@ import org.springframework.security.access.intercept.RunAsManagerImpl;
 import org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor;
 import org.springframework.security.access.intercept.aopalliance.MethodSecurityMetadataSourceAdvisor;
 import org.springframework.security.access.prepost.PostInvocationAdviceProvider;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreInvocationAuthorizationAdviceVoter;
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -43,6 +44,8 @@ import org.springframework.security.util.FieldUtils;
  * @author Luke Taylor
  */
 public class GlobalMethodSecurityBeanDefinitionParserTests {
+    private final UsernamePasswordAuthenticationToken bob = new UsernamePasswordAuthenticationToken("bob","bobspassword");
+
     private AbstractXmlApplicationContext appContext;
 
     private BusinessService target;
@@ -234,7 +237,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
                 "<global-method-security pre-post-annotations='enabled'/>" +
                 "<b:bean id='target' class='org.springframework.security.access.annotation.ExpressionProtectedBusinessServiceImpl'/>" +
                 AUTH_PROVIDER_XML);
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("bob","bobspassword"));
+        SecurityContextHolder.getContext().setAuthentication(bob);
         target = (BusinessService) appContext.getBean("target");
         target.someAdminMethod();
     }
@@ -245,7 +248,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
                 "<global-method-security pre-post-annotations='enabled'/>" +
                 "<b:bean id='target' class='org.springframework.security.access.annotation.ExpressionProtectedBusinessServiceImpl'/>" +
                 AUTH_PROVIDER_XML);
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("bob","bobspassword"));
+        SecurityContextHolder.getContext().setAuthentication(bob);
         target = (BusinessService) appContext.getBean("target");
         List<String> arg = new ArrayList<String>();
         arg.add("joe");
@@ -264,7 +267,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
                 "<global-method-security pre-post-annotations='enabled'/>" +
                 "<b:bean id='target' class='org.springframework.security.access.annotation.ExpressionProtectedBusinessServiceImpl'/>" +
                 AUTH_PROVIDER_XML);
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("bob","bobspassword"));
+        SecurityContextHolder.getContext().setAuthentication(bob);
         target = (BusinessService) appContext.getBean("target");
         Object[] arg = new String[] {"joe", "bob", "sam"};
         Object[] result = target.methodReturningAnArray(arg);
@@ -300,6 +303,19 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
         foo.foo(new SecurityConfig("A"));
     }
 
+    // SEC-1448
+    @Test
+    @SuppressWarnings("unchecked")
+    public void genericsMethodArgumentNamesAreResolved() throws Exception {
+        setContext(
+                "<b:bean id='target' class='" + ConcreteFoo.class.getName()  + "'/>" +
+                "<global-method-security pre-post-annotations='enabled'/>" + AUTH_PROVIDER_XML
+        );
+        SecurityContextHolder.getContext().setAuthentication(bob);
+        Foo foo = (Foo) appContext.getBean("target");
+        foo.foo(new SecurityConfig("A"));
+    }
+
     @Test
     public void runAsManagerIsSetCorrectly() throws Exception {
         StaticApplicationContext parent = new StaticApplicationContext();
@@ -328,6 +344,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
     }
 
     public static class ConcreteFoo implements Foo<SecurityConfig> {
+        @PreAuthorize("#action.attribute == 'A'")
         public void foo(SecurityConfig action) {
         }
     }
