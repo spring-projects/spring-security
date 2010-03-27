@@ -58,6 +58,16 @@ sn: Mouse
 uid: jerry
 userPassword: jerryspassword
 
+dn: cn=slash/guy,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: slash/guy
+sn: Slash
+uid: slashguy
+userPassword: slashguyspassword
+
 dn: cn=developers,ou=groups,dc=springframework,dc=org
 objectclass: top
 objectclass: groupOfNames

@@ -18,14 +18,13 @@ package org.springframework.security.ldap.authentication;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.ldap.AbstractLdapIntegrationTests;
+import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 
 /**
  * Tests for {@link BindAuthenticator}.
@@ -37,7 +36,6 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
 
     private BindAuthenticator authenticator;
     private Authentication bob;
-//    private Authentication ben;
 
 
     //~ Methods ========================================================================================================
@@ -46,7 +44,6 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
         authenticator = new BindAuthenticator(getContextSource());
         authenticator.setMessageSource(new SpringSecurityMessageSource());
         bob = new UsernamePasswordAuthenticationToken("bob", "bobspassword");
-//        ben = new UsernamePasswordAuthenticationToken("ben", "benspassword");
 
     }
 
@@ -75,11 +72,14 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
 
     @Test
     public void testAuthenticationWithUserSearch() throws Exception {
-        DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=bob,ou=people"));
-
-        authenticator.setUserSearch(new MockUserSearch(ctx));
+        //DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=bob,ou=people"));
+        authenticator.setUserSearch(new FilterBasedLdapUserSearch("ou=people", "(uid={0})", getContextSource()));
         authenticator.afterPropertiesSet();
         authenticator.authenticate(bob);
+        // SEC-1444
+        authenticator.setUserSearch(new FilterBasedLdapUserSearch("ou=people", "(cn={0})", getContextSource()));
+        authenticator.authenticate(new UsernamePasswordAuthenticationToken("mouse, jerry", "jerryspassword"));
+        authenticator.authenticate(new UsernamePasswordAuthenticationToken("slash/guy", "slashguyspassword"));
     }
 
     @Test
