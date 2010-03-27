@@ -70,13 +70,11 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
     @Test
     public void extraFilterPartToExcludeBob() throws Exception {
         FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people",
-                "(&(cn=*)(!(|(uid={0})(uid=rod)(uid=jerry))))", dirCtxFactory);
+                "(&(cn=*)(!(|(uid={0})(uid=rod)(uid=jerry)(uid=slashguy))))", dirCtxFactory);
 
         // Search for bob, get back ben...
         DirContextOperations ben = locator.searchForUser("bob");
         assertEquals("Ben Alex", ben.getStringAttribute("cn"));
-
-//        assertEquals("uid=ben,ou=people,"+ROOT_DN, ben.getDn());
     }
 
     @Test(expected=IncorrectResultSizeDataAccessException.class)

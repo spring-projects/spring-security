@@ -99,8 +99,9 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
         return user;
     }
 
-    private DirContextOperations bindWithDn(String userDn, String username, String password) {
+    private DirContextOperations bindWithDn(String userDnStr, String username, String password) {
         BaseLdapPathContextSource ctxSource = (BaseLdapPathContextSource) getContextSource();
+        DistinguishedName userDn = new DistinguishedName(userDnStr);
         DistinguishedName fullDn = new DistinguishedName(userDn);
         fullDn.prepend(ctxSource.getBaseLdapPath());
 
@@ -114,8 +115,7 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
             Attributes attrs = ctx.getAttributes(userDn, getUserAttributes());
 
-            DirContextAdapter result = new DirContextAdapter(attrs, new DistinguishedName(userDn),
-                    ctxSource.getBaseLdapPath());
+            DirContextAdapter result = new DirContextAdapter(attrs, userDn, ctxSource.getBaseLdapPath());
 
             if (ppolicy != null) {
                 result.setAttributeValue(ppolicy.getID(), ppolicy);
@@ -128,7 +128,7 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
             // unless a subclass wishes to implement more specialized behaviour.
             if ((e instanceof org.springframework.ldap.AuthenticationException)
                     || (e instanceof org.springframework.ldap.OperationNotSupportedException)) {
-                handleBindException(userDn, username, e);
+                handleBindException(userDnStr, username, e);
             } else {
                 throw e;
             }
