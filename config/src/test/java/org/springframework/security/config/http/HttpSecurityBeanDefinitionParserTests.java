@@ -128,11 +128,6 @@ public class HttpSecurityBeanDefinitionParserTests {
         checkAutoConfigFilters(filterList);
     }
 
-    @Test(expected=BeanDefinitionParsingException.class)
-    public void duplicateElementCausesError() throws Exception {
-        setContext("<http auto-config='true' /><http auto-config='true' />" + AUTH_PROVIDER_XML);
-    }
-
     private void checkAutoConfigFilters(List<Filter> filterList) throws Exception {
         Iterator<Filter> filters = filterList.iterator();
 

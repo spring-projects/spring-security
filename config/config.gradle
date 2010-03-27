@@ -1,5 +1,7 @@
 // Config Module build file
 
+apply plugin: 'groovy'
+
 compileTestJava.dependsOn(':spring-security-core:compileTestJava')
 
 dependencies {
@@ -14,13 +16,17 @@ dependencies {
 
     provided "javax.servlet:servlet-api:2.5"
 
+    groovy group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.1'
+
     testCompile project(':spring-security-ldap'),
                 project(':spring-security-openid'),
+                'org.openid4java:openid4java-nodeps:0.9.5',
                 files(this.project(':spring-security-core').sourceSets.test.classesDir),
                 'javax.annotation:jsr250-api:1.0',
                 "org.springframework.ldap:spring-ldap-core:$springLdapVersion",
                 "org.springframework:spring-jdbc:$springVersion",
-                "org.springframework:spring-tx:$springVersion"
+                "org.springframework:spring-tx:$springVersion",
+                'org.spockframework:spock-core:0.4-groovy-1.7'
 
     testRuntime "hsqldb:hsqldb:$hsqlVersion",
                 "cglib:cglib-nodep:2.2"
