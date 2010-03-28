@@ -1,5 +1,5 @@
-apply id: 'base'
-apply id: 'docbook'
+apply plugin: 'base'
+apply plugin: 'docbook'
 
 defaultTasks 'docbookHtmlSingle'
 

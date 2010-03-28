@@ -36,7 +36,7 @@ import com.icl.saxon.TransformerFactoryImpl;
  * which it operates.
  */
 class DocbookPlugin implements Plugin<Project> {
-    public void use(Project project) {
+    public void apply(Project project) {
         // Add the plugin tasks to the project
         Task docbookHtml = project.tasks.add('docbookHtml', DocbookHtml.class);
         docbookHtml.setDescription('Generates chunked docbook html output');

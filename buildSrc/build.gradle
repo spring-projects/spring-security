@@ -1,4 +1,4 @@
-apply id: 'groovy'
+apply plugin: 'groovy'
 
 repositories {
     mavenRepo name:'localRepo', urls: "file://" + System.properties['user.home'] + "/.m2/repository"
