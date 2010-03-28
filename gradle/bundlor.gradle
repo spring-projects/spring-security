@@ -1,7 +1,4 @@
-import java.util.jar.Manifest
-import org.gradle.api.tasks.bundling.GradleManifest
-
-apply id: 'java'
+apply plugin: 'java'
 
 configurations {
     bundlor
@@ -20,14 +17,13 @@ task bundlor(dependsOn: compileJava) {
     doFirst {
         ant.taskdef(resource: 'com/springsource/bundlor/ant/antlib.xml', classpath: configurations.bundlor.asPath)
         File template = new File(projectDir, 'template.mf')
-        mkdir(buildDir, 'bundlor')
+        mkdir("$buildDir/bundlor")
         if (template.exists()) {
             ant.bundlor(inputPath: sourceSets.main.classesDir, outputPath: "$buildDir/bundlor", manifestTemplatePath: template) {
                 property(name: 'version', value: "$version")
                 property(name: 'spring.version', value: "$springVersion")
             }
-            // See GRADLE-395 for support for using an existing manifest
-            jar.manifest = new GradleManifest(new Manifest(new File("$buildDir/bundlor/META-INF/MANIFEST.MF").newInputStream()))
+            jar.manifest.from("$buildDir/bundlor/META-INF/MANIFEST.MF")
         }
     }
 }

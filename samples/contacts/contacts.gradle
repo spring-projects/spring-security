@@ -1,7 +1,7 @@
 // Contacts sample build file
 
-apply id: 'war'
-apply id: 'jetty'
+apply plugin: 'war'
+apply plugin: 'jetty'
 
 dependencies {
     providedCompile 'javax.servlet:servlet-api:2.5@jar'

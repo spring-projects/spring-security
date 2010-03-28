@@ -1,5 +1,5 @@
-apply id: 'java'
-apply id: 'eclipse'
+apply plugin: 'java'
+apply plugin: 'eclipse'
 
 springVersion = '3.0.1.RELEASE'
 springLdapVersion = '1.3.0.RELEASE'

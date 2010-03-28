@@ -1,4 +1,4 @@
-apply id: 'base'
+apply plugin: 'base'
 
 allprojects {
     version = '3.1.0.CI-SNAPSHOT'
@@ -18,18 +18,18 @@ allprojects {
 }
 
 configure(javaProjects) {
-    apply url: "$rootDir/gradle/javaprojects.gradle"
-    apply url: "$rootDir/gradle/maven.gradle"
+    apply from: "$rootDir/gradle/javaprojects.gradle"
+    apply from: "$rootDir/gradle/maven.gradle"
 }
 
 configure(coreModuleProjects) {
-    apply url: "$rootDir/gradle/bundlor.gradle"
+    apply from: "$rootDir/gradle/bundlor.gradle"
     // Gives better names in structure101 jar diagram
     sourceSets.main.classesDir = new File(buildDir, "classes/" + project.name.substring("spring-security".length() + 1))
 }
 
 configure (aspectjProjects) {
-    apply url: "$rootDir/gradle/aspectj.gradle"
+    apply from: "$rootDir/gradle/aspectj.gradle"
 }
 
 configurations {

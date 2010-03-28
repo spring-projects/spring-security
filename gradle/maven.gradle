@@ -1,4 +1,4 @@
-apply id: 'maven'
+apply plugin: 'maven'
 
 // Create a source jar for uploading
 task sourceJar(type: Jar) {

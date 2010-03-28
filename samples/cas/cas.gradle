@@ -1,5 +1,5 @@
-apply id: 'war'
-apply id: 'jetty'
+apply plugin: 'war'
+apply plugin: 'jetty'
 
 dependencies {
     runtime project(':spring-security-core'),
