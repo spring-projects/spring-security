@@ -574,6 +574,16 @@
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="proxy-target-class" type="security:boolean"/>
+    <xs:attribute name="mode">
+      <xs:annotation>
+        <xs:documentation>Can be used to specify that AspectJ should be used instead of the default Spring AOP. If set, secured classes must be woven with the AnnotationSecurityAspect from the spring-security-aspects module.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="aspectj"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
   </xs:attributeGroup>
   
   

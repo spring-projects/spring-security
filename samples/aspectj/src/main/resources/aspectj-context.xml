@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+    xmlns:sec="http://www.springframework.org/schema/security"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 
+    <sec:global-method-security secured-annotations="enabled" mode="aspectj" />
+<!--
     <bean id="aspectJSecurityInterceptor"
         class="org.springframework.security.access.intercept.aspectj.AspectJMethodSecurityInterceptor">
         <property name="authenticationManager" ref="authenticationManager" />
@@ -36,7 +40,7 @@
         factory-method="aspectOf">
         <property name="securityInterceptor" ref="aspectJSecurityInterceptor" />
     </bean>
-
+ -->
     <bean class="sample.aspectj.Service" />
 
     <bean class="sample.aspectj.SecuredService" />

@@ -13,7 +13,8 @@ def String[] modules = [
 def String[] samples = [
     'tutorial',
     'contacts',
-    'openid'
+    'openid',
+    'aspectj'
 ]
 
 def String[] docs = [
