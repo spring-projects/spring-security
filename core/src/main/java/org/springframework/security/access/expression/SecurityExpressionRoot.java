@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.core.Authentication;
@@ -22,6 +23,7 @@ public abstract class SecurityExpressionRoot {
     private AuthenticationTrustResolver trustResolver;
     private RoleHierarchy roleHierarchy;
     private Set<String> roles;
+    private ApplicationContext applicationContext;
 
     /** Allows "permitAll" expression */
     public final boolean permitAll = true;
@@ -90,6 +92,14 @@ public abstract class SecurityExpressionRoot {
 
     public void setRoleHierarchy(RoleHierarchy roleHierarchy) {
         this.roleHierarchy = roleHierarchy;
+    }
+
+    ApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
+
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
     private Set<String> getAuthoritySet() {

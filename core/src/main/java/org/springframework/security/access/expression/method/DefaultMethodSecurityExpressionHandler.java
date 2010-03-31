@@ -9,6 +9,9 @@ import java.util.List;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.expression.EvaluationContext;
@@ -18,6 +21,7 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.security.access.PermissionCacheOptimizer;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.ExpressionUtils;
+import org.springframework.security.access.expression.SecurityExpressionRootPropertyAccessor;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
@@ -31,7 +35,7 @@ import org.springframework.security.core.Authentication;
  * @author Luke Taylor
  * @since 3.0
  */
-public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExpressionHandler {
+public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExpressionHandler, ApplicationContextAware {
 
     protected final Log logger = LogFactory.getLog(getClass());
 
@@ -39,8 +43,10 @@ public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExp
     private PermissionEvaluator permissionEvaluator = new DenyAllPermissionEvaluator();
     private PermissionCacheOptimizer permissionCacheOptimizer = null;
     private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+    private final SecurityExpressionRootPropertyAccessor sxrpa = new SecurityExpressionRootPropertyAccessor();
     private ExpressionParser expressionParser = new SpelExpressionParser();
     private RoleHierarchy roleHierarchy;
+    private ApplicationContext applicationContext;
 
     public DefaultMethodSecurityExpressionHandler() {
     }
@@ -55,7 +61,9 @@ public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExp
         root.setTrustResolver(trustResolver);
         root.setPermissionEvaluator(permissionEvaluator);
         root.setRoleHierarchy(roleHierarchy);
+        root.setApplicationContext(applicationContext);
         ctx.setRootObject(root);
+        ctx.addPropertyAccessor(sxrpa);
 
         return ctx;
     }
@@ -169,5 +177,9 @@ public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExp
 
     public void setRoleHierarchy(RoleHierarchy roleHierarchy) {
         this.roleHierarchy = roleHierarchy;
+    }
+
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 }

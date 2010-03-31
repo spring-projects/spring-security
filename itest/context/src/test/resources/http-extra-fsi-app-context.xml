@@ -11,7 +11,8 @@
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
     <sec:http use-expressions="true">
-        <sec:intercept-url pattern="/**" access="permitAll" />
+        <!-- Slip in a bean property name EL test -->
+        <sec:intercept-url pattern="/**" access="fsi.getAccessDecisionManager() eq accessDecisionManager" />
         <sec:form-login />
         <sec:custom-filter ref="fsi" after="FILTER_SECURITY_INTERCEPTOR " />
     </sec:http>

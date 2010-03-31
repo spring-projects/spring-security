@@ -74,9 +74,7 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
             if (StringUtils.hasText(expressionHandlerRef)) {
                 logger.info("Using bean '" + expressionHandlerRef + "' as web SecurityExpressionHandler implementation");
             } else {
-                BeanDefinition expressionHandler = BeanDefinitionBuilder.rootBeanDefinition(DefaultWebSecurityExpressionHandler.class).getBeanDefinition();
-                expressionHandlerRef = pc.getReaderContext().generateBeanName(expressionHandler);
-                pc.registerBeanComponent(new BeanComponentDefinition(expressionHandler, expressionHandlerRef));
+                expressionHandlerRef = registerDefaultExpressionHandler(pc);
             }
 
             fidsBuilder = BeanDefinitionBuilder.rootBeanDefinition(ExpressionBasedFilterInvocationSecurityMetadataSource.class);
@@ -87,10 +85,17 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
             fidsBuilder.addConstructorArgValue(requestToAttributesMap);
         }
 
-//        fidsBuilder.addPropertyValue("stripQueryStringFromUrls", matcher instanceof AntUrlPathMatcher);
         fidsBuilder.getRawBeanDefinition().setSource(pc.extractSource(elt));
 
         return fidsBuilder.getBeanDefinition();
+    }
+
+    static String registerDefaultExpressionHandler(ParserContext pc) {
+        BeanDefinition expressionHandler = BeanDefinitionBuilder.rootBeanDefinition(DefaultWebSecurityExpressionHandler.class).getBeanDefinition();
+        String expressionHandlerRef = pc.getReaderContext().generateBeanName(expressionHandler);
+        pc.registerBeanComponent(new BeanComponentDefinition(expressionHandler, expressionHandlerRef));
+
+        return expressionHandlerRef;
     }
 
     static boolean isUseExpressions(Element elt) {

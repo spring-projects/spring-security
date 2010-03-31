@@ -19,6 +19,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.annotation.BusinessService;
+import org.springframework.security.access.annotation.ExpressionProtectedBusinessServiceImpl;
 import org.springframework.security.access.intercept.AfterInvocationProviderManager;
 import org.springframework.security.access.intercept.RunAsManagerImpl;
 import org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor;
@@ -240,6 +241,20 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
         SecurityContextHolder.getContext().setAuthentication(bob);
         target = (BusinessService) appContext.getBean("target");
         target.someAdminMethod();
+    }
+
+    @Test
+    public void beanNameExpressionPropertyIsSupported() {
+        setContext(
+                "<global-method-security pre-post-annotations='enabled' proxy-target-class='true'/>" +
+                "<b:bean id='number' class='java.lang.Integer'>" +
+                "    <b:constructor-arg value='1294'/>" +
+                "</b:bean>" +
+                "<b:bean id='target' class='org.springframework.security.access.annotation.ExpressionProtectedBusinessServiceImpl'/>" +
+                AUTH_PROVIDER_XML);
+        SecurityContextHolder.getContext().setAuthentication(bob);
+        ExpressionProtectedBusinessServiceImpl target = (ExpressionProtectedBusinessServiceImpl) appContext.getBean("target");
+        target.methodWithBeanNamePropertyAccessExpression("x");
     }
 
     @Test

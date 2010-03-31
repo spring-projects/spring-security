@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreFilter;
 
 
@@ -42,5 +43,10 @@ public class ExpressionProtectedBusinessServiceImpl implements BusinessService {
     @PostFilter("filterObject == 'bob'")
     public Object[] methodReturningAnArray(Object[] someArray) {
         return someArray;
+    }
+
+    @PreAuthorize("#x == 'x' and number.intValue() == 1294 ")
+    public void methodWithBeanNamePropertyAccessExpression(String x) {
+
     }
 }

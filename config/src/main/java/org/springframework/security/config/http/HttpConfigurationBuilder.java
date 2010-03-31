@@ -461,7 +461,12 @@ class HttpConfigurationBuilder {
         ManagedList<BeanDefinition> voters =  new ManagedList<BeanDefinition>(2);
 
         if (useExpressions) {
-            voters.add(new RootBeanDefinition(WebExpressionVoter.class));
+            BeanDefinitionBuilder expressionVoter = BeanDefinitionBuilder.rootBeanDefinition(WebExpressionVoter.class);
+            RuntimeBeanReference expressionHandler = new RuntimeBeanReference(
+                    FilterInvocationSecurityMetadataSourceParser.registerDefaultExpressionHandler(pc));
+            expressionVoter.addPropertyValue("expressionHandler", expressionHandler);
+
+            voters.add(expressionVoter.getBeanDefinition());
         } else {
             voters.add(new RootBeanDefinition(RoleVoter.class));
             voters.add(new RootBeanDefinition(AuthenticatedVoter.class));
