@@ -1,8 +1,9 @@
+System.setProperty('python.cachedir.skip', 'true')
 
 dependencies {
     compile     project(':spring-security-core'),
                 'aopalliance:aopalliance:1.0',
-                'jython:jython:2.1',
+                'org.python:jython:2.5.0',
                 "org.springframework:spring-aop:$springVersion",
                 "org.springframework:spring-tx:$springVersion",
                 "org.springframework:spring-beans:$springVersion"
