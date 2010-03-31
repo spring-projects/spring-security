@@ -37,6 +37,7 @@ import org.springframework.security.access.expression.method.ExpressionBasedPreI
 import org.springframework.security.access.intercept.AfterInvocationProviderManager;
 import org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor;
 import org.springframework.security.access.intercept.aopalliance.MethodSecurityMetadataSourceAdvisor;
+import org.springframework.security.access.intercept.aspectj.AspectJMethodSecurityInterceptor;
 import org.springframework.security.access.method.DelegatingMethodSecurityMetadataSource;
 import org.springframework.security.access.method.MapBasedMethodSecurityMetadataSource;
 import org.springframework.security.access.prepost.PostInvocationAdviceProvider;
@@ -76,6 +77,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
     private static final String ATT_USE_SECURED = "secured-annotations";
     private static final String ATT_USE_PREPOST = "pre-post-annotations";
     private static final String ATT_REF = "ref";
+    private static final String ATT_MODE = "mode";
     private static final String ATT_ADVICE_ORDER = "order";
 
     public BeanDefinition parse(Element element, ParserContext pc) {
@@ -90,6 +92,8 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
         boolean jsr250Enabled = "enabled".equals(element.getAttribute(ATT_USE_JSR250));
         boolean useSecured = "enabled".equals(element.getAttribute(ATT_USE_SECURED));
         boolean prePostAnnotationsEnabled = "enabled".equals(element.getAttribute(ATT_USE_PREPOST));
+        boolean useAspectJ = "aspectj".equals(element.getAttribute(ATT_MODE));
+
         BeanDefinition preInvocationVoter = null;
         ManagedList<BeanMetadataElement> afterInvocationProviders = new ManagedList<BeanMetadataElement>();
 
@@ -165,6 +169,9 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
                 DomUtils.getChildElementsByTagName(element, PROTECT_POINTCUT));
 
         if (pointcutMap.size() > 0) {
+            if (useAspectJ) {
+                pc.getReaderContext().error("You can't use AspectJ mode with protect-pointcut definitions", source);
+            }
             // Only add it if there are actually any pointcuts defined.
             BeanDefinition mapBasedMetadataSource = new RootBeanDefinition(MapBasedMethodSecurityMetadataSource.class);
             BeanReference ref = new RuntimeBeanReference(pc.getReaderContext().generateBeanName(mapBasedMetadataSource));
@@ -190,13 +197,22 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
         }
 
         String runAsManagerId = element.getAttribute(ATT_RUN_AS_MGR);
-
         BeanReference interceptor = registerMethodSecurityInterceptor(pc, accessManagerId, runAsManagerId,
-                metadataSource, afterInvocationProviders, source);
+                metadataSource, afterInvocationProviders, source, useAspectJ);
 
-        registerAdvisor(pc, interceptor, metadataSource, source, element.getAttribute(ATT_ADVICE_ORDER));
+        if (useAspectJ) {
+            BeanDefinitionBuilder aspect =
+                BeanDefinitionBuilder.rootBeanDefinition("org.springframework.security.access.intercept.aspectj.aspect.AnnotationSecurityAspect");
+            aspect.setFactoryMethod("aspectOf");
+            aspect.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+            aspect.addPropertyValue("securityInterceptor", interceptor);
+            String id = pc.getReaderContext().registerWithGeneratedName(aspect.getBeanDefinition());
+            pc.registerBeanComponent(new BeanComponentDefinition(aspect.getBeanDefinition(), id));
+        } else {
+            registerAdvisor(pc, interceptor, metadataSource, source, element.getAttribute(ATT_ADVICE_ORDER));
+            AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(pc, element);
+        }
 
-        AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(pc, element);
         pc.popAndRegisterContainingComponent();
 
         return null;
@@ -284,12 +300,16 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
     }
 
     private BeanReference registerMethodSecurityInterceptor(ParserContext pc, String accessManagerId,
-            String runAsManagerId, BeanReference metadataSource, List<BeanMetadataElement> afterInvocationProviders, Object source) {
-        BeanDefinitionBuilder bldr = BeanDefinitionBuilder.rootBeanDefinition(MethodSecurityInterceptor.class);
+            String runAsManagerId, BeanReference metadataSource,
+            List<BeanMetadataElement> afterInvocationProviders, Object source, boolean useAspectJ) {
+        BeanDefinitionBuilder bldr =
+            BeanDefinitionBuilder.rootBeanDefinition(useAspectJ ?
+                    AspectJMethodSecurityInterceptor.class : MethodSecurityInterceptor.class);
         bldr.getRawBeanDefinition().setSource(source);
         bldr.addPropertyReference("accessDecisionManager", accessManagerId);
         bldr.addPropertyValue("authenticationManager", new RootBeanDefinition(AuthenticationManagerDelegator.class));
         bldr.addPropertyValue("securityMetadataSource", metadataSource);
+
         if (StringUtils.hasText(runAsManagerId)) {
             bldr.addPropertyReference("runAsManager", runAsManagerId);
         }
