@@ -81,6 +81,16 @@ public final class AntPathRequestMatcher implements RequestMatcher {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof AntPathRequestMatcher)) {
+            return false;
+        }
+        AntPathRequestMatcher other = (AntPathRequestMatcher)obj;
+        return this.pattern.equals(other.pattern) &&
+            this.httpMethod == other.httpMethod;
+    }
+
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Ant [pattern='").append(pattern).append("'");

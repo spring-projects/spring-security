@@ -82,16 +82,6 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         assert fsi.isObserveOncePerRequest()
     }
 
-    def duplicateElementCausesError() {
-        when: "Two http blocks are defined"
-        xml.http('auto-config': 'true')
-        xml.http('auto-config': 'true')
-        createAppContext()
-
-        then:
-        BeanDefinitionParsingException e = thrown();
-    }
-
     def filterListShouldBeEmptyForPatternWithNoFilters() {
         httpAutoConfig() {
             interceptUrlNoFilters('/unprotected')

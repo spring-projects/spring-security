@@ -11,6 +11,7 @@ import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.config.ConstructorArgumentValues.ValueHolder;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.parsing.CompositeComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -104,9 +105,20 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             filterChain.add(od.bean);
         }
 
+        // Get the map of empty filter chains (if any)
         ManagedMap<BeanDefinition, List<BeanMetadataElement>> filterChainMap = httpBldr.getFilterChainMap();
-        BeanDefinition universalMatch = new RootBeanDefinition(AnyRequestMatcher.class);
-        filterChainMap.put(universalMatch, filterChain);
+
+        String filterChainPattern = element.getAttribute(ATT_PATH_PATTERN);
+
+        BeanDefinition filterChainMatcher;
+
+        if (StringUtils.hasText(filterChainPattern)) {
+            filterChainMatcher = matcherType.createMatcher(filterChainPattern, null);
+        } else {
+            filterChainMatcher = new RootBeanDefinition(AnyRequestMatcher.class);
+        }
+
+        filterChainMap.put(filterChainMatcher, filterChain);
 
         registerFilterChainProxy(pc, filterChainMap, source);
 
@@ -215,18 +227,33 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         return customFilters;
     }
 
+    @SuppressWarnings("unchecked")
     private void registerFilterChainProxy(ParserContext pc, Map<BeanDefinition, List<BeanMetadataElement>> filterChainMap, Object source) {
         if (pc.getRegistry().containsBeanDefinition(BeanIds.FILTER_CHAIN_PROXY)) {
-            pc.getReaderContext().error("Duplicate <http> element detected", source);
-        }
+            // Already registered. Obtain the filter chain map and add the new entries to it
+            // pc.getReaderContext().error("Duplicate <http> element detected", source);
 
-        BeanDefinitionBuilder fcpBldr = BeanDefinitionBuilder.rootBeanDefinition(FilterChainProxy.class);
-        fcpBldr.getRawBeanDefinition().setSource(source);
-//        fcpBldr.addPropertyValue("stripQueryStringFromUrls", Boolean.valueOf(matcher instanceof AntUrlPathMatcher));
-        fcpBldr.addPropertyValue("filterChainMap", filterChainMap);
-        BeanDefinition fcpBean = fcpBldr.getBeanDefinition();
-        pc.registerBeanComponent(new BeanComponentDefinition(fcpBean, BeanIds.FILTER_CHAIN_PROXY));
-        pc.getRegistry().registerAlias(BeanIds.FILTER_CHAIN_PROXY, BeanIds.SPRING_SECURITY_FILTER_CHAIN);
+            BeanDefinition fcp = pc.getRegistry().getBeanDefinition(BeanIds.FILTER_CHAIN_PROXY);
+            Map existingFilterChainMap = (Map) fcp.getPropertyValues().getPropertyValue("filterChainMap").getValue();
+
+            for (BeanDefinition matcherBean : filterChainMap.keySet()) {
+                if (existingFilterChainMap.containsKey(matcherBean)) {
+                    Map<Integer,ValueHolder> args = matcherBean.getConstructorArgumentValues().getIndexedArgumentValues();
+                    pc.getReaderContext().error("The filter chain map already contains this request matcher ["
+                            + args.get(0).getValue() + ", " +args.get(1).getValue() + "]", source);
+                }
+            }
+            existingFilterChainMap.putAll(filterChainMap);
+        } else {
+            // Not already registered, so register it
+            BeanDefinitionBuilder fcpBldr = BeanDefinitionBuilder.rootBeanDefinition(FilterChainProxy.class);
+            fcpBldr.getRawBeanDefinition().setSource(source);
+            fcpBldr.addPropertyValue("filterChainMap", filterChainMap);
+            fcpBldr.addPropertyValue("filterChainValidator", new RootBeanDefinition(DefaultFilterChainValidator.class));
+            BeanDefinition fcpBean = fcpBldr.getBeanDefinition();
+            pc.registerBeanComponent(new BeanComponentDefinition(fcpBean, BeanIds.FILTER_CHAIN_PROXY));
+            pc.getRegistry().registerAlias(BeanIds.FILTER_CHAIN_PROXY, BeanIds.SPRING_SECURITY_FILTER_CHAIN);
+        }
     }
 
 }
