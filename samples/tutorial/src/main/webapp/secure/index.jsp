@@ -30,7 +30,7 @@ or if you've authenticated this session.
 </table>
 
 
-<p><a href="../">Home</a>
-<p><a href="../j_spring_security_logout">Logout</a>
+<p><a href="../">Home</a></p>
+<p><a href="../j_spring_security_logout">Logout</a></p>
 </body>
 </html>

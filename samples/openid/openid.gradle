@@ -4,10 +4,13 @@ apply plugin: 'war'
 apply plugin: 'jetty'
 
 dependencies {
+    compile project(':spring-security-core'),
+            project(':spring-security-openid')
+
     providedCompile 'javax.servlet:servlet-api:2.5@jar'
 
     runtime project(':spring-security-web'),
             project(':spring-security-config'),
-            project(':spring-security-openid'),
+            project(':spring-security-taglibs'),
             'log4j:log4j:1.2.15@jar'
 }

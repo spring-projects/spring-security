@@ -14,10 +14,13 @@
         <intercept-url pattern="/**" access="ROLE_USER"/>
         <intercept-url pattern="/openidlogin.jsp*" filters="none"/>
         <logout/>
-        <openid-login login-page="/openidlogin.jsp" authentication-failure-url="/openidlogin.jsp?login_error=true">
+        <openid-login login-page="/openidlogin.jsp" user-service-ref="registeringUserService"
+                authentication-failure-url="/openidlogin.jsp?login_error=true">
             <attribute-exchange>
-                <openid-attribute name="email" type="http://schema.openid.net/contact/email" required="true" count="2"/>
-                <openid-attribute name="name" type="http://schema.openid.net/namePerson/friendly" />
+                <openid-attribute name="email" type="http://axschema.org/contact/email" required="true" count="1"/>
+                <openid-attribute name="firstname" type="http://axschema.org/namePerson/first" />
+                <openid-attribute name="lastname" type="http://axschema.org/namePerson/last" />
+                <openid-attribute name="fullname" type="http://axschema.org/namePerson" />
             </attribute-exchange>
         </openid-login>
         <remember-me token-repository-ref="tokenRepo"/>
@@ -28,11 +31,13 @@
 
     <authentication-manager alias="authenticationManager"/>
 
+    <b:bean id="registeringUserService" class="org.springframework.security.samples.openid.CustomUserDetailsService" />
+<!--
     <user-service id="userService">
         <user name="http://luke.taylor.myopenid.com/" authorities="ROLE_SUPERVISOR,ROLE_USER" />
         <user name="http://luke.taylor.openid.cn/" authorities="ROLE_SUPERVISOR,ROLE_USER" />
         <user name="http://raykrueger.blogspot.com/" authorities="ROLE_SUPERVISOR,ROLE_USER" />
         <user name="http://spring.security.test.myopenid.com/" authorities="ROLE_SUPERVISOR,ROLE_USER" />
     </user-service>
-
+ -->
 </b:beans>
