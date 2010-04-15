@@ -30,14 +30,15 @@ import org.springframework.util.Assert;
  * @author Ruud Senden
  * @since 2.0
  */
-public class PreAuthenticatedGrantedAuthoritiesUserDetailsService implements AuthenticationUserDetailsService {
+public class PreAuthenticatedGrantedAuthoritiesUserDetailsService
+        implements AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
     /**
      * Get a UserDetails object based on the user name contained in the given
      * token, and the GrantedAuthorities as returned by the
      * GrantedAuthoritiesContainer implementation as returned by
      * the token.getDetails() method.
      */
-    public final UserDetails loadUserDetails(Authentication token) throws AuthenticationException {
+    public final UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken token) throws AuthenticationException {
         Assert.notNull(token.getDetails());
         Assert.isInstanceOf(GrantedAuthoritiesContainer.class, token.getDetails());
         List<GrantedAuthority> authorities = ((GrantedAuthoritiesContainer) token.getDetails()).getGrantedAuthorities();

@@ -14,13 +14,10 @@
  */
 package org.springframework.security.cas.userdetails;
 
+import org.jasig.cas.client.validation.Assertion;
+import org.springframework.security.cas.authentication.CasAssertionAuthenticationToken;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.cas.authentication.CasAssertionAuthenticationToken;
-import org.springframework.util.Assert;
-import org.jasig.cas.client.validation.Assertion;
 
 /**
  * Abstract class for using the provided CAS assertion to construct a new User object.  This generally is most
@@ -29,11 +26,11 @@ import org.jasig.cas.client.validation.Assertion;
  * @author Scott Battaglia
  * @since 3.0
  */
-public abstract class AbstractCasAssertionUserDetailsService implements AuthenticationUserDetailsService {
+public abstract class AbstractCasAssertionUserDetailsService
+        implements AuthenticationUserDetailsService<CasAssertionAuthenticationToken> {
 
-    public final UserDetails loadUserDetails(final Authentication token) throws UsernameNotFoundException {
-        Assert.isInstanceOf(CasAssertionAuthenticationToken.class, token, "The provided token MUST be an instance of CasAssertionAuthenticationToken.class");
-        return loadUserDetails(((CasAssertionAuthenticationToken) token).getAssertion());
+    public final UserDetails loadUserDetails(final CasAssertionAuthenticationToken token) {
+        return loadUserDetails(token.getAssertion());
     }
 
     /**

@@ -31,6 +31,7 @@ public class WebSphere2SpringSecurityPropagationInterceptorTests {
     }
 
     /** SEC-1078 */
+    @SuppressWarnings("unchecked")
     @Test
     public void createdAuthenticationTokenIsAcceptableToPreauthProvider () throws Throwable {
         WASUsernameAndGroupsExtractor helper = mock(WASUsernameAndGroupsExtractor.class);

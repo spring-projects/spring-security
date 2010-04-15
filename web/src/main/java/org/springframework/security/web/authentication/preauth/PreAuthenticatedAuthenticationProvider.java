@@ -31,7 +31,7 @@ import org.springframework.util.Assert;
 public class PreAuthenticatedAuthenticationProvider implements AuthenticationProvider, InitializingBean, Ordered {
     private static final Log logger = LogFactory.getLog(PreAuthenticatedAuthenticationProvider.class);
 
-    private AuthenticationUserDetailsService preAuthenticatedUserDetailsService = null;
+    private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> preAuthenticatedUserDetailsService = null;
     private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
     private boolean throwExceptionWhenTokenRejected = false;
 
@@ -77,7 +77,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
             return null;
         }
 
-        UserDetails ud = preAuthenticatedUserDetailsService.loadUserDetails(authentication);
+        UserDetails ud = preAuthenticatedUserDetailsService.loadUserDetails((PreAuthenticatedAuthenticationToken)authentication);
 
         userDetailsChecker.check(ud);
 
@@ -91,25 +91,17 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
     /**
      * Indicate that this provider only supports PreAuthenticatedAuthenticationToken (sub)classes.
      */
-    public boolean supports(Class<? extends Object> authentication) {
+    public final boolean supports(Class<? extends Object> authentication) {
         return PreAuthenticatedAuthenticationToken.class.isAssignableFrom(authentication);
     }
 
     /**
-     * Set the AuthenticatedUserDetailsServices to be used.
+     * Set the AuthenticatedUserDetailsService to be used to load the {@code UserDetails} for the authenticated user.
      *
-     * @param aPreAuthenticatedUserDetailsService
+     * @param uds
      */
-    public void setPreAuthenticatedUserDetailsService(AuthenticationUserDetailsService aPreAuthenticatedUserDetailsService) {
-        this.preAuthenticatedUserDetailsService = aPreAuthenticatedUserDetailsService;
-    }
-
-    public int getOrder() {
-        return order;
-    }
-
-    public void setOrder(int i) {
-        order = i;
+    public void setPreAuthenticatedUserDetailsService(AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> uds) {
+        this.preAuthenticatedUserDetailsService = uds;
     }
 
     /**
@@ -129,5 +121,13 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
     public void setUserDetailsChecker(UserDetailsChecker userDetailsChecker) {
         Assert.notNull(userDetailsChecker, "userDetailsChacker cannot be null");
         this.userDetailsChecker = userDetailsChecker;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int i) {
+        order = i;
     }
 }

@@ -13,7 +13,7 @@ import org.springframework.util.Assert;
  * @author Scott Battaglia
  * @since 2.0
  */
-public class UserDetailsByNameServiceWrapper implements AuthenticationUserDetailsService, InitializingBean {
+public class UserDetailsByNameServiceWrapper<T extends Authentication> implements AuthenticationUserDetailsService<T>, InitializingBean {
     private UserDetailsService userDetailsService = null;
 
     /**
@@ -47,7 +47,7 @@ public class UserDetailsByNameServiceWrapper implements AuthenticationUserDetail
      * Get the UserDetails object from the wrapped UserDetailsService
      * implementation
      */
-    public UserDetails loadUserDetails(Authentication authentication) throws UsernameNotFoundException {
+    public UserDetails loadUserDetails(T authentication) throws UsernameNotFoundException {
         return this.userDetailsService.loadUserByUsername(authentication.getName());
     }
 

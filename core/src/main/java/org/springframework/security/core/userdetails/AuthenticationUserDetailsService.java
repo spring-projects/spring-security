@@ -9,7 +9,7 @@ import org.springframework.security.core.Authentication;
  * @author Ruud Senden
  * @since 2.0
  */
-public interface AuthenticationUserDetailsService {
+public interface AuthenticationUserDetailsService<T extends Authentication> {
 
     /**
      *
@@ -19,5 +19,5 @@ public interface AuthenticationUserDetailsService {
      *             if no user details can be found for the given authentication
      *             token
      */
-    UserDetails loadUserDetails(Authentication token) throws UsernameNotFoundException;
+    UserDetails loadUserDetails(T token) throws UsernameNotFoundException;
 }

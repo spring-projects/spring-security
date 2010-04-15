@@ -10,6 +10,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * @author TSARDD
  * @since 18-okt-2007
  */
+@SuppressWarnings("unchecked")
 public class UserDetailsByNameServiceWrapperTests extends TestCase {
 
     public final void testAfterPropertiesSet() {

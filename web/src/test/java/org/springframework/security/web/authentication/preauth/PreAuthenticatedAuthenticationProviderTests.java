@@ -104,9 +104,10 @@ public class PreAuthenticatedAuthenticationProviderTests {
         return result;
     }
 
-    private AuthenticationUserDetailsService getPreAuthenticatedUserDetailsService(final UserDetails aUserDetails) {
-        return new AuthenticationUserDetailsService() {
-            public UserDetails loadUserDetails(Authentication token) throws UsernameNotFoundException {
+    private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken>
+            getPreAuthenticatedUserDetailsService(final UserDetails aUserDetails) {
+        return new AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken>() {
+            public UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken token) throws UsernameNotFoundException {
                 if (aUserDetails != null && aUserDetails.getUsername().equals(token.getName())) {
                     return aUserDetails;
                 }
