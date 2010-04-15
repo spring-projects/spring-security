@@ -16,7 +16,6 @@
 package org.springframework.security.core.userdetails;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -49,12 +48,10 @@ public class User implements UserDetails {
     //~ Constructors ===================================================================================================
 
     /**
-     * @deprecated
+     * Calls the more complex constructor with all boolean arguments set to {@code true}.
      */
-    public User(String username, String password, boolean enabled, boolean accountNonExpired,
-            boolean credentialsNonExpired, boolean accountNonLocked, GrantedAuthority[] authorities) {
-        this(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked,
-                authorities == null ? null : Arrays.asList(authorities));
+    public User(String username, String password, Collection<GrantedAuthority> authorities) {
+        this(username, password, true, true, true, true, authorities);
     }
 
     /**

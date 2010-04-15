@@ -10,6 +10,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.security.config.BeanIds;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
@@ -87,9 +88,12 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
         }
 
         if (services != null) {
-            if (userServiceSet) {
-                services.getPropertyValues().addPropertyValue("userDetailsService", new RuntimeBeanReference(userServiceRef));
-            }
+            RootBeanDefinition uds = new RootBeanDefinition();
+            uds.setFactoryBeanName(BeanIds.USER_DETAILS_SERVICE_FACTORY);
+            uds.setFactoryMethodName("cachingUserDetailsService");
+            uds.getConstructorArgumentValues().addGenericArgumentValue(userServiceRef);
+
+            services.getPropertyValues().addPropertyValue("userDetailsService", uds);
 
             if ("true".equals(element.getAttribute(ATT_SECURE_COOKIE))) {
                 services.getPropertyValues().addPropertyValue("useSecureCookie", true);

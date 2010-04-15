@@ -22,8 +22,8 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.authentication.AnonymousAuthenticationProvider;
 import org.springframework.security.authentication.RememberMeAuthenticationProvider;
+import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.Elements;
-import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
@@ -119,7 +119,7 @@ final class AuthenticationConfigBuilder {
         createX509Filter(authenticationManager);
         createLogoutFilter();
         createLoginPageFilterIfNeeded();
-        createUserServiceInjector();
+        createUserDetailsServiceFactory();
         createExceptionTranslationFilter();
 
     }
@@ -237,11 +237,12 @@ final class AuthenticationConfigBuilder {
         BeanDefinitionBuilder openIDProviderBuilder =
             BeanDefinitionBuilder.rootBeanDefinition(OPEN_ID_AUTHENTICATION_PROVIDER_CLASS);
 
-        String userService = openIDLoginElt.getAttribute(ATT_USER_SERVICE_REF);
+        RootBeanDefinition uds = new RootBeanDefinition();
+        uds.setFactoryBeanName(BeanIds.USER_DETAILS_SERVICE_FACTORY);
+        uds.setFactoryMethodName("authenticationUserDetailsService");
+        uds.getConstructorArgumentValues().addGenericArgumentValue(openIDLoginElt.getAttribute(ATT_USER_SERVICE_REF));
 
-        if (StringUtils.hasText(userService)) {
-            openIDProviderBuilder.addPropertyReference("userDetailsService", userService);
-        }
+        openIDProviderBuilder.addPropertyValue("authenticationUserDetailsService", uds);
 
         BeanDefinition openIDProvider = openIDProviderBuilder.getBeanDefinition();
         openIDProviderId = pc.getReaderContext().registerWithGeneratedName(openIDProvider);
@@ -321,14 +322,12 @@ final class AuthenticationConfigBuilder {
         Element x509Elt = DomUtils.getChildElementByTagName(httpElt, Elements.X509);
         BeanDefinition provider = new RootBeanDefinition(PreAuthenticatedAuthenticationProvider.class);
 
-        String userServiceRef = x509Elt.getAttribute(ATT_USER_SERVICE_REF);
+        RootBeanDefinition uds = new RootBeanDefinition();
+        uds.setFactoryBeanName(BeanIds.USER_DETAILS_SERVICE_FACTORY);
+        uds.setFactoryMethodName("authenticationUserDetailsService");
+        uds.getConstructorArgumentValues().addGenericArgumentValue(x509Elt.getAttribute(ATT_USER_SERVICE_REF));
 
-        if (StringUtils.hasText(userServiceRef)) {
-            RootBeanDefinition preAuthUserService = new RootBeanDefinition(UserDetailsByNameServiceWrapper.class);
-            preAuthUserService.setSource(pc.extractSource(x509Elt));
-            preAuthUserService.getPropertyValues().addPropertyValue("userDetailsService", new RuntimeBeanReference(userServiceRef));
-            provider.getPropertyValues().addPropertyValue("preAuthenticatedUserDetailsService", preAuthUserService);
-        }
+        provider.getPropertyValues().addPropertyValue("preAuthenticatedUserDetailsService", uds);
 
         x509ProviderId = pc.getReaderContext().registerWithGeneratedName(provider);
         x509ProviderRef = new RuntimeBeanReference(x509ProviderId);
@@ -527,14 +526,14 @@ final class AuthenticationConfigBuilder {
         return (String) pv.getValue();
     }
 
-    void createUserServiceInjector() {
-        BeanDefinitionBuilder userServiceInjector =
-            BeanDefinitionBuilder.rootBeanDefinition(UserDetailsServiceInjectionBeanPostProcessor.class);
-        userServiceInjector.addConstructorArgValue(x509ProviderId);
-        userServiceInjector.addConstructorArgValue(rememberMeServicesId);
-        userServiceInjector.addConstructorArgValue(openIDProviderId);
-        userServiceInjector.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-        pc.getReaderContext().registerWithGeneratedName(userServiceInjector.getBeanDefinition());
+    private void createUserDetailsServiceFactory() {
+        if (pc.getRegistry().containsBeanDefinition(BeanIds.USER_DETAILS_SERVICE_FACTORY)) {
+            // Multiple <http> case
+            return;
+        }
+        RootBeanDefinition bean = new RootBeanDefinition(UserDetailsServiceFactoryBean.class);
+        bean.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        pc.getReaderContext().getRegistry().registerBeanDefinition(BeanIds.USER_DETAILS_SERVICE_FACTORY, bean);
     }
 
     List<OrderDecorator> getFilters() {

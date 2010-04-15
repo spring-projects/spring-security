@@ -20,7 +20,9 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.Assert;
 
@@ -29,7 +31,7 @@ import org.springframework.util.Assert;
  * Finalises the OpenID authentication by obtaining local authorities for the authenticated user.
  * <p>
  * The authorities are obtained by calling the configured <tt>UserDetailsService</tt>.
- * The <code>UserDetails</code> it returns must, at minimum, contain the username and <code>GrantedAuthority[]</code>
+ * The <code>UserDetails</code> it returns must, at minimum, contain the username and <code>GrantedAuthority</code>
  * objects applicable to the authenticated user. Note that by default, Spring Security ignores the password and
  * enabled/disabled status of the <code>UserDetails</code> because this is
  * authentication-related and should have been enforced by another provider server.
@@ -42,7 +44,7 @@ import org.springframework.util.Assert;
 public class OpenIDAuthenticationProvider implements AuthenticationProvider, InitializingBean {
     //~ Instance fields ================================================================================================
 
-    private UserDetailsService userDetailsService;
+    private AuthenticationUserDetailsService<OpenIDAuthenticationToken> userDetailsService;
 
     //~ Methods ========================================================================================================
 
@@ -66,7 +68,7 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
             // handle the various possibilities
             if (status == OpenIDAuthenticationStatus.SUCCESS) {
                 // Lookup user details
-                UserDetails userDetails = userDetailsService.loadUserByUsername(response.getIdentityUrl());
+                UserDetails userDetails = userDetailsService.loadUserDetails(response);
 
                 return createSuccessfulAuthentication(userDetails, response);
 
@@ -103,9 +105,16 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
     }
 
     /**
-     * Used to load the authorities for the authenticated OpenID user.
+     * Used to load the {@code UserDetails} for the authenticated OpenID user.
      */
     public void setUserDetailsService(UserDetailsService userDetailsService) {
+        this.userDetailsService = new UserDetailsByNameServiceWrapper<OpenIDAuthenticationToken>(userDetailsService);
+    }
+
+    /**
+     * Used to load the {@code UserDetails} for the authenticated OpenID user.
+     */
+    public void setAuthenticationUserDetailsService(AuthenticationUserDetailsService<OpenIDAuthenticationToken> userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 

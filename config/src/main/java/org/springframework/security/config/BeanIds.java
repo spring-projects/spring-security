@@ -19,6 +19,7 @@ public abstract class BeanIds {
     public static final String CONTEXT_SOURCE_SETTING_POST_PROCESSOR = PREFIX + "contextSettingPostProcessor";
 
     public static final String USER_DETAILS_SERVICE = PREFIX + "userDetailsService";
+    public static final String USER_DETAILS_SERVICE_FACTORY = PREFIX + "userDetailsServiceFactory";
 
     public static final String METHOD_ACCESS_MANAGER = PREFIX + "defaultMethodAccessManager";
 

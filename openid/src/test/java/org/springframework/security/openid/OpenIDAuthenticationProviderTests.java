@@ -183,17 +183,16 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
 
     public void testValidation() throws Exception {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
-        provider.setUserDetailsService(new MockUserDetailsService());
-        provider.afterPropertiesSet();
-
-        provider.setUserDetailsService(null);
-
         try {
             provider.afterPropertiesSet();
             fail("IllegalArgumentException expected, ssoAuthoritiesPopulator is null");
         } catch (IllegalArgumentException e) {
             //expected
         }
+
+        provider = new OpenIDAuthenticationProvider();
+        provider.setUserDetailsService(new MockUserDetailsService());
+        provider.afterPropertiesSet();
     }
 
     static class MockUserDetailsService implements UserDetailsService {
