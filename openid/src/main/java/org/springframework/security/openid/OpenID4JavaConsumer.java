@@ -113,6 +113,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 
         // retrieve the previously stored discovery information
         DiscoveryInformation discovered = (DiscoveryInformation) request.getSession().getAttribute(DISCOVERY_INFO_KEY);
+        request.getSession().removeAttribute(DISCOVERY_INFO_KEY);
 
         // extract the receiving URL from the HTTP request
         StringBuffer receivingURL = request.getRequestURL();
