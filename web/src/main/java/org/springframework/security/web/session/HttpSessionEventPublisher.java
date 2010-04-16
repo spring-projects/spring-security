@@ -44,7 +44,7 @@ import javax.servlet.http.HttpSessionListener;
 public class HttpSessionEventPublisher implements HttpSessionListener {
     //~ Static fields/initializers =====================================================================================
 
-    private static final Log log = LogFactory.getLog(HttpSessionEventPublisher.class);
+    private static final String LOGGER_NAME = HttpSessionEventPublisher.class.getName();
 
     //~ Methods ========================================================================================================
 
@@ -60,6 +60,7 @@ public class HttpSessionEventPublisher implements HttpSessionListener {
      */
     public void sessionCreated(HttpSessionEvent event) {
         HttpSessionCreatedEvent e = new HttpSessionCreatedEvent(event.getSession());
+        Log log = LogFactory.getLog(LOGGER_NAME);
 
         if (log.isDebugEnabled()) {
             log.debug("Publishing event: " + e);
@@ -76,6 +77,7 @@ public class HttpSessionEventPublisher implements HttpSessionListener {
      */
     public void sessionDestroyed(HttpSessionEvent event) {
         HttpSessionDestroyedEvent e = new HttpSessionDestroyedEvent(event.getSession());
+        Log log = LogFactory.getLog(LOGGER_NAME);
 
         if (log.isDebugEnabled()) {
             log.debug("Publishing event: " + e);
