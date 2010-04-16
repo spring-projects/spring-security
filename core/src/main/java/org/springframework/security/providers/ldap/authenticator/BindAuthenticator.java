@@ -15,22 +15,26 @@
 
 package org.springframework.security.providers.ldap.authenticator;
 
-import org.springframework.security.Authentication;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.ldap.SpringSecurityContextSource;
-import org.springframework.security.ldap.SpringSecurityLdapTemplate;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.dao.DataAccessException;
-import org.springframework.ldap.core.ContextSource;
-import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.core.DistinguishedName;
-import org.springframework.util.Assert;
+import java.util.Iterator;
+
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import javax.naming.directory.DirContext;
-import java.util.Iterator;
+import org.springframework.dao.DataAccessException;
+import org.springframework.ldap.NamingException;
+import org.springframework.ldap.core.ContextSource;
+import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.core.support.BaseLdapPathContextSource;
+import org.springframework.ldap.support.LdapUtils;
+import org.springframework.security.Authentication;
+import org.springframework.security.BadCredentialsException;
+import org.springframework.security.ldap.SpringSecurityContextSource;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.util.Assert;
 
 
 /**
@@ -91,21 +95,42 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
         return user;
     }
 
-    private DirContextOperations bindWithDn(String userDn, String username, String password) {
-        SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(
-                new BindWithSpecificDnContextSource((SpringSecurityContextSource) getContextSource(), userDn, password));
+    private DirContextOperations bindWithDn(String userDnStr, String username, String password) {
+	BaseLdapPathContextSource ctxSource = (BaseLdapPathContextSource) getContextSource();
+	DistinguishedName userDn = new DistinguishedName(userDnStr);
+	DistinguishedName fullDn = new DistinguishedName(userDn);
+	fullDn.prepend(ctxSource.getBaseLdapPath());
+	BindWithSpecificDnContextSource specificDnContextSource = new BindWithSpecificDnContextSource(
+		(SpringSecurityContextSource) getContextSource(), fullDn,
+		password);
+	logger.debug("Attemptimg to bind as " + fullDn);
+	DirContext ctx = null;
+	try {
+	    ctx = specificDnContextSource.getReadOnlyContext();
 
-        try {
-            return template.retrieveEntry(userDn, getUserAttributes());
+	    Attributes attrs = ctx.getAttributes(userDn, getUserAttributes());
 
-        } catch (BadCredentialsException e) {
-            // This will be thrown if an invalid user name is used and the method may
-            // be called multiple times to try different names, so we trap the exception
-            // unless a subclass wishes to implement more specialized behaviour.
-            handleBindException(userDn, username, e.getCause());
-        }
+	    DirContextAdapter result = new DirContextAdapter(attrs, userDn, ctxSource.getBaseLdapPath());
 
-        return null;
+	    return result;
+	} catch (NamingException e) {
+	    // This will be thrown if an invalid user name is used and the method may
+	    // be called multiple times to try different names, so we trap the exception
+	    // unless a subclass wishes to implement more specialized behaviour.
+	    if ((e  instanceof org.springframework.ldap.AuthenticationException)
+		    || (e instanceof org.springframework.ldap.OperationNotSupportedException)) {
+		handleBindException(userDnStr, username, e);
+	    } else {
+		throw e;
+	    }
+	} catch (javax.naming.NamingException e) {
+	    throw LdapUtils.convertLdapException(e);
+	} finally {
+	    LdapUtils.closeContext(ctx);
+	}
+
+	return null;
+
     }
 
     /**
@@ -120,13 +145,12 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
     private class BindWithSpecificDnContextSource implements ContextSource {
         private SpringSecurityContextSource ctxFactory;
-        DistinguishedName userDn;
+        private DistinguishedName userDn;
         private String password;
 
-        public BindWithSpecificDnContextSource(SpringSecurityContextSource ctxFactory, String userDn, String password) {
+        public BindWithSpecificDnContextSource(SpringSecurityContextSource ctxFactory, DistinguishedName userDn, String password) {
             this.ctxFactory = ctxFactory;
-            this.userDn = new DistinguishedName(userDn);
-            this.userDn.prepend(ctxFactory.getBaseLdapPath());
+            this.userDn = userDn;
             this.password = password;
         }
 

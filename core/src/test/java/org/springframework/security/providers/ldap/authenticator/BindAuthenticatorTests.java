@@ -15,18 +15,17 @@
 
 package org.springframework.security.providers.ldap.authenticator;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import org.junit.Test;
+import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.Authentication;
 import org.springframework.security.BadCredentialsException;
 import org.springframework.security.SpringSecurityMessageSource;
 import org.springframework.security.ldap.AbstractLdapIntegrationTests;
+import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.ldap.core.DirContextAdapter;
-import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.core.DistinguishedName;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import org.junit.Test;
 
 /**
  * Tests for {@link BindAuthenticator}.
@@ -39,7 +38,6 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
 
     private BindAuthenticator authenticator;
     private Authentication bob;
-//    private Authentication ben;
 
 
     //~ Methods ========================================================================================================
@@ -48,7 +46,6 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
         authenticator = new BindAuthenticator(getContextSource());
         authenticator.setMessageSource(new SpringSecurityMessageSource());
         bob = new UsernamePasswordAuthenticationToken("bob", "bobspassword");
-//        ben = new UsernamePasswordAuthenticationToken("ben", "benspassword");
 
     }
 
@@ -72,11 +69,14 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
 
     @Test
     public void testAuthenticationWithUserSearch() throws Exception {
-        DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=bob,ou=people"));
-
-        authenticator.setUserSearch(new MockUserSearch(ctx));
-        authenticator.afterPropertiesSet();
-        authenticator.authenticate(bob);
+//        DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("uid=bob,ou=people"));
+	authenticator.setUserSearch(new FilterBasedLdapUserSearch("ou=people", "(uid={0})", getContextSource()));
+    authenticator.afterPropertiesSet();
+    authenticator.authenticate(bob);
+    // SEC-1444
+ 	authenticator.setUserSearch(new FilterBasedLdapUserSearch("ou=people", "(cn={0})", getContextSource()));
+ 	authenticator.authenticate(new UsernamePasswordAuthenticationToken("mouse, jerry", "jerryspassword"));
+ 	authenticator.authenticate(new UsernamePasswordAuthenticationToken("slash/guy", "slashguyspassword"));
     }
 
     @Test

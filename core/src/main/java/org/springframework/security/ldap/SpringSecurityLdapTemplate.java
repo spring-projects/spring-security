@@ -193,22 +193,27 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
         return (DirContextOperations) executeReadOnly(new ContextExecutor() {
                 public Object executeWithContext(DirContext ctx) throws NamingException {
                     DistinguishedName ctxBaseDn = new DistinguishedName(ctx.getNameInNamespace());
+                    if (logger.isDebugEnabled()) {
+                    logger.debug("Searching for entry in under DN '" + ctxBaseDn
+                	    + "', base = '" + base + "', filter = '" + filter + "'");
+                    }
+
                     NamingEnumeration resultsEnum = ctx.search(base, filter, params, searchControls);
                     Set results = new HashSet();
                     try {
                         while (resultsEnum.hasMore()) {
-
                             SearchResult searchResult = (SearchResult) resultsEnum.next();
                             // Work out the DN of the matched entry
-                            StringBuffer dn = new StringBuffer(searchResult.getName());
+                            DistinguishedName  dn = new  DistinguishedName(searchResult.getName());
 
                             if (base.length() > 0) {
-                                dn.append(",");
-                                dn.append(base);
+                                dn.prepend(new DistinguishedName(base));
                             }
 
-                            results.add(new DirContextAdapter(searchResult.getAttributes(),
-                                    new DistinguishedName(dn.toString()), ctxBaseDn));
+                            if (logger.isDebugEnabled()) {
+                         	logger.debug("Found DN: " + dn);
+                            }
+                            results.add(new DirContextAdapter(searchResult.getAttributes(), dn, ctxBaseDn));
                         }
                     } catch (PartialResultException e) {
                         logger.info("Ignoring PartialResultException");
