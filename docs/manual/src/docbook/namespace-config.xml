@@ -355,8 +355,10 @@
   ]]>
         </programlisting> where <literal>myAuthenticationProvider</literal> is the name of a
                 bean in your application context which implements
-                <interfacename>AuthenticationProvider</interfacename>. See <xref
-                linkend="ns-auth-manager"/> for more on information on how the Spring Security
+                <interfacename>AuthenticationProvider</interfacename>. You can use multiple
+                <literal>authentication-provider</literal> elements, in which case the providers
+                will be queried in the order they are declared. See <xref linkend="ns-auth-manager"
+                /> for more on information on how the Spring Security
                 <interfacename>AuthenticationManager</interfacename> is configured using the
                 namespace. </para>
             <section xml:id="ns-password-encoder">
