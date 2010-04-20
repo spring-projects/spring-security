@@ -55,8 +55,11 @@ public class SessionFixationProtectionStrategy implements SessionAuthenticationS
     /**
      * Called when a user is newly authenticated.
      * <p>
-     * If a session already exists, a new session will be created, the session attributes copied to it (if
-     * <tt>migrateSessionAttributes</tt> is set) and the sessionRegistry updated with the new session information.
+     * If a session already exists, and matches the session Id from the client, a new session will be created, and the
+     * session attributes copied to it (if <tt>migrateSessionAttributes</tt> is set).
+     * The sessionRegistry will be updated with the new session information. If the client's requested session Id is
+     * invalid, nothing will be done, since there is no need to change the session Id if it doesn't match the current
+     * session.
      * <p>
      * If there is no session, no action is taken unless the <tt>alwaysCreateSession</tt> property is set, in which
      * case a session will be created if one doesn't already exist.
@@ -73,7 +76,7 @@ public class SessionFixationProtectionStrategy implements SessionAuthenticationS
         // Create new session if necessary
         HttpSession session = request.getSession();
 
-        if (hadSessionAlready) {
+        if (hadSessionAlready && request.isRequestedSessionIdValid()) {
             // We need to migrate to a new session
             String originalSessionId = session.getId();
 
