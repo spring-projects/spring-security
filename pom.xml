@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.springframework.security</groupId>
     <artifactId>spring-security-parent</artifactId>
-    <version>2.0.5.RELEASE</version>
+    <version>2.0.6.CI-SNAPSHOT</version>
     <name>Spring Security</name>
     <packaging>pom</packaging>
 
@@ -36,13 +36,6 @@
         </license>
     </licenses>
 
-    <!-- Note when doing releases: tagBase is set in release plugin configuration below -->
-    <scm>
-        <connection>scm:svn:https://src.springframework.org/svn/spring-security/tags/spring-security-2.0.5.RELEASE</connection>
-        <developerConnection>scm:svn:https://src.springframework.org/svn/spring-security/tags/spring-security-2.0.5.RELEASE</developerConnection>
-        <url>https://src.springframework.org/svn/spring-security/tags/spring-security-2.0.5.RELEASE</url>
-    </scm>
-
     <issueManagement>
         <system>jira</system>
         <url>http://jira.springframework.org/browse/SEC</url>
@@ -73,30 +66,6 @@
             <url>http://repository.springsource.com/maven/bundles/milestone</url>
         </pluginRepository>
     </pluginRepositories>
-
-    <mailingLists>
-        <mailingList>
-            <name>Acegi Developer List</name>
-            <subscribe>
-                https://lists.sourceforge.net/lists/listinfo/acegisecurity-developer
-            </subscribe>
-            <!--
-                   <unsubscribe>https://lists.sourceforge.net/lists/listinfo/acegisecurity-developer</unsubscribe>
-                   <post>acegisecurity-developer@lists.sourceforge.net</post>
-               -->
-            <archive>
-                http://sourceforge.net/mailarchive/forum.php?forum_id=40659
-            </archive>
-            <otherArchives>
-                <otherArchive>
-                    http://news.gmane.org/gmane.comp.java.springframework.acegisecurity.devel/
-                </otherArchive>
-                <otherArchive>
-                    http://www.mail-archive.com/acegisecurity-developer@lists.sourceforge.net/
-                </otherArchive>
-            </otherArchives>
-        </mailingList>
-    </mailingLists>
 
     <developers>
         <developer>
