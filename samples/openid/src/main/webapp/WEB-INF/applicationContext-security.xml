@@ -8,7 +8,7 @@
     xmlns:b="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 
     <http>
         <intercept-url pattern="/**" access="ROLE_USER"/>
@@ -16,11 +16,14 @@
         <logout/>
         <openid-login login-page="/openidlogin.jsp" user-service-ref="registeringUserService"
                 authentication-failure-url="/openidlogin.jsp?login_error=true">
-            <attribute-exchange>
+            <attribute-exchange identifier-match="https://www.google.com/.*">
                 <openid-attribute name="email" type="http://axschema.org/contact/email" required="true" count="1"/>
-                <openid-attribute name="firstname" type="http://axschema.org/namePerson/first" />
-                <openid-attribute name="lastname" type="http://axschema.org/namePerson/last" />
-                <openid-attribute name="fullname" type="http://axschema.org/namePerson" />
+                <openid-attribute name="firstname" type="http://axschema.org/namePerson/first" required="true" />
+                <openid-attribute name="lastname" type="http://axschema.org/namePerson/last" required="true" />
+            </attribute-exchange>
+            <attribute-exchange identifier-match=".*yahoo.com.*">
+                <openid-attribute name="email" type="http://axschema.org/contact/email" required="true"/>
+                <openid-attribute name="fullname" type="http://axschema.org/namePerson" required="true" />
             </attribute-exchange>
         </openid-login>
         <remember-me token-repository-ref="tokenRepo"/>
@@ -31,7 +34,16 @@
 
     <authentication-manager alias="authenticationManager"/>
 
+<!--
+    A custom UserDetailsService which will allow any user to authenticate and "register" their IDs in an internal map
+    for use if they return to the site. This is the most common usage pattern for sites which use OpenID.
+ -->
     <b:bean id="registeringUserService" class="org.springframework.security.samples.openid.CustomUserDetailsService" />
+
+<!--
+    A namespace-based UserDetailsService which will reject users who are not already defined.
+    This can be used as an alternative.
+ -->
 <!--
     <user-service id="userService">
         <user name="http://luke.taylor.myopenid.com/" authorities="ROLE_SUPERVISOR,ROLE_USER" />

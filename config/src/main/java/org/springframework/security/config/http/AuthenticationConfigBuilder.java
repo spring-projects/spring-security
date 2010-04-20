@@ -18,6 +18,7 @@ import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
+import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.authentication.AnonymousAuthenticationProvider;
@@ -52,8 +53,9 @@ final class AuthenticationConfigBuilder {
 
     static final String OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS = "org.springframework.security.openid.OpenIDAuthenticationFilter";
     static final String OPEN_ID_AUTHENTICATION_PROVIDER_CLASS = "org.springframework.security.openid.OpenIDAuthenticationProvider";
-    static final String OPEN_ID_CONSUMER_CLASS = "org.springframework.security.openid.OpenID4JavaConsumer";
+    private static final String OPEN_ID_CONSUMER_CLASS = "org.springframework.security.openid.OpenID4JavaConsumer";
     static final String OPEN_ID_ATTRIBUTE_CLASS = "org.springframework.security.openid.OpenIDAttribute";
+    private static final String OPEN_ID_ATTRIBUTE_FACTORY_CLASS = "org.springframework.security.openid.RegexBasedAxFetchListFactory";
     static final String AUTHENTICATION_PROCESSING_FILTER_CLASS = "org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter";
 
     private static final String ATT_AUTO_CONFIG = "auto-config";
@@ -192,30 +194,31 @@ final class AuthenticationConfigBuilder {
             openIDFilter = parser.getFilterBean();
             openIDEntryPoint = parser.getEntryPointBean();
 
-            Element attrExElt = DomUtils.getChildElementByTagName(openIDLoginElt, Elements.OPENID_ATTRIBUTE_EXCHANGE);
+            List<Element> attrExElts = DomUtils.getChildElementsByTagName(openIDLoginElt, Elements.OPENID_ATTRIBUTE_EXCHANGE);
 
-            if (attrExElt != null) {
+            if (!attrExElts.isEmpty()) {
                 // Set up the consumer with the required attribute list
                 BeanDefinitionBuilder consumerBldr = BeanDefinitionBuilder.rootBeanDefinition(OPEN_ID_CONSUMER_CLASS);
-                ManagedList<BeanDefinition> attributes = new ManagedList<BeanDefinition> ();
-                for (Element attElt : DomUtils.getChildElementsByTagName(attrExElt, Elements.OPENID_ATTRIBUTE)) {
-                    String name = attElt.getAttribute("name");
-                    String type = attElt.getAttribute("type");
-                    String required = attElt.getAttribute("required");
-                    String count = attElt.getAttribute("count");
-                    BeanDefinitionBuilder attrBldr = BeanDefinitionBuilder.rootBeanDefinition(OPEN_ID_ATTRIBUTE_CLASS);
-                    attrBldr.addConstructorArgValue(name);
-                    attrBldr.addConstructorArgValue(type);
-                    if (StringUtils.hasLength(required)) {
-                        attrBldr.addPropertyValue("required", Boolean.valueOf(required));
+                BeanDefinitionBuilder axFactory = BeanDefinitionBuilder.rootBeanDefinition(OPEN_ID_ATTRIBUTE_FACTORY_CLASS);
+                ManagedMap<String, ManagedList<BeanDefinition>> axMap = new ManagedMap<String, ManagedList<BeanDefinition>>();
+
+                for (Element attrExElt : attrExElts) {
+                    String identifierMatch = attrExElt.getAttribute("identifier-match");
+
+                    if (!StringUtils.hasText(identifierMatch)) {
+                        if (attrExElts.size() > 1) {
+                            pc.getReaderContext().error("You must supply an identifier-match attribute if using more" +
+                                    " than one " + Elements.OPENID_ATTRIBUTE_EXCHANGE + " element", attrExElt);
+                        }
+                        // Match anything
+                        identifierMatch = ".*";
                     }
 
-                    if (StringUtils.hasLength(count)) {
-                        attrBldr.addPropertyValue("count", Integer.parseInt(count));
-                    }
-                    attributes.add(attrBldr.getBeanDefinition());
+                    axMap.put(identifierMatch, parseOpenIDAttributes(attrExElt));
                 }
-                consumerBldr.addConstructorArgValue(attributes);
+                axFactory.addConstructorArgValue(axMap);
+
+                consumerBldr.addConstructorArgValue(axFactory.getBeanDefinition());
                 openIDFilter.getPropertyValues().addPropertyValue("consumer", consumerBldr.getBeanDefinition());
             }
         }
@@ -230,6 +233,29 @@ final class AuthenticationConfigBuilder {
 
             createOpenIDProvider();
         }
+    }
+
+    private ManagedList<BeanDefinition> parseOpenIDAttributes(Element attrExElt) {
+        ManagedList<BeanDefinition> attributes = new ManagedList<BeanDefinition> ();
+        for (Element attElt : DomUtils.getChildElementsByTagName(attrExElt, Elements.OPENID_ATTRIBUTE)) {
+            String name = attElt.getAttribute("name");
+            String type = attElt.getAttribute("type");
+            String required = attElt.getAttribute("required");
+            String count = attElt.getAttribute("count");
+            BeanDefinitionBuilder attrBldr = BeanDefinitionBuilder.rootBeanDefinition(OPEN_ID_ATTRIBUTE_CLASS);
+            attrBldr.addConstructorArgValue(name);
+            attrBldr.addConstructorArgValue(type);
+            if (StringUtils.hasLength(required)) {
+                attrBldr.addPropertyValue("required", Boolean.valueOf(required));
+            }
+
+            if (StringUtils.hasLength(count)) {
+                attrBldr.addPropertyValue("count", Integer.parseInt(count));
+            }
+            attributes.add(attrBldr.getBeanDefinition());
+        }
+
+        return attributes;
     }
 
     private void createOpenIDProvider() {

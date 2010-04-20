@@ -46,6 +46,7 @@ import org.springframework.security.openid.OpenIDAuthenticationProvider;
 import org.springframework.security.openid.OpenIDAuthenticationToken;
 import org.springframework.security.openid.OpenIDConsumer;
 import org.springframework.security.openid.OpenIDConsumerException;
+import org.springframework.security.openid.RegexBasedAxFetchListFactory;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.FilterInvocation;
@@ -1152,7 +1153,6 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertEquals("/openid_login", ap.getLoginFormUrl());
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void openIDWithAttributeExchangeConfigurationIsParsedCorrectly() throws Exception {
         setContext(
@@ -1168,7 +1168,8 @@ public class HttpSecurityBeanDefinitionParserTests {
         OpenIDAuthenticationFilter apf = getFilter(OpenIDAuthenticationFilter.class);
 
         OpenID4JavaConsumer consumer = (OpenID4JavaConsumer) FieldUtils.getFieldValue(apf, "consumer");
-        List<OpenIDAttribute> attributes = (List<OpenIDAttribute>) FieldUtils.getFieldValue(consumer, "attributesToFetch");
+        RegexBasedAxFetchListFactory axFactory = (RegexBasedAxFetchListFactory) FieldUtils.getFieldValue(consumer, "attributesToFetchFactory");
+        List<OpenIDAttribute> attributes = axFactory.createAttributeList("https://anyopenidprovider.com/");
         assertEquals(2, attributes.size());
         assertEquals("nickname", attributes.get(0).getName());
         assertEquals("http://schema.openid.net/namePerson/friendly", attributes.get(0).getType());

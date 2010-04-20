@@ -371,10 +371,15 @@ form-login.attlist &=
 
 openid-login =
     ## Sets up form login for authentication with an Open ID identity
-    element openid-login {form-login.attlist, user-service-ref?, attribute-exchange?}
+    element openid-login {form-login.attlist, user-service-ref?, attribute-exchange*}
 
 attribute-exchange =
-    element attribute-exchange {openid-attribute+}
+    ## Sets up an attribute exchange configuration to request specified attributes from the OpenID identity provider. When multiple elements are used, each must have an identifier-attribute attribute. Each configuration will be matched in turn against the supplied login identifier until a match is found. 
+    element attribute-exchange {attribute-exchange.attlist, openid-attribute+}
+
+attribute-exchange.attlist &=
+    ## A regular expression which will be compared against the claimed identity, when deciding which attribute-exchange configuration to use during authentication.
+    attribute identifier-match {xsd:token}?
 
 openid-attribute =
     element openid-attribute {openid-attribute.attlist}

@@ -627,7 +627,7 @@
       <xs:documentation>Sets up form login for authentication with an Open ID identity</xs:documentation>
     </xs:annotation><xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" ref="security:attribute-exchange"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="security:attribute-exchange"/>
       </xs:sequence>
       <xs:attributeGroup ref="security:form-login.attlist"/>
       <xs:attribute name="user-service-ref" type="xs:token">
@@ -902,11 +902,21 @@
     </xs:attribute>
   </xs:attributeGroup>
   
-  <xs:element name="attribute-exchange"><xs:complexType>
+  <xs:element name="attribute-exchange"><xs:annotation>
+      <xs:documentation>Sets up an attribute exchange configuration to request specified attributes from the OpenID identity provider. When multiple elements are used, each must have an identifier-attribute attribute. Each configuration will be matched in turn against the supplied login identifier until a match is found. </xs:documentation>
+    </xs:annotation><xs:complexType>
       <xs:sequence>
         <xs:element maxOccurs="unbounded" ref="security:openid-attribute"/>
       </xs:sequence>
+      <xs:attributeGroup ref="security:attribute-exchange.attlist"/>
     </xs:complexType></xs:element>
+  <xs:attributeGroup name="attribute-exchange.attlist">
+    <xs:attribute name="identifier-match" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>A regular expression which will be compared against the claimed identity, when deciding which attribute-exchange configuration to use during authentication.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
   <xs:element name="openid-attribute"><xs:complexType>
       <xs:attributeGroup ref="security:openid-attribute.attlist"/>
     </xs:complexType></xs:element>
