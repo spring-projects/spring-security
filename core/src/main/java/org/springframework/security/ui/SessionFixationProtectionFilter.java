@@ -48,7 +48,7 @@ public class SessionFixationProtectionFilter extends SpringSecurityFilter {
     protected void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         // Session fixation isn't a problem if there's no session
-        if(request.getSession(false) == null || request.getAttribute(FILTER_APPLIED) != null) {
+        if(request.getSession(false) == null || request.getAttribute(FILTER_APPLIED) != null || !request.isRequestedSessionIdValid()) {
             chain.doFilter(request, response);
             return;
         }
