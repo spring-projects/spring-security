@@ -32,7 +32,7 @@
         <attribute>
             <name>url</name>
             <required>false</required>
-            <rtexprvalue>false</rtexprvalue>
+            <rtexprvalue>true</rtexprvalue>
             <description>
                 A URL within the application. If the user has access to this URL (as determined by
                 the AccessDecisionManager), the tag body will be evaluated. If not, it will
