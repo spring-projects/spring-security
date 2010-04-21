@@ -11,8 +11,11 @@
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 
     <http>
-        <intercept-url pattern="/**" access="ROLE_USER"/>
         <intercept-url pattern="/openidlogin.jsp*" filters="none"/>
+        <intercept-url pattern="/images/*" filters="none"/>
+        <intercept-url pattern="/css/*" filters="none"/>
+        <intercept-url pattern="/js/*" filters="none"/>
+        <intercept-url pattern="/**" access="ROLE_USER"/>
         <logout/>
         <openid-login login-page="/openidlogin.jsp" user-service-ref="registeringUserService"
                 authentication-failure-url="/openidlogin.jsp?login_error=true">
@@ -24,6 +27,10 @@
             <attribute-exchange identifier-match=".*yahoo.com.*">
                 <openid-attribute name="email" type="http://axschema.org/contact/email" required="true"/>
                 <openid-attribute name="fullname" type="http://axschema.org/namePerson" required="true" />
+            </attribute-exchange>
+            <attribute-exchange identifier-match=".*myopenid.com.*">
+                <openid-attribute name="email" type="http://schema.openid.net/contact/email" required="true"/>
+                <openid-attribute name="fullname" type="http://schema.openid.net/namePerson" required="true" />
             </attribute-exchange>
         </openid-login>
         <remember-me token-repository-ref="tokenRepo"/>

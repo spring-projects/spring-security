@@ -1,33 +1,64 @@
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core_rt' %>
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>OpenID Login</title>
 
-<html>
-  <head>
-    <title>Open ID Login</title>
-  </head>
+    <!-- Simple OpenID Selector -->
+    <link rel="stylesheet" href="<c:url value='/css/openid.css'/>" />
+    <script type="text/javascript" src="<c:url value='/js/jquery-1.2.6.min.js'/>"></script>
+    <script type="text/javascript" src="<c:url value='/js/openid-jquery.js'/>"></script>
 
-  <body onload="document.f.j_username.focus();">
-    <h3>Please Enter Your OpenID Identity</h3>
+    <script type="text/javascript">
+    $(document).ready(function() {
+        openid.init('openid_identifier');
+     //   openid.setDemoMode(true); Stops form submission for client javascript-only test purposes
+    });
+    </script>
+    <!-- /Simple OpenID Selector -->
 
-    <%-- this form-login-page form is also used as the
-         form-error-page to ask for a login again.
-         --%>
-    <c:if test="${not empty param.login_error}">
-      <font color="red">
-        Your login attempt was not successful, try again.<br/><br/>
-        Reason: <c:out value="${SPRING_SECURITY_LAST_EXCEPTION.message}"/>.
-      </font>
-    </c:if>
+    <style type="text/css">
+        /* Basic page formatting. */
+        body {
+            font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+    </style>
+</head>
 
+<body>
 
-    <form name="f" action="<c:url value='j_spring_openid_security_check'/>" method="POST">
-      <table>
-        <tr><td>OpenID Identity:</td><td><input type='text' name='openid_identifier' value='<c:if test="${not empty param.login_error}"><c:out value="${SPRING_SECURITY_LAST_USERNAME}"/></c:if>'/></td></tr>
-        <tr><td><input type="checkbox" name="_spring_security_remember_me"></td><td>Remember me on this computer.</td></tr>
-        <tr><td colspan='2'><input name="submit" type="submit"></td></tr>
-        <tr><td colspan='2'><input name="reset" type="reset"></td></tr>
-      </table>
+<c:if test="${not empty param.login_error}">
+  <font color="red">
+    Your login attempt was not successful, try again.<br/><br/>
+    Reason: <c:out value="${SPRING_SECURITY_LAST_EXCEPTION.message}"/>.
+  </font>
+</c:if>
 
-    </form>
+<!-- Simple OpenID Selector -->
+<form action="<c:url value='j_spring_openid_security_check'/>" method="post" id="openid_form">
+    <input type="hidden" name="action" value="verify" />
 
-  </body>
+    <fieldset>
+            <legend>Sign-in or Create New Account</legend>
+
+            <div id="openid_choice">
+                <p>Please click your account provider:</p>
+                <div id="openid_btns"></div>
+
+            </div>
+
+            <div id="openid_input_area">
+                <input id="openid_identifier" name="openid_identifier" type="text" value="http://" />
+                <input id="openid_submit" type="submit" value="Sign-In"/>
+            </div>
+            <noscript>
+            <p>OpenID is a service that allows you to log-on to many different websites using a single indentity.
+            Find out <a href="http://openid.net/what/">more about OpenID</a> and <a href="http://openid.net/get/">how to get an OpenID enabled account</a>.</p>
+            </noscript>
+    </fieldset>
+</form>
+<!-- /Simple OpenID Selector -->
+
+</body>
 </html>

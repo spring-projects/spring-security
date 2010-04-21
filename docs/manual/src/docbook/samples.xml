@@ -99,6 +99,26 @@ Success! Your web filters appear to be properly configured!
             the same application context file. This means there are actually two identical
             authentication providers configured in this application. </para>
     </section>
+    <section xml:id="openid-sample">
+        <title>OpenID Sample</title>
+        <para>
+            The OpenID sample demonstrates how to use the namespace to configure OpenID and how to set up
+            <link xlink:href="http://openid.net/specs/openid-attribute-exchange-1_0.html">attribute exchange</link>
+            configurations for Google, Yahoo and MyOpenID identity providers (you can experiment with adding others
+            if you wish). It uses the JQuery-based <link xlink:href="http://code.google.com/p/openid-selector/">openid-selector</link>
+            project to provide a user-friendly login page which allows the user to easily select a provider, rather than
+            typing in the full OpenID identifier.
+        </para>
+        <para>
+            The application differs from normal authentication scenarios in that it allows any user to access the site (provided
+            their OpenID authentication is successful). The first time you login, you will get a <quote>Welcome [your name]"</quote>
+            message. If you logout and log back in (with the same OpenID identity) then this should change to <quote>Welcome Back</quote>.
+            This is achieved by using a custom <interfacename>UserDetailsService</interfacename> which assigns a standard role
+            to any user and stores the identities internally in a map. Obviously a real application would use a database instead.
+            Have a look at the source form more information. This class also takes into account the fact that different attributes may be returned
+            from different providers and builds the name with which it addresses the user accordingly.
+        </para>
+    </section>
     <section xml:id="cas-sample">
         <title>CAS Sample</title>
         <para> The CAS sample requires that you run both a CAS server and CAS client. It isn't

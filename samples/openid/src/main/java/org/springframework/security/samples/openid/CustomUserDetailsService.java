@@ -69,6 +69,10 @@ public class CustomUserDetailsService implements UserDetailsService, Authenticat
                 firstName = attribute.getValues().get(0);
             }
 
+            if (attribute.getName().equals("lastname")) {
+                lastName = attribute.getValues().get(0);
+            }
+
             if (attribute.getName().equals("fullname")) {
                 fullName = attribute.getValues().get(0);
             }
