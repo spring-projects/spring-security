@@ -548,20 +548,29 @@
   </attribute-exchange>
  </openid-login>]]></programlisting>The <quote>type</quote> of each OpenID attribute is a URI,
                     determined by a particular schema, in this case <link
-                    xlink:href="http://axschema.org/">http://axschema.org/</link>. If an attribute
-                    must be retrieved for successful authentication, the <literal>required</literal>
-                    attribute can be set. The exact schema and attributes supported will depend on
-                    your OpenID provider. The attribute values are returned as part of the
-                    authentication process and can be accessed afterwards using the following code:
+                        xlink:href="http://axschema.org/">http://axschema.org/</link>. If an
+                    attribute must be retrieved for successful authentication, the
+                        <literal>required</literal> attribute can be set. The exact schema and
+                    attributes supported will depend on your OpenID provider. The attribute values
+                    are returned as part of the authentication process and can be accessed
+                    afterwards using the following code:
                     <programlisting language="java">
 OpenIDAuthenticationToken token = 
     (OpenIDAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
 List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
-                    <classname>OpenIDAttribute</classname> contains the attribute type and the
+                        <classname>OpenIDAttribute</classname> contains the attribute type and the
                     retrieved value (or values in the case of multi-valued attributes). We'll see
                     more about how the <classname>SecurityContextHolder</classname> class is used
                     when we look at core Spring Security components in the <link
-                    xlink:href="core-components">technical overview</link> chapter.</para>
+                        xlink:href="core-components">technical overview</link> chapter. Multiple
+                    attribute exchange configurations are also be supported, if you wish to use
+                    multiple identity providers. You can supply multiple
+                        <literal>attribute-exchange</literal> elements, using an
+                        <literal>identifier-matcher</literal> attribute on each. This contains a
+                    regular expression which will be matched against the OpenID identifier supplied
+                    by the user. See the OpenID sample application in the codebase for an example
+                    configuration, providing different attribute lists for the Google, Yahoo and
+                    MyOpenID providers.</para>
             </section>
         </section>
         <section xml:id="ns-custom-filters">

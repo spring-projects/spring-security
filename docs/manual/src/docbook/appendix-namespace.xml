@@ -431,11 +431,20 @@
             <para> Similar to <literal>&lt;form-login&gt;</literal> and has the same attributes. The
                 default value for <literal>login-processing-url</literal> is
                 "/j_spring_openid_security_check". An
-                <classname>OpenIDAuthenticationFilter</classname> and
-                <classname>OpenIDAuthenticationProvider</classname> will be registered. The latter
-                requires a reference to a <interfacename>UserDetailsService</interfacename>. Again,
-                this can be specified by Id, using the <literal>user-service-ref</literal>
+                    <classname>OpenIDAuthenticationFilter</classname> and
+                    <classname>OpenIDAuthenticationProvider</classname> will be registered. The
+                latter requires a reference to a <interfacename>UserDetailsService</interfacename>.
+                Again, this can be specified by Id, using the <literal>user-service-ref</literal>
                 attribute, or will be located automatically in the application context. </para>
+            <section>
+                <title>The <literal>&lt;attribute-exchange></literal> Element</title>
+                <para>The <literal>attribute-exchange</literal> element defines the list of
+                    attributes which should be requested from the identity provider. More than one
+                    can be used, in which case each must have an <literal>identifier-match</literal>
+                    attribute, containing a regular expression which is matched against the supplied
+                    OpenID identifer. This allows different attribute lists to be fetched from
+                    different providers (Google, Yahoo etc).</para>
+            </section>
         </section>
         <section xml:id="nsa-logout">
             <title>The <literal>&lt;logout&gt;</literal> Element</title>
