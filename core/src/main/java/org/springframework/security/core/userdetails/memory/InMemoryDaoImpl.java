@@ -29,10 +29,14 @@ import java.util.Properties;
 
 
 /**
- * Retrieves user details from an in-memory list created by the bean context.
+ * Retrieves user details from an in-memory list created in the application context.
+ * <p>
+ * Username lookups are case-insensitive.
  *
  * @author Ben Alex
+ * @author Luke Taylor
  */
+@SuppressWarnings("deprecation")
 public class InMemoryDaoImpl implements UserDetailsService, InitializingBean {
     //~ Instance fields ================================================================================================
 

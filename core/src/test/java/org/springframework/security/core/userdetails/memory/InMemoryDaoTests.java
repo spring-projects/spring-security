@@ -30,26 +30,14 @@ import java.util.Properties;
  *
  * @author Ben Alex
  */
+@SuppressWarnings("deprecation")
 public class InMemoryDaoTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public InMemoryDaoTests() {
-        super();
-    }
-
-    public InMemoryDaoTests(String arg0) {
-        super(arg0);
-    }
 
     //~ Methods ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(InMemoryDaoTests.class);
-    }
-
     private UserMap makeUserMap() {
         UserMapEditor editor = new UserMapEditor();
-        editor.setAsText("rod=koala,ROLE_ONE,ROLE_TWO,enabled\r\nscott=wombat,ROLE_ONE,ROLE_TWO,enabled");
+        editor.setAsText("rod=koala,ROLE_ONE,ROLE_TWO,enabled\nScott=wombat,ROLE_ONE,ROLE_TWO,enabled");
 
         return (UserMap) editor.getValue();
     }

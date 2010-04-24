@@ -24,6 +24,7 @@ import org.w3c.dom.Element;
  * @author Luke Taylor
  * @author Ben Alex
  */
+@SuppressWarnings("deprecation")
 public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceBeanDefinitionParser {
 
     static final String ATT_PASSWORD = "password";
@@ -90,7 +91,7 @@ public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceB
             user.addConstructorArgValue(!locked);
             user.addConstructorArgValue(authorities.getBeanDefinition());
 
-            users.put(userName, user.getBeanDefinition());
+            users.put(userName.toLowerCase(), user.getBeanDefinition());
         }
 
         userMap.getPropertyValues().addPropertyValue("users", users);

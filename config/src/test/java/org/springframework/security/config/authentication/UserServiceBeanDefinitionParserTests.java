@@ -77,12 +77,12 @@ public class UserServiceBeanDefinitionParserTests {
         setContext(
                 "<user-service id='service'>" +
                 "    <user name='joe' password='joespassword' authorities='ROLE_A' locked='true'/>" +
-                "    <user name='bob' password='bobspassword' authorities='ROLE_A' disabled='true'/>" +
+                "    <user name='Bob' password='bobspassword' authorities='ROLE_A' disabled='true'/>" +
                 "</user-service>");
         UserDetailsService userService = (UserDetailsService) appContext.getBean("service");
         UserDetails joe = userService.loadUserByUsername("joe");
         assertFalse(joe.isAccountNonLocked());
-        UserDetails bob = userService.loadUserByUsername("bob");
+        UserDetails bob = userService.loadUserByUsername("bOb");
         assertFalse(bob.isEnabled());
     }
 
