@@ -41,6 +41,7 @@ import java.util.Properties;
  *
  * @author Ben Alex
  */
+@Deprecated
 public class UserMapEditor extends PropertyEditorSupport {
     //~ Methods ========================================================================================================
 

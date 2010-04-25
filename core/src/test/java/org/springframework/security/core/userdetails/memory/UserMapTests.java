@@ -29,8 +29,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  *
  * @author Ben Alex
  */
+@SuppressWarnings("deprecation")
 public class UserMapTests {
-
     @Test
     public void testAddAndRetrieveUser() {
         UserDetails rod = new User("rod", "koala", true, true, true, true,

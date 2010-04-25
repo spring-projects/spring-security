@@ -113,7 +113,8 @@ public class InMemoryUserDetailsManager implements UserDetailsManager {
             throw new UsernameNotFoundException(username);
         }
 
-        return user;
+        return new User(user.getUsername(), user.getPassword(), user.isEnabled(), true, true, true,
+                user.getAuthorities());
     }
 
 }

@@ -16,6 +16,7 @@
 package org.springframework.security.web.authentication.www;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.util.Map;
@@ -37,11 +38,11 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
-import org.springframework.security.core.userdetails.memory.InMemoryDaoImpl;
-import org.springframework.security.core.userdetails.memory.UserMap;
-import org.springframework.security.core.userdetails.memory.UserMapEditor;
 import org.springframework.util.StringUtils;
 
 
@@ -109,26 +110,27 @@ public class DigestAuthenticationFilterTests {
     }
 
     @After
-    public void clearContext() throws Exception {
+    public void clearContext() {
         SecurityContextHolder.clearContext();
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         SecurityContextHolder.clearContext();
 
         // Create User Details Service
-        InMemoryDaoImpl dao = new InMemoryDaoImpl();
-        UserMapEditor editor = new UserMapEditor();
-        editor.setAsText("rod,ok=koala,ROLE_ONE,ROLE_TWO,enabled\r\n");
-        dao.setUserMap((UserMap) editor.getValue());
+        UserDetailsService uds = new UserDetailsService() {
+            public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+                return new User("rod,ok", "koala", AuthorityUtils.createAuthorityList("ROLE_ONE","ROLE_TWO"));
+            }
+        };
 
         DigestAuthenticationEntryPoint ep = new DigestAuthenticationEntryPoint();
         ep.setRealmName(REALM);
         ep.setKey(KEY);
 
         filter = new DigestAuthenticationFilter();
-        filter.setUserDetailsService(dao);
+        filter.setUserDetailsService(uds);
         filter.setAuthenticationEntryPoint(ep);
 
         request = new MockHttpServletRequest("GET", REQUEST_URI);
@@ -169,7 +171,7 @@ public class DigestAuthenticationFilterTests {
     @Test
     public void testGettersSetters() {
         DigestAuthenticationFilter filter = new DigestAuthenticationFilter();
-        filter.setUserDetailsService(new InMemoryDaoImpl());
+        filter.setUserDetailsService(mock(UserDetailsService.class));
         assertTrue(filter.getUserDetailsService() != null);
 
         filter.setAuthenticationEntryPoint(new DigestAuthenticationEntryPoint());
@@ -329,7 +331,7 @@ public class DigestAuthenticationFilterTests {
     @Test(expected=IllegalArgumentException.class)
     public void startupDetectsMissingAuthenticationEntryPoint() throws Exception {
         DigestAuthenticationFilter filter = new DigestAuthenticationFilter();
-        filter.setUserDetailsService(new InMemoryDaoImpl());
+        filter.setUserDetailsService(mock(UserDetailsService.class));
         filter.afterPropertiesSet();
     }
 

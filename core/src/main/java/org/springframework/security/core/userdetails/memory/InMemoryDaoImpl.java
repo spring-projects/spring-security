@@ -30,7 +30,9 @@ import java.util.Properties;
  * Retrieves user details from an in-memory list created by the bean context.
  *
  * @author Ben Alex
+ * @deprecated Use InMemoryUserDetailsManager instead (or write your own implementation)
  */
+@Deprecated
 public class InMemoryDaoImpl implements UserDetailsService, InitializingBean {
     //~ Instance fields ================================================================================================
 

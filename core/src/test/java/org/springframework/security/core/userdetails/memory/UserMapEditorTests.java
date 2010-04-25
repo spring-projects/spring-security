@@ -27,26 +27,10 @@ import org.springframework.security.core.userdetails.memory.UserMapEditor;
  *
  * @author Ben Alex
  */
+@SuppressWarnings("deprecation")
 public class UserMapEditorTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public UserMapEditorTests() {
-        super();
-    }
-
-    public UserMapEditorTests(String arg0) {
-        super(arg0);
-    }
 
     //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(UserMapEditorTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
 
     public void testConvertedIntoUserSuccessfullyWhenDisabled() {
         UserMapEditor editor = new UserMapEditor();

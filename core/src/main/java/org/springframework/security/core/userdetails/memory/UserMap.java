@@ -32,7 +32,9 @@ import org.springframework.util.Assert;
  * should not be used if usernames need to be case-sensitive.
  *
  * @author Ben Alex
+ * @deprecated Use a plain map instead
  */
+@Deprecated
 public class UserMap {
     //~ Static fields/initializers =====================================================================================
 
