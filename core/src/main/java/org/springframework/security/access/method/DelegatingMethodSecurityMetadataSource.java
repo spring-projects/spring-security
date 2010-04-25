@@ -30,7 +30,7 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
     //~ Constructor ====================================================================================================
 
     public DelegatingMethodSecurityMetadataSource(List<MethodSecurityMetadataSource> methodSecurityMetadataSources) {
-        Assert.notEmpty(methodSecurityMetadataSources, "MethodSecurityMetadataSources cannot be null or empty");
+        Assert.notNull(methodSecurityMetadataSources, "MethodSecurityMetadataSources cannot be null");
         this.methodSecurityMetadataSources = methodSecurityMetadataSources;
     }
 
