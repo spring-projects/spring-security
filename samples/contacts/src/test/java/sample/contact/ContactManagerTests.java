@@ -40,9 +40,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @Author Luke Taylor
  */
 @ContextConfiguration(locations={
+                "/applicationContext-security.xml",
                 "/applicationContext-common-authorization.xml",
-                "/applicationContext-common-business.xml",
-                "/applicationContext-contacts-test.xml"})
+                "/applicationContext-common-business.xml"})
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ContactManagerTests {
     //~ Instance fields ================================================================================================

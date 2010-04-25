@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -21,18 +20,21 @@ import org.springframework.util.ObjectUtils;
  * @author Ben Alex
  * @author Luke Taylor
  */
-public final class DelegatingMethodSecurityMetadataSource extends AbstractMethodSecurityMetadataSource implements InitializingBean {
+public final class DelegatingMethodSecurityMetadataSource extends AbstractMethodSecurityMetadataSource {
     private final static List<ConfigAttribute> NULL_CONFIG_ATTRIBUTE = Collections.emptyList();
 
-    private List<MethodSecurityMetadataSource> methodSecurityMetadataSources;
+    private final List<MethodSecurityMetadataSource> methodSecurityMetadataSources;
     private final Map<DefaultCacheKey, Collection<ConfigAttribute>> attributeCache =
         new HashMap<DefaultCacheKey, Collection<ConfigAttribute>>();
 
-    //~ Methods ========================================================================================================
+    //~ Constructor ====================================================================================================
 
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(methodSecurityMetadataSources, "A list of MethodSecurityMetadataSources is required");
+    public DelegatingMethodSecurityMetadataSource(List<MethodSecurityMetadataSource> methodSecurityMetadataSources) {
+        Assert.notEmpty(methodSecurityMetadataSources, "MethodSecurityMetadataSources cannot be null or empty");
+        this.methodSecurityMetadataSources = methodSecurityMetadataSources;
     }
+
+    //~ Methods ========================================================================================================
 
     public Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
         DefaultCacheKey cacheKey = new DefaultCacheKey(method, targetClass);
@@ -81,11 +83,6 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
             }
         }
         return set;
-    }
-
-    @SuppressWarnings("unchecked")
-    public void setMethodSecurityMetadataSources(List methodSecurityMetadataSources) {
-        this.methodSecurityMetadataSources = methodSecurityMetadataSources;
     }
 
     //~ Inner Classes ==================================================================================================

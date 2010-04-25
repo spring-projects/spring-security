@@ -252,7 +252,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
     private BeanReference registerDelegatingMethodSecurityMetadataSource(ParserContext pc, ManagedList delegates, Object source) {
         RootBeanDefinition delegatingMethodSecurityMetadataSource = new RootBeanDefinition(DelegatingMethodSecurityMetadataSource.class);
         delegatingMethodSecurityMetadataSource.setSource(source);
-        delegatingMethodSecurityMetadataSource.getPropertyValues().addPropertyValue("methodSecurityMetadataSources", delegates);
+        delegatingMethodSecurityMetadataSource.getConstructorArgumentValues().addGenericArgumentValue(delegates);
 
         String id = pc.getReaderContext().generateBeanName(delegatingMethodSecurityMetadataSource);
         pc.registerBeanComponent(new BeanComponentDefinition(delegatingMethodSecurityMetadataSource, id));

@@ -18,9 +18,9 @@
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>
-            /WEB-INF/applicationContext-security.xml
             classpath:applicationContext-common-business.xml
             classpath:applicationContext-common-authorization.xml
+            classpath:applicationContext-security.xml
         </param-value>
     </context-param>
 
