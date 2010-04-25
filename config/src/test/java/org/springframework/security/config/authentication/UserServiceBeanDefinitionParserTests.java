@@ -96,7 +96,7 @@ public class UserServiceBeanDefinitionParserTests {
         UserDetails joe = userService.loadUserByUsername("joe");
         assertFalse(joe.isAccountNonLocked());
         // Check case-sensitive lookup SEC-1432
-        UserDetails bob = userService.loadUserByUsername("bob");
+        UserDetails bob = userService.loadUserByUsername("Bob");
         assertFalse(bob.isEnabled());
     }
 
@@ -107,7 +107,7 @@ public class UserServiceBeanDefinitionParserTests {
                 "    <user name='joe' password='joespassword' authorities='ROLE_A'/>" +
                 "</user-service>");
         UserDetailsService userService = (UserDetailsService) appContext.getBean("service");
-        userService.loadUserByUsername("joe");
+        userService.loadUserByUsername("Joe");
     }
 
     @Test(expected= FatalBeanException.class)

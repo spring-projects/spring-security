@@ -9,12 +9,12 @@ import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.ManagedMap;
+import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.memory.UserMap;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
@@ -37,7 +37,7 @@ public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceB
     private SecureRandom random;
 
     protected String getBeanClassName(Element element) {
-        return "org.springframework.security.core.userdetails.memory.InMemoryDaoImpl";
+        return InMemoryUserDetailsManager.class.getName();
     }
 
     @SuppressWarnings("unchecked")
@@ -53,7 +53,7 @@ public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceB
 
             BeanDefinition bd = new RootBeanDefinition(PropertiesFactoryBean.class);
             bd.getPropertyValues().addPropertyValue("location", userProperties);
-            builder.addPropertyValue("userProperties", bd);
+            builder.addConstructorArgValue(bd);
 
             return;
         }
@@ -63,8 +63,7 @@ public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceB
                 "properties file (using the '" + ATT_PROPERTIES + "' attribute)" );
         }
 
-        BeanDefinition userMap = new RootBeanDefinition(UserMap.class);
-        ManagedMap<String, BeanDefinition> users = new ManagedMap<String, BeanDefinition>();
+        ManagedList<BeanDefinition> users = new ManagedList<BeanDefinition>();
 
         for (Iterator i = userElts.iterator(); i.hasNext();) {
             Element userElt = (Element) i.next();
@@ -90,12 +89,10 @@ public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceB
             user.addConstructorArgValue(!locked);
             user.addConstructorArgValue(authorities.getBeanDefinition());
 
-            users.put(userName, user.getBeanDefinition());
+            users.add(user.getBeanDefinition());
         }
 
-        userMap.getPropertyValues().addPropertyValue("users", users);
-
-        builder.addPropertyValue("userMap", userMap);
+        builder.addConstructorArgValue(users);
     }
 
     private String generateRandomPassword() {
