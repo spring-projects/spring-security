@@ -294,8 +294,8 @@
                     <title>Setting a Default Post-Login Destination</title>
                     <para> If a form login isn't prompted by an attempt to access a protected
                         resource, the <literal>default-target-url</literal> option comes into play.
-                        This is the URL the user will be taken to after logging in, and defaults to
-                        "/". You can also configure things so that they user
+                        This is the URL the user will be taken to after successfully logging in, and
+                        defaults to "/". You can also configure things so that the user
                         <emphasis>always</emphasis> ends up at this page (regardless of whether the
                         login was "on-demand" or they explicitly chose to log in) by setting the
                         <literal>always-use-default-target</literal> attribute to "true". This is
@@ -307,8 +307,15 @@
     <form-login login-page='/login.htm' default-target-url='/home.htm'
             always-use-default-target='true' />
   </http>
-  ]]>
-            </programlisting></para>
+  ]]>         </programlisting></para>
+                    <para>For even more control over the destination, you can use the
+                        <literal>authentication-success-handler-ref</literal> attribute as an
+                        alternative to <literal>default-target-url</literal>. The referenced bean
+                        should be an instance of
+                        <interfacename>AuthenticationSuccessHandler</interfacename>. You'll find
+                        more on this in the <link xlink:href="#form-login-flow-handling">Core
+                        Filters</link> chapter and also in the namespace appendix, as well as
+                        information on how to customize the flow when authentication fails. </para>
                 </section>
             </section>
         </section>
@@ -548,27 +555,26 @@
   </attribute-exchange>
  </openid-login>]]></programlisting>The <quote>type</quote> of each OpenID attribute is a URI,
                     determined by a particular schema, in this case <link
-                        xlink:href="http://axschema.org/">http://axschema.org/</link>. If an
-                    attribute must be retrieved for successful authentication, the
-                        <literal>required</literal> attribute can be set. The exact schema and
-                    attributes supported will depend on your OpenID provider. The attribute values
-                    are returned as part of the authentication process and can be accessed
-                    afterwards using the following code:
+                    xlink:href="http://axschema.org/">http://axschema.org/</link>. If an attribute
+                    must be retrieved for successful authentication, the <literal>required</literal>
+                    attribute can be set. The exact schema and attributes supported will depend on
+                    your OpenID provider. The attribute values are returned as part of the
+                    authentication process and can be accessed afterwards using the following code:
                     <programlisting language="java">
 OpenIDAuthenticationToken token = 
     (OpenIDAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
 List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
-                        <classname>OpenIDAttribute</classname> contains the attribute type and the
+                    <classname>OpenIDAttribute</classname> contains the attribute type and the
                     retrieved value (or values in the case of multi-valued attributes). We'll see
                     more about how the <classname>SecurityContextHolder</classname> class is used
                     when we look at core Spring Security components in the <link
-                        xlink:href="core-components">technical overview</link> chapter. Multiple
+                    xlink:href="core-components">technical overview</link> chapter. Multiple
                     attribute exchange configurations are also be supported, if you wish to use
                     multiple identity providers. You can supply multiple
-                        <literal>attribute-exchange</literal> elements, using an
-                        <literal>identifier-matcher</literal> attribute on each. This contains a
-                    regular expression which will be matched against the OpenID identifier supplied
-                    by the user. See the OpenID sample application in the codebase for an example
+                    <literal>attribute-exchange</literal> elements, using an
+                    <literal>identifier-matcher</literal> attribute on each. This contains a regular
+                    expression which will be matched against the OpenID identifier supplied by the
+                    user. See the OpenID sample application in the codebase for an example
                     configuration, providing different attribute lists for the Google, Yahoo and
                     MyOpenID providers.</para>
             </section>

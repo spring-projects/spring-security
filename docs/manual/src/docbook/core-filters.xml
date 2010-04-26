@@ -292,7 +292,9 @@ class="org.springframework.security.web.context.SecurityContextPersistenceFilter
                 <classname>SavedRequestAwareAuthenticationSuccessHandler</classname>,
                 <classname>SimpleUrlAuthenticationFailureHandler</classname> and
                 <classname>ExceptionMappingAuthenticationFailureHandler</classname>. Have a look at
-                the Javadoc for these classes to see how they work. </para>
+                the Javadoc for these classes and also for <classname>AbstractAuthenticationProcessingFilter</classname>
+                to get an overview of how they work and the supported features.
+            </para>
             <para>If authentication is successful, the resulting
                 <interfacename>Authentication</interfacename> object will be placed into the
                 <classname>SecurityContextHolder</classname>. The configured

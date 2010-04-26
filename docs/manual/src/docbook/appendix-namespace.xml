@@ -254,9 +254,11 @@
                 <title><literal>authentication-success-handler-ref</literal></title>
                 <para>This can be used as an alternative to <literal>default-target-url</literal>
                     and <literal>always-use-default-target</literal>, giving you full control over
-                    the navigation flow after a successful authentication. The value should be he
+                    the navigation flow after a successful authentication. The value should be the
                     name of an <interfacename>AuthenticationSuccessHandler</interfacename> bean in
-                    the application context. </para>
+                    the application context. By default, an imlementation of
+                    <classname>SavedRequestAwareAuthenticationSuccessHandler</classname> is used and
+                    injected with the <literal>default-target-url</literal>.</para>
             </section>
             <section>
                 <title><literal>authentication-failure-handler-ref</literal></title>
@@ -431,10 +433,10 @@
             <para> Similar to <literal>&lt;form-login&gt;</literal> and has the same attributes. The
                 default value for <literal>login-processing-url</literal> is
                 "/j_spring_openid_security_check". An
-                    <classname>OpenIDAuthenticationFilter</classname> and
-                    <classname>OpenIDAuthenticationProvider</classname> will be registered. The
-                latter requires a reference to a <interfacename>UserDetailsService</interfacename>.
-                Again, this can be specified by Id, using the <literal>user-service-ref</literal>
+                <classname>OpenIDAuthenticationFilter</classname> and
+                <classname>OpenIDAuthenticationProvider</classname> will be registered. The latter
+                requires a reference to a <interfacename>UserDetailsService</interfacename>. Again,
+                this can be specified by Id, using the <literal>user-service-ref</literal>
                 attribute, or will be located automatically in the application context. </para>
             <section>
                 <title>The <literal>&lt;attribute-exchange></literal> Element</title>

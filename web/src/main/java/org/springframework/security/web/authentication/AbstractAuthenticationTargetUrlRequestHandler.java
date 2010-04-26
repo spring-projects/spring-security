@@ -31,7 +31,7 @@ import org.springframework.util.StringUtils;
  * </li>
  * <li>
  * If a parameter matching the <tt>targetUrlParameter</tt> has been set on the request, the value will be used as
- * the destination.
+ * the destination. The default parameter name is {@code spring-security-redirect}.
  * </li>
  * <li>
  * If the <tt>useReferer</tt> property is set, the "Referer" HTTP header value will be used, if present.
