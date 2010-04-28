@@ -68,8 +68,8 @@
 	<xsl:param name="section.label.includes.component.label" select="1"/>
 	<xsl:param name="table.footnote.number.format" select="'1'"/>
 
-<!-- Show only Sections up to level 2 in the TOCs -->
-	<xsl:param name="toc.section.depth">2</xsl:param>
+<!-- Show only Sections up to level 3 in the TOCs -->
+	<xsl:param name="toc.section.depth">3</xsl:param>
 
 <!-- Remove "Chapter" from the Chapter titles... -->
 	<xsl:param name="local.l10n.xml" select="document('')"/>

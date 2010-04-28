@@ -235,37 +235,38 @@
                     </footnote> . They each have attributes which can be used to alter their
                     behaviour. </para>
             </section>
-            <section xml:id="ns-form-and-basic">
-                <title>Form and Basic Login Options</title>
-                <para> You might be wondering where the login form came from when you were prompted
-                    to log in, since we made no mention of any HTML files or JSPs. In fact, since we
-                    didn't explicitly set a URL for the login page, Spring Security generates one
-                    automatically, based on the features that are enabled and using standard values
-                    for the URL which processes the submitted login, the default target URL the user
-                    will be sent to after loggin in and so on. However, the namespace offers plenty
-                    of support to allow you to customize these options. For example, if you want to
-                    supply your own login page, you could use: <programlisting language="xml"><![CDATA[
+        </section>
+        <section xml:id="ns-form-and-basic">
+            <title>Form and Basic Login Options</title>
+            <para> You might be wondering where the login form came from when you were prompted
+                to log in, since we made no mention of any HTML files or JSPs. In fact, since we
+                didn't explicitly set a URL for the login page, Spring Security generates one
+                automatically, based on the features that are enabled and using standard values
+                for the URL which processes the submitted login, the default target URL the user
+                will be sent to after loggin in and so on. However, the namespace offers plenty
+                of support to allow you to customize these options. For example, if you want to
+                supply your own login page, you could use: <programlisting language="xml"><![CDATA[
   <http auto-config='true'>
     <intercept-url pattern="/login.jsp*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
     <intercept-url pattern="/**" access="ROLE_USER" />
     <form-login login-page='/login.jsp'/>
   </http>
   ]]>
-        </programlisting> Note that you can still use <literal>auto-config</literal>. The
-                    <literal>form-login</literal> element just overrides the default settings. Also
-                    note that we've added an extra <literal>intercept-url</literal> element to say
-                    that any requests for the login page should be available to anonymous users <footnote>
-                    <para>See the chapter on <link xlink:href="#anonymous">anonymous
-                        authentication</link> and also the <link
-                        xlink:href="#authz-authenticated-voter">AuthenticatedVoter</link> class for
-                        more details on how the value
-                        <literal>IS_AUTHENTICATED_ANONYMOUSLY</literal> is processed.</para>
-                    </footnote>. Otherwise the request would be matched by the pattern
-                    <literal>/**</literal> and it wouldn't be possible to access the login page
-                    itself! This is a common configuration error and will result in an infinite loop
-                    in the application. Spring Security will emit a warning in the log if your login
-                    page appears to be secured. It is also possible to have all requests matching a
-                    particular pattern bypass the security filter chain completely: <programlisting language="xml"><![CDATA[
+    </programlisting> Note that you can still use <literal>auto-config</literal>. The
+                <literal>form-login</literal> element just overrides the default settings. Also
+                note that we've added an extra <literal>intercept-url</literal> element to say
+                that any requests for the login page should be available to anonymous users <footnote>
+                <para>See the chapter on <link xlink:href="#anonymous">anonymous
+                    authentication</link> and also the <link
+                    xlink:href="#authz-authenticated-voter">AuthenticatedVoter</link> class for
+                    more details on how the value
+                    <literal>IS_AUTHENTICATED_ANONYMOUSLY</literal> is processed.</para>
+                </footnote>. Otherwise the request would be matched by the pattern
+                <literal>/**</literal> and it wouldn't be possible to access the login page
+                itself! This is a common configuration error and will result in an infinite loop
+                in the application. Spring Security will emit a warning in the log if your login
+                page appears to be secured. It is also possible to have all requests matching a
+                particular pattern bypass the security filter chain completely: <programlisting language="xml"><![CDATA[
   <http auto-config='true'>
     <intercept-url pattern="/css/**" filters="none"/>
     <intercept-url pattern="/login.jsp*" filters="none"/>
@@ -273,34 +274,34 @@
     <form-login login-page='/login.jsp'/>
   </http>
   ]]>
-          </programlisting>It's important to realise that these requests will be completely
-                    oblivious to any further Spring Security web-related configuration or additional
-                    attributes such as <literal>requires-channel</literal>, so you will not be able
-                    to access information on the current user or call secured methods during the
-                    request. Use <literal>access='IS_AUTHENTICATED_ANONYMOUSLY'</literal> as an
-                    alternative if you still want the security filter chain to be applied.</para>
-                <para>If you want to use basic authentication instead of form login, then change the
-                    configuration to <programlisting language="xml"><![CDATA[
+      </programlisting>It's important to realise that these requests will be completely
+                oblivious to any further Spring Security web-related configuration or additional
+                attributes such as <literal>requires-channel</literal>, so you will not be able
+                to access information on the current user or call secured methods during the
+                request. Use <literal>access='IS_AUTHENTICATED_ANONYMOUSLY'</literal> as an
+                alternative if you still want the security filter chain to be applied.</para>
+            <para>If you want to use basic authentication instead of form login, then change the
+                configuration to <programlisting language="xml"><![CDATA[
   <http auto-config='true'>
     <intercept-url pattern="/**" access="ROLE_USER" />
     <http-basic />
   </http>
   ]]>
-        </programlisting> Basic authentication will then take precedence and will be used to
-                    prompt for a login when a user attempts to access a protected resource. Form
-                    login is still available in this configuration if you wish to use it, for
-                    example through a login form embedded in another web page. </para>
-                <section xml:id="ns-form-target">
-                    <title>Setting a Default Post-Login Destination</title>
-                    <para> If a form login isn't prompted by an attempt to access a protected
-                        resource, the <literal>default-target-url</literal> option comes into play.
-                        This is the URL the user will be taken to after successfully logging in, and
-                        defaults to "/". You can also configure things so that the user
-                        <emphasis>always</emphasis> ends up at this page (regardless of whether the
-                        login was "on-demand" or they explicitly chose to log in) by setting the
-                        <literal>always-use-default-target</literal> attribute to "true". This is
-                        useful if your application always requires that the user starts at a "home"
-                        page, for example: <programlisting language="xml"><![CDATA[
+    </programlisting> Basic authentication will then take precedence and will be used to
+                prompt for a login when a user attempts to access a protected resource. Form
+                login is still available in this configuration if you wish to use it, for
+                example through a login form embedded in another web page. </para>
+            <section xml:id="ns-form-target">
+                <title>Setting a Default Post-Login Destination</title>
+                <para> If a form login isn't prompted by an attempt to access a protected
+                    resource, the <literal>default-target-url</literal> option comes into play.
+                    This is the URL the user will be taken to after successfully logging in, and
+                    defaults to "/". You can also configure things so that the user
+                    <emphasis>always</emphasis> ends up at this page (regardless of whether the
+                    login was "on-demand" or they explicitly chose to log in) by setting the
+                    <literal>always-use-default-target</literal> attribute to "true". This is
+                    useful if your application always requires that the user starts at a "home"
+                    page, for example: <programlisting language="xml"><![CDATA[
   <http>
     <intercept-url pattern='/login.htm*' filters='none'/>
     <intercept-url pattern='/**' access='ROLE_USER' />
@@ -308,15 +309,14 @@
             always-use-default-target='true' />
   </http>
   ]]>         </programlisting></para>
-                    <para>For even more control over the destination, you can use the
-                        <literal>authentication-success-handler-ref</literal> attribute as an
-                        alternative to <literal>default-target-url</literal>. The referenced bean
-                        should be an instance of
-                        <interfacename>AuthenticationSuccessHandler</interfacename>. You'll find
-                        more on this in the <link xlink:href="#form-login-flow-handling">Core
-                        Filters</link> chapter and also in the namespace appendix, as well as
-                        information on how to customize the flow when authentication fails. </para>
-                </section>
+                <para>For even more control over the destination, you can use the
+                    <literal>authentication-success-handler-ref</literal> attribute as an
+                    alternative to <literal>default-target-url</literal>. The referenced bean
+                    should be an instance of
+                    <interfacename>AuthenticationSuccessHandler</interfacename>. You'll find
+                    more on this in the <link xlink:href="#form-login-flow-handling">Core
+                    Filters</link> chapter and also in the namespace appendix, as well as
+                    information on how to customize the flow when authentication fails. </para>
             </section>
         </section>
         <section xml:id="ns-auth-providers">
