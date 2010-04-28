@@ -37,13 +37,6 @@
         </license>
     </licenses>
 
-    <!-- Note when doing releases: tagBase is set in release plugin configuration below -->
-    <scm>
-        <connection>scm:svn:https://src.springframework.org/svn/spring-security/trunk</connection>
-        <developerConnection>scm:svn:https://src.springframework.org/svn/spring-security/trunk</developerConnection>
-        <url>https://src.springframework.org/svn/spring-security/trunk</url>
-    </scm>
-
     <issueManagement>
         <system>jira</system>
         <url>http://jira.springframework.org/browse/SEC</url>
@@ -398,16 +391,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>2.3</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.0-beta-9</version>
-                <configuration>
-                    <tagBase>
-                        https://src.springframework.org/svn/spring-security/tags
-                    </tagBase>
-                </configuration>
             </plugin>
             <!-- IDE -->
             <plugin>
