@@ -68,4 +68,17 @@ class FormLoginConfigTests extends AbstractHttpConfigTests {
         FieldUtils.getFieldValue(apf, "successHandler") == appContext.getBean("sh");
         FieldUtils.getFieldValue(apf, "failureHandler") == appContext.getBean("fh")
     }
+
+    def usernameAndPasswordParametersCanBeSetThroughNamespace() {
+        xml.http {
+            'form-login'('username-parameter': 'xname', 'password-parameter':'xpass')
+        }
+        createAppContext()
+
+        def apf = getFilter(UsernamePasswordAuthenticationFilter.class);
+
+        expect:
+        apf.usernameParameter == 'xname';
+        apf.passwordParameter == 'xpass'
+    }
 }
