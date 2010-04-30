@@ -29,6 +29,8 @@ public class FormLoginBeanDefinitionParser {
     private static final String ATT_FORM_LOGIN_TARGET_URL = "default-target-url";
     private static final String ATT_ALWAYS_USE_DEFAULT_TARGET_URL = "always-use-default-target";
     private static final String DEF_FORM_LOGIN_TARGET_URL = "/";
+    private static final String ATT_USERNAME_PARAMETER = "username-parameter";
+    private static final String ATT_PASSWORD_PARAMETER = "password-parameter";
 
     private static final String ATT_FORM_LOGIN_AUTHENTICATION_FAILURE_URL = "authentication-failure-url";
     private static final String DEF_FORM_LOGIN_AUTHENTICATION_FAILURE_URL =
@@ -63,6 +65,9 @@ public class FormLoginBeanDefinitionParser {
         String alwaysUseDefault = null;
         String successHandlerRef = null;
         String failureHandlerRef = null;
+        // Only available with form-login
+        String usernameParameter = null;
+        String passwordParameter = null;
 
         Object source = null;
 
@@ -83,10 +88,20 @@ public class FormLoginBeanDefinitionParser {
                 loginPage = null;
             }
             WebConfigUtils.validateHttpRedirect(loginPage, pc, source);
+            usernameParameter = elt.getAttribute(ATT_USERNAME_PARAMETER);
+            passwordParameter = elt.getAttribute(ATT_PASSWORD_PARAMETER);
         }
 
         filterBean = createFilterBean(loginUrl, defaultTargetUrl, alwaysUseDefault, loginPage, authenticationFailureUrl,
                 successHandlerRef, failureHandlerRef);
+
+        if (StringUtils.hasText(usernameParameter)) {
+            filterBean.getPropertyValues().addPropertyValue("usernameParameter", usernameParameter);
+        }
+        if (StringUtils.hasText(passwordParameter)) {
+            filterBean.getPropertyValues().addPropertyValue("passwordParameter", passwordParameter);
+        }
+
         filterBean.setSource(source);
 
         BeanDefinitionBuilder entryPointBuilder =
