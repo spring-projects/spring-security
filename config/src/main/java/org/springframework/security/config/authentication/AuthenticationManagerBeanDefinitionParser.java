@@ -25,6 +25,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.sun.tools.internal.xjc.util.DOMUtils;
+
 /**
  * Registers the central ProviderManager used by the namespace configuration, and allows the configuration of an
  * alias, allowing users to reference it in their beans and clearly see where the name is
@@ -56,6 +58,10 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
             if (node instanceof Element) {
                 Element providerElt = (Element)node;
                 if (StringUtils.hasText(providerElt.getAttribute(ATT_REF))) {
+                    if (DOMUtils.getChildElements(providerElt).length > 0) {
+                        pc.getReaderContext().error("authentication-provider element cannot have children when used " +
+                                "with 'ref' atribute", pc.extractSource(element));
+                    }
                     providers.add(new RuntimeBeanReference(providerElt.getAttribute(ATT_REF)));
                 } else {
                     BeanDefinition provider = resolver.resolve(providerElt.getNamespaceURI()).parse(providerElt, pc);

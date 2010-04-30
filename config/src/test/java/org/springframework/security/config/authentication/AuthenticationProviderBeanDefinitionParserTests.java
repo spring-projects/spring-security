@@ -11,6 +11,7 @@ import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.authentication.AuthenticationProviderBeanDefinitionParser;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.util.FieldUtils;
+import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 
 import org.junit.Test;
@@ -127,6 +128,20 @@ public class AuthenticationProviderBeanDefinitionParserTests {
                 "        <b:property name='userMap' value='bob=f117f0862384e9497ff4f470e3522606,ROLE_A'/>" +
                 "    </b:bean>");
         getProvider().authenticate(bob);
+    }
+
+    // SEC-1466
+    @Test(expected=BeanDefinitionParsingException.class)
+    public void exernalProviderDoesNotSupportChildElements() throws Exception {
+        appContext = new InMemoryXmlApplicationContext(
+                "    <authentication-manager>" +
+                "      <authentication-provider ref='aProvider'>" +
+                "        <password-encoder ref='customPasswordEncoder'/>" +
+                "      </authentication-provider>" +
+                "    </authentication-manager>" +
+                "    <b:bean id='aProvider' class='org.springframework.security.authentication.TestingAuthenticationProvider'/>" +
+                "    <b:bean id='customPasswordEncoder' " +
+                "        class='org.springframework.security.authentication.encoding.Md5PasswordEncoder'/>");
     }
 
     private AuthenticationProvider getProvider() {
