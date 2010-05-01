@@ -21,11 +21,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import com.sun.tools.internal.xjc.util.DOMUtils;
 
 /**
  * Registers the central ProviderManager used by the namespace configuration, and allows the configuration of an
@@ -58,9 +57,12 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
             if (node instanceof Element) {
                 Element providerElt = (Element)node;
                 if (StringUtils.hasText(providerElt.getAttribute(ATT_REF))) {
-                    if (DOMUtils.getChildElements(providerElt).length > 0) {
-                        pc.getReaderContext().error("authentication-provider element cannot have children when used " +
-                                "with 'ref' atribute", pc.extractSource(element));
+                    NodeList providerChildren = providerElt.getChildNodes();
+                    for (int j = 0; j < providerChildren.getLength(); j++) {
+                        if (providerChildren.item(j) instanceof Element) {
+                            pc.getReaderContext().error("authentication-provider element cannot have child elements when used " +
+                                    "with 'ref' attribute", pc.extractSource(element));
+                        }
                     }
                     providers.add(new RuntimeBeanReference(providerElt.getAttribute(ATT_REF)));
                 } else {

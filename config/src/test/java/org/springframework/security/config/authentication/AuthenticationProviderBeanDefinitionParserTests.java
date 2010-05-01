@@ -135,7 +135,7 @@ public class AuthenticationProviderBeanDefinitionParserTests {
     public void exernalProviderDoesNotSupportChildElements() throws Exception {
         appContext = new InMemoryXmlApplicationContext(
                 "    <authentication-manager>" +
-                "      <authentication-provider ref='aProvider'>" +
+                "      <authentication-provider ref='aProvider'> " +
                 "        <password-encoder ref='customPasswordEncoder'/>" +
                 "      </authentication-provider>" +
                 "    </authentication-manager>" +
