@@ -31,8 +31,8 @@ import org.springframework.security.web.util.RequestMatcherEditor;
 import org.springframework.util.Assert;
 
 /**
- * An AuthenticationEntryPoint which selects a concrete EntryPoint based on a
- * RequestMatcher evaluation.
+ * An {@code AuthenticationEntryPoint} which selects a concrete {@code AuthenticationEntryPoint} based on a
+ * {@link RequestMatcher} evaluation.
  *
  * <p>A configuration might look like this:</p>
  *
@@ -48,37 +48,27 @@ import org.springframework.util.Assert;
  * &lt;/bean&gt;
  * </pre>
  *
- * This example uses the {@link RequestMatcherEditor} which creates {@link ELRequestMatcher} instances for the map keys.
+ * This example uses the {@link RequestMatcherEditor} which creates a {@link ELRequestMatcher} instances for the map
+ * keys.
  *
  * @author Mike Wiesner
  * @since 3.0.2
  */
-public class DelegatingAuthenticationEntryPoint implements
-        AuthenticationEntryPoint, InitializingBean {
+public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
 
     private LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints;
     private AuthenticationEntryPoint defaultEntryPoint;
 
-    public DelegatingAuthenticationEntryPoint(
-            LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints) {
+    public DelegatingAuthenticationEntryPoint(LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints) {
         this.entryPoints = entryPoints;
     }
-
-    /**
-     * EntryPoint which is used when no RequestMatcher returned true
-     */
-    public void setDefaultEntryPoint(AuthenticationEntryPoint defaultEntryPoint) {
-        this.defaultEntryPoint = defaultEntryPoint;
-    }
-
 
     public void commence(HttpServletRequest request,
             HttpServletResponse response, AuthenticationException authException)
             throws IOException, ServletException {
 
         for (RequestMatcher requestMatcher : entryPoints.keySet()) {
-            if (requestMatcher.matches(request))
-            {
+            if (requestMatcher.matches(request)) {
                entryPoints.get(requestMatcher).commence(request, response, authException);
                return;
             }
@@ -88,10 +78,16 @@ public class DelegatingAuthenticationEntryPoint implements
         defaultEntryPoint.commence(request, response, authException);
     }
 
+    /**
+     * EntryPoint which is used when no RequestMatcher returned true
+     */
+    public void setDefaultEntryPoint(AuthenticationEntryPoint defaultEntryPoint) {
+        this.defaultEntryPoint = defaultEntryPoint;
+    }
+
     public void afterPropertiesSet() throws Exception {
        Assert.notEmpty(entryPoints, "entryPoints must be specified");
        Assert.notNull(defaultEntryPoint, "defaultEntryPoint must be specified");
     }
-
-
 }
+
