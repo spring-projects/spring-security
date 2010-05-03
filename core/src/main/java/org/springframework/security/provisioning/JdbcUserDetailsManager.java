@@ -326,13 +326,12 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         userCache.removeUserFromCache(username);
     }
 
-    @SuppressWarnings("unchecked")
     public List<GrantedAuthority> findGroupAuthorities(String groupName) {
         logger.debug("Loading authorities for group '" + groupName + "'");
         Assert.hasText(groupName);
 
-        List<GrantedAuthority> authorities = getJdbcTemplate().query(groupAuthoritiesSql, new String[] {groupName}, new RowMapper() {
-            public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+        List<GrantedAuthority> authorities = getJdbcTemplate().query(groupAuthoritiesSql, new String[] {groupName}, new RowMapper<GrantedAuthority>() {
+            public GrantedAuthority mapRow(ResultSet rs, int rowNum) throws SQLException {
                  String roleName = getRolePrefix() + rs.getString(3);
                  GrantedAuthorityImpl authority = new GrantedAuthorityImpl(roleName);
 
@@ -417,7 +416,68 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
     }
 
     public void setFindAllGroupsSql(String findAllGroupsSql) {
+        Assert.hasText(findAllGroupsSql);
         this.findAllGroupsSql = findAllGroupsSql;
+    }
+
+    public void setFindUsersInGroupSql(String findUsersInGroupSql) {
+        Assert.hasText(findUsersInGroupSql);
+        this.findUsersInGroupSql = findUsersInGroupSql;
+    }
+
+    public void setInsertGroupSql(String insertGroupSql) {
+        Assert.hasText(insertGroupSql);
+        this.insertGroupSql = insertGroupSql;
+    }
+
+    public void setFindGroupIdSql(String findGroupIdSql) {
+        Assert.hasText(findGroupIdSql);
+        this.findGroupIdSql = findGroupIdSql;
+    }
+
+    public void setInsertGroupAuthoritySql(String insertGroupAuthoritySql) {
+        Assert.hasText(insertGroupAuthoritySql);
+        this.insertGroupAuthoritySql = insertGroupAuthoritySql;
+    }
+
+    public void setDeleteGroupSql(String deleteGroupSql) {
+        Assert.hasText(deleteGroupSql);
+        this.deleteGroupSql = deleteGroupSql;
+    }
+
+    public void setDeleteGroupAuthoritiesSql(String deleteGroupAuthoritiesSql) {
+        Assert.hasText(deleteGroupAuthoritiesSql);
+        this.deleteGroupAuthoritiesSql = deleteGroupAuthoritiesSql;
+    }
+
+    public void setDeleteGroupMembersSql(String deleteGroupMembersSql) {
+        Assert.hasText(deleteGroupMembersSql);
+        this.deleteGroupMembersSql = deleteGroupMembersSql;
+    }
+
+    public void setRenameGroupSql(String renameGroupSql) {
+        Assert.hasText(renameGroupSql);
+        this.renameGroupSql = renameGroupSql;
+    }
+
+    public void setInsertGroupMemberSql(String insertGroupMemberSql) {
+        Assert.hasText(insertGroupMemberSql);
+        this.insertGroupMemberSql = insertGroupMemberSql;
+    }
+
+    public void setDeleteGroupMemberSql(String deleteGroupMemberSql) {
+        Assert.hasText(deleteGroupMemberSql);
+        this.deleteGroupMemberSql = deleteGroupMemberSql;
+    }
+
+    public void setGroupAuthoritiesSql(String groupAuthoritiesSql) {
+        Assert.hasText(groupAuthoritiesSql);
+        this.groupAuthoritiesSql = groupAuthoritiesSql;
+    }
+
+    public void setDeleteGroupAuthoritySql(String deleteGroupAuthoritySql) {
+        Assert.hasText(deleteGroupAuthoritySql);
+        this.deleteGroupAuthoritySql = deleteGroupAuthoritySql;
     }
 
     /**
