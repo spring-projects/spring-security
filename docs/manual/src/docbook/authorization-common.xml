@@ -65,7 +65,7 @@
                 methods:
                 <programlisting>
  void decide(Authentication authentication, Object secureObject,
-     List&lt;ConfigAttribute&gt; config) throws AccessDeniedException;
+     Collection&lt;ConfigAttribute&gt; attrs) throws AccessDeniedException;
  boolean supports(ConfigAttribute attribute);
  boolean supports(Class clazz);
       </programlisting>
@@ -113,7 +113,7 @@
             <para>The <interfacename>AccessDecisionVoter</interfacename> interface has three
                 methods:
                 <programlisting>
-int vote(Authentication authentication, Object object, List&lt;ConfigAttribute&gt; config);
+int vote(Authentication authentication, Object object, Collection&lt;ConfigAttribute&gt; attrs);
 boolean supports(ConfigAttribute attribute);
 boolean supports(Class clazz);
 </programlisting>
@@ -173,24 +173,18 @@ boolean supports(Class clazz);
                     <classname>AuthenticatedVoter</classname>. See the Javadoc for this class for
                     more information. </para>
             </section>
-            <section>
+            <section xml:id="authz-custom-voter">
                 <title>Custom Voters</title>
-                <para>It is also possible to implement a custom
-                    <interfacename>AccessDecisionVoter</interfacename>. Several examples are
-                    provided in Spring Security unit tests, including
-                    <literal>ContactSecurityVoter</literal> and <literal>DenyVoter</literal>. The
-                    <literal>ContactSecurityVoter</literal> abstains from voting decisions where a
-                    <literal>CONTACT_OWNED_BY_CURRENT_USER</literal>
-                    <literal>ConfigAttribute</literal> is not found. If voting, it queries the
-                    <classname>MethodInvocation</classname> to extract the owner of the
-                    <literal>Contact</literal> object that is subject of the method call. It votes
-                    to grant access if the <literal>Contact</literal> owner matches the principal
-                    presented in the <interfacename>Authentication</interfacename> object. It could
-                    have just as easily compared the <literal>Contact</literal> owner with some
-                    <interfacename>GrantedAuthority</interfacename> the
-                    <interfacename>Authentication</interfacename> object presented. All of this is
-                    achieved with relatively few lines of code and demonstrates the flexibility of
-                    the authorization model.</para>
+                <para>Obviously, you can also implement a custom
+                    <interfacename>AccessDecisionVoter</interfacename> and you can
+					put just about any access-control logic you want in it. It might
+					be specific to your application (business-logic related) or it
+					might implement some security administration logic. For example, you'll find
+					a <link xlink:href='http://blog.springsource.com/2009/01/02/spring-security-customization-part-2-adjusting-secured-session-in-real-time/'>
+					blog article</link> on the SpringSource web site which describes how to
+					use a voter to deny access in real-time to users whose accounts have
+					been suspended.
+					</para>
             </section>
         </section>
     </section>
