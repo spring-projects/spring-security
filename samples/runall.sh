@@ -1,5 +1,10 @@
 #! /bin/sh
-# $Id$
+#
+# This script is intended for rapid checking of the sample application configurations
+# to ensure they are working. It is for development use only.
+#
+# To run the web application samples, build them as described on the web site and deploy
+# them to a servlet container, such as Apache Tomcat.
 #
 # See http://curl.netmirror.org/docs/httpscripting.html
 #

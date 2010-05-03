@@ -260,6 +260,26 @@
                         </para><para>Generally we would recommend applying method security at the
                         service layer rather than on individual web controllers.</para></answer>
             </qandaentry>
+            <qandaentry xml:id="faq-unwanted-session-creation">
+                <question>
+                    <para>Spring Security is creating a session somewhere, even though I've configured it not to,
+						by setting the <literal>create-session</literal> attribute to <literal>never</literal>.
+					</para>
+                </question>
+                <answer>
+                    <para>This usually means that the user's application is creating a session somewhere,
+						but that they aren't aware of it. The most common culprit is a JSP. Many people aren't
+						aware that JSPs create sessions by default. To prevent a JSP from creating a session,
+						add the directive <literal>&lt;%@ page session="false" %&gt;</literal> to the top of the page.
+					</para>
+					<para>
+						If you are having trouble working out where a session is being created, you can add some
+						debugging code to track down the location(s). One way to do this would be to add a
+						<literal>javax.servlet.http.HttpSessionListener</literal> to your application, which
+						calls <literal>Thread.dumpStack()</literal> in the <literal>sessionCreated</literal> method.
+					</para>
+                </answer>
+            </qandaentry>
         </qandadiv>
         <qandadiv>
             <title>Spring Security Architecture Questions</title>
@@ -277,11 +297,13 @@
                 <question><para>How do the namespace elements map to conventional bean
                         configurations?</para></question>
                 <answer><para>There is a general overview of what beans are created by the namespace
-                        in the namespace appendix of the reference guide. If want to know the full
-                        details then the code is in the <filename>spring-security-config</filename>
+                        in the namespace appendix of the reference guide. There is also a detailed
+                        blog article called <quote>Behind the Spring Security Namespace</quote> on
+                        <link xlink:href="http://blog.springsource.com/2010/03/06/behind-the-spring-security-namespace/">blog.springsource.com</link>.
+                        If want to know the full details then the code is in the <filename>spring-security-config</filename>
                         module within the Spring Security 3.0 distribution. You should probably read
                         the chapters on namespace parsing in the standard Spring Framework reference
-                        documentation first. </para></answer>
+                        documentation first.</para></answer>
             </qandaentry>
             <qandaentry xml:id="faq-role-prefix">
                 <question><para>What does <quote>ROLE_</quote> mean and why do I need it on my role names?</para></question>
