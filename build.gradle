@@ -41,8 +41,6 @@ dependencies {
             "net.java.dev.jets3t:jets3t:0.6.1"
 }
 
-def docsDir = new File(project(':manual').buildDir, 'docs')
-
 task apidocs(type: Javadoc) {
     destinationDir = new File(buildDir, 'apidocs')
     title = "Spring Security $version API"
@@ -57,49 +55,55 @@ task apidocs(type: Javadoc) {
     })
 }
 
-task apitar(type: Tar, dependsOn: apidocs) {
-    compression = Compression.BZIP2
+task docSiteLogin(type: Login) {
+    if (project.hasProperty('sshHost')) {
+        host = project.property('sshHost')
+    }
+}
+
+// Define remoteSiteDir and sshHost in gradle.properties
+def remoteDocsDir = null
+
+if (hasProperty('remoteSiteDir')) {
+    remoteDocsDir="$remoteSiteDir/docs/3.0.x"
+}
+
+task uploadApidocs(type: TarUpload) {
+    dependsOn apidocs
     classifier = 'apidocs'
+    remoteDir = remoteDocsDir
+    login = docSiteLogin
+
     into('apidocs') {
         from apidocs.destinationDir
     }
 }
 
-task doctar(type: Tar, dependsOn: ':manual:doc') {
-    compression = Compression.BZIP2
+def docsDir = new File(project(':manual').buildDir, 'docs')
+
+task uploadDoc(type: TarUpload) {
+    dependsOn ':manual:doc'
     classifier = 'doc'
+    remoteDir = remoteDocsDir
+    login = docSiteLogin
+
     into('reference') {
         from docsDir
     }
 }
 
-task login {
-    // add dynamic properties to login task
-    username = null
-    password = null
-    doFirst {
-        ant {
-            input("Please enter the ssh username for host '$sshHost'", addproperty: "ssh.username")
-            input("Please enter the ssh password '$sshHost'", addproperty: "ssh.password")
-        }
-        username = ant.properties['ssh.username']
-        password = ant.properties['ssh.password']
+task uploadFaq(type: TarUpload) {
+    dependsOn ':faq:docbookHtmlSingle'
+    classifier = 'faq'
+    if (project.hasProperty('remoteSiteDir')) {
+        remoteDir = project.property('remoteSiteDir')
     }
-}
+    login = docSiteLogin
 
-task uploadApidocs(dependsOn: login) << {
-    ant {
-        scp(file: apitar.archivePath, todir: "$login.username@$sshHost:$remoteDocsDir", password: login.password)
-        sshexec(host: sshHost, username: login.username, password: login.password, command: "cd $remoteDocsDir && tar -xjf ${apitar.archiveName}")
-        sshexec(host: sshHost, username: login.username, password: login.password, command: "rm $remoteDocsDir/${apitar.archiveName}")
-    }
-}
+    def faqDir = new File(project(':faq').buildDir, 'docs')
 
-task uploadManual(dependsOn: login) << {
-    ant {
-        scp(file: doctar.archivePath, todir: "$login.username@$sshHost:$remoteDocsDir", password: login.password)
-        sshexec(host: sshHost, username: login.username, password: login.password, command: "cd $remoteDocsDir && tar -xjf ${doctar.archiveName}")
-        sshexec(host: sshHost, username: login.username, password: login.password, command: "rm $remoteDocsDir/${doctar.archiveName}")
+    into('faq') {
+        from faqDir
     }
 }
 
@@ -131,6 +135,7 @@ task uploadDist(type: UploadDist) {
     archiveFile = dist.archivePath
     shaFile = "${dist.archivePath}.sha1" as File
     archiveName = dist.archiveName
+    classpath = configurations.antlibs
 }
 
 def getJavaProjects() {
@@ -168,14 +173,18 @@ class UploadDist extends DefaultTask {
 
     @TaskAction
     def upload() {
+        def accessKey = project.s3AccessKey
+        def secretKey = project.s3SecretAccessKey
+        def version = project.version
+
         project.ant {
             taskdef(resource: 'org/springframework/build/aws/ant/antlib.xml', classpath: classpath.asPath)
-            s3(accessKey: project.s3AccessKey, secretKey: project.s3SecretAccessKey) {
+            s3(accessKey: accessKey, secretKey: secretKey) {
                 upload(bucketName: 'dist.springframework.org', file: archiveFile,
                         toFile: releaseType() + "/SEC/${archiveName}", publicRead: 'true') {
                     metadata(name: 'project.name', value: 'Spring Security')
                     metadata(name: 'release.type', value: releaseType())
-                    metadata(name: 'bundle.version', value: project.version)
+                    metadata(name: 'bundle.version', value: version)
                     metadata(name: 'package.file.name', value: archiveName)
                 }
                 upload(bucketName: 'dist.springframework.org', file: shaFile,

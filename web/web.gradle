@@ -16,4 +16,5 @@ dependencies {
     provided 'javax.servlet:servlet-api:2.5'
 
     testCompile 'commons-codec:commons-codec:1.3'
+    testRuntime "hsqldb:hsqldb:$hsqlVersion"
 }
