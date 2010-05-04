@@ -87,9 +87,12 @@ task login {
     }
 }
 
+// Define remoteSiteDir and sshHost in gradle.properties
+def remoteDocsDir="$remoteSiteDir/docs/3.1.x"
+
 task uploadApidocs(dependsOn: login) << {
     ant {
-        scp(file: apitar.archivePath, todir: "$login.username@$sshHost:$remoteDocsDir", password: login.password)
+        scp(file: apitar.archivePath, todir: "$login.username@$sshHost:$remoteSiteDir/$remoteDocsDir", password: login.password)
         sshexec(host: sshHost, username: login.username, password: login.password, command: "cd $remoteDocsDir && tar -xjf ${apitar.archiveName}")
         sshexec(host: sshHost, username: login.username, password: login.password, command: "rm $remoteDocsDir/${apitar.archiveName}")
     }
@@ -131,6 +134,7 @@ task uploadDist(type: UploadDist) {
     archiveFile = dist.archivePath
     shaFile = "${dist.archivePath}.sha1" as File
     archiveName = dist.archiveName
+    classpath = configurations.antlibs
 }
 
 def getJavaProjects() {
@@ -168,14 +172,18 @@ class UploadDist extends DefaultTask {
 
     @TaskAction
     def upload() {
+        def accessKey = project.s3AccessKey
+        def secretKey = project.s3SecretAccessKey
+        def version = project.version
+
         project.ant {
             taskdef(resource: 'org/springframework/build/aws/ant/antlib.xml', classpath: classpath.asPath)
-            s3(accessKey: project.s3AccessKey, secretKey: project.s3SecretAccessKey) {
+            s3(accessKey: accessKey, secretKey: secretKey) {
                 upload(bucketName: 'dist.springframework.org', file: archiveFile,
                         toFile: releaseType() + "/SEC/${archiveName}", publicRead: 'true') {
                     metadata(name: 'project.name', value: 'Spring Security')
                     metadata(name: 'release.type', value: releaseType())
-                    metadata(name: 'bundle.version', value: project.version)
+                    metadata(name: 'bundle.version', value: version)
                     metadata(name: 'package.file.name', value: archiveName)
                 }
                 upload(bucketName: 'dist.springframework.org', file: shaFile,
