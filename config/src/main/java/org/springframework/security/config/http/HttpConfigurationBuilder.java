@@ -4,10 +4,8 @@ import static org.springframework.security.config.http.HttpSecurityBeanDefinitio
 import static org.springframework.security.config.http.SecurityFilters.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -82,9 +80,6 @@ class HttpConfigurationBuilder {
     private final List<Element> interceptUrls;
     private final MatcherType matcherType;
 
-    // Use ManagedMap to allow placeholder resolution
-    private ManagedMap<BeanDefinition, List<BeanMetadataElement>> filterChainMap;
-
     private BeanDefinition cpf;
     private BeanDefinition securityContextPersistenceFilter;
     private BeanReference contextRepoRef;
@@ -105,6 +100,15 @@ class HttpConfigurationBuilder {
         this.portMapperName = portMapperName;
         this.matcherType = matcherType;
         interceptUrls = DomUtils.getChildElementsByTagName(element, Elements.INTERCEPT_URL);
+
+        for (Element urlElt : interceptUrls) {
+            if (StringUtils.hasText(urlElt.getAttribute(ATT_FILTERS))) {
+                pc.getReaderContext().error("The use of \"filters='none'\" is no longer supported. Please define a" +
+                        " separate <http> element for the pattern you want to exclude and use the attribute" +
+                        " \"secured='false'\".", pc.extractSource(urlElt));
+            }
+        }
+
         String createSession = element.getAttribute(ATT_CREATE_SESSION);
 
         if (StringUtils.hasText(createSession)) {
@@ -113,39 +117,12 @@ class HttpConfigurationBuilder {
             sessionPolicy = SessionCreationPolicy.ifRequired;
         }
 
-        parseInterceptUrlsForEmptyFilterChains();
         createSecurityContextPersistenceFilter();
         createSessionManagementFilters();
         createRequestCacheFilter();
         createServletApiFilter();
         createChannelProcessingFilter();
         createFilterSecurityInterceptor(authenticationManager);
-    }
-
-    private void parseInterceptUrlsForEmptyFilterChains() {
-        filterChainMap = new ManagedMap<BeanDefinition, List<BeanMetadataElement>>();
-
-        for (Element urlElt : interceptUrls) {
-            String path = urlElt.getAttribute(ATT_PATH_PATTERN);
-
-            if(!StringUtils.hasText(path)) {
-                pc.getReaderContext().error("path attribute cannot be empty or null", urlElt);
-            }
-
-            BeanDefinition matcher = matcherType.createMatcher(path, null);
-
-            String filters = urlElt.getAttribute(ATT_FILTERS);
-
-            if (StringUtils.hasText(filters)) {
-                if (!filters.equals(OPT_FILTERS_NONE)) {
-                    pc.getReaderContext().error("Currently only 'none' is supported as the custom " +
-                            "filters attribute", urlElt);
-                }
-
-                List<BeanMetadataElement> noFilters = Collections.emptyList();
-                filterChainMap.put(matcher, noFilters);
-            }
-        }
     }
 
     // Needed to account for placeholders
@@ -516,10 +493,6 @@ class HttpConfigurationBuilder {
 
     BeanReference getRequestCache() {
         return requestCache;
-    }
-
-    ManagedMap<BeanDefinition, List<BeanMetadataElement>> getFilterChainMap() {
-        return filterChainMap;
     }
 
     List<OrderDecorator> getFilters() {

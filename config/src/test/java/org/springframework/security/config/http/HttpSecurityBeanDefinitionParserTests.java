@@ -151,9 +151,8 @@ public class HttpSecurityBeanDefinitionParserTests {
     @Test
     public void filterListShouldBeEmptyForPatternWithNoFilters() throws Exception {
         setContext(
-                "    <http auto-config='true'>" +
-                "        <intercept-url pattern='/unprotected' filters='none' />" +
-                "    </http>" + AUTH_PROVIDER_XML);
+                "    <http pattern='/unprotected' secured='false' />" +
+                "    <http auto-config='true'/> " + AUTH_PROVIDER_XML);
 
         List<Filter> filters = getFilters("/unprotected");
 
@@ -165,8 +164,8 @@ public class HttpSecurityBeanDefinitionParserTests {
         System.setProperty("pattern.nofilters", "/unprotected");
         setContext(
                 "    <b:bean class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>" +
+                "    <http pattern='${pattern.nofilters}' secured='false' />" +
                 "    <http auto-config='true'>" +
-                "        <intercept-url pattern='${pattern.nofilters}' filters='none' />" +
                 "        <intercept-url pattern='/**' access='ROLE_A' />" +
                 "    </http>" + AUTH_PROVIDER_XML);
 
@@ -178,9 +177,9 @@ public class HttpSecurityBeanDefinitionParserTests {
     @Test
     public void regexPathsWorkCorrectly() throws Exception {
         setContext(
-                "    <http auto-config='true' request-matcher='regex'>" +
-                "        <intercept-url pattern='\\A\\/[a-z]+' filters='none' />" +
-                "    </http>" + AUTH_PROVIDER_XML);
+                "    <http pattern='\\A\\/[a-z]+' secured='false' request-matcher='regex'/>" +
+                "    <http auto-config='true' />"
+                +  AUTH_PROVIDER_XML);
         assertEquals(0, getFilters("/imlowercase").size());
         List<Filter> allFilters = getFilters("/ImCaughtByTheAnyRequestMatcher");
         checkAutoConfigFilters(allFilters);
@@ -189,9 +188,9 @@ public class HttpSecurityBeanDefinitionParserTests {
     @Test
     public void ciRegexPathsWorkCorrectly() throws Exception {
         setContext(
-                "    <http auto-config='true' request-matcher='ciRegex'>" +
-                "        <intercept-url pattern='\\A\\/[a-z]+' filters='none' />" +
-                "    </http>" + AUTH_PROVIDER_XML);
+                "    <http pattern='\\A\\/[a-z]+' secured='false' request-matcher='ciRegex' />" +
+                "    <http auto-config='true' />"
+                + AUTH_PROVIDER_XML);
         assertEquals(0, getFilters("/imMixedCase").size());
         // This will be matched by the default pattern ".*"
         List<Filter> allFilters = getFilters("/Im_Caught_By_The_AnyRequestMatcher");
@@ -313,9 +312,9 @@ public class HttpSecurityBeanDefinitionParserTests {
         System.setProperty("auth.failure", "/authFailure");
         setContext(
                 "<b:bean class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>" +
+                "<http pattern='${login.page}' secured='false' />" +
                 "<http>" +
                 "    <intercept-url pattern='${secure.Url}' access='${secure.role}' />" +
-                "    <intercept-url pattern='${login.page}' filters='none' />" +
                 "    <form-login login-page='${login.page}' default-target-url='${default.target}' " +
                 "        authentication-failure-url='${auth.failure}' />" +
                 "</http>" + AUTH_PROVIDER_XML);
@@ -883,8 +882,8 @@ public class HttpSecurityBeanDefinitionParserTests {
         closeAppContext();
         // No filters applied to login page
         setContext(
+                "    <http pattern='/login.jsp*' secured='false'/>" +
                 "    <http>" +
-                "        <intercept-url pattern='/login.jsp*' filters='none'/>" +
                 "        <intercept-url pattern='/**' access='ROLE_A'/>" +
                 "        <anonymous />" +
                 "        <form-login login-page='/login.jsp' default-target-url='/messageList.html'/>" +

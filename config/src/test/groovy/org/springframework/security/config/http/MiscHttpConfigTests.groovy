@@ -83,9 +83,8 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
     }
 
     def filterListShouldBeEmptyForPatternWithNoFilters() {
-        httpAutoConfig() {
-            interceptUrlNoFilters('/unprotected')
-        }
+        xml.http(pattern: '/unprotected', secured: 'false')
+        httpAutoConfig() {}
         createAppContext()
 
         expect:
@@ -93,9 +92,8 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
     }
 
     def regexPathsWorkCorrectly() {
-        httpAutoConfig('regex') {
-            interceptUrlNoFilters('\\A\\/[a-z]+')
-        }
+        xml.http(pattern: '\\A\\/[a-z]+', secured: 'false', 'request-matcher': 'regex')
+        httpAutoConfig() {}
         createAppContext()
 
         expect:
@@ -105,9 +103,8 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
 
     def ciRegexPathsWorkCorrectly() {
         when:
-        httpAutoConfig('ciRegex') {
-            interceptUrlNoFilters('\\A\\/[a-z]+')
-        }
+        xml.http(pattern: '\\A\\/[a-z]+', secured: 'false', 'request-matcher': 'ciRegex')
+        httpAutoConfig() {}
         createAppContext()
 
         then:

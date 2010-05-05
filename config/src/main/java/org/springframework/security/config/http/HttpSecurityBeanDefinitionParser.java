@@ -51,6 +51,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_REQUIRES_CHANNEL = "requires-channel";
 
     private static final String ATT_REF = "ref";
+    private static final String ATT_SECURED = "secured";
 
     static final String EXPRESSION_FIMDS_CLASS = "org.springframework.security.web.access.expression.ExpressionBasedFilterInvocationSecurityMetadataSource";
     static final String EXPRESSION_HANDLER_CLASS = "org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler";
@@ -72,11 +73,48 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         CompositeComponentDefinition compositeDef =
             new CompositeComponentDefinition(element.getTagName(), pc.extractSource(element));
         pc.pushContainingComponent(compositeDef);
-        final Object source = pc.extractSource(element);
-
-        final String portMapperName = createPortMapper(element, pc);
 
         MatcherType matcherType = MatcherType.fromElement(element);
+        ManagedMap<BeanDefinition, List<BeanMetadataElement>> filterChainMap = new ManagedMap<BeanDefinition, List<BeanMetadataElement>>();
+
+        String filterChainPattern = element.getAttribute(ATT_PATH_PATTERN);
+
+        BeanDefinition filterChainMatcher;
+
+        if (StringUtils.hasText(filterChainPattern)) {
+            filterChainMatcher = matcherType.createMatcher(filterChainPattern, null);
+        } else {
+            filterChainMatcher = new RootBeanDefinition(AnyRequestMatcher.class);
+        }
+
+        filterChainMap.put(filterChainMatcher, createFilterChain(element, pc, matcherType));
+
+        registerFilterChainProxy(pc, filterChainMap, pc.extractSource(element));
+
+        pc.popAndRegisterContainingComponent();
+        return null;
+    }
+
+    List<BeanMetadataElement> createFilterChain(Element element, ParserContext pc, MatcherType matcherType) {
+        boolean unSecured = "false".equals(element.getAttribute(ATT_SECURED));
+
+        if (unSecured) {
+            if (!StringUtils.hasText(element.getAttribute(ATT_PATH_PATTERN))) {
+                pc.getReaderContext().error("The '" + ATT_SECURED + "' attribute must be used in combination with" +
+                        " the '" + ATT_PATH_PATTERN +"' attribute.", pc.extractSource(element));
+            }
+
+            for (int n=0; n < element.getChildNodes().getLength(); n ++) {
+                if (element.getChildNodes().item(n) instanceof Element) {
+                    pc.getReaderContext().error("If you are using <htt> to define an unsecured pattern, " +
+                            "it cannot contain child elements.",  pc.extractSource(element));
+                }
+            }
+
+            return Collections.emptyList();
+        }
+
+        final String portMapperName = createPortMapper(element, pc);
 
         ManagedList<BeanReference> authenticationProviders = new ManagedList<BeanReference>();
         BeanReference authenticationManager = createAuthenticationManager(element, pc, authenticationProviders, null);
@@ -97,7 +135,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         unorderedFilterChain.addAll(buildCustomFilterList(element, pc));
 
         Collections.sort(unorderedFilterChain, new OrderComparator());
-        checkFilterChainOrder(unorderedFilterChain, pc, source);
+        checkFilterChainOrder(unorderedFilterChain, pc, pc.extractSource(element));
 
         List<BeanMetadataElement> filterChain = new ManagedList<BeanMetadataElement>();
 
@@ -105,26 +143,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             filterChain.add(od.bean);
         }
 
-        // Get the map of empty filter chains (if any)
-        ManagedMap<BeanDefinition, List<BeanMetadataElement>> filterChainMap = httpBldr.getFilterChainMap();
-
-        String filterChainPattern = element.getAttribute(ATT_PATH_PATTERN);
-
-        BeanDefinition filterChainMatcher;
-
-        if (StringUtils.hasText(filterChainPattern)) {
-            filterChainMatcher = matcherType.createMatcher(filterChainPattern, null);
-        } else {
-            filterChainMatcher = new RootBeanDefinition(AnyRequestMatcher.class);
-        }
-
-        filterChainMap.put(filterChainMatcher, filterChain);
-
-        registerFilterChainProxy(pc, filterChainMap, source);
-
-        pc.popAndRegisterContainingComponent();
-        return null;
+        return filterChain;
     }
+
 
     private String createPortMapper(Element elt, ParserContext pc) {
         // Register the portMapper. A default will always be created, even if no element exists.

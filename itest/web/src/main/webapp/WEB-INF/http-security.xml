@@ -4,15 +4,15 @@
     xmlns:beans="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 
     <!--
        Http App Context to test form login, remember-me and concurrent session control.
        Needs to be supplemented with authentication provider(s)
     -->
+    <http pattern="/login.jsp" secured="false" />
 
     <http use-expressions="true">
-        <intercept-url pattern="/login.jsp*" filters="none" />
         <intercept-url pattern="/secure/**" access="hasAnyRole('ROLE_DEVELOPER','ROLE_USER')" />
         <intercept-url pattern="/**" access="hasAnyRole('ROLE_DEVELOPER','ROLE_USER')" />
 

@@ -16,16 +16,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 class PlaceHolderAndELConfigTests extends AbstractHttpConfigTests {
 
-    void setup() {
+    def setup() {
         // Add a PropertyPlaceholderConfigurer to the context for all the tests
         xml.'b:bean'('class': PropertyPlaceholderConfigurer.class.name)
     }
 
-    def filtersEqualsNoneSupportsPlaceholderForPattern() {
+    def unsecuredPatternSupportsPlaceholderForPattern() {
         System.setProperty("pattern.nofilters", "/unprotected");
 
+        xml.http(pattern: '${pattern.nofilters}', secured: 'false')
         httpAutoConfig() {
-            interceptUrlNoFilters('${pattern.nofilters}')
             interceptUrl('/**', 'ROLE_A')
         }
         createAppContext()
@@ -44,9 +44,9 @@ class PlaceHolderAndELConfigTests extends AbstractHttpConfigTests {
         System.setProperty("default.target", "/defaultTarget");
         System.setProperty("auth.failure", "/authFailure");
 
+        xml.http(pattern: '${login.page}', secured: 'false')
         xml.http {
             interceptUrl('${secure.Url}', '${secure.role}')
-            interceptUrlNoFilters('${login.page}');
             'form-login'('login-page':'${login.page}', 'default-target-url': '${default.target}',
                 'authentication-failure-url':'${auth.failure}');
         }

@@ -35,11 +35,6 @@ abstract class AbstractHttpConfigTests extends AbstractXmlConfigTests {
         xml.'intercept-url'(pattern: path, method: httpMethod, access: authz)
     }
 
-
-    def interceptUrlNoFilters(String path) {
-        xml.'intercept-url'(pattern: path, filters: 'none')
-    }
-
     Filter getFilter(Class type) {
         List filters = getFilters("/any");
 
