@@ -167,8 +167,9 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
     }
 
     /**
-     * Ensures the authentication object in the secure context is set to null
-     * when authentication fails.
+     * Ensures the authentication object in the secure context is set to null when authentication fails.
+     * <p>
+     * Caches the failure exception as a request attribute
      */
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
         SecurityContextHolder.clearContext();
@@ -176,7 +177,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
         if (logger.isDebugEnabled()) {
             logger.debug("Cleared security context due to exception", failed);
         }
-        request.getSession().setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, failed);
+        request.setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, failed);
     }
 
     /**
