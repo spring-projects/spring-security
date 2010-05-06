@@ -36,7 +36,7 @@ import org.springframework.security.web.WebAttributes;
  * Being a "forward", the <code>SecurityContextHolder</code> will remain
  * populated. This is of benefit if the view (or a tag library or macro) wishes to access the
  * <code>SecurityContextHolder</code>. The request scope will also be populated with the exception itself, available
- * from the key {@link WebAttributes.ACCESS_DENIED_403}.
+ * from the key {@link WebAttributes#ACCESS_DENIED_403}.
  *
  * @author Ben Alex
  */

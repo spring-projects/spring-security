@@ -72,7 +72,7 @@ public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExp
      * Filters the {@code filterTarget} object (which must be either a collection or an array), by evaluating the
      * supplied expression.
      * <p>
-     * If a {@Collection} is used, the original instance will be modified to contain the elements for which
+     * If a {@code Collection} is used, the original instance will be modified to contain the elements for which
      * the permission expression evaluates to {@code true}. For an array, a new array instance will be returned.
      */
     @SuppressWarnings("unchecked")

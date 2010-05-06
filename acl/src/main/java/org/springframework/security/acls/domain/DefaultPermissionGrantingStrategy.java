@@ -34,7 +34,7 @@ public class DefaultPermissionGrantingStrategy implements PermissionGrantingStra
      * iteration will be performed. If each permission indicates to deny access, the first deny ACE found will be
      * considered the reason for the failure (as it was the first match found, and is therefore the one most logically
      * requiring changes - although not always). If absolutely no matching ACE was found at all for any permission,
-     * the parent ACL will be tried (provided that there is a parent and {@link #isEntriesInheriting()} is
+     * the parent ACL will be tried (provided that there is a parent and {@link Acl#isEntriesInheriting()} is
      * <code>true</code>. The parent ACL will also scan its parent and so on. If ultimately no matching ACE is found,
      * a <code>NotFoundException</code> will be thrown and the caller will need to decide how to handle the permission
      * check. Similarly, if any of the SID arguments presented to the method were not loaded by the ACL,

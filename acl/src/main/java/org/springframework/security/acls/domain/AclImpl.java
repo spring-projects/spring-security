@@ -87,13 +87,12 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
      * Full constructor, which should be used by persistence tools that do not
      * provide field-level access features.
      *
-     * @param objectIdentity the object identity this ACL relates to (required)
-     * @param id the primary key assigned to this ACL (required)
-     * @param aclAuthorizationStrategy authorization strategy (required)
-     * @param auditLogger audit logger (required)
-     * @param parentAcl the parent (may be <code>null</code>)
-     * @param loadedSids the loaded SIDs if only a subset were loaded (may be
-     *        <code>null</code>)
+     * @param objectIdentity the object identity this ACL relates to
+     * @param id the primary key assigned to this ACL
+     * @param aclAuthorizationStrategy authorization strategy
+     * @param grantingStrategy the {@code PermissionGrantingStrategy} which will be used by the {@code isGranted()} method
+     * @param parentAcl the parent (may be may be {@code null})
+     * @param loadedSids the loaded SIDs if only a subset were loaded (may be {@code null})
      * @param entriesInheriting if ACEs from the parent should inherit into
      *        this ACL
      * @param owner the owner (required)

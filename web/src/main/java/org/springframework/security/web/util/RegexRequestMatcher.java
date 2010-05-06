@@ -42,7 +42,7 @@ public final class RegexRequestMatcher implements RequestMatcher {
      *
      * @param pattern the regular expression to compile into a pattern.
      * @param httpMethod the HTTP method to match. May be null to match all methods.
-     * @param caseInsensitive if true, the pattern will be compiled with the {@link Pattern.CASE_INSENSITIVE} flag set.
+     * @param caseInsensitive if true, the pattern will be compiled with the {@link Pattern#CASE_INSENSITIVE} flag set.
      */
     public RegexRequestMatcher(String pattern, String httpMethod, boolean caseInsensitive) {
         if (caseInsensitive) {
@@ -57,7 +57,7 @@ public final class RegexRequestMatcher implements RequestMatcher {
      * Performs the match of the request URL ({@code servletPath + pathInfo + queryString}) against
      * the compiled pattern.
      *
-     * @param requst the request to match
+     * @param request the request to match
      * @return true if the pattern matches the URL, false otherwise.
      */
     public boolean matches(HttpServletRequest request) {

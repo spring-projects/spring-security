@@ -150,7 +150,6 @@ public class AuthenticationTag extends TagSupport {
     /**
      * Return the HTML escaping setting for this tag,
      * or the default setting if not overridden.
-     * @see #isDefaultHtmlEscape()
      */
     protected boolean isHtmlEscape() {
         return htmlEscape;
