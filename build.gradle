@@ -92,7 +92,7 @@ def remoteDocsDir="$remoteSiteDir/docs/3.1.x"
 
 task uploadApidocs(dependsOn: login) << {
     ant {
-        scp(file: apitar.archivePath, todir: "$login.username@$sshHost:$remoteSiteDir/$remoteDocsDir", password: login.password)
+        scp(file: apitar.archivePath, todir: "$login.username@$sshHost:$remoteDocsDir", password: login.password)
         sshexec(host: sshHost, username: login.username, password: login.password, command: "cd $remoteDocsDir && tar -xjf ${apitar.archiveName}")
         sshexec(host: sshHost, username: login.username, password: login.password, command: "rm $remoteDocsDir/${apitar.archiveName}")
     }
