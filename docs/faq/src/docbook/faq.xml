@@ -260,7 +260,7 @@
                         parameter to URLs (this happens automatically if you are using JSTL to output URLs, or if you call
                         <literal>HttpServletResponse.encodeUrl</literal> on URLs (before a redirect, for example).
                         If clients have cookies disabled, and you are not rewriting URLs to include the <literal>jsessionid</literal>, then the
-                        session will be lost. Note that the use of cookues os preferred for security reasons, as it does not expose the session information in
+                        session will be lost. Note that the use of cookies is preferred for security reasons, as it does not expose the session information in
                         the URL.
                     </para>
                 </answer>
