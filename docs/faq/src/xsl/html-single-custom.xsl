@@ -8,30 +8,18 @@
     <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl"/>
     <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/html/highlight.xsl"/>
 
-    <!--xsl:param name="use.id.as.filename">'1'</xsl:param-->
-
     <!-- Use code syntax highlighting -->
     <xsl:param name="highlight.source">1</xsl:param>
 
-<!-- Extensions
-    <xsl:param name="use.extensions">1</xsl:param>
-    <xsl:param name="tablecolumns.extension">0</xsl:param>
-    <xsl:param name="callout.extensions">1</xsl:param>
--->
-<!-- Activate Graphics
-    <xsl:param name="admon.graphics" select="1"/>
-    <xsl:param name="admon.graphics.path">images/</xsl:param>
-    <xsl:param name="admon.graphics.extension">.gif</xsl:param>
-    <xsl:param name="callout.graphics" select="1" />
-    <xsl:param name="callout.defaultcolumn">120</xsl:param>
-    <xsl:param name="callout.graphics.path">images/callouts/</xsl:param>
-    <xsl:param name="callout.graphics.extension">.gif</xsl:param>
--->
     <xsl:param name="table.borders.with.css" select="1"/>
     <xsl:param name="html.stylesheet">css/faq.css</xsl:param>
     <xsl:param name="html.stylesheet.type">text/css</xsl:param>
 
-    <!--xsl:param name="generate.toc">book toc,title</xsl:param-->
+    <xsl:param name="generate.toc">
+        article toc
+        qandaset toc
+    </xsl:param>
+    <xsl:param name="toc.section.depth" select="5"/>
 <!--
     <xsl:param name="admonition.title.properties">text-align: left</xsl:param>
 

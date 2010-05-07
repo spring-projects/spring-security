@@ -2,10 +2,11 @@
 <?oxygen RNGSchema="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" type="xml"?>
 <article class="faq" xml:id="spring-security-faq" xmlns="http://docbook.org/ns/docbook"
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0"><info><title>Frequently Answered
-            Questions (FAQ)</title></info>
+    Questions (FAQ)</title></info>
+    <section>
+        <title>General Questions</title>
     <qandaset>
         <qandadiv>
-            <title>General</title>
             <qandaentry xml:id="faq-other-concerns">
                 <question><para>Will Spring Security take care of all my application security
                         requirements?</para></question>
@@ -141,8 +142,13 @@
                         combining them in a complex system. </para></answer>
             </qandaentry>
         </qandadiv>
+    </qandaset>
+    </section>
+    <section>
+    <title>Common Problems</title>
+    <qandaset>
         <qandadiv>
-            <title>Common Problems</title>
+            <title>Authentication</title>
             <qandaentry xml:id="faq-login-loop">
                 <question><para>My application goes into an "endless loop" when I try to login,
                         what's going on?</para></question>
@@ -186,37 +192,78 @@
             </qandaentry>
             <qandaentry xml:id="auth-exception-credentials-not-found">
                 <question><para>I get an exception with the message "An Authentication object was
-                        not found in the SecurityContext". What's wrong?</para></question>
+                    not found in the SecurityContext". What's wrong?</para></question>
                 <answer><para> This is a another debug level message which occurs the first time an
-                        anonymous user attempts to access a protected resource, but when you do not
-                        have an <classname>AnonymousAuthenticationFilter</classname> in your filter
-                        chain configuration.
-                        <programlisting>
+                    anonymous user attempts to access a protected resource, but when you do not
+                    have an <classname>AnonymousAuthenticationFilter</classname> in your filter
+                    chain configuration.
+                    <programlisting>
     DEBUG [ExceptionTranslationFilter] - Authentication exception occurred; redirecting to authentication entry point
     org.springframework.security.AuthenticationCredentialsNotFoundException: An Authentication object was not found in the SecurityContext
     at org.springframework.security.intercept.AbstractSecurityInterceptor.credentialsNotFound(AbstractSecurityInterceptor.java:342)
     at org.springframework.security.intercept.AbstractSecurityInterceptor.beforeInvocation(AbstractSecurityInterceptor.java:254)
                 </programlisting>
-                        It is normal and shouldn't be anything to worry about. </para></answer>
+                    It is normal and shouldn't be anything to worry about. </para></answer>
             </qandaentry>
+        </qandadiv>
+        <qandadiv xml:id="faq-session-management">
+            <title>Session Management</title>
+            <para>
+                Session management issues are a common source of forum questions. If you are developing Java web applications, you
+                should understand how the session is maintained between the servlet container and the user's browser. You should also
+                understand the difference between secure and non-secure cookies and the implications of using HTTP/HTTPS and switching
+                between the two. Spring Security has nothing to do with maintaining the session or providing session identifiers. This is
+                entirely handled by the servlet container.
+            </para>
+
+            <qandaentry xml:id="faq-concurrent-session-same-browser">
+                <question>
+                    <para>I'm using Spring Security's concurrent session control to prevent users from logging in more than once at a time.
+                        When I open another browser window after logging in, it doesn't stop me from logging in again. Why can I log
+                        in more than once?
+                    </para></question>
+                <answer><para>Browsers generally maintain a single session per browser instance. You cannot have two separate
+                sessions at once. So if you log in again in another window or tab you are just reauthenticating in the same session.
+                The server doesn't know anything about tabs, windows or browser instances. All it sees are HTTP requests and it ties
+                those to a particular session according to the value of the the JSESSIONID cookie that they contain.
+                When a user authenticates during a session, Spring Security's concurrent session control checks the number of
+                <emphasis>other authenticated sessions</emphasis> that they have. If they are already authenticated
+                with the same session, then re-authenticating will have no effect.
+                </para></answer>
+            </qandaentry>
+
+            <qandaentry xml:id="faq-new-session-on-authentication">
+                <question><para>Why does the session Id change when I authenticate through Spring Security?</para></question>
+                <answer><para>With the default configuration, Spring Security invalidates the existing session when the user
+                    authenticates and creates a new one, transferring the session data to it. The intention is to change the session
+                    identifier to prevent <quote>session-fixation</quote> attacks. You can find more about this online and in the reference
+                    manual.
+                </para></answer>
+            </qandaentry>
+
             <qandaentry xml:id="faq-tomcat-https-session">
-                <question><para> I'm using Tomcat and have enabled HTTPS for my login page,
+                <question><para> I'm using Tomcat (or some other servlet container) and have enabled HTTPS for my login page,
                         switching back to HTTP afterwards. It doesn't work - I just end up back at
                         the login page after authenticating. </para></question>
-                <answer><para> This happens because Tomcat sessions created under HTTPS cannot
-                        subsequently be used under HTTP and any session state is lost (including the
-                        security context information). Starting a session in HTTP first should work
-                        as the session cookie won't be marked as secure. </para></answer>
+                <answer><para> This happens because sessions created under HTTPS, for which the session cookie is marked as
+                        <quote>secure</quote>, cannot subsequently be used under HTTP. The browser will not send the cookie
+                        back to the server and any session state will be lost (including the security context information).
+                        Starting a session in HTTP first should work as the session cookie won't be marked as secure.</para></answer>
             </qandaentry>
-            <qandaentry xml:id="faq-no-security-on-forward">
-                <question><para> I'm forwarding a request to another URL using the
-                        RequestDispatcher, but my security constraints aren't being applied.
-                    </para></question>
-                <answer><para> Filters are not applied by default to forwards or includes. If you
-                        really want the security filters to be applied to forwards and/or includes,
-                        then you have to configure these explicitly in your web.xml using the
-                        &lt;dispatcher&gt; element, a child element of &lt;filter-mapping&gt;.
-                    </para></answer>
+
+            <qandaentry>
+                <question>
+                    <para>I'm not switching between HTTP and HTTPS but my session is still getting lost</para>
+                </question>
+                <answer>
+                    <para>Sessions are maintained either by exchanging a session cookie or by adding the a <literal>jsessionid</literal>
+                        parameter to URLs (this happens automatically if you are using JSTL to output URLs, or if you call
+                        <literal>HttpServletResponse.encodeUrl</literal> on URLs (before a redirect, for example).
+                        If clients have cookies disabled, and you are not rewriting URLs to include the <literal>jsessionid</literal>, then the
+                        session will be lost. Note that the use of cookues os preferred for security reasons, as it does not expose the session information in
+                        the URL.
+                    </para>
+                </answer>
             </qandaentry>
             <qandaentry xml:id="faq-session-listener-missing">
                 <question><para> I'm trying to use the concurrent session-control support but it
@@ -230,35 +277,6 @@
         <listener-class>org.springframework.security.ui.session.HttpSessionEventPublisher</listener-class>
     </listener> ]]>
             </programlisting></answer>
-            </qandaentry>
-            <qandaentry xml:id="faq-no-filters-no-context">
-                <question><para>I have a user who has definitely been authenticated, but when I try
-                        to access the <classname>SecurityContextHolder</classname> during some
-                        requests, the <interfacename>Authentication</interfacename> is null. Why
-                        can't I see the user information? </para></question>
-                <answer><para>If you have excluded the request from the security filter chain using
-                        the attribute <literal>filters='none'</literal> in the
-                            <literal>&lt;intercept-url></literal> element that matches the URL
-                        pattern, then the <classname>SecurityContextHolder</classname> will not be
-                        populated for that request. Check the debug log to see whether the request
-                        is passing through the filter chain. (You are reading the debug log,
-                        right?).</para></answer>
-            </qandaentry>
-            <qandaentry xml:id="faq-method-security-in-web-context">
-                <question><para>I have added Spring Security's &lt;global-method-security&gt;
-                        element to my application context but if I add security annotations to my
-                        Spring MVC controller beans (Struts actions etc.) then they don't seem to
-                        have an effect.</para></question>
-                <answer><para> The application context which holds the Spring MVC beans for the
-                        dispatcher servlet is a child application context of the main application
-                        context which is loaded using the
-                            <classname>ContextLoaderListener</classname> you define in your
-                            <filename>web.xml</filename>. The beans in the child context are not
-                        visible in the parent context so you need to either move the
-                        &lt;global-method-security&gt; declaration to the web context or moved the
-                        beans you want secured into the main application context.
-                        </para><para>Generally we would recommend applying method security at the
-                        service layer rather than on individual web controllers.</para></answer>
             </qandaentry>
             <qandaentry xml:id="faq-unwanted-session-creation">
                 <question>
@@ -282,7 +300,52 @@
             </qandaentry>
         </qandadiv>
         <qandadiv>
-            <title>Spring Security Architecture Questions</title>
+            <title>Miscellaneous</title>
+            <qandaentry xml:id="faq-no-security-on-forward">
+                <question><para> I'm forwarding a request to another URL using the
+                    RequestDispatcher, but my security constraints aren't being applied.
+                </para></question>
+                <answer><para> Filters are not applied by default to forwards or includes. If you
+                    really want the security filters to be applied to forwards and/or includes,
+                    then you have to configure these explicitly in your web.xml using the
+                    &lt;dispatcher&gt; element, a child element of &lt;filter-mapping&gt;.
+                </para></answer>
+            </qandaentry>
+            <qandaentry xml:id="faq-method-security-in-web-context">
+                <question><para>I have added Spring Security's &lt;global-method-security&gt;
+                    element to my application context but if I add security annotations to my
+                    Spring MVC controller beans (Struts actions etc.) then they don't seem to
+                    have an effect.</para></question>
+                <answer><para> The application context which holds the Spring MVC beans for the
+                    dispatcher servlet is a child application context of the main application
+                    context which is loaded using the
+                    <classname>ContextLoaderListener</classname> you define in your
+                    <filename>web.xml</filename>. The beans in the child context are not
+                    visible in the parent context so you need to either move the
+                    &lt;global-method-security&gt; declaration to the web context or moved the
+                    beans you want secured into the main application context.
+                </para><para>Generally we would recommend applying method security at the
+                    service layer rather than on individual web controllers.</para></answer>
+            </qandaentry>
+            <qandaentry xml:id="faq-no-filters-no-context">
+                <question><para>I have a user who has definitely been authenticated, but when I try
+                    to access the <classname>SecurityContextHolder</classname> during some
+                    requests, the <interfacename>Authentication</interfacename> is null. Why
+                    can't I see the user information? </para></question>
+                <answer><para>If you have excluded the request from the security filter chain using
+                    the attribute <literal>filters='none'</literal> in the
+                    <literal>&lt;intercept-url></literal> element that matches the URL
+                    pattern, then the <classname>SecurityContextHolder</classname> will not be
+                    populated for that request. Check the debug log to see whether the request
+                    is passing through the filter chain. (You are reading the debug log,
+                    right?).</para></answer>
+            </qandaentry>
+        </qandadiv>
+    </qandaset>
+    </section>
+    <section><title>Spring Security Architecture Questions</title>
+    <qandaset>
+        <qandadiv>
             <qandaentry xml:id="faq-where-is-class-x">
                 <question><para>How do I know which package class X is in?</para></question>
                 <answer><para>The best way of locating classes is by installing the Spring Security
@@ -328,9 +391,37 @@
                     </para>
                 </answer>
             </qandaentry>
+            <qandaentry xml:id="faq-what-dependencies">
+                <question><para>How do I know which dependencies to add to my application to work
+                    with Spring Security?</para></question>
+                <answer><para>It will depend on what features you are using and what type of
+                    application you are developing. With Spring Security 3.0, the project jars
+                    are divided into clearly distinct areas of functionality, so it is
+                    straightforward to work out which Spring Security jars you need from your
+                    application requirements. All applications will need the
+                    <filename>spring-security-core</filename> jar. If you're developing a
+                    web application, you need the <filename>spring-security-web</filename> jar.
+                    If you're using security namespace configuration you need the
+                    <filename>spring-security-config</filename> jar, for LDAP support you
+                    need the <filename>spring-security-ldap</filename> jar and so on.
+                </para><para> For third-party jars the situation isn't always quite so
+                    obvious. A good starting point is to copy those from one of the pre-built
+                    sample applications WEB-INF/lib directories. For a basic application, you
+                    can start with the tutorial sample. If you want to use LDAP, with an
+                    embedded test server, then use the LDAP sample as a starting point.
+                </para><para> If you are building your project with maven, then adding the
+                    appropriate Spring Security modules as dependencies to your pom.xml will
+                    automatically pull in the core jars that the framework requires. Any which
+                    are marked as "optional" in the Spring Security POM files will have to be
+                    added to your own pom.xml file if you need them. </para></answer>
+            </qandaentry>
         </qandadiv>
+    </qandaset>
+    </section>
+    <section>
+        <title>Common <quote>Howto</quote> Requests</title>
+    <qandaset>
         <qandadiv>
-            <title>Common <quote>Howto</quote> Requests</title>
             <qandaentry xml:id="faq-extra-login-fields">
                 <question><para>I need to login in with more information than just the username. How
                         do I add support for extra login fields (e.g. a company
@@ -354,6 +445,29 @@
                             <interfacename>UserDetailsService</interfacename> which splits them up
                         and loads the appropriate user data for authentication. </para></answer>
             </qandaentry>
+            <qandaentry>
+                <question><para>How do I access the user's IP Address (or other web-request data) in a <interfacename>UserDetailsService</interfacename>?</para></question>
+                <answer>
+                    <para>
+                        Obviously you can't (without resorting to something like thread-local variables) since
+                        the only information supplied to the interface is the username. Instead of implementing
+                        <interfacename>UserDetailsService</interfacename>, you should implement
+                        <interfacename>AuthenticationProvider</interfacename> directly and extract the information
+                        from the supplied <interfacename>Authentication</interfacename> token.
+                    </para>
+                    <para>
+                        In a standard web setup, the <methodname>getDetails()</methodname> method on the
+                        <interfacename>Authentication</interfacename> object will return an instance of
+                        <classname>WebAuthenticationDetails</classname>. If you need additional information,
+                        you can inject a custom <interfacename>AuthenticationDetailsSource</interfacename>
+                        into the authentication filter you are using. If you are using the namespace, for example with
+                        the <literal>&lt;form-login&gt;</literal> element, then you should remove this element and replace it
+                        with a <literal>&lt;custom-filter&gt;</literal> declaration pointing to an explicitly configured
+                        <classname>UsernamePasswordAuthenticationFilter</classname>.
+                    </para>
+                </answer>
+            </qandaentry>
+
             <qandaentry xml:id="faq-dynamic-url-metadata">
                 <question><para>How do I define the secured URLs within an application
                         dynamically?</para></question>
@@ -373,10 +487,7 @@
                         </para><para> Both method and web security are protected by subclasses of
                             <classname>AbstractSecurityInterceptor</classname> which is configured
                         with a <interfacename>SecurityMetadataSource</interfacename> from which it
-                        obtains the metadata for a particular method or filter invocation
-                                <footnote><para>This class previouly went by the rather obscure name
-                                of <classname>ObjectDefinitionSource</classname>, but has been
-                                renamed in Spring Security 3.0</para></footnote>. For web security,
+                        obtains the metadata for a particular method or filter invocation. For web security,
                         the interceptor class is <classname>FilterSecurityInterceptor</classname>
                         and it uses the marker interface
                             <interfacename>FilterInvocationSecurityMetadataSource</interfacename>.
@@ -426,30 +537,7 @@
                             <classname>DefaultFilterInvocationSecurityMetadataSource</classname>.
                     </para></answer>
             </qandaentry>
-            <qandaentry xml:id="faq-what-dependencies">
-                <question><para>How do I know which dependencies to add to my application to work
-                        with Spring Security?</para></question>
-                <answer><para>It will depend on what features you are using and what type of
-                        application you are developing. With Spring Security 3.0, the project jars
-                        are divided into clearly distinct areas of functionality, so it is
-                        straightforward to work out which Spring Security jars you need from your
-                        application requirements. All applications will need the
-                            <filename>spring-security-core</filename> jar. If you're developing a
-                        web application, you need the <filename>spring-security-web</filename> jar.
-                        If you're using security namespace configuration you need the
-                            <filename>spring-security-config</filename> jar, for LDAP support you
-                        need the <filename>spring-security-ldap</filename> jar and so on.
-                        </para><para> For third-party jars the situation isn't always quite so
-                        obvious. A good starting point is to copy those from one of the pre-built
-                        sample applications WEB-INF/lib directories. For a basic application, you
-                        can start with the tutorial sample. If you want to use LDAP, with an
-                        embedded test server, then use the LDAP sample as a starting point.
-                        </para><para> If you are building your project with maven, then adding the
-                        appropriate Spring Security modules as dependencies to your pom.xml will
-                        automatically pull in the core jars that the framework requires. Any which
-                        are marked as "optional" in the Spring Security POM files will have to be
-                        added to your own pom.xml file if you need them. </para></answer>
-            </qandaentry>
+
             <qandaentry xml:id="faq-ldap-authorities">
                 <question><para>How do I authenticate against LDAP but load user roles from a
                         database?</para></question>
@@ -489,4 +577,5 @@
             </qandaentry>
         </qandadiv>
     </qandaset>
+        </section>
 </article>
