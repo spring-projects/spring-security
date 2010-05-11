@@ -101,7 +101,7 @@
                 <para> Corresponds to the <literal>observeOncePerRequest</literal> property of
                     <classname>FilterSecurityInterceptor</classname>. Defaults to "true". </para>
             </section>
-            <section xml:id="create-session">
+            <section xml:id="nsa-create-session">
                 <title><literal>create-session</literal></title>
                 <para> Controls the eagerness with which an HTTP session is created. If not set,
                     defaults to "ifRequired". Other options are "always" and "never". The setting of
@@ -116,6 +116,12 @@
                     set to true, regardless of what the setting is here. Using "never" would then
                     cause an exception during the initialization of
                     <classname>HttpSessionContextIntegrationFilter</classname>. </para>
+            </section>
+            <section xml:id="nsa-use-expressions">
+                <title><literal>use-expressions</literal></title>
+                <para>Enables EL-expressions in the <literal>access</literal> attribute, as described 
+                    in the chapter on <link xlink:href="#el-access-web">expression-based access-control</link>.
+                </para>
             </section>
         </section>
         <section xml:id="nsa-access-denied-handler">
