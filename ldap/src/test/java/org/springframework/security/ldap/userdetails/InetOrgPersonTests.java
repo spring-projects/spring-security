@@ -1,16 +1,20 @@
 package org.springframework.security.ldap.userdetails;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import org.junit.Test;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
-import org.springframework.security.ldap.userdetails.InetOrgPerson;
 
 /**
  * @author Luke Taylor
  */
-public class InetOrgPersonTests extends TestCase {
+public class InetOrgPersonTests {
 
+    @Test
     public void testUsernameIsMappedFromContextUidIfNotSet() {
         InetOrgPerson.Essence essence = new InetOrgPerson.Essence(createUserContext());
         InetOrgPerson p = (InetOrgPerson) essence.createUserDetails();
@@ -18,7 +22,19 @@ public class InetOrgPersonTests extends TestCase {
         assertEquals("ghengis", p.getUsername());
     }
 
-    public void testUsernameIsDifferentFromContextUidIfSet() {
+    @Test
+    public void hashLookupViaEqualObjectRetrievesOriginal() throws Exception {
+        InetOrgPerson.Essence essence = new InetOrgPerson.Essence(createUserContext());
+        InetOrgPerson p = (InetOrgPerson) essence.createUserDetails();
+        essence = new InetOrgPerson.Essence(createUserContext());
+        InetOrgPerson p2 = (InetOrgPerson) essence.createUserDetails();
+        Set<InetOrgPerson> set =  new HashSet<InetOrgPerson>();
+        set.add(p);
+        assertTrue(set.contains(p2));
+    }
+
+    @Test
+    public void usernameIsDifferentFromContextUidIfSet() {
         InetOrgPerson.Essence essence = new InetOrgPerson.Essence(createUserContext());
         essence.setUsername("joe");
         InetOrgPerson p = (InetOrgPerson) essence.createUserDetails();
@@ -27,7 +43,8 @@ public class InetOrgPersonTests extends TestCase {
         assertEquals("ghengis", p.getUid());
     }
 
-    public void testAttributesMapCorrectlyFromContext() {
+    @Test
+    public void attributesMapCorrectlyFromContext() {
         InetOrgPerson.Essence essence = new InetOrgPerson.Essence(createUserContext());
         InetOrgPerson p = (InetOrgPerson) essence.createUserDetails();
 
@@ -50,6 +67,7 @@ public class InetOrgPersonTests extends TestCase {
         assertEquals("G", p.getInitials());
     }
 
+    @Test
     public void testPasswordIsSetFromContextUserPassword() {
         InetOrgPerson.Essence essence = new InetOrgPerson.Essence(createUserContext());
         InetOrgPerson p = (InetOrgPerson) essence.createUserDetails();
@@ -57,7 +75,8 @@ public class InetOrgPersonTests extends TestCase {
         assertEquals("pillage", p.getPassword());
     }
 
-    public void testMappingBackToContextMatchesOriginalData() {
+    @Test
+    public void mappingBackToContextMatchesOriginalData() {
         DirContextAdapter ctx1 = createUserContext();
         DirContextAdapter ctx2 = new DirContextAdapter();
         ctx1.setAttributeValues("objectclass", new String[] {"top", "person", "organizationalPerson", "inetOrgPerson"});
@@ -68,7 +87,8 @@ public class InetOrgPersonTests extends TestCase {
         assertEquals(ctx1, ctx2);
     }
 
-    public void testCopyMatchesOriginalData() {
+    @Test
+    public void copyMatchesOriginalData() {
         DirContextAdapter ctx1 = createUserContext();
         DirContextAdapter ctx2 = new DirContextAdapter();
         ctx2.setDn(new DistinguishedName("ignored=ignored"));
