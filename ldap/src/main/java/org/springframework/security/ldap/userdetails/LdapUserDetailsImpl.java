@@ -34,11 +34,13 @@ import org.springframework.util.Assert;
  * distinguished name and a set of attributes that have been retrieved from the Ldap server.
  * <p>
  * An instance may be created as the result of a search, or when user information is retrieved during authentication.
- * </p>
  * <p>
  * An instance of this class will be used by the <tt>LdapAuthenticationProvider</tt> to construct the final user details
  * object that it returns.
- * </p>
+ * <p>
+ * The {@code equals} and {@code hashcode} methods are implemented using the {@code Dn} property and do not consider
+ * additional state, so it is not possible two store two instances with the same DN in the same set, or use them as
+ * keys in a map.
  *
  * @author Luke Taylor
  */
@@ -104,14 +106,28 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
         return graceLoginsRemaining;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof LdapUserDetailsImpl) {
+            return dn.equals(((LdapUserDetailsImpl)obj).dn);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return dn.hashCode();
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(super.toString()).append(": ");
+        sb.append("Dn: ").append(dn).append("; ");
         sb.append("Username: ").append(this.username).append("; ");
         sb.append("Password: [PROTECTED]; ");
         sb.append("Enabled: ").append(this.enabled).append("; ");
         sb.append("AccountNonExpired: ").append(this.accountNonExpired).append("; ");
-        sb.append("credentialsNonExpired: ").append(this.credentialsNonExpired).append("; ");
+        sb.append("CredentialsNonExpired: ").append(this.credentialsNonExpired).append("; ");
         sb.append("AccountNonLocked: ").append(this.accountNonLocked).append("; ");
 
         if (this.getAuthorities() != null) {
