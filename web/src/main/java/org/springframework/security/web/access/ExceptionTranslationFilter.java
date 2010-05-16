@@ -75,7 +75,6 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
     private AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
     private AuthenticationEntryPoint authenticationEntryPoint;
     private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
-//    private PortResolver portResolver = new PortResolverImpl();
     private ThrowableAnalyzer throwableAnalyzer = new DefaultThrowableAnalyzer();
 
     private RequestCache requestCache = new HttpSessionRequestCache();
@@ -85,7 +84,6 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
     @Override
     public void afterPropertiesSet() {
         Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint must be specified");
-//        Assert.notNull(portResolver, "portResolver must be specified");
     }
 
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
@@ -191,14 +189,6 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
         Assert.notNull(authenticationTrustResolver, "authenticationTrustResolver must not be null");
         this.authenticationTrustResolver = authenticationTrustResolver;
     }
-
-//    public void setCreateSessionAllowed(boolean createSessionAllowed) {
-//        this.createSessionAllowed = createSessionAllowed;
-//    }
-
-//    public void setPortResolver(PortResolver portResolver) {
-//        this.portResolver = portResolver;
-//    }
 
     public void setThrowableAnalyzer(ThrowableAnalyzer throwableAnalyzer) {
         Assert.notNull(throwableAnalyzer, "throwableAnalyzer must not be null");
