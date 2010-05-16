@@ -13,6 +13,7 @@ Import-Template:
  org.springframework.security.authentication.*;version="[${version}, 3.2.0)",
  org.springframework.security.core.*;version="[${version}, 3.2.0)",
  org.springframework.security.util;version="[${version}, 3.2.0)",
+ org.springframework.security.provisioning;version="[${version}, 3.2.0)",
  org.springframework.security.web.*;version="[${version}, 3.2.0)";resolution:=optional,
  org.springframework.aop.*;version="[${spring.version}, 3.2.0)";resolution:=optional,
  org.springframework.beans.*;version="[${spring.version}, 3.2.0)",
