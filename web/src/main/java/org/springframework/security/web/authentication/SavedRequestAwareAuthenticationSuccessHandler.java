@@ -26,23 +26,23 @@ import org.springframework.util.StringUtils;
  * Following a successful authentication, it decides on the redirect destination, based on the following scenarios:
  * <ul>
  * <li>
- * If the <tt>alwaysUseDefaultTargetUrl</tt> property is set to true, the <tt>defaultTargetUrl</tt>
- * will be used for the destination. Any <tt>DefaultSavedRequest</tt> stored in the session will be
+ * If the {@code alwaysUseDefaultTargetUrl} property is set to true, the {@code defaultTargetUrl}
+ * will be used for the destination. Any {@code DefaultSavedRequest} stored in the session will be
  * removed.
  * </li>
  * <li>
- * If the <tt>targetUrlParameter</tt> has been set on the request, the value will be used as the destination.
- * Any <tt>DefaultSavedRequest</tt> will again be removed.
+ * If the {@code targetUrlParameter} has been set on the request, the value will be used as the destination.
+ * Any {@code DefaultSavedRequest} will again be removed.
  * </li>
  * <li>
- * If a {@link DefaultSavedRequest} is found in the <tt>RequestCache</tt> (as set by the {@link ExceptionTranslationFilter} to
+ * If a {@link SavedRequest} is found in the {@code RequestCache} (as set by the {@link ExceptionTranslationFilter} to
  * record the original destination before the authentication process commenced), a redirect will be performed to the
- * Url of that original destination. The <tt>DefaultSavedRequest</tt> object will remain cached and be picked up
+ * Url of that original destination. The {@code SavedRequest} object will remain cached and be picked up
  * when the redirected request is received
  * (See {@link org.springframework.security.web.savedrequest.SavedRequestAwareWrapper SavedRequestAwareWrapper}).
  * </li>
  * <li>
- * If no <tt>DefaultSavedRequest</tt> is found, it will delegate to the base class.
+ * If no {@code SavedRequest} is found, it will delegate to the base class.
  * </li>
  * </ul>
  *
