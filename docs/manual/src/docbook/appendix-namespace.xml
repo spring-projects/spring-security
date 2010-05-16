@@ -8,40 +8,40 @@
         and information on the underlying beans they create (a knowledge of the individual classes
         and how they work together is assumed - you can find more information in the project Javadoc
         and elsewhere in this document). If you haven't used the namespace before, please read the
-        <link xlink:href="#ns-config">introductory chapter</link> on namespace configuration, as
+            <link xlink:href="#ns-config">introductory chapter</link> on namespace configuration, as
         this is intended as a supplement to the information there. Using a good quality XML editor
         while editing a configuration based on the schema is recommended as this will provide
         contextual information on which elements and attributes are available as well as comments
         explaining their purpose. The namespace is written in <link
-        xlink:href="http://www.relaxng.org/">RELAX NG</link> Compact format and later converted into
-        an XSD schema. If you are familiar with this format, you may wish to examine the <link
-        xlink:href="https://src.springsource.org/svn/spring-security/trunk/config/src/main/resources/org/springframework/security/config/spring-security-3.0.rnc"
-        >schema file</link> directly.</para>
+            xlink:href="http://www.relaxng.org/">RELAX NG</link> Compact format and later converted
+        into an XSD schema. If you are familiar with this format, you may wish to examine the <link
+            xlink:href="https://src.springsource.org/svn/spring-security/trunk/config/src/main/resources/org/springframework/security/config/spring-security-3.0.rnc"
+            >schema file</link> directly.</para>
     <section xml:id="nsa-http">
         <title>Web Application Security - the <literal>&lt;http&gt;</literal> Element</title>
         <para> The <literal>&lt;http&gt;</literal> element encapsulates the security configuration
             for the web layer of your application. It creates a
-            <classname>FilterChainProxy</classname> bean named "springSecurityFilterChain" which
+                <classname>FilterChainProxy</classname> bean named "springSecurityFilterChain" which
             maintains the stack of security filters which make up the web security configuration <footnote>
-            <para>See the <link xlink:href="#ns-web-xml"> introductory chapter</link> for how to set
-                up the mapping from your <literal>web.xml</literal></para>
+                <para>See the <link xlink:href="#ns-web-xml"> introductory chapter</link> for how to
+                    set up the mapping from your <literal>web.xml</literal></para>
             </footnote>. Some core filters are always created and others will be added to the stack
             depending on the attributes child elements which are present. The positions of the
             standard filters are fixed (see <link xlink:href="#filter-stack">the filter order
-            table</link> in the namespace introduction), removing a common source of errors with
+                table</link> in the namespace introduction), removing a common source of errors with
             previous versions of the framework when users had to configure the filter chain
             explicitly in the<classname>FilterChainProxy</classname> bean. You can, of course, still
             do this if you need full control of the configuration. </para>
         <para> All filters which require a reference to the
-            <interfacename>AuthenticationManager</interfacename> will be automatically injected with
-            the internal instance created by the namespace configuration (see the <link
-            xlink:href="#ns-auth-manager"> introductory chapter</link> for more on the
-            <interfacename>AuthenticationManager</interfacename>). </para>
+                <interfacename>AuthenticationManager</interfacename> will be automatically injected
+            with the internal instance created by the namespace configuration (see the <link
+                xlink:href="#ns-auth-manager"> introductory chapter</link> for more on the
+                <interfacename>AuthenticationManager</interfacename>). </para>
         <para> The <literal>&lt;http&gt;</literal> namespace block always creates an
-            <classname>HttpSessionContextIntegrationFilter</classname>, an
-            <classname>ExceptionTranslationFilter</classname> and a
-            <classname>FilterSecurityInterceptor</classname>. These are fixed and cannot be replaced
-            with alternatives. </para>
+                <classname>HttpSessionContextIntegrationFilter</classname>, an
+                <classname>ExceptionTranslationFilter</classname> and a
+                <classname>FilterSecurityInterceptor</classname>. These are fixed and cannot be
+            replaced with alternatives. </para>
         <section xml:id="nsa-http-attributes">
             <title><literal>&lt;http&gt;</literal> Attributes</title>
             <para> The attributes on the <literal>&lt;http&gt;</literal> element control some of the
@@ -51,45 +51,47 @@
                 <para> Provides versions of <literal>HttpServletRequest</literal> security methods
                     such as <literal>isUserInRole()</literal> and <literal>getPrincipal()</literal>
                     which are implemented by adding a
-                    <classname>SecurityContextHolderAwareRequestFilter</classname> bean to the
+                        <classname>SecurityContextHolderAwareRequestFilter</classname> bean to the
                     stack. Defaults to "true". </para>
             </section>
             <section xml:id="nsa-path-type">
                 <title><literal>request-matcher</literal></title>
                 <para> Defines the <interfacename>RequestMatcher</interfacename> strategy used in
                     the <classname>FilterChainProxy</classname> and the beans created by the
-                    <literal>intercept-url</literal> to match incoming requests. Options are
+                        <literal>intercept-url</literal> to match incoming requests. Options are
                     currently <literal>ant</literal>, <literal>regex</literal> and
-                    <literal>ciRegex</literal>, for ant, regular-expression and case-insensitive
+                        <literal>ciRegex</literal>, for ant, regular-expression and case-insensitive
                     regular-expression repsectively. A separate instance is created for each
-                    <literal>intercept-url</literal> element using its <literal>pattern</literal>
-                    and <literal>method</literal> attributes (see below). Ant paths are matched
-                    using an <classname>AntPathRequestMatcher</classname> and regular expressions
-                    are matched using a <classname>RegexRequestMatcher</classname>. See the Javadoc
-                    for these classes for more details. Ant paths are the default strategy.</para>
+                        <literal>intercept-url</literal> element using its
+                        <literal>pattern</literal> and <literal>method</literal> attributes (see
+                    below). Ant paths are matched using an
+                        <classname>AntPathRequestMatcher</classname> and regular expressions are
+                    matched using a <classname>RegexRequestMatcher</classname>. See the Javadoc for
+                    these classes for more details on exactly how the matching is preformed. Ant
+                    paths are the default strategy.</para>
             </section>
             <section xml:id="nsa-realm">
                 <title><literal>realm</literal></title>
                 <para> Sets the realm name used for basic authentication (if enabled). Corresponds
                     to the <literal>realmName</literal> property on
-                    <classname>BasicAuthenticationEntryPoint</classname>. </para>
+                        <classname>BasicAuthenticationEntryPoint</classname>. </para>
             </section>
             <section xml:id="nsa-entry-point-ref">
                 <title><literal>entry-point-ref</literal></title>
                 <para> Normally the <interfacename>AuthenticationEntryPoint</interfacename> used
                     will be set depending on which authentication mechanisms have been configured.
                     This attribute allows this behaviour to be overridden by defining a customized
-                    <interfacename>AuthenticationEntryPoint</interfacename> bean which will start
-                    the authentication process. </para>
+                        <interfacename>AuthenticationEntryPoint</interfacename> bean which will
+                    start the authentication process. </para>
             </section>
             <section xml:id="nsa-access-decision-manager-ref">
                 <title><literal>access-decision-manager-ref</literal></title>
                 <para> Optional attribute specifying the ID of the
-                    <interfacename>AccessDecisionManager</interfacename> implementation which should
-                    be used for authorizing HTTP requests. By default an
-                    <classname>AffirmativeBased</classname> implementation is used for with a
-                    <classname>RoleVoter</classname> and an
-                    <classname>AuthenticatedVoter</classname>. </para>
+                        <interfacename>AccessDecisionManager</interfacename> implementation which
+                    should be used for authorizing HTTP requests. By default an
+                        <classname>AffirmativeBased</classname> implementation is used for with a
+                        <classname>RoleVoter</classname> and an
+                        <classname>AuthenticatedVoter</classname>. </para>
             </section>
             <section xml:id="nsa-access-denied-page">
                 <title><literal>access-denied-page</literal></title>
@@ -99,40 +101,41 @@
             <section xml:id="nsa-once-per-request">
                 <title><literal>once-per-request</literal></title>
                 <para> Corresponds to the <literal>observeOncePerRequest</literal> property of
-                    <classname>FilterSecurityInterceptor</classname>. Defaults to "true". </para>
+                        <classname>FilterSecurityInterceptor</classname>. Defaults to "true".
+                </para>
             </section>
             <section xml:id="nsa-create-session">
                 <title><literal>create-session</literal></title>
                 <para> Controls the eagerness with which an HTTP session is created. If not set,
                     defaults to "ifRequired". Other options are "always" and "never". The setting of
                     this attribute affect the <literal>allowSessionCreation</literal> and
-                    <literal>forceEagerSessionCreation</literal> properties of
-                    <classname>HttpSessionContextIntegrationFilter</classname>.
-                    <literal>allowSessionCreation</literal> will always be true unless this
+                        <literal>forceEagerSessionCreation</literal> properties of
+                        <classname>HttpSessionContextIntegrationFilter</classname>.
+                        <literal>allowSessionCreation</literal> will always be true unless this
                     attribute is set to "never". <literal>forceEagerSessionCreation</literal> is
                     "false" unless it is set to "always". So the default configuration allows
                     session creation but does not force it. The exception is if concurrent session
                     control is enabled, when <literal>forceEagerSessionCreation</literal> will be
                     set to true, regardless of what the setting is here. Using "never" would then
                     cause an exception during the initialization of
-                    <classname>HttpSessionContextIntegrationFilter</classname>. </para>
+                        <classname>HttpSessionContextIntegrationFilter</classname>. </para>
             </section>
             <section xml:id="nsa-use-expressions">
                 <title><literal>use-expressions</literal></title>
-                <para>Enables EL-expressions in the <literal>access</literal> attribute, as described 
-                    in the chapter on <link xlink:href="#el-access-web">expression-based access-control</link>.
-                </para>
+                <para>Enables EL-expressions in the <literal>access</literal> attribute, as
+                    described in the chapter on <link xlink:href="#el-access-web">expression-based
+                        access-control</link>. </para>
             </section>
         </section>
         <section xml:id="nsa-access-denied-handler">
             <title><literal>&lt;access-denied-handler></literal></title>
             <para> This element allows you to set the <literal>errorPage</literal> property for the
                 default <interfacename>AccessDeniedHandler</interfacename> used by the
-                <classname>ExceptionTranslationFilter</classname>, (using the
-                <literal>error-page</literal> attribute, or to supply your own implementation using
-                the <literal>ref</literal> attribute. This is discussed in more detail in the
+                    <classname>ExceptionTranslationFilter</classname>, (using the
+                    <literal>error-page</literal> attribute, or to supply your own implementation
+                using the <literal>ref</literal> attribute. This is discussed in more detail in the
                 section on <link xlink:href="#access-denied-handler">the
-                <classname>ExceptionTranslationFilter</classname></link>.</para>
+                        <classname>ExceptionTranslationFilter</classname></link>.</para>
         </section>
         <section>
             <title>The <literal>&lt;intercept-url&gt;</literal> Element</title>
@@ -141,8 +144,8 @@
                 the <interfacename>FilterInvocationSecurityMetadataSource</interfacename> used by
                 the <classname>FilterSecurityInterceptor</classname> and to exclude particular
                 patterns from the filter chain entirely (by setting the attribute
-                <literal>filters="none"</literal>). It is also responsible for configuring a
-                <classname>ChannelAuthenticationFilter</classname> if particular URLs need to be
+                    <literal>filters="none"</literal>). It is also responsible for configuring a
+                    <classname>ChannelAuthenticationFilter</classname> if particular URLs need to be
                 accessed by HTTPS, for example. When matching the specified patterns against an
                 incoming request, the matching is done in the order in which the elements are
                 declared. So the most specific matches patterns should come first and the most
@@ -150,8 +153,8 @@
             <section xml:id="nsa-pattern">
                 <title><literal>pattern</literal></title>
                 <para> The pattern which defines the URL path. The content will depend on the
-                    <literal>request-matcher</literal> attribute from the containing http element,
-                    so will default to ant path syntax. </para>
+                        <literal>request-matcher</literal> attribute from the containing http
+                    element, so will default to ant path syntax. </para>
             </section>
             <section xml:id="nsa-method">
                 <title><literal>method</literal></title>
@@ -163,9 +166,9 @@
             <section xml:id="nsa-access">
                 <title><literal>access</literal></title>
                 <para> Lists the access attributes which will be stored in the
-                    <interfacename>FilterInvocationSecurityMetadataSource</interfacename> for the
-                    defined URL pattern/method combination. This should be a comma-separated list of
-                    the security configuration attributes (such as role names). </para>
+                        <interfacename>FilterInvocationSecurityMetadataSource</interfacename> for
+                    the defined URL pattern/method combination. This should be a comma-separated
+                    list of the security configuration attributes (such as role names). </para>
             </section>
             <section xml:id="nsa-requires-channel">
                 <title><literal>requires-channel</literal></title>
@@ -173,15 +176,15 @@
                     particular URL pattern should be accessed over HTTP or HTTPS respectively.
                     Alternatively the value <quote>any</quote> can be used when there is no
                     preference. If this attribute is present on any
-                    <literal>&lt;intercept-url&gt;</literal> element, then a
-                    <classname>ChannelAuthenticationFilter</classname> will be added to the filter
-                    stack and its additional dependencies added to the application
+                        <literal>&lt;intercept-url&gt;</literal> element, then a
+                        <classname>ChannelAuthenticationFilter</classname> will be added to the
+                    filter stack and its additional dependencies added to the application
                     context.<!--See the chapter on <link
             xlink:href="#channel-security-config">channel security</link> for an example
           configuration using traditional beans. --></para>
                 <para> If a <literal>&lt;port-mappings&gt;</literal> configuration is added, this
                     will be used to by the <classname>SecureChannelProcessor</classname> and
-                    <classname>InsecureChannelProcessor</classname> beans to determine the ports
+                        <classname>InsecureChannelProcessor</classname> beans to determine the ports
                     used for redirecting to HTTP/HTTPS. </para>
             </section>
             <section>
@@ -201,7 +204,7 @@
                 Each child <literal>&lt;port-mapping&gt;</literal> element defines a pair of
                 HTTP:HTTPS ports. The default mappings are 80:443 and 8080:8443. An example of
                 overriding these can be found in the <link xlink:href="#ns-requires-channel"
-                >namespace introduction</link>. </para>
+                    >namespace introduction</link>. </para>
         </section>
         <section xml:id="nsa-form-login">
             <title>The <literal>&lt;form-login&gt;</literal> Element</title>
@@ -210,30 +213,30 @@
                 application context to provide authentication on demand. This will always take
                 precedence over other namespace-created entry points. If no attributes are supplied,
                 a login page will be generated automatically at the URL "/spring-security-login" <footnote>
-                <para>This feature is really just provided for convenience and is not intended for
-                    production (where a view technology will have been chosen and can be used to
-                    render a customized login page). The class
-                    <classname>DefaultLoginPageGeneratingFilter</classname> is responsible for
-                    rendering the login page and will provide login forms for both normal form login
-                    and/or OpenID if required.</para>
+                    <para>This feature is really just provided for convenience and is not intended
+                        for production (where a view technology will have been chosen and can be
+                        used to render a customized login page). The class
+                            <classname>DefaultLoginPageGeneratingFilter</classname> is responsible
+                        for rendering the login page and will provide login forms for both normal
+                        form login and/or OpenID if required.</para>
                 </footnote> The behaviour can be customized using the following attributes. </para>
             <section>
                 <title><literal>login-page</literal></title>
                 <para> The URL that should be used to render the login page. Maps to the
-                    <literal>loginFormUrl</literal> property of the
-                    <classname>LoginUrlAuthenticationEntryPoint</classname>. Defaults to
+                        <literal>loginFormUrl</literal> property of the
+                        <classname>LoginUrlAuthenticationEntryPoint</classname>. Defaults to
                     "/spring-security-login". </para>
             </section>
             <section>
                 <title><literal>login-processing-url</literal></title>
                 <para> Maps to the <literal>filterProcessesUrl</literal> property of
-                    <classname>UsernamePasswordAuthenticationFilter</classname>. The default value
-                    is "/j_spring_security_check". </para>
+                        <classname>UsernamePasswordAuthenticationFilter</classname>. The default
+                    value is "/j_spring_security_check". </para>
             </section>
             <section>
                 <title><literal>default-target-url</literal></title>
                 <para>Maps to the <literal>defaultTargetUrl</literal> property of
-                    <classname>UsernamePasswordAuthenticationFilter</classname>. If not set, the
+                        <classname>UsernamePasswordAuthenticationFilter</classname>. If not set, the
                     default value is "/" (the application root). A user will be taken to this URL
                     after logging in, provided they were not asked to login while attempting to
                     access a secured resource, when they will be taken to the originally requested
@@ -242,16 +245,16 @@
             <section>
                 <title><literal>always-use-default-target</literal></title>
                 <para> If set to "true", the user will always start at the value given by
-                    <literal>default-target-url</literal>, regardless of how they arrived at the
+                        <literal>default-target-url</literal>, regardless of how they arrived at the
                     login page. Maps to the <literal>alwaysUseDefaultTargetUrl</literal> property of
-                    <classname>UsernamePasswordAuthenticationFilter</classname>. Default value is
-                    "false". </para>
+                        <classname>UsernamePasswordAuthenticationFilter</classname>. Default value
+                    is "false". </para>
             </section>
             <section>
                 <title><literal>authentication-failure-url</literal></title>
                 <para> Maps to the <literal>authenticationFailureUrl</literal> property of
-                    <classname>UsernamePasswordAuthenticationFilter</classname>. Defines the URL the
-                    browser will be redirected to on login failure. Defaults to
+                        <classname>UsernamePasswordAuthenticationFilter</classname>. Defines the URL
+                    the browser will be redirected to on login failure. Defaults to
                     "/spring_security_login?login_error", which will be automatically handled by the
                     automatic login page generator, re-rendering the login page with an error
                     message. </para>
@@ -263,8 +266,8 @@
                     the navigation flow after a successful authentication. The value should be the
                     name of an <interfacename>AuthenticationSuccessHandler</interfacename> bean in
                     the application context. By default, an imlementation of
-                    <classname>SavedRequestAwareAuthenticationSuccessHandler</classname> is used and
-                    injected with the <literal>default-target-url</literal>.</para>
+                        <classname>SavedRequestAwareAuthenticationSuccessHandler</classname> is used
+                    and injected with the <literal>default-target-url</literal>.</para>
             </section>
             <section>
                 <title><literal>authentication-failure-handler-ref</literal></title>
@@ -278,7 +281,7 @@
         <section xml:id="nsa-http-basic">
             <title>The <literal>&lt;http-basic&gt;</literal> Element</title>
             <para> Adds a <classname>BasicAuthenticationFilter</classname> and
-                <classname>BasicAuthenticationEntryPoint</classname> to the configuration. The
+                    <classname>BasicAuthenticationEntryPoint</classname> to the configuration. The
                 latter will only be used as the configuration entry point if form-based login is not
                 enabled. </para>
         </section>
@@ -286,57 +289,57 @@
             <title>The <literal>&lt;remember-me&gt;</literal> Element</title>
             <para> Adds the <classname>RememberMeAuthenticationFilter</classname> to the stack. This
                 in turn will be configured with either a
-                <classname>TokenBasedRememberMeServices</classname>, a
-                <classname>PersistentTokenBasedRememberMeServices</classname> or a user-specified
-                bean implementing <interfacename>RememberMeServices</interfacename> depending on the
-                attribute settings. </para>
+                    <classname>TokenBasedRememberMeServices</classname>, a
+                    <classname>PersistentTokenBasedRememberMeServices</classname> or a
+                user-specified bean implementing <interfacename>RememberMeServices</interfacename>
+                depending on the attribute settings. </para>
             <section>
                 <title><literal>data-source-ref</literal></title>
                 <para> If this is set, <classname>PersistentTokenBasedRememberMeServices</classname>
                     will be used and configured with a
-                    <classname>JdbcTokenRepositoryImpl</classname> instance. </para>
+                        <classname>JdbcTokenRepositoryImpl</classname> instance. </para>
             </section>
             <section>
                 <title><literal>token-repository-ref</literal></title>
                 <para> Configures a <classname>PersistentTokenBasedRememberMeServices</classname>
                     but allows the use of a custom
-                    <interfacename>PersistentTokenRepository</interfacename> bean. </para>
+                        <interfacename>PersistentTokenRepository</interfacename> bean. </para>
             </section>
             <section>
                 <title><literal>services-ref</literal></title>
                 <para> Allows complete control of the
-                    <interfacename>RememberMeServices</interfacename> implementation that will be
-                    used by the filter. The value should be the Id of a bean in the application
+                        <interfacename>RememberMeServices</interfacename> implementation that will
+                    be used by the filter. The value should be the Id of a bean in the application
                     context which implements this interface. </para>
             </section>
             <section>
                 <title><literal>token-repository-ref</literal></title>
                 <para> Configures a <classname>PersistentTokenBasedRememberMeServices</classname>
                     but allows the use of a custom
-                    <interfacename>PersistentTokenRepository</interfacename> bean. </para>
+                        <interfacename>PersistentTokenRepository</interfacename> bean. </para>
             </section>
             <section>
                 <title>The <literal>key</literal> Attribute</title>
                 <para>Maps to the "key" property of
-                    <classname>AbstractRememberMeServices</classname>. Should be set to a unique
+                        <classname>AbstractRememberMeServices</classname>. Should be set to a unique
                     value to ensure that remember-me cookies are only valid within the one
                     application <footnote>
-                    <para>This doesn't affect the use of
-                        <classname>PersistentTokenBasedRememberMeServices</classname>, where the
-                        tokens are stored on the server side.</para>
+                        <para>This doesn't affect the use of
+                                <classname>PersistentTokenBasedRememberMeServices</classname>, where
+                            the tokens are stored on the server side.</para>
                     </footnote>. </para>
             </section>
             <section>
                 <title><literal>token-validity-seconds</literal></title>
                 <para> Maps to the <literal>tokenValiditySeconds</literal> property of
-                    <classname>AbstractRememberMeServices</classname>. Specifies the period in
+                        <classname>AbstractRememberMeServices</classname>. Specifies the period in
                     seconds for which the remember-me cookie should be valid. By default it will be
                     valid for 14 days. </para>
             </section>
             <section>
                 <title><literal>user-service-ref</literal></title>
                 <para> The remember-me services implementations require access to a
-                    <interfacename>UserDetailsService</interfacename>, so there has to be one
+                        <interfacename>UserDetailsService</interfacename>, so there has to be one
                     defined in the application context. If there is only one, it will be selected
                     and used automatically by the namespace configuration. If there are multiple
                     instances, you can specify a bean Id explicitly using this attribute. </para>
@@ -345,7 +348,7 @@
         <section xml:id="nsa-session-mgmt">
             <title>The <literal>&lt;session-management&gt;</literal> Element</title>
             <para>Session-management related functionality is implemented by the addition of a
-                <classname>SessionManagementFilter</classname> to the filter stack.</para>
+                    <classname>SessionManagementFilter</classname> to the filter stack.</para>
             <section xml:id="session-fixation-protection">
                 <title><literal>session-fixation-protection</literal></title>
                 <para> Indicates whether an existing session should be invalidated when a user
@@ -354,27 +357,28 @@
                     a new session and copy the session attributes to the new session. Defaults to
                     "migrateSession".</para>
                 <para> If session fixation protection is enabled, the
-                    <classname>SessionManagementFilter</classname> is inected with a appropriately
-                    configured <classname>DefaultSessionAuthenticationStrategy</classname>. See the
-                    Javadoc for this class for more details. </para>
+                        <classname>SessionManagementFilter</classname> is inected with a
+                    appropriately configured
+                        <classname>DefaultSessionAuthenticationStrategy</classname>. See the Javadoc
+                    for this class for more details. </para>
             </section>
         </section>
         <section xml:id="nsa-concurrent-session-control">
             <title>The <literal>&lt;concurrency-control&gt;</literal> Element</title>
             <para> Adds support for concurrent session control, allowing limits to be placed on the
                 number of active sessions a user can have. A
-                <classname>ConcurrentSessionFilter</classname> will be created, and a
-                <classname>ConcurrentSessionControlStrategy</classname> will be used with the
-                <classname>SessionManagementFilter</classname>. If a <literal>form-login</literal>
-                element has been declared, the strategy object will also be injected into the
-                created authentication filter. An instance of
-                <interfacename>SessionRegistry</interfacename> (a
-                <classname>SessionRegistryImpl</classname> instance unless the user wishes to use a
-                custom bean) will be created for use by the strategy.</para>
+                    <classname>ConcurrentSessionFilter</classname> will be created, and a
+                    <classname>ConcurrentSessionControlStrategy</classname> will be used with the
+                    <classname>SessionManagementFilter</classname>. If a
+                    <literal>form-login</literal> element has been declared, the strategy object
+                will also be injected into the created authentication filter. An instance of
+                    <interfacename>SessionRegistry</interfacename> (a
+                    <classname>SessionRegistryImpl</classname> instance unless the user wishes to
+                use a custom bean) will be created for use by the strategy.</para>
             <section>
                 <title>The <literal>max-sessions</literal> attribute</title>
                 <para>Maps to the <literal>maximumSessions</literal> property of
-                    <classname>ConcurrentSessionControlStrategy</classname>.</para>
+                        <classname>ConcurrentSessionControlStrategy</classname>.</para>
             </section>
             <section>
                 <title>The <literal>expired-url</literal> attribute</title>
@@ -388,13 +392,13 @@
             <section>
                 <title>The <literal>error-if-maximum-exceeded</literal> attribute</title>
                 <para>If set to "true" a
-                    <exceptionname>SessionAuthenticationException</exceptionname> will be raised
+                        <exceptionname>SessionAuthenticationException</exceptionname> will be raised
                     when a user attempts to exceed the maximum allowed number of sessions. The
                     default behaviour is to expire the original session. </para>
             </section>
             <section>
                 <title>The <literal>session-registry-alias</literal> and
-                    <literal>session-registry-ref</literal> attributes</title>
+                        <literal>session-registry-ref</literal> attributes</title>
                 <para> The user can supply their own <interfacename>SessionRegistry</interfacename>
                     implementation using the <literal>session-registry-ref</literal> attribute. The
                     other concurrent session control beans will be wired up to use it. </para>
@@ -407,24 +411,24 @@
         <section xml:id="nsa-anonymous">
             <title>The <literal>&lt;anonymous&gt;</literal> Element</title>
             <para> Adds an <classname>AnonymousAuthenticationFilter</classname> to the stack and an
-                <classname>AnonymousAuthenticationProvider</classname>. Required if you are using
-                the <literal>IS_AUTHENTICATED_ANONYMOUSLY</literal> attribute. </para>
+                    <classname>AnonymousAuthenticationProvider</classname>. Required if you are
+                using the <literal>IS_AUTHENTICATED_ANONYMOUSLY</literal> attribute. </para>
         </section>
         <section xml:id="nsa-x509">
             <title>The <literal>&lt;x509&gt;</literal> Element</title>
             <para> Adds support for X.509 authentication. An
-                <classname>X509AuthenticationFilter</classname> will be added to the stack and an
-                <classname>Http403ForbiddenEntryPoint</classname> bean will be created. The latter
-                will only be used if no other authentication mechanisms are in use (it's only
+                    <classname>X509AuthenticationFilter</classname> will be added to the stack and
+                an <classname>Http403ForbiddenEntryPoint</classname> bean will be created. The
+                latter will only be used if no other authentication mechanisms are in use (it's only
                 functionality is to return an HTTP 403 error code). A
-                <classname>PreAuthenticatedAuthenticationProvider</classname> will also be created
-                which delegates the loading of user authorities to a
-                <interfacename>UserDetailsService</interfacename>. </para>
+                    <classname>PreAuthenticatedAuthenticationProvider</classname> will also be
+                created which delegates the loading of user authorities to a
+                    <interfacename>UserDetailsService</interfacename>. </para>
             <section>
                 <title>The <literal>subject-principal-regex</literal> attribute</title>
                 <para> Defines a regular expression which will be used to extract the username from
                     the certificate (for use with the
-                    <interfacename>UserDetailsService</interfacename>). </para>
+                        <interfacename>UserDetailsService</interfacename>). </para>
             </section>
             <section>
                 <title>The <literal>user-service-ref</literal> attribute</title>
@@ -439,10 +443,10 @@
             <para> Similar to <literal>&lt;form-login&gt;</literal> and has the same attributes. The
                 default value for <literal>login-processing-url</literal> is
                 "/j_spring_openid_security_check". An
-                <classname>OpenIDAuthenticationFilter</classname> and
-                <classname>OpenIDAuthenticationProvider</classname> will be registered. The latter
-                requires a reference to a <interfacename>UserDetailsService</interfacename>. Again,
-                this can be specified by Id, using the <literal>user-service-ref</literal>
+                    <classname>OpenIDAuthenticationFilter</classname> and
+                    <classname>OpenIDAuthenticationProvider</classname> will be registered. The
+                latter requires a reference to a <interfacename>UserDetailsService</interfacename>.
+                Again, this can be specified by Id, using the <literal>user-service-ref</literal>
                 attribute, or will be located automatically in the application context. </para>
             <section>
                 <title>The <literal>&lt;attribute-exchange></literal> Element</title>
@@ -471,16 +475,16 @@
             <section>
                 <title>The <literal>invalidate-session</literal> attribute</title>
                 <para> Maps to the <literal>invalidateHttpSession</literal> of the
-                    <classname>SecurityContextLogoutHandler</classname>. Defaults to "true", so the
-                    session will be invalidated on logout. </para>
+                        <classname>SecurityContextLogoutHandler</classname>. Defaults to "true", so
+                    the session will be invalidated on logout. </para>
             </section>
         </section>
         <section>
             <title>The <literal>&lt;custom-filter></literal> Element</title>
             <para>This element is used to add a filter to the filter chain. It doesn't create any
                 additional beans but is used to select a bean of type
-                <interfacename>javax.servlet.Filter</interfacename> which is already defined in the
-                appllication context and add that at a particular position in the filter chain
+                    <interfacename>javax.servlet.Filter</interfacename> which is already defined in
+                the appllication context and add that at a particular position in the filter chain
                 maintained by Spring Security. Full details can be found in the namespace
                 chapter.</para>
         </section>
@@ -489,56 +493,56 @@
         <title>Authentication Services</title>
         <para> Before Spring Security 3.0, an <interfacename>AuthenticationManager</interfacename>
             was automatically registered internally. Now you must register one explicitly using the
-            <literal>&lt;authentication-manager&gt;</literal> element. This creates an instance of
-            Spring Security's <classname>ProviderManager</classname> class, which needs to be
+                <literal>&lt;authentication-manager&gt;</literal> element. This creates an instance
+            of Spring Security's <classname>ProviderManager</classname> class, which needs to be
             configured with a list of one or more
-            <interfacename>AuthenticationProvider</interfacename> instances. These can either be
+                <interfacename>AuthenticationProvider</interfacename> instances. These can either be
             created using syntax elements provided by the namespace, or they can be standard bean
             definitions, marked for addition to the list using the
-            <literal>authentication-provider</literal> element. </para>
+                <literal>authentication-provider</literal> element. </para>
         <section>
             <title>The <literal>&lt;authentication-manager&gt;</literal> Element</title>
             <para> Every Spring Security application which uses the namespace must have include this
                 element somewhere. It is responsible for registering the
-                <interfacename>AuthenticationManager</interfacename> which provides authentication
-                services to the application. It also allows you to define an alias name for the
-                internal instance for use in your own configuration. Its use is described in the
-                <link xlink:href="#ns-auth-manager">namespace introduction</link>. All elements
-                which create <interfacename>AuthenticationProvider</interfacename> instances should
-                be children of this element.</para>
+                    <interfacename>AuthenticationManager</interfacename> which provides
+                authentication services to the application. It also allows you to define an alias
+                name for the internal instance for use in your own configuration. Its use is
+                described in the <link xlink:href="#ns-auth-manager">namespace introduction</link>.
+                All elements which create <interfacename>AuthenticationProvider</interfacename>
+                instances should be children of this element.</para>
             <section>
                 <title>The <literal>&lt;authentication-provider&gt;</literal> Element</title>
                 <para> Unless used with a <literal>ref</literal> attribute, this element is
                     shorthand for configuring a <link xlink:href="#core-services-dao-provider"
-                    ><classname>DaoAuthenticationProvider</classname></link>.
-                    <classname>DaoAuthenticationProvider</classname> loads user information from a
-                    <interfacename>UserDetailsService</interfacename> and compares the
+                            ><classname>DaoAuthenticationProvider</classname></link>.
+                        <classname>DaoAuthenticationProvider</classname> loads user information from
+                    a <interfacename>UserDetailsService</interfacename> and compares the
                     username/password combination with the values supplied at login. The
-                    <interfacename>UserDetailsService</interfacename> instance can be defined either
-                    by using an available namespace element (<literal>jdbc-user-service</literal> or
-                    by using the <literal>user-service-ref</literal> attribute to point to a bean
-                    defined elsewhere in the application context). You can find examples of these
-                    variations in the <link xlink:href="#ns-auth-providers">namespace
-                    introduction</link>. </para>
+                        <interfacename>UserDetailsService</interfacename> instance can be defined
+                    either by using an available namespace element
+                        (<literal>jdbc-user-service</literal> or by using the
+                        <literal>user-service-ref</literal> attribute to point to a bean defined
+                    elsewhere in the application context). You can find examples of these variations
+                    in the <link xlink:href="#ns-auth-providers">namespace introduction</link>. </para>
                 <section>
                     <title>The <literal>&lt;password-encoder&gt;</literal> Element</title>
                     <para>Authentication providers can optionally be configured to use a password
                         encoder as described in the <link xlink:href="#ns-password-encoder"
-                        >namespace introduction</link>. This will result in the bean being injected
-                        with the appropriate <interfacename>PasswordEncoder</interfacename>
+                            >namespace introduction</link>. This will result in the bean being
+                        injected with the appropriate <interfacename>PasswordEncoder</interfacename>
                         instance, potentially with an accompanying
-                        <interfacename>SaltSource</interfacename> bean to provide salt values for
-                        hashing. </para>
+                            <interfacename>SaltSource</interfacename> bean to provide salt values
+                        for hashing. </para>
                 </section>
             </section>
             <section>
                 <title>Using <literal>&lt;authentication-provider&gt;</literal> to refer to an
-                    <interfacename>AuthenticationProvider</interfacename> Bean</title>
+                        <interfacename>AuthenticationProvider</interfacename> Bean</title>
                 <para> If you have written your own
-                    <interfacename>AuthenticationProvider</interfacename> implementation (or want to
-                    configure one of Spring Security's own implementations as a traditional bean for
-                    some reason, then you can use the following syntax to add it to the internal
-                    <classname>ProviderManager</classname>'s list: <programlisting><![CDATA[
+                        <interfacename>AuthenticationProvider</interfacename> implementation (or
+                    want to configure one of Spring Security's own implementations as a traditional
+                    bean for some reason, then you can use the following syntax to add it to the
+                    internal <classname>ProviderManager</classname>'s list: <programlisting><![CDATA[
   <security:authentication-manager>
     <security:authentication-provider ref="myAuthenticationProvider" />
   </security:authentication-manager>
@@ -556,18 +560,18 @@
                 the interface or class level) or by defining a set of pointcuts as child elements,
                 using AspectJ syntax. </para>
             <para> Method security uses the same
-                <interfacename>AccessDecisionManager</interfacename> configuration as web security,
-                but this can be overridden as explained above <xref
-                xlink:href="#nsa-access-decision-manager-ref"/>, using the same attribute. </para>
+                    <interfacename>AccessDecisionManager</interfacename> configuration as web
+                security, but this can be overridden as explained above <xref
+                    xlink:href="#nsa-access-decision-manager-ref"/>, using the same attribute. </para>
             <section>
                 <title>The <literal>secured-annotations</literal> and
-                    <literal>jsr250-annotations</literal> Attributes</title>
+                        <literal>jsr250-annotations</literal> Attributes</title>
                 <para> Setting these to "true" will enable support for Spring Security's own
-                    <literal>@Secured</literal> annotations and JSR-250 annotations, respectively.
-                    They are both disabled by default. Use of JSR-250 annotations also adds a
-                    <classname>Jsr250Voter</classname> to the
-                    <interfacename>AccessDecisionManager</interfacename>, so you need to make sure
-                    you do this if you are using a custom implementation and want to use these
+                        <literal>@Secured</literal> annotations and JSR-250 annotations,
+                    respectively. They are both disabled by default. Use of JSR-250 annotations also
+                    adds a <classname>Jsr250Voter</classname> to the
+                        <interfacename>AccessDecisionManager</interfacename>, so you need to make
+                    sure you do this if you are using a custom implementation and want to use these
                     annotations. </para>
             </section>
             <section>
@@ -577,118 +581,120 @@
                     cross-cutting security constraints across whole sets of methods and interfaces
                     in your service layer using the <literal>&lt;protect-pointcut&gt;</literal>
                     element. This has two attributes: <itemizedlist>
-                    <listitem>
-                        <para><literal>expression</literal> - the pointcut expression</para>
-                    </listitem>
-                    <listitem>
-                        <para><literal>access</literal> - the security attributes which apply</para>
-                    </listitem>
+                        <listitem>
+                            <para><literal>expression</literal> - the pointcut expression</para>
+                        </listitem>
+                        <listitem>
+                            <para><literal>access</literal> - the security attributes which
+                                apply</para>
+                        </listitem>
                     </itemizedlist> You can find an example in the <link
-                    xlink:href="#ns-protect-pointcut">namespace introduction</link>. </para>
+                        xlink:href="#ns-protect-pointcut">namespace introduction</link>. </para>
             </section>
             <section xml:id="nsa-custom-after-invocation">
                 <title>The <literal>&lt;after-invocation-provider&gt;</literal> Element</title>
                 <para> This element can be used to decorate an
-                    <interfacename>AfterInvocationProvider</interfacename> for use by the security
-                    interceptor maintained by the <literal>&lt;global-method-security&gt;</literal>
-                    namespace. You can define zero or more of these within the
-                    <literal>global-method-security</literal> element, each with a
-                    <literal>ref</literal> attribute pointing to an
-                    <interfacename>AfterInvocationProvider</interfacename> bean instance within your
-                    application context. </para>
+                        <interfacename>AfterInvocationProvider</interfacename> for use by the
+                    security interceptor maintained by the
+                        <literal>&lt;global-method-security&gt;</literal> namespace. You can define
+                    zero or more of these within the <literal>global-method-security</literal>
+                    element, each with a <literal>ref</literal> attribute pointing to an
+                        <interfacename>AfterInvocationProvider</interfacename> bean instance within
+                    your application context. </para>
             </section>
         </section>
         <section>
             <title>LDAP Namespace Options</title>
             <para> LDAP is covered in some details in <link xlink:href="#ldap">its own
-                chapter</link>. We will expand on that here with some explanation of how the
+                    chapter</link>. We will expand on that here with some explanation of how the
                 namespace options map to Spring beans. The LDAP implementation uses Spring LDAP
                 extensively, so some familiarity with that project's API may be useful. </para>
             <section>
                 <title>Defining the LDAP Server using the <literal>&lt;ldap-server&gt;</literal>
                     Element</title>
                 <para> This element sets up a Spring LDAP
-                    <interfacename>ContextSource</interfacename> for use by the other LDAP beans,
-                    defining the location of the LDAP server and other information (such as a
+                        <interfacename>ContextSource</interfacename> for use by the other LDAP
+                    beans, defining the location of the LDAP server and other information (such as a
                     username and password, if it doesn't allow anonymous access) for connecting to
                     it. It can also be used to create an embedded server for testing. Details of the
                     syntax for both options are covered in the <link xlink:href="#ldap-server">LDAP
-                    chapter</link>. The actual <interfacename>ContextSource</interfacename>
+                        chapter</link>. The actual <interfacename>ContextSource</interfacename>
                     implementation is <classname>DefaultSpringSecurityContextSource</classname>
                     which extends Spring LDAP's <classname>LdapContextSource</classname> class. The
-                    <literal>manager-dn</literal> and <literal>manager-password</literal> attributes
-                    map to the latter's <literal>userDn</literal> and <literal>password</literal>
-                    properties respectively. </para>
+                        <literal>manager-dn</literal> and <literal>manager-password</literal>
+                    attributes map to the latter's <literal>userDn</literal> and
+                        <literal>password</literal> properties respectively. </para>
                 <para> If you only have one server defined in your application context, the other
                     LDAP namespace-defined beans will use it automatically. Otherwise, you can give
                     the element an "id" attribute and refer to it from other namespace beans using
                     the <literal>server-ref</literal> attribute. This is actually the bean Id of the
-                    <literal>ContextSource</literal> instance, if you want to use it in other
+                        <literal>ContextSource</literal> instance, if you want to use it in other
                     traditional Spring beans. </para>
             </section>
             <section>
                 <title>The <literal>&lt;ldap-provider&gt;</literal> Element</title>
                 <para> This element is shorthand for the creation of an
-                    <classname>LdapAuthenticationProvider</classname> instance. By default this will
-                    be configured with a <classname>BindAuthenticator</classname> instance and a
-                    <classname>DefaultAuthoritiesPopulator</classname>. As with all namespace
+                        <classname>LdapAuthenticationProvider</classname> instance. By default this
+                    will be configured with a <classname>BindAuthenticator</classname> instance and
+                    a <classname>DefaultAuthoritiesPopulator</classname>. As with all namespace
                     authentication providers, it must be included as a child of the
-                    <literal>authentication-provider</literal> element.</para>
+                        <literal>authentication-provider</literal> element.</para>
                 <section>
                     <title>The <literal>user-dn-pattern</literal> Attribute</title>
                     <para> If your users are at a fixed location in the directory (i.e. you can work
                         out the DN directly from the username without doing a directory search), you
                         can use this attribute to map directly to the DN. It maps directly to the
-                        <literal>userDnPatterns</literal> property of
-                        <classname>AbstractLdapAuthenticator</classname>. </para>
+                            <literal>userDnPatterns</literal> property of
+                            <classname>AbstractLdapAuthenticator</classname>. </para>
                 </section>
                 <section>
                     <title>The <literal>user-search-base</literal> and
-                        <literal>user-search-filter</literal> Attributes</title>
+                            <literal>user-search-filter</literal> Attributes</title>
                     <para> If you need to perform a search to locate the user in the directory, then
                         you can set these attributes to control the search. The
-                        <classname>BindAuthenticator</classname> will be configured with a
-                        <classname>FilterBasedLdapUserSearch</classname> and the attribute values
-                        map directly to the first two arguments of that bean's constructor. If these
-                        attributes aren't set and no <literal>user-dn-pattern</literal> has been
-                        supplied as an alternative, then the default search values of
-                        <literal>user-search-filter="(uid={0})"</literal> and
-                        <literal>user-search-base=""</literal> will be used. </para>
+                            <classname>BindAuthenticator</classname> will be configured with a
+                            <classname>FilterBasedLdapUserSearch</classname> and the attribute
+                        values map directly to the first two arguments of that bean's constructor.
+                        If these attributes aren't set and no <literal>user-dn-pattern</literal> has
+                        been supplied as an alternative, then the default search values of
+                            <literal>user-search-filter="(uid={0})"</literal> and
+                            <literal>user-search-base=""</literal> will be used. </para>
                 </section>
                 <section>
                     <title><literal>group-search-filter</literal>,
-                        <literal>group-search-base</literal>,
-                        <literal>group-role-attribute</literal> and <literal>role-prefix</literal>
-                        Attributes</title>
+                            <literal>group-search-base</literal>,
+                            <literal>group-role-attribute</literal> and
+                            <literal>role-prefix</literal> Attributes</title>
                     <para> The value of <literal>group-search-base</literal> is mapped to the
-                        <literal>groupSearchBase</literal> constructor argument of
-                        <classname>DefaultAuthoritiesPopulator</classname> and defaults to
+                            <literal>groupSearchBase</literal> constructor argument of
+                            <classname>DefaultAuthoritiesPopulator</classname> and defaults to
                         "ou=groups". The default filter value is "(uniqueMember={0})", which assumes
                         that the entry is of type "groupOfUniqueNames".
-                        <literal>group-role-attribute</literal> maps to the
-                        <literal>groupRoleAttribute</literal> attribute and defaults to "cn".
+                            <literal>group-role-attribute</literal> maps to the
+                            <literal>groupRoleAttribute</literal> attribute and defaults to "cn".
                         Similarly <literal>role-prefix</literal> maps to
-                        <literal>rolePrefix</literal> and defaults to "ROLE_". </para>
+                            <literal>rolePrefix</literal> and defaults to "ROLE_". </para>
                 </section>
                 <section>
                     <title>The <literal>&lt;password-compare&gt;</literal> Element</title>
                     <para> This is used as child element to <literal>&lt;ldap-provider&gt;</literal>
                         and switches the authentication strategy from
-                        <classname>BindAuthenticator</classname> to
-                        <classname>PasswordComparisonAuthenticator</classname>. This can optionally
-                        be supplied with a <literal>hash</literal> attribute or with a child
-                        <literal>&lt;password-encoder&gt;</literal> element to hash the password
-                        before submitting it to the directory for comparison. </para>
+                            <classname>BindAuthenticator</classname> to
+                            <classname>PasswordComparisonAuthenticator</classname>. This can
+                        optionally be supplied with a <literal>hash</literal> attribute or with a
+                        child <literal>&lt;password-encoder&gt;</literal> element to hash the
+                        password before submitting it to the directory for comparison. </para>
                 </section>
             </section>
             <section>
                 <title>The <literal>&lt;ldap-user-service&gt;</literal> Element</title>
                 <para> This element configures an LDAP
-                    <interfacename>UserDetailsService</interfacename>. The class used is
-                    <classname>LdapUserDetailsService</classname> which is a combination of a
-                    <classname>FilterBasedLdapUserSearch</classname> and a
-                    <classname>DefaultAuthoritiesPopulator</classname>. The attributes it supports
-                    have the same usage as in <literal>&lt;ldap-provider&gt;</literal>. </para>
+                        <interfacename>UserDetailsService</interfacename>. The class used is
+                        <classname>LdapUserDetailsService</classname> which is a combination of a
+                        <classname>FilterBasedLdapUserSearch</classname> and a
+                        <classname>DefaultAuthoritiesPopulator</classname>. The attributes it
+                    supports have the same usage as in <literal>&lt;ldap-provider&gt;</literal>.
+                </para>
             </section>
         </section>
     </section>

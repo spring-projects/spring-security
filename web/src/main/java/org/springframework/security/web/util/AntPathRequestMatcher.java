@@ -10,9 +10,9 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * Matcher which compares a pre-defined ant-style pattern against the URL of an
- * {@code HttpServletRequest}. Ignores the query string of the URL and always performs
- * case-insensitive matching.
+ * Matcher which compares a pre-defined ant-style pattern against the URL
+ * ({@code servletPath + pathInfo}) of an {@code HttpServletRequest}.
+ * The query string of the URL is ignored and matching is case-insensitive.
  *
  * @author Luke Taylor
  * @since 3.1
@@ -52,7 +52,8 @@ public final class AntPathRequestMatcher implements RequestMatcher {
     /**
      * Returns true if the configured pattern (and HTTP-Method) match those of the supplied request.
      *
-     * @param request the request to match against.
+     * @param request the request to match against. The ant pattern will be matched against the
+     *    {@code servletPath} + {@code pathInfo} of the request.
      */
     public boolean matches(HttpServletRequest request) {
         if (httpMethod != null && httpMethod != HttpMethod.valueOf(request.getMethod())) {

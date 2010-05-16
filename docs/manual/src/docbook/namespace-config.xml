@@ -9,9 +9,9 @@
         <para> Namespace configuration has been available since version 2.0 of the Spring framework.
             It allows you to supplement the traditional Spring beans application context syntax with
             elements from additional XML schema. You can find more information in the Spring <link
-            xlink:href="http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/apc.html"
-            > Reference Documentation</link>. A namespace element can be used simply to allow a more
-            concise way of configuring an individual bean or, more powerfully, to define an
+                xlink:href="http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/apc.html"
+                > Reference Documentation</link>. A namespace element can be used simply to allow a
+            more concise way of configuring an individual bean or, more powerfully, to define an
             alternative configuration syntax which more closely matches the problem domain and hides
             the underlying complexity from the user. A simple element may conceal the fact that
             multiple beans and processing steps are being added to the application context. For
@@ -22,13 +22,13 @@
             beans. The most common alternative configuration requirements are supported by
             attributes on the <literal>ldap-server</literal> element and the user is isolated from
             worrying about which beans they need to create and what the bean property names are. <footnote>
-            <para>You can find out more about the use of the <literal>ldap-server</literal> element
-                in the chapter on <link xlink:href="#ldap">LDAP</link>.</para>
+                <para>You can find out more about the use of the <literal>ldap-server</literal>
+                    element in the chapter on <link xlink:href="#ldap">LDAP</link>.</para>
             </footnote>. Use of a good XML editor while editing the application context file should
             provide information on the attributes and elements that are available. We would
             recommend that you try out the <link
-            xlink:href="http://www.springsource.com/products/sts">SpringSource Tool Suite</link> as
-            it has special features for working with standard Spring namespaces. </para>
+                xlink:href="http://www.springsource.com/products/sts">SpringSource Tool Suite</link>
+            as it has special features for working with standard Spring namespaces. </para>
         <para> To start using the security namespace in your application context, all you need to do
             is add the schema declaration to your application context file: <programlisting language="xml">
   <![CDATA[
@@ -63,37 +63,43 @@
                 provide a simplified and concise syntax for enabling them within an application. The
                 design is based around the large-scale dependencies within the framework, and can be
                 divided up into the following areas: <itemizedlist>
-                <listitem>
-                    <para> <emphasis>Web/HTTP Security</emphasis> - the most complex part. Sets up
-                        the filters and related service beans used to apply the framework
-                        authentication mechanisms, to secure URLs, render login and error pages and
-                        much more.</para>
-                </listitem>
-                <listitem>
-                    <para> <emphasis>Business Object (Method) Security</emphasis> - options for
-                        securing the service layer.</para>
-                </listitem>
-                <listitem>
-                    <para> <emphasis>AuthenticationManager</emphasis> - handles authentication
-                        requests from other parts of the framework.</para>
-                </listitem>
-                <listitem>
-                    <para> <emphasis>AccessDecisionManager</emphasis> - provides access decisions
-                        for web and method security. A default one will be registered, but you can
-                        also choose to use a custom one, declared using normal Spring bean
-                        syntax.</para>
-                </listitem>
-                <listitem>
-                    <para> <emphasis>AuthenticationProvider</emphasis>s - mechanisms against which
-                        the authentication manager authenticates users. The namespace provides
-                        supports for several standard options and also a means of adding custom
-                        beans declared using a traditional syntax. </para>
-                </listitem>
-                <listitem>
-                    <para> <emphasis>UserDetailsService</emphasis> - closely related to
-                        authentication providers, but often also required by other beans.</para>
-                </listitem>
-                <!-- todo: diagram and link to other sections which describe the interfaces -->
+                    <listitem>
+                        <para>
+                            <emphasis>Web/HTTP Security</emphasis> - the most complex part. Sets up
+                            the filters and related service beans used to apply the framework
+                            authentication mechanisms, to secure URLs, render login and error pages
+                            and much more.</para>
+                    </listitem>
+                    <listitem>
+                        <para>
+                            <emphasis>Business Object (Method) Security</emphasis> - options for
+                            securing the service layer.</para>
+                    </listitem>
+                    <listitem>
+                        <para>
+                            <emphasis>AuthenticationManager</emphasis> - handles authentication
+                            requests from other parts of the framework.</para>
+                    </listitem>
+                    <listitem>
+                        <para>
+                            <emphasis>AccessDecisionManager</emphasis> - provides access decisions
+                            for web and method security. A default one will be registered, but you
+                            can also choose to use a custom one, declared using normal Spring bean
+                            syntax.</para>
+                    </listitem>
+                    <listitem>
+                        <para>
+                            <emphasis>AuthenticationProvider</emphasis>s - mechanisms against which
+                            the authentication manager authenticates users. The namespace provides
+                            supports for several standard options and also a means of adding custom
+                            beans declared using a traditional syntax. </para>
+                    </listitem>
+                    <listitem>
+                        <para>
+                            <emphasis>UserDetailsService</emphasis> - closely related to
+                            authentication providers, but often also required by other beans.</para>
+                    </listitem>
+                    <!-- todo: diagram and link to other sections which describe the interfaces -->
                 </itemizedlist></para>
             <para>We'll see how to configure these in the following sections.</para>
         </section>
@@ -109,7 +115,7 @@
         <section xml:id="ns-web-xml">
             <title><literal>web.xml</literal> Configuration</title>
             <para> The first thing you need to do is add the following filter declaration to your
-                <literal>web.xml</literal> file: <programlisting language="xml"><![CDATA[
+                    <literal>web.xml</literal> file: <programlisting language="xml"><![CDATA[
 <filter>
   <filter-name>springSecurityFilterChain</filter-name>
   <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
@@ -123,11 +129,12 @@
                 infrastructure. <classname>DelegatingFilterProxy</classname> is a Spring Framework
                 class which delegates to a filter implementation which is defined as a Spring bean
                 in your application context. In this case, the bean is named
-                <quote>springSecurityFilterChain</quote>, which is an internal infrastructure bean
-                created by the namespace to handle web security. Note that you should not use this
-                bean name yourself. Once you've added this to your <filename>web.xml</filename>,
-                you're ready to start editing your application context file. Web security services
-                are configured using the <literal>&lt;http&gt;</literal> element. </para>
+                    <quote>springSecurityFilterChain</quote>, which is an internal infrastructure
+                bean created by the namespace to handle web security. Note that you should not use
+                this bean name yourself. Once you've added this to your
+                <filename>web.xml</filename>, you're ready to start editing your application context
+                file. Web security services are configured using the <literal>&lt;http&gt;</literal>
+                element. </para>
         </section>
         <section xml:id="ns-minimal">
             <title>A Minimal <literal>&lt;http&gt;</literal> Configuration</title>
@@ -138,30 +145,32 @@
   ]]>
 </programlisting> Which says that we want all URLs within our application to be secured,
                 requiring the role <literal>ROLE_USER</literal> to access them. The
-                <literal>&lt;http></literal> element is the parent for all web-related namespace
+                    <literal>&lt;http></literal> element is the parent for all web-related namespace
                 functionality. The <literal>&lt;intercept-url></literal> element defines a
-                <literal>pattern</literal> which is matched against the URLs of incoming requests
-                using an ant path style syntax. The <literal>access</literal> attribute defines the
-                access requirements for requests matching the given pattern. With the default
-                configuration, this is typically a comma-separated list of roles, one of which a
-                user must have to be allowed to make the request. The prefix <quote>ROLE_</quote> is
-                a marker which indicates that a simple comparison with the user's authorities should
-                be made. In other words, a normal role-based check should be used. Access-control in
-                Spring Security is not limited to the use of simple roles (hence the use of the
-                prefix to differentiate between different types of security attributes). We'll see
-                later how the interpretation can vary<footnote>
-                <para>The interpretation of the comma-separated values in the
-                    <literal>access</literal> attribute depends on the implementation of the <link
-                    xlink:href="#ns-access-manager">AccessDecisionManager</link> which is used. In
-                    Spring Security 3.0, the attribute can also be populated with an <link
-                    xlink:href="#el-access">EL expression</link>.</para>
+                    <literal>pattern</literal> which is matched against the URLs of incoming
+                requests using an ant path style syntax. You can also use regular-expression
+                matching as an alternative (see the namespace appendix for more details). The
+                    <literal>access</literal> attribute defines the access requirements for requests
+                matching the given pattern. With the default configuration, this is typically a
+                comma-separated list of roles, one of which a user must have to be allowed to make
+                the request. The prefix <quote>ROLE_</quote> is a marker which indicates that a
+                simple comparison with the user's authorities should be made. In other words, a
+                normal role-based check should be used. Access-control in Spring Security is not
+                limited to the use of simple roles (hence the use of the prefix to differentiate
+                between different types of security attributes). We'll see later how the
+                interpretation can vary<footnote>
+                    <para>The interpretation of the comma-separated values in the
+                            <literal>access</literal> attribute depends on the implementation of the
+                            <link xlink:href="#ns-access-manager">AccessDecisionManager</link> which
+                        is used. In Spring Security 3.0, the attribute can also be populated with an
+                            <link xlink:href="#el-access">EL expression</link>.</para>
                 </footnote>.</para>
             <note>
                 <para>You can use multiple <literal>&lt;intercept-url&gt;</literal> elements to
                     define different access requirements for different sets of URLs, but they will
                     be evaluated in the order listed and the first match will be used. So you must
                     put the most specific matches at the top. You can also add a
-                    <literal>method</literal> attribute to limit the match to a particular HTTP
+                        <literal>method</literal> attribute to limit the match to a particular HTTP
                     method (<literal>GET</literal>, <literal>POST</literal>, <literal>PUT</literal>
                     etc.). If a request matches multiple patterns, the method-specific match will
                     take precedence regardless of ordering.</para>
@@ -180,17 +189,17 @@
             <sidebar>
                 <para>If you are familiar with pre-namespace versions of the framework, you can
                     probably already guess roughly what's going on here. The
-                    <literal>&lt;http&gt;</literal> element is responsible for creating a
-                    <classname>FilterChainProxy</classname> and the filter beans which it uses.
+                        <literal>&lt;http&gt;</literal> element is responsible for creating a
+                        <classname>FilterChainProxy</classname> and the filter beans which it uses.
                     Common problems like incorrect filter ordering are no longer an issue as the
                     filter positions are predefined.</para>
                 <para>The <literal>&lt;authentication-provider&gt;</literal> element creates a
-                    <classname>DaoAuthenticationProvider</classname> bean and the
-                    <literal>&lt;user-service&gt;</literal> element creates an
-                    <classname>InMemoryDaoImpl</classname>. All
-                    <literal>authentication-provider</literal> elements must be children of the
-                    <literal>&lt;authentication-manager></literal> element, which creates a
-                    <classname>ProviderManager</classname> and registers the authentication
+                        <classname>DaoAuthenticationProvider</classname> bean and the
+                        <literal>&lt;user-service&gt;</literal> element creates an
+                        <classname>InMemoryDaoImpl</classname>. All
+                        <literal>authentication-provider</literal> elements must be children of the
+                        <literal>&lt;authentication-manager></literal> element, which creates a
+                        <classname>ProviderManager</classname> and registers the authentication
                     providers with it. You can find more detailed information on the beans that are
                     created in the <link xlink:href="#appendix-namespace">namespace appendix</link>.
                     It's worth cross-checking this if you want to start understanding what the
@@ -200,20 +209,20 @@
             <para> The configuration above defines two users, their passwords and their roles within
                 the application (which will be used for access control). It is also possible to load
                 user information from a standard properties file using the
-                <literal>properties</literal> attribute on <literal>user-service</literal>. See the
-                section on <link xlink:href="#core-services-in-memory-service">in-memory
-                authentication</link> for more details on the file format. Using the
-                <literal>&lt;authentication-provider&gt;</literal> element means that the user
+                    <literal>properties</literal> attribute on <literal>user-service</literal>. See
+                the section on <link xlink:href="#core-services-in-memory-service">in-memory
+                    authentication</link> for more details on the file format. Using the
+                    <literal>&lt;authentication-provider&gt;</literal> element means that the user
                 information will be used by the authentication manager to process authentication
                 requests. You can have multiple <literal>&lt;authentication-provider&gt;</literal>
                 elements to define different authentication sources and each will be consulted in
                 turn.</para>
             <para> At this point you should be able to start up your application and you will be
                 required to log in to proceed. Try it out, or try experimenting with the
-                <quote>tutorial</quote> sample application that comes with the project. The above
-                configuration actually adds quite a few services to the application because we have
-                used the <literal>auto-config</literal> attribute. For example, form-based login
-                processing is automatically enabled. </para>
+                    <quote>tutorial</quote> sample application that comes with the project. The
+                above configuration actually adds quite a few services to the application because we
+                have used the <literal>auto-config</literal> attribute. For example, form-based
+                login processing is automatically enabled. </para>
             <section xml:id="ns-auto-config">
                 <title>What does <literal>auto-config</literal> Include?</title>
                 <para> The <literal>auto-config</literal> attribute, as we have used it above, is
@@ -225,27 +234,27 @@
   </http>
   ]]></programlisting> These other elements are responsible for setting up form-login, basic
                     authentication and logout handling services respectively <footnote>
-                    <para>In versions prior to 3.0, this list also included remember-me
-                        functionality. This could cause some confusing errors with some
-                        configurations and was removed in 3.0. In 3.0, the addition of an
-                        <classname>AnonymousAuthenticationFilter</classname> is part of the default
-                        <literal>&lt;http></literal> configuration, so the <literal>&lt;anonymous
-                        /></literal> element is added regardless of whether
-                        <literal>auto-config</literal> is enabled.</para>
+                        <para>In versions prior to 3.0, this list also included remember-me
+                            functionality. This could cause some confusing errors with some
+                            configurations and was removed in 3.0. In 3.0, the addition of an
+                                <classname>AnonymousAuthenticationFilter</classname> is part of the
+                            default <literal>&lt;http></literal> configuration, so the
+                                <literal>&lt;anonymous /></literal> element is added regardless of
+                            whether <literal>auto-config</literal> is enabled.</para>
                     </footnote> . They each have attributes which can be used to alter their
                     behaviour. </para>
             </section>
         </section>
         <section xml:id="ns-form-and-basic">
             <title>Form and Basic Login Options</title>
-            <para> You might be wondering where the login form came from when you were prompted
-                to log in, since we made no mention of any HTML files or JSPs. In fact, since we
-                didn't explicitly set a URL for the login page, Spring Security generates one
-                automatically, based on the features that are enabled and using standard values
-                for the URL which processes the submitted login, the default target URL the user
-                will be sent to after loggin in and so on. However, the namespace offers plenty
-                of support to allow you to customize these options. For example, if you want to
-                supply your own login page, you could use: <programlisting language="xml"><![CDATA[
+            <para> You might be wondering where the login form came from when you were prompted to
+                log in, since we made no mention of any HTML files or JSPs. In fact, since we didn't
+                explicitly set a URL for the login page, Spring Security generates one
+                automatically, based on the features that are enabled and using standard values for
+                the URL which processes the submitted login, the default target URL the user will be
+                sent to after loggin in and so on. However, the namespace offers plenty of support
+                to allow you to customize these options. For example, if you want to supply your own
+                login page, you could use: <programlisting language="xml"><![CDATA[
   <http auto-config='true'>
     <intercept-url pattern="/login.jsp*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
     <intercept-url pattern="/**" access="ROLE_USER" />
@@ -253,19 +262,19 @@
   </http>
   ]]>
     </programlisting> Note that you can still use <literal>auto-config</literal>. The
-                <literal>form-login</literal> element just overrides the default settings. Also
-                note that we've added an extra <literal>intercept-url</literal> element to say
-                that any requests for the login page should be available to anonymous users <footnote>
-                <para>See the chapter on <link xlink:href="#anonymous">anonymous
-                    authentication</link> and also the <link
-                    xlink:href="#authz-authenticated-voter">AuthenticatedVoter</link> class for
-                    more details on how the value
-                    <literal>IS_AUTHENTICATED_ANONYMOUSLY</literal> is processed.</para>
+                    <literal>form-login</literal> element just overrides the default settings. Also
+                note that we've added an extra <literal>intercept-url</literal> element to say that
+                any requests for the login page should be available to anonymous users <footnote>
+                    <para>See the chapter on <link xlink:href="#anonymous">anonymous
+                            authentication</link> and also the <link
+                            xlink:href="#authz-authenticated-voter">AuthenticatedVoter</link> class
+                        for more details on how the value
+                            <literal>IS_AUTHENTICATED_ANONYMOUSLY</literal> is processed.</para>
                 </footnote>. Otherwise the request would be matched by the pattern
-                <literal>/**</literal> and it wouldn't be possible to access the login page
-                itself! This is a common configuration error and will result in an infinite loop
-                in the application. Spring Security will emit a warning in the log if your login
-                page appears to be secured. It is also possible to have all requests matching a
+                    <literal>/**</literal> and it wouldn't be possible to access the login page
+                itself! This is a common configuration error and will result in an infinite loop in
+                the application. Spring Security will emit a warning in the log if your login page
+                appears to be secured. It is also possible to have all requests matching a
                 particular pattern bypass the security filter chain completely: <programlisting language="xml"><![CDATA[
   <http auto-config='true'>
     <intercept-url pattern="/css/**" filters="none"/>
@@ -276,10 +285,10 @@
   ]]>
       </programlisting>It's important to realise that these requests will be completely
                 oblivious to any further Spring Security web-related configuration or additional
-                attributes such as <literal>requires-channel</literal>, so you will not be able
-                to access information on the current user or call secured methods during the
-                request. Use <literal>access='IS_AUTHENTICATED_ANONYMOUSLY'</literal> as an
-                alternative if you still want the security filter chain to be applied.</para>
+                attributes such as <literal>requires-channel</literal>, so you will not be able to
+                access information on the current user or call secured methods during the request.
+                Use <literal>access='IS_AUTHENTICATED_ANONYMOUSLY'</literal> as an alternative if
+                you still want the security filter chain to be applied.</para>
             <para>If you want to use basic authentication instead of form login, then change the
                 configuration to <programlisting language="xml"><![CDATA[
   <http auto-config='true'>
@@ -288,18 +297,18 @@
   </http>
   ]]>
     </programlisting> Basic authentication will then take precedence and will be used to
-                prompt for a login when a user attempts to access a protected resource. Form
-                login is still available in this configuration if you wish to use it, for
-                example through a login form embedded in another web page. </para>
+                prompt for a login when a user attempts to access a protected resource. Form login
+                is still available in this configuration if you wish to use it, for example through
+                a login form embedded in another web page. </para>
             <section xml:id="ns-form-target">
                 <title>Setting a Default Post-Login Destination</title>
-                <para> If a form login isn't prompted by an attempt to access a protected
-                    resource, the <literal>default-target-url</literal> option comes into play.
-                    This is the URL the user will be taken to after successfully logging in, and
-                    defaults to "/". You can also configure things so that the user
-                    <emphasis>always</emphasis> ends up at this page (regardless of whether the
-                    login was "on-demand" or they explicitly chose to log in) by setting the
-                    <literal>always-use-default-target</literal> attribute to "true". This is
+                <para> If a form login isn't prompted by an attempt to access a protected resource,
+                    the <literal>default-target-url</literal> option comes into play. This is the
+                    URL the user will be taken to after successfully logging in, and defaults to
+                    "/". You can also configure things so that the user <emphasis>always</emphasis>
+                    ends up at this page (regardless of whether the login was "on-demand" or they
+                    explicitly chose to log in) by setting the
+                        <literal>always-use-default-target</literal> attribute to "true". This is
                     useful if your application always requires that the user starts at a "home"
                     page, for example: <programlisting language="xml"><![CDATA[
   <http>
@@ -310,12 +319,11 @@
   </http>
   ]]>         </programlisting></para>
                 <para>For even more control over the destination, you can use the
-                    <literal>authentication-success-handler-ref</literal> attribute as an
-                    alternative to <literal>default-target-url</literal>. The referenced bean
-                    should be an instance of
-                    <interfacename>AuthenticationSuccessHandler</interfacename>. You'll find
-                    more on this in the <link xlink:href="#form-login-flow-handling">Core
-                    Filters</link> chapter and also in the namespace appendix, as well as
+                        <literal>authentication-success-handler-ref</literal> attribute as an
+                    alternative to <literal>default-target-url</literal>. The referenced bean should
+                    be an instance of <interfacename>AuthenticationSuccessHandler</interfacename>.
+                    You'll find more on this in the <link xlink:href="#form-login-flow-handling"
+                        >Core Filters</link> chapter and also in the namespace appendix, as well as
                     information on how to customize the flow when authentication fails. </para>
             </section>
         </section>
@@ -326,7 +334,7 @@
                 user information in something like a database or an LDAP server. LDAP namespace
                 configuration is dealt with in the <link xlink:href="#ldap">LDAP chapter</link>, so
                 we won't cover it here. If you have a custom implementation of Spring Security's
-                <classname>UserDetailsService</classname>, called "myUserDetailsService" in your
+                    <classname>UserDetailsService</classname>, called "myUserDetailsService" in your
                 application context, then you can authenticate against this using <programlisting language="xml"><![CDATA[
   <authentication-manager>
     <authentication-provider user-service-ref='myUserDetailsService'/>
@@ -340,11 +348,12 @@
   </authentication-manager>
   ]]>
         </programlisting> Where <quote>securityDataSource</quote> is the name of a
-                <classname>DataSource</classname> bean in the application context, pointing at a
+                    <classname>DataSource</classname> bean in the application context, pointing at a
                 database containing the standard Spring Security <link
-                xlink:href="#db_schema_users_authorities">user data tables</link>. Alternatively,
-                you could configure a Spring Security <classname>JdbcDaoImpl</classname> bean and
-                point at that using the <literal>user-service-ref</literal> attribute: <programlisting language="xml"><![CDATA[
+                    xlink:href="#db_schema_users_authorities">user data tables</link>.
+                Alternatively, you could configure a Spring Security
+                    <classname>JdbcDaoImpl</classname> bean and point at that using the
+                    <literal>user-service-ref</literal> attribute: <programlisting language="xml"><![CDATA[
   <authentication-manager>
     <authentication-provider user-service-ref='myUserDetailsService'/>
   </authentication-manager>
@@ -355,18 +364,18 @@
   </beans:bean>
   ]]>
         </programlisting> You can also use standard
-                <interfacename>AuthenticationProvider</interfacename> beans as follows <programlisting language="xml"><![CDATA[
+                    <interfacename>AuthenticationProvider</interfacename> beans as follows <programlisting language="xml"><![CDATA[
   <authentication-manager>
     <authentication-provider ref='myAuthenticationProvider'/>
   </authentication-manager>
   ]]>
         </programlisting> where <literal>myAuthenticationProvider</literal> is the name of a
                 bean in your application context which implements
-                <interfacename>AuthenticationProvider</interfacename>. You can use multiple
-                <literal>authentication-provider</literal> elements, in which case the providers
+                    <interfacename>AuthenticationProvider</interfacename>. You can use multiple
+                    <literal>authentication-provider</literal> elements, in which case the providers
                 will be queried in the order they are declared. See <xref linkend="ns-auth-manager"
                 /> for more on information on how the Spring Security
-                <interfacename>AuthenticationManager</interfacename> is configured using the
+                    <interfacename>AuthenticationManager</interfacename> is configured using the
                 namespace. </para>
             <section xml:id="ns-password-encoder">
                 <title>Adding a Password Encoder</title>
@@ -397,8 +406,8 @@
     <salt-source user-property="username"/>
   </password-encoder>
     ]]></programlisting> You can use a custom password encoder bean by using the
-                    <literal>ref</literal> attribute of <literal>password-encoder</literal>. This
-                    should contain the name of a bean in the application context which is an
+                        <literal>ref</literal> attribute of <literal>password-encoder</literal>.
+                    This should contain the name of a bean in the application context which is an
                     instance of Spring Security's <interfacename>PasswordEncoder</interfacename>
                     interface. </para>
             </section>
@@ -415,8 +424,8 @@
             <title>Adding HTTP/HTTPS Channel Security</title>
             <para>If your application supports both HTTP and HTTPS, and you require that particular
                 URLs can only be accessed over HTTPS, then this is directly supported using the
-                <literal>requires-channel</literal> attribute on
-                <literal>&lt;intercept-url&gt;</literal>: <programlisting language="xml"><![CDATA[
+                    <literal>requires-channel</literal> attribute on
+                    <literal>&lt;intercept-url&gt;</literal>: <programlisting language="xml"><![CDATA[
   <http>
     <intercept-url pattern="/secure/**" access="ROLE_USER" requires-channel="https"/>
     <intercept-url pattern="/**" access="ROLE_USER" requires-channel="any"/>
@@ -454,8 +463,8 @@
                 <para>If you wish to place constraints on a single user's ability to log in to your
                     application, Spring Security supports this out of the box with the following
                     simple additions. First you need to add the following listener to your
-                    <filename>web.xml</filename> file to keep Spring Security updated about session
-                    lifecycle events: <programlisting language="xml"><![CDATA[
+                        <filename>web.xml</filename> file to keep Spring Security updated about
+                    session lifecycle events: <programlisting language="xml"><![CDATA[
   <listener>
     <listener-class>
       org.springframework.security.web.session.HttpSessionEventPublisher
@@ -478,44 +487,45 @@
     </session-management>
   </http>]]>
         </programlisting>The second login will then be rejected. By
-                    <quote>rejected</quote>, we mean that the user will be sent to the
-                    <literal>authentication-failure-url</literal> if form-based login is being used.
-                    If the second authentication takes place through another non-interactive
+                        <quote>rejected</quote>, we mean that the user will be sent to the
+                        <literal>authentication-failure-url</literal> if form-based login is being
+                    used. If the second authentication takes place through another non-interactive
                     mechanism, such as <quote>remember-me</quote>, an <quote>unauthorized</quote>
                     (402) error will be sent to the client. If instead you want to use an error
                     page, you can add the attribute
-                    <literal>session-authentication-error-url</literal> to the
-                    <literal>session-management</literal> element. </para>
+                        <literal>session-authentication-error-url</literal> to the
+                        <literal>session-management</literal> element. </para>
                 <para>If you are using a customized authentication filter for form-based login, then
                     you have to configure concurrent session control support explicitly. More
                     details can be found in the <link xlink:href="#session-mgmt">Session Management
-                    chapter</link>. </para>
+                        chapter</link>. </para>
             </section>
             <section xml:id="ns-session-fixation">
                 <title>Session Fixation Attack Protection</title>
-                <para> <link xlink:href="http://en.wikipedia.org/wiki/Session_fixation">Session
-                    fixation</link> attacks are a potential risk where it is possible for a
+                <para>
+                    <link xlink:href="http://en.wikipedia.org/wiki/Session_fixation">Session
+                        fixation</link> attacks are a potential risk where it is possible for a
                     malicious attacker to create a session by accessing a site, then persuade
                     another user to log in with the same session (by sending them a link containing
                     the session identifier as a parameter, for example). Spring Security protects
                     against this automatically by creating a new session when a user logs in. If you
                     don't require this protection, or it conflicts with some other requirement, you
                     can control the behaviour using the
-                    <literal>session-fixation-protection</literal> attribute on
-                    <literal>&lt;session-management&gt;</literal>, which has three options <itemizedlist>
-                    <listitem>
-                        <para><literal>migrateSession</literal> - creates a new session and copies
-                            the existing session attributes to the new session. This is the
-                            default.</para>
-                    </listitem>
-                    <listitem>
-                        <para><literal>none</literal> - Don't do anything. The original session will
-                            be retained.</para>
-                    </listitem>
-                    <listitem>
-                        <para><literal>newSession</literal> - Create a new "clean" session, without
-                            copying the existing session data.</para>
-                    </listitem>
+                        <literal>session-fixation-protection</literal> attribute on
+                        <literal>&lt;session-management&gt;</literal>, which has three options <itemizedlist>
+                        <listitem>
+                            <para><literal>migrateSession</literal> - creates a new session and
+                                copies the existing session attributes to the new session. This is
+                                the default.</para>
+                        </listitem>
+                        <listitem>
+                            <para><literal>none</literal> - Don't do anything. The original session
+                                will be retained.</para>
+                        </listitem>
+                        <listitem>
+                            <para><literal>newSession</literal> - Create a new "clean" session,
+                                without copying the existing session data.</para>
+                        </listitem>
                     </itemizedlist></para>
             </section>
         </section>
@@ -529,23 +539,24 @@
   </http>
 ]]></programlisting>You should then register yourself with an OpenID provider (such as
                 myopenid.com), and add the user information to your in-memory
-                <literal>&lt;user-service&gt;</literal> : <programlisting language="xml"><![CDATA[
+                    <literal>&lt;user-service&gt;</literal> : <programlisting language="xml"><![CDATA[
   <user name="http://jimi.hendrix.myopenid.com/" authorities="ROLE_USER" />
 ]]></programlisting> You should be able to login using the <literal>myopenid.com</literal> site to
                 authenticate. It is also possible to select a specific
-                <interfacename>UserDetailsService</interfacename> bean for use OpenID by setting the
-                <literal>user-service-ref</literal> attribute on the <literal>openid-login</literal>
-                element. See the previous section on <link xlink:href="#ns-auth-providers"
-                >authentication providers</link> for more information. Note that we have omitted the
-                password attribute from the above user configuration, since this set of user data is
-                only being used to load the authorities for the user. A random password will be
-                generate internally, preventing you from accidentally using this user data as an
-                authentication source elsewhere in your configuration.</para>
+                    <interfacename>UserDetailsService</interfacename> bean for use OpenID by setting
+                the <literal>user-service-ref</literal> attribute on the
+                    <literal>openid-login</literal> element. See the previous section on <link
+                    xlink:href="#ns-auth-providers">authentication providers</link> for more
+                information. Note that we have omitted the password attribute from the above user
+                configuration, since this set of user data is only being used to load the
+                authorities for the user. A random password will be generate internally, preventing
+                you from accidentally using this user data as an authentication source elsewhere in
+                your configuration.</para>
             <section>
                 <title>Attribute Exchange</title>
                 <para>Support for OpenID <link
-                    xlink:href="http://openid.net/specs/openid-attribute-exchange-1_0.html"
-                    >attribute exchange</link>. As an example, the following configuration would
+                        xlink:href="http://openid.net/specs/openid-attribute-exchange-1_0.html"
+                        >attribute exchange</link>. As an example, the following configuration would
                     attempt to retrieve the email and full name from the OpenID provider, for use by
                     the application:<programlisting language="xml"><![CDATA[
  <openid-login>
@@ -555,26 +566,27 @@
   </attribute-exchange>
  </openid-login>]]></programlisting>The <quote>type</quote> of each OpenID attribute is a URI,
                     determined by a particular schema, in this case <link
-                    xlink:href="http://axschema.org/">http://axschema.org/</link>. If an attribute
-                    must be retrieved for successful authentication, the <literal>required</literal>
-                    attribute can be set. The exact schema and attributes supported will depend on
-                    your OpenID provider. The attribute values are returned as part of the
-                    authentication process and can be accessed afterwards using the following code:
+                        xlink:href="http://axschema.org/">http://axschema.org/</link>. If an
+                    attribute must be retrieved for successful authentication, the
+                        <literal>required</literal> attribute can be set. The exact schema and
+                    attributes supported will depend on your OpenID provider. The attribute values
+                    are returned as part of the authentication process and can be accessed
+                    afterwards using the following code:
                     <programlisting language="java">
 OpenIDAuthenticationToken token = 
     (OpenIDAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
 List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
-                    <classname>OpenIDAttribute</classname> contains the attribute type and the
+                        <classname>OpenIDAttribute</classname> contains the attribute type and the
                     retrieved value (or values in the case of multi-valued attributes). We'll see
                     more about how the <classname>SecurityContextHolder</classname> class is used
                     when we look at core Spring Security components in the <link
-                    xlink:href="core-components">technical overview</link> chapter. Multiple
+                        xlink:href="core-components">technical overview</link> chapter. Multiple
                     attribute exchange configurations are also be supported, if you wish to use
                     multiple identity providers. You can supply multiple
-                    <literal>attribute-exchange</literal> elements, using an
-                    <literal>identifier-matcher</literal> attribute on each. This contains a regular
-                    expression which will be matched against the OpenID identifier supplied by the
-                    user. See the OpenID sample application in the codebase for an example
+                        <literal>attribute-exchange</literal> elements, using an
+                        <literal>identifier-matcher</literal> attribute on each. This contains a
+                    regular expression which will be matched against the OpenID identifier supplied
+                    by the user. See the OpenID sample application in the codebase for an example
                     configuration, providing different attribute lists for the Google, Yahoo and
                     MyOpenID providers.</para>
             </section>
@@ -587,122 +599,123 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                 which there isn't currently a namespace configuration option (CAS, for example). Or
                 you might want to use a customized version of a standard namespace filter, such as
                 the <literal>UsernamePasswordAuthenticationFilter</literal> which is created by the
-                <literal>&lt;form-login&gt;</literal> element, taking advantage of some of the extra
-                configuration options which are available by using the bean explicitly. How can you
-                do this with namespace configuration, since the filter chain is not directly
+                    <literal>&lt;form-login&gt;</literal> element, taking advantage of some of the
+                extra configuration options which are available by using the bean explicitly. How
+                can you do this with namespace configuration, since the filter chain is not directly
                 exposed? </para>
             <para>The order of the filters is always strictly enforced when using the namespace.
                 When the application context is being created, the filter beans are sorted by the
                 namespace handling code and the standard Spring Security filters each have an alias
                 in the namespace and a well-known position.<note>
-                <para>In previous versions, the sorting took place after the filter instances had
-                    been created, during post-processing of the application context. In version 3.0+
-                    the sorting is now done at the bean metadata level, before the classes have been
-                    instantiated. This has implications for how you add your own filters to the
-                    stack as the entire filter list must be known during the parsing of the
-                    <literal>&lt;http></literal> element, so the syntax has changed slightly in
-                    3.0.</para>
+                    <para>In previous versions, the sorting took place after the filter instances
+                        had been created, during post-processing of the application context. In
+                        version 3.0+ the sorting is now done at the bean metadata level, before the
+                        classes have been instantiated. This has implications for how you add your
+                        own filters to the stack as the entire filter list must be known during the
+                        parsing of the <literal>&lt;http></literal> element, so the syntax has
+                        changed slightly in 3.0.</para>
                 </note>The filters, aliases and namespace elements/attributes which create the
                 filters are shown in <xref linkend="filter-stack"/>. The filters are listed in the
                 order in which they occur in the filter chain. <table xml:id="filter-stack">
-                <title>Standard Filter Aliases and Ordering</title>
-                <tgroup cols="3" align="left">
-                    <colspec colnum="1" colname="col1" colwidth="2*"/>
-                    <colspec colnum="2" colname="col2" colwidth="2*"/>
-                    <colspec colnum="3" colname="col3" colwidth="1*"/>
-                    <thead>
-                        <row>
-                            <entry align="center">Alias</entry>
-                            <entry align="center">Filter Class</entry>
-                            <entry align="center">Namespace Element or Attribute</entry>
-                        </row>
-                    </thead>
-                    <tbody>
-                        <row>
-                            <entry> CHANNEL_FILTER</entry>
-                            <entry><literal>ChannelProcessingFilter</literal></entry>
-                            <entry><literal>http/intercept-url@requires-channel</literal></entry>
-                        </row>
-                        <row>
-                            <entry> CONCURRENT_SESSION_FILTER</entry>
-                            <entry><literal>ConcurrentSessionFilter</literal> </entry>
-                            <entry><literal>session-management/concurrency-control</literal></entry>
-                        </row>
-                        <row>
-                            <entry> SECURITY_CONTEXT_FILTER</entry>
-                            <entry><classname>SecurityContextPersistenceFilter</classname></entry>
-                            <entry><literal>http</literal></entry>
-                        </row>
-                        <row>
-                            <entry> LOGOUT_FILTER </entry>
-                            <entry><literal>LogoutFilter</literal></entry>
-                            <entry><literal>http/logout</literal></entry>
-                        </row>
-                        <row>
-                            <entry> X509_FILTER </entry>
-                            <entry><literal>X509AuthenticationFilter</literal></entry>
-                            <entry><literal>http/x509</literal></entry>
-                        </row>
-                        <row>
-                            <entry> PRE_AUTH_FILTER </entry>
-                            <entry><literal>AstractPreAuthenticatedProcessingFilter</literal>
-                                Subclasses</entry>
-                            <entry>N/A</entry>
-                        </row>
-                        <row>
-                            <entry> CAS_FILTER </entry>
-                            <entry><literal>CasAuthenticationFilter</literal></entry>
-                            <entry>N/A</entry>
-                        </row>
-                        <row>
-                            <entry> FORM_LOGIN_FILTER </entry>
-                            <entry><literal>UsernamePasswordAuthenticationFilter</literal></entry>
-                            <entry><literal>http/form-login</literal></entry>
-                        </row>
-                        <row>
-                            <entry> BASIC_AUTH_FILTER </entry>
-                            <entry><literal>BasicAuthenticationFilter</literal></entry>
-                            <entry><literal>http/http-basic</literal></entry>
-                        </row>
-                        <row>
-                            <entry> SERVLET_API_SUPPORT_FILTER</entry>
-                            <entry><literal>SecurityContextHolderAwareFilter</literal></entry>
-                            <entry><literal>http/@servlet-api-provision</literal></entry>
-                        </row>
-                        <row>
-                            <entry> REMEMBER_ME_FILTER </entry>
-                            <entry><classname>RememberMeAuthenticationFilter</classname></entry>
-                            <entry><literal>http/remember-me</literal></entry>
-                        </row>
-                        <row>
-                            <entry> ANONYMOUS_FILTER </entry>
-                            <entry><literal>AnonymousAuthenticationFilter</literal></entry>
-                            <entry><literal>http/anonymous</literal></entry>
-                        </row>
-                        <row>
-                            <entry> SESSION_MANAGEMENT_FILTER</entry>
-                            <entry><literal>SessionManagementFilter</literal></entry>
-                            <entry><literal>session-management</literal></entry>
-                        </row>
-                        <row>
-                            <entry>EXCEPTION_TRANSLATION_FILTER </entry>
-                            <entry><classname>ExceptionTranslationFilter</classname></entry>
-                            <entry><literal>http</literal></entry>
-                        </row>
-                        <row>
-                            <entry> FILTER_SECURITY_INTERCEPTOR </entry>
-                            <entry><classname>FilterSecurityInterceptor</classname></entry>
-                            <entry><literal>http</literal></entry>
-                        </row>
-                        <row>
-                            <entry> SWITCH_USER_FILTER </entry>
-                            <entry><literal>SwitchUserFilter</literal></entry>
-                            <entry>N/A</entry>
-                        </row>
-                    </tbody>
-                </tgroup>
+                    <title>Standard Filter Aliases and Ordering</title>
+                    <tgroup cols="3" align="left">
+                        <colspec colnum="1" colname="col1" colwidth="2*"/>
+                        <colspec colnum="2" colname="col2" colwidth="2*"/>
+                        <colspec colnum="3" colname="col3" colwidth="1*"/>
+                        <thead>
+                            <row>
+                                <entry align="center">Alias</entry>
+                                <entry align="center">Filter Class</entry>
+                                <entry align="center">Namespace Element or Attribute</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                                <entry> CHANNEL_FILTER</entry>
+                                <entry><literal>ChannelProcessingFilter</literal></entry>
+                                <entry><literal>http/intercept-url@requires-channel</literal></entry>
+                            </row>
+                            <row>
+                                <entry> CONCURRENT_SESSION_FILTER</entry>
+                                <entry><literal>ConcurrentSessionFilter</literal>
+                                </entry>
+                                <entry><literal>session-management/concurrency-control</literal></entry>
+                            </row>
+                            <row>
+                                <entry> SECURITY_CONTEXT_FILTER</entry>
+                                <entry><classname>SecurityContextPersistenceFilter</classname></entry>
+                                <entry><literal>http</literal></entry>
+                            </row>
+                            <row>
+                                <entry> LOGOUT_FILTER </entry>
+                                <entry><literal>LogoutFilter</literal></entry>
+                                <entry><literal>http/logout</literal></entry>
+                            </row>
+                            <row>
+                                <entry> X509_FILTER </entry>
+                                <entry><literal>X509AuthenticationFilter</literal></entry>
+                                <entry><literal>http/x509</literal></entry>
+                            </row>
+                            <row>
+                                <entry> PRE_AUTH_FILTER </entry>
+                                <entry><literal>AstractPreAuthenticatedProcessingFilter</literal>
+                                    Subclasses</entry>
+                                <entry>N/A</entry>
+                            </row>
+                            <row>
+                                <entry> CAS_FILTER </entry>
+                                <entry><literal>CasAuthenticationFilter</literal></entry>
+                                <entry>N/A</entry>
+                            </row>
+                            <row>
+                                <entry> FORM_LOGIN_FILTER </entry>
+                                <entry><literal>UsernamePasswordAuthenticationFilter</literal></entry>
+                                <entry><literal>http/form-login</literal></entry>
+                            </row>
+                            <row>
+                                <entry> BASIC_AUTH_FILTER </entry>
+                                <entry><literal>BasicAuthenticationFilter</literal></entry>
+                                <entry><literal>http/http-basic</literal></entry>
+                            </row>
+                            <row>
+                                <entry> SERVLET_API_SUPPORT_FILTER</entry>
+                                <entry><literal>SecurityContextHolderAwareFilter</literal></entry>
+                                <entry><literal>http/@servlet-api-provision</literal></entry>
+                            </row>
+                            <row>
+                                <entry> REMEMBER_ME_FILTER </entry>
+                                <entry><classname>RememberMeAuthenticationFilter</classname></entry>
+                                <entry><literal>http/remember-me</literal></entry>
+                            </row>
+                            <row>
+                                <entry> ANONYMOUS_FILTER </entry>
+                                <entry><literal>AnonymousAuthenticationFilter</literal></entry>
+                                <entry><literal>http/anonymous</literal></entry>
+                            </row>
+                            <row>
+                                <entry> SESSION_MANAGEMENT_FILTER</entry>
+                                <entry><literal>SessionManagementFilter</literal></entry>
+                                <entry><literal>session-management</literal></entry>
+                            </row>
+                            <row>
+                                <entry>EXCEPTION_TRANSLATION_FILTER </entry>
+                                <entry><classname>ExceptionTranslationFilter</classname></entry>
+                                <entry><literal>http</literal></entry>
+                            </row>
+                            <row>
+                                <entry> FILTER_SECURITY_INTERCEPTOR </entry>
+                                <entry><classname>FilterSecurityInterceptor</classname></entry>
+                                <entry><literal>http</literal></entry>
+                            </row>
+                            <row>
+                                <entry> SWITCH_USER_FILTER </entry>
+                                <entry><literal>SwitchUserFilter</literal></entry>
+                                <entry>N/A</entry>
+                            </row>
+                        </tbody>
+                    </tgroup>
                 </table> You can add your own filter to the stack, using the
-                <literal>custom-filter</literal> element and one of these names to specify the
+                    <literal>custom-filter</literal> element and one of these names to specify the
                 position your filter should appear at: <programlisting language="xml"><![CDATA[
   <http>
      <custom-filter position="FORM_LOGIN_FILTER" ref="myFilter" />
@@ -713,20 +726,20 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
   </programlisting> You can also use the <literal>after</literal> or <literal>before</literal>
                 attributes if you want your filter to be inserted before or after another filter in
                 the stack. The names "FIRST" and "LAST" can be used with the
-                <literal>position</literal> attribute to indicate that you want your filter to
+                    <literal>position</literal> attribute to indicate that you want your filter to
                 appear before or after the entire stack, respectively. </para>
             <tip>
                 <title>Avoiding filter position conflicts</title>
                 <para> If you are inserting a custom filter which may occupy the same position as
                     one of the standard filters created by the namespace then it's important that
                     you don't include the namespace versions by mistake. Avoid using the
-                    <literal>auto-config</literal> attribute and remove any elements which create
-                    filters whose functionality you want to replace. </para>
+                        <literal>auto-config</literal> attribute and remove any elements which
+                    create filters whose functionality you want to replace. </para>
                 <para> Note that you can't replace filters which are created by the use of the
-                    <literal>&lt;http&gt;</literal> element itself -
-                    <classname>SecurityContextPersistenceFilter</classname>,
-                    <classname>ExceptionTranslationFilter</classname> or
-                    <classname>FilterSecurityInterceptor</classname>. </para>
+                        <literal>&lt;http&gt;</literal> element itself -
+                        <classname>SecurityContextPersistenceFilter</classname>,
+                        <classname>ExceptionTranslationFilter</classname> or
+                        <classname>FilterSecurityInterceptor</classname>. </para>
             </tip>
             <para> If you're replacing a namespace filter which requires an authentication entry
                 point (i.e. where the authentication process is triggered by an attempt by an
@@ -740,11 +753,11 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                     a traditional bean syntax and link them into the namespace, as we've just seen.
                     The corresponding <interfacename>AuthenticationEntryPoint</interfacename> can be
                     set using the <literal>entry-point-ref</literal> attribute on the
-                    <literal>&lt;http&gt;</literal> element. </para>
+                        <literal>&lt;http&gt;</literal> element. </para>
                 <para> The CAS sample application is a good example of the use of custom beans with
                     the namespace, including this syntax. If you aren't familiar with authentication
                     entry points, they are discussed in the <link
-                    xlink:href="#tech-intro-auth-entry-point">technical overview</link> chapter.
+                        xlink:href="#tech-intro-auth-entry-point">technical overview</link> chapter.
                 </para>
             </section>
         </section>
@@ -755,9 +768,9 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
             security to your service layer methods. It provides support for JSR-250 annotation
             security as well as the framework's original <literal>@Secured</literal> annotation.
             From 3.0 you can also make use of new <link xlink:href="el-access">expression-based
-            annotations</link>. You can apply security to a single bean, using the
-            <literal>intercept-methods</literal> element to decorate the bean declaration, or you
-            can secure multiple beans across the entire service layer using the AspectJ style
+                annotations</link>. You can apply security to a single bean, using the
+                <literal>intercept-methods</literal> element to decorate the bean declaration, or
+            you can secure multiple beans across the entire service layer using the AspectJ style
             pointcuts. </para>
         <section xml:id="ns-global-method">
             <title>The <literal>&lt;global-method-security&gt;</literal> Element</title>
@@ -765,14 +778,14 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                 setting the appropriate attributes on the element), and also to group together
                 security pointcut declarations which will be applied across your entire application
                 context. You should only declare one
-                <literal>&lt;global-method-security&gt;</literal> element. The following declaration
-                would enable support for Spring Security's <literal>@Secured</literal>: <programlisting><![CDATA[
+                    <literal>&lt;global-method-security&gt;</literal> element. The following
+                declaration would enable support for Spring Security's <literal>@Secured</literal>: <programlisting><![CDATA[
   <global-method-security secured-annotations="enabled" />
   ]]>
 </programlisting> Adding an annotation to a method (on an class or interface) would then limit
                 the access to that method accordingly. Spring Security's native annotation support
                 defines a set of attributes for the method. These will be passed to the
-                <interfacename>AccessDecisionManager</interfacename> for it to make the actual
+                    <interfacename>AccessDecisionManager</interfacename> for it to make the actual
                 decision:
                 <programlisting language="java">
   public interface BankService {
@@ -825,8 +838,8 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
           </programlisting> This will protect all methods on beans declared in the application
                     context whose classes are in the <literal>com.mycompany</literal> package and
                     whose class names end in "Service". Only users with the
-                    <literal>ROLE_USER</literal> role will be able to invoke these methods. As with
-                    URL matching, the most specific matches must come first in the list of
+                        <literal>ROLE_USER</literal> role will be able to invoke these methods. As
+                    with URL matching, the most specific matches must come first in the list of
                     pointcuts, as the first matching expression will be used. </para>
             </section>
         </section>
@@ -838,24 +851,24 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
             later, as this section is only really relevant for people who need to do some
             customization in order to use more than simple role-based security. </para>
         <para> When you use a namespace configuration, a default instance of
-            <interfacename>AccessDecisionManager</interfacename> is automatically registered for you
-            and will be used for making access decisions for method invocations and web URL access,
-            based on the access attributes you specify in your <literal>intercept-url</literal> and
-            <literal>protect-pointcut</literal> declarations (and in annotations if you are using
-            annotation secured methods). </para>
+                <interfacename>AccessDecisionManager</interfacename> is automatically registered for
+            you and will be used for making access decisions for method invocations and web URL
+            access, based on the access attributes you specify in your
+                <literal>intercept-url</literal> and <literal>protect-pointcut</literal>
+            declarations (and in annotations if you are using annotation secured methods). </para>
         <para> The default strategy is to use an <classname>AffirmativeBased</classname>
             <interfacename>AccessDecisionManager</interfacename> with a
-            <classname>RoleVoter</classname> and an <classname>AuthenticatedVoter</classname>. You
-            can find out more about these in the chapter on <link xlink:href="authorization"
-            >authorization</link>.</para>
+                <classname>RoleVoter</classname> and an <classname>AuthenticatedVoter</classname>.
+            You can find out more about these in the chapter on <link xlink:href="authorization"
+                >authorization</link>.</para>
         <section xml:id="ns-custom-access-mgr">
             <title>Customizing the AccessDecisionManager</title>
             <para> If you need to use a more complicated access control strategy then it is easy to
                 set an alternative for both method and web security. </para>
             <para> For method security, you do this by setting the
-                <literal>access-decision-manager-ref</literal> attribute on
-                <literal>global-method-security</literal> to the Id of the appropriate
-                <interfacename>AccessDecisionManager</interfacename> bean in the application
+                    <literal>access-decision-manager-ref</literal> attribute on
+                    <literal>global-method-security</literal> to the Id of the appropriate
+                    <interfacename>AccessDecisionManager</interfacename> bean in the application
                 context: <programlisting language="xml"><![CDATA[
   <global-method-security access-decision-manager-ref="myAccessDecisionManagerBean">
     ...
@@ -872,7 +885,7 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
     <section xml:id="ns-auth-manager">
         <title>The Authentication Manager and the Namespace</title>
         <para> The main interface which provides authentication services in Spring Security is the
-            <interfacename>AuthenticationManager</interfacename>. This is usually an instance of
+                <interfacename>AuthenticationManager</interfacename>. This is usually an instance of
             Spring Security's <classname>ProviderManager</classname> class, which you may already be
             familiar with if you've used the framework before. If not, it will be covered later, in
             the <link xlink:href="#tech-intro-authentication">technical overview chapter</link>. The
@@ -880,12 +893,12 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
             namespace element. You can't use a custom <classname>AuthenticationManager</classname>
             if you are using either HTTP or method security through the namespace, but this should
             not be a problem as you have full control over the
-            <classname>AuthenticationProvider</classname>s that are used.</para>
+                <classname>AuthenticationProvider</classname>s that are used.</para>
         <para> You may want to register additional <classname>AuthenticationProvider</classname>
             beans with the <classname>ProviderManager</classname> and you can do this using the
-            <literal>&lt;authentication-provider&gt;</literal> element with the
-            <literal>ref</literal> attribute, where the value of the attribute is the name of the
-            provider bean you want to add. For example: <programlisting language="xml"><![CDATA[
+                <literal>&lt;authentication-provider&gt;</literal> element with the
+                <literal>ref</literal> attribute, where the value of the attribute is the name of
+            the provider bean you want to add. For example: <programlisting language="xml"><![CDATA[
   <authentication-manager>
     <authentication-provider ref="casAuthenticationProvider"/>
   </authentication-manager>
