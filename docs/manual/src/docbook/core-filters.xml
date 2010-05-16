@@ -168,6 +168,30 @@
                 to configure your application. See <link xlink:href="#nsa-access-denied-handler">the
                 namespace appendix</link> for more details.</para>
         </section>
+        <section xml:id="request-caching">
+            <title><interfacename>SavedRequest</interfacename>s and the <interfacename>RequestCache</interfacename> Interface</title>
+            <para>Another of <classname>ExceptionTranslationFilter</classname>'s responsibilities is
+                to save the current request before invoking the <interfacename>AuthenticationEntryPoint</interfacename>.
+                This allows the request to be restored after the use has authenticated (see previous overview
+                of <link xlink:href="#tech-intro-web-authentication">web authentication</link>).
+                A typical example would be where the user logs in with a from, and is then redirected to the
+                original URL by the default <classname>SavedRequestAwareAuthenticationSuccessHandler</classname>
+                (see <link xlink:href="#form-login-flow-handling">below</link>).
+            </para>
+            <para>The <interfacename>RequestCache</interfacename> encapsulates the functionality required for storing
+                and retrieving <interfacename>HttpServletRequest</interfacename> instances. By default
+                the <classname>HttpSessionRequestCache</classname> is used, which stores the request
+                in the <interfacename>HttpSession</interfacename>. The <classname>RequestCacheFilter</classname>
+                has the job of actually restoring the saved request from the cache when the user is redirected to
+                the original URL.
+            </para>
+            <para>Under normal circumstances, you shouldn't need to modify any of this functionality, but the
+                saved-request handling is a <quote>best-effort</quote> approach and there may be situations which
+                the default configuration isn't able to handle. The use of these interfaces makes it fully pluggable
+                from Spring Security 3.0 onwards.
+            </para>
+        </section>
+
     </section>
     <section xml:id="security-context-persistence-filter">
         <title><classname>SecurityContextPersistenceFilter</classname></title>

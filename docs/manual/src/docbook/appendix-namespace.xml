@@ -488,6 +488,13 @@
                 maintained by Spring Security. Full details can be found in the namespace
                 chapter.</para>
         </section>
+        <section xml:id="nsa-request-cache">
+            <title>The <literal>request-cache</literal> Element</title>
+            <para>Sets the <interfacename>RequestCache</interfacename> instance which will be used
+                by the <classname>ExceptionTranslationFilter</classname> to store request information
+                before invoking an <interfacename>AuthenticationEntryPoint</interfacename>.
+            </para>
+        </section>
     </section>
     <section>
         <title>Authentication Services</title>
