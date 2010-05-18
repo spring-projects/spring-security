@@ -294,75 +294,50 @@ boolean supports(Class clazz);
           <literal>AfterInvocationProvider</literal>s.</para>
           </section>   -->
     </section>
-    <!-- TODO: Move taglibs to a separate chapter which describes them all
-  <section xml:id="authorization-taglibs">
-    <info>
-      <title>Authorization Tag Libraries</title>
-    </info>
-    <para><literal>AuthorizeTag</literal> is used to include content if the current principal holds
-      certain <interfacename>GrantedAuthority</interfacename>s.</para>
-    <para>The following JSP fragment illustrates how to use the
-      <literal>AuthorizeTag</literal>:</para>
-    <para>
-      <programlisting>
-<![CDATA[
-<security:authorize ifAllGranted="ROLE_SUPERVISOR">
-<td>
-  <a href="del.htm?id=<c:out value="${contact.id}"/>">Del</a>
-</td>
-</security:authorize>
-]]></programlisting>
-    </para>
-    <para>This tag would cause the tag's body to be output if the principal has been granted
-      ROLE_SUPERVISOR.</para>
-    <para>The <literal>security:authorize</literal> tag declares the following attributes:</para>
-    <para>
-      <itemizedlist spacing="compact">
-        <listitem>
-          <para><literal>ifAllGranted</literal>: All the listed roles must be granted for the tag to
-            output its body.</para>
-        </listitem>
-        <listitem>
-          <para><literal>ifAnyGranted</literal>: Any of the listed roles must be granted for the tag
-            to output its body.</para>
-        </listitem>
-        <listitem>
-          <para><literal>ifNotGranted</literal>: None of the listed roles must be granted for the
-            tag to output its body.</para>
-        </listitem>
-      </itemizedlist>
-    </para>
-    <para>You'll note that in each attribute you can list multiple roles. Simply separate the roles
-      using a comma. The <literal>authorize</literal> tag ignores whitespace in attributes.</para>
-    <para>The tag library logically ANDs all of it's parameters together. This means that if you
-      combine two or more attributes, all attributes must be true for the tag to output it's body.
-      Don't add an <literal>ifAllGranted="ROLE_SUPERVISOR"</literal>, followed by an
-        <literal>ifNotGranted="ROLE_SUPERVISOR"</literal>, or you'll be surprised to never see the
-      tag's body.</para>
-    <para>By requiring all attributes to return true, the authorize tag allows you to create more
-      complex authorization scenarios. For example, you could declare an
-        <literal>ifAllGranted="ROLE_SUPERVISOR"</literal> and an
-        <literal>ifNotGranted="ROLE_NEWBIE_SUPERVISOR"</literal> in the same tag, in order to
-      prevent new supervisors from seeing the tag body. However it would no doubt be simpler to use
-        <literal>ifAllGranted="ROLE_EXPERIENCED_SUPERVISOR"</literal> rather than inserting NOT
-      conditions into your design.</para>
-    <para>One last item: the tag verifies the authorizations in a specific order: first
-        <literal>ifNotGranted</literal>, then <literal>ifAllGranted</literal>, and finally,
-        <literal>if AnyGranted</literal>.</para>
-    <para><literal>AccessControlListTag</literal> is used to include content if the current
-      principal has an ACL to the indicated domain object.</para>
-    <para>The following JSP fragment illustrates how to use the
-        <literal>AccessControlListTag</literal>: <programlisting><![CDATA[
-<security:accesscontrollist domainObject="${contact}" hasPermission="8,16">
-<td><a href="<c:url value="del.htm"><c:param name="contactId" value="${contact.id}"/></c:url>">Del</a></td>
-</security:accesscontrollist>
-]]></programlisting> This tag would cause the tag's body to be output if the principal holds either
-      permission 16 or permission 1 for the "contact" domain object. The numbers are actually
-      integers that are used with <literal>BasePermission</literal> bit masking. Please refer to the
-      ACL section of this reference guide to understand more about the ACL capabilities of Spring
-      Security.</para>
-    <para><literal>AclTag</literal> is part of the old ACL module and should be considered
-      deprecated. For the sake of historical reference, works exactly the samae as
-        <literal>AccessControlListTag</literal>.</para>
-  </section> -->
+    <section xml:id="authz-hierarchical-roles">
+        <title>Hierarchical Roles</title>
+        <para>
+            It is a common requirement that a particular role in an application should automatically
+            <quote>include</quote> other roles. For example, in an application which has the concept of
+            an <quote>admin</quote> and a <quote>user</quote> role, you may want an admin to be able to
+            do everything a normal user can. To achieve this, you can either make sure that all admin users
+            are also assigned the <quote>user</quote> role. Alternatively, you can modify every access constraint
+            which requires the <quote>user</quote> role to also include the <quote>admin</quote> role.
+            This can get quite complicated if you have a lot of different roles in your application.
+        </para>
+        <para>
+            The use of a role-hierarchy allows you to configure which roles (or authorities) should include others.
+            An extended version of Spring Security's <link xlink:href="#authz-role-voter"><classname>RoleVoter</classname></link>,
+            <classname>RoleHierarchyVoter</classname>, is configured with a <interfacename>RoleHierarchy</interfacename>,
+            from which it obtains all the <quote>reachable authorities</quote> which the user is assigned.
+            A typical configuration might look like this:
+<programlisting><![CDATA[
+<bean id="roleVoter" class="org.springframework.security.access.vote.RoleHierarchyVoter">
+    <constructor-arg ref="roleHierarchy" />
+</class>
+<bean id="roleHierarchy"
+        class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl">
+    <property name="hierarchy">
+        ROLE_ADMIN > ROLE_STAFF
+        ROLE_STAFF > ROLE_USER
+        ROLE_USER > ROLE_GUEST
+    </property>
+</bean>]]>
+</programlisting>
+            Here we have four roles in a hierarchy <literal>ROLE_ADMIN => ROLE_STAFF => ROLE_USER => ROLE_GUEST</literal>.
+            A user who is authenticated with <literal>ROLE_ADMIN</literal>, will behave as if they have all four roles when
+            security contraints are evaluated against an <interfacename>AccessDecisionManager</interfacename> cconfigured
+            with the above <classname>RoleHierarchyVoter</classname>. The <literal>&gt;</literal> symbol can be thought of
+            as meaning <quote>includes</quote>.
+        </para>
+        <para>
+            Role hierarchies offer a convenient means of simplifying the access-control configuration data for your
+            application and/or reducing the number of authorities which you need to assign to a user. For more
+            complex requirements you may wish to define a logical mapping between the specific access-rights your
+            application requires and the roles that are assigned to users, translating between the two when loading
+            the user information.
+            <!-- TODO: Extend when authority-mapping layer is added  -->
+        </para>
+    </section>
+
 </chapter>
