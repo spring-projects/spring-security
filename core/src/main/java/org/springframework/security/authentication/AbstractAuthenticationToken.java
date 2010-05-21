@@ -49,7 +49,7 @@ public abstract class AbstractAuthenticationToken implements Authentication {
      * @param authorities the collection of <tt>GrantedAuthority</tt>s for the
      *                    principal represented by this authentication object.
      */
-    public AbstractAuthenticationToken(Collection<GrantedAuthority> authorities) {
+    public AbstractAuthenticationToken(Collection<? extends GrantedAuthority> authorities) {
         if (authorities == null) {
             this.authorities = AuthorityUtils.NO_AUTHORITIES;
             return;
@@ -67,6 +67,39 @@ public abstract class AbstractAuthenticationToken implements Authentication {
 
     //~ Methods ========================================================================================================
 
+    public Collection<GrantedAuthority> getAuthorities() {
+        return authorities;
+    }
+
+    public String getName() {
+        if (this.getPrincipal() instanceof UserDetails) {
+            return ((UserDetails) this.getPrincipal()).getUsername();
+        }
+
+        if (getPrincipal() instanceof Principal) {
+            return ((Principal)getPrincipal()).getName();
+        }
+
+        return (this.getPrincipal() == null) ? "" : this.getPrincipal().toString();
+    }
+
+    public boolean isAuthenticated() {
+        return authenticated;
+    }
+
+    public void setAuthenticated(boolean authenticated) {
+        this.authenticated = authenticated;
+    }
+
+    public Object getDetails() {
+        return details;
+    }
+
+    public void setDetails(Object details) {
+        this.details = details;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof AbstractAuthenticationToken)) {
             return false;
@@ -109,26 +142,7 @@ public abstract class AbstractAuthenticationToken implements Authentication {
         return this.isAuthenticated() == test.isAuthenticated();
     }
 
-    public Collection<GrantedAuthority> getAuthorities() {
-        return authorities;
-    }
-
-    public Object getDetails() {
-        return details;
-    }
-
-    public String getName() {
-        if (this.getPrincipal() instanceof UserDetails) {
-            return ((UserDetails) this.getPrincipal()).getUsername();
-        }
-
-        if (getPrincipal() instanceof Principal) {
-            return ((Principal)getPrincipal()).getName();
-        }
-
-        return (this.getPrincipal() == null) ? "" : this.getPrincipal().toString();
-    }
-
+    @Override
     public int hashCode() {
         int code = 31;
 
@@ -155,18 +169,7 @@ public abstract class AbstractAuthenticationToken implements Authentication {
         return code;
     }
 
-    public boolean isAuthenticated() {
-        return authenticated;
-    }
-
-    public void setAuthenticated(boolean authenticated) {
-        this.authenticated = authenticated;
-    }
-
-    public void setDetails(Object details) {
-        this.details = details;
-    }
-
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(super.toString()).append(": ");

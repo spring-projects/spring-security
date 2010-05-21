@@ -59,7 +59,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
      * @throws IllegalArgumentException if a <code>null</code> was passed
      */
     public CasAuthenticationToken(final String key, final Object principal, final Object credentials,
-        final Collection<GrantedAuthority> authorities, final UserDetails userDetails, final Assertion assertion) {
+        final Collection<? extends GrantedAuthority> authorities, final UserDetails userDetails, final Assertion assertion) {
         super(authorities);
 
         if ((key == null) || ("".equals(key)) || (principal == null) || "".equals(principal) || (credentials == null)
