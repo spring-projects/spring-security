@@ -44,7 +44,7 @@ public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationT
      * @param anAuthorities
      *            The granted authorities
      */
-    public PreAuthenticatedAuthenticationToken(Object aPrincipal, Object aCredentials, Collection<GrantedAuthority> anAuthorities) {
+    public PreAuthenticatedAuthenticationToken(Object aPrincipal, Object aCredentials, Collection<? extends GrantedAuthority> anAuthorities) {
         super(anAuthorities);
         this.principal = aPrincipal;
         this.credentials = aCredentials;

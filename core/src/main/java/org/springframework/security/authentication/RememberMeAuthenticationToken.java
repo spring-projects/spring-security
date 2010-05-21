@@ -46,7 +46,7 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken i
      *
      * @throws IllegalArgumentException if a <code>null</code> was passed
      */
-    public RememberMeAuthenticationToken(String key, Object principal, Collection<GrantedAuthority> authorities) {
+    public RememberMeAuthenticationToken(String key, Object principal, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
 
         if ((key == null) || ("".equals(key)) || (principal == null) || "".equals(principal)) {
@@ -59,6 +59,23 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken i
     }
 
     //~ Methods ========================================================================================================
+
+    /**
+     * Always returns an empty <code>String</code>
+     *
+     * @return an empty String
+     */
+    public Object getCredentials() {
+        return "";
+    }
+
+    public int getKeyHash() {
+        return this.keyHash;
+    }
+
+    public Object getPrincipal() {
+        return this.principal;
+    }
 
     public boolean equals(Object obj) {
         if (!super.equals(obj)) {
@@ -78,20 +95,4 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken i
         return false;
     }
 
-    /**
-     * Always returns an empty <code>String</code>
-     *
-     * @return an empty String
-     */
-    public Object getCredentials() {
-        return "";
-    }
-
-    public int getKeyHash() {
-        return this.keyHash;
-    }
-
-    public Object getPrincipal() {
-        return this.principal;
-    }
 }
