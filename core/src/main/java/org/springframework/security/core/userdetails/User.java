@@ -50,7 +50,7 @@ public class User implements UserDetails {
     /**
      * Calls the more complex constructor with all boolean arguments set to {@code true}.
      */
-    public User(String username, String password, Collection<GrantedAuthority> authorities) {
+    public User(String username, String password, Collection<? extends GrantedAuthority> authorities) {
         this(username, password, true, true, true, true, authorities);
     }
 
@@ -78,7 +78,7 @@ public class User implements UserDetails {
      *         <code>GrantedAuthority</code> collection
      */
     public User(String username, String password, boolean enabled, boolean accountNonExpired,
-            boolean credentialsNonExpired, boolean accountNonLocked, Collection<GrantedAuthority> authorities) {
+            boolean credentialsNonExpired, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) {
 
         if (((username == null) || "".equals(username)) || (password == null)) {
             throw new IllegalArgumentException("Cannot pass null or empty values to constructor");
@@ -95,6 +95,65 @@ public class User implements UserDetails {
 
     //~ Methods ========================================================================================================
 
+    public Collection<GrantedAuthority> getAuthorities() {
+        return authorities;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public boolean isAccountNonExpired() {
+        return accountNonExpired;
+    }
+
+    public boolean isAccountNonLocked() {
+        return this.accountNonLocked;
+    }
+
+    public boolean isCredentialsNonExpired() {
+        return credentialsNonExpired;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    private static SortedSet<GrantedAuthority> sortAuthorities(Collection<? extends GrantedAuthority> authorities) {
+        Assert.notNull(authorities, "Cannot pass a null GrantedAuthority collection");
+        // Ensure array iteration order is predictable (as per UserDetails.getAuthorities() contract and SEC-717)
+        SortedSet<GrantedAuthority> sortedAuthorities =
+            new TreeSet<GrantedAuthority>(new AuthorityComparator());
+
+        for (GrantedAuthority grantedAuthority : authorities) {
+            Assert.notNull(grantedAuthority, "GrantedAuthority list cannot contain any null elements");
+            sortedAuthorities.add(grantedAuthority);
+        }
+
+        return sortedAuthorities;
+    }
+
+    private static class AuthorityComparator implements Comparator<GrantedAuthority>, Serializable {
+        public int compare(GrantedAuthority g1, GrantedAuthority g2) {
+            // Neither should ever be null as each entry is checked before adding it to the set.
+            // If the authority is null, it is a custom authority and should precede others.
+            if (g2.getAuthority() == null) {
+                return -1;
+            }
+
+            if (g1.getAuthority() == null) {
+                return 1;
+            }
+
+            return g1.getAuthority().compareTo(g2.getAuthority());
+        }
+    }
+
+    @Override
     public boolean equals(Object rhs) {
         if (!(rhs instanceof User) || (rhs == null)) {
             return false;
@@ -116,18 +175,7 @@ public class User implements UserDetails {
                 && (this.isEnabled() == user.isEnabled()));
     }
 
-    public Collection<GrantedAuthority> getAuthorities() {
-        return authorities;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
+    @Override
     public int hashCode() {
         int code = 9792;
 
@@ -162,53 +210,7 @@ public class User implements UserDetails {
         return code;
     }
 
-    public boolean isAccountNonExpired() {
-        return accountNonExpired;
-    }
-
-    public boolean isAccountNonLocked() {
-        return this.accountNonLocked;
-    }
-
-    public boolean isCredentialsNonExpired() {
-        return credentialsNonExpired;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    private static SortedSet<GrantedAuthority> sortAuthorities(Collection<GrantedAuthority> authorities) {
-        Assert.notNull(authorities, "Cannot pass a null GrantedAuthority collection");
-        // Ensure array iteration order is predictable (as per UserDetails.getAuthorities() contract and SEC-717)
-        SortedSet<GrantedAuthority> sortedAuthorities =
-            new TreeSet<GrantedAuthority>(new AuthorityComparator());
-
-        for (GrantedAuthority grantedAuthority : authorities) {
-            Assert.notNull(grantedAuthority, "GrantedAuthority list cannot contain any null elements");
-            sortedAuthorities.add(grantedAuthority);
-        }
-
-        return sortedAuthorities;
-    }
-
-    private static class AuthorityComparator implements Comparator<GrantedAuthority>, Serializable {
-        public int compare(GrantedAuthority g1, GrantedAuthority g2) {
-            // Neither should ever be null as each entry is checked before adding it to the set.
-            // If the authority is null, it is a custom authority and should precede others.
-            if (g2.getAuthority() == null) {
-                return -1;
-            }
-
-            if (g1.getAuthority() == null) {
-                return 1;
-            }
-
-            return g1.getAuthority().compareTo(g2.getAuthority());
-        }
-    }
-
-
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(super.toString()).append(": ");
