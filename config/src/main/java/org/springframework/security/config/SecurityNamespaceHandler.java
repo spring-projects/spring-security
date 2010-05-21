@@ -47,6 +47,11 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
         BeanDefinitionParser parser = parsers.get(name);
 
         if (parser == null) {
+            // SEC-1455. Load parsers when required, not just on init().
+            loadParsers();
+        }
+
+        if (parser == null) {
             if (Elements.HTTP.equals(name) || Elements.FILTER_SECURITY_METADATA_SOURCE.equals(name)) {
                 reportMissingWebClasses(name, pc, element);
             } else {
@@ -68,6 +73,9 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
             }
 
             if (Elements.FILTER_CHAIN_MAP.equals(name)) {
+                if (filterChainMapBDD == null) {
+                    loadParsers();
+                }
                 if (filterChainMapBDD == null) {
                     reportMissingWebClasses(name, pc, node);
                 }
@@ -92,8 +100,12 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
                 "You need these to use <" + Elements.FILTER_CHAIN_MAP + ">", node);
     }
 
-    @SuppressWarnings("deprecation")
     public void init() {
+        loadParsers();
+    }
+
+    @SuppressWarnings("deprecation")
+    private void loadParsers() {
         // Parsers
         parsers.put(Elements.LDAP_PROVIDER, new LdapProviderBeanDefinitionParser());
         parsers.put(Elements.LDAP_SERVER, new LdapServerBeanDefinitionParser());
@@ -104,7 +116,6 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
         parsers.put(Elements.GLOBAL_METHOD_SECURITY, new GlobalMethodSecurityBeanDefinitionParser());
         parsers.put(Elements.AUTHENTICATION_MANAGER, new AuthenticationManagerBeanDefinitionParser());
         parsers.put(Elements.METHOD_SECURITY_METADATA_SOURCE, new MethodSecurityMetadataSourceBeanDefinitionParser());
- //       registerBeanDefinitionDecorator(Elements.INTERCEPT_METHODS, new InterceptMethodsBeanDefinitionDecorator());
 
         // Only load the web-namespace parsers if the web classes are available
         if (ClassUtils.isPresent("org.springframework.security.web.FilterChainProxy", getClass().getClassLoader())) {
@@ -112,7 +123,6 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
             parsers.put(Elements.FILTER_INVOCATION_DEFINITION_SOURCE, new FilterInvocationSecurityMetadataSourceParser());
             parsers.put(Elements.FILTER_SECURITY_METADATA_SOURCE, new FilterInvocationSecurityMetadataSourceParser());
             filterChainMapBDD = new FilterChainMapBeanDefinitionDecorator();
-            //registerBeanDefinitionDecorator(Elements.FILTER_CHAIN_MAP, new FilterChainMapBeanDefinitionDecorator());
         }
     }
 
