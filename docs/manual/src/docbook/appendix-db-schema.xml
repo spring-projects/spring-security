@@ -131,11 +131,12 @@ create table acl_entry (
       references acl_object_identity(id),
   constraint foreign_fk_5 foreign key(sid) references acl_sid(id) );
 
-</programlisting></para>
-            <section>
-                <title>PostgreSQL</title>
-                <para>
-                    <programlisting>create table acl_sid(
+                </programlisting></para>
+        </section>
+        <section>
+        <title>PostgreSQL</title>
+        <para>
+        <programlisting>create table acl_sid(
   id bigserial not null primary key,
   principal boolean not null,
   sid varchar(100) not null,
@@ -172,20 +173,19 @@ create table acl_entry(
       references acl_object_identity(id),
   constraint foreign_fk_5 foreign key(sid) references acl_sid(id));
 </programlisting> </para>
-                <para>You will have to set the <literal>classIdentityQuery</literal> and
-                    <literal>sidIdentityQuery</literal> properties of
-                    <classname>JdbcMutableAclService</classname> to the following values,
-                    respectively: <itemizedlist>
-                    <listitem>
-                        <para><literal>select currval(pg_get_serial_sequence('acl_class',
-                            'id'))</literal></para>
-                    </listitem>
-                    <listitem>
-                        <para><literal>select currval(pg_get_serial_sequence('acl_sid',
-                            'id'))</literal></para>
-                    </listitem>
-                    </itemizedlist></para>
+            <para>You will have to set the <literal>classIdentityQuery</literal> and
+                <literal>sidIdentityQuery</literal> properties of
+                <classname>JdbcMutableAclService</classname> to the following values,
+                respectively: <itemizedlist>
+                <listitem>
+                    <para><literal>select currval(pg_get_serial_sequence('acl_class',
+                        'id'))</literal></para>
+                </listitem>
+                <listitem>
+                    <para><literal>select currval(pg_get_serial_sequence('acl_sid',
+                        'id'))</literal></para>
+                </listitem>
+                </itemizedlist></para>
             </section>
         </section>
-    </section>
 </appendix>
