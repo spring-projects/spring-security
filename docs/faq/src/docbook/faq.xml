@@ -445,7 +445,16 @@
                             <interfacename>UserDetailsService</interfacename> which splits them up
                         and loads the appropriate user data for authentication. </para></answer>
             </qandaentry>
-            <qandaentry>
+            <qandaentry xml:id="faq-matching-url-fragments">
+                <question><para>How do I apply different <literal>intercept-url</literal> constraints where only the
+                fragment value of the requested URLs differs (e.g. <literal>/foo#bar</literal> and <literal>/foo#blah</literal>?</para></question>
+                <answer>
+                    <para>You can't do this, since the fragment is not transmitted from the browser to the server. The URLs above
+                    are identical from the server's perspective. This is a common question from GWT users.</para>
+                </answer>
+            </qandaentry>
+            
+            <qandaentry xml:id="faq-request-details-in-user-service">
                 <question><para>How do I access the user's IP Address (or other web-request data) in a <interfacename>UserDetailsService</interfacename>?</para></question>
                 <answer>
                     <para>
@@ -465,6 +474,20 @@
                         with a <literal>&lt;custom-filter&gt;</literal> declaration pointing to an explicitly configured
                         <classname>UsernamePasswordAuthenticationFilter</classname>.
                     </para>
+                </answer>
+            </qandaentry>
+
+            <qandaentry xml:id="faq-access-session-from-user-service">
+                <question><para>How do I access the <interfacename>HttpSession</interfacename> from a <interfacename>UserDetailsService</interfacename>?</para></question>
+                <answer><para>You can't, since the <interfacename>UserDetailsService</interfacename> has no awareness of the
+                servlet API. If you want to store custom user data, then you should customize the <interfacename>UserDetails</interfacename>
+                    object which is returned. This can then be accessed at any point, via the thread-local <classname>SecurityContextHolder</classname>.
+                    A call to <literal>SecurityContextHolder.getContext().getAuthentication().getPrincipal()</literal> will return this custom 
+                    object.
+                </para>
+                <para>
+                    If you really need to access the session, then it must be done by customizing the web tier.
+                </para>
                 </answer>
             </qandaentry>
 
