@@ -41,8 +41,6 @@ dependencies {
             "net.java.dev.jets3t:jets3t:0.6.1"
 }
 
-def docsDir = new File(project(':manual').buildDir, 'docs')
-
 task apidocs(type: Javadoc) {
     destinationDir = new File(buildDir, 'apidocs')
     title = "Spring Security $version API"
@@ -57,34 +55,8 @@ task apidocs(type: Javadoc) {
     })
 }
 
-task apitar(type: Tar, dependsOn: apidocs) {
-    compression = Compression.BZIP2
-    classifier = 'apidocs'
-    into('apidocs') {
-        from apidocs.destinationDir
-    }
-}
-
-task doctar(type: Tar, dependsOn: ':manual:doc') {
-    compression = Compression.BZIP2
-    classifier = 'doc'
-    into('reference') {
-        from docsDir
-    }
-}
-
-task login {
-    // add dynamic properties to login task
-    username = null
-    password = null
-    doFirst {
-        ant {
-            input("Please enter the ssh username for host '$sshHost'", addproperty: "ssh.username")
-            input("Please enter the ssh password '$sshHost'", addproperty: "ssh.password")
-        }
-        username = ant.properties['ssh.username']
-        password = ant.properties['ssh.password']
-    }
+task docSiteLogin(type: Login) {
+    host = sshHost
 }
 
 // Define remoteSiteDir and sshHost in gradle.properties
@@ -94,19 +66,40 @@ if (hasProperty('remoteSiteDir')) {
     remoteDocsDir="$remoteSiteDir/docs/3.1.x"
 }
 
-task uploadApidocs(dependsOn: login) << {
-    ant {
-        scp(file: apitar.archivePath, todir: "$login.username@$sshHost:$remoteDocsDir", password: login.password)
-        sshexec(host: sshHost, username: login.username, password: login.password, command: "cd $remoteDocsDir && tar -xjf ${apitar.archiveName}")
-        sshexec(host: sshHost, username: login.username, password: login.password, command: "rm $remoteDocsDir/${apitar.archiveName}")
+task uploadApidocs(type: TarUpload) {
+    dependsOn apidocs
+    classifier = 'apidocs'
+    remoteDir = remoteDocsDir
+    login = docSiteLogin
+
+    into('apidocs') {
+        from apidocs.destinationDir
     }
 }
 
-task uploadManual(dependsOn: login) << {
-    ant {
-        scp(file: doctar.archivePath, todir: "$login.username@$sshHost:$remoteDocsDir", password: login.password)
-        sshexec(host: sshHost, username: login.username, password: login.password, command: "cd $remoteDocsDir && tar -xjf ${doctar.archiveName}")
-        sshexec(host: sshHost, username: login.username, password: login.password, command: "rm $remoteDocsDir/${doctar.archiveName}")
+def docsDir = new File(project(':manual').buildDir, 'docs')
+
+task uploadDoc(type: TarUpload) {
+    dependsOn ':manual:doc'
+    classifier = 'doc'
+    remoteDir = remoteDocsDir
+    login = docSiteLogin
+
+    into('reference') {
+        from docsDir
+    }
+}
+
+task uploadFaq(type: TarUpload) {
+    dependsOn ':faq:docbookHtmlSingle'
+    classifier = 'faq'
+    remoteDir = project.property('remoteSiteDir')
+    login = docSiteLogin
+
+    def faqDir = new File(project(':faq').buildDir, 'docs')
+
+    into('faq') {
+        from faqDir
     }
 }
 

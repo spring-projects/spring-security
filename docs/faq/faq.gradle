@@ -6,6 +6,7 @@ defaultTasks 'docbookHtmlSingle'
 [docbookHtml, docbookFoPdf, docbookHtmlSingle]*.sourceFileName = 'faq.xml'
 
 docbookHtmlSingle.stylesheet = new File(projectDir, 'src/xsl/html-single-custom.xsl')
+docbookHtmlSingle.suffix = ''
 
 docbookHtmlSingle.doLast {
     resourcesDir = new File(projectDir, 'src/resources')
