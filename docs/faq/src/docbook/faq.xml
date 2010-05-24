@@ -453,7 +453,7 @@
                     are identical from the server's perspective. This is a common question from GWT users.</para>
                 </answer>
             </qandaentry>
-            
+
             <qandaentry xml:id="faq-request-details-in-user-service">
                 <question><para>How do I access the user's IP Address (or other web-request data) in a <interfacename>UserDetailsService</interfacename>?</para></question>
                 <answer>
@@ -482,7 +482,7 @@
                 <answer><para>You can't, since the <interfacename>UserDetailsService</interfacename> has no awareness of the
                 servlet API. If you want to store custom user data, then you should customize the <interfacename>UserDetails</interfacename>
                     object which is returned. This can then be accessed at any point, via the thread-local <classname>SecurityContextHolder</classname>.
-                    A call to <literal>SecurityContextHolder.getContext().getAuthentication().getPrincipal()</literal> will return this custom 
+                    A call to <literal>SecurityContextHolder.getContext().getAuthentication().getPrincipal()</literal> will return this custom
                     object.
                 </para>
                 <para>
@@ -598,6 +598,53 @@
                         configuration in this case. You should also consult the Javadoc for the
                         relevant classes and interfaces. </para></answer>
             </qandaentry>
+            <qandaentry xml:id="faq-namespace-post-processor">
+                <question><para>I want to modify the property of a bean that is created by the namespace, but there is
+                nothing in the schema to support it. What can I do short of abandoning namespace use?</para></question>
+                <answer>
+                    <para>The namespace functionality is intentionally limited, so it doesn't cover everything that you can
+                        do with plain beans. If you want to do something simple, like modify a bean, or inject a different
+                    dependency, you can do this by adding a <interfacename>BeanPostProcessor</interfacename> to your
+                        configuration. More information can be found in the
+                        <link xlink:href="http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/htmlsingle/spring-framework-reference.html#beans-factory-extension-bpp">Spring Reference Manual</link>.
+                        In order to do this, you need to know a bit about which beans are created, so you should also read the
+                        blog article in the above question on <link xlink:href="#faq-namespace-to-bean-mapping">how the
+                        namespace maps to Spring beans</link>.
+                    </para>
+                    <para>
+                        Normally, you would add the functionality you require to the <methodname>postProcessBeforeInitialization</methodname>
+                        method of <interfacename>BeanPostProcessor</interfacename>. Let's say that you want to customize the
+                        <interfacename>AuthenticationDetailsSource</interfacename> used by the <classname>UsernamePasswordAuthenticationFilter</classname>,
+                        (created by the <literal>form-login</literal> element). You want to extract a particular header called
+                        <literal>CUSTOM_HEADER</literal>from the request and make use of it while authenticating the user.
+                        The processor class would look like this:
+<programlisting language="java"><![CDATA[
+public class BeanPostProcessor implements BeanPostProcessor {
+
+    public Object postProcessAfterInitialization(Object bean, String name) {
+        if (bean instanceof UsernamePasswordAuthenticationFilter) {
+            System.out.println("********* Post-processing " + name);
+            ((UsernamePasswordAuthenticationFilter)bean).setAuthenticationDetailsSource(
+                    new AuthenticationDetailsSource() {
+                        public Object buildDetails(Object context) {
+                            return ((HttpServletRequest)context).getHeader("CUSTOM_HEADER");
+                        }
+                    });
+        }
+        return bean;
+    }
+
+    public Object postProcessBeforeInitialization(Object bean, String name) {
+        return bean;
+    }
+}
+]]></programlisting>
+                        You would then register this bean in your application context. Spring will automatically invoke it on the
+                        beans defined in the application context.
+                    </para>
+                </answer>
+            </qandaentry>
+
         </qandadiv>
     </qandaset>
         </section>
