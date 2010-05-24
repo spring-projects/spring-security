@@ -56,7 +56,9 @@ task apidocs(type: Javadoc) {
 }
 
 task docSiteLogin(type: Login) {
-    host = sshHost
+    if (hasProperty('sshHost')) {
+        host = property('sshHost')
+    }
 }
 
 // Define remoteSiteDir and sshHost in gradle.properties
@@ -93,7 +95,9 @@ task uploadDoc(type: TarUpload) {
 task uploadFaq(type: TarUpload) {
     dependsOn ':faq:docbookHtmlSingle'
     classifier = 'faq'
-    remoteDir = project.property('remoteSiteDir')
+    if (hasProperty('remoteSiteDir')) {
+        remoteDir = property('remoteSiteDir')
+    }
     login = docSiteLogin
 
     def faqDir = new File(project(':faq').buildDir, 'docs')
