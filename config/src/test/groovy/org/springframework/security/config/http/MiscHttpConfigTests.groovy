@@ -339,28 +339,6 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         getFilter(ExceptionTranslationFilter).getAuthenticationEntryPoint() instanceof MockEntryPoint
     }
 
-    def disablingSessionProtectionRemovesSessionManagementFilterIfNoInvalidSessionUrlSet() {
-        httpAutoConfig {
-            'session-management'('session-fixation-protection': 'none')
-        }
-        createAppContext()
-
-        expect:
-        !(getFilters("/someurl")[8] instanceof SessionManagementFilter)
-    }
-
-    def disablingSessionProtectionRetainsSessionManagementFilterInvalidSessionUrlSet() {
-        httpAutoConfig {
-            'session-management'('session-fixation-protection': 'none', 'invalid-session-url': '/timeoutUrl')
-        }
-        createAppContext()
-        def filter = getFilters("/someurl")[8]
-
-        expect:
-        filter instanceof SessionManagementFilter
-        filter.invalidSessionUrl == '/timeoutUrl'
-    }
-
     /**
      * See SEC-750. If the http security post processor causes beans to be instantiated too eagerly, they way miss
      * additional processing. In this method we have a UserDetailsService which is referenced from the namespace

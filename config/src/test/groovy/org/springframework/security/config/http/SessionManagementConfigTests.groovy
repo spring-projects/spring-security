@@ -172,4 +172,26 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
         mockResponse.redirectedUrl == "/max-exceeded";
     }
 
+    def disablingSessionProtectionRemovesSessionManagementFilterIfNoInvalidSessionUrlSet() {
+        httpAutoConfig {
+            'session-management'('session-fixation-protection': 'none')
+        }
+        createAppContext()
+
+        expect:
+        !(getFilters("/someurl")[8] instanceof SessionManagementFilter)
+    }
+
+    def disablingSessionProtectionRetainsSessionManagementFilterInvalidSessionUrlSet() {
+        httpAutoConfig {
+            'session-management'('session-fixation-protection': 'none', 'invalid-session-url': '/timeoutUrl')
+        }
+        createAppContext()
+        def filter = getFilters("/someurl")[8]
+
+        expect:
+        filter instanceof SessionManagementFilter
+        filter.invalidSessionUrl == '/timeoutUrl'
+    }
+
 }

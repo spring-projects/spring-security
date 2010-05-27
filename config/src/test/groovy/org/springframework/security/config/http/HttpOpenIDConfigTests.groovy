@@ -20,6 +20,7 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
  * @author Luke Taylor
  */
 class OpenIDConfigTests extends AbstractHttpConfigTests {
+
     def openIDAndFormLoginWorkTogether() {
         xml.http() {
             'openid-login'()
