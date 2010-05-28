@@ -20,10 +20,6 @@
             <artifactId>spring-ldap-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-        <dependency>
           <groupId>ldapsdk</groupId>
           <artifactId>ldapsdk</artifactId>
           <version>4.1</version>
