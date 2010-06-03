@@ -16,7 +16,7 @@ dependencies {
 
     provided "javax.servlet:servlet-api:2.5"
 
-    groovy group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.1'
+    groovy group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.2'
 
     testCompile project(':spring-security-ldap'),
                 project(':spring-security-openid'),
