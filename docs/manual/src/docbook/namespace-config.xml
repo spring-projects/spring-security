@@ -241,8 +241,10 @@
                             default <literal>&lt;http></literal> configuration, so the
                                 <literal>&lt;anonymous /></literal> element is added regardless of
                             whether <literal>auto-config</literal> is enabled.</para>
-                    </footnote> . They each have attributes which can be used to alter their
-                    behaviour. </para>
+                    </footnote>. They each have attributes which can be used to alter their
+                    behaviour. In anything other than very basic scenarios, it is probably better
+                to omit the <literal>auto-config</literal> attribute and configure what you require
+                    explicitly in the interest of clarity.</para>
             </section>
         </section>
         <section xml:id="ns-form-and-basic">
@@ -275,16 +277,33 @@
                 itself! This is a common configuration error and will result in an infinite loop in
                 the application. Spring Security will emit a warning in the log if your login page
                 appears to be secured. It is also possible to have all requests matching a
-                particular pattern bypass the security filter chain completely: <programlisting language="xml"><![CDATA[
+                particular pattern bypass the security filter chain completely, by defining a separate
+                <literal>http</literal> element for the pattern like this: <programlisting language="xml"><![CDATA[
+  <http pattern="/css/**" secured="false"/>
+  <http pattern="/login.jsp*" secured="false"/>
+
   <http auto-config='true'>
-    <intercept-url pattern="/css/**" filters="none"/>
-    <intercept-url pattern="/login.jsp*" filters="none"/>
     <intercept-url pattern="/**" access="ROLE_USER" />
     <form-login login-page='/login.jsp'/>
   </http>
   ]]>
-      </programlisting>It's important to realise that these requests will be completely
-                oblivious to any further Spring Security web-related configuration or additional
+                </programlisting>
+                From Spring Security 3.1 it is now possible to use multiple <literal>http</literal>
+                elements to define separate security filter chain configurations for different
+                request patterns. If the <literal>pattern</literal> attribute is omitted from an
+                <literal>http</literal> element, it matches all requests. Creating an unsecured
+                pattern is a simple example of this syntax, where the pattern is mapped to an empty filter chain
+                <footnote><para>The use of multiple <literal>&lt;http&gt;</literal> elements is an
+                important feature, allowing the namespace to simultaneously support both stateful and stateless
+                paths within the same application, for example. The previous syntax, using the attribute
+                <literal>filters="none"</literal> on an <literal>intercept-url</literal> element
+                is incompatible with this change and is no longer supported in 3.1.</para></footnote>.
+                We'll look at this new syntax in more detail in the chapter on the
+                <link xlink:href="#filter-chains-with-ns">Security Filter Chain</link>.
+            </para>
+            <para>
+                It's important to realise that these unsecured requests will be completely
+                oblivious to any Spring Security web-related configuration or additional
                 attributes such as <literal>requires-channel</literal>, so you will not be able to
                 access information on the current user or call secured methods during the request.
                 Use <literal>access='IS_AUTHENTICATED_ANONYMOUSLY'</literal> as an alternative if
@@ -311,8 +330,8 @@
                         <literal>always-use-default-target</literal> attribute to "true". This is
                     useful if your application always requires that the user starts at a "home"
                     page, for example: <programlisting language="xml"><![CDATA[
+  <http pattern="/login.htm*" secured="false"/>
   <http>
-    <intercept-url pattern='/login.htm*' filters='none'/>
     <intercept-url pattern='/**' access='ROLE_USER' />
     <form-login login-page='/login.htm' default-target-url='/home.htm'
             always-use-default-target='true' />
@@ -573,7 +592,7 @@
                     are returned as part of the authentication process and can be accessed
                     afterwards using the following code:
                     <programlisting language="java">
-OpenIDAuthenticationToken token = 
+OpenIDAuthenticationToken token =
     (OpenIDAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
 List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                         <classname>OpenIDAttribute</classname> contains the attribute type and the

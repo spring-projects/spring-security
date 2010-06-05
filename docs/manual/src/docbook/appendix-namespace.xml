@@ -19,14 +19,15 @@
             >schema file</link> directly.</para>
     <section xml:id="nsa-http">
         <title>Web Application Security - the <literal>&lt;http&gt;</literal> Element</title>
-        <para> The <literal>&lt;http&gt;</literal> element encapsulates the security configuration
-            for the web layer of your application. It creates a
-                <classname>FilterChainProxy</classname> bean named "springSecurityFilterChain" which
-            maintains the stack of security filters which make up the web security configuration <footnote>
+        <para> If you use an <literal>&lt;http&gt;</literal> element within your application,
+            a <classname>FilterChainProxy</classname> bean named "springSecurityFilterChain" is created and
+            the configuration within the element is used to build a filter chain within
+            <classname>FilterChainProxy</classname>. As of Spring Security 3.1, additional
+            <literal>http</literal> elements can be used to add extra filter chains <footnote>
                 <para>See the <link xlink:href="#ns-web-xml"> introductory chapter</link> for how to
                     set up the mapping from your <literal>web.xml</literal></para>
-            </footnote>. Some core filters are always created and others will be added to the stack
-            depending on the attributes child elements which are present. The positions of the
+            </footnote>. Some core filters are always created in a filter chain and others will be added
+            to the stack depending on the attributes and child elements which are present. The positions of the
             standard filters are fixed (see <link xlink:href="#filter-stack">the filter order
                 table</link> in the namespace introduction), removing a common source of errors with
             previous versions of the framework when users had to configure the filter chain
@@ -37,22 +38,38 @@
             with the internal instance created by the namespace configuration (see the <link
                 xlink:href="#ns-auth-manager"> introductory chapter</link> for more on the
                 <interfacename>AuthenticationManager</interfacename>). </para>
-        <para> The <literal>&lt;http&gt;</literal> namespace block always creates an
-                <classname>HttpSessionContextIntegrationFilter</classname>, an
+        <para> Each <literal>&lt;http&gt;</literal> namespace block always creates an
+                <classname>SecurityContextPersistenceFilter</classname>, an
                 <classname>ExceptionTranslationFilter</classname> and a
                 <classname>FilterSecurityInterceptor</classname>. These are fixed and cannot be
             replaced with alternatives. </para>
         <section xml:id="nsa-http-attributes">
             <title><literal>&lt;http&gt;</literal> Attributes</title>
             <para> The attributes on the <literal>&lt;http&gt;</literal> element control some of the
-                properties on the core filters. </para>
+            properties on the core filters. </para>
+            <section xml:id="nsa-http-pattern">
+                <title><literal>pattern</literal></title>
+                <para>Defining a pattern for the <literal>http</literal> element controls
+                the requests which will be filtered through the list of filters which it defines. The
+                interpretation is dependent on the configured <link xlink:href="#nsa-path-type">request-matcher</link>.
+                 If no pattern is defined, all requests will be matched, so the most specific patterns should be
+                 declared first.
+                </para>
+            </section>
+            <section xml:id="nsa-http-secured">
+                <title><literal>secured</literal></title>
+                <para>A request pattern can be mapped to an empty filter chain, by setting
+                this attribute to <literal>false</literal>. No security will be applied and
+                none of Spring Security's features will be available.
+                </para>
+            </section>
             <section xml:id="nsa-servlet-api-provision">
                 <title><literal>servlet-api-provision</literal></title>
                 <para> Provides versions of <literal>HttpServletRequest</literal> security methods
                     such as <literal>isUserInRole()</literal> and <literal>getPrincipal()</literal>
                     which are implemented by adding a
                         <classname>SecurityContextHolderAwareRequestFilter</classname> bean to the
-                    stack. Defaults to "true". </para>
+                    stack. Defaults to "true".</para>
             </section>
             <section xml:id="nsa-path-type">
                 <title><literal>request-matcher</literal></title>
@@ -142,9 +159,7 @@
             <para> This element is used to define the set of URL patterns that the application is
                 interested in and to configure how they should be handled. It is used to construct
                 the <interfacename>FilterInvocationSecurityMetadataSource</interfacename> used by
-                the <classname>FilterSecurityInterceptor</classname> and to exclude particular
-                patterns from the filter chain entirely (by setting the attribute
-                    <literal>filters="none"</literal>). It is also responsible for configuring a
+                the <classname>FilterSecurityInterceptor</classname>. It is also responsible for configuring a
                     <classname>ChannelAuthenticationFilter</classname> if particular URLs need to be
                 accessed by HTTPS, for example. When matching the specified patterns against an
                 incoming request, the matching is done in the order in which the elements are

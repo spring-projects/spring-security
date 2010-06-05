@@ -62,7 +62,7 @@
             context with the same bean name. Here's an example: <programlisting language="xml"><![CDATA[
 <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
   <sec:filter-chain-map path-type="ant">
-     <sec:filter-chain pattern="/webServices/**" filters="
+     <sec:filter-chain pattern="/restful/**" filters="
            securityContextPersistenceFilterWithASCFalse,
            basicAuthenticationFilter,
            exceptionTranslationFilter,
@@ -75,8 +75,8 @@
   </sec:filter-chain-map>
 </bean>
 ]]>
-    </programlisting> The namespace element <literal>filter-chain-map</literal> is used to set
-            up the security filter chain(s) which are required within the application<footnote>
+            </programlisting> The namespace element <literal>filter-chain-map</literal> is used for convenience
+            to set up the security filter chain(s) which are required within the application<footnote>
             <para>Note that you'll need to include the security namespace in your application
                 context XML file in order to use this syntax.</para>
             </footnote>. It maps a particular URL pattern to a chain of filters built up from the
@@ -105,7 +105,7 @@
             namespace. </para>
         <section>
             <title>Bypassing the Filter Chain</title>
-            <para> As with the namespace, you can use the attribute <literal>filters =
+            <para> You can use the attribute <literal>filters =
                 "none"</literal> as an alternative to supplying a filter bean list. This will omit
                 the request pattern from the security filter chain entirely. Note that anything
                 matching this path will then have no authentication or authorization services
@@ -183,6 +183,36 @@
             <classname>SecurityContextHolder</classname> to be populated in time for use by the
             other filters. Examples are the use of SiteMesh to decorate your web pages or a web
             framework like Wicket which uses a filter to handle its requests. </para>
+    </section>
+    <section xml:id="filter-chains-with-ns">
+        <title>Advanced Namespace Configuration</title>
+        <para>As we saw earlier in the namespace chapter, it's possible to use multiple <literal>http</literal>
+        elements to define different security configurations for different URL patterns.
+        Each element creates a filter chain within the internal <classname>FilterChainProxy</classname> and the
+        URL pattern that should be mapped to it. The elements will be added in the order they are declared, so the
+        most specific patterns must again be declared first. Here's another example, for a similar situation to
+        that above, where the application supports both a stateless RESTful API and also a normal web application
+        which users log into using a form.
+<programlisting>
+<![CDATA[
+  <!-- Stateless RESTful service using Basic authentication -->
+  <http pattern="/restful/**" create-session="stateless">
+    <intercept-url pattern='/**' access='ROLE_REMOTE' />
+    <http-basic />
+  </http>
+
+  <!-- Empty filter chain for the login page -->
+  <http pattern="/login.htm*" secured="false"/>
+
+  <!-- Additional filter chain for normal users, matching all other requests -->
+  <http>
+    <intercept-url pattern='/**' access='ROLE_USER' />
+    <form-login login-page='/login.htm' default-target-url="/home.htm"/>
+    <logout />
+  </http>
+  ]]>
+</programlisting>
+        </para>
     </section>
     <!--
   <section xml:id="taglib">
