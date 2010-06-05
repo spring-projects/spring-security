@@ -777,7 +777,7 @@
     </xs:attribute>
     <xs:attribute name="disable-url-rewriting" type="security:boolean">
       <xs:annotation>
-        <xs:documentation/>
+        <xs:documentation>Prevents the jsessionid parameter from being added to rendered URLs.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>

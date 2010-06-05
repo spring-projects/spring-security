@@ -299,7 +299,7 @@ http.attlist &=
     ## Deprecated in favour of the access-denied-handler element.
     attribute access-denied-page {xsd:token}?
 http.attlist &=
-    ##
+    ## Prevents the jsessionid parameter from being added to rendered URLs.
     attribute disable-url-rewriting {boolean}?
 
 access-denied-handler =

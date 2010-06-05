@@ -101,6 +101,13 @@
                         <interfacename>AuthenticationEntryPoint</interfacename> bean which will
                     start the authentication process. </para>
             </section>
+            <section xml:id="nsa-security-context-repo-ref">
+                <title><literal>security-context-repository-ref</literal></title>
+                <para>
+                    Allows injection of a custom <interfacename>SecurityContextRepository</interfacename>
+                    into the <classname>SecurityContextPersistenceFilter</classname>.
+                </para>
+            </section>
             <section xml:id="nsa-access-decision-manager-ref">
                 <title><literal>access-decision-manager-ref</literal></title>
                 <para> Optional attribute specifying the ID of the
@@ -142,6 +149,12 @@
                 <para>Enables EL-expressions in the <literal>access</literal> attribute, as
                     described in the chapter on <link xlink:href="#el-access-web">expression-based
                         access-control</link>. </para>
+            </section>
+            <section xml:id="nsa-disable-url-rewriting">
+                <title><literal>disable-url-rewriting</literal></title>
+                <para>Prevents session IDs from being appended to URLs in the application.
+                    Clients must use cookies if this attribute is set to <literal>true</literal>.
+                </para>
             </section>
         </section>
         <section xml:id="nsa-access-denied-handler">
