@@ -109,9 +109,6 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
             throws IOException, ServletException {
 
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
-
         String redirectUrl = null;
 
         if (useForward) {
@@ -119,17 +116,17 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
             if (forceHttps && "http".equals(request.getScheme())) {
                 // First redirect the current request to HTTPS.
                 // When that request is received, the forward to the login page will be used.
-                redirectUrl = buildHttpsRedirectUrlForRequest(httpRequest);
+                redirectUrl = buildHttpsRedirectUrlForRequest(request);
             }
 
             if (redirectUrl == null) {
-                String loginForm = determineUrlToUseForThisRequest(httpRequest, httpResponse, authException);
+                String loginForm = determineUrlToUseForThisRequest(request, response, authException);
 
                 if (logger.isDebugEnabled()) {
                     logger.debug("Server side forward to: " + loginForm);
                 }
 
-                RequestDispatcher dispatcher = httpRequest.getRequestDispatcher(loginForm);
+                RequestDispatcher dispatcher = request.getRequestDispatcher(loginForm);
 
                 dispatcher.forward(request, response);
 
@@ -138,11 +135,11 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
         } else {
             // redirect to login page. Use https if forceHttps true
 
-            redirectUrl = buildRedirectUrlToLoginPage(httpRequest, httpResponse, authException);
+            redirectUrl = buildRedirectUrlToLoginPage(request, response, authException);
 
         }
 
-        redirectStrategy.sendRedirect(httpRequest, httpResponse, redirectUrl);
+        redirectStrategy.sendRedirect(request, response, redirectUrl);
     }
 
     protected String buildRedirectUrlToLoginPage(HttpServletRequest request, HttpServletResponse response,
