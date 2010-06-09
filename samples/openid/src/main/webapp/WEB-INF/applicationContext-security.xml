@@ -15,11 +15,6 @@
     <http pattern="/css/*" secured="false" />
     <http pattern="/js/*" secured="false" />
 
-    <http pattern="/stateless/*">
-        <intercept-url />
-        <http-basic />
-    </http>
-
     <http>
         <intercept-url pattern="/**" access="ROLE_USER"/>
         <logout/>
