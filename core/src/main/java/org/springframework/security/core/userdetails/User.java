@@ -32,8 +32,14 @@ import org.springframework.util.Assert;
  * Implemented with value object semantics (immutable after construction, like a <code>String</code>).
  * Developers may use this class directly, subclass it, or write their own {@link UserDetails} implementation from
  * scratch.
+ * <p>
+ * {@code equals} and {@code hashcode} implementations are based on the {@code username} property only, as the
+ * intention is that lookups of the same user principal object (in a user registry, for example) will match
+ * where the objects represent the same user, not just when all the properties (authorities, password for
+ * example) are the same.
  *
  * @author Ben Alex
+ * @author Luke Taylor
  */
 public class User implements UserDetails {
     //~ Instance fields ================================================================================================
@@ -153,61 +159,27 @@ public class User implements UserDetails {
         }
     }
 
+    /**
+     * Returns {@code true} if the supplied object is a {@code User} instance with the
+     * same {@code username} value.
+     * <p>
+     * In other words, the objects are equal if they have the same username, representing the
+     * same principal.
+     */
     @Override
     public boolean equals(Object rhs) {
-        if (!(rhs instanceof User) || (rhs == null)) {
-            return false;
+        if (rhs instanceof User) {
+            return username.equals(((User) rhs).username);
         }
-
-        User user = (User) rhs;
-
-        // We rely on constructor to guarantee any User has non-null
-        // authorities
-        if (!authorities.equals(user.authorities)) {
-            return false;
-        }
-
-        // We rely on constructor to guarantee non-null username and password
-        return (this.getPassword().equals(user.getPassword()) && this.getUsername().equals(user.getUsername())
-                && (this.isAccountNonExpired() == user.isAccountNonExpired())
-                && (this.isAccountNonLocked() == user.isAccountNonLocked())
-                && (this.isCredentialsNonExpired() == user.isCredentialsNonExpired())
-                && (this.isEnabled() == user.isEnabled()));
+        return false;
     }
 
+    /**
+     * Returns the hashcode of the {@code username}.
+     */
     @Override
     public int hashCode() {
-        int code = 9792;
-
-        for (GrantedAuthority authority : getAuthorities()) {
-            code = code * (authority.hashCode() % 7);
-        }
-
-        if (this.getPassword() != null) {
-            code = code * (this.getPassword().hashCode() % 7);
-        }
-
-        if (this.getUsername() != null) {
-            code = code * (this.getUsername().hashCode() % 7);
-        }
-
-        if (this.isAccountNonExpired()) {
-            code = code * -2;
-        }
-
-        if (this.isAccountNonLocked()) {
-            code = code * -3;
-        }
-
-        if (this.isCredentialsNonExpired()) {
-            code = code * -5;
-        }
-
-        if (this.isEnabled()) {
-            code = code * -7;
-        }
-
-        return code;
+        return username.hashCode();
     }
 
     @Override

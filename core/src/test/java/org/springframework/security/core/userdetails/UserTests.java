@@ -19,7 +19,9 @@ import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 import org.springframework.security.core.GrantedAuthority;
@@ -37,24 +39,24 @@ public class UserTests {
     //~ Methods ========================================================================================================
 
     @Test
-    public void testEquals() {
-        User user1 = new User("rod", "koala", true, true, true, true,ROLE_12);
+    public void equalsReturnsTrueIfUsernamesAreTheSame() {
+        User user1 = new User("rod", "koala", true, true, true, true, ROLE_12);
 
         assertFalse(user1.equals(null));
         assertFalse(user1.equals("A STRING"));
         assertTrue(user1.equals(user1));
-        assertTrue(user1.equals(new User("rod", "koala", true, true, true, true,ROLE_12)));
-        // Equal as the new User will internally sort the GrantedAuthorities in the correct order, before running equals()
-        assertTrue(user1.equals(new User("rod", "koala", true, true, true, true,
-                        AuthorityUtils.createAuthorityList("ROLE_TWO","ROLE_ONE"))));
-        assertFalse(user1.equals(new User("DIFFERENT_USERNAME", "koala", true, true, true, true, ROLE_12)));
-        assertFalse(user1.equals(new User("rod", "DIFFERENT_PASSWORD", true, true, true, true, ROLE_12)));
-        assertFalse(user1.equals(new User("rod", "koala", false, true, true, true, ROLE_12)));
-        assertFalse(user1.equals(new User("rod", "koala", true, false, true, true, ROLE_12)));
-        assertFalse(user1.equals(new User("rod", "koala", true, true, false, true, ROLE_12)));
-        assertFalse(user1.equals(new User("rod", "koala", true, true, true, false, ROLE_12)));
-        assertFalse(user1.equals(new User("rod", "koala", true, true, true, true,
-                AuthorityUtils.createAuthorityList("ROLE_ONE"))));
+        assertTrue(user1.equals(new User("rod", "notthesame", true, true, true, true, ROLE_12)));
+    }
+
+    @Test
+    public void hashLookupOnlyDependsOnUsername() throws Exception {
+        User user1 = new User("rod", "koala", true, true, true, true, ROLE_12);
+        Set<UserDetails> users = new HashSet<UserDetails>();
+        users.add(user1);
+
+        assertTrue(users.contains(new User("rod", "koala", true, true, true, true, ROLE_12)));
+        assertTrue(users.contains(new User("rod", "anotherpass", false, false, false, false, AuthorityUtils.createAuthorityList("ROLE_X"))));
+        assertFalse(users.contains(new User("bod", "koala", true, true, true, true, ROLE_12)));
     }
 
     @Test
@@ -116,9 +118,9 @@ public class UserTests {
     }
 
     @Test
-    public void testUserIsEnabled() throws Exception {
+    public void enabledFlagIsFalseForDisabledAccount() throws Exception {
         UserDetails user = new User("rod", "koala", false, true, true, true, ROLE_12);
-        assertTrue(!user.isEnabled());
+        assertFalse(user.isEnabled());
     }
 
     @Test
