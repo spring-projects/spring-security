@@ -586,9 +586,9 @@
             </section>
         </section>
     </section>
-    <section>
+    <section xml:id="ns-method-security">
         <title>Method Security</title>
-        <section>
+        <section xml:id="nsa-gms">
             <title>The <literal>&lt;global-method-security&gt;</literal> Element</title>
             <para> This element is the primary means of adding support for securing methods on
                 Spring Security beans. Methods can be secured by the use of annotations (defined at
@@ -608,6 +608,14 @@
                         <interfacename>AccessDecisionManager</interfacename>, so you need to make
                     sure you do this if you are using a custom implementation and want to use these
                     annotations. </para>
+            </section>
+            <section xml:id="nsa-gms-mode">
+                <title>The <literal>mode</literal> Attribute</title>
+                <para>This attribute can be set to <quote>aspectj</quote> to specify that
+                    AspectJ should be used instead of the default Spring AOP. Secured methods must
+                    be woven with the <classname>AnnotationSecurityAspect</classname> from the
+                    <literal>spring-security-aspects</literal> module.
+                </para>
             </section>
             <section>
                 <title>Securing Methods using <literal>&lt;protect-pointcut&gt;</literal></title>

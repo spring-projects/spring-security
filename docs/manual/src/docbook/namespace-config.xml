@@ -843,7 +843,16 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                 annotations are a good choice if you need to define simple rules that go beyond
                 checking the role names against the user's list of authorities. You can enable more
                 than one type of annotation in the same application, but you should avoid mixing
-                annotations types in the same interface or class to avoid confusion.</para>
+                annotations types in the same interface or class to avoid confusion.
+            <note>
+                <para>The annotated methods will only be secured for instances which are defined
+                as Spring beans (in the same application context in which method-security
+                is enabled). If you want to secure instances which are not created by Spring
+                (using the <literal>new</literal> operator, for example) then you need to use
+                 AspectJ.
+                </para>
+            </note>
+            </para>
             <section xml:id="ns-protect-pointcut">
                 <title>Adding Security Pointcuts using <literal>protect-pointcut</literal></title>
                 <para> The use of <literal>protect-pointcut</literal> is particularly powerful, as
