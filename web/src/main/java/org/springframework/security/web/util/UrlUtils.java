@@ -19,8 +19,9 @@ import javax.servlet.http.HttpServletRequest;
 
 
 /**
- * Provides static methods for composing URLs.<p>Placed into a separate class for visibility, so that changes to
- * URL formatting conventions will affect all users.</p>
+ * Provides static methods for composing URLs.
+ * <p>
+ * Placed into a separate class for visibility, so that changes to URL formatting conventions will affect all users.
  *
  * @author Ben Alex
  */
