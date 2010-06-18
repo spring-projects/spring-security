@@ -15,6 +15,8 @@
 
 package org.springframework.security.web.util;
 
+import java.util.regex.Pattern;
+
 import javax.servlet.http.HttpServletRequest;
 
 
@@ -96,7 +98,7 @@ public final class UrlUtils {
      * Obtains the web application-specific fragment of the URL.
      */
     private static String buildRequestUrl(String servletPath, String requestURI, String contextPath, String pathInfo,
-        String queryString) {
+            String queryString) {
 
         StringBuilder url = new StringBuilder();
 
@@ -117,9 +119,18 @@ public final class UrlUtils {
     }
 
     /**
-     * Returns true if the supplied URL starts with a "/" or "http".
+     * Returns true if the supplied URL starts with a "/" or is absolute.
      */
     public static boolean isValidRedirectUrl(String url) {
-        return url != null && url.startsWith("/") || url.toLowerCase().startsWith("http");
+        return url != null && url.startsWith("/") || isAbsoluteUrl(url);
+    }
+
+    /**
+     * Decides if a URL is absolute based on whether it contains a valid scheme name, as defined in RFC 1738.
+     */
+    public static boolean isAbsoluteUrl(String url) {
+        final Pattern ABSOLUTE_URL = Pattern.compile("\\A[a-z.+-]+://.*", Pattern.CASE_INSENSITIVE);
+
+        return ABSOLUTE_URL.matcher(url).matches();
     }
 }

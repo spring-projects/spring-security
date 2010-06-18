@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.security.web.util.UrlUtils;
 
 /**
  * Simple implementation of <tt>RedirectStrategy</tt> which is the default used throughout the framework.
@@ -15,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
  * @since 3.0
  */
 public class DefaultRedirectStrategy implements RedirectStrategy {
+
     protected final Log logger = LogFactory.getLog(getClass());
 
     private boolean contextRelative;
@@ -38,7 +40,7 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
     }
 
     private String calculateRedirectUrl(String contextPath, String url) {
-        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+        if (!UrlUtils.isAbsoluteUrl(url)) {
             if (contextRelative) {
                 return url;
             } else {
@@ -52,8 +54,8 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
             return url;
         }
 
-        // Calculate the relative URL from the fully qualifed URL, minus the protocol and base context.
-        url = url.substring(url.indexOf("://") + 3); // strip off protocol
+        // Calculate the relative URL from the fully qualified URL, minus the scheme and base context.
+        url = url.substring(url.indexOf("://") + 3); // strip off scheme
         url = url.substring(url.indexOf(contextPath) + contextPath.length());
 
         if (url.length() > 1 && url.charAt(0) == '/') {
