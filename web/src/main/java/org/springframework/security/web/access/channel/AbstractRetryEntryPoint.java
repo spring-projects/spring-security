@@ -40,13 +40,8 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
     //~ Methods ========================================================================================================
 
     public void commence(HttpServletRequest request, HttpServletResponse res) throws IOException, ServletException {
-        String pathInfo = request.getPathInfo();
         String queryString = request.getQueryString();
-        String contextPath = request.getContextPath();
-        String destination = request.getServletPath() + ((pathInfo == null) ? "" : pathInfo)
-            + ((queryString == null) ? "" : ("?" + queryString));
-
-        String redirectUrl = contextPath;
+        String redirectUrl = request.getRequestURI() + ((queryString == null) ? "" : ("?" + queryString));
 
         Integer currentPort = new Integer(portResolver.getServerPort(request));
         Integer redirectPort = getMappedPort(currentPort);
@@ -54,8 +49,7 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
         if (redirectPort != null) {
             boolean includePort = redirectPort.intValue() != standardPort;
 
-            redirectUrl = scheme + request.getServerName() + ((includePort) ? (":" + redirectPort) : "") + contextPath
-                + destination;
+            redirectUrl = scheme + request.getServerName() + ((includePort) ? (":" + redirectPort) : "") + redirectUrl;
         }
 
         if (logger.isDebugEnabled()) {
@@ -67,11 +61,11 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 
     protected abstract Integer getMappedPort(Integer mapFromPort);
 
-    protected PortMapper getPortMapper() {
+    protected final PortMapper getPortMapper() {
         return portMapper;
     }
 
-    protected PortResolver getPortResolver() {
+    protected final PortResolver getPortResolver() {
         return portResolver;
     }
 
