@@ -35,6 +35,7 @@ import org.w3c.dom.NodeList;
 public class AuthenticationManagerBeanDefinitionParser implements BeanDefinitionParser {
     private static final String ATT_ALIAS = "alias";
     private static final String ATT_REF = "ref";
+    private static final String ATT_ERASE_CREDENTIALS = "erase-credentials";
 
     public BeanDefinition parse(Element element, ParserContext pc) {
         Assert.state(!pc.getRegistry().containsBeanDefinition(BeanIds.AUTHENTICATION_MANAGER),
@@ -72,6 +73,11 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
         }
 
         providerManagerBldr.addPropertyValue("providers", providers);
+
+        if ("true".equals(element.getAttribute(ATT_ERASE_CREDENTIALS))) {
+            providerManagerBldr.addPropertyValue("eraseCredentialsAfterAuthentication", true);
+        }
+
         // Add the default event publisher
         BeanDefinition publisher = new RootBeanDefinition(DefaultAuthenticationEventPublisher.class);
         String id = pc.getReaderContext().generateBeanName(publisher);
