@@ -453,6 +453,24 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         then: "App context creation and login request succeed"
         fcp.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
     }
+
+    def eraseCredentialsDefaultsToTrue() {
+        xml.http() {
+            'form-login'()
+        }
+        createAppContext()
+        expect:
+        getFilter(UsernamePasswordAuthenticationFilter).authenticationManager.eraseCredentialsAfterAuthentication == true
+    }
+
+    def eraseCredentialsIsSetFromParentAuthenticationManager() {
+        xml.http() {
+            'form-login'()
+        }
+        createAppContext("<authentication-manager erase-credentials='false' />");
+        expect:
+        getFilter(UsernamePasswordAuthenticationFilter).authenticationManager.eraseCredentialsAfterAuthentication == false
+    }
 }
 
 class MockEntryPoint extends LoginUrlAuthenticationEntryPoint {

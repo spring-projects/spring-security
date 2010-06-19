@@ -1299,6 +1299,11 @@
         <xs:documentation>The alias you wish to use for the AuthenticationManager bean</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="erase-credentials" type="security:boolean">
+      <xs:annotation>
+        <xs:documentation>If set to true, the AuthenticationManger will attempt to clear any credentials data in the returned Authentication object, once the user has been authenticated.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
   
   <xs:attributeGroup name="ap.attlist">

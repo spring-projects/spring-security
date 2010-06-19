@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
+import org.springframework.beans.factory.config.MethodInvokingFactoryBean;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.config.ConstructorArgumentValues.ValueHolder;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
@@ -169,6 +170,10 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         BeanDefinitionBuilder authManager = BeanDefinitionBuilder.rootBeanDefinition(ProviderManager.class);
         authManager.addPropertyValue("parent", new RootBeanDefinition(AuthenticationManagerFactoryBean.class));
         authManager.addPropertyValue("providers", authenticationProviders);
+        RootBeanDefinition clearCredentials = new RootBeanDefinition(MethodInvokingFactoryBean.class);
+        clearCredentials.getPropertyValues().addPropertyValue("targetObject", new RootBeanDefinition(AuthenticationManagerFactoryBean.class));
+        clearCredentials.getPropertyValues().addPropertyValue("targetMethod", "isEraseCredentialsAfterAuthentication");
+        authManager.addPropertyValue("eraseCredentialsAfterAuthentication", clearCredentials);
 
         if (concurrencyController != null) {
             authManager.addPropertyValue("sessionController", concurrencyController);
