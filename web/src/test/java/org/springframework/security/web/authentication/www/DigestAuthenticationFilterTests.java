@@ -51,6 +51,7 @@ import org.springframework.util.StringUtils;
  * @author Ben Alex
  * @author Luke Taylor
  */
+@SuppressWarnings("deprecation")
 public class DigestAuthenticationFilterTests {
     //~ Static fields/initializers =====================================================================================
 

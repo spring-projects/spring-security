@@ -29,6 +29,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  *
  * @author Ben Alex
  */
+@SuppressWarnings("deprecation")
 public class UserMapTests {
 
     @Test

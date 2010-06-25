@@ -27,6 +27,7 @@ import org.springframework.security.core.userdetails.memory.UserMapEditor;
  *
  * @author Ben Alex
  */
+@SuppressWarnings("deprecation")
 public class UserMapEditorTests extends TestCase {
     //~ Constructors ===================================================================================================
 
