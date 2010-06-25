@@ -54,17 +54,17 @@ public class AuthenticationManagerBeanDefinitionParserTests {
     }
 
     @Test
-    public void credentialsAreClearedByDefault() throws Exception {
-        setContext(CONTEXT, "3.1");
+    public void credentialsAreNotClearedByDefault() throws Exception {
+        setContext(CONTEXT, "3.0");
         ProviderManager pm = (ProviderManager) appContext.getBeansOfType(ProviderManager.class).values().toArray()[0];
-        assertTrue(pm.isEraseCredentialsAfterAuthentication());
+        assertFalse(pm.isEraseCredentialsAfterAuthentication());
     }
 
     @Test
     public void clearCredentialsPropertyIsRespected() throws Exception {
-        setContext("<authentication-manager erase-credentials='false'/>", "3.1");
+        setContext("<authentication-manager erase-credentials='true'/>", "3.0.3");
         ProviderManager pm = (ProviderManager) appContext.getBeansOfType(ProviderManager.class).values().toArray()[0];
-        assertFalse(pm.isEraseCredentialsAfterAuthentication());
+        assertTrue(pm.isEraseCredentialsAfterAuthentication());
     }
 
     private void setContext(String context, String version) {

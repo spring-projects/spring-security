@@ -54,16 +54,16 @@ public class ProviderManagerTests {
     }
 
     @Test
-    public void credentialsAreClearedByDefault() throws Exception {
+    public void credentialsAreNotClearedByDefault() throws Exception {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password");
         ProviderManager mgr = makeProviderManager();
         Authentication result = mgr.authenticate(token);
-        assertNull(result.getCredentials());
+        assertNotNull(result.getCredentials());
 
-        mgr.setEraseCredentialsAfterAuthentication(false);
+        mgr.setEraseCredentialsAfterAuthentication(true);
         token = new UsernamePasswordAuthenticationToken("Test", "Password");
         result = mgr.authenticate(token);
-        assertNotNull(result.getCredentials());
+        assertNull(result.getCredentials());
     }
 
     @Test
