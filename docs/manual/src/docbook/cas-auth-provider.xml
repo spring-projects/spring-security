@@ -291,7 +291,7 @@
 ]]>
     </programlisting> </para>
         <para> The <classname>CasAuthenticationEntryPoint</classname> should be selected to drive
-            authentication using <link xlink:href="ns-entry-point-ref"
+            authentication using <link xlink:href="#ns-entry-point-ref"
             ><literal>entry-point-ref</literal></link>. </para>
         <para>The <classname>CasAuthenticationFilter</classname> has very similar properties to the
             <classname>UsernamePasswordAuthenticationFilter</classname> (used for form-based

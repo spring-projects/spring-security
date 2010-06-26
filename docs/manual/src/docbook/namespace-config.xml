@@ -599,7 +599,7 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                     retrieved value (or values in the case of multi-valued attributes). We'll see
                     more about how the <classname>SecurityContextHolder</classname> class is used
                     when we look at core Spring Security components in the <link
-                        xlink:href="core-components">technical overview</link> chapter. Multiple
+                        xlink:href="#core-components">technical overview</link> chapter. Multiple
                     attribute exchange configurations are also be supported, if you wish to use
                     multiple identity providers. You can supply multiple
                         <literal>attribute-exchange</literal> elements, using an
@@ -786,7 +786,7 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
         <para>From version 2.0 onwards Spring Security has improved support substantially for adding
             security to your service layer methods. It provides support for JSR-250 annotation
             security as well as the framework's original <literal>@Secured</literal> annotation.
-            From 3.0 you can also make use of new <link xlink:href="el-access">expression-based
+            From 3.0 you can also make use of new <link xlink:href="#el-access">expression-based
                 annotations</link>. You can apply security to a single bean, using the
                 <literal>intercept-methods</literal> element to decorate the bean declaration, or
             you can secure multiple beans across the entire service layer using the AspectJ style
@@ -887,7 +887,7 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
         <para> The default strategy is to use an <classname>AffirmativeBased</classname>
             <interfacename>AccessDecisionManager</interfacename> with a
                 <classname>RoleVoter</classname> and an <classname>AuthenticatedVoter</classname>.
-            You can find out more about these in the chapter on <link xlink:href="authorization"
+            You can find out more about these in the chapter on <link xlink:href="#authz-arch"
                 >authorization</link>.</para>
         <section xml:id="ns-custom-access-mgr">
             <title>Customizing the AccessDecisionManager</title>

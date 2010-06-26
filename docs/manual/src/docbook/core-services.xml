@@ -117,7 +117,7 @@
                 <interfacename>SaltSource</interfacename> enables the passwords to be populated with
                 a "salt", which enhances the security of the passwords in the authentication
                 repository. These will be discussed in more detail <link
-                xlink:href="core-services-password-encodin">below</link>. </para>
+                xlink:href="#core-services-password-encoding">below</link>. </para>
         </section>
     </section>
     <section>

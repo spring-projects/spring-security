@@ -17,7 +17,7 @@
         <para> The tutorial sample is a nice basic example to get you started. It uses simple
             namespace configuration throughout. The compiled application is included in the
             distribution zip file, ready to be deployed into your web container
-            (<filename>spring-security-samples-tutorial-3.0.x.war</filename>). The <link
+            (<filename>spring-security-samples-tutorial-3.1.x.war</filename>). The <link
             xlink:href="#ns-form-and-basic">form-based</link> authentication mechanism is used in
             combination with the commonly-used <link xlink:href="#remember-me">remember-me</link>
             authentication provider to automatically remember the login using cookies.</para>
@@ -123,7 +123,7 @@ Success! Your web filters appear to be properly configured!
         <title>CAS Sample</title>
         <para> The CAS sample requires that you run both a CAS server and CAS client. It isn't
             included in the distribution so you should check out the project code as described in
-            <link xlink:href="get-source">the introduction</link>. You'll find the relevant files
+            <link xlink:href="#get-source">the introduction</link>. You'll find the relevant files
             under the <filename>sample/cas</filename> directory. There's also a
             <filename>Readme.txt</filename> file in there which explains how to run both the server
             and the client directly from the source tree, complete with SSL support. You have to

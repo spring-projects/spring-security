@@ -582,7 +582,7 @@ Successfully authenticated. Security context contains: \
                     <classname>RoleVoter</classname>. This is only relevant when a voter-based
                     <interfacename>AccessDecisionManager</interfacename> is in use. We'll see how
                     the <interfacename>AccessDecisionManager</interfacename> is implemented in the
-                    <link xlink:href="authz-arch">authorization chapter</link>.</para>
+                    <link xlink:href="#authz-arch">authorization chapter</link>.</para>
             </section>
             <section>
                 <title>RunAsManager</title>

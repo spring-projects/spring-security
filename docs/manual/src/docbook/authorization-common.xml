@@ -177,14 +177,14 @@ boolean supports(Class clazz);
                 <title>Custom Voters</title>
                 <para>Obviously, you can also implement a custom
                     <interfacename>AccessDecisionVoter</interfacename> and you can
-					put just about any access-control logic you want in it. It might
-					be specific to your application (business-logic related) or it
-					might implement some security administration logic. For example, you'll find
-					a <link xlink:href='http://blog.springsource.com/2009/01/02/spring-security-customization-part-2-adjusting-secured-session-in-real-time/'>
-					blog article</link> on the SpringSource web site which describes how to
-					use a voter to deny access in real-time to users whose accounts have
-					been suspended.
-					</para>
+                    put just about any access-control logic you want in it. It might
+                    be specific to your application (business-logic related) or it
+                    might implement some security administration logic. For example, you'll find
+                    a <link xlink:href='http://blog.springsource.com/2009/01/02/spring-security-customization-part-2-adjusting-secured-session-in-real-time/'>
+                    blog article</link> on the SpringSource web site which describes how to
+                    use a voter to deny access in real-time to users whose accounts have
+                    been suspended.
+                    </para>
             </section>
         </section>
     </section>

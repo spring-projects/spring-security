@@ -178,7 +178,7 @@ class="org.springframework.security.web.authentication.preauth.PreAuthenticatedA
                     (hence the user of the <literal>custom-filter</literal>,
                     <literal>authentication-manager</literal> and
                     <literal>custom-authentication-provider</literal> elements (you can read more
-                    about them in the <link xlink:href="ns-config">namespace chapter</link>). You
+                    about them in the <link xlink:href="#ns-config">namespace chapter</link>). You
                     would leave these out of a traditional bean configuration. It's also assumed
                     that you have added a <interfacename>UserDetailsService</interfacename> (called
                     <quote>userDetailsService</quote>) to your configuration to load the user's
