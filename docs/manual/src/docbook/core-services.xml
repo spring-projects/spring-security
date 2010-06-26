@@ -71,6 +71,28 @@
             concerned about this, because if you forget to register a suitable provider, you'll
             simply receive a <literal>ProviderNotFoundException</literal> when an attempt to
             authenticate is made.</para>
+        <section xml:id="core-services-erasing-credentials">
+            <title>Erasing Credentials on Successful Authentication</title>
+            <para>
+                By default (from Spring Security 3.1 onwards) the <classname>ProviderManager</classname>
+                will attempt to clear any sensitive credentials information from the
+                <interfacename>Authentication</interfacename> object which is returned by a successful
+                authentication request. This prevents information like passwords being retained longer
+                than necessary.
+            </para>
+            <para>
+                This may cause issues when you are using a cache of user objects, for example, to
+                improve performance in a stateless application. If the <interfacename>Authentication</interfacename>
+                contains a reference to an object in the cache (such as a <interfacename>UserDetails</interfacename>
+                instance) and this has its credentials removed, then it will no longer be possible to authenticate
+                against the cached value. You need to take this into account if you are using a cache. An obvious
+                solution is to make a copy of the object first, either in the cache implementation or in
+                the <interfacename>AuthenticationProvider</interfacename> which creates the returned
+                <interfacename>Authentication</interfacename> object. Alternatively, you can disable the
+                <literal>eraseCredentialsAfterAuthentication</literal> property on <classname>ProviderManager</classname>.
+                See the Javadoc for more information.
+            </para>
+        </section>
         <section xml:id="core-services-dao-provider">
             <title><literal>DaoAuthenticationProvider</literal></title>
             <para>The simplest <interfacename>AuthenticationProvider</interfacename> implemented by

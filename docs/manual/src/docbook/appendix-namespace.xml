@@ -524,7 +524,7 @@
             </para>
         </section>
     </section>
-    <section>
+    <section xml:id="nsa-authentication">
         <title>Authentication Services</title>
         <para> Before Spring Security 3.0, an <interfacename>AuthenticationManager</interfacename>
             was automatically registered internally. Now you must register one explicitly using the
@@ -545,6 +545,11 @@
                 described in the <link xlink:href="#ns-auth-manager">namespace introduction</link>.
                 All elements which create <interfacename>AuthenticationProvider</interfacename>
                 instances should be children of this element.</para>
+            <para>
+                The element also exposes an <literal>erase-credentials</literal> attribute which maps
+                to the <literal>eraseCredentialsAfterAuthentication</literal> property of
+                the <classname>ProviderManager</classname>. This is discussed in the
+                <link xlink:href="#core-services-erasing-credentials">Core Services</link> chapter.</para>
             <section>
                 <title>The <literal>&lt;authentication-provider&gt;</literal> Element</title>
                 <para> Unless used with a <literal>ref</literal> attribute, this element is
