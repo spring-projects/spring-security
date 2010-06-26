@@ -13,7 +13,6 @@ import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.Assert;
 
 import sample.dms.AbstractElement;
@@ -24,8 +23,8 @@ public class SecureDataSourcePopulator extends DataSourcePopulator {
 
     private MutableAclService aclService;
 
-    public SecureDataSourcePopulator(DataSource dataSource, SecureDocumentDao documentDao, PlatformTransactionManager platformTransactionManager, MutableAclService aclService) {
-        super(dataSource, documentDao, platformTransactionManager);
+    public SecureDataSourcePopulator(DataSource dataSource, SecureDocumentDao documentDao, MutableAclService aclService) {
+        super(dataSource, documentDao);
         Assert.notNull(aclService, "MutableAclService required");
         this.aclService = aclService;
     }

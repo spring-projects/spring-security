@@ -39,11 +39,11 @@ public class MethodSecurityInterceptorWithAopConfigTests {
         "<b:bean id='target' class='org.springframework.security.TargetObject'/>" +
         "<b:bean id='securityInterceptor' class='org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor' autowire='byType' >" +
         "     <b:property name='securityMetadataSource'>" +
-        "       <b:value>" +
-                    "org.springframework.security.ITargetObject.makeLower*=ROLE_A\n" +
-                    "org.springframework.security.TargetObject.makeUpper*=ROLE_A\n" +
-                    "org.springframework.security.ITargetObject.computeHashCode*=ROLE_B\n" +
-        "       </b:value>" +
+        "         <method-security-metadata-source>" +
+        "             <protect method='org.springframework.security.ITargetObject.makeLower*' access='ROLE_A'/>" +
+        "             <protect method='org.springframework.security.ITargetObject.makeUpper*' access='ROLE_A'/>" +
+        "             <protect method='org.springframework.security.ITargetObject.computeHashCode*' access='ROLE_B'/>" +
+        "         </method-security-metadata-source>" +
         "     </b:property>" +
         "</b:bean>";
 

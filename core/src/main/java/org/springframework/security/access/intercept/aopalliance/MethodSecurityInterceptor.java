@@ -42,10 +42,6 @@ public class MethodSecurityInterceptor extends AbstractSecurityInterceptor imple
 
     //~ Methods ========================================================================================================
 
-    public MethodSecurityMetadataSource getSecurityMetadataSource() {
-        return this.securityMetadataSource;
-    }
-
     public Class<? extends Object> getSecureObjectClass() {
         return MethodInvocation.class;
     }
@@ -70,6 +66,10 @@ public class MethodSecurityInterceptor extends AbstractSecurityInterceptor imple
         }
 
         return result;
+    }
+
+    public MethodSecurityMetadataSource getSecurityMetadataSource() {
+        return this.securityMetadataSource;
     }
 
     public SecurityMetadataSource obtainSecurityMetadataSource() {

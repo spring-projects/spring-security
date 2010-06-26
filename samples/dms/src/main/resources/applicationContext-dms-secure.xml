@@ -9,7 +9,7 @@
     xmlns:s="http://www.springframework.org/schema/security"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 
     <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
         <property name="dataSource" ref="dataSource"/>
@@ -44,7 +44,6 @@
     <bean id="dataSourcePopulator" class="sample.dms.secured.SecureDataSourcePopulator">
         <constructor-arg ref="dataSource"/>
         <constructor-arg ref="documentDao"/>
-        <constructor-arg ref="transactionManager"/>
         <constructor-arg ref="aclService"/>
     </bean>
 
@@ -206,21 +205,25 @@
 
    <!-- ================= METHOD INVOCATION AUTHORIZATION ==================== -->
 
-   <bean id="methodSecurityAdvisor" class="org.springframework.security.access.intercept.aopalliance.MethodSecurityMetadataSourceAdvisor" autowire="constructor"/>
+   <bean id="methodSecurityAdvisor" class="org.springframework.security.access.intercept.aopalliance.MethodSecurityMetadataSourceAdvisor">
+       <constructor-arg value="methodSecurityInterceptor" />
+       <constructor-arg ref="msmds" />
+       <constructor-arg value="msmds" />
+   </bean>
 
    <bean id="methodSecurityInterceptor" class="org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor">
-      <property name="authenticationManager"><ref bean="authenticationManager"/></property>
-      <property name="accessDecisionManager"><ref local="businessAccessDecisionManager"/></property>
-      <property name="afterInvocationManager"><ref local="afterInvocationManager"/></property>
-      <property name="securityMetadataSource">
-         <value>
-            sample.dms.DocumentDao.create=ACL_ABSTRACT_ELEMENT_WRITE_PARENT
-            sample.dms.DocumentDao.delete=ACL_ABSTRACT_ELEMENT_WRITE
-            sample.dms.DocumentDao.update=ACL_ABSTRACT_ELEMENT_WRITE
-            sample.dms.DocumentDao.findElements=AFTER_ACL_COLLECTION_READ
-            sample.dms.secured.SecureDocumentDao.getUsers=ROLE_USER
-         </value>
-      </property>
+      <property name="authenticationManager" ref="authenticationManager"/>
+      <property name="accessDecisionManager" ref="businessAccessDecisionManager"/>
+      <property name="afterInvocationManager" ref="afterInvocationManager"/>
+      <property name="securityMetadataSource" ref="msmds" />
    </bean>
+
+   <s:method-security-metadata-source id="msmds">
+      <s:protect method="sample.dms.DocumentDao.create" access="ACL_ABSTRACT_ELEMENT_WRITE_PARENT" />
+      <s:protect method="sample.dms.DocumentDao.delete" access="ACL_ABSTRACT_ELEMENT_WRITE" />
+      <s:protect method="sample.dms.DocumentDao.update" access="ACL_ABSTRACT_ELEMENT_WRITE" />
+      <s:protect method="sample.dms.DocumentDao.findElements" access="AFTER_ACL_COLLECTION_READ" />
+      <s:protect method="sample.dms.secured.SecureDocumentDao.getUsers" access="ROLE_USER" />
+   </s:method-security-metadata-source>
 
 </beans>

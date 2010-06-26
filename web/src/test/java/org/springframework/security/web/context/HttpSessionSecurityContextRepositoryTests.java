@@ -18,20 +18,6 @@ import org.springframework.security.web.context.SaveContextOnUpdateOrErrorRespon
 public class HttpSessionSecurityContextRepositoryTests {
     private final TestingAuthenticationToken testToken = new TestingAuthenticationToken("someone", "passwd", "ROLE_A");
 
-    @Test(expected=IllegalArgumentException.class)
-    @Deprecated
-    public void detectsInvalidContextClass() throws Exception {
-        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
-        repo.setSecurityContextClass(String.class);
-    }
-
-    @Deprecated
-    @Test(expected=IllegalArgumentException.class)
-    public void cannotSetNullContextClass() throws Exception {
-        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
-        repo.setSecurityContextClass(null);
-    }
-
     @Test
     public void sessionIsntCreatedIfContextDoesntChange() throws Exception {
         HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
@@ -160,30 +146,6 @@ public class HttpSessionSecurityContextRepositoryTests {
                 new AnonymousAuthenticationToken("key", "anon", AuthorityUtils.createAuthorityList("ANON")));
         repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
         assertNull(request.getSession(false));
-    }
-
-    @Test
-    @Deprecated
-    public void settingCloneFromContextLoadsClonedContextObject() throws Exception {
-        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
-        repo.setCloneFromHttpSession(true);
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        MockContext contextBefore = new MockContext();
-        request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, contextBefore);
-        contextBefore.setAuthentication(testToken);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
-        SecurityContext loadedContext = repo.loadContext(holder);
-        assertTrue(loadedContext instanceof MockContext);
-        assertFalse(loadedContext == contextBefore);
-    }
-
-    @Test
-    @Deprecated
-    public void generateNewContextWorksWithContextClass() throws Exception {
-        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
-        repo.setSecurityContextClass(MockContext.class);
-        assertTrue(repo.generateNewContext() instanceof MockContext);
     }
 
     @Test

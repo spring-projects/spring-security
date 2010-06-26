@@ -222,40 +222,6 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
         return context;
     }
 
-    @SuppressWarnings("unchecked")
-    @Deprecated
-    /**
-     * Sets the {@code SecurityContext} implementation class.
-     *
-     * @deprecated use a custom {@code SecurityContextHolderStrategy} where the {@code createEmptyContext} method
-     *      returns the correct implementation.
-     */
-    public void setSecurityContextClass(Class contextClass) {
-        if (contextClass == null || (!SecurityContext.class.isAssignableFrom(contextClass))) {
-            throw new IllegalArgumentException("securityContextClass must implement SecurityContext "
-                    + "(typically use org.springframework.security.core.context.SecurityContextImpl; existing class is "
-                    + contextClass + ")");
-        }
-
-        this.securityContextClass = contextClass;
-        contextObject = generateNewContext();
-    }
-
-    /**
-     * Normally, the {@code SecurityContext} retrieved from the session is stored directly in the
-     * {@code SecurityContextHolder}, meaning that it is shared between concurrent threads.
-     * In this case, if one thread modifies the contents of the context, all threads will see the same
-     * change.
-     *
-     * @param cloneFromHttpSession set to true to clone the security context retrieved from the session.
-     *          Defaults to false.
-     * @deprecated Override the {@code loadContext} method and copy the created context instead.
-     */
-    @Deprecated
-    public void setCloneFromHttpSession(boolean cloneFromHttpSession) {
-        this.cloneFromHttpSession = cloneFromHttpSession;
-    }
-
     /**
      * If set to true (the default), a session will be created (if required) to store the security context if it is
      * determined that its contents are different from the default empty context value.

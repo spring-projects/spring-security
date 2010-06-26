@@ -15,12 +15,10 @@
 
 package org.springframework.security.authentication;
 
-import org.springframework.security.core.GrantedAuthority;
-
-
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
 
 
 /**
@@ -36,13 +34,6 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
     private final int keyHash;
 
     //~ Constructors ===================================================================================================
-
-    /**
-     * @deprecated use the second constructor
-     */
-    public AnonymousAuthenticationToken(String key, Object principal, GrantedAuthority[] authorities) {
-        this(key, principal, Arrays.asList(authorities));
-    }
 
     /**
      * Constructor.

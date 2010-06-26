@@ -87,6 +87,14 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
         return this.securityMetadataSource;
     }
 
+    public SecurityMetadataSource obtainSecurityMetadataSource() {
+        return this.securityMetadataSource;
+    }
+
+    public void setSecurityMetadataSource(FilterInvocationSecurityMetadataSource newSource) {
+        this.securityMetadataSource = newSource;
+    }
+
     public Class<? extends Object> getSecureObjectClass() {
         return FilterInvocation.class;
     }
@@ -125,22 +133,6 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
      */
     public boolean isObserveOncePerRequest() {
         return observeOncePerRequest;
-    }
-
-    public SecurityMetadataSource obtainSecurityMetadataSource() {
-        return this.securityMetadataSource;
-    }
-
-    /**
-     * @deprecated use setSecurityMetadataSource instead
-     */
-    public void setObjectDefinitionSource(FilterInvocationSecurityMetadataSource newSource) {
-        logger.warn("The property 'objectDefinitionSource' is deprecated. Please use 'securityMetadataSource' instead");
-        this.securityMetadataSource = newSource;
-    }
-
-    public void setSecurityMetadataSource(FilterInvocationSecurityMetadataSource newSource) {
-        this.securityMetadataSource = newSource;
     }
 
     public void setObserveOncePerRequest(boolean observeOncePerRequest) {

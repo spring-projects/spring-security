@@ -35,7 +35,6 @@
     <bean id="dataSourcePopulator" class="sample.dms.DataSourcePopulator">
         <constructor-arg ref="dataSource"/>
         <constructor-arg ref="documentDao"/>
-        <constructor-arg ref="transactionManager"/>
     </bean>
 
 </beans>

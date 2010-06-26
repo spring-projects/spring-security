@@ -61,17 +61,6 @@ public class MethodSecurityMetadataSourceAdvisor extends AbstractPointcutAdvisor
     //~ Constructors ===================================================================================================
 
     /**
-     * @deprecated use the decoupled approach instead
-     */
-    MethodSecurityMetadataSourceAdvisor(MethodSecurityInterceptor advice) {
-        Assert.notNull(advice.getSecurityMetadataSource(), "Cannot construct a MethodSecurityMetadataSourceAdvisor using a " +
-                "MethodSecurityInterceptor that has no SecurityMetadataSource configured");
-
-        this.interceptor = advice;
-        this.attributeSource = advice.getSecurityMetadataSource();
-    }
-
-    /**
      * Alternative constructor for situations where we want the advisor decoupled from the advice. Instead the advice
      * bean name should be set. This prevents eager instantiation of the interceptor
      * (and hence the AuthenticationManager). See SEC-773, for example. The metadataSourceBeanName is used rather than
