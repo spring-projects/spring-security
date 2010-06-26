@@ -35,7 +35,7 @@
                 <classname>SecurityContext</classname>. </para>
         <para> If you are using the namespace, an instance of
                 <classname>ProviderManager</classname> is created and maintained internally, and
-            you add providers to it by using the namespace authentication provider elements 
+            you add providers to it by using the namespace authentication provider elements
             (see <link xlink:href="#ns-auth-manager">the namespace chapter</link>). In this
             case, you should not declare a <classname>ProviderManager</classname> bean in your
             application context. However, if you are not using the namespace then you would declare
@@ -98,6 +98,28 @@
                 with a "salt", which enhances the security of the passwords in the authentication
                 repository. These will be discussed in more detail <link
                     xlink:href="core-services-password-encodin">below</link>. </para>
+        </section>
+        <section xml:id="core-services-erasing-credentials">
+            <title>Erasing Credentials on Successful Authentication</title>
+            <para>
+                From Spring Security 3.0.3, you can configure the <classname>ProviderManager</classname>
+                will attempt to clear any sensitive credentials information from the
+                <interfacename>Authentication</interfacename> object which is returned by a successful
+                authentication request, to prevent information like passwords being retained longer
+                than necessary. This feature is controlled by the <literal>eraseCredentialsAfterAuthentication</literal>
+                property on <classname>ProviderManager</classname>. It is off by default.
+                See the Javadoc for more information.
+            </para>
+            <para>
+                This may cause issues when you are using a cache of user objects, for example, to
+                improve performance in a stateless application. If the <interfacename>Authentication</interfacename>
+                contains a reference to an object in the cache (such as a <interfacename>UserDetails</interfacename>
+                instance) and this has its credentials removed, then it will no longer be possible to authenticate
+                against the cached value. You need to take this into account if you are using a cache. An obvious
+                solution is to make a copy of the object first, either in the cache implementation or in
+                the <interfacename>AuthenticationProvider</interfacename> which creates the returned
+                <interfacename>Authentication</interfacename> object.
+            </para>
         </section>
     </section>
     <section>
