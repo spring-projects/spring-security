@@ -1,6 +1,8 @@
 target/
 .classpath
+.springBeans
 .project
+.DS_Store
 .settings/
 build/
 *.log
