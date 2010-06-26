@@ -1,7 +1,7 @@
 package org.springframework.security.config;
 
 /**
- * Contains all the element names used by Spring Security 2 namespace support.
+ * Contains all the element names used by Spring Security 3 namespace support.
  *
  * @author Ben Alex
  */
