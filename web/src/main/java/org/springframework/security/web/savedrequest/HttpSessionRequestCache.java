@@ -9,9 +9,11 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.WebAttributes;
+import org.springframework.security.web.util.AnyRequestMatcher;
+import org.springframework.security.web.util.RequestMatcher;
 
 /**
- * <tt>RequestCache</tt> which stores the <tt>SavedRequest</tt> in the HttpSession.
+ * {@code RequestCache} which stores the {@code SavedRequest} in the HttpSession.
  *
  * The {@link DefaultSavedRequest} class is used as the implementation.
  *
@@ -23,13 +25,13 @@ public class HttpSessionRequestCache implements RequestCache {
 
     private PortResolver portResolver = new PortResolverImpl();
     private boolean createSessionAllowed = true;
-    private boolean justUseSavedRequestOnGet;
+    private RequestMatcher requestMatcher = new AnyRequestMatcher();
 
     /**
      * Stores the current request, provided the configuration properties allow it.
      */
     public void saveRequest(HttpServletRequest request, HttpServletResponse response) {
-        if (!justUseSavedRequestOnGet || "GET".equals(request.getMethod())) {
+        if (requestMatcher.matches(request)) {
             DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, portResolver);
 
             if (createSessionAllowed || request.getSession(false) != null) {
@@ -38,8 +40,9 @@ public class HttpSessionRequestCache implements RequestCache {
                 request.getSession().setAttribute(WebAttributes.SAVED_REQUEST, savedRequest);
                 logger.debug("DefaultSavedRequest added to Session: " + savedRequest);
             }
+        } else {
+            logger.debug("Request not saved as configured RequestMatcher did not match");
         }
-
     }
 
     public SavedRequest getRequest(HttpServletRequest currentRequest, HttpServletResponse response) {
@@ -79,11 +82,15 @@ public class HttpSessionRequestCache implements RequestCache {
     }
 
     /**
-     * If <code>true</code>, will only use <code>DefaultSavedRequest</code> to determine the target URL on successful
-     * authentication if the request that caused the authentication request was a GET. Defaults to false.
+     * Allows selective use of saved requests for a subset of requests. By default any request will be cached
+     * by the {@code saveRequest} method.
+     * <p>
+     * If set, only matching requests will be cached.
+     *
+     * @param requestMatcher a request matching strategy which defines which requests should be cached.
      */
-    public void setJustUseSavedRequestOnGet(boolean justUseSavedRequestOnGet) {
-        this.justUseSavedRequestOnGet = justUseSavedRequestOnGet;
+    public void setRequestMatcher(RequestMatcher requestMatcher) {
+        this.requestMatcher = requestMatcher;
     }
 
     /**

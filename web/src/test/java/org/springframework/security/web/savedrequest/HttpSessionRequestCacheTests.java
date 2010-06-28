@@ -2,10 +2,13 @@ package org.springframework.security.web.savedrequest;
 
 import static org.junit.Assert.*;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.WebAttributes;
+import org.springframework.security.web.util.RequestMatcher;
 
 /**
  *
@@ -29,5 +32,23 @@ public class HttpSessionRequestCacheTests {
         assertNull(cache.getMatchingRequest(newRequest, response));
 
     }
+
+    @Test
+    public void requestMatcherDefinesCorrectSubsetOfCachedRequests() throws Exception {
+        HttpSessionRequestCache cache = new HttpSessionRequestCache();
+        cache.setRequestMatcher(new RequestMatcher() {
+            public boolean matches(HttpServletRequest request) {
+                return request.getMethod().equals("GET");
+            }
+        });
+
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/destination");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        cache.saveRequest(request, response);
+        assertNull(cache.getRequest(request, response));
+        assertNull(cache.getRequest(new MockHttpServletRequest(), new MockHttpServletResponse()));
+        assertNull(cache.getMatchingRequest(request, response));
+    }
+
 
 }

@@ -185,22 +185,6 @@ public class ExceptionTranslationFilterTests {
         assertEquals("http://www.example.com:8080/mycontext/secure/page.html", getSavedRequestUrl(request));
     }
 
-    @Test
-    public void testSavedRequestIsNotStoredForPostIfJustUseSaveRequestOnGetIsSet() throws Exception {
-        ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
-        HttpSessionRequestCache requestCache = new HttpSessionRequestCache();
-        requestCache.setPortResolver(new MockPortResolver(8080, 8443));
-        requestCache.setJustUseSavedRequestOnGet(true);
-        filter.setRequestCache(requestCache);
-        filter.setAuthenticationEntryPoint(mockEntryPoint());
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        FilterChain fc = mock(FilterChain.class);
-        doThrow(new BadCredentialsException("")).when(fc).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
-        request.setMethod("POST");
-        filter.doFilter(request, new MockHttpServletResponse(), fc);
-        assertTrue(request.getSession().getAttribute(WebAttributes.SAVED_REQUEST) == null);
-    }
-
     @Test(expected=IllegalArgumentException.class)
     public void testStartupDetectsMissingAuthenticationEntryPoint() throws Exception {
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
