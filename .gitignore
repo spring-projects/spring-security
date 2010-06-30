@@ -4,6 +4,8 @@ target/
 .settings/
 build/
 *.log
+*.log.1
+.DS_Store
 *.iml
 .gradle/
 gradle.properties
