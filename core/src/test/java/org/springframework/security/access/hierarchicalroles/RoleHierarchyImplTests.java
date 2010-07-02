@@ -14,6 +14,7 @@
 
 package org.springframework.security.access.hierarchicalroles;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -29,6 +30,19 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * @author Michael Mayr
  */
 public class RoleHierarchyImplTests extends TestCase {
+
+    public void testRoleHierarchyWithNullOrEmptyAuthorities() {
+        List<GrantedAuthority> authorities0 = null;
+        List<GrantedAuthority> authorities1 = new ArrayList<GrantedAuthority>();
+
+        RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
+        roleHierarchyImpl.setHierarchy("ROLE_A > ROLE_B");
+
+        assertNotNull(roleHierarchyImpl.getReachableGrantedAuthorities(authorities0));
+        assertEquals(0, roleHierarchyImpl.getReachableGrantedAuthorities(authorities0).size());
+        assertNotNull(roleHierarchyImpl.getReachableGrantedAuthorities(authorities1));
+        assertEquals(0, roleHierarchyImpl.getReachableGrantedAuthorities(authorities1).size());
+    }
 
     public void testSimpleRoleHierarchy() {
 
