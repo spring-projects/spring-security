@@ -5,7 +5,7 @@
     xsi:schemaLocation="
     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd
-    http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+    http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 
     <security:authentication-manager alias="authenticationManager">
         <security:authentication-provider>
@@ -30,9 +30,11 @@
         <property name="rejectPublicInvocations" value="true"/>
         <property name="authenticationManager" ref="authenticationManager"/>
         <property name="accessDecisionManager" ref="accessDecisionManager"/>
-        <property name="securityMetadataSource"><value>
-            org.springframework.security.core.session.SessionRegistry.get*=ROLE_C
-        </value></property>
+        <property name="securityMetadataSource">
+            <security:method-security-metadata-source>
+                <security:protect method="org.springframework.security.core.session.SessionRegistry.get*" access="ROLE_C" />
+            </security:method-security-metadata-source>
+        </property>
     </bean>
 
     <bean id="httpRemoteService" class="org.springframework.aop.framework.ProxyFactoryBean">
