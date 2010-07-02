@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
 
 /**
@@ -106,7 +107,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 
     public Collection<GrantedAuthority> getReachableGrantedAuthorities(Collection<GrantedAuthority> authorities) {
         if (authorities == null || authorities.isEmpty()) {
-            return null;
+            return AuthorityUtils.NO_AUTHORITIES;
         }
 
         Set<GrantedAuthority> reachableRoles = new HashSet<GrantedAuthority>();
