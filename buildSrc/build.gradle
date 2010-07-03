@@ -23,7 +23,7 @@ dependencies {
             fopDeps
 
     runtime 'net.sf.xslthl:xslthl:2.0.1',
-            'net.sf.docbook:docbook-xsl:1.75.2:resources@zip'
+            'net.sf.docbook:docbook-xsl:1.75.2:ns-resources@zip'
 }
 
 task ide(type: Copy)  {

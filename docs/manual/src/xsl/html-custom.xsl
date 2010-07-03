@@ -24,8 +24,8 @@
 				exclude-result-prefixes="xslthl"
 				version='1.0'>
 
-    <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl"/>	
-	<xsl:import href="http://docbook.sourceforge.net/release/xsl/current/html/highlight.xsl"/>
+    <xsl:import href="http://docbook.sourceforge.net/release/xsl-ns/current/html/chunk.xsl"/>
+	<xsl:import href="http://docbook.sourceforge.net/release/xsl-ns/current/html/highlight.xsl"/>
 	
 	<xsl:param name="chunk.section.depth">'5'</xsl:param>
 	<xsl:param name="use.id.as.filename">'1'</xsl:param>
