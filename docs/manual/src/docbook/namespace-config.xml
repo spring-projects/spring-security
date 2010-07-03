@@ -9,7 +9,7 @@
         <para> Namespace configuration has been available since version 2.0 of the Spring framework.
             It allows you to supplement the traditional Spring beans application context syntax with
             elements from additional XML schema. You can find more information in the Spring <link
-            xlink:href="http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/apc.html"
+            xlink:href="http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/htmlsingle/spring-framework-reference.html"
             > Reference Documentation</link>. A namespace element can be used simply to allow a more
             concise way of configuring an individual bean or, more powerfully, to define an
             alternative configuration syntax which more closely matches the problem domain and hides

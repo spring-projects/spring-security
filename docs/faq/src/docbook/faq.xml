@@ -199,7 +199,8 @@
                     chain configuration.
                     <programlisting>
     DEBUG [ExceptionTranslationFilter] - Authentication exception occurred; redirecting to authentication entry point
-    org.springframework.security.AuthenticationCredentialsNotFoundException: An Authentication object was not found in the SecurityContext
+    org.springframework.security.AuthenticationCredentialsNotFoundException:
+                   An Authentication object was not found in the SecurityContext
     at org.springframework.security.intercept.AbstractSecurityInterceptor.credentialsNotFound(AbstractSecurityInterceptor.java:342)
     at org.springframework.security.intercept.AbstractSecurityInterceptor.beforeInvocation(AbstractSecurityInterceptor.java:254)
                 </programlisting>
@@ -580,7 +581,9 @@
     JdbcTemplate template;
 
     List<GrantedAuthority> getGrantedAuthorities(DirContextOperations userData, String username) {
-      List<GrantedAuthority> = template.query("select role from roles where username = ?", new String[] {username}, new RowMapper<GrantedAuthority>() {
+      List<GrantedAuthority> = template.query("select role from roles where username = ?",
+                                                   new String[] {username},
+                                                   new RowMapper<GrantedAuthority>() {
         /**
          *  We're assuming here that you're using the standard convention of using the role
          *  prefix "ROLE_" to mark attributes which are supported by Spring Security's RoleVoter.

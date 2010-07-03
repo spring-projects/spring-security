@@ -591,7 +591,7 @@
             </section>
         </section>
     </section>
-    <section xml:id="ns-method-security">
+    <section xml:id="nsa-method-security">
         <title>Method Security</title>
         <section xml:id="nsa-gms">
             <title>The <literal>&lt;global-method-security&gt;</literal> Element</title>
