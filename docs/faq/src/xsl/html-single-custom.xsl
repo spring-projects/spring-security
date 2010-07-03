@@ -5,8 +5,8 @@
                 exclude-result-prefixes="xslthl"
                 version='1.0'>
 
-    <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl"/>
-    <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/html/highlight.xsl"/>
+    <xsl:import href="http://docbook.sourceforge.net/release/xsl-ns/current/html/docbook.xsl"/>
+    <xsl:import href="http://docbook.sourceforge.net/release/xsl-ns/current/html/highlight.xsl"/>
 
     <!-- Use code syntax highlighting -->
     <xsl:param name="highlight.source">1</xsl:param>

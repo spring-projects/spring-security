@@ -24,8 +24,8 @@
                 exclude-result-prefixes="xslthl"
                 version='1.0'>
 
-    <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl"/>
-    <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/html/highlight.xsl"/>
+    <xsl:import href="http://docbook.sourceforge.net/release/xsl-ns/current/html/docbook.xsl"/>
+    <xsl:import href="http://docbook.sourceforge.net/release/xsl-ns/current/html/highlight.xsl"/>
 
     <!-- Only use scaling in FO -->
     <xsl:param name="ignore.image.scaling">1</xsl:param>

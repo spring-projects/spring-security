@@ -22,10 +22,11 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:fo="http://www.w3.org/1999/XSL/Format"
                 xmlns:xslthl="http://xslthl.sf.net"
-                exclude-result-prefixes="xslthl"
+                xmlns:d="http://docbook.org/ns/docbook"
+                exclude-result-prefixes="d xslthl"
                 version='1.0'>
-    <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/fo/docbook.xsl"/>
-    <xsl:import href="http://docbook.sourceforge.net/release/xsl/current/fo/highlight.xsl"/>
+    <xsl:import href="http://docbook.sourceforge.net/release/xsl-ns/current/fo/docbook.xsl"/>
+    <xsl:import href="http://docbook.sourceforge.net/release/xsl-ns/current/fo/highlight.xsl"/>
 
     <!-- xsl:param name="draft.watermark.image" select="'images/draft.png'"/ -->
     <xsl:param name="paper.type" select="'A4'"/>
@@ -75,8 +76,8 @@
 
         <xsl:variable name="Version">
             <xsl:choose>
-                <xsl:when test="//productname">
-                    <xsl:value-of select="//productname"/><xsl:text> </xsl:text>
+                <xsl:when test="//d:productname">
+                    <xsl:value-of select="//d:productname"/><xsl:text> </xsl:text>
                 </xsl:when>
                 <xsl:otherwise>
                     <xsl:text>please define productname in your docbook file!</xsl:text>
@@ -120,8 +121,8 @@
 
         <xsl:variable name="Version">
             <xsl:choose>
-                <xsl:when test="//releaseinfo">
-                    <xsl:value-of select="//releaseinfo"/>
+                <xsl:when test="//d:releaseinfo">
+                    <xsl:value-of select="//d:releaseinfo"/>
                 </xsl:when>
                 <xsl:otherwise>
                 </xsl:otherwise>
@@ -232,7 +233,7 @@
 
 <!-- Why is the font-size for chapters hardcoded in the XSL FO templates?
     Let's remove it, so this sucker can use our attribute-set only... -->
-    <xsl:template match="title" mode="chapter.titlepage.recto.auto.mode">
+    <xsl:template match="d:title" mode="chapter.titlepage.recto.auto.mode">
         <fo:block xmlns:fo="http://www.w3.org/1999/XSL/Format"
                 xsl:use-attribute-sets="chapter.titlepage.recto.style">
             <xsl:call-template name="component.title">
