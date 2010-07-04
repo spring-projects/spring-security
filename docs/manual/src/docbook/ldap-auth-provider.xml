@@ -356,12 +356,14 @@ public interface UserDetailsContextMapper {
   void mapUserToContext(UserDetails user, DirContextAdapter ctx);
 }]]>
                 </programlisting> Only the first method is relevant for authentication. If you
-                provide an implementation of this interface, you can control exactly how the
-                UserDetails object is created. The first parameter is an instance of Spring LDAP's
-                <interfacename>DirContextOperations</interfacename> which gives you access to the
-                LDAP attributes which were loaded. The <literal>username</literal> parameter is the
-                name used to authenticate and the final parameter is the collection of authorities
-                loaded for the user. </para>
+                provide an implementation of this interface and inject it into the
+                <classname>LdapAuthenticationProvider</classname>, you have control over exactly how
+                the UserDetails object is created. The first parameter is an instance of Spring
+                LDAP's <interfacename>DirContextOperations</interfacename> which gives you access to
+                the LDAP attributes which were loaded during authentication. The
+                <literal>username</literal> parameter is the name used to authenticate and the final
+                parameter is the collection of authorities loaded for the user by the configured
+                <interfacename>LdapAuthoritiesPopulator</interfacename>. </para>
             <para> The way the context data is loaded varies slightly depending on the type of
                 authentication you are using. With the <classname>BindAuthenticator</classname>, the
                 context returned from the bind operation will be used to read the attributes,

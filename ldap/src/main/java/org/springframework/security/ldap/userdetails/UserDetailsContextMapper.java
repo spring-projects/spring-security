@@ -22,8 +22,9 @@ import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.DirContextAdapter;
 
 /**
- * Operations to map a UserDetails object to and from a Spring LDAP <tt>DirContextOperations</tt> implementation.
- * Used by LdapUserDetailsManager when loading and saving/creating user information.
+ * Operations to map a UserDetails object to and from a Spring LDAP {@code DirContextOperations} implementation.
+ * Used by {@code LdapUserDetailsManager} when loading and saving/creating user information, and also by the
+ * {@code LdapAuthenticationProvider} to allow customization of the user data loaded during authentication.
  *
  * @author Luke Taylor
  * @since 2.0
