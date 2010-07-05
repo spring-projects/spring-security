@@ -256,7 +256,7 @@ protect-pointcut.attlist &=
 
 http =
     ## Container element for HTTP security configuration. Multiple elements can now be defined, each with a specific pattern to which the enclosed security configuration applies. A pattern can also be configured to bypass Spring Security's filters completely by setting the "secured" attribute to "false".
-    element http {http.attlist, (intercept-url* & access-denied-handler? & form-login? & openid-login? & x509? & http-basic? & logout? & session-management & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache?) }
+    element http {http.attlist, (intercept-url* & access-denied-handler? & form-login? & openid-login? & x509? & jee? & http-basic? & logout? & session-management & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache?) }
 http.attlist &=
     ## The request URL pattern which will be mapped to the filter chain created by this <http> element. If omitted, the filter chain will match all requests.
     attribute pattern {xsd:token}?
@@ -564,6 +564,16 @@ x509.attlist &=
     attribute subject-principal-regex {xsd:token}?
 x509.attlist &=
     ## Explicitly specifies which user-service should be used to load user data for X.509 authenticated clients. If ommitted, the default user-service will be used.
+    user-service-ref?
+
+jee =
+    ## Adds a J2eePreAuthenticatedProcessingFilter to the filter chain to provide integration with container authentication.
+    element jee {jee.attlist}
+jee.attlist &=
+    ## A comma-separate list of roles to look for in the incoming HttpServletRequest.
+    attribute mappable-roles {xsd:token}
+jee.attlist &=
+    ## Explicitly specifies which user-service should be used to load user data for container authenticated clients. If ommitted, the set of mappable-roles will be used to construct the authorities for the user. 
     user-service-ref?
 
 authentication-manager =

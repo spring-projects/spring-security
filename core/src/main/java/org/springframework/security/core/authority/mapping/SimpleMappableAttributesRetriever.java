@@ -24,8 +24,7 @@ public class SimpleMappableAttributesRetriever implements MappableAttributesRetr
         return mappableAttributes;
     }
 
-    @SuppressWarnings("unchecked")
-    public void setMappableAttributes(Set aMappableRoles) {
+    public void setMappableAttributes(Set<String> aMappableRoles) {
         mappableAttributes = new HashSet<String>();
         mappableAttributes.addAll(aMappableRoles);
         mappableAttributes = Collections.unmodifiableSet(mappableAttributes);

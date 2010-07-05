@@ -25,16 +25,22 @@ import org.springframework.security.authentication.AnonymousAuthenticationProvid
 import org.springframework.security.authentication.RememberMeAuthenticationProvider;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.Elements;
+import org.springframework.security.core.authority.mapping.SimpleAttributes2GrantedAuthoritiesMapper;
+import org.springframework.security.core.authority.mapping.SimpleMappableAttributesRetriever;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedGrantedAuthoritiesUserDetailsService;
+import org.springframework.security.web.authentication.preauth.j2ee.J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource;
+import org.springframework.security.web.authentication.preauth.j2ee.J2eePreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -88,9 +94,13 @@ final class AuthenticationConfigBuilder {
     private String formFilterId = null;
     private String openIDFilterId = null;
     private BeanDefinition x509Filter;
-    private BeanDefinition x509EntryPoint;
     private BeanReference x509ProviderRef;
     private String x509ProviderId;
+    private BeanDefinition jeeFilter;
+    private BeanReference jeeProviderRef;
+    private RootBeanDefinition preAuthEntryPoint;
+    private String jeeProviderId;
+
     private BeanDefinition logoutFilter;
     private BeanDefinition loginPageGenerationFilter;
     private BeanDefinition etf;
@@ -119,6 +129,7 @@ final class AuthenticationConfigBuilder {
         createFormLoginFilter(sessionStrategy, authenticationManager);
         createOpenIDLoginFilter(sessionStrategy, authenticationManager);
         createX509Filter(authenticationManager);
+        createJeeFilter(authenticationManager);
         createLogoutFilter();
         createLoginPageFilterIfNeeded();
         createUserDetailsServiceFactory();
@@ -318,7 +329,6 @@ final class AuthenticationConfigBuilder {
     void createX509Filter(BeanReference authManager) {
         Element x509Elt = DomUtils.getChildElementByTagName(httpElt, Elements.X509);
         RootBeanDefinition filter = null;
-        RootBeanDefinition entryPoint = null;
 
         if (x509Elt != null) {
             BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(X509AuthenticationFilter.class);
@@ -334,14 +344,12 @@ final class AuthenticationConfigBuilder {
                 filterBuilder.addPropertyValue("principalExtractor", extractor.getBeanDefinition());
             }
             filter = (RootBeanDefinition) filterBuilder.getBeanDefinition();
-            entryPoint = new RootBeanDefinition(Http403ForbiddenEntryPoint.class);
-            entryPoint.setSource(pc.extractSource(x509Elt));
+            createPrauthEntryPoint(x509Elt);
 
             createX509Provider();
         }
 
         x509Filter = filter;
-        x509EntryPoint = entryPoint;
     }
 
     private void createX509Provider() {
@@ -357,6 +365,67 @@ final class AuthenticationConfigBuilder {
 
         x509ProviderId = pc.getReaderContext().registerWithGeneratedName(provider);
         x509ProviderRef = new RuntimeBeanReference(x509ProviderId);
+    }
+
+    private void createPrauthEntryPoint(Element source) {
+        if (preAuthEntryPoint == null) {
+            preAuthEntryPoint = new RootBeanDefinition(Http403ForbiddenEntryPoint.class);
+            preAuthEntryPoint.setSource(pc.extractSource(source));
+        }
+    }
+
+    void createJeeFilter(BeanReference authManager) {
+        final String ATT_MAPPABLE_ROLES = "mappable-roles";
+
+        Element jeeElt = DomUtils.getChildElementByTagName(httpElt, Elements.JEE);
+        RootBeanDefinition filter = null;
+
+        if (jeeElt != null) {
+            BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(J2eePreAuthenticatedProcessingFilter.class);
+            filterBuilder.getRawBeanDefinition().setSource(pc.extractSource(jeeElt));
+            filterBuilder.addPropertyValue("authenticationManager", authManager);
+
+            BeanDefinitionBuilder adsBldr = BeanDefinitionBuilder.rootBeanDefinition(J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource.class);
+            adsBldr.addPropertyValue("userRoles2GrantedAuthoritiesMapper", new RootBeanDefinition(SimpleAttributes2GrantedAuthoritiesMapper.class));
+
+            String roles = jeeElt.getAttribute(ATT_MAPPABLE_ROLES);
+            Assert.state(StringUtils.hasText(roles));
+            BeanDefinitionBuilder rolesBuilder = BeanDefinitionBuilder.rootBeanDefinition(StringUtils.class);
+            rolesBuilder.addConstructorArgValue(roles);
+            rolesBuilder.setFactoryMethod("commaDelimitedListToSet");
+
+            RootBeanDefinition mappableRolesRetriever = new RootBeanDefinition(SimpleMappableAttributesRetriever.class);
+            mappableRolesRetriever.getPropertyValues().addPropertyValue("mappableAttributes", rolesBuilder.getBeanDefinition());
+            adsBldr.addPropertyValue("mappableRolesRetriever", mappableRolesRetriever);
+            filterBuilder.addPropertyValue("authenticationDetailsSource", adsBldr.getBeanDefinition());
+
+            filter = (RootBeanDefinition) filterBuilder.getBeanDefinition();
+
+            createPrauthEntryPoint(jeeElt);
+            createJeeProvider();
+        }
+
+        jeeFilter = filter;
+    }
+
+    private void createJeeProvider() {
+        Element jeeElt = DomUtils.getChildElementByTagName(httpElt, Elements.JEE);
+        BeanDefinition provider = new RootBeanDefinition(PreAuthenticatedAuthenticationProvider.class);
+
+        RootBeanDefinition uds;
+        if (StringUtils.hasText(jeeElt.getAttribute(ATT_USER_SERVICE_REF))) {
+            uds = new RootBeanDefinition();
+            uds.setFactoryBeanName(BeanIds.USER_DETAILS_SERVICE_FACTORY);
+            uds.setFactoryMethodName("authenticationUserDetailsService");
+            uds.getConstructorArgumentValues().addGenericArgumentValue(jeeElt.getAttribute(ATT_USER_SERVICE_REF));
+        } else {
+            uds = new RootBeanDefinition(PreAuthenticatedGrantedAuthoritiesUserDetailsService.class);
+        }
+
+        provider.getPropertyValues().addPropertyValue("preAuthenticatedUserDetailsService", uds);
+
+        jeeProviderId = pc.getReaderContext().registerWithGeneratedName(provider);
+        jeeProviderRef = new RuntimeBeanReference(jeeProviderId);
     }
 
     void createLoginPageFilterIfNeeded() {
@@ -521,9 +590,9 @@ final class AuthenticationConfigBuilder {
             return openIDEntryPoint;
         }
 
-        // If X.509 has been enabled, use the preauth entry point.
-        if (DomUtils.getChildElementByTagName(httpElt, Elements.X509) != null) {
-            return x509EntryPoint;
+        // If X.509 or JEE have been enabled, use the preauth entry point.
+        if (preAuthEntryPoint != null) {
+            return preAuthEntryPoint;
         }
 
         pc.getReaderContext().error("No AuthenticationEntryPoint could be established. Please " +
@@ -581,6 +650,10 @@ final class AuthenticationConfigBuilder {
             filters.add(new OrderDecorator(x509Filter, X509_FILTER));
         }
 
+        if (jeeFilter != null) {
+            filters.add(new OrderDecorator(jeeFilter, PRE_AUTH_FILTER));
+        }
+
         if (formFilter != null) {
             filters.add(new OrderDecorator(formFilter, FORM_LOGIN_FILTER));
         }
@@ -619,6 +692,10 @@ final class AuthenticationConfigBuilder {
 
         if (x509ProviderRef != null) {
             providers.add(x509ProviderRef);
+        }
+
+        if (jeeProviderRef != null) {
+            providers.add(jeeProviderRef);
         }
 
         return providers;

@@ -1,5 +1,6 @@
 package org.springframework.security.config.http;
 
+import java.security.Principal
 import java.util.Collection;
 import java.util.Map;
 import java.util.Iterator;
@@ -17,6 +18,8 @@ import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.context.support.AbstractXmlApplicationContext
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.security.access.AccessDeniedException
@@ -470,6 +473,34 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         createAppContext("<authentication-manager erase-credentials='false' />");
         expect:
         getFilter(UsernamePasswordAuthenticationFilter).authenticationManager.eraseCredentialsAfterAuthentication == false
+    }
+
+    def jeeFilterExtractsExpectedRoles() {
+        xml.http() {
+            jee('mappable-roles': 'admin,user,a,b,c')
+        }
+        createAppContext()
+        FilterChainProxy fcp = appContext.getBean(BeanIds.FILTER_CHAIN_PROXY)
+        Principal p = Mock(Principal)
+        p.getName() >> 'joe'
+
+        when:
+
+        MockHttpServletRequest request = new MockHttpServletRequest("GET","/something")
+        request.setUserPrincipal(p)
+        request.addUserRole('admin')
+        request.addUserRole('user')
+        request.addUserRole('c')
+        request.addUserRole('notmapped')
+        fcp.doFilter(request, new MockHttpServletResponse(), new MockFilterChain())
+        SecurityContext ctx = request.getSession().getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
+        Set<String> roles = AuthorityUtils.authorityListToSet(ctx.getAuthentication().getAuthorities());
+
+        then:
+        roles.size() == 3
+        roles.contains 'ROLE_admin'
+        roles.contains 'ROLE_user'
+        roles.contains 'ROLE_c'
     }
 }
 

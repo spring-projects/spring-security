@@ -641,6 +641,7 @@
     </xs:annotation><xs:complexType>
       <xs:attributeGroup ref="security:x509.attlist"/>
     </xs:complexType></xs:element>
+        <xs:element ref="security:jee"/>
         <xs:element name="http-basic"><xs:annotation>
       <xs:documentation>Adds support for basic authentication</xs:documentation>
     </xs:annotation><xs:complexType>
@@ -1204,6 +1205,23 @@
     <xs:attribute name="subject-principal-regex" type="xs:token">
       <xs:annotation>
         <xs:documentation>The regular expression used to obtain the username from the certificate's subject. Defaults to matching on the common name using the pattern "CN=(.*?),".</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="user-service-ref" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>A reference to a user-service (or UserDetailsService bean) Id</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="jee"><xs:annotation>
+      <xs:documentation>Adds a J2eePreAuthenticatedProcessingFilter to the filter chain to provide integration with container authentication.</xs:documentation>
+    </xs:annotation><xs:complexType>
+      <xs:attributeGroup ref="security:jee.attlist"/>
+    </xs:complexType></xs:element>
+  <xs:attributeGroup name="jee.attlist">
+    <xs:attribute name="mappable-roles" use="required" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>A comma-separate list of roles to look for in the incoming HttpServletRequest.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="user-service-ref" type="xs:token">
