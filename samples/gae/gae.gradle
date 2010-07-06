@@ -1,0 +1,40 @@
+apply plugin: 'war'
+apply plugin: 'jetty'
+apply plugin: 'gae'
+
+gaeVersion="1.3.5"
+
+repositories {
+    // Hibernate Validator
+    mavenRepo name: 'JBoss', urls: 'https://repository.jboss.org/nexus/content/repositories/releases'
+    // GAE Jars
+    mavenRepo name: 'GAE', urls:'http://maven-gae-plugin.googlecode.com/svn/repository'
+}
+
+// Remove logback as it causes security issues with GAE.
+configurations.runtime.exclude(group: 'ch.qos.logback')
+
+dependencies {
+    providedCompile 'javax.servlet:servlet-api:2.5@jar',
+                    "com.google.appengine:appengine-api-1.0-sdk:$gaeVersion"
+
+    compile project(':spring-security-core'),
+            project(':spring-security-web'),
+            "org.springframework:spring-beans:$springVersion",
+            "org.springframework:spring-web:$springVersion",
+            "org.springframework:spring-webmvc:$springVersion",
+            "org.springframework:spring-context:$springVersion",
+            "org.springframework:spring-context-support:$springVersion",
+            'javax.validation:validation-api:1.0.0.GA',
+            'org.hibernate:hibernate-validator:4.1.0.Final',
+            "org.slf4j:slf4j-api:$slf4jVersion"
+
+    runtime project(':spring-security-config'),
+            "org.slf4j:jcl-over-slf4j:$slf4jVersion",
+            "org.slf4j:slf4j-jdk14:$slf4jVersion"
+    testCompile "com.google.appengine:appengine-testing:$gaeVersion"
+
+    testRuntime "com.google.appengine:appengine-api-labs:$gaeVersion",
+                "com.google.appengine:appengine-api-stubs:$gaeVersion"
+
+}

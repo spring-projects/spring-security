@@ -1,0 +1,26 @@
+
+body {
+    font-family:"Palatino Linotype","Book Antiqua",Palatino,serif;
+}
+
+#content {
+    margin: 5em auto;
+    width: 40em;
+}
+
+form {
+    width: 25em;
+    margin: 0 2em;
+}
+
+form fieldset {
+    margin-bottom: 0.5em;
+}
+
+fieldset input {
+    margin: 0.6em 0;
+}
+
+.fieldError {
+    color: red;
+}

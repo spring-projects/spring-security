@@ -1,7 +1,6 @@
 package org.springframework.security.web.authentication.preauth;
 
 import java.io.IOException;
-
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -10,7 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
@@ -55,7 +53,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * @since 2.0
  */
 public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFilterBean implements
-        InitializingBean, ApplicationEventPublisherAware {
+        ApplicationEventPublisherAware {
 
     private ApplicationEventPublisher eventPublisher = null;
     private AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();

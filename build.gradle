@@ -37,6 +37,9 @@ allprojects {
     if (!config) {
         return
     }
+    ideaModule {
+        gradleCacheVariable = 'GRADLE_CACHE'
+    }
 }
 
 ideaModule {

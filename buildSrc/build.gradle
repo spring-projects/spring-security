@@ -3,9 +3,11 @@ apply plugin: 'groovy'
 repositories {
     mavenRepo name:'localRepo', urls: "file://" + System.properties['user.home'] + "/.m2/repository"
     mavenCentral()
+    mavenRepo name: 'GAE', urls:'http://maven-gae-plugin.googlecode.com/svn/repository'
     mavenRepo name:'Shibboleth Repo', urls:'http://shibboleth.internet2.edu/downloads/maven2'
 }
 
+// Docbook Plugin
 dependencies {
     def fopDeps = [ 'org.apache.xmlgraphics:fop:0.95-1@jar',
                     'org.apache.xmlgraphics:xmlgraphics-commons:1.3',
@@ -24,6 +26,11 @@ dependencies {
 
     runtime 'net.sf.xslthl:xslthl:2.0.1',
             'net.sf.docbook:docbook-xsl:1.75.2:ns-resources@zip'
+}
+
+// GAE
+dependencies {
+    compile 'com.google.appengine:appengine-tools-api:1.3.5'
 }
 
 task ide(type: Copy)  {

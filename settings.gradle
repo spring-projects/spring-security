@@ -14,7 +14,8 @@ def String[] samples = [
     'tutorial',
     'contacts',
     'openid',
-    'aspectj'
+    'aspectj',
+    'gae'
 ]
 
 def String[] docs = [

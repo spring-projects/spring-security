@@ -4,6 +4,7 @@ target/
 .project
 .DS_Store
 .settings/
+out/
 build/
 *.log
 *.iml
@@ -11,3 +12,4 @@ build/
 *.iws
 .gradle/
 gradle.properties
+atlassian-ide-plugin.xml
