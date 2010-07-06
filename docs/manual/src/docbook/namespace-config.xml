@@ -605,7 +605,7 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                 filters to the stack at particular locations or use a Spring Security filter for
                 which there isn't currently a namespace configuration option (CAS, for example). Or
                 you might want to use a customized version of a standard namespace filter, such as
-                the <literal>UsernamePasswordAuthenticationFilter</literal> which is created by the
+                the <classname>UsernamePasswordAuthenticationFilter</classname> which is created by the
                 <literal>&lt;form-login&gt;</literal> element, taking advantage of some of the extra
                 configuration options which are available by using the bean explicitly. How can you
                 do this with namespace configuration, since the filter chain is not directly
@@ -745,7 +745,13 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                     <literal>&lt;http&gt;</literal> element itself -
                     <classname>SecurityContextPersistenceFilter</classname>,
                     <classname>ExceptionTranslationFilter</classname> or
-                    <classname>FilterSecurityInterceptor</classname>. </para>
+                    <classname>FilterSecurityInterceptor</classname>. Some other filters are added
+                    by default, but you can disable them. An <classname>AnonymousAuthenticationFilter</classname>
+                    is added by default and unless you have
+                    <link xlink:href="#ns-session-fixation">session-fixation protection</link>
+                    disabled, a <classname>SessionManagementFilter</classname> will also be added
+                    to the filter chain.
+                </para>
             </tip>
             <para> If you're replacing a namespace filter which requires an authentication entry
                 point (i.e. where the authentication process is triggered by an attempt by an
