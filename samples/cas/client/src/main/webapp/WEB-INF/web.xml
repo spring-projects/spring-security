@@ -68,4 +68,9 @@
         <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
     </listener>
 
+    <error-page>
+        <error-code>403</error-code>
+        <location>/casfailed.jsp</location>
+    </error-page>
+
 </web-app>
