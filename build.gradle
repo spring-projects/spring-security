@@ -1,5 +1,14 @@
 apply plugin: 'base'
 
+buildscript {
+    repositories {
+        mavenRepo urls: 'http://gradle.artifactoryonline.com/gradle/plugins'
+    }
+    dependencies {
+        classpath "org.gradle.plugins:gradle-idea-plugin:0.3"
+    }
+}
+
 allprojects {
     version = '3.1.0.CI-SNAPSHOT'
     releaseBuild = version.endsWith('RELEASE')
@@ -16,6 +25,29 @@ allprojects {
         mavenRepo name: 'SpringSource Enterprise External', urls: 'http://repository.springsource.com/maven/bundles/external'
         mavenRepo(name: 'Spock Snapshots', urls: 'http://m2repo.spockframework.org/snapshots')
     }
+}
+
+allprojects {
+    apply plugin: 'org.gradle.idea'
+    ideaModule {
+        downloadJavadoc=false
+        excludeDirs.add(buildDir)
+    }
+    def config = configurations.findByName('testRuntime')
+    if (!config) {
+        return
+    }
+}
+
+ideaModule {
+    excludeDirs.add(file('.gradle'))
+    excludeDirs.add(file('buildSrc/build'))
+    excludeDirs.add(file('buildSrc/.gradle'))
+}
+
+ideaProject {
+    wildcards += ['?*.gradle']
+    javaVersion = '1.6'
 }
 
 configure(javaProjects) {
