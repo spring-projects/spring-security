@@ -10,9 +10,9 @@ import org.gradle.api.tasks.bundling.Compression;
 class TarUpload extends Tar {
     @Input
     String remoteDir
-
-    @Input
     Login login
+    @Input
+    String host
     
     TarUpload() {
         compression = Compression.BZIP2
@@ -38,6 +38,7 @@ class TarUpload extends Tar {
     void setLogin(Login login) {
         dependsOn(login)
         this.login = login
+        this.host = login.host
     }
 }
 
