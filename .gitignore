@@ -7,5 +7,7 @@ target/
 build/
 *.log
 *.iml
+*.ipr
+*.iws
 .gradle/
 gradle.properties
