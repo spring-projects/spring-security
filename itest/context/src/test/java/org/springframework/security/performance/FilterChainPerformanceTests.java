@@ -34,8 +34,9 @@ import org.springframework.util.StopWatch;
 @ContextConfiguration(locations={"/filter-chain-performance-app-context.xml"})
 @RunWith(SpringJUnit4ClassRunner.class)
 public class FilterChainPerformanceTests {
-    private static final int N_INVOCATIONS = 1000;
-    private static final int N_AUTHORITIES = 200;
+    // Adjust as required
+    private static final int N_INVOCATIONS = 1; // 1000
+    private static final int N_AUTHORITIES = 2; // 200
     private static StopWatch sw = new StopWatch("Filter Chain Performance Tests");
 
     private final UsernamePasswordAuthenticationToken user = new UsernamePasswordAuthenticationToken("bob", "bobspassword", createRoles(N_AUTHORITIES));
