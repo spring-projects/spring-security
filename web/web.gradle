@@ -10,11 +10,11 @@ dependencies {
             "org.springframework:spring-expression:$springVersion",
             "org.springframework:spring-jdbc:$springVersion",
             "org.springframework:spring-tx:$springVersion",
-            "org.springframework:spring-web:$springVersion",
-            "org.springframework:spring-test:$springVersion"
+            "org.springframework:spring-web:$springVersion"
 
     provided 'javax.servlet:servlet-api:2.5'
 
-    testCompile 'commons-codec:commons-codec:1.3'
+    testCompile 'commons-codec:commons-codec:1.3',
+                "org.springframework:spring-test:$springVersion"
     testRuntime "hsqldb:hsqldb:$hsqlVersion"
 }

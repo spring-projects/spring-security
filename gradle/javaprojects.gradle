@@ -9,13 +9,17 @@ apacheDsVersion = '1.5.5'
 jstlVersion = '1.1.2'
 jettyVersion = '6.1.22'
 hsqlVersion = '1.8.0.10'
+slf4jVersion = '1.6.1'
+logbackVersion = '0.9.24'
 
 configurations {
     provided
     compile.extendsFrom provided
+    compile.transitive = false
 }
 
 dependencies {
+    // We only compile against commons logging. It is excluded from all other configurations
     compile 'commons-logging:commons-logging:1.1.1'
 
     compile ("org.springframework:spring-core:$springVersion") {
@@ -29,7 +33,16 @@ dependencies {
             'org.hamcrest:hamcrest-core:1.1',
             'org.hamcrest:hamcrest-library:1.1',
             "org.springframework:spring-test:$springVersion"
+
+    // Use slf4j/logback for logging
+    testRuntime "org.slf4j:slf4j-api:$slf4jVersion",
+                "org.slf4j:jcl-over-slf4j:$slf4jVersion",
+                "ch.qos.logback:logback-core:$logbackVersion",
+                "ch.qos.logback:logback-classic:$logbackVersion"
 }
+
+// Get rid of commons logging
+[configurations.runtime, configurations.default]*.exclude(module: 'commons-logging')
 
 test {
     onlyIf {
