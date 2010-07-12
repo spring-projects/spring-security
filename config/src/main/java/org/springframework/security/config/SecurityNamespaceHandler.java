@@ -52,7 +52,8 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
         }
 
         if (parser == null) {
-            if (Elements.HTTP.equals(name) || Elements.FILTER_SECURITY_METADATA_SOURCE.equals(name)) {
+            if (Elements.HTTP.equals(name) || Elements.FILTER_SECURITY_METADATA_SOURCE.equals(name) ||
+                    Elements.FILTER_CHAIN_MAP.equals(name)) {
                 reportMissingWebClasses(name, pc, element);
             } else {
                 reportUnsupportedNodeType(name, pc, element);
@@ -97,7 +98,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 
     private void reportMissingWebClasses(String nodeName, ParserContext pc, Node node) {
         pc.getReaderContext().fatal("spring-security-web classes are not available. " +
-                "You need these to use <" + Elements.FILTER_CHAIN_MAP + ">", node);
+                "You need these to use <" + nodeName + ">", node);
     }
 
     public void init() {
