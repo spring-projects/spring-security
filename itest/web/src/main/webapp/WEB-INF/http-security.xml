@@ -10,7 +10,7 @@
        Http App Context to test form login, remember-me and concurrent session control.
        Needs to be supplemented with authentication provider(s)
     -->
-    <http pattern="/login.jsp" secured="false" />
+    <http pattern="/login.jsp" security="none" />
 
     <http use-expressions="true">
         <intercept-url pattern="/secure/**" access="hasAnyRole('ROLE_DEVELOPER','ROLE_USER')" />

@@ -52,7 +52,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_REQUIRES_CHANNEL = "requires-channel";
 
     private static final String ATT_REF = "ref";
-    private static final String ATT_SECURED = "secured";
+    private static final String ATT_SECURED = "security";
+    private static final String OPT_SECURITY_NONE = "none";
+    private static final String OPT_SECURITY_CONTEXT_ONLY = "contextOnly";
 
     static final String EXPRESSION_FIMDS_CLASS = "org.springframework.security.web.access.expression.ExpressionBasedFilterInvocationSecurityMetadataSource";
     static final String EXPRESSION_HANDLER_CLASS = "org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler";
@@ -97,9 +99,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     List<BeanMetadataElement> createFilterChain(Element element, ParserContext pc, MatcherType matcherType) {
-        boolean unSecured = "false".equals(element.getAttribute(ATT_SECURED));
+        String security = element.getAttribute(ATT_SECURED);
 
-        if (unSecured) {
+        if (StringUtils.hasText(security)) {
             if (!StringUtils.hasText(element.getAttribute(ATT_PATH_PATTERN))) {
                 pc.getReaderContext().error("The '" + ATT_SECURED + "' attribute must be used in combination with" +
                         " the '" + ATT_PATH_PATTERN +"' attribute.", pc.extractSource(element));
@@ -112,7 +114,11 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 }
             }
 
-            return Collections.emptyList();
+            if (security.equals(OPT_SECURITY_NONE)) {
+                return Collections.emptyList();
+            }
+
+            
         }
 
         final String portMapperName = createPortMapper(element, pc);

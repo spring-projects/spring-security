@@ -202,7 +202,7 @@
   </http>
 
   <!-- Empty filter chain for the login page -->
-  <http pattern="/login.htm*" secured="false"/>
+  <http pattern="/login.htm*" security="none"/>
 
   <!-- Additional filter chain for normal users, matching all other requests -->
   <http>

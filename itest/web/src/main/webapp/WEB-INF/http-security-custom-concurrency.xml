@@ -6,7 +6,7 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 
-    <http pattern="/login.jsp" secured="false" />
+    <http pattern="/login.jsp" security="none" />
 
     <http entry-point-ref="aep">
         <intercept-url pattern="/**" access="ROLE_DEVELOPER,ROLE_USER" />

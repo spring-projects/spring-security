@@ -261,8 +261,8 @@ http.attlist &=
     ## The request URL pattern which will be mapped to the filter chain created by this <http> element. If omitted, the filter chain will match all requests.
     attribute pattern {xsd:token}?
 http.attlist &=
-    ## When set to 'false', requests matching the pattern attribute will be ignored by Spring Security. No security filters will be applied and no SecurityContext will be available. If set, the <http> element must be empty, with no children.
-    attribute secured {boolean}?
+    ## When set to 'none', requests matching the pattern attribute will be ignored by Spring Security. No security filters will be applied and no SecurityContext will be available. If set, the <http> element must be empty, with no children.
+    attribute security {"none"}?
 
 http.attlist &=
     ## Automatically registers a login form, BASIC authentication, anonymous authentication, logout services, remember-me and servlet-api-integration. If set to "true", all of these capabilities are added (although you can still customize the configuration of each by providing the respective element). If unspecified, defaults to "false".

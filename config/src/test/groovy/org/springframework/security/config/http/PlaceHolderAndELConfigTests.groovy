@@ -24,7 +24,7 @@ class PlaceHolderAndELConfigTests extends AbstractHttpConfigTests {
     def unsecuredPatternSupportsPlaceholderForPattern() {
         System.setProperty("pattern.nofilters", "/unprotected");
 
-        xml.http(pattern: '${pattern.nofilters}', secured: 'false')
+        xml.http(pattern: '${pattern.nofilters}', security: 'none')
         httpAutoConfig() {
             interceptUrl('/**', 'ROLE_A')
         }
@@ -44,7 +44,7 @@ class PlaceHolderAndELConfigTests extends AbstractHttpConfigTests {
         System.setProperty("default.target", "/defaultTarget");
         System.setProperty("auth.failure", "/authFailure");
 
-        xml.http(pattern: '${login.page}', secured: 'false')
+        xml.http(pattern: '${login.page}', security: 'none')
         xml.http {
             interceptUrl('${secure.Url}', '${secure.role}')
             'form-login'('login-page':'${login.page}', 'default-target-url': '${default.target}',

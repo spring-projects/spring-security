@@ -693,10 +693,15 @@
         <xs:documentation>The request URL pattern which will be mapped to the filter chain created by this &lt;http&gt; element. If omitted, the filter chain will match all requests.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="secured" type="security:boolean">
+    <xs:attribute name="security">
       <xs:annotation>
-        <xs:documentation>When set to 'false', requests matching the pattern attribute will be ignored by Spring Security. No security filters will be applied and no SecurityContext will be available. If set, the &lt;http&gt; element must be empty, with no children.</xs:documentation>
+        <xs:documentation>When set to 'none', requests matching the pattern attribute will be ignored by Spring Security. No security filters will be applied and no SecurityContext will be available. If set, the &lt;http&gt; element must be empty, with no children.</xs:documentation>
       </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:token">
+          <xs:enumeration value="none"/>
+        </xs:restriction>
+      </xs:simpleType>
     </xs:attribute>
     <xs:attribute name="auto-config" type="security:boolean">
       <xs:annotation>

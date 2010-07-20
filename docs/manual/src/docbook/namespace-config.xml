@@ -272,8 +272,8 @@
                 appears to be secured. It is also possible to have all requests matching a
                 particular pattern bypass the security filter chain completely, by defining a
                 separate <literal>http</literal> element for the pattern like this: <programlisting language="xml"><![CDATA[
-  <http pattern="/css/**" secured="false"/>
-  <http pattern="/login.jsp*" secured="false"/>
+  <http pattern="/css/**" security="none"/>
+  <http pattern="/login.jsp*" security="none"/>
 
   <http auto-config='true'>
     <intercept-url pattern="/**" access="ROLE_USER" />
@@ -322,7 +322,7 @@
                     <literal>always-use-default-target</literal> attribute to "true". This is useful
                     if your application always requires that the user starts at a "home" page, for
                     example: <programlisting language="xml"><![CDATA[
-  <http pattern="/login.htm*" secured="false"/>
+  <http pattern="/login.htm*" security="none"/>
   <http>
     <intercept-url pattern='/**' access='ROLE_USER' />
     <form-login login-page='/login.htm' default-target-url='/home.htm'

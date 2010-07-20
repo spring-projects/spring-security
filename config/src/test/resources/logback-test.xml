@@ -7,7 +7,7 @@
 
   <logger name="org.apache.directory" level="WARN"/>
 
-  <root level="DEBUG">
+  <root level="INFO">
     <appender-ref ref="STDOUT" />
   </root>
 

@@ -4,6 +4,7 @@ import static org.springframework.security.config.http.HttpSecurityBeanDefinitio
 import static org.springframework.security.config.http.SecurityFilters.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -74,6 +75,11 @@ class HttpConfigurationBuilder {
 
     private static final String ATT_REF = "ref";
 
+    private static final String ATT_SECURED = "security";
+    private static final String OPT_SECURITY_NONE = "none";
+    private static final String OPT_SECURITY_CONTEXT_ONLY = "contextOnly";
+
+
     private final Element httpElt;
     private final ParserContext pc;
     private final SessionCreationPolicy sessionPolicy;
@@ -95,6 +101,7 @@ class HttpConfigurationBuilder {
 
     public HttpConfigurationBuilder(Element element, ParserContext pc, MatcherType matcherType,
             String portMapperName, BeanReference authenticationManager) {
+
         this.httpElt = element;
         this.pc = pc;
         this.portMapperName = portMapperName;
