@@ -57,6 +57,10 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
             if (node instanceof Element) {
                 Element providerElt = (Element)node;
                 if (StringUtils.hasText(providerElt.getAttribute(ATT_REF))) {
+                    if (providerElt.getAttributes().getLength() > 1) {
+                        pc.getReaderContext().error("authentication-provider element cannot be used with other attributes " +
+                                "when using 'ref' attribute", pc.extractSource(element));
+                    }
                     NodeList providerChildren = providerElt.getChildNodes();
                     for (int j = 0; j < providerChildren.getLength(); j++) {
                         if (providerChildren.item(j) instanceof Element) {
