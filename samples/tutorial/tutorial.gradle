@@ -17,3 +17,7 @@ dependencies {
             project(':spring-security-taglibs'),
             'log4j:log4j:1.2.15@jar'
 }
+
+jettyRun {
+    contextPath = "/tutorial"
+}

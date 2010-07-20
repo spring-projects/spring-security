@@ -24,7 +24,7 @@ cleanup() {
 
 start_jetty()
 {
-  mvn -o jetty:run > runall.log &
+  gradle -d jettyRun > runall.log &
   until (grep "Started Jetty Server" runall.log)
   do
     echo "- Waiting for server to start... -"

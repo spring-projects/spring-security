@@ -11,5 +11,5 @@ dependencies {
 
     provided 'javax.servlet:jsp-api:2.0', 'javax.servlet:servlet-api:2.5'
     
-    testRuntime "taglibs:standard:$jstlVersion"
+    testRuntime "javax.servlet:jstl:$jstlVersion"
 }
