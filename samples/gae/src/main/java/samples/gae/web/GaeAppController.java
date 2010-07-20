@@ -36,7 +36,7 @@ public class GaeAppController {
     public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.getSession().invalidate();
 
-        String logoutUrl = UserServiceFactory.getUserService().createLogoutURL("/");
+        String logoutUrl = UserServiceFactory.getUserService().createLogoutURL("/loggedout.htm");
 
 		response.sendRedirect(logoutUrl);
     }
