@@ -92,7 +92,10 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 
                 NamingEnumeration<SearchResult> results = ctx.search(dn, comparisonFilter, new Object[] {value}, ctls);
 
-                return Boolean.valueOf(results.hasMore());
+                Boolean match = Boolean.valueOf(results.hasMore());
+                LdapUtils.closeEnumeration(results);
+
+                return match;
             }
         }
 
@@ -215,6 +218,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
                             results.add(new DirContextAdapter(searchResult.getAttributes(), dn, ctxBaseDn));
                         }
                     } catch (PartialResultException e) {
+                        LdapUtils.closeEnumeration(resultsEnum);
                         logger.info("Ignoring PartialResultException");
                     }
 
