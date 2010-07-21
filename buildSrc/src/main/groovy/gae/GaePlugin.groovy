@@ -7,9 +7,9 @@ class GaePlugin implements Plugin<Project> {
     public void apply(Project project) {
         if (!project.hasProperty('appEngineSdkRoot')) {
             println "'appEngineSdkRoot' must be set in gradle.properties"
+        } else {
+            System.setProperty('appengine.sdk.root', project.property('appEngineSdkRoot'))
         }
-
-        System.setProperty('appengine.sdk.root', project.property('appEngineSdkRoot'))
 
         File explodedWar = new File(project.buildDir, "gae-exploded")
 
