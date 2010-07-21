@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.naming.Context;
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -57,6 +58,16 @@ public final class LdapUtils {
             }
         } catch (NamingException e) {
             logger.error("Failed to close context.", e);
+        }
+    }
+
+    public static void closeEnumeration(NamingEnumeration ne) {
+        try {
+            if (ne != null) {
+                ne.close();
+            }
+        } catch (NamingException e) {
+            logger.error("Failed to close enumeration.", e);
         }
     }
 
