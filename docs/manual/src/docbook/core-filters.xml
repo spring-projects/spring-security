@@ -241,17 +241,18 @@ public interface SecurityContextRepository {
                 changed). If you don't want a session to be created, then you can set this property
                 to <literal>false</literal>: <programlisting language="xml"><![CDATA[
 <bean id="securityContextPersistenceFilter"
-class="org.springframework.security.web.context.SecurityContextPersistenceFilter">
-<property name='securityContextRepository'>
-<bean class='org.springframework.security.web.context.HttpSessionSecurityContextRepository'>
-  <property name='allowSessionCreation' value='false' />
+    class="org.springframework.security.web.context.SecurityContextPersistenceFilter">
+  <property name='securityContextRepository'>
+    <bean class='org.springframework.security.web.context.HttpSessionSecurityContextRepository'>
+      <property name='allowSessionCreation' value='false' />
+    </bean>
+  </property>
 </bean>
-</property>
-</bean>
-]]></programlisting> Alternatively you could provide a null implementation of the
-                <interfacename>SecurityContextRepository</interfacename> interface, which will
-                prevent the security context from being stored, even if a session has already been
-                created during the request. </para>
+]]></programlisting> Alternatively you could provide an instance of
+                <classname>NullSecurityContextRepository</classname>, a <quote><link
+                xlink:href="http://en.wikipedia.org/wiki/Null_Object_pattern">null object</link></quote>
+                implementation, which will prevent the security context from being stored, even if a
+                session has already been created during the request. </para>
         </section>
     </section>
     <section xml:id="form-login-filter">

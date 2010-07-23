@@ -12,6 +12,7 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
 
 /**
@@ -92,6 +93,7 @@ public class SecurityContextPersistenceFilter extends GenericFilterBean {
     }
 
     public void setSecurityContextRepository(SecurityContextRepository repo) {
+        Assert.notNull(repo, "SecurityContextRepository cannot be null");
         this.repo = repo;
     }
 
