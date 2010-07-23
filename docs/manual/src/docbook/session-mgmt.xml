@@ -57,8 +57,12 @@
     <beans:property name="sessionRegistry" ref="sessionRegistry" />
     <beans:property name="maximumSessions" value="1" />
 </beans:bean>
-]]>
-      </programlisting></para>
+]]></programlisting>
+            Note that the use of the default, <classname>SessionFixationProtectionStrategy</classname>
+            may cause issues if you are storing beans in the session which implement
+            <interfacename>HttpSessionBindingListener</interfacename>, including Spring session-scoped
+            beans. See the Javadoc for this class for more information.
+        </para>
     </section>
     <section xml:id="concurrent-sessions">
         <title>Concurrency Control</title>

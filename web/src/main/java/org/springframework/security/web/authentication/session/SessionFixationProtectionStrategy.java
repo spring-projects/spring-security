@@ -27,6 +27,18 @@ import org.springframework.security.web.WebAttributes;
  * invalidated and a new session created by calling {@link HttpServletRequest#getSession()}.
  * <p>
  * If concurrent session control is in use, then a <tt>SessionRegistry</tt> must be injected.
+ * <p>
+ * <h3>Issues with <tt>HttpSessionBindingListener</tt></h3>
+ * <p>
+ * The migration of existing attributes to the newly-created session may cause problems if any of the objects
+ * implement the {@code HttpSessionBindingListener} interface in a way which makes assumptions about the life-cycle of
+ * the object. An example is the use of Spring session-scoped beans, where the initial removal of the bean from the
+ * session will cause the {@code DisposableBean} interface to be invoked, in the assumption that the bean is no longer
+ * required.
+ * <p>
+ * We'd recommend that you take account of this when designing your application and do not store attributes which
+ * may not function correctly when they are removed and then placed back in the session. Alternatively, you should
+ * customize the {@code SessionAuthenticationStrategy} to deal with the issue in an application-specific way.
  *
  * @author Luke Taylor
  * @since 3.0
