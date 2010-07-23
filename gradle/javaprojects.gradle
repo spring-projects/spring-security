@@ -13,14 +13,17 @@ slf4jVersion = '1.6.1'
 logbackVersion = '0.9.24'
 
 configurations {
+    // Configuration which is ONLY used for compileJava and will not be inherited by any others
+    // Revisit post Gradle 1.0
+    compileOnly
+    // Used to identify deps whcih should be marked as "provided" in maven poms
     provided
     compile.extendsFrom provided
     compile.transitive = false
 }
 
 dependencies {
-    // We only compile against commons logging. It is excluded from all other configurations
-    compile 'commons-logging:commons-logging:1.1.1'
+    compileOnly 'commons-logging:commons-logging:1.1.1'
 
     compile ("org.springframework:spring-core:$springVersion") {
         exclude(group: 'commons-logging', module: 'commons-logging')
@@ -41,8 +44,9 @@ dependencies {
                 "ch.qos.logback:logback-classic:$logbackVersion"
 }
 
-// Get rid of commons logging
 [configurations.runtime, configurations.default]*.exclude(module: 'commons-logging')
+
+sourceSets.main.compileClasspath += configurations.compileOnly
 
 test {
     onlyIf {

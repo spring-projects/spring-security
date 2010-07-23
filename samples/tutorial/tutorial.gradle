@@ -10,12 +10,16 @@ dependencies {
             "org.springframework:spring-beans:$springVersion",
             "org.springframework:spring-web:$springVersion",
             "org.springframework:spring-webmvc:$springVersion",
-            "org.aspectj:aspectjrt:$aspectjVersion"
+            "org.aspectj:aspectjrt:$aspectjVersion",
+            "org.slf4j:slf4j-api:$slf4jVersion"
 
     runtime project(':spring-security-web'),
             project(':spring-security-config'),
             project(':spring-security-taglibs'),
-            'log4j:log4j:1.2.15@jar'
+            "org.slf4j:jcl-over-slf4j:$slf4jVersion",
+            "org.slf4j:slf4j-jdk14:$slf4jVersion",
+            "ch.qos.logback:logback-core:$logbackVersion",
+            "ch.qos.logback:logback-classic:$logbackVersion"
 }
 
 jettyRun {

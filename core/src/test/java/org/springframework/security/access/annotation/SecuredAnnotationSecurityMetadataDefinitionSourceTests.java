@@ -18,12 +18,8 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 
 import junit.framework.TestCase;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
-import org.springframework.util.StringUtils;
 
 
 /**
@@ -37,7 +33,6 @@ public class SecuredAnnotationSecurityMetadataDefinitionSourceTests extends Test
     //~ Instance fields ================================================================================================
 
     private SecuredAnnotationSecurityMetadataSource mds = new SecuredAnnotationSecurityMetadataSource();;
-    private Log logger = LogFactory.getLog(SecuredAnnotationSecurityMetadataDefinitionSourceTests.class);
 
     //~ Methods ========================================================================================================
 
@@ -53,10 +48,6 @@ public class SecuredAnnotationSecurityMetadataDefinitionSourceTests extends Test
         Collection<ConfigAttribute> attrs = mds.findAttributes(method, DepartmentServiceImpl.class);
 
         assertNotNull(attrs);
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("attrs: " + StringUtils.collectionToCommaDelimitedString(attrs));
-        }
 
         // expect 1 attribute
         assertTrue("Did not find 1 attribute", attrs.size() == 1);
@@ -77,10 +68,6 @@ public class SecuredAnnotationSecurityMetadataDefinitionSourceTests extends Test
         Collection<ConfigAttribute> superAttrs = this.mds.findAttributes(superMethod, DepartmentServiceImpl.class);
 
         assertNotNull(superAttrs);
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("superAttrs: " + StringUtils.collectionToCommaDelimitedString(superAttrs));
-        }
 
         // This part of the test relates to SEC-274
         // expect 1 attribute
