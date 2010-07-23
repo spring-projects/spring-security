@@ -535,7 +535,10 @@
                         <para><literal>newSession</literal> - Create a new "clean" session, without
                             copying the existing session data.</para>
                     </listitem>
-                    </itemizedlist></para>
+                    </itemizedlist>
+                    See the <link xlink:href="#session-mgmt">Session Management</link> chapter for
+                    additional information.
+                </para>
             </section>
         </section>
         <section xml:id="ns-openid">
