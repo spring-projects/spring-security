@@ -38,7 +38,7 @@ public class GaeAppController {
 
         String logoutUrl = UserServiceFactory.getUserService().createLogoutURL("/loggedout.htm");
 
-		response.sendRedirect(logoutUrl);
+        response.sendRedirect(logoutUrl);
     }
 
     @RequestMapping(value = "/loggedout.htm", method= RequestMethod.GET)

@@ -1,7 +1,5 @@
 package samples.gae.users;
 
-import com.google.appengine.api.datastore.EntityNotFoundException;
-
 /**
  *
  * Service used to maintain a list of users who are registered with the application.

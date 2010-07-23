@@ -34,11 +34,11 @@ public class RegistrationController {
         return new RegistrationForm();
     }
 
-	@RequestMapping(method = RequestMethod.POST)
-	public String register(@Valid RegistrationForm form, BindingResult result) {
-		if (result.hasErrors()) {
-			return null;
-		}
+    @RequestMapping(method = RequestMethod.POST)
+    public String register(@Valid RegistrationForm form, BindingResult result) {
+        if (result.hasErrors()) {
+            return null;
+        }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         GaeUser currentUser = (GaeUser)authentication.getPrincipal();
@@ -56,6 +56,6 @@ public class RegistrationController {
         // Update the context with the full authentication
         SecurityContextHolder.getContext().setAuthentication(new GaeUserAuthentication(user, authentication.getDetails()));
 
-		return "redirect:/home.htm";
-	}
+        return "redirect:/home.htm";
+    }
 }
