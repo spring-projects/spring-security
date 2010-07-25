@@ -15,7 +15,7 @@ import samples.gae.security.AppRole;
  *
  * @author Luke Taylor
  */
-public class GaeDataStoreUserRegistry implements UserRegistry {
+public class GaeDatastoreUserRegistry implements UserRegistry {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final String USER_TYPE = "GaeUser";

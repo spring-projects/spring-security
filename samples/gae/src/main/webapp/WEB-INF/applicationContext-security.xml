@@ -8,12 +8,11 @@
 
     <http pattern="/static/**" security="none" />
     <http pattern="/favicon.ico" security="none" />
-    <http pattern="/_ah/resources**" security="none" />
+    <http pattern="/loggedout.htm" security="none" />
+    <http pattern="/disabled.htm" security="none" />
 
     <http use-expressions="true" entry-point-ref="gaeEntryPoint">
         <intercept-url pattern="/" access="permitAll" />
-        <intercept-url pattern="/_ah/login**" access="permitAll" />
-        <intercept-url pattern="/_ah/admin**" access="permitAll" />
         <intercept-url pattern="/logout.htm" access="permitAll" />
         <intercept-url pattern="/register.htm*" access="hasRole('NEW_USER')" />
         <intercept-url pattern="/**" access="hasRole('USER')" />
@@ -43,6 +42,6 @@
         <b:property name="userRegistry" ref="userRegistry" />
     </b:bean>
 
-    <b:bean id="userRegistry" class="samples.gae.users.GaeDataStoreUserRegistry" />
+    <b:bean id="userRegistry" class="samples.gae.users.GaeDatastoreUserRegistry" />
 
 </b:beans>

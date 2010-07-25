@@ -52,22 +52,20 @@ public class GaeAuthenticationFilter extends GenericFilterBean {
                 try {
                     authentication = authenticationManager.authenticate(token);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                    if (authentication.getAuthorities().contains(AppRole.NEW_USER)) {
+                        logger.debug("New user authenticated. Redirecting to registration page");
+                        ((HttpServletResponse) response).sendRedirect(REGISTRATION_URL);
+
+                        return;
+                    }
+
                 } catch (AuthenticationException e) {
                     failureHandler.onAuthenticationFailure((HttpServletRequest)request, (HttpServletResponse)response, e);
 
                     return;
                 }
             }
-        }
-
-        // A new user has to register with the app before doing anything else
-        if (authentication != null && authentication.getAuthorities().contains(AppRole.NEW_USER)
-                && !((HttpServletRequest)request).getRequestURI().endsWith(REGISTRATION_URL)) {
-            logger.debug("New user authenticated. Redirecting to registration page");
-
-            ((HttpServletResponse) response).sendRedirect(REGISTRATION_URL);
-
-            return;
         }
 
         chain.doFilter(request, response);

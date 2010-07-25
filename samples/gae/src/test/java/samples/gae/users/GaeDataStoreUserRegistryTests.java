@@ -31,7 +31,7 @@ public class GaeDataStoreUserRegistryTests {
 
     @Test
     public void correctDataIsRetrievedAfterInsert() {
-        GaeDataStoreUserRegistry registry = new GaeDataStoreUserRegistry();
+        GaeDatastoreUserRegistry registry = new GaeDatastoreUserRegistry();
 
         Set<AppRole> roles = EnumSet.of(AppRole.ADMIN, AppRole.USER);
         String userId = "someUserId";
