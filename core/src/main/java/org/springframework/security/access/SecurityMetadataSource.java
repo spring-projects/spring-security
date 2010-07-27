@@ -31,13 +31,12 @@ public interface SecurityMetadataSource extends AopInfrastructureBean {
     //~ Methods ========================================================================================================
 
     /**
-     * Accesses the <code>ConfigAttribute</code>s that apply to a given secure object.
-     * <p>
-     * Returns <code>null</code> if no attributes apply.
+     * Accesses the {@code ConfigAttribute}s that apply to a given secure object.
      *
      * @param object the object being secured
      *
-     * @return the attributes that apply to the passed in secured object or null if there are no applicable attributes.
+     * @return the attributes that apply to the passed in secured object. Can return either {@code null} or an
+     *         empty collection if there are no applicable attributes.
      *
      * @throws IllegalArgumentException if the passed object is not of a type supported by the
      *         <code>SecurityMetadataSource</code> implementation
@@ -45,18 +44,18 @@ public interface SecurityMetadataSource extends AopInfrastructureBean {
     Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException;
 
     /**
-     * If available, returns all of the <code>ConfigAttribute</code>s defined by the implementing class.
+     * If available, returns all of the {@code ConfigAttribute}s defined by the implementing class.
      * <p>
      * This is used by the {@link AbstractSecurityInterceptor} to perform startup time validation of each
-     * <code>ConfigAttribute</code> configured against it.
+     * {@code ConfigAttribute} configured against it.
      *
-     * @return the <code>ConfigAttribute</code>s or <code>null</code> if unsupported
+     * @return the {@code ConfigAttribute}s or {@code null} if unsupported
      */
     Collection<ConfigAttribute> getAllConfigAttributes();
 
     /**
-     * Indicates whether the <code>SecurityMetadataSource</code> implementation is able to provide
-     * <code>ConfigAttribute</code>s for the indicated secure object type.
+     * Indicates whether the {@code SecurityMetadataSource} implementation is able to provide
+     * {@code ConfigAttribute}s for the indicated secure object type.
      *
      * @param clazz the class that is being queried
      *

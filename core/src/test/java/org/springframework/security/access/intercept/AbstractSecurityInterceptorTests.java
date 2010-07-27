@@ -15,54 +15,44 @@
 
 package org.springframework.security.access.intercept;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JUnit4Mockery;
+import static org.mockito.Mockito.mock;
+
 import org.junit.Test;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.SecurityMetadataSource;
-import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
-import org.springframework.security.access.intercept.RunAsManager;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.util.SimpleMethodInvocation;
 
 
 /**
- * Tests some {@link AbstractSecurityInterceptor} methods. Most of the  testing for this class is found in the
- * <code>MethodSecurityInterceptorTests</code> class.
+ * Tests some {@link AbstractSecurityInterceptor} methods. Most of the testing for this class is found in the
+ * {@code MethodSecurityInterceptorTests} class.
  *
  * @author Ben Alex
  */
 public class AbstractSecurityInterceptorTests {
-    private Mockery jmock = new JUnit4Mockery();
-
     //~ Methods ========================================================================================================
 
     @Test(expected=IllegalArgumentException.class)
     public void detectsIfInvocationPassedIncompatibleSecureObject() throws Exception {
         MockSecurityInterceptorWhichOnlySupportsStrings si = new MockSecurityInterceptorWhichOnlySupportsStrings();
 
-        si.setRunAsManager(jmock.mock(RunAsManager.class));
-        si.setAuthenticationManager(jmock.mock(AuthenticationManager.class));
-        si.setAfterInvocationManager(jmock.mock(AfterInvocationManager.class));
-        si.setAccessDecisionManager(jmock.mock(AccessDecisionManager.class));
-        si.setSecurityMetadataSource(jmock.mock(SecurityMetadataSource.class));
-
-        jmock.checking(new Expectations() {{ ignoring(anything()); }});
+        si.setRunAsManager(mock(RunAsManager.class));
+        si.setAuthenticationManager(mock(AuthenticationManager.class));
+        si.setAfterInvocationManager(mock(AfterInvocationManager.class));
+        si.setAccessDecisionManager(mock(AccessDecisionManager.class));
+        si.setSecurityMetadataSource(mock(SecurityMetadataSource.class));
         si.beforeInvocation(new SimpleMethodInvocation());
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void detectsViolationOfGetSecureObjectClassMethod() throws Exception {
         MockSecurityInterceptorReturnsNull si = new MockSecurityInterceptorReturnsNull();
-        si.setRunAsManager(jmock.mock(RunAsManager.class));
-        si.setAuthenticationManager(jmock.mock(AuthenticationManager.class));
-        si.setAfterInvocationManager(jmock.mock(AfterInvocationManager.class));
-        si.setAccessDecisionManager(jmock.mock(AccessDecisionManager.class));
-        si.setSecurityMetadataSource(jmock.mock(SecurityMetadataSource.class));
-
-        jmock.checking(new Expectations() {{ ignoring(anything()); }});
-
+        si.setRunAsManager(mock(RunAsManager.class));
+        si.setAuthenticationManager(mock(AuthenticationManager.class));
+        si.setAfterInvocationManager(mock(AfterInvocationManager.class));
+        si.setAccessDecisionManager(mock(AccessDecisionManager.class));
+        si.setSecurityMetadataSource(mock(SecurityMetadataSource.class));
         si.afterPropertiesSet();
     }
 
@@ -71,7 +61,7 @@ public class AbstractSecurityInterceptorTests {
     private class MockSecurityInterceptorReturnsNull extends AbstractSecurityInterceptor {
         private SecurityMetadataSource securityMetadataSource;
 
-        public Class<? extends Object> getSecureObjectClass() {
+        public Class<?> getSecureObjectClass() {
             return null;
         }
 
@@ -87,7 +77,7 @@ public class AbstractSecurityInterceptorTests {
     private class MockSecurityInterceptorWhichOnlySupportsStrings extends AbstractSecurityInterceptor {
         private SecurityMetadataSource securityMetadataSource;
 
-        public Class<? extends Object> getSecureObjectClass() {
+        public Class<?> getSecureObjectClass() {
             return String.class;
         }
 

@@ -170,7 +170,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
 
         Collection<ConfigAttribute> attributes = this.obtainSecurityMetadataSource().getAttributes(object);
 
-        if (attributes == null) {
+        if (attributes == null || attributes.isEmpty()) {
             if (rejectPublicInvocations) {
                 throw new IllegalArgumentException("Secure object invocation " + object +
                         " was denied as public invocations are not allowed via this interceptor. "
@@ -203,8 +203,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
             this.accessDecisionManager.decide(authenticated, object, attributes);
         }
         catch (AccessDeniedException accessDeniedException) {
-            publishEvent(new AuthorizationFailureEvent(object, attributes, authenticated,
-                    accessDeniedException));
+            publishEvent(new AuthorizationFailureEvent(object, attributes, authenticated, accessDeniedException));
 
             throw accessDeniedException;
         }
@@ -266,8 +265,8 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
                         token.getAttributes(), returnedObject);
             }
             catch (AccessDeniedException accessDeniedException) {
-                AuthorizationFailureEvent event = new AuthorizationFailureEvent(token.getSecureObject(), token
-                        .getAttributes(), token.getAuthentication(), accessDeniedException);
+                AuthorizationFailureEvent event = new AuthorizationFailureEvent(token.getSecureObject(),
+                        token.getAttributes(), token.getAuthentication(), accessDeniedException);
                 publishEvent(event);
 
                 throw accessDeniedException;
@@ -310,7 +309,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
     /**
      * Helper method which generates an exception containing the passed reason,
      * and publishes an event to the application context.
-     * <p/>
+     * <p>
      * Always throws an exception.
      *
      * @param reason        to be provided in the exception detail
@@ -346,12 +345,12 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
     /**
      * Indicates the type of secure objects the subclass will be presenting to
      * the abstract parent for processing. This is used to ensure collaborators
-     * wired to the <code>AbstractSecurityInterceptor</code> all support the
+     * wired to the {@code AbstractSecurityInterceptor} all support the
      * indicated secure object class.
      *
      * @return the type of secure object the subclass provides services for
      */
-    public abstract Class<? extends Object> getSecureObjectClass();
+    public abstract Class<?> getSecureObjectClass();
 
     public boolean isAlwaysReauthenticate() {
         return alwaysReauthenticate;
