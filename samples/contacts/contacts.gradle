@@ -23,9 +23,10 @@ dependencies {
             "org.springframework:spring-context-support:$springVersion",
             "net.sf.ehcache:ehcache:$ehcacheVersion",
             "hsqldb:hsqldb:$hsqlVersion",
-            'log4j:log4j:1.2.15@jar'
+            "org.slf4j:jcl-over-slf4j:$slf4jVersion",
+            "ch.qos.logback:logback-classic:$logbackVersion"
 }
 
 jettyRun {
-    contextPath = "/tutorial"
+    contextPath = "/contacts"
 }

@@ -1,21 +1,17 @@
-// OpenID sample build file
+// LDAP sample build file
 
 apply plugin: 'war'
 apply plugin: 'jetty'
 
 dependencies {
-    compile project(':spring-security-core'),
-            project(':spring-security-openid')
-
-    providedCompile 'javax.servlet:servlet-api:2.5@jar'
 
     runtime project(':spring-security-web'),
             project(':spring-security-config'),
-            project(':spring-security-taglibs'),
+            project(':spring-security-ldap'),
             "org.slf4j:jcl-over-slf4j:$slf4jVersion",
             "ch.qos.logback:logback-classic:$logbackVersion"
 }
 
 jettyRun {
-    contextPath = "/openid"
+    contextPath = "/ldap"
 }

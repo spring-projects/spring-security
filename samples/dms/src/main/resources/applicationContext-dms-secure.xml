@@ -86,13 +86,13 @@
 
    <!-- ACL permission masks used by this application -->
    <bean id="org.springframework.security.acls.domain.BasePermission.ADMINISTRATION" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
-      <property name="staticField"><value>org.springframework.security.acls.domain.BasePermission.ADMINISTRATION</value></property>
+      <property name="staticField" value="org.springframework.security.acls.domain.BasePermission.ADMINISTRATION"/>
    </bean>
    <bean id="org.springframework.security.acls.domain.BasePermission.READ" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
-      <property name="staticField"><value>org.springframework.security.acls.domain.BasePermission.READ</value></property>
+      <property name="staticField" value="org.springframework.security.acls.domain.BasePermission.READ"/>
    </bean>
    <bean id="org.springframework.security.acls.domain.BasePermission.WRITE" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
-      <property name="staticField"><value>org.springframework.security.acls.domain.BasePermission.WRITE</value></property>
+      <property name="staticField" value="org.springframework.security.acls.domain.BasePermission.WRITE"/>
    </bean>
 
 
@@ -123,7 +123,7 @@
           <ref local="org.springframework.security.acls.domain.BasePermission.WRITE"/>
           </list>
       </constructor-arg>
-      <property name="processDomainObjectClass"><value>sample.dms.AbstractElement</value></property>
+      <property name="processDomainObjectClass" value="sample.dms.AbstractElement"/>
    </bean>
 
    <!-- An access decision manager used by the business objects -->

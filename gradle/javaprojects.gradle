@@ -20,6 +20,7 @@ configurations {
     provided
     compile.extendsFrom provided
     compile.transitive = false
+    testCompile.transitive = false
 }
 
 dependencies {
@@ -38,9 +39,7 @@ dependencies {
             "org.springframework:spring-test:$springVersion"
 
     // Use slf4j/logback for logging
-    testRuntime "org.slf4j:slf4j-api:$slf4jVersion",
-                "org.slf4j:jcl-over-slf4j:$slf4jVersion",
-                "ch.qos.logback:logback-core:$logbackVersion",
+    testRuntime "org.slf4j:jcl-over-slf4j:$slf4jVersion",
                 "ch.qos.logback:logback-classic:$logbackVersion"
 }
 

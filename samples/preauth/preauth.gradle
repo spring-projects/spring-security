@@ -1,21 +1,17 @@
-// OpenID sample build file
+// Preauth sample build file
 
 apply plugin: 'war'
 apply plugin: 'jetty'
 
 dependencies {
-    compile project(':spring-security-core'),
-            project(':spring-security-openid')
-
-    providedCompile 'javax.servlet:servlet-api:2.5@jar'
 
     runtime project(':spring-security-web'),
             project(':spring-security-config'),
-            project(':spring-security-taglibs'),
             "org.slf4j:jcl-over-slf4j:$slf4jVersion",
             "ch.qos.logback:logback-classic:$logbackVersion"
 }
 
 jettyRun {
-    contextPath = "/openid"
+    contextPath = "/preauth"
+    userRealms = [new org.mortbay.jetty.security.HashUserRealm('Preauth Realm', "$projectDir/realm.properties")]
 }

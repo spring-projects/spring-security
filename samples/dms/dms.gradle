@@ -1,0 +1,16 @@
+
+dependencies {
+    compile project(':spring-security-core'),
+            project(':spring-security-acl'),
+            "org.springframework:spring-beans:$springVersion",
+            "org.springframework:spring-tx:$springVersion",
+            "org.springframework:spring-jdbc:$springVersion"
+
+    testCompile "org.springframework:spring-context:$springVersion"
+
+    runtime project(':spring-security-config'),
+            "hsqldb:hsqldb:$hsqlVersion",
+            "net.sf.ehcache:ehcache:$ehcacheVersion",
+            "org.springframework:spring-context-support:$springVersion"
+
+}

@@ -1,9 +1,55 @@
+// CAS sample build file
+
 apply plugin: 'war'
 apply plugin: 'jetty'
 
+
+configurations {
+    casServer
+}
+
 dependencies {
-    runtime project(':spring-security-core'),
-            project(':spring-security-web'),
+    casServer "org.jasig.cas:cas-server-webapp:3.4.2.1@war"
+
+    runtime project(':spring-security-web'),
+            project(':spring-security-cas'),
             project(':spring-security-config'),
-            'log4j:log4j:1.2.15@jar'
+            "org.slf4j:jcl-over-slf4j:$slf4jVersion",
+            "ch.qos.logback:logback-classic:$logbackVersion"
+}
+
+
+def keystore = "$rootDir/samples/certificates/server.jks"
+
+jettyRun {
+    contextPath = "/cas"
+    def httpConnector = new org.mortbay.jetty.nio.SelectChannelConnector();
+    httpConnector.port = 8080
+    httpConnector.confidentialPort = 8443
+    def httpsConnector = new org.mortbay.jetty.security.SslSocketConnector();
+    httpsConnector.port = 8443
+    httpsConnector.keystore = httpsConnector.truststore = keystore
+    httpsConnector.keyPassword = httpsConnector.trustPassword = 'password'
+
+    connectors = [httpConnector, httpsConnector]
+}
+
+task casServer (type: org.gradle.api.plugins.jetty.JettyRunWar) {
+    contextPath = "/cas"
+    connectors = [new org.mortbay.jetty.security.SslSocketConnector()]
+    connectors[0].port = 9443
+    connectors[0].keystore = connectors[0].truststore = keystore
+    connectors[0].keyPassword = connectors[0].trustPassword = 'password'
+    connectors[0].wantClientAuth = true
+    connectors[0].needClientAuth = false
+    webApp = configurations.casServer.resolve().toArray()[0]
+    doFirst() {
+        System.setProperty('javax.net.ssl.trustStore', keystore)
+        System.setProperty('javax.net.ssl.trustStorePassword', 'password')
+    }
+}
+
+task cas (dependsOn: jettyRun) {
+    jettyRun.dependsOn(casServer)
+    casServer.daemon = true
 }

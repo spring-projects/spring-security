@@ -17,7 +17,6 @@ dependencies {
             project(':spring-security-config'),
             project(':spring-security-taglibs'),
             "org.slf4j:jcl-over-slf4j:$slf4jVersion",
-            "org.slf4j:slf4j-jdk14:$slf4jVersion",
             "ch.qos.logback:logback-core:$logbackVersion",
             "ch.qos.logback:logback-classic:$logbackVersion"
 }

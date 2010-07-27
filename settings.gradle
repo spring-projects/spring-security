@@ -15,7 +15,11 @@ def String[] samples = [
     'contacts',
     'openid',
     'aspectj',
-    'gae'
+    'gae',
+    'dms',
+    'preauth',
+    'cas',
+    'ldap'
 ]
 
 def String[] docs = [

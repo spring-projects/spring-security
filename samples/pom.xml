@@ -16,7 +16,6 @@
         <module>preauth</module>
         <module>openid</module>
         <module>ldap</module>
-        <module>cas</module>
         <module>aspectj</module>
     </modules>
     <dependencies>
