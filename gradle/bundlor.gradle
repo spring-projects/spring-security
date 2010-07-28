@@ -11,19 +11,26 @@ dependencies {
 }
 
 task bundlor(dependsOn: compileJava) {
-    onlyIf {
-        dependsOnTaskDidWork()
-    }
+    def template = new File(projectDir, 'template.mf')
+    def bundlorDir = new File("${project.buildDir}/bundlor")
+    def manifest = file("${bundlorDir}/META-INF/MANIFEST.MF")
+
+    outputs.dir bundlorDir
+    outputs.files manifest
+    inputs.files template, project.sourceSets.main.runtimeClasspath
+
+    jar.manifest.from manifest
+    jar.inputs.files manifest
+
     doFirst {
         ant.taskdef(resource: 'com/springsource/bundlor/ant/antlib.xml', classpath: configurations.bundlor.asPath)
-        File template = new File(projectDir, 'template.mf')
-        mkdir("$buildDir/bundlor")
-        if (template.exists()) {
-            ant.bundlor(inputPath: sourceSets.main.classesDir, outputPath: "$buildDir/bundlor", manifestTemplatePath: template) {
-                property(name: 'version', value: "$version")
-                property(name: 'spring.version', value: "$springVersion")
-            }
-            jar.manifest.from("$buildDir/bundlor/META-INF/MANIFEST.MF")
+        captureStandardOutput(LogLevel.INFO)
+
+        mkdir(bundlorDir)
+
+        ant.bundlor(inputPath: sourceSets.main.classesDir, outputPath: "$buildDir/bundlor", manifestTemplatePath: template) {
+            property(name: 'version', value: project.version)
+            property(name: 'spring.version', value: project.springVersion)
         }
     }
 }
