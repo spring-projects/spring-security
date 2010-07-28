@@ -9,7 +9,7 @@ configurations {
 }
 
 dependencies {
-    casServer "org.jasig.cas:cas-server-webapp:3.4.2.1@war"
+    casServer("org.jasig.cas:cas-server-webapp:3.4.2.1") { transitive = false }
 
     runtime project(':spring-security-web'),
             project(':spring-security-cas'),
