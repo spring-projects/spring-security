@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
@@ -88,7 +89,15 @@ class MethodSecurityEvaluationContext extends StandardEvaluationContext {
         }
 
         Object targetObject = mi.getThis();
-        Method method = AopUtils.getMostSpecificMethod(mi.getMethod(), targetObject.getClass());
+        // SEC-1454
+        Class<?> targetClass = AopProxyUtils.ultimateTargetClass(targetObject);
+
+        if (targetClass == null) {
+            // TODO: Spring should do this, but there's a bug in ultimateTargetClass() which returns null 
+            targetClass = targetObject.getClass();
+        }
+
+        Method method = AopUtils.getMostSpecificMethod(mi.getMethod(), targetClass);
         String[] paramNames = parameterNameDiscoverer.getParameterNames(method);
 
         if (paramNames == null) {
