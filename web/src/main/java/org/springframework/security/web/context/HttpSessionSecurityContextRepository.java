@@ -311,17 +311,13 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
             }
 
             // If HttpSession exists, store current SecurityContextHolder contents but only if
-            // the SecurityContext has actually changed in this thread (see JIRA SEC-37, SEC-1307)
+            // the SecurityContext has actually changed in this thread (see JIRA SEC-37, SEC-1307, SEC-1528)
             if (httpSession != null) {
-                SecurityContext contextFromSession = (SecurityContext) httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY);
+                if (context != contextBeforeExecution || context.getAuthentication() != authBeforeExecution) {
+                    httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY, context);
 
-                if (context != contextFromSession) {
-                    if (context != contextBeforeExecution || context.getAuthentication() != authBeforeExecution) {
-                        httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY, context);
-
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("SecurityContext stored to HttpSession: '" + context + "'");
-                        }
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("SecurityContext stored to HttpSession: '" + context + "'");
                     }
                 }
             }
