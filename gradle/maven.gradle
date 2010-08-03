@@ -6,12 +6,16 @@ task sourceJar(type: Jar) {
     from sourceSets.main.java
 }
 
+artifacts {
+    archives sourceJar
+}
+
+// Configuration for SpringSource s3 maven deployer
 configurations {
     deployerJars
 }
-
-artifacts {
-    archives sourceJar
+dependencies {
+    deployerJars "org.springframework.build.aws:org.springframework.build.aws.maven:3.0.0.RELEASE"
 }
 
 // Remove the archive configuration from the runtime configuration, so that anything added to archives
@@ -19,10 +23,6 @@ artifacts {
 configurations.default.extendsFrom = [configurations.runtime] as Set
 // Add the main jar into the default configuration
 artifacts { 'default' jar }
-
-dependencies {
-    deployerJars "org.springframework.build.aws:org.springframework.build.aws.maven:3.0.0.RELEASE"
-}
 
 gradle.taskGraph.whenReady {graph ->
     if (graph.hasTask(uploadArchives)) {
@@ -37,8 +37,6 @@ def deployer = null
 uploadArchives {
     deployer = repositories.mavenDeployer {
         configuration = configurations.deployerJars
-    }
-    doFirst {
         if (releaseBuild) {
             // "mavenSyncRepoDir" should be set in properties
             repository(url: mavenSyncRepoDir)

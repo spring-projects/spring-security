@@ -28,7 +28,7 @@ allprojects {
 }
 
 allprojects {
-    apply plugin: 'org.gradle.idea'
+    apply plugin: 'idea'
     ideaModule {
         downloadJavadoc=false
         excludeDirs.add(buildDir)
@@ -51,15 +51,33 @@ ideaModule {
 ideaProject {
     wildcards += ['?*.gradle']
     javaVersion = '1.6'
-}
 
+    withXml { node ->
+        node.component.find { it.@name == 'VcsDirectoryMappings' }.mapping.@vcs = 'Git'
+    }
+}
+/*
+ideaWorkspace {
+    withXml { node ->
+        Node servers = node.component.find{ it.@name == 'TaskManager' }.servers[0]
+        def bldr = new NodeBuilder()
+        servers.append(
+            bldr.JIRA(shared: false, url: 'https://jira.springsource.org') {
+                if (project.hasProperty('jiraUser')) {
+                    password project.property('jiraPassword')
+                    username project.property('jiraUser')
+                }
+            })
+    }
+}
+*/
 configure(javaProjects) {
     apply from: "$rootDir/gradle/javaprojects.gradle"
-    apply from: "$rootDir/gradle/maven.gradle"
 }
 
 configure(coreModuleProjects) {
     apply from: "$rootDir/gradle/bundlor.gradle"
+    apply from: "$rootDir/gradle/maven.gradle"
     // Gives better names in structure101 jar diagram
     sourceSets.main.classesDir = new File(buildDir, "classes/" + project.name.substring("spring-security".length() + 1))
 }
@@ -187,11 +205,15 @@ def getItestProjects() {
 }
 
 def getCoreModuleProjects() {
-    javaProjects - sampleProjects - itestProjects - aspectjProjects
+    javaProjects - sampleProjects - itestProjects
 }
 
 def getAspectjProjects() {
-    subprojects.findAll {project -> project.name == 'spring-security-aspects' || project.name == 'spring-security-samples-aspectj'}
+    [project(':spring-security-aspects'), project(':spring-security-samples-aspectj')]
+}
+
+def getReleaseProjects() {
+    coreModuleProjects +project(':spring-security-aspects')
 }
 
 class UploadDist extends DefaultTask {
