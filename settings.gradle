@@ -22,11 +22,6 @@ def String[] samples = [
     'ldap'
 ]
 
-def String[] docs = [
-    'faq',
-    'manual'
-]
-
 def String[] itest = [
     'web',
     'context'
@@ -58,13 +53,10 @@ itest.each { name ->
     p.projectDir = new File(settingsDir, "itest/${name}");
 }
 
-include docs
+include 'docs', 'docs:faq', 'docs:manual'
 
-docs.each { name ->
-    p = findProject(":${name}")
-    p.buildFileName = "${name}.gradle"
-    p.projectDir = new File(settingsDir, "docs/${name}");
-}
+docs = findProject(':docs')
+docs.buildFileName = 'docs.gradle'
 
 rootProject.children.each {project ->
     assert project.projectDir.isDirectory()

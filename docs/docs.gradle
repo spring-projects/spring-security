@@ -1,0 +1,107 @@
+// Docbook and Javadoc building and uploading tasks
+
+subprojects {
+    apply plugin: 'base'
+    apply plugin: 'docbook'
+
+    docbookHtmlSingle.stylesheet = new File(projectDir, 'src/xsl/html-single-custom.xsl')
+}
+
+project('faq') {
+    defaultTasks 'docbookHtmlSingle'
+    [docbookHtml, docbookFoPdf, docbookHtmlSingle]*.sourceFileName = 'faq.xml'
+    docbookHtmlSingle.suffix = ''
+
+    spec = copySpec {
+        into ('faq') {
+            from("$buildDir/docs")
+            from("$projectDir/src/resources")
+        }
+    }
+}
+
+project('manual') {
+    defaultTasks 'docbookHtml', 'docbookHtmlSingle', 'docbookFoPdf'
+    [docbookHtml, docbookFoPdf, docbookHtmlSingle]*.sourceFileName = 'springsecurity.xml'
+
+    docbookHtml.stylesheet = new File(projectDir, 'src/xsl/html-custom.xsl')
+    docbookHtmlSingle.stylesheet = new File(projectDir, 'src/xsl/html-single-custom.xsl')
+    docbookFoPdf.stylesheet = new File(projectDir, 'src/xsl/pdf-custom.xsl')
+    def imagesDir = new File(projectDir, 'src/docbook/images');
+    docbookFoPdf.admonGraphicsPath = "${imagesDir}/"
+
+    spec = copySpec {
+        into ('reference') {
+            from("$buildDir/docs")
+            from("$projectDir/src/resources")
+        }
+        into ('reference/images') {
+            from (imagesDir)
+        }
+    }
+}
+
+task apidocs(type: Javadoc) {
+    destinationDir = new File(buildDir, 'apidocs')
+    title = "Spring Security $version API"
+    optionsFile = file("$buildDir/tmp/javadoc.options")
+
+    source coreModuleProjects.collect { project ->
+        project.sourceSets.main.allJava
+    }
+
+    classpath = files(coreModuleProjects.collect { project ->
+        project.sourceSets.main.compileClasspath
+    })
+}
+
+apiSpec = copySpec {
+    into('apidocs') {
+        from(apidocs.destinationDir)
+    }
+}
+
+task docSiteLogin(type: Login) {
+    if (project.hasProperty('sshHost')) {
+        host = project.property('sshHost')
+    }
+}
+
+// Define remoteSiteDir and sshHost in gradle.properties
+def remoteDocsDir = null
+
+if (hasProperty('remoteSiteDir')) {
+    remoteDocsDir="$remoteSiteDir/docs/3.1.x"
+}
+
+task uploadApidocs(type: TarUpload) {
+    dependsOn apidocs
+    baseName = "${rootProject.name}"
+    appendix = 'apidocs'
+    remoteDir = remoteDocsDir
+    login = docSiteLogin
+
+    with(apiSpec)
+}
+
+task uploadManual(type: TarUpload) {
+    dependsOn 'manual:docbook'
+    baseName = "${rootProject.name}"
+    appendix = 'doc'
+    remoteDir = remoteDocsDir
+    login = docSiteLogin
+
+    with(project('manual').spec)
+}
+
+task uploadFaq(type: TarUpload) {
+    dependsOn 'faq:docbookHtmlSingle'
+    baseName = "${rootProject.name}"
+    appendix = 'faq'
+    if (project.hasProperty('remoteSiteDir')) {
+        remoteDir = project.property('remoteSiteDir')
+    }
+    login = docSiteLogin
+
+    with(project('faq').spec)
+}

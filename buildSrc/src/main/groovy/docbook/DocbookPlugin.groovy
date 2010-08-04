@@ -48,6 +48,9 @@ class DocbookPlugin implements Plugin<Project> {
         Task docbookFoPdf = project.tasks.add("docbookFoPdf", DocbookFoPdf.class);
         docbookFoPdf.setDescription('Generates PDF output');
         docbookFoPdf.extension = 'fo'
+
+        Task docbook = project.tasks.add("docbook", DefaultTask.class);
+        docbook.dependsOn (docbookHtml, docbookHtmlSingle, docbookFoPdf)
     }
 }
 
