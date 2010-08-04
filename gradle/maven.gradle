@@ -35,17 +35,21 @@ gradle.taskGraph.whenReady {graph ->
 def deployer = null
 
 uploadArchives {
+    def releaseRepositoryUrl = "file://${project.properties.mavenSyncRepoDir}"
+    def milestoneRepositoryUrl = 's3://maven.springframework.org/milestone'
+    def snapshotRepositoryUrl = 's3://maven.springframework.org/snapshot'
+
     deployer = repositories.mavenDeployer {
         configuration = configurations.deployerJars
         if (releaseBuild) {
             // "mavenSyncRepoDir" should be set in properties
-            repository(url: mavenSyncRepoDir)
+            repository(url: releaseRepositoryUrl)
         } else {
-            s3credentials = [userName: s3AccessKey, passphrase: s3SecretAccessKey]
-            repository(url: "s3://maven.springframework.org/milestone") {
+            s3credentials = [userName: project.properties.s3AccessKey, passphrase: project.properties.s3SecretAccessKey]
+            repository(url: milestoneRepositoryUrl) {
                 authentication(s3credentials)
             }
-            snapshotRepository(url: "s3://maven.springframework.org/snapshot") {
+            snapshotRepository(url: snapshotRepositoryUrl) {
                 authentication(s3credentials)
             }
         }
