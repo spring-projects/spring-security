@@ -1,6 +1,15 @@
 
 // Task for creating the distro zip
 
+configurations {
+    antaws
+}
+
+dependencies {
+    antaws "org.springframework.build:org.springframework.build.aws.ant:3.0.3.RELEASE",
+            "net.java.dev.jets3t:jets3t:0.6.1"
+}
+
 task dist(type: Zip) {
     dependsOn ':docs:apidocs', ':docs:manual:docbook', subprojects*.tasks*.matching { task -> task.name == 'assemble' }
 
@@ -30,7 +39,6 @@ task uploadDist(type: UploadDist) {
     archiveFile = dist.archivePath
     shaFile = "${dist.archivePath}.sha1" as File
     archiveName = dist.archiveName
-    classpath = configurations.antlibs
 }
 
 class UploadDist extends DefaultTask {
@@ -43,14 +51,12 @@ class UploadDist extends DefaultTask {
     @Input
     String archiveName
 
-    @InputFiles
-    def classpath
-
     @TaskAction
     def upload() {
         def accessKey = project.s3AccessKey
         def secretKey = project.s3SecretAccessKey
         def version = project.version
+        def classpath = project.configurations.antaws
 
         project.ant {
             taskdef(resource: 'org/springframework/build/aws/ant/antlib.xml', classpath: classpath.asPath)

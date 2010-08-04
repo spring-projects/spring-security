@@ -18,6 +18,7 @@ allprojects {
     }
 }
 
+// Set up different subproject lists for individual configuration
 javaProjects = subprojects.findAll { project -> project.name != 'docs' && project.name != 'faq' && project.name != 'manual' }
 sampleProjects = subprojects.findAll { project -> project.name.startsWith('spring-security-samples') }
 itestProjects = subprojects.findAll { project -> project.name.startsWith('itest') }
@@ -38,15 +39,6 @@ configure(coreModuleProjects) {
 
 configure (aspectjProjects) {
     apply from: "$rootDir/gradle/aspectj.gradle"
-}
-
-configurations {
-    antlibs
-}
-
-dependencies {
-    antlibs "org.springframework.build:org.springframework.build.aws.ant:3.0.3.RELEASE",
-            "net.java.dev.jets3t:jets3t:0.6.1"
 }
 
 apply from: "$rootDir/gradle/dist.gradle"
@@ -81,6 +73,12 @@ ideaProject {
         node.component.find { it.@name == 'VcsDirectoryMappings' }.mapping.@vcs = 'Git'
     }
 }
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '0.9-rc-1'
+    jarPath = 'gradle/wrapper'
+}
+
 /*
 ideaWorkspace {
     withXml { node ->

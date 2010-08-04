@@ -24,7 +24,7 @@ task bundlor(dependsOn: compileJava) {
 
     doFirst {
         ant.taskdef(resource: 'com/springsource/bundlor/ant/antlib.xml', classpath: configurations.bundlor.asPath)
-        captureStandardOutput(LogLevel.INFO)
+        logging.captureStandardOutput(LogLevel.INFO)
 
         mkdir(bundlorDir)
 
