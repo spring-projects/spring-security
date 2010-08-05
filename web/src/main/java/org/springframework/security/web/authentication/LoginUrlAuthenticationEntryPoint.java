@@ -15,8 +15,6 @@
 
 package org.springframework.security.web.authentication;
 
-
-
 import java.io.IOException;
 
 import javax.servlet.RequestDispatcher;
@@ -43,17 +41,20 @@ import org.springframework.util.StringUtils;
 
 /**
  * Used by the {@link ExceptionTranslationFilter} to commence a form login
- * authentication via the {@link UsernamePasswordAuthenticationFilter}. This object
- * holds the location of the login form, relative to the web app context path,
- * and is used to commence a redirect to that form.
+ * authentication via the {@link UsernamePasswordAuthenticationFilter}.
  * <p>
- * By setting the <em>forceHttps</em> property to true, you may configure the
- * class to force the protocol used for the login form to be <code>HTTPS</code>,
+ * Holds the location of the login form in the {@code loginFormUrl} property, and
+ * uses that to build a redirect URL to the login page. Alternatively, an absolute URL
+ * can be set in this property and that will be used exclusively.
+ * <p>
+ * When using a relative URL, you can set the {@code forceHttps} property to true,
+ * to force the protocol used for the login form to be {@code HTTPS},
  * even if the original intercepted request for a resource used the
- * <code>HTTP</code> protocol. When this happens, after a successful login
+ * {@code HTTP} protocol. When this happens, after a successful login
  * (via HTTPS), the original resource will still be accessed as HTTP, via the
  * original request URL. For the forced HTTPS feature to work, the {@link
- * PortMapper} is consulted to determine the HTTP:HTTPS pairs.
+ * PortMapper} is consulted to determine the HTTP:HTTPS pairs. The value of
+ * {@code forceHttps} will have no effect if an absolute URL is used.
  *
  * @author Ben Alex
  * @author colin sampaleanu
@@ -85,6 +86,9 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
     public void afterPropertiesSet() throws Exception {
         Assert.isTrue(StringUtils.hasText(loginFormUrl) && UrlUtils.isValidRedirectUrl(loginFormUrl),
                 "loginFormUrl must be specified and must be a valid redirect URL");
+        if (useForward && UrlUtils.isAbsoluteUrl(loginFormUrl)) {
+            throw new IllegalArgumentException("useForward must be false if using an absolute loginFormURL");
+        }
         Assert.notNull(portMapper, "portMapper must be specified");
         Assert.notNull(portResolver, "portResolver must be specified");
     }
@@ -146,6 +150,11 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
             AuthenticationException authException) {
 
         String loginForm = determineUrlToUseForThisRequest(request, response, authException);
+
+        if (UrlUtils.isAbsoluteUrl(loginForm)) {
+            return loginForm;
+        }
+
         int serverPort = portResolver.getServerPort(request);
         String scheme = request.getScheme();
 
@@ -217,8 +226,8 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 
     /**
      * The URL where the <code>UsernamePasswordAuthenticationFilter</code> login
-     * page can be found. Should be relative to the web-app context path, and
-     * include a leading <code>/</code>
+     * page can be found. Should either be relative to the web-app context path
+     * (include a leading {@code /}) or an absolute URL.
      */
     public void setLoginFormUrl(String loginFormUrl) {
         this.loginFormUrl = loginFormUrl;
@@ -245,10 +254,11 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
     }
 
     /**
-     * Tells if we are to do a forward to the <code>loginFormUrl</code> using the <tt>RequestDispatcher</tt>,
+     * Tells if we are to do a forward to the {@code loginFormUrl} using the {@code RequestDispatcher},
      * instead of a 302 redirect.
      *
-     * @param useForward
+     * @param useForward true if a forward to the login page should be used. Must be false (the default) if
+     * {@code loginFormUrl} is set to an absolute value.
      */
     public void setUseForward(boolean useForward) {
         this.useForward = useForward;

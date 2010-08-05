@@ -15,18 +15,15 @@
 
 package org.springframework.security.web.authentication;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
-import org.springframework.security.MockPortResolver;
+import java.util.*;
 
-import org.springframework.security.web.PortMapperImpl;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-
+import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.security.MockPortResolver;
+import org.springframework.security.web.PortMapperImpl;
 
 
 /**
@@ -35,45 +32,36 @@ import java.util.Map;
  * @author Ben Alex
  * @author colin sampaleanu
  */
-public class LoginUrlAuthenticationEntryPointTests extends TestCase {
+public class LoginUrlAuthenticationEntryPointTests {
     //~ Methods ========================================================================================================
 
+    @Test(expected=IllegalArgumentException.class)
     public void testDetectsMissingLoginFormUrl() throws Exception {
         LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint();
         ep.setPortMapper(new PortMapperImpl());
         ep.setPortResolver(new MockPortResolver(80, 443));
-
-        try {
-            ep.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-        }
+        ep.afterPropertiesSet();
     }
 
+    @Test(expected=IllegalArgumentException.class)
     public void testDetectsMissingPortMapper() throws Exception {
         LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint();
         ep.setLoginFormUrl("xxx");
         ep.setPortMapper(null);
 
-        try {
-            ep.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-        }
+        ep.afterPropertiesSet();
     }
 
+    @Test(expected=IllegalArgumentException.class)
     public void testDetectsMissingPortResolver() throws Exception {
         LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint();
         ep.setLoginFormUrl("xxx");
         ep.setPortResolver(null);
 
-        try {
-            ep.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-        }
+        ep.afterPropertiesSet();
     }
 
+    @Test
     public void testGettersSetters() {
         LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint();
         ep.setLoginFormUrl("/hello");
@@ -87,8 +75,12 @@ public class LoginUrlAuthenticationEntryPointTests extends TestCase {
         assertFalse(ep.isForceHttps());
         ep.setForceHttps(true);
         assertTrue(ep.isForceHttps());
+        assertFalse(ep.isUseForward());
+        ep.setUseForward(true);
+        assertTrue(ep.isUseForward());
     }
 
+    @Test
     public void testHttpsOperationFromOriginalHttpUrl() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/some_path");
@@ -140,6 +132,7 @@ public class LoginUrlAuthenticationEntryPointTests extends TestCase {
         assertEquals("https://www.example.com:9999/bigWebApp/hello", response.getRedirectedUrl());
     }
 
+    @Test
     public void testHttpsOperationFromOriginalHttpsUrl() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/some_path");
@@ -168,6 +161,7 @@ public class LoginUrlAuthenticationEntryPointTests extends TestCase {
         assertEquals("https://www.example.com:8443/bigWebApp/hello", response.getRedirectedUrl());
     }
 
+    @Test
     public void testNormalOperation() throws Exception {
         LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint();
         ep.setLoginFormUrl("/hello");
@@ -189,6 +183,7 @@ public class LoginUrlAuthenticationEntryPointTests extends TestCase {
         assertEquals("http://www.example.com/bigWebApp/hello", response.getRedirectedUrl());
     }
 
+    @Test
     public void testOperationWhenHttpsRequestsButHttpsPortUnknown() throws Exception {
         LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint();
         ep.setLoginFormUrl("/hello");
@@ -212,6 +207,7 @@ public class LoginUrlAuthenticationEntryPointTests extends TestCase {
         assertEquals("http://www.example.com:8888/bigWebApp/hello", response.getRedirectedUrl());
     }
 
+    @Test
     public void testServerSideRedirectWithoutForceHttpsForwardsToLoginPage() throws Exception {
         LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint();
         ep.setLoginFormUrl("/hello");
@@ -232,6 +228,7 @@ public class LoginUrlAuthenticationEntryPointTests extends TestCase {
         assertEquals("/hello", response.getForwardedUrl());
     }
 
+    @Test
     public void testServerSideRedirectWithForceHttpsRedirectsCurrentRequest() throws Exception {
         LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint();
         ep.setLoginFormUrl("/hello");
@@ -253,4 +250,24 @@ public class LoginUrlAuthenticationEntryPointTests extends TestCase {
         assertEquals("https://www.example.com/bigWebApp/some_path", response.getRedirectedUrl());
     }
 
+    // SEC-1498
+    @Test
+    public void absoluteLoginFormUrlIsSupported() throws Exception {
+        LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint();
+        final String loginFormUrl = "http://somesite.com/login";
+        ep.setLoginFormUrl(loginFormUrl);
+        ep.afterPropertiesSet();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        ep.commence(new MockHttpServletRequest("GET", "/someUrl"), response, null);
+        assertEquals(loginFormUrl, response.getRedirectedUrl());
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void absoluteLoginFormUrlCantBeUsedWithForwarding() throws Exception {
+        LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint();
+        final String loginFormUrl = "http://somesite.com/login";
+        ep.setLoginFormUrl(loginFormUrl);
+        ep.setUseForward(true);
+        ep.afterPropertiesSet();
+    }
 }
