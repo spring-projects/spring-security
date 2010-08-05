@@ -47,10 +47,16 @@ dependencies {
 
 sourceSets.main.compileClasspath += configurations.compileOnly
 
+System.setProperty('apacheDSWorkDir', "${buildDir}/apacheDSWork")
+
 test {
-    onlyIf {
-        !project.hasProperty('skipTests')
-    }
-    jvmArgs = ['-ea', '-Xms128m', '-Xmx500m', '-XX:MaxPermSize=128m']
+    jvmArgs = ['-ea', '-Xmx500m']
+    maxParallelForks = guessMaxForks()
+    testReport = false
+}
+
+def guessMaxForks() {
+    int processors = Runtime.runtime.availableProcessors()
+    return Math.max(2, (int) (processors / 2))
 }
 

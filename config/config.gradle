@@ -16,12 +16,12 @@ dependencies {
 
     provided "javax.servlet:servlet-api:2.5"
 
-    groovy group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.2'
+    groovy group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.3'
 
     testCompile project(':spring-security-ldap'),
                 project(':spring-security-openid'),
                 'org.openid4java:openid4java-nodeps:0.9.5',
-                files(this.project(':spring-security-core').sourceSets.test.classesDir),
+                project(':spring-security-core').sourceSets.test.classes,
                 'javax.annotation:jsr250-api:1.0',
                 "org.springframework.ldap:spring-ldap-core:$springLdapVersion",
                 "org.springframework:spring-jdbc:$springVersion",
@@ -31,4 +31,18 @@ dependencies {
 
     testRuntime "hsqldb:hsqldb:$hsqlVersion",
                 "cglib:cglib-nodep:2.2"
+}
+
+task ldapTests(type: Test) {
+    include ("**/ldap/**")
+    maxParallelForks = 1
+   // GRADLE-1090
+    testClassesDir = sourceSets.test.classesDir
+    classpath = sourceSets.test.runtimeClasspath
+    testReport = false
+}
+
+test {
+    dependsOn ldapTests
+    exclude ("**/ldap/**")
 }

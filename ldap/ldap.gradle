@@ -1,6 +1,9 @@
 // Ldap build file
 
-test.exclude('**/OpenLDAPIntegrationTestSuite.class')
+test {
+    exclude('**/OpenLDAPIntegrationTestSuite.class')
+    maxParallelForks = 1
+}
 
 apacheds_libs = [
          "org.apache.directory.server:apacheds-core:$apacheDsVersion",

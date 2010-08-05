@@ -118,14 +118,6 @@ public class LdapProviderBeanDefinitionParserTests {
     }
 
     @Test
-    public void detectsNonStandardServerId() {
-        setContext("<ldap-server id='myServer'/> " +
-                "<authentication-manager>" +
-                "  <ldap-authentication-provider />" +
-                "</authentication-manager>");
-    }
-
-    @Test
     public void inetOrgContextMapperIsSupported() throws Exception {
         setContext(
                 "<ldap-server id='someServer' url='ldap://127.0.0.1:343/dc=springframework,dc=org'/>" +

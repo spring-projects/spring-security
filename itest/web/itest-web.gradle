@@ -27,4 +27,5 @@ test {
         jvmArgs = ["-ea", '-Xms128m', '-Xmx500m']
         systemProperties = ['webapp.dir': "$projectDir/src/main/webapp"]
     }
+    maxParallelForks = 1
 }

@@ -13,21 +13,24 @@ dependencies {
 task compileJava(overwrite: true, description: 'Compiles AspectJ Source', type: Ajc) {
     dependsOn processResources
     sourceSet = sourceSets.main
+    outputs.dir(sourceSet.classesDir)
     aspectPath = configurations.aspectpath
 }
 
 task compileTestJava(overwrite: true, description: 'Compiles AspectJ Test Source', type: Ajc) {
     dependsOn processTestResources, compileJava, jar
     sourceSet = sourceSets.test
+    outputs.dir(sourceSet.classesDir)
     aspectPath = files(configurations.aspectpath, jar.archivePath)
 }
 
 class Ajc extends DefaultTask {
-    @Input
     SourceSet sourceSet
-
-    @Input
     FileCollection aspectPath
+
+    Ajc() {
+        logging.captureStandardOutput(LogLevel.INFO)
+    }
 
     @TaskAction
     def compile() {
