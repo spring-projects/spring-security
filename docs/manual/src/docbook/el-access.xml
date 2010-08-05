@@ -157,14 +157,15 @@
                     if you wanted a particular method to only allow access to a user whose username
                     matched that of the contact, you could write</para>
                 <programlisting>
- @PreAuthorize("#contact.name == principal.name)")
+ @PreAuthorize("#contact.name == authentication.name")
  public void doSomething(Contact contact);</programlisting>
-                <para>Here we are accessing another built–in expression, which is the
-                    <literal>principal</literal> of the current Spring Security
-                    <interfacename>Authentication</interfacename> object obtained from the security
-                    context. You can also access the <interfacename>Authentication</interfacename>
-                    object itself directly using the expression name
-                    <literal>authentication</literal>.</para>
+                <para>Here we are accessing another built–in expression, <literal>authentication</literal>,
+                    which is the <interfacename>Authentication</interfacename> stored in the
+                    security context. You can also access its <quote>principal</quote> property
+                    directly, using the expression <literal>principal</literal>. The value will
+                    often be a <interfacename>UserDetails</interfacename> instance, so you might use an
+                    expression like <literal>principal.username</literal> or
+                    <literal>principal.enabled</literal>.</para>
                 <para>Less commonly, you may wish to perform an access-control check after the
                     method has been invoked. This can be achieved using the
                     <literal>@PostAuthorize</literal> annotation. To access the return value from a

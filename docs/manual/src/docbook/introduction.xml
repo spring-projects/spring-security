@@ -260,10 +260,10 @@
             </section>
             <section xml:id="spring-security-config">
                 <title>Config - <literal>spring-security-config.jar</literal></title>
-                <para>Contains the security namespace parsing code (and hence nothing that you are
-                    likely yo use directly in your application). You need it if you are using the
+                <para>Contains the security namespace parsing code. You need it if you are using the
                     Spring Security XML namespace for configuration. The main package is
-                    <literal>org.springframework.security.config</literal>.</para>
+                    <literal>org.springframework.security.config</literal>. None of the
+                    classes are intended for direct use in an application.</para>
             </section>
             <section xml:id="spring-security-ldap">
                 <title>LDAP - <literal>spring-security-ldap.jar</literal></title>
