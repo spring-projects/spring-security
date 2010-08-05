@@ -60,7 +60,6 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
     private Class<? extends SecurityContext> securityContextClass = null;
     /** SecurityContext instance used to check for equality with default (unauthenticated) content */
     private Object contextObject = SecurityContextHolder.createEmptyContext();
-    private boolean cloneFromHttpSession = false;
     private boolean allowSessionCreation = true;
     private boolean disableUrlRewriting = false;
 
@@ -72,9 +71,6 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
      * If the session is null, the context object is null or the context object stored in the session
      * is not an instance of <tt>SecurityContext</tt>, a new context object will be generated and
      * returned.
-     * <p>
-     * If <tt>cloneFromHttpSession</tt> is set to true, it will attempt to clone the context object first
-     * and return the cloned instance.
      */
     public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
         HttpServletRequest request = requestResponseHolder.getRequest();
@@ -157,11 +153,6 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
             return null;
         }
 
-        // Clone if required (see SEC-356)
-        if (cloneFromHttpSession) {
-            contextFromSession = cloneContext(contextFromSession);
-        }
-
         if (debug) {
             logger.debug("Obtained a valid SecurityContext from SPRING_SECURITY_CONTEXT: '" + contextFromSession + "'");
         }
@@ -169,28 +160,6 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
         // Everything OK. The only non-null return from this method.
 
         return (SecurityContext) contextFromSession;
-    }
-
-    /**
-     *
-     * @param context the object which was stored under the security context key in the HttpSession.
-     * @return the cloned SecurityContext object. Never null.
-     */
-    private Object cloneContext(Object context) {
-        Object clonedContext = null;
-        Assert.isInstanceOf(Cloneable.class, context,
-                "Context must implement Cloneable and provide a Object.clone() method");
-        try {
-            Method m = context.getClass().getMethod("clone", new Class[]{});
-            if (!m.isAccessible()) {
-                m.setAccessible(true);
-            }
-            clonedContext = m.invoke(context, new Object[]{});
-        } catch (Exception ex) {
-            ReflectionUtils.handleReflectionException(ex);
-        }
-
-        return clonedContext;
     }
 
     /**
