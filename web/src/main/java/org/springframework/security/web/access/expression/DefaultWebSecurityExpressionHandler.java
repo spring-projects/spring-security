@@ -24,8 +24,8 @@ import org.springframework.security.web.FilterInvocation;
  */
 public class DefaultWebSecurityExpressionHandler implements WebSecurityExpressionHandler, ApplicationContextAware {
 
-    private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
-    private ExpressionParser expressionParser = new SpelExpressionParser();
+    private final AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+    private final ExpressionParser expressionParser = new SpelExpressionParser();
     private final SecurityExpressionRootPropertyAccessor sxrpa = new SecurityExpressionRootPropertyAccessor();
     private RoleHierarchy roleHierarchy;
     private ApplicationContext applicationContext;

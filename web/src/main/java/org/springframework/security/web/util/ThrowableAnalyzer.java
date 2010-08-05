@@ -198,9 +198,7 @@ public class ThrowableAnalyzer {
      */
     public final Throwable getFirstThrowableOfType(Class<? extends Throwable> throwableType, Throwable[] chain) {
         if (chain != null) {
-            for (int i = 0; i < chain.length; ++i) {
-                Throwable t = chain[i];
-
+            for (Throwable t : chain) {
                 if ((t != null) && throwableType.isInstance(t)) {
                     return t;
                 }
@@ -223,7 +221,7 @@ public class ThrowableAnalyzer {
      * @throws IllegalArgumentException if <code>throwable</code> is either <code>null</code>
      * or its type is not assignable to <code>expectedBaseType</code>
      */
-    public static final void verifyThrowableHierarchy(Throwable throwable, Class<? extends Throwable> expectedBaseType) {
+    public static void verifyThrowableHierarchy(Throwable throwable, Class<? extends Throwable> expectedBaseType) {
         if (expectedBaseType == null) {
             return;
         }

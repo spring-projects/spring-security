@@ -11,7 +11,7 @@ import bigbank.BankService;
 
 public class ListAccounts implements Controller {
 
-    private BankService bankService;
+    private final BankService bankService;
 
     public ListAccounts(BankService bankService) {
         Assert.notNull(bankService);

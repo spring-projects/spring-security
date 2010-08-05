@@ -102,13 +102,13 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      */
     private GrantedAuthority defaultRole;
 
-    private SpringSecurityLdapTemplate ldapTemplate;
+    private final SpringSecurityLdapTemplate ldapTemplate;
 
     /**
      * Controls used to determine whether group searches should be performed over the full sub-tree from the
      * base DN. Modified by searchSubTree property
      */
-    private SearchControls searchControls = new SearchControls();
+    private final SearchControls searchControls = new SearchControls();
 
     /**
      * The ID of the attribute which contains the role name for a group

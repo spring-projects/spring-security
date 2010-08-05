@@ -91,7 +91,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
     /**
      * Indicate that this provider only supports PreAuthenticatedAuthenticationToken (sub)classes.
      */
-    public final boolean supports(Class<? extends Object> authentication) {
+    public final boolean supports(Class<?> authentication) {
         return PreAuthenticatedAuthenticationToken.class.isAssignableFrom(authentication);
     }
 

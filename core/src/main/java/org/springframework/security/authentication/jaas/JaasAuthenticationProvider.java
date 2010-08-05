@@ -191,8 +191,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
             Set<Principal> principals = loginContext.getSubject().getPrincipals();
 
             for (Principal principal : principals) {
-                for (int i = 0; i < authorityGranters.length; i++) {
-                    AuthorityGranter granter = authorityGranters[i];
+                for (AuthorityGranter granter : authorityGranters) {
                     Set<String> roles = granter.grant(principal);
 
                     // If the granter doesn't wish to grant any authorities, it should return null.
@@ -249,7 +248,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
 
         int n = 1;
         final String prefix = "login.config.url.";
-        String existing = null;
+        String existing;
 
         while ((existing = Security.getProperty(prefix + n)) != null) {
             alreadySet = existing.equals(loginConfigUrl);
@@ -270,7 +269,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
 
     private String convertLoginConfigToUrl() throws IOException {
         String loginConfigPath = loginConfig.getFile().getAbsolutePath();
-        loginConfigPath.replace(File.separatorChar, '/');
+        loginConfigPath = loginConfigPath.replace(File.separatorChar, '/');
 
         if (!loginConfigPath.startsWith("/")) {
             loginConfigPath = "/" + loginConfigPath;
@@ -436,7 +435,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
         this.refreshConfigurationOnStartup = refresh;
     }
 
-    public boolean supports(Class<? extends Object> aClass) {
+    public boolean supports(Class<?> aClass) {
         return UsernamePasswordAuthenticationToken.class.isAssignableFrom(aClass);
     }
 
@@ -454,19 +453,15 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
      * Wrapper class for JAASAuthenticationCallbackHandlers
      */
     private class InternalCallbackHandler implements CallbackHandler {
-        private Authentication authentication;
+        private final Authentication authentication;
 
         public InternalCallbackHandler(Authentication authentication) {
             this.authentication = authentication;
         }
 
         public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-            for (int i = 0; i < callbackHandlers.length; i++) {
-                JaasAuthenticationCallbackHandler handler = callbackHandlers[i];
-
-                for (int j = 0; j < callbacks.length; j++) {
-                    Callback callback = callbacks[j];
-
+            for (JaasAuthenticationCallbackHandler handler : callbackHandlers) {
+                for (Callback callback : callbacks) {
                     handler.handle(callback, authentication);
                 }
             }

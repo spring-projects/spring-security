@@ -29,7 +29,7 @@ import org.springframework.util.StringUtils;
 public class SecurityConfig implements ConfigAttribute {
     //~ Instance fields ================================================================================================
 
-    private String attrib;
+    private final String attrib;
 
     //~ Constructors ===================================================================================================
 
@@ -62,15 +62,15 @@ public class SecurityConfig implements ConfigAttribute {
         return this.attrib;
     }
 
-    public final static List<ConfigAttribute> createListFromCommaDelimitedString(String access) {
+    public static List<ConfigAttribute> createListFromCommaDelimitedString(String access) {
         return createList(StringUtils.commaDelimitedListToStringArray(access));
     }
 
-    public final static List<ConfigAttribute> createSingleAttributeList(String access) {
+    public static List<ConfigAttribute> createSingleAttributeList(String access) {
         return createList(access);
     }
 
-    public final static List<ConfigAttribute> createList(String... attributeNames) {
+    public static List<ConfigAttribute> createList(String... attributeNames) {
         Assert.notNull(attributeNames, "You must supply an array of attribute names");
         List<ConfigAttribute> attributes = new ArrayList<ConfigAttribute>(attributeNames.length);
 

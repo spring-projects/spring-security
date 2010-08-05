@@ -66,7 +66,7 @@ public class ReflectionSaltSource implements SaltSource, InitializingBean {
         Method saltMethod = findSaltMethod(user);
 
         try {
-            return saltMethod.invoke(user, new Object[] {});
+            return saltMethod.invoke(user);
         } catch (Exception exception) {
             throw new AuthenticationServiceException(exception.getMessage(), exception);
         }

@@ -63,7 +63,7 @@ public class ClientApplication {
 
                 Method method = object.getClass().getMethod("setUsername", new Class[] {String.class});
                 System.out.println("Found; Trying to setUsername(String) to " + authentication.getPrincipal());
-                method.invoke(object, new Object[] {authentication.getPrincipal()});
+                method.invoke(object, authentication.getPrincipal());
             } catch (NoSuchMethodException ignored) {
                 System.out.println("This client proxy factory does not have a setUsername(String) method");
             } catch (IllegalAccessException ignored) {
@@ -76,7 +76,7 @@ public class ClientApplication {
                 System.out.println("Trying to find setPassword(String) method on: " + object.getClass().getName());
 
                 Method method = object.getClass().getMethod("setPassword", new Class[] {String.class});
-                method.invoke(object, new Object[] {authentication.getCredentials()});
+                method.invoke(object, authentication.getCredentials());
                 System.out.println("Found; Trying to setPassword(String) to " + authentication.getCredentials());
             } catch (NoSuchMethodException ignored) {
                 System.out.println("This client proxy factory does not have a setPassword(String) method");

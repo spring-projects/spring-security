@@ -110,7 +110,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 
     //~ Instance fields ================================================================================================
 
-    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+    protected final MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
     private String authoritiesByUsernameQuery;
     private String groupAuthoritiesByUsernameQuery;
@@ -205,9 +205,8 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
         return getJdbcTemplate().query(authoritiesByUsernameQuery, new String[] {username}, new RowMapper<GrantedAuthority>() {
             public GrantedAuthority mapRow(ResultSet rs, int rowNum) throws SQLException {
                 String roleName = rolePrefix + rs.getString(2);
-                GrantedAuthorityImpl authority = new GrantedAuthorityImpl(roleName);
 
-                return authority;
+                return new GrantedAuthorityImpl(roleName);
             }
         });
     }
@@ -221,9 +220,8 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
         return getJdbcTemplate().query(groupAuthoritiesByUsernameQuery, new String[] {username}, new RowMapper<GrantedAuthority>() {
             public GrantedAuthority mapRow(ResultSet rs, int rowNum) throws SQLException {
                  String roleName = getRolePrefix() + rs.getString(3);
-                 GrantedAuthorityImpl authority = new GrantedAuthorityImpl(roleName);
 
-                 return authority;
+                return new GrantedAuthorityImpl(roleName);
             }
         });
     }

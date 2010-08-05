@@ -54,8 +54,8 @@ public class MethodSecurityMetadataSourceAdvisor extends AbstractPointcutAdvisor
     private transient MethodSecurityInterceptor interceptor;
     private final Pointcut pointcut = new MethodSecurityMetadataSourcePointcut();
     private BeanFactory beanFactory;
-    private String adviceBeanName;
-    private String metadataSourceBeanName;
+    private final String adviceBeanName;
+    private final String metadataSourceBeanName;
     private transient volatile Object adviceMonitor = new Object();
 
     //~ Constructors ===================================================================================================

@@ -72,8 +72,8 @@ final class AuthenticationConfigBuilder {
 
     private static final String ATT_USER_SERVICE_REF = "user-service-ref";
 
-    private Element httpElt;
-    private ParserContext pc;
+    private final Element httpElt;
+    private final ParserContext pc;
 
     private final boolean autoConfig;
     private final boolean allowSessionCreation;
@@ -90,21 +90,18 @@ final class AuthenticationConfigBuilder {
     private RootBeanDefinition openIDFilter;
     private BeanDefinition openIDEntryPoint;
     private BeanReference openIDProviderRef;
-    private String openIDProviderId;
     private String formFilterId = null;
     private String openIDFilterId = null;
     private BeanDefinition x509Filter;
     private BeanReference x509ProviderRef;
-    private String x509ProviderId;
     private BeanDefinition jeeFilter;
     private BeanReference jeeProviderRef;
     private RootBeanDefinition preAuthEntryPoint;
-    private String jeeProviderId;
 
     private BeanDefinition logoutFilter;
     private BeanDefinition loginPageGenerationFilter;
     private BeanDefinition etf;
-    private BeanReference requestCache;
+    private final BeanReference requestCache;
 
     final SecureRandom random;
 
@@ -282,8 +279,7 @@ final class AuthenticationConfigBuilder {
         openIDProviderBuilder.addPropertyValue("authenticationUserDetailsService", uds);
 
         BeanDefinition openIDProvider = openIDProviderBuilder.getBeanDefinition();
-        openIDProviderId = pc.getReaderContext().registerWithGeneratedName(openIDProvider);
-        openIDProviderRef = new RuntimeBeanReference(openIDProviderId);
+        openIDProviderRef = new RuntimeBeanReference(pc.getReaderContext().registerWithGeneratedName(openIDProvider));
     }
 
     private void injectRememberMeServicesRef(RootBeanDefinition bean, String rememberMeServicesId) {
@@ -363,8 +359,7 @@ final class AuthenticationConfigBuilder {
 
         provider.getPropertyValues().addPropertyValue("preAuthenticatedUserDetailsService", uds);
 
-        x509ProviderId = pc.getReaderContext().registerWithGeneratedName(provider);
-        x509ProviderRef = new RuntimeBeanReference(x509ProviderId);
+        x509ProviderRef = new RuntimeBeanReference(pc.getReaderContext().registerWithGeneratedName(provider));
     }
 
     private void createPrauthEntryPoint(Element source) {
@@ -424,8 +419,7 @@ final class AuthenticationConfigBuilder {
 
         provider.getPropertyValues().addPropertyValue("preAuthenticatedUserDetailsService", uds);
 
-        jeeProviderId = pc.getReaderContext().registerWithGeneratedName(provider);
-        jeeProviderRef = new RuntimeBeanReference(jeeProviderId);
+        jeeProviderRef = new RuntimeBeanReference(pc.getReaderContext().registerWithGeneratedName(provider));
     }
 
     void createLoginPageFilterIfNeeded() {

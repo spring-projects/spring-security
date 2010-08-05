@@ -25,7 +25,6 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  *
  * @see java.lang.ThreadLocal
- * @see org.springframework.security.core.context.web.SecurityContextPersistenceFilter
  */
 final class InheritableThreadLocalSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
     //~ Static fields/initializers =====================================================================================

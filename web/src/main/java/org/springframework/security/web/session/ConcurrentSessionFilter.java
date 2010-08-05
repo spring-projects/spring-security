@@ -116,8 +116,8 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
     private void doLogout(HttpServletRequest request, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        for (int i = 0; i < handlers.length; i++) {
-            handlers[i].logout(request, response, auth);
+        for (LogoutHandler handler : handlers) {
+            handler.logout(request, response, auth);
         }
     }
 

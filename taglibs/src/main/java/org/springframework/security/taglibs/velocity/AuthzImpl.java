@@ -77,7 +77,7 @@ public class AuthzImpl implements Authz {
     private boolean ifGranted(String roles, int grantType) {
         LegacyAuthorizeTag authorizeTag = new LegacyAuthorizeTag();
 
-        int result = -1;
+        int result;
 
         try {
             switch (grantType) {
@@ -105,11 +105,7 @@ public class AuthzImpl implements Authz {
             throw new IllegalArgumentException(je.getMessage());
         }
 
-        if (Tag.EVAL_BODY_INCLUDE == result) {
-            return true;
-        } else {
-            return false;
-        }
+        return Tag.EVAL_BODY_INCLUDE == result;
     }
 
     public boolean noneGranted(String roles) {

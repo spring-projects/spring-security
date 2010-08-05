@@ -22,7 +22,7 @@ import org.springframework.security.openid.OpenIDAuthenticationToken;
  */
 public class CustomUserDetailsService implements UserDetailsService, AuthenticationUserDetailsService<OpenIDAuthenticationToken> {
 
-    private Map<String, CustomUserDetails> registeredUsers = new HashMap<String, CustomUserDetails>();
+    private final Map<String, CustomUserDetails> registeredUsers = new HashMap<String, CustomUserDetails>();
 
     private static final List<GrantedAuthority> DEFAULT_AUTHORITIES = AuthorityUtils.createAuthorityList("ROLE_USER");
 

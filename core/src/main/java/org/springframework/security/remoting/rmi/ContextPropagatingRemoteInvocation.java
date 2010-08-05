@@ -49,7 +49,7 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
 
     //~ Instance fields ================================================================================================
 
-    private SecurityContext securityContext;
+    private final SecurityContext securityContext;
 
     //~ Constructors ===================================================================================================
 

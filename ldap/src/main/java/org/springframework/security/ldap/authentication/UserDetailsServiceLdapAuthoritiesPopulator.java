@@ -17,7 +17,7 @@ import org.springframework.util.Assert;
  * @since 2.0
  */
 public class UserDetailsServiceLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator {
-    private UserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
 
     public UserDetailsServiceLdapAuthoritiesPopulator(UserDetailsService userService) {
         Assert.notNull(userService, "userDetailsService cannot be null");

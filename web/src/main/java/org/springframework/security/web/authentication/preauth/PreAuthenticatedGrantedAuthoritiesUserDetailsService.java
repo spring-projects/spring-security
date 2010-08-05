@@ -42,8 +42,7 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsService
         Assert.notNull(token.getDetails());
         Assert.isInstanceOf(GrantedAuthoritiesContainer.class, token.getDetails());
         List<GrantedAuthority> authorities = ((GrantedAuthoritiesContainer) token.getDetails()).getGrantedAuthorities();
-        UserDetails ud = createuserDetails(token, authorities);
-        return ud;
+        return createuserDetails(token, authorities);
     }
 
     /**

@@ -191,7 +191,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
      * @throws CredentialsExpiredException If the target user credentials are expired.
      */
     protected Authentication attemptSwitchUser(HttpServletRequest request) throws AuthenticationException {
-        UsernamePasswordAuthenticationToken targetUserRequest = null;
+        UsernamePasswordAuthenticationToken targetUserRequest;
 
         String username = request.getParameter(SPRING_SECURITY_SWITCH_USERNAME_KEY);
 

@@ -128,7 +128,7 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
             return null;
         }
 
-        public boolean supports(Class<? extends Object> authentication) {
+        public boolean supports(Class<?> authentication) {
             return false;
         }
     }

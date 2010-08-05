@@ -42,7 +42,7 @@ public class MethodSecurityInterceptor extends AbstractSecurityInterceptor imple
 
     //~ Methods ========================================================================================================
 
-    public Class<? extends Object> getSecureObjectClass() {
+    public Class<?> getSecureObjectClass() {
         return MethodInvocation.class;
     }
 

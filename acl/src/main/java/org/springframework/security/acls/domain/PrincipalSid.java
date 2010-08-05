@@ -32,7 +32,7 @@ import org.springframework.util.Assert;
 public class PrincipalSid implements Sid {
     //~ Instance fields ================================================================================================
 
-    private String principal;
+    private final String principal;
 
     //~ Constructors ===================================================================================================
 

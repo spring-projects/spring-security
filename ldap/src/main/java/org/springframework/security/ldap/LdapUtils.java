@@ -164,7 +164,7 @@ public final class LdapUtils {
     public static String parseRootDnFromUrl(String url) {
         Assert.hasLength(url);
 
-        String urlRootDn = "";
+        String urlRootDn;
 
         if (url.startsWith("ldap:") || url.startsWith("ldaps:")) {
             URI uri = parseLdapUrl(url);

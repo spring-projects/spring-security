@@ -73,7 +73,7 @@ public class AnonymousAuthenticationProvider implements AuthenticationProvider, 
         this.messages = new MessageSourceAccessor(messageSource);
     }
 
-    public boolean supports(Class<? extends Object> authentication) {
+    public boolean supports(Class<?> authentication) {
         return (AnonymousAuthenticationToken.class.isAssignableFrom(authentication));
     }
 }

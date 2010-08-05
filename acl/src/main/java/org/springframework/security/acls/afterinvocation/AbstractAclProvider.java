@@ -43,12 +43,12 @@ import org.springframework.util.Assert;
 public abstract class AbstractAclProvider implements AfterInvocationProvider {
     //~ Instance fields ================================================================================================
 
-    protected AclService aclService;
+    protected final AclService aclService;
     protected Class<?> processDomainObjectClass = Object.class;
     protected ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy = new ObjectIdentityRetrievalStrategyImpl();
     protected SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
     protected String processConfigAttribute;
-    protected List<Permission> requirePermission = Arrays.asList(BasePermission.READ);
+    protected final List<Permission> requirePermission;
 
     //~ Constructors ===================================================================================================
 
@@ -78,11 +78,9 @@ public abstract class AbstractAclProvider implements AfterInvocationProvider {
         // Obtain the SIDs applicable to the principal
         List<Sid> sids = sidRetrievalStrategy.getSids(authentication);
 
-        Acl acl = null;
-
         try {
             // Lookup only ACLs for SIDs we're interested in
-            acl = aclService.readAclById(objectIdentity, sids);
+            Acl acl = aclService.readAclById(objectIdentity, sids);
 
             return acl.isGranted(requirePermission, sids, false);
         } catch (NotFoundException ignore) {

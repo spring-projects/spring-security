@@ -10,7 +10,7 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 public class AccountStatusUserDetailsChecker implements UserDetailsChecker {
 
-    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+    protected final MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
     public void check(UserDetails user) {
         if (!user.isAccountNonLocked()) {

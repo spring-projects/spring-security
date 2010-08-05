@@ -37,12 +37,9 @@ class CollectionFilterer<T> implements Filterer<T> {
 
     //~ Instance fields ================================================================================================
 
-    private Collection<T> collection;
+    private final Collection<T> collection;
 
-    // collectionIter offers significant performance optimisations (as
-    // per security-developer mailing list conversation 19/5/05)
-    private Iterator<T> collectionIter;
-    private Set<T> removeList;
+    private final Set<T> removeList;
 
     //~ Constructors ===================================================================================================
 
@@ -88,9 +85,7 @@ class CollectionFilterer<T> implements Filterer<T> {
      * @see org.springframework.security.acls.afterinvocation.Filterer#iterator()
      */
     public Iterator<T> iterator() {
-        collectionIter = collection.iterator();
-
-        return collectionIter;
+        return collection.iterator();
     }
 
     /**

@@ -134,9 +134,7 @@ public class ContactManagerBackend extends ApplicationObjectSupport implements C
     public List<String> getAllRecipients() {
         logger.debug("Returning all recipients");
 
-        List<String> list = contactDao.findAllPrincipals();
-
-        return list;
+        return contactDao.findAllPrincipals();
     }
 
     @Transactional(readOnly=true)

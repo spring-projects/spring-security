@@ -49,8 +49,8 @@ public class UserMapEditor extends PropertyEditorSupport {
         // Now we have properties, process each one individually
         UserAttributeEditor configAttribEd = new UserAttributeEditor();
 
-        for (Iterator<?> iter = props.keySet().iterator(); iter.hasNext();) {
-            String username = (String) iter.next();
+        for (Object o : props.keySet()) {
+            String username = (String) o;
             String value = props.getProperty(username);
 
             // Convert value to a password, enabled setting, and list of granted authorities

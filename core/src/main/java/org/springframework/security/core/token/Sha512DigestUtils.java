@@ -17,29 +17,19 @@ import org.springframework.security.core.codec.Hex;
  *
  */
 public abstract class Sha512DigestUtils  {
-    /**
-     * Returns a MessageDigest for the given <code>algorithm</code>.
-     *
-     * @param algorithm The MessageDigest algorithm name.
-     * @return An MD5 digest instance.
-     * @throws RuntimeException when a {@link java.security.NoSuchAlgorithmException} is caught,
-     */
-    static MessageDigest getDigest(String algorithm) {
-        try {
-            return MessageDigest.getInstance(algorithm);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-    }
 
     /**
      * Returns an SHA digest.
      *
      * @return An SHA digest instance.
-     * @throws RuntimeException when a {@link java.security.NoSuchAlgorithmException} is caught,
+     * @throws RuntimeException when a {@link java.security.NoSuchAlgorithmException} is caught.
      */
     private static MessageDigest getSha512Digest() {
-        return getDigest("SHA-512");
+        try {
+            return MessageDigest.getInstance("SHA-512");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     /**

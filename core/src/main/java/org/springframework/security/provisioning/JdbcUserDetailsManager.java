@@ -180,12 +180,12 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         if (getEnableAuthorities()) {
             deleteUserAuthorities(username);
         }
-        getJdbcTemplate().update(deleteUserSql, new Object[] {username});
+        getJdbcTemplate().update(deleteUserSql, username);
         userCache.removeUserFromCache(username);
     }
 
     private void deleteUserAuthorities(String username) {
-        getJdbcTemplate().update(deleteUserAuthoritiesSql, new Object[] {username});
+        getJdbcTemplate().update(deleteUserAuthoritiesSql, username);
     }
 
     public void changePassword(String oldPassword, String newPassword) throws AuthenticationException {
@@ -255,12 +255,12 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         logger.debug("Creating new group '" + groupName + "' with authorities " +
                 AuthorityUtils.authorityListToSet(authorities));
 
-        getJdbcTemplate().update(insertGroupSql, new Object[] {groupName});
+        getJdbcTemplate().update(insertGroupSql, groupName);
 
         final int groupId = findGroupId(groupName);
 
-        for (int i=0; i < authorities.size(); i++) {
-            final String authority = authorities.get(i).getAuthority();
+        for (GrantedAuthority a : authorities) {
+            final String authority = a.getAuthority();
             getJdbcTemplate().update(insertGroupAuthoritySql, new PreparedStatementSetter() {
                 public void setValues(PreparedStatement ps) throws SQLException {
                     ps.setInt(1, groupId);
@@ -290,7 +290,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         Assert.hasText(oldName);
         Assert.hasText(newName);
 
-        getJdbcTemplate().update(renameGroupSql, new Object[] {newName, oldName});
+        getJdbcTemplate().update(renameGroupSql, newName, oldName);
     }
 
     public void addUserToGroup(final String username, final String groupName) {
@@ -330,16 +330,13 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         logger.debug("Loading authorities for group '" + groupName + "'");
         Assert.hasText(groupName);
 
-        List<GrantedAuthority> authorities = getJdbcTemplate().query(groupAuthoritiesSql, new String[] {groupName}, new RowMapper<GrantedAuthority>() {
+        return getJdbcTemplate().query(groupAuthoritiesSql, new String[] {groupName}, new RowMapper<GrantedAuthority>() {
             public GrantedAuthority mapRow(ResultSet rs, int rowNum) throws SQLException {
                  String roleName = getRolePrefix() + rs.getString(3);
-                 GrantedAuthorityImpl authority = new GrantedAuthorityImpl(roleName);
 
-                 return authority;
+                return new GrantedAuthorityImpl(roleName);
             }
         });
-
-        return authorities;
     }
 
     public void removeGroupAuthority(String groupName, final GrantedAuthority authority) {
@@ -373,7 +370,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
     }
 
     private int findGroupId(String group) {
-        return getJdbcTemplate().queryForInt(findGroupIdSql, new Object[] {group});
+        return getJdbcTemplate().queryForInt(findGroupIdSql, group);
     }
 
     public void setAuthenticationManager(AuthenticationManager authenticationManager) {

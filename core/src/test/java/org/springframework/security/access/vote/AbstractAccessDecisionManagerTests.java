@@ -40,8 +40,7 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
 
     //~ Methods ========================================================================================================
 
-    public void testAllowIfAccessDecisionManagerDefaults()
-        throws Exception {
+    public void testAllowIfAccessDecisionManagerDefaults() {
         MockDecisionManagerImpl mock = new MockDecisionManagerImpl();
         assertTrue(!mock.isAllowIfAllAbstainDecisions()); // default
         mock.setAllowIfAllAbstainDecisions(true);
@@ -55,8 +54,8 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
         list.add(new MockStringOnlyVoter());
         mock.setDecisionVoters(list);
 
-        assertTrue(mock.supports(new String().getClass()));
-        assertTrue(!mock.supports(new Integer(7).getClass()));
+        assertTrue(mock.supports(String.class));
+        assertTrue(!mock.supports(Integer.class));
     }
 
     public void testDelegatesSupportsRequests() throws Exception {
@@ -98,8 +97,7 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
         }
     }
 
-    public void testRejectsListContainingInvalidObjectTypes()
-        throws Exception {
+    public void testRejectsListContainingInvalidObjectTypes() {
         MockDecisionManagerImpl mock = new MockDecisionManagerImpl();
         List list = new Vector();
         DenyVoter voter = new DenyVoter();
@@ -148,19 +146,13 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
     //~ Inner Classes ==================================================================================================
 
     private class MockDecisionManagerImpl extends AbstractAccessDecisionManager {
-        public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes)
-            throws AccessDeniedException {
-            return;
+        public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes) {
         }
     }
 
     private class MockStringOnlyVoter implements AccessDecisionVoter {
         public boolean supports(Class<?> clazz) {
-            if (String.class.isAssignableFrom(clazz)) {
-                return true;
-            } else {
-                return false;
-            }
+            return String.class.isAssignableFrom(clazz);
         }
 
         public boolean supports(ConfigAttribute attribute) {

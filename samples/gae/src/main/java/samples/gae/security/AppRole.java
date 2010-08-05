@@ -10,7 +10,7 @@ public enum AppRole implements GrantedAuthority {
     NEW_USER (1),
     USER (2);
 
-    private int bit;
+    private final int bit;
 
     /**
      * Creates an authority with a specific bit representation. It's important that this doesn't

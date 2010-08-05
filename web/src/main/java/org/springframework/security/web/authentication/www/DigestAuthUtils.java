@@ -17,9 +17,8 @@ final class DigestAuthUtils {
 
     static String encodePasswordInA1Format(String username, String realm, String password) {
         String a1 = username + ":" + realm + ":" + password;
-        String a1Md5 = md5Hex(a1);
 
-        return a1Md5;
+        return md5Hex(a1);
     }
 
     static String[] splitIgnoringQuotes(String str, char separatorChar) {
@@ -91,7 +90,7 @@ final class DigestAuthUtils {
     static String generateDigest(boolean passwordAlreadyEncoded, String username, String realm, String password,
                                         String httpMethod, String uri, String qop, String nonce, String nc, String cnonce)
             throws IllegalArgumentException {
-        String a1Md5 = null;
+        String a1Md5;
         String a2 = httpMethod + ":" + uri;
         String a2Md5 = md5Hex(a2);
 
@@ -113,9 +112,7 @@ final class DigestAuthUtils {
             throw new IllegalArgumentException("This method does not support a qop: '" + qop + "'");
         }
 
-        String digestMd5 = new String(md5Hex(digest));
-
-        return digestMd5;
+        return md5Hex(digest);
     }
 
     /**
@@ -138,13 +135,13 @@ final class DigestAuthUtils {
 
         Map<String, String> map = new HashMap<String, String>();
 
-        for (int i = 0; i < array.length; i++) {
+        for (String s : array) {
             String postRemove;
 
             if (removeCharacters == null) {
-                postRemove = array[i];
+                postRemove = s;
             } else {
-                postRemove = StringUtils.replace(array[i], removeCharacters, "");
+                postRemove = StringUtils.replace(s, removeCharacters, "");
             }
 
             String[] splitThisArrayElement = split(postRemove, delimiter);

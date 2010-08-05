@@ -13,7 +13,7 @@ import org.springframework.util.Assert;
  */
 public class CachingUserDetailsService implements UserDetailsService {
     private UserCache userCache = new NullUserCache();
-    private UserDetailsService delegate;
+    private final UserDetailsService delegate;
 
     CachingUserDetailsService(UserDetailsService delegate) {
         this.delegate = delegate;

@@ -33,8 +33,8 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
     //~ Instance fields ================================================================================================
 
     private static final long serialVersionUID = 1L;
-    private Object credentials;
-    private Object principal;
+    private final Object credentials;
+    private final Object principal;
 
     //~ Constructors ===================================================================================================
 

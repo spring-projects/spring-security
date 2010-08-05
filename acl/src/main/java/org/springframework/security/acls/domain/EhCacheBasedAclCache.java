@@ -40,7 +40,7 @@ import org.springframework.util.Assert;
 public class EhCacheBasedAclCache implements AclCache {
     //~ Instance fields ================================================================================================
 
-    private Ehcache cache;
+    private final Ehcache cache;
     private PermissionGrantingStrategy permissionGrantingStrategy;
     private AclAuthorizationStrategy aclAuthorizationStrategy;
 

@@ -20,7 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 public class AddDeleteContactController {
     @Autowired
     private ContactManager contactManager;
-    private Validator validator = new WebContactValidator();
+    private final Validator validator = new WebContactValidator();
 
     /**
      * Displays the "add contact" form.

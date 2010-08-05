@@ -95,11 +95,7 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
     }
 
     public boolean supports(ConfigAttribute attribute) {
-        Iterator<AccessDecisionVoter> iter = this.decisionVoters.iterator();
-
-        while (iter.hasNext()) {
-            AccessDecisionVoter voter = iter.next();
-
+        for (AccessDecisionVoter voter : this.decisionVoters) {
             if (voter.supports(attribute)) {
                 return true;
             }
@@ -118,11 +114,7 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
      * @return true if this type is supported
      */
     public boolean supports(Class<?> clazz) {
-        Iterator<AccessDecisionVoter> iter = this.decisionVoters.iterator();
-
-        while (iter.hasNext()) {
-            AccessDecisionVoter voter = iter.next();
-
+        for (AccessDecisionVoter voter : this.decisionVoters) {
             if (!voter.supports(clazz)) {
                 return false;
             }

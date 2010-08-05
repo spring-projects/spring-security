@@ -79,7 +79,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 
     private boolean useForward = false;
 
-    private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+    private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
     //~ Methods ========================================================================================================
 

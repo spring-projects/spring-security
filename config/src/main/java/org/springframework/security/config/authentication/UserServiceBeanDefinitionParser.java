@@ -65,8 +65,8 @@ public class UserServiceBeanDefinitionParser extends AbstractUserDetailsServiceB
 
         ManagedList<BeanDefinition> users = new ManagedList<BeanDefinition>();
 
-        for (Iterator i = userElts.iterator(); i.hasNext();) {
-            Element userElt = (Element) i.next();
+        for (Object elt : userElts) {
+            Element userElt = (Element) elt;
             String userName = userElt.getAttribute(ATT_NAME);
             String password = userElt.getAttribute(ATT_PASSWORD);
 

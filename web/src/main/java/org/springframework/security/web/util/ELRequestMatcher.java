@@ -39,7 +39,7 @@ import org.springframework.security.web.authentication.DelegatingAuthenticationE
  */
 public class ELRequestMatcher implements RequestMatcher {
 
-    private Expression expression;
+    private final Expression expression;
 
     public ELRequestMatcher(String el) {
         SpelExpressionParser parser = new SpelExpressionParser();

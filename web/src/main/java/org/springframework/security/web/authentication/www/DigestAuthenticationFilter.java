@@ -291,15 +291,15 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
     }
 
     private class DigestData {
-        private String username;
-        private String realm;
-        private String nonce;
-        private String uri;
-        private String response;
-        private String qop;
-        private String nc;
-        private String cnonce;
-        private String section212response;
+        private final String username;
+        private final String realm;
+        private final String nonce;
+        private final String uri;
+        private final String response;
+        private final String qop;
+        private final String nc;
+        private final String cnonce;
+        private final String section212response;
         private long nonceExpiryTime;
 
         DigestData(String header) {

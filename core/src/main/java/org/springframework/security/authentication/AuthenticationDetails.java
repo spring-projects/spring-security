@@ -11,7 +11,7 @@ import java.io.Serializable;
 public class AuthenticationDetails implements Serializable {
    //~ Instance fields ================================================================================================
 
-   private String context;
+   private final String context;
 
    //~ Constructors ===================================================================================================
 

@@ -53,7 +53,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 
     private AuthenticationUserDetailsService<CasAssertionAuthenticationToken> authenticationUserDetailsService;
 
-    private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
+    private final UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private StatelessTicketCache statelessTicketCache = new NullStatelessTicketCache();
     private String key;
@@ -194,7 +194,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
         this.ticketValidator = ticketValidator;
     }
 
-    public boolean supports(final Class<? extends Object> authentication) {
+    public boolean supports(final Class<?> authentication) {
         return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication)) ||
            (CasAuthenticationToken.class.isAssignableFrom(authentication)) ||
            (CasAssertionAuthenticationToken.class.isAssignableFrom(authentication));

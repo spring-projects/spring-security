@@ -54,7 +54,7 @@ public class WebSphere2SpringSecurityPropagationInterceptor implements MethodInt
      * using the pre-authenticated authentication provider.
      * @param aContext The context to use for building the authentication details.
      */
-    private final void authenticateSpringSecurityWithWASCredentials(Object aContext) {
+    private void authenticateSpringSecurityWithWASCredentials(Object aContext) {
         Assert.notNull(authenticationManager);
         Assert.notNull(authenticationDetailsSource);
 

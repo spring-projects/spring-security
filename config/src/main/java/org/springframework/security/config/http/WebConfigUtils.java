@@ -15,8 +15,8 @@ abstract class WebConfigUtils {
     public static int countNonEmpty(String[] objects) {
         int nonNulls = 0;
 
-        for (int i = 0; i < objects.length; i++) {
-            if (StringUtils.hasText(objects[i])) {
+        for (String object : objects) {
+            if (StringUtils.hasText(object)) {
                 nonNulls++;
             }
         }

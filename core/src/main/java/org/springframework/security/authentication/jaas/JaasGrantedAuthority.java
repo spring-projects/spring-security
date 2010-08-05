@@ -32,7 +32,7 @@ public class JaasGrantedAuthority extends GrantedAuthorityImpl {
     //~ Instance fields ================================================================================================
 
     private static final long serialVersionUID = 1L;
-    private Principal principal;
+    private final Principal principal;
 
     //~ Constructors ===================================================================================================
 

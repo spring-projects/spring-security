@@ -24,7 +24,7 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
 import org.springframework.security.web.session.SessionManagementFilter;
 
 public class DefaultFilterChainValidator implements FilterChainProxy.FilterChainValidator {
-    private Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
     public void validate(FilterChainProxy fcp) {
         for(List<Filter> filters : fcp.getFilterChainMap().values()) {

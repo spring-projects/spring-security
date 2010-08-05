@@ -29,7 +29,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class AuthenticationSwitchUserEvent extends AbstractAuthenticationEvent {
     //~ Instance fields ================================================================================================
 
-    private UserDetails targetUser;
+    private final UserDetails targetUser;
 
     //~ Constructors ===================================================================================================
 

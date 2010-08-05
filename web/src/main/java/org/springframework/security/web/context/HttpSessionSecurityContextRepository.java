@@ -57,13 +57,13 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 
     protected final Log logger = LogFactory.getLog(this.getClass());
 
-    private Class<? extends SecurityContext> securityContextClass = null;
+    private final Class<? extends SecurityContext> securityContextClass = null;
     /** SecurityContext instance used to check for equality with default (unauthenticated) content */
-    private Object contextObject = SecurityContextHolder.createEmptyContext();
+    private final Object contextObject = SecurityContextHolder.createEmptyContext();
     private boolean allowSessionCreation = true;
     private boolean disableUrlRewriting = false;
 
-    private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
+    private final AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
 
     /**
      * Gets the security context for the current request (if available) and returns it.
@@ -227,10 +227,10 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
      */
     final class SaveToSessionResponseWrapper extends SaveContextOnUpdateOrErrorResponseWrapper {
 
-        private HttpServletRequest request;
-        private boolean httpSessionExistedAtStartOfRequest;
-        private SecurityContext contextBeforeExecution;
-        private Authentication authBeforeExecution;
+        private final HttpServletRequest request;
+        private final boolean httpSessionExistedAtStartOfRequest;
+        private final SecurityContext contextBeforeExecution;
+        private final Authentication authBeforeExecution;
 
         /**
          * Takes the parameters required to call <code>saveContext()</code> successfully in

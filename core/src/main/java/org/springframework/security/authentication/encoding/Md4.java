@@ -25,8 +25,8 @@ class Md4 {
     private final byte[] buffer = new byte[BLOCK_SIZE];
     private int bufferOffset;
     private long byteCount;
-    private int[] state = new int[4];
-    private int[] tmp = new int[16];
+    private final int[] state = new int[4];
+    private final int[] tmp = new int[16];
 
     Md4() {
         reset();

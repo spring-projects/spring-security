@@ -293,7 +293,7 @@ public class LdapAuthenticationProvider implements AuthenticationProvider, Messa
         return result;
     }
 
-    public boolean supports(Class<? extends Object> authentication) {
+    public boolean supports(Class<?> authentication) {
         return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
     }
 }

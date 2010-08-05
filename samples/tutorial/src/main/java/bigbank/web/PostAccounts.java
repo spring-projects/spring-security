@@ -13,7 +13,7 @@ import bigbank.BankService;
 
 public class PostAccounts implements Controller {
 
-    private BankService bankService;
+    private final BankService bankService;
 
     public PostAccounts(BankService bankService) {
         Assert.notNull(bankService);

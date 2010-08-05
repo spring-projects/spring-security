@@ -29,7 +29,7 @@ import org.w3c.dom.Node;
  *
  */
 public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDecorator {
-    private BeanDefinitionDecorator delegate = new InternalInterceptMethodsBeanDefinitionDecorator();
+    private final BeanDefinitionDecorator delegate = new InternalInterceptMethodsBeanDefinitionDecorator();
 
     public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition, ParserContext parserContext) {
         MethodConfigUtils.registerDefaultMethodAccessManagerIfNecessary(parserContext);
@@ -66,7 +66,6 @@ class InternalInterceptMethodsBeanDefinitionDecorator extends AbstractIntercepto
         // Lookup parent bean information
         Element parent = (Element) node.getParentNode();
         String parentBeanClass = parent.getAttribute("class");
-        parent = null;
 
         // Parse the included methods
         List<Element> methods = DomUtils.getChildElementsByTagName(interceptMethodsElt, Elements.PROTECT);

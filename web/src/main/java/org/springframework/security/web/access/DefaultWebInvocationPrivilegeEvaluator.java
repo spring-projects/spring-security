@@ -41,7 +41,7 @@ public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPriv
 
     //~ Instance fields ================================================================================================
 
-    private AbstractSecurityInterceptor securityInterceptor;
+    private final AbstractSecurityInterceptor securityInterceptor;
 
     //~ Constructors ===================================================================================================
 

@@ -70,8 +70,8 @@ public class LdapUserDetailsMapper implements UserDetailsContextMapper {
                 continue;
             }
 
-            for (int j = 0; j < rolesForAttribute.length; j++) {
-                GrantedAuthority authority = createAuthority(rolesForAttribute[j]);
+            for (String role : rolesForAttribute) {
+                GrantedAuthority authority = createAuthority(role);
 
                 if (authority != null) {
                     essence.addAuthority(authority);

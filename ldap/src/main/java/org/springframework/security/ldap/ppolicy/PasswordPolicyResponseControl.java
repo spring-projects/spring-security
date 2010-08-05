@@ -55,7 +55,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 
     //~ Instance fields ================================================================================================
 
-    private byte[] encodedValue;
+    private final byte[] encodedValue;
 
     private PasswordPolicyErrorStatus errorStatus;
 
@@ -279,7 +279,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
             }
 
             private void setInChoice(boolean inChoice) {
-                this.inChoice = new Boolean(inChoice);
+                this.inChoice = Boolean.valueOf(inChoice);
             }
         }
     }

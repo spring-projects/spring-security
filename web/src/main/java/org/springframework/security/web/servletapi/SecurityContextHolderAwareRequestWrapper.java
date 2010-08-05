@@ -45,13 +45,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequestWrapper {
     //~ Instance fields ================================================================================================
 
-    private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
+    private final AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
 
     /**
      * The prefix passed by the filter. It will be prepended to any supplied role values before
      * comparing it with the roles obtained from the security context.
      */
-    private String rolePrefix;
+    private final String rolePrefix;
 
     //~ Constructors ===================================================================================================
 

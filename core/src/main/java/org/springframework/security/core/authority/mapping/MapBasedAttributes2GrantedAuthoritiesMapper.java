@@ -127,8 +127,8 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper implements Attributes2G
     }
 
     private void addGrantedAuthorityCollection(Collection<GrantedAuthority> result, Object[] value) {
-        for ( int i = 0 ; i < value.length ; i++ ) {
-            addGrantedAuthorityCollection(result,value[i]);
+        for (Object aValue : value) {
+            addGrantedAuthorityCollection(result, aValue);
         }
     }
 

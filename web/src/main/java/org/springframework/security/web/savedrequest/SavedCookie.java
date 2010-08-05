@@ -9,14 +9,14 @@ import java.io.Serializable;
  * @author Ray Krueger
  */
 public class SavedCookie implements Serializable {
-    private java.lang.String name;
-    private java.lang.String value;
-    private java.lang.String comment;
-    private java.lang.String domain;
-    private int maxAge;
-    private java.lang.String path;
-    private boolean secure;
-    private int version;
+    private final java.lang.String name;
+    private final java.lang.String value;
+    private final java.lang.String comment;
+    private final java.lang.String domain;
+    private final int maxAge;
+    private final java.lang.String path;
+    private final boolean secure;
+    private final int version;
 
     public SavedCookie(String name, String value, String comment, String domain, int maxAge, String path, boolean secure, int version) {
         this.name = name;

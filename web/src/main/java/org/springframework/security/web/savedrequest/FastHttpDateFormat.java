@@ -79,19 +79,19 @@ public class FastHttpDateFormat {
      *
      * @return Formatted date
      */
-    public static final String formatDate(long value, DateFormat threadLocalformat) {
+    public static String formatDate(long value, DateFormat threadLocalformat) {
         String cachedDate = null;
-        Long longValue = new Long(value);
+        Long longValue = Long.valueOf(value);
 
         try {
             cachedDate = formatCache.get(longValue);
-        } catch (Exception e) {}
+        } catch (Exception ignored) {}
 
         if (cachedDate != null) {
             return cachedDate;
         }
 
-        String newDate = null;
+        String newDate;
         Date dateValue = new Date(value);
 
         if (threadLocalformat != null) {
@@ -115,7 +115,7 @@ public class FastHttpDateFormat {
      *
      * @return Current date in HTTP format
      */
-    public static final String getCurrentDate() {
+    public static String getCurrentDate() {
         long now = System.currentTimeMillis();
 
         if ((now - currentDateGenerated) > 1000) {
@@ -144,8 +144,7 @@ public class FastHttpDateFormat {
         for (int i = 0; (date == null) && (i < formats.length); i++) {
             try {
                 date = formats[i].parse(value);
-            } catch (ParseException e) {
-                ;
+            } catch (ParseException ignored) {
             }
         }
 
@@ -165,18 +164,18 @@ public class FastHttpDateFormat {
      *
      * @return Parsed date (or -1 if error occurred)
      */
-    public static final long parseDate(String value, DateFormat[] threadLocalformats) {
+    public static long parseDate(String value, DateFormat[] threadLocalformats) {
         Long cachedDate = null;
 
         try {
             cachedDate = (Long) parseCache.get(value);
-        } catch (Exception e) {}
+        } catch (Exception ignored) {}
 
         if (cachedDate != null) {
             return cachedDate.longValue();
         }
 
-        Long date = null;
+        Long date;
 
         if (threadLocalformats != null) {
             date = internalParseDate(value, threadLocalformats);

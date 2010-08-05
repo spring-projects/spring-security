@@ -41,9 +41,9 @@ import org.springframework.util.Assert;
 public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
     //~ Instance fields ================================================================================================
 
-    private GrantedAuthority gaGeneralChanges;
-    private GrantedAuthority gaModifyAuditing;
-    private GrantedAuthority gaTakeOwnership;
+    private final GrantedAuthority gaGeneralChanges;
+    private final GrantedAuthority gaModifyAuditing;
+    private final GrantedAuthority gaTakeOwnership;
     private SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
 
     //~ Constructors ===================================================================================================
@@ -84,7 +84,7 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
         }
 
         // Not authorized by ACL ownership; try via adminstrative permissions
-        GrantedAuthority requiredAuthority = null;
+        GrantedAuthority requiredAuthority;
 
         if (changeType == CHANGE_AUDITING) {
             requiredAuthority = this.gaModifyAuditing;

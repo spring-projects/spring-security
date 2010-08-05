@@ -24,7 +24,7 @@ import org.springframework.security.core.Authentication;
 public class PreInvocationAuthorizationAdviceVoter implements AccessDecisionVoter {
     protected final Log logger = LogFactory.getLog(getClass());
 
-    private PreInvocationAuthorizationAdvice preAdvice;
+    private final PreInvocationAuthorizationAdvice preAdvice;
 
     public PreInvocationAuthorizationAdviceVoter(PreInvocationAuthorizationAdvice pre) {
         this.preAdvice = pre;

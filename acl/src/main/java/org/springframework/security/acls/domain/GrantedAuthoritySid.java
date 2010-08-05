@@ -30,7 +30,7 @@ import org.springframework.util.Assert;
 public class GrantedAuthoritySid implements Sid {
     //~ Instance fields ================================================================================================
 
-    private String grantedAuthority;
+    private final String grantedAuthority;
 
     //~ Constructors ===================================================================================================
 

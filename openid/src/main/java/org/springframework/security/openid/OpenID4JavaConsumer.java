@@ -74,7 +74,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
             throws ConsumerException {
         this.consumerManager = consumerManager;
         this.attributesToFetchFactory = new AxFetchListFactory() {
-            private List<OpenIDAttribute> fetchAttrs = Collections.unmodifiableList(attributes);
+            private final List<OpenIDAttribute> fetchAttrs = Collections.unmodifiableList(attributes);
 
             public List<OpenIDAttribute> createAttributeList(String identifier) {
                 return fetchAttrs;

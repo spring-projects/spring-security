@@ -50,18 +50,18 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  */
 public class ApacheDSContainer implements InitializingBean, DisposableBean, Lifecycle, ApplicationContextAware {
-    private Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
-    DefaultDirectoryService service;
+    final DefaultDirectoryService service;
     LdapServer server;
 
     private ApplicationContext ctxt;
     private File workingDir;
 
     private boolean running;
-    private String ldifResources;
-    private JdbmPartition partition;
-    private String root;
+    private final String ldifResources;
+    private final JdbmPartition partition;
+    private final String root;
     private int port = 53389;
 
     public ApacheDSContainer(String root, String ldifs) throws Exception {
@@ -241,8 +241,8 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
     private boolean deleteDir(File dir) {
         if (dir.isDirectory()) {
             String[] children = dir.list();
-            for (int i=0; i < children.length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
+            for (String child : children) {
+                boolean success = deleteDir(new File(dir, child));
                 if (!success) {
                     return false;
                 }

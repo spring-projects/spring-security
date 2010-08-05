@@ -5,8 +5,8 @@ package org.springframework.security.web.access.intercept;
  * @since 2.0
  */
 public class RequestKey {
-    private String url;
-    private String method;
+    private final String url;
+    private final String method;
 
     public RequestKey(String url) {
         this(url, null);

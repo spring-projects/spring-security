@@ -16,7 +16,7 @@
 
 package org.springframework.security.remoting.dns;
 
-import java.util.Hashtable;
+import java.util.*;
 
 import javax.naming.Context;
 import javax.naming.NameNotFoundException;
@@ -109,7 +109,7 @@ public class JndiDnsResolver implements DnsResolver {
             for (NamingEnumeration<?> recordEnum = dnsRecord.getAll(); recordEnum.hasMoreElements();) {
                 String[] record = recordEnum.next().toString().split(" ");
                 if (record.length != 4) {
-                    throw new DnsLookupException("Wrong service record for query " + query + ": [" + record + "]");
+                    throw new DnsLookupException("Wrong service record for query " + query + ": [" + Arrays.toString(record) + "]");
                 }
                 int priority = Integer.parseInt(record[0]);
                 int weight = Integer.parseInt(record[1]);
@@ -139,8 +139,8 @@ public class JndiDnsResolver implements DnsResolver {
     private Attribute lookup(String query, DirContext ictx, String recordType) {
         try {
             Attributes dnsResult = ictx.getAttributes(query, new String[] { recordType });
-            Attribute dnsRecord = dnsResult.get(recordType);
-            return dnsRecord;
+
+            return dnsResult.get(recordType);
         } catch (NamingException e) {
             if (e instanceof NameNotFoundException) {
                 throw new DnsEntryNotFoundException("DNS entry not found for:" + query, e);

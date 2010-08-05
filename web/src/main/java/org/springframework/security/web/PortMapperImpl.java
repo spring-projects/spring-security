@@ -34,7 +34,7 @@ import java.util.Map;
 public class PortMapperImpl implements PortMapper {
     //~ Instance fields ================================================================================================
 
-    private Map<Integer, Integer> httpsPortMappings;
+    private final Map<Integer, Integer> httpsPortMappings;
 
     //~ Constructors ===================================================================================================
 
@@ -55,11 +55,7 @@ public class PortMapperImpl implements PortMapper {
     }
 
     public Integer lookupHttpPort(Integer httpsPort) {
-        Iterator<Integer> iter = httpsPortMappings.keySet().iterator();
-
-        while (iter.hasNext()) {
-            Integer httpPort = iter.next();
-
+        for (Integer httpPort : httpsPortMappings.keySet()) {
             if (httpsPortMappings.get(httpPort).equals(httpsPort)) {
                 return httpPort;
             }

@@ -11,9 +11,9 @@ import org.springframework.util.Assert;
  * @since 2.0.1
  */
 public class DefaultToken implements Token {
-    private String key;
-    private long keyCreationTime;
-    private String extendedInformation;
+    private final String key;
+    private final long keyCreationTime;
+    private final String extendedInformation;
 
     public DefaultToken(String key, long keyCreationTime, String extendedInformation) {
         Assert.hasText(key, "Key required");
@@ -52,7 +52,7 @@ public class DefaultToken implements Token {
     }
 
     public String toString() {
-        return "DefaultToken[key=" + new String(key) + "; creation=" + new Date(keyCreationTime) + "; extended=" + extendedInformation + "]";
+        return "DefaultToken[key=" + key + "; creation=" + new Date(keyCreationTime) + "; extended=" + extendedInformation + "]";
     }
 
 

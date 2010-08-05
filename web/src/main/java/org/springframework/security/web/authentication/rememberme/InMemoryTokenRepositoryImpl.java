@@ -13,7 +13,7 @@ import java.util.Map;
  * @author Luke Taylor
  */
 public class InMemoryTokenRepositoryImpl implements PersistentTokenRepository {
-    private Map<String, PersistentRememberMeToken> seriesTokens = new HashMap<String, PersistentRememberMeToken>();
+    private final Map<String, PersistentRememberMeToken> seriesTokens = new HashMap<String, PersistentRememberMeToken>();
 
     public synchronized void createNewToken(PersistentRememberMeToken token) {
         PersistentRememberMeToken current = seriesTokens.get(token.getSeries());
@@ -36,16 +36,16 @@ public class InMemoryTokenRepositoryImpl implements PersistentTokenRepository {
     }
 
     public synchronized PersistentRememberMeToken getTokenForSeries(String seriesId) {
-        return (PersistentRememberMeToken) seriesTokens.get(seriesId);
+        return seriesTokens.get(seriesId);
     }
 
     public synchronized void removeUserTokens(String username) {
         Iterator<String> series = seriesTokens.keySet().iterator();
 
         while (series.hasNext()) {
-            Object seriesId = series.next();
+            String seriesId = series.next();
 
-            PersistentRememberMeToken token = (PersistentRememberMeToken) seriesTokens.get(seriesId);
+            PersistentRememberMeToken token = seriesTokens.get(seriesId);
 
             if (username.equals(token.getUsername())) {
                 series.remove();

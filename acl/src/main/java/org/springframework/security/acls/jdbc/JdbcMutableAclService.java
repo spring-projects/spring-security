@@ -61,7 +61,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
     //~ Instance fields ================================================================================================
 
     private boolean foreignKeysInDatabase = true;
-    private AclCache aclCache;
+    private final AclCache aclCache;
     private String deleteEntryByObjectIdentityForeignKey = "delete from acl_entry where acl_object_identity=?";
     private String deleteObjectIdentityByPrimaryKey = "delete from acl_object_identity where id=?";
     private String classIdentityQuery = "call identity()";
@@ -194,7 +194,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
     protected Long createOrRetrieveSidPrimaryKey(Sid sid, boolean allowCreate) {
         Assert.notNull(sid, "Sid required");
 
-        String sidName = null;
+        String sidName;
         boolean sidIsPrincipal = true;
 
         if (sid instanceof PrincipalSid) {
@@ -214,7 +214,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
         }
 
         if (allowCreate) {
-            jdbcTemplate.update(insertSid, new Object[] {Boolean.valueOf(sidIsPrincipal), sidName});
+            jdbcTemplate.update(insertSid, Boolean.valueOf(sidIsPrincipal), sidName);
             Assert.isTrue(TransactionSynchronizationManager.isSynchronizationActive(), "Transaction must be running");
             return new Long(jdbcTemplate.queryForLong(sidIdentityQuery));
         }
@@ -229,8 +229,8 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
         if (deleteChildren) {
             List<ObjectIdentity> children = findChildren(objectIdentity);
             if (children != null) {
-                for (int i = 0; i < children.size(); i++) {
-                    deleteAcl(children.get(i), true);
+                for (ObjectIdentity child : children) {
+                    deleteAcl(child, true);
                 }
             }
         } else {
@@ -263,8 +263,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
      * @param oidPrimaryKey the rows in acl_entry to delete
      */
     protected void deleteEntries(Long oidPrimaryKey) {
-        jdbcTemplate.update(deleteEntryByObjectIdentityForeignKey,
-                new Object[] {oidPrimaryKey});
+        jdbcTemplate.update(deleteEntryByObjectIdentityForeignKey, oidPrimaryKey);
     }
 
     /**
@@ -277,7 +276,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
      */
     protected void deleteObjectIdentity(Long oidPrimaryKey) {
         // Delete the acl_object_identity row
-        jdbcTemplate.update(deleteObjectIdentityByPrimaryKey, new Object[] {oidPrimaryKey});
+        jdbcTemplate.update(deleteObjectIdentityByPrimaryKey, oidPrimaryKey);
     }
 
     /**
@@ -291,8 +290,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
      */
     protected Long retrieveObjectIdentityPrimaryKey(ObjectIdentity oid) {
         try {
-            return new Long(jdbcTemplate.queryForLong(selectObjectIdentityPrimaryKey,
-                    new Object[] {oid.getType(), oid.getIdentifier()}));
+            return new Long(jdbcTemplate.queryForLong(selectObjectIdentityPrimaryKey, oid.getType(), oid.getIdentifier()));
         } catch (DataAccessException notFound) {
             return null;
         }
@@ -326,8 +324,8 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
         Assert.notNull(objectIdentity, "ObjectIdentity required");
         List<ObjectIdentity> children = findChildren(objectIdentity);
         if (children != null) {
-            for (int i = 0; i < children.size(); i++) {
-                clearCacheIncludingChildren(children.get(i));
+            for (ObjectIdentity child : children) {
+                clearCacheIncludingChildren(child);
             }
         }
         aclCache.evictFromCache(objectIdentity);
@@ -356,7 +354,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 
         Long ownerSid = createOrRetrieveSidPrimaryKey(acl.getOwner(), true);
         int count = jdbcTemplate.update(updateObjectIdentity,
-                new Object[] {parentId, ownerSid, new Boolean(acl.isEntriesInheriting()), acl.getId()});
+                parentId, ownerSid, Boolean.valueOf(acl.isEntriesInheriting()), acl.getId());
 
         if (count != 1) {
             throw new NotFoundException("Unable to locate ACL to update");

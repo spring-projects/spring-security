@@ -208,10 +208,8 @@ public class FilterChainProxy extends GenericFilterBean {
             Object filters = filterChainMap.get(key);
             Assert.isInstanceOf(List.class, filters, "Value must be a filter list");
             // Check the contents
-            Iterator filterIterator = ((List)filters).iterator();
 
-            while (filterIterator.hasNext()) {
-                Object filter = filterIterator.next();
+            for (Object filter : ((List) filters)) {
                 Assert.isInstanceOf(Filter.class, filter, "Objects in filter chain must be of type Filter. ");
             }
         }
@@ -269,8 +267,8 @@ public class FilterChainProxy extends GenericFilterBean {
      * <code>Filter</code> should be called or not.</p>
      */
     private static class VirtualFilterChain implements FilterChain {
-        private FilterInvocation fi;
-        private List<Filter> additionalFilters;
+        private final FilterInvocation fi;
+        private final List<Filter> additionalFilters;
         private int currentPosition = 0;
 
         private VirtualFilterChain(FilterInvocation filterInvocation, List<Filter> additionalFilters) {

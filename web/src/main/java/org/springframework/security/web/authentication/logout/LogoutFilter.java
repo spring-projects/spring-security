@@ -50,8 +50,8 @@ public class LogoutFilter extends GenericFilterBean {
     //~ Instance fields ================================================================================================
 
     private String filterProcessesUrl = "/j_spring_security_logout";
-    private List<LogoutHandler> handlers;
-    private LogoutSuccessHandler logoutSuccessHandler;
+    private final List<LogoutHandler> handlers;
+    private final LogoutSuccessHandler logoutSuccessHandler;
 
     //~ Constructors ===================================================================================================
 

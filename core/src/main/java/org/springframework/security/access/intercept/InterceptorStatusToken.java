@@ -33,10 +33,10 @@ import org.springframework.security.core.Authentication;
 public class InterceptorStatusToken {
     //~ Instance fields ================================================================================================
 
-    private Authentication authentication;
-    private Collection<ConfigAttribute> attr;
-    private Object secureObject;
-    private boolean contextHolderRefreshRequired;
+    private final Authentication authentication;
+    private final Collection<ConfigAttribute> attr;
+    private final Object secureObject;
+    private final boolean contextHolderRefreshRequired;
 
     //~ Constructors ===================================================================================================
 

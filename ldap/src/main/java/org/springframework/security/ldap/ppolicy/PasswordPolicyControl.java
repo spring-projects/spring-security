@@ -39,7 +39,7 @@ public class PasswordPolicyControl implements Control {
 
     //~ Instance fields ================================================================================================
 
-    private boolean critical;
+    private final boolean critical;
 
     //~ Constructors ===================================================================================================
 

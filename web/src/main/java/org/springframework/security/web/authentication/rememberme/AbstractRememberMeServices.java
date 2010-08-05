@@ -43,10 +43,10 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     //~ Instance fields ================================================================================================
     protected final Log logger = LogFactory.getLog(getClass());
 
-    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+    protected final MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
     private UserDetailsService userDetailsService;
-    private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
+    private final UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
     private AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
     private String cookieName = SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY;
@@ -125,9 +125,9 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
             return null;
         }
 
-        for (int i = 0; i < cookies.length; i++) {
-            if (cookieName.equals(cookies[i].getName())) {
-                return cookies[i].getValue();
+        for (Cookie cookie : cookies) {
+            if (cookieName.equals(cookie.getName())) {
+                return cookie.getValue();
             }
         }
 

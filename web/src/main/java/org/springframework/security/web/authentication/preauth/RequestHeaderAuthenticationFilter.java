@@ -53,9 +53,7 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
      */
     protected Object getPreAuthenticatedCredentials(HttpServletRequest request) {
         if (credentialsRequestHeader != null) {
-            String credentials = request.getHeader(credentialsRequestHeader);
-
-            return credentials;
+            return request.getHeader(credentialsRequestHeader);
         }
 
         return "N/A";

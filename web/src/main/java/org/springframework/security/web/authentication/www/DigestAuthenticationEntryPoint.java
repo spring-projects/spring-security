@@ -82,7 +82,7 @@ public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint,
         // format of nonce is:
         //   base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
         long expiryTime = System.currentTimeMillis() + (nonceValiditySeconds * 1000);
-        String signatureValue = new String(DigestAuthUtils.md5Hex(expiryTime + ":" + key));
+        String signatureValue = DigestAuthUtils.md5Hex(expiryTime + ":" + key);
         String nonceValue = expiryTime + ":" + signatureValue;
         String nonceValueBase64 = new String(Base64.encode(nonceValue.getBytes()));
 

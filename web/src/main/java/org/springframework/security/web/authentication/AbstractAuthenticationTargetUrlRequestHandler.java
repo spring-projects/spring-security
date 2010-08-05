@@ -46,7 +46,7 @@ import org.springframework.util.StringUtils;
  */
 public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 
-    public static String DEFAULT_TARGET_PARAMETER = "spring-security-redirect";
+    public static final String DEFAULT_TARGET_PARAMETER = "spring-security-redirect";
     protected final Log logger = LogFactory.getLog(this.getClass());
     private String targetUrlParameter = DEFAULT_TARGET_PARAMETER;
     private String defaultTargetUrl = "/";

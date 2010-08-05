@@ -34,7 +34,7 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
 
     private final Log logger = LogFactory.getLog(getClass());
 
-    private AclService aclService;
+    private final AclService aclService;
     private ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy = new ObjectIdentityRetrievalStrategyImpl();
     private ObjectIdentityGenerator objectIdentityGenerator = new ObjectIdentityRetrievalStrategyImpl();
     private SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
@@ -117,7 +117,7 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
 
         if (permission instanceof String) {
             String permString = (String)permission;
-            Permission p = null;
+            Permission p;
 
             try {
                 p = permissionFactory.buildFromName(permString);

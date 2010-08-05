@@ -64,12 +64,11 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
     }
 
     public void createNewToken(PersistentRememberMeToken token) {
-        insertToken.update(
-                new Object[] {token.getUsername(), token.getSeries(), token.getTokenValue(), token.getDate()});
+        insertToken.update(token.getUsername(), token.getSeries(), token.getTokenValue(), token.getDate());
     }
 
     public void updateToken(String series, String tokenValue, Date lastUsed) {
-        updateToken.update(new Object[] {tokenValue, new Date(), series});
+        updateToken.update(tokenValue, new Date(), series);
     }
 
     /**
@@ -83,7 +82,7 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
      */
     public PersistentRememberMeToken getTokenForSeries(String seriesId) {
         try {
-            return (PersistentRememberMeToken) tokensBySeriesMapping.findObject(seriesId);
+            return tokensBySeriesMapping.findObject(seriesId);
         } catch(IncorrectResultSizeDataAccessException moreThanOne) {
             logger.error("Querying token for series '" + seriesId + "' returned more than one value. Series" +
                     " should be unique");
@@ -118,10 +117,7 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
         }
 
         protected PersistentRememberMeToken mapRow(ResultSet rs, int rowNum) throws SQLException {
-            PersistentRememberMeToken token =
-                    new PersistentRememberMeToken(rs.getString(1), rs.getString(2), rs.getString(3), rs.getTimestamp(4));
-
-            return token;
+            return new PersistentRememberMeToken(rs.getString(1), rs.getString(2), rs.getString(3), rs.getTimestamp(4));
         }
     }
 

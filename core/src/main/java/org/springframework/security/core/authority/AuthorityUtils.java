@@ -48,8 +48,8 @@ public abstract class AuthorityUtils {
     public static List<GrantedAuthority> createAuthorityList(String... roles) {
         List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(roles.length);
 
-        for (int i=0; i < roles.length; i++) {
-            authorities.add(new GrantedAuthorityImpl(roles[i]));
+        for (String role : roles) {
+            authorities.add(new GrantedAuthorityImpl(role));
         }
 
         return authorities;

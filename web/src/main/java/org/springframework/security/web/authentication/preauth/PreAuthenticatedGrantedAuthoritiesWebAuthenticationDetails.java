@@ -21,7 +21,7 @@ public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails extends 
         MutableGrantedAuthoritiesContainer {
     public static final long serialVersionUID = 1L;
 
-    private MutableGrantedAuthoritiesContainer authoritiesContainer = new GrantedAuthoritiesContainerImpl();
+    private final MutableGrantedAuthoritiesContainer authoritiesContainer = new GrantedAuthoritiesContainerImpl();
 
     public PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(HttpServletRequest request) {
         super(request);

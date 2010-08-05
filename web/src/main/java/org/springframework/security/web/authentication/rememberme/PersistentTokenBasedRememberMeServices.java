@@ -112,9 +112,7 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
             throw new RememberMeAuthenticationException("Autologin failed due to data access problem");
         }
 
-        UserDetails user = getUserDetailsService().loadUserByUsername(token.getUsername());
-
-        return user;
+        return getUserDetailsService().loadUserByUsername(token.getUsername());
     }
 
     /**

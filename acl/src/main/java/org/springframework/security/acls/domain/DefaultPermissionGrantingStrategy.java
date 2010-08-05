@@ -12,7 +12,7 @@ import org.springframework.util.Assert;
 
 public class DefaultPermissionGrantingStrategy implements PermissionGrantingStrategy {
 
-    private transient AuditLogger auditLogger;
+    private final transient AuditLogger auditLogger;
 
     /**
      * Creates an instance with the logger which will be used to record granting and denial of requested permissions.

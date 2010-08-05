@@ -22,7 +22,7 @@ import org.springframework.security.access.prepost.PrePostInvocationAttributeFac
  * @since 3.0
  */
 public class ExpressionBasedAnnotationAttributeFactory implements PrePostInvocationAttributeFactory {
-    private ExpressionParser parser;
+    private final ExpressionParser parser;
 
     public ExpressionBasedAnnotationAttributeFactory(MethodSecurityExpressionHandler handler) {
         parser = handler.getExpressionParser();

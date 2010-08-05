@@ -23,7 +23,7 @@ import org.springframework.security.core.Authentication;
  * @since 3.0
  */
 class MethodSecurityEvaluationContext extends StandardEvaluationContext {
-    private static Log logger = LogFactory.getLog(MethodSecurityEvaluationContext.class);
+    private static final Log logger = LogFactory.getLog(MethodSecurityEvaluationContext.class);
 
     private ParameterNameDiscoverer parameterNameDiscoverer;
     private final MethodInvocation mi;
@@ -93,7 +93,7 @@ class MethodSecurityEvaluationContext extends StandardEvaluationContext {
         Class<?> targetClass = AopProxyUtils.ultimateTargetClass(targetObject);
 
         if (targetClass == null) {
-            // TODO: Spring should do this, but there's a bug in ultimateTargetClass() which returns null 
+            // TODO: Spring should do this, but there's a bug in ultimateTargetClass() which returns null
             targetClass = targetObject.getClass();
         }
 

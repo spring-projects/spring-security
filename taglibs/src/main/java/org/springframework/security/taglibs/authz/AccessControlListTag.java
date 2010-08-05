@@ -98,7 +98,7 @@ public class AccessControlListTag extends TagSupport {
 
         List<Permission> requiredPermissions = parsePermissionsString(evaledPermissionsString);
 
-        Object resolvedDomainObject = null;
+        Object resolvedDomainObject;
 
         if (domainObject instanceof String) {
             resolvedDomainObject = ExpressionEvaluationUtils.evaluate("domainObject", (String) domainObject,

@@ -18,8 +18,8 @@ public class ChannelAttributeFactory {
     private static final String OPT_REQUIRES_HTTPS = "https";
     private static final String OPT_ANY_CHANNEL = "any";
 
-    public static final List<ConfigAttribute> createChannelAttributes(String requiredChannel) {
-        String channelConfigAttribute = null;
+    public static List<ConfigAttribute> createChannelAttributes(String requiredChannel) {
+        String channelConfigAttribute;
 
         if (requiredChannel.equals(OPT_REQUIRES_HTTPS)) {
             channelConfigAttribute = "REQUIRES_SECURE_CHANNEL";

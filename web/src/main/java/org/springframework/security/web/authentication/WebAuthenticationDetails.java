@@ -31,8 +31,8 @@ import javax.servlet.http.HttpSession;
 public class WebAuthenticationDetails implements SessionIdentifierAware, Serializable {
     //~ Instance fields ================================================================================================
 
-    private String remoteAddress;
-    private String sessionId;
+    private final String remoteAddress;
+    private final String sessionId;
 
     //~ Constructors ===================================================================================================
 

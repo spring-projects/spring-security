@@ -315,7 +315,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
         }
 
         if (!afterInvocationProviders.isEmpty()) {
-            BeanDefinition afterInvocationManager = null;
+            BeanDefinition afterInvocationManager;
             afterInvocationManager = new RootBeanDefinition(AfterInvocationProviderManager.class);
             afterInvocationManager.getPropertyValues().addPropertyValue("providers", afterInvocationProviders);
             bldr.addPropertyValue("afterInvocationManager", afterInvocationManager);

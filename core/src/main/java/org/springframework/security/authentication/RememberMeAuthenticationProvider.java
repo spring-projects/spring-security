@@ -69,7 +69,7 @@ public class RememberMeAuthenticationProvider implements AuthenticationProvider,
         this.messages = new MessageSourceAccessor(messageSource);
     }
 
-    public boolean supports(Class<? extends Object> authentication) {
+    public boolean supports(Class<?> authentication) {
         return (RememberMeAuthenticationToken.class.isAssignableFrom(authentication));
     }
 }

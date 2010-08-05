@@ -55,7 +55,7 @@ public class PasswordEncoderParser {
         ENCODER_CLASSES.put(OPT_HASH_LDAP_SSHA, LdapShaPasswordEncoder.class);
     }
 
-    private static Log logger = LogFactory.getLog(PasswordEncoderParser.class);
+    private static final Log logger = LogFactory.getLog(PasswordEncoderParser.class);
 
     private BeanMetadataElement passwordEncoder;
     private BeanMetadataElement saltSource;
@@ -69,7 +69,7 @@ public class PasswordEncoderParser {
         boolean useBase64 = false;
 
         if (StringUtils.hasText(element.getAttribute(ATT_BASE_64))) {
-            useBase64 = new Boolean(element.getAttribute(ATT_BASE_64)).booleanValue();
+            useBase64 = Boolean.valueOf(element.getAttribute(ATT_BASE_64)).booleanValue();
         }
 
         String ref = element.getAttribute(ATT_REF);

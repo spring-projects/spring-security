@@ -45,8 +45,8 @@ public final class AdminPermissionController implements MessageSourceAware{
     @Autowired
     private ContactManager contactManager;
     private MessageSourceAccessor messages;
-    private Validator addPermissionValidator = new AddPermissionValidator();
-    private PermissionFactory permissionFactory = new DefaultPermissionFactory();
+    private final Validator addPermissionValidator = new AddPermissionValidator();
+    private final PermissionFactory permissionFactory = new DefaultPermissionFactory();
 
     /**
      * Displays the permission admin page for a particular contact.
@@ -83,7 +83,7 @@ public final class AdminPermissionController implements MessageSourceAware{
 
     @InitBinder("addPermission")
     public void initBinder(WebDataBinder binder) {
-        binder.setAllowedFields(new String[] {"recipient", "permission"});
+        binder.setAllowedFields("recipient", "permission");
     }
 
     /**

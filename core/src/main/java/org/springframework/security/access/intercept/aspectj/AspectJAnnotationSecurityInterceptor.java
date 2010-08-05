@@ -25,7 +25,7 @@ public class AspectJAnnotationSecurityInterceptor extends AbstractSecurityInterc
         return this.securityMetadataSource;
     }
 
-    public Class<? extends Object> getSecureObjectClass() {
+    public Class<?> getSecureObjectClass() {
         return JoinPoint.class;
     }
 

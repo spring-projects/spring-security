@@ -31,7 +31,7 @@ public class SwitchUserGrantedAuthority extends GrantedAuthorityImpl {
     //~ Instance fields ================================================================================================
 
     private static final long serialVersionUID = 1L;
-    private Authentication source;
+    private final Authentication source;
 
     //~ Constructors ===================================================================================================
 

@@ -66,7 +66,7 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
      * The set of SimpleDateFormat formats to use in getDateHeader(). Notice that because SimpleDateFormat is
      * not thread-safe, we can't declare formats[] as a static variable.
      */
-    protected SimpleDateFormat[] formats = new SimpleDateFormat[3];
+    protected final SimpleDateFormat[] formats = new SimpleDateFormat[3];
 
     //~ Constructors ===================================================================================================
 
@@ -238,9 +238,9 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
         List<String> combinedParams = new ArrayList<String>(wrappedParamsList);
 
         // We want to add all parameters of the saved request *apart from* duplicates of those already added
-        for (int i = 0; i < savedRequestParams.length; i++) {
-            if (!wrappedParamsList.contains(savedRequestParams[i])) {
-                combinedParams.add(savedRequestParams[i]);
+        for (String savedRequestParam : savedRequestParams) {
+            if (!wrappedParamsList.contains(savedRequestParam)) {
+                combinedParams.add(savedRequestParam);
             }
         }
 

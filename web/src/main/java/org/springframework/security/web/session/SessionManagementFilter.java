@@ -42,7 +42,7 @@ public class SessionManagementFilter extends GenericFilterBean {
 
     private final SecurityContextRepository securityContextRepository;
     private SessionAuthenticationStrategy sessionStrategy = new SessionFixationProtectionStrategy();
-    private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
+    private final AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
     private String invalidSessionUrl;
     private AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
     private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();

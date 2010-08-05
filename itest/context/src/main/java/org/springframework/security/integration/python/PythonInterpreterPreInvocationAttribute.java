@@ -3,7 +3,7 @@ package org.springframework.security.integration.python;
 import org.springframework.security.access.prepost.PreInvocationAttribute;
 
 public class PythonInterpreterPreInvocationAttribute implements PreInvocationAttribute {
-    private String script;
+    private final String script;
 
     PythonInterpreterPreInvocationAttribute(String script) {
         this.script = script;

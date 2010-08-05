@@ -18,7 +18,7 @@ import org.w3c.dom.Element;
  * @author Luke Taylor
  */
 public class AuthenticationProviderBeanDefinitionParser implements BeanDefinitionParser {
-    private static String ATT_USER_DETAILS_REF = "user-service-ref";
+    private static final String ATT_USER_DETAILS_REF = "user-service-ref";
 
     public BeanDefinition parse(Element element, ParserContext pc) {
         RootBeanDefinition authProvider = new RootBeanDefinition(DaoAuthenticationProvider.class);

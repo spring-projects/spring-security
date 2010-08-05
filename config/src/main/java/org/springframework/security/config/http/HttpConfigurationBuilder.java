@@ -95,7 +95,7 @@ class HttpConfigurationBuilder {
     private BeanReference sessionStrategyRef;
     private RootBeanDefinition sfpf;
     private BeanDefinition servApiFilter;
-    private String portMapperName;
+    private final String portMapperName;
     private BeanReference fsi;
     private BeanReference requestCache;
 

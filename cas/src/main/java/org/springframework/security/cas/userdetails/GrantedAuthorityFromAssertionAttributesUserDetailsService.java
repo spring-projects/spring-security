@@ -36,7 +36,7 @@ public final class GrantedAuthorityFromAssertionAttributesUserDetailsService ext
 
     private static final String NON_EXISTENT_PASSWORD_VALUE = "NO_PASSWORD";
 
-    private String[] attributes;
+    private final String[] attributes;
 
     private boolean convertToUpperCase = true;
 

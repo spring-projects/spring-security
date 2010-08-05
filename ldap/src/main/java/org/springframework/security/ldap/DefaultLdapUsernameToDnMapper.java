@@ -11,8 +11,8 @@ import org.springframework.ldap.core.DistinguishedName;
  * @author Luke Taylor
  */
 public class DefaultLdapUsernameToDnMapper implements LdapUsernameToDnMapper {
-    private String userDnBase;
-    private String usernameAttribute;
+    private final String userDnBase;
+    private final String usernameAttribute;
 
    /**
     * @param userDnBase the base name of the DN

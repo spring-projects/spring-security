@@ -25,7 +25,7 @@ import org.springframework.util.Assert;
  * @since 3.0
  */
 public class ExceptionMappingAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
-    private Map<String, String> failureUrlMap = new HashMap<String, String>();
+    private final Map<String, String> failureUrlMap = new HashMap<String, String>();
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,

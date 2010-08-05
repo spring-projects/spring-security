@@ -131,10 +131,10 @@ public class ConcurrentSessionControlStrategy extends SessionFixationProtectionS
         // Determine least recently used session, and mark it for invalidation
         SessionInformation leastRecentlyUsed = null;
 
-        for (int i = 0; i < sessions.size(); i++) {
+        for (SessionInformation session : sessions) {
             if ((leastRecentlyUsed == null)
-                    || sessions.get(i).getLastRequest().before(leastRecentlyUsed.getLastRequest())) {
-                leastRecentlyUsed = sessions.get(i);
+                    || session.getLastRequest().before(leastRecentlyUsed.getLastRequest())) {
+                leastRecentlyUsed = session;
             }
         }
 

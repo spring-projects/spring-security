@@ -14,7 +14,7 @@ import org.springframework.util.Assert;
 public class InMemoryUserRegistry implements UserRegistry {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private Map<String, GaeUser> users = Collections.synchronizedMap(new HashMap<String, GaeUser>()); 
+    private final Map<String, GaeUser> users = Collections.synchronizedMap(new HashMap<String, GaeUser>());
 
     public GaeUser findUser(String userId) {
         return users.get(userId);

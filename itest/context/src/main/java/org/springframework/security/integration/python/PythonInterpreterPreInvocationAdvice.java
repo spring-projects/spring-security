@@ -19,7 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.ClassUtils;
 
 public class PythonInterpreterPreInvocationAdvice implements PreInvocationAuthorizationAdvice{
-    private ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
+    private final ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
 
     @SuppressWarnings("deprecation")
     public boolean before(Authentication authentication, MethodInvocation mi, PreInvocationAttribute preAttr) {

@@ -20,7 +20,7 @@ import org.springframework.security.core.Authentication;
 public class PostInvocationAdviceProvider implements AfterInvocationProvider {
     protected final Log logger = LogFactory.getLog(getClass());
 
-    private PostInvocationAuthorizationAdvice postAdvice;
+    private final PostInvocationAuthorizationAdvice postAdvice;
 
     public PostInvocationAdviceProvider(PostInvocationAuthorizationAdvice postAdvice) {
         this.postAdvice = postAdvice;

@@ -50,10 +50,10 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 
     private static final Log logger = LogFactory.getLog(ProtectPointcutPostProcessor.class);
 
-    private Map<String,List<ConfigAttribute>> pointcutMap = new LinkedHashMap<String,List<ConfigAttribute>>();
-    private MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource;
-    private Set<PointcutExpression> pointCutExpressions = new LinkedHashSet<PointcutExpression>();
-    private PointcutParser parser;
+    private final Map<String,List<ConfigAttribute>> pointcutMap = new LinkedHashMap<String,List<ConfigAttribute>>();
+    private final MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource;
+    private final Set<PointcutExpression> pointCutExpressions = new LinkedHashSet<PointcutExpression>();
+    private final PointcutParser parser;
 
     public ProtectPointcutPostProcessor(MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource) {
         Assert.notNull(mapBasedMethodSecurityMetadataSource, "MapBasedMethodSecurityMetadataSource to populate is required");
@@ -88,10 +88,10 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
         }
 
         // Check to see if any of those methods are compatible with our pointcut expressions
-        for (int i = 0; i < methods.length; i++) {
+        for (Method method : methods) {
             for (PointcutExpression expression : pointCutExpressions) {
                 // Try for the bean class directly
-                if (attemptMatch(bean.getClass(), methods[i], expression, beanName)) {
+                if (attemptMatch(bean.getClass(), method, expression, beanName)) {
                     // We've found the first expression that matches this method, so move onto the next method now
                     break; // the "while" loop, not the "for" loop
                 }

@@ -44,7 +44,7 @@ public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExp
     private PermissionCacheOptimizer permissionCacheOptimizer = null;
     private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
     private final SecurityExpressionRootPropertyAccessor sxrpa = new SecurityExpressionRootPropertyAccessor();
-    private ExpressionParser expressionParser = new SpelExpressionParser();
+    private final ExpressionParser expressionParser = new SpelExpressionParser();
     private RoleHierarchy roleHierarchy;
     private ApplicationContext applicationContext;
 
@@ -127,11 +127,11 @@ public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExp
                 permissionCacheOptimizer.cachePermissionsFor(rootObject.getAuthentication(), Arrays.asList(array));
             }
 
-            for (int i = 0; i < array.length; i++) {
-                rootObject.setFilterObject(array[i]);
+            for (Object o : array) {
+                rootObject.setFilterObject(o);
 
                 if (ExpressionUtils.evaluateAsBoolean(filterExpression, ctx)) {
-                    retainList.add(array[i]);
+                    retainList.add(o);
                 }
             }
 

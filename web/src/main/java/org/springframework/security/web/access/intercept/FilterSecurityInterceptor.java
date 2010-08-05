@@ -95,7 +95,7 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
         this.securityMetadataSource = newSource;
     }
 
-    public Class<? extends Object> getSecureObjectClass() {
+    public Class<?> getSecureObjectClass() {
         return FilterInvocation.class;
     }
 

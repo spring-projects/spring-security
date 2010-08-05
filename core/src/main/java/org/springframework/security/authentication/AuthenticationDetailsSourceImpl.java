@@ -50,10 +50,10 @@ public class AuthenticationDetailsSourceImpl implements AuthenticationDetailsSou
     private Constructor<?> getFirstMatchingConstructor(Object object) throws NoSuchMethodException {
         Constructor<?>[] constructors = clazz.getDeclaredConstructors();
         Constructor<?> constructor = null;
-        for (int i = 0; i < constructors.length; i++) {
-            Class<?>[] parameterTypes = constructors[i].getParameterTypes();
+        for (Constructor<?> tryMe : constructors) {
+            Class<?>[] parameterTypes = tryMe.getParameterTypes();
             if (parameterTypes.length == 1 && (object == null || parameterTypes[0].isInstance(object))) {
-                constructor = constructors[i];
+                constructor = tryMe;
                 break;
             }
         }

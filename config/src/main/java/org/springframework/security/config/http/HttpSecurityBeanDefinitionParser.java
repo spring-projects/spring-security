@@ -54,12 +54,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     private static final String ATT_REF = "ref";
     private static final String ATT_SECURED = "security";
     private static final String OPT_SECURITY_NONE = "none";
-    private static final String OPT_SECURITY_CONTEXT_ONLY = "contextOnly";
-
-    static final String EXPRESSION_FIMDS_CLASS = "org.springframework.security.web.access.expression.ExpressionBasedFilterInvocationSecurityMetadataSource";
-    static final String EXPRESSION_HANDLER_CLASS = "org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler";
-
-    static final List<BeanMetadataElement> NO_FILTERS = Collections.emptyList();
 
     public HttpSecurityBeanDefinitionParser() {
     }
@@ -118,13 +112,13 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 return Collections.emptyList();
             }
 
-            
+
         }
 
         final String portMapperName = createPortMapper(element, pc);
 
         ManagedList<BeanReference> authenticationProviders = new ManagedList<BeanReference>();
-        BeanReference authenticationManager = createAuthenticationManager(element, pc, authenticationProviders, null);
+        BeanReference authenticationManager = createAuthenticationManager(element, pc, authenticationProviders);
 
         HttpConfigurationBuilder httpBldr = new HttpConfigurationBuilder(element, pc, matcherType,
                 portMapperName, authenticationManager);
@@ -172,7 +166,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
      * authentication manager.
      */
     private BeanReference createAuthenticationManager(Element element, ParserContext pc,
-            ManagedList<BeanReference> authenticationProviders, BeanReference concurrencyController) {
+            ManagedList<BeanReference> authenticationProviders) {
         BeanDefinitionBuilder authManager = BeanDefinitionBuilder.rootBeanDefinition(ProviderManager.class);
         authManager.addPropertyValue("parent", new RootBeanDefinition(AuthenticationManagerFactoryBean.class));
         authManager.addPropertyValue("providers", authenticationProviders);
@@ -181,9 +175,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         clearCredentials.getPropertyValues().addPropertyValue("targetMethod", "isEraseCredentialsAfterAuthentication");
         authManager.addPropertyValue("eraseCredentialsAfterAuthentication", clearCredentials);
 
-        if (concurrencyController != null) {
-            authManager.addPropertyValue("sessionController", concurrencyController);
-        }
         authManager.getRawBeanDefinition().setSource(pc.extractSource(element));
         BeanDefinition authMgrBean = authManager.getBeanDefinition();
         String id = pc.getReaderContext().generateBeanName(authMgrBean);
@@ -291,8 +282,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 }
 
 class OrderDecorator implements Ordered {
-    BeanMetadataElement bean;
-    int order;
+    final BeanMetadataElement bean;
+    final int order;
 
     public OrderDecorator(BeanMetadataElement bean, SecurityFilters filterOrder) {
         this.bean = bean;

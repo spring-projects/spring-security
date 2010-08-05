@@ -48,13 +48,13 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 
     //~ Instance fields ================================================================================================
 
-    private ContextSource contextSource;
+    private final ContextSource contextSource;
 
     /**
      * The LDAP SearchControls object used for the search. Shared between searches so shouldn't be modified
      * once the bean has been configured.
      */
-    private SearchControls searchControls = new SearchControls();
+    private final SearchControls searchControls = new SearchControls();
 
     /** Context name to search in, relative to the base of the configured ContextSource. */
     private String searchBase = "";
@@ -70,7 +70,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
      *      <li>(uid={0}) - this would search for a username match on the uid attribute.</li>
      *  </ul>
      */
-    private String searchFilter;
+    private final String searchFilter;
 
     //~ Constructors ===================================================================================================
 

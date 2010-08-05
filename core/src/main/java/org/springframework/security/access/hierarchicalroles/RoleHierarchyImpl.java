@@ -135,9 +135,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
     private void addReachableRoles(Set<GrantedAuthority> reachableRoles,
             GrantedAuthority authority) {
 
-        Iterator<GrantedAuthority> iterator = reachableRoles.iterator();
-        while (iterator.hasNext()) {
-            GrantedAuthority testAuthority = iterator.next();
+        for (GrantedAuthority testAuthority : reachableRoles) {
             String testKey = testAuthority.getAuthority();
             if ((testKey != null) && (testKey.equals(authority.getAuthority()))) {
                 return;
@@ -154,9 +152,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
             return null;
         }
 
-        Iterator<GrantedAuthority> iterator = rolesReachableInOneOrMoreStepsMap.keySet().iterator();
-        while (iterator.hasNext()) {
-            GrantedAuthority testAuthority = iterator.next();
+        for (GrantedAuthority testAuthority : rolesReachableInOneOrMoreStepsMap.keySet()) {
             String testKey = testAuthority.getAuthority();
             if ((testKey != null) && (testKey.equals(authority.getAuthority()))) {
                 return rolesReachableInOneOrMoreStepsMap.get(testAuthority);
@@ -171,7 +167,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
      * references a set of the reachable lower roles.
      */
     private void buildRolesReachableInOneStepMap() {
-        Pattern pattern = Pattern.compile("(\\s*([^\\s>]+)\\s*\\>\\s*([^\\s>]+))");
+        Pattern pattern = Pattern.compile("(\\s*([^\\s>]+)\\s*>\\s*([^\\s>]+))");
 
         Matcher roleHierarchyMatcher = pattern.matcher(roleHierarchyStringRepresentation);
         rolesReachableInOneStepMap = new HashMap<GrantedAuthority, Set<GrantedAuthority>>();
@@ -179,7 +175,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
         while (roleHierarchyMatcher.find()) {
             GrantedAuthority higherRole = new GrantedAuthorityImpl(roleHierarchyMatcher.group(2));
             GrantedAuthority lowerRole = new GrantedAuthorityImpl(roleHierarchyMatcher.group(3));
-            Set<GrantedAuthority> rolesReachableInOneStepSet = null;
+            Set<GrantedAuthority> rolesReachableInOneStepSet;
 
             if (!rolesReachableInOneStepMap.containsKey(higherRole)) {
                 rolesReachableInOneStepSet = new HashSet<GrantedAuthority>();

@@ -25,7 +25,7 @@ public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends HttpServ
 
     private boolean contextSaved = false;
     /* See SEC-1052 */
-    private boolean disableUrlRewriting;
+    private final boolean disableUrlRewriting;
 
     /**
      * @param response              the response to be wrapped

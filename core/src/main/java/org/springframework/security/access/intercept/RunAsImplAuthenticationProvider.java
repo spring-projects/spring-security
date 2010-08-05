@@ -74,11 +74,7 @@ public class RunAsImplAuthenticationProvider implements InitializingBean, Authen
         this.messages = new MessageSourceAccessor(messageSource);
     }
 
-    public boolean supports(Class<? extends Object> authentication) {
-        if (RunAsUserToken.class.isAssignableFrom(authentication)) {
-            return true;
-        } else {
-            return false;
-        }
+    public boolean supports(Class<?> authentication) {
+        return RunAsUserToken.class.isAssignableFrom(authentication);
     }
 }

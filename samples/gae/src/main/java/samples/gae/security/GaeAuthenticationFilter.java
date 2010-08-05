@@ -32,7 +32,7 @@ public class GaeAuthenticationFilter extends GenericFilterBean {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private AuthenticationDetailsSource ads = new WebAuthenticationDetailsSource();
+    private final AuthenticationDetailsSource ads = new WebAuthenticationDetailsSource();
     private AuthenticationManager authenticationManager;
     private AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
 

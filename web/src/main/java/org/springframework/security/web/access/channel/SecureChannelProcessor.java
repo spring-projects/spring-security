@@ -80,11 +80,7 @@ public class SecureChannelProcessor implements InitializingBean, ChannelProcesso
     }
 
     public boolean supports(ConfigAttribute attribute) {
-        if ((attribute != null) && (attribute.getAttribute() != null)
-            && attribute.getAttribute().equals(getSecureKeyword())) {
-            return true;
-        } else {
-            return false;
-        }
+        return (attribute != null) && (attribute.getAttribute() != null)
+                && attribute.getAttribute().equals(getSecureKeyword());
     }
 }

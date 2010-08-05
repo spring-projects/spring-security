@@ -9,7 +9,7 @@ package org.springframework.security.web.util;
  */
 public abstract class TextEscapeUtils {
 
-    public final static String escapeEntities(String s) {
+    public static String escapeEntities(String s) {
         if (s == null || s.length() == 0) {
             return s;
         }

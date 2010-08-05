@@ -8,7 +8,7 @@ import org.springframework.expression.TypedValue;
 
 @SuppressWarnings("unchecked")
 public final class SecurityExpressionRootPropertyAccessor implements PropertyAccessor {
-    public Class[] CLASSES = {SecurityExpressionRoot.class};
+    public final Class[] CLASSES = {SecurityExpressionRoot.class};
 
     public boolean canRead(EvaluationContext context, Object target, String name) throws AccessException {
         ApplicationContext ctx = ((SecurityExpressionRoot)target).getApplicationContext();

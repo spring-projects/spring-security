@@ -62,20 +62,20 @@ public class DefaultSavedRequest implements SavedRequest {
 
     //~ Instance fields ================================================================================================
 
-    private ArrayList<SavedCookie> cookies = new ArrayList<SavedCookie>();
-    private ArrayList<Locale> locales = new ArrayList<Locale>();
-    private Map<String, List<String>> headers = new TreeMap<String, List<String>>(String.CASE_INSENSITIVE_ORDER);
-    private Map<String, String[]> parameters = new TreeMap<String, String[]>(String.CASE_INSENSITIVE_ORDER);
-    private String contextPath;
-    private String method;
-    private String pathInfo;
-    private String queryString;
-    private String requestURI;
-    private String requestURL;
-    private String scheme;
-    private String serverName;
-    private String servletPath;
-    private int serverPort;
+    private final ArrayList<SavedCookie> cookies = new ArrayList<SavedCookie>();
+    private final ArrayList<Locale> locales = new ArrayList<Locale>();
+    private final Map<String, List<String>> headers = new TreeMap<String, List<String>>(String.CASE_INSENSITIVE_ORDER);
+    private final Map<String, String[]> parameters = new TreeMap<String, String[]>(String.CASE_INSENSITIVE_ORDER);
+    private final String contextPath;
+    private final String method;
+    private final String pathInfo;
+    private final String queryString;
+    private final String requestURI;
+    private final String requestURL;
+    private final String scheme;
+    private final String serverName;
+    private final String servletPath;
+    private final int serverPort;
 
     //~ Constructors ===================================================================================================
 
@@ -88,8 +88,8 @@ public class DefaultSavedRequest implements SavedRequest {
         Cookie[] cookies = request.getCookies();
 
         if (cookies != null) {
-            for (int i = 0; i < cookies.length; i++) {
-                this.addCookie(cookies[i]);
+            for (Cookie cookie : cookies) {
+                this.addCookie(cookie);
             }
         }
 
@@ -216,11 +216,8 @@ public class DefaultSavedRequest implements SavedRequest {
             return false;
         }
 
-        if (!propertyEquals("servletPath", this.servletPath, request.getServletPath())) {
-            return false;
-        }
+        return propertyEquals("servletPath", this.servletPath, request.getServletPath());
 
-        return true;
     }
 
     public String getContextPath() {
@@ -321,7 +318,7 @@ public class DefaultSavedRequest implements SavedRequest {
             return true;
         }
 
-        if (((arg1 == null) && (arg2 != null)) || ((arg1 != null) && (arg2 == null))) {
+        if (arg1 == null || arg2 == null) {
             if (logger.isDebugEnabled()) {
                 logger.debug(log + ": arg1=" + arg1 + "; arg2=" + arg2 + " (property not equals)");
             }

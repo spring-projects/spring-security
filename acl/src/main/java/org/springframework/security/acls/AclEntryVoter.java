@@ -145,11 +145,7 @@ public class AclEntryVoter extends AbstractAclVoter {
     }
 
     public boolean supports(ConfigAttribute attribute) {
-        if ((attribute.getAttribute() != null) && attribute.getAttribute().equals(getProcessConfigAttribute())) {
-            return true;
-        } else {
-            return false;
-        }
+        return (attribute.getAttribute() != null) && attribute.getAttribute().equals(getProcessConfigAttribute());
     }
 
     public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
@@ -177,7 +173,7 @@ public class AclEntryVoter extends AbstractAclVoter {
                 try {
                     Class<?> clazz = domainObject.getClass();
                     Method method = clazz.getMethod(internalMethod, new Class[0]);
-                    domainObject = method.invoke(domainObject, new Object[0]);
+                    domainObject = method.invoke(domainObject);
                 } catch (NoSuchMethodException nsme) {
                     throw new AuthorizationServiceException("Object of class '" + domainObject.getClass()
                         + "' does not provide the requested internalMethod: " + internalMethod);

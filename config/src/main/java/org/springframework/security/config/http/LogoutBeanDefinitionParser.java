@@ -26,7 +26,7 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
     static final String DEF_LOGOUT_URL = "/j_spring_security_logout";
     static final String ATT_LOGOUT_HANDLER = "success-handler-ref";
 
-    String rememberMeServices;
+    final String rememberMeServices;
 
     public LogoutBeanDefinitionParser(String rememberMeServices) {
         this.rememberMeServices = rememberMeServices;

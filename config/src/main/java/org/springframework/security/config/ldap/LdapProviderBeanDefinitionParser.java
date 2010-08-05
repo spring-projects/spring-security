@@ -20,7 +20,7 @@ import org.w3c.dom.Element;
  * @since 2.0
  */
 public class LdapProviderBeanDefinitionParser implements BeanDefinitionParser {
-    private Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
     private static final String ATT_USER_DN_PATTERN = "user-dn-pattern";
     private static final String ATT_USER_PASSWORD = "password-attribute";
@@ -81,7 +81,7 @@ public class LdapProviderBeanDefinitionParser implements BeanDefinitionParser {
                     parserContext.getReaderContext().warning("Salt source information isn't valid when used with LDAP",
                             passwordEncoderElement);
                 }
-            } else if (StringUtils.hasText(hash)) {;
+            } else if (StringUtils.hasText(hash)) {
                 authenticatorBuilder.addPropertyValue("passwordEncoder",
                         PasswordEncoderParser.createPasswordEncoderBeanDefinition(hash, false));
             }

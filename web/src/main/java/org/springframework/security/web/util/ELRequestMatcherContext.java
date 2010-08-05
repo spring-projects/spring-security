@@ -22,7 +22,7 @@ import org.springframework.util.StringUtils;
 
 class ELRequestMatcherContext {
 
-    private HttpServletRequest request;
+    private final HttpServletRequest request;
 
     public ELRequestMatcherContext(HttpServletRequest request) {
         this.request = request;
@@ -34,7 +34,7 @@ class ELRequestMatcherContext {
 
     public boolean hasHeader(String headerName, String value) {
         String header = request.getHeader(headerName);
-        if (StringUtils.hasText(header) == false) {
+        if (!StringUtils.hasText(header)) {
             return false;
         }
 

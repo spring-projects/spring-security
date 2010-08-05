@@ -6,10 +6,10 @@ import java.util.Date;
  * @author Luke Taylor
  */
 public class PersistentRememberMeToken {
-    private String username;
-    private String series;
-    private String tokenValue;
-    private Date date;
+    private final String username;
+    private final String series;
+    private final String tokenValue;
+    private final Date date;
 
     public PersistentRememberMeToken(String username, String series, String tokenValue, Date date) {
         this.username = username;

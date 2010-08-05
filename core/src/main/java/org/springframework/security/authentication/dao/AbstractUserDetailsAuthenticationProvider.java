@@ -262,7 +262,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
         this.userCache = userCache;
     }
 
-    public boolean supports(Class<? extends Object> authentication) {
+    public boolean supports(Class<?> authentication) {
         return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
     }
 

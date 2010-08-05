@@ -48,7 +48,7 @@ public class OpenIDAuthenticationStatus implements Serializable {
 
     //~ Instance fields ================================================================================================
 
-    private String name;
+    private final String name;
     private final int ordinal = nextOrdinal++;
 
     //~ Constructors ===================================================================================================

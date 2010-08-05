@@ -56,7 +56,7 @@ import org.springframework.util.Assert;
  */
 public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
 
-    private LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints;
+    private final LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints;
     private AuthenticationEntryPoint defaultEntryPoint;
 
     public DelegatingAuthenticationEntryPoint(LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints) {

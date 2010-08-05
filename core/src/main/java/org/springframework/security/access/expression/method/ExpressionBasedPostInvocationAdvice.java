@@ -19,7 +19,7 @@ import org.springframework.security.core.Authentication;
 public class ExpressionBasedPostInvocationAdvice implements PostInvocationAuthorizationAdvice{
     protected final Log logger = LogFactory.getLog(getClass());
 
-    private MethodSecurityExpressionHandler expressionHandler;
+    private final MethodSecurityExpressionHandler expressionHandler;
 
     public ExpressionBasedPostInvocationAdvice(MethodSecurityExpressionHandler expressionHandler) {
         this.expressionHandler = expressionHandler;

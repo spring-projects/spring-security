@@ -95,7 +95,7 @@ class ArrayFilterer<T> implements Filterer<T> {
             }
 
             public T next() {
-                if (hasNext() == false) {
+                if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
                 return list[index++];

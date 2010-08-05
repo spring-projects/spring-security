@@ -64,18 +64,19 @@ public class DefaultPermissionFactory implements PermissionFactory {
 
         Field[] fields = clazz.getFields();
 
-        for (int i = 0; i < fields.length; i++) {
+        for (Field field : fields) {
             try {
-                Object fieldValue = fields[i].get(null);
+                Object fieldValue = field.get(null);
 
                 if (Permission.class.isAssignableFrom(fieldValue.getClass())) {
                     // Found a Permission static field
                     Permission perm = (Permission) fieldValue;
-                    String permissionName = fields[i].getName();
+                    String permissionName = field.getName();
 
                     registerPermission(perm, permissionName);
                 }
-            } catch (Exception ignore) {}
+            } catch (Exception ignore) {
+            }
         }
     }
 

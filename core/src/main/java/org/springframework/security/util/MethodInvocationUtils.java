@@ -67,13 +67,15 @@ public final class MethodInvocationUtils {
             Advised a = (Advised) object;
             if (!a.isProxyTargetClass()) {
                 Class<?>[] possibleInterfaces = a.getProxiedInterfaces();
-                for (int i = 0; i < possibleInterfaces.length; i++) {
+                for (Class<?> possibleInterface : possibleInterfaces) {
                     try {
-                        possibleInterfaces[i].getMethod(methodName, classArgs);
+                        possibleInterface.getMethod(methodName, classArgs);
                         // to get here means no exception happened
-                        target = possibleInterfaces[i];
+                        target = possibleInterface;
                         break;
-                    } catch (Exception tryTheNextOne) {}
+                    } catch (Exception ignored) {
+                        // try the next one
+                    }
                 }
             }
         }

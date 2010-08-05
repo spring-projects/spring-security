@@ -12,7 +12,7 @@ public abstract class AbstractPermission implements Permission {
 
     //~ Instance fields ================================================================================================
 
-    protected char code;
+    protected final char code;
     protected int mask;
 
     //~ Constructors ===================================================================================================

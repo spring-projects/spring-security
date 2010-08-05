@@ -54,7 +54,7 @@ public class JaasNameCallbackHandler implements JaasAuthenticationCallbackHandle
         throws IOException, UnsupportedCallbackException {
         if (callback instanceof NameCallback) {
             NameCallback ncb = (NameCallback) callback;
-            String username = "";
+            String username;
 
             Object principal = authentication.getPrincipal();
 

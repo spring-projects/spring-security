@@ -82,11 +82,7 @@ public class InsecureChannelProcessor implements InitializingBean, ChannelProces
     }
 
     public boolean supports(ConfigAttribute attribute) {
-        if ((attribute != null) && (attribute.getAttribute() != null)
-            && attribute.getAttribute().equals(getInsecureKeyword())) {
-            return true;
-        } else {
-            return false;
-        }
+        return (attribute != null) && (attribute.getAttribute() != null)
+                && attribute.getAttribute().equals(getInsecureKeyword());
     }
 }

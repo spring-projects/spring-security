@@ -33,13 +33,13 @@ import java.io.Serializable;
 public class AccessControlEntryImpl implements AccessControlEntry, AuditableAccessControlEntry {
     //~ Instance fields ================================================================================================
 
-    private Acl acl;
+    private final Acl acl;
     private Permission permission;
-    private Serializable id;
-    private Sid sid;
+    private final Serializable id;
+    private final Sid sid;
     private boolean auditFailure = false;
     private boolean auditSuccess = false;
-    private boolean granting;
+    private final boolean granting;
 
     //~ Constructors ===================================================================================================
 

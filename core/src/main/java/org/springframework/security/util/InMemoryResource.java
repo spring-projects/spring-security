@@ -33,8 +33,8 @@ import java.util.Arrays;
 public class InMemoryResource extends AbstractResource {
     //~ Instance fields ================================================================================================
 
-    private byte[] source;
-    private String description;
+    private final byte[] source;
+    private final String description;
 
     //~ Constructors ===================================================================================================
 

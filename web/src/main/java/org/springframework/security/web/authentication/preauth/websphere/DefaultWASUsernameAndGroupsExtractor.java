@@ -54,7 +54,7 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
      *            The subject for which to retrieve the security name
      * @return String the security name for the given subject
      */
-    private static final String getSecurityName(final Subject subject) {
+    private static String getSecurityName(final Subject subject) {
         if (logger.isDebugEnabled()) {
             logger.debug("Determining Websphere security name for subject " + subject);
         }
@@ -77,7 +77,7 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
      *
      * @return Subject the current RunAs subject
      */
-    private static final Subject getRunAsSubject() {
+    private static Subject getRunAsSubject() {
         logger.debug("Retrieving WebSphere RunAs subject");
         // get Subject: WSSubject.getCallerSubject ();
         return (Subject) invokeMethod(getRunAsSubjectMethod(), null, new Object[] {});
@@ -90,7 +90,7 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
      *            The subject for which to retrieve the WebSphere group names
      * @return the WebSphere group names for the given subject
      */
-    private static final List<String> getWebSphereGroups(final Subject subject) {
+    private static List<String> getWebSphereGroups(final Subject subject) {
         return getWebSphereGroups(getSecurityName(subject));
     }
 
@@ -102,7 +102,7 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
      * @return the WebSphere group names for the given security name
      */
     @SuppressWarnings("unchecked")
-    private static final List<String> getWebSphereGroups(final String securityName) {
+    private static List<String> getWebSphereGroups(final String securityName) {
         Context ic = null;
         try {
             // TODO: Cache UserRegistry object
@@ -123,14 +123,16 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
             throw new RuntimeException("Exception occured while looking up groups for user", e);
         } finally {
             try {
-                ic.close();
+                if (ic != null) {
+                    ic.close();
+                }
             } catch (NamingException e) {
                 logger.debug("Exception occured while closing context", e);
             }
         }
     }
 
-    private static final Object invokeMethod(Method method, Object instance, Object[] args)
+    private static Object invokeMethod(Method method, Object instance, Object[] args)
     {
         try {
             return method.invoke(instance,args);
@@ -146,7 +148,7 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
         }
     }
 
-    private static final Method getMethod(String className, String methodName, String[] parameterTypeNames) {
+    private static Method getMethod(String className, String methodName, String[] parameterTypeNames) {
         try {
             Class<?> c = Class.forName(className);
             final int len = parameterTypeNames.length;
@@ -164,21 +166,21 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
         }
     }
 
-    private static final Method getRunAsSubjectMethod() {
+    private static Method getRunAsSubjectMethod() {
         if (getRunAsSubject == null) {
             getRunAsSubject = getMethod("com.ibm.websphere.security.auth.WSSubject", "getRunAsSubject", new String[] {});
         }
         return getRunAsSubject;
     }
 
-    private static final Method getGroupsForUserMethod() {
+    private static Method getGroupsForUserMethod() {
         if (getGroupsForUser == null) {
             getGroupsForUser = getMethod("com.ibm.websphere.security.UserRegistry", "getGroupsForUser", new String[] { "java.lang.String" });
         }
         return getGroupsForUser;
     }
 
-    private static final Method getSecurityNameMethod() {
+    private static Method getSecurityNameMethod() {
         if (getSecurityName == null) {
             getSecurityName = getMethod("com.ibm.websphere.security.cred.WSCredential", "getSecurityName", new String[] {});
         }
@@ -186,14 +188,14 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
     }
 
     // SEC-803
-    private static final Class<?> getWSCredentialClass() {
+    private static Class<?> getWSCredentialClass() {
         if (wsCredentialClass == null) {
             wsCredentialClass = getClass("com.ibm.websphere.security.cred.WSCredential");
         }
         return wsCredentialClass;
     }
 
-    private static final Class<?> getClass(String className) {
+    private static Class<?> getClass(String className) {
         try {
             return Class.forName(className);
         } catch (ClassNotFoundException e) {

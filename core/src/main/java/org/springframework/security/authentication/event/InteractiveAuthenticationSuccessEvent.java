@@ -29,7 +29,7 @@ import org.springframework.util.Assert;
 public class InteractiveAuthenticationSuccessEvent extends AbstractAuthenticationEvent {
     //~ Instance fields ================================================================================================
 
-    private Class<?> generatedBy;
+    private final Class<?> generatedBy;
 
     //~ Constructors ===================================================================================================
 

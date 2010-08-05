@@ -62,11 +62,7 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager, Initi
     }
 
     public void decide(FilterInvocation invocation, Collection<ConfigAttribute> config) throws IOException, ServletException {
-
-        Iterator<ConfigAttribute> attrs = config.iterator();
-
-        while (attrs.hasNext()) {
-            ConfigAttribute attribute = attrs.next();
+        for (ConfigAttribute attribute : config) {
             if (ANY_CHANNEL.equals(attribute.getAttribute())) {
                 return;
             }

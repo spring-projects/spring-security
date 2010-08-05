@@ -107,11 +107,11 @@ public final class BasicLookupStrategy implements LookupStrategy {
 
     //~ Instance fields ================================================================================================
 
-    private AclAuthorizationStrategy aclAuthorizationStrategy;
+    private final AclAuthorizationStrategy aclAuthorizationStrategy;
     private PermissionFactory permissionFactory = new DefaultPermissionFactory();
-    private AclCache aclCache;
-    private PermissionGrantingStrategy grantingStrategy;
-    private JdbcTemplate jdbcTemplate;
+    private final AclCache aclCache;
+    private final PermissionGrantingStrategy grantingStrategy;
+    private final JdbcTemplate jdbcTemplate;
     private int batchSize = 50;
 
     private final Field fieldAces = FieldUtils.getField(AclImpl.class, "aces");
@@ -476,8 +476,8 @@ public final class BasicLookupStrategy implements LookupStrategy {
     //~ Inner Classes ==================================================================================================
 
     private class ProcessResultSet implements ResultSetExtractor<Set<Long>> {
-        private Map<Serializable, Acl> acls;
-        private List<Sid> sids;
+        private final Map<Serializable, Acl> acls;
+        private final List<Sid> sids;
 
         public ProcessResultSet(Map<Serializable, Acl> acls, List<Sid> sids) {
             Assert.notNull(acls, "ACLs cannot be null");
@@ -603,7 +603,7 @@ public final class BasicLookupStrategy implements LookupStrategy {
     }
 
     private class StubAclParent implements Acl {
-        private Long id;
+        private final Long id;
 
         public StubAclParent(Long id) {
             this.id = id;

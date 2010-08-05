@@ -56,8 +56,8 @@ public class JdbcAclService implements AclService {
 
     //~ Instance fields ================================================================================================
 
-    protected JdbcTemplate jdbcTemplate;
-    private LookupStrategy lookupStrategy;
+    protected final JdbcTemplate jdbcTemplate;
+    private final LookupStrategy lookupStrategy;
     private String findChildrenSql = DEFAULT_SELECT_ACL_WITH_PARENT_SQL;
 
     //~ Constructors ===================================================================================================
@@ -109,10 +109,9 @@ public class JdbcAclService implements AclService {
         Map<ObjectIdentity, Acl> result = lookupStrategy.readAclsById(objects, sids);
 
         // Check every requested object identity was found (throw NotFoundException if needed)
-        for (int i = 0; i < objects.size(); i++) {
-            if (!result.containsKey(objects.get(i))) {
-                throw new NotFoundException("Unable to find ACL information for object identity '"
-                    + objects.get(i) + "'");
+        for (ObjectIdentity oid : objects) {
+            if (!result.containsKey(oid)) {
+                throw new NotFoundException("Unable to find ACL information for object identity '" + oid + "'");
             }
         }
 

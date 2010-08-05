@@ -38,8 +38,8 @@ public class SessionInformation implements Serializable {
     //~ Instance fields ================================================================================================
 
     private Date lastRequest;
-    private Object principal;
-    private String sessionId;
+    private final Object principal;
+    private final String sessionId;
     private boolean expired = false;
 
     //~ Constructors ===================================================================================================

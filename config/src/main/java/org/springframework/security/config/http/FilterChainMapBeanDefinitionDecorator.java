@@ -58,8 +58,8 @@ public class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDeco
                 String[] filterBeanNames = StringUtils.tokenizeToStringArray(filters, ",");
                 ManagedList filterChain = new ManagedList(filterBeanNames.length);
 
-                for (int i=0; i < filterBeanNames.length; i++) {
-                    filterChain.add(new RuntimeBeanReference(filterBeanNames[i]));
+                for (String name : filterBeanNames) {
+                    filterChain.add(new RuntimeBeanReference(name));
                 }
 
                 filterChainMap.put(matcher, filterChain);

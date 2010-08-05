@@ -62,5 +62,5 @@ public interface AuthenticationProvider {
      * @return <code>true</code> if the implementation can more closely evaluate the <code>Authentication</code> class
      *         presented
      */
-    boolean supports(Class<? extends Object> authentication);
+    boolean supports(Class<?> authentication);
 }

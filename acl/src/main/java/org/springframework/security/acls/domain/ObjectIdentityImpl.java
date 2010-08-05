@@ -78,7 +78,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 
         try {
             Method method = typeClass.getMethod("getId", new Class[] {});
-            result = method.invoke(object, new Object[] {});
+            result = method.invoke(object);
         } catch (Exception e) {
             throw new IdentityUnavailableException("Could not extract identity from object " + object, e);
         }

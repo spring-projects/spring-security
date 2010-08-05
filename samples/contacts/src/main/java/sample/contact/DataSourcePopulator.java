@@ -49,14 +49,14 @@ public class DataSourcePopulator implements InitializingBean {
 
     JdbcTemplate template;
     private MutableAclService mutableAclService;
-    Random rnd = new Random();
+    final Random rnd = new Random();
     TransactionTemplate tt;
-    String[] firstNames = {
+    final String[] firstNames = {
             "Bob", "Mary", "James", "Jane", "Kristy", "Kirsty", "Kate", "Jeni", "Angela", "Melanie", "Kent", "William",
             "Geoff", "Jeff", "Adrian", "Amanda", "Lisa", "Elizabeth", "Prue", "Richard", "Darin", "Phillip", "Michael",
             "Belinda", "Samantha", "Brian", "Greg", "Matthew"
         };
-    String[] lastNames = {
+    final String[] lastNames = {
             "Smith", "Williams", "Jackson", "Rictor", "Nelson", "Fitzgerald", "McAlpine", "Sutherland", "Abbott", "Hall",
             "Edwards", "Gates", "Black", "Brown", "Gray", "Marwell", "Booch", "Johnson", "McTaggart", "Parklin",
             "Findlay", "Robinson", "Giugni", "Lang", "Chi", "Carmichael"

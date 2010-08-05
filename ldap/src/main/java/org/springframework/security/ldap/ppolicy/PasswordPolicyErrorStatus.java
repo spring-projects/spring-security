@@ -35,8 +35,8 @@ public enum PasswordPolicyErrorStatus {
     PASSWORD_TOO_YOUNG              ("ppolicy.password.too.young", "Your password was changed too recently to be changed again"),
     PASSWORD_IN_HISTORY             ("ppolicy.password.in.history", "The supplied password has already been used");
 
-    private String errorCode;
-    private String defaultMessage;
+    private final String errorCode;
+    private final String defaultMessage;
 
     private PasswordPolicyErrorStatus(String errorCode, String defaultMessage) {
         this.errorCode = errorCode;

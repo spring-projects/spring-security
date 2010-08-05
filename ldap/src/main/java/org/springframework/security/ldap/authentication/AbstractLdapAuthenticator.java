@@ -38,7 +38,7 @@ import java.util.List;
 public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, InitializingBean, MessageSourceAware {
     //~ Instance fields ================================================================================================
 
-    private ContextSource contextSource;
+    private final ContextSource contextSource;
 
     /** Optional search object which can be used to locate a user when a simple DN match isn't sufficient */
     private LdapUserSearch userSearch;
@@ -94,8 +94,8 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
         String[] args = new String[] {username};
 
         synchronized (userDnFormat) {
-            for (int i = 0; i < userDnFormat.length; i++) {
-                userDns.add(userDnFormat[i].format(args));
+            for (MessageFormat formatter : userDnFormat) {
+                userDns.add(formatter.format(args));
             }
         }
 

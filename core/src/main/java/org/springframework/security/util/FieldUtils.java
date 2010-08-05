@@ -83,11 +83,10 @@ public final class FieldUtils {
         Assert.hasText(fieldName, "Field name required");
         String[] nestedFields = StringUtils.tokenizeToStringArray(fieldName, ".");
         Class<?> componentClass = bean.getClass();
-        Field field = null;
         Object value = bean;
 
-        for (int i=0; i < nestedFields.length; i++) {
-            field = getField(componentClass, nestedFields[i]);
+        for (String nestedField : nestedFields) {
+            Field field = getField(componentClass, nestedField);
             field.setAccessible(true);
             value = field.get(value);
             if (value != null) {

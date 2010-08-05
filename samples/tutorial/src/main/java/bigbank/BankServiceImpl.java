@@ -4,7 +4,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.util.Assert;
 
 public class BankServiceImpl implements BankService {
-    private BankDao bankDao;
+    private final BankDao bankDao;
 
     // Not used unless you declare a <protect-pointcut>
     @Pointcut("execution(* bigbank.BankServiceImpl.*(..))")

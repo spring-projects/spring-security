@@ -89,7 +89,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
     /** The attribute which contains members of a group */
     private String groupMemberAttributeName = "uniquemember";
 
-    private String rolePrefix = "ROLE_";
+    private final String rolePrefix = "ROLE_";
 
     /** The pattern to be used for the user search. {0} is the user's DN */
     private String groupSearchFilter = "(uniquemember={0})";
@@ -99,7 +99,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
      */
     private UserDetailsContextMapper userDetailsMapper = new InetOrgPersonContextMapper();
 
-    private LdapTemplate template;
+    private final LdapTemplate template;
 
     /** Default context mapper used to create a set of roles from a list of attributes */
     private AttributesMapper roleMapper = new AttributesMapper() {

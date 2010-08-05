@@ -48,10 +48,10 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
     private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
     /** Map from RegisteredMethod to ConfigAttribute list */
-    protected Map<RegisteredMethod, List<ConfigAttribute>> methodMap = new HashMap<RegisteredMethod, List<ConfigAttribute>>();
+    protected final Map<RegisteredMethod, List<ConfigAttribute>> methodMap = new HashMap<RegisteredMethod, List<ConfigAttribute>>();
 
     /** Map from RegisteredMethod to name pattern used for registration */
-    private Map<RegisteredMethod, String> nameMap = new HashMap<RegisteredMethod, String>();
+    private final Map<RegisteredMethod, String> nameMap = new HashMap<RegisteredMethod, String>();
 
     //~ Methods ========================================================================================================
 
@@ -139,9 +139,9 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
         Method[] methods = javaType.getMethods();
         List<Method> matchingMethods = new ArrayList<Method>();
 
-        for (int i = 0; i < methods.length; i++) {
-            if (methods[i].getName().equals(mappedName) || isMatch(methods[i].getName(), mappedName)) {
-                matchingMethods.add(methods[i]);
+        for (Method m : methods) {
+            if (m.getName().equals(mappedName) || isMatch(m.getName(), mappedName)) {
+                matchingMethods.add(m);
             }
         }
 
@@ -252,8 +252,8 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
      * Class will be the Class we're invoking against and the Method will provide details of the declared class.
      */
     private class RegisteredMethod {
-        private Method method;
-        private Class<?> registeredJavaType;
+        private final Method method;
+        private final Class<?> registeredJavaType;
 
         public RegisteredMethod(Method method, Class<?> registeredJavaType) {
             Assert.notNull(method, "Method required");

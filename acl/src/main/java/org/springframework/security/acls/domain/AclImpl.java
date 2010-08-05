@@ -43,7 +43,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
     private Acl parentAcl;
     private transient AclAuthorizationStrategy aclAuthorizationStrategy;
     private transient PermissionGrantingStrategy permissionGrantingStrategy;
-    private List<AccessControlEntry> aces = new ArrayList<AccessControlEntry>();
+    private final List<AccessControlEntry> aces = new ArrayList<AccessControlEntry>();
     private ObjectIdentity objectIdentity;
     private Serializable id;
     private Sid owner; // OwnershipAcl
