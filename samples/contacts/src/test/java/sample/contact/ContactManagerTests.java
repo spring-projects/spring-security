@@ -37,7 +37,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  *
  * @author David Leal
  * @author Ben Alex
- * @Author Luke Taylor
+ * @author Luke Taylor
  */
 @ContextConfiguration(locations={
                 "/applicationContext-security.xml",

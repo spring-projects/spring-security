@@ -52,16 +52,23 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
      * Constructor. The only mandatory parameter relates to the system-wide {@link GrantedAuthority} instances that
      * can be held to always permit ACL changes.
      *
-     * @param auths an array of <code>GrantedAuthority</code>s that have
+     * @param auths the <code>GrantedAuthority</code>s that have
      * special permissions (index 0 is the authority needed to change
      * ownership, index 1 is the authority needed to modify auditing details,
      * index 2 is the authority needed to change other ACL and ACE details) (required)
+     * <p>
+     * Alternatively, a single value can be supplied for all three permissions.
      */
-    public AclAuthorizationStrategyImpl(GrantedAuthority[] auths) {
-        Assert.isTrue(auths != null && auths.length == 3, "GrantedAuthority[] with three elements required");
-        this.gaTakeOwnership = auths[0];
-        this.gaModifyAuditing = auths[1];
-        this.gaGeneralChanges = auths[2];
+    public AclAuthorizationStrategyImpl(GrantedAuthority... auths) {
+        Assert.isTrue(auths != null && (auths.length == 3 || auths.length == 1),
+                "One or three GrantedAuthority instances required");
+        if (auths.length == 3) {
+            gaTakeOwnership = auths[0];
+            gaModifyAuditing = auths[1];
+            gaGeneralChanges = auths[2];
+        } else {
+            gaTakeOwnership = gaModifyAuditing = gaGeneralChanges = auths[0];
+        }
     }
 
     //~ Methods ========================================================================================================

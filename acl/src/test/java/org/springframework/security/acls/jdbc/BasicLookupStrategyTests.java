@@ -101,9 +101,7 @@ public class BasicLookupStrategyTests {
     @Before
     public void initializeBeans() {
         EhCacheBasedAclCache cache = new EhCacheBasedAclCache(getCache());
-        AclAuthorizationStrategy authorizationStrategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
-                new GrantedAuthorityImpl("ROLE_ADMINISTRATOR"), new GrantedAuthorityImpl("ROLE_ADMINISTRATOR"),
-                new GrantedAuthorityImpl("ROLE_ADMINISTRATOR") });
+        AclAuthorizationStrategy authorizationStrategy = new AclAuthorizationStrategyImpl(new GrantedAuthorityImpl("ROLE_ADMINISTRATOR"));
         strategy = new BasicLookupStrategy(dataSource, cache, authorizationStrategy,
                 new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()));
         strategy.setPermissionFactory(new DefaultPermissionFactory());
@@ -194,16 +192,16 @@ public class BasicLookupStrategyTests {
 
         // Check each entry
         Assert.assertTrue(topParent.isEntriesInheriting());
-        Assert.assertEquals(topParent.getId(), new Long(1));
+        Assert.assertEquals(topParent.getId(), Long.valueOf(1));
         Assert.assertEquals(topParent.getOwner(), new PrincipalSid("ben"));
-        Assert.assertEquals(topParent.getEntries().get(0).getId(), new Long(1));
+        Assert.assertEquals(topParent.getEntries().get(0).getId(), Long.valueOf(1));
         Assert.assertEquals(topParent.getEntries().get(0).getPermission(), BasePermission.READ);
         Assert.assertEquals(topParent.getEntries().get(0).getSid(), new PrincipalSid("ben"));
         Assert.assertFalse(((AuditableAccessControlEntry) topParent.getEntries().get(0)).isAuditFailure());
         Assert.assertFalse(((AuditableAccessControlEntry) topParent.getEntries().get(0)).isAuditSuccess());
         Assert.assertTrue(((AuditableAccessControlEntry) topParent.getEntries().get(0)).isGranting());
 
-        Assert.assertEquals(topParent.getEntries().get(1).getId(), new Long(2));
+        Assert.assertEquals(topParent.getEntries().get(1).getId(), Long.valueOf(2));
         Assert.assertEquals(topParent.getEntries().get(1).getPermission(), BasePermission.WRITE);
         Assert.assertEquals(topParent.getEntries().get(1).getSid(), new PrincipalSid("ben"));
         Assert.assertFalse(((AuditableAccessControlEntry) topParent.getEntries().get(1)).isAuditFailure());
@@ -211,9 +209,9 @@ public class BasicLookupStrategyTests {
         Assert.assertFalse(((AuditableAccessControlEntry) topParent.getEntries().get(1)).isGranting());
 
         Assert.assertTrue(middleParent.isEntriesInheriting());
-        Assert.assertEquals(middleParent.getId(), new Long(2));
+        Assert.assertEquals(middleParent.getId(), Long.valueOf(2));
         Assert.assertEquals(middleParent.getOwner(), new PrincipalSid("ben"));
-        Assert.assertEquals(middleParent.getEntries().get(0).getId(), new Long(3));
+        Assert.assertEquals(middleParent.getEntries().get(0).getId(), Long.valueOf(3));
         Assert.assertEquals(middleParent.getEntries().get(0).getPermission(), BasePermission.DELETE);
         Assert.assertEquals(middleParent.getEntries().get(0).getSid(), new PrincipalSid("ben"));
         Assert.assertFalse(((AuditableAccessControlEntry) middleParent.getEntries().get(0)).isAuditFailure());
@@ -221,9 +219,9 @@ public class BasicLookupStrategyTests {
         Assert.assertTrue(((AuditableAccessControlEntry) middleParent.getEntries().get(0)).isGranting());
 
         Assert.assertTrue(child.isEntriesInheriting());
-        Assert.assertEquals(child.getId(), new Long(3));
+        Assert.assertEquals(child.getId(), Long.valueOf(3));
         Assert.assertEquals(child.getOwner(), new PrincipalSid("ben"));
-        Assert.assertEquals(child.getEntries().get(0).getId(), new Long(4));
+        Assert.assertEquals(child.getEntries().get(0).getId(), Long.valueOf(4));
         Assert.assertEquals(child.getEntries().get(0).getPermission(), BasePermission.DELETE);
         Assert.assertEquals(child.getEntries().get(0).getSid(), new PrincipalSid("ben"));
         Assert.assertFalse(((AuditableAccessControlEntry) child.getEntries().get(0)).isAuditFailure());
@@ -236,10 +234,10 @@ public class BasicLookupStrategyTests {
         String query = "INSERT INTO acl_object_identity(ID,OBJECT_ID_CLASS,OBJECT_ID_IDENTITY,PARENT_OBJECT,OWNER_SID,ENTRIES_INHERITING) VALUES (4,2,103,1,1,1);";
         jdbcTemplate.execute(query);
 
-        ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
-        ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Integer(101));
-        ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(102));
-        ObjectIdentity middleParent2Oid = new ObjectIdentityImpl(TARGET_CLASS, new Long(103));
+        ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(100));
+        ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(101));
+        ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(102));
+        ObjectIdentity middleParent2Oid = new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(103));
 
         // Retrieve the child
         Map<ObjectIdentity, Acl> map = this.strategy.readAclsById(Arrays.asList(childOid), null);
