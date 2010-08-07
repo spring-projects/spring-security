@@ -144,5 +144,28 @@
             <classname>SessionRegistryImpl</classname> to be notified when a session ends. Without
             it, a user will never be able to log back in again once they have exceeded their session
             allowance, even if they log out of another session or it times out.</para>
+        <section xml:id="list-authenticated-principals">
+            <title>Querying the <interfacename>SessionRegistry</interfacename> for currently authenticated
+            users and their sessions</title>
+            <para>
+                Setting up concurrency-control, either through the namespace or using plain beans has the
+                useful side effect of providing you with a reference to the <interfacename>SessionRegistry</interfacename>
+                which you can use directly within your application, so even if you don't want to restrict the
+                number of sessions a user may have, it may be worth setting up the infrastructure anyway. You can
+                set the <literal>maximumSession</literal> property to -1 to allow unlimited sessions. If
+                 you're using the namespace, you can set an alias for the internally-created 
+                <interfacename>SessionRegistry</interfacename> using the <literal>session-registry-alias</literal>
+                attribute, providing a reference which you can inject into your own beans.</para>
+            <para>
+                The <methodname>getAllPrincipals()</methodname>
+                method supplies you with a list of the currently authenticated users. You can list a user's
+                sessions by calling the <methodname>getAllSessions(Object principal, boolean includeExpiredSessions)</methodname> method,
+                which returns a list of <classname>SessionInformation</classname> objects. You can also
+                expire a user's session by calling <methodname>expireNow()</methodname> on a
+                <methodname>SessionInformation</methodname> instance. When the user returns to the application, they
+                will be prevented from proceeding. You may find these methods useful in an administration
+                application, for example. Have a look at the Javadoc for more information.
+            </para>
+        </section>
     </section>
 </chapter>
