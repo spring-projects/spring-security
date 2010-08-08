@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.util.RequestMatcher;
 
 /**
@@ -24,7 +23,7 @@ public class HttpSessionRequestCacheTests {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/destination");
         MockHttpServletResponse response = new MockHttpServletResponse();
         cache.saveRequest(request, response);
-        assertNotNull(request.getSession().getAttribute(WebAttributes.SAVED_REQUEST));
+        assertNotNull(request.getSession().getAttribute(HttpSessionRequestCache.SAVED_REQUEST));
         assertNotNull(cache.getRequest(request, response));
 
         MockHttpServletRequest newRequest = new MockHttpServletRequest("POST", "/destination");

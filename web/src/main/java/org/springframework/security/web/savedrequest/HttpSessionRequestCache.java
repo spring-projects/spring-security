@@ -8,7 +8,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.PortResolverImpl;
-import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.util.AnyRequestMatcher;
 import org.springframework.security.web.util.RequestMatcher;
 
@@ -21,6 +20,7 @@ import org.springframework.security.web.util.RequestMatcher;
  * @since 3.0
  */
 public class HttpSessionRequestCache implements RequestCache {
+    static final String SAVED_REQUEST = "SPRING_SECURITY_SAVED_REQUEST";
     protected final Log logger = LogFactory.getLog(this.getClass());
 
     private PortResolver portResolver = new PortResolverImpl();
@@ -37,7 +37,7 @@ public class HttpSessionRequestCache implements RequestCache {
             if (createSessionAllowed || request.getSession(false) != null) {
                 // Store the HTTP request itself. Used by AbstractAuthenticationProcessingFilter
                 // for redirection after successful authentication (SEC-29)
-                request.getSession().setAttribute(WebAttributes.SAVED_REQUEST, savedRequest);
+                request.getSession().setAttribute(SAVED_REQUEST, savedRequest);
                 logger.debug("DefaultSavedRequest added to Session: " + savedRequest);
             }
         } else {
@@ -49,7 +49,7 @@ public class HttpSessionRequestCache implements RequestCache {
         HttpSession session = currentRequest.getSession(false);
 
         if (session != null) {
-            return (DefaultSavedRequest) session.getAttribute(WebAttributes.SAVED_REQUEST);
+            return (DefaultSavedRequest) session.getAttribute(SAVED_REQUEST);
         }
 
         return null;
@@ -60,7 +60,7 @@ public class HttpSessionRequestCache implements RequestCache {
 
         if (session != null) {
             logger.debug("Removing DefaultSavedRequest from session if present");
-            session.removeAttribute(WebAttributes.SAVED_REQUEST);
+            session.removeAttribute(SAVED_REQUEST);
         }
     }
 

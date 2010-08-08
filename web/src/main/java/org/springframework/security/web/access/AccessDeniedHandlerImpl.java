@@ -42,11 +42,7 @@ import org.springframework.security.web.WebAttributes;
  */
 public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
     //~ Static fields/initializers =====================================================================================
-    /**
-     * @deprecated Use the value in {@link WebAttributes} directly.
-     */
-    @Deprecated
-    public static final String SPRING_SECURITY_ACCESS_DENIED_EXCEPTION_KEY = WebAttributes.ACCESS_DENIED_403;
+
     protected static final Log logger = LogFactory.getLog(AccessDeniedHandlerImpl.class);
 
     //~ Instance fields ================================================================================================

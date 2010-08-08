@@ -55,6 +55,7 @@ public class SimpleUrlAuthenticationFailureHandlerTests {
         assertNull(request.getSession(false));
     }
 
+    // SEC-462
     @Test
     public void responseIsForwardedIfUseForwardIsTrue() throws Exception {
         SimpleUrlAuthenticationFailureHandler afh = new SimpleUrlAuthenticationFailureHandler("/target");

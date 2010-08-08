@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.web.WebAttributes;
 
 public class RequestCacheAwareFilterTests {
 
@@ -18,9 +17,9 @@ public class RequestCacheAwareFilterTests {
         MockHttpServletRequest request = new MockHttpServletRequest("POST", "/destination");
         MockHttpServletResponse response = new MockHttpServletResponse();
         cache.saveRequest(request, response);
-        assertNotNull(request.getSession().getAttribute(WebAttributes.SAVED_REQUEST));
+        assertNotNull(request.getSession().getAttribute(HttpSessionRequestCache.SAVED_REQUEST));
 
         filter.doFilter(request, response, new MockFilterChain());
-        assertNull(request.getSession().getAttribute(WebAttributes.SAVED_REQUEST));
+        assertNull(request.getSession().getAttribute(HttpSessionRequestCache.SAVED_REQUEST));
     }
 }

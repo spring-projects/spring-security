@@ -44,6 +44,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.security.web.util.ThrowableAnalyzer;
 
 /**
@@ -66,9 +67,10 @@ public class ExceptionTranslationFilterTests {
             return null;
         }
 
-        DefaultSavedRequest savedRequest = (DefaultSavedRequest) session.getAttribute(WebAttributes.SAVED_REQUEST);
+        HttpSessionRequestCache rc = new HttpSessionRequestCache();
+        SavedRequest sr = rc.getRequest(request, new MockHttpServletResponse());
 
-        return savedRequest.getRedirectUrl();
+        return sr.getRedirectUrl();
     }
 
     @Test

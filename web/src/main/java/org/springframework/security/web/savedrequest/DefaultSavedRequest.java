@@ -52,11 +52,6 @@ public class DefaultSavedRequest implements SavedRequest {
     //~ Static fields/initializers =====================================================================================
 
     protected static final Log logger = LogFactory.getLog(DefaultSavedRequest.class);
-    /**
-     * @deprecated Use the value in {@link WebAttributes} directly.
-     */
-    @Deprecated
-    public static final String SPRING_SECURITY_SAVED_REQUEST_KEY = WebAttributes.SAVED_REQUEST;
 
     private static final String HEADER_IF_NONE_MATCH = "If-None-Match";
 

@@ -16,20 +16,7 @@
 package org.springframework.security.web.authentication;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-
-import java.io.IOException;
-import java.util.Properties;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import static org.mockito.Mockito.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -37,7 +24,6 @@ import org.junit.Test;
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -45,10 +31,17 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
-import org.springframework.security.web.savedrequest.DefaultSavedRequest;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
 
 
 /**
@@ -63,7 +56,7 @@ public class AbstractAuthenticationProcessingFilterTests {
     SimpleUrlAuthenticationFailureHandler failureHandler;
     //~ Methods ========================================================================================================
 
-    private MockHttpServletRequest createMockRequest() {
+    private MockHttpServletRequest createMockAuthenticationRequest() {
         MockHttpServletRequest request = new MockHttpServletRequest();
 
         request.setServletPath("/j_mock_post");
@@ -75,34 +68,6 @@ public class AbstractAuthenticationProcessingFilterTests {
         return request;
     }
 
-    private void executeFilterInContainerSimulator(FilterConfig filterConfig, Filter filter, ServletRequest request,
-            ServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        filter.init(filterConfig);
-        filter.doFilter(request, response, filterChain);
-        filter.destroy();
-    }
-
-    private DefaultSavedRequest makeSavedRequestForUrl() {
-        MockHttpServletRequest request = createMockRequest();
-        request.setMethod("GET");
-        request.setServletPath("/some_protected_file.html");
-        request.setScheme("http");
-        request.setServerName("www.example.com");
-        request.setRequestURI("/mycontext/some_protected_file.html");
-
-        return new DefaultSavedRequest(request, new PortResolverImpl());
-    }
-
-//    private DefaultSavedRequest makePostSavedRequestForUrl() {
-//        MockHttpServletRequest request = createMockRequest();
-//        request.setServletPath("/some_protected_file.html");
-//        request.setScheme("http");
-//        request.setServerName("www.example.com");
-//        request.setRequestURI("/mycontext/post/some_protected_file.html");
-//        request.setMethod("POST");
-//
-//        return new DefaultSavedRequest(request, new PortResolverImpl());
-//    }
 
     @Before
     public void setUp() throws Exception {
@@ -120,7 +85,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 
     @Test
     public void testDefaultProcessesFilterUrlMatchesWithPathParameter() {
-        MockHttpServletRequest request = createMockRequest();
+        MockHttpServletRequest request = createMockAuthenticationRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockAuthenticationFilter filter = new MockAuthenticationFilter();
         filter.setFilterProcessesUrl("/j_spring_security_check");
@@ -130,47 +95,9 @@ public class AbstractAuthenticationProcessingFilterTests {
     }
 
     @Test
-    public void testFailedAuthenticationRedirectsAppropriately() throws Exception {
-        // Setup our HTTP request
-        MockHttpServletRequest request = createMockRequest();
-
-        // Setup our filter configuration
-        MockFilterConfig config = new MockFilterConfig(null, null);
-
-        // Setup our expectation that the filter chain will not be invoked, as we redirect to authenticationFailureUrl
-        MockFilterChain chain = new MockFilterChain(false);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        // Setup our test object, to deny access
-        MockAuthenticationFilter filter = new MockAuthenticationFilter(false);
-        filter.setAuthenticationFailureHandler(failureHandler);
-
-        // Test
-        executeFilterInContainerSimulator(config, filter, request, response, chain);
-
-        assertEquals("/mycontext/failed.jsp", response.getRedirectedUrl());
-        assertNull(SecurityContextHolder.getContext().getAuthentication());
-
-        //Prepare again, this time using the exception mapping
-        filter = new MockAuthenticationFilter(new AccountExpiredException("You're account is expired"));
-        ExceptionMappingAuthenticationFailureHandler failureHandler = new ExceptionMappingAuthenticationFailureHandler();
-        filter.setAuthenticationFailureHandler(failureHandler);
-        Properties exceptionMappings = new Properties();
-        exceptionMappings.setProperty(AccountExpiredException.class.getName(), "/accountExpired.jsp");
-        failureHandler.setExceptionMappings(exceptionMappings);
-        response = new MockHttpServletResponse();
-
-        // Test
-        executeFilterInContainerSimulator(config, filter, request, response, chain);
-
-        assertEquals("/mycontext/accountExpired.jsp", response.getRedirectedUrl());
-        assertNull(SecurityContextHolder.getContext().getAuthentication());
-    }
-
-    @Test
     public void testFilterProcessesUrlVariationsRespected() throws Exception {
         // Setup our HTTP request
-        MockHttpServletRequest request = createMockRequest();
+        MockHttpServletRequest request = createMockAuthenticationRequest();
         request.setServletPath("/j_OTHER_LOCATION");
         request.setRequestURI("/mycontext/j_OTHER_LOCATION");
 
@@ -187,7 +114,7 @@ public class AbstractAuthenticationProcessingFilterTests {
         filter.setAuthenticationSuccessHandler(successHandler);
 
         // Test
-        executeFilterInContainerSimulator(config, filter, request, response, chain);
+        filter.doFilter(request, response, chain);
         assertEquals("/mycontext/logged_in.jsp", response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("test", SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
@@ -210,7 +137,7 @@ public class AbstractAuthenticationProcessingFilterTests {
     @Test
     public void testIgnoresAnyServletPathOtherThanFilterProcessesUrl() throws Exception {
         // Setup our HTTP request
-        MockHttpServletRequest request = createMockRequest();
+        MockHttpServletRequest request = createMockAuthenticationRequest();
         request.setServletPath("/some.file.html");
         request.setRequestURI("/mycontext/some.file.html");
 
@@ -225,13 +152,13 @@ public class AbstractAuthenticationProcessingFilterTests {
         MockAuthenticationFilter filter = new MockAuthenticationFilter(false);
 
         // Test
-        executeFilterInContainerSimulator(config, filter, request, response, chain);
+        filter.doFilter(request, response, chain);
     }
 
     @Test
     public void testNormalOperationWithDefaultFilterProcessesUrl() throws Exception {
         // Setup our HTTP request
-        MockHttpServletRequest request = createMockRequest();
+        MockHttpServletRequest request = createMockAuthenticationRequest();
         HttpSession sessionPreAuth = request.getSession();
 
         // Setup our filter configuration
@@ -252,7 +179,7 @@ public class AbstractAuthenticationProcessingFilterTests {
         filter.afterPropertiesSet();
 
         // Test
-        executeFilterInContainerSimulator(config, filter, request, response, chain);
+        filter.doFilter(request, response, chain);
         assertEquals("/mycontext/logged_in.jsp", response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("test", SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
@@ -295,7 +222,7 @@ public class AbstractAuthenticationProcessingFilterTests {
     @Test
     public void testSuccessLoginThenFailureLoginResultsInSessionLosingToken() throws Exception {
         // Setup our HTTP request
-        MockHttpServletRequest request = createMockRequest();
+        MockHttpServletRequest request = createMockAuthenticationRequest();
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig(null, null);
@@ -310,7 +237,7 @@ public class AbstractAuthenticationProcessingFilterTests {
         filter.setAuthenticationSuccessHandler(successHandler);
 
         // Test
-        executeFilterInContainerSimulator(config, filter, request, response, chain);
+        filter.doFilter(request, response, chain);
         assertEquals("/mycontext/logged_in.jsp", response.getRedirectedUrl());
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("test", SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
@@ -327,16 +254,14 @@ public class AbstractAuthenticationProcessingFilterTests {
         filter.setAuthenticationFailureHandler(failureHandler);
 
         // Test
-        executeFilterInContainerSimulator(config, filter, request, response, chain);
+        filter.doFilter(request, response, chain);
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     @Test
-    public void testSuccessfulAuthenticationButWithAlwaysUseDefaultTargetUrlCausesRedirectToDefaultTargetUrl()
-            throws Exception {
+    public void testSuccessfulAuthenticationInvokesSuccessHandlerAndSetsContext() throws Exception {
         // Setup our HTTP request
-        MockHttpServletRequest request = createMockRequest();
-        request.getSession().setAttribute(DefaultSavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY, makeSavedRequestForUrl());
+        MockHttpServletRequest request = createMockAuthenticationRequest();
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig(null, null);
@@ -348,59 +273,42 @@ public class AbstractAuthenticationProcessingFilterTests {
         // Setup our test object, to grant access
         MockAuthenticationFilter filter = new MockAuthenticationFilter(true);
         filter.setFilterProcessesUrl("/j_mock_post");
-        successHandler.setDefaultTargetUrl("/foobar");
-        successHandler.setAlwaysUseDefaultTargetUrl(true);
+        AuthenticationSuccessHandler successHandler = mock(AuthenticationSuccessHandler.class);
         filter.setAuthenticationSuccessHandler(successHandler);
 
         // Test
-        executeFilterInContainerSimulator(config, filter, request, response, chain);
-        assertEquals("/mycontext/foobar", response.getRedirectedUrl());
+        filter.doFilter(request, response, chain);
+
+        verify(successHandler).onAuthenticationSuccess(any(HttpServletRequest.class), any(HttpServletResponse.class),
+                any(Authentication.class));
+
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     @Test
-    public void testSuccessfulAuthenticationCausesRedirectToSessionSpecifiedUrl() throws Exception {
+    public void testFailedAuthenticationInvokesFailureHandler() throws Exception {
         // Setup our HTTP request
-        MockHttpServletRequest request = createMockRequest();
-        request.getSession().setAttribute(DefaultSavedRequest.SPRING_SECURITY_SAVED_REQUEST_KEY, makeSavedRequestForUrl());
+        MockHttpServletRequest request = createMockAuthenticationRequest();
 
         // Setup our filter configuration
         MockFilterConfig config = new MockFilterConfig(null, null);
 
-        // Setup our expectation that the filter chain will be invoked, as we want to go to the location requested in the session
-        MockFilterChain chain = new MockFilterChain(true);
+        // Setup our expectation that the filter chain will not be invoked, as we redirect to authenticationFailureUrl
+        MockFilterChain chain = new MockFilterChain(false);
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        // Setup our test object, to grant access
-        MockAuthenticationFilter filter = new MockAuthenticationFilter(true);
-        filter.setFilterProcessesUrl("/j_mock_post");
+        // Setup our test object, to deny access
+        MockAuthenticationFilter filter = new MockAuthenticationFilter(false);
+        AuthenticationFailureHandler failureHandler = mock(AuthenticationFailureHandler.class);
+        filter.setAuthenticationFailureHandler(failureHandler);
 
         // Test
-        executeFilterInContainerSimulator(config, filter, request, response, chain);
-        assertEquals(makeSavedRequestForUrl().getRedirectUrl(), response.getRedirectedUrl());
-        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-    }
+        filter.doFilter(request, response, chain);
 
-    /**
-     * SEC-297 fix.
-     */
-    @Test
-    public void testFullDefaultTargetUrlDoesNotHaveContextPathPrepended() throws Exception {
-        MockHttpServletRequest request = createMockRequest();
-        MockFilterConfig config = new MockFilterConfig(null, null);
+        verify(failureHandler).onAuthenticationFailure(any(HttpServletRequest.class), any(HttpServletResponse.class),
+                any(AuthenticationException.class));
 
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        // Setup our test object, to grant access
-        MockAuthenticationFilter filter = new MockAuthenticationFilter(true);
-        successHandler.setDefaultTargetUrl("https://monkeymachine.co.uk/");
-        successHandler.setAlwaysUseDefaultTargetUrl(true);
-        filter.setAuthenticationSuccessHandler(successHandler);
-
-        executeFilterInContainerSimulator(config, filter, request, response, chain);
-        assertEquals("https://monkeymachine.co.uk/", response.getRedirectedUrl());
-        assertNotNull(SecurityContextHolder.getContext().getAuthentication());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     /**
@@ -408,7 +316,7 @@ public class AbstractAuthenticationProcessingFilterTests {
      */
     @Test
     public void testNoSessionIsCreatedIfAllowSessionCreationIsFalse() throws Exception {
-        MockHttpServletRequest request = createMockRequest();
+        MockHttpServletRequest request = createMockAuthenticationRequest();
 
         MockFilterConfig config = new MockFilterConfig(null, null);
         MockFilterChain chain = new MockFilterChain(true);
@@ -418,10 +326,8 @@ public class AbstractAuthenticationProcessingFilterTests {
         MockAuthenticationFilter filter = new MockAuthenticationFilter(false);
         failureHandler.setAllowSessionCreation(false);
         filter.setAuthenticationFailureHandler(failureHandler);
-        successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
-        filter.setAuthenticationSuccessHandler(successHandler);
 
-        executeFilterInContainerSimulator(config, filter, request, response, chain);
+        filter.doFilter(request, response, chain);
 
         assertNull(request.getSession(false));
     }
@@ -431,7 +337,7 @@ public class AbstractAuthenticationProcessingFilterTests {
      */
     @Test
     public void testLoginErrorWithNoFailureUrlSendsUnauthorizedStatus() throws Exception {
-        MockHttpServletRequest request = createMockRequest();
+        MockHttpServletRequest request = createMockAuthenticationRequest();
 
         MockFilterConfig config = new MockFilterConfig(null, null);
         MockFilterChain chain = new MockFilterChain(true);
@@ -441,55 +347,9 @@ public class AbstractAuthenticationProcessingFilterTests {
         successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
         filter.setAuthenticationSuccessHandler(successHandler);
 
-        executeFilterInContainerSimulator(config, filter, request, response, chain);
+        filter.doFilter(request, response, chain);
 
         assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
-    }
-
-    /**
-     * SEC-462
-     */
-    @Test
-    public void testServerSideRedirectForwardsToFailureUrl() throws Exception {
-        MockHttpServletRequest request = createMockRequest();
-
-        MockFilterConfig config = new MockFilterConfig(null, null);
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        MockAuthenticationFilter filter = new MockAuthenticationFilter(false);
-        successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
-        filter.setAuthenticationSuccessHandler(successHandler);
-        filter.setAuthenticationFailureHandler(failureHandler);
-        failureHandler.setUseForward(true);
-        failureHandler.setDefaultFailureUrl("/error");
-
-        executeFilterInContainerSimulator(config, filter, request, response, chain);
-
-        assertEquals("/error", response.getForwardedUrl());
-    }
-
-    /**
-     * SEC-213
-     */
-    @Test
-    public void testTargetUrlParameterIsUsedIfPresent() throws Exception {
-        MockHttpServletRequest request = createMockRequest();
-        request.setParameter("targetUrl", "/target");
-
-        MockFilterConfig config = new MockFilterConfig(null, null);
-        MockFilterChain chain = new MockFilterChain(true);
-        MockHttpServletResponse response = new MockHttpServletResponse();
-
-        MockAuthenticationFilter filter = new MockAuthenticationFilter(true);
-        filter.setAuthenticationSuccessHandler(successHandler);
-        successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
-        successHandler.setTargetUrlParameter("targetUrl");
-        filter.setAuthenticationFailureHandler(failureHandler);
-
-        executeFilterInContainerSimulator(config, filter, request, response, chain);
-
-        assertEquals("/mycontext/target", response.getRedirectedUrl());
     }
 
 
@@ -504,13 +364,6 @@ public class AbstractAuthenticationProcessingFilterTests {
             setRememberMeServices(new NullRememberMeServices());
             this.grantAccess = grantAccess;
             this.exceptionToThrow = new BadCredentialsException("Mock requested to do so");
-        }
-
-        public MockAuthenticationFilter(AuthenticationException exceptionToThrow) {
-            this();
-            setRememberMeServices(new NullRememberMeServices());
-            this.grantAccess = false;
-            this.exceptionToThrow = exceptionToThrow;
         }
 
         private MockAuthenticationFilter() {
