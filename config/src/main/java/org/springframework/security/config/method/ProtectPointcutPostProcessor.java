@@ -1,12 +1,7 @@
 package org.springframework.security.config.method;
 
 import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,10 +45,11 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 
     private static final Log logger = LogFactory.getLog(ProtectPointcutPostProcessor.class);
 
-    private Map<String,List<ConfigAttribute>> pointcutMap = new LinkedHashMap<String,List<ConfigAttribute>>();
-    private MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource;
-    private Set<PointcutExpression> pointCutExpressions = new LinkedHashSet<PointcutExpression>();
-    private PointcutParser parser;
+    private final Map<String,List<ConfigAttribute>> pointcutMap = new LinkedHashMap<String,List<ConfigAttribute>>();
+    private final MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource;
+    private final Set<PointcutExpression> pointCutExpressions = new LinkedHashSet<PointcutExpression>();
+    private final PointcutParser parser;
+    private final Set<String> processedBeans = new HashSet<String>();
 
     public ProtectPointcutPostProcessor(MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource) {
         Assert.notNull(mapBasedMethodSecurityMetadataSource, "MapBasedMethodSecurityMetadataSource to populate is required");
@@ -79,6 +75,11 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
     }
 
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        if (processedBeans.contains(beanName)) {
+            // We already have the metadata for this bean
+            return bean;
+        }
+
         // Obtain methods for the present bean
         Method[] methods;
         try {
@@ -97,6 +98,8 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
                 }
             }
         }
+
+        processedBeans.add(beanName);
 
         return bean;
     }
