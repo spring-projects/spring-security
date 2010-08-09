@@ -1,0 +1,26 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:sec="http://www.springframework.org/schema/security"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+
+    <sec:global-method-security>
+        <sec:protect-pointcut expression="execution(* org.springframework.security.core.session.SessionRegistry.refreshLastRequest(..))" access="ROLE_ADMIN" />
+        <sec:protect-pointcut expression="execution(* org.springframework.security.core.session.SessionRegistry.registerNewSession(..))" access="ROLE_ADMIN" />
+        <sec:protect-pointcut expression="execution(* org.springframework.security.core.session.SessionRegistry.removeSessionInformation(..))" access="ROLE_ADMIN" />
+        <sec:protect-pointcut expression="execution(* org.springframework.security.core.session.SessionRegistry.get*(..))" access="ROLE_ADMIN" />
+    </sec:global-method-security>
+
+    <bean id="sessionRegistry" class="org.springframework.security.core.session.SessionRegistryImpl" />
+
+    <bean id="sessionRegistryPrototype" class="org.springframework.security.core.session.SessionRegistryImpl" scope="prototype"/>
+
+    <sec:authentication-manager alias="authenticationManager">
+        <sec:authentication-provider>
+            <sec:user-service id="userService">
+                <sec:user name="notused" password="notused" authorities="ROLE_0,ROLE_1"/>
+            </sec:user-service>
+        </sec:authentication-provider>
+    </sec:authentication-manager>
+
+</beans>

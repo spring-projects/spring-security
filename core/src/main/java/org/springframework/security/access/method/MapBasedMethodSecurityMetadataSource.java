@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.BeanClassLoaderAware;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -42,7 +43,8 @@ import org.springframework.util.ClassUtils;
  * @author Ben Alex
  * @since 2.0
  */
-public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethodSecurityMetadataSource implements BeanClassLoaderAware {
+public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethodSecurityMetadataSource
+        implements BeanClassLoaderAware {
 
     //~ Instance fields ================================================================================================
     private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
@@ -103,7 +105,7 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
      * for matching multiple methods.
      *
      * @param name type and method name, separated by a dot
-     * @param attr required authorities associated with the method
+     * @param attr the security attributes associated with the method
      */
     private void addSecureMethod(String name, List<ConfigAttribute> attr) {
         int lastDotIndex = name.lastIndexOf(".");
@@ -175,7 +177,9 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
      * Adds configuration attributes for a specific method, for example where the method has been
      * matched using a pointcut expression. If a match already exists in the map for the method, then
      * the existing match will be retained, so that if this method is called for a more general pointcut
-     * it will not override a more specific one which has already been added. This
+     * it will not override a more specific one which has already been added.
+     * <p>
+     * This method should only be called during initialization of the {@code BeanFactory}.
      */
     public void addSecureMethod(Class<?> javaType, Method method, List<ConfigAttribute> attr) {
         RegisteredMethod key = new RegisteredMethod(method, javaType);
