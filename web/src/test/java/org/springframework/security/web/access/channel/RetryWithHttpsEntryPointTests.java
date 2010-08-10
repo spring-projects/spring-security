@@ -37,10 +37,6 @@ import java.util.Map;
 public class RetryWithHttpsEntryPointTests extends TestCase {
     //~ Methods ========================================================================================================
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
-
     public void testDetectsMissingPortMapper() throws Exception {
         RetryWithHttpsEntryPoint ep = new RetryWithHttpsEntryPoint();
 

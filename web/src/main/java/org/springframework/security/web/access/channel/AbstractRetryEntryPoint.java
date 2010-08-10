@@ -1,9 +1,6 @@
 package org.springframework.security.web.access.channel;
 
-import org.springframework.security.web.PortMapper;
-import org.springframework.security.web.PortMapperImpl;
-import org.springframework.security.web.PortResolver;
-import org.springframework.security.web.PortResolverImpl;
+import org.springframework.security.web.*;
 import org.springframework.util.Assert;
 
 import org.apache.commons.logging.Log;
@@ -30,6 +27,8 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
     /** The standard port for the scheme (80 for http, 443 for https) */
     private final int standardPort;
 
+    private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+
     //~ Constructors ===================================================================================================
 
     public AbstractRetryEntryPoint(String scheme, int standardPort) {
@@ -39,11 +38,11 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 
     //~ Methods ========================================================================================================
 
-    public void commence(HttpServletRequest request, HttpServletResponse res) throws IOException, ServletException {
+    public void commence(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String queryString = request.getQueryString();
         String redirectUrl = request.getRequestURI() + ((queryString == null) ? "" : ("?" + queryString));
 
-        Integer currentPort = new Integer(portResolver.getServerPort(request));
+        Integer currentPort = Integer.valueOf(portResolver.getServerPort(request));
         Integer redirectPort = getMappedPort(currentPort);
 
         if (redirectPort != null) {
@@ -56,17 +55,13 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
             logger.debug("Redirecting to: " + redirectUrl);
         }
 
-        res.sendRedirect(res.encodeRedirectURL(redirectUrl));
+        redirectStrategy.sendRedirect(request, response, redirectUrl);
     }
 
     protected abstract Integer getMappedPort(Integer mapFromPort);
 
     protected final PortMapper getPortMapper() {
         return portMapper;
-    }
-
-    protected final PortResolver getPortResolver() {
-        return portResolver;
     }
 
     public void setPortMapper(PortMapper portMapper) {
@@ -77,5 +72,24 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
     public void setPortResolver(PortResolver portResolver) {
         Assert.notNull(portResolver, "portResolver cannot be null");
         this.portResolver = portResolver;
+    }
+
+    protected final PortResolver getPortResolver() {
+        return portResolver;
+    }
+
+    /**
+     * Sets the strategy to be used for redirecting to the required channel URL. A {@code DefaultRedirectStrategy}
+     * instance will be used if not set.
+     *
+     * @param redirectStrategy the strategy instance to which the URL will be passed.
+     */
+    public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
+        Assert.notNull(redirectStrategy, "redirectStrategy cannot be null");
+        this.redirectStrategy = redirectStrategy;
+    }
+
+    protected final RedirectStrategy getRedirectStrategy() {
+        return redirectStrategy;
     }
 }

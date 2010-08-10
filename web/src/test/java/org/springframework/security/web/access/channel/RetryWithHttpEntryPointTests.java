@@ -15,11 +15,16 @@
 
 package org.springframework.security.web.access.channel;
 
+import static org.mockito.Mockito.mock;
+
 import junit.framework.TestCase;
 
 import org.springframework.security.MockPortResolver;
 
+import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.PortMapperImpl;
+import org.springframework.security.web.PortResolver;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.access.channel.RetryWithHttpEntryPoint;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -59,10 +64,15 @@ public class RetryWithHttpEntryPointTests extends TestCase {
 
     public void testGettersSetters() {
         RetryWithHttpEntryPoint ep = new RetryWithHttpEntryPoint();
-        ep.setPortMapper(new PortMapperImpl());
-        ep.setPortResolver(new MockPortResolver(8080, 8443));
-        assertTrue(ep.getPortMapper() != null);
-        assertTrue(ep.getPortResolver() != null);
+        PortMapper portMapper = mock(PortMapper.class);
+        PortResolver portResolver = mock(PortResolver.class);
+        RedirectStrategy redirector = mock(RedirectStrategy.class);
+        ep.setPortMapper(portMapper);
+        ep.setPortResolver(portResolver);
+        ep.setRedirectStrategy(redirector);
+        assertSame(portMapper, ep.getPortMapper());
+        assertSame(portResolver, ep.getPortResolver());
+        assertSame(redirector, ep.getRedirectStrategy());
     }
 
     public void testNormalOperation() throws Exception {
