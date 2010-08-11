@@ -167,7 +167,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
         urlBuilder.setPathInfo(loginForm);
 
         if (forceHttps && "http".equals(scheme)) {
-            Integer httpsPort = portMapper.lookupHttpsPort(new Integer(serverPort));
+            Integer httpsPort = portMapper.lookupHttpsPort(Integer.valueOf(serverPort));
 
             if (httpsPort != null) {
                 // Overwrite scheme and port in the redirect URL
@@ -189,7 +189,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
             throws IOException, ServletException {
 
         int serverPort = portResolver.getServerPort(request);
-        Integer httpsPort = portMapper.lookupHttpsPort(new Integer(serverPort));
+        Integer httpsPort = portMapper.lookupHttpsPort(Integer.valueOf(serverPort));
 
         if (httpsPort != null) {
             RedirectUrlBuilder urlBuilder = new RedirectUrlBuilder();

@@ -93,7 +93,7 @@ public class PasswordEncoderParser {
         BeanDefinitionBuilder beanBldr = BeanDefinitionBuilder.rootBeanDefinition(beanClass);
 
         if (OPT_HASH_SHA256.equals(hash)) {
-            beanBldr.addConstructorArgValue(new Integer(256));
+            beanBldr.addConstructorArgValue(Integer.valueOf(256));
         }
 
         if (useBase64) {

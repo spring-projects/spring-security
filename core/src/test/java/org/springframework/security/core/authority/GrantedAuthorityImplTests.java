@@ -50,7 +50,7 @@ public class GrantedAuthorityImplTests {
         MockGrantedAuthority mock2 = new MockGrantedAuthority("NOT_EQUAL");
         assertTrue(!auth1.equals(mock2));
 
-        Integer int1 = new Integer(222);
+        Integer int1 = Integer.valueOf(222);
         assertTrue(!auth1.equals(int1));
     }
 

@@ -95,7 +95,7 @@ public class AbstractAuthenticationTokenTests {
         assertTrue(!token1.equals(token7));
         assertTrue(!token7.equals(token1));
 
-        assertTrue(!token1.equals(new Integer(100)));
+        assertTrue(!token1.equals(Integer.valueOf(100)));
     }
 
     @Test

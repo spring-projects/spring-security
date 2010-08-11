@@ -74,7 +74,7 @@ public class SecurityConfigTests {
         MockConfigAttribute mock2 = new MockConfigAttribute("NOT_EQUAL");
         Assert.assertTrue(!security1.equals(mock2));
 
-        Integer int1 = new Integer(987);
+        Integer int1 = Integer.valueOf(987);
         Assert.assertTrue(!security1.equals(int1));
     }
 

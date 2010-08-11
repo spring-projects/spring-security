@@ -128,7 +128,7 @@ public class BasicLookupStrategyTests {
         ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
         ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(101));
         // Deliberately use an integer for the child, to reproduce bug report in SEC-819
-        ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, new Integer(102));
+        ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, Integer.valueOf(102));
 
         Map<ObjectIdentity, Acl> map = this.strategy.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid), null);
         checkEntries(topParentOid, middleParentOid, childOid, map);
@@ -136,7 +136,7 @@ public class BasicLookupStrategyTests {
 
     @Test
     public void testAclsRetrievalFromCacheOnly() throws Exception {
-        ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Integer(100));
+        ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, Integer.valueOf(100));
         ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(101));
         ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(102));
 
@@ -153,7 +153,7 @@ public class BasicLookupStrategyTests {
     @Test
     public void testAclsRetrievalWithCustomBatchSize() throws Exception {
         ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
-        ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Integer(101));
+        ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, Integer.valueOf(101));
         ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(102));
 
         // Set a batch size to allow multiple database queries in order to retrieve all acls
@@ -268,8 +268,8 @@ public class BasicLookupStrategyTests {
 
         ObjectIdentity grandParentOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(104));
         ObjectIdentity parent1Oid = new ObjectIdentityImpl(TARGET_CLASS, new Long(105));
-        ObjectIdentity parent2Oid = new ObjectIdentityImpl(TARGET_CLASS, new Integer(106));
-        ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, new Integer(107));
+        ObjectIdentity parent2Oid = new ObjectIdentityImpl(TARGET_CLASS, Integer.valueOf(106));
+        ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, Integer.valueOf(107));
 
         // First lookup only child, thus populating the cache with grandParent, parent1 and child
         List<Permission> checkPermission = Arrays.asList(BasePermission.READ);

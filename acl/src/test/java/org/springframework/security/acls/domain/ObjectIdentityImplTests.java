@@ -140,7 +140,7 @@ public class ObjectIdentityImplTests {
     @Test
     public void longAndIntegerIdsWithSameValueAreEqualAndHaveSameHashcode() {
         ObjectIdentity obj = new ObjectIdentityImpl(Object.class, new Long(5));
-        ObjectIdentity obj2 = new ObjectIdentityImpl(Object.class, new Integer(5));
+        ObjectIdentity obj2 = new ObjectIdentityImpl(Object.class, Integer.valueOf(5));
 
         assertEquals(obj, obj2);
         assertEquals(obj.hashCode(), obj2.hashCode());

@@ -25,7 +25,7 @@ public class KeyBasedPersistenceTokenServiceTests {
         SecureRandomFactoryBean fb = new SecureRandomFactoryBean();
         KeyBasedPersistenceTokenService service = new KeyBasedPersistenceTokenService();
         service.setServerSecret("MY:SECRET$$$#");
-        service.setServerInteger(new Integer(454545));
+        service.setServerInteger(Integer.valueOf(454545));
         try {
             SecureRandom rnd = (SecureRandom) fb.getObject();
             service.setSecureRandom(rnd);

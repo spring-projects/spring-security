@@ -85,7 +85,7 @@ public class AfterInvocationProviderManagerTests extends TestCase {
         AfterInvocationProviderManager manager = new AfterInvocationProviderManager();
         List list = new Vector();
         list.add(new MockAfterInvocationProvider("swap1", MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP1")));
-        list.add(new Integer(45));
+        list.add(Integer.valueOf(45));
         list.add(new MockAfterInvocationProvider("swap3", MethodInvocation.class, new SecurityConfig("GIVE_ME_SWAP3")));
 
         try {

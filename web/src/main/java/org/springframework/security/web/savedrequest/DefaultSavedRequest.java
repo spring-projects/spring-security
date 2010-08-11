@@ -36,13 +36,17 @@ import org.springframework.util.Assert;
 
 
 /**
- * Represents central information from a <code>HttpServletRequest</code>.<p>This class is used by {@link
- * org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter} and {@link org.springframework.security.web.savedrequest.SavedRequestAwareWrapper} to
+ * Represents central information from a <code>HttpServletRequest</code>.
+ * <p>
+ * This class is used by {@link org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter}
+ * and {@link org.springframework.security.web.savedrequest.SavedRequestAwareWrapper} to
  * reproduce the request after successful authentication. An instance of this class is stored at the time of an
- * authentication exception by {@link org.springframework.security.web.access.ExceptionTranslationFilter}.</p>
- * <p><em>IMPLEMENTATION NOTE</em>: It is assumed that this object is accessed only from the context of a single
- * thread, so no synchronization around internal collection classes is performed.</p>
- * <p>This class is based on code in Apache Tomcat.</p>
+ * authentication exception by {@link org.springframework.security.web.access.ExceptionTranslationFilter}.
+ * <p>
+ * <em>IMPLEMENTATION NOTE</em>: It is assumed that this object is accessed only from the context of a single
+ * thread, so no synchronization around internal collection classes is performed.
+ * <p>
+ * This class is based on code in Apache Tomcat.
  *
  * @author Craig McClanahan
  * @author Andrey Grebnev
@@ -168,7 +172,10 @@ public class DefaultSavedRequest implements SavedRequest {
      * Determines if the current request matches the <code>DefaultSavedRequest</code>.
      * <p>
      * All URL arguments are considered but not cookies, locales, headers or parameters.
-     * <p>
+     *
+     * @param request the actual request to be matched against this one
+     * @param portResolver used to obtain the server port of the request
+     * @return true if the request is deemed to match this one.
      *
      */
     public boolean doesRequestMatch(HttpServletRequest request, PortResolver portResolver) {
@@ -190,8 +197,7 @@ public class DefaultSavedRequest implements SavedRequest {
             return false;
         }
 
-        if (!propertyEquals("serverPort", new Integer(this.serverPort), new Integer(portResolver.getServerPort(request))))
-        {
+        if (!propertyEquals("serverPort", Integer.valueOf(this.serverPort), Integer.valueOf(portResolver.getServerPort(request)))) {
             return false;
         }
 
@@ -269,7 +275,7 @@ public class DefaultSavedRequest implements SavedRequest {
     }
 
     public String[] getParameterValues(String name) {
-        return ((String[]) parameters.get(name));
+        return parameters.get(name);
     }
 
     public String getPathInfo() {

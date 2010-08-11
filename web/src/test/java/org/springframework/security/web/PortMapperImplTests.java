@@ -33,10 +33,10 @@ public class PortMapperImplTests extends TestCase {
 
     public void testDefaultMappingsAreKnown() throws Exception {
         PortMapperImpl portMapper = new PortMapperImpl();
-        assertEquals(new Integer(80), portMapper.lookupHttpPort(new Integer(443)));
-        assertEquals(new Integer(8080), portMapper.lookupHttpPort(new Integer(8443)));
-        assertEquals(new Integer(443), portMapper.lookupHttpsPort(new Integer(80)));
-        assertEquals(new Integer(8443), portMapper.lookupHttpsPort(new Integer(8080)));
+        assertEquals(Integer.valueOf(80), portMapper.lookupHttpPort(Integer.valueOf(443)));
+        assertEquals(Integer.valueOf(8080), portMapper.lookupHttpPort(Integer.valueOf(8443)));
+        assertEquals(Integer.valueOf(443), portMapper.lookupHttpsPort(Integer.valueOf(80)));
+        assertEquals(Integer.valueOf(8443), portMapper.lookupHttpsPort(Integer.valueOf(8080)));
     }
 
     public void testDetectsEmptyMap() throws Exception {
@@ -81,7 +81,7 @@ public class PortMapperImplTests extends TestCase {
 
     public void testReturnsNullIfHttpPortCannotBeFound() {
         PortMapperImpl portMapper = new PortMapperImpl();
-        assertTrue(portMapper.lookupHttpPort(new Integer("34343")) == null);
+        assertTrue(portMapper.lookupHttpPort(Integer.valueOf("34343")) == null);
     }
 
     public void testSupportsCustomMappings() {
@@ -91,7 +91,7 @@ public class PortMapperImplTests extends TestCase {
 
         portMapper.setPortMappings(map);
 
-        assertEquals(new Integer(79), portMapper.lookupHttpPort(new Integer(442)));
-        assertEquals(new Integer(442), portMapper.lookupHttpsPort(new Integer(79)));
+        assertEquals(Integer.valueOf(79), portMapper.lookupHttpPort(Integer.valueOf(442)));
+        assertEquals(Integer.valueOf(442), portMapper.lookupHttpsPort(Integer.valueOf(79)));
     }
 }

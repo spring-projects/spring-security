@@ -28,7 +28,7 @@ public class TargetObject implements ITargetObject {
     //~ Methods ========================================================================================================
 
     public Integer computeHashCode(String input) {
-        return new Integer(input.hashCode());
+        return Integer.valueOf(input.hashCode());
     }
 
     public int countLength(String input) {

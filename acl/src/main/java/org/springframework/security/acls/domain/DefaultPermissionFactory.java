@@ -84,7 +84,7 @@ public class DefaultPermissionFactory implements PermissionFactory {
         Assert.notNull(perm, "Permission required");
         Assert.hasText(permissionName, "Permission name required");
 
-        Integer mask = new Integer(perm.getMask());
+        Integer mask = Integer.valueOf(perm.getMask());
 
         // Ensure no existing Permission uses this integer or code
         Assert.isTrue(!registeredPermissionsByInteger.containsKey(mask), "An existing Permission already provides mask " + mask);
@@ -98,7 +98,7 @@ public class DefaultPermissionFactory implements PermissionFactory {
     public Permission buildFromMask(int mask) {
         if (registeredPermissionsByInteger.containsKey(Integer.valueOf(mask))) {
             // The requested mask has an exact match against a statically-defined Permission, so return it
-            return registeredPermissionsByInteger.get(new Integer(mask));
+            return registeredPermissionsByInteger.get(Integer.valueOf(mask));
         }
 
         // To get this far, we have to use a CumulativePermission

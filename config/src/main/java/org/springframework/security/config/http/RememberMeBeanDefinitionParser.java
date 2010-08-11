@@ -100,7 +100,7 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
             }
 
             if (tokenValiditySet) {
-                Integer tokenValidity = new Integer(tokenValiditySeconds);
+                Integer tokenValidity = Integer.valueOf(tokenValiditySeconds);
                 if (tokenValidity.intValue() < 0 && isPersistent) {
                     pc.getReaderContext().error(ATT_TOKEN_VALIDITY + " cannot be negative if using" +
                             " a persistent remember-me token repository", source);

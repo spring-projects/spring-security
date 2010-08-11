@@ -40,8 +40,8 @@ public class PortMapperImpl implements PortMapper {
 
     public PortMapperImpl() {
         httpsPortMappings = new HashMap<Integer, Integer>();
-        httpsPortMappings.put(new Integer(80), new Integer(443));
-        httpsPortMappings.put(new Integer(8080), new Integer(8443));
+        httpsPortMappings.put(Integer.valueOf(80), Integer.valueOf(443));
+        httpsPortMappings.put(Integer.valueOf(8080), Integer.valueOf(8443));
     }
 
     //~ Methods ========================================================================================================
@@ -92,8 +92,8 @@ public class PortMapperImpl implements PortMapper {
         httpsPortMappings.clear();
 
         for (Map.Entry<String,String> entry : newMappings.entrySet()) {
-            Integer httpPort = new Integer(entry.getKey());
-            Integer httpsPort = new Integer(entry.getValue());
+            Integer httpPort = Integer.valueOf(entry.getKey());
+            Integer httpsPort = Integer.valueOf(entry.getValue());
 
             if ((httpPort.intValue() < 1) || (httpPort.intValue() > 65535) || (httpsPort.intValue() < 1)
                 || (httpsPort.intValue() > 65535)) {

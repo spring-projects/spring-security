@@ -17,7 +17,7 @@ public class ObjectIdentityRetrievalStrategyImplTests extends TestCase {
 
     public void testObjectIdentityCreation() throws Exception {
         MockIdDomainObject domain = new MockIdDomainObject();
-        domain.setId(new Integer(1));
+        domain.setId(Integer.valueOf(1));
 
         ObjectIdentityRetrievalStrategy retStrategy = new ObjectIdentityRetrievalStrategyImpl();
         ObjectIdentity identity = retStrategy.getObjectIdentity(domain);

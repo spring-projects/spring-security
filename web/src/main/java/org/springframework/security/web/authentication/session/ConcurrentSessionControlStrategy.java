@@ -124,7 +124,7 @@ public class ConcurrentSessionControlStrategy extends SessionFixationProtectionS
             SessionRegistry registry) throws SessionAuthenticationException {
         if (exceptionIfMaximumExceeded || (sessions == null)) {
             throw new SessionAuthenticationException(messages.getMessage("ConcurrentSessionControllerImpl.exceededAllowed",
-                    new Object[] {new Integer(allowableSessions)},
+                    new Object[] {Integer.valueOf(allowableSessions)},
                     "Maximum sessions of {0} for this principal exceeded"));
         }
 
