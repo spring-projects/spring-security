@@ -15,7 +15,7 @@
         explaining their purpose. The namespace is written in <link
         xlink:href="http://www.relaxng.org/">RELAX NG</link> Compact format and later converted into
         an XSD schema. If you are familiar with this format, you may wish to examine the <link
-        xlink:href="https://src.springsource.org/svn/spring-security/trunk/config/src/main/resources/org/springframework/security/config/spring-security-3.0.rnc"
+        xlink:href="https://fisheye.springsource.org/browse/spring-security/config/src/main/resources/org/springframework/security/config/spring-security-3.1.rnc"
         >schema file</link> directly.</para>
     <section xml:id="nsa-http">
         <title>Web Application Security - the <literal>&lt;http&gt;</literal> Element</title>
@@ -235,7 +235,7 @@
                 filter stack and an <classname>LoginUrlAuthenticationEntryPoint</classname> to the
                 application context to provide authentication on demand. This will always take
                 precedence over other namespace-created entry points. If no attributes are supplied,
-                a login page will be generated automatically at the URL "/spring-security-login" <footnote>
+                a login page will be generated automatically at the URL "/spring_security_login" <footnote>
                 <para>This feature is really just provided for convenience and is not intended for
                     production (where a view technology will have been chosen and can be used to
                     render a customized login page). The class
@@ -248,7 +248,7 @@
                 <para> The URL that should be used to render the login page. Maps to the
                     <literal>loginFormUrl</literal> property of the
                     <classname>LoginUrlAuthenticationEntryPoint</classname>. Defaults to
-                    "/spring-security-login". </para>
+                    "/spring_security_login". </para>
             </section>
             <section>
                 <title><literal>login-processing-url</literal></title>
@@ -323,17 +323,12 @@
                     <classname>JdbcTokenRepositoryImpl</classname> instance. </para>
             </section>
             <section>
-                <title><literal>token-repository-ref</literal></title>
-                <para> Configures a <classname>PersistentTokenBasedRememberMeServices</classname>
-                    but allows the use of a custom
-                    <interfacename>PersistentTokenRepository</interfacename> bean. </para>
-            </section>
-            <section>
                 <title><literal>services-ref</literal></title>
                 <para> Allows complete control of the
                     <interfacename>RememberMeServices</interfacename> implementation that will be
-                    used by the filter. The value should be the Id of a bean in the application
-                    context which implements this interface. </para>
+                    used by the filter. The value should be the <literal>id</literal> of a bean in the application
+                    context which implements this interface. Should also implement 
+                    <interfacename>LogoutHandler</interfacename> if a logout filter is in use.</para>
             </section>
             <section>
                 <title><literal>token-repository-ref</literal></title>
@@ -365,7 +360,7 @@
                     <interfacename>UserDetailsService</interfacename>, so there has to be one
                     defined in the application context. If there is only one, it will be selected
                     and used automatically by the namespace configuration. If there are multiple
-                    instances, you can specify a bean Id explicitly using this attribute. </para>
+                    instances, you can specify a bean <literal>id</literal> explicitly using this attribute. </para>
             </section>
         </section>
         <section xml:id="nsa-session-mgmt">
@@ -468,7 +463,7 @@
                 <classname>OpenIDAuthenticationFilter</classname> and
                 <classname>OpenIDAuthenticationProvider</classname> will be registered. The latter
                 requires a reference to a <interfacename>UserDetailsService</interfacename>. Again,
-                this can be specified by Id, using the <literal>user-service-ref</literal>
+                this can be specified by <literal>id</literal>, using the <literal>user-service-ref</literal>
                 attribute, or will be located automatically in the application context. </para>
             <section>
                 <title>The <literal>&lt;attribute-exchange></literal> Element</title>
@@ -666,7 +661,7 @@
                 <para> If you only have one server defined in your application context, the other
                     LDAP namespace-defined beans will use it automatically. Otherwise, you can give
                     the element an "id" attribute and refer to it from other namespace beans using
-                    the <literal>server-ref</literal> attribute. This is actually the bean Id of the
+                    the <literal>server-ref</literal> attribute. This is actually the bean <literal>id</literal> of the
                     <literal>ContextSource</literal> instance, if you want to use it in other
                     traditional Spring beans. </para>
             </section>

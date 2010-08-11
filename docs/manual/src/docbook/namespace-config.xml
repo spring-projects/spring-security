@@ -37,9 +37,9 @@
   xmlns:security="http://www.springframework.org/schema/security"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans
-          http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+          http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
           http://www.springframework.org/schema/security
-          http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+          http://www.springframework.org/schema/security/spring-security-3.1.xsd">
     ...
 </beans>
   ]]></programlisting> In many of the examples you will see (and in the sample) applications, we
@@ -52,9 +52,9 @@
   xmlns:beans="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
            http://www.springframework.org/schema/security
-           http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+           http://www.springframework.org/schema/security/spring-security-3.1.xsd">
     ...
 </beans:beans>
 ]]></programlisting> We'll assume this syntax is being used from now on in this chapter. </para>
@@ -888,7 +888,7 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                 set an alternative for both method and web security. </para>
             <para> For method security, you do this by setting the
                 <literal>access-decision-manager-ref</literal> attribute on
-                <literal>global-method-security</literal> to the Id of the appropriate
+                <literal>global-method-security</literal> to the <literal>id</literal> of the appropriate
                 <interfacename>AccessDecisionManager</interfacename> bean in the application
                 context: <programlisting language="xml"><![CDATA[
   <global-method-security access-decision-manager-ref="myAccessDecisionManagerBean">

@@ -8,9 +8,9 @@
         distribution zip file. You can either build the others yourself, or you can obtain the war
         files individually from the central Maven repository. We'd recommend the former. You can get
         the source as described in <link xlink:href="#get-source">the introduction</link> and it's
-        easy to build the project using Maven. There is more information on the project web site at
+        easy to build the project yourself. There's more information on the project web site at
         <link xlink:href="http://www.springsource.org/security/">
-        http://www.springsource.org/security/ </link> if you need it. All paths referred to in this
+        http://www.springsource.org/security/ </link>. All paths referred to in this
         chapter are relative to the project source directory. </para>
     <section xml:id="tutorial-sample">
         <title>Tutorial Sample</title>
@@ -35,7 +35,7 @@
             administer a simple database of contacts (the domain objects).</para>
         <para>To deploy, simply copy the WAR file from Spring Security distribution into your
             container’s <literal>webapps</literal> directory. The war should be called
-            <filename>spring-security-samples-contacts-3.0.x.war</filename> (the appended version
+            <filename>spring-security-samples-contacts-3.1.x.war</filename> (the appended version
             number will vary depending on what release you are using). </para>
         <para>After starting your container, check the application can load. Visit
             <literal>http://localhost:8080/contacts</literal> (or whichever URL is appropriate for

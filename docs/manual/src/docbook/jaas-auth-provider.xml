@@ -100,7 +100,7 @@ JAASTest {
                 Spring Security, on the other hand, works with
                 <interfacename>Authentication</interfacename> objects. Each
                 <interfacename>Authentication</interfacename> object contains a single principal,
-                and multiple <interfacename>GrantedAuthority</interfacename>[]s. To facilitate
+                and multiple <interfacename>GrantedAuthority</interfacename>s. To facilitate
                 mapping between these different concepts, Spring Security's JAAS package includes an
                 <literal>AuthorityGranter</literal> interface.</para>
 

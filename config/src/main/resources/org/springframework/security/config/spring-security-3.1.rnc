@@ -519,7 +519,7 @@ token-repository-ref =
     ## Reference to a PersistentTokenRepository bean for use with the persistent token remember-me implementation.
     attribute token-repository-ref {xsd:token}
 remember-me-services-ref =
-    ## Allows a custom implementation of RememberMeServices to be used. Note that this implementation should return RememberMeAuthenticationToken instances with the same "key" value as specified in the remember-me element. Alternatively it should register its own AuthenticationProvider.
+    ## Allows a custom implementation of RememberMeServices to be used. Note that this implementation should return RememberMeAuthenticationToken instances with the same "key" value as specified in the remember-me element. Alternatively it should register its own AuthenticationProvider. It should also implement the LogoutHandler interface, which will be invoked when a user logs out. Typically the remember-me cookie would be removed on logout.
     attribute services-ref {xsd:token}?
 remember-me-data-source-ref =
     ## DataSource bean for the database that contains the token repository schema.

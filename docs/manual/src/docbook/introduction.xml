@@ -38,13 +38,13 @@
             technologies:</para>
         <itemizedlist spacing="compact">
             <listitem>
-                <para>HTTP BASIC authentication headers (an IEFT RFC-based standard)</para>
+                <para>HTTP BASIC authentication headers (an IETF RFC-based standard)</para>
             </listitem>
             <listitem>
-                <para>HTTP Digest authentication headers (an IEFT RFC-based standard)</para>
+                <para>HTTP Digest authentication headers (an IETF RFC-based standard)</para>
             </listitem>
             <listitem>
-                <para>HTTP X.509 client certificate exchange (an IEFT RFC-based standard)</para>
+                <para>HTTP X.509 client certificate exchange (an IETF RFC-based standard)</para>
             </listitem>
             <listitem>
                 <para>LDAP (a very common approach to cross-platform authentication needs,
@@ -62,7 +62,7 @@
             </listitem>
             <listitem>
                 <para>JA-SIG Central Authentication Service (otherwise known as CAS, which is a
-                    popular open source single sign on system)</para>
+                    popular open source single sign-on system)</para>
             </listitem>
             <listitem>
                 <para>Transparent authentication context propagation for Remote Method Invocation
@@ -73,7 +73,7 @@
                     re-authentication for a predetermined period of time)</para>
             </listitem>
             <listitem>
-                <para>Anonymous authentication (allowing every call to automatically assume a
+                <para>Anonymous authentication (allowing every unauthenticated call to automatically assume a
                     particular security identity)</para>
             </listitem>
             <listitem>
@@ -133,9 +133,8 @@
                 <para>Your own authentication systems (see below)</para>
             </listitem>
         </itemizedlist>
-        <para>(* Denotes provided by a third party; check our <link
-            xlink:href="http://acegisecurity.org/powering.html">integration page</link> for links to
-            the latest details)</para>
+        <para>(* Denotes provided by a third party</para>
+        <!-- TODO: Reinstate web link to third-party integrations/users -->
         <para>Many independent software vendors (ISVs) adopt Spring Security because of this
             significant choice of flexible authentication models. Doing so allows them to quickly
             integrate their solutions with whatever their end clients need, without undertaking a
@@ -145,17 +144,9 @@
             Spring Security need to integrate with "legacy" systems that don't follow any particular
             security standards, and Spring Security is happy to "play nicely" with such
             systems.</para>
-        <para>Sometimes the mere process of authentication isn't enough. Sometimes you need to also
-            differentiate security based on the way a principal is interacting with your
-            application. For example, you might want to ensure requests only arrive over HTTPS, in
-            order to protect passwords from eavesdropping or end users from man-in-the-middle
-            attacks. This is especially helpful to protect password recovery processes from brute
-            force attacks, or simply to make it harder for people to duplicate your application's
-            key content. To help you achieve these goals, Spring Security fully supports automatic
-            "channel security", together with JCaptcha integration for human user detection.</para>
-        <para>Irrespective of how authentication was undertaken, Spring Security provides a deep set
-            of authorization capabilities. There are three main areas of interest in respect of
-            authorization, these being authorizing web requests, authorizing whether methods can be
+        <para>Irrespective of the authentication mechanism, Spring Security provides a deep set
+            of authorization capabilities. There are three main areas of interest 
+            - authorizing web requests, authorizing whether methods can be
             invoked, and authorizing access to individual domain object instances. To help you
             understand the differences, consider the authorization capabilities found in the Servlet
             Specification web pattern security, EJB Container Managed Security and file system
@@ -300,13 +291,13 @@
                 line that's causing the problem and work out what's happening. The source is the
                 ultimate documentation for a project and often the simplest place to find out how
                 something actually works. </para>
-            <para>To obtain the source for the project trunk, use the following git command:
+            <para>To obtain the source for the project, use the following git command:
                 <programlisting>
   git clone git://git.springsource.org/spring-security/spring-security.git
     </programlisting>
-                You can checkout specific versions from
-                <literal>https://src.springframework.org/svn/spring-security/tags/</literal>.
             </para>
+            <para>This will give you access to the entire project history (including all releases
+            and branches) on your local machine.</para>
         </section>
     </section>
 </chapter>

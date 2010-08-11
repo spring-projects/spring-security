@@ -136,7 +136,7 @@
         </section>
         <section xml:id="access-denied-handler">
             <title><interfacename>AccessDeniedHandler</interfacename></title>
-            <para>What happens if a user is already authenticated an they try to access a protected
+            <para>What happens if a user is already authenticated and they try to access a protected
                 resource? In normal usage, this shouldn't happen because the application workflow
                 should be restricted to operations to which a user has access. For example, an HTML
                 link to an administration page might be hidden from users who do not have an admin
@@ -174,7 +174,7 @@
                 to save the current request before invoking the <interfacename>AuthenticationEntryPoint</interfacename>.
                 This allows the request to be restored after the use has authenticated (see previous overview
                 of <link xlink:href="#tech-intro-web-authentication">web authentication</link>).
-                A typical example would be where the user logs in with a from, and is then redirected to the
+                A typical example would be where the user logs in with a form, and is then redirected to the
                 original URL by the default <classname>SavedRequestAwareAuthenticationSuccessHandler</classname>
                 (see <link xlink:href="#form-login-flow-handling">below</link>).
             </para>

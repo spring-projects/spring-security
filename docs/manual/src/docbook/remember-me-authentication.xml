@@ -125,7 +125,7 @@
                 <literal>TokenBasedRememberMeServices</literal> requires A UserDetailsService from
                 which it can retrieve the username and password for signature comparison purposes,
                 and generate the <literal>RememberMeAuthenticationToken</literal> to contain the
-                correct <interfacename>GrantedAuthority</interfacename>[]s. Some sort of logout
+                correct <interfacename>GrantedAuthority</interfacename>s. Some sort of logout
                 command should be provided by the application that invalidates the cookie if the
                 user requests this. <classname>TokenBasedRememberMeServices</classname> also
                 implements Spring Security's <interfacename>LogoutHandler</interfacename> interface
