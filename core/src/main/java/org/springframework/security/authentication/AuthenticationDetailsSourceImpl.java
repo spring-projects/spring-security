@@ -1,10 +1,9 @@
 package org.springframework.security.authentication;
 
-import java.lang.reflect.Constructor;
-
-import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
+
+import java.lang.reflect.Constructor;
 
 /**
  * Base implementation of {@link AuthenticationDetailsSource}.
@@ -16,7 +15,9 @@ import org.springframework.util.ReflectionUtils;
  *
  * @author Ruud Senden
  * @since 2.0
+ * @deprecated Write an implementation of AuthenticationDetailsSource which returns the desired type directly.
  */
+@Deprecated
 public class AuthenticationDetailsSourceImpl implements AuthenticationDetailsSource {
     //~ Instance fields ================================================================================================
 

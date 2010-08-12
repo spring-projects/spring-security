@@ -8,6 +8,7 @@ import java.io.Serializable;
 * @author Ruud Senden
 * @since 2.0
 */
+@Deprecated
 public class AuthenticationDetails implements Serializable {
    //~ Instance fields ================================================================================================
 

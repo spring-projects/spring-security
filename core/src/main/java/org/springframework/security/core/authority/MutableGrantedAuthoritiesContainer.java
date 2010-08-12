@@ -14,6 +14,7 @@ import org.springframework.security.core.GrantedAuthority;
  * @author Luke Taylor
  * @since 2.0
  */
+@Deprecated
 public interface MutableGrantedAuthoritiesContainer extends GrantedAuthoritiesContainer {
     /**
      * Used to store authorities in the containing object.

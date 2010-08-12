@@ -88,7 +88,7 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 
     //~ Instance fields ================================================================================================
 
-    private AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
+    private AuthenticationDetailsSource<HttpServletRequest,?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
     private DigestAuthenticationEntryPoint authenticationEntryPoint;
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private UserCache userCache = new NullUserCache();
@@ -246,7 +246,7 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
         return userDetailsService;
     }
 
-    public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
+    public void setAuthenticationDetailsSource(AuthenticationDetailsSource<HttpServletRequest,?> authenticationDetailsSource) {
         Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource required");
         this.authenticationDetailsSource = authenticationDetailsSource;
     }

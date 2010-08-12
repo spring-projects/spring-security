@@ -110,7 +110,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
     //~ Instance fields ================================================================================================
 
     protected ApplicationEventPublisher eventPublisher;
-    protected AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
+    protected AuthenticationDetailsSource<HttpServletRequest,?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
     private AuthenticationManager authenticationManager;
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
@@ -363,18 +363,13 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
         this.eventPublisher = eventPublisher;
     }
 
-    public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
+    public void setAuthenticationDetailsSource(AuthenticationDetailsSource<HttpServletRequest,?> authenticationDetailsSource) {
         Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource required");
         this.authenticationDetailsSource = authenticationDetailsSource;
     }
 
     public void setMessageSource(MessageSource messageSource) {
         this.messages = new MessageSourceAccessor(messageSource);
-    }
-
-    public AuthenticationDetailsSource getAuthenticationDetailsSource() {
-        // Required due to SEC-310
-        return authenticationDetailsSource;
     }
 
     protected boolean getAllowSessionCreation() {

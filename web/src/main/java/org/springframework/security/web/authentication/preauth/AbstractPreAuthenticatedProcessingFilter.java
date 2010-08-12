@@ -56,7 +56,8 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
         ApplicationEventPublisherAware {
 
     private ApplicationEventPublisher eventPublisher = null;
-    private AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
+    private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource
+            = new WebAuthenticationDetailsSource();
     private AuthenticationManager authenticationManager = null;
     private boolean continueFilterChainOnUnsuccessfulAuthentication = true;
     private boolean checkForPrincipalChanges;
@@ -190,7 +191,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
      * @param authenticationDetailsSource
      *            The AuthenticationDetailsSource to use
      */
-    public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
+    public void setAuthenticationDetailsSource(AuthenticationDetailsSource<HttpServletRequest,?> authenticationDetailsSource) {
         Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource required");
         this.authenticationDetailsSource = authenticationDetailsSource;
     }

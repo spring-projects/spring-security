@@ -1,13 +1,13 @@
 package org.springframework.security.web.authentication.preauth;
 
-import java.util.List;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthoritiesContainer;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthoritiesContainerImpl;
-import org.springframework.security.core.authority.MutableGrantedAuthoritiesContainer;
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This WebAuthenticationDetails implementation allows for storing a list of
@@ -18,27 +18,27 @@ import org.springframework.security.web.authentication.WebAuthenticationDetails;
  * @since 2.0
  */
 public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails extends WebAuthenticationDetails implements
-        MutableGrantedAuthoritiesContainer {
-    public static final long serialVersionUID = 1L;
+        GrantedAuthoritiesContainer {
 
-    private final MutableGrantedAuthoritiesContainer authoritiesContainer = new GrantedAuthoritiesContainerImpl();
+    private final List<GrantedAuthority> authorities;
 
-    public PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(HttpServletRequest request) {
+    public PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(HttpServletRequest request,
+            List<GrantedAuthority> authorities) {
         super(request);
+
+        List<GrantedAuthority> temp = new ArrayList<GrantedAuthority>(authorities.size());
+        temp.addAll(authorities);
+        this.authorities = Collections.unmodifiableList(temp);
     }
 
     public List<GrantedAuthority> getGrantedAuthorities() {
-        return authoritiesContainer.getGrantedAuthorities();
-    }
-
-    public void setGrantedAuthorities(List<GrantedAuthority> authorities) {
-        this.authoritiesContainer.setGrantedAuthorities(authorities);
+        return authorities;
     }
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(super.toString() + "; ");
-        sb.append(authoritiesContainer);
+        sb.append(super.toString()).append("; ");
+        sb.append(authorities);
         return sb.toString();
     }
 }

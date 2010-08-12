@@ -18,10 +18,11 @@ import org.springframework.util.Assert;
  * @author Ruud Senden
  * @since 1.0
  */
+@Deprecated
 public class WebSphere2SpringSecurityPropagationInterceptor implements MethodInterceptor {
     private static final Log logger = LogFactory.getLog(WebSphere2SpringSecurityPropagationInterceptor.class);
     private AuthenticationManager authenticationManager = null;
-    private AuthenticationDetailsSource authenticationDetailsSource = new WebSpherePreAuthenticatedAuthenticationDetailsSource();
+    private AuthenticationDetailsSource<?,?> authenticationDetailsSource = new WebSpherePreAuthenticatedAuthenticationDetailsSource();
     private final WASUsernameAndGroupsExtractor wasHelper;
 
     public WebSphere2SpringSecurityPropagationInterceptor() {
@@ -40,7 +41,7 @@ public class WebSphere2SpringSecurityPropagationInterceptor implements MethodInt
     public Object invoke(MethodInvocation methodInvocation) throws Throwable {
         try {
             logger.debug("Performing Spring Security authentication with WebSphere credentials");
-            authenticateSpringSecurityWithWASCredentials(this);
+            authenticateSpringSecurityWithWASCredentials();
             logger.debug("Proceeding with method invocation");
             return methodInvocation.proceed();
         } finally {
@@ -52,9 +53,8 @@ public class WebSphere2SpringSecurityPropagationInterceptor implements MethodInt
     /**
      * Retrieve the current WebSphere credentials and authenticate them with Spring Security
      * using the pre-authenticated authentication provider.
-     * @param aContext The context to use for building the authentication details.
      */
-    private void authenticateSpringSecurityWithWASCredentials(Object aContext) {
+    private void authenticateSpringSecurityWithWASCredentials() {
         Assert.notNull(authenticationManager);
         Assert.notNull(authenticationDetailsSource);
 

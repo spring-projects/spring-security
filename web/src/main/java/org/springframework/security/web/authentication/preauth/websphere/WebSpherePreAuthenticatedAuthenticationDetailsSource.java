@@ -23,6 +23,7 @@ import org.springframework.util.Assert;
  *
  * @author Ruud Senden
  */
+@Deprecated
 public class WebSpherePreAuthenticatedAuthenticationDetailsSource extends AuthenticationDetailsSourceImpl implements InitializingBean {
     private final Log logger = LogFactory.getLog(getClass());
 

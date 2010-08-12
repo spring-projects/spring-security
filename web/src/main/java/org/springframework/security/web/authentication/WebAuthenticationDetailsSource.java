@@ -27,44 +27,19 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * Implementation of {@link AuthenticationDetailsSource} which builds the details object from
- * an <tt>HttpServletRequest</tt> object.
- * <p>
- * By default will create an instance of <code>WebAuthenticationDetails</code>. Any object that accepts a
- * <code>HttpServletRequest</code> as its sole constructor can be used instead of this default.
+ * an <tt>HttpServletRequest</tt> object, creating a {@code WebAuthenticationDetails}.
  *
  * @author Ben Alex
  */
-public class WebAuthenticationDetailsSource implements AuthenticationDetailsSource {
-    //~ Instance fields ================================================================================================
-
-    private Class<?> clazz = WebAuthenticationDetails.class;
+public class WebAuthenticationDetailsSource implements AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> {
 
     //~ Methods ========================================================================================================
 
     /**
-     * @param context the <tt>HttpServletRequest</tt> object.
+     * @param context the {@code HttpServletRequest} object.
+     * @return the {@code WebAuthenticationDetails} containing information about the current request
      */
-    public Object buildDetails(Object context) {
-        Assert.isInstanceOf(HttpServletRequest.class, context);
-        try {
-            Constructor<?> constructor = clazz.getConstructor(HttpServletRequest.class);
-
-            return constructor.newInstance(context);
-        } catch (NoSuchMethodException ex) {
-            ReflectionUtils.handleReflectionException(ex);
-        } catch (InvocationTargetException ex) {
-            ReflectionUtils.handleReflectionException(ex);
-        } catch (InstantiationException ex) {
-            ReflectionUtils.handleReflectionException(ex);
-        } catch (IllegalAccessException ex) {
-            ReflectionUtils.handleReflectionException(ex);
-        }
-
-        return null;
-    }
-
-    public void setClazz(Class<?> clazz) {
-        Assert.notNull(clazz, "Class required");
-        this.clazz = clazz;
+    public WebAuthenticationDetails buildDetails(HttpServletRequest context) {
+        return new WebAuthenticationDetails(context);
     }
 }

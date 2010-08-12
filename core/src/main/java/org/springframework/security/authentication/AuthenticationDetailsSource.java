@@ -21,7 +21,7 @@ package org.springframework.security.authentication;
  *
  * @author Ben Alex
  */
-public interface AuthenticationDetailsSource {
+public interface AuthenticationDetailsSource<C, T> {
     //~ Methods ========================================================================================================
 
     /**
@@ -31,5 +31,5 @@ public interface AuthenticationDetailsSource {
      *
      * @return a fully-configured authentication details instance
      */
-    Object buildDetails(Object context);
+    T buildDetails(C context);
 }

@@ -22,7 +22,9 @@ package org.springframework.security.core.session;
  * Used to extract the session ID from an <code>Authentication</code> object.
  *
  * @author Ben Alex
+ * @deprecated Legacy of former concurrency control implementation. Will be removed in a future version.
  */
+@Deprecated
 public interface SessionIdentifierAware {
     //~ Methods ========================================================================================================
 

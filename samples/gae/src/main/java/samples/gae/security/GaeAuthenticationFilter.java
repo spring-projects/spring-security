@@ -19,6 +19,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.util.Assert;
@@ -32,7 +33,7 @@ public class GaeAuthenticationFilter extends GenericFilterBean {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final AuthenticationDetailsSource ads = new WebAuthenticationDetailsSource();
+    private final AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> ads = new WebAuthenticationDetailsSource();
     private AuthenticationManager authenticationManager;
     private AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
 
@@ -47,7 +48,7 @@ public class GaeAuthenticationFilter extends GenericFilterBean {
                 logger.debug("Authenticating to Spring Security");
                 // User has returned after authenticating via GAE. Need to authenticate through Spring Security.
                 PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(googleUser, null);
-                token.setDetails(ads.buildDetails(request));
+                token.setDetails(ads.buildDetails((HttpServletRequest) request));
 
                 try {
                     authentication = authenticationManager.authenticate(token);

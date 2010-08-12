@@ -109,7 +109,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
     //~ Instance fields ================================================================================================
 
     private ApplicationEventPublisher eventPublisher;
-    private AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
+    private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private String exitUserUrl = "/j_spring_security_exit_user";
     private String switchUserUrl = "/j_spring_security_switch_user";

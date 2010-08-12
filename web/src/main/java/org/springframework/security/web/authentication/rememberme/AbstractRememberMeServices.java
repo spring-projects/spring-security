@@ -47,7 +47,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 
     private UserDetailsService userDetailsService;
     private final UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
-    private AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
+    private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
     private String cookieName = SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY;
     private String parameter = DEFAULT_PARAMETER;
@@ -395,11 +395,11 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
         this.useSecureCookie = useSecureCookie;
     }
 
-    protected AuthenticationDetailsSource getAuthenticationDetailsSource() {
+    protected AuthenticationDetailsSource<HttpServletRequest,?> getAuthenticationDetailsSource() {
         return authenticationDetailsSource;
     }
 
-    public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
+    public void setAuthenticationDetailsSource(AuthenticationDetailsSource<HttpServletRequest,?> authenticationDetailsSource) {
         Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource cannot be null");
         this.authenticationDetailsSource = authenticationDetailsSource;
     }

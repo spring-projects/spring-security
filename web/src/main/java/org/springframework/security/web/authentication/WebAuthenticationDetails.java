@@ -15,10 +15,6 @@
 
 package org.springframework.security.web.authentication;
 
-import org.springframework.security.core.session.SessionIdentifierAware;
-
-import java.io.Serializable;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -28,7 +24,7 @@ import javax.servlet.http.HttpSession;
  *
  * @author Ben Alex
  */
-public class WebAuthenticationDetails implements SessionIdentifierAware, Serializable {
+public class WebAuthenticationDetails {
     //~ Instance fields ================================================================================================
 
     private final String remoteAddress;
@@ -132,9 +128,9 @@ public class WebAuthenticationDetails implements SessionIdentifierAware, Seriali
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(super.toString() + ": ");
-        sb.append("RemoteIpAddress: " + this.getRemoteAddress() + "; ");
-        sb.append("SessionId: " + this.getSessionId());
+        sb.append(super.toString()).append(": ");
+        sb.append("RemoteIpAddress: ").append(this.getRemoteAddress()).append("; ");
+        sb.append("SessionId: ").append(this.getSessionId());
 
         return sb.toString();
     }

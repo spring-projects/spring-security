@@ -89,7 +89,7 @@ public class BasicAuthenticationFilter extends GenericFilterBean {
 
     //~ Instance fields ================================================================================================
 
-    private AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
+    private AuthenticationDetailsSource<HttpServletRequest,?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
     private AuthenticationEntryPoint authenticationEntryPoint;
     private AuthenticationManager authenticationManager;
     private RememberMeServices rememberMeServices = new NullRememberMeServices();
@@ -257,7 +257,7 @@ public class BasicAuthenticationFilter extends GenericFilterBean {
         this.ignoreFailure = ignoreFailure;
     }
 
-    public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
+    public void setAuthenticationDetailsSource(AuthenticationDetailsSource<HttpServletRequest,?> authenticationDetailsSource) {
         Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource required");
         this.authenticationDetailsSource = authenticationDetailsSource;
     }

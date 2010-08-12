@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
+@Deprecated
 public class GrantedAuthoritiesContainerImpl implements MutableGrantedAuthoritiesContainer {
     private List<GrantedAuthority> authorities;
 

@@ -104,12 +104,11 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extend
                 && gasRolesSet.containsAll(expectedRolesColl));
     }
 
-    private final J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource getJ2eeBasedPreAuthenticatedWebAuthenticationDetailsSource(
+    private J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource getJ2eeBasedPreAuthenticatedWebAuthenticationDetailsSource(
             String[] mappedRoles) {
         J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource result = new J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource();
         result.setMappableRolesRetriever(getMappableRolesRetriever(mappedRoles));
         result.setUserRoles2GrantedAuthoritiesMapper(getJ2eeUserRoles2GrantedAuthoritiesMapper());
-        result.setClazz(PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails.class);
 
         try {
             result.afterPropertiesSet();
@@ -134,7 +133,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSourceTests extend
         return result;
     }
 
-    private final HttpServletRequest getRequest(final String userName,final String[] aRoles)
+    private HttpServletRequest getRequest(final String userName,final String[] aRoles)
     {
         MockHttpServletRequest req = new MockHttpServletRequest() {
             private Set<String> roles = new HashSet<String>(Arrays.asList(aRoles));

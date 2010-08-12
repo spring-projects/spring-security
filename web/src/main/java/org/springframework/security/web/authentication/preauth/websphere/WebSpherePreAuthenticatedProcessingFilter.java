@@ -25,6 +25,7 @@ public class WebSpherePreAuthenticatedProcessingFilter extends AbstractPreAuthen
 
     WebSpherePreAuthenticatedProcessingFilter(WASUsernameAndGroupsExtractor wasHelper) {
         this.wasHelper = wasHelper;
+        setAuthenticationDetailsSource(new WebSpherePreAuthenticatedWebAuthenticationDetailsSource());
     }
 
 
