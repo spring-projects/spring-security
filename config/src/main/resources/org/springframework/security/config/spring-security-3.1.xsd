@@ -926,6 +926,11 @@
         <xs:documentation>Reference to an AuthenticationFailureHandler bean which should be used to handle a failed authentication request. Should not be used in combination with authentication-failure-url as the implementation should always deal with navigation to the subsequent destination</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="authentication-details-source-ref" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>Reference to an AuthenticationDetailsSource which will be used by the authentication filter</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
   
   <xs:element name="attribute-exchange"><xs:annotation>
@@ -1059,6 +1064,11 @@
         <xs:documentation>Sets the AuthenticationEntryPoint which is used by the BasicAuthenticationFilter.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="authentication-details-source-ref" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>Reference to an AuthenticationDetailsSource which will be used by the authentication filter</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
   
   <xs:attributeGroup name="session-management.attlist">
@@ -1167,7 +1177,7 @@
   <xs:attributeGroup name="remember-me-services-ref">
     <xs:attribute name="services-ref" type="xs:token">
       <xs:annotation>
-        <xs:documentation>Allows a custom implementation of RememberMeServices to be used. Note that this implementation should return RememberMeAuthenticationToken instances with the same "key" value as specified in the remember-me element. Alternatively it should register its own AuthenticationProvider.</xs:documentation>
+        <xs:documentation>Allows a custom implementation of RememberMeServices to be used. Note that this implementation should return RememberMeAuthenticationToken instances with the same "key" value as specified in the remember-me element. Alternatively it should register its own AuthenticationProvider. It should also implement the LogoutHandler interface, which will be invoked when a user logs out. Typically the remember-me cookie would be removed on logout.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
@@ -1217,6 +1227,7 @@
         <xs:documentation>A reference to a user-service (or UserDetailsService bean) Id</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="authentication-details-source-ref" type="xs:token"/>
   </xs:attributeGroup>
   <xs:element name="jee"><xs:annotation>
       <xs:documentation>Adds a J2eePreAuthenticatedProcessingFilter to the filter chain to provide integration with container authentication.</xs:documentation>

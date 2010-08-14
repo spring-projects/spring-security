@@ -187,10 +187,10 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         logger.info("Checking sorted filter chain: " + filters);
 
         for(int i=0; i < filters.size(); i++) {
-            OrderDecorator filter = (OrderDecorator)filters.get(i);
+            OrderDecorator filter = filters.get(i);
 
             if (i > 0) {
-                OrderDecorator previous = (OrderDecorator)filters.get(i-1);
+                OrderDecorator previous = filters.get(i-1);
                 if (filter.getOrder() == previous.getOrder()) {
                     pc.getReaderContext().error("Filter beans '" + filter.bean + "' and '" +
                             previous.bean + "' have the same 'order' value. When using custom filters, " +

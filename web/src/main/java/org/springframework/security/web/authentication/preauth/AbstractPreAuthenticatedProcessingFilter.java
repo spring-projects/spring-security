@@ -196,6 +196,10 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
         this.authenticationDetailsSource = authenticationDetailsSource;
     }
 
+    protected AuthenticationDetailsSource<HttpServletRequest, ?> getAuthenticationDetailsSource() {
+        return authenticationDetailsSource;
+    }
+
     /**
      * @param authenticationManager
      *            The AuthenticationManager to use

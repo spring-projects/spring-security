@@ -381,6 +381,10 @@ form-login.attlist &=
 form-login.attlist &=
     ## Reference to an AuthenticationFailureHandler bean which should be used to handle a failed authentication request. Should not be used in combination with authentication-failure-url as the implementation should always deal with navigation to the subsequent destination
     attribute authentication-failure-handler-ref {xsd:token}?
+form-login.attlist &=
+    ## Reference to an AuthenticationDetailsSource which will be used by the authentication filter
+    attribute authentication-details-source-ref {xsd:token}?
+
 
 openid-login =
     ## Sets up form login for authentication with an Open ID identity
@@ -451,6 +455,9 @@ http-basic =
 http-basic.attlist &=
     ## Sets the AuthenticationEntryPoint which is used by the BasicAuthenticationFilter.
     attribute entry-point-ref {xsd:token}?
+http-basic.attlist &=
+    ## Reference to an AuthenticationDetailsSource which will be used by the authentication filter
+    attribute authentication-details-source-ref {xsd:token}?
 
 session-management =
     element session-management {session-management.attlist, concurrency-control?}
@@ -565,6 +572,8 @@ x509.attlist &=
 x509.attlist &=
     ## Explicitly specifies which user-service should be used to load user data for X.509 authenticated clients. If ommitted, the default user-service will be used.
     user-service-ref?
+x509.attlist &=
+    attribute authentication-details-source-ref {xsd:token}?
 
 jee =
     ## Adds a J2eePreAuthenticatedProcessingFilter to the filter chain to provide integration with container authentication.

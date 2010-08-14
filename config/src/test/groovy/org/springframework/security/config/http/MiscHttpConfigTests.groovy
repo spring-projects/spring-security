@@ -44,7 +44,8 @@ import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
 
-import groovy.lang.Closure;
+import groovy.lang.Closure
+import org.springframework.security.openid.OpenIDAuthenticationFilter;
 
 class MiscHttpConfigTests extends AbstractHttpConfigTests {
     def 'Minimal configuration parses'() {
@@ -501,6 +502,23 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         roles.contains 'ROLE_admin'
         roles.contains 'ROLE_user'
         roles.contains 'ROLE_c'
+    }
+
+    def authenticationDetailsSourceInjectionSucceeds() {
+        xml.http() {
+            'form-login'('authentication-details-source-ref' : 'adsr')
+            'openid-login' ('authentication-details-source-ref' : 'adsr')
+            'http-basic' ('authentication-details-source-ref' : 'adsr')
+            'x509' ('authentication-details-source-ref' : 'adsr')
+        }
+        bean('adsr', 'org.springframework.security.web.authentication.WebAuthenticationDetailsSource')
+        createAppContext()
+        def adsr = appContext.getBean('adsr')
+        expect:
+        getFilter(UsernamePasswordAuthenticationFilter).authenticationDetailsSource == adsr
+        getFilter(OpenIDAuthenticationFilter).authenticationDetailsSource == adsr
+        getFilter(BasicAuthenticationFilter).authenticationDetailsSource == adsr
+        getFilter(X509AuthenticationFilter).authenticationDetailsSource == adsr
     }
 }
 

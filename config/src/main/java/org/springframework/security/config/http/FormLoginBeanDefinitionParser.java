@@ -68,6 +68,7 @@ public class FormLoginBeanDefinitionParser {
         // Only available with form-login
         String usernameParameter = null;
         String passwordParameter = null;
+        String authDetailsSourceRef = null;
 
         Object source = null;
 
@@ -83,6 +84,8 @@ public class FormLoginBeanDefinitionParser {
             loginPage = elt.getAttribute(ATT_LOGIN_PAGE);
             successHandlerRef = elt.getAttribute(ATT_SUCCESS_HANDLER_REF);
             failureHandlerRef = elt.getAttribute(ATT_FAILURE_HANDLER_REF);
+            authDetailsSourceRef = elt.getAttribute(AuthenticationConfigBuilder.ATT_AUTH_DETAILS_SOURCE_REF);
+
 
             if (!StringUtils.hasText(loginPage)) {
                 loginPage = null;
@@ -93,7 +96,7 @@ public class FormLoginBeanDefinitionParser {
         }
 
         filterBean = createFilterBean(loginUrl, defaultTargetUrl, alwaysUseDefault, loginPage, authenticationFailureUrl,
-                successHandlerRef, failureHandlerRef);
+                successHandlerRef, failureHandlerRef, authDetailsSourceRef);
 
         if (StringUtils.hasText(usernameParameter)) {
             filterBean.getPropertyValues().addPropertyValue("usernameParameter", usernameParameter);
@@ -114,7 +117,8 @@ public class FormLoginBeanDefinitionParser {
     }
 
     private RootBeanDefinition createFilterBean(String loginUrl, String defaultTargetUrl, String alwaysUseDefault,
-            String loginPage, String authenticationFailureUrl, String successHandlerRef, String failureHandlerRef) {
+            String loginPage, String authenticationFailureUrl, String successHandlerRef, String failureHandlerRef,
+            String authDetailsSourceRef) {
 
         BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(filterClassName);
 
@@ -134,6 +138,10 @@ public class FormLoginBeanDefinitionParser {
             successHandler.addPropertyValue("requestCache", requestCache);
             successHandler.addPropertyValue("defaultTargetUrl", StringUtils.hasText(defaultTargetUrl) ? defaultTargetUrl : DEF_FORM_LOGIN_TARGET_URL);
             filterBuilder.addPropertyValue("authenticationSuccessHandler", successHandler.getBeanDefinition());
+        }
+
+        if (StringUtils.hasText(authDetailsSourceRef)) {
+            filterBuilder.addPropertyReference("authenticationDetailsSource", authDetailsSourceRef);
         }
 
         if (sessionStrategy != null) {

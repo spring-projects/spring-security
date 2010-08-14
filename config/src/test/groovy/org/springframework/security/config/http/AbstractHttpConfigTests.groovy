@@ -1,18 +1,11 @@
 package org.springframework.security.config.http
 
-import groovy.lang.Closure;
-import groovy.xml.MarkupBuilder
-import java.util.List;
-
-import javax.servlet.Filter;
-
+import javax.servlet.Filter
 import org.springframework.mock.web.MockFilterChain
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.security.config.AbstractXmlConfigTests
 import org.springframework.security.config.BeanIds
-import org.springframework.security.config.util.InMemoryXmlApplicationContext
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.FilterChainProxy
 import org.springframework.security.web.FilterInvocation
 

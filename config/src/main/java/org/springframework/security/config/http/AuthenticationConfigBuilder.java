@@ -64,6 +64,8 @@ final class AuthenticationConfigBuilder {
     private static final String OPEN_ID_ATTRIBUTE_FACTORY_CLASS = "org.springframework.security.openid.RegexBasedAxFetchListFactory";
     static final String AUTHENTICATION_PROCESSING_FILTER_CLASS = "org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter";
 
+    static final String ATT_AUTH_DETAILS_SOURCE_REF = "authentication-details-source-ref";
+
     private static final String ATT_AUTO_CONFIG = "auto-config";
 
     private static final String ATT_ACCESS_DENIED_PAGE = "access-denied-page";
@@ -71,6 +73,7 @@ final class AuthenticationConfigBuilder {
     private static final String ATT_ENTRY_POINT_REF = "entry-point-ref";
 
     private static final String ATT_USER_SERVICE_REF = "user-service-ref";
+
 
     private final Element httpElt;
     private final ParserContext pc;
@@ -148,7 +151,7 @@ final class AuthenticationConfigBuilder {
                 key = DEF_KEY;
             }
 
-            rememberMeFilter = (RootBeanDefinition) new RememberMeBeanDefinitionParser(key).parse(rememberMeElt, pc);
+            rememberMeFilter = new RememberMeBeanDefinitionParser(key).parse(rememberMeElt, pc);
             rememberMeFilter.getPropertyValues().addPropertyValue("authenticationManager", authenticationManager);
             rememberMeServicesId = ((RuntimeBeanReference) rememberMeFilter.getPropertyValues().getPropertyValue("rememberMeServices").getValue()).getBeanName();
             createRememberMeProvider(key);
@@ -291,35 +294,41 @@ final class AuthenticationConfigBuilder {
     void createBasicFilter(BeanReference authManager) {
         Element basicAuthElt = DomUtils.getChildElementByTagName(httpElt, Elements.BASIC_AUTH);
 
+        if (basicAuthElt == null && !autoConfig) {
+            // No basic auth, do nothing
+            return;
+        }
+
         String realm = httpElt.getAttribute(ATT_REALM);
         if (!StringUtils.hasText(realm)) {
             realm = DEF_REALM;
         }
 
-        RootBeanDefinition filter = null;
+        BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(BasicAuthenticationFilter.class);
 
-        if (basicAuthElt != null || autoConfig) {
-            BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(BasicAuthenticationFilter.class);
+        String entryPointId;
 
-            String entryPointId;
-
-            if (basicAuthElt != null && StringUtils.hasText(basicAuthElt.getAttribute(ATT_ENTRY_POINT_REF))) {
+        if (basicAuthElt != null) {
+            if (StringUtils.hasText(basicAuthElt.getAttribute(ATT_ENTRY_POINT_REF))) {
                 basicEntryPoint = new RuntimeBeanReference(basicAuthElt.getAttribute(ATT_ENTRY_POINT_REF));
-            } else {
-                RootBeanDefinition entryPoint = new RootBeanDefinition(BasicAuthenticationEntryPoint.class);
-                entryPoint.setSource(pc.extractSource(httpElt));
-                entryPoint.getPropertyValues().addPropertyValue("realmName", realm);
-                entryPointId = pc.getReaderContext().generateBeanName(entryPoint);
-                pc.registerBeanComponent(new BeanComponentDefinition(entryPoint, entryPointId));
-                basicEntryPoint = new RuntimeBeanReference(entryPointId);
             }
 
-            filterBuilder.addPropertyValue("authenticationManager", authManager);
-            filterBuilder.addPropertyValue("authenticationEntryPoint", basicEntryPoint);
-            filter = (RootBeanDefinition) filterBuilder.getBeanDefinition();
+            injectAuthenticationDetailsSource(basicAuthElt, filterBuilder);
+
         }
 
-        basicFilter = filter;
+        if (basicEntryPoint == null) {
+            RootBeanDefinition entryPoint = new RootBeanDefinition(BasicAuthenticationEntryPoint.class);
+            entryPoint.setSource(pc.extractSource(httpElt));
+            entryPoint.getPropertyValues().addPropertyValue("realmName", realm);
+            entryPointId = pc.getReaderContext().generateBeanName(entryPoint);
+            pc.registerBeanComponent(new BeanComponentDefinition(entryPoint, entryPointId));
+            basicEntryPoint = new RuntimeBeanReference(entryPointId);
+        }
+
+        filterBuilder.addPropertyValue("authenticationManager", authManager);
+        filterBuilder.addPropertyValue("authenticationEntryPoint", basicEntryPoint);
+        basicFilter = filterBuilder.getBeanDefinition();
     }
 
     void createX509Filter(BeanReference authManager) {
@@ -339,6 +348,9 @@ final class AuthenticationConfigBuilder {
 
                 filterBuilder.addPropertyValue("principalExtractor", extractor.getBeanDefinition());
             }
+
+            injectAuthenticationDetailsSource(x509Elt, filterBuilder);
+
             filter = (RootBeanDefinition) filterBuilder.getBeanDefinition();
             createPrauthEntryPoint(x509Elt);
 
@@ -346,6 +358,14 @@ final class AuthenticationConfigBuilder {
         }
 
         x509Filter = filter;
+    }
+
+    private void injectAuthenticationDetailsSource(Element elt, BeanDefinitionBuilder filterBuilder) {
+        String authDetailsSourceRef = elt.getAttribute(AuthenticationConfigBuilder.ATT_AUTH_DETAILS_SOURCE_REF);
+
+        if (StringUtils.hasText(authDetailsSourceRef)) {
+            filterBuilder.addPropertyReference("authenticationDetailsSource", authDetailsSourceRef);
+        }
     }
 
     private void createX509Provider() {
