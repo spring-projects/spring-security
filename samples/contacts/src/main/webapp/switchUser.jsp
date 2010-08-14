@@ -1,6 +1,7 @@
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core' %>
 <%@ page import="org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter" %>
 <%@ page import="org.springframework.security.core.AuthenticationException" %>
+<%@ page pageEncoding="UTF-8" %>
 
 <html>
   <head>

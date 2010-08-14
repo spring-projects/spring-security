@@ -1,4 +1,5 @@
 <%@ taglib prefix='c' uri='http://java.sun.com/jstl/core_rt' %>
+<%@ page pageEncoding="UTF-8" %>
 
 <html>
   <head>
@@ -19,6 +20,7 @@
     <p>username <b>jane</b>, password <b>wombat</b>
     <p>
 
+    <p>Locale is: <%= request.getLocale() %></p>
     <%-- this form-login-page form is also used as the
          form-error-page to ask for a login again.
          --%>
