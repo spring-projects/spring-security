@@ -15,22 +15,6 @@
 
 package org.springframework.security.web;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.web.util.AnyRequestMatcher;
@@ -38,6 +22,11 @@ import org.springframework.security.web.util.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.filter.GenericFilterBean;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.*;
 
 
 /**
@@ -96,7 +85,6 @@ public class FilterChainProxy extends GenericFilterBean {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(FilterChainProxy.class);
-    public static final String TOKEN_NONE = "#NONE#";
 
     //~ Instance fields ================================================================================================
 
@@ -121,7 +109,7 @@ public class FilterChainProxy extends GenericFilterBean {
         if (filters == null || filters.size() == 0) {
             if (logger.isDebugEnabled()) {
                 logger.debug(fi.getRequestUrl() +
-                        filters == null ? " has no matching filters" : " has an empty filter list");
+                        (filters == null ? " has no matching filters" : " has an empty filter list"));
             }
 
             chain.doFilter(request, response);
@@ -163,26 +151,6 @@ public class FilterChainProxy extends GenericFilterBean {
     }
 
     /**
-     * Obtains all of the <b>unique</b><code>Filter</code> instances registered in the map of
-     * filter chains.
-     * <p>This is useful in ensuring a <code>Filter</code> is not initialized or destroyed twice.</p>
-     *
-     * @return all of the <code>Filter</code> instances in the application context which have an entry
-     *         in the map (only one entry is included in the array for
-     *         each <code>Filter</code> that actually exists in application context, even if a given
-     *         <code>Filter</code> is defined multiples times in the filter chain map)
-     */
-    protected Collection<Filter> obtainAllDefinedFilters() {
-        Set<Filter> allFilters = new LinkedHashSet<Filter>();
-
-        for (List<Filter> filters : filterChainMap.values()) {
-            allFilters.addAll(filters);
-        }
-
-        return allFilters;
-    }
-
-    /**
      * Sets the mapping of URL patterns to filter chains.
      *
      * The map keys should be the paths and the values should be arrays of <tt>Filter</tt> objects.
@@ -217,10 +185,10 @@ public class FilterChainProxy extends GenericFilterBean {
 
     private void checkPathOrder() {
         // Check that the universal pattern is listed at the end, if at all
-        RequestMatcher[] matchers = filterChainMap.keySet().toArray(new RequestMatcher[0]);
+        Iterator<RequestMatcher> matchers = filterChainMap.keySet().iterator();
 
-        for (int i=0; i < matchers.length-1; i++) {
-            if (matchers[i] instanceof AnyRequestMatcher) {
+        while(matchers.hasNext()) {
+            if ((matchers.next() instanceof AnyRequestMatcher && matchers.hasNext())) {
                 throw new IllegalArgumentException("A universal match pattern ('/**') is defined " +
                         " before other patterns in the filter chain, causing them to be ignored. Please check the " +
                         "ordering in your <security:http> namespace or FilterChainProxy bean configuration");
@@ -241,7 +209,8 @@ public class FilterChainProxy extends GenericFilterBean {
     /**
      * Used (internally) to specify a validation strategy for the filters in each configured chain.
      *
-     * @param filterChainValidator
+     * @param filterChainValidator the validator instance which will be invoked on during initialization
+     * to check the {@code FilterChainProxy} instance.
      */
     public void setFilterChainValidator(FilterChainValidator filterChainValidator) {
         this.filterChainValidator = filterChainValidator;
@@ -260,24 +229,25 @@ public class FilterChainProxy extends GenericFilterBean {
     //~ Inner Classes ==================================================================================================
 
     /**
-     * A <code>FilterChain</code> that records whether or not {@link
-     * FilterChain#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse)} is called.
-     * <p>
-     * This <code>FilterChain</code> is used by <code>FilterChainProxy</code> to determine if the next
-     * <code>Filter</code> should be called or not.</p>
+     * Internal {@code FilterChain} implementation that is used to pass a request through the additional
+     * internal list of filters which match the request. Records the position in the additional filter chain and, when
+     * completed, passes the request back to the original {@code FilterChain} supplied by the servlet container.
      */
     private static class VirtualFilterChain implements FilterChain {
         private final FilterInvocation fi;
         private final List<Filter> additionalFilters;
+        private final int size;
         private int currentPosition = 0;
+
 
         private VirtualFilterChain(FilterInvocation filterInvocation, List<Filter> additionalFilters) {
             this.fi = filterInvocation;
             this.additionalFilters = additionalFilters;
+            this.size = additionalFilters.size();
         }
 
         public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
-            if (currentPosition == additionalFilters.size()) {
+            if (currentPosition == size) {
                 if (logger.isDebugEnabled()) {
                     logger.debug(fi.getRequestUrl()
                         + " reached end of additional filter chain; proceeding with original chain");
@@ -291,7 +261,7 @@ public class FilterChainProxy extends GenericFilterBean {
 
                 if (logger.isDebugEnabled()) {
                     logger.debug(fi.getRequestUrl() + " at position " + currentPosition + " of "
-                        + additionalFilters.size() + " in additional filter chain; firing Filter: '"
+                        + size + " in additional filter chain; firing Filter: '"
                         + nextFilter + "'");
                 }
 

@@ -73,43 +73,43 @@ public class FilterChainProxyConfigTests {
 
     @Test
     public void normalOperation() throws Exception {
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("filterChain", FilterChainProxy.class);
+        FilterChainProxy filterChainProxy = appCtx.getBean("filterChain", FilterChainProxy.class);
         doNormalOperation(filterChainProxy);
     }
 
     @Test
     public void normalOperationWithNewConfig() throws Exception {
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("newFilterChainProxy", FilterChainProxy.class);
+        FilterChainProxy filterChainProxy = appCtx.getBean("newFilterChainProxy", FilterChainProxy.class);
         checkPathAndFilterOrder(filterChainProxy);
         doNormalOperation(filterChainProxy);
     }
 
     @Test
     public void normalOperationWithNewConfigRegex() throws Exception {
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("newFilterChainProxyRegex", FilterChainProxy.class);
+        FilterChainProxy filterChainProxy = appCtx.getBean("newFilterChainProxyRegex", FilterChainProxy.class);
         checkPathAndFilterOrder(filterChainProxy);
         doNormalOperation(filterChainProxy);
     }
 
     @Test
     public void normalOperationWithNewConfigNonNamespace() throws Exception {
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("newFilterChainProxyNonNamespace", FilterChainProxy.class);
+        FilterChainProxy filterChainProxy = appCtx.getBean("newFilterChainProxyNonNamespace", FilterChainProxy.class);
         checkPathAndFilterOrder(filterChainProxy);
         doNormalOperation(filterChainProxy);
     }
 
     @Test
     public void pathWithNoMatchHasNoFilters() throws Exception {
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("newFilterChainProxyNoDefaultPath", FilterChainProxy.class);
+        FilterChainProxy filterChainProxy = appCtx.getBean("newFilterChainProxyNoDefaultPath", FilterChainProxy.class);
         assertEquals(null, filterChainProxy.getFilters("/nomatch"));
     }
 
     // SEC-1235
     @Test
     public void mixingPatternsAndPlaceholdersDoesntCauseOrderingIssues() throws Exception {
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("sec1235FilterChainProxy", FilterChainProxy.class);
+        FilterChainProxy fcp = appCtx.getBean("sec1235FilterChainProxy", FilterChainProxy.class);
 
-        RequestMatcher[] matchers = filterChainProxy.getFilterChainMap().keySet().toArray(new RequestMatcher[0]);
+        RequestMatcher[] matchers = fcp.getFilterChainMap().keySet().toArray(new RequestMatcher[fcp.getFilterChainMap().keySet().size()]);
         assertEquals("/login*", ((AntPathRequestMatcher)matchers[0]).getPattern());
         assertEquals("/logout", ((AntPathRequestMatcher)matchers[1]).getPattern());
         assertTrue(matchers[2] instanceof AnyRequestMatcher);
