@@ -47,6 +47,8 @@ dependencies {
 
 sourceSets.main.compileClasspath += configurations.compileOnly
 
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
 System.setProperty('apacheDSWorkDir', "${buildDir}/apacheDSWork")
 
 test {
