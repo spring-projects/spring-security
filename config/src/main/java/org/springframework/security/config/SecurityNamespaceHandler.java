@@ -116,6 +116,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
         parsers.put(Elements.GLOBAL_METHOD_SECURITY, new GlobalMethodSecurityBeanDefinitionParser());
         parsers.put(Elements.AUTHENTICATION_MANAGER, new AuthenticationManagerBeanDefinitionParser());
         parsers.put(Elements.METHOD_SECURITY_METADATA_SOURCE, new MethodSecurityMetadataSourceBeanDefinitionParser());
+        parsers.put(Elements.DEBUG, new DebugBeanDefinitionParser());
 
         // Only load the web-namespace parsers if the web classes are available
         if (ClassUtils.isPresent("org.springframework.security.web.FilterChainProxy", getClass().getClassLoader())) {

@@ -6,6 +6,7 @@ package org.springframework.security.config;
  * These are intended for internal use.
  *
  * @author Ben Alex
+ * @author Luke Taylor
  */
 public abstract class BeanIds {
     private static final String PREFIX = "org.springframework.security.";
@@ -28,4 +29,6 @@ public abstract class BeanIds {
     public static final String METHOD_SECURITY_METADATA_SOURCE_ADVISOR = PREFIX + "methodSecurityMetadataSourceAdvisor";
     public static final String EMBEDDED_APACHE_DS = PREFIX + "apacheDirectoryServerContainer";
     public static final String CONTEXT_SOURCE = PREFIX + "securityContextSource";
+
+    public static final String DEBUG_FILTER = PREFIX + "debugFilter";
 }

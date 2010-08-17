@@ -41,6 +41,12 @@ data-source-ref =
     ## A reference to a DataSource bean
     attribute data-source-ref {xsd:token}
 
+
+
+debug =
+    ## Enables Spring Security debugging infrastructure. This will provide human-readable (multi-line) debugging information to monitor requests coming into the security filters. This may include sensitive information, such as request parameters or headers, and should only be used in a development environment.
+    element debug {empty}
+
 password-encoder =
     ## element which defines a password encoding strategy. Used by an authentication provider to convert submitted passwords to hashed versions, for example.
     element password-encoder {password-encoder.attlist, salt-source?}
@@ -672,6 +678,5 @@ before =
 position =
     ## The explicit position at which the custom-filter should be placed in the chain. Use if you are replacing a standard filter.
     attribute position {named-security-filter}
-
 
 named-security-filter = "FIRST" | "CHANNEL_FILTER" | "CONCURRENT_SESSION_FILTER" | "SECURITY_CONTEXT_FILTER" | "LOGOUT_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_FILTER" | "FORM_LOGIN_FILTER" | "OPENID_FILTER" |"BASIC_AUTH_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "SESSION_MANAGEMENT_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"

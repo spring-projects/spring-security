@@ -104,6 +104,9 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
+  <xs:element name="debug"><xs:annotation>
+      <xs:documentation>Enables Spring Security debugging infrastructure. This will provide human-readable (multi-line) debugging information to monitor requests coming into the security filters. This may include sensitive information, such as request parameters or headers, and should only be used in a development environment.</xs:documentation>
+    </xs:annotation><xs:complexType/></xs:element>
   
   <xs:attributeGroup name="password-encoder.attlist">
     <xs:attribute name="ref" type="xs:token">
