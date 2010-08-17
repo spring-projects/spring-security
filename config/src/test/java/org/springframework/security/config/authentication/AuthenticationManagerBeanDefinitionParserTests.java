@@ -34,13 +34,13 @@ public class AuthenticationManagerBeanDefinitionParserTests {
     @Test
     // SEC-1225
     public void providersAreRegisteredAsTopLevelBeans() throws Exception {
-        setContext(CONTEXT, "3.0");
+        setContext(CONTEXT, "3.1");
         assertEquals(1, appContext.getBeansOfType(AuthenticationProvider.class).size());
     }
 
     @Test
     public void eventsArePublishedByDefault() throws Exception {
-        setContext(CONTEXT, "3.0");
+        setContext(CONTEXT, "3.1");
         AuthListener listener = new AuthListener();
         appContext.addApplicationListener(listener);
 

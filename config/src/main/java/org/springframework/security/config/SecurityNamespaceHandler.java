@@ -40,8 +40,8 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 
     public BeanDefinition parse(Element element, ParserContext pc) {
         if (!namespaceMatchesVersion(element)) {
-            pc.getReaderContext().fatal("You cannot use a spring-security-2.0.xsd schema with Spring Security 3." +
-                    " Please update your schema declarations to the 3.1 schema.", element);
+            pc.getReaderContext().fatal("You cannot use a spring-security-2.0.xsd or spring-security-3.0.xsd schema " +
+                    "with Spring Security 3.1. Please update your schema declarations to the 3.1 schema.", element);
         }
         String name = pc.getDelegate().getLocalName(element);
         BeanDefinitionParser parser = parsers.get(name);
@@ -58,13 +58,14 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
             } else {
                 reportUnsupportedNodeType(name, pc, element);
             }
+
+            return null;
         }
 
         return parser.parse(element, pc);
     }
 
     public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition, ParserContext pc) {
-        BeanDefinitionDecorator decorator = null;
         String name = pc.getDelegate().getLocalName(node);
 
         // We only handle elements
@@ -84,9 +85,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
             }
         }
 
-        if (decorator == null) {
-            reportUnsupportedNodeType(name, pc, node);
-        }
+        reportUnsupportedNodeType(name, pc, node);
 
         return null;
     }
@@ -129,8 +128,11 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 
     /**
      * Check that the schema location declared in the source file being parsed matches the Spring Security version.
-     * The old 2.0 schema is not compatible with the new 3.0 parser, so it is an error to explicitly use
-     * 3.0. It might be an error to declare spring-security.xsd as an alias, but you are only going to find that out
+     * The old 2.0 schema is not compatible with the 3.1 parser, so it is an error to explicitly use
+     * 2.0.
+     * <p>
+     * There are also differences between 3.0 and 3.1 which are sufficient that we report using 3.0 as an error too.
+     * It might be an error to declare spring-security.xsd as an alias, but you are only going to find that out
      * when one of the sub parsers breaks.
      *
      * @param element the element that is to be parsed next
@@ -142,7 +144,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 
     private boolean matchesVersionInternal(Element element) {
         String schemaLocation = element.getAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation");
-        return schemaLocation.matches("(?m).*spring-security-3.*.xsd.*")
+        return schemaLocation.matches("(?m).*spring-security-3\\.1.*.xsd.*")
                  || schemaLocation.matches("(?m).*spring-security.xsd.*")
                  || !schemaLocation.matches("(?m).*spring-security.*");
     }

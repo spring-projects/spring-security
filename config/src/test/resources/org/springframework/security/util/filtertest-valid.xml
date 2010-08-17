@@ -21,7 +21,7 @@
     xmlns:sec="http://www.springframework.org/schema/security"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
     <bean id="mockFilter" class="org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter"/>
 
@@ -42,7 +42,7 @@ http://www.springframework.org/schema/security http://www.springframework.org/sc
         </sec:authentication-provider>
     </sec:authentication-manager>
 
-    <bean id="mockNotAFilter" class="org.springframework.security.web.util.AntUrlPathMatcher"/>
+    <bean id="mockNotAFilter" class="org.springframework.security.web.util.AnyRequestMatcher"/>
 
     <bean id="filterChain" class="org.springframework.security.web.FilterChainProxy">
         <sec:filter-chain-map path-type="ant">
