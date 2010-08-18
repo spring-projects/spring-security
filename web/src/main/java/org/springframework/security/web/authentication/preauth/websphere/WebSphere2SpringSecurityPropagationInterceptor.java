@@ -78,7 +78,7 @@ public class WebSphere2SpringSecurityPropagationInterceptor implements MethodInt
     /**
      * @param authenticationDetailsSource The authenticationDetailsSource to set.
      */
-    public void setAuthenticationDetailsSource(AuthenticationDetailsSource authenticationDetailsSource) {
+    public void setAuthenticationDetailsSource(AuthenticationDetailsSource<?,?> authenticationDetailsSource) {
         this.authenticationDetailsSource = authenticationDetailsSource;
     }
 }

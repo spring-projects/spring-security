@@ -18,7 +18,7 @@ import java.lang.reflect.Constructor;
  * @deprecated Write an implementation of AuthenticationDetailsSource which returns the desired type directly.
  */
 @Deprecated
-public class AuthenticationDetailsSourceImpl implements AuthenticationDetailsSource {
+public class AuthenticationDetailsSourceImpl implements AuthenticationDetailsSource<Object, Object> {
     //~ Instance fields ================================================================================================
 
     private Class<?> clazz = AuthenticationDetails.class;

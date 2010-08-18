@@ -27,6 +27,7 @@ import org.springframework.util.StringUtils;
 /**
  * @author Luke Taylor
  */
+@SuppressWarnings("unchecked")
 public class AbstractRememberMeServicesTests {
     static User joe = new User("joe", "password", true, true,true,true, AuthorityUtils.createAuthorityList("ROLE_A"));
 
@@ -35,7 +36,7 @@ public class AbstractRememberMeServicesTests {
         new MockRememberMeServices().decodeCookie("nonBase64CookieValue%");
     }
 
-    @Test
+	@Test
     public void setAndGetAreConsistent() throws Exception {
         MockRememberMeServices services = new MockRememberMeServices();
         assertNotNull(services.getCookieName());

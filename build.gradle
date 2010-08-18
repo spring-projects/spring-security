@@ -46,6 +46,7 @@ apply plugin: 'idea'
 
 configure(javaProjects) {
     apply plugin: 'idea'
+    apply plugin: 'eclipse'
     ideaModule {
         downloadJavadoc=false
         excludeDirs.add(buildDir)
