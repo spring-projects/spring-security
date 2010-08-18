@@ -20,8 +20,6 @@ import javax.servlet.jsp.el.VariableResolver;
 import javax.servlet.jsp.tagext.Tag;
 
 import junit.framework.TestCase;
-
-import org.jmock.Mockery;
 import org.springframework.mock.web.MockPageContext;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -33,7 +31,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * Test case to implement commons-el expression language expansion.
  */
 public class AuthorizeTagExpressionLanguageTests extends TestCase {
-    Mockery jmock = new Mockery();
     //~ Instance fields ================================================================================================
 
     private final LegacyAuthorizeTag authorizeTag = new LegacyAuthorizeTag();

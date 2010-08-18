@@ -14,7 +14,7 @@ allprojects {
         mavenRepo name: 'SpringSource Maven Snapshot Repo', urls: 'http://maven.springframework.org/snapshot/'
         mavenRepo name: 'SpringSource Enterprise Release', urls: 'http://repository.springsource.com/maven/bundles/release'
         mavenRepo name: 'SpringSource Enterprise External', urls: 'http://repository.springsource.com/maven/bundles/external'
-        mavenRepo(name: 'Spock Snapshots', urls: 'http://m2repo.spockframework.org/snapshots')
+//        mavenRepo(name: 'Spock Snapshots', urls: 'http://m2repo.spockframework.org/snapshots')
     }
 }
 
@@ -32,7 +32,7 @@ configure(javaProjects) {
 
 configure(coreModuleProjects) {
     apply from: "$rootDir/gradle/bundlor.gradle"
-    apply from: "$rootDir/gradle/maven.gradle"
+    apply from: "$rootDir/gradle/maven-deployment.gradle"
     // Gives better names in structure101 jar diagram
     sourceSets.main.classesDir = new File(buildDir, "classes/" + project.name.substring("spring-security".length() + 1))
 }

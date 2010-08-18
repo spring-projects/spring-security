@@ -15,19 +15,19 @@
 
 package org.springframework.security.ldap.authentication;
 
-import javax.naming.directory.Attributes;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
+
+import javax.naming.NamingEnumeration;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Test;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.ldap.authentication.PasswordComparisonAuthenticator;
 
 
 /**
@@ -35,14 +35,13 @@ import org.springframework.security.ldap.authentication.PasswordComparisonAuthen
  * @author Luke Taylor
  */
 public class PasswordComparisonAuthenticatorMockTests {
-    Mockery jmock = new JUnit4Mockery();
 
     //~ Methods ========================================================================================================
 
     @Test
     public void ldapCompareOperationIsUsedWhenPasswordIsNotRetrieved() throws Exception {
-        final DirContext dirCtx = jmock.mock(DirContext.class);
-        final BaseLdapPathContextSource source = jmock.mock(BaseLdapPathContextSource.class);
+        final DirContext dirCtx = mock(DirContext.class);
+        final BaseLdapPathContextSource source = mock(BaseLdapPathContextSource.class);
         final BasicAttributes attrs = new BasicAttributes();
         attrs.put(new BasicAttribute("uid", "bob"));
 
@@ -51,26 +50,18 @@ public class PasswordComparisonAuthenticatorMockTests {
         authenticator.setUserDnPatterns(new String[] {"cn={0},ou=people"});
 
         // Get the mock to return an empty attribute set
-        jmock.checking(new Expectations() {{
-            allowing(source).getReadOnlyContext(); will(returnValue(dirCtx));
-            oneOf(dirCtx).getAttributes(with(equal("cn=Bob,ou=people")), with(aNull(String[].class))); will(returnValue(attrs));
-            oneOf(dirCtx).getNameInNamespace(); will(returnValue("dc=springframework,dc=org"));
-        }});
+        when(source.getReadOnlyContext()).thenReturn(dirCtx);
+        when(dirCtx.getAttributes(eq("cn=Bob,ou=people"), any(String[].class))).thenReturn(attrs);
+        when(dirCtx.getNameInNamespace()).thenReturn("dc=springframework,dc=org");
 
         // Setup a single return value (i.e. success)
-        final Attributes searchResults = new BasicAttributes("", null);
+        final NamingEnumeration searchResults = new BasicAttributes("", null).getAll();
 
-        jmock.checking(new Expectations() {{
-            oneOf(dirCtx).search(with(equal("cn=Bob,ou=people")),
-                            with(equal("(userPassword={0})")),
-                            with(aNonNull(Object[].class)),
-                            with(aNonNull(SearchControls.class)));
-            will(returnValue(searchResults.getAll()));
-            atLeast(1).of(dirCtx).close();
-        }});
+        when(dirCtx.search(eq("cn=Bob,ou=people"),
+                            eq("(userPassword={0})"),
+                            any(Object[].class),
+                            any(SearchControls.class))).thenReturn(searchResults);
 
         authenticator.authenticate(new UsernamePasswordAuthenticationToken("Bob","bobspassword"));
-
-        jmock.assertIsSatisfied();
     }
 }

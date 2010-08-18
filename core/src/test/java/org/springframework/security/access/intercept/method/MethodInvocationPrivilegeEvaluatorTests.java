@@ -16,13 +16,11 @@
 package org.springframework.security.access.intercept.method;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
-import java.util.List;
+import java.util.*;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.ITargetObject;
@@ -47,7 +45,6 @@ import org.springframework.security.util.MethodInvocationUtils;
  * @author Ben Alex
  */
 public class MethodInvocationPrivilegeEvaluatorTests {
-    private Mockery jmock = new JUnit4Mockery();
     private TestingAuthenticationToken token;
     private MethodSecurityInterceptor interceptor;
     private AccessDecisionManager adm;
@@ -61,9 +58,9 @@ public class MethodInvocationPrivilegeEvaluatorTests {
         SecurityContextHolder.clearContext();
         interceptor = new MethodSecurityInterceptor();
         token = new TestingAuthenticationToken("Test", "Password", "ROLE_SOMETHING");
-        adm = jmock.mock(AccessDecisionManager.class);
-        AuthenticationManager authman = jmock.mock(AuthenticationManager.class);
-        mds = jmock.mock(MethodSecurityMetadataSource.class);
+        adm = mock(AccessDecisionManager.class);
+        AuthenticationManager authman = mock(AuthenticationManager.class);
+        mds = mock(MethodSecurityMetadataSource.class);
         interceptor.setAccessDecisionManager(adm);
         interceptor.setAuthenticationManager(authman);
         interceptor.setSecurityMetadataSource(mds);
@@ -75,10 +72,7 @@ public class MethodInvocationPrivilegeEvaluatorTests {
         final MethodInvocation mi = MethodInvocationUtils.create(object, "makeLowerCase", "foobar");
 
         MethodInvocationPrivilegeEvaluator mipe = new MethodInvocationPrivilegeEvaluator();
-        jmock.checking(new Expectations() {{
-            oneOf(mds).getAttributes(mi); will(returnValue(role));
-            oneOf(adm).decide(token, mi, role);
-        }});
+        when(mds.getAttributes(mi)).thenReturn(role);
 
         mipe.setSecurityInterceptor(interceptor);
         mipe.afterPropertiesSet();
@@ -92,10 +86,7 @@ public class MethodInvocationPrivilegeEvaluatorTests {
                 new Class[] {String.class}, new Object[] {"Hello world"});
         MethodInvocationPrivilegeEvaluator mipe = new MethodInvocationPrivilegeEvaluator();
         mipe.setSecurityInterceptor(interceptor);
-        jmock.checking(new Expectations() {{
-            oneOf(mds).getAttributes(mi); will(returnValue(role));
-            oneOf(adm).decide(token, mi, role);
-        }});
+        when(mds.getAttributes(mi)).thenReturn(role);
 
         assertTrue(mipe.isAllowed(mi, token));
     }
@@ -103,13 +94,11 @@ public class MethodInvocationPrivilegeEvaluatorTests {
     @Test
     public void declinesAccessUsingCreate() throws Exception {
         Object object = new TargetObject();
-        final MethodInvocation mi = MethodInvocationUtils.create(object, "makeLowerCase", new Object[] {"foobar"});
+        final MethodInvocation mi = MethodInvocationUtils.create(object, "makeLowerCase", "foobar");
         MethodInvocationPrivilegeEvaluator mipe = new MethodInvocationPrivilegeEvaluator();
         mipe.setSecurityInterceptor(interceptor);
-        jmock.checking(new Expectations() {{
-            oneOf(mds).getAttributes(mi); will(returnValue(role));
-            oneOf(adm).decide(token, mi, role); will(throwException(new AccessDeniedException("rejected")));
-        }});
+        when(mds.getAttributes(mi)).thenReturn(role);
+        doThrow(new AccessDeniedException("rejected")).when(adm).decide(token, mi, role);
 
         assertFalse(mipe.isAllowed(mi, token));
     }
@@ -121,10 +110,8 @@ public class MethodInvocationPrivilegeEvaluatorTests {
 
         MethodInvocationPrivilegeEvaluator mipe = new MethodInvocationPrivilegeEvaluator();
         mipe.setSecurityInterceptor(interceptor);
-        jmock.checking(new Expectations() {{
-            oneOf(mds).getAttributes(mi); will(returnValue(role));
-            oneOf(adm).decide(token, mi, role); will(throwException(new AccessDeniedException("rejected")));
-        }});
+        when(mds.getAttributes(mi)).thenReturn(role);
+        doThrow(new AccessDeniedException("rejected")).when(adm).decide(token, mi, role);
 
         assertFalse(mipe.isAllowed(mi, token));
     }

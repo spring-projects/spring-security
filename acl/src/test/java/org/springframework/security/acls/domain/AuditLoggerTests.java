@@ -1,13 +1,11 @@
 package org.springframework.security.acls.domain;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,29 +19,17 @@ import org.springframework.security.acls.model.AuditableAccessControlEntry;
  */
 public class AuditLoggerTests {
     //~ Instance fields ================================================================================================
-    private Mockery jmock = new JUnit4Mockery();
     private PrintStream console;
     private ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     private ConsoleAuditLogger logger;
     private AuditableAccessControlEntry ace;
-    private Expectations aceRequiresAudit;
-    private Expectations aceDoesntRequireAudit;
 
     //~ Methods ========================================================================================================
 
     @Before
     public void setUp() throws Exception {
         logger = new ConsoleAuditLogger();
-        ace = jmock.mock(AuditableAccessControlEntry.class);
-        aceRequiresAudit = new Expectations() {{
-            allowing(ace).isAuditSuccess(); will(returnValue(true));
-            allowing(ace).isAuditFailure(); will(returnValue(true));
-        }};
-        aceDoesntRequireAudit = new Expectations() {{
-            allowing(ace).isAuditSuccess(); will(returnValue(false));
-            allowing(ace).isAuditFailure(); will(returnValue(false));
-        }};
-
+        ace = mock(AuditableAccessControlEntry.class);
         console = System.out;
         System.setOut(new PrintStream(bytes));
     }
@@ -56,35 +42,36 @@ public class AuditLoggerTests {
 
     @Test
     public void nonAuditableAceIsIgnored() {
-        AccessControlEntry ace = jmock.mock(AccessControlEntry.class);
+        AccessControlEntry ace = mock(AccessControlEntry.class);
         logger.logIfNeeded(true, ace);
         assertEquals(0, bytes.size());
     }
 
     @Test
     public void successIsNotLoggedIfAceDoesntRequireSuccessAudit() throws Exception {
-        jmock.checking(aceDoesntRequireAudit);
+        when(ace.isAuditSuccess()).thenReturn(false);
         logger.logIfNeeded(true, ace);
         assertEquals(0, bytes.size());
     }
 
     @Test
     public void successIsLoggedIfAceRequiresSuccessAudit() throws Exception {
-        jmock.checking(aceRequiresAudit);
+        when(ace.isAuditSuccess()).thenReturn(true);
+
         logger.logIfNeeded(true, ace);
         assertTrue(bytes.toString().startsWith("GRANTED due to ACE"));
     }
 
     @Test
     public void failureIsntLoggedIfAceDoesntRequireFailureAudit() throws Exception {
-        jmock.checking(aceDoesntRequireAudit);
+        when(ace.isAuditFailure()).thenReturn(false);
         logger.logIfNeeded(false, ace);
         assertEquals(0, bytes.size());
     }
 
     @Test
     public void failureIsLoggedIfAceRequiresFailureAudit() throws Exception {
-        jmock.checking(aceRequiresAudit);
+        when(ace.isAuditFailure()).thenReturn(true);
         logger.logIfNeeded(false, ace);
         assertTrue(bytes.toString().startsWith("DENIED due to ACE"));
     }

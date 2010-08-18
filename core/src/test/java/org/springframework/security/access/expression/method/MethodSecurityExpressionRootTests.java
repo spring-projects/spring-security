@@ -1,9 +1,10 @@
 package org.springframework.security.access.expression.method;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.expression.Expression;
@@ -23,18 +24,17 @@ public class MethodSecurityExpressionRootTests {
     SpelExpressionParser parser = new SpelExpressionParser();
     MethodSecurityExpressionRoot root;
     StandardEvaluationContext ctx;
-    Mockery jmock = new Mockery();
     private AuthenticationTrustResolver trustResolver;
     private Authentication user;
 
 
     @Before
     public void createContext() {
-        user = jmock.mock(Authentication.class);
+        user = mock(Authentication.class);
         root = new MethodSecurityExpressionRoot(user);
         ctx = new StandardEvaluationContext();
         ctx.setRootObject(root);
-        trustResolver = jmock.mock(AuthenticationTrustResolver.class);
+        trustResolver = mock(AuthenticationTrustResolver.class);
         root.setTrustResolver(trustResolver);
     }
 
@@ -48,42 +48,35 @@ public class MethodSecurityExpressionRootTests {
 
     @Test
     public void isAnonymousReturnsTrueIfTrustResolverReportsAnonymous() {
-        jmock.checking(new Expectations() {{
-            oneOf(trustResolver).isAnonymous(user); will(returnValue(true));
-        }});
+        when(trustResolver.isAnonymous(user)).thenReturn(true);
         assertTrue(root.isAnonymous());
     }
 
     @Test
     public void isAnonymousReturnsFalseIfTrustResolverReportsNonAnonymous() {
-        jmock.checking(new Expectations() {{
-            oneOf(trustResolver).isAnonymous(user); will(returnValue(false));
-        }});
+        when(trustResolver.isAnonymous(user)).thenReturn(false);
         assertFalse(root.isAnonymous());
     }
 
     @Test
     public void hasPermissionOnDomainObjectReturnsFalseIfPermissionEvaluatorDoes() throws Exception {
         final Object dummyDomainObject = new Object();
-        final PermissionEvaluator pe = jmock.mock(PermissionEvaluator.class);
+        final PermissionEvaluator pe = mock(PermissionEvaluator.class);
         ctx.setVariable("domainObject", dummyDomainObject);
         root.setPermissionEvaluator(pe);
-        jmock.checking(new Expectations() {{
-            oneOf(pe).hasPermission(user, dummyDomainObject, "ignored"); will(returnValue(false));
-        }});
+        when(pe.hasPermission(user, dummyDomainObject, "ignored")).thenReturn(false);
 
         assertFalse(root.hasPermission(dummyDomainObject, "ignored"));
+
     }
 
     @Test
     public void hasPermissionOnDomainObjectReturnsTrueIfPermissionEvaluatorDoes() throws Exception {
         final Object dummyDomainObject = new Object();
-        final PermissionEvaluator pe = jmock.mock(PermissionEvaluator.class);
+        final PermissionEvaluator pe = mock(PermissionEvaluator.class);
         ctx.setVariable("domainObject", dummyDomainObject);
         root.setPermissionEvaluator(pe);
-        jmock.checking(new Expectations() {{
-            oneOf(pe).hasPermission(user, dummyDomainObject, "ignored"); will(returnValue(true));
-        }});
+        when(pe.hasPermission(user, dummyDomainObject, "ignored")).thenReturn(true);
 
         assertTrue(root.hasPermission(dummyDomainObject, "ignored"));
     }
@@ -93,13 +86,11 @@ public class MethodSecurityExpressionRootTests {
     public void hasPermissionOnDomainObjectWorksWithIntegerExpressions() throws Exception {
         final Object dummyDomainObject = new Object();
         ctx.setVariable("domainObject", dummyDomainObject);
-        final PermissionEvaluator pe = jmock.mock(PermissionEvaluator.class);
+        final PermissionEvaluator pe = mock(PermissionEvaluator.class);
         root.setPermissionEvaluator(pe);
-
-        jmock.checking(new Expectations() {{
-            exactly(3).of(pe).hasPermission(with(user), with(dummyDomainObject), with(any(Integer.class)));
-                will(onConsecutiveCalls(returnValue(true), returnValue(true), returnValue(false)));
-        }});
+        when(pe.hasPermission(eq(user), eq(dummyDomainObject), any(Integer.class))).thenReturn(true)
+                .thenReturn(true)
+                .thenReturn(false);
 
         Expression e = parser.parseExpression("hasPermission(#domainObject, 0xA)");
         // evaluator returns true

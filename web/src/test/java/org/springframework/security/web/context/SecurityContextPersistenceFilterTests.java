@@ -1,22 +1,15 @@
 package org.springframework.security.web.context;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
-
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -27,7 +20,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 
 public class SecurityContextPersistenceFilterTests {
-    Mockery jmock = new JUnit4Mockery();
     TestingAuthenticationToken testToken = new TestingAuthenticationToken("someone", "passwd", "ROLE_A");
 
     @After
@@ -37,31 +29,25 @@ public class SecurityContextPersistenceFilterTests {
 
     @Test
     public void contextIsClearedAfterChainProceeds() throws Exception {
-        final FilterChain chain = jmock.mock(FilterChain.class);
+        final FilterChain chain = mock(FilterChain.class);
         final MockHttpServletRequest request = new MockHttpServletRequest();
         final MockHttpServletResponse response = new MockHttpServletResponse();
         SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter();
         SecurityContextHolder.getContext().setAuthentication(testToken);
-        jmock.checking(new Expectations() {{
-            oneOf(chain).doFilter(with(aNonNull(HttpServletRequest.class)), with(aNonNull(HttpServletResponse.class)));
-        }});
 
         filter.doFilter(request, response, chain);
+        verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     @Test
     public void contextIsStillClearedIfExceptionIsThrowByFilterChain() throws Exception {
-        final FilterChain chain = jmock.mock(FilterChain.class);
+        final FilterChain chain = mock(FilterChain.class);
         final MockHttpServletRequest request = new MockHttpServletRequest();
         final MockHttpServletResponse response = new MockHttpServletResponse();
         SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter();
         SecurityContextHolder.getContext().setAuthentication(testToken);
-
-        jmock.checking(new Expectations() {{
-            oneOf(chain).doFilter(with(aNonNull(HttpServletRequest.class)), with(aNonNull(HttpServletResponse.class)));
-            will(throwException(new IOException()));
-        }});
+        doThrow(new IOException()).when(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
         try {
             filter.doFilter(request, response, chain);
             fail();
@@ -81,13 +67,10 @@ public class SecurityContextPersistenceFilterTests {
         final SecurityContext scExpectedAfter = new SecurityContextImpl();
         scExpectedAfter.setAuthentication(testToken);
         scBefore.setAuthentication(beforeAuth);
-        final SecurityContextRepository repo = jmock.mock(SecurityContextRepository.class);
+        final SecurityContextRepository repo = mock(SecurityContextRepository.class);
         filter.setSecurityContextRepository(repo);
 
-        jmock.checking(new Expectations() {{
-            oneOf(repo).loadContext(with(aNonNull(HttpRequestResponseHolder.class))); will(returnValue(scBefore));
-            oneOf(repo).saveContext(scExpectedAfter, request, response);
-        }});
+        when(repo.loadContext(any(HttpRequestResponseHolder.class))).thenReturn(scBefore);
 
         final FilterChain chain = new FilterChain() {
             public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
@@ -99,30 +82,25 @@ public class SecurityContextPersistenceFilterTests {
 
         filter.doFilter(request, response, chain);
 
-        jmock.assertIsSatisfied();
+        verify(repo).saveContext(scExpectedAfter, request, response);
     }
 
     @Test
     public void filterIsNotAppliedAgainIfFilterAppliedAttributeIsSet() throws Exception {
-        final FilterChain chain = jmock.mock(FilterChain.class);
+        final FilterChain chain = mock(FilterChain.class);
         final MockHttpServletRequest request = new MockHttpServletRequest();
         final MockHttpServletResponse response = new MockHttpServletResponse();
         SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter();
-        filter.setSecurityContextRepository(jmock.mock(SecurityContextRepository.class));
-
-        jmock.checking(new Expectations() {{
-            oneOf(chain).doFilter(request, response);
-        }});
+        filter.setSecurityContextRepository(mock(SecurityContextRepository.class));
 
         request.setAttribute(SecurityContextPersistenceFilter.FILTER_APPLIED, Boolean.TRUE);
         filter.doFilter(request, response, chain);
-        jmock.assertIsSatisfied();
+        verify(chain).doFilter(request, response);
     }
 
     @Test
     public void sessionIsEagerlyCreatedWhenConfigured() throws Exception {
-        final FilterChain chain = jmock.mock(FilterChain.class);
-        jmock.checking(new Expectations() {{ ignoring(chain); }});
+        final FilterChain chain = mock(FilterChain.class);
         final MockHttpServletRequest request = new MockHttpServletRequest();
         final MockHttpServletResponse response = new MockHttpServletResponse();
         SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter();

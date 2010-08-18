@@ -16,12 +16,10 @@
 package org.springframework.security.ldap.authentication;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
-import java.util.Collection;
+import java.util.*;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Test;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
@@ -43,7 +41,6 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
  * @author Luke Taylor
  */
 public class LdapAuthenticationProviderTests {
-    Mockery jmock = new JUnit4Mockery();
 
     //~ Methods ========================================================================================================
 
@@ -81,11 +78,9 @@ public class LdapAuthenticationProviderTests {
 
     @Test(expected=BadCredentialsException.class)
     public void usernameNotFoundExceptionIsHiddenByDefault() {
-        final LdapAuthenticator authenticator = jmock.mock(LdapAuthenticator.class);
+        final LdapAuthenticator authenticator = mock(LdapAuthenticator.class);
         final UsernamePasswordAuthenticationToken joe = new UsernamePasswordAuthenticationToken("joe", "password");
-        jmock.checking(new Expectations() {{
-            oneOf(authenticator).authenticate(joe); will(throwException(new UsernameNotFoundException("nobody")));
-        }});
+        when(authenticator.authenticate(joe)).thenThrow(new UsernameNotFoundException("nobody"));
 
         LdapAuthenticationProvider provider = new LdapAuthenticationProvider(authenticator);
         provider.authenticate(joe);
@@ -93,11 +88,9 @@ public class LdapAuthenticationProviderTests {
 
     @Test(expected=UsernameNotFoundException.class)
     public void usernameNotFoundExceptionIsNotHiddenIfConfigured() {
-        final LdapAuthenticator authenticator = jmock.mock(LdapAuthenticator.class);
+        final LdapAuthenticator authenticator = mock(LdapAuthenticator.class);
         final UsernamePasswordAuthenticationToken joe = new UsernamePasswordAuthenticationToken("joe", "password");
-        jmock.checking(new Expectations() {{
-            oneOf(authenticator).authenticate(joe); will(throwException(new UsernameNotFoundException("nobody")));
-        }});
+        when(authenticator.authenticate(joe)).thenThrow(new UsernameNotFoundException("nobody"));
 
         LdapAuthenticationProvider provider = new LdapAuthenticationProvider(authenticator);
         provider.setHideUserNotFoundExceptions(false);

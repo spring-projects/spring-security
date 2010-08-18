@@ -15,17 +15,15 @@
 
 package org.springframework.security.web.servletapi;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
-import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 
 
 /**
@@ -34,7 +32,6 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
  * @author Ben Alex
  */
 public class SecurityContextHolderAwareRequestFilterTests {
-    Mockery jmock = new JUnit4Mockery();
 
     //~ Methods ========================================================================================================
 
@@ -42,18 +39,14 @@ public class SecurityContextHolderAwareRequestFilterTests {
     public void expectedRequestWrapperClassIsUsed() throws Exception {
         SecurityContextHolderAwareRequestFilter filter = new SecurityContextHolderAwareRequestFilter();
         filter.setRolePrefix("ROLE_");
-//        filter.init(jmock.mock(FilterConfig.class));
-        final FilterChain filterChain = jmock.mock(FilterChain.class);
-
-        jmock.checking(new Expectations() {{
-            exactly(2).of(filterChain).doFilter(
-                    with(aNonNull(SecurityContextHolderAwareRequestWrapper.class)), with(aNonNull(HttpServletResponse.class)));
-        }});
+        final FilterChain filterChain = mock(FilterChain.class);
 
         filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), filterChain);
 
         // Now re-execute the filter, ensuring our replacement wrapper is still used
         filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), filterChain);
+
+        verify(filterChain, times(2)).doFilter(any(SecurityContextHolderAwareRequestWrapper.class), any(HttpServletResponse.class));
 
         filter.destroy();
     }

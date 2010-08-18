@@ -15,17 +15,13 @@
 
 package org.springframework.security.ldap;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 
 /**
@@ -33,41 +29,31 @@ import org.junit.runner.RunWith;
  *
  * @author Luke Taylor
  */
-@RunWith(JMock.class)
 public class LdapUtilsTests {
-    Mockery context = new JUnit4Mockery();
 
     //~ Methods ========================================================================================================
 
     @Test
     public void testCloseContextSwallowsNamingException() throws Exception {
-        final DirContext dirCtx = context.mock(DirContext.class);
-
-        context.checking(new Expectations() {{
-            oneOf(dirCtx).close(); will(throwException(new NamingException()));
-        }});
+        final DirContext dirCtx = mock(DirContext.class);
+        doThrow(new NamingException()).when(dirCtx).close();
 
         LdapUtils.closeContext(dirCtx);
     }
 
     @Test
     public void testGetRelativeNameReturnsEmptyStringForDnEqualToBaseName() throws Exception {
-        final DirContext mockCtx = context.mock(DirContext.class);
+        final DirContext mockCtx = mock(DirContext.class);
 
-        context.checking(new Expectations() {{
-            atLeast(1).of(mockCtx).getNameInNamespace(); will(returnValue("dc=springframework,dc=org"));
-        }});
+        when(mockCtx.getNameInNamespace()).thenReturn("dc=springframework,dc=org");
 
         assertEquals("", LdapUtils.getRelativeName("dc=springframework,dc=org", mockCtx));
     }
 
     @Test
     public void testGetRelativeNameReturnsFullDnWithEmptyBaseName() throws Exception {
-        final DirContext mockCtx = context.mock(DirContext.class);
-
-        context.checking(new Expectations() {{
-            atLeast(1).of(mockCtx).getNameInNamespace(); will(returnValue(""));
-        }});
+        final DirContext mockCtx = mock(DirContext.class);
+        when(mockCtx.getNameInNamespace()).thenReturn("");
 
         assertEquals("cn=jane,dc=springframework,dc=org",
             LdapUtils.getRelativeName("cn=jane,dc=springframework,dc=org", mockCtx));
@@ -75,11 +61,8 @@ public class LdapUtilsTests {
 
     @Test
     public void testGetRelativeNameWorksWithArbitrarySpaces() throws Exception {
-        final DirContext mockCtx = context.mock(DirContext.class);
-
-        context.checking(new Expectations() {{
-            atLeast(1).of(mockCtx).getNameInNamespace(); will(returnValue("dc=springsecurity,dc = org"));
-        }});
+        final DirContext mockCtx = mock(DirContext.class);
+        when(mockCtx.getNameInNamespace()).thenReturn("dc=springsecurity,dc = org");
 
         assertEquals("cn=jane smith",
             LdapUtils.getRelativeName("cn=jane smith, dc = springsecurity , dc=org", mockCtx));

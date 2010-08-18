@@ -15,13 +15,12 @@
 
 package org.springframework.security.web.access.intercept;
 
-import java.util.List;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
+import java.util.*;
 import javax.servlet.FilterChain;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,17 +37,15 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 
 
 /**
  * Tests {@link FilterSecurityInterceptor}.
  *
  * @author Ben Alex
+ * @author Luke Taylor
  */
 public class FilterSecurityInterceptorTests {
-    private Mockery jmock = new JUnit4Mockery();
     private AuthenticationManager am;
     private AccessDecisionManager adm;
     private FilterInvocationSecurityMetadataSource ods;
@@ -62,11 +59,11 @@ public class FilterSecurityInterceptorTests {
     @Before
     public final void setUp() throws Exception {
         interceptor = new FilterSecurityInterceptor();
-        am = jmock.mock(AuthenticationManager.class);
-        ods = jmock.mock(FilterInvocationSecurityMetadataSource.class);
-        adm = jmock.mock(AccessDecisionManager.class);
-        ram = jmock.mock(RunAsManager.class);
-        publisher = jmock.mock(ApplicationEventPublisher.class);
+        am = mock(AuthenticationManager.class);
+        ods = mock(FilterInvocationSecurityMetadataSource.class);
+        adm = mock(AccessDecisionManager.class);
+        ram = mock(RunAsManager.class);
+        publisher = mock(ApplicationEventPublisher.class);
         interceptor.setAuthenticationManager(am);
         interceptor.setSecurityMetadataSource(ods);
         interceptor.setAccessDecisionManager(adm);
@@ -82,19 +79,13 @@ public class FilterSecurityInterceptorTests {
 
     @Test(expected=IllegalArgumentException.class)
     public void testEnsuresAccessDecisionManagerSupportsFilterInvocationClass() throws Exception {
-        jmock.checking(new Expectations() {{
-            ignoring(ods);
-            allowing(adm).supports(FilterInvocation.class); will(returnValue(false));
-        }});
+        when(adm.supports(FilterInvocation.class)).thenReturn(true);
         interceptor.afterPropertiesSet();
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void testEnsuresRunAsManagerSupportsFilterInvocationClass() throws Exception {
-        jmock.checking(new Expectations() {{
-            ignoring(ods);
-            allowing(ram).supports(FilterInvocation.class); will(returnValue(false));
-        }});
+        when(adm.supports(FilterInvocation.class)).thenReturn(false);
         interceptor.afterPropertiesSet();
     }
 
@@ -113,19 +104,14 @@ public class FilterSecurityInterceptorTests {
         SecurityContextHolder.getContext().setAuthentication(token);
 
         // Create and test our secure object
-        final FilterChain chain = jmock.mock(FilterChain.class);
+        final FilterChain chain = mock(FilterChain.class);
         final FilterInvocation fi = new FilterInvocation(request, response, chain);
         final List<ConfigAttribute> attributes = SecurityConfig.createList("MOCK_OK");
 
-        jmock.checking(new Expectations() {{
-            ignoring(ram);
-            allowing(ods).getAttributes(fi); will(returnValue(attributes));
-            oneOf(adm).decide(token, fi, attributes);
-            // Setup our expectation that the filter chain will be invoked, as access is granted
-            oneOf(chain).doFilter(request, response);
-            oneOf(publisher).publishEvent(with(aNonNull(AuthorizedEvent.class)));
-        }});
+        when(ods.getAttributes(fi)).thenReturn(attributes);
 
         interceptor.invoke(fi);
+
+        verify(publisher).publishEvent(any(AuthorizedEvent.class));        
     }
 }

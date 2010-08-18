@@ -19,8 +19,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
-import java.util.Map;
-
+import java.util.*;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -28,9 +27,6 @@ import javax.servlet.ServletRequest;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -88,22 +84,17 @@ public class DigestAuthenticationFilterTests {
                                                                       final boolean expectChainToProceed) throws ServletException, IOException {
         final MockHttpServletResponse response = new MockHttpServletResponse();
 
-        Mockery jmockContext = new JUnit4Mockery();
-        final FilterChain chain = jmockContext.mock(FilterChain.class);
-
-        jmockContext.checking(new Expectations() {{
-             exactly(expectChainToProceed ? 1 : 0).of(chain).doFilter(request, response);
-        }});
+        final FilterChain chain = mock(FilterChain.class);
 
         filter.doFilter(request, response, chain);
 
-        jmockContext.assertIsSatisfied();
+        verify(chain, times(expectChainToProceed ? 1 : 0)).doFilter(request, response);
         return response;
     }
 
     private static String generateNonce(int validitySeconds) {
         long expiryTime = System.currentTimeMillis() + (validitySeconds * 1000);
-        String signatureValue = new String(DigestUtils.md5Hex(expiryTime + ":" + KEY));
+        String signatureValue = DigestUtils.md5Hex(expiryTime + ":" + KEY);
         String nonceValue = expiryTime + ":" + signatureValue;
 
         return new String(Base64.encodeBase64(nonceValue.getBytes()));

@@ -23,7 +23,6 @@ import org.springframework.security.authentication.encoding.PlaintextPasswordEnc
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.ldap.AbstractLdapIntegrationTests;
-import org.springframework.security.ldap.authentication.PasswordComparisonAuthenticator;
 
 
 import org.springframework.ldap.core.DirContextAdapter;

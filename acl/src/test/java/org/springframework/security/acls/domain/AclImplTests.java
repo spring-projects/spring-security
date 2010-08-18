@@ -1,15 +1,11 @@
 package org.springframework.security.acls.domain;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import org.jmock.Mockery;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +46,6 @@ public class AclImplTests {
     private static final List<Sid> BEN = Arrays.asList((Sid)new PrincipalSid("ben"));
 
     Authentication auth = new TestingAuthenticationToken("joe", "ignored", "ROLE_ADMINISTRATOR");
-    Mockery jmockCtx = new Mockery();
     AclAuthorizationStrategy authzStrategy;
     PermissionGrantingStrategy pgs;
     AuditLogger mockAuditLogger;

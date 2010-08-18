@@ -4,6 +4,12 @@ apply plugin: 'groovy'
 
 compileTestJava.dependsOn(':spring-security-core:compileTestJava')
 
+configurations {
+    // GRADLE-1124
+    compile.extendsFrom = [provided]
+    testCompile.extendsFrom groovy
+}
+
 dependencies {
     compile project(':spring-security-core'),
             project(':spring-security-web'),

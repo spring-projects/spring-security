@@ -31,11 +31,7 @@ dependencies {
     }
 
     testCompile 'junit:junit:4.7',
-            'org.mockito:mockito-core:1.8.3',
-            'org.jmock:jmock:2.5.1',
-            'org.jmock:jmock-junit4:2.5.1',
-            'org.hamcrest:hamcrest-core:1.1',
-            'org.hamcrest:hamcrest-library:1.1',
+            'org.mockito:mockito-core:1.8.5',
             "org.springframework:spring-test:$springVersion"
 
     // Use slf4j/logback for logging
