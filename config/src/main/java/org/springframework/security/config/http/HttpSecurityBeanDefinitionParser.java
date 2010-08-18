@@ -56,6 +56,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     static final String OPT_FILTERS_NONE = "none";
 
     static final String ATT_REQUIRES_CHANNEL = "requires-channel";
+    static final String ATT_HTTP_METHOD = "method";
 
     private static final String ATT_LOWERCASE_COMPARISONS = "lowercase-comparisons";
 

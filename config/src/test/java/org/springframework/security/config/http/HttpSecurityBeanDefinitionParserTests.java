@@ -85,6 +85,7 @@ import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ReflectionUtils;
 
 /**
@@ -405,6 +406,23 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertEquals(2, attrs.size());
         assertTrue(attrs.contains(new SecurityConfig("ROLE_A")));
         assertTrue(attrs.contains(new SecurityConfig("ROLE_B")));
+    }
+
+
+    @Test
+    public void httpMethodMatchIsSupportedForRequiresChannel() throws Exception {
+        setContext(
+                 "    <http auto-config='true'>" +
+                 "        <intercept-url pattern='/anyurl'/>" +
+                 "        <intercept-url pattern='/anyurl' method='GET' access='ROLE_ADMIN' requires-channel='https' />" +
+                 "    </http>" + AUTH_PROVIDER_XML);
+
+        ChannelProcessingFilter filter = getFilter(ChannelProcessingFilter.class);
+        FilterInvocationSecurityMetadataSource fids = (FilterInvocationSecurityMetadataSource)FieldUtils.getFieldValue(filter,"securityMetadataSource");
+        Collection<ConfigAttribute> attrs = fids.getAttributes(createFilterinvocation("/anyurl", "GET"));
+         assertEquals(1, attrs.size());
+        attrs = fids.getAttributes(createFilterinvocation("/anyurl", "POST"));
+         assertEquals(null, attrs);
     }
 
     @Test

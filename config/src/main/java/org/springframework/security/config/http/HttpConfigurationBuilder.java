@@ -396,6 +396,11 @@ class HttpConfigurationBuilder {
                 BeanDefinition requestKey = new RootBeanDefinition(RequestKey.class);
                 requestKey.getConstructorArgumentValues().addGenericArgumentValue(path);
 
+                String method = urlElt.getAttribute(ATT_HTTP_METHOD);
+                if(StringUtils.hasText(method)) {
+                    requestKey.getConstructorArgumentValues().addGenericArgumentValue(method);
+                }
+
                 RootBeanDefinition channelAttributes = new RootBeanDefinition(ChannelAttributeFactory.class);
                 channelAttributes.getConstructorArgumentValues().addGenericArgumentValue(requiredChannel);
                 channelAttributes.setFactoryMethodName("createChannelAttributes");
