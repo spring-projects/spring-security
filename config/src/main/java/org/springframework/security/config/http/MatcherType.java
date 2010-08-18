@@ -35,7 +35,7 @@ public enum MatcherType {
     }
 
     BeanDefinition createMatcher(String path, String method) {
-        if ("/**".equals(path)) {
+        if ("/**".equals(path) && method == null) {
             return new RootBeanDefinition(AnyRequestMatcher.class);
         }
 

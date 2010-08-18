@@ -170,6 +170,40 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         attrs.contains(new SecurityConfig("ROLE_B"))
     }
 
+   def httpMethodMatchIsSupportedForRequiresChannel() {
+       httpAutoConfig {
+           'intercept-url'(pattern: '/anyurl')
+           'intercept-url'(pattern: '/anyurl', 'method':'GET',access: 'ROLE_ADMIN', 'requires-channel': 'https')
+       }
+       createAppContext()
+
+       def fids = getFilter(ChannelProcessingFilter).getSecurityMetadataSource();
+       def attrs = fids.getAttributes(createFilterinvocation("/anyurl", "GET"));
+       def attrsPost = fids.getAttributes(createFilterinvocation("/anyurl", "POST"));
+
+       expect:
+       attrs.size() == 1
+       attrs.contains(new SecurityConfig("REQUIRES_SECURE_CHANNEL"))
+       attrsPost == null
+   }
+
+   def httpMethodMatchIsSupportedForRequiresChannelAny() {
+       httpAutoConfig {
+           'intercept-url'(pattern: '/**')
+           'intercept-url'(pattern: '/**', 'method':'GET',access: 'ROLE_ADMIN', 'requires-channel': 'https')
+       }
+       createAppContext()
+
+       def fids = getFilter(ChannelProcessingFilter).getSecurityMetadataSource();
+       def attrs = fids.getAttributes(createFilterinvocation("/anyurl", "GET"));
+       def attrsPost = fids.getAttributes(createFilterinvocation("/anyurl", "POST"));
+
+       expect:
+       attrs.size() == 1
+       attrs.contains(new SecurityConfig("REQUIRES_SECURE_CHANNEL"))
+       attrsPost == null
+   }
+
     def oncePerRequestAttributeIsSupported() {
         xml.http('once-per-request': 'false') {
             'http-basic'()
