@@ -1,4 +1,4 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <h1>Accounts</h1>
 
@@ -14,23 +14,15 @@
 </tr>
 <c:forEach var="account" items="${accounts}">
   <tr>
+  <td>${account.id}</td>
+  <td>${account.holder}</td>
+  <td>${account.balance}</td>
+  <td>${account.overdraft}</td>
   <td>
-      <c:out value="${account.id}"/>
-  </td>
-  <td>
-      <c:out value="${account.holder}"/>
-  </td>
-  <td>
-      <c:out value="${account.balance}"/>
-  </td>
-  <td>
-      <c:out value="${account.overdraft}"/>
-  </td>
-  <td>
-      <a href="post.html?id=<c:out value="${account.id}"/>&amount=-20.00">-$20</a>
-      <a href="post.html?id=<c:out value="${account.id}"/>&amount=-5.00">-$5</a>
-      <a href="post.html?id=<c:out value="${account.id}"/>&amount=5.00">+$5</a>
-      <a href="post.html?id=<c:out value="${account.id}"/>&amount=20.00">+$20</a>
+      <a href="post.html?id=${account.id}&amp;amount=-20.00">-$20</a>
+      <a href="post.html?id=${account.id}&amp;amount=-5.00">-$5</a>
+      <a href="post.html?id=${account.id}&amp;amount=5.00">+$5</a>
+      <a href="post.html?id=${account.id}&amp;amount=20.00">+$20</a>
   </td>
   </tr>
 </c:forEach>

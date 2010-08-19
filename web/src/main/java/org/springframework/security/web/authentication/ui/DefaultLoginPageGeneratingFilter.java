@@ -135,8 +135,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
                 sb.append("    <tr><td><input type='checkbox' name='").append(rememberMeParameter).append("'/></td><td>Remember me on this computer.</td></tr>\n");
             }
 
-            sb.append("    <tr><td colspan='2'><input name=\"submit\" type=\"submit\"/></td></tr>\n");
-            sb.append("    <tr><td colspan='2'><input name=\"reset\" type=\"reset\"/></td></tr>\n");
+            sb.append("    <tr><td colspan='2'><input name=\"submit\" type=\"submit\" value=\"Login\"/></td></tr>\n");
             sb.append("  </table>\n");
             sb.append("</form>");
         }
@@ -152,8 +151,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
                 sb.append("    <tr><td><input type='checkbox' name='").append(openIDrememberMeParameter).append("'></td><td>Remember me on this computer.</td></tr>\n");
             }
 
-            sb.append("    <tr><td colspan='2'><input name=\"submit\" type=\"submit\"/></td></tr>\n");
-            sb.append("    <tr><td colspan='2'><input name=\"reset\" type=\"reset\"/></td></tr>\n");
+            sb.append("    <tr><td colspan='2'><input name=\"submit\" type=\"submit\" value=\"Login\"/></td></tr>\n");
             sb.append("  </table>\n");
             sb.append("</form>");
         }

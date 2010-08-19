@@ -6,7 +6,7 @@ compileTestJava.dependsOn(':spring-security-core:compileTestJava')
 
 configurations {
     // GRADLE-1124
-    compile.extendsFrom = [provided]
+    compile.extendsFrom = []
     testCompile.extendsFrom groovy
 }
 

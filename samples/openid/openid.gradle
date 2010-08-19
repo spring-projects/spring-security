@@ -12,6 +12,7 @@ dependencies {
     runtime project(':spring-security-web'),
             project(':spring-security-config'),
             project(':spring-security-taglibs'),
+            "javax.servlet:jstl:$jstlVersion",
             "org.slf4j:jcl-over-slf4j:$slf4jVersion",
             "ch.qos.logback:logback-classic:$logbackVersion"
 }

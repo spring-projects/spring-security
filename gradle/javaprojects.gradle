@@ -16,9 +16,9 @@ configurations {
     // Configuration which is ONLY used for compileJava and will not be inherited by any others
     // Revisit post Gradle 1.0
     compileOnly
-    // Used to identify deps whcih should be marked as "provided" in maven poms
+    // Used to identify deps which should be marked as "provided" in maven poms
     provided
-    compile.extendsFrom provided
+    testCompile.extendsFrom provided
     compile.transitive = false
     testCompile.transitive = false
 }
@@ -42,6 +42,7 @@ dependencies {
 [configurations.runtime, configurations.default]*.exclude(module: 'commons-logging')
 
 sourceSets.main.compileClasspath += configurations.compileOnly
+sourceSets.main.compileClasspath += configurations.provided
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 

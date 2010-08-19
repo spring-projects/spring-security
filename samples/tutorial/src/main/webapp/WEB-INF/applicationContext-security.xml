@@ -19,16 +19,18 @@
         -->
     </global-method-security>
 
+    <http pattern="/loggedout.jsp" security="none"/>
+
     <http use-expressions="true">
         <intercept-url pattern="/secure/extreme/**" access="hasRole('ROLE_SUPERVISOR')"/>
         <intercept-url pattern="/secure/**" access="isAuthenticated()" />
-        <!-- Disable web URI authorization, as we're using <global-method-security> and have @Secured the services layer instead
-        <intercept-url pattern="/listAccounts.html" access="isRememberMe()" />
-        <intercept-url pattern="/post.html" access="hasRole('ROLE_TELLER')" />
-        -->
+        <!--
+             Allow all other requests. In a real application you should
+             adopt a whitelisting approach where access is not allowed by default
+          -->
         <intercept-url pattern="/**" access="permitAll" />
         <form-login />
-        <logout />
+        <logout logout-success-url="/loggedout.jsp"/>
         <remember-me />
 <!--
     Uncomment to enable X509 client authentication support

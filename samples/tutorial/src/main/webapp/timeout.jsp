@@ -1,8 +1,10 @@
 <%@page session="false" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <html>
+<head>
 <title>Session Timeout</title>
+</head>
 <body>
 <h2>Invalid Session</h2>
 

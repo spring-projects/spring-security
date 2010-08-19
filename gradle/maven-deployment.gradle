@@ -60,18 +60,27 @@ uploadArchives {
 
 installer = install.repositories.mavenInstaller
 
-def optionalDeps = ['commons-logging', 'ehcache', 'log4j', 'apacheds-core', 'jsp-api', 'jsr250-api', 'ldapsdk']
+def optionalDeps = ['ehcache', 'log4j', 'apacheds-core', 'jsp-api', 'jsr250-api', 'ldapsdk']
+def clogging = new org.apache.maven.model.Dependency()
+clogging.artifactId = clogging.groupId = "commons-logging"
+clogging.scope = 'compile'
+clogging.optional = true
+clogging.version = '1.1.1'
 
 [installer, deployer]*.pom.collect { pom ->
     pom.scopeMappings.addMapping(10, configurations.provided, 'provided')
 }
 
 [installer, deployer]*.pom*.whenConfigured { pom ->
+    // Remove test scope dependencies from published poms
+    pom.dependencies = pom.dependencies.findAll {it.scope != 'test'}
     pom.dependencies.findAll { dep ->
         optionalDeps.contains(dep.artifactId) ||
         dep.groupId.startsWith('org.apache.directory') ||
         dep.groupId.startsWith('org.slf4j')
     }*.optional = true
+
+    pom.dependencies.add(clogging)
 
     if (pom.artifactId == 'spring-security-config') {
         pom.dependencies.find { dep -> dep.artifactId == 'spring-security-web'}.optional = true
