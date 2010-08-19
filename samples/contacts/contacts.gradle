@@ -14,8 +14,7 @@ dependencies {
             "org.springframework:spring-jdbc:$springVersion",
             "org.springframework:spring-tx:$springVersion",
             "org.springframework:spring-web:$springVersion",
-            "org.springframework:spring-webmvc:$springVersion",
-            "org.aspectj:aspectjrt:$aspectjVersion"
+            "org.springframework:spring-webmvc:$springVersion"
 
     runtime project(':spring-security-web'),
             project(':spring-security-config'),

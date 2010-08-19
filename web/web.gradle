@@ -3,7 +3,6 @@
 dependencies {
     compile project(':spring-security-core'),
             'aopalliance:aopalliance:1.0',
-            "org.aspectj:aspectjweaver:$aspectjVersion",
             "org.springframework:spring-aop:$springVersion",
             "org.springframework:spring-beans:$springVersion",
             "org.springframework:spring-context:$springVersion",

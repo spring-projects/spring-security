@@ -10,7 +10,6 @@ dependencies {
             "org.springframework:spring-beans:$springVersion",
             "org.springframework:spring-web:$springVersion",
             "org.springframework:spring-webmvc:$springVersion",
-            "org.aspectj:aspectjrt:$aspectjVersion",
             "org.slf4j:slf4j-api:$slf4jVersion"
 
     runtime project(':spring-security-web'),
