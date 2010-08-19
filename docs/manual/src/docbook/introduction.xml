@@ -191,15 +191,17 @@
         <title>Release Numbering</title>
         <para>It is useful to understand how Spring Security release numbers work, as it will help
             you identify the effort (or lack thereof) involved in migrating to future releases of
-            the project. Officially, we use the Apache Portable Runtime Project versioning
-            guidelines, which can be viewed at
-            <literal>http://apr.apache.org/versioning.html</literal>. We quote the introduction
-            contained on that page for your convenience:</para>
-        <para><quote>Versions are denoted using a standard triplet of integers: MAJOR.MINOR.PATCH.
-            The basic intent is that MAJOR versions are incompatible, large-scale upgrades of the
-            API. MINOR versions retain source and binary compatibility with older minor versions,
-            and changes in the PATCH level are perfectly compatible, forwards and
-            backwards.</quote></para>
+            the project. Each release uses a standard triplet of integers: MAJOR.MINOR.PATCH. The
+            intent is that MAJOR versions are incompatible, large-scale upgrades of the API. MINOR
+            versions should largely retain source and binary compatibility with older minor
+            versions, thought there may be some design changes and incompatible udates. PATCH level
+            should be perfectly compatible, forwards and backwards, with the possible exception of
+            changes which are to fix bugs and defects.</para>
+        <para>The extent to which you are affected by changes will depend on how tightly integrated
+            your code is. If you are doing a lot of customization you are more likely to be affected
+            than if you are using a simple namespace configuration.</para>
+        <para>You should always test your application thoroughly before rolling out a new
+            version.</para>
     </section>
     <section xml:id="get-spring-security">
         <title>Getting Spring Security</title>
