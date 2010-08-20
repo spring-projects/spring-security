@@ -75,11 +75,6 @@ class HttpConfigurationBuilder {
 
     private static final String ATT_REF = "ref";
 
-    private static final String ATT_SECURED = "security";
-    private static final String OPT_SECURITY_NONE = "none";
-    private static final String OPT_SECURITY_CONTEXT_ONLY = "contextOnly";
-
-
     private final Element httpElt;
     private final ParserContext pc;
     private final SessionCreationPolicy sessionPolicy;
@@ -112,7 +107,7 @@ class HttpConfigurationBuilder {
             if (StringUtils.hasText(urlElt.getAttribute(ATT_FILTERS))) {
                 pc.getReaderContext().error("The use of \"filters='none'\" is no longer supported. Please define a" +
                         " separate <http> element for the pattern you want to exclude and use the attribute" +
-                        " \"secured='false'\".", pc.extractSource(urlElt));
+                        " \"security='none'\".", pc.extractSource(urlElt));
             }
         }
 

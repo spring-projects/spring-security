@@ -93,9 +93,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     List<BeanMetadataElement> createFilterChain(Element element, ParserContext pc, MatcherType matcherType) {
-        String security = element.getAttribute(ATT_SECURED);
+        boolean secured = !OPT_SECURITY_NONE.equals(element.getAttribute(ATT_SECURED));
 
-        if (StringUtils.hasText(security)) {
+        if (!secured) {
             if (!StringUtils.hasText(element.getAttribute(ATT_PATH_PATTERN))) {
                 pc.getReaderContext().error("The '" + ATT_SECURED + "' attribute must be used in combination with" +
                         " the '" + ATT_PATH_PATTERN +"' attribute.", pc.extractSource(element));
@@ -103,16 +103,12 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
             for (int n=0; n < element.getChildNodes().getLength(); n ++) {
                 if (element.getChildNodes().item(n) instanceof Element) {
-                    pc.getReaderContext().error("If you are using <htt> to define an unsecured pattern, " +
+                    pc.getReaderContext().error("If you are using <http> to define an unsecured pattern, " +
                             "it cannot contain child elements.",  pc.extractSource(element));
                 }
             }
 
-            if (security.equals(OPT_SECURITY_NONE)) {
-                return Collections.emptyList();
-            }
-
-
+            return Collections.emptyList();
         }
 
         final String portMapperName = createPortMapper(element, pc);
