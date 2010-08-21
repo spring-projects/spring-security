@@ -42,36 +42,36 @@ configure (aspectjProjects) {
 }
 
 apply from: "$rootDir/gradle/dist.gradle"
-apply plugin: 'idea'
 
-configure(javaProjects) {
+allprojects {
     apply plugin: 'idea'
     apply plugin: 'eclipse'
-    ideaModule {
-        downloadJavadoc=false
-        excludeDirs.add(buildDir)
-    }
     def config = configurations.findByName('testRuntime')
     if (!config) {
         return
     }
+
     ideaModule {
+        downloadJavadoc=false
+        excludeDirs.add(buildDir)
         gradleCacheVariable = 'GRADLE_CACHE'
+        outputDir = "$rootProject.projectDir/intellij/out" as File
+        testOutputDir = "$rootProject.projectDir/intellij/testOut" as File
     }
 }
 
 ideaModule {
-    excludeDirs.add(file('.gradle'))
-    excludeDirs.add(file('buildSrc/build'))
-    excludeDirs.add(file('buildSrc/.gradle'))
+    excludeDirs += file('.gradle')
+    excludeDirs += file('buildSrc/build')
+    excludeDirs += file('buildSrc/.gradle')
 }
 
 ideaProject {
-    wildcards += ['?*.gradle']
     javaVersion = '1.6'
-
     withXml { node ->
-        node.component.find { it.@name == 'VcsDirectoryMappings' }.mapping.@vcs = 'Git'
+        // Use git
+        def vcsConfig = node.component.find { it.'@name' == 'VcsDirectoryMappings' }
+        vcsConfig.mapping[0].'@vcs' = 'Git'
     }
 }
 
