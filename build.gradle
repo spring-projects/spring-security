@@ -33,6 +33,7 @@ configure(javaProjects) {
 configure(coreModuleProjects) {
     apply from: "$rootDir/gradle/bundlor.gradle"
     apply from: "$rootDir/gradle/maven-deployment.gradle"
+    apply from: "$rootDir/gradle/emma.gradle"
     // Gives better names in structure101 jar diagram
     sourceSets.main.classesDir = new File(buildDir, "classes/" + project.name.substring("spring-security".length() + 1))
 }

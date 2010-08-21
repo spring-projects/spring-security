@@ -1,0 +1,53 @@
+
+configurations{
+    emma
+}
+
+dependencies{
+    emma "emma:emma:2.0.5312"
+    emma "emma:emma_ant:2.0.5312"
+}
+
+def emmaMetaDataFile = "${rootProject.buildDir}/emma/metadata.emma"
+
+test {
+    def classesDir = "$buildDir/emma/classes"
+
+    jvmArgs "-Demma.coverage.out.file=$emmaMetaDataFile", "-Demma.coverage.out.merge=true"
+
+    doFirst {
+        ant.taskdef(resource:"emma_ant.properties", classpath: configurations.emma.asPath)
+        ant.path(id: "emmarun.classpath") {
+            pathelement(location: sourceSets.main.classesDir.absolutePath)
+        }
+        ant.emma(verbosity: "info") {
+            instr(merge: "true", destdir: "$classesDir", instrpathref: "emmarun.classpath", metadatafile: "$emmaMetaDataFile") {
+                instrpath {
+                    fileset(dir: sourceSets.main.classesDir.absolutePath, includes: "*.class")
+                }
+            }
+        }
+        setClasspath(files("$classesDir") + configurations.emma + getClasspath())
+    }
+}
+
+if (rootProject.getTasksByName('coverageReport', false).isEmpty()) {
+    rootProject.task('coverageReport') << {
+        ant.taskdef(resource:"emma_ant.properties", classpath: configurations.emma.asPath)
+        ant.path(id: "src.path") {
+            coreModuleProjects.each {module->
+                module.sourceSets.main.java.srcDirs.each {
+                    pathelement(location: it.absolutePath )
+                }
+            }
+        }
+        ant.emma(enabled: "true", verbosity: "info") { // use "verbose, trace1, trace2, trace3 for more info"
+            report(sourcepathref:"src.path") {
+                fileset(file: "$emmaMetaDataFile")
+                txt(outfile: "$rootProject.buildDir/emma/coverage.txt")
+                html(outfile: "$rootProject.buildDir/emma/coverage.html")
+//              xml(outfile: "$rootProject.buildDir/emma/coverage.xml")
+            }
+        }
+    }
+}
