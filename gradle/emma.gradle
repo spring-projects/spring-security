@@ -10,24 +10,33 @@ dependencies{
 
 def emmaMetaDataFile = "${rootProject.buildDir}/emma/metadata.emma"
 
-test {
-    def classesDir = "$buildDir/emma/classes"
-
-    jvmArgs "-Demma.coverage.out.file=$emmaMetaDataFile", "-Demma.coverage.out.merge=true"
-
+task emmaInstrument {
+    dependsOn compileJava
     doFirst {
         ant.taskdef(resource:"emma_ant.properties", classpath: configurations.emma.asPath)
         ant.path(id: "emmarun.classpath") {
             pathelement(location: sourceSets.main.classesDir.absolutePath)
         }
         ant.emma(verbosity: "info") {
-            instr(merge: "true", destdir: "$classesDir", instrpathref: "emmarun.classpath", metadatafile: "$emmaMetaDataFile") {
+            instr(merge: "true", destdir: "$buildDir/emma/classes", instrpathref: "emmarun.classpath", metadatafile: "$emmaMetaDataFile") {
                 instrpath {
                     fileset(dir: sourceSets.main.classesDir.absolutePath, includes: "*.class")
                 }
             }
         }
-        setClasspath(files("$classesDir") + configurations.emma + getClasspath())
+    }
+}
+
+// Modify test tasks in the project to generate coverage data
+afterEvaluate {
+    tasks.withType(Test.class).each { task ->
+        task.dependsOn emmaInstrument
+        task.configure() {
+            jvmArgs "-Demma.coverage.out.file=$emmaMetaDataFile", "-Demma.coverage.out.merge=true"
+        }
+        task.doFirst {
+            setClasspath(files("$buildDir/emma/classes") + configurations.emma + getClasspath())
+        }
     }
 }
 
