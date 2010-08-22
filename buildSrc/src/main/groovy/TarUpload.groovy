@@ -16,6 +16,17 @@ class TarUpload extends Tar {
     
     TarUpload() {
         compression = Compression.BZIP2
+        if (project.configurations.findByName('antjsch') == null) {
+            project.configurations.add('antjsch')
+            project.dependencies {
+                antjsch 'org.apache.ant:ant-jsch:1.8.1'
+            }
+            def classpath = project.configurations.antjsch.asPath
+            project.ant {
+                taskdef(name: 'scp', classname: 'org.apache.tools.ant.taskdefs.optional.ssh.Scp', classpath: classpath)
+                taskdef(name: 'sshexec', classname: 'org.apache.tools.ant.taskdefs.optional.ssh.SSHExec', classpath: classpath)
+            }
+        }
     }
     
     @TaskAction
