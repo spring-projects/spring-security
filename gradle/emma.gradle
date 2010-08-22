@@ -29,13 +29,15 @@ task emmaInstrument {
 
 // Modify test tasks in the project to generate coverage data
 afterEvaluate {
-    tasks.withType(Test.class).each { task ->
-        task.dependsOn emmaInstrument
-        task.configure() {
-            jvmArgs "-Demma.coverage.out.file=$emmaMetaDataFile", "-Demma.coverage.out.merge=true"
-        }
-        task.doFirst {
-            setClasspath(files("$buildDir/emma/classes") + configurations.emma + getClasspath())
+    if (project.hasProperty('coverage') && ['on','true'].contains(project.properties.coverage)) {
+        tasks.withType(Test.class).each { task ->
+            task.dependsOn emmaInstrument
+            task.configure() {
+                jvmArgs "-Demma.coverage.out.file=$emmaMetaDataFile", "-Demma.coverage.out.merge=true"
+            }
+            task.doFirst {
+                setClasspath(files("$buildDir/emma/classes") + configurations.emma + getClasspath())
+            }
         }
     }
 }
