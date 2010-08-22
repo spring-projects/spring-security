@@ -3,14 +3,12 @@
 apply plugin: 'war'
 apply plugin: 'jetty'
 
-/*
 configurations {
     casServer
 }
-*/
 
 dependencies {
-//    casServer "org.jasig.cas:cas-server-webapp:3.4.2.1@war"
+    casServer "org.jasig.cas:cas-server-webapp:3.4.2.1@war"
 
     runtime project(':spring-security-web'),
             project(':spring-security-cas'),
@@ -35,7 +33,7 @@ jettyRun {
     connectors = [httpConnector, httpsConnector]
 }
 
-/*
+
 task casServer (type: org.gradle.api.plugins.jetty.JettyRunWar) {
     contextPath = "/cas"
     connectors = [new org.mortbay.jetty.security.SslSocketConnector()]
@@ -55,4 +53,3 @@ task cas (dependsOn: jettyRun) {
     jettyRun.dependsOn(casServer)
     casServer.daemon = true
 }
-*/
