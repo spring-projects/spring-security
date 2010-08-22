@@ -6,19 +6,22 @@
 OVERVIEW
 -------------------------------------------------------------------------------
 
-Spring Security provides security services for
-The Spring Framework (http://www.springframework.org).
+Spring Security provides security services for the Spring Framework
+(http://www.springframework.org). Spring Security 3.1 requires Spring 3.0.3 as
+a minimum and also requires Java 5.
 
 For a detailed list of features and access to the latest release, please visit
 http://www.springframework.org/projects/.
 
+Spring Security is released under an Apache 2.0 license. See the accompanying
+license.txt file.
 
 -------------------------------------------------------------------------------
 BUILDING
 -------------------------------------------------------------------------------
 
-Spring Security is built using Maven. Please read the "Building from Source" page
-at http://static.springframework.org/spring-security/site/.
+Please read the "Building from Source" page at
+http://static.springframework.org/spring-security/site/.
 
 -------------------------------------------------------------------------------
 DOCUMENTATION
@@ -32,8 +35,8 @@ Both can also be found on the website.
 QUICK START
 -------------------------------------------------------------------------------
 
-We recommend you visit http://static.springframework.org/spring-security/site and 
-read the "Suggested Steps" page.
+We recommend you visit http://static.springframework.org/spring-security/site and
+read the "Getting Started" page.
 
 -------------------------------------------------------------------------------
 MAVEN REPOSITORY DOWNLOADS
@@ -44,11 +47,11 @@ Release jars for the project are available from the central maven repository
 http://repo1.maven.org/maven2/org/springframework/security/
 
 Note that milestone releases and snapshots are not uploaded to the central
-repository, but can be obtained from te Spring milestone repository.
-This blog article has full details on how to download milestone or snapshot
-jars or use them in a Maven-based project build:
-
-http://blog.springsource.com/main/2007/09/18/maven-artifacts-2/
+repository, but can be obtained from the Spring milestone repository, using the
+maven repository http://maven.springframework.org/snapshot/. You can't browse this
+URL directly, but there is a separate browser interface. Check the downloads page
+for more information
+http://static.springsource.org/spring-security/site/downloads.html
 
 
 -------------------------------------------------------------------------------
@@ -62,11 +65,10 @@ people who wrote Spring Security, and lead the development of the project:
   http://www.springsource.com
 
 For peer help and assistance, please use the Spring Security forum
-located at the Spring Community's forum site: 
+located at the Spring Community's forum site:
 
   http://forum.springframework.org
 
 Links to the forums, and other useful resources are
 available from the web site.
-
 
