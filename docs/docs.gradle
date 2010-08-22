@@ -1,4 +1,5 @@
 // Docbook and Javadoc building and uploading tasks
+apply plugin: 'base'
 
 subprojects {
     apply plugin: 'base'
@@ -105,3 +106,5 @@ task uploadFaq(type: TarUpload) {
 
     with(project('faq').spec)
 }
+
+assemble.dependsOn = [apidocs, 'manual:docbook']

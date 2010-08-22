@@ -11,7 +11,7 @@ dependencies {
 }
 
 task dist(type: Zip) {
-    dependsOn ':docs:apidocs', ':docs:manual:docbook', subprojects*.tasks*.matching { task -> task.name == 'assemble' }
+    dependsOn subprojects*.tasks*.matching { task -> task.name == 'assemble' }
 
     evaluationDependsOn(':docs')
 
