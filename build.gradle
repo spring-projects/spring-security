@@ -24,7 +24,6 @@ sampleProjects = subprojects.findAll { project -> project.name.startsWith('sprin
 itestProjects = subprojects.findAll { project -> project.name.startsWith('itest') }
 coreModuleProjects = javaProjects - sampleProjects - itestProjects
 aspectjProjects = [project(':spring-security-aspects'), project(':spring-security-samples-aspectj')]
-releaseProjects = coreModuleProjects + project(':spring-security-aspects')
 
 configure(javaProjects) {
     apply from: "$rootDir/gradle/javaprojects.gradle"
@@ -44,13 +43,9 @@ configure (aspectjProjects) {
 
 apply from: "$rootDir/gradle/dist.gradle"
 
-allprojects {
+configure(javaProjects) {
     apply plugin: 'idea'
     apply plugin: 'eclipse'
-    def config = configurations.findByName('testRuntime')
-    if (!config) {
-        return
-    }
 
     ideaModule {
         downloadJavadoc=false
@@ -61,6 +56,8 @@ allprojects {
     }
 }
 
+apply plugin: 'idea'
+
 ideaModule {
     excludeDirs += file('.gradle')
     excludeDirs += file('buildSrc/build')
@@ -69,6 +66,7 @@ ideaModule {
 
 ideaProject {
     javaVersion = '1.6'
+    subprojects = javaProjects
     withXml { node ->
         // Use git
         def vcsConfig = node.component.find { it.'@name' == 'VcsDirectoryMappings' }
