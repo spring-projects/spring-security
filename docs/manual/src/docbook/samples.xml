@@ -5,13 +5,12 @@
     </info>
     <para> There are several sample web applications that are available with the project. To avoid
         an overly large download, only the "tutorial" and "contacts" samples are included in the
-        distribution zip file. You can either build the others yourself, or you can obtain the war
-        files individually from the central Maven repository. We'd recommend the former. You can get
-        the source as described in <link xlink:href="#get-source">the introduction</link> and it's
-        easy to build the project yourself. There's more information on the project web site at
-        <link xlink:href="http://www.springsource.org/security/">
-        http://www.springsource.org/security/ </link>. All paths referred to in this
-        chapter are relative to the project source directory. </para>
+        distribution zip file. The others can be built directly from the source which you can obtain
+        as described in <link xlink:href="#get-source">the introduction</link>. It's easy to build
+        the project yourself and there's more information on the project web site at <link
+            xlink:href="http://www.springsource.org/security/">
+            http://www.springsource.org/security/ </link>. All paths referred to in this chapter are
+        relative to the project source directory. </para>
     <section xml:id="tutorial-sample">
         <title>Tutorial Sample</title>
         <para> The tutorial sample is a nice basic example to get you started. It uses simple
