@@ -47,6 +47,8 @@ configure (aspectjProjects) {
 
 apply from: "$rootDir/gradle/dist.gradle"
 
+apply plugin: 'idea'
+
 configure(javaProjects) {
     apply plugin: 'idea'
     apply plugin: 'eclipse'
@@ -57,10 +59,21 @@ configure(javaProjects) {
         gradleCacheVariable = 'GRADLE_CACHE'
         outputDir = "$rootProject.projectDir/intellij/out" as File
         testOutputDir = "$rootProject.projectDir/intellij/testOut" as File
+        whenConfigured { module ->
+            def allClasses = module.dependencies.findAll() { dep ->
+                if (dep instanceof org.gradle.plugins.idea.model.ModuleLibrary
+                    && dep.classes.find { path ->
+                        path.url.matches('.*jcl-over-slf4j.*') ||
+                        path.url.matches('.*servlet-api.*') ||
+                        path.url.matches('.*jsp-api.*')
+                    }) {
+                    dep.scope = 'COMPILE'
+                    dep.exported = false
+                }
+            }
+        }
     }
 }
-
-apply plugin: 'idea'
 
 ideaModule {
     excludeDirs += file('.gradle')
@@ -70,7 +83,7 @@ ideaModule {
 
 ideaProject {
     javaVersion = '1.6'
-    subprojects = javaProjects
+    subprojects = [rootProject] + javaProjects
     withXml { node ->
         // Use git
         def vcsConfig = node.component.find { it.'@name' == 'VcsDirectoryMappings' }
