@@ -5,9 +5,11 @@
     </encoder>
   </appender>
 
-  <logger name="org.apache.directory" level="WARN"/>
+  <logger name="org.springframework.security" level="${sec.log.level}:-WARN"/>
 
-  <root level="WARN">
+  <logger name="org.apache.directory" level="ERROR"/>
+
+  <root level="${root.level}:-WARN">
     <appender-ref ref="STDOUT" />
   </root>
 

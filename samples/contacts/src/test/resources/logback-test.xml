@@ -5,7 +5,9 @@
     </encoder>
   </appender>
 
-  <root level="WARN">
+  <logger name="org.springframework.security" level="${sec.log.level}:-WARN"/>
+
+  <root level="${root.level}:-WARN">
     <appender-ref ref="STDOUT" />
   </root>
 
