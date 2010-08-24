@@ -49,10 +49,9 @@ public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint, 
     }
 
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
-        throws IOException, ServletException {
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
-        httpResponse.addHeader("WWW-Authenticate", "Basic realm=\"" + realmName + "\"");
-        httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
+            throws IOException, ServletException {
+        response.addHeader("WWW-Authenticate", "Basic realm=\"" + realmName + "\"");
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
     }
 
     public String getRealmName() {
