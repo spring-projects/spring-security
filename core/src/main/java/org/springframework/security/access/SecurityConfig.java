@@ -66,6 +66,10 @@ public class SecurityConfig implements ConfigAttribute {
         return createList(StringUtils.commaDelimitedListToStringArray(access));
     }
 
+    /**
+     * @deprecated Use createList instead
+     */
+    @Deprecated
     public static List<ConfigAttribute> createSingleAttributeList(String access) {
         return createList(access);
     }
