@@ -65,7 +65,7 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
     //~ Constructors ===================================================================================================
 
     public AclEntryAfterInvocationProvider(AclService aclService, List<Permission> requirePermission) {
-        super(aclService, "AFTER_ACL_READ", requirePermission);
+        this(aclService, "AFTER_ACL_READ", requirePermission);
     }
 
     public AclEntryAfterInvocationProvider(AclService aclService, String processConfigAttribute,
@@ -81,17 +81,13 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
         if (returnedObject == null) {
             // AclManager interface contract prohibits nulls
             // As they have permission to null/nothing, grant access
-            if (logger.isDebugEnabled()) {
-                logger.debug("Return object is null, skipping");
-            }
+            logger.debug("Return object is null, skipping");
 
             return null;
         }
 
         if (!getProcessDomainObjectClass().isAssignableFrom(returnedObject.getClass())) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Return object is not applicable for this provider, skipping");
-            }
+            logger.debug("Return object is not applicable for this provider, skipping");
 
             return returnedObject;
         }

@@ -75,9 +75,7 @@ public class AclEntryAfterInvocationCollectionFilteringProvider extends Abstract
             Object returnedObject) throws AccessDeniedException {
 
         if (returnedObject == null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Return object is null, skipping");
-            }
+            logger.debug("Return object is null, skipping");
 
             return null;
         }
