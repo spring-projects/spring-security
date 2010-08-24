@@ -237,27 +237,6 @@ public class ExceptionTranslationFilterTests {
         }
     }
 
-    @Test
-    public void unexpectedExceptionsAreWrappedAsRuntime() throws Exception {
-        ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
-
-        filter.setAuthenticationEntryPoint(mockEntryPoint());
-
-        Exception e = new Exception("");
-
-        FilterChain fc = mock(FilterChain.class);
-
-        doThrow(e).when(fc).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
-
-        try {
-            filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), fc);
-            fail("Should have thrown Exception");
-        }
-        catch (RuntimeException expected) {
-            assertSame(e, expected.getCause());
-        }
-    }
-
     private AuthenticationEntryPoint mockEntryPoint() {
         return new AuthenticationEntryPoint() {
             public void commence(HttpServletRequest request, HttpServletResponse response,
