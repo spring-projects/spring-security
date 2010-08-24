@@ -94,9 +94,7 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
         try {
             chain.doFilter(request, response);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Chain processed normally");
-            }
+            logger.debug("Chain processed normally");
         }
         catch (IOException ex) {
             throw ex;
@@ -112,7 +110,7 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
             }
 
             if (ase != null) {
-                handleException(request, response, chain, ase);
+                handleSpringSecurityException(request, response, chain, ase);
             } else {
                 // Rethrow ServletExceptions and RuntimeExceptions as-is
                 if (ex instanceof ServletException) {
@@ -122,7 +120,8 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
                     throw (RuntimeException) ex;
                 }
 
-                // Wrap other Exceptions. These are not expected to happen
+                // Wrap other Exceptions. This shouldn't actually happen
+                // as we've already covered all the possibilities for doFilter
                 throw new RuntimeException(ex);
             }
         }
@@ -136,30 +135,23 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
         return authenticationTrustResolver;
     }
 
-    private void handleException(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
+    private void handleSpringSecurityException(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
             RuntimeException exception) throws IOException, ServletException {
         if (exception instanceof AuthenticationException) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Authentication exception occurred; redirecting to authentication entry point", exception);
-            }
+            logger.debug("Authentication exception occurred; redirecting to authentication entry point", exception);
 
             sendStartAuthentication(request, response, chain, (AuthenticationException) exception);
         }
         else if (exception instanceof AccessDeniedException) {
             if (authenticationTrustResolver.isAnonymous(SecurityContextHolder.getContext().getAuthentication())) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Access is denied (user is anonymous); redirecting to authentication entry point",
+                logger.debug("Access is denied (user is anonymous); redirecting to authentication entry point",
                             exception);
-                }
 
                 sendStartAuthentication(request, response, chain, new InsufficientAuthenticationException(
                         "Full authentication is required to access this resource"));
             }
             else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Access is denied (user is not anonymous); delegating to AccessDeniedHandler",
-                            exception);
-                }
+                logger.debug("Access is denied (user is not anonymous); delegating to AccessDeniedHandler", exception);
 
                 accessDeniedHandler.handle(request, response, (AccessDeniedException) exception);
             }

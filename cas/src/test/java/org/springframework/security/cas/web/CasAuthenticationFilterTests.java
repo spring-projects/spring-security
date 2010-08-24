@@ -16,12 +16,15 @@
 package org.springframework.security.cas.web;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
+import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
@@ -35,14 +38,17 @@ public class CasAuthenticationFilterTests {
     //~ Methods ========================================================================================================
 
     @Test
-    public void testGetters() {
+    public void testGettersSetters() {
         CasAuthenticationFilter filter = new CasAuthenticationFilter();
         assertEquals("/j_spring_cas_security_check", filter.getFilterProcessesUrl());
+        filter.setProxyGrantingTicketStorage(mock(ProxyGrantingTicketStorage.class));
+        filter.setProxyReceptorUrl("/someurl");
+        filter.setServiceProperties(new ServiceProperties());
     }
 
     @Test
     public void testNormalOperation() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/j_spring_cas_security_check");
         request.addParameter("ticket", "ST-0-ER94xMJmn6pha35CQRoZ");
 
         CasAuthenticationFilter filter = new CasAuthenticationFilter();
@@ -51,6 +57,8 @@ public class CasAuthenticationFilterTests {
                 return a;
             }
         });
+
+        assertTrue(filter.requiresAuthentication(request, new MockHttpServletResponse()));
 
         Authentication result = filter.attemptAuthentication(request, new MockHttpServletResponse());
         assertTrue(result != null);

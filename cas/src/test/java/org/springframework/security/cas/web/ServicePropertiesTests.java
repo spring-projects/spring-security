@@ -15,40 +15,43 @@
 
 package org.springframework.security.cas.web;
 
+import static junit.framework.Assert.*;
+
+import org.junit.Test;
+import org.springframework.security.cas.SamlServiceProperties;
 import org.springframework.security.cas.ServiceProperties;
-
-import junit.framework.TestCase;
-
 
 /**
  * Tests {@link ServiceProperties}.
  *
  * @author Ben Alex
  */
-public class ServicePropertiesTests extends TestCase {
+public class ServicePropertiesTests {
     //~ Methods ========================================================================================================
 
-    public void testDetectsMissingLoginFormUrl() throws Exception {
+    @Test(expected=IllegalArgumentException.class)
+    public void detectsMissingService() throws Exception {
         ServiceProperties sp = new ServiceProperties();
-
-        try {
-            sp.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("service must be specified.", expected.getMessage());
-        }
+        sp.afterPropertiesSet();
     }
 
+    @Test
     public void testGettersSetters() throws Exception {
-        ServiceProperties sp = new ServiceProperties();
-        sp.setSendRenew(false);
-        assertFalse(sp.isSendRenew());
-        sp.setSendRenew(true);
-        assertTrue(sp.isSendRenew());
+        ServiceProperties[] sps = {new ServiceProperties(), new SamlServiceProperties()};
+        for(ServiceProperties sp : sps) {
+            sp.setSendRenew(false);
+            assertFalse(sp.isSendRenew());
+            sp.setSendRenew(true);
+            assertTrue(sp.isSendRenew());
+            sp.setArtifactParameter("notticket");
+            assertEquals("notticket", sp.getArtifactParameter());
+            sp.setServiceParameter("notservice");
+            assertEquals("notservice", sp.getServiceParameter());
 
-        sp.setService("https://mycompany.com/service");
-        assertEquals("https://mycompany.com/service", sp.getService());
+            sp.setService("https://mycompany.com/service");
+            assertEquals("https://mycompany.com/service", sp.getService());
 
-        sp.afterPropertiesSet();
+            sp.afterPropertiesSet();
+        }
     }
 }

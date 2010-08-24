@@ -17,15 +17,8 @@ package org.springframework.security.web.access;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
-
-import java.io.IOException;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 
 import org.junit.After;
 import org.junit.Before;
@@ -43,9 +36,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
-import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.security.web.util.ThrowableAnalyzer;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
 
 /**
  * Tests {@link ExceptionTranslationFilter}.
@@ -134,7 +133,7 @@ public class ExceptionTranslationFilterTests {
     }
 
     @Test
-    public void testRedirectedToLoginFormAndSessionShowsOriginalTargetWhenAuthenticationException() throws Exception {
+    public void redirectedToLoginFormAndSessionShowsOriginalTargetWhenAuthenticationException() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServletPath("/secure/page.html");
@@ -159,7 +158,7 @@ public class ExceptionTranslationFilterTests {
     }
 
     @Test
-    public void testRedirectedToLoginFormAndSessionShowsOriginalTargetWithExoticPortWhenAuthenticationException()
+    public void redirectedToLoginFormAndSessionShowsOriginalTargetWithExoticPortWhenAuthenticationException()
             throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -188,7 +187,7 @@ public class ExceptionTranslationFilterTests {
     }
 
     @Test(expected=IllegalArgumentException.class)
-    public void testStartupDetectsMissingAuthenticationEntryPoint() throws Exception {
+    public void startupDetectsMissingAuthenticationEntryPoint() throws Exception {
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
         filter.setThrowableAnalyzer(mock(ThrowableAnalyzer.class));
 
@@ -196,14 +195,15 @@ public class ExceptionTranslationFilterTests {
     }
 
     @Test(expected=IllegalArgumentException.class)
-    public void testStartupDetectsMissingRequestCache() throws Exception {
+    public void startupDetectsMissingRequestCache() throws Exception {
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
         filter.setAuthenticationEntryPoint(mockEntryPoint());
 
         filter.setRequestCache(null);
     }
 
-    public void testSuccessfulAccessGrant() throws Exception {
+    @Test
+    public void successfulAccessGrant() throws Exception {
         // Setup our HTTP request
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setServletPath("/secure/page.html");
@@ -217,36 +217,44 @@ public class ExceptionTranslationFilterTests {
     }
 
     @Test
-    public void testThrowIOException() throws Exception {
+    public void thrownIOExceptionServletExceptionAndRuntimeExceptionsAreRethrown() throws Exception {
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
 
         filter.setAuthenticationEntryPoint(mockEntryPoint());
         filter.afterPropertiesSet();
-        FilterChain fc = mock(FilterChain.class);
-        doThrow(new IOException()).when(fc).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
-        try {
-            filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), fc);
-            fail("Should have thrown IOException");
-        }
-        catch (IOException e) {
-            assertNull("The IOException thrown should not have been wrapped", e.getCause());
+        Exception[] exceptions = {new IOException(), new ServletException(), new RuntimeException()};
+        for (Exception e : exceptions) {
+            FilterChain fc = mock(FilterChain.class);
+
+            doThrow(e).when(fc).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+            try {
+                filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), fc);
+                fail("Should have thrown Exception");
+            }
+            catch (Exception expected) {
+                assertSame("The exception thrown should not have been wrapped", e, expected);
+            }
         }
     }
 
     @Test
-    public void testThrowServletException() throws Exception {
+    public void unexpectedExceptionsAreWrappedAsRuntime() throws Exception {
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
 
         filter.setAuthenticationEntryPoint(mockEntryPoint());
-        filter.afterPropertiesSet();
+
+        Exception e = new Exception("");
+
         FilterChain fc = mock(FilterChain.class);
-        doThrow(new ServletException()).when(fc).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+
+        doThrow(e).when(fc).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+
         try {
             filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), fc);
-            fail("Should have thrown ServletException");
+            fail("Should have thrown Exception");
         }
-        catch (ServletException e) {
-            assertNull("The ServletException thrown should not have been wrapped", e.getCause());
+        catch (RuntimeException expected) {
+            assertSame(e, expected.getCause());
         }
     }
 
