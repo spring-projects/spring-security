@@ -37,6 +37,10 @@ configure(coreModuleProjects) {
     sourceSets.main.classesDir = new File(buildDir, "classes/" + project.name.substring("spring-security".length() + 1))
 }
 
+task coreBuild {
+    dependsOn coreModuleProjects*.tasks*.matching { task -> task.name == 'build' }
+}
+
 configure (aspectjProjects) {
     apply from: "$rootDir/gradle/aspectj.gradle"
 }

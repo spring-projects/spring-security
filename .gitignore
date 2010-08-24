@@ -5,6 +5,7 @@ target/
 .DS_Store
 .settings/
 out/
+intellij/
 build/
 *.log
 *.iml
