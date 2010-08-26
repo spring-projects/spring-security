@@ -60,6 +60,7 @@ public final class ProtectPointcutPostProcessor implements BeanPostProcessor {
     private Map pointcutMap = new LinkedHashMap(); /** Key: string-based pointcut, value: ConfigAttributeDefinition */
     private MapBasedMethodDefinitionSource mapBasedMethodDefinitionSource;
     private PointcutParser parser;
+    private final Set processedBeans = new HashSet();
 
     public ProtectPointcutPostProcessor(MapBasedMethodDefinitionSource mapBasedMethodDefinitionSource) {
         Assert.notNull(mapBasedMethodDefinitionSource, "MapBasedMethodDefinitionSource to populate is required");
@@ -85,6 +86,11 @@ public final class ProtectPointcutPostProcessor implements BeanPostProcessor {
     }
 
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        if (processedBeans.contains(beanName)) {
+            // We already have the metadata for this bean
+            return bean;
+        }
+
         // Obtain methods for the present bean
         Method[] methods;
         try {
@@ -109,6 +115,8 @@ public final class ProtectPointcutPostProcessor implements BeanPostProcessor {
                 }
             }
         }
+
+        processedBeans.add(beanName);
 
         return bean;
     }
