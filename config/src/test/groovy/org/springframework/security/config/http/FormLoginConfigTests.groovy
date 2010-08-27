@@ -29,7 +29,7 @@ class FormLoginConfigTests extends AbstractHttpConfigTests {
 
         expect:
         FieldUtils.getFieldValue(filter, 'successHandler.defaultTargetUrl') == '/default';
-        FieldUtils.getFieldValue(filter, 'successHandler.alwaysUseDefaultTargetUrl') == true;
+        FieldUtils.getFieldValue(filter, 'successHandler.alwaysUseDefaultTargetUrl');
     }
 
     def invalidLoginPageIsDetected() {

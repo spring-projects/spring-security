@@ -10,10 +10,12 @@ import org.springframework.security.openid.OpenIDAuthenticationFilter
 import org.springframework.security.openid.OpenIDAuthenticationToken
 import org.springframework.security.openid.OpenIDConsumer
 import org.springframework.security.openid.OpenIDConsumerException
-import org.springframework.security.web.FilterChainProxy
+
 import org.springframework.security.web.access.ExceptionTranslationFilter
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter
+
+import javax.servlet.Filter
 
 /**
  *
@@ -71,6 +73,7 @@ class OpenIDConfigTests extends AbstractHttpConfigTests {
     }
 
     def openIDAndRememberMeWorkTogether() {
+        xml.debug()
         xml.http() {
             interceptUrl('/**', 'ROLE_NOBODY')
             'openid-login'()
@@ -100,16 +103,16 @@ class OpenIDConfigTests extends AbstractHttpConfigTests {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         when: "Initial request is made"
-        FilterChainProxy fcp = appContext.getBean(BeanIds.FILTER_CHAIN_PROXY)
+        Filter fc = appContext.getBean(BeanIds.SPRING_SECURITY_FILTER_CHAIN)
         request.setServletPath("/something.html")
-        fcp.doFilter(request, response, new MockFilterChain())
+        fc.doFilter(request, response, new MockFilterChain())
         then: "Redirected to login"
         response.getRedirectedUrl().endsWith("/spring_security_login")
         when: "Login page is requested"
         request.setServletPath("/spring_security_login")
         request.setRequestURI("/spring_security_login")
         response = new MockHttpServletResponse()
-        fcp.doFilter(request, response, new MockFilterChain())
+        fc.doFilter(request, response, new MockFilterChain())
         then: "Remember-me choice is added to page"
         response.getContentAsString().contains(AbstractRememberMeServices.DEFAULT_PARAMETER)
         when: "Login is submitted with remember-me selected"
@@ -117,7 +120,7 @@ class OpenIDConfigTests extends AbstractHttpConfigTests {
         request.setParameter(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, "http://hey.openid.com/")
         request.setParameter(AbstractRememberMeServices.DEFAULT_PARAMETER, "on")
         response = new MockHttpServletResponse();
-        fcp.doFilter(request, response, new MockFilterChain());
+        fc.doFilter(request, response, new MockFilterChain());
         String expectedReturnTo = request.getRequestURL().append("?")
                                         .append(AbstractRememberMeServices.DEFAULT_PARAMETER)
                                         .append("=").append("on").toString();
@@ -143,8 +146,8 @@ class OpenIDConfigTests extends AbstractHttpConfigTests {
         attributes.size() == 2
         attributes[0].name == 'nickname'
         attributes[0].type == 'http://schema.openid.net/namePerson/friendly'
-        attributes[0].required == false
-        attributes[1].required == true
+        !attributes[0].required
+        attributes[1].required
         attributes[1].getCount() == 2
     }
 }

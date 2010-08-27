@@ -1,51 +1,47 @@
 package org.springframework.security.config.http;
 
+
 import java.security.Principal
-import java.util.Collection;
-import java.util.Map;
-import java.util.Iterator;
-
 import javax.servlet.Filter
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.BeansException
-import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.mock.web.MockFilterChain;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
-import org.springframework.context.support.AbstractXmlApplicationContext
-import org.springframework.security.config.BeanIds;
-import org.springframework.security.config.util.InMemoryXmlApplicationContext;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.SecurityContext
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.util.FieldUtils;
+import org.springframework.beans.factory.BeanCreationException
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer
+import org.springframework.beans.factory.parsing.BeanDefinitionParsingException
+import org.springframework.mock.web.MockFilterChain
+import org.springframework.mock.web.MockHttpServletRequest
+import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.security.access.AccessDeniedException
-import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.access.SecurityConfig
 import org.springframework.security.authentication.TestingAuthenticationToken
-import org.springframework.security.config.MockUserServiceBeanPostProcessor;
-import org.springframework.security.config.PostProcessedMockUserDetailsService;
-import org.springframework.security.web.*;
-import org.springframework.security.web.access.channel.ChannelProcessingFilter;
-import org.springframework.security.web.access.ExceptionTranslationFilter;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
-import org.springframework.security.web.authentication.*
+import org.springframework.security.config.BeanIds
+import org.springframework.security.config.MockUserServiceBeanPostProcessor
+import org.springframework.security.config.PostProcessedMockUserDetailsService
+import org.springframework.security.config.util.InMemoryXmlApplicationContext
+import org.springframework.security.core.authority.AuthorityUtils
+import org.springframework.security.core.context.SecurityContext
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.openid.OpenIDAuthenticationFilter
+import org.springframework.security.util.FieldUtils
+import org.springframework.security.web.FilterChainProxy
+import org.springframework.security.web.PortMapperImpl
+import org.springframework.security.web.access.ExceptionTranslationFilter
+import org.springframework.security.web.access.channel.ChannelProcessingFilter
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.authentication.logout.LogoutFilter
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
-import org.springframework.security.web.context.*;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository
+import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache
-import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
-import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
-import org.springframework.security.web.session.SessionManagementFilter;
-
-import groovy.lang.Closure
-import org.springframework.security.openid.OpenIDAuthenticationFilter;
+import org.springframework.security.web.savedrequest.RequestCacheAwareFilter
+import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
+import org.springframework.security.web.session.SessionManagementFilter
 
 class MiscHttpConfigTests extends AbstractHttpConfigTests {
     def 'Minimal configuration parses'() {
@@ -87,12 +83,27 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
     }
 
     def filterListShouldBeEmptyForPatternWithNoFilters() {
+        xml.debug()
         xml.http(pattern: '/unprotected', security: 'none')
         httpAutoConfig() {}
         createAppContext()
 
         expect:
         getFilters("/unprotected").size() == 0
+    }
+
+    def debugFilterHandlesMissingAndEmptyFilterChains() {
+      when:
+      xml.debug()
+      xml.http(pattern: '/unprotected', security: 'none')
+      createAppContext()
+      then:
+      Filter debugFilter = appContext.getBean(BeanIds.SPRING_SECURITY_FILTER_CHAIN);
+      MockHttpServletRequest request = new MockHttpServletRequest()
+      request.setServletPath("/unprotected");
+      debugFilter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
+      request.setServletPath("/nomatch");
+      debugFilter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
     }
 
     def regexPathsWorkCorrectly() {
@@ -422,7 +433,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
 
         expect:
         filter.repo == appContext.getBean('repo')
-        filter.forceEagerSessionCreation == true
+        filter.forceEagerSessionCreation
     }
 
     def expressionBasedAccessAllowsAndDeniesAccessAsExpected() {
@@ -461,7 +472,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         expect:
-        getFilter(SecurityContextPersistenceFilter).repo.disableUrlRewriting == true
+        getFilter(SecurityContextPersistenceFilter).repo.disableUrlRewriting
     }
 
     def userDetailsServiceInParentContextIsLocatedSuccessfully() {
@@ -478,18 +489,19 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
 
     def httpConfigWithNoAuthProvidersWorksOk() {
         when: "Http config has no internal authentication providers"
+        xml.debug()
         xml.http() {
             'form-login'()
             anonymous(enabled: 'false')
         }
         createAppContext()
-        FilterChainProxy fcp = appContext.getBean(BeanIds.FILTER_CHAIN_PROXY);
         MockHttpServletRequest request = new MockHttpServletRequest("POST", "/j_spring_security_check");
         request.setServletPath("/j_spring_security_check");
         request.addParameter("j_username", "bob");
         request.addParameter("j_password", "bob");
         then: "App context creation and login request succeed"
-        fcp.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
+        Filter debugFilter = appContext.getBean(BeanIds.SPRING_SECURITY_FILTER_CHAIN);
+        debugFilter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
     }
 
     def eraseCredentialsDefaultsToTrue() {
@@ -498,7 +510,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         }
         createAppContext()
         expect:
-        getFilter(UsernamePasswordAuthenticationFilter).authenticationManager.eraseCredentialsAfterAuthentication == true
+        getFilter(UsernamePasswordAuthenticationFilter).authenticationManager.eraseCredentialsAfterAuthentication
     }
 
     def eraseCredentialsIsSetFromParentAuthenticationManager() {
@@ -507,7 +519,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         }
         createAppContext("<authentication-manager erase-credentials='false' />");
         expect:
-        getFilter(UsernamePasswordAuthenticationFilter).authenticationManager.eraseCredentialsAfterAuthentication == false
+        !getFilter(UsernamePasswordAuthenticationFilter).authenticationManager.eraseCredentialsAfterAuthentication
     }
 
     def jeeFilterExtractsExpectedRoles() {

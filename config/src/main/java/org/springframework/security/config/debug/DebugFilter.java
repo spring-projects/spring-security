@@ -29,6 +29,7 @@ import java.util.Map;
 class DebugFilter extends OncePerRequestFilter {
     private final FilterChainProxy fcp;
     private final Map<RequestMatcher, List<Filter>> filterChainMap;
+    private final Logger logger = new Logger();
 
     public DebugFilter(FilterChainProxy fcp) {
         this.fcp = fcp;
@@ -38,7 +39,7 @@ class DebugFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         List<Filter> filters = getFilters(request);
-        Logger.log("Request received for '" + UrlUtils.buildRequestUrl(request) + "':\n\n" +
+        logger.log("Request received for '" + UrlUtils.buildRequestUrl(request) + "':\n\n" +
                 request + "\n\n" +
                 formatFilters(filters));
 
@@ -77,6 +78,7 @@ class DebugFilter extends OncePerRequestFilter {
 }
 
 class DebugRequestWrapper extends HttpServletRequestWrapper {
+    private static final Logger logger = new Logger();
 
     public DebugRequestWrapper(HttpServletRequest request) {
         super(request);
@@ -88,7 +90,7 @@ class DebugRequestWrapper extends HttpServletRequestWrapper {
         HttpSession session = super.getSession();
 
         if (!sessionExists) {
-            Logger.log("New HTTP session created: " + session.getId(), true);
+            logger.log("New HTTP session created: " + session.getId(), true);
         }
 
         return session;

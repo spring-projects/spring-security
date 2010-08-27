@@ -2,7 +2,6 @@ package org.springframework.security.config.http
 
 import org.springframework.beans.factory.BeanCreationException
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException
-import org.springframework.security.util.FieldUtils
 import org.springframework.security.web.access.AccessDeniedHandlerImpl
 import org.springframework.security.web.access.ExceptionTranslationFilter
 

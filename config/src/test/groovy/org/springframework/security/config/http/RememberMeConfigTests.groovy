@@ -1,20 +1,18 @@
 package org.springframework.security.config.http
 
-import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML;
-
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException
-import org.springframework.security.TestDataSource;
+import org.springframework.security.TestDataSource
 import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.RememberMeAuthenticationProvider
 import org.springframework.security.config.BeanIds
-import org.springframework.security.core.userdetails.MockUserDetailsService;
+import org.springframework.security.core.userdetails.MockUserDetailsService
 import org.springframework.security.util.FieldUtils
 import org.springframework.security.web.authentication.logout.LogoutFilter
-import org.springframework.security.web.authentication.logout.LogoutHandler
 import org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices
+import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML
 
 /**
  *
@@ -32,7 +30,7 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
 
         expect:
         rememberMeServices() instanceof PersistentTokenBasedRememberMeServices
-        FieldUtils.getFieldValue(rememberMeServices(), "useSecureCookie") == false
+        !FieldUtils.getFieldValue(rememberMeServices(), "useSecureCookie")
     }
 
     def rememberMeServiceWorksWithDataSourceRef() {
@@ -97,7 +95,7 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
 
         createAppContext(AUTH_PROVIDER_XML)
         expect:
-        FieldUtils.getFieldValue(rememberMeServices(), "useSecureCookie") == true
+        FieldUtils.getFieldValue(rememberMeServices(), "useSecureCookie")
     }
 
     def 'Negative token-validity is rejected with persistent implementation'() {

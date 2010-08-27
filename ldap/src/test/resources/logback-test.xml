@@ -7,6 +7,7 @@
 
   <logger name="org.springframework.security" level="${sec.log.level}:-WARN"/>
   <logger name="org.apache.directory" level="ERROR"/>
+  <logger name="org.apache.mina" level="WARN"/>
 
   <root level="${root.level}:-WARN">
     <appender-ref ref="STDOUT" />

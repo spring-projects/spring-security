@@ -1,16 +1,11 @@
 package org.springframework.security.config
 
-import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML;
-
 import groovy.xml.MarkupBuilder
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.context.support.AbstractXmlApplicationContext;
+import org.springframework.context.support.AbstractXmlApplicationContext
 import org.springframework.security.config.util.InMemoryXmlApplicationContext
 import org.springframework.security.core.context.SecurityContextHolder
-
 import spock.lang.Specification
+import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML
 
 /**
  *

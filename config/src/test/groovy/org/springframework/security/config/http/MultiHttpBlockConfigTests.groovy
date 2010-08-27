@@ -1,12 +1,8 @@
 package org.springframework.security.config.http
 
-import java.util.Map;
-import java.util.List;
-
-import org.springframework.security.web.FilterChainProxy;
-import org.springframework.security.config.BeanIds;
-
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException
+import org.springframework.security.config.BeanIds
+import org.springframework.security.web.FilterChainProxy
 
 /**
  * Tests scenarios with multiple &lt;http&gt; elements.

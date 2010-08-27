@@ -1,11 +1,10 @@
 package org.springframework.security.config.debug;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Controls output for the Spring Security debug feature.
@@ -13,14 +12,14 @@ import java.io.StringWriter;
  * @author Luke Taylor
  * @since 3.1
  */
-class Logger {
+final class Logger {
     final static Log logger = LogFactory.getLog("Spring Security Debugger");
 
-    public static void log(String message) {
+    void log(String message) {
         log(message, false);
     }
 
-    public static void log(String message, boolean dumpStack) {
+    void log(String message, boolean dumpStack) {
         StringBuilder output = new StringBuilder(256);
         output.append("\n\n************************************************************\n\n");
         output.append(message).append("\n");

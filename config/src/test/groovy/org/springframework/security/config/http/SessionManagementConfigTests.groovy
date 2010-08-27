@@ -1,30 +1,22 @@
 package org.springframework.security.config.http
 
-import static org.junit.Assert.*;
-
-import groovy.lang.Closure;
-
-import javax.servlet.Filter;
-import org.springframework.security.web.FilterChainProxy
-import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
-
 import org.springframework.mock.web.MockFilterChain
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.config.BeanIds
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.session.SessionRegistryImpl
 import org.springframework.security.util.FieldUtils
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy
 import org.springframework.security.web.context.NullSecurityContextRepository
 import org.springframework.security.web.context.SaveContextOnUpdateOrErrorResponseWrapper
 import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter
 import org.springframework.security.web.session.ConcurrentSessionFilter
 import org.springframework.security.web.session.SessionManagementFilter
-
+import static org.junit.Assert.assertSame
 
 /**
  * Tests session-related functionality for the &lt;http&gt; namespace element and &lt;session-management&gt;
@@ -40,9 +32,9 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
         def filter = getFilter(SecurityContextPersistenceFilter.class);
 
         expect:
-        filter.forceEagerSessionCreation == true
-        filter.repo.allowSessionCreation == true
-        filter.repo.disableUrlRewriting == false
+        filter.forceEagerSessionCreation
+        filter.repo.allowSessionCreation
+        !filter.repo.disableUrlRewriting
     }
 
     def settingCreateSessionToNeverSetsFilterPropertiesCorrectly() {
@@ -52,8 +44,8 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
         def filter = getFilter(SecurityContextPersistenceFilter.class);
 
         expect:
-        filter.forceEagerSessionCreation == false
-        filter.repo.allowSessionCreation == false
+        !filter.forceEagerSessionCreation
+        !filter.repo.allowSessionCreation
     }
 
     def settingCreateSessionToStatelessSetsFilterPropertiesCorrectly() {
@@ -63,7 +55,7 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
         def filter = getFilter(SecurityContextPersistenceFilter.class);
 
         expect:
-        filter.forceEagerSessionCreation == false
+        !filter.forceEagerSessionCreation
         filter.repo instanceof NullSecurityContextRepository
         getFilter(SessionManagementFilter.class) == null
         getFilter(RequestCacheAwareFilter.class) == null
@@ -76,8 +68,8 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
         def filter = getFilter(SecurityContextPersistenceFilter.class);
 
         expect:
-        filter.forceEagerSessionCreation == false
-        filter.repo.allowSessionCreation == true
+        !filter.forceEagerSessionCreation
+        filter.repo.allowSessionCreation
     }
 
     def httpCreateSession(String create, Closure c) {

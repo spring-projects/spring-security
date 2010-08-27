@@ -1,5 +1,6 @@
 package org.springframework.security.config.util;
 
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.core.io.Resource;
@@ -32,9 +33,19 @@ public class InMemoryXmlApplicationContext extends AbstractXmlApplicationContext
     public InMemoryXmlApplicationContext(String xml, String secVersion, ApplicationContext parent) {
         String fullXml = BEANS_OPENING + secVersion + ".xsd'>\n" + xml + BEANS_CLOSE;
         inMemoryXml = new InMemoryResource(fullXml);
-        setAllowBeanDefinitionOverriding(false);
+        setAllowBeanDefinitionOverriding(true);
         setParent(parent);
         refresh();
+    }
+
+    @Override
+    protected DefaultListableBeanFactory createBeanFactory() {
+        return new DefaultListableBeanFactory(getInternalParentBeanFactory()) {
+            @Override
+            protected boolean allowAliasOverriding() {
+                return true;
+            }
+        };
     }
 
     protected Resource[] getConfigResources() {

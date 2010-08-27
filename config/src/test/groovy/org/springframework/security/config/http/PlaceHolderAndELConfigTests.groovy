@@ -4,13 +4,11 @@ import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer
 import org.springframework.mock.web.MockFilterChain
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
-import org.springframework.security.access.ConfigAttribute
 import org.springframework.security.access.SecurityConfig
 import org.springframework.security.util.FieldUtils
 import org.springframework.security.web.PortMapperImpl
 import org.springframework.security.web.access.ExceptionTranslationFilter
 import org.springframework.security.web.access.channel.ChannelProcessingFilter
-import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
