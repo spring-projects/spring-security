@@ -23,6 +23,9 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.Signature;
+import org.aspectj.lang.reflect.CodeSignature;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,20 +44,20 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 
 /**
- * Tests {@link AspectJSecurityInterceptor}.
+ * Tests {@link AspectJMethodSecurityInterceptor}.
  *
  * @author Ben Alex
  * @author Luke Taylor
  */
 @SuppressWarnings("deprecation")
-public class AspectJSecurityInterceptorTests {
+public class AspectJMethodSecurityInterceptorTests {
     private TestingAuthenticationToken token;
-    private AspectJSecurityInterceptor interceptor;
+    private AspectJMethodSecurityInterceptor interceptor;
     private @Mock AccessDecisionManager adm;
     private @Mock MethodSecurityMetadataSource mds;
     private @Mock AuthenticationManager authman;
     private @Mock AspectJCallback aspectJCallback;
-    private JoinPoint joinPoint;
+    private ProceedingJoinPoint joinPoint;
 
     //~ Methods ========================================================================================================
 
@@ -63,12 +66,23 @@ public class AspectJSecurityInterceptorTests {
         MockitoAnnotations.initMocks(this);
         SecurityContextHolder.clearContext();
         token = new TestingAuthenticationToken("Test", "Password");
-        interceptor = new AspectJSecurityInterceptor();
+        interceptor = new AspectJMethodSecurityInterceptor();
         interceptor.setAccessDecisionManager(adm);
         interceptor.setAuthenticationManager(authman);
         interceptor.setSecurityMetadataSource(mds);
         Method method = TargetObject.class.getMethod("countLength", new Class[] {String.class});
-        joinPoint = new MockJoinPoint(new TargetObject(), method);
+        // Set up joinpoint information for the countLength method on TargetObject
+        joinPoint = mock(ProceedingJoinPoint.class); //new MockJoinPoint(new TargetObject(), method);
+        Signature sig = mock(Signature.class);
+        when(sig.getDeclaringType()).thenReturn(TargetObject.class);
+        JoinPoint.StaticPart staticPart = mock(JoinPoint.StaticPart.class);
+        when(joinPoint.getSignature()).thenReturn(sig);
+        when(joinPoint.getStaticPart()).thenReturn(staticPart);
+        CodeSignature codeSig = mock(CodeSignature.class);
+        when(codeSig.getName()).thenReturn("countLength");
+        when(codeSig.getDeclaringType()).thenReturn(TargetObject.class);
+        when(codeSig.getParameterTypes()).thenReturn(new Class[] {String.class});
+        when(staticPart.getSignature()).thenReturn(codeSig);
         when(mds.getAttributes(any(JoinPoint.class))).thenReturn(SecurityConfig.createList("ROLE_USER"));
         when(authman.authenticate(token)).thenReturn(token);
     }
@@ -79,10 +93,13 @@ public class AspectJSecurityInterceptorTests {
     }
 
     @Test
-    public void callbackIsInvokedWhenPermissionGranted() throws Exception {
+    public void callbackIsInvokedWhenPermissionGranted() throws Throwable {
         SecurityContextHolder.getContext().setAuthentication(token);
         interceptor.invoke(joinPoint, aspectJCallback);
         verify(aspectJCallback).proceedWithObject();
+
+        // Just try the other method too
+        interceptor.invoke(joinPoint);
     }
 
     @SuppressWarnings("unchecked")

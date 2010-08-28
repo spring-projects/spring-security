@@ -2,16 +2,11 @@ package org.springframework.security.access.vote;
 
 import static org.junit.Assert.*;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.aspectj.lang.JoinPoint;
 import org.junit.Test;
-import org.springframework.security.MockJoinPoint;
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.vote.AbstractAclVoter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.util.MethodInvocationUtils;
 
@@ -30,9 +25,8 @@ public class AbstractAclVoterTests {
     };
 
     @Test
-    public void supportsMethodInvocationsAndJoinPoints() throws Exception {
+    public void supportsMethodInvocations() throws Exception {
         assertTrue(voter.supports(MethodInvocation.class));
-        assertTrue(voter.supports(JoinPoint.class));
         assertFalse(voter.supports(String.class));
     }
 
@@ -41,14 +35,6 @@ public class AbstractAclVoterTests {
         voter.setProcessDomainObjectClass(String.class);
         MethodInvocation mi = MethodInvocationUtils.create(new TestClass(), "methodTakingAString", "The Argument");
         assertEquals("The Argument", voter.getDomainObjectInstance(mi));
-    }
-
-    @Test
-    public void expectedDomainObjectArgumentIsReturnedFromJoinPoint() throws Exception {
-        voter.setProcessDomainObjectClass(String.class);
-        Method method = TestClass.class.getMethod("methodTakingAString", new Class[] {String.class});
-        MockJoinPoint joinPoint = new MockJoinPoint(new TestClass(), method, "The Argument");
-        assertEquals("The Argument", voter.getDomainObjectInstance(joinPoint));
     }
 
     @Test

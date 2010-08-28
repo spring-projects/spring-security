@@ -108,4 +108,17 @@ public class SecurityContextPersistenceFilterTests {
         filter.doFilter(request, response, chain);
         assertNotNull(request.getSession(false));
     }
+
+    @Test
+    public void nullSecurityContextRepoDoesntSaveContextOrCreateSession() throws Exception {
+        final FilterChain chain = mock(FilterChain.class);
+        final MockHttpServletRequest request = new MockHttpServletRequest();
+        final MockHttpServletResponse response = new MockHttpServletResponse();
+        SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter();
+        SecurityContextRepository repo = new NullSecurityContextRepository();
+        filter.setSecurityContextRepository(repo);
+        filter.doFilter(request, response, chain);
+        assertFalse(repo.containsContext(request));
+        assertNull(request.getSession(false));
+    }
 }

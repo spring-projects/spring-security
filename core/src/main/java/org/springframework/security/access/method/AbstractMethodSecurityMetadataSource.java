@@ -20,13 +20,12 @@ import java.util.Collection;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.aspectj.lang.JoinPoint;
 import org.springframework.security.access.ConfigAttribute;
 
 
 /**
  * Abstract implementation of <tt>MethodSecurityMetadataSource</tt> which resolves the secured object type to
- * either a MethodInvocation or a JoinPoint.
+ * a MethodInvocation.
  *
  * @author Ben Alex
  * @author Luke Taylor
@@ -54,6 +53,6 @@ public abstract class AbstractMethodSecurityMetadataSource implements MethodSecu
     }
 
     public final boolean supports(Class<?> clazz) {
-        return (MethodInvocation.class.isAssignableFrom(clazz) || JoinPoint.class.isAssignableFrom(clazz));
+        return (MethodInvocation.class.isAssignableFrom(clazz));
     }
 }

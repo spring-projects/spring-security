@@ -14,14 +14,9 @@
  */
 package org.springframework.security.access.vote;
 
+import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.AuthorizationServiceException;
-
-import org.aopalliance.intercept.MethodInvocation;
-
-import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.reflect.CodeSignature;
-
 import org.springframework.util.Assert;
 
 
@@ -42,15 +37,9 @@ public abstract class AbstractAclVoter implements AccessDecisionVoter {
         Object[] args;
         Class<?>[] params;
 
-        if (secureObject instanceof MethodInvocation) {
-            MethodInvocation invocation = (MethodInvocation) secureObject;
-            params = invocation.getMethod().getParameterTypes();
-            args = invocation.getArguments();
-        } else {
-            JoinPoint jp = (JoinPoint) secureObject;
-            params = ((CodeSignature) jp.getStaticPart().getSignature()).getParameterTypes();
-            args = jp.getArgs();
-        }
+        MethodInvocation invocation = (MethodInvocation) secureObject;
+        params = invocation.getMethod().getParameterTypes();
+        args = invocation.getArguments();
 
         for (int i = 0; i < params.length; i++) {
             if (processDomainObjectClass.isAssignableFrom(params[i])) {
@@ -80,6 +69,6 @@ public abstract class AbstractAclVoter implements AccessDecisionVoter {
      * @return <code>true</code> if the secure object is <code>MethodInvocation</code>, <code>false</code> otherwise
      */
     public boolean supports(Class<?> clazz) {
-        return (MethodInvocation.class.isAssignableFrom(clazz) || JoinPoint.class.isAssignableFrom(clazz));
+        return (MethodInvocation.class.isAssignableFrom(clazz));
     }
 }
