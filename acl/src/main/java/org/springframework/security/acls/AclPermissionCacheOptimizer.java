@@ -33,6 +33,10 @@ public class AclPermissionCacheOptimizer implements PermissionCacheOptimizer {
     }
 
     public void cachePermissionsFor(Authentication authentication, Collection<?> objects) {
+        if (objects.isEmpty()) {
+            return;
+        }
+
         List<ObjectIdentity> oidsToCache = new ArrayList<ObjectIdentity>(objects.size());
 
         for (Object domainObject : objects) {
