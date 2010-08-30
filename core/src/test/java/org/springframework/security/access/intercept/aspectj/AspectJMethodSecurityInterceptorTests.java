@@ -15,7 +15,7 @@
 
 package org.springframework.security.access.intercept.aspectj;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -37,6 +37,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.ClassUtils;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -113,5 +114,19 @@ public class AspectJMethodSecurityInterceptorTests {
         } catch (AccessDeniedException expected) {
         }
         verify(aspectJCallback, never()).proceedWithObject();
+    }
+
+    @Test
+    public void adapterHoldsCorrectData() throws Exception {
+        TargetObject to = new TargetObject();
+        Method m = ClassUtils.getMethodIfAvailable(TargetObject.class, "countLength", new Class[] {String.class});
+
+        when(joinPoint.getTarget()).thenReturn(to);
+        when(joinPoint.getArgs()).thenReturn(new Object[] {"Hi"});
+        MethodInvocationAdapter mia = new MethodInvocationAdapter(joinPoint);
+        assertEquals("Hi", mia.getArguments()[0]);
+        assertEquals(m, mia.getStaticPart());
+        assertEquals(m, mia.getMethod());
+        assertSame(to, mia.getThis());
     }
 }
