@@ -1,6 +1,10 @@
 // Docbook and Javadoc building and uploading tasks
 apply plugin: 'base'
 
+task docs {
+    dependsOn 'manual:docbook', 'faq:docbookHtmlSingle', 'apidocs'
+}
+
 subprojects {
     apply plugin: 'base'
     apply plugin: 'docbook'
