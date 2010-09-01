@@ -15,6 +15,7 @@
 
 package org.springframework.security.web.authentication;
 
+import java.io.Serializable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -24,7 +25,7 @@ import javax.servlet.http.HttpSession;
  *
  * @author Ben Alex
  */
-public class WebAuthenticationDetails {
+public class WebAuthenticationDetails implements Serializable {
     //~ Instance fields ================================================================================================
 
     private final String remoteAddress;
