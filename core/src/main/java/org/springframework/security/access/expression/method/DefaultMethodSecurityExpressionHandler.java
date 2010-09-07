@@ -1,71 +1,56 @@
 package org.springframework.security.access.expression.method;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.access.PermissionCacheOptimizer;
 import org.springframework.security.access.PermissionEvaluator;
+import org.springframework.security.access.expression.AbstractSecurityExpressionHandler;
 import org.springframework.security.access.expression.ExpressionUtils;
+import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.access.expression.SecurityExpressionRootPropertyAccessor;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
-import org.springframework.security.authentication.AuthenticationTrustResolver;
-import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
 
 /**
- * The standard implementation of <tt>SecurityExpressionHandler</tt>.
+ * The standard implementation of {@code MethodSecurityExpressionHandler}.
  * <p>
  * A single instance should usually be shared amongst the beans that require expression support.
  *
  * @author Luke Taylor
  * @since 3.0
  */
-public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExpressionHandler, ApplicationContextAware {
+public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpressionHandler<MethodInvocation> implements MethodSecurityExpressionHandler {
 
     protected final Log logger = LogFactory.getLog(getClass());
 
     private ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
     private PermissionEvaluator permissionEvaluator = new DenyAllPermissionEvaluator();
     private PermissionCacheOptimizer permissionCacheOptimizer = null;
-    private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
-    private final SecurityExpressionRootPropertyAccessor sxrpa = new SecurityExpressionRootPropertyAccessor();
-    private final ExpressionParser expressionParser = new SpelExpressionParser();
-    private RoleHierarchy roleHierarchy;
-    private ApplicationContext applicationContext;
 
     public DefaultMethodSecurityExpressionHandler() {
     }
 
     /**
-     * Uses a {@link MethodSecurityEvaluationContext} as the <tt>EvaluationContext</tt> implementation and
-     * configures it with a {@link MethodSecurityExpressionRoot} instance as the expression root object.
+     * Uses a {@link MethodSecurityEvaluationContext} as the <tt>EvaluationContext</tt> implementation.
      */
-    public EvaluationContext createEvaluationContext(Authentication auth, MethodInvocation mi) {
-        MethodSecurityEvaluationContext ctx = new MethodSecurityEvaluationContext(auth, mi, parameterNameDiscoverer);
-        MethodSecurityExpressionRoot root = new MethodSecurityExpressionRoot(auth);
-        root.setTrustResolver(trustResolver);
-        root.setPermissionEvaluator(permissionEvaluator);
-        root.setRoleHierarchy(roleHierarchy);
-        root.setApplicationContext(applicationContext);
-        ctx.setRootObject(root);
-        ctx.addPropertyAccessor(sxrpa);
+    public StandardEvaluationContext createEvaluationContextInternal(Authentication auth, MethodInvocation mi) {
+        return new MethodSecurityEvaluationContext(auth, mi, parameterNameDiscoverer);
+    }
 
-        return ctx;
+    @Override
+    protected SecurityExpressionRoot createSecurityExpressionRoot(Authentication authentication, MethodInvocation invocation) {
+        MethodSecurityExpressionRoot root = new MethodSecurityExpressionRoot(authentication);
+        root.setPermissionEvaluator(permissionEvaluator);
+
+        return root;
     }
 
     /**
@@ -151,10 +136,6 @@ public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExp
         throw new IllegalArgumentException("Filter target must be a collection or array type, but was " + filterTarget);
     }
 
-    public ExpressionParser getExpressionParser() {
-        return expressionParser;
-    }
-
     public void setParameterNameDiscoverer(ParameterNameDiscoverer parameterNameDiscoverer) {
         this.parameterNameDiscoverer = parameterNameDiscoverer;
     }
@@ -167,19 +148,7 @@ public class DefaultMethodSecurityExpressionHandler implements MethodSecurityExp
         this.permissionCacheOptimizer = permissionCacheOptimizer;
     }
 
-    public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
-        this.trustResolver = trustResolver;
-    }
-
     public void setReturnObject(Object returnObject, EvaluationContext ctx) {
         ((MethodSecurityExpressionRoot)ctx.getRootObject().getValue()).setReturnObject(returnObject);
-    }
-
-    public void setRoleHierarchy(RoleHierarchy roleHierarchy) {
-        this.roleHierarchy = roleHierarchy;
-    }
-
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
     }
 }

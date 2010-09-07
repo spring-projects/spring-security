@@ -1,8 +1,7 @@
 package org.springframework.security.taglibs.authz;
 
 import java.io.IOException;
-import java.util.Map;
-
+import java.util.*;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -13,14 +12,15 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.GenericTypeResolver;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ParseException;
 import org.springframework.security.access.expression.ExpressionUtils;
+import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
-import org.springframework.security.web.access.expression.WebSecurityExpressionHandler;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
@@ -64,8 +64,7 @@ public class AuthorizeTag extends LegacyAuthorizeTag {
     }
 
     private int authorizeUsingAccessExpression(Authentication currentUser) throws JspException {
-        // Get web expression
-        WebSecurityExpressionHandler handler = getExpressionHandler();
+        SecurityExpressionHandler<FilterInvocation> handler = getExpressionHandler();
 
         Expression accessExpression;
         try {
@@ -105,17 +104,20 @@ public class AuthorizeTag extends LegacyAuthorizeTag {
         this.var = var;
     }
 
-    WebSecurityExpressionHandler getExpressionHandler() throws JspException {
+    SecurityExpressionHandler<FilterInvocation> getExpressionHandler() throws JspException {
         ServletContext servletContext = pageContext.getServletContext();
         ApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
-        Map<String, WebSecurityExpressionHandler> expressionHdlrs = ctx.getBeansOfType(WebSecurityExpressionHandler.class);
+        Map<String, SecurityExpressionHandler> expressionHdlrs = ctx.getBeansOfType(SecurityExpressionHandler.class);
 
-        if (expressionHdlrs.size() == 0) {
-            throw new JspException("No visible WebSecurityExpressionHandler instance could be found in the application " +
-                    "context. There must be at least one in order to support expressions in JSP 'authorize' tags.");
+
+        for (SecurityExpressionHandler h : expressionHdlrs.values()) {
+            if (FilterInvocation.class.equals(GenericTypeResolver.resolveTypeArgument(h.getClass(), SecurityExpressionHandler.class))) {
+                return h;
+            }
         }
 
-        return (WebSecurityExpressionHandler) expressionHdlrs.values().toArray()[0];
+        throw new JspException("No visible SecurityExpressionHandler<FilterInvocation> instance could be found in the " +
+                "application context. There must be at least one in order to support expressions in JSP 'authorize' tags.");
     }
 
     WebInvocationPrivilegeEvaluator getPrivilegeEvaluator() throws JspException {

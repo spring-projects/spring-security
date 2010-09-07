@@ -10,12 +10,14 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.ParseException;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.expression.SecurityExpressionHandler;
+import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.util.RequestMatcher;
 import org.springframework.util.Assert;
 
 /**
- * Expression-based <tt>FilterInvocationSecurityMetadataSource</tt>.
+ * Expression-based {@code FilterInvocationSecurityMetadataSource}.
  *
  * @author Luke Taylor
  * @since 3.0
@@ -25,7 +27,7 @@ public final class ExpressionBasedFilterInvocationSecurityMetadataSource extends
 
     public ExpressionBasedFilterInvocationSecurityMetadataSource(
             LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap,
-            WebSecurityExpressionHandler expressionHandler) {
+            SecurityExpressionHandler<FilterInvocation> expressionHandler) {
         super(processMap(requestMap, expressionHandler.getExpressionParser()));
         Assert.notNull(expressionHandler, "A non-null SecurityExpressionHandler is required");
     }

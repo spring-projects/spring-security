@@ -3,4 +3,6 @@ dependencies {
     compile project(':spring-security-core'),
             "org.springframework:spring-beans:$springVersion",
             "org.springframework:spring-context:$springVersion"
+
+    testCompile 'aopalliance:aopalliance:1.0'
 }

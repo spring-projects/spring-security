@@ -6,6 +6,7 @@ import org.springframework.expression.EvaluationContext;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.expression.ExpressionUtils;
+import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
 
@@ -15,7 +16,7 @@ import org.springframework.security.web.FilterInvocation;
  * @since 3.0
  */
 public class WebExpressionVoter implements AccessDecisionVoter {
-    private WebSecurityExpressionHandler expressionHandler = new DefaultWebSecurityExpressionHandler();
+    private SecurityExpressionHandler<FilterInvocation> expressionHandler = new DefaultWebSecurityExpressionHandler();
 
     public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
         assert authentication != null;
@@ -52,7 +53,7 @@ public class WebExpressionVoter implements AccessDecisionVoter {
         return clazz.isAssignableFrom(FilterInvocation.class);
     }
 
-    public void setExpressionHandler(WebSecurityExpressionHandler expressionHandler) {
+    public void setExpressionHandler(SecurityExpressionHandler<FilterInvocation> expressionHandler) {
         this.expressionHandler = expressionHandler;
     }
 }

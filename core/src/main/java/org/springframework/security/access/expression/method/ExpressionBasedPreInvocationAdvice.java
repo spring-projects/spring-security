@@ -17,7 +17,7 @@ import org.springframework.security.core.Authentication;
  * Method pre-invocation handling based on expressions.
  *
  * @author Luke Taylor
- * @since
+ * @since 3.0
  */
 public class ExpressionBasedPreInvocationAdvice implements PreInvocationAuthorizationAdvice {
     private MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
