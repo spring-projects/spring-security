@@ -1,10 +1,12 @@
 package org.springframework.security.access.expression;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.core.Authentication;
@@ -30,6 +32,12 @@ public abstract class SecurityExpressionRoot {
 
     /** Allows "denyAll" expression */
     public final boolean denyAll = false;
+    private PermissionEvaluator permissionEvaluator;
+    public final String read = "read";
+    public final String write = "write";
+    public final String create = "create";
+    public final String delete = "delete";
+    public final String admin = "administration";
 
     public SecurityExpressionRoot(Authentication a) {
         if (a == null) {
@@ -115,5 +123,17 @@ public abstract class SecurityExpressionRoot {
         }
 
         return roles;
+    }
+
+    public boolean hasPermission(Object target, Object permission) {
+        return permissionEvaluator.hasPermission(authentication, target, permission);
+    }
+
+    public boolean hasPermission(Object targetId, String targetType, Object permission) {
+        return permissionEvaluator.hasPermission(authentication, (Serializable)targetId, targetType, permission);
+    }
+
+    public void setPermissionEvaluator(PermissionEvaluator permissionEvaluator) {
+        this.permissionEvaluator = permissionEvaluator;
     }
 }
