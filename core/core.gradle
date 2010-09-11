@@ -15,7 +15,7 @@ dependencies {
 
     testCompile 'commons-collections:commons-collections:3.2',
                 "org.springframework:spring-test:$springVersion",
-                "ch.qos.logback:logback-classic:$logbackVersion"
+                "org.slf4j:jcl-over-slf4j:$slf4jVersion"
 
     testRuntime "hsqldb:hsqldb:$hsqlVersion"
 }
