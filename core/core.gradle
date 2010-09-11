@@ -14,7 +14,8 @@ dependencies {
             'javax.annotation:jsr250-api:1.0'
 
     testCompile 'commons-collections:commons-collections:3.2',
-                "org.springframework:spring-test:$springVersion"
+                "org.springframework:spring-test:$springVersion",
+                "ch.qos.logback:logback-classic:$logbackVersion"
 
     testRuntime "hsqldb:hsqldb:$hsqlVersion"
 }

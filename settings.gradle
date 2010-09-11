@@ -19,7 +19,8 @@ def String[] samples = [
     'dms',
     'preauth',
     'cas',
-    'ldap'
+    'ldap',
+    'jaas'
 ]
 
 def String[] itest = [

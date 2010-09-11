@@ -129,6 +129,12 @@ Success! Your web filters appear to be properly configured!
             download the CAS Server web application (a war file) from the CAS site and drop it into
             the <filename>samples/cas/server</filename> directory. </para>
     </section>
+    <section xml:id="jaas-sample">
+        <title>JAAS Sample</title>
+        <para>The JAAS sample is very simple example of how to use a JAAS LoginModule with Spring Security. The provided LoginModule will
+            successfully authenticate a user if the username equals the password otherwise a LoginException is thrown. The AuthorityGranter
+            used in this example always grants the role ROLE_USER.</para>
+    </section>
     <section xml:id="preauth-sample">
         <title>Pre-Authentication Sample</title>
         <para> This sample application demonstrates how to wire up beans from the <link
