@@ -67,7 +67,7 @@ public class UsernameEqualsPasswordLoginModule implements LoginModule {
     }
 
     public boolean login() throws LoginException {
-        if (username != null && !username.equals(password)) {
+        if (username == null || !username.equals(password)) {
             throw new LoginException("username is not equal to password");
         }
 
@@ -75,6 +75,9 @@ public class UsernameEqualsPasswordLoginModule implements LoginModule {
             public String getName() {
                 return username;
             }
+            public String toString() {
+                return "Principal [name="+getName()+"]";
+            }            
         });
         return true;
     }

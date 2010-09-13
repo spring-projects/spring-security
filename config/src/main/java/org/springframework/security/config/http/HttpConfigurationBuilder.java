@@ -4,7 +4,6 @@ import static org.springframework.security.config.http.HttpSecurityBeanDefinitio
 import static org.springframework.security.config.http.SecurityFilters.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -35,6 +34,7 @@ import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.jaas.JaasApiIntegrationFilter;
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy;
 import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
@@ -90,6 +90,7 @@ class HttpConfigurationBuilder {
     private BeanReference sessionStrategyRef;
     private RootBeanDefinition sfpf;
     private BeanDefinition servApiFilter;
+    private BeanDefinition jaasApiFilter;
     private final String portMapperName;
     private BeanReference fsi;
     private BeanReference requestCache;
@@ -123,6 +124,7 @@ class HttpConfigurationBuilder {
         createSessionManagementFilters();
         createRequestCacheFilter();
         createServletApiFilter();
+        createJaasApiFilter();
         createChannelProcessingFilter();
         createFilterSecurityInterceptor(authenticationManager);
     }
@@ -337,7 +339,22 @@ class HttpConfigurationBuilder {
             servApiFilter = new RootBeanDefinition(SecurityContextHolderAwareRequestFilter.class);
         }
     }
+    
+    // Adds the jaas-api integration filter if required
+    private void createJaasApiFilter() {
+        final String ATT_JAAS_API_PROVISION = "jaas-api-provision";
+        final String DEF_JAAS_API_PROVISION = "false";
 
+        String provideJaasApi = httpElt.getAttribute(ATT_JAAS_API_PROVISION);
+        if (!StringUtils.hasText(provideJaasApi)) {
+            provideJaasApi = DEF_JAAS_API_PROVISION;
+        }
+
+        if ("true".equals(provideJaasApi)) {
+            jaasApiFilter = new RootBeanDefinition(JaasApiIntegrationFilter.class);
+        }
+    }
+    
     private void createChannelProcessingFilter() {
         ManagedMap<BeanDefinition,BeanDefinition> channelRequestMap = parseInterceptUrlsForChannelSecurity();
 
@@ -514,6 +531,10 @@ class HttpConfigurationBuilder {
             filters.add(new OrderDecorator(servApiFilter, SERVLET_API_SUPPORT_FILTER));
         }
 
+        if (jaasApiFilter != null) {
+            filters.add(new OrderDecorator(jaasApiFilter, JAAS_API_SUPPORT_FILTER));
+        }
+        
         if (sfpf != null) {
             filters.add(new OrderDecorator(sfpf, SESSION_MANAGEMENT_FILTER));
         }

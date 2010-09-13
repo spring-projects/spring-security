@@ -152,6 +152,13 @@
                     <literal>HttpServletRequestWrapper</literal> into your servlet container</para>
             </listitem>
             <listitem>
+                <para>The <classname>JaasApiIntegrationFilter</classname>, if a 
+                    <classname>JaasAuthenticationToken</classname> is in the 
+                    <classname>SecurityContextHolder</classname> this will process the 
+                    <classname>FilterChain</classname> as the <classname>Subject</classname> in the 
+                    <classname>JaasAuthenticationToken</classname></para> 
+            </listitem>
+            <listitem>
                 <para><classname>RememberMeAuthenticationFilter</classname>, so that if no earlier
                     authentication processing mechanism updated the
                     <classname>SecurityContextHolder</classname>, and the request presents a cookie

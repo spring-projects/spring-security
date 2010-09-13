@@ -213,4 +213,20 @@ JAASTest {
 </bean>
 ]]></programlisting></para>
     </section>
+    <section xml:id="jaas-apiprovision">
+        <info>
+            <title xml:id="jaas-api-provision">Running as a Subject</title>
+        </info>
+        <para>If configured, the <classname>JaasApiIntegrationFilter</classname> will attempt to 
+            run as the <literal>Subject</literal> on the 
+            <classname>JaasAuthenticationToken</classname>. This means that the 
+            <literal>Subject</literal> can be accessed using: 
+            <programlisting language="java"><![CDATA[
+            Subject subject = Subject.getSubject(AccessController.getContext());
+]]></programlisting>
+            This integration can easily be configured using the 
+            <link xlink:href="#nsa-jaas-api-provision">jaas-api-provision</link> attribute. This
+            feature is useful when integrating with legacy or external API's that rely on the
+            JAAS Subject being populated.</para>
+    </section>
 </chapter>

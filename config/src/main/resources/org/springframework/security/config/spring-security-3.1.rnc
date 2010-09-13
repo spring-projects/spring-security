@@ -290,6 +290,9 @@ http.attlist &=
     ## Provides versions of HttpServletRequest security methods such as isUserInRole() and getPrincipal() which are implemented by accessing the Spring SecurityContext. Defaults to "true".
     attribute servlet-api-provision {boolean}?
 http.attlist &=
+    ## If available, runs the request as the Subject acquired from the JaasAuthenticationToken. Defaults to "false".
+    attribute jaas-api-provision {boolean}?
+http.attlist &=
     ## Optional attribute specifying the ID of the AccessDecisionManager implementation which should be used for authorizing HTTP requests.
     attribute access-decision-manager-ref {xsd:token}?
 http.attlist &=

@@ -133,7 +133,8 @@ Success! Your web filters appear to be properly configured!
         <title>JAAS Sample</title>
         <para>The JAAS sample is very simple example of how to use a JAAS LoginModule with Spring Security. The provided LoginModule will
             successfully authenticate a user if the username equals the password otherwise a LoginException is thrown. The AuthorityGranter
-            used in this example always grants the role ROLE_USER.</para>
+            used in this example always grants the role ROLE_USER. The sample application also demonstrates how to run as the JAAS Subject
+            returned by the LoginModule by setting <link xlink:href="#nsa-jaas-api-provision">jaas-api-provision</link> equal to "true".</para>
     </section>
     <section xml:id="preauth-sample">
         <title>Pre-Authentication Sample</title>

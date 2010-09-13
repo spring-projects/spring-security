@@ -759,6 +759,11 @@
         <xs:documentation>Provides versions of HttpServletRequest security methods such as isUserInRole() and getPrincipal() which are implemented by accessing the Spring SecurityContext. Defaults to "true".</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="jaas-api-provision" type="security:boolean">
+      <xs:annotation>
+        <xs:documentation>If available, runs the request as the Subject acquired from the JaasAuthenticationToken. Defaults to "false".</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="access-decision-manager-ref" type="xs:token">
       <xs:annotation>
         <xs:documentation>Optional attribute specifying the ID of the AccessDecisionManager implementation which should be used for authorizing HTTP requests.</xs:documentation>

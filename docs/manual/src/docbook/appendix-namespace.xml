@@ -70,6 +70,13 @@
                     <classname>SecurityContextHolderAwareRequestFilter</classname> bean to the
                     stack. Defaults to "true".</para>
             </section>
+            <section xml:id="nsa-jaas-api-provision">
+                <title><literal>jaas-api-provision</literal></title>
+                <para>If available, runs the request as the <literal>Subject</literal> acquired from 
+                    the <classname>JaasAuthenticationToken</classname> which is implemented by 
+                    adding a <classname>JaasApiIntegrationFilter</classname> bean to the stack. 
+                    Defaults to "false".</para>
+            </section>
             <section xml:id="nsa-path-type">
                 <title><literal>request-matcher</literal></title>
                 <para> Defines the <interfacename>RequestMatcher</interfacename> strategy used in

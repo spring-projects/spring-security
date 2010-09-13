@@ -17,6 +17,7 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.jaas.JaasApiIntegrationFilter;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
@@ -52,6 +53,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
         checkForDuplicates(SessionManagementFilter.class, filters);
         checkForDuplicates(BasicAuthenticationFilter.class, filters);
         checkForDuplicates(SecurityContextHolderAwareRequestFilter.class, filters);
+        checkForDuplicates(JaasApiIntegrationFilter.class, filters);
         checkForDuplicates(ExceptionTranslationFilter.class, filters);
         checkForDuplicates(FilterSecurityInterceptor.class, filters);
     }

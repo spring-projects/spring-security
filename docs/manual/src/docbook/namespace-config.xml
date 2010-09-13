@@ -692,6 +692,11 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                             <entry><literal>http/@servlet-api-provision</literal></entry>
                         </row>
                         <row>
+                            <entry>JAAS_API_SUPPORT_FILTER</entry>
+                            <entry><literal>JaasApiIntegrationFilter</literal></entry>
+                            <entry><literal>http/@jaas-api-provision</literal></entry>
+                        </row>
+                        <row>
                             <entry> REMEMBER_ME_FILTER </entry>
                             <entry><classname>RememberMeAuthenticationFilter</classname></entry>
                             <entry><literal>http/remember-me</literal></entry>

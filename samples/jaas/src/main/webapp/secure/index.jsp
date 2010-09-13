@@ -1,3 +1,5 @@
+<%@ page import="javax.security.auth.Subject" %>
+<%@ page import="java.security.AccessController" %>
 <%@ page import="org.springframework.security.core.context.SecurityContextHolder" %>
 <%@ page import="org.springframework.security.core.Authentication" %>
 <%@ page import="org.springframework.security.core.GrantedAuthority" %>
@@ -9,6 +11,15 @@
 <body>
 
 <h3>Security Debug Information</h3>
+
+<% 
+
+		Subject subject = Subject.getSubject(AccessController.getContext());  
+		if(subject != null) { %>
+<p>
+			Subject.getSubject(AccessController.getContext()) is....: <%= subject %>
+</p>
+		<%} %>
 
 <%
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

@@ -30,6 +30,7 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.web.authentication.jaas.JaasApiIntegrationFilter
 import org.springframework.security.web.authentication.logout.LogoutFilter
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter
@@ -567,6 +568,14 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         getFilter(OpenIDAuthenticationFilter).authenticationDetailsSource == adsr
         getFilter(BasicAuthenticationFilter).authenticationDetailsSource == adsr
         getFilter(X509AuthenticationFilter).authenticationDetailsSource == adsr
+    }
+    
+    def includeJaasApiIntegrationFilter() {
+        xml.http(['auto-config':'true','jaas-api-provision':'true'])
+        createAppContext()
+        expect:
+        getFilter(JaasApiIntegrationFilter.class) != null
+        
     }
 }
 

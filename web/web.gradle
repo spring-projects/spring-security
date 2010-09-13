@@ -13,7 +13,8 @@ dependencies {
 
     provided 'javax.servlet:servlet-api:2.5'
 
-    testCompile 'commons-codec:commons-codec:1.3',
+    testCompile project(':spring-security-core').sourceSets.test.classes,
+                'commons-codec:commons-codec:1.3',
                 "org.springframework:spring-test:$springVersion"
     testRuntime "hsqldb:hsqldb:$hsqlVersion"
 }
