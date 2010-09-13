@@ -498,10 +498,12 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         MockHttpServletRequest request = new MockHttpServletRequest("POST", "/j_spring_security_check");
         request.setServletPath("/j_spring_security_check");
         request.addParameter("j_username", "bob");
-        request.addParameter("j_password", "bob");
+        request.addParameter("j_password", "bobspassword");
         then: "App context creation and login request succeed"
         Filter debugFilter = appContext.getBean(BeanIds.SPRING_SECURITY_FILTER_CHAIN);
         debugFilter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
+        appListener.events.size() == 2
+        appListener.authenticationEvents.size() == 2
     }
 
     def eraseCredentialsDefaultsToTrue() {

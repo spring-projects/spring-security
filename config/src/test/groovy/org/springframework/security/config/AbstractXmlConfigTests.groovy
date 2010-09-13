@@ -6,6 +6,12 @@ import org.springframework.security.config.util.InMemoryXmlApplicationContext
 import org.springframework.security.core.context.SecurityContextHolder
 import spock.lang.Specification
 import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML
+import org.springframework.context.ApplicationListener
+import org.springframework.context.ApplicationEvent
+import org.springframework.security.authentication.event.AbstractAuthenticationEvent
+import org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent
+import org.springframework.security.access.event.AbstractAuthorizationEvent
+import org.springframework.security.CollectingAppListener
 
 /**
  *
@@ -15,10 +21,12 @@ abstract class AbstractXmlConfigTests extends Specification {
     AbstractXmlApplicationContext appContext;
     Writer writer;
     MarkupBuilder xml;
+    ApplicationListener appListener;
 
     def setup() {
         writer = new StringWriter()
         xml = new MarkupBuilder(writer)
+        appListener = new CollectingAppListener()
     }
 
     def cleanup() {
@@ -62,5 +70,6 @@ abstract class AbstractXmlConfigTests extends Specification {
 
     def createAppContext(String extraXml) {
         appContext = new InMemoryXmlApplicationContext(writer.toString() + extraXml);
+        appContext.addApplicationListener(appListener);
     }
 }
