@@ -1,10 +1,13 @@
 package org.springframework.security.config.http
 
+import java.text.MessageFormat
+
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer
 import org.springframework.mock.web.MockFilterChain
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.security.access.SecurityConfig
+import org.springframework.security.config.BeanIds
 import org.springframework.security.util.FieldUtils
 import org.springframework.security.web.PortMapperImpl
 import org.springframework.security.web.access.ExceptionTranslationFilter
@@ -148,5 +151,19 @@ class PlaceHolderAndELConfigTests extends AbstractHttpConfigTests {
         expect:
         getFilter(ExceptionTranslationFilter).accessDeniedHandler.errorPage == '/go-away'
     }
-
+    
+    def ldapAuthenticationProviderWorksWithPlaceholders() {
+        System.setProperty('udp','people')
+        System.setProperty('gsf','member')
+        xml.'ldap-server'()
+        xml.'authentication-manager'{
+            'ldap-authentication-provider'('user-dn-pattern':'uid={0},ou=${udp}','group-search-filter':'${gsf}={0}')
+        }
+        createAppContext('')
+        def provider = this.appContext.getBean(BeanIds.AUTHENTICATION_MANAGER).providers[0];
+        
+        expect:
+        [new MessageFormat("uid={0},ou=people")] == FieldUtils.getFieldValue(provider,"authenticator.userDnFormat");
+        "member={0}" == FieldUtils.getFieldValue(provider, "authoritiesPopulator.groupSearchFilter");
+    }
 }
