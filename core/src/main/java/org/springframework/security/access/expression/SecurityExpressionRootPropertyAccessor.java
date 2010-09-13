@@ -7,7 +7,7 @@ import org.springframework.expression.PropertyAccessor;
 import org.springframework.expression.TypedValue;
 
 @SuppressWarnings("unchecked")
-public final class SecurityExpressionRootPropertyAccessor implements PropertyAccessor {
+final class SecurityExpressionRootPropertyAccessor implements PropertyAccessor {
     public final Class[] CLASSES = {SecurityExpressionRoot.class};
 
     public boolean canRead(EvaluationContext context, Object target, String name) throws AccessException {

@@ -16,7 +16,6 @@ import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.AbstractSecurityExpressionHandler;
 import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
-import org.springframework.security.access.expression.SecurityExpressionRootPropertyAccessor;
 import org.springframework.security.core.Authentication;
 
 /**
