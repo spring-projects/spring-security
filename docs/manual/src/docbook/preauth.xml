@@ -52,34 +52,29 @@
                 data and submit it for authentication. By <quote>authentication</quote> here, we
                 really just mean further processing to perhaps load the user's authorities, but the
                 standard Spring Security authentication architecture is followed. </para>
-        </section>
-        <section>
-            <title>AbstractPreAuthenticatedAuthenticationDetailsSource</title>
             <para> Like other Spring Security authentication filters, the pre-authentication filter
                 has an <literal>authenticationDetailsSource</literal> property which by default will
                 create a <classname>WebAuthenticationDetails</classname> object to store additional
                 information such as the session-identifier and originating IP address in the
-                <literal>details</literal> property of the
-                <interfacename>Authentication</interfacename> object. In cases where user role
+                    <literal>details</literal> property of the
+                    <interfacename>Authentication</interfacename> object. In cases where user role
                 information can be obtained from the pre-authentication mechanism, the data is also
-                stored in this property. Subclasses of
-                <classname>AbstractPreAuthenticatedAuthenticationDetailsSource</classname> use an
-                extended details object which implements the
-                <interfacename>GrantedAuthoritiesContainer</interfacename> interface, thus enabling
-                the authentication provider to read the authorities which were externally allocated
-                to the user. We'll look at a concrete example next. </para>
+                stored in this property, with the details implementing the
+                    <interfacename>GrantedAuthoritiesContainer</interfacename> interface. This
+                enables the authentication provider to read the authorities which were externally
+                allocated to the user. We'll look at a concrete example next. </para>
             <section xml:id="j2ee-preauth-details">
                 <title>J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource</title>
                 <para> If the filter is configured with an
-                    <literal>authenticationDetailsSource</literal> which is an instance of this
+                        <literal>authenticationDetailsSource</literal> which is an instance of this
                     class, the authority information is obtained by calling the
-                    <methodname>isUserInRole(String role)</methodname> method for each of a
+                        <methodname>isUserInRole(String role)</methodname> method for each of a
                     pre-determined set of <quote>mappable roles</quote>. The class gets these from a
                     configured <interfacename>MappableAttributesRetriever</interfacename>. Possible
                     implementations include hard-coding a list in the application context and
                     reading the role information from the <literal>&lt;security-role&gt;</literal>
                     information in a <filename>web.xml</filename> file. The pre-authentication
-                    sample application uses the latter approach. </para>
+                    sample application uses the latter approach.</para>
                 <para>There is an additional stage where the roles (or attributes) are mapped to
                     Spring Security <interfacename>GrantedAuthority</interfacename> objects using a
                     configured <interfacename>Attributes2GrantedAuthoritiesMapper</interfacename>.

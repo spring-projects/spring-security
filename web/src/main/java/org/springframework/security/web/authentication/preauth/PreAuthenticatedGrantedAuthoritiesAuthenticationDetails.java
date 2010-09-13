@@ -15,6 +15,7 @@ import org.springframework.util.Assert;
  * @author Ruud Senden
  * @since 2.0
  */
+@Deprecated
 public class PreAuthenticatedGrantedAuthoritiesAuthenticationDetails extends AuthenticationDetails implements
         MutableGrantedAuthoritiesContainer {
     public static final long serialVersionUID = 1L;
