@@ -46,10 +46,8 @@ sourceSets.main.compileClasspath += configurations.provided
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-System.setProperty('apacheDSWorkDir', "${buildDir}/apacheDSWork")
-
 test {
-    jvmArgs = ['-ea', '-Xmx500m']
+    jvmArgs = ['-ea', '-Xmx500m', "-DapacheDSWorkDir=${buildDir}/apacheDSWork"]
     maxParallelForks = guessMaxForks()
     testReport = false
 }
