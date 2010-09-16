@@ -19,7 +19,7 @@ class PlaceHolderAndELConfigTests extends AbstractHttpConfigTests {
 
     def setup() {
         // Add a PropertyPlaceholderConfigurer to the context for all the tests
-        xml.'b:bean'('class': PropertyPlaceholderConfigurer.class.name)
+        bean(PropertyPlaceholderConfigurer.class.name, PropertyPlaceholderConfigurer.class)
     }
 
     def unsecuredPatternSupportsPlaceholderForPattern() {
@@ -150,20 +150,5 @@ class PlaceHolderAndELConfigTests extends AbstractHttpConfigTests {
 
         expect:
         getFilter(ExceptionTranslationFilter).accessDeniedHandler.errorPage == '/go-away'
-    }
-    
-    def ldapAuthenticationProviderWorksWithPlaceholders() {
-        System.setProperty('udp','people')
-        System.setProperty('gsf','member')
-        xml.'ldap-server'()
-        xml.'authentication-manager'{
-            'ldap-authentication-provider'('user-dn-pattern':'uid={0},ou=${udp}','group-search-filter':'${gsf}={0}')
-        }
-        createAppContext('')
-        def provider = this.appContext.getBean(BeanIds.AUTHENTICATION_MANAGER).providers[0];
-        
-        expect:
-        [new MessageFormat("uid={0},ou=people")] == FieldUtils.getFieldValue(provider,"authenticator.userDnFormat");
-        "member={0}" == FieldUtils.getFieldValue(provider, "authoritiesPopulator.groupSearchFilter");
     }
 }

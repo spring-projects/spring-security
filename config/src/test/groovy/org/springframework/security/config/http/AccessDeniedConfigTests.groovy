@@ -26,7 +26,7 @@ class AccessDeniedConfigTests extends AbstractHttpConfigTests {
         httpAccessDeniedPage ('noLeadingSlash') { }
         createAppContext();
         then:
-        BeanCreationException e = thrown()
+        thrown(BeanCreationException)
     }
 
     def accessDeniedHandlerIsSetCorectly() {
@@ -50,7 +50,7 @@ class AccessDeniedConfigTests extends AbstractHttpConfigTests {
         }
         createAppContext();
         then:
-        BeanDefinitionParsingException e = thrown()
+        thrown(BeanDefinitionParsingException)
     }
 
     def void accessDeniedHandlerPageAndRefAreMutuallyExclusive() {
@@ -61,7 +61,7 @@ class AccessDeniedConfigTests extends AbstractHttpConfigTests {
         createAppContext();
         bean('adh', AccessDeniedHandlerImpl)
         then:
-        BeanDefinitionParsingException e = thrown()
+        thrown(BeanDefinitionParsingException)
     }
 
     def httpAccessDeniedPage(String page, Closure c) {

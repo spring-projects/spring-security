@@ -6,7 +6,6 @@ import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.security.config.AbstractXmlConfigTests
 import org.springframework.security.config.BeanIds
-import org.springframework.security.web.FilterChainProxy
 import org.springframework.security.web.FilterInvocation
 
 abstract class AbstractHttpConfigTests extends AbstractXmlConfigTests {
