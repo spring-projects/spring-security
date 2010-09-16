@@ -40,6 +40,7 @@ dependencies {
 }
 
 task ldapTests(type: Test) {
+    jvmArgs = ['-ea', '-Xmx500m', "-DapacheDSWorkDir=${buildDir}/apacheDSWork"]
     include ("**/ldap/**")
     maxParallelForks = 1
    // GRADLE-1090

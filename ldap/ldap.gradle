@@ -3,6 +3,7 @@
 test {
     exclude('**/OpenLDAPIntegrationTestSuite.class')
     maxParallelForks = 1
+    jvmArgs "-DapacheDSWorkDir=${buildDir}/apacheDSWork"
 }
 
 apacheds_libs = [
