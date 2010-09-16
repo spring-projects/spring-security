@@ -4,8 +4,10 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.util.StringUtils;
@@ -20,11 +22,11 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
     static final String DEF_LOGOUT_SUCCESS_URL = "/";
 
     static final String ATT_INVALIDATE_SESSION = "invalidate-session";
-    static final String DEF_INVALIDATE_SESSION  = "true";
 
     static final String ATT_LOGOUT_URL = "logout-url";
     static final String DEF_LOGOUT_URL = "/j_spring_security_logout";
     static final String ATT_LOGOUT_HANDLER = "success-handler-ref";
+    static final String ATT_DELETE_COOKIES = "delete-cookies";
 
     final String rememberMeServices;
 
@@ -38,6 +40,7 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
         String successHandlerRef = null;
         String logoutSuccessUrl = null;
         String invalidateSession = null;
+        String deleteCookies = null;
 
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(LogoutFilter.class);
 
@@ -50,6 +53,7 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
             logoutSuccessUrl = element.getAttribute(ATT_LOGOUT_SUCCESS_URL);
             WebConfigUtils.validateHttpRedirect(logoutSuccessUrl, pc, source);
             invalidateSession = element.getAttribute(ATT_INVALIDATE_SESSION);
+            deleteCookies = element.getAttribute(ATT_DELETE_COOKIES);
         }
 
         if (!StringUtils.hasText(logoutUrl)) {
@@ -71,21 +75,20 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
             builder.addConstructorArgValue(logoutSuccessUrl);
         }
 
-        if (!StringUtils.hasText(invalidateSession)) {
-            invalidateSession = DEF_INVALIDATE_SESSION;
-        }
-
         ManagedList handlers = new ManagedList();
-        SecurityContextLogoutHandler sclh = new SecurityContextLogoutHandler();
-        if ("true".equals(invalidateSession)) {
-            sclh.setInvalidateHttpSession(true);
-        } else {
-            sclh.setInvalidateHttpSession(false);
-        }
+        BeanDefinition sclh = new RootBeanDefinition(SecurityContextLogoutHandler.class);
+        sclh.getPropertyValues().addPropertyValue("invalidateHttpSession", !"false".equals(invalidateSession));
         handlers.add(sclh);
 
         if (rememberMeServices != null) {
             handlers.add(new RuntimeBeanReference(rememberMeServices));
+        }
+
+        if (StringUtils.hasText(deleteCookies)) {
+            BeanDefinition cookieDeleter = new RootBeanDefinition(CookieClearingLogoutHandler.class);
+            String[] names = StringUtils.commaDelimitedListToStringArray(deleteCookies);
+            cookieDeleter.getConstructorArgumentValues().addGenericArgumentValue(names);
+            handlers.add(cookieDeleter);
         }
 
         builder.addConstructorArgValue(handlers);

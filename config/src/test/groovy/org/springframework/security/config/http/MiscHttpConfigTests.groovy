@@ -43,6 +43,7 @@ import org.springframework.security.web.savedrequest.HttpSessionRequestCache
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
 import org.springframework.security.web.session.SessionManagementFilter
+import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler
 
 class MiscHttpConfigTests extends AbstractHttpConfigTests {
     def 'Minimal configuration parses'() {
@@ -312,8 +313,6 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         }
         createAppContext()
 
-        def filters = getFilters("/someurl")
-
         expect:
         getFilters("/someurl")[2] instanceof X509AuthenticationFilter
     }
@@ -341,6 +340,20 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
 
         then:
         BeanCreationException e = thrown()
+    }
+
+    def cookiesToDeleteOnLogoutUrlAddsCorrectLogoutHandler() {
+        xml.http {
+            'logout'('delete-cookies': 'JSESSIONID, mycookie')
+            'form-login'()
+        }
+        createAppContext()
+        def handlers = getFilter(LogoutFilter).handlers
+
+        expect:
+        handlers[1] instanceof CookieClearingLogoutHandler
+        handlers[1].cookiesToClear[0] = 'JSESSIONID'
+        handlers[1].cookiesToClear[1] = 'mycookie'
     }
 
     def invalidLogoutUrlIsDetected() {

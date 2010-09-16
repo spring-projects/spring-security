@@ -338,6 +338,14 @@
                     information on how to customize the flow when authentication fails. </para>
             </section>
         </section>
+        <section xml:id="ns-logout">
+            <title>Logout Handling</title>
+            <para>The <literal>logout</literal> element adds support for logging out by navigating
+                to a particular URL. The default logout URL is <literal>/j_spring_security_logout</literal>,
+                but you can set it to something else using the <literal>logout-url</literal> attribute.
+                More information on other available attributes may be found in the namespace appendix.
+            </para>
+        </section>
         <section xml:id="ns-auth-providers">
             <title>Using other Authentication Providers</title>
             <para> In practice you will need a more scalable source of user information than a few
@@ -465,8 +473,28 @@
                     the <literal>session-management</literal> element: <programlisting language="xml"><![CDATA[
   <http>
     ...
-    <session-management invalid-session-url="/sessionTimeout.htm" />
-  </http>]]></programlisting></para>
+    <session-management invalid-session-url="/invalidSession.htm" />
+    </http>]]></programlisting>Note that if you use this mechanism to detect session timeouts, it
+                    may falsely report an error if the user logs out and then logs back in without
+                    closing the browser. This is because the session cookie is not cleared when you
+                    invalidate the session and will be resubmitted even if the user has logged out.
+                    You may be able to explicitly delete the JSESSIONID cookie on logging out, for
+                    example by using the following syntax in the logout handler: <programlisting language="xml"><![CDATA[
+  <http>
+    <logout delete-cookies="JSESSIONID" />
+  </http>
+  ]]></programlisting> Unfortunately this can't be guaranteed to work with every servlet container,
+                    so you will need to test it in your environment<footnote>
+                    <para>If you are running your application behind a proxy, you may also be able
+                        to remove the session cookie by configuring the proxy server. For example,
+                        using Apache HTTPD's mod_headers, the following directive would delete the
+                        <literal>JSESSIONID</literal> cookie by expiring it in the response to a
+                        logout request (assuming the application is deployed under the path
+                        <literal>/tutorial</literal>):
+                        <programlisting> &lt;LocationMatch "/tutorial/j_spring_security_logout">
+  Header always set Set-Cookie "JSESSIONID=;Path=/tutorial;Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+ &lt;/LocationMatch></programlisting></para>
+                    </footnote>. </para>
             </section>
             <section xml:id="ns-concurrent-sessions">
                 <title>Concurrent Session Control</title>

@@ -881,6 +881,11 @@
         <xs:documentation>A reference to a LogoutSuccessHandler implementation which will be used to determine the destination to which the user is taken after logging out.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="delete-cookies" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>A comma-separated list of the names of cookies which should be deleted when the user logs out</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="request-cache"><xs:annotation>
       <xs:documentation>Allow the RequestCache used for saving requests during the login process to be set</xs:documentation>

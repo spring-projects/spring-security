@@ -497,10 +497,21 @@
                     Defaults to "/". </para>
             </section>
             <section>
+                <title>The <literal>success-handler-ref</literal> attribute</title>
+                <para>May be used to supply an instance of <interfacename>LogoutSuccessHandler</interfacename>
+                    which will be invoked to control the navigation after logging out.
+                </para>
+            </section>
+            <section>
                 <title>The <literal>invalidate-session</literal> attribute</title>
                 <para> Maps to the <literal>invalidateHttpSession</literal> of the
                     <classname>SecurityContextLogoutHandler</classname>. Defaults to "true", so the
-                    session will be invalidated on logout. </para>
+                    session will be invalidated on logout.</para>
+            </section>
+            <section>
+                <title>The <literal>delete-cookies</literal> attribute</title>
+                <para>A comma-separated list of the names of cookies which should be deleted when the user logs out.
+                </para>
             </section>
         </section>
         <section>

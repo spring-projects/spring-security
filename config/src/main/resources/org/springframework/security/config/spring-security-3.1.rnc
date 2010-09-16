@@ -355,6 +355,9 @@ logout.attlist &=
 logout.attlist &=
     ## A reference to a LogoutSuccessHandler implementation which will be used to determine the destination to which the user is taken after logging out.
     attribute success-handler-ref {xsd:token}?
+logout.attlist &=
+    ## A comma-separated list of the names of cookies which should be deleted when the user logs out
+    attribute delete-cookies {xsd:token}?
 
 request-cache =
     ## Allow the RequestCache used for saving requests during the login process to be set
