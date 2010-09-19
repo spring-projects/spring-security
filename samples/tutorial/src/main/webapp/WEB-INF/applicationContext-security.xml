@@ -30,7 +30,7 @@
           -->
         <intercept-url pattern="/**" access="permitAll" />
         <form-login />
-        <logout logout-success-url="/loggedout.jsp"/>
+        <logout logout-success-url="/loggedout.jsp" delete-cookies="JSESSIONID"/>
         <remember-me />
 <!--
     Uncomment to enable X509 client authentication support

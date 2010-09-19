@@ -1,4 +1,5 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<%@page session="false" %>
 <html>
 <body>
 <h1>Home Page</h1>
