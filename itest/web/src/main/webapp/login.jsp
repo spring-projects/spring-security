@@ -1,5 +1,3 @@
-<!-- %@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" % -->
-
 <!-- Not used unless you declare a <form-login login-page="/login.jsp"/> element -->
 
 <html>
@@ -11,13 +9,11 @@
   <h1>Custom Spring Security Login</h1>
 
 <%
-	if (request.getParameter("login_error") != null) {
+  if (request.getParameter("login_error") != null) {
 %>
-      <font color="red">
-        Your login attempt was not successful, try again.<br/><br/>
-      </font>
+Your login attempt was not successful, try again. ${SPRING_SECURITY_LAST_EXCEPTION.message}<br/><br/>
 <%
-	}
+  }
 %>
 
 <form action="j_spring_security_check" method="POST">

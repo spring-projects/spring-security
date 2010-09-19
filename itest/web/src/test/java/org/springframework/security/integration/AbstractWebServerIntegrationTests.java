@@ -108,7 +108,7 @@ public abstract class AbstractWebServerIntegrationTests {
         return getAppContext().getBean(beanName);
     }
 
-    private WebApplicationContext getAppContext() {
+    protected final WebApplicationContext getAppContext() {
         ServletContext servletCtx = ((WebAppContext)server.getHandler()).getServletContext();
         WebApplicationContext appCtx =
                 WebApplicationContextUtils.getRequiredWebApplicationContext(servletCtx);

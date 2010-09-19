@@ -12,6 +12,7 @@
         <intercept-url pattern="/**" access="ROLE_DEVELOPER,ROLE_USER" />
 
         <session-management session-authentication-strategy-ref="sas"/>
+        <logout />
 
         <custom-filter position="CONCURRENT_SESSION_FILTER" ref="concurrencyFilter" />
         <custom-filter position="FORM_LOGIN_FILTER" ref="myAuthFilter" />
