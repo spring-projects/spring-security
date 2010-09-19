@@ -19,16 +19,10 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="base64">
-    <xs:attribute name="base64" use="required">
+    <xs:attribute name="base64" use="required" type="xs:boolean">
       <xs:annotation>
         <xs:documentation>Whether a string should be base64 encoded</xs:documentation>
       </xs:annotation>
-      <xs:simpleType>
-        <xs:restriction base="xs:token">
-          <xs:enumeration value="true"/>
-          <xs:enumeration value="false"/>
-        </xs:restriction>
-      </xs:simpleType>
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="request-matcher">
@@ -130,16 +124,10 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
-    <xs:attribute name="base64">
+    <xs:attribute name="base64" type="xs:boolean">
       <xs:annotation>
         <xs:documentation>Whether a string should be base64 encoded</xs:documentation>
       </xs:annotation>
-      <xs:simpleType>
-        <xs:restriction base="xs:token">
-          <xs:enumeration value="true"/>
-          <xs:enumeration value="false"/>
-        </xs:restriction>
-      </xs:simpleType>
     </xs:attribute>
   </xs:attributeGroup>
   
@@ -157,12 +145,6 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
-  <xs:simpleType name="boolean">
-    <xs:restriction base="xs:token">
-      <xs:enumeration value="true"/>
-      <xs:enumeration value="false"/>
-    </xs:restriction>
-  </xs:simpleType>
   <xs:attributeGroup name="role-prefix">
     <xs:attribute name="role-prefix" use="required" type="xs:token">
       <xs:annotation>
@@ -171,7 +153,7 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="use-expressions">
-    <xs:attribute name="use-expressions" use="required" type="security:boolean">
+    <xs:attribute name="use-expressions" use="required" type="xs:boolean">
       <xs:annotation>
         <xs:documentation>Enables the use of expressions in the 'access' attributes in &lt;intercept-url&gt; elements rather than the traditional list of configuration attributes. Defaults to 'false'. If enabled, each attribute should contain a single boolean expression. If the expression evaluates to 'true', access will be granted.</xs:documentation>
       </xs:annotation>
@@ -480,7 +462,7 @@
         <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="use-expressions" type="security:boolean">
+    <xs:attribute name="use-expressions" type="xs:boolean">
       <xs:annotation>
         <xs:documentation>Enables the use of expressions in the 'access' attributes in &lt;intercept-url&gt; elements rather than the traditional list of configuration attributes. Defaults to 'false'. If enabled, each attribute should contain a single boolean expression. If the expression evaluates to 'true', access will be granted.</xs:documentation>
       </xs:annotation>
@@ -576,7 +558,7 @@
         <xs:documentation>Allows the advice "order" to be set for the method security interceptor.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="proxy-target-class" type="security:boolean"/>
+    <xs:attribute name="proxy-target-class" type="xs:boolean"/>
     <xs:attribute name="mode">
       <xs:annotation>
         <xs:documentation>Can be used to specify that AspectJ should be used instead of the default Spring AOP. If set, secured classes must be woven with the AnnotationSecurityAspect from the spring-security-aspects module.</xs:documentation>
@@ -706,12 +688,12 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
-    <xs:attribute name="auto-config" type="security:boolean">
+    <xs:attribute name="auto-config" type="xs:boolean">
       <xs:annotation>
         <xs:documentation>Automatically registers a login form, BASIC authentication, anonymous authentication, logout services, remember-me and servlet-api-integration. If set to "true", all of these capabilities are added (although you can still customize the configuration of each by providing the respective element). If unspecified, defaults to "false".</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="use-expressions" type="security:boolean">
+    <xs:attribute name="use-expressions" type="xs:boolean">
       <xs:annotation>
         <xs:documentation>Enables the use of expressions in the 'access' attributes in &lt;intercept-url&gt; elements rather than the traditional list of configuration attributes. Defaults to 'false'. If enabled, each attribute should contain a single boolean expression. If the expression evaluates to 'true', access will be granted.</xs:documentation>
       </xs:annotation>
@@ -754,12 +736,12 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
-    <xs:attribute name="servlet-api-provision" type="security:boolean">
+    <xs:attribute name="servlet-api-provision" type="xs:boolean">
       <xs:annotation>
         <xs:documentation>Provides versions of HttpServletRequest security methods such as isUserInRole() and getPrincipal() which are implemented by accessing the Spring SecurityContext. Defaults to "true".</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="jaas-api-provision" type="security:boolean">
+    <xs:attribute name="jaas-api-provision" type="xs:boolean">
       <xs:annotation>
         <xs:documentation>If available, runs the request as the Subject acquired from the JaasAuthenticationToken. Defaults to "false".</xs:documentation>
       </xs:annotation>
@@ -779,7 +761,7 @@
         <xs:documentation>Allows a customized AuthenticationEntryPoint to be set on the ExceptionTranslationFilter. </xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="once-per-request" type="security:boolean">
+    <xs:attribute name="once-per-request" type="xs:boolean">
       <xs:annotation>
         <xs:documentation>Corresponds to the observeOncePerRequest property of FilterSecurityInterceptor. Defaults to "true"</xs:documentation>
       </xs:annotation>
@@ -789,7 +771,7 @@
         <xs:documentation>Deprecated in favour of the access-denied-handler element.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="disable-url-rewriting" type="security:boolean">
+    <xs:attribute name="disable-url-rewriting" type="xs:boolean">
       <xs:annotation>
         <xs:documentation>Prevents the jsessionid parameter from being added to rendered URLs.</xs:documentation>
       </xs:annotation>
@@ -871,7 +853,7 @@
         <xs:documentation>Specifies the URL to display once the user has logged out. If not specified, defaults to /.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="invalidate-session" type="security:boolean">
+    <xs:attribute name="invalidate-session" type="xs:boolean">
       <xs:annotation>
         <xs:documentation>Specifies whether a logout also causes HttpSession invalidation, which is generally desirable. If unspecified, defaults to true.</xs:documentation>
       </xs:annotation>
@@ -914,7 +896,7 @@
         <xs:documentation>The URL that will be redirected to after successful authentication, if the user's previous action could not be resumed. This generally happens if the user visits a login page without having first requested a secured operation that triggers authentication. If unspecified, defaults to the root of the application.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="always-use-default-target" type="security:boolean">
+    <xs:attribute name="always-use-default-target" type="xs:boolean">
       <xs:annotation>
         <xs:documentation>Whether the user should always be redirected to the default-target-url after login.</xs:documentation>
       </xs:annotation>
@@ -967,7 +949,7 @@
   <xs:attributeGroup name="openid-attribute.attlist">
     <xs:attribute name="name" use="required" type="xs:token"/>
     <xs:attribute name="type" use="required" type="xs:token"/>
-    <xs:attribute name="required" type="security:boolean"/>
+    <xs:attribute name="required" type="xs:boolean"/>
     <xs:attribute name="count" type="xs:int"/>
   </xs:attributeGroup>
   <xs:element name="filter-chain-map"><xs:annotation>
@@ -1022,7 +1004,7 @@
       <xs:attributeGroup ref="security:fsmds.attlist"/>
     </xs:complexType></xs:element>
   <xs:attributeGroup name="fsmds.attlist">
-    <xs:attribute name="use-expressions" type="security:boolean">
+    <xs:attribute name="use-expressions" type="xs:boolean">
       <xs:annotation>
         <xs:documentation>Enables the use of expressions in the 'access' attributes in &lt;intercept-url&gt; elements rather than the traditional list of configuration attributes. Defaults to 'false'. If enabled, each attribute should contain a single boolean expression. If the expression evaluates to 'true', access will be granted.</xs:documentation>
       </xs:annotation>
@@ -1032,7 +1014,7 @@
         <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="lowercase-comparisons" type="security:boolean">
+    <xs:attribute name="lowercase-comparisons" type="xs:boolean">
       <xs:annotation>
         <xs:documentation>as for http element</xs:documentation>
       </xs:annotation>
@@ -1125,7 +1107,7 @@
         <xs:documentation>The URL a user will be redirected to if they attempt to use a session which has been "expired" because they have logged in again.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="error-if-maximum-exceeded" type="security:boolean">
+    <xs:attribute name="error-if-maximum-exceeded" type="xs:boolean">
       <xs:annotation>
         <xs:documentation>Specifies that an unauthorized error should be reported when a user attempts to login when they already have the maximum configured sessions open. The default behaviour is to expire the original session. If the session-authentication-error-url attribute is set on the session-management URL, the user will be redirected to this URL.</xs:documentation>
       </xs:annotation>
@@ -1169,7 +1151,7 @@
         <xs:documentation>Exports the internally defined RememberMeServices as a bean alias, allowing it to be used by other beans in the application context.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="use-secure-cookie" type="security:boolean">
+    <xs:attribute name="use-secure-cookie" type="xs:boolean">
       <xs:annotation>
         <xs:documentation>Determines whether the "secure" flag will be set on the remember-me cookie. If set to true, the cookie will only be submitted over HTTPS. Defaults to false.</xs:documentation>
       </xs:annotation>
@@ -1214,7 +1196,7 @@
         <xs:documentation>The granted authority that should be assigned to the anonymous request. Commonly this is used to assign the anonymous request particular roles, which can subsequently be used in authorization decisions. If unset, defaults to "ROLE_ANONYMOUS".</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="enabled" type="security:boolean">
+    <xs:attribute name="enabled" type="xs:boolean">
       <xs:annotation>
         <xs:documentation>With the default namespace setup, the anonymous "authentication" facility is automatically enabled. You can disable it using this property.</xs:documentation>
       </xs:annotation>
@@ -1346,7 +1328,7 @@
         <xs:documentation>The alias you wish to use for the AuthenticationManager bean</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="erase-credentials" type="security:boolean">
+    <xs:attribute name="erase-credentials" type="xs:boolean">
       <xs:annotation>
         <xs:documentation>If set to true, the AuthenticationManger will attempt to clear any credentials data in the returned Authentication object, once the user has been authenticated.</xs:documentation>
       </xs:annotation>
@@ -1402,12 +1384,12 @@
         <xs:documentation>One of more authorities granted to the user. Separate authorities with a comma (but no space). For example, "ROLE_USER,ROLE_ADMINISTRATOR"</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="locked" type="security:boolean">
+    <xs:attribute name="locked" type="xs:boolean">
       <xs:annotation>
         <xs:documentation>Can be set to "true" to mark an account as locked and unusable.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="disabled" type="security:boolean">
+    <xs:attribute name="disabled" type="xs:boolean">
       <xs:annotation>
         <xs:documentation>Can be set to "true" to mark an account as disabled and unusable.</xs:documentation>
       </xs:annotation>
