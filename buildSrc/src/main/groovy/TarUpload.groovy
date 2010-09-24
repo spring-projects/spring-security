@@ -64,11 +64,12 @@ class Login extends DefaultTask {
 
     @TaskAction
     login() {
-        project.ant {
-            input("Please enter the ssh username for host '$host'", addproperty: "user.$host")
-            input("Please enter the ssh password '$host'", addproperty: "pass.$host")
+        def console = System.console()
+        if (console) {
+            username = console.readLine("\nPlease enter the ssh username for host '$host': ")
+            password = new String(console.readPassword("Please enter the ssh password for '$host': "))
+        } else {
+            logger.error "Unable to access System.console()."
         }
-        username = ant.properties["user.$host"]
-        password = ant.properties["pass.$host"]
     }
 }
