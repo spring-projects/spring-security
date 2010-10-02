@@ -16,13 +16,9 @@
 package org.springframework.security.core.userdetails.memory;
 
 import junit.framework.TestCase;
-
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.core.userdetails.memory.InMemoryDaoImpl;
-import org.springframework.security.core.userdetails.memory.UserMap;
-import org.springframework.security.core.userdetails.memory.UserMapEditor;
 
-import java.util.Properties;
+import java.util.*;
 
 
 /**
@@ -30,7 +26,7 @@ import java.util.Properties;
  *
  * @author Ben Alex
  */
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation"})
 public class InMemoryDaoTests extends TestCase {
 
     //~ Methods ========================================================================================================
@@ -40,10 +36,6 @@ public class InMemoryDaoTests extends TestCase {
         editor.setAsText("rod=koala,ROLE_ONE,ROLE_TWO,enabled\nScott=wombat,ROLE_ONE,ROLE_TWO,enabled");
 
         return (UserMap) editor.getValue();
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
     }
 
     public void testLookupFails() throws Exception {
@@ -80,7 +72,7 @@ public class InMemoryDaoTests extends TestCase {
 
         try {
             dao.afterPropertiesSet();
-            fail("Shoudl have thrown IllegalArgumentException");
+            fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
         }
@@ -92,7 +84,7 @@ public class InMemoryDaoTests extends TestCase {
 
         try {
             dao.afterPropertiesSet();
-            fail("Shoudl have thrown IllegalArgumentException");
+            fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
         }

@@ -1,22 +1,19 @@
 package org.springframework.security.access.hierarchicalroles;
 
-import java.util.List;
-
 import junit.framework.TestCase;
-
-import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
-import org.springframework.security.access.hierarchicalroles.UserDetailsWrapper;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.*;
 
 /**
  * Tests for {@link UserDetailsWrapper}.
  *
  * @author Michael Mayr
  */
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation"})
 public class UserDetailsWrapperTests extends TestCase {
 
     private List<GrantedAuthority> authorities = null;
@@ -24,13 +21,6 @@ public class UserDetailsWrapperTests extends TestCase {
     private UserDetails userDetails2 = null;
     private UserDetailsWrapper userDetailsWrapper1 = null;
     private UserDetailsWrapper userDetailsWrapper2 = null;
-
-    public UserDetailsWrapperTests() {
-    }
-
-    public UserDetailsWrapperTests(String testCaseName) {
-        super(testCaseName);
-    }
 
     protected void setUp() throws Exception {
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();

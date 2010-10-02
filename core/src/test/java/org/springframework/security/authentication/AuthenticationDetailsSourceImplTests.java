@@ -3,14 +3,12 @@ package org.springframework.security.authentication;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.springframework.security.authentication.AuthenticationDetails;
-import org.springframework.security.authentication.AuthenticationDetailsSourceImpl;
-import org.springframework.security.authentication.TestingAuthenticationToken;
 
 /**
  *
  * @author Luke Taylor
  */
+@SuppressWarnings({"deprecation"})
 public class AuthenticationDetailsSourceImplTests {
 
     @Test

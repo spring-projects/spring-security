@@ -16,10 +16,7 @@
 package org.springframework.security.core.userdetails.memory;
 
 import junit.framework.TestCase;
-
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.userdetails.memory.UserMap;
-import org.springframework.security.core.userdetails.memory.UserMapEditor;
 
 
 /**
