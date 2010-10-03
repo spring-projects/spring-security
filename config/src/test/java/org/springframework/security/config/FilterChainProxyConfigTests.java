@@ -70,40 +70,40 @@ public class FilterChainProxyConfigTests {
 
     @Test
     public void normalOperation() throws Exception {
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("filterChain", FilterChainProxy.class);
+        FilterChainProxy filterChainProxy = appCtx.getBean("filterChain", FilterChainProxy.class);
         doNormalOperation(filterChainProxy);
     }
 
     @Test
     public void normalOperationWithNewConfig() throws Exception {
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("newFilterChainProxy", FilterChainProxy.class);
+        FilterChainProxy filterChainProxy = appCtx.getBean("newFilterChainProxy", FilterChainProxy.class);
         checkPathAndFilterOrder(filterChainProxy);
         doNormalOperation(filterChainProxy);
     }
 
     @Test
     public void normalOperationWithNewConfigRegex() throws Exception {
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("newFilterChainProxyRegex", FilterChainProxy.class);
+        FilterChainProxy filterChainProxy = appCtx.getBean("newFilterChainProxyRegex", FilterChainProxy.class);
         checkPathAndFilterOrder(filterChainProxy);
         doNormalOperation(filterChainProxy);
     }
 
     @Test
     public void normalOperationWithNewConfigNonNamespace() throws Exception {
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("newFilterChainProxyNonNamespace", FilterChainProxy.class);
+        FilterChainProxy filterChainProxy = appCtx.getBean("newFilterChainProxyNonNamespace", FilterChainProxy.class);
         checkPathAndFilterOrder(filterChainProxy);
         doNormalOperation(filterChainProxy);
     }
 
     @Test
     public void pathWithNoMatchHasNoFilters() throws Exception {
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("newFilterChainProxyNoDefaultPath", FilterChainProxy.class);
+        FilterChainProxy filterChainProxy = appCtx.getBean("newFilterChainProxyNoDefaultPath", FilterChainProxy.class);
         assertEquals(null, filterChainProxy.getFilters("/nomatch"));
     }
 
     @Test
     public void urlStrippingPropertyIsRespected() throws Exception {
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("newFilterChainProxyNoDefaultPath", FilterChainProxy.class);
+        FilterChainProxy filterChainProxy = appCtx.getBean("newFilterChainProxyNoDefaultPath", FilterChainProxy.class);
 
         // Should only match if we are stripping the query string
         String url = "/blah.bar?x=something";
@@ -116,7 +116,7 @@ public class FilterChainProxyConfigTests {
     // SEC-1235
     @Test
     public void mixingPatternsAndPlaceholdersDoesntCauseOrderingIssues() throws Exception {
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("sec1235FilterChainProxy", FilterChainProxy.class);
+        FilterChainProxy filterChainProxy = appCtx.getBean("sec1235FilterChainProxy", FilterChainProxy.class);
 
         String[] paths = filterChainProxy.getFilterChainMap().keySet().toArray(new String[0]);
         assertEquals("/login*", paths[0]);

@@ -3,9 +3,14 @@ target/
 .project
 .settings/
 build/
+out/
+intellij/
+*.ipr
+*.iws
 *.log
 *.log.1
 .DS_Store
 *.iml
 .gradle/
 gradle.properties
+atlassian-ide-plugin.xml
