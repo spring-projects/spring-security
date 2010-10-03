@@ -49,6 +49,7 @@ import org.springframework.security.web.util.UrlUtils;
  *
  * @author Ben Alex
  * @author colin sampaleanu
+ * @author Luke Taylor
  */
 public class FilterInvocation {
     //~ Static fields ==================================================================================================
@@ -57,8 +58,6 @@ public class FilterInvocation {
             throw new UnsupportedOperationException("Dummy filter chain");
         }
     };
-
-    static final HttpServletResponse DUMMY_RESPONSE = new DummyResponse();
 
     //~ Instance fields ================================================================================================
 
@@ -94,6 +93,7 @@ public class FilterInvocation {
         request.setContextPath(contextPath);
         request.setServletPath(servletPath);
         request.setPathInfo(pathInfo);
+        request.setQueryString(query);
         request.setMethod(method);
         this.request = request;
     }
@@ -146,7 +146,7 @@ public class FilterInvocation {
     }
 }
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "deprecation"})
 class DummyRequest implements HttpServletRequest {
     private String requestURI;
     private String contextPath = "";
@@ -398,6 +398,7 @@ class DummyRequest implements HttpServletRequest {
     }
 }
 
+@SuppressWarnings({"deprecation"})
 class DummyResponse implements HttpServletResponse {
     public void addCookie(Cookie cookie) {
         throw new UnsupportedOperationException();
