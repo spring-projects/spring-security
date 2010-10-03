@@ -1,6 +1,8 @@
 target
 .gradle
 build/
+.idea
+out/
 *.ipr
 *.iml
 *.iws
@@ -9,3 +11,4 @@ intellij/
 .classpath
 .project
 .DS_Store
+atlassian-ide-plugin.xml
