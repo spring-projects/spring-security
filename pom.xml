@@ -8,8 +8,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>core</module>            
-        <module>core-tiger</module>        
+        <module>core</module>
+        <module>core-tiger</module>
         <!-- module>adapters</module -->
         <module>portlet</module>
         <module>ntlm</module>
@@ -43,9 +43,9 @@
     <ciManagement>
         <system>bamboo</system>
         <url>https://build.springframework.org/browse/SEC</url>
-    </ciManagement>    
+    </ciManagement>
 
-    <distributionManagement>	
+    <distributionManagement>
         <repository>
             <id>spring-release</id>
             <name>Spring Release Repository</name>
@@ -177,10 +177,10 @@
         </contributor>
         <contributor>
             <name>Ruud Senden</name>
-        </contributor>                
+        </contributor>
         <contributor>
             <name>Michael Mayr</name>
-        </contributor>        
+        </contributor>
     </contributors>
 
     <dependencies>
@@ -205,7 +205,7 @@
                 <plugin>
                     <groupId>com.springsource.bundlor</groupId>
                     <artifactId>com.springsource.bundlor.maven</artifactId>
-                    <version>1.0.0.M5</version>
+                    <version>1.0.0.M6</version>
                     <executions>
                         <execution>
                             <id>bundlor</id>
@@ -218,7 +218,7 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-        <plugins>            
+        <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-help-plugin</artifactId>
@@ -435,11 +435,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>
                 <version>2.4.2</version>
-<!--                
+<!--
                 <configuration>
                     <aggregate>true</aggregate>
-                </configuration>                
--->                
+                </configuration>
+-->
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -449,7 +449,7 @@
                     <excludes>
                         <exclude>bigbank/**</exclude>
                     </excludes>
-                </configuration>                
+                </configuration>
             </plugin>
             <!--
                 <plugin>
@@ -469,14 +469,14 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>                    
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.4</version>
                 <configuration>
                     <aggregate>true</aggregate>
                     <header>Spring Security Framework</header>
                     <quiet>true</quiet>
-                    <excludePackageNames>sample,bigbank,zzz</excludePackageNames>                                        
+                    <excludePackageNames>sample,bigbank,zzz</excludePackageNames>
                     <links>
                         <link>
                             http://java.sun.com/j2se/1.5.0/docs/api
@@ -520,7 +520,7 @@
                       <!--<report>test-javadoc</report> -->
                     </reports>
                   </reportSet>
-                </reportSets>                
+                </reportSets>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -530,7 +530,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
                 <version>2.0.1</version>
-<!--                
+<!--
                 <reportSets>
                     <reportSet>
                         <reports>
@@ -542,8 +542,8 @@
                         </reports>
                     </reportSet>
                 </reportSets>
--->                
-            </plugin>           
+-->
+            </plugin>
         </plugins>
     </reporting>
 
@@ -604,7 +604,7 @@
                 <artifactId>aspectjweaver</artifactId>
                 <optional>true</optional>
                 <version>1.5.4</version>
-            </dependency>	    
+            </dependency>
             <dependency>
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjrt</artifactId>
@@ -613,15 +613,15 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-webmvc</artifactId>
-                <version>${spring.version}</version>                
-            </dependency>            
+                <version>${spring.version}</version>
+            </dependency>
             <dependency>
                 <groupId>cglib</groupId>
                 <artifactId>cglib-nodep</artifactId>
                 <scope>test</scope>
                 <optional>true</optional>
                 <version>2.1_3</version>
-            </dependency>	    
+            </dependency>
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
@@ -679,7 +679,7 @@
         <jstl.version>1.1.2</jstl.version>
 
         <docbook.source>${basedir}/src/docbkx</docbook.source>
-        <docbook.target>${basedir}/target/site/guide</docbook.target>        
+        <docbook.target>${basedir}/target/site/guide</docbook.target>
     </properties>
 
 </project>

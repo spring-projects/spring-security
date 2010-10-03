@@ -21,11 +21,17 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.security.firewall.DefaultHttpFirewall;
+import org.springframework.security.firewall.FirewalledRequest;
+import org.springframework.security.firewall.HttpFirewall;
 import org.springframework.security.intercept.web.*;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
 import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.util.*;
 
@@ -34,7 +40,7 @@ import java.util.*;
  * Delegates <code>Filter</code> requests to a list of Spring-managed beans.
  * As of version 2.0, you shouldn't need to explicitly configure a <tt>FilterChainProxy</tt> bean in your application
  * context unless you need very fine control over the filter chain contents. Most cases should be adequately covered
- * by the default <tt>&lt;security:http /&gt</tt> namespace configuration options.
+ * by the default <tt>&lt;security:http /&gt;</tt> namespace configuration options.
  *
  * <p>The <code>FilterChainProxy</code> is loaded via a standard Spring {@link DelegatingFilterProxy} declaration in
  * <code>web.xml</code>. <code>FilterChainProxy</code> will then pass {@link #init(FilterConfig)}, {@link #destroy()}
@@ -109,6 +115,7 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
     private UrlMatcher matcher = new AntUrlPathMatcher();
     private boolean stripQueryStringFromUrls = true;
     private DefaultFilterInvocationDefinitionSource fids;
+    private HttpFirewall firewall = new DefaultHttpFirewall();
 
     //~ Methods ========================================================================================================
 
@@ -154,10 +161,13 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
         }
     }
 
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+    public void doFilter(ServletRequest servletRequest, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
-        FilterInvocation fi = new FilterInvocation(request, response, chain);
+        FirewalledRequest fwRequest = firewall.getFirewalledRequest((HttpServletRequest) servletRequest);
+        HttpServletResponse fwResponse = firewall.getFirewalledResponse((HttpServletResponse) response);
+
+        FilterInvocation fi = new FilterInvocation(fwRequest, fwResponse, chain);
         List filters = getFilters(fi.getRequestUrl());
 
         if (filters == null || filters.size() == 0) {
@@ -166,7 +176,7 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
                         filters == null ? " has no matching filters" : " has an empty filter list");
             }
 
-            chain.doFilter(request, response);
+            chain.doFilter(fwRequest, response);
 
             return;
         }
@@ -374,6 +384,8 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
                     logger.debug(fi.getRequestUrl()
                         + " reached end of additional filter chain; proceeding with original chain");
                 }
+                // Deactivate path stripping as we exit the security filter chain
+                resetWrapper(request);
 
                 fi.getChain().doFilter(request, response);
             } else {
@@ -388,6 +400,16 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
                 }
 
                nextFilter.doFilter(request, response, this);
+            }
+        }
+
+        private void resetWrapper(ServletRequest request) {
+            while (request instanceof ServletRequestWrapper) {
+                if (request instanceof FirewalledRequest) {
+                    ((FirewalledRequest)request).reset();
+                    break;
+                }
+                request = ((ServletRequestWrapper)request).getRequest();
             }
         }
     }

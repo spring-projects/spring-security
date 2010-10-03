@@ -1,237 +1,103 @@
-/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.springframework.security.util;
 
-import org.springframework.security.ConfigAttribute;
-import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.MockFilterConfig;
-import org.springframework.security.context.HttpSessionContextIntegrationFilter;
-import org.springframework.security.intercept.web.MockFilterInvocationDefinitionSource;
-import org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource;
-import org.springframework.security.intercept.web.RequestKey;
-import org.springframework.security.ui.webapp.AuthenticationProcessingFilter;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
-import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.context.support.StaticApplicationContext;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-
-import org.junit.After;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.firewall.FirewalledRequest;
 
-import java.util.LinkedHashMap;
-import java.util.List;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.*;
 
 /**
- * Tests {@link FilterChainProxy}.
- *
- * @author Carlos Sanchez
- * @author Ben Alex
- * @version $Id$
+ * @author Luke Taylor
  */
+@SuppressWarnings({"unchecked"})
 public class FilterChainProxyTests {
-    private ClassPathXmlApplicationContext appCtx;
-
-    //~ Methods ========================================================================================================
+    private FilterChainProxy fcp;
+    private MockHttpServletRequest request;
+    private MockHttpServletResponse response;
+    private FilterChain chain;
+    private Filter filter;
 
     @Before
-    public void loadContext() {
-        appCtx = new ClassPathXmlApplicationContext("org/springframework/security/util/filtertest-valid.xml");
-    }
-
-    @After
-    public void closeContext() {
-        if (appCtx != null) {
-            appCtx.close();
-        }
-    }
-
-    @Test(expected=IllegalArgumentException.class)
-    public void testDetectsFilterInvocationDefinitionSourceThatDoesNotReturnAllConfigAttributes() throws Exception {
-        FilterChainProxy filterChainProxy = new FilterChainProxy();
-        filterChainProxy.setApplicationContext(new StaticApplicationContext());
-
-        filterChainProxy.setFilterInvocationDefinitionSource(new MockFilterInvocationDefinitionSource(false, false));
-        filterChainProxy.afterPropertiesSet();
-    }
-
-    @Test(expected=IllegalArgumentException.class)
-    public void testDetectsIfConfigAttributeDoesNotReturnValueForGetAttributeMethod() throws Exception {
-        FilterChainProxy filterChainProxy = new FilterChainProxy();
-        filterChainProxy.setApplicationContext(new StaticApplicationContext());
-
-        ConfigAttributeDefinition cad = new ConfigAttributeDefinition(new MockConfigAttribute());
-
+    public void setup() throws Exception {
+        fcp = new FilterChainProxy();
+        filter = mock(Filter.class);
+        doAnswer(new Answer() {
+                    public Object answer(InvocationOnMock inv) throws Throwable {
+                        Object[] args = inv.getArguments();
+                        FilterChain fc = (FilterChain) args[2];
+                        fc.doFilter((HttpServletRequest) args[0], (HttpServletResponse) args[1]);
+                        return null;
+                    }
+                }).when(filter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
         LinkedHashMap map = new LinkedHashMap();
-        map.put(new RequestKey("/**"), cad);
-        DefaultFilterInvocationDefinitionSource fids =
-                new DefaultFilterInvocationDefinitionSource(new AntUrlPathMatcher(), map);
-
-        filterChainProxy.setFilterInvocationDefinitionSource(fids);
-
-        filterChainProxy.afterPropertiesSet();
-        filterChainProxy.init(new MockFilterConfig());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testDetectsMissingFilterInvocationDefinitionSource() throws Exception {
-        FilterChainProxy filterChainProxy = new FilterChainProxy();
-        filterChainProxy.setApplicationContext(new StaticApplicationContext());
-
-        filterChainProxy.afterPropertiesSet();
+        map.put("/match", Arrays.asList(filter));
+        fcp.setFilterChainMap(map);
+        request = new MockHttpServletRequest();
+        request.setServletPath("/match");
+        response = new MockHttpServletResponse();
+        chain = mock(FilterChain.class);
     }
 
     @Test
-    public void testDoNotFilter() throws Exception {
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("filterChain", FilterChainProxy.class);
-        MockFilter filter = (MockFilter) appCtx.getBean("mockFilter", MockFilter.class);
-
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setServletPath("/do/not/filter/somefile.html");
-
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        MockFilterChain chain = new MockFilterChain(true);
-
-        filterChainProxy.doFilter(request, response, chain);
-        assertFalse(filter.isWasInitialized());
-        assertFalse(filter.isWasDoFiltered());
-        assertFalse(filter.isWasDestroyed());
+    public void toStringCallSucceeds() throws Exception {
+        fcp.afterPropertiesSet();
+        fcp.toString();
     }
 
     @Test
-    public void misplacedUniversalPathShouldBeDetected() throws Exception {
-        try {
-            appCtx.getBean("newFilterChainProxyWrongPathOrder", FilterChainProxy.class);
-            fail("Expected BeanCreationException");
-        } catch (BeanCreationException expected) {
-        }
+    public void securityFilterChainIsNotInvokedIfMatchFails() throws Exception {
+        request.setServletPath("/nomatch");
+        fcp.doFilter(request, response, chain);
+        assertEquals(1, fcp.getFilterChainMap().size());
+
+        verifyZeroInteractions(filter);
+        // The actual filter chain should be invoked though
+        verify(chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
     }
 
     @Test
-    public void normalOperation() throws Exception {
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("filterChain", FilterChainProxy.class);
-        doNormalOperation(filterChainProxy);
+    public void originalChainIsInvokedAfterSecurityChainIfMatchSucceeds() throws Exception {
+        fcp.doFilter(request, response, chain);
+
+        verify(filter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
+        verify(chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
     }
 
     @Test
-    public void proxyPathWithoutLowerCaseConversionShouldntMatchDifferentCasePath() throws Exception {
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("filterChainNonLowerCase", FilterChainProxy.class);
-        assertNull(filterChainProxy.getFilters("/some/other/path/blah"));
+    public void originalFilterChainIsInvokedIfMatchingSecurityChainIsEmpty() throws Exception {
+        LinkedHashMap map = new LinkedHashMap();
+        map.put("/match", Collections.emptyList());
+        fcp.setFilterChainMap(map);
+
+        fcp.doFilter(request, response, chain);
+
+        verify(chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
     }
 
     @Test
-    public void normalOperationWithNewConfig() throws Exception {
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("newFilterChainProxy", FilterChainProxy.class);
-        checkPathAndFilterOrder(filterChainProxy);
-        doNormalOperation(filterChainProxy);
+    public void requestIsWrappedForFilteringWhenMatchIsFound() throws Exception {
+        fcp.doFilter(request, response, chain);
+        verify(filter).doFilter(any(FirewalledRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
+        verify(chain).doFilter(any(FirewalledRequest.class), any(HttpServletResponse.class));
     }
 
     @Test
-    public void normalOperationWithNewConfigRegex() throws Exception {
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("newFilterChainProxyRegex", FilterChainProxy.class);
-        checkPathAndFilterOrder(filterChainProxy);
-        doNormalOperation(filterChainProxy);
+    public void requestIsWrappedForFilteringWhenMatchIsNotFound() throws Exception {
+        request.setServletPath("/nomatch");
+        fcp.doFilter(request, response, chain);
+        verifyZeroInteractions(filter);
+        verify(chain).doFilter(any(FirewalledRequest.class), any(HttpServletResponse.class));
     }
 
-    @Test
-    public void normalOperationWithNewConfigNonNamespace() throws Exception {
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("newFilterChainProxyNonNamespace", FilterChainProxy.class);
-        checkPathAndFilterOrder(filterChainProxy);
-        doNormalOperation(filterChainProxy);
-    }
-
-    @Test
-    public void pathWithNoMatchHasNoFilters() throws Exception {
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("newFilterChainProxyNoDefaultPath", FilterChainProxy.class);
-        assertEquals(null, filterChainProxy.getFilters("/nomatch"));
-    }
-
-    @Test
-    public void urlStrippingPropertyIsRespected() throws Exception {
-        FilterChainProxy filterChainProxy = (FilterChainProxy) appCtx.getBean("newFilterChainProxyNoDefaultPath", FilterChainProxy.class);
-
-        // Should only match if we are stripping the query string
-        String url = "/blah.bar?x=something";
-        assertNotNull(filterChainProxy.getFilters(url));
-        assertEquals(2, filterChainProxy.getFilters(url).size());
-        filterChainProxy.setStripQueryStringFromUrls(false);
-        assertNull(filterChainProxy.getFilters(url));
-    }
-
-    private void checkPathAndFilterOrder(FilterChainProxy filterChainProxy) throws Exception {
-        List filters = filterChainProxy.getFilters("/foo/blah");
-        assertEquals(1, filters.size());
-        assertTrue(filters.get(0) instanceof MockFilter);
-
-        filters = filterChainProxy.getFilters("/some/other/path/blah");
-        assertNotNull(filters);
-        assertEquals(3, filters.size());
-        assertTrue(filters.get(0) instanceof HttpSessionContextIntegrationFilter);
-        assertTrue(filters.get(1) instanceof MockFilter);
-        assertTrue(filters.get(2) instanceof MockFilter);
-
-        filters = filterChainProxy.getFilters("/do/not/filter");
-        assertEquals(0, filters.size());
-
-        filters = filterChainProxy.getFilters("/another/nonspecificmatch");
-        assertEquals(3, filters.size());
-        assertTrue(filters.get(0) instanceof HttpSessionContextIntegrationFilter);
-        assertTrue(filters.get(1) instanceof AuthenticationProcessingFilter);
-        assertTrue(filters.get(2) instanceof MockFilter);
-    }
-
-    private void doNormalOperation(FilterChainProxy filterChainProxy) throws Exception {
-        MockFilter filter = (MockFilter) appCtx.getBean("mockFilter", MockFilter.class);
-        assertFalse(filter.isWasInitialized());
-        assertFalse(filter.isWasDoFiltered());
-        assertFalse(filter.isWasDestroyed());
-
-        filterChainProxy.init(new MockFilterConfig());
-        assertTrue(filter.isWasInitialized());
-        assertFalse(filter.isWasDoFiltered());
-        assertFalse(filter.isWasDestroyed());
-
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setServletPath("/foo/secure/super/somefile.html");
-
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        MockFilterChain chain = new MockFilterChain(true);
-
-        filterChainProxy.doFilter(request, response, chain);
-        assertTrue(filter.isWasInitialized());
-        assertTrue(filter.isWasDoFiltered());
-        assertFalse(filter.isWasDestroyed());
-
-        request.setServletPath("/a/path/which/doesnt/match/any/filter.html");
-        filterChainProxy.doFilter(request, response, chain);
-
-        filterChainProxy.destroy();
-        assertTrue(filter.isWasInitialized());
-        assertTrue(filter.isWasDoFiltered());
-        assertTrue(filter.isWasDestroyed());
-    }
-
-    //~ Inner Classes ==================================================================================================
-
-    private class MockConfigAttribute implements ConfigAttribute {
-        public String getAttribute() {
-            return null;
-        }
-    }
 }

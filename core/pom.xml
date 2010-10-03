@@ -47,27 +47,27 @@
             <artifactId>spring-mock</artifactId>
             <optional>true</optional>
         </dependency>
-	    <dependency>
-	        <groupId>org.aspectj</groupId>
-		<artifactId>aspectjrt</artifactId>
-		<optional>true</optional>
-	    </dependency>
-	    <dependency>
-	        <groupId>org.aspectj</groupId>
-		<artifactId>aspectjweaver</artifactId>
-		<optional>true</optional>
-	    </dependency>	    
+        <dependency>
+            <groupId>org.aspectj</groupId>
+        <artifactId>aspectjrt</artifactId>
+        <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+        <artifactId>aspectjweaver</artifactId>
+        <optional>true</optional>
+        </dependency>
         <dependency>
             <groupId>org.springframework.ldap</groupId>
             <artifactId>spring-ldap</artifactId>
             <optional>true</optional>
         </dependency>
-	    <dependency>
-	        <groupId>cglib</groupId>
-		    <artifactId>cglib-nodep</artifactId>
-		    <scope>test</scope>
-		    <optional>true</optional>
-	    </dependency>	    
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-nodep</artifactId>
+            <scope>test</scope>
+            <optional>true</optional>
+        </dependency>
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
@@ -95,7 +95,7 @@
             <artifactId>jaxen</artifactId>
             <version>1.1.1</version>
             <optional>true</optional>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
@@ -136,12 +136,18 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.8.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <optional>true</optional>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
