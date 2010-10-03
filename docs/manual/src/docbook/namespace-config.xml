@@ -129,7 +129,11 @@
           <literal>&lt;http></literal> element is the parent for all web-related namespace
         functionality. The <literal>&lt;intercept-url></literal> element defines a
           <literal>pattern</literal> which is matched against the URLs of incoming requests using an
-        ant path style syntax. The <literal>access</literal> attribute defines the access
+        ant path style syntax<footnote>
+          <para>See the section on <link xlink:href="#request-matching">Request
+              Matching</link> in the Web Application Infrastructure chapter for more details
+              on how matches are actually performed.</para>
+          </footnote>. The <literal>access</literal> attribute defines the access
         requirements for requests matching the given pattern. With the default configuration, this
         is typically a comma-separated list of roles, one of which a user must have to be allowed to
         make the request. The prefix <quote>ROLE_</quote> is a marker which indicates that a simple
