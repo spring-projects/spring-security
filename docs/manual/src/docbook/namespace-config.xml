@@ -142,17 +142,20 @@
                 <literal>&lt;http></literal> element is the parent for all web-related namespace
                 functionality. The <literal>&lt;intercept-url></literal> element defines a
                 <literal>pattern</literal> which is matched against the URLs of incoming requests
-                using an ant path style syntax. You can also use regular-expression matching as an
-                alternative (see the namespace appendix for more details). The
-                <literal>access</literal> attribute defines the access requirements for requests
-                matching the given pattern. With the default configuration, this is typically a
-                comma-separated list of roles, one of which a user must have to be allowed to make
-                the request. The prefix <quote>ROLE_</quote> is a marker which indicates that a
-                simple comparison with the user's authorities should be made. In other words, a
-                normal role-based check should be used. Access-control in Spring Security is not
-                limited to the use of simple roles (hence the use of the prefix to differentiate
-                between different types of security attributes). We'll see later how the
-                interpretation can vary<footnote>
+                using an ant path style syntax<footnote>
+                <para>See the section on <link xlink:href="#request-matching">Request
+                    Matching</link> in the Web Application Infrastructure chapter for more details
+                    on how matches are actually performed.</para>
+                </footnote>. You can also use regular-expression matching as an alternative (see the
+                namespace appendix for more details). The <literal>access</literal> attribute
+                defines the access requirements for requests matching the given pattern. With the
+                default configuration, this is typically a comma-separated list of roles, one of
+                which a user must have to be allowed to make the request. The prefix
+                <quote>ROLE_</quote> is a marker which indicates that a simple comparison with the
+                user's authorities should be made. In other words, a normal role-based check should
+                be used. Access-control in Spring Security is not limited to the use of simple roles
+                (hence the use of the prefix to differentiate between different types of security
+                attributes). We'll see later how the interpretation can vary<footnote>
                 <para>The interpretation of the comma-separated values in the
                     <literal>access</literal> attribute depends on the implementation of the <link
                     xlink:href="#ns-access-manager">AccessDecisionManager</link> which is used. In

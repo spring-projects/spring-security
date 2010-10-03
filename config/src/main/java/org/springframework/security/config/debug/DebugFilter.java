@@ -41,6 +41,8 @@ class DebugFilter extends OncePerRequestFilter {
         List<Filter> filters = getFilters(request);
         logger.log("Request received for '" + UrlUtils.buildRequestUrl(request) + "':\n\n" +
                 request + "\n\n" +
+                "servletPath:" + request.getServletPath() + "\n" +
+                "pathInfo:" + request.getPathInfo() + "\n\n" +
                 formatFilters(filters));
 
         fcp.doFilter(new DebugRequestWrapper(request), response, filterChain);
