@@ -39,8 +39,9 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 
     public BeanDefinition parse(Element element, ParserContext pc) {
         if (!namespaceMatchesVersion(element)) {
-            pc.getReaderContext().fatal("You cannot use a spring-security-2.0.xsd schema with Spring Security 3.0." +
-                    " Please update your schema declarations to the 3.0 schema.", element);
+            pc.getReaderContext().fatal("You must use a 3.0 schema with Spring Security 3.0." +
+                    "(2.0 or 3.1 versions are not valid)" +
+                    " Please update your schema declarations to the 3.0.3 schema (spring-security-3.0.3.xsd).", element);
         }
         String name = pc.getDelegate().getLocalName(element);
         BeanDefinitionParser parser = parsers.get(name);

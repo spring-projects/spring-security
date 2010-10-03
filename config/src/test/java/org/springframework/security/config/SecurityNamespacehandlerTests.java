@@ -23,7 +23,7 @@ public class SecurityNamespacehandlerTests {
             );
             fail("Expected BeanDefinitionParsingException");
         } catch (BeanDefinitionParsingException expected) {
-            assertTrue(expected.getMessage().contains("You cannot use a spring-security-2.0.xsd schema"));
+            assertTrue(expected.getMessage().contains("You must use a 3.0 schema with Spring Security 3.0."));
         }
     }
 }
