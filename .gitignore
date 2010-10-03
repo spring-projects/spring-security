@@ -4,6 +4,7 @@ target/
 .project
 .DS_Store
 .settings/
+.idea/
 out/
 intellij/
 build/

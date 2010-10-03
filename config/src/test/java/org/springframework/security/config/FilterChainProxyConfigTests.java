@@ -116,18 +116,18 @@ public class FilterChainProxyConfigTests {
     }
 
     private void checkPathAndFilterOrder(FilterChainProxy filterChainProxy) throws Exception {
-        List<Filter> filters = filterChainProxy.getFilters("/foo/blah");
+        List<Filter> filters = filterChainProxy.getFilters("/foo/blah;x=1");
         assertEquals(1, filters.size());
         assertTrue(filters.get(0) instanceof SecurityContextHolderAwareRequestFilter);
 
-        filters = filterChainProxy.getFilters("/some/other/path/blah");
+        filters = filterChainProxy.getFilters("/some;x=2,y=3/other/path;z=4/blah");
         assertNotNull(filters);
         assertEquals(3, filters.size());
         assertTrue(filters.get(0) instanceof SecurityContextPersistenceFilter);
         assertTrue(filters.get(1) instanceof SecurityContextHolderAwareRequestFilter);
         assertTrue(filters.get(2) instanceof SecurityContextHolderAwareRequestFilter);
 
-        filters = filterChainProxy.getFilters("/do/not/filter");
+        filters = filterChainProxy.getFilters("/do/not/filter;x=7");
         assertEquals(0, filters.size());
 
         filters = filterChainProxy.getFilters("/another/nonspecificmatch");
