@@ -35,7 +35,7 @@ final class InheritableThreadLocalSecurityContextHolderStrategy implements Secur
     //~ Methods ========================================================================================================
 
     public void clearContext() {
-        contextHolder.set(null);
+        contextHolder.remove();
     }
 
     public SecurityContext getContext() {

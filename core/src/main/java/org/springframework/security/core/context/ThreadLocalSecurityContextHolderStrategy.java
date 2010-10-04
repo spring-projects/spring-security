@@ -34,7 +34,7 @@ final class ThreadLocalSecurityContextHolderStrategy implements SecurityContextH
     //~ Methods ========================================================================================================
 
     public void clearContext() {
-        contextHolder.set(null);
+        contextHolder.remove();
     }
 
     public SecurityContext getContext() {
