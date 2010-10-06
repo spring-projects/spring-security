@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.authentication.jaas;
+package org.springframework.security.web.jaasapi;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -50,10 +50,11 @@ import org.springframework.security.authentication.jaas.TestLoginModule;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter;
 
 /**
  * Tests the JaasApiIntegrationFilter.
- * 
+ *
  * @author Rob Winch
  */
 public class JaasApiIntegrationFilterTest {

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.authentication.jaas;
+package org.springframework.security.web.jaasapi;
 
 import java.io.IOException;
 import java.security.PrivilegedActionException;
@@ -44,7 +44,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * simultaneously. This is useful when integrating with code that requires a
  * JAAS <code>Subject</code> to be populated.
  * </p>
- * 
+ *
  * @author Rob Winch
  * @see #doFilter(ServletRequest, ServletResponse, FilterChain)
  * @see #obtainSubject(ServletRequest)
@@ -61,7 +61,7 @@ public class JaasApiIntegrationFilter extends GenericFilterBean {
      * Attempts to obtain and run as a JAAS <code>Subject</code> using
      * {@link #obtainSubject(ServletRequest)}.
      * </p>
-     * 
+     *
      * <p>
      * If the <code>Subject</code> is <code>null</code> and
      * <tt>createEmptySubject</tt> is <code>true</code>, an empty, writeable
@@ -120,7 +120,7 @@ public class JaasApiIntegrationFilter extends GenericFilterBean {
      * the <code>Subject</code> is returned from it. Otherwise,
      * <code>null</code> is returned.
      * </p>
-     * 
+     *
      * @param request
      *            the current <code>ServletRequest</code>
      * @return the Subject to run as or <code>null</code> if no
@@ -153,7 +153,7 @@ public class JaasApiIntegrationFilter extends GenericFilterBean {
      * and {@link #obtainSubject(ServletRequest)} returns <code>null</code>, an
      * empty, writeable <code>Subject</code> is created instead. Otherwise no
      * <code>Subject</code> is used. The default is <code>false</code>.
-     * 
+     *
      * @param createEmptySubject
      *            the new value
      */
