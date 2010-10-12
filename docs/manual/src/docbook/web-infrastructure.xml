@@ -192,7 +192,7 @@
                 </orderedlist></para>
         </section>
         <section xml:id="request-matching">
-            <title>Request Matching</title>
+            <title>Request Matching and <interfacename>HttpFirewall</interfacename></title>
             <para>Spring Security has several areas where patterns you have defined are tested
                 against incoming requests in order to decide how the request should be handled. This
                 occurs when the <classname>FilterChainProxy</classname> decides which filter chain a
@@ -206,30 +206,51 @@
                 <literal>contextPath</literal>, <literal>servletPath</literal>,
                 <literal>pathInfo</literal> and <literal>queryString</literal>. Spring Security is
                 only interested in securing paths within the application, so the
-                <literal>contextPath</literal> is ignored. Each path segment of a URL may contain
-                parameters, as defined in <link xlink:href="http://www.ietf.org/rfc/rfc2396.txt">RFC
-                2396</link><footnote>
+                <literal>contextPath</literal> is ignored. Unfortunately, the servlet spec does not
+                define exactly what the values of <literal>servletPath</literal> and
+                <literal>pathInfo</literal> will contain for a particular request URI. For example,
+                each path segment of a URL may contain parameters, as defined in <link
+                xlink:href="http://www.ietf.org/rfc/rfc2396.txt">RFC 2396</link><footnote>
                 <para>You have probably seen this when a browser doesn't support cookies and the
                     <literal>jsessionid</literal> parameter is appended to the URL after a
                     semi-colon. However the RFC allows the presence of these parameters in any path
                     segment of the URL</para>
                 </footnote>. The Specification does not clearly state whether these should be
-                included in the <literal>servletPath</literal> and <literal>pathInfo</literal> value
-                and the behaviour varies between different servlet containers. There is a danger
-                that when an application is deployed in a container which does not strip path
+                included in the <literal>servletPath</literal> and <literal>pathInfo</literal>
+                values and the behaviour varies between different servlet containers. There is a
+                danger that when an application is deployed in a container which does not strip path
                 parameters from these values, an attacker could add them to the requested URL in
-                order to cause a pattern match to succeed or fail unexpectedly. Spring Security's
-                <classname>FilterChainProxy</classname> therefore wraps incoming requests to
-                consistently return <literal>servletPath</literal> and <literal>pathInfo</literal>
-                values which do not contain path parameters. For example, an original request path
-                <literal>/secure;hack=1/somefile.html;hack=2</literal> will be returned as
-                <literal>/secure/somefile.html</literal>. It is therefore essential that a
-                <classname>FilterChainProxy</classname> is used to manage the security filter
-                chain.</para>
+                order to cause a pattern match to succeed or fail unexpectedly.<footnote>
+                <para>The original values will be returned once the request leaves the
+                    <classname>FilterChainProxy</classname>, so will still be available to the
+                    application.</para>
+                </footnote>. Other variations in the incoming URL are also possible. For example, it
+                could contain path-traversal sequences (like <literal>/../</literal>) or multiple
+                forward slashes (<literal>//</literal>) which could also cause pattern-matches to
+                fail. Some containers normalize these out before performing the servlet mapping, but
+                others don't. To protect against issues like these,
+                <classname>FilterChainProxy</classname> uses an
+                <interfacename>HttpFirewall</interfacename> strategy to check and wrap the request.
+                Un-normalized requests are automatically rejected by default, and path parameters
+                and duplicate slashes are removed for matching purposes.<footnote>
+                <para>So, for example, an original request path
+                    <literal>/secure;hack=1/somefile.html;hack=2</literal> will be returned as
+                    <literal>/secure/somefile.html</literal>.</para>
+                </footnote>. It is therefore essential that a
+                <classname>FilterChainProxy</classname> is used to manage the security filter chain.
+                Note that the <literal>servletPath</literal> and <literal>pathInfo</literal> values
+                are decoded by the container, so your application should not have any valid paths
+                which contain semi-colons, as these parts will be removed for matching purposes. </para>
             <para>As mentioned above, the default strategy is to use Ant-style paths for matching
-                and this is likely to be the best choice for most users. Matching is performed
-                a pattern against the concatenated <literal>servletPath</literal> and
-                <literal>pathInfo</literal>, ignoring the <literal>queryString</literal>, and is case insensitive by default.</para>
+                and this is likely to be the best choice for most users. The strategy is implemented
+                in the class <classname>AntPathRequestMatcher</classname> which uses Spring's
+                <classname>AntPathMatcher</classname> to perform a case-insensitive match of the
+                pattern against the concatenated <literal>servletPath</literal> and
+                <literal>pathInfo</literal>, ignoring the <literal>queryString</literal>.</para>
+            <para>If for some reason, you need a more powerful matching strategy, you can use
+                regular expressions. The strategy implementation is then
+                <classname>RegexRequestMatcher</classname>. See the Javadoc for this class for more
+                information.</para>
             <para>In practice we recommend that you use method security at your service layer, to
                 control access to your application, and do not rely entirely on the use of security
                 constraints defined at the web-application level. URLs change and it is difficult to
