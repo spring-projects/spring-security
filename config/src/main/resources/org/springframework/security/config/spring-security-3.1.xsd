@@ -589,6 +589,11 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
+  <xs:element name="http-firewall"><xs:annotation>
+      <xs:documentation>Allows a custom instance of HttpFirewall to be injected into the FilterChainProxy created by the namespace.</xs:documentation>
+    </xs:annotation><xs:complexType>
+      <xs:attributeGroup ref="security:ref"/>
+    </xs:complexType></xs:element>
   <xs:element name="http"><xs:annotation>
       <xs:documentation>Container element for HTTP security configuration. Multiple elements can now be defined, each with a specific pattern to which the enclosed security configuration applies. A pattern can also be configured to bypass Spring Security's filters completely by setting the "secured" attribute to "false".</xs:documentation>
     </xs:annotation><xs:complexType>

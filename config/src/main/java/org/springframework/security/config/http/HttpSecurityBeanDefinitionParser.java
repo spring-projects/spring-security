@@ -247,10 +247,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     @SuppressWarnings("unchecked")
-    private void registerFilterChainProxy(ParserContext pc, Map<BeanDefinition, List<BeanMetadataElement>> filterChainMap, Object source) {
+    static void registerFilterChainProxy(ParserContext pc, Map<BeanDefinition, List<BeanMetadataElement>> filterChainMap, Object source) {
         if (pc.getRegistry().containsBeanDefinition(BeanIds.FILTER_CHAIN_PROXY)) {
             // Already registered. Obtain the filter chain map and add the new entries to it
-            // pc.getReaderContext().error("Duplicate <http> element detected", source);
 
             BeanDefinition fcp = pc.getRegistry().getBeanDefinition(BeanIds.FILTER_CHAIN_PROXY);
             Map existingFilterChainMap = (Map) fcp.getPropertyValues().getPropertyValue("filterChainMap").getValue();

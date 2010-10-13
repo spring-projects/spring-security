@@ -257,6 +257,9 @@ protect-pointcut.attlist &=
     ## Access configuration attributes list that applies to all methods matching the pointcut, e.g. "ROLE_A,ROLE_B"
     attribute access {xsd:token}
 
+http-firewall =
+    ## Allows a custom instance of HttpFirewall to be injected into the FilterChainProxy created by the namespace.
+    element http-firewall {ref}
 
 http =
     ## Container element for HTTP security configuration. Multiple elements can now be defined, each with a specific pattern to which the enclosed security configuration applies. A pattern can also be configured to bypass Spring Security's filters completely by setting the "secured" attribute to "false".

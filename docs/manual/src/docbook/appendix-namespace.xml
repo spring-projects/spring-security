@@ -524,11 +524,18 @@
                 chapter.</para>
         </section>
         <section xml:id="nsa-request-cache">
-            <title>The <literal>request-cache</literal> Element</title>
+            <title>The <literal>&lt;request-cache></literal> Element</title>
             <para>Sets the <interfacename>RequestCache</interfacename> instance which will be used
                 by the <classname>ExceptionTranslationFilter</classname> to store request
                 information before invoking an
                 <interfacename>AuthenticationEntryPoint</interfacename>. </para>
+        </section>
+        <section>
+            <title>The <literal>&lt;http-firewall></literal> Element</title>
+            <para>This is a top-level element which can be used to inject a custom implementation of
+                <interfacename>HttpFirewall</interfacename> into the
+                <classname>FilterChainProxy</classname> created by the namespace. The default
+                implementation should be suitable for most applications.</para>
         </section>
     </section>
     <section xml:id="nsa-authentication">

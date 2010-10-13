@@ -44,6 +44,7 @@ import org.springframework.security.web.savedrequest.RequestCacheAwareFilter
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
 import org.springframework.security.web.session.SessionManagementFilter
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler
+import org.springframework.security.web.firewall.DefaultHttpFirewall
 
 class MiscHttpConfigTests extends AbstractHttpConfigTests {
     def 'Minimal configuration parses'() {
@@ -582,13 +583,24 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         getFilter(BasicAuthenticationFilter).authenticationDetailsSource == adsr
         getFilter(X509AuthenticationFilter).authenticationDetailsSource == adsr
     }
-    
+
     def includeJaasApiIntegrationFilter() {
         xml.http(['auto-config':'true','jaas-api-provision':'true'])
         createAppContext()
         expect:
         getFilter(JaasApiIntegrationFilter.class) != null
-        
+    }
+
+    def httpFirewallInjectionIsSupported() {
+        xml.'http-firewall'(ref: 'fw')
+        xml.http() {
+           'form-login'()
+        }
+        bean('fw', DefaultHttpFirewall)
+        createAppContext()
+        FilterChainProxy fcp = appContext.getBean(BeanIds.FILTER_CHAIN_PROXY)
+        expect:
+        fcp.firewall == appContext.getBean('fw')
     }
 }
 
