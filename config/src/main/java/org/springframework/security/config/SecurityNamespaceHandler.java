@@ -15,6 +15,7 @@ import org.springframework.security.config.authentication.JdbcUserServiceBeanDef
 import org.springframework.security.config.authentication.UserServiceBeanDefinitionParser;
 import org.springframework.security.config.http.FilterChainMapBeanDefinitionDecorator;
 import org.springframework.security.config.http.FilterInvocationSecurityMetadataSourceParser;
+import org.springframework.security.config.http.HttpFirewallBeanDefinitionParser;
 import org.springframework.security.config.http.HttpSecurityBeanDefinitionParser;
 import org.springframework.security.config.ldap.LdapProviderBeanDefinitionParser;
 import org.springframework.security.config.ldap.LdapServerBeanDefinitionParser;
@@ -119,6 +120,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
         // Only load the web-namespace parsers if the web classes are available
         if (ClassUtils.isPresent("org.springframework.security.web.FilterChainProxy", getClass().getClassLoader())) {
             parsers.put(Elements.HTTP, new HttpSecurityBeanDefinitionParser());
+            parsers.put(Elements.HTTP_FIREWALL, new HttpFirewallBeanDefinitionParser());
             parsers.put(Elements.FILTER_INVOCATION_DEFINITION_SOURCE, new FilterInvocationSecurityMetadataSourceParser());
             parsers.put(Elements.FILTER_SECURITY_METADATA_SOURCE, new FilterInvocationSecurityMetadataSourceParser());
             filterChainMapBDD = new FilterChainMapBeanDefinitionDecorator();

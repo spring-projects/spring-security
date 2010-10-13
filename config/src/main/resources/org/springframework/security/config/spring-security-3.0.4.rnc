@@ -187,7 +187,7 @@ protect.attlist &=
 
 global-method-security =
     ## Provides method security for all beans registered in the Spring application context. Specifically, beans will be scanned for matches with the ordered list of "protect-pointcut" sub-elements, Spring Security annotations and/or. Where there is a match, the beans will automatically be proxied and security authorization applied to the methods accordingly. If you use and enable all four sources of method security metadata (ie "protect-pointcut" declarations, expression annotations, @Secured and also JSR250 security annotations), the metadata sources will be queried in that order. In practical terms, this enables you to use XML to override method security metadata expressed in annotations. If using annotations, the order of precedence is EL-based (@PreAuthorize etc.), @Secured and finally JSR-250.
-	element global-method-security {global-method-security.attlist, (pre-post-annotation-handling | expression-handler)?, protect-pointcut*, after-invocation-provider*}
+    element global-method-security {global-method-security.attlist, (pre-post-annotation-handling | expression-handler)?, protect-pointcut*, after-invocation-provider*}
 global-method-security.attlist &=
     ## Specifies whether the use of Spring Security's pre and post invocation annotations (@PreFilter, @PreAuthorize, @PostFilter, @PostAuthorize) should be enabled for this application context. Defaults to "disabled".
     attribute pre-post-annotations {"disabled" | "enabled" }?
@@ -245,6 +245,9 @@ protect-pointcut.attlist &=
     ## Access configuration attributes list that applies to all methods matching the pointcut, e.g. "ROLE_A,ROLE_B"
     attribute access {xsd:token}
 
+http-firewall =
+    ## Allows a custom instance of HttpFirewall to be injected into the FilterChainProxy created by the namespace.
+    element http-firewall {ref}
 
 http =
     ## Container element for HTTP security configuration
@@ -319,16 +322,16 @@ intercept-url.attlist &=
     attribute requires-channel {xsd:token}?
 
 logout =
-	## Incorporates a logout processing filter. Most web applications require a logout filter, although you may not require one if you write a controller to provider similar logic.
+    ## Incorporates a logout processing filter. Most web applications require a logout filter, although you may not require one if you write a controller to provider similar logic.
     element logout {logout.attlist, empty}
 logout.attlist &=
-	## Specifies the URL that will cause a logout. Spring Security will initialize a filter that responds to this particular URL. Defaults to /j_spring_security_logout if unspecified.
+    ## Specifies the URL that will cause a logout. Spring Security will initialize a filter that responds to this particular URL. Defaults to /j_spring_security_logout if unspecified.
     attribute logout-url {xsd:token}?
 logout.attlist &=
-	## Specifies the URL to display once the user has logged out. If not specified, defaults to /.
+    ## Specifies the URL to display once the user has logged out. If not specified, defaults to /.
     attribute logout-success-url {xsd:token}?
 logout.attlist &=
-	## Specifies whether a logout also causes HttpSession invalidation, which is generally desirable. If unspecified, defaults to true.
+    ## Specifies whether a logout also causes HttpSession invalidation, which is generally desirable. If unspecified, defaults to true.
     attribute invalidate-session {boolean}?
 logout.attlist &=
     ## A reference to a LogoutSuccessHandler implementation which will be used to determine the destination to which the user is taken after logging out.
@@ -565,29 +568,29 @@ properties-file =
     attribute properties {xsd:token}?
 
 user =
-	  ## Represents a user in the application.
+      ## Represents a user in the application.
     element user {user.attlist, empty}
 user.attlist &=
-	  ## The username assigned to the user.
+      ## The username assigned to the user.
     attribute name {xsd:token}
 user.attlist &=
-	  ## The password assigned to the user. This may be hashed if the corresponding authentication provider supports hashing (remember to set the "hash" attribute of the "user-service" element). This attribute be omitted in the case where the data will not be used for authentication, but only for accessing authorities. If omitted, the namespace will generate a random value, preventing its accidental use for authentication. Cannot be empty.
+      ## The password assigned to the user. This may be hashed if the corresponding authentication provider supports hashing (remember to set the "hash" attribute of the "user-service" element). This attribute be omitted in the case where the data will not be used for authentication, but only for accessing authorities. If omitted, the namespace will generate a random value, preventing its accidental use for authentication. Cannot be empty.
     attribute password {xsd:string}?
 user.attlist &=
-	  ## One of more authorities granted to the user. Separate authorities with a comma (but no space). For example, "ROLE_USER,ROLE_ADMINISTRATOR"
+      ## One of more authorities granted to the user. Separate authorities with a comma (but no space). For example, "ROLE_USER,ROLE_ADMINISTRATOR"
     attribute authorities {xsd:token}
 user.attlist &=
-	  ## Can be set to "true" to mark an account as locked and unusable.
+      ## Can be set to "true" to mark an account as locked and unusable.
     attribute locked {boolean}?
 user.attlist &=
-	  ## Can be set to "true" to mark an account as disabled and unusable.
+      ## Can be set to "true" to mark an account as disabled and unusable.
     attribute disabled {boolean}?
 
 jdbc-user-service =
-	  ## Causes creation of a JDBC-based UserDetailsService.
+      ## Causes creation of a JDBC-based UserDetailsService.
     element jdbc-user-service {id? & jdbc-user-service.attlist}
 jdbc-user-service.attlist &=
-	  ## The bean ID of the DataSource which provides the required tables.
+      ## The bean ID of the DataSource which provides the required tables.
     attribute data-source-ref {xsd:token}
 jdbc-user-service.attlist &=
     cache-ref?
@@ -628,5 +631,3 @@ position =
 
 
 named-security-filter = "FIRST" | "CHANNEL_FILTER" | "CONCURRENT_SESSION_FILTER" | "SECURITY_CONTEXT_FILTER" | "LOGOUT_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_FILTER" | "FORM_LOGIN_FILTER" | "OPENID_FILTER" |"BASIC_AUTH_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "SESSION_MANAGEMENT_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"
-
-

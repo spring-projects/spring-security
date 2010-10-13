@@ -22,11 +22,11 @@ public class InMemoryXmlApplicationContext extends AbstractXmlApplicationContext
     Resource inMemoryXml;
 
     public InMemoryXmlApplicationContext(String xml) {
-        this(xml, "3.0.3", null);
+        this(xml, "3.0.4", null);
     }
 
     public InMemoryXmlApplicationContext(String xml, ApplicationContext parent) {
-        this(xml, "3.0.3", parent);
+        this(xml, "3.0.4", parent);
     }
 
     public InMemoryXmlApplicationContext(String xml, String secVersion, ApplicationContext parent) {

@@ -50,4 +50,5 @@ public abstract class Elements {
     @Deprecated
     public static final String FILTER_INVOCATION_DEFINITION_SOURCE = "filter-invocation-definition-source";
     public static final String LDAP_PASSWORD_COMPARE = "password-compare";
+    public static final String HTTP_FIREWALL = "http-firewall";
 }
