@@ -340,6 +340,10 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
         return matcher;
     }
 
+    public void setFirewall(HttpFirewall firewall) {
+        this.firewall = firewall;
+    }
+
     /**
      * If set to 'true', the query string will be stripped from the request URL before
      * attempting to find a matching filter chain. This is the default value.

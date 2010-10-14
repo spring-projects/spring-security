@@ -24,6 +24,7 @@ import org.springframework.security.concurrent.ConcurrentLoginException;
 import org.springframework.security.concurrent.ConcurrentSessionControllerImpl;
 import org.springframework.security.concurrent.ConcurrentSessionFilter;
 import org.springframework.security.context.HttpSessionContextIntegrationFilter;
+import org.springframework.security.firewall.DefaultHttpFirewall;
 import org.springframework.security.intercept.web.FilterInvocation;
 import org.springframework.security.intercept.web.FilterInvocationDefinitionSource;
 import org.springframework.security.intercept.web.FilterSecurityInterceptor;
@@ -659,6 +660,19 @@ public class HttpSecurityBeanDefinitionParserTests {
         ConfigAttributeDefinition attrDef = fids.getAttributes(createFilterinvocation("/someurl", null));
         assertEquals(1, attrDef.getConfigAttributes().size());
         assertTrue(attrDef.contains(new SecurityConfig("ROLE_B")));
+    }
+
+    @Test
+    public void httpFirewallInjectionIsSupported() throws Exception {
+        setContext(
+                "<http-firewall ref='fw'/>" +
+                "<http>" +
+                "   <form-login />" +
+                "</http>" +
+                "<b:bean id='fw' class='" + DefaultHttpFirewall.class.getName() +"'/>" +
+                AUTH_PROVIDER_XML);
+        FilterChainProxy fcp = (FilterChainProxy) appContext.getBean(BeanIds.FILTER_CHAIN_PROXY);
+        assertSame(appContext.getBean("fw"), FieldUtils.getFieldValue(fcp, "firewall"));
     }
 
     private void setContext(String context) {
