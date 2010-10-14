@@ -25,6 +25,8 @@ public class InterceptMethodsBeanDefinitionDecoratorTests {
 
     @Before
     public void loadContext() {
+        // Set value for placeholder
+        System.setProperty("admin.role", "ROLE_ADMIN");
         appContext = new ClassPathXmlApplicationContext("org/springframework/security/config/method-security.xml");
         target = (TestBusinessBean) appContext.getBean("target");
     }

@@ -6,11 +6,13 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
+    <b:bean class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>
+
     <b:bean id="target" class="org.springframework.security.config.TestBusinessBeanImpl">
         <!-- This will add a security interceptor to the bean -->
         <intercept-methods>
-            <protect method="org.springframework.security.config.TestBusinessBean.set*" access="ROLE_ADMIN" />
-            <protect method="get*" access="ROLE_ADMIN,ROLE_USER" />
+            <protect method="org.springframework.security.config.TestBusinessBean.set*" access="${admin.role}" />
+            <protect method="get*" access="${admin.role},ROLE_USER" />
             <protect method="doSomething" access="ROLE_USER" />
         </intercept-methods>
     </b:bean>

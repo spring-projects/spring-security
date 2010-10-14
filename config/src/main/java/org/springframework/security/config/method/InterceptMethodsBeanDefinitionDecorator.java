@@ -9,6 +9,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionDecorator;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -64,15 +65,17 @@ class InternalInterceptMethodsBeanDefinitionDecorator extends AbstractIntercepto
         interceptor.addPropertyValue("authenticationManager", new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
 
         // Lookup parent bean information
-        Element parent = (Element) node.getParentNode();
-        String parentBeanClass = parent.getAttribute("class");
+
+        String parentBeanClass = ((Element) node.getParentNode()).getAttribute("class");
 
         // Parse the included methods
         List<Element> methods = DomUtils.getChildElementsByTagName(interceptMethodsElt, Elements.PROTECT);
-        Map<String, List<ConfigAttribute>> mappings = new LinkedHashMap<String, List<ConfigAttribute>>();
+        Map<String, BeanDefinition> mappings = new ManagedMap<String, BeanDefinition>();
 
         for (Element protectmethodElt : methods) {
-            String[] tokens = StringUtils.commaDelimitedListToStringArray(protectmethodElt.getAttribute(ATT_ACCESS));
+            BeanDefinitionBuilder attributeBuilder = BeanDefinitionBuilder.rootBeanDefinition(SecurityConfig.class);
+            attributeBuilder.setFactoryMethod("createListFromCommaDelimitedString");
+            attributeBuilder.addConstructorArgValue(protectmethodElt.getAttribute(ATT_ACCESS));
 
             // Support inference of class names
             String methodName = protectmethodElt.getAttribute(ATT_METHOD);
@@ -83,7 +86,7 @@ class InternalInterceptMethodsBeanDefinitionDecorator extends AbstractIntercepto
                 }
             }
 
-            mappings.put(methodName, SecurityConfig.createList(tokens));
+            mappings.put(methodName, attributeBuilder.getBeanDefinition());
         }
 
         BeanDefinition metadataSource = new RootBeanDefinition(MapBasedMethodSecurityMetadataSource.class);
