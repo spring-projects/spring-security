@@ -46,6 +46,14 @@ public abstract class SecurityExpressionRoot {
         this.authentication = a;
     }
 
+    public final boolean hasAuthority(String authority) {
+        return hasRole(authority);
+    }
+
+    public final boolean hasAnyAuthority(String... authorities) {
+        return hasAnyRole(authorities);
+    }
+
     public final boolean hasRole(String role) {
         return getAuthoritySet().contains(role);
     }
