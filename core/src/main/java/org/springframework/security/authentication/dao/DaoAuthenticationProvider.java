@@ -56,6 +56,8 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
         }
 
         if (authentication.getCredentials() == null) {
+            logger.debug("Authentication failed: no credentials provided");
+
             throw new BadCredentialsException(messages.getMessage(
                     "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"),
                     includeDetailsObject ? userDetails : null);
@@ -64,6 +66,8 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
         String presentedPassword = authentication.getCredentials().toString();
 
         if (!passwordEncoder.isPasswordValid(userDetails.getPassword(), presentedPassword, salt)) {
+            logger.debug("Authentication failed: password does not match stored value");
+
             throw new BadCredentialsException(messages.getMessage(
                     "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"),
                     includeDetailsObject ? userDetails : null);
