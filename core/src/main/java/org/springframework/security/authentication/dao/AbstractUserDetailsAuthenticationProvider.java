@@ -16,6 +16,8 @@
 package org.springframework.security.authentication.dao;
 
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -71,6 +73,9 @@ import org.springframework.util.Assert;
  */
 public abstract class AbstractUserDetailsAuthenticationProvider implements AuthenticationProvider, InitializingBean,
         MessageSourceAware {
+
+    protected final Log logger = LogFactory.getLog(getClass());
+
     //~ Instance fields ================================================================================================
 
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
@@ -123,6 +128,8 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
             try {
                 user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
             } catch (UsernameNotFoundException notFound) {
+                logger.debug("User '" + username + "' not found");
+
                 if (hideUserNotFoundExceptions) {
                     throw new BadCredentialsException(messages.getMessage(
                             "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
@@ -178,7 +185,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
      * @return the successful authentication token
      */
     protected Authentication createSuccessAuthentication(Object principal, Authentication authentication,
-        UserDetails user) {
+            UserDetails user) {
         // Ensure we return the original credentials the user supplied,
         // so subsequent attempts are successful even with encoded passwords.
         // Also ensure we return the original getDetails(), so that future
@@ -291,16 +298,22 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
     private class DefaultPreAuthenticationChecks implements UserDetailsChecker {
         public void check(UserDetails user) {
             if (!user.isAccountNonLocked()) {
+                logger.debug("User account is locked");
+
                 throw new LockedException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.locked",
                         "User account is locked"), user);
             }
 
             if (!user.isEnabled()) {
+                logger.debug("User account is disabled");
+
                 throw new DisabledException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.disabled",
                         "User is disabled"), user);
             }
 
             if (!user.isAccountNonExpired()) {
+                logger.debug("User account is expired");
+
                 throw new AccountExpiredException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.expired",
                         "User account has expired"), user);
             }
@@ -310,6 +323,8 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
     private class DefaultPostAuthenticationChecks implements UserDetailsChecker {
         public void check(UserDetails user) {
             if (!user.isCredentialsNonExpired()) {
+                logger.debug("User account credentials have expired");
+
                 throw new CredentialsExpiredException(messages.getMessage(
                         "AbstractUserDetailsAuthenticationProvider.credentialsExpired",
                         "User credentials have expired"), user);
