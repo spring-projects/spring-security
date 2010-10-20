@@ -1,11 +1,5 @@
 package org.springframework.security.web.context;
 
-import java.lang.reflect.Method;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
@@ -14,8 +8,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
-import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  * A {@code SecurityContextRepository} implementation which stores the security context in the {@code HttpSession}
@@ -69,7 +66,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
      * Gets the security context for the current request (if available) and returns it.
      * <p>
      * If the session is null, the context object is null or the context object stored in the session
-     * is not an instance of <tt>SecurityContext</tt>, a new context object will be generated and
+     * is not an instance of {@code SecurityContext}, a new context object will be generated and
      * returned.
      */
     public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
@@ -280,9 +277,10 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
             }
 
             // If HttpSession exists, store current SecurityContextHolder contents but only if
-            // the SecurityContext has actually changed in this thread (see JIRA SEC-37, SEC-1307, SEC-1528)
+            // the SecurityContext has actually changed in this thread (see SEC-37, SEC-1307, SEC-1528)
             if (httpSession != null) {
-                if (context != contextBeforeExecution || context.getAuthentication() != authBeforeExecution) {
+                // We may have a new session, so check also whether the context attribute is set SEC-1561
+                if (contextChanged(context) || httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY) == null) {
                     httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY, context);
 
                     if (logger.isDebugEnabled()) {
@@ -290,6 +288,10 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
                     }
                 }
             }
+        }
+
+        private boolean contextChanged(SecurityContext context) {
+            return context != contextBeforeExecution || context.getAuthentication() != authBeforeExecution;
         }
 
         private HttpSession createNewSessionIfAllowed(SecurityContext context) {
