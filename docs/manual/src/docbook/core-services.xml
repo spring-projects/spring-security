@@ -107,7 +107,7 @@
 <bean id="daoAuthenticationProvider"
     class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
   <property name="userDetailsService" ref="inMemoryDaoImpl"/>
-  <property name="saltSource" ref bean="saltSource"/>
+  <property name="saltSource" ref="saltSource"/>
   <property name="passwordEncoder" ref="passwordEncoder"/>
 </bean>]]></programlisting> The <interfacename>PasswordEncoder</interfacename> and
                 <interfacename>SaltSource</interfacename> are optional. A
