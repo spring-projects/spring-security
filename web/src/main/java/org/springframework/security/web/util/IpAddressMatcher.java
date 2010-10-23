@@ -10,6 +10,9 @@ import org.springframework.util.StringUtils;
 
 /**
  * Matches a request based on IP Address or subnet mask matching against the remote address.
+ * <p>
+ * Both IPv6 and IPv4 addresses are supported, but a matcher which is configured with an IPv4 address will
+ * never match a request which returns an IPv6 address, and vice-versa.
  *
  * @author Luke Taylor
  * @since 3.0.2
@@ -40,8 +43,7 @@ public class IpAddressMatcher implements RequestMatcher {
         InetAddress remoteAddress = parseAddress(request.getRemoteAddr());
 
         if (!requiredAddress.getClass().equals(remoteAddress.getClass())) {
-            throw new IllegalArgumentException("IP Address in expression must be the same type as " +
-                    "version returned by request");
+            return false;
         }
 
         if (nMaskBits == 0) {
