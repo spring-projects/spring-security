@@ -146,7 +146,7 @@
 </bean>
 
 <bean id="rememberMeAuthenticationProvider" class=
- "org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationProvider">
+ "org.springframework.security.authentication.rememberme.RememberMeAuthenticationProvider">
   <property name="key" value="springRocks"/>
 </bean>
 ]]>
