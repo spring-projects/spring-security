@@ -130,31 +130,7 @@
         <xi:include href="session-mgmt.xml"/>
         <xi:include href="anon-auth-provider.xml"/>
     </part>
-    <!--
-  <part xml:id="authentication">
-    <title>Authentication</title>
-    <partintro>
-      <para>We've already introduced Spring Security's authentication architecture in the <link
-          xlink:href="#technical-overview">Technical Overview</link> chapter. In this part of the
-        reference guide we will examine individual authentication mechanisms and their corresponding
-          <classname>AuthenticationProvider</classname>s. We'll also look at how to configure
-        authentication more generally, including if you have several authentication approaches that
-        need to be chained together.</para>
-      <para> With some exceptions, we will be discussing the full details of Spring Security bean
-        configuration rather than the shorthand <link xlink:href="#ns-config">namespace
-          syntax</link>. You should review the introduction to using namespace configuration and the
-        options it provides to see if they will meet your needs. As you come to use the framework
-        more, and need to customize the internal behaviour, you will probably want to understand
-        more about how the individual services are implemented, which classes to look at extending
-        and so on. This part is more targeted at providing this kind of information. We'd recommend
-        that you supplement the content by browsing the Javadoc and the source itself <footnote>
-          <para>Links to both Javadoc APIs and browsable source cross-reference are available from
-            the project web site.</para>
-        </footnote>. </para>
-    </partintro>
-    <xi:include href="dao-auth-provider.xml"/>
-  </part>
--->
+
     <part xml:id="authorization">
         <title>Authorization</title>
         <partintro>
