@@ -53,10 +53,7 @@
 </beans:bean>
 
 <beans:bean id="sas" class=
-  "org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy">
-    <beans:property name="sessionRegistry" ref="sessionRegistry" />
-    <beans:property name="maximumSessions" value="1" />
-</beans:bean>
+  "org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy" />
 ]]></programlisting>
             Note that the use of the default, <classname>SessionFixationProtectionStrategy</classname>
             may cause issues if you are storing beans in the session which implement
