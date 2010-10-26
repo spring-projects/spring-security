@@ -43,7 +43,7 @@ import org.springframework.web.context.support.StaticWebApplicationContext;
 public class AuthorizeTagTests {
     //~ Instance fields ================================================================================================
 
-    private AuthorizeTag authorizeTag;
+    private JspAuthorizeTag authorizeTag;
     private final TestingAuthenticationToken currentUser = new TestingAuthenticationToken("abc", "123", "ROLE SUPERVISOR", "ROLE_TELLER");
 
     //~ Methods ========================================================================================================
@@ -56,7 +56,7 @@ public class AuthorizeTagTests {
         ctx.registerSingleton("wipe", MockWebInvocationPrivilegeEvaluator.class);
         MockServletContext servletCtx = new MockServletContext();
         servletCtx.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ctx);
-        authorizeTag = new AuthorizeTag();
+        authorizeTag = new JspAuthorizeTag();
         authorizeTag.setPageContext(new MockPageContext(servletCtx, new MockHttpServletRequest(), new MockHttpServletResponse()));
     }
 
@@ -125,9 +125,18 @@ public class AuthorizeTagTests {
 
     @Test
     public void testDefaultsToNotOutputtingBodyWhenNoRequiredAuthorities() throws JspException {
-        assertEquals("", authorizeTag.getIfAllGranted());
-        assertEquals("", authorizeTag.getIfAnyGranted());
-        assertEquals("", authorizeTag.getIfNotGranted());
+        assertEquals(null, authorizeTag.getIfAllGranted());
+        assertEquals(null, authorizeTag.getIfAnyGranted());
+        assertEquals(null, authorizeTag.getIfNotGranted());
+
+        assertEquals(Tag.SKIP_BODY, authorizeTag.doStartTag());
+    }
+
+    @Test
+    public void testDefaultsToNotOutputtingBodyWhenNoAuthoritiesProvided() throws JspException {
+        authorizeTag.setIfAllGranted("");
+        authorizeTag.setIfAnyGranted("");
+        authorizeTag.setIfNotGranted("");
 
         assertEquals(Tag.SKIP_BODY, authorizeTag.doStartTag());
     }

@@ -33,7 +33,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public class AuthorizeTagExpressionLanguageTests extends TestCase {
     //~ Instance fields ================================================================================================
 
-    private final LegacyAuthorizeTag authorizeTag = new LegacyAuthorizeTag();
+    private final JspAuthorizeTag authorizeTag = new JspAuthorizeTag();
     private MockPageContext pageContext;
     private TestingAuthenticationToken currentUser;
 

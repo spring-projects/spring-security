@@ -83,7 +83,6 @@ public class JaasApiIntegrationFilterTest {
         authenticatedSubject.getPrivateCredentials().add("password");
         authenticatedSubject.getPublicCredentials().add("username");
         callbackHandler = new CallbackHandler() {
-            @Override
             public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
                 for (Callback callback : callbacks) {
                     if (callback instanceof NameCallback) {

@@ -1,0 +1,101 @@
+package org.springframework.security.taglibs.authz;
+
+import java.io.IOException;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
+import javax.servlet.jsp.tagext.Tag;
+
+import org.springframework.web.util.ExpressionEvaluationUtils;
+
+/**
+ * A JSP {@link Tag} implementation of {@link AbstractAuthorizeTag}. 
+ * 
+ * @since 3.1.0
+ * 
+ * @author Rossen Stoyanchev
+ * 
+ * @see AbstractAuthorizeTag
+ */
+public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
+
+    private Tag parent;
+    
+    protected String id;
+    
+    protected PageContext pageContext;
+
+    /**
+     * Invokes the base class {@link AbstractAuthorizeTag#authorize()} method to 
+     * decide if the body of the tag should be skipped or not.
+     *
+     * @return {@link Tag#SKIP_BODY} or {@link Tag#EVAL_BODY_INCLUDE}
+     */
+	public int doStartTag() throws JspException {
+		try {
+			setIfNotGranted(ExpressionEvaluationUtils.evaluateString("ifNotGranted", getIfNotGranted(), pageContext));
+			setIfAllGranted(ExpressionEvaluationUtils.evaluateString("ifAllGranted", getIfAllGranted(), pageContext));
+			setIfAnyGranted(ExpressionEvaluationUtils.evaluateString("ifAnyGranted", getIfAnyGranted(), pageContext));
+			
+			return super.authorize() ? Tag.EVAL_BODY_INCLUDE : Tag.SKIP_BODY;
+			
+		} catch (IOException e) {
+			throw new JspException(e);
+		}
+	}
+
+    /**
+     * Default processing of the end tag returning EVAL_PAGE.
+     *
+     * @return EVAL_PAGE
+     *
+     * @see Tag#doEndTag()
+     */
+	public int doEndTag() {
+		return EVAL_PAGE;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public Tag getParent() {
+		return parent;
+	}
+
+	public void setParent(Tag parent) {
+		this.parent = parent;
+	}
+
+	public void release() {
+		parent = null;
+		id = null;
+	}
+
+	public void setPageContext(PageContext pageContext) {
+		this.pageContext = pageContext;
+	}
+
+	@Override
+	protected ServletRequest getRequest() {
+		return pageContext.getRequest();
+	}
+
+	@Override
+	protected ServletResponse getResponse() {
+		return pageContext.getResponse();
+	}
+
+	@Override
+	protected ServletContext getServletContext() {
+		return pageContext.getServletContext();
+	}
+
+}

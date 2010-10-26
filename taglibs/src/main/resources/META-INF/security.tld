@@ -13,7 +13,7 @@
 
     <tag>
         <name>authorize</name>
-        <tag-class>org.springframework.security.taglibs.authz.AuthorizeTag</tag-class>
+        <tag-class>org.springframework.security.taglibs.authz.JspAuthorizeTag</tag-class>
         <description>
             A tag which outputs the body of the tag if the configured access expression
             evaluates to true for the currently authenticated principal.
