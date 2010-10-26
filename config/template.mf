@@ -1,3 +1,5 @@
+Implementation-Title: org.springframework.security.config
+Implementation-Version: ${version}
 Bundle-SymbolicName: org.springframework.security.config
 Bundle-Name: Spring Security Namespace Configuration
 Bundle-Vendor: SpringSource

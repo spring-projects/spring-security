@@ -1,3 +1,5 @@
+Implementation-Title: org.springframework.security.taglibs
+Implementation-Version: ${version}
 Bundle-SymbolicName: org.springframework.security.taglibs
 Bundle-Name: Spring Security Taglibs
 Bundle-Vendor: SpringSource

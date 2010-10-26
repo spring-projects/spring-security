@@ -1,3 +1,5 @@
+Implementation-Title: org.springframework.security.cas
+Implementation-Version: ${version}
 Bundle-SymbolicName: org.springframework.security.cas
 Bundle-Name: Spring Security CAS
 Bundle-Vendor: SpringSource
@@ -18,4 +20,3 @@ Import-Template:
  org.springframework.util;version="[${spring.version}, 3.2.0)",
  net.sf.ehcache.*;version="[1.4.1, 2.0.0)";resolution:=optional,
  javax.servlet.*;version="0"
-  

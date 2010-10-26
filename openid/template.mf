@@ -1,3 +1,5 @@
+Implementation-Title: org.springframework.security.openid
+Implementation-Version: ${version}
 Bundle-SymbolicName: org.springframework.security.openid
 Bundle-Name: Spring Security OpenID
 Bundle-Vendor: SpringSource
@@ -15,4 +17,3 @@ Import-Template:
  org.springframework.util;version="[${spring.version}, 3.2.0)",
  org.openid4java.*;version="[0.9.5, 1.0.0)",
  javax.servlet.*;version="0"
- 

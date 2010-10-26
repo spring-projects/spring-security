@@ -3,6 +3,8 @@ package org.springframework.security.config;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.xml.BeanDefinitionDecorator;
@@ -23,6 +25,7 @@ import org.springframework.security.config.ldap.LdapUserServiceBeanDefinitionPar
 import org.springframework.security.config.method.GlobalMethodSecurityBeanDefinitionParser;
 import org.springframework.security.config.method.InterceptMethodsBeanDefinitionDecorator;
 import org.springframework.security.config.method.MethodSecurityMetadataSourceBeanDefinitionParser;
+import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.ClassUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -35,9 +38,28 @@ import org.w3c.dom.Node;
  * @since 2.0
  */
 public final class SecurityNamespaceHandler implements NamespaceHandler {
+    private final Log logger = LogFactory.getLog(getClass());
     private final Map<String, BeanDefinitionParser> parsers = new HashMap<String, BeanDefinitionParser>();
     private final BeanDefinitionDecorator interceptMethodsBDD = new InterceptMethodsBeanDefinitionDecorator();
     private BeanDefinitionDecorator filterChainMapBDD;
+
+    public SecurityNamespaceHandler() {
+        String coreVersion = SpringSecurityCoreVersion.getVersion();
+
+        Package pkg = SpringSecurityCoreVersion.class.getPackage();
+
+        if (pkg == null || coreVersion == null) {
+            logger.info("Couldn't determine package version information.");
+            return;
+        }
+
+        String version = pkg.getImplementationVersion();
+        logger.info("Spring Security 'config' module version is " + version);
+
+        if (version.compareTo(coreVersion) != 0) {
+            logger.error("You are running with different versions of the Spring Security 'core' and 'config' modules");
+        }
+    }
 
     public BeanDefinition parse(Element element, ParserContext pc) {
         if (!namespaceMatchesVersion(element)) {
