@@ -1,3 +1,5 @@
+Implementation-Title: org.springframework.security.web
+Implementation-Version: ${version}
 Bundle-SymbolicName: org.springframework.security.web
 Bundle-Name: Spring Security Web
 Bundle-Vendor: SpringSource

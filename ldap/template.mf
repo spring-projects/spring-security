@@ -1,3 +1,5 @@
+Implementation-Title: org.springframework.security.ldap
+Implementation-Version: ${version}
 Bundle-SymbolicName: org.springframework.security.ldap
 Bundle-Name: Spring Security LDAP
 Bundle-Vendor: SpringSource
