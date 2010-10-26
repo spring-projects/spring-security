@@ -24,9 +24,11 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 
     private Tag parent;
     
-    protected String id;
-    
     protected PageContext pageContext;
+
+    protected String id;
+   
+    private String var;
 
     /**
      * Invokes the base class {@link AbstractAuthorizeTag#authorize()} method to 
@@ -40,7 +42,13 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 			setIfAllGranted(ExpressionEvaluationUtils.evaluateString("ifAllGranted", getIfAllGranted(), pageContext));
 			setIfAnyGranted(ExpressionEvaluationUtils.evaluateString("ifAnyGranted", getIfAnyGranted(), pageContext));
 			
-			return super.authorize() ? Tag.EVAL_BODY_INCLUDE : Tag.SKIP_BODY;
+			int result = super.authorize() ? Tag.EVAL_BODY_INCLUDE : Tag.SKIP_BODY;
+
+			if (var != null) {
+				pageContext.setAttribute(var, Boolean.valueOf(result == EVAL_BODY_INCLUDE), PageContext.PAGE_SCOPE);
+			}
+			
+			return result;
 			
 		} catch (IOException e) {
 			throw new JspException(e);
@@ -72,6 +80,14 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 
 	public void setParent(Tag parent) {
 		this.parent = parent;
+	}
+	
+	public String getVar() {
+		return var;
+	}
+
+	public void setVar(String var) {
+		this.var = var;
 	}
 
 	public void release() {
