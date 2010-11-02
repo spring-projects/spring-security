@@ -153,7 +153,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
                 throw new IllegalArgumentException("Unsupported configuration attributes: " + unsupportedAttrs);
             }
 
-            logger.info("Validated configuration attributes");
+            logger.debug("Validated configuration attributes");
         }
     }
 
