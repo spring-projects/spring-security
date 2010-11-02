@@ -46,7 +46,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     protected final MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
     private UserDetailsService userDetailsService;
-    private final UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
+    private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
     private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
     private String cookieName = SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY;
@@ -402,5 +402,19 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     public void setAuthenticationDetailsSource(AuthenticationDetailsSource<HttpServletRequest,?> authenticationDetailsSource) {
         Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource cannot be null");
         this.authenticationDetailsSource = authenticationDetailsSource;
+    }
+
+    /**
+     * Sets the strategy to be used to validate the {@code UserDetails} object obtained for
+     * the user when processing a remember-me cookie to automatically log in a user.
+     *
+     * @param userDetailsChecker
+     *          the strategy which will be passed the user object to allow it to be rejected if account should not
+     *          be allowed to authenticate (if it is locked, for example). Defaults to a
+     *          {@code AccountStatusUserDetailsChecker} instance.
+     *
+     */
+    public void setUserDetailsChecker(UserDetailsChecker userDetailsChecker) {
+        this.userDetailsChecker = userDetailsChecker;
     }
 }

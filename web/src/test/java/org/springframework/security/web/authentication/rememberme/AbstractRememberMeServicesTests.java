@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -36,7 +37,7 @@ public class AbstractRememberMeServicesTests {
         new MockRememberMeServices().decodeCookie("nonBase64CookieValue%");
     }
 
-	@Test
+    @Test
     public void setAndGetAreConsistent() throws Exception {
         MockRememberMeServices services = new MockRememberMeServices();
         assertNotNull(services.getCookieName());
@@ -189,6 +190,7 @@ public class AbstractRememberMeServicesTests {
     @Test
     public void autoLoginShouldFailIfUserAccountIsLocked() {
         MockRememberMeServices services = new MockRememberMeServices();
+        services.setUserDetailsChecker(new AccountStatusUserDetailsChecker());
         User joeLocked = new User("joe", "password",false,true,true,true,joe.getAuthorities());
         services.setUserDetailsService(new MockUserDetailsService(joeLocked, false));
 
