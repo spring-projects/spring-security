@@ -158,6 +158,8 @@ public class FilterChainProxy extends GenericFilterBean {
                 logger.debug(url + (filters == null ? " has no matching filters" : " has an empty filter list"));
             }
 
+            fwRequest.reset();
+
             chain.doFilter(fwRequest, fwResponse);
 
             return;
