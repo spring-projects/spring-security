@@ -57,8 +57,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
     //~ Constructors ===================================================================================================
 
     public OpenID4JavaConsumer() throws ConsumerException {
-        this.consumerManager = new ConsumerManager();
-        this.attributesToFetchFactory = new NullAxFetchListFactory();
+        this(new ConsumerManager(), new NullAxFetchListFactory());
     }
 
     /**
@@ -83,7 +82,12 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
     }
 
     public OpenID4JavaConsumer(AxFetchListFactory attributesToFetchFactory) throws ConsumerException {
-        this.consumerManager = new ConsumerManager();
+        this(new ConsumerManager(), attributesToFetchFactory);
+    }
+
+    public OpenID4JavaConsumer(ConsumerManager consumerManager, AxFetchListFactory attributesToFetchFactory)
+            throws ConsumerException {
+        this.consumerManager = consumerManager;
         this.attributesToFetchFactory = attributesToFetchFactory;
     }
 
