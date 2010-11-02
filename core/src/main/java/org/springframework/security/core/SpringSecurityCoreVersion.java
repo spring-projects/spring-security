@@ -21,7 +21,8 @@ public class SpringSecurityCoreVersion {
             // TODO: Generate version class and information dynamically from a template in the build file
             logger.info("You are running with Spring Security Core " + version);
             if (!springVersion.startsWith("3")) {
-                logger.error("Spring Major version '3' expected, but you are running with version: " + springVersion);
+                logger.error("Spring Major version '3' expected, but you are running with version: "
+                        + springVersion + ". Please check your classpath for unwanted jar files.");
             }
 
             if (springVersion.compareTo("3.0.5") < 0) {
