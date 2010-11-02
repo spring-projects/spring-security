@@ -10,12 +10,23 @@ import org.gradle.api.tasks.bundling.Compression;
 class TarUpload extends Tar {
     @Input
     String remoteDir
-
-    @Input
     Login login
+    @Input
+    String host
     
     TarUpload() {
         compression = Compression.BZIP2
+        if (project.configurations.findByName('antjsch') == null) {
+            project.configurations.add('antjsch')
+            project.dependencies {
+                antjsch 'org.apache.ant:ant-jsch:1.8.1'
+            }
+            def classpath = project.configurations.antjsch.asPath
+            project.ant {
+                taskdef(name: 'scp', classname: 'org.apache.tools.ant.taskdefs.optional.ssh.Scp', classpath: classpath)
+                taskdef(name: 'sshexec', classname: 'org.apache.tools.ant.taskdefs.optional.ssh.SSHExec', classpath: classpath)
+            }
+        }
     }
     
     @TaskAction
@@ -38,6 +49,7 @@ class TarUpload extends Tar {
     void setLogin(Login login) {
         dependsOn(login)
         this.login = login
+        this.host = login.host
     }
 }
 
@@ -52,11 +64,12 @@ class Login extends DefaultTask {
 
     @TaskAction
     login() {
-        project.ant {
-            input("Please enter the ssh username for host '$host'", addproperty: "user.$host")
-            input("Please enter the ssh password '$host'", addproperty: "pass.$host")
+        def console = System.console()
+        if (console) {
+            username = console.readLine("\nPlease enter the ssh username for host '$host': ")
+            password = new String(console.readPassword("Please enter the ssh password for '$host': "))
+        } else {
+            logger.error "Unable to access System.console()."
         }
-        username = ant.properties["user.$host"]
-        password = ant.properties["pass.$host"]
     }
 }
