@@ -10,6 +10,7 @@ import org.mockito.stubbing.Answer;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.firewall.FirewalledRequest;
+import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.util.RequestMatcher;
 
 import javax.servlet.Filter;
@@ -113,4 +114,16 @@ public class FilterChainProxyTests {
         verify(chain).doFilter(any(FirewalledRequest.class), any(HttpServletResponse.class));
     }
 
+    @Test
+    public void wrapperIsResetWhenNoMatchingFilters() throws Exception {
+        HttpFirewall fw = mock(HttpFirewall.class);
+        FirewalledRequest fwr = mock (FirewalledRequest.class);
+        when(fwr.getRequestURI()).thenReturn("/");
+        when(fwr.getContextPath()).thenReturn("");
+        fcp.setFirewall(fw);
+        when(fw.getFirewalledRequest(request)).thenReturn(fwr);
+        when(matcher.matches(any(HttpServletRequest.class))).thenReturn(false);
+        fcp.doFilter(request, response, chain);
+        verify(fwr).reset();
+    }
 }
