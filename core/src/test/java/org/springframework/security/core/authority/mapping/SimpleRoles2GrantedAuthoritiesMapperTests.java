@@ -1,14 +1,9 @@
 package org.springframework.security.core.authority.mapping;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.mapping.SimpleAttributes2GrantedAuthoritiesMapper;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
 import junit.framework.TestCase;
+import org.springframework.security.core.GrantedAuthority;
+
+import java.util.*;
 
 /**
  *

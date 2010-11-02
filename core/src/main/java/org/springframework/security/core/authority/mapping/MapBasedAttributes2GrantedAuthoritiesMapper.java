@@ -1,13 +1,6 @@
 package org.springframework.security.core.authority.mapping;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.GrantedAuthority;

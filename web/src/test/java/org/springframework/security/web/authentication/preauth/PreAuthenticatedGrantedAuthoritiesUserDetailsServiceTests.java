@@ -2,15 +2,13 @@ package org.springframework.security.web.authentication.preauth;
 
 import static org.junit.Assert.*;
 
-import java.util.List;
+import java.util.*;
 
 import org.junit.Test;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.GrantedAuthoritiesContainer;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedGrantedAuthoritiesUserDetailsService;
 
 /**
  *
@@ -51,7 +49,7 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsServiceTests {
         PreAuthenticatedGrantedAuthoritiesUserDetailsService svc = new PreAuthenticatedGrantedAuthoritiesUserDetailsService();
         PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(userName, "dummy");
         token.setDetails(new GrantedAuthoritiesContainer() {
-            public List<GrantedAuthority> getGrantedAuthorities() {
+            public Collection<? extends GrantedAuthority> getGrantedAuthorities() {
                 return gas;
             }
         });

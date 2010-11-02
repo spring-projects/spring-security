@@ -1,7 +1,6 @@
 package org.springframework.security.web.authentication.preauth;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import org.springframework.security.authentication.AuthenticationDetails;
 import org.springframework.security.core.GrantedAuthority;
@@ -37,10 +36,12 @@ public class PreAuthenticatedGrantedAuthoritiesAuthenticationDetails extends Aut
     }
 
     /**
-     * @see MutableGrantedAuthoritiesContainer#setGrantedAuthorities(List)
+     * @see MutableGrantedAuthoritiesContainer#setGrantedAuthorities(Collection)
      */
-    public void setGrantedAuthorities(List<GrantedAuthority> aJ2eeBasedGrantedAuthorities) {
-        this.preAuthenticatedGrantedAuthorities = Collections.unmodifiableList(aJ2eeBasedGrantedAuthorities);
+    public void setGrantedAuthorities(Collection<? extends GrantedAuthority> aJ2eeBasedGrantedAuthorities) {
+        List<GrantedAuthority> temp = new ArrayList<GrantedAuthority>(aJ2eeBasedGrantedAuthorities.size());
+        temp.addAll(aJ2eeBasedGrantedAuthorities);
+        this.preAuthenticatedGrantedAuthorities = Collections.unmodifiableList(temp);
     }
 
     /**
@@ -48,8 +49,8 @@ public class PreAuthenticatedGrantedAuthoritiesAuthenticationDetails extends Aut
      */
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(super.toString() + "; ");
-        sb.append("preAuthenticatedGrantedAuthorities: " + preAuthenticatedGrantedAuthorities);
+        sb.append(super.toString()).append("; ");
+        sb.append("preAuthenticatedGrantedAuthorities: ").append(preAuthenticatedGrantedAuthorities);
         return sb.toString();
     }
 }

@@ -5,9 +5,7 @@ import org.springframework.security.core.authority.GrantedAuthoritiesContainer;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * This WebAuthenticationDetails implementation allows for storing a list of
@@ -23,7 +21,7 @@ public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails extends 
     private final List<GrantedAuthority> authorities;
 
     public PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(HttpServletRequest request,
-            List<GrantedAuthority> authorities) {
+            Collection<? extends GrantedAuthority> authorities) {
         super(request);
 
         List<GrantedAuthority> temp = new ArrayList<GrantedAuthority>(authorities.size());

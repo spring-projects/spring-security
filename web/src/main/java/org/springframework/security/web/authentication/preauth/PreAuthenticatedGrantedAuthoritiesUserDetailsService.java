@@ -1,6 +1,6 @@
 package org.springframework.security.web.authentication.preauth;
 
-import java.util.List;
+import java.util.*;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -41,7 +41,7 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsService
     public final UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken token) throws AuthenticationException {
         Assert.notNull(token.getDetails());
         Assert.isInstanceOf(GrantedAuthoritiesContainer.class, token.getDetails());
-        List<GrantedAuthority> authorities = ((GrantedAuthoritiesContainer) token.getDetails()).getGrantedAuthorities();
+        Collection<? extends GrantedAuthority> authorities = ((GrantedAuthoritiesContainer) token.getDetails()).getGrantedAuthorities();
         return createuserDetails(token, authorities);
     }
 
@@ -51,7 +51,7 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsService
      * @param token the authentication request token
      * @param authorities the pre-authenticated authorities.
      */
-    protected UserDetails createuserDetails(Authentication token, List<GrantedAuthority> authorities) {
+    protected UserDetails createuserDetails(Authentication token, Collection<? extends GrantedAuthority> authorities) {
         return new User(token.getName(), "N/A", true, true, true, true, authorities);
     }
 }

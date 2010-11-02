@@ -9,7 +9,7 @@ import org.springframework.security.core.authority.mapping.SimpleAttributes2Gran
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
+import java.util.*;
 
 /**
  * This AuthenticationDetailsSource implementation will set the pre-authenticated granted
@@ -43,9 +43,9 @@ public class WebSpherePreAuthenticatedWebAuthenticationDetailsSource implements
      *
      * @return authorities mapped from the user's WebSphere groups.
      */
-    private List<GrantedAuthority> getWebSphereGroupsBasedGrantedAuthorities() {
+    private Collection<? extends GrantedAuthority> getWebSphereGroupsBasedGrantedAuthorities() {
         List<String> webSphereGroups = wasHelper.getGroupsForCurrentUser();
-        List<GrantedAuthority> userGas = webSphereGroups2GrantedAuthoritiesMapper.getGrantedAuthorities(webSphereGroups);
+        Collection<? extends GrantedAuthority> userGas = webSphereGroups2GrantedAuthoritiesMapper.getGrantedAuthorities(webSphereGroups);
         if (logger.isDebugEnabled()) {
             logger.debug("WebSphere groups: " + webSphereGroups + " mapped to Granted Authorities: " + userGas);
         }

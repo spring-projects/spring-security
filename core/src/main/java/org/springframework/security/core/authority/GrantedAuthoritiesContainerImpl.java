@@ -1,7 +1,6 @@
 package org.springframework.security.core.authority;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
@@ -10,8 +9,10 @@ import org.springframework.util.Assert;
 public class GrantedAuthoritiesContainerImpl implements MutableGrantedAuthoritiesContainer {
     private List<GrantedAuthority> authorities;
 
-    public void setGrantedAuthorities(List<GrantedAuthority> newAuthorities) {
-        authorities = Collections.unmodifiableList(newAuthorities);
+    public void setGrantedAuthorities(Collection<? extends GrantedAuthority> newAuthorities) {
+        ArrayList<GrantedAuthority> temp = new ArrayList<GrantedAuthority>(newAuthorities.size());
+        temp.addAll(newAuthorities);
+        authorities = Collections.unmodifiableList(temp);
     }
 
     public List<GrantedAuthority> getGrantedAuthorities() {

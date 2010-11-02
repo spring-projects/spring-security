@@ -1,6 +1,6 @@
 package org.springframework.security.web.authentication.preauth.websphere;
 
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -73,9 +73,9 @@ public class WebSpherePreAuthenticatedAuthenticationDetailsSource extends Authen
      *
      * @return authorities mapped from the user's WebSphere groups.
      */
-    private List<GrantedAuthority> getWebSphereGroupsBasedGrantedAuthorities() {
+    private Collection<? extends GrantedAuthority> getWebSphereGroupsBasedGrantedAuthorities() {
         List<String> webSphereGroups = wasHelper.getGroupsForCurrentUser();
-        List<GrantedAuthority> userGas = webSphereGroups2GrantedAuthoritiesMapper.getGrantedAuthorities(webSphereGroups);
+        Collection<? extends GrantedAuthority> userGas = webSphereGroups2GrantedAuthoritiesMapper.getGrantedAuthorities(webSphereGroups);
         if (logger.isDebugEnabled()) {
             logger.debug("WebSphere groups: " + webSphereGroups + " mapped to Granted Authorities: " + userGas);
         }

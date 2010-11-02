@@ -68,7 +68,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource
     public PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails buildDetails(HttpServletRequest context) {
 
         Collection<String> j2eeUserRoles = getUserRoles(context);
-        List<GrantedAuthority> userGas = j2eeUserRoles2GrantedAuthoritiesMapper.getGrantedAuthorities(j2eeUserRoles);
+        Collection<? extends GrantedAuthority> userGas = j2eeUserRoles2GrantedAuthoritiesMapper.getGrantedAuthorities(j2eeUserRoles);
 
         if (logger.isDebugEnabled()) {
             logger.debug("J2EE roles [" + j2eeUserRoles + "] mapped to Granted Authorities: [" + userGas + "]");
