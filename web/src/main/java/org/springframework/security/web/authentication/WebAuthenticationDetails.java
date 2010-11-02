@@ -24,6 +24,7 @@ import javax.servlet.http.HttpSession;
  * A holder of selected HTTP details related to a web authentication request.
  *
  * @author Ben Alex
+ * @author Luke Taylor
  */
 public class WebAuthenticationDetails implements Serializable {
     //~ Instance fields ================================================================================================
@@ -44,18 +45,9 @@ public class WebAuthenticationDetails implements Serializable {
 
         HttpSession session = request.getSession(false);
         this.sessionId = (session != null) ? session.getId() : null;
-
-        doPopulateAdditionalInformation(request);
     }
 
     //~ Methods ========================================================================================================
-
-    /**
-     * Provided so that subclasses can populate additional information.
-     *
-     * @param request that the authentication request was received from
-     */
-    protected void doPopulateAdditionalInformation(HttpServletRequest request) {}
 
     public boolean equals(Object obj) {
         if (obj instanceof WebAuthenticationDetails) {
