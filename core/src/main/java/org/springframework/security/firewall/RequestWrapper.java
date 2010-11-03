@@ -1,6 +1,12 @@
 package org.springframework.security.firewall;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -92,7 +98,43 @@ final class RequestWrapper extends FirewalledRequest {
         return stripPaths ? strippedServletPath : super.getServletPath();
     }
 
+    public RequestDispatcher getRequestDispatcher(String path) {
+        return this.stripPaths ? new FirewalledRequestAwareRequestDispatcher(path) : super.getRequestDispatcher(path);
+    }
+
     public void reset() {
         this.stripPaths = false;
+    }
+
+    /**
+     * Ensures {@link FirewalledRequest#reset()} is called prior to performing a forward. It then delegates work to the
+     * {@link RequestDispatcher} from the original {@link HttpServletRequest}.
+     *
+     * @author Rob Winch
+     */
+    private class FirewalledRequestAwareRequestDispatcher implements RequestDispatcher {
+        private final String path;
+
+        /**
+         *
+         * @param path the {@code path} that will be used to obtain the delegate {@link RequestDispatcher} from the
+         * original {@link HttpServletRequest}.
+         */
+        public FirewalledRequestAwareRequestDispatcher(String path) {
+            this.path = path;
+        }
+
+        public void forward(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+            reset();
+            getDelegateDispatcher().forward(request, response);
+        }
+
+        public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+            getDelegateDispatcher().include(request, response);
+        }
+
+        private RequestDispatcher getDelegateDispatcher() {
+            return RequestWrapper.super.getRequestDispatcher(path);
+        }
     }
 }
