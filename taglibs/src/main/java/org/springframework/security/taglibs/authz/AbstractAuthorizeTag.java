@@ -45,17 +45,17 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
- * A base class for an &lt;authorize&gt; tag that is independent of the tag rendering technology (JSP, Facelets). 
- * It treats tag attributes as simple strings rather than strings that may contain expressions with the 
+ * A base class for an &lt;authorize&gt; tag that is independent of the tag rendering technology (JSP, Facelets).
+ * It treats tag attributes as simple strings rather than strings that may contain expressions with the
  * exception of the "access" attribute, which is always expected to contain a Spring EL expression.
- * 
+ *
  * Subclasses are expected to extract tag attribute values from the specific rendering technology, evaluate
  * them as expressions if necessary, and set the String-based attributes of this class.
- * 
+ *
  * @author Francois Beausoleil
  * @author Luke Taylor
  * @author Rossen Stoyanchev
- * 
+ *
  * @since 3.1.0
  */
 public abstract class AbstractAuthorizeTag {
@@ -94,9 +94,9 @@ public abstract class AbstractAuthorizeTag {
 	 * <li>ifAllGranted, ifAnyGranted, ifNotGranted</li>
 	 * </ul>
 	 * The above combinations are mutually exclusive and evaluated in the given order.
-	 * 
+	 *
 	 * @return the result of the authorization decision
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public boolean authorize() throws IOException {
@@ -119,7 +119,7 @@ public abstract class AbstractAuthorizeTag {
 	/**
 	 * Make an authorization decision by considering ifAllGranted, ifAnyGranted, and ifNotGranted. All 3 or any
 	 * combination can be provided. All provided attributes must evaluate to true.
-	 * 
+	 *
 	 * @return the result of the authorization decision
 	 */
 	public boolean authorizeUsingGrantedAuthorities() {
@@ -131,7 +131,7 @@ public abstract class AbstractAuthorizeTag {
 			return false;
 		}
 
-		final Collection<GrantedAuthority> granted = getPrincipalAuthorities();
+		final Collection<? extends GrantedAuthority> granted = getPrincipalAuthorities();
 
 		if (hasTextAllGranted) {
 			if (!granted.containsAll(toAuthorities(getIfAllGranted()))) {
@@ -159,9 +159,9 @@ public abstract class AbstractAuthorizeTag {
 	/**
 	 * Make an authorization decision based on a Spring EL expression. See the "Expression-Based Access Control" chapter
 	 * in Spring Security for details on what expressions can be used.
-	 * 
+	 *
 	 * @return the result of the authorization decision
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public boolean authorizeUsingAccessExpression() throws IOException {
@@ -194,9 +194,9 @@ public abstract class AbstractAuthorizeTag {
 	/**
 	 * Make an authorization decision based on the URL and HTTP method attributes. True is returned if the user is
 	 * allowed to access the given URL as defined.
-	 * 
+	 *
 	 * @return the result of the authorization decision
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	public boolean authorizeUsingUrlCheck() throws IOException {
@@ -255,7 +255,7 @@ public abstract class AbstractAuthorizeTag {
 
 	/*------------- Private helper methods  -----------------*/
 
-	private Collection<GrantedAuthority> getPrincipalAuthorities() {
+	private Collection<? extends GrantedAuthority> getPrincipalAuthorities() {
 		Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
 		if (null == currentUser) {
 			return Collections.emptyList();
@@ -269,7 +269,7 @@ public abstract class AbstractAuthorizeTag {
 		return requiredAuthorities;
 	}
 
-	private Set<GrantedAuthority> retainAll(final Collection<GrantedAuthority> granted,
+	private Set<GrantedAuthority> retainAll(final Collection<? extends GrantedAuthority> granted,
 			final Set<GrantedAuthority> required) {
 		Set<String> grantedRoles = authoritiesToRoles(granted);
 		Set<String> requiredRoles = authoritiesToRoles(required);
@@ -278,7 +278,7 @@ public abstract class AbstractAuthorizeTag {
 		return rolesToAuthorities(grantedRoles, granted);
 	}
 
-	private Set<String> authoritiesToRoles(Collection<GrantedAuthority> c) {
+	private Set<String> authoritiesToRoles(Collection<? extends GrantedAuthority> c) {
 		Set<String> target = new HashSet<String>();
 		for (GrantedAuthority authority : c) {
 			if (null == authority.getAuthority()) {
@@ -291,7 +291,7 @@ public abstract class AbstractAuthorizeTag {
 		return target;
 	}
 
-	private Set<GrantedAuthority> rolesToAuthorities(Set<String> grantedRoles, Collection<GrantedAuthority> granted) {
+	private Set<GrantedAuthority> rolesToAuthorities(Set<String> grantedRoles, Collection<? extends GrantedAuthority> granted) {
 		Set<GrantedAuthority> target = new HashSet<GrantedAuthority>();
 		for (String role : grantedRoles) {
 			for (GrantedAuthority authority : granted) {
@@ -316,7 +316,7 @@ public abstract class AbstractAuthorizeTag {
 				return h;
 			}
 		}
-		
+
 		throw new IOException("No visible WebSecurityExpressionHandler instance could be found in the application "
 				+ "context. There must be at least one in order to support expressions in JSP 'authorize' tags.");
 	}

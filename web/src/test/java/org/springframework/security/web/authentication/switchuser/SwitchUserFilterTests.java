@@ -368,7 +368,7 @@ public class SwitchUserFilterTests {
         SwitchUserFilter filter = new SwitchUserFilter();
         filter.setUserDetailsService(new MockUserDetailsService());
         filter.setSwitchUserAuthorityChanger(new SwitchUserAuthorityChanger() {
-            public Collection<GrantedAuthority> modifyGrantedAuthorities(UserDetails targetUser, Authentication currentAuthentication, Collection<GrantedAuthority> authoritiesToBeGranted) {
+            public Collection<GrantedAuthority> modifyGrantedAuthorities(UserDetails targetUser, Authentication currentAuthentication, Collection<? extends GrantedAuthority> authoritiesToBeGranted) {
                 List <GrantedAuthority>auths = new ArrayList<GrantedAuthority>();
                 auths.add(new GrantedAuthorityImpl("ROLE_NEW"));
                 return auths;

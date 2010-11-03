@@ -127,7 +127,7 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
             return false;
         }
 
-        Collection<GrantedAuthority> authorities = auth.getAuthorities();
+        Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
 
         if (authorities == null) {
             return false;

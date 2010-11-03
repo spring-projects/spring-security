@@ -35,7 +35,7 @@ public abstract class AuthorityUtils {
      * Converts an array of GrantedAuthority objects to a Set.
      * @return a Set of the Strings obtained from each call to GrantedAuthority.getAuthority()
      */
-    public static Set<String> authorityListToSet(Collection<GrantedAuthority> userAuthorities) {
+    public static Set<String> authorityListToSet(Collection<? extends GrantedAuthority> userAuthorities) {
         Set<String> set = new HashSet<String>(userAuthorities.size());
 
         for (GrantedAuthority authority: userAuthorities) {

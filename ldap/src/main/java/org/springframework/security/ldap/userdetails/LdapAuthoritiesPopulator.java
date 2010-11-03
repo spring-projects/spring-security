@@ -42,5 +42,5 @@ public interface LdapAuthoritiesPopulator {
      * @return the granted authorities for the given user.
      *
      */
-    Collection<GrantedAuthority> getGrantedAuthorities(DirContextOperations userData, String username);
+    Collection<? extends GrantedAuthority> getGrantedAuthorities(DirContextOperations userData, String username);
 }

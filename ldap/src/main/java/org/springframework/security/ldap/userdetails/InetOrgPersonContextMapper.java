@@ -28,7 +28,7 @@ import org.springframework.util.Assert;
  */
 public class InetOrgPersonContextMapper implements UserDetailsContextMapper {
 
-    public UserDetails mapUserFromContext(DirContextOperations ctx, String username, Collection<GrantedAuthority> authorities) {
+    public UserDetails mapUserFromContext(DirContextOperations ctx, String username, Collection<? extends GrantedAuthority> authorities) {
         InetOrgPerson.Essence p = new InetOrgPerson.Essence(ctx);
 
         p.setUsername(username);

@@ -36,10 +36,10 @@ public interface UserDetailsContextMapper {
      *
      * @param ctx the context object which contains the user information.
      * @param username the user's supplied login name.
-     * @param authority the list of authorities which the user should be given.
+     * @param authorities
      * @return the user object.
      */
-    UserDetails mapUserFromContext(DirContextOperations ctx, String username, Collection<GrantedAuthority> authority);
+    UserDetails mapUserFromContext(DirContextOperations ctx, String username, Collection<? extends GrantedAuthority> authorities);
 
     /**
      * Reverse of the above operation. Populates a context object from the supplied user object.

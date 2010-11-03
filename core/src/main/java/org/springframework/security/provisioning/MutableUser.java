@@ -27,7 +27,7 @@ class MutableUser implements MutableUserDetails {
         this.password = password;
     }
 
-    public Collection<GrantedAuthority> getAuthorities() {
+    public Collection<? extends GrantedAuthority> getAuthorities() {
         return delegate.getAuthorities();
     }
 

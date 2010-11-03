@@ -93,7 +93,7 @@ public class RoleVoter implements AccessDecisionVoter {
 
     public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
         int result = ACCESS_ABSTAIN;
-        Collection<GrantedAuthority> authorities = extractAuthorities(authentication);
+        Collection<? extends GrantedAuthority> authorities = extractAuthorities(authentication);
 
         for (ConfigAttribute attribute : attributes) {
             if (this.supports(attribute)) {
@@ -111,7 +111,7 @@ public class RoleVoter implements AccessDecisionVoter {
         return result;
     }
 
-    Collection<GrantedAuthority> extractAuthorities(Authentication authentication) {
+    Collection<? extends GrantedAuthority> extractAuthorities(Authentication authentication) {
         return authentication.getAuthorities();
     }
 }

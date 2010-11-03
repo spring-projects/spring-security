@@ -30,7 +30,7 @@ public interface RemoteAuthenticationManager {
 
     /**
      * Attempts to authenticate the remote client using the presented username and password. If authentication
-     * is successful, an array of <code>GrantedAuthority[]</code> objects will be returned.
+     * is successful, a collection of {@code GrantedAuthority} objects will be returned.
      * <p>
      * In order to maximise remoting protocol compatibility, a design decision was taken to operate with minimal
      * arguments and return only the minimal amount of information required for remote clients to enable/disable
@@ -44,6 +44,6 @@ public interface RemoteAuthenticationManager {
      *
      * @throws RemoteAuthenticationException if the authentication failed.
      */
-    Collection<GrantedAuthority> attemptAuthentication(String username, String password)
+    Collection<? extends GrantedAuthority> attemptAuthentication(String username, String password)
         throws RemoteAuthenticationException;
 }

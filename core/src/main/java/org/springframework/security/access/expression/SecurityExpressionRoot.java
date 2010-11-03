@@ -121,7 +121,7 @@ public abstract class SecurityExpressionRoot {
     private Set<String> getAuthoritySet() {
         if (roles == null) {
             roles = new HashSet<String>();
-            Collection<GrantedAuthority> userAuthorities = authentication.getAuthorities();
+            Collection<? extends GrantedAuthority> userAuthorities = authentication.getAuthorities();
 
             if (roleHierarchy != null) {
                 userAuthorities = roleHierarchy.getReachableGrantedAuthorities(userAuthorities);

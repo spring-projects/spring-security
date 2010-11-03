@@ -45,7 +45,7 @@ public class LdapUserDetailsMapper implements UserDetailsContextMapper {
 
     //~ Methods ========================================================================================================
 
-    public UserDetails mapUserFromContext(DirContextOperations ctx, String username, Collection<GrantedAuthority> authorities) {
+    public UserDetails mapUserFromContext(DirContextOperations ctx, String username, Collection<? extends GrantedAuthority> authorities) {
         String dn = ctx.getNameInNamespace();
 
         logger.debug("Mapping user details from context with DN: " + dn);

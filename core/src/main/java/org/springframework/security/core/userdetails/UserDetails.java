@@ -59,7 +59,7 @@ public interface UserDetails extends Serializable {
      *
      * @return the authorities, sorted by natural key (never <code>null</code>)
      */
-    Collection<GrantedAuthority> getAuthorities();
+    Collection<? extends GrantedAuthority> getAuthorities();
 
     /**
      * Returns the password used to authenticate the user. Cannot return <code>null</code>.

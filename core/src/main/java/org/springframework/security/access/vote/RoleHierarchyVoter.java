@@ -26,7 +26,7 @@ public class RoleHierarchyVoter extends RoleVoter {
      * Calls the <tt>RoleHierarchy</tt> to obtain the complete set of user authorities.
      */
     @Override
-    Collection<GrantedAuthority> extractAuthorities(Authentication authentication) {
+    Collection<? extends GrantedAuthority> extractAuthorities(Authentication authentication) {
         return roleHierarchy.getReachableGrantedAuthorities(authentication.getAuthorities());
     }
 }

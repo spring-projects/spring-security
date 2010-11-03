@@ -91,7 +91,7 @@ public class RemoteAuthenticationProviderTests extends TestCase {
             this.grantAccess = grantAccess;
         }
 
-        public Collection<GrantedAuthority> attemptAuthentication(String username, String password)
+        public Collection<? extends GrantedAuthority> attemptAuthentication(String username, String password)
             throws RemoteAuthenticationException {
             if (grantAccess) {
                 return AuthorityUtils.createAuthorityList("foo");

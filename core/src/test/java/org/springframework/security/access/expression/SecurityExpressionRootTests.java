@@ -46,7 +46,7 @@ public class SecurityExpressionRootTests {
         SecurityExpressionRoot root = new SecurityExpressionRoot(JOE) {};
 
         root.setRoleHierarchy(new RoleHierarchy() {
-            public Collection<GrantedAuthority> getReachableGrantedAuthorities(Collection<GrantedAuthority> authorities) {
+            public Collection<GrantedAuthority> getReachableGrantedAuthorities(Collection<? extends GrantedAuthority> authorities) {
                 return AuthorityUtils.createAuthorityList("C");
             }
         });

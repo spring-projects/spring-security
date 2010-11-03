@@ -40,6 +40,6 @@ public interface RoleHierarchy {
      * @param authorities - List of the directly assigned authorities.
      * @return List of all reachable authorities given the assigned authorities.
      */
-    public Collection<GrantedAuthority> getReachableGrantedAuthorities(Collection<GrantedAuthority> authorities);
+    public Collection<? extends GrantedAuthority> getReachableGrantedAuthorities(Collection<? extends GrantedAuthority> authorities);
 
 }

@@ -192,7 +192,7 @@ public class JaasAuthenticationProviderTests {
         assertNotNull(jaasProvider.getLoginConfig());
         assertNotNull(jaasProvider.getLoginContextName());
 
-        Collection<GrantedAuthority> list = auth.getAuthorities();
+        Collection<? extends GrantedAuthority> list = auth.getAuthorities();
 
         assertTrue("GrantedAuthorities should contain ROLE_TEST1", list.contains(new GrantedAuthorityImpl("ROLE_TEST1")));
         assertTrue("GrantedAuthorities should contain ROLE_TEST2", list.contains(new GrantedAuthorityImpl("ROLE_TEST2")));

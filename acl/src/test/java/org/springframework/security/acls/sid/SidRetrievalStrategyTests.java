@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.Test;
@@ -53,8 +54,8 @@ public class SidRetrievalStrategyTests {
     @Test
     public void roleHierarchyIsUsedWhenSet() throws Exception {
         RoleHierarchy rh =  mock(RoleHierarchy.class);
-        List<GrantedAuthority> rhAuthorities = AuthorityUtils.createAuthorityList("D");
-        when(rh.getReachableGrantedAuthorities(anyList())).thenReturn(rhAuthorities);
+        List rhAuthorities = AuthorityUtils.createAuthorityList("D");
+        when(rh.getReachableGrantedAuthorities(anyCollection())).thenReturn(rhAuthorities);
         SidRetrievalStrategy strat = new SidRetrievalStrategyImpl(rh);
 
         List<Sid> sids = strat.getSids(authentication);

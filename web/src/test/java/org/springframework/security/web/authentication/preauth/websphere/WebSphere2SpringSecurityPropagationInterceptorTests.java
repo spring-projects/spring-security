@@ -18,6 +18,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
 
+import java.util.List;
+
 /**
  *
  * @author Luke Taylor
@@ -54,7 +56,8 @@ public class WebSphere2SpringSecurityPropagationInterceptorTests {
         PreAuthenticatedAuthenticationProvider provider = new PreAuthenticatedAuthenticationProvider();
         AuthenticationUserDetailsService uds = mock(AuthenticationUserDetailsService.class);
         UserDetails user = mock(UserDetails.class);
-        when(user.getAuthorities()).thenReturn(AuthorityUtils.createAuthorityList("SOME_ROLE"));
+        List authorities = AuthorityUtils.createAuthorityList("SOME_ROLE");
+        when(user.getAuthorities()).thenReturn(authorities);
         when(uds.loadUserDetails(any(Authentication.class))).thenReturn(user);
         provider.setPreAuthenticatedUserDetailsService(uds);
         provider.setUserDetailsChecker(mock(UserDetailsChecker.class));

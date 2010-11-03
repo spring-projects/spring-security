@@ -49,7 +49,7 @@ public class UserDetailsWrapper implements UserDetails {
         return userDetails.isAccountNonLocked();
     }
 
-    public Collection<GrantedAuthority> getAuthorities() {
+    public Collection<? extends GrantedAuthority> getAuthorities() {
         return roleHierarchy.getReachableGrantedAuthorities(userDetails.getAuthorities());
     }
 

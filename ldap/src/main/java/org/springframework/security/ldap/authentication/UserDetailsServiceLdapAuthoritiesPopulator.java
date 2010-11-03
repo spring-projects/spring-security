@@ -24,7 +24,7 @@ public class UserDetailsServiceLdapAuthoritiesPopulator implements LdapAuthoriti
         this.userDetailsService = userService;
     }
 
-    public Collection<GrantedAuthority> getGrantedAuthorities(DirContextOperations userData, String username) {
+    public Collection<? extends GrantedAuthority> getGrantedAuthorities(DirContextOperations userData, String username) {
         return userDetailsService.loadUserByUsername(username).getAuthorities();
     }
 }

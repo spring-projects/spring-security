@@ -310,7 +310,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
         userDetailsMapper.mapUserToContext(user, ctx);
     }
 
-    protected void addAuthorities(DistinguishedName userDn, Collection<GrantedAuthority> authorities) {
+    protected void addAuthorities(DistinguishedName userDn, Collection<? extends GrantedAuthority> authorities) {
         modifyAuthorities(userDn, authorities, DirContext.ADD_ATTRIBUTE);
     }
 
@@ -318,7 +318,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
         modifyAuthorities(userDn, authorities, DirContext.REMOVE_ATTRIBUTE);
     }
 
-    private void modifyAuthorities(final DistinguishedName userDn, final Collection<GrantedAuthority> authorities, final int modType) {
+    private void modifyAuthorities(final DistinguishedName userDn, final Collection<? extends GrantedAuthority> authorities, final int modType) {
         template.executeReadWrite(new ContextExecutor() {
             public Object executeWithContext(DirContext ctx) throws NamingException {
                 for(GrantedAuthority authority : authorities) {

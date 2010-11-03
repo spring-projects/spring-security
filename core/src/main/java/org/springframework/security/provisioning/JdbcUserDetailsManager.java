@@ -493,7 +493,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         validateAuthorities(user.getAuthorities());
     }
 
-    private void validateAuthorities(Collection<GrantedAuthority> authorities) {
+    private void validateAuthorities(Collection<? extends GrantedAuthority> authorities) {
         Assert.notNull(authorities, "Authorities list must not be null");
 
         for (GrantedAuthority authority : authorities) {

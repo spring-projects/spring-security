@@ -251,7 +251,7 @@ public class LdapAuthenticationProvider implements AuthenticationProvider, Messa
         try {
             DirContextOperations userData = getAuthenticator().authenticate(authentication);
 
-            Collection<GrantedAuthority> extraAuthorities = loadUserAuthorities(userData, username, password);
+            Collection<? extends GrantedAuthority> extraAuthorities = loadUserAuthorities(userData, username, password);
 
             UserDetails user = userDetailsContextMapper.mapUserFromContext(userData, username, extraAuthorities);
 
@@ -272,7 +272,7 @@ public class LdapAuthenticationProvider implements AuthenticationProvider, Messa
         }
     }
 
-    protected Collection<GrantedAuthority> loadUserAuthorities(DirContextOperations userData, String username, String password) {
+    protected Collection<? extends GrantedAuthority> loadUserAuthorities(DirContextOperations userData, String username, String password) {
         return getAuthoritiesPopulator().getGrantedAuthorities(userData, username);
     }
 

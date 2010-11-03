@@ -44,7 +44,7 @@ public class RemoteAuthenticationManagerImpl implements RemoteAuthenticationMana
         Assert.notNull(this.authenticationManager, "authenticationManager is required");
     }
 
-    public Collection<GrantedAuthority> attemptAuthentication(String username, String password)
+    public Collection<? extends GrantedAuthority> attemptAuthentication(String username, String password)
             throws RemoteAuthenticationException {
         UsernamePasswordAuthenticationToken request = new UsernamePasswordAuthenticationToken(username, password);
 

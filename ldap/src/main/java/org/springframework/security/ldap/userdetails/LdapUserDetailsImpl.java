@@ -222,7 +222,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
             instance.accountNonLocked = accountNonLocked;
         }
 
-        public void setAuthorities(Collection<GrantedAuthority> authorities) {
+        public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
             mutableAuthorities = new ArrayList<GrantedAuthority>();
             mutableAuthorities.addAll(authorities);
         }

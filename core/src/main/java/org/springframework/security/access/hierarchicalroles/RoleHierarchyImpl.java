@@ -105,7 +105,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
         buildRolesReachableInOneOrMoreStepsMap();
     }
 
-    public Collection<GrantedAuthority> getReachableGrantedAuthorities(Collection<GrantedAuthority> authorities) {
+    public Collection<GrantedAuthority> getReachableGrantedAuthorities(Collection<? extends GrantedAuthority> authorities) {
         if (authorities == null || authorities.isEmpty()) {
             return AuthorityUtils.NO_AUTHORITIES;
         }

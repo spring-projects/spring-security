@@ -59,7 +59,7 @@ public interface Authentication extends Principal, Serializable {
      * @return the authorities granted to the principal, or an empty collection if the token has not been authenticated.
      * Never null.
      */
-    Collection<GrantedAuthority> getAuthorities();
+    Collection<? extends GrantedAuthority> getAuthorities();
 
     /**
      * The credentials that prove the principal is correct. This is usually a password, but could be anything

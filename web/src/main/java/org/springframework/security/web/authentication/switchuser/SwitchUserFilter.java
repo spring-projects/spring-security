@@ -291,7 +291,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
         GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(ROLE_PREVIOUS_ADMINISTRATOR, currentAuth);
 
         // get the original authorities
-        Collection<GrantedAuthority> orig = targetUser.getAuthorities();
+        Collection<? extends GrantedAuthority> orig = targetUser.getAuthorities();
 
         // Allow subclasses to change the authorities to be granted
         if (switchUserAuthorityChanger != null) {
@@ -324,7 +324,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
         Authentication original = null;
 
         // iterate over granted authorities and find the 'switch user' authority
-        Collection<GrantedAuthority> authorities = current.getAuthorities();
+        Collection<? extends GrantedAuthority> authorities = current.getAuthorities();
 
         for (GrantedAuthority auth : authorities) {
             // check for switch user type of authority

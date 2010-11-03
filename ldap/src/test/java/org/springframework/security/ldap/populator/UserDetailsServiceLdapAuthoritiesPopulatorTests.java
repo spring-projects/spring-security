@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.junit.Test;
 import org.springframework.ldap.core.DirContextAdapter;
@@ -23,10 +24,11 @@ public class UserDetailsServiceLdapAuthoritiesPopulatorTests {
         UserDetailsService uds = mock(UserDetailsService.class);
         UserDetails user = mock(UserDetails.class);
         when(uds.loadUserByUsername("joe")).thenReturn(user);
-        when(user.getAuthorities()).thenReturn(AuthorityUtils.createAuthorityList("ROLE_USER"));
+        List authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
+        when(user.getAuthorities()).thenReturn(authorities);
 
         UserDetailsServiceLdapAuthoritiesPopulator populator = new UserDetailsServiceLdapAuthoritiesPopulator(uds);
-        Collection<GrantedAuthority> auths =  populator.getGrantedAuthorities(new DirContextAdapter(), "joe");
+        Collection<? extends GrantedAuthority> auths =  populator.getGrantedAuthorities(new DirContextAdapter(), "joe");
 
         assertEquals(1, auths.size());
         assertTrue(AuthorityUtils.authorityListToSet(auths).contains("ROLE_USER"));
