@@ -1,12 +1,18 @@
 package org.springframework.security.web.firewall;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
-
-import java.util.*;
 
 /**
  * @author Luke Taylor
@@ -59,4 +65,39 @@ public class RequestWrapperTests {
         }
     }
 
+    @Test
+    public void resetWhenForward() throws Exception {
+        String denormalizedPath = testPaths.keySet().iterator().next();
+        String forwardPath = "/forward/path";
+        HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+        HttpServletResponse mockResponse = mock(HttpServletResponse.class);
+        RequestDispatcher mockDispatcher = mock(RequestDispatcher.class);
+        when(mockRequest.getServletPath()).thenReturn("");
+        when(mockRequest.getPathInfo()).thenReturn(denormalizedPath);
+        when(mockRequest.getRequestDispatcher(forwardPath)).thenReturn(mockDispatcher);
+
+        RequestWrapper wrapper = new RequestWrapper(mockRequest);
+        RequestDispatcher dispatcher = wrapper.getRequestDispatcher(forwardPath);
+        dispatcher.forward(mockRequest, mockResponse);
+
+        verify(mockRequest).getRequestDispatcher(forwardPath);
+        verify(mockDispatcher).forward(mockRequest, mockResponse);
+        assertEquals(denormalizedPath,wrapper.getPathInfo());
+        verify(mockRequest,times(2)).getPathInfo();
+        // validate wrapper.getServletPath() delegates to the mock
+        wrapper.getServletPath();
+        verify(mockRequest,times(2)).getServletPath();
+        verifyNoMoreInteractions(mockRequest,mockResponse,mockDispatcher);
+    }
+
+    @Test
+    public void requestDispatcherNotWrappedAfterReset() {
+        String path = "/forward/path";
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        RequestDispatcher dispatcher = mock(RequestDispatcher.class);
+        when(request.getRequestDispatcher(path)).thenReturn(dispatcher);
+        RequestWrapper wrapper = new RequestWrapper(request);
+        wrapper.reset();
+        assertSame(dispatcher, wrapper.getRequestDispatcher(path));
+    }
 }
