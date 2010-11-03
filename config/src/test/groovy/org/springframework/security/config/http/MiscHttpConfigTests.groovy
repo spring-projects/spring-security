@@ -45,6 +45,8 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
 import org.springframework.security.web.session.SessionManagementFilter
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler
 import org.springframework.security.web.firewall.DefaultHttpFirewall
+import org.springframework.security.BeanNameCollectingPostProcessor
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 
 class MiscHttpConfigTests extends AbstractHttpConfigTests {
     def 'Minimal configuration parses'() {
@@ -409,16 +411,26 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
      * and also has a post processor registered which will modify it.
      */
     def httpElementDoesntInterfereWithBeanPostProcessing() {
-        httpAutoConfig {}
+        xml.http('auto-config': 'true', 'entry-point-ref': 'entryPoint') {}
         xml.'authentication-manager'() {
             'authentication-provider'('user-service-ref': 'myUserService')
+            'authentication-provider'('ref': 'authProvider')
         }
+        bean('authProvider', DaoAuthenticationProvider.class.name, [:], [userDetailsService: 'myUserService'])
+        bean('entryPoint', MockEntryPoint.class.name)
         bean('myUserService', PostProcessedMockUserDetailsService)
-        bean('beanPostProcessor', MockUserServiceBeanPostProcessor)
+        bean('userServicePostProcessor', MockUserServiceBeanPostProcessor)
+        bean('nameCollectingPostProcessor', BeanNameCollectingPostProcessor)
         createAppContext("")
+        def beanPP = appContext.getBean("nameCollectingPostProcessor")
+        Set preInitPPBeans = beanPP.beforeInitPostProcessedBeans
+        Set postInitPPBeans = beanPP.afterInitPostProcessedBeans
+        Set expectedBeans = ['authProvider', 'entryPoint', 'myUserService'] as Set
 
         expect:
         appContext.getBean("myUserService").getPostProcessorWasHere() == "Hello from the post processor!"
+        preInitPPBeans.containsAll(expectedBeans)
+        postInitPPBeans.containsAll(expectedBeans)
     }
 
     /* SEC-934 */
