@@ -314,7 +314,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
         modifyAuthorities(userDn, authorities, DirContext.ADD_ATTRIBUTE);
     }
 
-    protected void removeAuthorities(DistinguishedName userDn, List<GrantedAuthority> authorities) {
+    protected void removeAuthorities(DistinguishedName userDn, Collection<? extends GrantedAuthority> authorities) {
         modifyAuthorities(userDn, authorities, DirContext.REMOVE_ATTRIBUTE);
     }
 
