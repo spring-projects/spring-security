@@ -170,6 +170,35 @@ public class HttpSessionSecurityContextRepositoryTests {
         assertNull(request.getSession(false));
     }
 
+    // SEC-1587
+    @Test
+    public void contextIsRemovedFromSessionIfCurrentContextIsAnonymous() throws Exception {
+        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        SecurityContext ctxInSession = SecurityContextHolder.createEmptyContext();
+        ctxInSession.setAuthentication(testToken);
+        request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, ctxInSession);
+        HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, new MockHttpServletResponse());
+        repo.loadContext(holder);
+        SecurityContextHolder.getContext().setAuthentication(new AnonymousAuthenticationToken("x","x", testToken.getAuthorities()));
+        repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
+        assertNull(request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY));
+    }
+
+    @Test
+    public void contextIsRemovedFromSessionIfCurrentContextIsEmpty() throws Exception {
+        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        SecurityContext ctxInSession = SecurityContextHolder.createEmptyContext();
+        ctxInSession.setAuthentication(testToken);
+        request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, ctxInSession);
+        HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, new MockHttpServletResponse());
+        repo.loadContext(holder);
+        // Save an empty context
+        repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
+        assertNull(request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY));
+    }
+
     @Test
     @SuppressWarnings("deprecation")
     public void sessionDisableUrlRewritingPreventsSessionIdBeingWrittenToUrl() throws Exception {

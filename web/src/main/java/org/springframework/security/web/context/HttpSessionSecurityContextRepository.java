@@ -262,22 +262,28 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
          */
         @Override
         protected void saveContext(SecurityContext context) {
+            final Authentication authentication = context.getAuthentication();
+            HttpSession httpSession = request.getSession(false);
+
             // See SEC-776
-            if (authenticationTrustResolver.isAnonymous(context.getAuthentication())) {
+            if (authentication == null || authenticationTrustResolver.isAnonymous(authentication)) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("SecurityContext contents are anonymous - context will not be stored in HttpSession.");
+                    logger.debug("SecurityContext is empty or contents are anonymous - context will not be stored in HttpSession.");
+                }
+
+                if (httpSession != null) {
+                    // SEC-1587 A non-anonymous context may still be in the session
+                    httpSession.removeAttribute(SPRING_SECURITY_CONTEXT_KEY);
                 }
                 return;
             }
-
-            HttpSession httpSession = request.getSession(false);
 
             if (httpSession == null) {
                 httpSession = createNewSessionIfAllowed(context);
             }
 
-            // If HttpSession exists, store current SecurityContextHolder contents but only if
-            // the SecurityContext has actually changed in this thread (see SEC-37, SEC-1307, SEC-1528)
+            // If HttpSession exists, store current SecurityContext but only if it has
+            // actually changed in this thread (see SEC-37, SEC-1307, SEC-1528)
             if (httpSession != null) {
                 // We may have a new session, so check also whether the context attribute is set SEC-1561
                 if (contextChanged(context) || httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY) == null) {
