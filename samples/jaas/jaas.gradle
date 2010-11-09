@@ -13,6 +13,7 @@ dependencies {
 
     runtime project(':spring-security-web'),
             project(':spring-security-config'),
+            project(':spring-security-taglibs'),
             "org.springframework:spring-context-support:$springVersion",
             "javax.servlet:jstl:$jstlVersion",
             "org.slf4j:jcl-over-slf4j:$slf4jVersion",
