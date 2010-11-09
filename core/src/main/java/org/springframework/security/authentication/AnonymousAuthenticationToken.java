@@ -16,6 +16,7 @@
 package org.springframework.security.authentication;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -44,7 +45,7 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
      *
      * @throws IllegalArgumentException if a <code>null</code> was passed
      */
-    public AnonymousAuthenticationToken(String key, Object principal, List<GrantedAuthority> authorities) {
+    public AnonymousAuthenticationToken(String key, Object principal, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
 
         if ((key == null) || ("".equals(key)) || (principal == null) || "".equals(principal) || (authorities == null)
