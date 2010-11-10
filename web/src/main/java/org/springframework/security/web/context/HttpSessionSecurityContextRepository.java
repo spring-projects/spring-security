@@ -10,6 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -328,15 +329,21 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
          */
         @Override
         protected void saveContext(SecurityContext context) {
+            final Authentication authentication = context.getAuthentication();
+            HttpSession httpSession = request.getSession(false);
+
             // See SEC-776
-            if (authenticationTrustResolver.isAnonymous(context.getAuthentication())) {
+            if (authentication == null || authenticationTrustResolver.isAnonymous(authentication)) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("SecurityContext contents are anonymous - context will not be stored in HttpSession. ");
+                    logger.debug("SecurityContext is empty or anonymous - context will not be stored in HttpSession. ");
+                }
+
+                if (httpSession != null) {
+                    // SEC-1587 A non-anonymous context may still be in the session
+                    httpSession.removeAttribute(SPRING_SECURITY_CONTEXT_KEY);
                 }
                 return;
             }
-
-            HttpSession httpSession = request.getSession(false);
 
             if (httpSession == null) {
                 httpSession = createNewSessionIfAllowed(context);
