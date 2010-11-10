@@ -24,6 +24,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
+import samples.gae.users.GaeUser;
 
 /**
  * @author Luke Taylor
@@ -39,10 +40,15 @@ public class GaeAuthenticationFilter extends GenericFilterBean {
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User googleUser = UserServiceFactory.getUserService().getCurrentUser();
+
+        if (authentication != null && !loggedInUserMatchesGaeUser(authentication, googleUser)) {
+            SecurityContextHolder.clearContext();
+            authentication = null;
+            ((HttpServletRequest)request).getSession().invalidate();
+        }
 
         if (authentication == null) {
-            User googleUser = UserServiceFactory.getUserService().getCurrentUser();
-
             if (googleUser != null) {
                 logger.debug("Currently logged on to GAE as user " + googleUser);
                 logger.debug("Authenticating to Spring Security");
@@ -70,6 +76,24 @@ public class GaeAuthenticationFilter extends GenericFilterBean {
         }
 
         chain.doFilter(request, response);
+    }
+
+    private boolean loggedInUserMatchesGaeUser(Authentication authentication, User googleUser) {
+        assert authentication != null;
+
+        if (googleUser == null) {
+            // User has logged out of GAE but is still logged into application
+            return false;
+        }
+
+        GaeUser gaeUser = (GaeUser)authentication.getPrincipal();
+
+        if (!gaeUser.getEmail().equals(googleUser.getEmail())) {
+            return false;
+        }
+
+        return true;
+
     }
 
     @Override

@@ -20,7 +20,7 @@ class GaePlugin implements Plugin<Project> {
         project.gaeDeploy.dependsOn project.war
 
         project.war.doLast {
-          ant.unzip(src: project.war.archivePath, dest: explodedWar)
+            ant.unzip(src: project.war.archivePath, dest: explodedWar)
         }
     }
 }
