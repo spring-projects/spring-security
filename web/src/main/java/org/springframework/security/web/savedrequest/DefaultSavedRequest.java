@@ -15,28 +15,19 @@
 
 package org.springframework.security.web.savedrequest;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TreeMap;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.web.PortResolver;
-import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
+
 
 /**
- * Represents central information from a <code>HttpServletRequest</code>.
+ * Represents central information from a {@code HttpServletRequest}.
  * <p>
  * This class is used by {@link org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter}
  * and {@link org.springframework.security.web.savedrequest.SavedRequestAwareWrapper} to
@@ -51,6 +42,7 @@ import org.springframework.util.Assert;
  * @author Craig McClanahan
  * @author Andrey Grebnev
  * @author Ben Alex
+ * @author Luke Taylor
  */
 public class DefaultSavedRequest implements SavedRequest {
     //~ Static fields/initializers =====================================================================================
@@ -58,6 +50,7 @@ public class DefaultSavedRequest implements SavedRequest {
     protected static final Log logger = LogFactory.getLog(DefaultSavedRequest.class);
 
     private static final String HEADER_IF_NONE_MATCH = "If-None-Match";
+    private static final String HEADER_IF_MODIFIED_SINCE = "If-Modified-Since";
 
     //~ Instance fields ================================================================================================
 
@@ -97,8 +90,8 @@ public class DefaultSavedRequest implements SavedRequest {
 
         while (names.hasMoreElements()) {
             String name = names.nextElement();
-            // Skip If-None-Match header. SEC-1412.
-            if (HEADER_IF_NONE_MATCH.equalsIgnoreCase(name)) {
+            // Skip If-Modified-Since and If-None-Match header. SEC-1412, SEC-1624.
+            if (HEADER_IF_MODIFIED_SINCE.equalsIgnoreCase(name) || HEADER_IF_NONE_MATCH.equalsIgnoreCase(name)) {
                 continue;
             }
             Enumeration<String> values = request.getHeaders(name);
