@@ -15,18 +15,6 @@
 
 package org.springframework.security.web.savedrequest;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TreeMap;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.web.PortResolver;
@@ -34,19 +22,27 @@ import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
 
 /**
- * Represents central information from a <code>HttpServletRequest</code>.<p>This class is used by {@link
- * org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter} and {@link org.springframework.security.web.savedrequest.SavedRequestAwareWrapper} to
+ * Represents central information from a <code>HttpServletRequest</code>.
+ * <p>
+ * This class is used by {@link org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter}
+ * and {@link org.springframework.security.web.savedrequest.SavedRequestAwareWrapper} to
  * reproduce the request after successful authentication. An instance of this class is stored at the time of an
- * authentication exception by {@link org.springframework.security.web.access.ExceptionTranslationFilter}.</p>
- * <p><em>IMPLEMENTATION NOTE</em>: It is assumed that this object is accessed only from the context of a single
- * thread, so no synchronization around internal collection classes is performed.</p>
- * <p>This class is based on code in Apache Tomcat.</p>
+ * authentication exception by {@link org.springframework.security.web.access.ExceptionTranslationFilter}.
+ * <p>
+ * <em>IMPLEMENTATION NOTE</em>: It is assumed that this object is accessed only from the context of a single
+ * thread, so no synchronization around internal collection classes is performed.
+ * <p>
+ * This class is based on code in Apache Tomcat.
  *
  * @author Craig McClanahan
  * @author Andrey Grebnev
  * @author Ben Alex
+ * @author Luke Taylor
  */
 public class DefaultSavedRequest implements SavedRequest {
     //~ Static fields/initializers =====================================================================================
@@ -59,23 +55,24 @@ public class DefaultSavedRequest implements SavedRequest {
     public static final String SPRING_SECURITY_SAVED_REQUEST_KEY = WebAttributes.SAVED_REQUEST;
 
     private static final String HEADER_IF_NONE_MATCH = "If-None-Match";
+    private static final String HEADER_IF_MODIFIED_SINCE = "If-Modified-Since";
 
     //~ Instance fields ================================================================================================
 
-    private ArrayList<SavedCookie> cookies = new ArrayList<SavedCookie>();
-    private ArrayList<Locale> locales = new ArrayList<Locale>();
-    private Map<String, List<String>> headers = new TreeMap<String, List<String>>(String.CASE_INSENSITIVE_ORDER);
-    private Map<String, String[]> parameters = new TreeMap<String, String[]>(String.CASE_INSENSITIVE_ORDER);
-    private String contextPath;
-    private String method;
-    private String pathInfo;
-    private String queryString;
-    private String requestURI;
-    private String requestURL;
-    private String scheme;
-    private String serverName;
-    private String servletPath;
-    private int serverPort;
+    private final ArrayList<SavedCookie> cookies = new ArrayList<SavedCookie>();
+    private final ArrayList<Locale> locales = new ArrayList<Locale>();
+    private final Map<String, List<String>> headers = new TreeMap<String, List<String>>(String.CASE_INSENSITIVE_ORDER);
+    private final Map<String, String[]> parameters = new TreeMap<String, String[]>(String.CASE_INSENSITIVE_ORDER);
+    private final String contextPath;
+    private final String method;
+    private final String pathInfo;
+    private final String queryString;
+    private final String requestURI;
+    private final String requestURL;
+    private final String scheme;
+    private final String serverName;
+    private final String servletPath;
+    private final int serverPort;
 
     //~ Constructors ===================================================================================================
 
@@ -98,8 +95,8 @@ public class DefaultSavedRequest implements SavedRequest {
 
         while (names.hasMoreElements()) {
             String name = names.nextElement();
-            // Skip If-None-Match header. SEC-1412.
-            if (HEADER_IF_NONE_MATCH.equalsIgnoreCase(name)) {
+            // Skip If-Modified-Since and If-None-Match header. SEC-1412, SEC-1624.
+            if (HEADER_IF_MODIFIED_SINCE.equalsIgnoreCase(name) || HEADER_IF_NONE_MATCH.equalsIgnoreCase(name)) {
                 continue;
             }
             Enumeration<String> values = request.getHeaders(name);
@@ -195,8 +192,7 @@ public class DefaultSavedRequest implements SavedRequest {
             return false;
         }
 
-        if (!propertyEquals("serverPort", new Integer(this.serverPort), new Integer(portResolver.getServerPort(request))))
-        {
+        if (!propertyEquals("serverPort", new Integer(this.serverPort), new Integer(portResolver.getServerPort(request)))) {
             return false;
         }
 
