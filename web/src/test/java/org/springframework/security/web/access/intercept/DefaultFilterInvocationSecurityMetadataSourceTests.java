@@ -33,8 +33,7 @@ import org.springframework.security.web.util.AntPathRequestMatcher;
 import org.springframework.security.web.util.RequestMatcher;
 
 /**
- * Tests parts of {@link DefaultFilterInvocationSecurityMetadataSource} not tested by {@link
- * FilterInvocationDefinitionSourceEditorTests}.
+ * Tests {@link DefaultFilterInvocationSecurityMetadataSource}.
  *
  * @author Ben Alex
  */
