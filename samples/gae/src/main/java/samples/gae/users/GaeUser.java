@@ -75,7 +75,7 @@ public class GaeUser implements Serializable {
         return enabled;
     }
 
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    public Collection<AppRole> getAuthorities() {
         return authorities;
     }
 

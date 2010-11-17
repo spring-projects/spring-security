@@ -1,14 +1,16 @@
 package samples.gae.users;
 
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Set;
-
-import com.google.appengine.api.datastore.*;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.GrantedAuthority;
 import samples.gae.security.AppRole;
+
+import java.util.*;
 
 /**
  * UserRegistry implementation which uses GAE's low-level Datastore APIs.
@@ -70,12 +72,12 @@ public class GaeDatastoreUserRegistry implements UserRegistry {
         user.setProperty(USER_SURNAME, newUser.getSurname());
         user.setUnindexedProperty(USER_ENABLED, newUser.isEnabled());
 
-        Collection<? extends GrantedAuthority> roles = newUser.getAuthorities();
+        Collection<AppRole> roles = newUser.getAuthorities();
 
         long binaryAuthorities = 0;
 
-        for (GrantedAuthority r : roles) {
-            binaryAuthorities |= 1 << ((AppRole)r).getBit();
+        for (AppRole r : roles) {
+            binaryAuthorities |= 1 << r.getBit();
         }
 
         user.setUnindexedProperty(USER_AUTHORITIES, binaryAuthorities);
