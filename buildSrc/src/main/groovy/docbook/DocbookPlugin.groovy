@@ -72,6 +72,8 @@ public class Docbook extends DefaultTask {
 
     String admonGraphicsPath;
 
+    String imgSrcPath;
+
     @InputDirectory
     File sourceDirectory = new File(project.getProjectDir(), "src/docbook");
 
@@ -115,11 +117,15 @@ public class Docbook extends DefaultTask {
             }
 
             transformer.setParameter("highlight.xslthl.config", new File(highlightingDir, "xslthl-config.xml").toURI().toURL());
+        }
 
-            if (admonGraphicsPath != null) {
-                transformer.setParameter("admon.graphics", "1");
-                transformer.setParameter("admon.graphics.path", admonGraphicsPath);
-            }
+        if (admonGraphicsPath != null) {
+            transformer.setParameter("admon.graphics", "1");
+            transformer.setParameter("admon.graphics.path", admonGraphicsPath);
+        }
+
+        if (imgSrcPath != null) {
+            transformer.setParameter("img.src.path", imgSrcPath);
         }
 
         preTransform(transformer, srcFile, outputFile);
@@ -257,9 +263,9 @@ class DocbookFoPdf extends Docbook {
             }
         }
 
-        if (!foFile.delete()) {
+/*        if (!foFile.delete()) {
             logger.warn("Failed to delete 'fo' file " + foFile);
-        }
+        }*/
     }
 
     private File getPdfOutputFile(File foFile) {

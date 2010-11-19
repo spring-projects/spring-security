@@ -33,7 +33,8 @@ project('manual') {
     docbookHtmlSingle.stylesheet = new File(projectDir, 'src/xsl/html-single-custom.xsl')
     docbookFoPdf.stylesheet = new File(projectDir, 'src/xsl/pdf-custom.xsl')
     def imagesDir = new File(projectDir, 'src/docbook/images');
-    docbookFoPdf.admonGraphicsPath = "${imagesDir}/"
+//    docbookFoPdf.admonGraphicsPath = "${imagesDir}/"
+    docbookFoPdf.imgSrcPath = "${projectDir}/src/docbook/"
 
     spec = copySpec {
         into ('reference') {
