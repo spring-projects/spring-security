@@ -48,16 +48,18 @@
     </section>
     <section xml:id="filter-chain-proxy">
         <title><classname>FilterChainProxy</classname></title>
-        <para> It should now be clear that you can declare each Spring Security filter bean that you
-            require in your application context file and add a corresponding
-            <classname>DelegatingFilterProxy</classname> entry to <filename>web.xml</filename> for
-            each filter, making sure that they are ordered correctly. This is a cumbersome approach
-            and clutters up the <filename>web.xml</filename> file quickly if we have a lot of
-            filters. We would prefer to just add a single entry to <filename>web.xml</filename> and
-            deal entirely with the application context file for managing our web security beans.
-            This is where Spring Secuirity's <classname>FilterChainProxy</classname> comes in. It is
-            wired using a <literal>DelegatingFilterProxy</literal>, just like in the example above,
-            but with the <literal>filter-name</literal> set to the bean name
+        <para>Spring Security's web infrastructure should only be used by delegating to an
+            instance of <classname>FilterChainProxy</classname>. The security filters should not
+            be used by themselves. In theory you could declare each Spring Security filter bean
+            that you require in your application context file and add a corresponding
+            <classname>DelegatingFilterProxy</classname> entry to <filename>web.xml</filename>
+            for each filter, making sure that they are ordered correctly, but this would be
+            cumbersome and would clutter up the <filename>web.xml</filename> file quickly if you
+            have a lot of filters. <classname>FilterChainProxy</classname> lets us add a single
+            entry to <filename>web.xml</filename> and deal entirely with the application context
+            file for managing our web security beans. It is wired using a
+            <literal>DelegatingFilterProxy</literal>, just like in the example above, but with
+            the <literal>filter-name</literal> set to the bean name
             <quote>filterChainProxy</quote>. The filter chain is then declared in the application
             context with the same bean name. Here's an example: <programlisting language="xml"><![CDATA[
 <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
@@ -98,6 +100,10 @@
             <classname>SecurityContextPersistenceFilter</classname> (with its default
             <literal>allowSessionCreation</literal> as <literal>true</literal>) would likely be
             sufficient.</para>
+        <para>Note that <classname>FilterChainProxy</classname> does not invoke standard filter
+            lifecycle methods on the filters it is configured with. We recommend you use
+            Spring's application context lifecycle interfaces as an alternative, just as you
+            would for any other Spring bean.</para>
         <para> When we looked at how to set up web security using <link xlink:href="#ns-web-xml"
             >namespace configuration</link>, we used a <literal>DelegatingFilterProxy</literal> with
             the name <quote>springSecurityFilterChain</quote>. You should now be able to see that
@@ -182,6 +188,78 @@
                     raise exceptions when access is denied</para>
             </listitem>
             </orderedlist></para>
+    </section>
+    <section xml:id="request-matching">
+        <title>Request Matching and <interfacename>HttpFirewall</interfacename></title>
+        <para>Spring Security has several areas where patterns you have defined are tested
+            against incoming requests in order to decide how the request should be handled. This
+            occurs when the <classname>FilterChainProxy</classname> decides which filter chain a
+            request should be passed through and also when the
+            <classname>FilterSecurityInterceptor</classname> decides which security constraints
+            apply to a request. It's important to understand what the mechanism is and what URL
+            value is used when testing against the patterns that you define.</para>
+        <para>The Servlet Specification defines several properties for the
+            <interfacename>HttpServletRequest</interfacename> which are accessible via getter
+            methods, and which we might want to match against. These are the
+            <literal>contextPath</literal>, <literal>servletPath</literal>,
+            <literal>pathInfo</literal> and <literal>queryString</literal>. Spring Security is
+            only interested in securing paths within the application, so the
+            <literal>contextPath</literal> is ignored. Unfortunately, the servlet spec does not
+            define exactly what the values of <literal>servletPath</literal> and
+            <literal>pathInfo</literal> will contain for a particular request URI. For example,
+            each path segment of a URL may contain parameters, as defined in <link
+                xlink:href="http://www.ietf.org/rfc/rfc2396.txt">RFC 2396</link><footnote>
+                    <para>You have probably seen this when a browser doesn't support cookies and the
+                        <literal>jsessionid</literal> parameter is appended to the URL after a
+                        semi-colon. However the RFC allows the presence of these parameters in any path
+                        segment of the URL</para>
+                </footnote>. The Specification does not clearly state whether these should be
+            included in the <literal>servletPath</literal> and <literal>pathInfo</literal>
+            values and the behaviour varies between different servlet containers. There is a
+            danger that when an application is deployed in a container which does not strip path
+            parameters from these values, an attacker could add them to the requested URL in
+            order to cause a pattern match to succeed or fail unexpectedly.<footnote>
+                <para>The original values will be returned once the request leaves the
+                    <classname>FilterChainProxy</classname>, so will still be available to the
+                    application.</para>
+            </footnote>. Other variations in the incoming URL are also possible. For example, it
+            could contain path-traversal sequences (like <literal>/../</literal>) or multiple
+            forward slashes (<literal>//</literal>) which could also cause pattern-matches to
+            fail. Some containers normalize these out before performing the servlet mapping, but
+            others don't. To protect against issues like these,
+            <classname>FilterChainProxy</classname> uses an
+            <interfacename>HttpFirewall</interfacename> strategy to check and wrap the request.
+            Un-normalized requests are automatically rejected by default, and path parameters
+            and duplicate slashes are removed for matching purposes.<footnote>
+                <para>So, for example, an original request path
+                    <literal>/secure;hack=1/somefile.html;hack=2</literal> will be returned as
+                    <literal>/secure/somefile.html</literal>.</para>
+            </footnote>. It is therefore essential that a
+            <classname>FilterChainProxy</classname> is used to manage the security filter chain.
+            Note that the <literal>servletPath</literal> and <literal>pathInfo</literal> values
+            are decoded by the container, so your application should not have any valid paths
+            which contain semi-colons, as these parts will be removed for matching purposes. </para>
+        <para>As mentioned above, the default strategy is to use Ant-style paths for matching
+            and this is likely to be the best choice for most users. The strategy is implemented
+            in the class <classname>AntPathRequestMatcher</classname> which uses Spring's
+            <classname>AntPathMatcher</classname> to perform a case-insensitive match of the
+            pattern against the concatenated <literal>servletPath</literal> and
+            <literal>pathInfo</literal>, ignoring the <literal>queryString</literal>.</para>
+        <para>If for some reason, you need a more powerful matching strategy, you can use
+            regular expressions. The strategy implementation is then
+            <classname>RegexRequestMatcher</classname>. See the Javadoc for this class for more
+            information.</para>
+        <para>In practice we recommend that you use method security at your service layer, to
+            control access to your application, and do not rely entirely on the use of security
+            constraints defined at the web-application level. URLs change and it is difficult to
+            take account of all the possible URLs that an application might support and how
+            requests might be manipulated. You should try and restrict yourself to using a few
+            simple ant paths which are simple to understand. Always try to use a
+            <quote>deny-by-default</quote> approach where you have a catch-all wildcard
+            (<literal>/**</literal> or <literal>**</literal>) defined last and denying access.</para>
+        <para>Security defined at the service layer is much more robust and harder to bypass, so
+            you should always take advantage of Spring Security's method security
+            options.</para>
     </section>
     <section>
         <title>Use with other Filter-Based Frameworks</title>
