@@ -28,6 +28,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
@@ -84,6 +86,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
     protected boolean hideUserNotFoundExceptions = true;
     private UserDetailsChecker preAuthenticationChecks = new DefaultPreAuthenticationChecks();
     private UserDetailsChecker postAuthenticationChecks = new DefaultPostAuthenticationChecks();
+    private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
     //~ Methods ========================================================================================================
 
@@ -191,7 +194,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
         // Also ensure we return the original getDetails(), so that future
         // authentication events after cache expiry contain the details
         UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(principal,
-                authentication.getCredentials(), user.getAuthorities());
+                authentication.getCredentials(), authoritiesMapper.mapAuthorities(user.getAuthorities()));
         result.setDetails(authentication.getDetails());
 
         return result;
@@ -293,6 +296,10 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
 
     public void setPostAuthenticationChecks(UserDetailsChecker postAuthenticationChecks) {
         this.postAuthenticationChecks = postAuthenticationChecks;
+    }
+
+    public void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
+        this.authoritiesMapper = authoritiesMapper;
     }
 
     private class DefaultPreAuthenticationChecks implements UserDetailsChecker {

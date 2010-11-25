@@ -14,6 +14,8 @@ import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.codec.Base64;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
@@ -55,6 +57,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     private String key;
     private int tokenValiditySeconds = TWO_WEEKS_S;
     private boolean useSecureCookie = false;
+    private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(key);
@@ -147,7 +150,8 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
      * @return the <tt>Authentication</tt> for the remember-me authenticated user
      */
     protected Authentication createSuccessfulAuthentication(HttpServletRequest request, UserDetails user) {
-        RememberMeAuthenticationToken auth = new RememberMeAuthenticationToken(key, user, user.getAuthorities());
+        RememberMeAuthenticationToken auth = new RememberMeAuthenticationToken(key, user,
+                authoritiesMapper.mapAuthorities(user.getAuthorities()));
         auth.setDetails(authenticationDetailsSource.buildDetails(request));
         return auth;
     }
@@ -416,5 +420,9 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
      */
     public void setUserDetailsChecker(UserDetailsChecker userDetailsChecker) {
         this.userDetailsChecker = userDetailsChecker;
+    }
+
+    public void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
+        this.authoritiesMapper = authoritiesMapper;
     }
 }

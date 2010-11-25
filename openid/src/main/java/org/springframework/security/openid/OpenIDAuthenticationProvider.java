@@ -20,6 +20,8 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
@@ -30,21 +32,23 @@ import org.springframework.util.Assert;
 /**
  * Finalises the OpenID authentication by obtaining local authorities for the authenticated user.
  * <p>
- * The authorities are obtained by calling the configured <tt>UserDetailsService</tt>.
- * The <code>UserDetails</code> it returns must, at minimum, contain the username and <code>GrantedAuthority</code>
+ * The authorities are obtained by calling the configured {@code UserDetailsService}.
+ * The {@code UserDetails} it returns must, at minimum, contain the username and {@code GrantedAuthority}
  * objects applicable to the authenticated user. Note that by default, Spring Security ignores the password and
- * enabled/disabled status of the <code>UserDetails</code> because this is
- * authentication-related and should have been enforced by another provider server.
+ * enabled/disabled status of the {@code UserDetails} because this is authentication-related and should have been
+ * enforced by another provider server.
  * <p>
- * The <code>UserDetails</code> returned by implementations is stored in the generated <code>AuthenticationToken</code>,
+ * The {@code UserDetails} returned by implementations is stored in the generated {@code Authentication} token,
  * so additional properties such as email addresses, telephone numbers etc can easily be stored.
  *
  * @author Robin Bramley, Opsera Ltd.
+ * @author Luke Taylor
  */
 public class OpenIDAuthenticationProvider implements AuthenticationProvider, InitializingBean {
     //~ Instance fields ================================================================================================
 
     private AuthenticationUserDetailsService<OpenIDAuthenticationToken> userDetailsService;
+    private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
     //~ Methods ========================================================================================================
 
@@ -100,7 +104,7 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
      * @return the token which will represent the authenticated user.
      */
     protected Authentication createSuccessfulAuthentication(UserDetails userDetails, OpenIDAuthenticationToken auth) {
-        return new OpenIDAuthenticationToken(userDetails, userDetails.getAuthorities(),
+        return new OpenIDAuthenticationToken(userDetails, authoritiesMapper.mapAuthorities(userDetails.getAuthorities()),
                 auth.getIdentityUrl(), auth.getAttributes());
     }
 
@@ -123,5 +127,9 @@ public class OpenIDAuthenticationProvider implements AuthenticationProvider, Ini
      */
     public boolean supports(Class<?> authentication) {
         return OpenIDAuthenticationToken.class.isAssignableFrom(authentication);
+    }
+
+    public void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
+        this.authoritiesMapper = authoritiesMapper;
     }
 }

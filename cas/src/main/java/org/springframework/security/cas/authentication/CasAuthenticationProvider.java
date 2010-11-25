@@ -31,6 +31,8 @@ import org.springframework.security.cas.web.CasAuthenticationFilter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.util.Assert;
 
@@ -59,6 +61,8 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
     private String key;
     private TicketValidator ticketValidator;
     private ServiceProperties serviceProperties;
+    private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
+
 
     //~ Methods ========================================================================================================
 
@@ -131,7 +135,8 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
             final Assertion assertion = this.ticketValidator.validate(authentication.getCredentials().toString(), serviceProperties.getService());
             final UserDetails userDetails = loadUserByAssertion(assertion);
             userDetailsChecker.check(userDetails);
-            return new CasAuthenticationToken(this.key, userDetails, authentication.getCredentials(), userDetails.getAuthorities(), userDetails, assertion);
+            return new CasAuthenticationToken(this.key, userDetails, authentication.getCredentials(),
+                    authoritiesMapper.mapAuthorities(userDetails.getAuthorities()), userDetails, assertion);
         } catch (final TicketValidationException e) {
             throw new BadCredentialsException(e.getMessage(), e);
         }
@@ -192,6 +197,10 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 
     public void setTicketValidator(final TicketValidator ticketValidator) {
         this.ticketValidator = ticketValidator;
+    }
+
+    public void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
+        this.authoritiesMapper = authoritiesMapper;
     }
 
     public boolean supports(final Class<?> authentication) {

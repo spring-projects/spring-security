@@ -33,6 +33,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.ldap.ppolicy.PasswordPolicyException;
@@ -140,6 +142,7 @@ public class LdapAuthenticationProvider implements AuthenticationProvider, Messa
     private UserDetailsContextMapper userDetailsContextMapper = new LdapUserDetailsMapper();
     private boolean useAuthenticationRequestCredentials = true;
     private boolean hideUserNotFoundExceptions = true;
+    private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
     //~ Constructors ===================================================================================================
 
@@ -201,7 +204,7 @@ public class LdapAuthenticationProvider implements AuthenticationProvider, Messa
     }
 
     /**
-     * Provides access to the injected <tt>UserDetailsContextMapper</tt> strategy for use by subclasses.
+     * Provides access to the injected {@code UserDetailsContextMapper} strategy for use by subclasses.
      */
     protected UserDetailsContextMapper getUserDetailsContextMapper() {
         return userDetailsContextMapper;
@@ -214,7 +217,7 @@ public class LdapAuthenticationProvider implements AuthenticationProvider, Messa
     /**
      * Determines whether the supplied password will be used as the credentials in the successful authentication
      * token. If set to false, then the password will be obtained from the UserDetails object
-     * created by the configured <tt>UserDetailsContextMapper</tt>.
+     * created by the configured {@code UserDetailsContextMapper}.
      * Often it will not be possible to read the password from the directory, so defaults to true.
      *
      * @param useAuthenticationRequestCredentials
@@ -225,6 +228,10 @@ public class LdapAuthenticationProvider implements AuthenticationProvider, Messa
 
     public void setMessageSource(MessageSource messageSource) {
         this.messages = new MessageSourceAccessor(messageSource);
+    }
+
+    public void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
+        this.authoritiesMapper = authoritiesMapper;
     }
 
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -251,9 +258,8 @@ public class LdapAuthenticationProvider implements AuthenticationProvider, Messa
         try {
             DirContextOperations userData = getAuthenticator().authenticate(authentication);
 
-            Collection<? extends GrantedAuthority> extraAuthorities = loadUserAuthorities(userData, username, password);
-
-            UserDetails user = userDetailsContextMapper.mapUserFromContext(userData, username, extraAuthorities);
+            UserDetails user = userDetailsContextMapper.mapUserFromContext(userData, username,
+                    loadUserAuthorities(userData, username, password));
 
             return createSuccessfulAuthentication(userToken, user);
         } catch (PasswordPolicyException ppe) {
@@ -277,7 +283,7 @@ public class LdapAuthenticationProvider implements AuthenticationProvider, Messa
     }
 
     /**
-     * Creates the final <tt>Authentication</tt> object which will be returned from the <tt>authenticate</tt> method.
+     * Creates the final {@code Authentication} object which will be returned from the {@code authenticate} method.
      *
      * @param authentication the original authentication request token
      * @param user the <tt>UserDetails</tt> instance returned by the configured <tt>UserDetailsContextMapper</tt>.
@@ -287,7 +293,8 @@ public class LdapAuthenticationProvider implements AuthenticationProvider, Messa
             UserDetails user) {
         Object password = useAuthenticationRequestCredentials ? authentication.getCredentials() : user.getPassword();
 
-        UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(user, password, user.getAuthorities());
+        UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(user, password,
+                authoritiesMapper.mapAuthorities(user.getAuthorities()));
         result.setDetails(authentication.getDetails());
 
         return result;
