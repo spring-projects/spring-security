@@ -123,8 +123,6 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
 
         if (!StringUtils.hasText(identity)) {
             String claimedIdentity = obtainUsername(request);
-            // Make the username available to the view
-            setLastUsername(claimedIdentity, request);
 
             try {
                 String returnToUrl = buildReturnToUrl(request);
@@ -159,19 +157,7 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
         // delegate to the authentication provider
         Authentication authentication = this.getAuthenticationManager().authenticate(token);
 
-        if (authentication.isAuthenticated()) {
-            setLastUsername(token.getIdentityUrl(), request);
-        }
-
         return authentication;
-    }
-
-    private void setLastUsername(String username, HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-
-        if (session != null || getAllowSessionCreation()) {
-            request.getSession().setAttribute(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_LAST_USERNAME_KEY, username);
-        }
     }
 
     protected String lookupRealm(String returnToUrl) {

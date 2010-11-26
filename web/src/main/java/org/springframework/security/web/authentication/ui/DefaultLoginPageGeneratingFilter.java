@@ -94,18 +94,13 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
     private String generateLoginPageHtml(HttpServletRequest request) {
         boolean loginError = request.getParameter(ERROR_PARAMETER_NAME) != null;
         String errorMsg = "none";
-        String lastUser = "";
 
         if (loginError) {
             HttpSession session = request.getSession(false);
 
             if(session != null) {
-                lastUser = (String) session.getAttribute(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_LAST_USERNAME_KEY);
                 AuthenticationException ex = (AuthenticationException) session.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
                 errorMsg = ex != null ? ex.getMessage() : "none";
-                if (lastUser == null) {
-                    lastUser = "";
-                }
             }
         }
 
@@ -128,7 +123,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
             sb.append("<form name='f' action='").append(request.getContextPath()).append(authenticationUrl).append("' method='POST'>\n");
             sb.append(" <table>\n");
             sb.append("    <tr><td>User:</td><td><input type='text' name='");
-            sb.append(usernameParameter).append("' value='").append(lastUser).append("'></td></tr>\n");
+            sb.append(usernameParameter).append("' value='").append("'></td></tr>\n");
             sb.append("    <tr><td>Password:</td><td><input type='password' name='").append(passwordParameter).append("'/></td></tr>\n");
 
             if (rememberMeParameter != null) {

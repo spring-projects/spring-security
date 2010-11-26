@@ -55,6 +55,5 @@ public class SimpleUrlAuthenticationSuccessHandler extends AbstractAuthenticatio
         }
 
         session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
-        session.removeAttribute(WebAttributes.LAST_USERNAME);
     }
 }

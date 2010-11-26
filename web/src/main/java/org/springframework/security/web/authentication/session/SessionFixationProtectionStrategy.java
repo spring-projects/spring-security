@@ -14,8 +14,9 @@ import java.util.*;
  * The default implementation of {@link SessionAuthenticationStrategy}.
  * <p>
  * Creates a new session for the newly authenticated user if they already have a session (as a defence against
- * session-fixation protection attacks), and copies their session attributes across to the new session
- * (can be disabled by setting {@code migrateSessionAttributes} to {@code false}).
+ * session-fixation protection attacks), and copies their session attributes across to the new session.
+ * The copying of the attributes can be disabled by setting {@code migrateSessionAttributes} to {@code false}
+ * (note that even in this case, internal Spring Security attributes will still be migrated to the new session).
  * <p>
  * This approach will only be effective if your servlet container always assigns a new session Id when a session is
  * invalidated and a new session created by calling {@link HttpServletRequest#getSession()}.

@@ -55,8 +55,6 @@ public class UsernamePasswordAuthenticationFilterTests extends TestCase {
 
         Authentication result = filter.attemptAuthentication(request, new MockHttpServletResponse());
         assertTrue(result != null);
-        assertEquals("rod", request.getSession().getAttribute(
-                UsernamePasswordAuthenticationFilter.SPRING_SECURITY_LAST_USERNAME_KEY));
         assertEquals("127.0.0.1", ((WebAuthenticationDetails) result.getDetails()).getRemoteAddress());
     }
 
@@ -123,10 +121,6 @@ public class UsernamePasswordAuthenticationFilterTests extends TestCase {
             fail("Expected AuthenticationException");
         } catch (AuthenticationException e) {
         }
-
-        // Check username has still been set
-        assertEquals("rod", request.getSession().getAttribute(
-                UsernamePasswordAuthenticationFilter.SPRING_SECURITY_LAST_USERNAME_KEY));
     }
 
     /**
