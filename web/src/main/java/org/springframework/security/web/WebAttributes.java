@@ -20,5 +20,4 @@ public final class WebAttributes {
     * @see org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
     */
     public static final String AUTHENTICATION_EXCEPTION = "SPRING_SECURITY_LAST_EXCEPTION";
-    public static final String LAST_USERNAME = "SPRING_SECURITY_LAST_USERNAME";
 }
