@@ -48,289 +48,285 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * A base class for an &lt;authorize&gt; tag that is independent of the tag rendering technology (JSP, Facelets).
  * It treats tag attributes as simple strings rather than strings that may contain expressions with the
  * exception of the "access" attribute, which is always expected to contain a Spring EL expression.
- *
+ * <p/>
  * Subclasses are expected to extract tag attribute values from the specific rendering technology, evaluate
  * them as expressions if necessary, and set the String-based attributes of this class.
  *
  * @author Francois Beausoleil
  * @author Luke Taylor
  * @author Rossen Stoyanchev
- *
  * @since 3.1.0
  */
 public abstract class AbstractAuthorizeTag {
 
-	private String access;
-	private String url;
-	private String method;
-	private String ifAllGranted;
-	private String ifAnyGranted;
-	private String ifNotGranted;
+    private String access;
+    private String url;
+    private String method;
+    private String ifAllGranted;
+    private String ifAnyGranted;
+    private String ifNotGranted;
 
-	/**
-	 * This method allows subclasses to provide a way to access the ServletRequest according to the rendering
-	 * technology.
-	 */
-	protected abstract ServletRequest getRequest();
+    /**
+     * This method allows subclasses to provide a way to access the ServletRequest according to the rendering
+     * technology.
+     */
+    protected abstract ServletRequest getRequest();
 
-	/**
-	 * This method allows subclasses to provide a way to access the ServletResponse according to the rendering
-	 * technology.
-	 */
-	protected abstract ServletResponse getResponse();
+    /**
+     * This method allows subclasses to provide a way to access the ServletResponse according to the rendering
+     * technology.
+     */
+    protected abstract ServletResponse getResponse();
 
-	/**
-	 * This method allows subclasses to provide a way to access the ServletContext according to the rendering
-	 * technology.
-	 */
-	protected abstract ServletContext getServletContext();
+    /**
+     * This method allows subclasses to provide a way to access the ServletContext according to the rendering
+     * technology.
+     */
+    protected abstract ServletContext getServletContext();
 
-	/**
-	 * Make an authorization decision by considering all &lt;authorize&gt; tag attributes. The following are valid
-	 * combinations of attributes:
-	 * <ul>
-	 * <li>access</li>
-	 * <li>url, method</li>
-	 * <li>ifAllGranted, ifAnyGranted, ifNotGranted</li>
-	 * </ul>
-	 * The above combinations are mutually exclusive and evaluated in the given order.
-	 *
-	 * @return the result of the authorization decision
-	 *
-	 * @throws IOException
-	 */
-	public boolean authorize() throws IOException {
-		boolean isAuthorized = false;
+    /**
+     * Make an authorization decision by considering all &lt;authorize&gt; tag attributes. The following are valid
+     * combinations of attributes:
+     * <ul>
+     * <li>access</li>
+     * <li>url, method</li>
+     * <li>ifAllGranted, ifAnyGranted, ifNotGranted</li>
+     * </ul>
+     * The above combinations are mutually exclusive and evaluated in the given order.
+     *
+     * @return the result of the authorization decision
+     * @throws IOException
+     */
+    public boolean authorize() throws IOException {
+        boolean isAuthorized = false;
 
-		if (StringUtils.hasText(getAccess())) {
-			isAuthorized = authorizeUsingAccessExpression();
+        if (StringUtils.hasText(getAccess())) {
+            isAuthorized = authorizeUsingAccessExpression();
 
-		} else if (StringUtils.hasText(getUrl())) {
-			isAuthorized = authorizeUsingUrlCheck();
+        } else if (StringUtils.hasText(getUrl())) {
+            isAuthorized = authorizeUsingUrlCheck();
 
-		} else {
-			isAuthorized = authorizeUsingGrantedAuthorities();
+        } else {
+            isAuthorized = authorizeUsingGrantedAuthorities();
 
-		}
+        }
 
-		return isAuthorized;
-	}
+        return isAuthorized;
+    }
 
-	/**
-	 * Make an authorization decision by considering ifAllGranted, ifAnyGranted, and ifNotGranted. All 3 or any
-	 * combination can be provided. All provided attributes must evaluate to true.
-	 *
-	 * @return the result of the authorization decision
-	 */
-	public boolean authorizeUsingGrantedAuthorities() {
-		boolean hasTextAllGranted = StringUtils.hasText(getIfAllGranted());
-		boolean hasTextAnyGranted = StringUtils.hasText(getIfAnyGranted());
-		boolean hasTextNotGranted = StringUtils.hasText(getIfNotGranted());
+    /**
+     * Make an authorization decision by considering ifAllGranted, ifAnyGranted, and ifNotGranted. All 3 or any
+     * combination can be provided. All provided attributes must evaluate to true.
+     *
+     * @return the result of the authorization decision
+     */
+    public boolean authorizeUsingGrantedAuthorities() {
+        boolean hasTextAllGranted = StringUtils.hasText(getIfAllGranted());
+        boolean hasTextAnyGranted = StringUtils.hasText(getIfAnyGranted());
+        boolean hasTextNotGranted = StringUtils.hasText(getIfNotGranted());
 
-		if ((!hasTextAllGranted) && (!hasTextAnyGranted) && (!hasTextNotGranted)) {
-			return false;
-		}
+        if ((!hasTextAllGranted) && (!hasTextAnyGranted) && (!hasTextNotGranted)) {
+            return false;
+        }
 
-		final Collection<? extends GrantedAuthority> granted = getPrincipalAuthorities();
+        final Collection<? extends GrantedAuthority> granted = getPrincipalAuthorities();
 
-		if (hasTextAllGranted) {
-			if (!granted.containsAll(toAuthorities(getIfAllGranted()))) {
-				return false;
-			}
-		}
+        if (hasTextAllGranted) {
+            if (!granted.containsAll(toAuthorities(getIfAllGranted()))) {
+                return false;
+            }
+        }
 
-		if (hasTextAnyGranted) {
-			Set<GrantedAuthority> grantedCopy = retainAll(granted, toAuthorities(getIfAnyGranted()));
-			if (grantedCopy.isEmpty()) {
-				return false;
-			}
-		}
+        if (hasTextAnyGranted) {
+            Set<GrantedAuthority> grantedCopy = retainAll(granted, toAuthorities(getIfAnyGranted()));
+            if (grantedCopy.isEmpty()) {
+                return false;
+            }
+        }
 
-		if (hasTextNotGranted) {
-			Set<GrantedAuthority> grantedCopy = retainAll(granted, toAuthorities(getIfNotGranted()));
-			if (!grantedCopy.isEmpty()) {
-				return false;
-			}
-		}
+        if (hasTextNotGranted) {
+            Set<GrantedAuthority> grantedCopy = retainAll(granted, toAuthorities(getIfNotGranted()));
+            if (!grantedCopy.isEmpty()) {
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	/**
-	 * Make an authorization decision based on a Spring EL expression. See the "Expression-Based Access Control" chapter
-	 * in Spring Security for details on what expressions can be used.
-	 *
-	 * @return the result of the authorization decision
-	 *
-	 * @throws IOException
-	 */
-	public boolean authorizeUsingAccessExpression() throws IOException {
-		Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
-		if (currentUser == null) {
-			return false;
-		}
+    /**
+     * Make an authorization decision based on a Spring EL expression. See the "Expression-Based Access Control" chapter
+     * in Spring Security for details on what expressions can be used.
+     *
+     * @return the result of the authorization decision
+     * @throws IOException
+     */
+    public boolean authorizeUsingAccessExpression() throws IOException {
+        Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
+        if (currentUser == null) {
+            return false;
+        }
 
-		SecurityExpressionHandler<FilterInvocation> handler = getExpressionHandler();
+        SecurityExpressionHandler<FilterInvocation> handler = getExpressionHandler();
 
-		Expression accessExpression;
-		try {
-			accessExpression = handler.getExpressionParser().parseExpression(getAccess());
+        Expression accessExpression;
+        try {
+            accessExpression = handler.getExpressionParser().parseExpression(getAccess());
 
-		} catch (ParseException e) {
-			IOException ioException = new IOException();
-			ioException.initCause(e);
-			throw ioException;
-		}
+        } catch (ParseException e) {
+            IOException ioException = new IOException();
+            ioException.initCause(e);
+            throw ioException;
+        }
 
-		FilterInvocation f = new FilterInvocation(getRequest(), getResponse(), new FilterChain() {
-			public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
-				throw new UnsupportedOperationException();
-			}
-		});
+        FilterInvocation f = new FilterInvocation(getRequest(), getResponse(), new FilterChain() {
+            public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
+                throw new UnsupportedOperationException();
+            }
+        });
 
-		return ExpressionUtils.evaluateAsBoolean(accessExpression, handler.createEvaluationContext(currentUser, f));
-	}
+        return ExpressionUtils.evaluateAsBoolean(accessExpression, handler.createEvaluationContext(currentUser, f));
+    }
 
-	/**
-	 * Make an authorization decision based on the URL and HTTP method attributes. True is returned if the user is
-	 * allowed to access the given URL as defined.
-	 *
-	 * @return the result of the authorization decision
-	 *
-	 * @throws IOException
-	 */
-	public boolean authorizeUsingUrlCheck() throws IOException {
-		String contextPath = ((HttpServletRequest) getRequest()).getContextPath();
-		Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
-		return getPrivilegeEvaluator().isAllowed(contextPath, getUrl(), getMethod(), currentUser);
-	}
+    /**
+     * Make an authorization decision based on the URL and HTTP method attributes. True is returned if the user is
+     * allowed to access the given URL as defined.
+     *
+     * @return the result of the authorization decision
+     * @throws IOException
+     */
+    public boolean authorizeUsingUrlCheck() throws IOException {
+        String contextPath = ((HttpServletRequest) getRequest()).getContextPath();
+        Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
+        return getPrivilegeEvaluator().isAllowed(contextPath, getUrl(), getMethod(), currentUser);
+    }
 
-	public String getAccess() {
-		return access;
-	}
+    public String getAccess() {
+        return access;
+    }
 
-	public void setAccess(String access) {
-		this.access = access;
-	}
+    public void setAccess(String access) {
+        this.access = access;
+    }
 
-	public String getUrl() {
-		return url;
-	}
+    public String getUrl() {
+        return url;
+    }
 
-	public void setUrl(String url) {
-		this.url = url;
-	}
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
-	public String getMethod() {
-		return method;
-	}
+    public String getMethod() {
+        return method;
+    }
 
-	public void setMethod(String method) {
-		this.method = (method != null) ? method.toUpperCase() : null;
-	}
+    public void setMethod(String method) {
+        this.method = (method != null) ? method.toUpperCase() : null;
+    }
 
-	public String getIfAllGranted() {
-		return ifAllGranted;
-	}
+    public String getIfAllGranted() {
+        return ifAllGranted;
+    }
 
-	public void setIfAllGranted(String ifAllGranted) {
-		this.ifAllGranted = ifAllGranted;
-	}
+    public void setIfAllGranted(String ifAllGranted) {
+        this.ifAllGranted = ifAllGranted;
+    }
 
-	public String getIfAnyGranted() {
-		return ifAnyGranted;
-	}
+    public String getIfAnyGranted() {
+        return ifAnyGranted;
+    }
 
-	public void setIfAnyGranted(String ifAnyGranted) {
-		this.ifAnyGranted = ifAnyGranted;
-	}
+    public void setIfAnyGranted(String ifAnyGranted) {
+        this.ifAnyGranted = ifAnyGranted;
+    }
 
-	public String getIfNotGranted() {
-		return ifNotGranted;
-	}
+    public String getIfNotGranted() {
+        return ifNotGranted;
+    }
 
-	public void setIfNotGranted(String ifNotGranted) {
-		this.ifNotGranted = ifNotGranted;
-	}
+    public void setIfNotGranted(String ifNotGranted) {
+        this.ifNotGranted = ifNotGranted;
+    }
 
-	/*------------- Private helper methods  -----------------*/
+    /*------------- Private helper methods  -----------------*/
 
-	private Collection<? extends GrantedAuthority> getPrincipalAuthorities() {
-		Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
-		if (null == currentUser) {
-			return Collections.emptyList();
-		}
-		return currentUser.getAuthorities();
-	}
+    private Collection<? extends GrantedAuthority> getPrincipalAuthorities() {
+        Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
+        if (null == currentUser) {
+            return Collections.emptyList();
+        }
+        return currentUser.getAuthorities();
+    }
 
-	private Set<GrantedAuthority> toAuthorities(String authorizations) {
-		final Set<GrantedAuthority> requiredAuthorities = new HashSet<GrantedAuthority>();
-		requiredAuthorities.addAll(AuthorityUtils.commaSeparatedStringToAuthorityList(authorizations));
-		return requiredAuthorities;
-	}
+    private Set<GrantedAuthority> toAuthorities(String authorizations) {
+        final Set<GrantedAuthority> requiredAuthorities = new HashSet<GrantedAuthority>();
+        requiredAuthorities.addAll(AuthorityUtils.commaSeparatedStringToAuthorityList(authorizations));
+        return requiredAuthorities;
+    }
 
-	private Set<GrantedAuthority> retainAll(final Collection<? extends GrantedAuthority> granted,
-			final Set<GrantedAuthority> required) {
-		Set<String> grantedRoles = authoritiesToRoles(granted);
-		Set<String> requiredRoles = authoritiesToRoles(required);
-		grantedRoles.retainAll(requiredRoles);
+    private Set<GrantedAuthority> retainAll(final Collection<? extends GrantedAuthority> granted,
+                                            final Set<GrantedAuthority> required) {
+        Set<String> grantedRoles = authoritiesToRoles(granted);
+        Set<String> requiredRoles = authoritiesToRoles(required);
+        grantedRoles.retainAll(requiredRoles);
 
-		return rolesToAuthorities(grantedRoles, granted);
-	}
+        return rolesToAuthorities(grantedRoles, granted);
+    }
 
-	private Set<String> authoritiesToRoles(Collection<? extends GrantedAuthority> c) {
-		Set<String> target = new HashSet<String>();
-		for (GrantedAuthority authority : c) {
-			if (null == authority.getAuthority()) {
-				throw new IllegalArgumentException(
-						"Cannot process GrantedAuthority objects which return null from getAuthority() - attempting to process "
-								+ authority.toString());
-			}
-			target.add(authority.getAuthority());
-		}
-		return target;
-	}
+    private Set<String> authoritiesToRoles(Collection<? extends GrantedAuthority> c) {
+        Set<String> target = new HashSet<String>();
+        for (GrantedAuthority authority : c) {
+            if (null == authority.getAuthority()) {
+                throw new IllegalArgumentException(
+                        "Cannot process GrantedAuthority objects which return null from getAuthority() - attempting to process "
+                                + authority.toString());
+            }
+            target.add(authority.getAuthority());
+        }
+        return target;
+    }
 
-	private Set<GrantedAuthority> rolesToAuthorities(Set<String> grantedRoles, Collection<? extends GrantedAuthority> granted) {
-		Set<GrantedAuthority> target = new HashSet<GrantedAuthority>();
-		for (String role : grantedRoles) {
-			for (GrantedAuthority authority : granted) {
-				if (authority.getAuthority().equals(role)) {
-					target.add(authority);
-					break;
-				}
-			}
-		}
-		return target;
-	}
+    private Set<GrantedAuthority> rolesToAuthorities(Set<String> grantedRoles, Collection<? extends GrantedAuthority> granted) {
+        Set<GrantedAuthority> target = new HashSet<GrantedAuthority>();
+        for (String role : grantedRoles) {
+            for (GrantedAuthority authority : granted) {
+                if (authority.getAuthority().equals(role)) {
+                    target.add(authority);
+                    break;
+                }
+            }
+        }
+        return target;
+    }
 
-	private SecurityExpressionHandler<FilterInvocation> getExpressionHandler() throws IOException {
-		ApplicationContext appContext = WebApplicationContextUtils
-				.getRequiredWebApplicationContext(getServletContext());
-		Map<String, SecurityExpressionHandler> handlers = appContext
-				.getBeansOfType(SecurityExpressionHandler.class);
+    private SecurityExpressionHandler<FilterInvocation> getExpressionHandler() throws IOException {
+        ApplicationContext appContext = WebApplicationContextUtils
+                .getRequiredWebApplicationContext(getServletContext());
+        Map<String, SecurityExpressionHandler> handlers = appContext
+                .getBeansOfType(SecurityExpressionHandler.class);
 
-		for (SecurityExpressionHandler h : handlers.values()) {
-			if (FilterInvocation.class.equals(GenericTypeResolver.resolveTypeArgument(h.getClass(),
-					SecurityExpressionHandler.class))) {
-				return h;
-			}
-		}
+        for (SecurityExpressionHandler h : handlers.values()) {
+            if (FilterInvocation.class.equals(GenericTypeResolver.resolveTypeArgument(h.getClass(),
+                    SecurityExpressionHandler.class))) {
+                return h;
+            }
+        }
 
-		throw new IOException("No visible WebSecurityExpressionHandler instance could be found in the application "
-				+ "context. There must be at least one in order to support expressions in JSP 'authorize' tags.");
-	}
+        throw new IOException("No visible WebSecurityExpressionHandler instance could be found in the application "
+                + "context. There must be at least one in order to support expressions in JSP 'authorize' tags.");
+    }
 
-	private WebInvocationPrivilegeEvaluator getPrivilegeEvaluator() throws IOException {
-		ApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
-		Map<String, WebInvocationPrivilegeEvaluator> wipes = ctx.getBeansOfType(WebInvocationPrivilegeEvaluator.class);
+    private WebInvocationPrivilegeEvaluator getPrivilegeEvaluator() throws IOException {
+        ApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
+        Map<String, WebInvocationPrivilegeEvaluator> wipes = ctx.getBeansOfType(WebInvocationPrivilegeEvaluator.class);
 
-		if (wipes.size() == 0) {
-			throw new IOException(
-					"No visible WebInvocationPrivilegeEvaluator instance could be found in the application "
-							+ "context. There must be at least one in order to support the use of URL access checks in 'authorize' tags.");
-		}
+        if (wipes.size() == 0) {
+            throw new IOException(
+                    "No visible WebInvocationPrivilegeEvaluator instance could be found in the application "
+                            + "context. There must be at least one in order to support the use of URL access checks in 'authorize' tags.");
+        }
 
-		return (WebInvocationPrivilegeEvaluator) wipes.values().toArray()[0];
-	}
+        return (WebInvocationPrivilegeEvaluator) wipes.values().toArray()[0];
+    }
 }

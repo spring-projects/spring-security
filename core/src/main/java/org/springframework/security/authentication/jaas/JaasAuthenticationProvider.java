@@ -210,7 +210,7 @@ public class JaasAuthenticationProvider extends AbstractJaasAuthenticationProvid
      * @param ase The excetion that caused the authentication failure
      */
     protected void publishFailureEvent(UsernamePasswordAuthenticationToken token, AuthenticationException ase) {
-    	// exists for passivity (the superclass does a null check before publishing)
+        // exists for passivity (the superclass does a null check before publishing)
         getApplicationEventPublisher().publishEvent(new JaasAuthenticationFailedEvent(token, ase));
     }
 
