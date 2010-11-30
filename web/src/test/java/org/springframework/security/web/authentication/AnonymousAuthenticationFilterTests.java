@@ -98,8 +98,7 @@ public class AnonymousAuthenticationFilterTests {
     public void testOperationWhenAuthenticationExistsInContextHolder()
         throws Exception {
         // Put an Authentication object into the SecurityContextHolder
-        Authentication originalAuth = new TestingAuthenticationToken("user", "password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A")});
+        Authentication originalAuth = new TestingAuthenticationToken("user", "password", "ROLE_A");
         SecurityContextHolder.getContext().setAuthentication(originalAuth);
 
         // Setup our filter correctly

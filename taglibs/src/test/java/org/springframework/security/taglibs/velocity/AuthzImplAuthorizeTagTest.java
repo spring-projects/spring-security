@@ -37,12 +37,7 @@ public class AuthzImplAuthorizeTagTest extends TestCase {
     //~ Methods ========================================================================================================
 
     protected void setUp() throws Exception {
-        super.setUp();
-
-        currentUser = new TestingAuthenticationToken("abc", "123",
-                new GrantedAuthority[] {
-                    new GrantedAuthorityImpl("ROLE_SUPERVISOR"), new GrantedAuthorityImpl("ROLE_TELLER"),
-                });
+        currentUser = new TestingAuthenticationToken("abc", "123", "ROLE_SUPERVISOR", "ROLE_TELLER");
 
         SecurityContextHolder.getContext().setAuthentication(currentUser);
     }

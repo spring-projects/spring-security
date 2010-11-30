@@ -16,12 +16,8 @@
 package org.springframework.security.access.intercept;
 
 import junit.framework.TestCase;
-
-
-import org.springframework.security.access.intercept.RunAsUserToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.AuthorityUtils;
 
 
 /**
@@ -30,30 +26,10 @@ import org.springframework.security.core.authority.GrantedAuthorityImpl;
  * @author Ben Alex
  */
 public class RunAsUserTokenTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public RunAsUserTokenTests() {
-        super();
-    }
-
-    public RunAsUserTokenTests(String arg0) {
-        super(arg0);
-    }
-
-    //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(RunAsUserTokenTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
 
     public void testAuthenticationSetting() {
         RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                UsernamePasswordAuthenticationToken.class);
+                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), UsernamePasswordAuthenticationToken.class);
         assertTrue(token.isAuthenticated());
         token.setAuthenticated(false);
         assertTrue(!token.isAuthenticated());
@@ -61,8 +37,7 @@ public class RunAsUserTokenTests extends TestCase {
 
     public void testGetters() {
         RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                UsernamePasswordAuthenticationToken.class);
+                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), UsernamePasswordAuthenticationToken.class);
         assertEquals("Test", token.getPrincipal());
         assertEquals("Password", token.getCredentials());
         assertEquals("my_password".hashCode(), token.getKeyHash());
@@ -82,8 +57,7 @@ public class RunAsUserTokenTests extends TestCase {
 
     public void testToString() {
         RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                UsernamePasswordAuthenticationToken.class);
+                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), UsernamePasswordAuthenticationToken.class);
         assertTrue(token.toString().lastIndexOf("Original Class:") != -1);
     }
 }

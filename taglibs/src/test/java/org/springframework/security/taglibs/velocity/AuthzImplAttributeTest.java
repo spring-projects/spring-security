@@ -41,10 +41,7 @@ public class AuthzImplAttributeTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        currentUser = new TestingAuthenticationToken("abc", "123",
-                new GrantedAuthority[] {
-                    new GrantedAuthorityImpl("ROLE_SUPERVISOR"), new GrantedAuthorityImpl("ROLE_RESTRICTED"),
-                });
+        currentUser = new TestingAuthenticationToken("abc", "123", "ROLE_SUPERVISOR","ROLE_RESTRICTED");
 
         SecurityContextHolder.getContext().setAuthentication(currentUser);
     }

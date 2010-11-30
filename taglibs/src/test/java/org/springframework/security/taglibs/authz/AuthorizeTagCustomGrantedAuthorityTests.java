@@ -15,75 +15,62 @@
 
 package org.springframework.security.taglibs.authz;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
-
+import org.junit.*;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
+import java.util.*;
+
 
 
 /**
  *
  * @author Francois Beausoleil
  */
-public class AuthorizeTagCustomGrantedAuthorityTests extends TestCase {
+public class AuthorizeTagCustomGrantedAuthorityTests {
     //~ Instance fields ================================================================================================
 
     private final JspAuthorizeTag authorizeTag = new JspAuthorizeTag();
-    private TestingAuthenticationToken currentUser;
 
     //~ Methods ========================================================================================================
 
-    protected void setUp() throws Exception {
-        super.setUp();
-
-        currentUser = new TestingAuthenticationToken("abc", "123",
-                new GrantedAuthority[] {new CustomGrantedAuthority("ROLE_TELLER")});
-
-        SecurityContextHolder.getContext().setAuthentication(currentUser);
+    @Before
+    public void setUp() {
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("abc", "123", "ROLE_TELLER"));
     }
 
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() {
         SecurityContextHolder.clearContext();
     }
 
-    public void testAllowsRequestWhenCustomAuthorityPresentsCorrectRole()
-        throws JspException {
+    @Test
+    public void testAllowsRequestWhenCustomAuthorityPresentsCorrectRole() throws JspException {
         authorizeTag.setIfAnyGranted("ROLE_TELLER");
         assertEquals("authorized - ROLE_TELLER in both sets", Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
     }
 
-    public void testRejectsRequestWhenCustomAuthorityReturnsNull()
-        throws JspException {
+    @Test
+    public void testRejectsRequestWhenCustomAuthorityReturnsNull() throws JspException {
         authorizeTag.setIfAnyGranted("ROLE_TELLER");
-        SecurityContextHolder.getContext()
-                             .setAuthentication(new TestingAuthenticationToken("abc", "123",
-                new GrantedAuthority[] {new CustomGrantedAuthority(null)}));
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        authorities.add(new GrantedAuthority() {
+                    public String getAuthority() {
+                        return null;
+                    }
+                });
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("abc", "123", authorities));
 
         try {
             authorizeTag.doStartTag();
             fail("Failed to reject GrantedAuthority with NULL getAuthority()");
         } catch (IllegalArgumentException expected) {
             assertTrue("expected", true);
-        }
-    }
-
-    //~ Inner Classes ==================================================================================================
-
-    private static class CustomGrantedAuthority implements GrantedAuthority {
-        private final String authority;
-
-        public CustomGrantedAuthority(String authority) {
-            this.authority = authority;
-        }
-
-        public String getAuthority() {
-            return authority;
         }
     }
 }

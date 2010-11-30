@@ -73,8 +73,7 @@ public class AnonymousAuthenticationProviderTests extends TestCase {
         AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider();
         aap.setKey("qwerty");
 
-        TestingAuthenticationToken token = new TestingAuthenticationToken("user", "password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A")});
+        TestingAuthenticationToken token = new TestingAuthenticationToken("user", "password", "ROLE_A");
         assertFalse(aap.supports(TestingAuthenticationToken.class));
 
         // Try it anyway

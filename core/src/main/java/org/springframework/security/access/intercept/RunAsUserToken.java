@@ -38,12 +38,7 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
 
     //~ Constructors ===================================================================================================
 
-    public RunAsUserToken(String key, Object principal, Object credentials, GrantedAuthority[] authorities,
-            Class<? extends Authentication> originalAuthentication) {
-        this(key, principal, credentials, Arrays.asList(authorities), originalAuthentication);
-    }
-
-    public RunAsUserToken(String key, Object principal, Object credentials, Collection<GrantedAuthority> authorities,
+    public RunAsUserToken(String key, Object principal, Object credentials, Collection<? extends GrantedAuthority> authorities,
             Class<? extends Authentication> originalAuthentication) {
         super(authorities);
         this.keyHash = key.hashCode();

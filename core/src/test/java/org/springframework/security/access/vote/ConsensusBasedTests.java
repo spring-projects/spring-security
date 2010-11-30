@@ -46,7 +46,7 @@ public class ConsensusBasedTests {
         mgr.setAllowIfEqualGrantedDeniedDecisions(false);
         assertTrue(!mgr.isAllowIfEqualGrantedDeniedDecisions()); // check changed
 
-        List<ConfigAttribute> config = SecurityConfig.createList(new String[]{"ROLE_1", "DENY_FOR_SURE"});
+        List<ConfigAttribute> config = SecurityConfig.createList("ROLE_1", "DENY_FOR_SURE");
 
         mgr.decide(auth, new Object(), config);
     }
@@ -58,7 +58,7 @@ public class ConsensusBasedTests {
 
         assertTrue(mgr.isAllowIfEqualGrantedDeniedDecisions()); // check default
 
-        List<ConfigAttribute> config = SecurityConfig.createList(new String[]{"ROLE_1", "DENY_FOR_SURE"});
+        List<ConfigAttribute> config = SecurityConfig.createList("ROLE_1", "DENY_FOR_SURE");
 
         mgr.decide(auth, new Object(), config);
         assertTrue(true);
@@ -107,7 +107,7 @@ public class ConsensusBasedTests {
         TestingAuthenticationToken auth = makeTestToken();
         ConsensusBased mgr = makeDecisionManager();
 
-        mgr.decide(auth, new Object(), SecurityConfig.createList(new String[]{"ROLE_1", "ROLE_2"}));
+        mgr.decide(auth, new Object(), SecurityConfig.createList("ROLE_1", "ROLE_2"));
     }
 
     private ConsensusBased makeDecisionManager() {
@@ -125,8 +125,6 @@ public class ConsensusBasedTests {
     }
 
     private TestingAuthenticationToken makeTestToken() {
-        return new TestingAuthenticationToken("somebody", "password",
-            new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_1"), new GrantedAuthorityImpl(
-                    "ROLE_2")});
+        return new TestingAuthenticationToken("somebody", "password", "ROLE_1", "ROLE_2");
     }
 }

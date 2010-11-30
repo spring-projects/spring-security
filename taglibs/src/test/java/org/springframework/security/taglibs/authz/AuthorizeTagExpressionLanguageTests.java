@@ -47,8 +47,7 @@ public class AuthorizeTagExpressionLanguageTests extends TestCase {
         };
         authorizeTag.setPageContext(pageContext);
 
-        currentUser = new TestingAuthenticationToken("abc", "123",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_TELLER"),});
+        currentUser = new TestingAuthenticationToken("abc", "123", "ROLE_TELLER");
 
         SecurityContextHolder.getContext().setAuthentication(currentUser);
     }

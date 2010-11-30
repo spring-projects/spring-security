@@ -25,6 +25,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
 
 
@@ -32,30 +33,10 @@ import org.springframework.security.core.authority.GrantedAuthorityImpl;
  * Tests {@link RunAsImplAuthenticationProvider}.
  */
 public class RunAsImplAuthenticationProviderTests extends TestCase {
-    //~ Constructors ===================================================================================================
-
-    public RunAsImplAuthenticationProviderTests() {
-        super();
-    }
-
-    public RunAsImplAuthenticationProviderTests(String arg0) {
-        super(arg0);
-    }
-
-    //~ Methods ========================================================================================================
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(RunAsImplAuthenticationProviderTests.class);
-    }
-
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
 
     public void testAuthenticationFailDueToWrongKey() {
-        RunAsUserToken token = new RunAsUserToken("WRONG_PASSWORD", "Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                UsernamePasswordAuthenticationToken.class);
+        RunAsUserToken token = new RunAsUserToken("wrong_key", "Test", "Password",
+                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), UsernamePasswordAuthenticationToken.class);
         RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
         provider.setKey("hello_world");
 
@@ -69,8 +50,7 @@ public class RunAsImplAuthenticationProviderTests extends TestCase {
 
     public void testAuthenticationSuccess() {
         RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
-                UsernamePasswordAuthenticationToken.class);
+                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), UsernamePasswordAuthenticationToken.class);
         RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
         provider.setKey("my_password");
 

@@ -83,16 +83,15 @@ public class AclImplementationSecurityCheckTests {
     @Test
     public void testSecurityCheckWithMultipleACEs() throws Exception {
         // Create a simple authentication with ROLE_GENERAL
-        Authentication auth = new TestingAuthenticationToken("user", "password",
-                new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_GENERAL") });
+        Authentication auth = new TestingAuthenticationToken("user", "password", "ROLE_GENERAL");
         auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
         // Authorization strategy will require a different role for each access
-        AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
+        AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
                 new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
-                new GrantedAuthorityImpl("ROLE_GENERAL") });
+                new GrantedAuthorityImpl("ROLE_GENERAL"));
 
         // Let's give the principal the ADMINISTRATION permission, without
         // granting access
@@ -172,22 +171,21 @@ public class AclImplementationSecurityCheckTests {
     @Test
     public void testSecurityCheckWithInheritableACEs() throws Exception {
         // Create a simple authentication with ROLE_GENERAL
-        Authentication auth = new TestingAuthenticationToken("user", "password",
-                new GrantedAuthority[] { new GrantedAuthorityImpl("ROLE_GENERAL") });
+        Authentication auth = new TestingAuthenticationToken("user", "password", "ROLE_GENERAL");
         auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
+        ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, 100);
         // Authorization strategy will require a different role for each access
-        AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
+        AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
                 new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO"),
-                new GrantedAuthorityImpl("ROLE_GENERAL") });
+                new GrantedAuthorityImpl("ROLE_GENERAL"));
 
         // Let's give the principal an ADMINISTRATION permission, with granting
         // access
-        MutableAcl parentAcl = new AclImpl(identity, new Long(1), aclAuthorizationStrategy, new ConsoleAuditLogger());
+        MutableAcl parentAcl = new AclImpl(identity, 1, aclAuthorizationStrategy, new ConsoleAuditLogger());
         parentAcl.insertAce(0, BasePermission.ADMINISTRATION, new PrincipalSid(auth), true);
-        MutableAcl childAcl = new AclImpl(identity, new Long(2), aclAuthorizationStrategy, new ConsoleAuditLogger());
+        MutableAcl childAcl = new AclImpl(identity, 2, aclAuthorizationStrategy, new ConsoleAuditLogger());
 
         // Check against the 'child' acl, which doesn't offer any authorization
         // rights on CHANGE_OWNERSHIP
@@ -212,9 +210,9 @@ public class AclImplementationSecurityCheckTests {
         }
 
         // Create a root parent and link it to the middle parent
-        MutableAcl rootParentAcl = new AclImpl(identity, new Long(1), aclAuthorizationStrategy,
+        MutableAcl rootParentAcl = new AclImpl(identity, 1, aclAuthorizationStrategy,
                 new ConsoleAuditLogger());
-        parentAcl = new AclImpl(identity, new Long(1), aclAuthorizationStrategy, new ConsoleAuditLogger());
+        parentAcl = new AclImpl(identity, 1, aclAuthorizationStrategy, new ConsoleAuditLogger());
         rootParentAcl.insertAce(0, BasePermission.ADMINISTRATION, new PrincipalSid(auth), true);
         parentAcl.setEntriesInheriting(true);
         parentAcl.setParent(rootParentAcl);
@@ -231,18 +229,16 @@ public class AclImplementationSecurityCheckTests {
     @SuppressWarnings("deprecation")
     @Test
     public void testSecurityCheckPrincipalOwner() throws Exception {
-        Authentication auth = new TestingAuthenticationToken("user", "password", new GrantedAuthority[] {
-                new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_ONE"),
-                new GrantedAuthorityImpl("ROLE_ONE") });
+        Authentication auth = new TestingAuthenticationToken("user", "password", "ROLE_ONE");
         auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
-        AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
+        ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, 100);
+        AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
                 new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
-                new GrantedAuthorityImpl("ROLE_GENERAL") });
+                new GrantedAuthorityImpl("ROLE_GENERAL"));
 
-        Acl acl = new AclImpl(identity, new Long(1), aclAuthorizationStrategy, new ConsoleAuditLogger(), null, null,
+        Acl acl = new AclImpl(identity, 1, aclAuthorizationStrategy, new ConsoleAuditLogger(), null, null,
                 false, new PrincipalSid(auth));
         try {
             aclAuthorizationStrategy.securityCheck(acl, AclAuthorizationStrategy.CHANGE_GENERAL);

@@ -256,8 +256,7 @@ public class CasAuthenticationProviderTests {
         cap.setServiceProperties(makeServiceProperties());
         cap.afterPropertiesSet();
 
-        TestingAuthenticationToken token = new TestingAuthenticationToken("user", "password",
-                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_A")});
+        TestingAuthenticationToken token = new TestingAuthenticationToken("user", "password", "ROLE_A");
         assertFalse(cap.supports(TestingAuthenticationToken.class));
 
         // Try it anyway

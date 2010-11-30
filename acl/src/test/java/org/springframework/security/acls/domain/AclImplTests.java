@@ -399,8 +399,7 @@ public class AclImplTests {
 
     @Test
     public void gettersAndSettersAreConsistent() throws Exception {
-        Authentication auth = new TestingAuthenticationToken("ben", "ignored", new GrantedAuthority[] {
-                new GrantedAuthorityImpl("ROLE_GENERAL") });
+        Authentication auth = new TestingAuthenticationToken("ben", "ignored", "ROLE_GENERAL");
         auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
         ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, (100));
