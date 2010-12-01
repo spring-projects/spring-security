@@ -85,6 +85,10 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
         return set;
     }
 
+    public List<MethodSecurityMetadataSource> getMethodSecurityMetadataSources() {
+        return methodSecurityMetadataSources;
+    }
+
     //~ Inner Classes ==================================================================================================
 
     private static class DefaultCacheKey {
@@ -97,12 +101,6 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
         }
 
         public boolean equals(Object other) {
-            if (this == other) {
-                return true;
-            }
-            if (!(other instanceof DefaultCacheKey)) {
-                return false;
-            }
             DefaultCacheKey otherKey = (DefaultCacheKey) other;
             return (this.method.equals(otherKey.method) &&
                     ObjectUtils.nullSafeEquals(this.targetClass, otherKey.targetClass));
