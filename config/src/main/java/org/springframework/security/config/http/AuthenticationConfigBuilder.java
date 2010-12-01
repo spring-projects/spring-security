@@ -2,11 +2,6 @@ package org.springframework.security.config.http;
 
 import static org.springframework.security.config.http.SecurityFilters.*;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanMetadataElement;
@@ -45,6 +40,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
+import java.security.SecureRandom;
+import java.util.*;
+
 /**
  * Handles creation of authentication mechanism filters and related beans for &lt;http&gt; parsing.
  *
@@ -74,6 +72,7 @@ final class AuthenticationConfigBuilder {
 
     private static final String ATT_USER_SERVICE_REF = "user-service-ref";
 
+    private static final String ATT_KEY = "key";
 
     private final Element httpElt;
     private final ParserContext pc;
@@ -106,8 +105,6 @@ final class AuthenticationConfigBuilder {
     private BeanDefinition etf;
     private final BeanReference requestCache;
 
-    final SecureRandom random;
-
     public AuthenticationConfigBuilder(Element element, ParserContext pc, SessionCreationPolicy sessionPolicy,
             BeanReference requestCache, BeanReference authenticationManager, BeanReference sessionStrategy) {
         this.httpElt = element;
@@ -116,12 +113,6 @@ final class AuthenticationConfigBuilder {
         autoConfig = "true".equals(element.getAttribute(ATT_AUTO_CONFIG));
         this.allowSessionCreation = sessionPolicy != SessionCreationPolicy.never
                 && sessionPolicy != SessionCreationPolicy.stateless;
-        try {
-            random = SecureRandom.getInstance("SHA1PRNG");
-        } catch (NoSuchAlgorithmException e) {
-            // Shouldn't happen...
-            throw new RuntimeException("Failed find SHA1PRNG algorithm!");
-        }
 
         createAnonymousFilter();
         createRememberMeFilter(authenticationManager);
@@ -138,8 +129,6 @@ final class AuthenticationConfigBuilder {
     }
 
     void createRememberMeFilter(BeanReference authenticationManager) {
-        final String ATT_KEY = "key";
-        final String DEF_KEY = "SpringSecured";
 
         // Parse remember me before logout as RememberMeServices is also a LogoutHandler implementation.
         Element rememberMeElt = DomUtils.getChildElementByTagName(httpElt, Elements.REMEMBER_ME);
@@ -148,7 +137,7 @@ final class AuthenticationConfigBuilder {
             String key = rememberMeElt.getAttribute(ATT_KEY);
 
             if (!StringUtils.hasText(key)) {
-                key = DEF_KEY;
+                key = createKey();
             }
 
             rememberMeFilter = new RememberMeBeanDefinitionParser(key).parse(rememberMeElt, pc);
@@ -488,7 +477,7 @@ final class AuthenticationConfigBuilder {
         if (anonymousElt != null) {
             grantedAuthority = anonymousElt.getAttribute("granted-authority");
             username = anonymousElt.getAttribute("username");
-            key = anonymousElt.getAttribute("key");
+            key = anonymousElt.getAttribute(ATT_KEY);
             source = pc.extractSource(anonymousElt);
         }
 
@@ -502,7 +491,7 @@ final class AuthenticationConfigBuilder {
 
         if (!StringUtils.hasText(key)) {
             // Generate a random key for the Anonymous provider
-            key = Long.toString(random.nextLong());
+            key = createKey();
         }
 
         anonymousFilter = new RootBeanDefinition(AnonymousAuthenticationFilter.class);
@@ -520,6 +509,11 @@ final class AuthenticationConfigBuilder {
 
         anonymousProviderRef = new RuntimeBeanReference(id);
 
+    }
+
+    private String createKey() {
+        SecureRandom random = new SecureRandom();
+        return Long.toString(random.nextLong());
     }
 
     void createExceptionTranslationFilter() {
