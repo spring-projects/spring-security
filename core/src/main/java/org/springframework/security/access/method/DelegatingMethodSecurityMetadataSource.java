@@ -88,6 +88,10 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
         this.methodSecurityMetadataSources = methodSecurityMetadataSources;
     }
 
+    public List<MethodSecurityMetadataSource> getMethodSecurityMetadataSources() {
+        return methodSecurityMetadataSources;
+    }
+
     //~ Inner Classes ==================================================================================================
 
     private static class DefaultCacheKey {
