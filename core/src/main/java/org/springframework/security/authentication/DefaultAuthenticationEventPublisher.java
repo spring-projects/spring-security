@@ -2,13 +2,14 @@ package org.springframework.security.authentication;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Properties;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
+import org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureBadCredentialsEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureCredentialsExpiredEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureDisabledEvent;
@@ -44,7 +45,8 @@ public class DefaultAuthenticationEventPublisher implements AuthenticationEventP
     private final Log logger = LogFactory.getLog(getClass());
 
     private ApplicationEventPublisher applicationEventPublisher;
-    private final Properties exceptionMappings;
+    private final HashMap<String,Constructor<? extends AbstractAuthenticationEvent>> exceptionMappings
+            = new HashMap<String,Constructor<? extends AbstractAuthenticationEvent>>();
 
     public DefaultAuthenticationEventPublisher() {
         this(null);
@@ -52,25 +54,17 @@ public class DefaultAuthenticationEventPublisher implements AuthenticationEventP
 
     public DefaultAuthenticationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
         this.applicationEventPublisher = applicationEventPublisher;
-        exceptionMappings = new Properties();
-        exceptionMappings.put(AccountExpiredException.class.getName(),
-                AuthenticationFailureExpiredEvent.class.getName());
-        exceptionMappings.put(AuthenticationServiceException.class.getName(),
-                AuthenticationFailureServiceExceptionEvent.class.getName());
-        exceptionMappings.put(LockedException.class.getName(),
-                AuthenticationFailureLockedEvent.class.getName());
-        exceptionMappings.put(CredentialsExpiredException.class.getName(),
-                AuthenticationFailureCredentialsExpiredEvent.class.getName());
-        exceptionMappings.put(DisabledException.class.getName(),
-                AuthenticationFailureDisabledEvent.class.getName());
-        exceptionMappings.put(BadCredentialsException.class.getName(),
-                AuthenticationFailureBadCredentialsEvent.class.getName());
-        exceptionMappings.put(UsernameNotFoundException.class.getName(),
-                AuthenticationFailureBadCredentialsEvent.class.getName());
-        exceptionMappings.put(ProviderNotFoundException.class.getName(),
-                AuthenticationFailureProviderNotFoundEvent.class.getName());
-        exceptionMappings.put("org.springframework.security.authentication.cas.ProxyUntrustedException",
-                AuthenticationFailureProxyUntrustedEvent.class.getName());
+
+        addMapping(BadCredentialsException.class.getName(), AuthenticationFailureBadCredentialsEvent.class);
+        addMapping(UsernameNotFoundException.class.getName(), AuthenticationFailureBadCredentialsEvent.class);
+        addMapping(AccountExpiredException.class.getName(), AuthenticationFailureExpiredEvent.class);
+        addMapping(ProviderNotFoundException.class.getName(), AuthenticationFailureProviderNotFoundEvent.class);
+        addMapping(DisabledException.class.getName(), AuthenticationFailureDisabledEvent.class);
+        addMapping(LockedException.class.getName(), AuthenticationFailureLockedEvent.class);
+        addMapping(AuthenticationServiceException.class.getName(), AuthenticationFailureServiceExceptionEvent.class);
+        addMapping(CredentialsExpiredException.class.getName(), AuthenticationFailureCredentialsExpiredEvent.class);
+        addMapping("org.springframework.security.authentication.cas.ProxyUntrustedException",
+                AuthenticationFailureProxyUntrustedEvent.class);
     }
 
     public void publishAuthenticationSuccess(Authentication authentication) {
@@ -79,23 +73,14 @@ public class DefaultAuthenticationEventPublisher implements AuthenticationEventP
         }
     }
 
-    public void publishAuthenticationFailure(AuthenticationException exception,
-            Authentication authentication) {
-        String className = exceptionMappings.getProperty(exception.getClass().getName());
+    public void publishAuthenticationFailure(AuthenticationException exception, Authentication authentication) {
+        Constructor<? extends AbstractAuthenticationEvent> constructor = exceptionMappings.get(exception.getClass().getName());
         AbstractAuthenticationEvent event = null;
 
-        if (className != null) {
+        if (constructor != null) {
             try {
-                Class<?> clazz = getClass().getClassLoader().loadClass(className);
-                Constructor<?> constructor = clazz.getConstructor(new Class[] {
-                            Authentication.class, AuthenticationException.class
-                        });
-                Object obj = constructor.newInstance(authentication, exception);
-                Assert.isInstanceOf(AbstractAuthenticationEvent.class, obj, "Must be an AbstractAuthenticationEvent");
-                event = (AbstractAuthenticationEvent) obj;
-            } catch (ClassNotFoundException ignored) {}
-            catch (NoSuchMethodException ignored) {}
-            catch (IllegalAccessException ignored) {}
+                event = constructor.newInstance(authentication, exception);
+            } catch (IllegalAccessException ignored) {}
             catch (InstantiationException ignored) {}
             catch (InvocationTargetException ignored) {}
         }
@@ -122,8 +107,29 @@ public class DefaultAuthenticationEventPublisher implements AuthenticationEventP
      * @param additionalExceptionMappings where keys are the fully-qualified string name of the exception class and the
      * values are the fully-qualified string name of the event class to fire.
      */
+    @SuppressWarnings({"unchecked"})
     public void setAdditionalExceptionMappings(Properties additionalExceptionMappings) {
         Assert.notNull(additionalExceptionMappings, "The exceptionMappings object must not be null");
-        exceptionMappings.putAll(additionalExceptionMappings);
+        for(Object exceptionClass : additionalExceptionMappings.keySet()) {
+            String eventClass = (String) additionalExceptionMappings.get(exceptionClass);
+            try {
+                Class<?> clazz = getClass().getClassLoader().loadClass(eventClass);
+                Assert.isAssignable(AbstractAuthenticationFailureEvent.class, clazz);
+                addMapping((String) exceptionClass, (Class<? extends AbstractAuthenticationFailureEvent>) clazz);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Failed to load authentication event class " + eventClass);
+            }
+        }
+    }
+
+    private void addMapping(String exceptionClass,
+                            Class<? extends AbstractAuthenticationFailureEvent> eventClass) {
+        try {
+            Constructor<? extends AbstractAuthenticationEvent> constructor =
+                    eventClass.getConstructor(Authentication.class, AuthenticationException.class);
+            exceptionMappings.put(exceptionClass, constructor);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Authentication event class " + eventClass.getName() + " has no suitable constructor");
+        }
     }
 }

@@ -296,13 +296,9 @@ public class ProviderManagerTests {
             }
         }
 
-        public boolean supports(Class<? extends Object> authentication) {
-            if (TestingAuthenticationToken.class.isAssignableFrom(authentication) ||
-                    UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication)) {
-                return true;
-            } else {
-                return false;
-            }
+        public boolean supports(Class<?> authentication) {
+            return TestingAuthenticationToken.class.isAssignableFrom(authentication) ||
+                    UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
         }
     }
 }

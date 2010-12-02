@@ -37,15 +37,4 @@ public class ProviderNotFoundException extends AuthenticationException {
     public ProviderNotFoundException(String msg) {
         super(msg);
     }
-
-    /**
-     * Constructs a <code>ProviderNotFoundException</code> with the specified
-     * message and root cause.
-     *
-     * @param msg the detail message
-     * @param t root cause
-     */
-    public ProviderNotFoundException(String msg, Throwable t) {
-        super(msg, t);
-    }
 }
