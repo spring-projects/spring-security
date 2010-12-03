@@ -16,27 +16,28 @@
 package org.springframework.security.web.authentication.switchuser;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.GrantedAuthority;
 
 
 /**
- * Custom <code>GrantedAuthority</code> used by {@link org.springframework.security.web.authentication.switchuser.SwitchUserFilter}<p>Stores
- * the <code>Authentication</code> object of the original user to be used later when 'exiting' from a user switch.</p>
+ * Custom {@code GrantedAuthority} used by
+ * {@link org.springframework.security.web.authentication.switchuser.SwitchUserFilter}
+ * <p>
+ * Stores the {@code Authentication} object of the original user to be used later when 'exiting' from a user switch.
  *
  * @author Mark St.Godard
  *
  * @see org.springframework.security.web.authentication.switchuser.SwitchUserFilter
  */
-public class SwitchUserGrantedAuthority extends GrantedAuthorityImpl {
+public final class SwitchUserGrantedAuthority implements GrantedAuthority {
     //~ Instance fields ================================================================================================
-
-    private static final long serialVersionUID = 1L;
+    private final String role;
     private final Authentication source;
 
     //~ Constructors ===================================================================================================
 
     public SwitchUserGrantedAuthority(String role, Authentication source) {
-        super(role);
+        this.role = role;
         this.source = source;
     }
 
@@ -49,5 +50,30 @@ public class SwitchUserGrantedAuthority extends GrantedAuthorityImpl {
      */
     public Authentication getSource() {
         return source;
+    }
+
+    public String getAuthority() {
+        return role;
+    }
+
+    public int hashCode() {
+        return 31 ^ source.hashCode() ^ role.hashCode();
+    }
+
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj instanceof SwitchUserGrantedAuthority) {
+            SwitchUserGrantedAuthority swa = (SwitchUserGrantedAuthority) obj;
+            return this.role.equals(swa.role) && this.source.equals(swa.source);
+        }
+
+        return false;
+    }
+
+    public String toString() {
+        return "Switch User Authority [" + role + "," + source + "]" ;
     }
 }

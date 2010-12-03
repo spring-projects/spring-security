@@ -16,7 +16,7 @@
 package org.springframework.security.ldap.userdetails;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextOperations;
@@ -222,7 +222,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
                 role = role.toUpperCase();
             }
 
-            authorities.add(new GrantedAuthorityImpl(rolePrefix + role));
+            authorities.add(new SimpleGrantedAuthority(rolePrefix + role));
         }
 
         return authorities;
@@ -261,7 +261,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      */
     public void setDefaultRole(String defaultRole) {
         Assert.notNull(defaultRole, "The defaultRole property cannot be set to null");
-        this.defaultRole = new GrantedAuthorityImpl(defaultRole);
+        this.defaultRole = new SimpleGrantedAuthority(defaultRole);
     }
 
     public void setGroupRoleAttribute(String groupRoleAttribute) {

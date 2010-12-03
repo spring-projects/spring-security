@@ -3,32 +3,16 @@ package org.springframework.security.acls.domain;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import java.lang.reflect.Field;
-import java.util.*;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.security.acls.model.AccessControlEntry;
-import org.springframework.security.acls.model.Acl;
-import org.springframework.security.acls.model.AlreadyExistsException;
-import org.springframework.security.acls.model.AuditableAccessControlEntry;
-import org.springframework.security.acls.model.AuditableAcl;
-import org.springframework.security.acls.model.ChildrenExistException;
-import org.springframework.security.acls.model.MutableAcl;
-import org.springframework.security.acls.model.MutableAclService;
-import org.springframework.security.acls.model.NotFoundException;
-import org.springframework.security.acls.model.ObjectIdentity;
-import org.springframework.security.acls.model.OwnershipAcl;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.acls.model.PermissionGrantingStrategy;
-import org.springframework.security.acls.model.Sid;
+import org.junit.*;
+import org.springframework.security.acls.model.*;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.util.FieldUtils;
+
+import java.lang.reflect.Field;
+import java.util.*;
 
 
 /**
@@ -201,9 +185,9 @@ public class AclImplTests {
 
     @Test
     public void deleteAceFailsForNonExistentElement() throws Exception {
-        AclAuthorizationStrategyImpl strategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
-                new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
-                new GrantedAuthorityImpl("ROLE_GENERAL") });
+        AclAuthorizationStrategyImpl strategy = new AclAuthorizationStrategyImpl(
+                new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority("ROLE_AUDITING"),
+                new SimpleGrantedAuthority("ROLE_GENERAL"));
         MutableAcl acl = new AclImpl(objectIdentity, (1), strategy, pgs, null, null, true, new PrincipalSid(
                 "joe"));
         try {
@@ -424,7 +408,7 @@ public class AclImplTests {
         acl.setEntriesInheriting(false);
         assertFalse(acl.isEntriesInheriting());
 
-        ((OwnershipAcl) acl).setOwner(new PrincipalSid("ben"));
+        acl.setOwner(new PrincipalSid("ben"));
         assertEquals(acl.getOwner(), new PrincipalSid("ben"));
     }
 

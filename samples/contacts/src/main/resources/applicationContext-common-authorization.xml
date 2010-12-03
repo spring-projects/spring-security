@@ -30,7 +30,7 @@
     <constructor-arg>
         <bean class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
             <constructor-arg>
-                <bean class="org.springframework.security.core.authority.GrantedAuthorityImpl">
+                <bean class="org.springframework.security.core.authority.SimpleGrantedAuthority">
                     <constructor-arg value="ROLE_ADMINISTRATOR"/>
                 </bean>
             </constructor-arg>

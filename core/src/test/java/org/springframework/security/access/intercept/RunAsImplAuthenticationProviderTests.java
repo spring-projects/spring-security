@@ -15,39 +15,32 @@
 
 package org.springframework.security.access.intercept;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
-
-import org.springframework.security.access.intercept.RunAsImplAuthenticationProvider;
-import org.springframework.security.access.intercept.RunAsUserToken;
+import org.junit.*;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
 
 
 /**
  * Tests {@link RunAsImplAuthenticationProvider}.
  */
-public class RunAsImplAuthenticationProviderTests extends TestCase {
+public class RunAsImplAuthenticationProviderTests {
 
+    @Test(expected = BadCredentialsException.class)
     public void testAuthenticationFailDueToWrongKey() {
         RunAsUserToken token = new RunAsUserToken("wrong_key", "Test", "Password",
                 AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), UsernamePasswordAuthenticationToken.class);
         RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
         provider.setKey("hello_world");
 
-        try {
-            provider.authenticate(token);
-            fail("Should have thrown BadCredentialsException");
-        } catch (BadCredentialsException expected) {
-            assertTrue(true);
-        }
+        provider.authenticate(token);
     }
 
+    @Test
     public void testAuthenticationSuccess() {
         RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
                 AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), UsernamePasswordAuthenticationToken.class);
@@ -56,33 +49,28 @@ public class RunAsImplAuthenticationProviderTests extends TestCase {
 
         Authentication result = provider.authenticate(token);
 
-        if (!(result instanceof RunAsUserToken)) {
-            fail("Should have returned RunAsUserToken");
-        }
+        Assert.assertTrue("Should have returned RunAsUserToken", result instanceof RunAsUserToken);
 
         RunAsUserToken resultCast = (RunAsUserToken) result;
         assertEquals("my_password".hashCode(), resultCast.getKeyHash());
     }
 
+    @Test(expected = IllegalArgumentException.class)
     public void testStartupFailsIfNoKey() throws Exception {
         RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
 
-        try {
-            provider.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+        provider.afterPropertiesSet();
     }
 
+    @Test
     public void testStartupSuccess() throws Exception {
         RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
         provider.setKey("hello_world");
         assertEquals("hello_world", provider.getKey());
         provider.afterPropertiesSet();
-        assertTrue(true);
     }
 
+    @Test
     public void testSupports() {
         RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
         assertTrue(provider.supports(RunAsUserToken.class));

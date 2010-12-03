@@ -15,8 +15,6 @@
 
 package org.springframework.security.core.authority;
 
-import java.io.Serializable;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
@@ -27,16 +25,14 @@ import org.springframework.util.Assert;
  *
  * <p>
  * Stores a <code>String</code> representation of an authority granted to  the {@link Authentication} object.
- * <p>
- * If compared to a custom authority which returns null from {@link #getAuthority}, the <tt>compareTo</tt>
- * method will return -1, so the custom authority will take precedence.
  *
  * @author Ben Alex
+ * @deprecated Use the final class {@link SimpleGrantedAuthority} or implement your own.
  */
-public class GrantedAuthorityImpl implements GrantedAuthority, Serializable {
+@Deprecated
+public class GrantedAuthorityImpl implements GrantedAuthority {
     //~ Instance fields ================================================================================================
 
-    private static final long serialVersionUID = 1L;
     private final String role;
 
     //~ Constructors ===================================================================================================

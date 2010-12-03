@@ -15,29 +15,29 @@
 
 package org.springframework.security.authentication.jaas;
 
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.security.Principal;
 
 
 /**
- * Extends GrantedAuthorityImpl to hold the principal that an AuthorityGranter justified as a reason to grant this
- * Authority. <br>
+ * {@code GrantedAuthority} which, in addition to the assigned role, holds the principal that an
+ * {@link AuthorityGranter} used as a reason to grant this authority.
  *
  * @author Ray Krueger
  *
  * @see AuthorityGranter
  */
-public class JaasGrantedAuthority extends GrantedAuthorityImpl {
+public final class JaasGrantedAuthority implements GrantedAuthority {
     //~ Instance fields ================================================================================================
 
-    private static final long serialVersionUID = 1L;
+    private final String role;
     private final Principal principal;
 
     //~ Constructors ===================================================================================================
 
     public JaasGrantedAuthority(String role, Principal principal) {
-        super(role);
+        this.role = role;
         this.principal = principal;
     }
 
@@ -45,5 +45,30 @@ public class JaasGrantedAuthority extends GrantedAuthorityImpl {
 
     public Principal getPrincipal() {
         return principal;
+    }
+
+    public String getAuthority() {
+        return role;
+    }
+
+    public int hashCode() {
+        return 31 ^ principal.hashCode() ^ role.hashCode();
+    }
+
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj instanceof JaasGrantedAuthority) {
+            JaasGrantedAuthority jga = (JaasGrantedAuthority) obj;
+            return this.role.equals(jga.role) && this.principal.equals(jga.principal);
+        }
+
+        return false;
+    }
+
+    public String toString() {
+        return "Jaas Authority [" + role + "," + principal + "]" ;
     }
 }

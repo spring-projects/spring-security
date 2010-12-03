@@ -16,7 +16,7 @@ import org.springframework.security.acls.model.MutableAcl;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.util.FieldUtils;
 
@@ -124,8 +124,8 @@ public class EhCacheBasedAclCacheTests {
     public void testDiskSerializationOfMutableAclObjectInstance() throws Exception {
         ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(100));
         AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
-                new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
-                new GrantedAuthorityImpl("ROLE_GENERAL"));
+                new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority("ROLE_AUDITING"),
+                new SimpleGrantedAuthority("ROLE_GENERAL"));
         MutableAcl acl = new AclImpl(identity, Long.valueOf(1), aclAuthorizationStrategy, new ConsoleAuditLogger());
 
         // Serialization test
@@ -156,8 +156,8 @@ public class EhCacheBasedAclCacheTests {
 
         ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(100));
         AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
-                new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
-                new GrantedAuthorityImpl("ROLE_GENERAL"));
+                new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority("ROLE_AUDITING"),
+                new SimpleGrantedAuthority("ROLE_GENERAL"));
         MutableAcl acl = new AclImpl(identity, Long.valueOf(1), aclAuthorizationStrategy, new ConsoleAuditLogger());
 
         assertEquals(0, cache.getDiskStoreSize());
@@ -210,8 +210,8 @@ public class EhCacheBasedAclCacheTests {
         ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(1));
         ObjectIdentity identityParent = new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(2));
         AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
-                new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
-                new GrantedAuthorityImpl("ROLE_GENERAL"));
+                new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority("ROLE_AUDITING"),
+                new SimpleGrantedAuthority("ROLE_GENERAL"));
         MutableAcl acl = new AclImpl(identity, Long.valueOf(1), aclAuthorizationStrategy, new ConsoleAuditLogger());
         MutableAcl parentAcl = new AclImpl(identityParent, Long.valueOf(2), aclAuthorizationStrategy, new ConsoleAuditLogger());
 

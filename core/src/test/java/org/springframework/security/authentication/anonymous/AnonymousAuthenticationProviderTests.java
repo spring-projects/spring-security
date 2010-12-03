@@ -15,17 +15,15 @@
 
 package org.springframework.security.authentication.anonymous;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
-
+import org.junit.*;
 import org.springframework.security.authentication.AnonymousAuthenticationProvider;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
 
 
 /**
@@ -33,10 +31,11 @@ import org.springframework.security.core.authority.GrantedAuthorityImpl;
  *
  * @author Ben Alex
  */
-public class AnonymousAuthenticationProviderTests extends TestCase {
+public class AnonymousAuthenticationProviderTests {
 
     //~ Methods ========================================================================================================
 
+    @Test
     public void testDetectsAnInvalidKey() throws Exception {
         AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider();
         aap.setKey("qwerty");
@@ -51,6 +50,7 @@ public class AnonymousAuthenticationProviderTests extends TestCase {
         }
     }
 
+    @Test
     public void testDetectsMissingKey() throws Exception {
         AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider();
 
@@ -62,6 +62,7 @@ public class AnonymousAuthenticationProviderTests extends TestCase {
         }
     }
 
+    @Test
     public void testGettersSetters() throws Exception {
         AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider();
         aap.setKey("qwerty");
@@ -69,6 +70,7 @@ public class AnonymousAuthenticationProviderTests extends TestCase {
         assertEquals("qwerty", aap.getKey());
     }
 
+    @Test
     public void testIgnoresClassesItDoesNotSupport() throws Exception {
         AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider();
         aap.setKey("qwerty");
@@ -80,6 +82,7 @@ public class AnonymousAuthenticationProviderTests extends TestCase {
         assertNull(aap.authenticate(token));
     }
 
+    @Test
     public void testNormalOperation() throws Exception {
         AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider();
         aap.setKey("qwerty");
@@ -92,6 +95,7 @@ public class AnonymousAuthenticationProviderTests extends TestCase {
         assertEquals(result, token);
     }
 
+    @Test
     public void testSupports() {
         AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider();
         assertTrue(aap.supports(AnonymousAuthenticationToken.class));

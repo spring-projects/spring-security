@@ -18,27 +18,25 @@ package org.springframework.security.cas.authentication;
 
 import static org.junit.Assert.*;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.AssertionImpl;
 import org.jasig.cas.client.validation.TicketValidationException;
 import org.jasig.cas.client.validation.TicketValidator;
-import org.junit.Test;
+import org.junit.*;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.web.CasAuthenticationFilter;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import java.util.*;
 
 
 /**
@@ -98,8 +96,8 @@ public class CasAuthenticationProviderTests {
         CasAuthenticationToken casResult = (CasAuthenticationToken) result;
         assertEquals(makeUserDetailsFromAuthoritiesPopulator(), casResult.getPrincipal());
         assertEquals("ST-123", casResult.getCredentials());
-        assertTrue(casResult.getAuthorities().contains(new GrantedAuthorityImpl("ROLE_A")));
-        assertTrue(casResult.getAuthorities().contains(new GrantedAuthorityImpl("ROLE_B")));
+        assertTrue(casResult.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_A")));
+        assertTrue(casResult.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_B")));
         assertEquals(cap.getKey().hashCode(), casResult.getKeyHash());
         assertEquals("details", casResult.getDetails());
 

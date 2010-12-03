@@ -1,14 +1,6 @@
 package org.springframework.security.performance;
 
-import java.util.Arrays;
-import java.util.List;
-
-import javax.servlet.http.HttpSession;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,13 +10,16 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.StopWatch;
+
+import javax.servlet.http.HttpSession;
+import java.util.*;
 
 /**
  *
@@ -122,7 +117,7 @@ public class FilterChainPerformanceTests {
         GrantedAuthority[] roles = new GrantedAuthority[howMany];
 
         for (int i = howMany - 1; i >=0 ; i--) {
-            roles[i] = new GrantedAuthorityImpl("ROLE_" + i);
+            roles[i] = new SimpleGrantedAuthority("ROLE_" + i);
         }
 
         return Arrays.asList(roles);

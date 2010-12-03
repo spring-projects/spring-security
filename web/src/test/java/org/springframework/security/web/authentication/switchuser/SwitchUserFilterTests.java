@@ -18,15 +18,7 @@ package org.springframework.security.web.authentication.switchuser;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.servlet.FilterChain;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AccountExpiredException;
@@ -37,7 +29,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -46,9 +38,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.switchuser.SwitchUserAuthorityChanger;
-import org.springframework.security.web.authentication.switchuser.SwitchUserGrantedAuthority;
-import org.springframework.security.web.authentication.switchuser.SwitchUserFilter;
+
+import javax.servlet.FilterChain;
+import java.util.*;
 
 
 /**
@@ -370,7 +362,7 @@ public class SwitchUserFilterTests {
         filter.setSwitchUserAuthorityChanger(new SwitchUserAuthorityChanger() {
             public Collection<GrantedAuthority> modifyGrantedAuthorities(UserDetails targetUser, Authentication currentAuthentication, Collection<? extends GrantedAuthority> authoritiesToBeGranted) {
                 List <GrantedAuthority>auths = new ArrayList<GrantedAuthority>();
-                auths.add(new GrantedAuthorityImpl("ROLE_NEW"));
+                auths.add(new SimpleGrantedAuthority("ROLE_NEW"));
                 return auths;
             }
         });

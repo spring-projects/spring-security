@@ -4,7 +4,7 @@ import java.util.*;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -130,7 +130,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper implements Attributes2G
         while ( st.hasMoreTokens() ) {
             String nextToken = st.nextToken();
             if ( StringUtils.hasText(nextToken) ) {
-                result.add(new GrantedAuthorityImpl(nextToken));
+                result.add(new SimpleGrantedAuthority(nextToken));
             }
         }
     }

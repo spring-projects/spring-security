@@ -16,9 +16,17 @@
 package org.springframework.security.web.authentication;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
-import java.io.IOException;
+import org.junit.*;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.memory.UserAttribute;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -26,19 +34,7 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.memory.UserAttribute;
+import java.io.IOException;
 
 
 /**
@@ -65,7 +61,7 @@ public class AnonymousAuthenticationFilterTests {
     public void testDetectsMissingKey() throws Exception {
         UserAttribute user = new UserAttribute();
         user.setPassword("anonymousUsername");
-        user.addAuthority(new GrantedAuthorityImpl("ROLE_ANONYMOUS"));
+        user.addAuthority(new SimpleGrantedAuthority("ROLE_ANONYMOUS"));
 
         AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter();
         filter.setUserAttribute(user);
@@ -83,7 +79,7 @@ public class AnonymousAuthenticationFilterTests {
     public void testGettersSetters() throws Exception {
         UserAttribute user = new UserAttribute();
         user.setPassword("anonymousUsername");
-        user.addAuthority(new GrantedAuthorityImpl("ROLE_ANONYMOUS"));
+        user.addAuthority(new SimpleGrantedAuthority("ROLE_ANONYMOUS"));
 
         AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter();
         filter.setKey("qwerty");
@@ -104,7 +100,7 @@ public class AnonymousAuthenticationFilterTests {
         // Setup our filter correctly
         UserAttribute user = new UserAttribute();
         user.setPassword("anonymousUsername");
-        user.addAuthority(new GrantedAuthorityImpl("ROLE_ANONYMOUS"));
+        user.addAuthority(new SimpleGrantedAuthority("ROLE_ANONYMOUS"));
 
         AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter();
         filter.setKey("qwerty");
@@ -125,7 +121,7 @@ public class AnonymousAuthenticationFilterTests {
     public void testOperationWhenNoAuthenticationInSecurityContextHolder() throws Exception {
         UserAttribute user = new UserAttribute();
         user.setPassword("anonymousUsername");
-        user.addAuthority(new GrantedAuthorityImpl("ROLE_ANONYMOUS"));
+        user.addAuthority(new SimpleGrantedAuthority("ROLE_ANONYMOUS"));
 
         AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter();
         filter.setKey("qwerty");

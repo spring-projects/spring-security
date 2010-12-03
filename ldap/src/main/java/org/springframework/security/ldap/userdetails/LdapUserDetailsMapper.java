@@ -22,7 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.ldap.ppolicy.PasswordPolicyControl;
 import org.springframework.security.ldap.ppolicy.PasswordPolicyResponseControl;
@@ -138,7 +138,7 @@ public class LdapUserDetailsMapper implements UserDetailsContextMapper {
             if (convertToUpperCase) {
                 role = ((String) role).toUpperCase();
             }
-            return new GrantedAuthorityImpl(rolePrefix + role);
+            return new SimpleGrantedAuthority(rolePrefix + role);
         }
         return null;
     }

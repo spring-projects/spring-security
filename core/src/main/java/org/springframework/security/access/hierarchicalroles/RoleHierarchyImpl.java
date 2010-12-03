@@ -15,22 +15,15 @@
 package org.springframework.security.access.hierarchicalroles;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * <p>
@@ -173,8 +166,8 @@ public class RoleHierarchyImpl implements RoleHierarchy {
         rolesReachableInOneStepMap = new HashMap<GrantedAuthority, Set<GrantedAuthority>>();
 
         while (roleHierarchyMatcher.find()) {
-            GrantedAuthority higherRole = new GrantedAuthorityImpl(roleHierarchyMatcher.group(2));
-            GrantedAuthority lowerRole = new GrantedAuthorityImpl(roleHierarchyMatcher.group(3));
+            GrantedAuthority higherRole = new SimpleGrantedAuthority(roleHierarchyMatcher.group(2));
+            GrantedAuthority lowerRole = new SimpleGrantedAuthority(roleHierarchyMatcher.group(3));
             Set<GrantedAuthority> rolesReachableInOneStepSet;
 
             if (!rolesReachableInOneStepMap.containsKey(higherRole)) {
@@ -210,7 +203,7 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 
             while (!rolesToVisitSet.isEmpty()) {
                 // take a role from the rolesToVisit set
-                GrantedAuthority aRole = (GrantedAuthority) rolesToVisitSet.iterator().next();
+                GrantedAuthority aRole = rolesToVisitSet.iterator().next();
                 rolesToVisitSet.remove(aRole);
                 addReachableRoles(visitedRolesSet, aRole);
                 if (rolesReachableInOneStepMap.containsKey(aRole)) {

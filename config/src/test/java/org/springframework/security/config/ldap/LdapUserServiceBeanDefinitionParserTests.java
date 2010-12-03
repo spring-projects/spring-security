@@ -1,17 +1,12 @@
 package org.springframework.security.config.ldap;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.config.ldap.LdapUserServiceBeanDefinitionParser.*;
 
-import java.util.Set;
-
-import org.junit.After;
-import org.junit.Test;
-import org.springframework.security.config.ldap.LdapUserServiceBeanDefinitionParser;
+import org.junit.*;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
@@ -23,6 +18,8 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsService;
 import org.springframework.security.ldap.userdetails.Person;
 import org.springframework.security.ldap.userdetails.PersonContextMapper;
 import org.w3c.dom.Element;
+
+import java.util.*;
 
 /**
  * @author Luke Taylor
@@ -108,7 +105,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
 
         Set<String> authorities = AuthorityUtils.authorityListToSet(ben.getAuthorities());
         assertEquals(3, authorities.size());
-        assertTrue(authorities.contains(new GrantedAuthorityImpl("ROLE_DEVELOPER")));
+        assertTrue(authorities.contains("ROLE_DEVELOPER"));
 
     }
 

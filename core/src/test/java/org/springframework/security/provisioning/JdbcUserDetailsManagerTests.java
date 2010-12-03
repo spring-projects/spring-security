@@ -23,7 +23,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserCache;
@@ -268,7 +268,7 @@ public class JdbcUserDetailsManagerTests {
 
     @Test
     public void addGroupAuthorityInsertsCorrectGroupAuthorityRow() throws Exception {
-        GrantedAuthority auth = new GrantedAuthorityImpl("ROLE_X");
+        GrantedAuthority auth = new SimpleGrantedAuthority("ROLE_X");
         manager.addGroupAuthority("GROUP_0", auth);
 
         template.queryForObject("select authority from group_authorities where authority = 'ROLE_X' and group_id = 0", String.class);
@@ -276,7 +276,7 @@ public class JdbcUserDetailsManagerTests {
 
     @Test
     public void deleteGroupAuthorityRemovesCorrectRows() throws Exception {
-        GrantedAuthority auth = new GrantedAuthorityImpl("ROLE_A");
+        GrantedAuthority auth = new SimpleGrantedAuthority("ROLE_A");
         manager.removeGroupAuthority("GROUP_0", auth);
         assertEquals(0, template.queryForList("select authority from group_authorities where group_id = 0").size());
 

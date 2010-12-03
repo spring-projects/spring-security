@@ -17,19 +17,14 @@ package org.springframework.security.access.vote;
 
 import static org.junit.Assert.*;
 
-import java.util.List;
-import java.util.Vector;
-
-import org.junit.Test;
+import org.junit.*;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.access.vote.ConsensusBased;
-import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+
+import java.util.*;
 
 
 /**

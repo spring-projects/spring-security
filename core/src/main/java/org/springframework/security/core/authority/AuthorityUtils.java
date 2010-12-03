@@ -49,7 +49,7 @@ public abstract class AuthorityUtils {
         List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(roles.length);
 
         for (String role : roles) {
-            authorities.add(new GrantedAuthorityImpl(role));
+            authorities.add(new SimpleGrantedAuthority(role));
         }
 
         return authorities;

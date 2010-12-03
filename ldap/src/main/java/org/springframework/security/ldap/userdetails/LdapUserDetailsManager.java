@@ -46,7 +46,7 @@ import org.springframework.ldap.core.SearchExecutor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -112,7 +112,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
             Object group = ne.next();
             String role = group.toString();
 
-            return new GrantedAuthorityImpl(rolePrefix + role.toUpperCase());
+            return new SimpleGrantedAuthority(rolePrefix + role.toUpperCase());
         }
     };
 

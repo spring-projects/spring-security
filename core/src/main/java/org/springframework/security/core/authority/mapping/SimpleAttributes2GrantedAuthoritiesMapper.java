@@ -1,7 +1,7 @@
 package org.springframework.security.core.authority.mapping;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -67,9 +67,9 @@ public class SimpleAttributes2GrantedAuthoritiesMapper implements Attributes2Gra
             attribute = attribute.toUpperCase(Locale.getDefault());
         }
         if (isAddPrefixIfAlreadyExisting() || !attribute.startsWith(getAttributePrefix())) {
-            return new GrantedAuthorityImpl(getAttributePrefix() + attribute);
+            return new SimpleGrantedAuthority(getAttributePrefix() + attribute);
         } else {
-            return new GrantedAuthorityImpl(attribute);
+            return new SimpleGrantedAuthority(attribute);
         }
     }
 

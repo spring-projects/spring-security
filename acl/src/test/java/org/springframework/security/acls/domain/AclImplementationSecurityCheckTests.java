@@ -2,9 +2,7 @@ package org.springframework.security.acls.domain;
 
 import static org.junit.Assert.*;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.MutableAcl;
@@ -12,8 +10,7 @@ import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
@@ -44,9 +41,9 @@ public class AclImplementationSecurityCheckTests {
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
-        AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
-                new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
-                new GrantedAuthorityImpl("ROLE_GENERAL") });
+        AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
+                new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority("ROLE_AUDITING"),
+                new SimpleGrantedAuthority("ROLE_GENERAL"));
 
         Acl acl = new AclImpl(identity, new Long(1), aclAuthorizationStrategy, new ConsoleAuditLogger());
 
@@ -55,9 +52,9 @@ public class AclImplementationSecurityCheckTests {
         aclAuthorizationStrategy.securityCheck(acl, AclAuthorizationStrategy.CHANGE_OWNERSHIP);
 
         // Create another authorization strategy
-        AclAuthorizationStrategy aclAuthorizationStrategy2 = new AclAuthorizationStrategyImpl(new GrantedAuthority[] {
-                new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO"),
-                new GrantedAuthorityImpl("ROLE_THREE") });
+        AclAuthorizationStrategy aclAuthorizationStrategy2 = new AclAuthorizationStrategyImpl(
+                new SimpleGrantedAuthority("ROLE_ONE"), new SimpleGrantedAuthority("ROLE_TWO"),
+                new SimpleGrantedAuthority("ROLE_THREE"));
         Acl acl2 = new AclImpl(identity, new Long(1), aclAuthorizationStrategy2, new ConsoleAuditLogger());
         // Check access in case the principal has no authorization rights
         try {
@@ -90,8 +87,8 @@ public class AclImplementationSecurityCheckTests {
         ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, new Long(100));
         // Authorization strategy will require a different role for each access
         AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
-                new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
-                new GrantedAuthorityImpl("ROLE_GENERAL"));
+                new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority("ROLE_AUDITING"),
+                new SimpleGrantedAuthority("ROLE_GENERAL"));
 
         // Let's give the principal the ADMINISTRATION permission, without
         // granting access
@@ -178,8 +175,8 @@ public class AclImplementationSecurityCheckTests {
         ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, 100);
         // Authorization strategy will require a different role for each access
         AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
-                new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO"),
-                new GrantedAuthorityImpl("ROLE_GENERAL"));
+                new SimpleGrantedAuthority("ROLE_ONE"), new SimpleGrantedAuthority("ROLE_TWO"),
+                new SimpleGrantedAuthority("ROLE_GENERAL"));
 
         // Let's give the principal an ADMINISTRATION permission, with granting
         // access
@@ -235,8 +232,8 @@ public class AclImplementationSecurityCheckTests {
 
         ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, 100);
         AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
-                new GrantedAuthorityImpl("ROLE_OWNERSHIP"), new GrantedAuthorityImpl("ROLE_AUDITING"),
-                new GrantedAuthorityImpl("ROLE_GENERAL"));
+                new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority("ROLE_AUDITING"),
+                new SimpleGrantedAuthority("ROLE_GENERAL"));
 
         Acl acl = new AclImpl(identity, 1, aclAuthorizationStrategy, new ConsoleAuditLogger(), null, null,
                 false, new PrincipalSid(auth));

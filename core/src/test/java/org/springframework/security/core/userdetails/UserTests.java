@@ -26,7 +26,7 @@ import java.util.Set;
 import org.junit.Test;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 
 /**
@@ -98,7 +98,7 @@ public class UserTests {
         try {
             List<GrantedAuthority> auths = AuthorityUtils.createAuthorityList("ROLE_ONE");
             auths.add(null);
-            auths.add(new GrantedAuthorityImpl("ROLE_THREE"));
+            auths.add(new SimpleGrantedAuthority("ROLE_THREE"));
             new User(null, "koala", true, true, true, true, auths);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {

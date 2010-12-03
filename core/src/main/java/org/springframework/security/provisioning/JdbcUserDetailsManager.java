@@ -7,7 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -334,7 +334,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
             public GrantedAuthority mapRow(ResultSet rs, int rowNum) throws SQLException {
                  String roleName = getRolePrefix() + rs.getString(3);
 
-                return new GrantedAuthorityImpl(roleName);
+                return new SimpleGrantedAuthority(roleName);
             }
         });
     }

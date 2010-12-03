@@ -23,7 +23,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.util.Assert;
 
 
@@ -32,8 +32,8 @@ import org.springframework.util.Assert;
  * <p>
  * Is activated if any {@link ConfigAttribute#getAttribute()} is prefixed  with <Code>RUN_AS_</code>.
  * If found, it generates a new {@link RunAsUserToken} containing the same principal, credentials and granted
- * authorities as the original {@link Authentication} object, along with {@link GrantedAuthorityImpl}s for each
- * <code>RUN_AS_</code> indicated. The created <code>GrantedAuthorityImpl</code>s will be prefixed with a special
+ * authorities as the original {@link Authentication} object, along with {@link SimpleGrantedAuthority}s for each
+ * <code>RUN_AS_</code> indicated. The created <code>SimpleGrantedAuthority</code>s will be prefixed with a special
  * prefix indicating that it is a role (default prefix value is <code>ROLE_</code>), and then the remainder of the
  * <code>RUN_AS_</code> keyword. For example, <code>RUN_AS_FOO</code> will result in the creation of a granted
  * authority of <code>ROLE_RUN_AS_FOO</code>.
@@ -66,7 +66,7 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
 
         for (ConfigAttribute attribute : attributes) {
             if (this.supports(attribute)) {
-                GrantedAuthority extraAuthority = new GrantedAuthorityImpl(getRolePrefix() + attribute.getAttribute());
+                GrantedAuthority extraAuthority = new SimpleGrantedAuthority(getRolePrefix() + attribute.getAttribute());
                 newAuthorities.add(extraAuthority);
             }
         }

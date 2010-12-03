@@ -4,7 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.*;
 
@@ -157,11 +157,11 @@ public class MapBasedAttributes2GrantedAuthoritiesMapperTest {
     private HashMap getValidAttributes2GrantedAuthoritiesMap() {
         HashMap m = new HashMap();
         m.put("role1","ga1");
-        m.put("role2",new GrantedAuthorityImpl("ga2"));
-        m.put("role3",Arrays.asList("ga3",new GrantedAuthorityImpl("ga4")));
+        m.put("role2",new SimpleGrantedAuthority("ga2"));
+        m.put("role3",Arrays.asList("ga3",new SimpleGrantedAuthority("ga4")));
         m.put("role4","ga5,ga6");
-        m.put("role5",Arrays.asList("ga7","ga8",new Object[]{new GrantedAuthorityImpl("ga9")}));
-        m.put("role6",new Object[]{"ga10","ga11",new Object[]{new GrantedAuthorityImpl("ga12")}});
+        m.put("role5",Arrays.asList("ga7","ga8",new Object[]{new SimpleGrantedAuthority("ga9")}));
+        m.put("role6",new Object[]{"ga10","ga11",new Object[]{new SimpleGrantedAuthority("ga12")}});
         m.put("role7",new String[]{"ga13","ga14"});
         m.put("role8",new String[]{"ga13","ga14",null});
         m.put("role9",null);

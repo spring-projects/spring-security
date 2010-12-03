@@ -23,8 +23,7 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.security.Security;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
@@ -41,7 +40,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.session.SessionDestroyedEvent;
 
@@ -193,11 +192,12 @@ public class JaasAuthenticationProviderTests {
         assertNotNull(jaasProvider.getLoginContextName());
 
         Collection<? extends GrantedAuthority> list = auth.getAuthorities();
+        Set<String> set = AuthorityUtils.authorityListToSet(list);
 
-        assertTrue("GrantedAuthorities should contain ROLE_TEST1", list.contains(new GrantedAuthorityImpl("ROLE_TEST1")));
-        assertTrue("GrantedAuthorities should contain ROLE_TEST2", list.contains(new GrantedAuthorityImpl("ROLE_TEST2")));
-        assertTrue("GrantedAuthorities should contain ROLE_1", list.contains(defaultAuths.get(0)));
-        assertTrue("GrantedAuthorities should contain ROLE_2", list.contains(defaultAuths.get(1)));
+        assertTrue("GrantedAuthorities should contain ROLE_1", set.contains("ROLE_ONE"));
+        assertTrue("GrantedAuthorities should contain ROLE_2", set.contains("ROLE_TWO"));
+        assertTrue("GrantedAuthorities should contain ROLE_TEST1", set.contains("ROLE_TEST1"));
+        assertTrue("GrantedAuthorities should contain ROLE_TEST2", set.contains("ROLE_TEST2"));
 
         boolean foundit = false;
 
@@ -213,7 +213,6 @@ public class JaasAuthenticationProviderTests {
 
         assertNotNull("Success event should be fired", eventCheck.successEvent);
         assertEquals("Auth objects should be equal", auth, eventCheck.successEvent.getAuthentication());
-
         assertNull("Failure event should not be fired", eventCheck.failedEvent);
     }
 

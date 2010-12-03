@@ -15,18 +15,17 @@
 
 package org.springframework.security.cas.authentication;
 
-import java.util.List;
-
 import junit.framework.TestCase;
-
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.AssertionImpl;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.*;
 
 /**
  * Tests {@link CasAuthenticationToken}.
@@ -108,8 +107,8 @@ public class CasAuthenticationTokenTests extends TestCase {
         assertEquals("key".hashCode(), token.getKeyHash());
         assertEquals(makeUserDetails(), token.getPrincipal());
         assertEquals("Password", token.getCredentials());
-        assertTrue(token.getAuthorities().contains(new GrantedAuthorityImpl("ROLE_ONE")));
-        assertTrue(token.getAuthorities().contains(new GrantedAuthorityImpl("ROLE_TWO")));
+        assertTrue(token.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ONE")));
+        assertTrue(token.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_TWO")));
         assertEquals(assertion, token.getAssertion());
         assertEquals(makeUserDetails().getUsername(), token.getUserDetails().getUsername());
     }

@@ -15,44 +15,38 @@
 
 package org.springframework.security.taglibs.authz;
 
-import junit.framework.TestCase;
 
+import static org.junit.Assert.assertEquals;
 
+import org.junit.*;
 import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.context.SecurityContextHolder;
-
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
 
 
 /**
- * DOCUMENT ME!
- *
  * @author Francois Beausoleil
  */
-public class AuthorizeTagAttributeTests extends TestCase {
+public class AuthorizeTagAttributeTests {
     //~ Instance fields ================================================================================================
 
     private final JspAuthorizeTag authorizeTag = new JspAuthorizeTag();
-    private TestingAuthenticationToken currentUser;
 
     //~ Methods ========================================================================================================
 
-    protected void setUp() throws Exception {
-        super.setUp();
-
-        currentUser = new TestingAuthenticationToken("abc", "123", "ROLE_SUPERVISOR","ROLE_RESTRICTED");
-
-        SecurityContextHolder.getContext().setAuthentication(currentUser);
+    @Before
+    public void setUp() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("abc", "123", "ROLE_SUPERVISOR", "ROLE_RESTRICTED"));
     }
 
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         SecurityContextHolder.clearContext();
     }
 
+    @Test
     public void testAssertsIfAllGrantedSecond() throws JspException {
         authorizeTag.setIfAllGranted("ROLE_SUPERVISOR,ROLE_SUPERTELLER");
         authorizeTag.setIfAnyGranted("ROLE_RESTRICTED");
@@ -60,11 +54,13 @@ public class AuthorizeTagAttributeTests extends TestCase {
             authorizeTag.doStartTag());
     }
 
+    @Test
     public void testAssertsIfAnyGrantedLast() throws JspException {
         authorizeTag.setIfAnyGranted("ROLE_BANKER");
         assertEquals("prevents request - principal is missing ROLE_BANKER", Tag.SKIP_BODY, authorizeTag.doStartTag());
     }
 
+    @Test
     public void testAssertsIfNotGrantedFirst() throws JspException {
         authorizeTag.setIfNotGranted("ROLE_RESTRICTED");
         authorizeTag.setIfAllGranted("ROLE_SUPERVISOR,ROLE_RESTRICTED");
@@ -72,21 +68,22 @@ public class AuthorizeTagAttributeTests extends TestCase {
         assertEquals("prevents request - principal has ROLE_RESTRICTED", Tag.SKIP_BODY, authorizeTag.doStartTag());
     }
 
+    @Test
     public void testAssertsIfNotGrantedIgnoresWhitespaceInAttribute()
         throws JspException {
         authorizeTag.setIfAnyGranted("\tROLE_SUPERVISOR  \t, \r\n\t ROLE_TELLER ");
         assertEquals("allows request - principal has ROLE_SUPERVISOR", Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
     }
 
-    public void testIfAllGrantedIgnoresWhitespaceInAttribute()
-        throws JspException {
+    @Test
+    public void testIfAllGrantedIgnoresWhitespaceInAttribute() throws JspException {
         authorizeTag.setIfAllGranted("\nROLE_SUPERVISOR\t,ROLE_RESTRICTED\t\n\r ");
         assertEquals("allows request - principal has ROLE_RESTRICTED " + "and ROLE_SUPERVISOR", Tag.EVAL_BODY_INCLUDE,
             authorizeTag.doStartTag());
     }
 
-    public void testIfNotGrantedIgnoresWhitespaceInAttribute()
-        throws JspException {
+    @Test
+    public void testIfNotGrantedIgnoresWhitespaceInAttribute() throws JspException {
         authorizeTag.setIfNotGranted(" \t  ROLE_TELLER \r");
         assertEquals("allows request - principal does not have ROLE_TELLER", Tag.EVAL_BODY_INCLUDE,
             authorizeTag.doStartTag());

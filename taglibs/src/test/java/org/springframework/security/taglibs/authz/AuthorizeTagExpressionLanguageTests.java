@@ -15,16 +15,14 @@
 
 package org.springframework.security.taglibs.authz;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.el.VariableResolver;
-import javax.servlet.jsp.tagext.Tag;
-
 import junit.framework.TestCase;
 import org.springframework.mock.web.MockPageContext;
 import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.el.VariableResolver;
+import javax.servlet.jsp.tagext.Tag;
 
 
 /**
@@ -35,7 +33,6 @@ public class AuthorizeTagExpressionLanguageTests extends TestCase {
 
     private final JspAuthorizeTag authorizeTag = new JspAuthorizeTag();
     private MockPageContext pageContext;
-    private TestingAuthenticationToken currentUser;
 
     //~ Methods ========================================================================================================
 
@@ -46,10 +43,7 @@ public class AuthorizeTagExpressionLanguageTests extends TestCase {
             }
         };
         authorizeTag.setPageContext(pageContext);
-
-        currentUser = new TestingAuthenticationToken("abc", "123", "ROLE_TELLER");
-
-        SecurityContextHolder.getContext().setAuthentication(currentUser);
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("abc", "123", "ROLE_TELLER"));
     }
 
     protected void tearDown() throws Exception {

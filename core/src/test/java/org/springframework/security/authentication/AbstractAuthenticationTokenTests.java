@@ -17,13 +17,12 @@ package org.springframework.security.authentication;
 
 import static org.junit.Assert.*;
 
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.*;
 
 
 /**
@@ -49,7 +48,7 @@ public class AbstractAuthenticationTokenTests {
         List<GrantedAuthority> gotAuthorities = (List<GrantedAuthority>) token.getAuthorities();
         assertNotSame(authorities, gotAuthorities);
 
-        gotAuthorities.set(0, new GrantedAuthorityImpl("ROLE_SUPER_USER"));
+        gotAuthorities.set(0, new SimpleGrantedAuthority("ROLE_SUPER_USER"));
     }
 
     @Test

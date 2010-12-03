@@ -17,7 +17,7 @@ package org.springframework.security.cas.userdetails;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.util.Assert;
 import org.jasig.cas.client.validation.Assertion;
 
@@ -62,11 +62,11 @@ public final class GrantedAuthorityFromAssertionAttributesUserDetailsService ext
                 final List list = (List) value;
 
                 for (final Object o : list) {
-                    grantedAuthorities.add(new GrantedAuthorityImpl(this.convertToUpperCase ? o.toString().toUpperCase() : o.toString()));
+                    grantedAuthorities.add(new SimpleGrantedAuthority(this.convertToUpperCase ? o.toString().toUpperCase() : o.toString()));
                 }
 
             } else {
-                grantedAuthorities.add(new GrantedAuthorityImpl(this.convertToUpperCase ? value.toString().toUpperCase() : value.toString()));
+                grantedAuthorities.add(new SimpleGrantedAuthority(this.convertToUpperCase ? value.toString().toUpperCase() : value.toString()));
             }
 
         }

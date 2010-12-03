@@ -16,30 +16,19 @@
 package org.springframework.security.taglibs.velocity;
 
 import junit.framework.TestCase;
-
-
 import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-
-
-/**
- * DOCUMENT ME!
- */
 public class AuthzImplAuthorizeTagTest extends TestCase {
     //~ Instance fields ================================================================================================
 
     private Authz authz = new AuthzImpl();
-    private TestingAuthenticationToken currentUser;
 
     //~ Methods ========================================================================================================
 
     protected void setUp() throws Exception {
-        currentUser = new TestingAuthenticationToken("abc", "123", "ROLE_SUPERVISOR", "ROLE_TELLER");
-
-        SecurityContextHolder.getContext().setAuthentication(currentUser);
+        SecurityContextHolder.getContext().setAuthentication(
+                new TestingAuthenticationToken("abc", "123", "ROLE_SUPERVISOR", "ROLE_TELLER"));
     }
 
     protected void tearDown() throws Exception {

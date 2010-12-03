@@ -1,19 +1,10 @@
 package org.springframework.security.acls.jdbc;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 import junit.framework.Assert;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -34,9 +25,10 @@ import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.util.FileCopyUtils;
+
+import java.util.*;
 
 /**
  * Tests {@link BasicLookupStrategy}
@@ -101,7 +93,7 @@ public class BasicLookupStrategyTests {
     @Before
     public void initializeBeans() {
         EhCacheBasedAclCache cache = new EhCacheBasedAclCache(getCache());
-        AclAuthorizationStrategy authorizationStrategy = new AclAuthorizationStrategyImpl(new GrantedAuthorityImpl("ROLE_ADMINISTRATOR"));
+        AclAuthorizationStrategy authorizationStrategy = new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ROLE_ADMINISTRATOR"));
         strategy = new BasicLookupStrategy(dataSource, cache, authorizationStrategy,
                 new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()));
         strategy.setPermissionFactory(new DefaultPermissionFactory());
@@ -157,7 +149,7 @@ public class BasicLookupStrategyTests {
         ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, new Long(102));
 
         // Set a batch size to allow multiple database queries in order to retrieve all acls
-        ((BasicLookupStrategy) this.strategy).setBatchSize(1);
+        this.strategy.setBatchSize(1);
         Map<ObjectIdentity, Acl> map = this.strategy.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid), null);
         checkEntries(topParentOid, middleParentOid, childOid, map);
     }
@@ -199,14 +191,14 @@ public class BasicLookupStrategyTests {
         Assert.assertEquals(topParent.getEntries().get(0).getSid(), new PrincipalSid("ben"));
         Assert.assertFalse(((AuditableAccessControlEntry) topParent.getEntries().get(0)).isAuditFailure());
         Assert.assertFalse(((AuditableAccessControlEntry) topParent.getEntries().get(0)).isAuditSuccess());
-        Assert.assertTrue(((AuditableAccessControlEntry) topParent.getEntries().get(0)).isGranting());
+        Assert.assertTrue((topParent.getEntries().get(0)).isGranting());
 
         Assert.assertEquals(topParent.getEntries().get(1).getId(), Long.valueOf(2));
         Assert.assertEquals(topParent.getEntries().get(1).getPermission(), BasePermission.WRITE);
         Assert.assertEquals(topParent.getEntries().get(1).getSid(), new PrincipalSid("ben"));
         Assert.assertFalse(((AuditableAccessControlEntry) topParent.getEntries().get(1)).isAuditFailure());
         Assert.assertFalse(((AuditableAccessControlEntry) topParent.getEntries().get(1)).isAuditSuccess());
-        Assert.assertFalse(((AuditableAccessControlEntry) topParent.getEntries().get(1)).isGranting());
+        Assert.assertFalse(topParent.getEntries().get(1).isGranting());
 
         Assert.assertTrue(middleParent.isEntriesInheriting());
         Assert.assertEquals(middleParent.getId(), Long.valueOf(2));
@@ -216,7 +208,7 @@ public class BasicLookupStrategyTests {
         Assert.assertEquals(middleParent.getEntries().get(0).getSid(), new PrincipalSid("ben"));
         Assert.assertFalse(((AuditableAccessControlEntry) middleParent.getEntries().get(0)).isAuditFailure());
         Assert.assertFalse(((AuditableAccessControlEntry) middleParent.getEntries().get(0)).isAuditSuccess());
-        Assert.assertTrue(((AuditableAccessControlEntry) middleParent.getEntries().get(0)).isGranting());
+        Assert.assertTrue(middleParent.getEntries().get(0).isGranting());
 
         Assert.assertTrue(child.isEntriesInheriting());
         Assert.assertEquals(child.getId(), Long.valueOf(3));
@@ -244,11 +236,11 @@ public class BasicLookupStrategyTests {
 
         // Check that the child and all its parents were retrieved
         Assert.assertNotNull(map.get(childOid));
-        Assert.assertEquals(childOid, ((Acl) map.get(childOid)).getObjectIdentity());
+        Assert.assertEquals(childOid, map.get(childOid).getObjectIdentity());
         Assert.assertNotNull(map.get(middleParentOid));
-        Assert.assertEquals(middleParentOid, ((Acl) map.get(middleParentOid)).getObjectIdentity());
+        Assert.assertEquals(middleParentOid, map.get(middleParentOid).getObjectIdentity());
         Assert.assertNotNull(map.get(topParentOid));
-        Assert.assertEquals(topParentOid, ((Acl) map.get(topParentOid)).getObjectIdentity());
+        Assert.assertEquals(topParentOid, map.get(topParentOid).getObjectIdentity());
 
         // The second parent shouldn't have been retrieved
         Assert.assertNull(map.get(middleParent2Oid));
@@ -279,7 +271,7 @@ public class BasicLookupStrategyTests {
         strategy.setBatchSize(6);
         Map<ObjectIdentity, Acl> foundAcls = strategy.readAclsById(childOids, sids);
 
-        Acl foundChildAcl = (Acl) foundAcls.get(childOid);
+        Acl foundChildAcl = foundAcls.get(childOid);
         Assert.assertNotNull(foundChildAcl);
         Assert.assertTrue(foundChildAcl.isGranted(checkPermission, sids, false));
 
@@ -293,7 +285,7 @@ public class BasicLookupStrategyTests {
             Assert.fail("It shouldn't have thrown NotFoundException");
         }
 
-        Acl foundParent2Acl = (Acl) foundAcls.get(parent2Oid);
+        Acl foundParent2Acl = foundAcls.get(parent2Oid);
         Assert.assertNotNull(foundParent2Acl);
         Assert.assertTrue(foundParent2Acl.isGranted(checkPermission, sids, false));
     }

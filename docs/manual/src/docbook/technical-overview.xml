@@ -246,7 +246,7 @@ if (principal instanceof UserDetails) {
                 look at some code as an example.
                 <programlisting language="java">import org.springframework.security.authentication.*;
 import org.springframework.security.core.*;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 public class AuthenticationExample {
@@ -278,7 +278,7 @@ class SampleAuthenticationManager implements AuthenticationManager {
   static final List&lt;GrantedAuthority> AUTHORITIES = new ArrayList&lt;GrantedAuthority>();
 
   static {
-    AUTHORITIES.add(new GrantedAuthorityImpl("ROLE_USER"));
+    AUTHORITIES.add(new SimpleGrantedAuthority("ROLE_USER"));
   }
 
   public Authentication authenticate(Authentication auth) throws AuthenticationException {

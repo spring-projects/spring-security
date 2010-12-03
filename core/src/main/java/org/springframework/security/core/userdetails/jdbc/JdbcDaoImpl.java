@@ -29,7 +29,7 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -210,7 +210,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
             public GrantedAuthority mapRow(ResultSet rs, int rowNum) throws SQLException {
                 String roleName = rolePrefix + rs.getString(2);
 
-                return new GrantedAuthorityImpl(roleName);
+                return new SimpleGrantedAuthority(roleName);
             }
         });
     }
@@ -225,7 +225,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
             public GrantedAuthority mapRow(ResultSet rs, int rowNum) throws SQLException {
                  String roleName = getRolePrefix() + rs.getString(3);
 
-                return new GrantedAuthorityImpl(roleName);
+                return new SimpleGrantedAuthority(roleName);
             }
         });
     }

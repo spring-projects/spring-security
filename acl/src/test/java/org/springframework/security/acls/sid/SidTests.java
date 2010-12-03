@@ -2,14 +2,13 @@ package org.springframework.security.acls.sid;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
-
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 public class SidTests extends TestCase {
 
@@ -109,7 +108,7 @@ public class SidTests extends TestCase {
         }
 
         try {
-            GrantedAuthority ga = new GrantedAuthorityImpl(null);
+            GrantedAuthority ga = new SimpleGrantedAuthority(null);
             new GrantedAuthoritySid(ga);
             Assert.fail("It should have thrown IllegalArgumentException");
         }
@@ -118,7 +117,7 @@ public class SidTests extends TestCase {
         }
 
         try {
-            GrantedAuthority ga = new GrantedAuthorityImpl("ROLE_TEST");
+            GrantedAuthority ga = new SimpleGrantedAuthority("ROLE_TEST");
             new GrantedAuthoritySid(ga);
             Assert.assertTrue(true);
         }
@@ -142,15 +141,15 @@ public class SidTests extends TestCase {
     }
 
     public void testGrantedAuthoritySidEquals() throws Exception {
-        GrantedAuthority ga = new GrantedAuthorityImpl("ROLE_TEST");
+        GrantedAuthority ga = new SimpleGrantedAuthority("ROLE_TEST");
         Sid gaSid = new GrantedAuthoritySid(ga);
 
         Assert.assertFalse(gaSid.equals(null));
         Assert.assertFalse(gaSid.equals("DIFFERENT_TYPE_OBJECT"));
         Assert.assertTrue(gaSid.equals(gaSid));
         Assert.assertTrue(gaSid.equals(new GrantedAuthoritySid(ga)));
-        Assert.assertTrue(gaSid.equals(new GrantedAuthoritySid(new GrantedAuthorityImpl("ROLE_TEST"))));
-        Assert.assertFalse(gaSid.equals(new GrantedAuthoritySid(new GrantedAuthorityImpl("ROLE_NOT_EQUAL"))));
+        Assert.assertTrue(gaSid.equals(new GrantedAuthoritySid(new SimpleGrantedAuthority("ROLE_TEST"))));
+        Assert.assertFalse(gaSid.equals(new GrantedAuthoritySid(new SimpleGrantedAuthority("ROLE_NOT_EQUAL"))));
         Assert.assertTrue(gaSid.equals(new GrantedAuthoritySid("ROLE_TEST")));
         Assert.assertFalse(gaSid.equals(new GrantedAuthoritySid("ROLE_NOT_EQUAL")));
     }
@@ -159,26 +158,26 @@ public class SidTests extends TestCase {
         Authentication authentication = new TestingAuthenticationToken("johndoe", "password");
         Sid principalSid = new PrincipalSid(authentication);
 
-        Assert.assertTrue(principalSid.hashCode() == new String("johndoe").hashCode());
+        Assert.assertTrue(principalSid.hashCode() == "johndoe".hashCode());
         Assert.assertTrue(principalSid.hashCode() == new PrincipalSid("johndoe").hashCode());
         Assert.assertTrue(principalSid.hashCode() != new PrincipalSid("scott").hashCode());
         Assert.assertTrue(principalSid.hashCode() != new PrincipalSid(new TestingAuthenticationToken("scott", "password")).hashCode());
     }
 
     public void testGrantedAuthoritySidHashCode() throws Exception {
-        GrantedAuthority ga = new GrantedAuthorityImpl("ROLE_TEST");
+        GrantedAuthority ga = new SimpleGrantedAuthority("ROLE_TEST");
         Sid gaSid = new GrantedAuthoritySid(ga);
 
-        Assert.assertTrue(gaSid.hashCode() == new String("ROLE_TEST").hashCode());
+        Assert.assertTrue(gaSid.hashCode() == "ROLE_TEST".hashCode());
         Assert.assertTrue(gaSid.hashCode() == new GrantedAuthoritySid("ROLE_TEST").hashCode());
         Assert.assertTrue(gaSid.hashCode() != new GrantedAuthoritySid("ROLE_TEST_2").hashCode());
-        Assert.assertTrue(gaSid.hashCode() != new GrantedAuthoritySid(new GrantedAuthorityImpl("ROLE_TEST_2")).hashCode());
+        Assert.assertTrue(gaSid.hashCode() != new GrantedAuthoritySid(new SimpleGrantedAuthority("ROLE_TEST_2")).hashCode());
     }
 
     public void testGetters() throws Exception {
         Authentication authentication = new TestingAuthenticationToken("johndoe", "password");
         PrincipalSid principalSid = new PrincipalSid(authentication);
-        GrantedAuthority ga = new GrantedAuthorityImpl("ROLE_TEST");
+        GrantedAuthority ga = new SimpleGrantedAuthority("ROLE_TEST");
         GrantedAuthoritySid gaSid = new GrantedAuthoritySid(ga);
 
         Assert.assertTrue("johndoe".equals(principalSid.getPrincipal()));

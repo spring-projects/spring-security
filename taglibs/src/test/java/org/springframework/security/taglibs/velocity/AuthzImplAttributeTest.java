@@ -16,20 +16,12 @@
 package org.springframework.security.taglibs.velocity;
 
 import junit.framework.TestCase;
-
-
 import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.context.SecurityContextHolder;
-
 
 import javax.servlet.jsp.JspException;
 
 
-/**
- * DOCUMENT ME!
- */
 public class AuthzImplAttributeTest extends TestCase {
     //~ Instance fields ================================================================================================
 
@@ -39,11 +31,8 @@ public class AuthzImplAttributeTest extends TestCase {
     //~ Methods ========================================================================================================
 
     protected void setUp() throws Exception {
-        super.setUp();
-
-        currentUser = new TestingAuthenticationToken("abc", "123", "ROLE_SUPERVISOR","ROLE_RESTRICTED");
-
-        SecurityContextHolder.getContext().setAuthentication(currentUser);
+        SecurityContextHolder.getContext().setAuthentication(
+                new TestingAuthenticationToken("abc", "123", "ROLE_SUPERVISOR","ROLE_RESTRICTED"));
     }
 
     protected void tearDown() throws Exception {

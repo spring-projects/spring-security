@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 
 /**
@@ -65,7 +65,7 @@ public class UserAttribute {
     public void setAuthoritiesAsString(List<String> authoritiesAsStrings) {
         setAuthorities(new ArrayList<GrantedAuthority>(authoritiesAsStrings.size()));
         for(String authority : authoritiesAsStrings) {
-            addAuthority(new GrantedAuthorityImpl(authority));
+            addAuthority(new SimpleGrantedAuthority(authority));
         }
     }
 
