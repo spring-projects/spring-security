@@ -176,6 +176,8 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
                         filters == null ? " has no matching filters" : " has an empty filter list");
             }
 
+            fwRequest.reset();
+
             chain.doFilter(fwRequest, response);
 
             return;
