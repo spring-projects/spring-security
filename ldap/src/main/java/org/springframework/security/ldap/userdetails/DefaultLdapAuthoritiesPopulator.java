@@ -63,7 +63,7 @@ import java.util.Set;
  * </pre>
  * <p>
  * The group search is performed within a DN specified by the <tt>groupSearchBase</tt> property, which should
- * be relative to the root DN of its <tt>InitialDirContextFactory</tt>. If the search base is null, group searching is
+ * be relative to the root DN of its <tt>ContextSource</tt>. If the search base is null, group searching is
  * disabled. The filter used in the search is defined by the <tt>groupSearchFilter</tt> property, with the filter
  * argument {0} being the full DN of the user. You can also optionally use the parameter {1}, which will be substituted
  * with the username. You can also specify which attribute defines the role name by setting
