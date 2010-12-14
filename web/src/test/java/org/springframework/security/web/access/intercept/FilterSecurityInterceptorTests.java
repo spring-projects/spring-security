@@ -15,28 +15,28 @@
 
 package org.springframework.security.web.access.intercept;
 
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-import java.util.*;
-import javax.servlet.FilterChain;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.AccessDecisionManager;
-import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.event.AuthorizedEvent;
+import org.springframework.security.access.intercept.AfterInvocationManager;
 import org.springframework.security.access.intercept.RunAsManager;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
+
+import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 
 /**
@@ -95,23 +95,51 @@ public class FilterSecurityInterceptorTests {
      */
     @Test
     public void testSuccessfulInvocation() throws Throwable {
-        final MockHttpServletResponse response = new MockHttpServletResponse();
-        final MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setServletPath("/secure/page.html");
-
         // Setup a Context
-        final Authentication token = new TestingAuthenticationToken("Test", "Password", "NOT_USED");
+        Authentication token = new TestingAuthenticationToken("Test", "Password", "NOT_USED");
         SecurityContextHolder.getContext().setAuthentication(token);
 
-        // Create and test our secure object
-        final FilterChain chain = mock(FilterChain.class);
-        final FilterInvocation fi = new FilterInvocation(request, response, chain);
-        final List<ConfigAttribute> attributes = SecurityConfig.createList("MOCK_OK");
+        FilterInvocation fi = createinvocation();
 
-        when(ods.getAttributes(fi)).thenReturn(attributes);
+        when(ods.getAttributes(fi)).thenReturn(SecurityConfig.createList("MOCK_OK"));
 
         interceptor.invoke(fi);
 
-        verify(publisher).publishEvent(any(AuthorizedEvent.class));        
+        verify(publisher).publishEvent(any(AuthorizedEvent.class));
     }
+
+    @Test
+    public void afterInvocationIsNotInvokedIfExceptionThrown() throws Exception {
+        Authentication token = new TestingAuthenticationToken("Test", "Password", "NOT_USED");
+        SecurityContextHolder.getContext().setAuthentication(token);
+
+        FilterInvocation fi = createinvocation();
+        FilterChain chain = fi.getChain();
+
+        doThrow(new RuntimeException()).when(chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+        when(ods.getAttributes(fi)).thenReturn(SecurityConfig.createList("MOCK_OK"));
+
+        AfterInvocationManager aim = mock(AfterInvocationManager.class);
+        interceptor.setAfterInvocationManager(aim);
+
+        try {
+            interceptor.invoke(fi);
+            fail("Expected exception");
+        } catch (RuntimeException expected) {
+        }
+
+        verifyZeroInteractions(aim);
+    }
+
+    private FilterInvocation createinvocation() {
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setServletPath("/secure/page.html");
+
+        FilterChain chain = mock(FilterChain.class);
+        FilterInvocation fi = new FilterInvocation(request, response, chain);
+
+        return fi;
+    }
+
 }

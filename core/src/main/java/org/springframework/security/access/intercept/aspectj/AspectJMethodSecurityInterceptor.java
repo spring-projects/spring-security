@@ -37,15 +37,10 @@ public final class AspectJMethodSecurityInterceptor extends MethodSecurityInterc
      * @return The returned value from the method invocation
      */
     public Object invoke(JoinPoint jp, AspectJCallback advisorProceed) {
-        Object result = null;
         InterceptorStatusToken token = super.beforeInvocation(new MethodInvocationAdapter(jp));
 
-        try {
-            result = advisorProceed.proceedWithObject();
-        } finally {
-            result = super.afterInvocation(token, result);
-        }
+        Object result = advisorProceed.proceedWithObject();
 
-        return result;
+        return super.afterInvocation(token, result);
     }
 }

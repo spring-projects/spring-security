@@ -551,7 +551,9 @@ Successfully authenticated. Security context contains: \
                 </listitem>
                 <listitem>
                     <para>Call the <interfacename>AfterInvocationManager</interfacename> if
-                        configured, once the invocation has returned.</para>
+                        configured, once the invocation has returned. If the invocation raised an
+                        exception, the <interfacename>AfterInvocationManager</interfacename>
+                        will not be invoked.</para>
                 </listitem>
                 </orderedlist></para>
             <section xml:id="tech-intro-config-attributes">
@@ -602,7 +604,7 @@ Successfully authenticated. Security context contains: \
             </section>
             <section>
                 <title>AfterInvocationManager</title>
-                <para>Following the secure object proceeding and then returning - which may mean a
+                <para>Following the secure object invocation proceeding and then returning - which may mean a
                     method invocation completing or a filter chain proceeding - the
                     <classname>AbstractSecurityInterceptor</classname> gets one final chance to
                     handle the invocation. At this stage the
@@ -613,7 +615,10 @@ Successfully authenticated. Security context contains: \
                     <classname>AbstractSecurityInterceptor</classname> will pass control to an
                     <literal>AfterInvocationManager</literal> to actually modify the object if
                     needed. This class can even entirely replace the object, or throw an exception,
-                    or not change it in any way as it chooses.</para>
+                    or not change it in any way as it chooses. The after-invocation checks will only
+                    be executed if the invocation is successful. If an exception occurs, the additional
+                    checks will be skipped.
+                </para>
                 <para><classname>AbstractSecurityInterceptor</classname> and its related objects are
                     shown in <xref linkend="abstract-security-interceptor"/>. <figure
                     xml:id="abstract-security-interceptor">

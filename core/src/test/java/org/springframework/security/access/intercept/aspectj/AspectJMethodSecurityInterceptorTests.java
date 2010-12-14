@@ -19,6 +19,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
+import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
@@ -32,6 +33,7 @@ import org.springframework.security.TargetObject;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.access.intercept.AfterInvocationManager;
 import org.springframework.security.access.method.MethodSecurityMetadataSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -129,4 +131,24 @@ public class AspectJMethodSecurityInterceptorTests {
         assertEquals(m, mia.getMethod());
         assertSame(to, mia.getThis());
     }
+
+    @Test
+    public void afterInvocationManagerIsNotInvokedIfExceptionIsRaised() throws Throwable {
+        token.setAuthenticated(true);
+        SecurityContextHolder.getContext().setAuthentication(token);
+
+        AfterInvocationManager aim = mock(AfterInvocationManager.class);
+        interceptor.setAfterInvocationManager(aim);
+
+        when(aspectJCallback.proceedWithObject()).thenThrow(new RuntimeException());
+
+        try {
+            interceptor.invoke(joinPoint, aspectJCallback);
+            fail("Expected exception");
+        } catch (RuntimeException expected) {
+        }
+
+        verifyZeroInteractions(aim);
+    }
+
 }

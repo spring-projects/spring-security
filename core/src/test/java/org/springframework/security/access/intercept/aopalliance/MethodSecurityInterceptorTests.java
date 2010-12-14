@@ -259,6 +259,27 @@ public class MethodSecurityInterceptorTests {
         advisedTarget.makeUpperCase("hello");
     }
 
+    @Test
+    public void afterInvocationManagerIsNotInvokedIfExceptionIsRaised() throws Throwable {
+        MethodInvocation mi = mock(MethodInvocation.class);
+        token.setAuthenticated(true);
+        SecurityContextHolder.getContext().setAuthentication(token);
+        mdsReturnsUserRole();
+
+        AfterInvocationManager aim = mock(AfterInvocationManager.class);
+        interceptor.setAfterInvocationManager(aim);
+
+        when(mi.proceed()).thenThrow(new Throwable());
+
+        try {
+            interceptor.invoke(mi);
+            fail("Expected exception");
+        } catch (Throwable expected) {
+        }
+
+        verifyZeroInteractions(aim);
+    }
+
     void mdsReturnsNull() {
         when(mds.getAttributes(any(MethodInvocation.class))).thenReturn(null);
     }

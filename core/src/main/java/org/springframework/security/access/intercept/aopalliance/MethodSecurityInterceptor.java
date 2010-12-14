@@ -51,21 +51,16 @@ public class MethodSecurityInterceptor extends AbstractSecurityInterceptor imple
      *
      * @param mi The method being invoked which requires a security decision
      *
-     * @return The returned value from the method invocation
+     * @return The returned value from the method invocation (possibly modified by the {@code AfterInvocationManager}).
      *
      * @throws Throwable if any error occurs
      */
     public Object invoke(MethodInvocation mi) throws Throwable {
-        Object result = null;
         InterceptorStatusToken token = super.beforeInvocation(mi);
 
-        try {
-            result = mi.proceed();
-        } finally {
-            result = super.afterInvocation(token, result);
-        }
+        Object result = mi.proceed();
 
-        return result;
+        return super.afterInvocation(token, result);
     }
 
     public MethodSecurityMetadataSource getSecurityMetadataSource() {
