@@ -22,7 +22,7 @@
         <attribute>
             <name>access</name>
             <required>false</required>
-            <rtexprvalue>false</rtexprvalue>
+            <rtexprvalue>true</rtexprvalue>
             <description>
                 A Spring-EL expression which is supported by the WebSecurityExpressionHandler
                 in the application context. The latter will be used to evaluate the expression.
