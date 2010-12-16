@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.access.AuthorizationServiceException;
@@ -148,7 +149,7 @@ public class AclEntryVoter extends AbstractAclVoter {
         return (attribute.getAttribute() != null) && attribute.getAttribute().equals(getProcessConfigAttribute());
     }
 
-    public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
+    public int vote(Authentication authentication, MethodInvocation object, Collection<ConfigAttribute> attributes) {
 
         for(ConfigAttribute attr : attributes) {
 

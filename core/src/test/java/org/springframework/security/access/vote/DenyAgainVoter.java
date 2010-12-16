@@ -32,7 +32,7 @@ import java.util.Iterator;
  *
  * @author Ben Alex
  */
-public class DenyAgainVoter implements AccessDecisionVoter {
+public class DenyAgainVoter implements AccessDecisionVoter<Object> {
     // ~ Methods
     // ========================================================================================================
 

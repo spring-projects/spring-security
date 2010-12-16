@@ -21,7 +21,7 @@ import org.springframework.security.core.Authentication;
  * @author Luke Taylor
  * @since 3.0
  */
-public class PreInvocationAuthorizationAdviceVoter implements AccessDecisionVoter {
+public class PreInvocationAuthorizationAdviceVoter implements AccessDecisionVoter<MethodInvocation> {
     protected final Log logger = LogFactory.getLog(getClass());
 
     private final PreInvocationAuthorizationAdvice preAdvice;
@@ -38,7 +38,7 @@ public class PreInvocationAuthorizationAdviceVoter implements AccessDecisionVote
         return clazz.isAssignableFrom(MethodInvocation.class);
     }
 
-    public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
+    public int vote(Authentication authentication, MethodInvocation method, Collection<ConfigAttribute> attributes) {
 
         // Find prefilter and preauth (or combined) attributes
         // if both null, abstain
@@ -51,7 +51,7 @@ public class PreInvocationAuthorizationAdviceVoter implements AccessDecisionVote
             return ACCESS_ABSTAIN;
         }
 
-        boolean allowed = preAdvice.before(authentication, (MethodInvocation)object, preAttr);
+        boolean allowed = preAdvice.before(authentication, method, preAttr);
 
         return allowed ? ACCESS_GRANTED : ACCESS_DENIED;
     }

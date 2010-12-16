@@ -26,18 +26,17 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  */
-public abstract class AbstractAclVoter implements AccessDecisionVoter {
+public abstract class AbstractAclVoter implements AccessDecisionVoter<MethodInvocation> {
     //~ Instance fields ================================================================================================
 
     private Class<?> processDomainObjectClass;
 
     //~ Methods ========================================================================================================
 
-    protected Object getDomainObjectInstance(Object secureObject) {
+    protected Object getDomainObjectInstance(MethodInvocation invocation) {
         Object[] args;
         Class<?>[] params;
 
-        MethodInvocation invocation = (MethodInvocation) secureObject;
         params = invocation.getMethod().getParameterTypes();
         args = invocation.getArguments();
 
@@ -47,7 +46,7 @@ public abstract class AbstractAclVoter implements AccessDecisionVoter {
             }
         }
 
-        throw new AuthorizationServiceException("Secure object: " + secureObject
+        throw new AuthorizationServiceException("MethodInvocation: " + invocation
             + " did not provide any argument of type: " + processDomainObjectClass);
     }
 

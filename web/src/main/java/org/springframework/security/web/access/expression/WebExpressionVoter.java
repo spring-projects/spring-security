@@ -15,12 +15,12 @@ import org.springframework.security.web.FilterInvocation;
  * @author Luke Taylor
  * @since 3.0
  */
-public class WebExpressionVoter implements AccessDecisionVoter {
+public class WebExpressionVoter implements AccessDecisionVoter<FilterInvocation> {
     private SecurityExpressionHandler<FilterInvocation> expressionHandler = new DefaultWebSecurityExpressionHandler();
 
-    public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
+    public int vote(Authentication authentication, FilterInvocation fi, Collection<ConfigAttribute> attributes) {
         assert authentication != null;
-        assert object != null;
+        assert fi != null;
         assert attributes != null;
 
         WebExpressionConfigAttribute weca = findConfigAttribute(attributes);
@@ -29,7 +29,6 @@ public class WebExpressionVoter implements AccessDecisionVoter {
             return ACCESS_ABSTAIN;
         }
 
-        FilterInvocation fi = (FilterInvocation)object;
         EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication, fi);
 
         return ExpressionUtils.evaluateAsBoolean(weca.getAuthorizeExpression(), ctx) ?

@@ -49,7 +49,7 @@ import org.springframework.security.core.GrantedAuthority;
  * @author Ben Alex
  * @author colin sampaleanu
  */
-public class RoleVoter implements AccessDecisionVoter {
+public class RoleVoter implements AccessDecisionVoter<Object> {
     //~ Instance fields ================================================================================================
 
     private String rolePrefix = "ROLE_";

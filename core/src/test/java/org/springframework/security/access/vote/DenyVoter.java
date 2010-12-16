@@ -30,7 +30,7 @@ import java.util.Iterator;
  *
  * @author Ben Alex
  */
-public class DenyVoter implements AccessDecisionVoter {
+public class DenyVoter implements AccessDecisionVoter<Object> {
     //~ Methods ========================================================================================================
 
     public boolean supports(ConfigAttribute attribute) {

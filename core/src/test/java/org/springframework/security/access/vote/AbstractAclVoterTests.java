@@ -19,7 +19,7 @@ public class AbstractAclVoterTests {
         public boolean supports(ConfigAttribute attribute) {
             return false;
         }
-        public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
+        public int vote(Authentication authentication, MethodInvocation object, Collection<ConfigAttribute> attributes) {
             return 0;
         }
     };

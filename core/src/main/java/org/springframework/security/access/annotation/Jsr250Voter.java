@@ -13,7 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
  * @author Ryan Heaton
  * @since 2.0
  */
-public class Jsr250Voter implements AccessDecisionVoter {
+public class Jsr250Voter implements AccessDecisionVoter<Object> {
 
     /**
      * The specified config attribute is supported if its an instance of a {@link Jsr250SecurityConfig}.

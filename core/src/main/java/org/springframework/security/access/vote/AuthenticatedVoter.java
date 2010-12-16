@@ -41,7 +41,7 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  */
-public class AuthenticatedVoter implements AccessDecisionVoter {
+public class AuthenticatedVoter implements AccessDecisionVoter<Object> {
     //~ Static fields/initializers =====================================================================================
 
     public static final String IS_AUTHENTICATED_FULLY = "IS_AUTHENTICATED_FULLY";
@@ -77,9 +77,9 @@ public class AuthenticatedVoter implements AccessDecisionVoter {
     /**
      * This implementation supports any type of class, because it does not query the presented secure object.
      *
-     * @param clazz the secure object
+     * @param clazz the secure object type
      *
-     * @return always <code>true</code>
+     * @return always {@code true}
      */
     public boolean supports(Class<?> clazz) {
         return true;
