@@ -23,8 +23,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
  * instead of only the directly assigned authorities.
  *
  * @author Michael Mayr
- * @deprecated use a {@code RoleHierarchyVoter} instead of populating the user Authentication object
- * with the additional authorities.
+ * @deprecated use a {@code RoleHierarchyVoter} or use a {@code RoleHierarchyAuthoritiesMapper} to populate the
+ * Authentication object with the additional authorities.
  */
 public class UserDetailsServiceWrapper implements UserDetailsService {
 
