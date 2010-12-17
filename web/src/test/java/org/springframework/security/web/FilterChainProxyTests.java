@@ -20,6 +20,7 @@ import java.util.*;
 
 /**
  * @author Luke Taylor
+ * @author Rob Winch
  */
 @SuppressWarnings({"unchecked"})
 public class FilterChainProxyTests {
@@ -114,4 +115,28 @@ public class FilterChainProxyTests {
         verify(fwr).reset();
     }
 
+    // SEC-1639
+    @Test
+    public void bothWrappersAreResetWithNestedFcps() throws Exception {
+        HttpFirewall fw = mock(HttpFirewall.class);
+        FilterChainProxy firstFcp = new FilterChainProxy();
+        LinkedHashMap fcm = new LinkedHashMap();
+        fcm.put("/match", Arrays.asList(fcp));
+        firstFcp.setFilterChainMap(fcm);
+        firstFcp.setFirewall(fw);
+        fcp.setFirewall(fw);
+        FirewalledRequest firstFwr = mock(FirewalledRequest.class, "firstFwr");
+        when(firstFwr.getRequestURI()).thenReturn("/match");
+        when(firstFwr.getContextPath()).thenReturn("");
+        FirewalledRequest fwr = mock(FirewalledRequest.class, "fwr");
+        when(fwr.getRequestURI()).thenReturn("/match");
+        when(fwr.getContextPath()).thenReturn("");
+        when(fw.getFirewalledRequest(request)).thenReturn(firstFwr);
+        when(fw.getFirewalledRequest(firstFwr)).thenReturn(fwr);
+        when(fwr.getRequest()).thenReturn(firstFwr);
+        when(firstFwr.getRequest()).thenReturn(request);
+        firstFcp.doFilter(request, response, chain);
+        verify(firstFwr).reset();
+        verify(fwr).reset();
+    }
 }

@@ -33,7 +33,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
-import javax.servlet.ServletRequestWrapper;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -116,7 +115,7 @@ import java.util.*;
  * @author Carlos Sanchez
  * @author Ben Alex
  * @author Luke Taylor
- *
+ * @author Rob Winch
  */
 public class FilterChainProxy extends GenericFilterBean {
     //~ Static fields/initializers =====================================================================================
@@ -165,7 +164,7 @@ public class FilterChainProxy extends GenericFilterBean {
             return;
         }
 
-        VirtualFilterChain vfc = new VirtualFilterChain(url, chain, filters);
+        VirtualFilterChain vfc = new VirtualFilterChain(url, chain, filters, fwRequest);
         vfc.doFilter(fwRequest, fwResponse);
     }
 
@@ -347,13 +346,15 @@ public class FilterChainProxy extends GenericFilterBean {
     private static class VirtualFilterChain implements FilterChain {
         private final FilterChain originalChain;
         private final List<Filter> additionalFilters;
+        private final FirewalledRequest firewalledRequest;
         private final String url;
         private int currentPosition = 0;
 
-        private VirtualFilterChain(String url, FilterChain chain, List<Filter> additionalFilters) {
+        private VirtualFilterChain(String url, FilterChain chain, List<Filter> additionalFilters, FirewalledRequest firewalledRequest) {
             this.originalChain = chain;
             this.url = url;
             this.additionalFilters = additionalFilters;
+            this.firewalledRequest = firewalledRequest;
         }
 
         public void doFilter(final ServletRequest request, final ServletResponse response) throws IOException, ServletException {
@@ -363,7 +364,7 @@ public class FilterChainProxy extends GenericFilterBean {
                 }
 
                 // Deactivate path stripping as we exit the security filter chain
-                resetWrapper(request);
+                this.firewalledRequest.reset();
 
                 originalChain.doFilter(request, response);
             } else {
@@ -378,16 +379,6 @@ public class FilterChainProxy extends GenericFilterBean {
                 }
 
                 nextFilter.doFilter(request, response, this);
-            }
-        }
-
-        private void resetWrapper(ServletRequest request) {
-            while (request instanceof ServletRequestWrapper) {
-                if (request instanceof FirewalledRequest) {
-                    ((FirewalledRequest)request).reset();
-                    break;
-                }
-                request = ((ServletRequestWrapper)request).getRequest();
             }
         }
     }
