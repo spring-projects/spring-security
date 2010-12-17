@@ -96,6 +96,7 @@ import java.util.*;
  * @author Carlos Sanchez
  * @author Ben Alex
  * @author Luke Taylor
+ * @author Rob Winch
  *
  * @version $Id$
  */
@@ -183,7 +184,7 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
             return;
         }
 
-        VirtualFilterChain virtualFilterChain = new VirtualFilterChain(fi, filters);
+        VirtualFilterChain virtualFilterChain = new VirtualFilterChain(fi, filters, fwRequest);
         virtualFilterChain.doFilter(fi.getRequest(), fi.getResponse());
     }
 
@@ -376,11 +377,13 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
     private static class VirtualFilterChain implements FilterChain {
         private FilterInvocation fi;
         private List additionalFilters;
+        private FirewalledRequest firewalledRequest;
         private int currentPosition = 0;
 
-        private VirtualFilterChain(FilterInvocation filterInvocation, List additionalFilters) {
+        private VirtualFilterChain(FilterInvocation filterInvocation, List additionalFilters, FirewalledRequest firewalledRequest) {
             this.fi = filterInvocation;
             this.additionalFilters = additionalFilters;
+            this.firewalledRequest = firewalledRequest;
         }
 
         public void doFilter(ServletRequest request, ServletResponse response)
@@ -391,7 +394,7 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
                         + " reached end of additional filter chain; proceeding with original chain");
                 }
                 // Deactivate path stripping as we exit the security filter chain
-                resetWrapper(request);
+                this.firewalledRequest.reset();
 
                 fi.getChain().doFilter(request, response);
             } else {
@@ -406,16 +409,6 @@ public class FilterChainProxy implements Filter, InitializingBean, ApplicationCo
                 }
 
                nextFilter.doFilter(request, response, this);
-            }
-        }
-
-        private void resetWrapper(ServletRequest request) {
-            while (request instanceof ServletRequestWrapper) {
-                if (request instanceof FirewalledRequest) {
-                    ((FirewalledRequest)request).reset();
-                    break;
-                }
-                request = ((ServletRequestWrapper)request).getRequest();
             }
         }
     }
