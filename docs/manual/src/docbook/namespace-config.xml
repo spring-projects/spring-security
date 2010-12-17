@@ -454,7 +454,11 @@
   </http>]]>
         </programlisting>With this configuration in place, if a user attempts to access
                 anything matching the "/secure/**" pattern using HTTP, they will first be redirected
-                to an HTTPS URL. The available options are "http", "https" or "any". Using the value
+                to an HTTPS URL
+                <footnote><para>For more details on how channel-processing is implemented, see the Javadoc
+                 for <classname>ChannelProcessingFilter</classname> and related classes.
+                </para></footnote>.
+                The available options are "http", "https" or "any". Using the value
                 "any" means that either HTTP or HTTPS can be used. </para>
             <para>If your application uses non-standard ports for HTTP and/or HTTPS, you can specify
                 a list of port mappings as follows: <programlisting><![CDATA[

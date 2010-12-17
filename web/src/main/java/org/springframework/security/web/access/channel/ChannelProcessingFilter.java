@@ -36,11 +36,46 @@ import org.springframework.web.filter.GenericFilterBean;
 
 /**
  * Ensures a web request is delivered over the required channel.
- * <p>Internally uses a {@link FilterInvocation} to represent the request, so that the
- * <code>FilterInvocation</code>-related property editors and lookup classes can be used.</p>
- * <p>Delegates the actual channel security decisions and necessary actions to the configured
- * {@link ChannelDecisionManager}. If a response is committed by the <code>ChannelDecisionManager</code>,
- * the filter chain will not proceed.</p>
+ * <p>
+ * Internally uses a {@link FilterInvocation} to represent the request, allowing a
+ * {@code FilterInvocationSecurityMetadataSource} to be used to lookup the attributes which apply.
+ * <p>
+ * Delegates the actual channel security decisions and necessary actions to the configured
+ * {@link ChannelDecisionManager}. If a response is committed by the {@code ChannelDecisionManager},
+ * the filter chain will not proceed.
+ * <p>
+ * The most common usage is to ensure that a request takes place over HTTPS, where the
+ * {@link ChannelDecisionManagerImpl} is configured with a {@link SecureChannelProcessor} and an
+ * {@link InsecureChannelProcessor}. A typical configuration would be
+ * <pre>
+ *
+&lt;bean id="channelProcessingFilter" class="org.springframework.security.web.access.channel.ChannelProcessingFilter">
+  &lt;property name="channelDecisionManager" ref="channelDecisionManager"/>
+  &lt;property name="securityMetadataSource">
+    &lt;security:filter-security-metadata-source path-type="regex">
+      &lt;security:intercept-url pattern="\A/secure/.*\Z" access="REQUIRES_SECURE_CHANNEL"/>
+      &lt;security:intercept-url pattern="\A/login.jsp.*\Z" access="REQUIRES_SECURE_CHANNEL"/>
+      &lt;security:intercept-url pattern="\A/.*\Z" access="ANY_CHANNEL"/>
+    &lt;/security:filter-security-metadata-source>
+  &lt;/property>
+&lt;/bean>
+
+&lt;bean id="channelDecisionManager" class="org.springframework.security.web.access.channel.ChannelDecisionManagerImpl">
+  &lt;property name="channelProcessors">
+    &lt;list>
+    &lt;ref bean="secureChannelProcessor"/>
+    &lt;ref bean="insecureChannelProcessor"/>
+    &lt;/list>
+  &lt;/property>
+&lt;/bean>
+
+&lt;bean id="secureChannelProcessor"
+  class="org.springframework.security.web.access.channel.SecureChannelProcessor"/>
+&lt;bean id="insecureChannelProcessor"
+  class="org.springframework.security.web.access.channel.InsecureChannelProcessor"/>
+
+ * </pre>
+ * which would force the login form and any access to the {@code /secure} path to be made over HTTPS.
  *
  * @author Ben Alex
  */
