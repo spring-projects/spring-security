@@ -85,6 +85,9 @@ import java.util.Set;
  * A search for roles for user "uid=ben,ou=people,dc=springframework,dc=org" would return the single granted authority
  * "ROLE_DEVELOPER".
  * <p>
+ * Note that case-conversion, use of the role prefix and setting a default role are better performed using a
+ * {@code GrantedAuthoritiesMapper} and are now deprecated.
+ * <p>
  * The single-level search is performed by default. Setting the <tt>searchSubTree</tt> property to true will enable
  * a search of the entire subtree under <tt>groupSearchBase</tt>.
  *
@@ -124,12 +127,6 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * The pattern to be used for the user search. {0} is the user's DN
      */
     private String groupSearchFilter = "(member={0})";
-
-    /**
-     * Attributes of the User's LDAP Object that contain role name information.
-     */
-
-//    private String[] userRoleAttributes = null;
     private String rolePrefix = "ROLE_";
     private boolean convertToUpperCase = true;
 
@@ -141,13 +138,17 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      *
      * @param contextSource supplies the contexts used to search for user roles.
      * @param groupSearchBase          if this is an empty string the search will be performed from the root DN of the
-     *                                 context factory.
+     *                                 context factory. If null, no search will be performed.
      */
     public DefaultLdapAuthoritiesPopulator(ContextSource contextSource, String groupSearchBase) {
         Assert.notNull(contextSource, "contextSource must not be null");
         ldapTemplate = new SpringSecurityLdapTemplate(contextSource);
         ldapTemplate.setSearchControls(searchControls);
-        setGroupSearchBase(groupSearchBase);
+        this.groupSearchBase = groupSearchBase;
+
+        if (groupSearchBase.length() == 0) {
+            logger.info("groupSearchBase is empty. Searches will be performed from the context source base");
+        }
     }
 
     //~ Methods ========================================================================================================
@@ -232,24 +233,14 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
         return ldapTemplate.getContextSource();
     }
 
-    /**
-     * Set the group search base (name to search under)
-     *
-     * @param groupSearchBase if this is an empty string the search will be performed from the root DN of the context
-     *                        factory.
-     */
-    private void setGroupSearchBase(String groupSearchBase) {
-        Assert.notNull(groupSearchBase, "The groupSearchBase (name to search under), must not be null.");
-        this.groupSearchBase = groupSearchBase;
-        if (groupSearchBase.length() == 0) {
-            logger.info("groupSearchBase is empty. Searches will be performed from the context source base");
-        }
-    }
-
     protected String getGroupSearchBase() {
         return groupSearchBase;
     }
 
+    /**
+     * @deprecated Convert case in the {@code AuthenticationProvider} using a {@code GrantedAuthoritiesMapper}.
+     */
+    @Deprecated
     public void setConvertToUpperCase(boolean convertToUpperCase) {
         this.convertToUpperCase = convertToUpperCase;
     }
@@ -258,7 +249,9 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * The default role which will be assigned to all users.
      *
      * @param defaultRole the role name, including any desired prefix.
+     * @deprecated Assign a default role in the {@code AuthenticationProvider} using a {@code GrantedAuthoritiesMapper}.
      */
+    @Deprecated
     public void setDefaultRole(String defaultRole) {
         Assert.notNull(defaultRole, "The defaultRole property cannot be set to null");
         this.defaultRole = new SimpleGrantedAuthority(defaultRole);
@@ -277,7 +270,10 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     /**
      * Sets the prefix which will be prepended to the values loaded from the directory.
      * Defaults to "ROLE_" for compatibility with <tt>RoleVoter/tt>.
+     *
+     * @deprecated Map the authorities in the {@code AuthenticationProvider} using a {@code GrantedAuthoritiesMapper}.
      */
+    @Deprecated
     public void setRolePrefix(String rolePrefix) {
         Assert.notNull(rolePrefix, "rolePrefix must not be null");
         this.rolePrefix = rolePrefix;
