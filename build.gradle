@@ -92,6 +92,5 @@ ideaProject {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '0.9-rc-1'
-    jarPath = 'gradle/wrapper'
+    gradleVersion = '0.9'
 }
