@@ -124,12 +124,6 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * The pattern to be used for the user search. {0} is the user's DN
      */
     private String groupSearchFilter = "(member={0})";
-
-    /**
-     * Attributes of the User's LDAP Object that contain role name information.
-     */
-
-//    private String[] userRoleAttributes = null;
     private String rolePrefix = "ROLE_";
     private boolean convertToUpperCase = true;
 
@@ -141,13 +135,17 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      *
      * @param contextSource supplies the contexts used to search for user roles.
      * @param groupSearchBase          if this is an empty string the search will be performed from the root DN of the
-     *                                 context factory.
+     *                                 context factory. If null, no search will be performed.
      */
     public DefaultLdapAuthoritiesPopulator(ContextSource contextSource, String groupSearchBase) {
         Assert.notNull(contextSource, "contextSource must not be null");
         ldapTemplate = new SpringSecurityLdapTemplate(contextSource);
         ldapTemplate.setSearchControls(searchControls);
-        setGroupSearchBase(groupSearchBase);
+        this.groupSearchBase = groupSearchBase;
+
+        if (groupSearchBase.length() == 0) {
+            logger.info("groupSearchBase is empty. Searches will be performed from the context source base");
+        }
     }
 
     //~ Methods ========================================================================================================
@@ -230,20 +228,6 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
     protected ContextSource getContextSource() {
         return ldapTemplate.getContextSource();
-    }
-
-    /**
-     * Set the group search base (name to search under)
-     *
-     * @param groupSearchBase if this is an empty string the search will be performed from the root DN of the context
-     *                        factory.
-     */
-    private void setGroupSearchBase(String groupSearchBase) {
-        Assert.notNull(groupSearchBase, "The groupSearchBase (name to search under), must not be null.");
-        this.groupSearchBase = groupSearchBase;
-        if (groupSearchBase.length() == 0) {
-            logger.info("groupSearchBase is empty. Searches will be performed from the context source base");
-        }
     }
 
     protected String getGroupSearchBase() {
