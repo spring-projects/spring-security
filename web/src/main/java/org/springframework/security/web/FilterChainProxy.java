@@ -59,7 +59,7 @@ import java.util.*;
  * Ant-style paths}. An example configuration might look like this:
  *
  * <pre>
- &lt;bean id="myfilterChainProxy" class="org.springframework.security.util.FilterChainProxy">
+ &lt;bean id="myfilterChainProxy" class="org.springframework.security.util.FilterChjainProxy">
      &lt;security:filter-chain-map request-matcher="ant">
          &lt;security:filter-chain pattern="/do/not/filter*" filters="none"/>
          &lt;security:filter-chain pattern="/**" filters="filter1,filter2,filter3"/>
@@ -102,7 +102,10 @@ import java.util.*;
  * response. When the request has passed through the security filter chain, the {@code reset} method will be called.
  * With the default implementation this means that the original values of {@code servletPath} and {@code pathInfo} will
  * be returned thereafter, instead of the modified ones used for security pattern matching.
- *
+ * <p>
+ * Since this additional wrapping functionality is performed by the {@code FilterChainProxy}, we don't recommend that
+ * you use multiple instances in the same filter chain. It shouldn't be considered purely as a utility for wrapping
+ * filter beans in a single {@code Filter} instance.
  *
  * <h2>Filter Lifecycle</h2>
  * <p>
@@ -142,13 +145,12 @@ public class FilterChainProxy extends GenericFilterBean {
 
         FirewalledRequest fwRequest = firewall.getFirewalledRequest((HttpServletRequest) request);
         HttpServletResponse fwResponse = firewall.getFirewalledResponse((HttpServletResponse) response);
-        String url = UrlUtils.buildRequestUrl(fwRequest);
 
         List<Filter> filters = getFilters(fwRequest);
 
         if (filters == null || filters.size() == 0) {
             if (logger.isDebugEnabled()) {
-                logger.debug(url +
+                logger.debug(UrlUtils.buildRequestUrl(fwRequest) +
                         (filters == null ? " has no matching filters" : " has an empty filter list"));
             }
 
@@ -159,7 +161,7 @@ public class FilterChainProxy extends GenericFilterBean {
             return;
         }
 
-        VirtualFilterChain vfc = new VirtualFilterChain(url, chain, filters, fwRequest);
+        VirtualFilterChain vfc = new VirtualFilterChain(fwRequest, chain, filters);
         vfc.doFilter(fwRequest, fwResponse);
     }
 
@@ -287,13 +289,11 @@ public class FilterChainProxy extends GenericFilterBean {
         private final FilterChain originalChain;
         private final List<Filter> additionalFilters;
         private final FirewalledRequest firewalledRequest;
-        private final String url;
         private final int size;
         private int currentPosition = 0;
 
-        private VirtualFilterChain(String url, FilterChain chain, List<Filter> additionalFilters, FirewalledRequest firewalledRequest) {
+        private VirtualFilterChain(FirewalledRequest firewalledRequest, FilterChain chain, List<Filter> additionalFilters) {
             this.originalChain = chain;
-            this.url = url;
             this.additionalFilters = additionalFilters;
             this.size = additionalFilters.size();
             this.firewalledRequest = firewalledRequest;
@@ -302,7 +302,8 @@ public class FilterChainProxy extends GenericFilterBean {
         public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
             if (currentPosition == size) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug(url + " reached end of additional filter chain; proceeding with original chain");
+                    logger.debug(UrlUtils.buildRequestUrl(firewalledRequest)
+                            + " reached end of additional filter chain; proceeding with original chain");
                 }
 
                 // Deactivate path stripping as we exit the security filter chain
@@ -315,7 +316,7 @@ public class FilterChainProxy extends GenericFilterBean {
                 Filter nextFilter = additionalFilters.get(currentPosition - 1);
 
                 if (logger.isDebugEnabled()) {
-                    logger.debug(url + " at position " + currentPosition + " of "
+                    logger.debug(UrlUtils.buildRequestUrl(firewalledRequest) + " at position " + currentPosition + " of "
                         + size + " in additional filter chain; firing Filter: '"
                         + nextFilter.getClass().getSimpleName() + "'");
                 }
