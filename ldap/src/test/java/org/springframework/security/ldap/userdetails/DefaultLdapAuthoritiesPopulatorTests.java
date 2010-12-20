@@ -18,22 +18,22 @@ package org.springframework.security.ldap.userdetails;
 
 import static org.junit.Assert.*;
 
-import java.util.Collection;
-import java.util.Set;
-
-import org.junit.Test;
+import org.junit.*;
 import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.ldap.AbstractLdapIntegrationTests;
-import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
+
+import java.util.*;
 
 
 /**
  *
  * @author Luke Taylor
  */
+@SuppressWarnings({"deprecation"})
 public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegrationTests {
     private DefaultLdapAuthoritiesPopulator populator;
     //~ Methods ========================================================================================================
@@ -48,6 +48,7 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
     @Test
     public void defaultRoleIsAssignedWhenSet() {
         populator.setDefaultRole("ROLE_USER");
+        assertSame(getContextSource(), populator.getContextSource());
 
         DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("cn=notfound"));
 
@@ -62,7 +63,7 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
         populator.setDefaultRole("ROLE_USER");
 
         Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(
-                new DirContextAdapter(new DistinguishedName("cn=notfound")), "notfound");
+                new DirContextAdapter(new DistinguishedName("cn=notused")), "notused");
         assertEquals(1, authorities.size());
         assertTrue(AuthorityUtils.authorityListToSet(authorities).contains("ROLE_USER"));
     }
@@ -128,6 +129,21 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
         assertTrue(authorities.contains("ROLE_MANAGER"));
         assertTrue(authorities.contains("ROLE_SUBMANAGER"));
         assertTrue(authorities.contains("ROLE_DEVELOPER"));
+    }
+
+    @Test
+    public void extraRolesAreAdded() throws Exception {
+        populator = new DefaultLdapAuthoritiesPopulator(getContextSource(), null) {
+            @Override
+            protected Set<GrantedAuthority> getAdditionalRoles(DirContextOperations user, String username) {
+                return new HashSet<GrantedAuthority>(AuthorityUtils.createAuthorityList("ROLE_EXTRA"));
+            }
+        };
+
+        Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(
+                new DirContextAdapter(new DistinguishedName("cn=notused")), "notused");
+        assertEquals(1, authorities.size());
+        assertTrue(AuthorityUtils.authorityListToSet(authorities).contains("ROLE_EXTRA"));
     }
 
     @Test
