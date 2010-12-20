@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.ldap.populator;
+package org.springframework.security.ldap.userdetails;
 
 
 import static org.junit.Assert.*;
