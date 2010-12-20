@@ -146,7 +146,9 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
         ldapTemplate.setSearchControls(searchControls);
         this.groupSearchBase = groupSearchBase;
 
-        if (groupSearchBase.length() == 0) {
+        if (groupSearchBase == null) {
+            logger.info("groupSearchBase is null. No group search will be performed.");
+        } else if (groupSearchBase.length() == 0) {
             logger.info("groupSearchBase is empty. Searches will be performed from the context source base");
         }
     }
@@ -200,7 +202,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
     public Set<GrantedAuthority> getGroupMembershipRoles(String userDn, String username) {
         if (getGroupSearchBase() == null) {
-            return Collections.emptySet();
+            return new HashSet<GrantedAuthority>();
         }
 
         Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();

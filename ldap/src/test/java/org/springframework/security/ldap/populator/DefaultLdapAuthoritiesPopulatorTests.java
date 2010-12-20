@@ -58,7 +58,7 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
 
     @Test
     public void nullSearchBaseIsAccepted() throws Exception {
-        populator = new DefaultLdapAuthoritiesPopulator(getContextSource(), "ou=groups");
+        populator = new DefaultLdapAuthoritiesPopulator(getContextSource(), null);
         populator.setDefaultRole("ROLE_USER");
 
         Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(
