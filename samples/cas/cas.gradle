@@ -8,7 +8,7 @@ configurations {
 }
 
 dependencies {
-    casServer "org.jasig.cas:cas-server-webapp:3.4.2.1@war"
+    casServer "org.jasig.cas:cas-server-webapp:3.4.3.1@war"
 
     runtime project(':spring-security-web'),
             project(':spring-security-cas'),
@@ -49,7 +49,12 @@ task casServer (type: org.gradle.api.plugins.jetty.JettyRunWar) {
     }
 }
 
-task cas (dependsOn: jettyRun) {
-    jettyRun.dependsOn(casServer)
-    casServer.daemon = true
+task cas (dependsOn: [jettyRun, casServer]) {
+}
+
+gradle.taskGraph.whenReady {graph ->
+    if (graph.hasTask(cas)) {
+        jettyRun.dependsOn(casServer)
+        casServer.daemon = true
+    }
 }
