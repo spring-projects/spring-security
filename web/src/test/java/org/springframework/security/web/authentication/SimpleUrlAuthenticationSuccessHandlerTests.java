@@ -44,6 +44,7 @@ public class SimpleUrlAuthenticationSuccessHandlerTests {
     @Test
     public void targetUrlParameterIsUsedIfPresent() throws Exception {
         SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler("/defaultTarget");
+        ash.setUseTargetUrlparameter(true);
         ash.setTargetUrlParameter("targetUrl");
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();

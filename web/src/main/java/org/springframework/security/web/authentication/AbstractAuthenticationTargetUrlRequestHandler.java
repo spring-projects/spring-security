@@ -19,25 +19,29 @@ import org.springframework.util.StringUtils;
 
 /**
  * Base class containing the logic used by strategies which handle redirection to a URL and
- * are passed an <tt>Authentication</tt> object as part of the contract.
+ * are passed an {@code Authentication} object as part of the contract.
  * See {@link AuthenticationSuccessHandler} and
  * {@link org.springframework.security.web.authentication.logout.LogoutSuccessHandler LogoutSuccessHandler}, for example.
  * <p>
  * Uses the following logic sequence to determine how it should handle the forward/redirect
  * <ul>
  * <li>
- * If the <tt>alwaysUseDefaultTargetUrl</tt> property is set to true, the <tt>defaultTargetUrl</tt> property
+ * If the {@code alwaysUseDefaultTargetUrl} property is set to true, the {@code defaultTargetUrl} property
  * will be used for the destination.
  * </li>
  * <li>
- * If a parameter matching the <tt>targetUrlParameter</tt> has been set on the request, the value will be used as
- * the destination. The default parameter name is {@code spring-security-redirect}.
+ * If {@code useTargetUrlparameter} is {@code true}, and a parameter matching the {@code targetUrlParameter} has been
+ * set on the request, the value will be used as the destination. The default parameter name is
+ * {@code spring-security-redirect}. If you are enabling this functionality, then you should ensure that the parameter
+ * cannot be used by an attacker to redirect the user to a malicious site (by clicking on a URL with the parameter
+ * included, for example). Typically it would be used when the parameter is included in the login form and submitted with
+ * the username and password.
  * </li>
  * <li>
- * If the <tt>useReferer</tt> property is set, the "Referer" HTTP header value will be used, if present.
+ * If the {@code useReferer} property is set, the "Referer" HTTP header value will be used, if present.
  * </li>
  * <li>
- * As a fallback option, the <tt>defaultTargetUrl</tt> value will be used.
+ * As a fallback option, the {@code defaultTargetUrl} value will be used.
  * </li>
  * </ul>
  *
@@ -52,6 +56,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
     private String defaultTargetUrl = "/";
     private boolean alwaysUseDefaultTargetUrl = false;
     private boolean useReferer = false;
+    private boolean useTargetUrlparameter = false;
     private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
     protected AbstractAuthenticationTargetUrlRequestHandler() {
@@ -83,18 +88,22 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
         }
 
         // Check for the parameter and use that if available
-        String targetUrl = request.getParameter(targetUrlParameter);
+        String targetUrl = null;
 
-        if (StringUtils.hasText(targetUrl)) {
-            try {
-                targetUrl = URLDecoder.decode(targetUrl, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                throw new IllegalStateException("UTF-8 not supported. Shouldn't be possible");
+        if (useTargetUrlparameter) {
+            targetUrl = request.getParameter(targetUrlParameter);
+
+            if (StringUtils.hasText(targetUrl)) {
+                try {
+                    targetUrl = URLDecoder.decode(targetUrl, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    throw new IllegalStateException("UTF-8 not supported. Shouldn't be possible");
+                }
+
+                logger.debug("Found targetUrlParameter in request: " + targetUrl);
+
+                return targetUrl;
             }
-
-            logger.debug("Found targetUrlParameter in request: " + targetUrl);
-
-            return targetUrl;
         }
 
         if (useReferer && !StringUtils.hasLength(targetUrl)) {
@@ -112,7 +121,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 
     /**
      * Supplies the default target Url that will be used if no saved request is found or the
-     * <tt>alwaysUseDefaultTargetUrl</tt> property is set to true. If not set, defaults to <tt>/</tt>.
+     * {@code alwaysUseDefaultTargetUrl} property is set to true. If not set, defaults to {@code /}.
      *
      * @return the defaultTargetUrl property
      */
@@ -122,7 +131,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 
     /**
      * Supplies the default target Url that will be used if no saved request is found in the session, or the
-     * <tt>alwaysUseDefaultTargetUrl</tt> property is set to true. If not set, defaults to <tt>/</tt>. It
+     * {@code alwaysUseDefaultTargetUrl} property is set to true. If not set, defaults to {@code /}. It
      * will be treated as relative to the web-app's context path, and should include the leading <code>/</code>.
      * Alternatively, inclusion of a scheme name (such as "http://" or "https://") as the prefix will denote a
      * fully-qualified URL and this is also supported.
@@ -136,7 +145,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
     }
 
     /**
-     * If <code>true</code>, will always redirect to the value of <tt>defaultTargetUrl</tt>
+     * If <code>true</code>, will always redirect to the value of {@code defaultTargetUrl}
      * (defaults to <code>false</code>).
      */
     public void setAlwaysUseDefaultTargetUrl(boolean alwaysUseDefaultTargetUrl) {
@@ -174,9 +183,19 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
     }
 
     /**
-     * If set to <tt>true</tt> the <tt>Referer</tt> header will be used (if available). Defaults to <tt>false</tt>.
+     * If set to {@code true} the {@code Referer} header will be used (if available). Defaults to {@code false}.
      */
     public void setUseReferer(boolean useReferer) {
         this.useReferer = useReferer;
+    }
+
+    /**
+     * If set to {@code true} the request parameter {@code targetUrlParameter} will be used (if available). Defaults
+     * to {@code false}.
+     *
+     * @param useTargetUrlparameter
+     */
+    public void setUseTargetUrlparameter(boolean useTargetUrlparameter) {
+        this.useTargetUrlparameter = useTargetUrlparameter;
     }
 }
