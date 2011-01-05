@@ -44,6 +44,7 @@ public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecur
         logger.trace("Looking for Pre/Post annotations for method '" +
                 method.getName() + "' on target class '" + targetClass + "'");
         PreFilter preFilter = findAnnotation(method, targetClass, PreFilter.class);
+
         PreAuthorize preAuthorize = findAnnotation(method, targetClass, PreAuthorize.class);
         PostFilter postFilter = findAnnotation(method, targetClass, PostFilter.class);
      // TODO: Can we check for void methods and throw an exception here?
@@ -55,15 +56,21 @@ public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecur
             return null;
         }
 
-        ArrayList<ConfigAttribute> attrs = new ArrayList<ConfigAttribute>();
+        String preFilterAttribute = preFilter == null ? null : preFilter.value();
+        String filterObject = preFilter == null ? null : preFilter.filterTarget();
+        String preAuthorizeAttribute = preAuthorize == null ? null : preAuthorize.value();
+        String postFilterAttribute = postFilter == null ? null : postFilter.value();
+        String postAuthorizeAttribute = postAuthorize == null ? null : postAuthorize.value();
 
-        PreInvocationAttribute pre = attributeFactory.createPreInvocationAttribute(preFilter, preAuthorize);
+        ArrayList<ConfigAttribute> attrs = new ArrayList<ConfigAttribute>(2);
+
+        PreInvocationAttribute pre = attributeFactory.createPreInvocationAttribute(preFilterAttribute, filterObject, preAuthorizeAttribute);
 
         if (pre != null) {
             attrs.add(pre);
         }
 
-        PostInvocationAttribute post = attributeFactory.createPostInvocationAttribute(postFilter, postAuthorize);
+        PostInvocationAttribute post = attributeFactory.createPostInvocationAttribute(postFilterAttribute, postAuthorizeAttribute);
 
         if (post != null) {
             attrs.add(post);
