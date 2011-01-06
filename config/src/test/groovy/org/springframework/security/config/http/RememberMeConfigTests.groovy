@@ -13,6 +13,7 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices
 import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
 
 /**
  *
@@ -43,6 +44,18 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
 
         expect:
         rememberMeServices() instanceof PersistentTokenBasedRememberMeServices
+    }
+
+    def rememberMeServiceWorksWithAuthenticationSuccessHandlerRef() {
+        httpAutoConfig () {
+            'remember-me'('authentication-success-handler-ref': 'sh')
+        }
+        bean('sh', SimpleUrlAuthenticationSuccessHandler.class.name, ['/target'])
+
+        createAppContext(AUTH_PROVIDER_XML)
+
+        expect:
+        getFilter(RememberMeAuthenticationFilter.class).successHandler instanceof SimpleUrlAuthenticationSuccessHandler
     }
 
     def rememberMeServiceWorksWithExternalServicesImpl() {

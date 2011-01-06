@@ -369,6 +369,13 @@
                     and used automatically by the namespace configuration. If there are multiple
                     instances, you can specify a bean <literal>id</literal> explicitly using this attribute. </para>
             </section>
+            <section>
+                <title><literal>authentication-success-handler-ref</literal></title>
+                <para>Sets the <code>authenticationSuccessHandler</code> property on the
+                    <classname>RememberMeAuthenticationFilter</classname> if custom navigation is required.
+                    The value should be the name of a <interfacename>AuthenticationSuccessHandler</interfacename>
+                    bean in the application context. </para>
+            </section>
         </section>
         <section xml:id="nsa-session-mgmt">
             <title>The <literal>&lt;session-management&gt;</literal> Element</title>

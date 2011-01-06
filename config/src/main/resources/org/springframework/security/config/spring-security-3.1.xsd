@@ -1166,6 +1166,11 @@
         <xs:documentation>The period (in seconds) for which the remember-me cookie should be valid.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="authentication-success-handler-ref" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>Reference to an AuthenticationSuccessHandler bean which should be used to handle a successful remember-me authentication.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="token-repository-ref">
     <xs:attribute name="token-repository-ref" use="required" type="xs:token">

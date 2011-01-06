@@ -28,11 +28,11 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_SERVICES_ALIAS = "services-alias";
     static final String ATT_TOKEN_REPOSITORY = "token-repository-ref";
     static final String ATT_USER_SERVICE_REF = "user-service-ref";
+    static final String ATT_SUCCESS_HANDLER_REF = "authentication-success-handler-ref";
     static final String ATT_TOKEN_VALIDITY = "token-validity-seconds";
     static final String ATT_SECURE_COOKIE = "use-secure-cookie";
 
     protected final Log logger = LogFactory.getLog(getClass());
-    private String servicesName;
     private final String key;
 
     RememberMeBeanDefinitionParser(String key) {
@@ -47,6 +47,7 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
         String tokenRepository = element.getAttribute(ATT_TOKEN_REPOSITORY);
         String dataSource = element.getAttribute(ATT_DATA_SOURCE);
         String userServiceRef = element.getAttribute(ATT_USER_SERVICE_REF);
+        String successHandlerRef = element.getAttribute(ATT_SUCCESS_HANDLER_REF);
         String rememberMeServicesRef = element.getAttribute(ATT_SERVICES_REF);
         String tokenValiditySeconds = element.getAttribute(ATT_TOKEN_VALIDITY);
         Object source = pc.extractSource(element);
@@ -87,6 +88,8 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
             services = new RootBeanDefinition(TokenBasedRememberMeServices.class);
         }
 
+        String servicesName;
+
         if (services != null) {
             RootBeanDefinition uds = new RootBeanDefinition();
             uds.setFactoryBeanName(BeanIds.USER_DETAILS_SERVICE_FACTORY);
@@ -100,8 +103,8 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
             }
 
             if (tokenValiditySet) {
-                Integer tokenValidity = Integer.valueOf(tokenValiditySeconds);
-                if (tokenValidity.intValue() < 0 && isPersistent) {
+                int tokenValidity = Integer.parseInt(tokenValiditySeconds);
+                if (tokenValidity < 0 && isPersistent) {
                     pc.getReaderContext().error(ATT_TOKEN_VALIDITY + " cannot be negative if using" +
                             " a persistent remember-me token repository", source);
                 }
@@ -119,17 +122,18 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
             pc.getRegistry().registerAlias(servicesName, element.getAttribute(ATT_SERVICES_ALIAS));
         }
 
-        BeanDefinition filter = createFilter(pc, source);
-        pc.popAndRegisterContainingComponent();
-
-        return filter;
-    }
-
-    private BeanDefinition createFilter(ParserContext pc, Object source) {
         BeanDefinitionBuilder filter = BeanDefinitionBuilder.rootBeanDefinition(RememberMeAuthenticationFilter.class);
         filter.getRawBeanDefinition().setSource(source);
+
+        if (StringUtils.hasText(successHandlerRef)) {
+            filter.addPropertyReference("authenticationSuccessHandler", successHandlerRef);
+        }
+
         filter.addPropertyReference("rememberMeServices", servicesName);
+
+        pc.popAndRegisterContainingComponent();
 
         return filter.getBeanDefinition();
     }
+
 }
