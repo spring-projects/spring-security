@@ -43,9 +43,6 @@ task ldapTests(type: Test) {
     jvmArgs = ['-ea', '-Xmx500m', "-DapacheDSWorkDir=${buildDir}/apacheDSWork"]
     include ("**/ldap/**")
     maxParallelForks = 1
-   // GRADLE-1090
-    testClassesDir = sourceSets.test.classesDir
-    classpath = sourceSets.test.runtimeClasspath
     testReport = false
 }
 
