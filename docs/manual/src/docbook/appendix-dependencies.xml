@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<appendix version="5.0" xml:id="appendix-dependencies" xmlns="http://docbook.org/ns/docbook"
+    xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude">
+    <info>
+        <title>Spring Security Dependencies</title>
+    </info>
+    <para>
+        This appendix provides a reference of the modules in Spring Security and the additional
+        dependencies that they require in order to function in a running application. We don't include
+        dependenices that are only used when building or testing Spring Security itself. Nor do we include
+        transitive dependencies which are required by external dependencies.
+    </para>
+    <para>The version of Spring required is listed on the project website, so the specific versions are omitted
+        for Spring dependencies below. Note that some of the dependencies listed as <quote>optional</quote>
+        below may still be required for other non-security functionality in a Spring application.
+    </para>
+    <para>Where a module depends on another Spring Security module, the non-optional dependencies of the
+        module it depends on are also assumed to be required and are not listed separately.
+    </para>
+    <section>
+        <title><literal>spring-security-core</literal></title>
+        <para>The core module must be included in any  project using Spring Security.
+            <table xml:id="deps-core">
+                <title>Core Depenendencies</title>
+                <tgroup cols="3" align="left">
+                    <colspec colnum="1" colname="col1" colwidth="2*"/>
+                    <colspec colnum="2" colname="col2" colwidth="1*"/>
+                    <colspec colnum="3" colname="col3" colwidth="3*"/>
+                    <thead>
+                        <row>
+                            <entry align="center">Dependency</entry>
+                            <entry align="center">Version</entry>
+                            <entry align="center">Description</entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry>aopalliance</entry>
+                            <entry>1.0</entry>
+                            <entry><para>Required for method security implementation.</para></entry>
+                        </row>
+                        <row>
+                            <entry>ehcache</entry>
+                            <entry>1.6.2</entry>
+                            <entry><para>Required if the ehcache-based user cache implementation is used (optional).</para></entry>
+                        </row>
+                        <row>
+                            <entry>spring-aop</entry>
+                            <entry></entry>
+                            <entry><para>Method security is based on Spring AOP</para></entry>
+                        </row>
+                        <row>
+                            <entry>spring-beans</entry>
+                            <entry></entry>
+                            <entry><para>Required for Spring configuration</para></entry>
+                        </row>
+                        <row>
+                            <entry>spring-expression</entry>
+                            <entry></entry>
+                            <entry><para>Required for expression-based method security</para></entry>
+                        </row>
+                        <row>
+                            <entry>spring-jdbc</entry>
+                            <entry></entry>
+                            <entry><para>Required if using a database to store user data (optional).</para></entry>
+                        </row>
+                        <row>
+                            <entry>spring-tx</entry>
+                            <entry></entry>
+                            <entry><para>Required if using a database to store user data (optional).</para></entry>
+                        </row>
+                        <row>
+                            <entry>spring-web</entry>
+                            <entry></entry>
+                            <entry><para>Required for clients which use HTTP remoting support (optional).</para></entry>
+                        </row>
+                        <row>
+                            <entry>aspectjrt</entry>
+                            <entry>1.6.10</entry>
+                            <entry><para>Required if using AspectJ support (optional).</para></entry>
+                        </row>
+                        <row>
+                            <entry>jsr250-api</entry>
+                            <entry>1.0</entry>
+                            <entry><para>Required if you are using JSR-250 method-security annotations (optional).</para></entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+        </para>
+
+    </section>
+
+    <section>
+        <title><literal>spring-security-web</literal></title>
+        <para>This module is typically required in web applications which use the Servlet API.
+            <table xml:id="deps-web">
+                <title>Web Dependencies</title>
+                <tgroup cols="3" align="left">
+                    <colspec colnum="1" colname="col1" colwidth="2*"/>
+                    <colspec colnum="2" colname="col2" colwidth="1*"/>
+                    <colspec colnum="3" colname="col3" colwidth="3*"/>
+                    <thead>
+                        <row>
+                            <entry align="center">Dependency</entry>
+                            <entry align="center">Version</entry>
+                            <entry align="center">Description</entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry>spring-security-core</entry>
+                            <entry></entry>
+                            <entry></entry>
+                        </row>
+                        <row>
+                            <entry>spring-web</entry>
+                            <entry></entry>
+                            <entry><para>Spring web support classes are used extensively.</para></entry>
+                        </row>
+                        <row>
+                            <entry>spring-jdbc</entry>
+                            <entry></entry>
+                            <entry><para>Required for JDBC-based persistent remember-me token repository (optional).</para></entry>
+                        </row>
+                        <row>
+                            <entry>spring-tx</entry>
+                            <entry></entry>
+                            <entry><para>Required by remember-me persistent token repository implementations (optional).</para></entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+        </para>
+    </section>
+
+    <section>
+        <title><literal>spring-security-ldap</literal></title>
+        <para>This module is only required if you are using LDAP authentication.
+            <table xml:id="deps-ldap">
+                <title>LDAP Dependencies</title>
+                <tgroup cols="3" align="left">
+                    <colspec colnum="1" colname="col1" colwidth="2*"/>
+                    <colspec colnum="2" colname="col2" colwidth="1*"/>
+                    <colspec colnum="3" colname="col3" colwidth="3*"/>
+                    <thead>
+                        <row>
+                            <entry align="center">Dependency</entry>
+                            <entry align="center">Version</entry>
+                            <entry align="center">Description</entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry>spring-security-core</entry>
+                            <entry></entry>
+                            <entry></entry>
+                        </row>
+                        <row>
+                            <entry>spring-ldap-core</entry>
+                            <entry>1.3.0</entry>
+                            <entry><para>LDAP support is based on Spring LDAP.</para></entry>
+                        </row>
+                        <row>
+                            <entry>spring-tx</entry>
+                            <entry></entry>
+                            <entry><para>Data exception classes are required.</para></entry>
+                        </row>
+                        <row>
+                            <entry>apache-ds <footnote><para>The modules <literal>apacheds-core</literal>,
+                                <literal>apacheds-core-entry</literal>, <literal>apacheds-protocol-shared</literal>,
+                                <literal>apacheds-protocol-ldap</literal> and <literal>apacheds-server-jndi</literal> are required.
+                            </para></footnote></entry>
+                            <entry>1.5.5</entry>
+                            <entry><para>Required if you are using an embedded LDAP server (optional).</para></entry>
+                        </row>
+                        <row>
+                            <entry>shared-ldap</entry>
+                            <entry>0.9.15</entry>
+                            <entry><para>Required if you are using an embedded LDAP server (optional).</para></entry>
+                        </row>
+                        <row>
+                            <entry>ldapsdk</entry>
+                            <entry>4.1</entry>
+                            <entry>
+                                <para>Mozilla LdapSDK. Used for decoding LDAP password policy controls if you are
+                                    using password-policy functionality with OpenLDAP, for example.
+                                </para>
+                            </entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+        </para>
+    </section>
+
+    <section>
+        <title><literal>spring-security-config</literal></title>
+        <para>This module is required if you are using Spring Security namespace configuration.
+            <table xml:id="deps-config">
+                <title>Config Dependencies</title>
+                <tgroup cols="3" align="left">
+                    <colspec colnum="1" colname="col1" colwidth="2*"/>
+                    <colspec colnum="2" colname="col2" colwidth="1*"/>
+                    <colspec colnum="3" colname="col3" colwidth="3*"/>
+                    <thead>
+                        <row>
+                            <entry align="center">Dependency</entry>
+                            <entry align="center">Version</entry>
+                            <entry align="center">Description</entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry>spring-security-core</entry>
+                            <entry></entry>
+                            <entry></entry>
+                        </row>
+                        <row>
+                            <entry>spring-security-web</entry>
+                            <entry></entry>
+                            <entry>Required if you are using any web-related namespace configuration (optional).</entry>
+                        </row>
+                        <row>
+                            <entry>spring-security-ldap</entry>
+                            <entry></entry>
+                            <entry>Required if you are using the LDAP namespace options (optional).</entry>
+                        </row>
+                        <row>
+                            <entry>spring-security-openid</entry>
+                            <entry></entry>
+                            <entry>Required if you are using OpenID authentication (optional).</entry>
+                        </row>
+                        <row>
+                            <entry>aspectjweaver</entry>
+                            <entry>1.6.10</entry>
+                            <entry><para>Required if using the protect-pointcut namespace syntax (optional).</para></entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+        </para>
+    </section>
+
+    <section>
+        <title><literal>spring-security-acl</literal></title>
+        <para>The ACL module.
+            <table xml:id="deps-acl">
+                <title>ACL Dependencies</title>
+                <tgroup cols="3" align="left">
+                    <colspec colnum="1" colname="col1" colwidth="2*"/>
+                    <colspec colnum="2" colname="col2" colwidth="1*"/>
+                    <colspec colnum="3" colname="col3" colwidth="3*"/>
+                    <thead>
+                        <row>
+                            <entry align="center">Dependency</entry>
+                            <entry align="center">Version</entry>
+                            <entry align="center">Description</entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry>spring-security-core</entry>
+                            <entry></entry>
+                            <entry></entry>
+                        </row>
+                        <row>
+                            <entry>ehcache</entry>
+                            <entry>1.6.2</entry>
+                            <entry><para>Required if the ehcache-based ACL cache implementation is used (optional if you are using your own implementation).</para></entry>
+                        </row>
+                        <row>
+                            <entry>spring-jdbc</entry>
+                            <entry></entry>
+                            <entry><para>Required if you are using the default JDBC-based AclService (optional if you implement your own).</para></entry>
+                        </row>
+                        <row>
+                            <entry>spring-tx</entry>
+                            <entry></entry>
+                            <entry><para>Required if you are using the default JDBC-based AclService (optional if you implement your own).</para></entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+        </para>
+    </section>
+
+</appendix>

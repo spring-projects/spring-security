@@ -170,4 +170,5 @@
     </part>
     <xi:include href="appendix-db-schema.xml"/>
     <xi:include href="appendix-namespace.xml"/>
+    <xi:include href="appendix-dependencies.xml"/>
 </book>
