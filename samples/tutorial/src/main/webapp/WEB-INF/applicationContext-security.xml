@@ -13,11 +13,7 @@
 
     <debug />
 
-    <global-method-security pre-post-annotations="enabled">
-        <!-- AspectJ pointcut expression that locates our "post" method and applies security that way
-        <protect-pointcut expression="execution(* bigbank.*Service.post*(..))" access="ROLE_TELLER"/>
-        -->
-    </global-method-security>
+    <global-method-security pre-post-annotations="enabled" />
 
     <http pattern="/loggedout.jsp" security="none"/>
 

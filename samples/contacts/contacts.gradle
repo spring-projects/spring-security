@@ -3,6 +3,11 @@
 apply plugin: 'war'
 apply plugin: 'jetty'
 
+configurations {
+    runtime.exclude module: 'jsr250-api'
+    runtime.exclude group: 'org.aspectj'
+}
+
 dependencies {
     providedCompile 'javax.servlet:servlet-api:2.5@jar'
 

@@ -3,8 +3,18 @@
 apply plugin: 'war'
 apply plugin: 'jetty'
 
+def excludeModules = ['spring-security-acl', 'jsr250-api', 'ehcache', 'spring-jdbc', 'spring-tx']
+
 configurations {
     casServer
+}
+
+configurations {
+    excludeModules.each {name ->
+        runtime.exclude module: name
+    }
+
+    runtime.exclude group: 'org.aspectj'
 }
 
 dependencies {
@@ -20,7 +30,7 @@ dependencies {
 
 def keystore = "$rootDir/samples/certificates/server.jks"
 
-jettyRun {
+[jettyRun, jettyRunWar]*.configure {
     contextPath = "/cas"
     def httpConnector = new org.mortbay.jetty.nio.SelectChannelConnector();
     httpConnector.port = 8080
@@ -49,12 +59,12 @@ task casServer (type: org.gradle.api.plugins.jetty.JettyRunWar) {
     }
 }
 
-task cas (dependsOn: [jettyRun, casServer]) {
+task cas (dependsOn: [jettyRunWar, casServer]) {
 }
 
 gradle.taskGraph.whenReady {graph ->
     if (graph.hasTask(cas)) {
-        jettyRun.dependsOn(casServer)
+        jettyRunWar.dependsOn(casServer)
         casServer.daemon = true
     }
 }

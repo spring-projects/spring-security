@@ -3,6 +3,16 @@
 apply plugin: 'war'
 apply plugin: 'jetty'
 
+def excludeModules = ['spring-security-acl', 'jsr250-api', 'ehcache', 'spring-jdbc', 'ldapsdk']
+
+configurations {
+    excludeModules.each {name ->
+        runtime.exclude module: name
+    }
+
+    runtime.exclude group: 'org.aspectj'
+}
+
 dependencies {
 
     runtime project(':spring-security-web'),
