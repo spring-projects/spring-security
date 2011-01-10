@@ -8,13 +8,12 @@ allprojects {
     group = 'org.springframework.security'
 
     repositories {
-        mavenRepo name:'Local', urls: "file://" + System.properties['user.home'] + "/.m2/repository"
+        mavenLocal()
         mavenCentral()
         mavenRepo name: 'SpringSource Milestone Repo', urls: 'http://repository.springsource.com/maven/bundles/milestone'
         mavenRepo name: 'SpringSource Maven Snapshot Repo', urls: 'http://maven.springframework.org/snapshot/'
         mavenRepo name: 'SpringSource Enterprise Release', urls: 'http://repository.springsource.com/maven/bundles/release'
         mavenRepo name: 'SpringSource Enterprise External', urls: 'http://repository.springsource.com/maven/bundles/external'
-//        mavenRepo(name: 'Spock Snapshots', urls: 'http://m2repo.spockframework.org/snapshots')
     }
 }
 
@@ -92,5 +91,5 @@ ideaProject {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '0.9'
+    gradleVersion = '0.9.1'
 }
