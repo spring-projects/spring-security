@@ -636,7 +636,7 @@ final class AuthenticationConfigBuilder {
         }
         RootBeanDefinition bean = new RootBeanDefinition(UserDetailsServiceFactoryBean.class);
         bean.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-        pc.getReaderContext().getRegistry().registerBeanDefinition(BeanIds.USER_DETAILS_SERVICE_FACTORY, bean);
+        pc.registerBeanComponent(new BeanComponentDefinition(bean, BeanIds.USER_DETAILS_SERVICE_FACTORY));
     }
 
     List<OrderDecorator> getFilters() {
