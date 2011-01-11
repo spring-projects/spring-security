@@ -130,8 +130,8 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
             // Check all required parameters were supplied (ie RFC 2069)
             if ((username == null) || (realm == null) || (nonce == null) || (uri == null) || (response == null)) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("extracted username: '" + username + "'; realm: '" + username + "'; nonce: '"
-                            + username + "'; uri: '" + username + "'; response: '" + username + "'");
+                    logger.debug("extracted username: '" + username + "'; realm: '" + realm + "'; nonce: '"
+                            + nonce + "'; uri: '" + uri + "'; response: '" + responseDigest + "'");
                 }
 
                 fail(request, response,
