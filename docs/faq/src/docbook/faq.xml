@@ -410,6 +410,9 @@
                     sample applications WEB-INF/lib directories. For a basic application, you
                     can start with the tutorial sample. If you want to use LDAP, with an
                     embedded test server, then use the LDAP sample as a starting point.
+                    The reference manual also includes an appendix listing the first-level dependencies
+                    for each Spring Security module with some information on whether they are
+                    optional and what they are required for.
                 </para><para> If you are building your project with maven, then adding the
                     appropriate Spring Security modules as dependencies to your pom.xml will
                     automatically pull in the core jars that the framework requires. Any which
