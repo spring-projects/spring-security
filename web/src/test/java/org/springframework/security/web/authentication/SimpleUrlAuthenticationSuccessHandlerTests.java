@@ -42,18 +42,32 @@ public class SimpleUrlAuthenticationSuccessHandlerTests {
      * SEC-213
      */
     @Test
-    public void targetUrlParameterIsUsedIfPresent() throws Exception {
+    public void targetUrlParameterIsUsedIfPresentAndParameterNameIsSet() throws Exception {
         SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler("/defaultTarget");
-        ash.setUseTargetUrlparameter(true);
-        ash.setTargetUrlParameter("targetUrl");
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
-
         request.setParameter("targetUrl", "/target");
 
         ash.onAuthenticationSuccess(request, response, mock(Authentication.class));
+        assertEquals("/defaultTarget", response.getRedirectedUrl());
 
+        // Try with parameter set
+        ash.setTargetUrlParameter("targetUrl");
+        response = new MockHttpServletResponse();
+        ash.onAuthenticationSuccess(request, response, mock(Authentication.class));
         assertEquals("/target", response.getRedirectedUrl());
+    }
+
+    @Test
+    public void refererIsUsedIfUseRefererIsSet() throws Exception {
+        SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler("/defaultTarget");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        ash.setUseReferer(true);
+        request.addHeader("Referer", "http://www.springsource.com/");
+
+        ash.onAuthenticationSuccess(request, response, mock(Authentication.class));
+        assertEquals("http://www.springsource.com/", response.getRedirectedUrl());
     }
 
     /**

@@ -50,13 +50,11 @@ import org.springframework.util.StringUtils;
  */
 public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 
-    public static final String DEFAULT_TARGET_PARAMETER = "spring-security-redirect";
     protected final Log logger = LogFactory.getLog(this.getClass());
-    private String targetUrlParameter = DEFAULT_TARGET_PARAMETER;
+    private String targetUrlParameter = null;
     private String defaultTargetUrl = "/";
     private boolean alwaysUseDefaultTargetUrl = false;
     private boolean useReferer = false;
-    private boolean useTargetUrlparameter = false;
     private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
     protected AbstractAuthenticationTargetUrlRequestHandler() {
@@ -90,7 +88,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
         // Check for the parameter and use that if available
         String targetUrl = null;
 
-        if (useTargetUrlparameter) {
+        if (targetUrlParameter != null  ) {
             targetUrl = request.getParameter(targetUrlParameter);
 
             if (StringUtils.hasText(targetUrl)) {
@@ -157,10 +155,11 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
     }
 
     /**
-     * The current request will be checked for this parameter before and the value used as the target URL if present.
+     * If this property is set, the current request will be checked for this a parameter with this name
+     * and the value used as the target URL if present.
      *
-     *  @param targetUrlParameter the name of the parameter containing the encoded target URL. Defaults
-     *  to "spring-security-redirect".
+     * @param targetUrlParameter the name of the parameter containing the encoded target URL. Defaults
+     * to null.
      */
     public void setTargetUrlParameter(String targetUrlParameter) {
         Assert.hasText("targetUrlParameter canot be null or empty");
@@ -189,13 +188,4 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
         this.useReferer = useReferer;
     }
 
-    /**
-     * If set to {@code true} the request parameter {@code targetUrlParameter} will be used (if available). Defaults
-     * to {@code false}.
-     *
-     * @param useTargetUrlparameter
-     */
-    public void setUseTargetUrlparameter(boolean useTargetUrlparameter) {
-        this.useTargetUrlparameter = useTargetUrlparameter;
-    }
 }
