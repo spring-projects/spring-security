@@ -286,4 +286,131 @@
         </para>
     </section>
 
+    <section>
+        <title><literal>spring-security-cas</literal></title>
+        <para>The CAS module provides integration with JA-SIG CAS.
+            <table xml:id="deps-cas">
+                <title>CAS Dependencies</title>
+                <tgroup cols="3" align="left">
+                    <colspec colnum="1" colname="col1" colwidth="2*"/>
+                    <colspec colnum="2" colname="col2" colwidth="1*"/>
+                    <colspec colnum="3" colname="col3" colwidth="3*"/>
+                    <thead>
+                        <row>
+                            <entry align="center">Dependency</entry>
+                            <entry align="center">Version</entry>
+                            <entry align="center">Description</entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry>spring-security-core</entry>
+                            <entry></entry>
+                            <entry></entry>
+                        </row>
+                        <row>
+                            <entry>spring-security-web</entry>
+                            <entry></entry>
+                            <entry></entry>
+                        </row>
+                        <row>
+                            <entry>cas-client-core</entry>
+                            <entry>3.1.12</entry>
+                            <entry>The JA-SIG CAS Client. This is the basis of the Spring Security integration.</entry>
+                        </row>
+                        <row>
+                            <entry>ehcache</entry>
+                            <entry>1.6.2</entry>
+                            <entry><para>Required if you are using the ehcache-based ticket cache (optional).</para></entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+        </para>
+    </section>
+
+    <section>
+        <title><literal>spring-security-openid</literal></title>
+        <para>The OpenID module.
+            <table xml:id="deps-openid">
+                <title>OpenID Dependencies</title>
+                <tgroup cols="3" align="left">
+                    <colspec colnum="1" colname="col1" colwidth="2*"/>
+                    <colspec colnum="2" colname="col2" colwidth="1*"/>
+                    <colspec colnum="3" colname="col3" colwidth="3*"/>
+                    <thead>
+                        <row>
+                            <entry align="center">Dependency</entry>
+                            <entry align="center">Version</entry>
+                            <entry align="center">Description</entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry>spring-security-core</entry>
+                            <entry></entry>
+                            <entry></entry>
+                        </row>
+                        <row>
+                            <entry>spring-security-web</entry>
+                            <entry></entry>
+                            <entry></entry>
+                        </row>
+                        <row>
+                            <entry>openid4java-nodeps</entry>
+                            <entry>0.95</entry>
+                            <entry>Spring Security's OpenID integration uses OpenID4Java.</entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+        </para>
+    </section>
+
+    <section>
+        <title><literal>spring-security-taglibs</literal></title>
+        <para>Provides Spring Security's JSP tag implementations.
+            <table xml:id="deps-taglibs">
+                <title>Taglib Dependencies</title>
+                <tgroup cols="3" align="left">
+                    <colspec colnum="1" colname="col1" colwidth="2*"/>
+                    <colspec colnum="2" colname="col2" colwidth="1*"/>
+                    <colspec colnum="3" colname="col3" colwidth="3*"/>
+                    <thead>
+                        <row>
+                            <entry align="center">Dependency</entry>
+                            <entry align="center">Version</entry>
+                            <entry align="center">Description</entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry>spring-security-core</entry>
+                            <entry></entry>
+                            <entry></entry>
+                        </row>
+                        <row>
+                            <entry>spring-security-web</entry>
+                            <entry></entry>
+                            <entry></entry>
+                        </row>
+                        <row>
+                            <entry>spring-security-acl</entry>
+                            <entry></entry>
+                            <entry>
+                                Required if you are using the <literal>accesscontrollist</literal> tag or
+                                <literal>hasPermission()</literal> expressions with ACLs (optional).
+                            </entry>
+                        </row>
+                        <row>
+                            <entry>spring-expression</entry>
+                            <entry></entry>
+                            <entry>Required if you are using SPEL expressions in your tag access constraints.</entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+        </para>
+    </section>
+
 </appendix>
