@@ -25,6 +25,9 @@ url =
 id =
     ## A bean identifier, used for referring to the bean elsewhere in the context.
     attribute id {xsd:ID}
+name =
+    ## A bean identifier, used for referring to the bean elsewhere in the context.
+    attribute name {xsd:ID}
 ref =
     ## Defines a reference to a Spring bean Id.
     attribute ref {xsd:token}
@@ -311,6 +314,10 @@ http.attlist &=
 http.attlist &=
     ## Prevents the jsessionid parameter from being added to rendered URLs.
     attribute disable-url-rewriting {xsd:boolean}?
+http.attlist &=
+    ## Exposes the list of filters defined by this configuration under this bean name in the application context. May be used by
+    name?
+
 
 access-denied-handler =
     ## Defines the access-denied strategy that should be used. An access denied page can be defined or a reference to an AccessDeniedHandler instance.

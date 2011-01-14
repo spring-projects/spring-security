@@ -70,6 +70,13 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
+  <xs:attributeGroup name="name">
+    <xs:attribute name="name" use="required" type="xs:ID">
+      <xs:annotation>
+        <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
   <xs:attributeGroup name="ref">
     <xs:attribute name="ref" use="required" type="xs:token">
       <xs:annotation>
@@ -779,6 +786,11 @@
     <xs:attribute name="disable-url-rewriting" type="xs:boolean">
       <xs:annotation>
         <xs:documentation>Prevents the jsessionid parameter from being added to rendered URLs.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="name" type="xs:ID">
+      <xs:annotation>
+        <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>

@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
+import org.springframework.beans.factory.config.ListFactoryBean;
 import org.springframework.beans.factory.config.MethodInvokingFactoryBean;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.config.ConstructorArgumentValues.ValueHolder;
@@ -72,7 +73,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         pc.pushContainingComponent(compositeDef);
 
         MatcherType matcherType = MatcherType.fromElement(element);
-        ManagedMap<BeanDefinition, List<BeanMetadataElement>> filterChainMap = new ManagedMap<BeanDefinition, List<BeanMetadataElement>>();
+        ManagedMap<BeanDefinition, BeanReference> filterChainMap = new ManagedMap<BeanDefinition, BeanReference>();
 
         String filterChainPattern = element.getAttribute(ATT_PATH_PATTERN);
 
@@ -92,7 +93,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         return null;
     }
 
-    List<BeanMetadataElement> createFilterChain(Element element, ParserContext pc, MatcherType matcherType) {
+    BeanReference createFilterChain(Element element, ParserContext pc, MatcherType matcherType) {
         boolean secured = !OPT_SECURITY_NONE.equals(element.getAttribute(ATT_SECURED));
 
         if (!secured) {
@@ -108,7 +109,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 }
             }
 
-            return Collections.emptyList();
+            return createFilterListBean(element, pc, Collections.emptyList());
         }
 
         final String portMapperName = createPortMapper(element, pc);
@@ -140,9 +141,24 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             filterChain.add(od.bean);
         }
 
-        return filterChain;
+        return createFilterListBean(element, pc, filterChain);
     }
 
+    private BeanReference createFilterListBean(Element element, ParserContext pc, List<?> filterChain) {
+        BeanDefinition listFactoryBean = new RootBeanDefinition(ListFactoryBean.class);
+
+        String id = element.getAttribute("name");
+        if (!StringUtils.hasText(id)) {
+            id = element.getAttribute("id");
+            if (!StringUtils.hasText(id)) {
+                id = pc.getReaderContext().generateBeanName(listFactoryBean);
+            }
+        }
+        listFactoryBean.getPropertyValues().add("sourceList", filterChain);
+        pc.registerBeanComponent(new BeanComponentDefinition(listFactoryBean, id));
+
+        return new RuntimeBeanReference(id);
+    }
 
     private String createPortMapper(Element elt, ParserContext pc) {
         // Register the portMapper. A default will always be created, even if no element exists.
@@ -247,7 +263,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     @SuppressWarnings("unchecked")
-    static void registerFilterChainProxy(ParserContext pc, Map<BeanDefinition, List<BeanMetadataElement>> filterChainMap, Object source) {
+    static void registerFilterChainProxy(ParserContext pc, Map<BeanDefinition, BeanReference> filterChainMap, Object source) {
         if (pc.getRegistry().containsBeanDefinition(BeanIds.FILTER_CHAIN_PROXY)) {
             // Already registered. Obtain the filter chain map and add the new entries to it
 
