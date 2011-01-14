@@ -64,8 +64,8 @@ public class SavedRequestAwareAuthenticationSuccessHandler extends SimpleUrlAuth
 
             return;
         }
-
-        if (isAlwaysUseDefaultTargetUrl() || StringUtils.hasText(request.getParameter(getTargetUrlParameter()))) {
+        String targetUrlParameter = getTargetUrlParameter();
+        if (isAlwaysUseDefaultTargetUrl() || (targetUrlParameter != null && StringUtils.hasText(request.getParameter(targetUrlParameter)))) {
             requestCache.removeRequest(request, response);
             super.onAuthenticationSuccess(request, response, authentication);
 

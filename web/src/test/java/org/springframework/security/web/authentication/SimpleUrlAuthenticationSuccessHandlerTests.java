@@ -1,7 +1,6 @@
 package org.springframework.security.web.authentication;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.Test;
@@ -85,4 +84,26 @@ public class SimpleUrlAuthenticationSuccessHandlerTests {
         assertEquals("https://monkeymachine.co.uk/", response.getRedirectedUrl());
     }
 
+    @Test
+    public void setTargetUrlParameterNullTargetUrlParameter() {
+        SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler();
+        ash.setTargetUrlParameter("targetUrl");
+        ash.setTargetUrlParameter(null);
+        assertEquals(null,ash.getTargetUrlParameter());
+    }
+
+    @Test
+    public void setTargetUrlParameterEmptyTargetUrlParameter() {
+        SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler();
+
+        try {
+            ash.setTargetUrlParameter("");
+            fail("Expected Exception");
+        }catch(IllegalArgumentException success) {}
+
+        try {
+            ash.setTargetUrlParameter("   ");
+            fail("Expected Exception");
+        }catch(IllegalArgumentException success) {}
+    }
 }

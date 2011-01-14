@@ -162,7 +162,9 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
      * to null.
      */
     public void setTargetUrlParameter(String targetUrlParameter) {
-        Assert.hasText("targetUrlParameter canot be null or empty");
+        if(targetUrlParameter != null) {
+            Assert.hasText(targetUrlParameter,"targetUrlParameter cannot be empty");
+        }
         this.targetUrlParameter = targetUrlParameter;
     }
 
