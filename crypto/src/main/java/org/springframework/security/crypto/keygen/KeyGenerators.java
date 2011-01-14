@@ -40,6 +40,14 @@ public class KeyGenerators {
     }
 
     /**
+     * Create a {@link BytesKeyGenerator} that returns a single, shared {@link SecureRandom} key of a custom length.
+     * @param keyLength the key length in bytes, e.g. 16, for a 16 byte key.
+     */
+    public static BytesKeyGenerator shared(int keyLength) {
+        return new SharedKeyGenerator(secureRandom(16).generateKey());
+    }
+
+    /**
      * Creates a {@link StringKeyGenerator} that hex-encodes {@link SecureRandom} keys of 8 bytes in length.
      * The hex-encoded string is keyLength * 2 characters in length.
      */

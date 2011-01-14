@@ -18,7 +18,9 @@ package org.springframework.security.crypto.util;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.InvalidParameterSpecException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -38,15 +40,21 @@ public class CipherUtils {
     /**
      * Generates a SecretKey.
      */
-    public static SecretKey newSecretKey(String algorithm, String secret) {
+    public static SecretKey newSecretKey(String algorithm, String password) {
+        return newSecretKey(algorithm, new PBEKeySpec(password.toCharArray()));
+    }
+
+    /**
+     * Generates a SecretKey.
+     */
+    public static SecretKey newSecretKey(String algorithm, PBEKeySpec keySpec) {
         try {
-            PBEKeySpec pbeKeySpec = new PBEKeySpec(secret.toCharArray());
             SecretKeyFactory factory = SecretKeyFactory.getInstance(algorithm);
-            return factory.generateSecret(pbeKeySpec);
+            return factory.generateSecret(keySpec);
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalArgumentException("Not a valid encryption algorithm", e);
         } catch (InvalidKeySpecException e) {
-            throw new IllegalArgumentException("Not a valid secert key", e);
+            throw new IllegalArgumentException("Not a valid secret key", e);
         }
     }
 
@@ -66,9 +74,38 @@ public class CipherUtils {
     /**
      * Initializes the Cipher for use.
      */
-    public static void initCipher(Cipher cipher, int mode, SecretKey secretKey, byte[] salt, int iterationCount) {
+    public static <T extends AlgorithmParameterSpec> T getParameterSpec(Cipher cipher, Class<T> parameterSpecClass) {
         try {
-            cipher.init(mode, secretKey, new PBEParameterSpec(salt, iterationCount));
+            return cipher.getParameters().getParameterSpec(parameterSpecClass);
+        } catch (InvalidParameterSpecException e) {
+            throw new IllegalArgumentException("Unable to access parameter", e);
+        }
+    }
+
+    /**
+     * Initializes the Cipher for use.
+     */
+    public static void initCipher(Cipher cipher, int mode, SecretKey secretKey) {
+        initCipher(cipher, mode, secretKey, null);
+    }
+
+    /**
+     * Initializes the Cipher for use.
+     */
+    public static void initCipher(Cipher cipher, int mode, SecretKey secretKey, byte[] salt, int iterationCount) {
+        initCipher(cipher, mode, secretKey, new PBEParameterSpec(salt, iterationCount));
+    }
+
+    /**
+     * Initializes the Cipher for use.
+     */
+    public static void initCipher(Cipher cipher, int mode, SecretKey secretKey, AlgorithmParameterSpec parameterSpec) {
+        try {
+            if (parameterSpec != null) {
+                cipher.init(mode, secretKey, parameterSpec);
+            } else {
+                cipher.init(mode, secretKey);
+            }
         } catch (InvalidKeyException e) {
             throw new IllegalArgumentException("Unable to initialize due to invalid secret key", e);
         } catch (InvalidAlgorithmParameterException e) {

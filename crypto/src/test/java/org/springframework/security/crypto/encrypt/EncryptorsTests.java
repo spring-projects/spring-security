@@ -11,7 +11,7 @@ public class EncryptorsTests {
 
     @Test
     public void standard() {
-        BytesEncryptor encryptor = Encryptors.standard("password");
+        BytesEncryptor encryptor = Encryptors.standard("password", "5c0744940b5c369b");
         byte[] result = encryptor.encrypt("text".getBytes());
         assertNotNull(result);
         assertFalse(new String(result).equals("text"));
@@ -21,7 +21,7 @@ public class EncryptorsTests {
 
     @Test
     public void text() {
-        TextEncryptor encryptor = Encryptors.text("password");
+        TextEncryptor encryptor = Encryptors.text("password", "5c0744940b5c369b");
         String result = encryptor.encrypt("text");
         assertNotNull(result);
         assertFalse(result.equals("text"));
@@ -45,5 +45,4 @@ public class EncryptorsTests {
         assertEquals("text", encryptor.encrypt("text"));
         assertEquals("text", encryptor.decrypt("text"));
     }
-
 }

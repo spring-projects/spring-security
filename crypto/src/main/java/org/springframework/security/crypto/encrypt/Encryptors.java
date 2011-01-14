@@ -15,6 +15,8 @@
  */
 package org.springframework.security.crypto.encrypt;
 
+import org.springframework.security.crypto.keygen.KeyGenerators;
+
 /**
  * Factory for commonly used encryptors.
  * Defines the public API for constructing {@link BytesEncryptor} and {@link TextEncryptor} implementations.
@@ -23,14 +25,17 @@ package org.springframework.security.crypto.encrypt;
 public class Encryptors {
 
     /**
-     * Creates a standard password-based bytes encryptor.
-     * Uses MD5 PRF hashing with 1024 iterations and DES-based encryption.
-     * Salts each encrypted value to ensure it will be unique.
-     * TODO - switch standard algorithm from DES to AES.  Switch hashing to SHA-1 from MD5.
+     * Creates a standard password-based bytes encryptor using 256 bit AES encryption.
+     * Derives the secret key using PKCS #5's PBKDF2 (Password-Based Key Derivation Function #2).
+     * Salts the password to prevent dictionary attacks against the key.
+     * The provided salt is expected to be hex-encoded; it should be random and at least 8 bytes in length.
+     * Also applies a random 16 byte initialization vector to ensure each encrypted message will be unique.
+     * Requires Java 6.
      * @param password the password used to generate the encryptor's secret key; should not be shared
+     * @param salt an hex-encoded, random, site-global salt value to use to generate the key
      */
-    public static BytesEncryptor standard(String password) {
-        return new PasswordBasedBytesEncryptor(PBE_MD5_DES_ALGORITHM, password);
+    public static BytesEncryptor standard(String password, String salt) {
+        return new AesBytesEncryptor(password, password, KeyGenerators.secureRandom(16));
     }
 
     /**
@@ -38,36 +43,32 @@ public class Encryptors {
      * Encrypted text is hex-encoded.
      * @param password the password used to generate the encryptor's secret key; should not be shared
      */
-    public static TextEncryptor text(String password) {
-        return new HexEncodingTextEncryptor(standard(password));
+    public static TextEncryptor text(String password, String salt) {
+        return new HexEncodingTextEncryptor(standard(password, salt));
     }
 
     /**
      * Creates an encryptor for queryable text strings that uses standard password-based encryption.
-     * The hex-encoded salt string provided should be random and is used to protect against password dictionary attacks.
-     * Does not salt each encrypted value so an encrypted value may be queried against.
+     * Uses a shared, or constant 16 byte initialization vector so encrypting the same data results in the same encryption result.
+     * This is done to allow encrypted data to be queried against.
      * Encrypted text is hex-encoded.
      * @param password the password used to generate the encryptor's secret key; should not be shared
-     * @param salt an hex-encoded, random, site-global salt value to use to initialize the cipher
+     * @param salt an hex-encoded, random, site-global salt value to use to generate the secret key
      */
     public static TextEncryptor queryableText(String password, String salt) {
-        return new QueryableTextEncryptor(PBE_MD5_DES_ALGORITHM, password, salt);
+        return new HexEncodingTextEncryptor(new AesBytesEncryptor(password, salt, KeyGenerators.shared(16)));
     }
 
     /**
-     * Creates a text encrypter that performs no encryption.
-     * Useful for test environments where working with plain text strings is desired for simplicity.
+     * Creates a text encryptor that performs no encryption.
+     * Useful for developer testing environments where working with plain text strings is desired for simplicity.
      */
     public static TextEncryptor noOpText() {
         return NO_OP_TEXT_INSTANCE;
     }
 
-    // internal helpers
-
     private Encryptors() {
     }
-
-    private static final String PBE_MD5_DES_ALGORITHM = "PBEWithMD5AndDES";
 
     private static final TextEncryptor NO_OP_TEXT_INSTANCE = new NoOpTextEncryptor();
 
