@@ -167,6 +167,7 @@
         <xi:include href="cas-auth-provider.xml"/>
         <xi:include href="x509-auth-provider.xml"/>
         <xi:include href="runas-auth-provider.xml"/>
+		<xi:include href="crypto.xml"/>
     </part>
     <xi:include href="appendix-db-schema.xml"/>
     <xi:include href="appendix-namespace.xml"/>
