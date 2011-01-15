@@ -20,6 +20,7 @@ package org.springframework.security.crypto.keygen;
  *
  * @author Keith Donald
  * @author Annabelle Donald
+ * @author Corgan Donald
  */
 final class SharedKeyGenerator implements BytesKeyGenerator {
 
