@@ -125,9 +125,7 @@ Success! Your web filters appear to be properly configured!
             <link xlink:href="#get-source">the introduction</link>. You'll find the relevant files
             under the <filename>sample/cas</filename> directory. There's also a
             <filename>Readme.txt</filename> file in there which explains how to run both the server
-            and the client directly from the source tree, complete with SSL support. You have to
-            download the CAS Server web application (a war file) from the CAS site and drop it into
-            the <filename>samples/cas/server</filename> directory. </para>
+            and the client directly from the source tree, complete with SSL support.</para>
     </section>
     <section xml:id="jaas-sample">
         <title>JAAS Sample</title>
