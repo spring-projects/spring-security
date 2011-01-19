@@ -282,6 +282,12 @@
                     external OpenID server. <literal>org.springframework.security.openid</literal>.
                     Requires OpenID4Java.</para>
             </section>
+            <section xml:id="spring-security-crypto">
+                <title>Crypto - <literal>spring-security-crypto.jar</literal></title>
+                <para>Contains cryptography utility functions which are used by other
+                    Spring projects. <literal>org.springframework.security.crypto</literal>.
+                </para>
+            </section>
         </section>
         <section xml:id="get-source">
             <title>Checking out the Source</title>
