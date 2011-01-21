@@ -72,7 +72,7 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
         if (!StringUtils.hasLength(password)) {
             logger.debug("Rejecting empty password for user " + username);
-            throw new BadCredentialsException(messages.getMessage("LdapAuthenticationProvider.emptyPassword",
+            throw new BadCredentialsException(messages.getMessage("BindAuthenticator.emptyPassword",
                     "Empty Password"));
         }
 
