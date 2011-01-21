@@ -253,9 +253,9 @@
                             Starting a session in HTTP first should work as the session cookie won't
                             be marked as secure (you will also have to disable Spring Security's
                             <link xlink:href="http://static.springsource.org/spring-security/site/docs/3.1.x/reference/springsecurity-single.html#ns-session-fixation">
-                            Session Fixation Protection</link> support to prevent it from creating a new secure session.
-                            Note that this is not a good idea in general, as any application which uses HTTP at all is vulnerable to
-                            man-in-the-middle attacks. To be truly secure, the user should begin accessing your site in HTTPS and continue
+                            Session Fixation Protection</link> support to prevent it from creating a new secure session on login (you can always create a new session
+                            yourself at a later stage). Note that switching between HTTP and HTTPS is not a good idea in general, as any application which uses
+                            HTTP at all is vulnerable to man-in-the-middle attacks. To be truly secure, the user should begin accessing your site in HTTPS and continue
                             using it until they log out. Even clicking on an HTTPS link from a page accessed over HTTP is potentially risky.
                             If you need more convincing, check out a tool like <link xlink:href="http://www.thoughtcrime.org/software/sslstrip/">sslstrip</link>.
                             </para></answer>
