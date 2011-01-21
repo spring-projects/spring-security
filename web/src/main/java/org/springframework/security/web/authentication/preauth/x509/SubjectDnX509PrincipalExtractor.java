@@ -45,7 +45,7 @@ public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor {
         Matcher matcher = subjectDnPattern.matcher(subjectDN);
 
         if (!matcher.find()) {
-            throw new BadCredentialsException(messages.getMessage("DaoX509AuthoritiesPopulator.noMatching",
+            throw new BadCredentialsException(messages.getMessage("SubjectDnX509PrincipalExtractor.noMatching",
                     new Object[] {subjectDN}, "No matching pattern was found in subject DN: {0}"));
         }
 

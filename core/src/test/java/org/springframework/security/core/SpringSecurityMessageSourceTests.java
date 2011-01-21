@@ -30,9 +30,9 @@ import java.util.Locale;
 public class SpringSecurityMessageSourceTests extends TestCase {
     //~ Methods ========================================================================================================
 
-    public void testOperation() {
+	public void testOperation() {
         SpringSecurityMessageSource msgs = new SpringSecurityMessageSource();
-        assertEquals("Proxy\u7968\u6839\u88ab\u62d2\u7edd", msgs.getMessage("RejectProxyTickets.reject", null, Locale.SIMPLIFIED_CHINESE));
+        assertEquals("\u4E0D\u5141\u8BB8\u8BBF\u95EE", msgs.getMessage("AbstractAccessDecisionManager.accessDenied", null, Locale.SIMPLIFIED_CHINESE));
     }
 
     public void testReplacableLookup() {
@@ -43,7 +43,7 @@ public class SpringSecurityMessageSourceTests extends TestCase {
         // Cause a message to be generated
         MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
         assertEquals("Le jeton nonce est compromis FOOBAR",
-            messages.getMessage("DigestProcessingFilter.nonceCompromised", new Object[] {"FOOBAR"},
+            messages.getMessage("DigestAuthenticationFilter.nonceCompromised", new Object[] {"FOOBAR"},
                 "ERROR - FAILED TO LOOKUP"));
 
         // Revert to original Locale

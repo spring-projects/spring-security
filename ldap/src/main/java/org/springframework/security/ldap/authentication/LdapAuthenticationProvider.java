@@ -236,7 +236,7 @@ public class LdapAuthenticationProvider implements AuthenticationProvider, Messa
 
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class, authentication,
-            messages.getMessage("AbstractUserDetailsAuthenticationProvider.onlySupports",
+            messages.getMessage("LdapAuthenticationProvider.onlySupports",
                 "Only UsernamePasswordAuthenticationToken is supported"));
 
         final UsernamePasswordAuthenticationToken userToken = (UsernamePasswordAuthenticationToken)authentication;

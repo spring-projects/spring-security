@@ -14,20 +14,20 @@ public class AccountStatusUserDetailsChecker implements UserDetailsChecker {
 
     public void check(UserDetails user) {
         if (!user.isAccountNonLocked()) {
-            throw new LockedException(messages.getMessage("UserDetailsService.locked", "User account is locked"), user);
+            throw new LockedException(messages.getMessage("AccountStatusUserDetailsChecker.locked", "User account is locked"), user);
         }
 
         if (!user.isEnabled()) {
-            throw new DisabledException(messages.getMessage("UserDetailsService.disabled", "User is disabled"), user);
+            throw new DisabledException(messages.getMessage("AccountStatusUserDetailsChecker.disabled", "User is disabled"), user);
         }
 
         if (!user.isAccountNonExpired()) {
-            throw new AccountExpiredException(messages.getMessage("UserDetailsService.expired",
+            throw new AccountExpiredException(messages.getMessage("AccountStatusUserDetailsChecker.expired",
                     "User account has expired"), user);
         }
 
         if (!user.isCredentialsNonExpired()) {
-            throw new CredentialsExpiredException(messages.getMessage("UserDetailsService.credentialsExpired",
+            throw new CredentialsExpiredException(messages.getMessage("AccountStatusUserDetailsChecker.credentialsExpired",
                     "User credentials have expired"), user);
         }
     }
