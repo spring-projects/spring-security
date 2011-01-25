@@ -1,0 +1,13 @@
+
+body {
+    font-family:"Palatino Linotype","Book Antiqua",Palatino,serif;
+}
+
+#content {
+    margin: 5em auto;
+    width: 40em;
+}
+
+.securityHiddenUI, .securityHiddenUI * {
+    background-color: #ff4500;
+}
