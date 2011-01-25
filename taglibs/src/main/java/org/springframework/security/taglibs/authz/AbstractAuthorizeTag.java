@@ -58,7 +58,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * @since 3.1.0
  */
 public abstract class AbstractAuthorizeTag {
-
     private String access;
     private String url;
     private String method;
@@ -98,7 +97,7 @@ public abstract class AbstractAuthorizeTag {
      * @throws IOException
      */
     public boolean authorize() throws IOException {
-        boolean isAuthorized = false;
+        boolean isAuthorized;
 
         if (StringUtils.hasText(getAccess())) {
             isAuthorized = authorizeUsingAccessExpression();

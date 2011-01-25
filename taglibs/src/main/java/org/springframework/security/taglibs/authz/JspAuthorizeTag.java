@@ -9,6 +9,7 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.Tag;
 
+import org.springframework.security.taglibs.TagLibConfig;
 import org.springframework.web.util.ExpressionEvaluationUtils;
 
 /**
@@ -28,6 +29,8 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 
     private String var;
 
+    private boolean authorized;
+
     /**
      * Invokes the base class {@link AbstractAuthorizeTag#authorize()} method to
      * decide if the body of the tag should be skipped or not.
@@ -40,13 +43,17 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
             setIfAllGranted(ExpressionEvaluationUtils.evaluateString("ifAllGranted", getIfAllGranted(), pageContext));
             setIfAnyGranted(ExpressionEvaluationUtils.evaluateString("ifAnyGranted", getIfAnyGranted(), pageContext));
 
-            int result = super.authorize() ? Tag.EVAL_BODY_INCLUDE : Tag.SKIP_BODY;
+            authorized = super.authorize();
 
-            if (var != null) {
-                pageContext.setAttribute(var, Boolean.valueOf(result == EVAL_BODY_INCLUDE), PageContext.PAGE_SCOPE);
+            if (!authorized && TagLibConfig.isUiSecurityDisabled()) {
+                pageContext.getOut().write(TagLibConfig.getSecuredUiPrefix());
             }
 
-            return result;
+            if (var != null) {
+                pageContext.setAttribute(var, authorized, PageContext.PAGE_SCOPE);
+            }
+
+            return TagLibConfig.evalOrSkip(authorized);
 
         } catch (IOException e) {
             throw new JspException(e);
@@ -59,7 +66,15 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
      * @return EVAL_PAGE
      * @see Tag#doEndTag()
      */
-    public int doEndTag() {
+    public int doEndTag() throws JspException {
+        try {
+            if (!authorized && TagLibConfig.isUiSecurityDisabled()) {
+                pageContext.getOut().write(TagLibConfig.getSecuredUiSuffix());
+            }
+        } catch (IOException e) {
+            throw new JspException(e);
+        }
+
         return EVAL_PAGE;
     }
 

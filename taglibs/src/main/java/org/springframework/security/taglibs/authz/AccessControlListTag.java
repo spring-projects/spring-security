@@ -43,6 +43,7 @@ import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.acls.model.SidRetrievalStrategy;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.taglibs.TagLibConfig;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.util.ExpressionEvaluationUtils;
 
@@ -146,14 +147,14 @@ public class AccessControlListTag extends TagSupport {
         if (var != null) {
             pageContext.setAttribute(var, Boolean.FALSE, PageContext.PAGE_SCOPE);
         }
-        return SKIP_BODY;
+        return TagLibConfig.evalOrSkip(false);
     }
 
     private int evalBody() {
         if (var != null) {
             pageContext.setAttribute(var, Boolean.TRUE, PageContext.PAGE_SCOPE);
         }
-        return EVAL_BODY_INCLUDE;
+        return TagLibConfig.evalOrSkip(true);
     }
 
 
