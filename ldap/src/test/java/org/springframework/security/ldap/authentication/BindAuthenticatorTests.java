@@ -17,7 +17,7 @@ package org.springframework.security.ldap.authentication;
 
 import static org.junit.Assert.*;
 
-import org.junit.Test;
+import org.junit.*;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -80,8 +80,34 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
         authenticator.setUserSearch(new FilterBasedLdapUserSearch("ou=people", "(cn={0})", getContextSource()));
         authenticator.authenticate(new UsernamePasswordAuthenticationToken("mouse, jerry", "jerryspassword"));
         authenticator.authenticate(new UsernamePasswordAuthenticationToken("slash/guy", "slashguyspassword"));
+        // SEC-1661
+        authenticator.setUserSearch(new FilterBasedLdapUserSearch("ou=\\\"quoted people\\\"", "(cn={0})", getContextSource()));
+        authenticator.authenticate(new UsernamePasswordAuthenticationToken("quoteguy", "quoteguyspassword"));
     }
+/*
+    @Test
+    public void messingWithEscapedChars() throws Exception {
+        Hashtable<String,String> env = new Hashtable<String,String>();
+        env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+        env.put(Context.PROVIDER_URL, "ldap://127.0.0.1:22389/dc=springsource,dc=com");
+        env.put(Context.SECURITY_AUTHENTICATION, "simple");
+        env.put(Context.SECURITY_PRINCIPAL, "cn=admin,dc=springsource,dc=com");
+        env.put(Context.SECURITY_CREDENTIALS, "password");
 
+        InitialDirContext idc = new InitialDirContext(env);
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        DistinguishedName baseDn = new DistinguishedName("ou=\\\"quoted people\\\"");
+        NamingEnumeration<SearchResult> matches = idc.search(baseDn, "(cn=*)", new Object[] {"quoteguy"}, searchControls);
+
+        while(matches.hasMore()) {
+            SearchResult match = matches.next();
+            DistinguishedName dn = new DistinguishedName(match.getName());
+            System.out.println("**** Match: " + match.getName() + " ***** " + dn);
+
+        }
+    }
+*/
     @Test
     public void testAuthenticationWithWrongPasswordFails() {
         authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
