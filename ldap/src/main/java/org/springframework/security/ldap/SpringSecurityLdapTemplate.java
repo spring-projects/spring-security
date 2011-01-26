@@ -194,11 +194,13 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 
         return (DirContextOperations) executeReadOnly(new ContextExecutor() {
                 public Object executeWithContext(DirContext ctx) throws NamingException {
-                    DistinguishedName ctxBaseDn = new DistinguishedName(ctx.getNameInNamespace());
-                    NamingEnumeration<SearchResult> resultsEnum = ctx.search(base, filter, params, searchControls);
+                    final DistinguishedName ctxBaseDn = new DistinguishedName(ctx.getNameInNamespace());
+                    final DistinguishedName searchBaseDn = new DistinguishedName(base);
+                    final NamingEnumeration<SearchResult> resultsEnum = ctx.search(searchBaseDn, filter, params, searchControls);
+
                     if (logger.isDebugEnabled()) {
-                        logger.debug("Searching for entry in under DN '" + ctxBaseDn
-                                + "', base = '" + base + "', filter = '" + filter + "'");
+                        logger.debug("Searching for entry under DN '" + ctxBaseDn
+                                + "', base = '" + searchBaseDn + "', filter = '" + filter + "'");
                     }
 
                     Set<DirContextOperations> results = new HashSet<DirContextOperations>();
@@ -209,7 +211,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
                             DistinguishedName dn = new DistinguishedName(searchResult.getName());
 
                             if (base.length() > 0) {
-                                dn.prepend(new DistinguishedName(base));
+                                dn.prepend(searchBaseDn);
                             }
 
                             if (logger.isDebugEnabled()) {

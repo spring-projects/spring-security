@@ -8,6 +8,21 @@ objectClass: organizationalUnit
 objectClass: top
 ou: users
 
+dn: ou=\"quoted people\",dc=springsource,dc=com
+objectclass: top
+objectclass: organizationalUnit
+ou: "quoted people"
+
+dn: cn=quoteguy,ou=\"quoted people\",dc=springsource,dc=com
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: quoteguy
+sn: Quote
+uid: quoteguy
+userPassword: quoteguyspassword
+
 dn: uid=luke,ou=users,dc=springsource,dc=com
 objectClass: person
 objectClass: organizationalPerson

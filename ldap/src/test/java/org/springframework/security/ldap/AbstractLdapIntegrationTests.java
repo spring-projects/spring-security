@@ -40,7 +40,7 @@ import org.springframework.security.ldap.server.ApacheDSContainer;
 public abstract class AbstractLdapIntegrationTests {
 //    private static InMemoryXmlApplicationContext appContext;
     private static ApacheDSContainer server;
-    private static BaseLdapPathContextSource contextSource;
+    private static DefaultSpringSecurityContextSource contextSource;
 
     protected AbstractLdapIntegrationTests() {
     }
@@ -48,7 +48,11 @@ public abstract class AbstractLdapIntegrationTests {
     @BeforeClass
     public static void startServer() throws Exception {
         contextSource = new DefaultSpringSecurityContextSource("ldap://127.0.0.1:53389/dc=springframework,dc=org");
-        ((DefaultSpringSecurityContextSource)contextSource).afterPropertiesSet();
+// OpenLDAP option
+//        contextSource = new DefaultSpringSecurityContextSource("ldap://127.0.0.1:22389/dc=springsource,dc=com");
+//        contextSource.setUserDn("cn=admin,dc=springsource,dc=com");
+//        contextSource.setPassword("password");
+        contextSource.afterPropertiesSet();
         server = new ApacheDSContainer("dc=springframework,dc=org", "classpath:test-server.ldif");
         server.afterPropertiesSet();
     }
@@ -98,7 +102,7 @@ public abstract class AbstractLdapIntegrationTests {
         try {
             enumeration = ctx.listBindings(name);
             while (enumeration.hasMore()) {
-                Binding element = (Binding) enumeration.next();
+                Binding element = enumeration.next();
                 DistinguishedName childName = new DistinguishedName(element.getName());
                 childName.prepend((DistinguishedName) name);
 
