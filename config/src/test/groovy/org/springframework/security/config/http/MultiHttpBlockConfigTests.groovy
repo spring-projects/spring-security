@@ -29,18 +29,32 @@ class MultiHttpBlockConfigTests extends AbstractHttpConfigTests {
         (filterChains.keySet() as List)[0].pattern == '/stateless/**'
     }
 
-    def duplicatePatternsAreRejected () {
+    def duplicateHttpElementsAreRejected () {
         when: "Two <http> elements are used"
-        xml.http(pattern: '/stateless/**', 'create-session': 'stateless') {
+        xml.http('create-session': 'stateless') {
             'http-basic'()
         }
-        xml.http(pattern: '/stateless/**') {
+        xml.http() {
             'form-login'()
         }
         createAppContext()
         then:
         thrown(BeanDefinitionParsingException)
     }
+
+  def duplicatePatternsAreRejected () {
+      when: "Two <http> elements with the same pattern are used"
+      xml.http(pattern: '/stateless/**', 'create-session': 'stateless') {
+          'http-basic'()
+      }
+      xml.http(pattern: '/stateless/**') {
+          'form-login'()
+      }
+      createAppContext()
+      then:
+      thrown(BeanDefinitionParsingException)
+  }
+
 
     def namedFilterChainIsExposedAsABean () {
         xml.http(name: 'basic', pattern: '/basic/**', 'create-session': 'stateless') {

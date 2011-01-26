@@ -273,8 +273,11 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             for (BeanDefinition matcherBean : filterChainMap.keySet()) {
                 if (existingFilterChainMap.containsKey(matcherBean)) {
                     Map<Integer,ValueHolder> args = matcherBean.getConstructorArgumentValues().getIndexedArgumentValues();
+                    String matcherError = args.size() == 2 ? args.get(0).getValue() + ", " +args.get(1).getValue() :
+                            matcherBean.toString();
                     pc.getReaderContext().error("The filter chain map already contains this request matcher ["
-                            + args.get(0).getValue() + ", " +args.get(1).getValue() + "]", source);
+                            + matcherError + "]. If you are using multiple <http> namespace elements, you must use a 'pattern' attribute" +
+                            " to define the request patterns to which they apply.", source);
                 }
             }
             existingFilterChainMap.putAll(filterChainMap);
