@@ -54,6 +54,7 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
  * By default this filter processes the URL <tt>/j_spring_cas_security_check</tt>.
  *
  * @author Ben Alex
+ * @author Rob Winch
  */
 public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
     //~ Static fields/initializers =====================================================================================
@@ -89,7 +90,13 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
     //~ Methods ========================================================================================================
 
     public Authentication attemptAuthentication(final HttpServletRequest request, final HttpServletResponse response)
-            throws AuthenticationException {
+            throws AuthenticationException, IOException {
+        // if the request is a proxy request process it and return null to indicate the request has been processed
+        if(isProxyRequest(request)) {
+            CommonUtils.readAndRespondToProxyReceptorRequest(request, response, this.proxyGrantingTicketStorage);
+            return null;
+        }
+
         final String username = CAS_STATEFUL_IDENTIFIER;
         String password = request.getParameter(this.artifactParameter);
 
@@ -108,18 +115,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
      * Overridden to provide proxying capabilities.
      */
     protected boolean requiresAuthentication(final HttpServletRequest request, final HttpServletResponse response) {
-        final String requestUri = request.getRequestURI();
-
-        if (CommonUtils.isEmpty(this.proxyReceptorUrl) || !requestUri.endsWith(this.proxyReceptorUrl) || this.proxyGrantingTicketStorage == null) {
-            return super.requiresAuthentication(request, response);
-        }
-
-        try {
-            CommonUtils.readAndRespondToProxyReceptorRequest(request, response, this.proxyGrantingTicketStorage);
-            return false;
-        } catch (final IOException e) {
-            return super.requiresAuthentication(request, response);
-        }
+        return isProxyRequest(request) || super.requiresAuthentication(request, response);
     }
 
     public final void setProxyReceptorUrl(final String proxyReceptorUrl) {
@@ -133,5 +129,15 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
     public final void setServiceProperties(final ServiceProperties serviceProperties) {
         this.artifactParameter = serviceProperties.getArtifactParameter();
+    }
+
+    /**
+     * Indicates if the request is eligible to be processed as a proxy request.
+     * @param request
+     * @return
+     */
+    private boolean isProxyRequest(final HttpServletRequest request) {
+        final String requestUri = request.getRequestURI();
+        return this.proxyGrantingTicketStorage != null && !CommonUtils.isEmpty(this.proxyReceptorUrl) && requestUri.endsWith(this.proxyReceptorUrl);
     }
 }

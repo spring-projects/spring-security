@@ -16,7 +16,9 @@
 package org.springframework.security.cas.web;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
+
+import javax.servlet.FilterChain;
 
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
 import org.junit.Test;
@@ -33,6 +35,7 @@ import org.springframework.security.core.AuthenticationException;
  * Tests {@link CasAuthenticationFilter}.
  *
  * @author Ben Alex
+ * @author Rob Winch
  */
 public class CasAuthenticationFilterTests {
     //~ Methods ========================================================================================================
@@ -74,5 +77,59 @@ public class CasAuthenticationFilterTests {
         });
 
         filter.attemptAuthentication(new MockHttpServletRequest(), new MockHttpServletResponse());
+    }
+
+    @Test
+    public void testRequiresAuthenticationFilterProcessUrl() {
+        CasAuthenticationFilter filter = new CasAuthenticationFilter();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        request.setRequestURI(filter.getFilterProcessesUrl());
+        assertTrue(filter.requiresAuthentication(request, response));
+    }
+
+    @Test
+    public void testRequiresAuthenticationProxyRequest() {
+        CasAuthenticationFilter filter = new CasAuthenticationFilter();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        request.setRequestURI("/pgtCallback");
+        assertFalse(filter.requiresAuthentication(request, response));
+        filter.setProxyReceptorUrl(request.getRequestURI());
+        assertFalse(filter.requiresAuthentication(request, response));
+        filter.setProxyGrantingTicketStorage(mock(ProxyGrantingTicketStorage.class));
+        assertTrue(filter.requiresAuthentication(request, response));
+        request.setRequestURI("/other");
+        assertFalse(filter.requiresAuthentication(request, response));
+    }
+
+    @Test
+    public void testAuthenticateProxyUrl() throws Exception {
+        CasAuthenticationFilter filter = new CasAuthenticationFilter();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        request.setRequestURI("/pgtCallback");
+        filter.setProxyGrantingTicketStorage(mock(ProxyGrantingTicketStorage.class));
+        filter.setProxyReceptorUrl(request.getRequestURI());
+        assertNull(filter.attemptAuthentication(request, response));
+    }
+
+    // SEC-1592
+    @Test
+    public void testChainNotInvokedForProxy() throws Exception {
+        CasAuthenticationFilter filter = new CasAuthenticationFilter();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        FilterChain chain = mock(FilterChain.class);
+
+        request.setRequestURI("/pgtCallback");
+        filter.setProxyGrantingTicketStorage(mock(ProxyGrantingTicketStorage.class));
+        filter.setProxyReceptorUrl(request.getRequestURI());
+
+        filter.doFilter(request,response,chain);
+        verifyZeroInteractions(chain);
     }
 }
