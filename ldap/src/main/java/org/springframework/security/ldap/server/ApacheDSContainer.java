@@ -1,6 +1,7 @@
 package org.springframework.security.ldap.server;
 
 import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -226,12 +227,12 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
         }
 
         // Note that we can't just import using the ServerContext returned
-        // from starting Apace DS, apparently because of the long-running issue DIRSERVER-169.
+        // from starting Apache DS, apparently because of the long-running issue DIRSERVER-169.
         // We need a standard context.
         //DirContext dirContext = contextSource.getReadWriteContext();
 
         if(ldifs != null && ldifs.length > 0) {
-            String ldifFile = ldifs[0].getFile().getAbsolutePath();
+            String ldifFile = ldifs[0].getURI().toString();
             logger.info("Loading LDIF file: " + ldifFile);
             LdifFileLoader loader = new LdifFileLoader(service.getAdminSession(), ldifFile);
             loader.execute();
