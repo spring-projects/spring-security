@@ -48,7 +48,7 @@ public class Digester {
     public byte[] digest(byte[] value) {
         synchronized (messageDigest) {
             for (int i = 0; i < (iterations - 1); i++) {
-                invokeDigest(value);
+                value = invokeDigest(value);
             }
             return messageDigest.digest(value);
         }
