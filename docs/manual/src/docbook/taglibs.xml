@@ -54,6 +54,24 @@ This content will only be visible to users who are authorized to send requests t
             stored in a page context scope variable by setting the <literal>var</literal> attribute
             to the variable name, avoiding the need for duplicating and re-evaluating the condition
             at other points in the page.</para>
+        <section>
+            <title>Disabling Tag Authorization for Testing</title>
+            <para>Hiding a link in a page for unauthorized users doesn't prevent them from accessing
+                the URL. They could just type it into their browser directly, for example. As part
+                of your testing process, you may want to reveal the hidden areas in order to check
+                that links really are secured at the back end. If you set the system property
+                    <literal>spring.security.disableUISecurity</literal> to <literal>true</literal>,
+                the <literal>authorize</literal> tag will still run but will not hide its contents.
+                By default it will also surround the content with <literal>&lt;span
+                    class="securityHiddenUI">...&lt;/span></literal> tags. This allows you to
+                display <quote>hidden</quote> content with a particular CSS style such as a
+                different background colour. Try running the <quote>tutorial</quote> sample
+                application with this property enabled, for example.</para>
+            <para>You can also set the properties <literal>spring.security.securedUIPrefix</literal>
+                and <literal>spring.security.securedUISuffix</literal> if you want to change
+                surrounding text from the default <literal>span</literal> tags (or use empty strings
+                to remove it completely).</para>
+        </section>
     </section>
     <section>
         <title>The <literal>authentication</literal>Tag</title>
