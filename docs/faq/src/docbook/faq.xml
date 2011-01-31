@@ -389,7 +389,7 @@
                         when it should vote to grant or deny access based on the attribute value.
                         The most common voter is the <classname>RoleVoter</classname> which by default votes
                         whenever it finds an attribute with the <quote>ROLE_</quote> prefix. It makes a simple comparison
-                        of the attribute (such as <quote>ROLE_USER</quote>) with the name names of the authorities which
+                        of the attribute (such as <quote>ROLE_USER</quote>) with the names of the authorities which
                         the current user has been assigned. If it finds a match (they have an authority called
                         <quote>ROLE_USER</quote>), it votes to grant access, otherwise it votes to deny access.
                     </para>
