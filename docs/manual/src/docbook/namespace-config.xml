@@ -422,7 +422,7 @@
                     Ideally you would want to use a randomly generated salt value for each user, but
                     you can use any property of the <classname>UserDetails</classname> object which
                     is loaded by your <classname>UserDetailsService</classname>. For example, to use
-                    the <literal>username</literal> property, you would use <programlisting><![CDATA[
+                    the <literal>username</literal> property, you would use <programlisting language="xml"><![CDATA[
   <password-encoder hash="sha">
     <salt-source user-property="username"/>
   </password-encoder>
@@ -461,7 +461,7 @@
                 The available options are "http", "https" or "any". Using the value
                 "any" means that either HTTP or HTTPS can be used. </para>
             <para>If your application uses non-standard ports for HTTP and/or HTTPS, you can specify
-                a list of port mappings as follows: <programlisting><![CDATA[
+                a list of port mappings as follows: <programlisting language="xml"><![CDATA[
   <http>
     ...
     <port-mappings>
@@ -501,7 +501,7 @@
                         <literal>JSESSIONID</literal> cookie by expiring it in the response to a
                         logout request (assuming the application is deployed under the path
                         <literal>/tutorial</literal>):
-                        <programlisting> &lt;LocationMatch "/tutorial/j_spring_security_logout">
+                        <programlisting language="xml"> &lt;LocationMatch "/tutorial/j_spring_security_logout">
   Header always set Set-Cookie "JSESSIONID=;Path=/tutorial;Expires=Thu, 01 Jan 1970 00:00:00 GMT"
  &lt;/LocationMatch></programlisting></para>
                     </footnote>. </para>
@@ -837,7 +837,7 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                 security pointcut declarations which will be applied across your entire application
                 context. You should only declare one
                 <literal>&lt;global-method-security&gt;</literal> element. The following declaration
-                would enable support for Spring Security's <literal>@Secured</literal>: <programlisting><![CDATA[
+                would enable support for Spring Security's <literal>@Secured</literal>: <programlisting language="xml"><![CDATA[
   <global-method-security secured-annotations="enabled" />
   ]]>
 </programlisting> Adding an annotation to a method (on an class or interface) would then limit
@@ -858,12 +858,12 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
     public Account post(Account account, double amount);
   }
 </programlisting>Support
-                for JSR-250 annotations can be enabled using <programlisting><![CDATA[
+                for JSR-250 annotations can be enabled using <programlisting language="xml"><![CDATA[
   <global-method-security jsr250-annotations="enabled" />
   ]]>
         </programlisting>These are standards-based and allow simple role-based constraints to
                 be applied but do not have the power Spring Security's native annotations. To use
-                the new expression-based syntax, you would use <programlisting><![CDATA[
+                the new expression-based syntax, you would use <programlisting language="xml"><![CDATA[
   <global-method-security pre-post-annotations="enabled" />
   ]]></programlisting>and the equivalent Java code would
                 be<programlisting language="java">

@@ -136,7 +136,7 @@ create table acl_entry (
         <section>
         <title>PostgreSQL</title>
         <para>
-        <programlisting>create table acl_sid(
+        <programlisting language="ddl">create table acl_sid(
   id bigserial not null primary key,
   principal boolean not null,
   sid varchar(100) not null,

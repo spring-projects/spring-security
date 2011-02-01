@@ -300,7 +300,7 @@
                 ultimate documentation for a project and often the simplest place to find out how
                 something actually works. </para>
             <para>To obtain the source for the project, use the following git command:
-                <programlisting>
+                <programlisting language="txt">
   git clone git://git.springsource.org/spring-security/spring-security.git
     </programlisting>
             </para>

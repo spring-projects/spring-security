@@ -26,7 +26,7 @@
         <para>The login form simply contains <literal>j_username</literal> and
             <literal>j_password</literal> input fields, and posts to a URL that is monitored by the
             filter (by default <literal>/j_spring_security_check</literal>). You should add an
-            <literal>UsernamePasswordAuthenticationFilter</literal> to your application context: <programlisting><![CDATA[
+            <literal>UsernamePasswordAuthenticationFilter</literal> to your application context: <programlisting language="xml"><![CDATA[
 <bean id="authenticationProcessingFilter" class=
 "org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
   <property name="authenticationManager" ref="authenticationManager"/>

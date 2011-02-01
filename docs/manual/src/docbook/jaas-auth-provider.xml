@@ -11,15 +11,15 @@
             Java Authentication and Authorization Service (JAAS). This package is discussed in
             detail below.</para>
     </section>
-    
+
     <section xml:id="jaas-abstractjaasauthenticationprovider">
-    	<info>
-    		<title>AbstractJaasAuthenticationProvider</title>
-    	</info>
-    	<para>The <classname>AbstractJaasAuthenticationProvider</classname> is the basis for the 
-    	    provided JAAS <interfacename>AuthenticationProvider</interfacename> implementations. Subclasses 
-    	    must implement a method that creates the <classname>LoginContext</classname>. The 
-    	    <classname>AbstractJaasAuthenticationProvider</classname> has a number of dependencies that can 
+        <info>
+            <title>AbstractJaasAuthenticationProvider</title>
+        </info>
+        <para>The <classname>AbstractJaasAuthenticationProvider</classname> is the basis for the
+            provided JAAS <interfacename>AuthenticationProvider</interfacename> implementations. Subclasses
+            must implement a method that creates the <classname>LoginContext</classname>. The
+            <classname>AbstractJaasAuthenticationProvider</classname> has a number of dependencies that can
             be injected into it that are discussed below.</para>
 
         <section xml:id="jaas-callbackhandler">
@@ -93,55 +93,55 @@
                 an implementation-specific meaning. However, there is a
                 <literal>TestAuthorityGranter</literal> in the unit tests that demonstrates a simple
                 <literal>AuthorityGranter</literal> implementation.</para>
-        </section>        
+        </section>
     </section>
     <section xml:id="jaas-defaultjaasauthenticationprovider">
-    	<info>
-    		<title>DefaultJaasAuthenticationProvider</title>
-    	</info>
-    	<para>The <classname>DefaultJaasAuthenticationProvider</classname> allows a JAAS 
-            <classname>Configuration</classname> object to be injected into it as a dependency. It then 
-            creates a <classname>LoginContext</classname> using the injected JAAS <classname>Configuration</classname>. 
+        <info>
+            <title>DefaultJaasAuthenticationProvider</title>
+        </info>
+        <para>The <classname>DefaultJaasAuthenticationProvider</classname> allows a JAAS
+            <classname>Configuration</classname> object to be injected into it as a dependency. It then
+            creates a <classname>LoginContext</classname> using the injected JAAS <classname>Configuration</classname>.
             This means that <classname>DefaultJaasAuthenticationProvider</classname> is not bound any particular implementation
             of <classname>Configuration</classname> as <classname>JaasAuthenticationProvider</classname> is.</para>
-            
+
             <section xml:id="jaas-inmemoryconfiguration">
-            	<info>
-            		<title>InMemoryConfiguration</title>
-            	</info>
-            	<para>In order to make it easy to inject a <classname>Configuration</classname> into 
-            	    <classname>DefaultJaasAuthenticationProvider</classname>, a default in memory 
-            	    implementation named <classname>InMemoryConfiguration</classname> is provided. The 
-            	    implementation constructor accepts a <interfacename>Map</interfacename> where each key represents a 
-            	    login configuration name and the value represents an <classname>Array</classname> of 
-            	    <classname>AppConfigurationEntry</classname>s. 
-            	    <classname>InMemoryConfiguration</classname> also supports a default 
-            	    <classname>Array</classname> of <classname>AppConfigurationEntry</classname> objects that 
-            	    will be used if no mapping is found within the provided <interfacename>Map</interfacename>. For 
-            	    details, refer to the class level javadoc of <classname>InMemoryConfiguration</classname>.</para>
+                <info>
+                    <title>InMemoryConfiguration</title>
+                </info>
+                <para>In order to make it easy to inject a <classname>Configuration</classname> into
+                    <classname>DefaultJaasAuthenticationProvider</classname>, a default in memory
+                    implementation named <classname>InMemoryConfiguration</classname> is provided. The
+                    implementation constructor accepts a <interfacename>Map</interfacename> where each key represents a
+                    login configuration name and the value represents an <classname>Array</classname> of
+                    <classname>AppConfigurationEntry</classname>s.
+                    <classname>InMemoryConfiguration</classname> also supports a default
+                    <classname>Array</classname> of <classname>AppConfigurationEntry</classname> objects that
+                    will be used if no mapping is found within the provided <interfacename>Map</interfacename>. For
+                    details, refer to the class level javadoc of <classname>InMemoryConfiguration</classname>.</para>
             </section>
-            
+
             <section xml:id="jaas-djap-config">
-            	<info>
-            		<title>DefaultJaasAuthenticationProvider Example Configuration</title>
-            	</info>
-            	<para>While the Spring configuration for <classname>InMemoryConfiguration</classname> can be 
-            	    more verbose than the standarad JAAS configuration files, using it in conjuction with 
-            	    <classname>DefaultJaasAuthenticationProvider</classname> is more flexible than 
-            	    <classname>JaasAuthenticationProvider</classname> since it not dependant on the default 
-            	    <classname>Configuration</classname> implementation.</para>
-            	<para>An example configuration of <classname>DefaultJaasAuthenticationProvider</classname> using 
-            	    <classname>InMemoryConfiguration</classname> is provided below. Note that custom implementations of
-            	    <classname>Configuration</classname> can easily be injected into 
-            	    <classname>DefaultJaasAuthenticationProvider</classname> as well.</para>
-            	<programlisting><![CDATA[
-<bean id="jaasAuthProvider" 
+                <info>
+                    <title>DefaultJaasAuthenticationProvider Example Configuration</title>
+                </info>
+                <para>While the Spring configuration for <classname>InMemoryConfiguration</classname> can be
+                    more verbose than the standarad JAAS configuration files, using it in conjuction with
+                    <classname>DefaultJaasAuthenticationProvider</classname> is more flexible than
+                    <classname>JaasAuthenticationProvider</classname> since it not dependant on the default
+                    <classname>Configuration</classname> implementation.</para>
+                <para>An example configuration of <classname>DefaultJaasAuthenticationProvider</classname> using
+                    <classname>InMemoryConfiguration</classname> is provided below. Note that custom implementations of
+                    <classname>Configuration</classname> can easily be injected into
+                    <classname>DefaultJaasAuthenticationProvider</classname> as well.</para>
+                <programlisting language="xml"><![CDATA[
+<bean id="jaasAuthProvider"
    class="org.springframework.security.authentication.jaas.DefaultJaasAuthenticationProvider">
  <property name="configuration">
   <bean class="org.springframework.security.authentication.jaas.memory.InMemoryConfiguration">
    <constructor-arg>
     <map>
-     <!-- 
+     <!--
        SPRINGSECURITY is the default loginContextName
        for AbstractJaasAuthenticationProvider
      -->
@@ -178,21 +178,21 @@
         <info>
             <title>JaasAuthenticationProvider</title>
         </info>
-        <para>The <classname>JaasAuthenticationProvider</classname> assumes the default <classname>Configuration</classname> is an instance of 
+        <para>The <classname>JaasAuthenticationProvider</classname> assumes the default <classname>Configuration</classname> is an instance of
             <link xlink:href="http://download.oracle.com/javase/1.4.2/docs/guide/security/jaas/spec/com/sun/security/auth/login/ConfigFile.html">
-            ConfigFile</link>. This assumption is made in order to attempt to update the <classname>Configuration</classname>. The 
-            <classname>JaasAuthenticationProvider</classname> then uses the default <classname>Configuration</classname> to create the 
+            ConfigFile</link>. This assumption is made in order to attempt to update the <classname>Configuration</classname>. The
+            <classname>JaasAuthenticationProvider</classname> then uses the default <classname>Configuration</classname> to create the
             <classname>LoginContext</classname>.</para>
 
         <para>Let’s assume we have a JAAS login configuration file,
             <literal>/WEB-INF/login.conf</literal>, with the following contents:
-            <programlisting>
+            <programlisting language="txt">
 JAASTest {
     sample.SampleLoginModule required;
 };</programlisting></para>
         <para>Like all Spring Security beans, the <classname>JaasAuthenticationProvider</classname>
             is configured via the application context. The following definitions would correspond to
-            the above JAAS login configuration file: <programlisting><![CDATA[
+            the above JAAS login configuration file: <programlisting language="xml"><![CDATA[
 <bean id="jaasAuthenticationProvider"
    class="org.springframework.security.authentication.jaas.JaasAuthenticationProvider">
  <property name="loginConfig" value="/WEB-INF/login.conf"/>
@@ -217,14 +217,14 @@ JAASTest {
         <info>
             <title xml:id="jaas-api-provision">Running as a Subject</title>
         </info>
-        <para>If configured, the <classname>JaasApiIntegrationFilter</classname> will attempt to 
-            run as the <literal>Subject</literal> on the 
-            <classname>JaasAuthenticationToken</classname>. This means that the 
-            <literal>Subject</literal> can be accessed using: 
+        <para>If configured, the <classname>JaasApiIntegrationFilter</classname> will attempt to
+            run as the <literal>Subject</literal> on the
+            <classname>JaasAuthenticationToken</classname>. This means that the
+            <literal>Subject</literal> can be accessed using:
             <programlisting language="java"><![CDATA[
             Subject subject = Subject.getSubject(AccessController.getContext());
 ]]></programlisting>
-            This integration can easily be configured using the 
+            This integration can easily be configured using the
             <link xlink:href="#nsa-jaas-api-provision">jaas-api-provision</link> attribute. This
             feature is useful when integrating with legacy or external API's that rely on the
             JAAS Subject being populated.</para>

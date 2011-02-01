@@ -282,7 +282,7 @@
                 <answer><para>Make sure you have added the listener to your web.xml file. It is
                         essential to make sure that the Spring Security session registry is notified
                         when a session is destroyed. Without it, the session information will not be
-                        removed from the registry.</para><programlisting><![CDATA[
+                        removed from the registry.</para><programlisting language="xml"><![CDATA[
     <listener>
         <listener-class>org.springframework.security.ui.session.HttpSessionEventPublisher</listener-class>
     </listener> ]]>

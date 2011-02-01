@@ -34,7 +34,7 @@
             <title>Configuration</title>
         </info>
         <para>A <literal>RunAsManager</literal> interface is provided by Spring Security:
-            <programlisting>
+            <programlisting language="java">
   Authentication buildRunAs(Authentication authentication, Object object,
       List&lt;ConfigAttribute&gt; config);
   boolean supports(ConfigAttribute attribute);
@@ -78,7 +78,7 @@
             <literal>RunAsImplAuthenticationProvider</literal>, the hash of a key is stored in all
             generated tokens. The <literal>RunAsManagerImpl</literal> and
             <literal>RunAsImplAuthenticationProvider</literal> is created in the bean context with
-            the same key: <programlisting>
+            the same key: <programlisting language="xml">
 <![CDATA[
 <bean id="runAsManager"
     class="org.springframework.security.access.intercept.RunAsManagerImpl">

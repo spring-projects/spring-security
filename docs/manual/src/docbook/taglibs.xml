@@ -6,7 +6,7 @@
     <section>
         <title>Declaring the Taglib</title>
         <para>To use any of the tags, you must have the security taglib declared in your JSP:
-            <programlisting>
+            <programlisting language="xml">
     <![CDATA[<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>]]>
 </programlisting></para>
     </section>
@@ -23,7 +23,7 @@
             context (you should have web expressions enabled in your <literal>&lt;http></literal>
             namespace configuration to make sure this service is available). So, for example, you
             might
-            have<programlisting>&lt;sec:authorize access="hasRole('supervisor')">
+            have<programlisting language="xml">&lt;sec:authorize access="hasRole('supervisor')">
 
 This content will only be visible to users who have
 the "supervisor" authority in their list of &lt;tt>GrantedAuthority&lt;/tt>s.
@@ -34,7 +34,7 @@ the "supervisor" authority in their list of &lt;tt>GrantedAuthority&lt;/tt>s.
             This tag can also operate in an alternative mode which allows you to define a particular
             URL as an attribute. If the user is allowed to invoke that URL, then the tag body will
             be evaluated, otherwise it will be skipped. So you might have something
-            like<programlisting>&lt;sec:authorize url="/admin">
+            like<programlisting language="xml">&lt;sec:authorize url="/admin">
 
 This content will only be visible to users who are authorized to send requests to the "/admin" URL.
 
@@ -94,7 +94,7 @@ This content will only be visible to users who are authorized to send requests t
             comma-separated list of required permissions for a specified domain object. If the
             current user has any of those permissions, then the tag body will be evaluated. If they
             don't, it will be skipped. An example might
-            be<programlisting>&lt;sec:accesscontrollist hasPermission="1,2" domainObject="someObject">
+            be<programlisting language="xml">&lt;sec:accesscontrollist hasPermission="1,2" domainObject="someObject">
 
 This will be shown if the user has either of the permissions 
 represented by the values "1" or "2" on the given object.

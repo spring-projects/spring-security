@@ -214,7 +214,7 @@
             required. </para>
         <para>You will need to add a <classname>ServiceProperties</classname> bean to your
             application context. This represents your CAS service:</para>
-        <para> <programlisting><![CDATA[
+        <para> <programlisting language="xml"><![CDATA[
   <bean id="serviceProperties"
         class="org.springframework.security.cas.ServiceProperties">
     <property name="service"
@@ -230,7 +230,7 @@
             order to gain access to the service.</para>
         <para>The following beans should be configured to commence the CAS authentication process
             (assuming you're using a namespace configuration):</para>
-        <para> <programlisting><![CDATA[
+        <para> <programlisting language="xml"><![CDATA[
 <security:http entry-point-ref="casEntryPoint">
    ...
    <custom-filter position="FORM_LOGIN_FILTER" ref="myFilter" />
@@ -262,7 +262,7 @@
             to the enterprise's CAS login server. This is where the user's browser will be
             redirected.</para>
         <para>Next you need to add a <literal>CasAuthenticationProvider</literal> and its
-            collaborators: <programlisting><![CDATA[
+            collaborators: <programlisting language="xml"><![CDATA[
   <security:authentication-manager alias="authenticationManager">
     <security:authentication-provider ref="casAuthenticationProvider" />
   </security:authentication-manager>
@@ -306,7 +306,7 @@
     <literal>ProxyTicketReceptor</literal> by adding the following to your
     web application's <literal>web.xml</literal>:</para>
 
-    <para><programlisting>
+    <para><programlisting language="xml">
 &lt;servlet&gt;
 &lt;servlet-name&gt;casproxy&lt;/servlet-name&gt;
 &lt;servlet-class&gt;edu.yale.its.tp.cas.proxy.ProxyTicketReceptor&lt;/servlet-class&gt;

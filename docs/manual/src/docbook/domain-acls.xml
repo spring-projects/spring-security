@@ -244,7 +244,7 @@
             sufficient length to accommodate all common usage scenarios.</para>
         <para>The following fragment of code shows how to create an <literal>Acl</literal>, or
             modify an existing
-            <literal>Acl</literal>:<programlisting>// Prepare the information we'd like in our access control entry (ACE)
+            <literal>Acl</literal>:<programlisting language="java">// Prepare the information we'd like in our access control entry (ACE)
 ObjectIdentity oi = new ObjectIdentityImpl(Foo.class, new Long(44));
 Sid sid = new PrincipalSid("Samantha");
 Permission p = BasePermission.ADMINISTRATION;

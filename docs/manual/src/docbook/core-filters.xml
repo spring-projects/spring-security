@@ -199,7 +199,7 @@
             xlink:href="#tech-intro-sec-context-persistence">Technical Overview</link> chapter so
             you might want to re-read that section at this point. Let's first take a look at how you
             would configure it for use with a <classname>FilterChainProxy</classname>. A basic
-            configuration only requires the bean itself <programlisting><![CDATA[
+            configuration only requires the bean itself <programlisting language="xml"><![CDATA[
 <bean id="securityContextPersistenceFilter"
   class="org.springframework.security.web.context.SecurityContextPersistenceFilter"/>
 ]]></programlisting> As we saw previously, this filter has two main tasks. It is responsible for
@@ -291,7 +291,7 @@ public interface SecurityContextRepository {
             </orderedlist> The login form simply contains <literal>j_username</literal> and
             <literal>j_password</literal> input fields, and posts to the URL that is monitored by
             the filter (by default this is <literal>/j_spring_security_check</literal>). The basic
-            filter configuration looks something like this: <programlisting><![CDATA[
+            filter configuration looks something like this: <programlisting language="xml"><![CDATA[
 <bean id="authenticationFilter" class=
 "org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
   <property name="authenticationManager" ref="authenticationManager"/>

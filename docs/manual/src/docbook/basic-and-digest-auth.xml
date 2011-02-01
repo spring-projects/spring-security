@@ -79,7 +79,7 @@
             a "nonce". This is a value the server generates. Spring Security's nonce adopts the
             following format:</para>
         <para>
-            <programlisting>
+            <programlisting language="txt">
   base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
 
   expirationTime:   The date and time when the nonce expires, expressed in milliseconds
@@ -120,7 +120,7 @@
                 <literal>DigestAuthenticationFilter</literal> in the filter chain. The application
                 context will need to define the <literal>DigestAuthenticationFilter</literal> and
                 its required collaborators:</para>
-            <para> <programlisting><![CDATA[
+            <para> <programlisting language="xml"><![CDATA[
 <bean id="digestFilter" class=
     "org.springframework.security.web.authentication.www.DigestAuthenticationFilter">
   <property name="userDetailsService" ref="jdbcDaoImpl"/>

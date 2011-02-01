@@ -94,7 +94,7 @@
             to <literal>true</literal>. Spring Security will then expect the
             <literal>access</literal> attributes of the <literal>&lt;intercept-url></literal>
             elements to contain Spring EL expressions. The expressions should evaluate to a boolean,
-            defining whether access should be allowed or not. For example:<programlisting><![CDATA[
+            defining whether access should be allowed or not. For example:<programlisting language="xml"><![CDATA[
   <http use-expressions="true">
     <intercept-url pattern="/admin*"
         access="hasRole('admin') and hasIpAddress('192.168.1.0/24')"/>
@@ -129,21 +129,21 @@
                 <literal>@PreFilter</literal>, <literal>@PostAuthorize</literal> and
                 <literal>@PostFilter</literal>. Their use is enabled through the
                 <literal>global-method-security</literal> namespace
-                element:<programlisting><![CDATA[<global-method-security pre-post-annotations="enabled"/>]]></programlisting></para>
+                element:<programlisting language="xml"><![CDATA[<global-method-security pre-post-annotations="enabled"/>]]></programlisting></para>
             <section>
                 <title>Access Control using <literal>@PreAuthorize</literal> and
                     <literal>@PostAuthorize</literal></title>
                 <para>The most obviously useful annotation is <literal>@PreAuthorize</literal> which
                     decides whether a method can actually be invoked or not. For example (from the
                     <quote>Contacts</quote> sample
-                    application)<programlisting>
+                    application)<programlisting language="java">
  @PreAuthorize("hasRole('ROLE_USER')")
  public void create(Contact contact);</programlisting>which
                     means that access will only be allowed for users with the role "ROLE_USER".
                     Obviously the same thing could easily be achieved using a traditional
                     configuration and a simple configuration attribute for the required role. But
                     what
-                    about:<programlisting>
+                    about:<programlisting language="java">
  @PreAuthorize("hasPermission(#contact, 'admin')")
  public void deletePermission(Contact contact, Sid recipient, Permission permission);</programlisting>Here
                     we're actually using a method argument as part of the expression to decide
@@ -156,7 +156,7 @@
                     the expression, so you can also access properties on the arguments. For example,
                     if you wanted a particular method to only allow access to a user whose username
                     matched that of the contact, you could write</para>
-                <programlisting>
+                <programlisting language="java">
  @PreAuthorize("#contact.name == authentication.name")
  public void doSomething(Contact contact);</programlisting>
                 <para>Here we are accessing another built–in expression, <literal>authentication</literal>,
@@ -178,7 +178,7 @@
                 <para>As you may already be aware, Spring Security supports filtering of collections
                     and arrays and this can now be achieved using expressions. This is most commonly
                     performed on the return value of a method. For
-                    example:<programlisting>  @PreAuthorize("hasRole('ROLE_USER')")
+                    example:<programlisting language="java">  @PreAuthorize("hasRole('ROLE_USER')")
   @PostFilter("hasPermission(filterObject, 'read') or hasPermission(filterObject, 'admin')")
   public List&lt;Contact> getAll();</programlisting>When
                     using the <literal>@PostFilter</literal> annotation, Spring Security iterates

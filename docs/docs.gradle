@@ -1,4 +1,4 @@
-// Docbook and Javadoc building and uploading tasks
+    // Docbook and Javadoc building and uploading tasks
 apply plugin: 'base'
 
 task docs {
@@ -45,6 +45,12 @@ project('manual') {
             from (imagesDir)
         }
     }
+}
+
+task reference (type: Copy) {
+    dependsOn 'manual:docbook'
+    destinationDir = buildDir
+    with(project('manual').spec)
 }
 
 task apidocs(type: Javadoc) {

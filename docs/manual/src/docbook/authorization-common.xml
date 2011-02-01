@@ -17,7 +17,7 @@
             <interfacename>AccessDecisionManager</interfacename>s when making authorization
             decisions.</para>
         <para><interfacename>GrantedAuthority</interfacename> is an interface with only one method:
-            <programlisting>
+            <programlisting language="java">
   String getAuthority();
     </programlisting> This method allows
             <interfacename>AccessDecisionManager</interfacename>s to obtain a precise
@@ -63,7 +63,7 @@
                 final access control decisions. The
                 <interfacename>AccessDecisionManager</interfacename> interface contains three
                 methods:
-                <programlisting>
+                <programlisting language="java">
  void decide(Authentication authentication, Object secureObject,
      Collection&lt;ConfigAttribute&gt; attrs) throws AccessDeniedException;
  boolean supports(ConfigAttribute attribute);
@@ -112,7 +112,7 @@
                 based on its assessment of the votes.</para>
             <para>The <interfacename>AccessDecisionVoter</interfacename> interface has three
                 methods:
-                <programlisting>
+                <programlisting language="java">
 int vote(Authentication authentication, Object object, Collection&lt;ConfigAttribute&gt; attrs);
 boolean supports(ConfigAttribute attribute);
 boolean supports(Class clazz);
@@ -243,7 +243,7 @@ boolean supports(Class clazz);
       <para>A common services layer method we've all written at one stage or another looks like
         this:</para>
       <para>
-        <programlisting>public Contact getById(Integer id);</programlisting>
+        <programlisting language="java">public Contact getById(Integer id);</programlisting>
       </para>
       <para>Quite often, only principals with permission to read the <literal>Contact</literal>
         should be allowed to obtain it. In this situation the
@@ -251,7 +251,7 @@ boolean supports(Class clazz);
           <classname>AbstractSecurityInterceptor</classname> will not suffice. This is because the
         identity of the <literal>Contact</literal> is all that is available before the secure object
         is invoked. The <classname>AclEntryAfterInvocationProvider</classname> delivers a solution,
-        and is configured as follows: <programlisting><![CDATA[
+        and is configured as follows: <programlisting language="xml"><![CDATA[
 <bean id="afterAclRead"
    class="org.springframework.security.acls.afterinvocation.AclEntryAfterInvocationProvider">
   <constructor-arg ref="aclService"/>
@@ -274,7 +274,7 @@ boolean supports(Class clazz);
           <classname>AclEntryAfterInvocationCollectionFilteringProvider</classname>. It is designed
         to remove <literal>Collection</literal> or array elements for which a principal does not
         have access. It never thrown an <classname>AccessDeniedException</classname> - simply
-        silently removes the offending elements. The provider is configured as follows: <programlisting><![CDATA[
+        silently removes the offending elements. The provider is configured as follows: <programlisting language="xml"><![CDATA[
 <bean id="afterAclCollectionRead"
   class="org.springframework.security.acls.afterinvocation.AclEntryAfterInvocationCollectionFilteringProvider">
   <constructor-arg ref="aclService"/>
@@ -311,7 +311,7 @@ boolean supports(Class clazz);
             <classname>RoleHierarchyVoter</classname>, is configured with a <interfacename>RoleHierarchy</interfacename>,
             from which it obtains all the <quote>reachable authorities</quote> which the user is assigned.
             A typical configuration might look like this:
-<programlisting><![CDATA[
+<programlisting language="xml"><![CDATA[
 <bean id="roleVoter" class="org.springframework.security.access.vote.RoleHierarchyVoter">
     <constructor-arg ref="roleHierarchy" />
 </class>

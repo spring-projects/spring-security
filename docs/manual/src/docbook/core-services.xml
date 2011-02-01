@@ -127,7 +127,7 @@
             <interfacename>UserDetailsService</interfacename> interfaces. Recall that the contract
             for <interfacename>UserDetailsService</interfacename> is a single method:</para>
         <para>
-            <programlisting>
+            <programlisting language="java">
   UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
             </programlisting> </para>
         <para>The returned <interfacename>UserDetails</interfacename> is an interface that provides
@@ -153,19 +153,19 @@
                 Security, when you don't really want to spend time configuring databases or writing
                 <interfacename>UserDetailsService</interfacename> implementations. For this sort of
                 situation, a simple option is to use the <literal>user-service</literal> element
-                from the security <link xlink:href="#ns-minimal">namespace</link>: <programlisting><![CDATA[
+                from the security <link xlink:href="#ns-minimal">namespace</link>: <programlisting language="xml"><![CDATA[
   <user-service id="userDetailsService">
     <user name="jimi" password="jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />
     <user name="bob" password="bobspassword" authorities="ROLE_USER" />
   </user-service>
   ]]>
                     </programlisting> This also supports the use of an external properties
-                file: <programlisting><![CDATA[
+                file: <programlisting language="xml"><![CDATA[
   <user-service id="userDetailsService" properties="users.properties"/>
   ]]></programlisting> The properties file should contain entries in the form
-                <programlisting>username=password,grantedAuthority[,grantedAuthority][,enabled|disabled]</programlisting>
+                <programlisting language="txt">username=password,grantedAuthority[,grantedAuthority][,enabled|disabled]</programlisting>
                 For example
-                <programlisting>
+                <programlisting language="txt">
  jimi=jimispassword,ROLE_USER,ROLE_ADMIN,enabled
  bob=bobspassword,ROLE_USER,enabled</programlisting></para>
         </section>
@@ -230,7 +230,7 @@
                 algorithm is a one-way function which produces a piece of fixed-length output data
                 (the hash) from some input data, such as a password. As an example, the MD5 hash of
                 the string <quote>password</quote> (in hexadecimal) is
-                <programlisting>
+                <programlisting language="txt">
     5f4dcc3b5aa765d61d8327deb882cf99
 </programlisting> A hash is
                 <quote>one-way</quote> in the sense that it is very difficult (effectively

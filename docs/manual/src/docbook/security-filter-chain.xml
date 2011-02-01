@@ -26,7 +26,7 @@
             and lifecycle interfaces. Spring's <classname>DelegatingFilterProxy</classname> provides
             the link between <filename>web.xml</filename> and the application context. </para>
         <para>When using <classname>DelegatingFilterProxy</classname>, you will see something like
-            this in the <filename>web.xml</filename> file: <programlisting><![CDATA[
+            this in the <filename>web.xml</filename> file: <programlisting language="xml"><![CDATA[
   <filter>
     <filter-name>myFilter</filter-name>
     <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
@@ -278,7 +278,7 @@
         most specific patterns must again be declared first. Here's another example, for a similar situation to
         that above, where the application supports both a stateless RESTful API and also a normal web application
         which users log into using a form.
-<programlisting>
+<programlisting language="xml">
 <![CDATA[
   <!-- Stateless RESTful service using Basic authentication -->
   <http pattern="/restful/**" create-session="stateless">
@@ -323,7 +323,7 @@
       <para>Now that you've configured the tag libraries, refer to the individual reference guide
         sections for details on how to use them. Note that when using the tags, you should include
         the taglib reference in your JSP:
-        <programlisting>
+        <programlisting language="xml">
   &lt;%@ taglib prefix='security' uri='http://www.springframework.org/security/tags' %&gt;
 </programlisting></para>
     </section>

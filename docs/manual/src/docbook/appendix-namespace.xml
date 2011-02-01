@@ -602,7 +602,7 @@
                     <interfacename>AuthenticationProvider</interfacename> implementation (or want to
                     configure one of Spring Security's own implementations as a traditional bean for
                     some reason, then you can use the following syntax to add it to the internal
-                    <classname>ProviderManager</classname>'s list: <programlisting><![CDATA[
+                    <classname>ProviderManager</classname>'s list: <programlisting language="xml"><![CDATA[
   <security:authentication-manager>
     <security:authentication-provider ref="myAuthenticationProvider" />
   </security:authentication-manager>

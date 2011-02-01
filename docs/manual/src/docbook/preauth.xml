@@ -143,7 +143,7 @@
             </tip>
             <section>
                 <title>Siteminder Example Configuration</title>
-                <para> A typical configuration using this filter would look like this: <programlisting><![CDATA[
+                <para> A typical configuration using this filter would look like this: <programlisting language="xml"><![CDATA[
   <security:http>
     <!-- Additional http configuration omitted -->
     <security:custom-filter position="PRE_AUTH_FILTER" ref="siteminderFilter" />

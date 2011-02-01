@@ -36,13 +36,13 @@
 
         <para> Enabling X.509 client authentication is very straightforward. Just add the
             <literal>&lt;x509/&gt;</literal> element to your http security namespace configuration.
-            <programlisting>
-&lt;http&gt;
+            <programlisting language="xml"><![CDATA[
+<http>
  ...
-    &lt;x509 subject-principal-regex="CN=(.*?)," user-service-ref="userService"/&gt;
+    <x509 subject-principal-regex="CN=(.*?)," user-service-ref="userService"/>;
  ...
-&lt;/http&gt;
-            </programlisting>
+</http>
+            ]]></programlisting>
             The element has two optional attributes: <itemizedlist>
             <listitem>
                 <para><literal>subject-principal-regex</literal>. The regular expression used to
@@ -82,15 +82,15 @@
         <para> To run tomcat with SSL support, drop the <filename>server.jks</filename> file into
             the tomcat <filename>conf</filename> directory and add the following connector to the
             <filename>server.xml</filename> file
-            <programlisting>
-&lt;Connector port="8443" protocol="HTTP/1.1" SSLEnabled="true" scheme="https" secure="true"
+            <programlisting language="xml"><![CDATA[
+<Connector port="8443" protocol="HTTP/1.1" SSLEnabled="true" scheme="https" secure="true"
             clientAuth="true" sslProtocol="TLS"
             keystoreFile="${catalina.home}/conf/server.jks"
             keystoreType="JKS" keystorePass="password"
             truststoreFile="${catalina.home}/conf/server.jks"
             truststoreType="JKS" truststorePass="password"
-/&gt;
-                </programlisting>
+/>
+                ]]></programlisting>
             <parameter>clientAuth</parameter> can also be set to <parameter>want</parameter> if you
             still want SSL connections to succeed even if the client doesn't provide a certificate.
             Clients which don't present a certificate won't be able to access any objects secured by

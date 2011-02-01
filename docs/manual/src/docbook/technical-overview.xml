@@ -294,7 +294,7 @@ class SampleAuthenticationManager implements AuthenticationManager {
                 <interfacename>AuthenticationManager</interfacename> which we've implemented here
                 will authenticate any user whose username and password are the same. It assigns a
                 single role to every user. The output from the above will be something
-                like:<programlisting>
+                like:<programlisting language="txt">
 Please enter your username:
 bob
 Please enter your password:
@@ -668,7 +668,7 @@ Successfully authenticated. Security context contains: \
             register a bean inside your application context to refer to the messages. An example is
             shown below:</para>
         <para>
-            <programlisting><![CDATA[
+            <programlisting language="xml"><![CDATA[
 <bean id="messageSource"
     class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
   <property name="basename" value="classpath:org/springframework/security/messages"/>

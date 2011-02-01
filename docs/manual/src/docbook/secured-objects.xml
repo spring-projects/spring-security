@@ -28,7 +28,7 @@
             <title>Explicit MethodSecurityInterceptor Configuration</title>
             <para> You can of course configure a <classname>MethodSecurityIterceptor</classname>
                 directly in your application context for use with one of Spring AOP's proxying
-                mechanisms: <programlisting><![CDATA[
+                mechanisms: <programlisting language="xml"><![CDATA[
 <bean id="bankManagerSecurity" class=
     "org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor">
   <property name="authenticationManager" ref="authenticationManager"/>
@@ -62,7 +62,7 @@
             security.</para>
         <para>Let's first consider how the <literal>AspectJSecurityInterceptor</literal> is
             configured in the Spring application context:</para>
-        <programlisting><![CDATA[
+        <programlisting language="xml"><![CDATA[
 <bean id="bankManagerSecurity" class=
     "org.springframework.security.access.intercept.aspectj.AspectJSecurityInterceptor">
   <property name="authenticationManager" ref="authenticationManager"/>
@@ -140,7 +140,7 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
         <para>You will need to configure Spring to load the aspect and wire it with the
             <literal>AspectJSecurityInterceptor</literal>. A bean declaration which achieves this is
             shown below:</para>
-        <programlisting><![CDATA[
+        <programlisting language="xml"><![CDATA[
 <bean id="domainObjectInstanceSecurityAspect"
      class="security.samples.aspectj.DomainObjectInstanceSecurityAspect"
      factory-method="aspectOf">

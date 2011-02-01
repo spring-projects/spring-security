@@ -26,7 +26,7 @@
         <para>This approach uses hashing to achieve a useful remember-me strategy. In essence a
             cookie is sent to the browser upon successful interactive authentication, with the
             cookie being composed as follows:
-            <programlisting>
+            <programlisting language="txt">
     base64(username + ":" + expirationTime + ":" +
              md5Hex(username + ":" + expirationTime + ":" password + ":" + key))
 
@@ -46,7 +46,7 @@
             section. Alternatively remember-me services should simply not be used at all.</para>
         <para>If you are familiar with the topics discussed in the chapter on <link
             xlink:href="#ns-config">namespace configuration</link>, you can enable remember-me
-            authentication just by adding the <literal>&lt;remember-me&gt;</literal> element: <programlisting><![CDATA[
+            authentication just by adding the <literal>&lt;remember-me&gt;</literal> element: <programlisting language="xml"><![CDATA[
   <http>
     ...
     <remember-me key="myAppKey"/>
@@ -68,7 +68,7 @@
                 valid login name unecessarily. There is a discussion on this in the comments section
                 of this article.</para>
             </footnote>. To use the this approach with namespace configuration, you would supply a
-            datasource reference: <programlisting><![CDATA[
+            datasource reference: <programlisting language="xml"><![CDATA[
   <http>
     ...
     <remember-me data-source-ref="someDataSource"/>
@@ -77,7 +77,7 @@
             </programlisting> The database should contain a
             <literal>persistent_logins</literal> table, created using the following SQL (or
             equivalent):
-            <programlisting>
+            <programlisting language="ddl">
     create table persistent_logins (username varchar(64) not null,
                                     series varchar(64) primary key,
                                     token varchar(64) not null,
