@@ -54,6 +54,11 @@ if (rootProject.getTasksByName('coverageReport', false).isEmpty()) {
                 }
             }
         }
+
+        if (!rootProject.buildDir.exists()) {
+            throw new GradleException("No coverage data. Run gradle with -Pcoverage=on if using coverageRepor");
+        }
+
         ant.emma(enabled: "true", verbosity: "info") {
             report(sourcepathref:"src.path") {
                 fileset(dir: rootProject.buildDir) {
