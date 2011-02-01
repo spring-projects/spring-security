@@ -78,7 +78,7 @@ public class Md4PasswordEncoder extends BaseDigestPasswordEncoder {
     public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
         String pass1 = "" + encPass;
         String pass2 = encodePassword(rawPass, salt);
-        return pass1.equals(pass2);
+        return PasswordEncoderUtils.equals(pass1,pass2);
     }
 
     public String getAlgorithm() {

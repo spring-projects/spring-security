@@ -15,6 +15,8 @@
 
 package org.springframework.security.authentication.encoding;
 
+import java.util.Locale;
+
 /**
  * <p>Plaintext implementation of PasswordEncoder.</p>
  *  <P>As callers may wish to extract the password and salts separately from the encoded password, the salt must
@@ -46,11 +48,12 @@ public class PlaintextPasswordEncoder extends BasePasswordEncoder {
         // authentication will fail as the encodePassword never allows them)
         String pass2 = mergePasswordAndSalt(rawPass, salt, false);
 
-        if (!ignorePasswordCase) {
-            return pass1.equals(pass2);
-        } else {
-            return pass1.equalsIgnoreCase(pass2);
+        if (ignorePasswordCase) {
+            // Note: per String javadoc to get correct results for Locale insensitive, use English
+            pass1 = pass1.toLowerCase(Locale.ENGLISH);
+            pass2 = pass2.toLowerCase(Locale.ENGLISH);
         }
+        return PasswordEncoderUtils.equals(pass1,pass2);
     }
 
     /**
