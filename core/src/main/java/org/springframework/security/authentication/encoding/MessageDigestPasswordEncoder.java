@@ -126,7 +126,7 @@ public class MessageDigestPasswordEncoder extends BaseDigestPasswordEncoder {
         String pass1 = "" + encPass;
         String pass2 = encodePassword(rawPass, salt);
 
-        return pass1.equals(pass2);
+        return PasswordEncoderUtils.equals(pass1,pass2);
     }
 
     public String getAlgorithm() {

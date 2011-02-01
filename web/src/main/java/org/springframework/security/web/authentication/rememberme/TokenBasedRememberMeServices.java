@@ -23,6 +23,7 @@ import org.springframework.util.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -81,6 +82,7 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 
     //~ Methods ========================================================================================================
 
+    @Override
     protected UserDetails processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request,
             HttpServletResponse response) {
 
@@ -117,9 +119,9 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
         String expectedTokenSignature = makeTokenSignature(tokenExpiryTime, userDetails.getUsername(),
                 userDetails.getPassword());
 
-        if (!expectedTokenSignature.equals(cookieTokens[2])) {
+        if (!equals(expectedTokenSignature,cookieTokens[2])) {
             throw new InvalidCookieException("Cookie token[2] contained signature '" + cookieTokens[2]
-                    + "' but expected '" + expectedTokenSignature + "'");
+                                                                                                    + "' but expected '" + expectedTokenSignature + "'");
         }
 
         return userDetails;
@@ -145,6 +147,7 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
         return tokenExpiryTime < System.currentTimeMillis();
     }
 
+    @Override
     public void onLoginSuccess(HttpServletRequest request, HttpServletResponse response,
             Authentication successfulAuthentication) {
 
@@ -215,5 +218,36 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 
     private boolean isInstanceOfUserDetails(Authentication authentication) {
         return authentication.getPrincipal() instanceof UserDetails;
+    }
+
+    /**
+     * Constant time comparison to prevent against timing attacks.
+     * @param expected
+     * @param actual
+     * @return
+     */
+    private static boolean equals(String expected, String actual) {
+        byte[] expectedBytes = bytesUtf8(expected);
+        byte[] actualBytes = bytesUtf8(actual);
+        if (expectedBytes.length != actualBytes.length) {
+            return false;
+        }
+
+        int result = 0;
+        for (int i = 0; i < expectedBytes.length; i++) {
+            result |= expectedBytes[i] ^ actualBytes[i];
+        }
+        return result == 0;
+    }
+
+    private static byte[] bytesUtf8(String s) {
+        if(s == null) {
+            return null;
+        }
+        try {
+            return s.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException("Could not get bytes in UTF-8 format",e);
+        }
     }
 }

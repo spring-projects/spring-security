@@ -145,7 +145,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 
         String encodedRawPass = encodePassword(rawPass, salt).substring(startOfHash);
 
-        return encodedRawPass.equals(encPass.substring(startOfHash));
+        return PasswordEncoderUtils.equals(encodedRawPass,encPass.substring(startOfHash));
     }
 
     /**

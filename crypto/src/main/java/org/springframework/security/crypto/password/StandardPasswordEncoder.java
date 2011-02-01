@@ -21,8 +21,6 @@ import static org.springframework.security.crypto.util.EncodingUtils.hexEncode;
 import static org.springframework.security.crypto.util.EncodingUtils.subArray;
 import static org.springframework.security.crypto.util.EncodingUtils.utf8Encode;
 
-import java.util.Arrays;
-
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.security.crypto.util.Digester;
@@ -79,8 +77,21 @@ public final class StandardPasswordEncoder implements PasswordEncoder {
         return hexDecode(encodedPassword);
     }
 
+    /**
+     * Constant time comparison to prevent against timing attacks.
+     * @param expected
+     * @param actual
+     * @return
+     */
     private boolean matches(byte[] expected, byte[] actual) {
-        return Arrays.equals(expected, actual);
-    }
+        if (expected.length != actual.length) {
+            return false;
+        }
 
+        int result = 0;
+        for (int i = 0; i < expected.length; i++) {
+            result |= expected[i] ^ actual[i];
+        }
+        return result == 0;
+    }
 }
