@@ -48,7 +48,7 @@ public abstract class AbstractLdapIntegrationTests {
     @BeforeClass
     public static void startServer() throws Exception {
         contextSource = new DefaultSpringSecurityContextSource("ldap://127.0.0.1:53389/dc=springframework,dc=org");
-// OpenLDAP option
+// OpenLDAP configuration
 //        contextSource = new DefaultSpringSecurityContextSource("ldap://127.0.0.1:22389/dc=springsource,dc=com");
 //        contextSource.setUserDn("cn=admin,dc=springsource,dc=com");
 //        contextSource.setPassword("password");

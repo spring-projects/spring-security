@@ -113,6 +113,8 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
             // Check for password policy control
             PasswordPolicyControl ppolicy = PasswordPolicyControlExtractor.extractControl(ctx);
 
+            logger.debug("Retrieving attributes...");
+
             Attributes attrs = ctx.getAttributes(userDn, getUserAttributes());
 
             DirContextAdapter result = new DirContextAdapter(attrs, userDn, ctxSource.getBaseLdapPath());

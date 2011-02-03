@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.naming.CompositeName;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.PartialResultException;
@@ -208,7 +209,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
                         while (resultsEnum.hasMore()) {
                             SearchResult searchResult = resultsEnum.next();
                             // Work out the DN of the matched entry
-                            DistinguishedName dn = new DistinguishedName(searchResult.getName());
+                            DistinguishedName dn = new DistinguishedName(new CompositeName(searchResult.getName()));
 
                             if (base.length() > 0) {
                                 dn.prepend(searchBaseDn);

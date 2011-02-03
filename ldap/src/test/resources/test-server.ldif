@@ -73,12 +73,12 @@ sn: Slash
 uid: slashguy
 userPassword: slashguyspassword
 
-dn: cn=quoteguy,ou=\"quoted people\",dc=springframework,dc=org
+dn: cn=quote\"guy,ou=\"quoted people\",dc=springframework,dc=org
 objectclass: top
 objectclass: person
 objectclass: organizationalPerson
 objectclass: inetOrgPerson
-cn: quoteguy
+cn: quote\"guy
 sn: Quote
 uid: quoteguy
 userPassword: quoteguyspassword
