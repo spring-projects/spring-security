@@ -82,7 +82,9 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
         authenticator.authenticate(new UsernamePasswordAuthenticationToken("slash/guy", "slashguyspassword"));
         // SEC-1661
         authenticator.setUserSearch(new FilterBasedLdapUserSearch("ou=\\\"quoted people\\\"", "(cn={0})", getContextSource()));
-        authenticator.authenticate(new UsernamePasswordAuthenticationToken("quoteguy", "quoteguyspassword"));
+        authenticator.authenticate(new UsernamePasswordAuthenticationToken("quote\"guy", "quoteguyspassword"));
+        authenticator.setUserSearch(new FilterBasedLdapUserSearch("", "(cn={0})", getContextSource()));
+        authenticator.authenticate(new UsernamePasswordAuthenticationToken("quote\"guy", "quoteguyspassword"));
     }
 /*
     @Test
