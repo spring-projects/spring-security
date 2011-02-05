@@ -2,6 +2,7 @@ package org.springframework.security.config.http;
 
 import static org.springframework.security.config.http.SecurityFilters.*;
 import static org.springframework.security.config.http.HttpSecurityBeanDefinitionParser.*;
+import static org.springframework.security.config.Elements.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -393,6 +394,13 @@ class HttpConfigurationBuilder {
             String requiredChannel = urlElt.getAttribute(ATT_REQUIRES_CHANNEL);
 
             if (StringUtils.hasText(requiredChannel)) {
+                String filters = urlElt.getAttribute(ATT_FILTERS);
+                if(OPT_FILTERS_NONE.equals(filters)) {
+                    pc.getReaderContext().error(
+                            "Ambiguous configuration. Cannot contain " + INTERCEPT_URL+"@" + ATT_FILTERS +
+                            "=\"" + OPT_FILTERS_NONE + "\" and " + INTERCEPT_URL + "@" + ATT_REQUIRES_CHANNEL,
+                            pc.extractSource(urlElt));
+                }
                 BeanDefinition requestKey = new RootBeanDefinition(RequestKey.class);
                 requestKey.getConstructorArgumentValues().addGenericArgumentValue(path);
 

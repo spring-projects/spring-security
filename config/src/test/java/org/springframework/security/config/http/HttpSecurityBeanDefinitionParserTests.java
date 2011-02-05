@@ -185,6 +185,29 @@ public class HttpSecurityBeanDefinitionParserTests {
         assertTrue(filters.size() == 0);
     }
 
+    @Test(expected=BeanDefinitionParsingException.class)
+    public void filtersEqualsNoneErrorsWithRequiresChannel() throws Exception {
+        setContext(
+                "    <http auto-config='true'>" +
+                "        <intercept-url pattern='/ambiguousConfig' requires-channel='https' filters='none' />" +
+                "    </http>" + AUTH_PROVIDER_XML);
+    }
+
+    @Test(expected=BeanDefinitionParsingException.class)
+    public void filtersEqualsNoneErrorsWithAccess() throws Exception {
+        setContext(
+                "    <http auto-config='true'>" +
+                "        <intercept-url pattern='/ambiguousConfig' access='ROLE_USER' filters='none' />" +
+                "    </http>" + AUTH_PROVIDER_XML);
+    }
+
+    @Test(expected=BeanDefinitionParsingException.class)
+    public void filtersEqualsNoneErrorsWithRequiresChannelAndAccess() throws Exception {
+        setContext(
+                "    <http auto-config='true'>" +
+                "        <intercept-url pattern='/ambiguousConfig' requires-channel='https' filters='none' />" +
+                "    </http>" + AUTH_PROVIDER_XML);
+    }
 
     @Test
     public void regexPathsWorkCorrectly() throws Exception {

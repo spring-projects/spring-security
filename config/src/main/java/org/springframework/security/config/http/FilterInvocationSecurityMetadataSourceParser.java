@@ -1,5 +1,8 @@
 package org.springframework.security.config.http;
 
+import static org.springframework.security.config.http.HttpSecurityBeanDefinitionParser.*;
+import static org.springframework.security.config.Elements.*;
+
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -111,6 +114,13 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
             String access = urlElt.getAttribute(ATT_ACCESS);
             if (!StringUtils.hasText(access)) {
                 continue;
+            }
+            String filters = urlElt.getAttribute(ATT_FILTERS);
+            if(OPT_FILTERS_NONE.equals(filters)) {
+                parserContext.getReaderContext().error(
+                        "Ambiguous configuration. Cannot contain " + INTERCEPT_URL+"@" + ATT_FILTERS +
+                        "=\"" + OPT_FILTERS_NONE + "\" and " + INTERCEPT_URL + "@" + ATT_ACCESS,
+                        parserContext.extractSource(urlElt));
             }
 
             String path = urlElt.getAttribute(ATT_PATTERN);
