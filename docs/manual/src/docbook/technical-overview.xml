@@ -336,7 +336,13 @@ Successfully authenticated. Security context contains: \
                 All you need to do is write a filter (or equivalent) that reads the third-party user
                 information from a location, build a Spring Security-specific
                 <interfacename>Authentication</interfacename> object, and put it into the
-                <classname>SecurityContextHolder</classname>.</para>
+                <classname>SecurityContextHolder</classname>. In this case you also need to think
+                about things which are normally taken care of automatically by the built-in authentication
+                infrastructure. For example, you might need to pre-emptively create an HTTP session to
+                <link xlink:href="tech-intro-sec-context-persistence">cache the context between requests</link>,
+                before you write the response to the client<footnote><para>It isn't possible to create a session once the
+                response has been committed.</para></footnote>.
+            </para>
             <para> If you're wondering how the <interfacename>AuthenticationManager</interfacename>
                 manager is implemented in a real world example, we'll look at that in the <link
                 xlink:href="#core-services-authentication-manager">core services
