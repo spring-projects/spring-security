@@ -15,12 +15,14 @@
 
 package org.springframework.security.access;
 
+import static org.junit.Assert.assertSame;
+
 import org.junit.Test;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.event.AuthorizationFailureEvent;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.util.SimpleMethodInvocation;
+
+import java.util.*;
 
 
 /**
@@ -29,28 +31,35 @@ import org.springframework.security.util.SimpleMethodInvocation;
  * @author Ben Alex
  */
 public class AuthorizationFailureEventTests {
+    private final UsernamePasswordAuthenticationToken foo = new UsernamePasswordAuthenticationToken("foo", "bar");
+    private List<ConfigAttribute> attributes = SecurityConfig.createList("TEST");
+    private AccessDeniedException exception = new AuthorizationServiceException("error", new Throwable());
 
     @Test(expected=IllegalArgumentException.class)
-    public void testRejectsNulls() {
-        new AuthorizationFailureEvent(null, SecurityConfig.createList("TEST"),
-            new UsernamePasswordAuthenticationToken("foo", "bar"), new AccessDeniedException("error"));
+    public void rejectsNullSecureObject() {
+        new AuthorizationFailureEvent(null, attributes, foo, exception);
     }
 
     @Test(expected=IllegalArgumentException.class)
-    public void testRejectsNulls2() {
-        new AuthorizationFailureEvent(new SimpleMethodInvocation(), null,
-            new UsernamePasswordAuthenticationToken("foo", "bar"), new AccessDeniedException("error"));
+    public void rejectsNullAttributesList() {
+        new AuthorizationFailureEvent(new SimpleMethodInvocation(), null, foo, exception);
     }
 
     @Test(expected=IllegalArgumentException.class)
-    public void testRejectsNulls3() {
-        new AuthorizationFailureEvent(new SimpleMethodInvocation(), SecurityConfig.createList("TEST"), null,
-            new AccessDeniedException("error"));
+    public void rejectsNullAuthentication() {
+        new AuthorizationFailureEvent(new SimpleMethodInvocation(), attributes, null, exception);
     }
 
     @Test(expected=IllegalArgumentException.class)
-    public void testRejectsNulls4() {
-        new AuthorizationFailureEvent(new SimpleMethodInvocation(), SecurityConfig.createList("TEST"),
-            new UsernamePasswordAuthenticationToken("foo", "bar"), null);
+    public void rejectsNullException() {
+        new AuthorizationFailureEvent(new SimpleMethodInvocation(), attributes, foo, null);
+    }
+
+    @Test
+    public void gettersReturnCtorSuppliedData() throws Exception {
+        AuthorizationFailureEvent event = new AuthorizationFailureEvent(new Object(), attributes , foo, exception);
+        assertSame(attributes, event.getConfigAttributes());
+        assertSame(exception, event.getAccessDeniedException());
+        assertSame(foo, event.getAuthentication());
     }
 }

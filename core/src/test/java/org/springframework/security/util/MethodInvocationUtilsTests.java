@@ -3,8 +3,11 @@ package org.springframework.security.util;
 import static org.junit.Assert.*;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.junit.Test;
+import org.junit.*;
+import org.springframework.aop.framework.AdvisedSupport;
 import org.springframework.security.access.annotation.BusinessServiceImpl;
+
+import java.io.Serializable;
 
 /**
  *
@@ -14,6 +17,8 @@ public class MethodInvocationUtilsTests {
 
     @Test
     public void createFromClassReturnsMethodWithNoArgInfoForMethodWithNoArgs() {
+        new MethodInvocationUtils();
+
         MethodInvocation mi = MethodInvocationUtils.createFromClass(String.class, "length");
         assertNotNull(mi);
     }
@@ -36,4 +41,28 @@ public class MethodInvocationUtilsTests {
         assertNotNull(mi);
     }
 
+    @Test
+    public void createFromObjectLocatesExistingMethods() throws Exception {
+        AdvisedTarget t = new AdvisedTarget();
+        // Just lie about interfaces
+        t.setInterfaces(new Class[] {Serializable.class, MethodInvocation.class, Blah.class});
+
+        MethodInvocation mi = MethodInvocationUtils.create(t, "blah");
+        assertNotNull(mi);
+
+        t.setProxyTargetClass(true);
+        mi = MethodInvocationUtils.create(t, "blah");
+        assertNotNull(mi);
+
+        assertNull(MethodInvocationUtils.create(t, "blah", "non-existent arg"));
+    }
+
+    interface Blah {
+        void blah();
+    }
+
+    class AdvisedTarget extends AdvisedSupport implements Blah {
+        public void blah() {
+        }
+    }
 }

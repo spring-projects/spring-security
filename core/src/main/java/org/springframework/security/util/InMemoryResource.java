@@ -63,7 +63,7 @@ public class InMemoryResource extends AbstractResource {
     }
 
     public int hashCode() {
-        return source.hashCode();
+        return 1;
     }
 
     public boolean equals(Object res) {

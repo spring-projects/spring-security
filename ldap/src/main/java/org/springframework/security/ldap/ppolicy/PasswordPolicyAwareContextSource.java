@@ -53,7 +53,7 @@ public class PasswordPolicyAwareContextSource extends DefaultSpringSecurityConte
             PasswordPolicyResponseControl ctrl = PasswordPolicyControlExtractor.extractControl(ctx);
             if (debug) {
                 logger.debug("Failed to obtain context", ne);
-                logger.debug("Pasword policy response: " + ctrl);
+                logger.debug("Password policy response: " + ctrl);
             }
 
             LdapUtils.closeContext(ctx);

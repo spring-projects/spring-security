@@ -94,8 +94,9 @@ public class ExceptionTranslationFilterTests {
 
         // Test
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
-        filter.setAuthenticationEntryPoint(mockEntryPoint());
+        filter.setAuthenticationEntryPoint(mockEntryPoint);
         filter.setAuthenticationTrustResolver(new AuthenticationTrustResolverImpl());
+        assertNotNull(filter.getAuthenticationTrustResolver());
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         filter.doFilter(request, response, fc);
@@ -123,7 +124,7 @@ public class ExceptionTranslationFilterTests {
 
         // Test
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
-        filter.setAuthenticationEntryPoint(mockEntryPoint());
+        filter.setAuthenticationEntryPoint(mockEntryPoint);
         filter.setAccessDeniedHandler(adh);
 
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -149,7 +150,7 @@ public class ExceptionTranslationFilterTests {
 
         // Test
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
-        filter.setAuthenticationEntryPoint(mockEntryPoint());
+        filter.setAuthenticationEntryPoint(mockEntryPoint);
         filter.afterPropertiesSet();
         MockHttpServletResponse response = new MockHttpServletResponse();
         filter.doFilter(request, response, fc);
@@ -175,7 +176,7 @@ public class ExceptionTranslationFilterTests {
 
         // Test
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
-        filter.setAuthenticationEntryPoint(mockEntryPoint());
+        filter.setAuthenticationEntryPoint(mockEntryPoint);
         HttpSessionRequestCache requestCache = new HttpSessionRequestCache();
         requestCache.setPortResolver(new MockPortResolver(8080, 8443));
         filter.setRequestCache(requestCache);
@@ -197,7 +198,7 @@ public class ExceptionTranslationFilterTests {
     @Test(expected=IllegalArgumentException.class)
     public void startupDetectsMissingRequestCache() throws Exception {
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
-        filter.setAuthenticationEntryPoint(mockEntryPoint());
+        filter.setAuthenticationEntryPoint(mockEntryPoint);
 
         filter.setRequestCache(null);
     }
@@ -210,7 +211,8 @@ public class ExceptionTranslationFilterTests {
 
         // Test
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
-        filter.setAuthenticationEntryPoint(mockEntryPoint());
+        filter.setAuthenticationEntryPoint(mockEntryPoint);
+        assertSame(mockEntryPoint, filter.getAuthenticationEntryPoint());
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         filter.doFilter(request, response, mock(FilterChain.class));
@@ -220,7 +222,7 @@ public class ExceptionTranslationFilterTests {
     public void thrownIOExceptionServletExceptionAndRuntimeExceptionsAreRethrown() throws Exception {
         ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
 
-        filter.setAuthenticationEntryPoint(mockEntryPoint());
+        filter.setAuthenticationEntryPoint(mockEntryPoint);
         filter.afterPropertiesSet();
         Exception[] exceptions = {new IOException(), new ServletException(), new RuntimeException()};
         for (Exception e : exceptions) {
@@ -237,12 +239,10 @@ public class ExceptionTranslationFilterTests {
         }
     }
 
-    private AuthenticationEntryPoint mockEntryPoint() {
-        return new AuthenticationEntryPoint() {
-            public void commence(HttpServletRequest request, HttpServletResponse response,
+    private final AuthenticationEntryPoint mockEntryPoint = new AuthenticationEntryPoint() {
+        public void commence(HttpServletRequest request, HttpServletResponse response,
                     AuthenticationException authException) throws IOException, ServletException {
-                response.sendRedirect(request.getContextPath() + "/login.jsp");
-            }
-        };
-    }
+            response.sendRedirect(request.getContextPath() + "/login.jsp");
+        }
+    };
 }

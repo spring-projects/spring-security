@@ -15,14 +15,19 @@
 
 package org.springframework.security.ldap.ppolicy;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+import javax.naming.ldap.Control;
+import java.util.*;
 
 /**
  * Tests for <tt>PasswordPolicyResponse</tt>.
  *
  * @author Luke Taylor
  */
-public class PasswordPolicyResponseControlTests extends TestCase {
+public class PasswordPolicyResponseControlTests {
     //~ Methods ========================================================================================================
 
     /**
@@ -76,7 +81,8 @@ public class PasswordPolicyResponseControlTests extends TestCase {
 //        return null;
 //    }
 
-    public void testOpenLDAP33SecondsTillPasswordExpiryCtrlIsParsedCorrectly() {
+    @Test
+    public void openLDAP33SecondsTillPasswordExpiryCtrlIsParsedCorrectly() {
         byte[] ctrlBytes = {0x30, 0x05, (byte) 0xA0, 0x03, (byte) 0xA0, 0x1, 0x21};
 
         PasswordPolicyResponseControl ctrl = new PasswordPolicyResponseControl(ctrlBytes);
@@ -85,7 +91,8 @@ public class PasswordPolicyResponseControlTests extends TestCase {
         assertEquals(33, ctrl.getTimeBeforeExpiration());
     }
 
-    public void testOpenLDAP496GraceLoginsRemainingCtrlIsParsedCorrectly() {
+    @Test
+    public void openLDAP496GraceLoginsRemainingCtrlIsParsedCorrectly() {
         byte[] ctrlBytes = {0x30, 0x06, (byte) 0xA0, 0x04, (byte) 0xA1, 0x02, 0x01, (byte) 0xF0};
 
         PasswordPolicyResponseControl ctrl = new PasswordPolicyResponseControl(ctrlBytes);
@@ -94,25 +101,28 @@ public class PasswordPolicyResponseControlTests extends TestCase {
         assertEquals(496, ctrl.getGraceLoginsRemaining());
     }
 
-    public void testOpenLDAP5GraceLoginsRemainingCtrlIsParsedCorrectly() {
-        byte[] ctrlBytes = {0x30, 0x05, (byte) 0xA0, 0x03, (byte) 0xA1, 0x01, 0x05};
+    static final byte[] OPENLDAP_5_LOGINS_REMAINING_CTRL = {0x30, 0x05, (byte) 0xA0, 0x03, (byte) 0xA1, 0x01, 0x05};
 
-        PasswordPolicyResponseControl ctrl = new PasswordPolicyResponseControl(ctrlBytes);
+    @Test
+    public void openLDAP5GraceLoginsRemainingCtrlIsParsedCorrectly() {
+        PasswordPolicyResponseControl ctrl = new PasswordPolicyResponseControl(OPENLDAP_5_LOGINS_REMAINING_CTRL);
 
         assertTrue(ctrl.hasWarning());
         assertEquals(5, ctrl.getGraceLoginsRemaining());
     }
 
-    public void testOpenLDAPAccountLockedCtrlIsParsedCorrectly() {
-        byte[] ctrlBytes = {0x30, 0x03, (byte) 0xA1, 0x01, 0x01};
+    static final byte[] OPENLDAP_LOCKED_CTRL = {0x30, 0x03, (byte) 0xA1, 0x01, 0x01};
 
-        PasswordPolicyResponseControl ctrl = new PasswordPolicyResponseControl(ctrlBytes);
+    @Test
+    public void openLDAPAccountLockedCtrlIsParsedCorrectly() {
+        PasswordPolicyResponseControl ctrl = new PasswordPolicyResponseControl(OPENLDAP_LOCKED_CTRL);
 
         assertTrue(ctrl.hasError() && ctrl.isLocked());
         assertFalse(ctrl.hasWarning());
     }
 
-    public void testOpenLDAPPasswordExpiredCtrlIsParsedCorrectly() {
+    @Test
+    public void openLDAPPasswordExpiredCtrlIsParsedCorrectly() {
         byte[] ctrlBytes = {0x30, 0x03, (byte) 0xA1, 0x01, 0x00};
 
         PasswordPolicyResponseControl ctrl = new PasswordPolicyResponseControl(ctrlBytes);

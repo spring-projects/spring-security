@@ -23,29 +23,13 @@ import java.lang.reflect.Field;
 
 
 /**
- * Offers static methods for directly manipulating static fields.
+ * Offers static methods for directly manipulating fields.
  *
  * @author Ben Alex
  */
 public final class FieldUtils {
-    //~ Constructors ===================================================================================================
-
-    private FieldUtils() {
-    }
 
     //~ Methods ========================================================================================================
-
-    public static String getAccessorName(String fieldName, Class<?> type) {
-        Assert.hasText(fieldName, "FieldName required");
-        Assert.notNull(type, "Type required");
-
-        if (type.getName().equals("boolean")) {
-            return "is" + org.springframework.util.StringUtils.capitalize(fieldName);
-        } else {
-            return "get" + org.springframework.util.StringUtils.capitalize(fieldName);
-        }
-    }
-
     /**
      * Attempts to locate the specified field on the class.
      *
@@ -96,12 +80,6 @@ public final class FieldUtils {
 
         return value;
 
-    }
-
-    public static String getMutatorName(String fieldName) {
-        Assert.hasText(fieldName, "FieldName required");
-
-        return "set" + org.springframework.util.StringUtils.capitalize(fieldName);
     }
 
     public static Object getProtectedFieldValue(String protectedField, Object object) {

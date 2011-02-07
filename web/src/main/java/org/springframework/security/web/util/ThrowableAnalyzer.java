@@ -175,7 +175,7 @@ public class ThrowableAnalyzer {
         for (Map.Entry<Class<? extends Throwable>, ThrowableCauseExtractor> entry : extractorMap.entrySet()) {
             Class<? extends Throwable> throwableType = entry.getKey();
             if (throwableType.isInstance(throwable)) {
-                ThrowableCauseExtractor extractor = (ThrowableCauseExtractor) entry.getValue();
+                ThrowableCauseExtractor extractor = entry.getValue();
                 return extractor.extractCause(throwable);
             }
         }

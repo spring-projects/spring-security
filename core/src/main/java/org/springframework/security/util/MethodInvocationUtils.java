@@ -31,10 +31,6 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 public final class MethodInvocationUtils {
-    //~ Constructors ===================================================================================================
-
-    private MethodInvocationUtils() {
-    }
 
     //~ Methods ========================================================================================================
 

@@ -19,7 +19,6 @@ package org.springframework.security.web.util;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.expression.EvaluationContext;
-import org.springframework.expression.EvaluationException;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -28,10 +27,10 @@ import org.springframework.security.web.authentication.DelegatingAuthenticationE
 /**
  * A RequestMatcher implementation which uses a SpEL expression
  *
- * <p>With the default EvalutationContext ({@link ELRequestMatcherContext}) you can use
+ * <p>With the default EvaluationContext ({@link ELRequestMatcherContext}) you can use
  * <code>hasIpAdress()</code> and <code>hasHeader()</code></p>
  *
- * <p>See {@link DelegatingAuthenticationEntryPoint} for a example configuration.</p>
+ * <p>See {@link DelegatingAuthenticationEntryPoint} for an example configuration.</p>
  *
  *
  * @author Mike Wiesner
@@ -48,7 +47,7 @@ public class ELRequestMatcher implements RequestMatcher {
 
     public boolean matches(HttpServletRequest request) {
         EvaluationContext context = createELContext(request);
-        return evaluateAsBoolean(expression, context);
+        return expression.getValue(context, Boolean.class).booleanValue();
     }
 
     /**
@@ -60,11 +59,4 @@ public class ELRequestMatcher implements RequestMatcher {
         return new StandardEvaluationContext(new ELRequestMatcherContext(request));
     }
 
-    private boolean evaluateAsBoolean(Expression expr, EvaluationContext ctx) {
-        try {
-            return ((Boolean) expr.getValue(ctx, Boolean.class)).booleanValue();
-        } catch (EvaluationException e) {
-            throw new IllegalArgumentException("Failed to evaluate expression '" + expr.getExpressionString() + "'", e);
-        }
-    }
 }
