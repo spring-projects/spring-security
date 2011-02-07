@@ -9,6 +9,6 @@ Ignored-Existing-Headers:
  Import-Package,
  Export-Package
 Import-Template:
- org.aspectj.*;version="[1.6.0, 1.7.0)";resolution:=optional,
- org.apache.commons.logging.*;version="[1.0.4, 2.0.0)",
- org.springframework.security.core.*;version="[${version}, 3.2.0)"
+ org.aspectj.*;version="${aspectjRange}";resolution:=optional,
+ org.apache.commons.logging.*;version="${cloggingRange}",
+ org.springframework.security.core.*;version="${secRange}"

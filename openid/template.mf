@@ -9,11 +9,11 @@ Ignored-Existing-Headers:
  Import-Package,
  Export-Package
 Import-Template:
- org.apache.commons.logging.*;version="[1.0.4, 2.0.0)",
- org.springframework.security.core.*;version="[${version}, 3.2.0)",
- org.springframework.security.authentication.*;version="[${version}, 3.2.0)",
- org.springframework.security.web.*;version="[${version}, 3.2.0)",
- org.springframework.beans.factory;version="[${spring.version}, 3.2.0)",
- org.springframework.util;version="[${spring.version}, 3.2.0)",
- org.openid4java.*;version="[0.9.5, 1.0.0)",
+ org.apache.commons.logging.*;version="${cloggingRange}",
+ org.springframework.security.core.*;version="${secRange}",
+ org.springframework.security.authentication.*;version="${secRange}",
+ org.springframework.security.web.*;version="${secRange}",
+ org.springframework.beans.factory;version="${springRange}",
+ org.springframework.util;version="${springRange}",
+ org.openid4java.*;version="${openid4javaRange}",
  javax.servlet.*;version="0"

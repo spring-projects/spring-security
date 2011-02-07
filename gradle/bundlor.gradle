@@ -29,8 +29,9 @@ task bundlor(dependsOn: compileJava) {
         mkdir(bundlorDir)
 
         ant.bundlor(inputPath: sourceSets.main.classesDir, outputPath: "$buildDir/bundlor", manifestTemplatePath: template) {
-            property(name: 'version', value: project.version)
-            property(name: 'spring.version', value: project.springVersion)
+            for (p in bundlorProperties) {
+                property(name: p.key, value: p.value)
+            }
         }
     }
 }
