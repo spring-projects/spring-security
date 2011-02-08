@@ -67,6 +67,27 @@ task apidocs(type: Javadoc) {
     })
 }
 
+apidocs.options.outputLevel = org.gradle.external.javadoc.JavadocOutputLevel.QUIET
+
+apidocs.options.groups = [
+    'Spring Security Core':[
+        'org.springframework.security.core*',
+        'org.springframework.security.authentication*',
+        'org.springframework.security.access*',
+        'org.springframework.security.remoting*',
+        'org.springframework.security.provisioning*',
+        'org.springframework.security.util*'],
+    'Spring Security Web':['org.springframework.security.web*'],
+    'Spring Security LDAP':['org.springframework.security.ldap*'],
+    'Spring Security Crypto':['org.springframework.security.crypto*'],
+    'Spring Security OpenID':['org.springframework.security.openid*'],
+    'Spring Security CAS':['org.springframework.security.cas*'],
+    'Spring Security ACL':['org.springframework.security.acls*'],
+    'Spring Security Config':['org.springframework.security.config*'],
+    'Spring Security Taglibs':['org.springframework.security.taglibs*'],
+
+]
+
 apiSpec = copySpec {
     into('apidocs') {
         from(apidocs.destinationDir)
