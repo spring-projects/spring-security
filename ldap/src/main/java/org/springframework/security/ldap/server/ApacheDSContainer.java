@@ -1,6 +1,7 @@
 package org.springframework.security.ldap.server;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -232,7 +233,13 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
         //DirContext dirContext = contextSource.getReadWriteContext();
 
         if(ldifs != null && ldifs.length > 0) {
-            String ldifFile = ldifs[0].getURI().toString();
+            String ldifFile;
+
+            try {
+                ldifFile = ldifs[0].getFile().getAbsolutePath();
+            } catch (IOException e) {
+                ldifFile = ldifs[0].getURI().toString();
+            }
             logger.info("Loading LDIF file: " + ldifFile);
             LdifFileLoader loader = new LdifFileLoader(service.getAdminSession(), ldifFile);
             loader.execute();
