@@ -22,8 +22,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 
@@ -45,6 +47,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
     public void testAuthenticateCancel() {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
         provider.setUserDetailsService(new MockUserDetailsService());
+        provider.setAuthoritiesMapper(new NullAuthoritiesMapper());
 
         Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.CANCELLED, USERNAME, "" ,null);
 
@@ -82,7 +85,7 @@ public class OpenIDAuthenticationProviderTests extends TestCase {
      */
     public void testAuthenticateFailure() {
         OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
-        provider.setUserDetailsService(new MockUserDetailsService());
+        provider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper<OpenIDAuthenticationToken>(new MockUserDetailsService()));
 
         Authentication preAuth = new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.FAILURE, USERNAME, "", null);
 

@@ -37,12 +37,14 @@ import org.openid4java.message.ParameterList;
 import org.openid4java.message.ax.AxMessage;
 import org.openid4java.message.ax.FetchRequest;
 import org.openid4java.message.ax.FetchResponse;
+import org.springframework.util.StringUtils;
 
 
 /**
  * @author Ray Krueger
  * @author Luke Taylor
  */
+@SuppressWarnings("unchecked")
 public class OpenID4JavaConsumer implements OpenIDConsumer {
     private static final String DISCOVERY_INFO_KEY = DiscoveryInformation.class.getName();
     private static final String ATTRIBUTE_LIST_KEY = "SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST";
@@ -93,7 +95,6 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 
     //~ Methods ========================================================================================================
 
-    @SuppressWarnings("unchecked")
     public String beginConsumption(HttpServletRequest req, String identityUrl, String returnToUrl, String realm)
             throws OpenIDConsumerException {
         List<DiscoveryInformation> discoveries;
@@ -136,9 +137,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
         return authReq.getDestinationUrl(true);
     }
 
-    @SuppressWarnings("unchecked")
     public OpenIDAuthenticationToken endConsumption(HttpServletRequest request) throws OpenIDConsumerException {
-        final boolean debug = logger.isDebugEnabled();
         // extract the parameters from the authentication response
         // (which comes in as a HTTP request from the OpenID provider)
         ParameterList openidResp = new ParameterList(request.getParameterMap());
@@ -154,7 +153,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
         StringBuffer receivingURL = request.getRequestURL();
         String queryString = request.getQueryString();
 
-        if ((queryString != null) && (queryString.length() > 0)) {
+        if (StringUtils.hasLength(queryString)) {
             receivingURL.append("?").append(request.getQueryString());
         }
 
@@ -171,8 +170,6 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
             throw new OpenIDConsumerException("Error verifying openid response", e);
         }
 
-        List<OpenIDAttribute> attributes = new ArrayList<OpenIDAttribute>();
-
         // examine the verification result and extract the verified identifier
         Identifier verified = verification.getVerifiedId();
 
@@ -180,39 +177,50 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
             Identifier id = discovered.getClaimedIdentifier();
             return new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.FAILURE,
                     id == null ? "Unknown" : id.getIdentifier(),
-                    "Verification status message: [" + verification.getStatusMsg() + "]", attributes);
+                    "Verification status message: [" + verification.getStatusMsg() + "]",
+                    Collections.<OpenIDAttribute>emptyList());
         }
 
-        // fetch the attributesToFetch of the response
-        Message authSuccess = verification.getAuthResponse();
-
-        if (authSuccess.hasExtension(AxMessage.OPENID_NS_AX)) {
-            if (debug) {
-                logger.debug("Extracting attributes retrieved by attribute exchange");
-            }
-            try {
-                MessageExtension ext = authSuccess.getExtension(AxMessage.OPENID_NS_AX);
-                if (ext instanceof FetchResponse) {
-                    FetchResponse fetchResp = (FetchResponse) ext;
-                    for (OpenIDAttribute attr : attributesToFetch) {
-                        List<String> values = fetchResp.getAttributeValues(attr.getName());
-                        if (!values.isEmpty()) {
-                            OpenIDAttribute fetched = new OpenIDAttribute(attr.getName(), attr.getType(), values);
-                            fetched.setRequired(attr.isRequired());
-                            attributes.add(fetched);
-                        }
-                    }
-                }
-            } catch (MessageException e) {
-                attributes.clear();
-                throw new OpenIDConsumerException("Attribute retrieval failed", e);
-            }
-            if (debug) {
-                logger.debug("Retrieved attributes" + attributes);
-            }
-        }
+        List<OpenIDAttribute> attributes = fetchAxAttributes(verification.getAuthResponse(), attributesToFetch);
 
         return new OpenIDAuthenticationToken(OpenIDAuthenticationStatus.SUCCESS, verified.getIdentifier(),
                         "some message", attributes);
+    }
+
+    List<OpenIDAttribute> fetchAxAttributes(Message authSuccess, List<OpenIDAttribute> attributesToFetch)
+            throws OpenIDConsumerException {
+
+        if (!authSuccess.hasExtension(AxMessage.OPENID_NS_AX)) {
+            return Collections.emptyList();
+        }
+
+        logger.debug("Extracting attributes retrieved by attribute exchange");
+
+        List<OpenIDAttribute> attributes = Collections.emptyList();
+
+        try {
+            MessageExtension ext = authSuccess.getExtension(AxMessage.OPENID_NS_AX);
+            if (ext instanceof FetchResponse) {
+                FetchResponse fetchResp = (FetchResponse) ext;
+                attributes = new ArrayList<OpenIDAttribute>(attributesToFetch.size());
+
+                for (OpenIDAttribute attr : attributesToFetch) {
+                    List<String> values = fetchResp.getAttributeValues(attr.getName());
+                    if (!values.isEmpty()) {
+                        OpenIDAttribute fetched = new OpenIDAttribute(attr.getName(), attr.getType(), values);
+                        fetched.setRequired(attr.isRequired());
+                        attributes.add(fetched);
+                    }
+                }
+            }
+        } catch (MessageException e) {
+            throw new OpenIDConsumerException("Attribute retrieval failed", e);
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Retrieved attributes" + attributes);
+        }
+
+        return attributes;
     }
 }
