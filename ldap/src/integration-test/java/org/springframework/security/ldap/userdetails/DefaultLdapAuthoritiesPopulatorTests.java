@@ -38,9 +38,8 @@ public class DefaultLdapAuthoritiesPopulatorTests extends AbstractLdapIntegratio
     private DefaultLdapAuthoritiesPopulator populator;
     //~ Methods ========================================================================================================
 
-    public void onSetUp() throws Exception {
-        super.onSetUp();
-
+    @Before
+    public void setUp() throws Exception {
         populator = new DefaultLdapAuthoritiesPopulator(getContextSource(), "ou=groups");
         populator.setIgnorePartialResultException(false);
     }

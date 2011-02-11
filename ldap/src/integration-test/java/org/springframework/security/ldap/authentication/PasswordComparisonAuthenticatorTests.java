@@ -16,6 +16,7 @@
 package org.springframework.security.ldap.authentication;
 
 
+import org.junit.*;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.encoding.LdapShaPasswordEncoder;
@@ -29,7 +30,6 @@ import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
 
 import static org.junit.Assert.*;
-import org.junit.Test;
 
 /**
  * Tests for {@link PasswordComparisonAuthenticator}.
@@ -45,8 +45,8 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
 
     //~ Methods ========================================================================================================
 
-    public void onSetUp() throws Exception {
-        super.onSetUp();
+    @Before
+    public void setUp() throws Exception {
         authenticator = new PasswordComparisonAuthenticator(getContextSource());
         authenticator.setPasswordEncoder(new PlaintextPasswordEncoder());
         authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});

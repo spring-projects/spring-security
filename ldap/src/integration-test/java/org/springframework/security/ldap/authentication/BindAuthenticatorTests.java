@@ -40,7 +40,8 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
 
     //~ Methods ========================================================================================================
 
-    public void onSetUp() {
+    @Before
+    public void setUp() {
         authenticator = new BindAuthenticator(getContextSource());
         authenticator.setMessageSource(new SpringSecurityMessageSource());
         bob = new UsernamePasswordAuthenticationToken("bob", "bobspassword");

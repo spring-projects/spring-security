@@ -21,8 +21,7 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.*;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -47,8 +46,8 @@ public class LdapUserDetailsManagerTests extends AbstractLdapIntegrationTests {
     private LdapUserDetailsManager mgr;
     private SpringSecurityLdapTemplate template;
 
-    public void onSetUp() throws Exception {
-        super.onSetUp();
+    @Before
+    public void setUp() throws Exception {
         mgr = new LdapUserDetailsManager(getContextSource());
         template = new SpringSecurityLdapTemplate(getContextSource());
         DirContextAdapter ctx = new DirContextAdapter();

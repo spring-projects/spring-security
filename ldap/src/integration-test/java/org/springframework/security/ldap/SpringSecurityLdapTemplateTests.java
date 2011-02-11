@@ -25,7 +25,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.junit.Test;
+import org.junit.*;
 import org.springframework.ldap.UncategorizedLdapException;
 import org.springframework.ldap.core.ContextExecutor;
 
@@ -39,9 +39,8 @@ public class SpringSecurityLdapTemplateTests extends AbstractLdapIntegrationTest
 
     //~ Methods ========================================================================================================
 
-    public void onSetUp() throws Exception {
-        super.onSetUp();
-
+    @Before
+    public void setUp() throws Exception {
         template = new SpringSecurityLdapTemplate(getContextSource());
     }
 
