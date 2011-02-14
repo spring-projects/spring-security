@@ -38,15 +38,3 @@ dependencies {
     testRuntime "hsqldb:hsqldb:$hsqlVersion",
                 "cglib:cglib-nodep:2.2"
 }
-
-task ldapTests(type: Test) {
-    jvmArgs = ['-ea', '-Xmx500m', "-DapacheDSWorkDir=${buildDir}/apacheDSWork"]
-    include ("**/ldap/**")
-    maxParallelForks = 1
-    testReport = false
-}
-
-test {
-    dependsOn ldapTests
-    exclude ("**/ldap/**")
-}

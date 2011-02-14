@@ -62,6 +62,8 @@ task integrationTest(type: Test, dependsOn: jar) {
     testClassesDir = sourceSets.integrationTest.classesDir
     logging.captureStandardOutput(LogLevel.INFO)
     classpath = sourceSets.integrationTest.runtimeClasspath
+    maxParallelForks = 1
+    testReport = false
 }
 
 dependencies {
