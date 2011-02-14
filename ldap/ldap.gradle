@@ -9,15 +9,6 @@ apacheds_libs = [
          'org.apache.directory.shared:shared-ldap:0.9.15'
 ]
 
-configurations {
-    integrationTestCompile {
-        extendsFrom testCompile
-    }
-    integrationTestRuntime {
-        extendsFrom integrationTestCompile, testRuntime
-    }
-}
-
 dependencies {
     compile project(':spring-security-core'),
             "org.springframework:spring-beans:$springVersion",
@@ -38,18 +29,7 @@ dependencies {
     }
 }
 
-sourceSets {
-    integrationTest {
-        java.srcDir file('src/integration-test/java')
-        resources.srcDir file('src/integration-test/resources')
-        compileClasspath = sourceSets.main.classes + sourceSets.test.classes + configurations.integrationTestCompile
-        runtimeClasspath = classes + compileClasspath + configurations.integrationTestRuntime
-    }
-}
-
-task integrationTest(type: Test, dependsOn: jar) {
-    testClassesDir = sourceSets.integrationTest.classesDir
-    classpath = sourceSets.integrationTest.runtimeClasspath
+integrationTest {
     include('**/ApacheDSServerIntegrationTests.class')
 //    exclude('**/OpenLDAPIntegrationTestSuite.class')
     maxParallelForks = 1

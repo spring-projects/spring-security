@@ -39,6 +39,31 @@ configurations {
     testCompile.transitive = false
 }
 
+// Integration test setup
+configurations {
+    integrationTestCompile {
+        extendsFrom testCompile
+    }
+    integrationTestRuntime {
+        extendsFrom integrationTestCompile, testRuntime
+    }
+}
+
+sourceSets {
+    integrationTest {
+        java.srcDir file('src/integration-test/java')
+        resources.srcDir file('src/integration-test/resources')
+        compileClasspath = sourceSets.main.classes + sourceSets.test.classes + configurations.integrationTestCompile
+        runtimeClasspath = classes + compileClasspath + configurations.integrationTestRuntime
+    }
+}
+
+task integrationTest(type: Test, dependsOn: jar) {
+    testClassesDir = sourceSets.integrationTest.classesDir
+    logging.captureStandardOutput(LogLevel.INFO)
+    classpath = sourceSets.integrationTest.runtimeClasspath
+}
+
 dependencies {
     compileOnly 'commons-logging:commons-logging:1.1.1'
 

@@ -21,7 +21,7 @@ dependencies {
                 'net.sourceforge.jwebunit:jwebunit-htmlunit-plugin:2.2'
 }
 
-test {
+integrationTest {
     useTestNG();
     options {
         jvmArgs = ["-ea", '-Xms128m', '-Xmx500m']

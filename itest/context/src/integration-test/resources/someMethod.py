@@ -1,4 +1,3 @@
-    
 print authentication.name;
 
 for authority in authentication.authorities:
