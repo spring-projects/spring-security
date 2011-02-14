@@ -22,7 +22,7 @@ dependencies {
 
     provided "javax.servlet:servlet-api:2.5"
 
-    groovy group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.4'
+    groovy group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.7'
 
     testCompile project(':spring-security-ldap'),
                 project(':spring-security-openid'),
@@ -32,9 +32,13 @@ dependencies {
                 "org.springframework.ldap:spring-ldap-core:$springLdapVersion",
                 "org.springframework:spring-jdbc:$springVersion",
                 "org.springframework:spring-tx:$springVersion",
-                'org.spockframework:spock-core:0.4-groovy-1.7',
+                'org.spockframework:spock-core:0.5-groovy-1.7',
                 "org.slf4j:jcl-over-slf4j:$slf4jVersion"
 
     testRuntime "hsqldb:hsqldb:$hsqlVersion",
                 "cglib:cglib-nodep:2.2"
+}
+
+integrationTest {
+    systemProperties['apacheDSWorkDir'] = "${buildDir}/apacheDSWork"
 }
