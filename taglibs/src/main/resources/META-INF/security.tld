@@ -3,7 +3,7 @@
         PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN"
         "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
 <taglib>
-    <tlib-version>1.1.1</tlib-version>
+    <tlib-version>3.0</tlib-version>
     <jsp-version>1.2</jsp-version>
     <short-name>security</short-name>
     <uri>http://www.springframework.org/security/tags</uri>
@@ -14,6 +14,7 @@
     <tag>
         <name>authorize</name>
         <tag-class>org.springframework.security.taglibs.authz.AuthorizeTag</tag-class>
+        <body-content>JSP</body-content>
         <description>
             A tag which outputs the body of the tag if the configured access expression
             evaluates to true for the currently authenticated principal.
@@ -85,6 +86,7 @@
     <tag>
         <name>authentication</name>
         <tag-class>org.springframework.security.taglibs.authz.AuthenticationTag</tag-class>
+        <body-content>empty</body-content>
         <description>
             Allows access to the current Authentication object.
         </description>
@@ -128,6 +130,7 @@
     <tag>
         <name>accesscontrollist</name>
         <tag-class>org.springframework.security.taglibs.authz.AccessControlListTag</tag-class>
+        <body-content>JSP</body-content>
         <description>
             Allows inclusion of a tag body if the current Authentication
             has one of the specified permissions to the presented
