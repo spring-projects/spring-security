@@ -2,7 +2,7 @@ package org.springframework.security.core.codec;
 
 
 /**
- * Base64 encoder which is a reduced version of Robert Harder's public domain implementation.
+ * Base64 encoder which is a reduced version of Robert Harder's public domain implementation (version 2.3.7).
  * See <a href="http://iharder.net/base64">http://iharder.net/base64</a> for more information.
  * <p>
  * For internal use only.
@@ -101,8 +101,8 @@ public final class Base64 {
         -9,-9,-9,-9,-9,-9,                          // Decimal 91 - 96
         26,27,28,29,30,31,32,33,34,35,36,37,38,     // Letters 'a' through 'm'
         39,40,41,42,43,44,45,46,47,48,49,50,51,     // Letters 'n' through 'z'
-        -9,-9,-9,-9                                 // Decimal 123 - 126
-        /*,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,     // Decimal 127 - 139
+        -9,-9,-9,-9,-9                              // Decimal 123 - 127
+        ,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,       // Decimal 128 - 139
         -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,     // Decimal 140 - 152
         -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,     // Decimal 153 - 165
         -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,     // Decimal 166 - 178
@@ -111,7 +111,7 @@ public final class Base64 {
         -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,     // Decimal 205 - 217
         -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,     // Decimal 218 - 230
         -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,     // Decimal 231 - 243
-        -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9         // Decimal 244 - 255 */
+        -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9         // Decimal 244 - 255
     };
 
 
@@ -163,8 +163,8 @@ public final class Base64 {
       -9,                                         // Decimal 96
       26,27,28,29,30,31,32,33,34,35,36,37,38,     // Letters 'a' through 'm'
       39,40,41,42,43,44,45,46,47,48,49,50,51,     // Letters 'n' through 'z'
-      -9,-9,-9,-9                                 // Decimal 123 - 126
-      /*,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,     // Decimal 127 - 139
+      -9,-9,-9,-9,-9                              // Decimal 123 - 127
+      ,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,     // Decimal 128 - 139
       -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,     // Decimal 140 - 152
       -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,     // Decimal 153 - 165
       -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,     // Decimal 166 - 178
@@ -173,7 +173,7 @@ public final class Base64 {
       -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,     // Decimal 205 - 217
       -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,     // Decimal 218 - 230
       -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,     // Decimal 231 - 243
-      -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9         // Decimal 244 - 255 */
+      -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9         // Decimal 244 - 255
     };
 
 
@@ -228,8 +228,8 @@ public final class Base64 {
       -9,                                         // Decimal 96
       38,39,40,41,42,43,44,45,46,47,48,49,50,     // Letters 'a' through 'm'
       51,52,53,54,55,56,57,58,59,60,61,62,63,     // Letters 'n' through 'z'
-      -9,-9,-9,-9                                 // Decimal 123 - 126
-      /*,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,     // Decimal 127 - 139
+      -9,-9,-9,-9,-9                                 // Decimal 123 - 127
+       ,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,     // Decimal 128 - 139
         -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,     // Decimal 140 - 152
         -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,     // Decimal 153 - 165
         -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,     // Decimal 166 - 178
@@ -238,7 +238,7 @@ public final class Base64 {
         -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,     // Decimal 205 - 217
         -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,     // Decimal 218 - 230
         -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,     // Decimal 231 - 243
-        -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9         // Decimal 244 - 255 */
+        -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9         // Decimal 244 - 255
     };
 
 
@@ -370,10 +370,6 @@ public final class Base64 {
 
 
     /**
-     * Similar to {@link #encodeBytes(byte[], int, int, int)} but returns
-     * a byte array instead of instantiating a String. This is more efficient
-     * if you're working with I/O streams and have large data sets to encode.
-     *
      *
      * @param source The data to convert
      * @param off Offset in array where conversion should begin
@@ -444,7 +440,7 @@ public final class Base64 {
 
 
         // Only resize array if we didn't guess it right.
-        if( e < outBuff.length - 1 ){
+        if( e <= outBuff.length - 1 ){
             byte[] finalOut = new byte[e];
             System.arraycopy(outBuff,0, finalOut,0,e);
             //System.err.println("Having to resize array from " + outBuff.length + " to " + e );
@@ -600,26 +596,25 @@ public final class Base64 {
 
         byte[] b4        = new byte[4];     // Four byte buffer from source, eliminating white space
         int    b4Posn    = 0;               // Keep track of four byte input buffer
-        byte   sbiCrop;                     // Low seven bits (ASCII) of input
-        byte   sbiDecode;                   // Special value from DECODABET
+        int    i         = 0;               // Source array counter
+        byte   sbiDecode = 0;               // Special value from DECODABET
 
-        for(int i = off; i < off+len; i++ ) {  // Loop through source
+        for(i = off; i < off+len; i++ ) {  // Loop through source
 
-            sbiCrop = (byte)(source[i] & 0x7f); // Only the low seven bits
-            sbiDecode = DECODABET[ sbiCrop ];   // Special value
+            sbiDecode = DECODABET[ source[i]&0xFF ];
 
             // White space, Equals sign, or legit Base64 character
             // Note the values such as -5 and -9 in the
             // DECODABETs at the top of the file.
             if( sbiDecode >= WHITE_SPACE_ENC )  {
                 if( sbiDecode >= EQUALS_SIGN_ENC ) {
-                    b4[ b4Posn++ ] = sbiCrop;           // Save non-whitespace
+                    b4[ b4Posn++ ] = source[i];         // Save non-whitespace
                     if( b4Posn > 3 ) {                  // Time to decode?
                         outBuffPosn += decode4to3( b4, 0, outBuff, outBuffPosn, options );
                         b4Posn = 0;
 
                         // If that was the equals sign, break out of 'for' loop
-                        if( sbiCrop == EQUALS_SIGN ) {
+                        if( source[i] == EQUALS_SIGN ) {
                             break;
                         }
                     }
@@ -628,7 +623,7 @@ public final class Base64 {
             else {
                 // There's a bad input character in the Base64 stream.
                 throw new InvalidBase64CharacterException( String.format(
-                "Bad Base64 input character '%c' in array position %d", source[i], i ) );
+                "Bad Base64 input character decimal %d in array position %d", ((int)source[i])&0xFF, i ) );
             }
         }
 
