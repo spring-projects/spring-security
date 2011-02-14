@@ -86,7 +86,7 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 
         if (StringUtils.hasText(deleteCookies)) {
             BeanDefinition cookieDeleter = new RootBeanDefinition(CookieClearingLogoutHandler.class);
-            String[] names = StringUtils.commaDelimitedListToStringArray(deleteCookies);
+            String[] names = StringUtils.tokenizeToStringArray(deleteCookies, ",");
             cookieDeleter.getConstructorArgumentValues().addGenericArgumentValue(names);
             handlers.add(cookieDeleter);
         }

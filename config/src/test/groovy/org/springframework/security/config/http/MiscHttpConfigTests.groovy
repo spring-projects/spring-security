@@ -355,8 +355,8 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
 
         expect:
         handlers[1] instanceof CookieClearingLogoutHandler
-        handlers[1].cookiesToClear[0] = 'JSESSIONID'
-        handlers[1].cookiesToClear[1] = 'mycookie'
+        handlers[1].cookiesToClear[0] == 'JSESSIONID'
+        handlers[1].cookiesToClear[1] == 'mycookie'
     }
 
     def invalidLogoutUrlIsDetected() {
