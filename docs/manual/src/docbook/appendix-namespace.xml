@@ -15,30 +15,29 @@
         explaining their purpose. The namespace is written in <link
         xlink:href="http://www.relaxng.org/">RELAX NG</link> Compact format and later converted into
         an XSD schema. If you are familiar with this format, you may wish to examine the <link
-        xlink:href="https://fisheye.springsource.org/browse/spring-security/config/src/main/resources/org/springframework/security/config/spring-security-3.1.rnc"
+        xlink:href="http://git.springsource.org/spring-security/spring-security/blobs/3.0.x/config/src/main/resources/org/springframework/security/config/spring-security-3.0.4.rnc"
         >schema file</link> directly.</para>
     <section xml:id="nsa-http">
         <title>Web Application Security - the <literal>&lt;http&gt;</literal> Element</title>
-        <para> If you use an <literal>&lt;http&gt;</literal> element within your application, a
-            <classname>FilterChainProxy</classname> bean named "springSecurityFilterChain" is
-            created and the configuration within the element is used to build a filter chain within
-            <classname>FilterChainProxy</classname>. As of Spring Security 3.1, additional
-            <literal>http</literal> elements can be used to add extra filter chains <footnote>
+        <para> The <literal>&lt;http&gt;</literal> element encapsulates the security configuration
+            for the web layer of your application. It creates a
+            <classname>FilterChainProxy</classname> bean named "springSecurityFilterChain" which
+            maintains the stack of security filters which make up the web security configuration <footnote>
             <para>See the <link xlink:href="#ns-web-xml"> introductory chapter</link> for how to set
                 up the mapping from your <literal>web.xml</literal></para>
-            </footnote>. Some core filters are always created in a filter chain and others will be
-            added to the stack depending on the attributes and child elements which are present. The
-            positions of the standard filters are fixed (see <link xlink:href="#filter-stack">the
-            filter order table</link> in the namespace introduction), removing a common source of
-            errors with previous versions of the framework when users had to configure the filter
-            chain explicitly in the<classname>FilterChainProxy</classname> bean. You can, of course,
-            still do this if you need full control of the configuration. </para>
+            </footnote>. Some core filters are always created and others will be added to the stack
+            depending on the attributes child elements which are present. The positions of the
+            standard filters are fixed (see <link xlink:href="#filter-stack">the filter order
+            table</link> in the namespace introduction), removing a common source of errors with
+            previous versions of the framework when users had to configure the filter chain
+            explicitly in the<classname>FilterChainProxy</classname> bean. You can, of course, still
+            do this if you need full control of the configuration. </para>
         <para> All filters which require a reference to the
             <interfacename>AuthenticationManager</interfacename> will be automatically injected with
             the internal instance created by the namespace configuration (see the <link
             xlink:href="#ns-auth-manager"> introductory chapter</link> for more on the
             <interfacename>AuthenticationManager</interfacename>). </para>
-        <para> Each <literal>&lt;http&gt;</literal> namespace block always creates an
+        <para> The <literal>&lt;http&gt;</literal> namespace block always creates an
             <classname>SecurityContextPersistenceFilter</classname>, an
             <classname>ExceptionTranslationFilter</classname> and a
             <classname>FilterSecurityInterceptor</classname>. These are fixed and cannot be replaced
@@ -47,50 +46,25 @@
             <title><literal>&lt;http&gt;</literal> Attributes</title>
             <para> The attributes on the <literal>&lt;http&gt;</literal> element control some of the
                 properties on the core filters. </para>
-            <section xml:id="nsa-http-pattern">
-                <title><literal>pattern</literal></title>
-                <para>Defining a pattern for the <literal>http</literal> element controls the
-                    requests which will be filtered through the list of filters which it defines.
-                    The interpretation is dependent on the configured <link
-                    xlink:href="#nsa-path-type">request-matcher</link>. If no pattern is defined,
-                    all requests will be matched, so the most specific patterns should be declared
-                    first. </para>
-            </section>
-            <section xml:id="nsa-http-secured">
-                <title><literal>security</literal></title>
-                <para>A request pattern can be mapped to an empty filter chain, by setting this
-                    attribute to <literal>none</literal>. No security will be applied and none of
-                    Spring Security's features will be available. </para>
-            </section>
             <section xml:id="nsa-servlet-api-provision">
                 <title><literal>servlet-api-provision</literal></title>
                 <para> Provides versions of <literal>HttpServletRequest</literal> security methods
                     such as <literal>isUserInRole()</literal> and <literal>getPrincipal()</literal>
                     which are implemented by adding a
                     <classname>SecurityContextHolderAwareRequestFilter</classname> bean to the
-                    stack. Defaults to "true".</para>
-            </section>
-            <section xml:id="nsa-jaas-api-provision">
-                <title><literal>jaas-api-provision</literal></title>
-                <para>If available, runs the request as the <literal>Subject</literal> acquired from
-                    the <classname>JaasAuthenticationToken</classname> which is implemented by
-                    adding a <classname>JaasApiIntegrationFilter</classname> bean to the stack.
-                    Defaults to "false".</para>
+                    stack. Defaults to "true". </para>
             </section>
             <section xml:id="nsa-path-type">
-                <title><literal>request-matcher</literal></title>
-                <para> Defines the <interfacename>RequestMatcher</interfacename> strategy used in
-                    the <classname>FilterChainProxy</classname> and the beans created by the
-                    <literal>intercept-url</literal> to match incoming requests. Options are
-                    currently <literal>ant</literal>, <literal>regex</literal> and
-                    <literal>ciRegex</literal>, for ant, regular-expression and case-insensitive
-                    regular-expression repsectively. A separate instance is created for each
-                    <literal>intercept-url</literal> element using its <literal>pattern</literal>
-                    and <literal>method</literal> attributes (see below). Ant paths are matched
-                    using an <classname>AntPathRequestMatcher</classname> and regular expressions
-                    are matched using a <classname>RegexRequestMatcher</classname>. See the Javadoc
-                    for these classes for more details on exactly how the matching is preformed. Ant
-                    paths are the default strategy.</para>
+                <title><literal>path-type</literal></title>
+                <para> Controls whether URL patterns are interpreted as ant paths (the default) or
+                    regular expressions. In practice this sets a particular
+                    <interfacename>UrlMatcher</interfacename> instance on the
+                    <classname>FilterChainProxy</classname>. </para>
+            </section>
+            <section xml:id="nsa-lowercase-comparisons">
+                <title><literal>lowercase-comparisons</literal></title>
+                <para> Whether test URLs should be converted to lower case prior to comparing with
+                    defined path patterns. If unspecified, defaults to "true" </para>
             </section>
             <section xml:id="nsa-realm">
                 <title><literal>realm</literal></title>
@@ -105,12 +79,6 @@
                     This attribute allows this behaviour to be overridden by defining a customized
                     <interfacename>AuthenticationEntryPoint</interfacename> bean which will start
                     the authentication process. </para>
-            </section>
-            <section xml:id="nsa-security-context-repo-ref">
-                <title><literal>security-context-repository-ref</literal></title>
-                <para> Allows injection of a custom
-                    <interfacename>SecurityContextRepository</interfacename> into the
-                    <classname>SecurityContextPersistenceFilter</classname>. </para>
             </section>
             <section xml:id="nsa-access-decision-manager-ref">
                 <title><literal>access-decision-manager-ref</literal></title>
@@ -131,13 +99,13 @@
                 <para> Corresponds to the <literal>observeOncePerRequest</literal> property of
                     <classname>FilterSecurityInterceptor</classname>. Defaults to "true". </para>
             </section>
-            <section xml:id="nsa-create-session">
+            <section xml:id="create-session">
                 <title><literal>create-session</literal></title>
                 <para> Controls the eagerness with which an HTTP session is created. If not set,
                     defaults to "ifRequired". Other options are "always" and "never". The setting of
                     this attribute affect the <literal>allowSessionCreation</literal> and
                     <literal>forceEagerSessionCreation</literal> properties of
-                    <classname>HttpSessionContextIntegrationFilter</classname>.
+                    <classname>SecurityContextPersistenceFilter</classname>.
                     <literal>allowSessionCreation</literal> will always be true unless this
                     attribute is set to "never". <literal>forceEagerSessionCreation</literal> is
                     "false" unless it is set to "always". So the default configuration allows
@@ -145,7 +113,7 @@
                     control is enabled, when <literal>forceEagerSessionCreation</literal> will be
                     set to true, regardless of what the setting is here. Using "never" would then
                     cause an exception during the initialization of
-                    <classname>HttpSessionContextIntegrationFilter</classname>. </para>
+                    <classname>SecurityContextPersistenceFilter</classname>. </para>
             </section>
             <section xml:id="nsa-use-expressions">
                 <title><literal>use-expressions</literal></title>
@@ -174,17 +142,19 @@
             <para> This element is used to define the set of URL patterns that the application is
                 interested in and to configure how they should be handled. It is used to construct
                 the <interfacename>FilterInvocationSecurityMetadataSource</interfacename> used by
-                the <classname>FilterSecurityInterceptor</classname>. It is also responsible for
-                configuring a <classname>ChannelAuthenticationFilter</classname> if particular URLs
-                need to be accessed by HTTPS, for example. When matching the specified patterns
-                against an incoming request, the matching is done in the order in which the elements
-                are declared. So the most specific matches patterns should come first and the most
+                the <classname>FilterSecurityInterceptor</classname> and to exclude particular
+                patterns from the filter chain entirely (by setting the attribute
+                <literal>filters="none"</literal>). It is also responsible for configuring a
+                <classname>ChannelAuthenticationFilter</classname> if particular URLs need to be
+                accessed by HTTPS, for example. When matching the specified patterns against an
+                incoming request, the matching is done in the order in which the elements are
+                declared. So the most specific matches patterns should come first and the most
                 general should come last.</para>
             <section xml:id="nsa-pattern">
                 <title><literal>pattern</literal></title>
                 <para> The pattern which defines the URL path. The content will depend on the
-                    <literal>request-matcher</literal> attribute from the containing http element,
-                    so will default to ant path syntax. </para>
+                    <literal>path-type</literal> attribute from the containing http element, so will
+                    default to ant path syntax. </para>
             </section>
             <section xml:id="nsa-method">
                 <title><literal>method</literal></title>
@@ -242,7 +212,7 @@
                 filter stack and an <classname>LoginUrlAuthenticationEntryPoint</classname> to the
                 application context to provide authentication on demand. This will always take
                 precedence over other namespace-created entry points. If no attributes are supplied,
-                a login page will be generated automatically at the URL "/spring_security_login" <footnote>
+                a login page will be generated automatically at the URL "/spring-security-login" <footnote>
                 <para>This feature is really just provided for convenience and is not intended for
                     production (where a view technology will have been chosen and can be used to
                     render a customized login page). The class
@@ -255,7 +225,7 @@
                 <para> The URL that should be used to render the login page. Maps to the
                     <literal>loginFormUrl</literal> property of the
                     <classname>LoginUrlAuthenticationEntryPoint</classname>. Defaults to
-                    "/spring_security_login". </para>
+                    "/spring-security-login". </para>
             </section>
             <section>
                 <title><literal>login-processing-url</literal></title>
@@ -293,11 +263,9 @@
                 <title><literal>authentication-success-handler-ref</literal></title>
                 <para>This can be used as an alternative to <literal>default-target-url</literal>
                     and <literal>always-use-default-target</literal>, giving you full control over
-                    the navigation flow after a successful authentication. The value should be the
+                    the navigation flow after a successful authentication. The value should be he
                     name of an <interfacename>AuthenticationSuccessHandler</interfacename> bean in
-                    the application context. By default, an imlementation of
-                    <classname>SavedRequestAwareAuthenticationSuccessHandler</classname> is used and
-                    injected with the <literal>default-target-url</literal>.</para>
+                    the application context. </para>
             </section>
             <section>
                 <title><literal>authentication-failure-handler-ref</literal></title>
@@ -330,12 +298,17 @@
                     <classname>JdbcTokenRepositoryImpl</classname> instance. </para>
             </section>
             <section>
+                <title><literal>token-repository-ref</literal></title>
+                <para> Configures a <classname>PersistentTokenBasedRememberMeServices</classname>
+                    but allows the use of a custom
+                    <interfacename>PersistentTokenRepository</interfacename> bean. </para>
+            </section>
+            <section>
                 <title><literal>services-ref</literal></title>
                 <para> Allows complete control of the
                     <interfacename>RememberMeServices</interfacename> implementation that will be
-                    used by the filter. The value should be the <literal>id</literal> of a bean in the application
-                    context which implements this interface. Should also implement
-                    <interfacename>LogoutHandler</interfacename> if a logout filter is in use.</para>
+                    used by the filter. The value should be the Id of a bean in the application
+                    context which implements this interface. </para>
             </section>
             <section>
                 <title><literal>token-repository-ref</literal></title>
@@ -367,7 +340,7 @@
                     <interfacename>UserDetailsService</interfacename>, so there has to be one
                     defined in the application context. If there is only one, it will be selected
                     and used automatically by the namespace configuration. If there are multiple
-                    instances, you can specify a bean <literal>id</literal> explicitly using this attribute. </para>
+                    instances, you can specify a bean Id explicitly using this attribute. </para>
             </section>
         </section>
         <section xml:id="nsa-session-mgmt">
@@ -470,17 +443,8 @@
                 <classname>OpenIDAuthenticationFilter</classname> and
                 <classname>OpenIDAuthenticationProvider</classname> will be registered. The latter
                 requires a reference to a <interfacename>UserDetailsService</interfacename>. Again,
-                this can be specified by <literal>id</literal>, using the <literal>user-service-ref</literal>
+                this can be specified by Id, using the <literal>user-service-ref</literal>
                 attribute, or will be located automatically in the application context. </para>
-            <section>
-                <title>The <literal>&lt;attribute-exchange></literal> Element</title>
-                <para>The <literal>attribute-exchange</literal> element defines the list of
-                    attributes which should be requested from the identity provider. More than one
-                    can be used, in which case each must have an <literal>identifier-match</literal>
-                    attribute, containing a regular expression which is matched against the supplied
-                    OpenID identifer. This allows different attribute lists to be fetched from
-                    different providers (Google, Yahoo etc).</para>
-            </section>
         </section>
         <section xml:id="nsa-logout">
             <title>The <literal>&lt;logout&gt;</literal> Element</title>
@@ -497,21 +461,10 @@
                     Defaults to "/". </para>
             </section>
             <section>
-                <title>The <literal>success-handler-ref</literal> attribute</title>
-                <para>May be used to supply an instance of <interfacename>LogoutSuccessHandler</interfacename>
-                    which will be invoked to control the navigation after logging out.
-                </para>
-            </section>
-            <section>
                 <title>The <literal>invalidate-session</literal> attribute</title>
                 <para> Maps to the <literal>invalidateHttpSession</literal> of the
                     <classname>SecurityContextLogoutHandler</classname>. Defaults to "true", so the
-                    session will be invalidated on logout.</para>
-            </section>
-            <section>
-                <title>The <literal>delete-cookies</literal> attribute</title>
-                <para>A comma-separated list of the names of cookies which should be deleted when the user logs out.
-                </para>
+                    session will be invalidated on logout. </para>
             </section>
         </section>
         <section>
@@ -626,13 +579,6 @@
                     <interfacename>AccessDecisionManager</interfacename>, so you need to make sure
                     you do this if you are using a custom implementation and want to use these
                     annotations. </para>
-            </section>
-            <section xml:id="nsa-gms-mode">
-                <title>The <literal>mode</literal> Attribute</title>
-                <para>This attribute can be set to <quote>aspectj</quote> to specify that AspectJ
-                    should be used instead of the default Spring AOP. Secured methods must be woven
-                    with the <classname>AnnotationSecurityAspect</classname> from the
-                    <literal>spring-security-aspects</literal> module. </para>
             </section>
             <section>
                 <title>Securing Methods using <literal>&lt;protect-pointcut&gt;</literal></title>
