@@ -92,6 +92,7 @@ sourceSets.main.compileClasspath += configurations.provided
 test {
     jvmArgs = ['-ea', '-Xmx500m']
     maxParallelForks = guessMaxForks()
+    logging.captureStandardOutput(LogLevel.INFO)
     testReport = false
 }
 

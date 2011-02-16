@@ -32,7 +32,23 @@ dependencies {
     compile 'com.google.appengine:appengine-tools-sdk:1.4.2'
 }
 
+dependencies{
+    compile "emma:emma:2.0.5312"
+}
+
+// Bundlor
+dependencies {
+    compile 'com.springsource.bundlor:com.springsource.bundlor:1.0.0.RELEASE',
+            'com.springsource.bundlor:com.springsource.bundlor.blint:1.0.0.RELEASE'
+}
+
 task ide(type: Copy)  {
     from configurations.runtime
     into 'ide'
+}
+
+apply plugin: 'idea'
+
+ideaModule {
+    excludeDirs += file('.gradle')
 }
