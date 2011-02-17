@@ -47,6 +47,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
     @Override
     protected SecurityExpressionRoot createSecurityExpressionRoot(Authentication authentication, MethodInvocation invocation) {
         MethodSecurityExpressionRoot root = new MethodSecurityExpressionRoot(authentication);
+        root.setThis(invocation.getThis());
         root.setPermissionEvaluator(permissionEvaluator);
 
         return root;

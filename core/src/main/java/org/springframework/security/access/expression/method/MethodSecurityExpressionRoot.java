@@ -1,8 +1,5 @@
 package org.springframework.security.access.expression.method;
 
-import java.io.Serializable;
-
-import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.core.Authentication;
 
@@ -16,6 +13,7 @@ import org.springframework.security.core.Authentication;
 class MethodSecurityExpressionRoot extends SecurityExpressionRoot {
     private Object filterObject;
     private Object returnObject;
+    private Object target;
 
     MethodSecurityExpressionRoot(Authentication a) {
         super(a);
@@ -37,4 +35,17 @@ class MethodSecurityExpressionRoot extends SecurityExpressionRoot {
         return returnObject;
     }
 
+    /**
+     * Sets the "this" property for use in expressions. Typically this will be the "this" property of
+     * the {@code JoinPoint} representing the method invocation which is being protected.
+     *
+     * @param target the target object on which the method in is being invoked.
+     */
+    void setThis(Object target) {
+        this.target = target;
+    }
+
+    public Object getThis() {
+        return target;
+    }
 }

@@ -15,6 +15,8 @@ import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.core.Authentication;
 
+import java.util.*;
+
 /**
  * Tests for {@link MethodSecurityExpressionRoot}
  *
@@ -101,5 +103,29 @@ public class MethodSecurityExpressionRootTests {
         e = parser.parseExpression("hasPermission(#domainObject, 0xFF)");
      // evaluator returns false, make sure return value matches
         assertFalse(ExpressionUtils.evaluateAsBoolean(e, ctx));
+    }
+
+    @Test
+    public void hasPermissionWorksWithThisObject() throws Exception {
+        Object targetObject = new Object() {
+            public String getX() {
+                return "x";
+            }
+        };
+        root.setThis(targetObject);
+        Integer i = 2;
+        PermissionEvaluator pe = mock(PermissionEvaluator.class);
+        root.setPermissionEvaluator(pe);
+        when(pe.hasPermission(user, targetObject, i)).thenReturn(true)
+                .thenReturn(false);
+        when(pe.hasPermission(user, "x", i)).thenReturn(true);
+
+        Expression e = parser.parseExpression("hasPermission(this, 2)");
+        assertTrue(ExpressionUtils.evaluateAsBoolean(e, ctx));
+        e = parser.parseExpression("hasPermission(this, 2)");
+        assertFalse(ExpressionUtils.evaluateAsBoolean(e, ctx));
+
+        e = parser.parseExpression("hasPermission(this.x, 2)");
+        assertTrue(ExpressionUtils.evaluateAsBoolean(e, ctx));
     }
 }
