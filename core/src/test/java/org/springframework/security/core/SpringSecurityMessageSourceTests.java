@@ -31,7 +31,6 @@ public class SpringSecurityMessageSourceTests extends TestCase {
     //~ Methods ========================================================================================================
 
     public void testOperation() {
-        fail("deliberate test failure");
         SpringSecurityMessageSource msgs = new SpringSecurityMessageSource();
         assertEquals("\u4E0D\u5141\u8BB8\u8BBF\u95EE", msgs.getMessage("AbstractAccessDecisionManager.accessDenied", null, Locale.SIMPLIFIED_CHINESE));
     }
