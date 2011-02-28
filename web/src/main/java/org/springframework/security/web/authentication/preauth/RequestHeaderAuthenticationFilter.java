@@ -15,11 +15,11 @@ import org.springframework.util.Assert;
  * in combination with other Spring Security authentication mechanisms such as form login, as this would imply there
  * was a means of bypassing the external system which would be risky.
  * <p>
- * The property <tt>principalRequestHeader</tt> is the name of the request header that contains the username. It
+ * The property {@code principalRequestHeader} is the name of the request header that contains the username. It
  * defaults to "SM_USER" for compatibility with Siteminder.
  * <p>
- * If the header is missing from the request, <tt>getPreAuthenticatedPrincipal</tt> will throw an exception. You
- * can override this behaviour by setting the <tt>exceptionIfMissingHeader</tt> property.
+ * If the header is missing from the request, {@code getPreAuthenticatedPrincipal} will throw an exception. You
+ * can override this behaviour by setting the {@code exceptionIfHeaderMissing} property.
  *
  *
  * @author Luke Taylor
@@ -31,10 +31,10 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
     private boolean exceptionIfHeaderMissing = true;
 
     /**
-     * Read and returns the header named by <tt>principalRequestHeader</tt> from the request.
+     * Read and returns the header named by {@code principalRequestHeader} from the request.
      *
-     * @throws PreAuthenticatedCredentialsNotFoundException if the header is missing and <tt>exceptionIfHeaderMissing</tt>
-     *          is set to <tt>true</tt>.
+     * @throws PreAuthenticatedCredentialsNotFoundException if the header is missing and {@code exceptionIfHeaderMissing}
+     *          is set to {@code true}.
      */
     protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
         String principal = request.getHeader(principalRequestHeader);
@@ -48,7 +48,7 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
     }
 
     /**
-     * Credentials aren't usually applicable, but if a <tt>credentialsRequestHeader</tt> is set, this
+     * Credentials aren't usually applicable, but if a {@code credentialsRequestHeader} is set, this
      * will be read and used as the credentials value. Otherwise a dummy value will be used.
      */
     protected Object getPreAuthenticatedCredentials(HttpServletRequest request) {
@@ -70,9 +70,9 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
     }
 
     /**
-     * Defines whether an exception should be raised if the principal header is missing. Defaults to <tt>true</tt>.
+     * Defines whether an exception should be raised if the principal header is missing. Defaults to {@code true}.
      *
-     * @param exceptionIfHeaderMissing set to <tt>false</tt> to override the default behaviour and allow
+     * @param exceptionIfHeaderMissing set to {@code false} to override the default behaviour and allow
      *          the request to proceed if no header is found.
      */
     public void setExceptionIfHeaderMissing(boolean exceptionIfHeaderMissing) {
