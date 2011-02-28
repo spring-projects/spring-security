@@ -2,7 +2,7 @@ apply plugin: 'war'
 apply plugin: 'jetty'
 apply plugin: 'gae'
 
-gaeVersion="1.3.7"
+gaeVersion="1.4.2"
 
 repositories {
     // Hibernate Validator
