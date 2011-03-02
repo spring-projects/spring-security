@@ -21,9 +21,8 @@ import org.springframework.security.core.Authentication;
 public abstract class AbstractSecurityExpressionHandler<T> implements SecurityExpressionHandler<T>, ApplicationContextAware {
     private final AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
     private final ExpressionParser expressionParser = new SpelExpressionParser();
-    private final SecurityExpressionRootPropertyAccessor sxrpa = new SecurityExpressionRootPropertyAccessor();
+    private ApplicationContextPropertyAccessor sxrpa = new ApplicationContextPropertyAccessor(null);
     private RoleHierarchy roleHierarchy;
-    private ApplicationContext applicationContext;
 
     public final ExpressionParser getExpressionParser() {
         return expressionParser;
@@ -42,7 +41,6 @@ public abstract class AbstractSecurityExpressionHandler<T> implements SecurityEx
         SecurityExpressionRoot root = createSecurityExpressionRoot(authentication, invocation);
         root.setTrustResolver(trustResolver);
         root.setRoleHierarchy(roleHierarchy);
-        root.setApplicationContext(applicationContext);
         StandardEvaluationContext ctx = createEvaluationContextInternal(authentication, invocation);
         ctx.addPropertyAccessor(sxrpa);
         ctx.setRootObject(root);
@@ -69,7 +67,7 @@ public abstract class AbstractSecurityExpressionHandler<T> implements SecurityEx
      *
      * @param authentication the current authentication object
      * @param invocation the invocation (filter, method, channel)
-     * @return a
+     * @return the object wh
      */
     protected abstract SecurityExpressionRoot createSecurityExpressionRoot(Authentication authentication, T invocation);
 
@@ -78,6 +76,6 @@ public abstract class AbstractSecurityExpressionHandler<T> implements SecurityEx
     }
 
     public void setApplicationContext(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
+        sxrpa = new ApplicationContextPropertyAccessor(applicationContext);
     }
 }
