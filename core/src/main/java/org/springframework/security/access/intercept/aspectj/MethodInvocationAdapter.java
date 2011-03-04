@@ -32,11 +32,31 @@ public final class MethodInvocationAdapter implements MethodInvocation {
         }
         String targetMethodName = jp.getStaticPart().getSignature().getName();
         Class<?>[] types = ((CodeSignature) jp.getStaticPart().getSignature()).getParameterTypes();
-        Class<?> declaringType = ((CodeSignature) jp.getStaticPart().getSignature()).getDeclaringType();
+        Class<?> declaringType = jp.getStaticPart().getSignature().getDeclaringType();
 
-        method = ClassUtils.getMethodIfAvailable(declaringType, targetMethodName, types);
-        Assert.notNull(method, "Could not obtain target method from JoinPoint: '"+ jp + "'");
+        method = findMethod(targetMethodName, declaringType, types);
 
+        if(method == null) {
+            throw new IllegalArgumentException("Could not obtain target method from JoinPoint: '"+ jp + "'");
+        }
+    }
+
+    private Method findMethod(String name, Class<?> declaringType, Class<?>[] params) {
+        Method method = null;
+
+        try {
+            method = declaringType.getMethod(name, params);
+        } catch (NoSuchMethodException ignored) {
+        }
+
+        if (method == null) {
+            try {
+                method = declaringType.getDeclaredMethod(name, params);
+            } catch (NoSuchMethodException ignored) {
+            }
+        }
+
+        return method;
     }
 
     public Method getMethod() {

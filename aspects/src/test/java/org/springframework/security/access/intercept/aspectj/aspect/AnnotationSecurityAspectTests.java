@@ -28,6 +28,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreInvocationAuthorizationAdviceVoter;
 import org.springframework.security.access.prepost.PrePostAnnotationSecurityMetadataSource;
 import org.springframework.security.access.vote.AffirmativeBased;
+import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -39,18 +40,23 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @since 3.0.3
  */
 public class AnnotationSecurityAspectTests {
-    private @Mock AccessDecisionManager adm;
+    private AffirmativeBased adm;
     private @Mock AuthenticationManager authman;
     private TestingAuthenticationToken anne = new TestingAuthenticationToken("anne", "", "ROLE_A");
 //    private TestingAuthenticationToken bob = new TestingAuthenticationToken("bob", "", "ROLE_B");
     private AspectJMethodSecurityInterceptor interceptor;
     private SecuredImpl secured = new SecuredImpl();
+    private SecuredImplSubclass securedSub = new SecuredImplSubclass();
     private PrePostSecured prePostSecured = new PrePostSecured();
 
     @Before
     public final void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         interceptor = new AspectJMethodSecurityInterceptor();
+        adm = new AffirmativeBased();
+        AccessDecisionVoter[] voters = new AccessDecisionVoter[]
+                {new RoleVoter(), new PreInvocationAuthorizationAdviceVoter(new ExpressionBasedPreInvocationAdvice())};
+        adm.setDecisionVoters(Arrays.asList(voters));
         interceptor.setAccessDecisionManager(adm);
         interceptor.setAuthenticationManager(authman);
         interceptor.setSecurityMetadataSource(new SecuredAnnotationSecurityMetadataSource());
@@ -79,6 +85,31 @@ public class AnnotationSecurityAspectTests {
         secured.securedClassMethod();
     }
 
+    @Test(expected=AccessDeniedException.class)
+    public void internalPrivateCallIsIntercepted() {
+        SecurityContextHolder.getContext().setAuthentication(anne);
+
+        try {
+            secured.publicCallsPrivate();
+            fail("Expected AccessDeniedException");
+        } catch (AccessDeniedException expected) {
+        }
+        securedSub.publicCallsPrivate();
+    }
+
+    @Test(expected=AccessDeniedException.class)
+    public void protectedMethodIsIntercepted() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(anne);
+
+        secured.protectedMethod();
+    }
+
+    @Test
+    public void overriddenProtectedMethodIsNotIntercepted() throws Exception {
+        // AspectJ doesn't inherit annotations
+        securedSub.protectedMethod();
+    }
+
     // SEC-1262
     @Test(expected=AccessDeniedException.class)
     public void denyAllPreAuthorizeDeniesAccess() throws Exception {
@@ -101,10 +132,6 @@ public class AnnotationSecurityAspectTests {
         DefaultMethodSecurityExpressionHandler eh = new DefaultMethodSecurityExpressionHandler();
         interceptor.setSecurityMetadataSource(new PrePostAnnotationSecurityMetadataSource(
                 new ExpressionBasedAnnotationAttributeFactory(eh)));
-        AffirmativeBased adm = new AffirmativeBased();
-        AccessDecisionVoter[] voters = new AccessDecisionVoter[]
-                       {new PreInvocationAuthorizationAdviceVoter(new ExpressionBasedPreInvocationAdvice())};
-        adm.setDecisionVoters(Arrays.asList(voters));
         interceptor.setAccessDecisionManager(adm);
         AfterInvocationProviderManager aim = new AfterInvocationProviderManager();
         aim.setProviders(Arrays.asList(new PostInvocationAdviceProvider(new ExpressionBasedPostInvocationAdvice(eh))));
@@ -124,6 +151,28 @@ class SecuredImpl implements SecuredInterface {
 
     @Secured("ROLE_A")
     public void securedClassMethod() {
+    }
+
+    @Secured("ROLE_X")
+    private void privateMethod() {
+    }
+
+    @Secured("ROLE_X")
+    protected void protectedMethod() {
+    }
+
+    @Secured("ROLE_X")
+    public void publicCallsPrivate() {
+        privateMethod();
+    }
+}
+
+class SecuredImplSubclass extends SecuredImpl {
+    protected void protectedMethod() {
+    }
+
+    public void publicCallsPrivate() {
+        super.publicCallsPrivate();
     }
 }
 
