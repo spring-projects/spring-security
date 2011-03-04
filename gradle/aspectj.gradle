@@ -13,6 +13,7 @@ dependencies {
 task compileJava(overwrite: true, description: 'Compiles AspectJ Source', type: Ajc) {
     dependsOn processResources
     sourceSet = sourceSets.main
+    inputs.files(sourceSets.main.java.srcDirs)
     outputs.dir(sourceSet.classesDir)
     aspectPath = configurations.aspectpath
 }
@@ -20,6 +21,7 @@ task compileJava(overwrite: true, description: 'Compiles AspectJ Source', type: 
 task compileTestJava(overwrite: true, description: 'Compiles AspectJ Test Source', type: Ajc) {
     dependsOn processTestResources, compileJava, jar
     sourceSet = sourceSets.test
+    inputs.files(sourceSets.test.java.srcDirs)
     outputs.dir(sourceSet.classesDir)
     aspectPath = files(configurations.aspectpath, jar.archivePath)
 }
