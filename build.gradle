@@ -92,5 +92,5 @@ ideaProject {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '0.9.1'
+    gradleVersion = '1.0-milestone-1'
 }
