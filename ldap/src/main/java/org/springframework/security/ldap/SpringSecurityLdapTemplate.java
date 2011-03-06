@@ -195,47 +195,55 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 
         return (DirContextOperations) executeReadOnly(new ContextExecutor() {
                 public Object executeWithContext(DirContext ctx) throws NamingException {
-                    final DistinguishedName ctxBaseDn = new DistinguishedName(ctx.getNameInNamespace());
-                    final DistinguishedName searchBaseDn = new DistinguishedName(base);
-                    final NamingEnumeration<SearchResult> resultsEnum = ctx.search(searchBaseDn, filter, params, searchControls);
-
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Searching for entry under DN '" + ctxBaseDn
-                                + "', base = '" + searchBaseDn + "', filter = '" + filter + "'");
-                    }
-
-                    Set<DirContextOperations> results = new HashSet<DirContextOperations>();
-                    try {
-                        while (resultsEnum.hasMore()) {
-                            SearchResult searchResult = resultsEnum.next();
-                            // Work out the DN of the matched entry
-                            DistinguishedName dn = new DistinguishedName(new CompositeName(searchResult.getName()));
-
-                            if (base.length() > 0) {
-                                dn.prepend(searchBaseDn);
-                            }
-
-                            if (logger.isDebugEnabled()) {
-                                logger.debug("Found DN: " + dn);
-                            }
-                            results.add(new DirContextAdapter(searchResult.getAttributes(), dn, ctxBaseDn));
-                        }
-                    } catch (PartialResultException e) {
-                        LdapUtils.closeEnumeration(resultsEnum);
-                        logger.info("Ignoring PartialResultException");
-                    }
-
-                    if (results.size() == 0) {
-                        throw new IncorrectResultSizeDataAccessException(1, 0);
-                    }
-
-                    if (results.size() > 1) {
-                        throw new IncorrectResultSizeDataAccessException(1, results.size());
-                    }
-
-                    return results.toArray()[0];
+                    return searchForSingleEntryInternal(ctx, searchControls, base, filter, params);
                 }
-            });
+        });
+    }
+
+    /**
+     * Internal method extracted to avoid code duplication in AD search.
+     */
+    public static DirContextOperations searchForSingleEntryInternal(DirContext ctx, SearchControls searchControls,
+            String base, String filter, Object[] params) throws NamingException {
+        final DistinguishedName ctxBaseDn = new DistinguishedName(ctx.getNameInNamespace());
+        final DistinguishedName searchBaseDn = new DistinguishedName(base);
+        final NamingEnumeration<SearchResult> resultsEnum = ctx.search(searchBaseDn, filter, params, searchControls);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Searching for entry under DN '" + ctxBaseDn
+                    + "', base = '" + searchBaseDn + "', filter = '" + filter + "'");
+        }
+
+        Set<DirContextOperations> results = new HashSet<DirContextOperations>();
+        try {
+            while (resultsEnum.hasMore()) {
+                SearchResult searchResult = resultsEnum.next();
+                // Work out the DN of the matched entry
+                DistinguishedName dn = new DistinguishedName(new CompositeName(searchResult.getName()));
+
+                if (base.length() > 0) {
+                    dn.prepend(searchBaseDn);
+                }
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Found DN: " + dn);
+                }
+                results.add(new DirContextAdapter(searchResult.getAttributes(), dn, ctxBaseDn));
+            }
+        } catch (PartialResultException e) {
+            LdapUtils.closeEnumeration(resultsEnum);
+            logger.info("Ignoring PartialResultException");
+        }
+
+        if (results.size() == 0) {
+            throw new IncorrectResultSizeDataAccessException(1, 0);
+        }
+
+        if (results.size() > 1) {
+            throw new IncorrectResultSizeDataAccessException(1, results.size());
+        }
+
+        return results.iterator().next();
     }
 
     /**
