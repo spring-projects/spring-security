@@ -77,6 +77,15 @@ configure(javaProjects) {
     eclipseClasspath.whenConfigured { classpath ->
         classpath.entries.removeAll { entry -> entry.path.endsWith('/build/classes/test') }
     }
+    // GRADLE-1422
+    eclipseClasspath.doFirst {
+        eclipseClasspath.whenConfigured { classpath ->
+            def includeDeps = project.configurations.getByName('runtime')?.collect { f-> f.absolutePath } as Set
+            classpath.entries.findAll { it instanceof org.gradle.plugins.eclipse.model.Library && !includeDeps.contains(it.path) }.each {
+                it.entryAttributes.remove('org.eclipse.jst.component.dependency')
+            }
+        }
+    }
 }
 
 ideaModule {
