@@ -73,6 +73,10 @@ configure(javaProjects) {
             }
         }
     }
+    // GRADLE-1116
+    eclipseClasspath.whenConfigured { classpath ->
+        classpath.entries.removeAll { entry -> entry.path.endsWith('/build/classes/test') }
+    }
 }
 
 ideaModule {
