@@ -50,3 +50,17 @@ class Ajc extends DefaultTask {
         }
     }
 }
+
+if(hasProperty('eclipseProject')) {
+    eclipseProject.whenConfigured { project ->
+      project.natures.add(0, 'org.eclipse.ajdt.ui.ajnature')
+      project.buildCommands = [new org.gradle.plugins.eclipse.model.BuildCommand('org.eclipse.ajdt.core.ajbuilder',[:])]
+    }
+}
+
+if(hasProperty('eclipseClasspath')) {
+    eclipseClasspath.withXml { xml ->
+        def ssa = xml.asNode().'classpathentry'.find { it.@path == '/spring-security-aspects' }
+        ssa?.appendNode('attributes')?.appendNode('attribute',[name:'org.eclipse.ajdt.aspectpath',value:'org.eclipse.ajdt.aspectpath'])
+    }
+}
