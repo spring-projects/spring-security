@@ -71,6 +71,9 @@ public class UsernameEqualsPasswordLoginModule implements LoginModule {
         if (username == null || !username.equals(password)) {
             throw new LoginException("username is not equal to password");
         }
+        if("".equals(username)) {
+            throw new LoginException("username cannot be empty string");
+        }
 
         subject.getPrincipals().add(new UsernamePrincipal(username));
         return true;
