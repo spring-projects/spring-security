@@ -105,6 +105,11 @@ configure(javaProjects) {
             }
         }
     }
+    tasks.withType(org.gradle.plugins.eclipse.EclipseWtpComponent) {
+        whenConfigured { wtpComponent ->
+            wtpComponent.contextPath = project.tasks.findByName('jettyRun')?.contextPath?.replaceFirst('/','')
+        }
+    }
 }
 
 ideaModule {
