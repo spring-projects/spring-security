@@ -15,6 +15,7 @@
  */
 package samples.jaas;
 
+import java.io.Serializable;
 import java.security.Principal;
 import java.util.Map;
 
@@ -71,18 +72,25 @@ public class UsernameEqualsPasswordLoginModule implements LoginModule {
             throw new LoginException("username is not equal to password");
         }
 
-        subject.getPrincipals().add(new Principal() {
-            public String getName() {
-                return username;
-            }
-            public String toString() {
-                return "Principal [name="+getName()+"]";
-            }            
-        });
+        subject.getPrincipals().add(new UsernamePrincipal(username));
         return true;
     }
 
     public boolean logout() throws LoginException {
         return true;
+    }
+
+    private static class UsernamePrincipal implements Principal, Serializable {
+        private final String username;
+        public UsernamePrincipal(String username) {
+            this.username = username;
+        }
+        public String getName() {
+            return username;
+        }
+        public String toString() {
+            return "Principal [name="+getName()+"]";
+        }
+        private static final long serialVersionUID = 8049681145355488137L;
     }
 }
