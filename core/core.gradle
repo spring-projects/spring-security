@@ -1,7 +1,10 @@
 // Core build file
 
+def cryptoProject = project(':spring-security-crypto')
+
 dependencies {
-    compile 'aopalliance:aopalliance:1.0',
+    compile cryptoProject,
+            'aopalliance:aopalliance:1.0',
             "net.sf.ehcache:ehcache:$ehcacheVersion",
             "org.springframework:spring-aop:$springVersion",
             "org.springframework:spring-beans:$springVersion",
@@ -19,3 +22,11 @@ dependencies {
 
     testRuntime "hsqldb:hsqldb:$hsqlVersion"
 }
+
+// Add the crypto module classes
+
+jar {
+    from cryptoProject.sourceSets.main.classes
+}
+
+bundlor.inputPath(cryptoProject.sourceSets.main.classes)
