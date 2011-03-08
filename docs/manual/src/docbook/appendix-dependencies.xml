@@ -412,12 +412,4 @@
             </table>
         </para>
     </section>
-
-    <section>
-        <title><literal>spring-security-crypto</literal></title>
-        <para>Provides convenient cryptographic APIs which are used by projects such as OAuth.
-            This module currently has no external dependencies.
-        </para>
-    </section>
-
 </appendix>

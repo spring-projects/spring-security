@@ -2,149 +2,136 @@
 <chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xml:id="crypto" xmlns:xlink="http://www.w3.org/1999/xlink">
   <title>Spring Security Crypto Module</title>
 
-  <section id="spring-security-crypto-introduction">
+  <section xml:id="spring-security-crypto-introduction">
     <title>Introduction</title>
     <para>
-		The Spring Security Crypto module provides support for symmetric encryption, key generation, and password encoding.
+        The Spring Security Crypto module provides support for symmetric encryption, key generation, and password encoding.
+        The code is distributed as part of the core module but has no dependencies on any other Spring Security (or Spring) code.
     </para>
   </section>
 
-  <section id="spring-security-crypto-howtoget">
-    <title>How to get</title>
-	<para>
-		Add the spring-security-crypto artifact to your classpath:
-		<programlisting language="xml"><![CDATA[
-<dependency>
-    <groupId>org.springframework.security</groupId>
-    <artifactId>spring-security-crypto</artifactId>
-    <version>${org.springframework.security-version}</version>
-</dependency>]]>
-		</programlisting>
-	</para>
-  </section>
-
-  <section id="spring-security-crypto-encryption">
+  <section xml:id="spring-security-crypto-encryption">
     <title>Encryptors</title>
     <para>
-		The Encryptors class provides factory methods for constructing symmetric encryptors.
-		Using this class, you can create ByteEncryptors to encrypt data in raw byte[] form.
-		You can also construct TextEncryptors to encrypt text strings.
-		Encryptors are thread safe.
+        The Encryptors class provides factory methods for constructing symmetric encryptors.
+        Using this class, you can create ByteEncryptors to encrypt data in raw byte[] form.
+        You can also construct TextEncryptors to encrypt text strings.
+        Encryptors are thread safe.
     </para>
-	<section id="spring-security-crypto-encryption-bytes">
-		<title>BytesEncryptor</title>
-		<para>
-			Use the Encryptors.standard factory method to construct a "standard" BytesEncryptor:
-			<programlisting language="java"><![CDATA[
+    <section xml:id="spring-security-crypto-encryption-bytes">
+        <title>BytesEncryptor</title>
+        <para>
+            Use the Encryptors.standard factory method to construct a "standard" BytesEncryptor:
+            <programlisting language="java"><![CDATA[
 Encryptors.standard("password", "salt");]]>
-			</programlisting>
-			The "standard" encryption method is 256-bit AES using PKCS #5's PBKDF2 (Password-Based Key Derivation Function #2).
-			This method requires Java 6.			
-			The password used to generate the SecretKey should be kept in a secure place and not be shared.
-			The salt is used to prevent dictionary attacks against the key in the event your encrypted data is compromised.
-			A 16-byte random initialization vector is also applied so each encrypted message is unique.
-		</para>
-		<para>
-			The provided salt should be in hex-encoded String form, be random, and be at least 8 bytes in length.
-			Such a salt may be generated using a KeyGenerator:
-			<programlisting language="java"><![CDATA[
+            </programlisting>
+            The "standard" encryption method is 256-bit AES using PKCS #5's PBKDF2 (Password-Based Key Derivation Function #2).
+            This method requires Java 6.
+            The password used to generate the SecretKey should be kept in a secure place and not be shared.
+            The salt is used to prevent dictionary attacks against the key in the event your encrypted data is compromised.
+            A 16-byte random initialization vector is also applied so each encrypted message is unique.
+        </para>
+        <para>
+            The provided salt should be in hex-encoded String form, be random, and be at least 8 bytes in length.
+            Such a salt may be generated using a KeyGenerator:
+            <programlisting language="java"><![CDATA[
 String salt = KeyGenerators.string().generateKey(); // generates a random 8-byte salt that is then hex-encoded]]>
-			</programlisting>
-		</para>
-	</section>
-	<section id="spring-security-crypto-encryption-text">
-		<title>TextEncryptor</title>
-		<para>
-			Use the Encryptors.text factory method to construct a standard TextEncryptor:
-			<programlisting language="java"><![CDATA[
+            </programlisting>
+        </para>
+    </section>
+    <section xml:id="spring-security-crypto-encryption-text">
+        <title>TextEncryptor</title>
+        <para>
+            Use the Encryptors.text factory method to construct a standard TextEncryptor:
+            <programlisting language="java"><![CDATA[
 Encryptors.text("password", "salt");]]>
-			</programlisting>
-			A TextEncryptor uses a standard BytesEncryptor to encrypt text data.
-			Encrypted results are returned as hex-encoded strings for easy storage on the filesystem or in the database.
-		</para>
-		<para>
-			Use the Encryptors.queryableText factory method to construct a "queryable" TextEncryptor:
-			<programlisting language="java"><![CDATA[
+            </programlisting>
+            A TextEncryptor uses a standard BytesEncryptor to encrypt text data.
+            Encrypted results are returned as hex-encoded strings for easy storage on the filesystem or in the database.
+        </para>
+        <para>
+            Use the Encryptors.queryableText factory method to construct a "queryable" TextEncryptor:
+            <programlisting language="java"><![CDATA[
 Encryptors.queryableText("password", "salt");]]>
-			</programlisting>
-			The difference between a queryable TextEncryptor and a standard TextEncryptor has to do with initialization vector (iv) handling.
-			The iv used in a queryable TextEncryptor#encrypt operation is shared, or constant, and is not randomly generated.
-			This means the same text encrypted multiple times will always produce the same encryption result.
-			This is less secure, but necessary for encrypted data that needs to be queried against.
-			An example of queryable encrypted text would be an OAuth apiKey.
-		</para>
-	</section>
+            </programlisting>
+            The difference between a queryable TextEncryptor and a standard TextEncryptor has to do with initialization vector (iv) handling.
+            The iv used in a queryable TextEncryptor#encrypt operation is shared, or constant, and is not randomly generated.
+            This means the same text encrypted multiple times will always produce the same encryption result.
+            This is less secure, but necessary for encrypted data that needs to be queried against.
+            An example of queryable encrypted text would be an OAuth apiKey.
+        </para>
+    </section>
   </section>
 
-  <section id="spring-security-crypto-keygenerators">
+  <section xml:id="spring-security-crypto-keygenerators">
     <title>Key Generators</title>
     <para>
-		The KeyGenerators class provides a number of convenience factory methods for constructing different types of key generators.
-		Using this class, you can create a BytesKeyGenerator to generate byte[] keys.
-		You can also construct a StringKeyGenerator to generate string keys.
-		KeyGenerators are thread safe.	
-	</para>
-	<section>
-		<title>BytesKeyGenerator</title>
-		<para>
-			Use the KeyGenerators.secureRandom factory methods to generate a BytesKeyGenerator backed by a SecureRandom instance:
-			<programlisting language="java"><![CDATA[
+        The KeyGenerators class provides a number of convenience factory methods for constructing different types of key generators.
+        Using this class, you can create a BytesKeyGenerator to generate byte[] keys.
+        You can also construct a StringKeyGenerator to generate string keys.
+        KeyGenerators are thread safe.
+    </para>
+    <section>
+        <title>BytesKeyGenerator</title>
+        <para>
+            Use the KeyGenerators.secureRandom factory methods to generate a BytesKeyGenerator backed by a SecureRandom instance:
+            <programlisting language="java"><![CDATA[
 KeyGenerator generator = KeyGenerators.secureRandom();
 byte[] key = generator.generateKey();]]>
-			</programlisting>
-		</para>
-		<para>
-			The default key length is 8 bytes.
-			There is also a KeyGenerators.secureRandom variant that provides control over the key length:
-			<programlisting language="java"><![CDATA[
+            </programlisting>
+        </para>
+        <para>
+            The default key length is 8 bytes.
+            There is also a KeyGenerators.secureRandom variant that provides control over the key length:
+            <programlisting language="java"><![CDATA[
 KeyGenerators.secureRandom(16);]]>
-			</programlisting>
-		</para>
-		<para>
-			Use the KeyGenerators.shared factory method to construct a BytesKeyGenerator that always returns the same key on every invocation:
-			<programlisting language="java"><![CDATA[
+            </programlisting>
+        </para>
+        <para>
+            Use the KeyGenerators.shared factory method to construct a BytesKeyGenerator that always returns the same key on every invocation:
+            <programlisting language="java"><![CDATA[
 KeyGenerators.shared(16);]]>
-			</programlisting>
-		</para>		
-	</section>
-	<section>
-		<title>StringKeyGenerator</title>
-		<para>
-			Use the KeyGenerators.string factory method to construct a 8-byte, SecureRandom KeyGenerator that hex-encodes each key as a String:
-			<programlisting language="java"><![CDATA[
+            </programlisting>
+        </para>
+    </section>
+    <section>
+        <title>StringKeyGenerator</title>
+        <para>
+            Use the KeyGenerators.string factory method to construct a 8-byte, SecureRandom KeyGenerator that hex-encodes each key as a String:
+            <programlisting language="java"><![CDATA[
 KeyGenerators.string();]]>
-			</programlisting>
-		</para>
-	</section>
+            </programlisting>
+        </para>
+    </section>
   </section>
 
-  <section id="spring-security-crypto-passwordencoders">
-    <title>Password Encoding</title>	
+  <section xml:id="spring-security-crypto-passwordencoders">
+    <title>Password Encoding</title>
     <para>
-		The password package of the spring-security-crypto module provides support for encoding passwords.
-		PasswordEncoder is the central service interface and has the following signature:
-		<programlisting language="java"><![CDATA[
+        The password package of the spring-security-crypto module provides support for encoding passwords.
+        PasswordEncoder is the central service interface and has the following signature:
+        <programlisting language="java"><![CDATA[
 public interface PasswordEncoder {
     String encode(String rawPassword);
     boolean matches(String rawPassword, String encodedPassword);
 }]]>
-		</programlisting>
-		The matches method returns true if the rawPassword, once encoded, equals the encodedPassword.
-		This method is designed to support password-based authentication schemes.
-	</para>
-	<para>
-		The StandardPasswordEncoder implementation applies 1024 iterations of the SHA-256 hashing algorithm to the rawPassword combined with a site-wide secret and 8-byte random salt:
-	</para>
-	<programlisting language="java"><![CDATA[
+        </programlisting>
+        The matches method returns true if the rawPassword, once encoded, equals the encodedPassword.
+        This method is designed to support password-based authentication schemes.
+    </para>
+    <para>
+        The StandardPasswordEncoder implementation applies 1024 iterations of the SHA-256 hashing algorithm to the rawPassword combined with a site-wide secret and 8-byte random salt:
+    </para>
+    <programlisting language="java"><![CDATA[
 StandardPasswordEncoder encoder = new StandardPasswordEncoder("secret");
 String result = encoder.encode("myPassword");
 assertTrue(encoder.matches("myPassword", result));]]>
-	</programlisting>
-	<para>
-		The random salt ensures each hash is unique when the same password is used multiple times.
-		The site-wide secret should be stored in a safe place separate from where passwords are stored, and is used to protect against a bruce force attack in the event the database of passwords is compromised.
-		1024 iterations of the hashing algorithm strengthens the key and makes it more difficult to compromise using a brute force attack.
-	</para>
+    </programlisting>
+    <para>
+        The random salt ensures each hash is unique when the same password is used multiple times.
+        The site-wide secret should be stored in a safe place separate from where passwords are stored, and is used to protect against a bruce force attack in the event the database of passwords is compromised.
+        1024 iterations of the hashing algorithm strengthens the key and makes it more difficult to compromise using a brute force attack.
+    </para>
   </section>
 
 </chapter>
