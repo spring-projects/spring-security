@@ -1,10 +1,11 @@
 // Core build file
 
+// We don't define a module dependency on crypto to avoid creating a transitive dependency
 def cryptoProject = project(':spring-security-crypto')
+def cryptoClasses = cryptoProject.sourceSets.main.classes
 
 dependencies {
-    compile cryptoProject,
-            'aopalliance:aopalliance:1.0',
+    compile 'aopalliance:aopalliance:1.0',
             "net.sf.ehcache:ehcache:$ehcacheVersion",
             "org.springframework:spring-aop:$springVersion",
             "org.springframework:spring-beans:$springVersion",
@@ -23,10 +24,17 @@ dependencies {
     testRuntime "hsqldb:hsqldb:$hsqlVersion"
 }
 
-// Add the crypto module classes
+compileJava.dependsOn cryptoProject.compileJava
+classes.dependsOn cryptoProject.classes
 
-jar {
-    from cryptoProject.sourceSets.main.classes
+classes.doLast {
+    copy {
+        from cryptoClasses
+        into sourceSets.main.classesDir
+    }
 }
 
-bundlor.inputPath(cryptoProject.sourceSets.main.classes)
+sourceSets.main.compileClasspath += cryptoClasses
+sourceSets.test.compileClasspath += cryptoClasses
+
+sourceJar.from cryptoProject.sourceSets.main.java
