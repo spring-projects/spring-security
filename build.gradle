@@ -77,12 +77,31 @@ configure(javaProjects) {
     eclipseClasspath.whenConfigured { classpath ->
         classpath.entries.removeAll { entry -> entry.path.endsWith('/build/classes/test') }
     }
-    // GRADLE-1422
     eclipseClasspath.doFirst {
         eclipseClasspath.whenConfigured { classpath ->
             def includeDeps = project.configurations.getByName('runtime')?.collect { f-> f.absolutePath } as Set
-            classpath.entries.findAll { it instanceof org.gradle.plugins.eclipse.model.Library && !includeDeps.contains(it.path) }.each {
-                it.entryAttributes.remove('org.eclipse.jst.component.dependency')
+            classpath.entries.each { cp ->
+                  if(cp instanceof org.gradle.plugins.eclipse.model.Library) {
+                      def include = includeDeps.contains(cp.path)
+                      def attr = 'org.eclipse.jst.component.dependency'
+                      if(include && project.hasProperty('war')) {
+                          // GRADLE-1426 (part a)
+                          cp.entryAttributes.put(attr,'/WEB-INF/lib')
+                      } else if(!include) {
+                          // GRADLE-1422
+                          cp.entryAttributes.remove(attr)
+                      }
+                  }
+            }
+        }
+    }
+    // GRADLE-1426 (part b)
+    project.plugins.withType(org.gradle.api.plugins.WarPlugin.class).all {
+        eclipseWtpComponent.whenConfigured { wtpComp ->
+            wtpComp.wbModuleEntries.findAll { it instanceof org.gradle.plugins.eclipse.model.WbDependentModule }.each { e ->
+                if(!e.handle.startsWith('module:/resource/')) {
+                    wtpComp.wbModuleEntries.remove(e)
+                }
             }
         }
     }
