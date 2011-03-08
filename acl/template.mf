@@ -9,6 +9,7 @@ Ignored-Existing-Headers:
  Import-Package,
  Export-Package
 Import-Template:
+ org.aopalliance.*;version="${aopAllianceRange}",
  org.apache.commons.logging.*;version="${cloggingRange}",
  org.springframework.security.core.*;version="${secRange}",
  org.springframework.security.access.*;version="${secRange}",

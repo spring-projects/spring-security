@@ -21,7 +21,8 @@ Import-Template:
  org.springframework.beans.*;version="${springRange}",
  org.springframework.context.*;version="${springRange}",
  org.springframework.core.*;version="${springRange}",
- org.springframework.util.*;version="${springRange}",
- javax.servlet;version="0";resolution:=optional,
+ org.springframework.web.*;version="${springRange}",
+ org.springframework.util;version="${springRange}",
+ javax.servlet.*;version="0";resolution:=optional,
  javax.naming.directory;version="0";resolution:=optional,
  org.w3c.dom;version="0";resolution:=optional

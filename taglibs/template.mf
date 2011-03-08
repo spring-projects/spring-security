@@ -15,6 +15,8 @@ Import-Template:
  org.springframework.security.access.*;version="${secRange}",
  org.springframework.security.util;version="${secRange}",
  org.springframework.security.acls.*;version="${secRange}";resolution:=optional,
+ org.springframework.core.*;version="${springRange}",
+ org.springframework.util;version="${springRange}",
  org.springframework.beans.*;version="${springRange}",
  org.springframework.context.*;version="${springRange}",
  org.springframework.expression;version="${springRange}";resolution:=optional,

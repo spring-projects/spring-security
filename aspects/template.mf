@@ -11,4 +11,6 @@ Ignored-Existing-Headers:
 Import-Template:
  org.aspectj.*;version="${aspectjRange}";resolution:=optional,
  org.apache.commons.logging.*;version="${cloggingRange}",
- org.springframework.security.core.*;version="${secRange}"
+ org.springframework.security.core.*;version="${secRange}",
+ org.springframework.security.access.intercept.aspectj;version="${secRange}",
+ org.springframework.beans.factory;version="${springRange}"
