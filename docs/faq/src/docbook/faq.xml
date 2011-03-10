@@ -428,6 +428,25 @@
                     are marked as "optional" in the Spring Security POM files will have to be
                     added to your own pom.xml file if you need them. </para></answer>
             </qandaentry>
+            <qandaentry xml:id="faq-what-is-userdetailservice">
+                <question><para>What is a <literal>UserDetailsService</literal> and do I need one?</para></question>
+                <answer>
+                    <para><interfacename>UserDetailsService</interfacename> is a DAO interface for loading data
+                    that is specific to a user account. It has no other function other to load that
+                    data for use by other components within the framework. It is not responsible for
+                    authenticating the user. Authenticating a user with a username/password
+                    combination is most commonly performed by the <classname>DaoAuthenticationProvider</classname>,
+                    which is injected with a <interfacename>UserDetailsService</interfacename> to allow
+                    it to load the password (and other data) for a user in order to compare it with the
+                    submitted value.</para>
+                    <para>
+                    If you want to customize the authentication process then you should implement
+                    <interfacename>AuthenticationProvider</interfacename> yourself. See this
+                    <link xlink:href="http://blog.springsource.com/2010/08/02/spring-security-in-google-app-engine/">
+                    blog article</link> for an example integrating Spring Security authentication with
+                    Google App Engine.
+                </para></answer>
+            </qandaentry>
         </qandadiv>
     </qandaset>
     </section>

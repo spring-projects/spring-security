@@ -83,13 +83,13 @@ if (principal instanceof UserDetails) {
                     <interfacename>UserDetails</interfacename> as the principal. </para>
             </section>
         </section>
-        <section>
+        <section xml:id="tech-userdetailsservice">
             <title>The UserDetailsService</title>
             <para>Another item to note from the above code fragment is that you can obtain a
                 principal from the <interfacename>Authentication</interfacename> object. The
                 principal is just an <literal>Object</literal>. Most of the time this can be cast
                 into a <interfacename>UserDetails</interfacename> object.
-                <interfacename>UserDetails</interfacename> is a central interface in Spring
+                <interfacename>UserDetails</interfacename> is a core interface in Spring
                 Security. It represents a principal, but in an extensible and application-specific
                 way. Think of <interfacename>UserDetails</interfacename> as the adapter between your
                 own user database and what Spring Security needs inside the
@@ -126,6 +126,16 @@ if (principal instanceof UserDetails) {
                 <interfacename>UserDetailsService</interfacename> returns can always be obtained
                 from the <classname>SecurityContextHolder</classname> using the above code fragment.
             </para>
+            <note>
+                <para>There is often some confusion about <interfacename>UserDetailsService</interfacename>.
+                    It is purely a DAO for user data and performs no other function other than to supply that data
+                    to other components within the framework. In particular, it <emphasis>does not</emphasis>
+                    authenticate the user, which is done by the <interfacename>AuthenticationManager</interfacename>.
+                    In many cases it makes more sense to
+                    <link xlink:href="#core-services-authentication-manager">implement <interfacename>AuthenticationProvider</interfacename></link>
+                    directly if you require a custom authentication process.
+                </para>
+            </note>
         </section>
         <section xml:id="tech-granted-authority">
             <title>GrantedAuthority</title>
