@@ -10,10 +10,6 @@ allprojects {
     repositories {
         mavenLocal()
         mavenCentral()
-        mavenRepo name: 'SpringSource Milestone Repo', urls: 'http://repository.springsource.com/maven/bundles/milestone'
-        mavenRepo name: 'SpringSource Maven Snapshot Repo', urls: 'http://maven.springframework.org/snapshot/'
-        mavenRepo name: 'SpringSource Enterprise Release', urls: 'http://repository.springsource.com/maven/bundles/release'
-        mavenRepo name: 'SpringSource Enterprise External', urls: 'http://repository.springsource.com/maven/bundles/external'
     }
 }
 

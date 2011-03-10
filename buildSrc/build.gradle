@@ -4,6 +4,7 @@ repositories {
     mavenLocal()
     mavenCentral()
     mavenRepo name: 'SpringSource Enterprise Release', urls: 'http://repository.springsource.com/maven/bundles/release'
+    mavenRepo name: 'SpringSource Enterprise External', urls: 'http://repository.springsource.com/maven/bundles/external'
 }
 
 // Docbook Plugin
