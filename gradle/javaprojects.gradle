@@ -19,7 +19,7 @@ bundlorProperties = [
     aspectjRange: '[1.6.0, 1.7.0)',
     casRange: '[3.1.1, 3.2.0)',
     cloggingRange: '[1.0.4, 2.0.0)',
-    ehcacheRange: '[1.4.1, 2.0.0)',
+    ehcacheRange: '[1.4.1, 2.5.0)',
     openid4javaRange: '[0.9.5, 1.0.0)',
     springLdapRange: '[1.3.0,1.4.0)',
     apacheDSRange: '[1.5.5, 1.6)',
