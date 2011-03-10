@@ -556,7 +556,7 @@
             created using syntax elements provided by the namespace, or they can be standard bean
             definitions, marked for addition to the list using the
             <literal>authentication-provider</literal> element. </para>
-        <section>
+        <section xml:id="nsa-authentication-manager">
             <title>The <literal>&lt;authentication-manager&gt;</literal> Element</title>
             <para> Every Spring Security application which uses the namespace must have include this
                 element somewhere. It is responsible for registering the
@@ -570,7 +570,7 @@
                 maps to the <literal>eraseCredentialsAfterAuthentication</literal> property of the
                 <classname>ProviderManager</classname>. This is discussed in the <link
                 xlink:href="#core-services-erasing-credentials">Core Services</link> chapter.</para>
-            <section>
+            <section xml:id="nsa-authentication-provider">
                 <title>The <literal>&lt;authentication-provider&gt;</literal> Element</title>
                 <para> Unless used with a <literal>ref</literal> attribute, this element is
                     shorthand for configuring a <link xlink:href="#core-services-dao-provider"
@@ -669,7 +669,7 @@
                     application context. </para>
             </section>
         </section>
-        <section>
+        <section xml:id="nsa-ldap">
             <title>LDAP Namespace Options</title>
             <para> LDAP is covered in some details in <link xlink:href="#ldap">its own
                 chapter</link>. We will expand on that here with some explanation of how the
@@ -697,8 +697,8 @@
                     <literal>ContextSource</literal> instance, if you want to use it in other
                     traditional Spring beans. </para>
             </section>
-            <section>
-                <title>The <literal>&lt;ldap-provider&gt;</literal> Element</title>
+            <section xml:id="nsa-ldap-authentication-provider">
+                <title>The <literal>&lt;ldap-authentication-provider&gt;</literal> Element</title>
                 <para> This element is shorthand for the creation of an
                     <classname>LdapAuthenticationProvider</classname> instance. By default this will
                     be configured with a <classname>BindAuthenticator</classname> instance and a
