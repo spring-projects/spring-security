@@ -14,8 +14,8 @@
         <para> The standard JDBC implementation of the
             <interfacename>UserDetailsService</interfacename> (<classname>JdbcDaoImpl</classname>)
             requires tables to load the password, account status (enabled or disabled) and a list of
-            authorities (roles) for the user.
-            <programlisting xml:id="db_schema_users_authorities">
+            authorities (roles) for the
+            user.<programlisting xml:id="db_schema_users_authorities">
   create table users(
       username varchar_ignorecase(50) not null primary key,
       password varchar_ignorecase(50) not null,
@@ -47,6 +47,12 @@ create table group_members (
   group_id bigint not null,
   constraint fk_group_members_group foreign key(group_id) references groups(id));
         </programlisting></para>
+            <para>Remember that these tables are only required if you are using the provided JDBC
+                <interfacename>UserDetailsService</interfacename> implementation. If you write your
+                own  or choose to implement <interfacename>AuthenticationProvider</interfacename>
+                without a <interfacename>UserDetailsService</interfacename>, then you have complete
+                freedom over how you store the data, as long as the interface contract is
+                satisfied.</para>
         </section>
     </section>
     <section>
