@@ -9,6 +9,10 @@ import org.gradle.api.tasks.SourceSet
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 
+import org.gradle.plugins.eclipse.EclipseClasspath
+import org.gradle.plugins.eclipse.EclipseProject
+import org.gradle.plugins.eclipse.model.ProjectDependency
+
 /**
  *
  * @author Luke Taylor
@@ -46,6 +50,25 @@ class AspectJPlugin implements Plugin<Project> {
             inputs.files(sourceSet.java.srcDirs)
             outputs.dir(sourceSet.classesDir)
             aspectPath = project.files(project.configurations.aspectpath, project.jar.archivePath)
+        }
+
+        project.tasks.withType(EclipseProject).all {
+            whenConfigured { p ->
+                p.natures.add(0, 'org.eclipse.ajdt.ui.ajnature')
+                p.buildCommands = [new org.gradle.plugins.eclipse.model.BuildCommand('org.eclipse.ajdt.core.ajbuilder',[:])]
+            }
+        }
+
+        project.tasks.withType(EclipseClasspath).all {
+            whenConfigured { classpath ->
+                def entries = classpath.entries.findAll { it instanceof ProjectDependency}.findAll { entry ->
+                    def projectPath = entry.path.replaceAll('/',':')
+                    project.rootProject.findProject(projectPath).plugins.findPlugin(AspectJPlugin)
+                }
+                entries.each { entry->
+                    entry.entryAttributes.put('org.eclipse.ajdt.aspectpath','org.eclipse.ajdt.aspectpath')
+                }
+            }
         }
     }
 }
