@@ -150,7 +150,7 @@
   </security:http>
 
     <bean id="siteminderFilter" class=
-"org.springframework.security.web.authentication.preauth.header.RequestHeaderAuthenticationFilter">
+"org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter">
     <property name="principalRequestHeader" value="SM_USER"/>
     <property name="authenticationManager" ref="authenticationManager" />
   </bean>
