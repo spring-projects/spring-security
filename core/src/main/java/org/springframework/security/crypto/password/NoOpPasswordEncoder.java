@@ -18,16 +18,17 @@ package org.springframework.security.crypto.password;
 /**
  * A password encoder that does nothing.
  * Useful for testing where working with plain text passwords may be preferred.
+ *
  * @author Keith Donald
  */
 public final class NoOpPasswordEncoder implements PasswordEncoder {
 
-    public String encode(String rawPassword) {
-        return rawPassword;
+    public String encode(CharSequence rawPassword) {
+        return rawPassword.toString();
     }
 
-    public boolean matches(String rawPassword, String encodedPassword) {
-        return rawPassword.equals(encodedPassword);
+    public boolean matches(CharSequence rawPassword, String encodedPassword) {
+        return rawPassword.toString().equals(encodedPassword);
     }
 
     /**
@@ -40,7 +41,6 @@ public final class NoOpPasswordEncoder implements PasswordEncoder {
     private static final PasswordEncoder INSTANCE = new NoOpPasswordEncoder();
 
     private NoOpPasswordEncoder() {
-
     }
 
 }

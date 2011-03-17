@@ -1,4 +1,4 @@
-package org.springframework.security.core.codec;
+package org.springframework.security.crypto.codec;
 
 
 /**
@@ -33,14 +33,14 @@ public final class Base64 {
      * or at the very least should not be called Base64 without also specifying that is
      * was encoded using the URL- and Filename-safe dialect.
      */
-     public final static int URL_SAFE = 16;
+    public final static int URL_SAFE = 16;
 
 
-     /**
-      * Encode using the special "ordered" dialect of Base64 described here:
-      * <a href="http://www.faqs.org/qa/rfcc-1940.html">http://www.faqs.org/qa/rfcc-1940.html</a>.
-      */
-     public final static int ORDERED = 32;
+    /**
+     * Encode using the special "ordered" dialect of Base64 described here:
+     * <a href="http://www.faqs.org/qa/rfcc-1940.html">http://www.faqs.org/qa/rfcc-1940.html</a>.
+     */
+    public final static int ORDERED = 32;
 
 
     /** Maximum line length (76) of Base64 output. */

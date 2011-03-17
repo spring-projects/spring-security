@@ -16,17 +16,19 @@
 package org.springframework.security.crypto.password;
 
 import static org.springframework.security.crypto.util.EncodingUtils.concatenate;
-import static org.springframework.security.crypto.util.EncodingUtils.hexDecode;
-import static org.springframework.security.crypto.util.EncodingUtils.hexEncode;
 import static org.springframework.security.crypto.util.EncodingUtils.subArray;
-import static org.springframework.security.crypto.util.EncodingUtils.utf8Encode;
 
+import org.springframework.security.crypto.codec.Hex;
+import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
-import org.springframework.security.crypto.util.Digester;
 
 /**
- * A standard PasswordEncoder implementation that uses SHA-256 1024 iteration hashing with 8-byte random salting.
+ * A standard {@code PasswordEncoder} implementation that uses SHA-256 hashing with 1024 iterations and a
+ * random 8-byte random salt value. It uses an additional system-wide secret value to provide additional protection.
+ * <p>
+ * The digest algorithm is invoked on the concatenated bytes of the salt, secret and password.
+ *
  * @author Keith Donald
  */
 public final class StandardPasswordEncoder implements PasswordEncoder {
@@ -41,15 +43,15 @@ public final class StandardPasswordEncoder implements PasswordEncoder {
      * Constructs a standard password encoder.
      * @param secret the secret key used in the encoding process (should not be shared)
      */
-    public StandardPasswordEncoder(String secret) {
+    public StandardPasswordEncoder(CharSequence secret) {
         this("SHA-256", "SUN", secret);
     }
 
-    public String encode(String rawPassword) {
+    public String encode(CharSequence rawPassword) {
         return encode(rawPassword, saltGenerator.generateKey());
     }
 
-    public boolean matches(String rawPassword, String encodedPassword) {
+    public boolean matches(CharSequence rawPassword, String encodedPassword) {
         byte[] digested = decode(encodedPassword);
         byte[] salt = subArray(digested, 0, saltGenerator.getKeyLength());
         return matches(digested, digest(rawPassword, salt));
@@ -57,31 +59,28 @@ public final class StandardPasswordEncoder implements PasswordEncoder {
 
     // internal helpers
 
-    private StandardPasswordEncoder(String algorithm, String provider, String secret) {
+    private StandardPasswordEncoder(String algorithm, String provider, CharSequence secret) {
         this.digester = new Digester(algorithm, provider);
-        this.secret = utf8Encode(secret);
+        this.secret = Utf8.encode(secret);
         this.saltGenerator = KeyGenerators.secureRandom();
     }
 
-    private String encode(String rawPassword, byte[] salt) {
+    private String encode(CharSequence rawPassword, byte[] salt) {
         byte[] digest = digest(rawPassword, salt);
-        return hexEncode(digest);
+        return new String(Hex.encode(digest));
     }
 
-    private byte[] digest(String rawPassword, byte[] salt) {
-        byte[] digest = digester.digest(concatenate(salt, secret, utf8Encode(rawPassword)));
+    private byte[] digest(CharSequence rawPassword, byte[] salt) {
+        byte[] digest = digester.digest(concatenate(salt, secret, Utf8.encode(rawPassword)));
         return concatenate(salt, digest);
     }
 
-    private byte[] decode(String encodedPassword) {
-        return hexDecode(encodedPassword);
+    private byte[] decode(CharSequence encodedPassword) {
+        return Hex.decode(encodedPassword);
     }
 
     /**
      * Constant time comparison to prevent against timing attacks.
-     * @param expected
-     * @param actual
-     * @return
      */
     private boolean matches(byte[] expected, byte[] actual) {
         if (expected.length != actual.length) {

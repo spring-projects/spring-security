@@ -4,8 +4,8 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.springframework.security.core.codec.Base64;
-import org.springframework.security.core.codec.Hex;
+import org.springframework.security.crypto.codec.Base64;
+import org.springframework.security.crypto.codec.Hex;
 import org.springframework.util.Assert;
 
 /**

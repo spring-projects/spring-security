@@ -6,20 +6,21 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 
 import org.junit.Test;
+import org.springframework.security.crypto.codec.Hex;
 
 public class EncodingUtilsTests {
 
     @Test
     public void hexEncode() {
         byte[] bytes = new byte[] { (byte)0x01, (byte)0xFF, (byte)65, (byte)66, (byte)67, (byte)0xC0, (byte)0xC1, (byte)0xC2 };
-        String result = EncodingUtils.hexEncode(bytes);
+        String result = new String(Hex.encode(bytes));
         assertEquals("01ff414243c0c1c2", result);
     }
 
     @Test
     public void hexDecode() {
         byte[] bytes = new byte[] { (byte)0x01, (byte)0xFF, (byte)65, (byte)66, (byte)67, (byte)0xC0, (byte)0xC1, (byte)0xC2 };
-        byte[] result = EncodingUtils.hexDecode("01ff414243c0c1c2");
+        byte[] result = Hex.decode("01ff414243c0c1c2");
         assertTrue(Arrays.equals(bytes, result));
     }
 

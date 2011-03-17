@@ -3,7 +3,7 @@ package org.springframework.security.core.token;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.springframework.security.core.codec.Hex;
+import org.springframework.security.crypto.codec.Hex;
 
 /**
  * Provides SHA512 digest methods.

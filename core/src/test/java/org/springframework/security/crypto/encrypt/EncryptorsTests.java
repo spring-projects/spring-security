@@ -10,9 +10,9 @@ import org.junit.Test;
 public class EncryptorsTests {
 
     @Test
-    public void standard() {
+    public void standard() throws Exception {
         BytesEncryptor encryptor = Encryptors.standard("password", "5c0744940b5c369b");
-        byte[] result = encryptor.encrypt("text".getBytes());
+        byte[] result = encryptor.encrypt("text".getBytes("UTF-8"));
         assertNotNull(result);
         assertFalse(new String(result).equals("text"));
         assertEquals("text", new String(encryptor.decrypt(result)));

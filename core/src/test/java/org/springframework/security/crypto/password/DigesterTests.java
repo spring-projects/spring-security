@@ -1,4 +1,4 @@
-package org.springframework.security.crypto.util;
+package org.springframework.security.crypto.password;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -7,6 +7,7 @@ import java.security.MessageDigest;
 import java.util.Arrays;
 
 import org.junit.Test;
+import org.springframework.security.crypto.password.Digester;
 
 public class DigesterTests {
 

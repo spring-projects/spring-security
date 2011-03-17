@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.crypto.util;
+package org.springframework.security.crypto.encrypt;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -35,7 +35,7 @@ import javax.crypto.spec.PBEParameterSpec;
  * Static helper for working with the Cipher API.
  * @author Keith Donald
  */
-public class CipherUtils {
+class CipherUtils {
 
     /**
      * Generates a SecretKey.

@@ -17,6 +17,7 @@ package org.springframework.security.crypto.encrypt;
 
 /**
  * Service interface for symmetric encryption of text strings.
+ *
  * @author Keith Donald
  */
 public interface TextEncryptor {

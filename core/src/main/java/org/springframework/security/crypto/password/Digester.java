@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.crypto.util;
+package org.springframework.security.crypto.password;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -24,7 +24,7 @@ import java.security.NoSuchProviderException;
  * Performs 1024 iterations of the hashing algorithm per digest to aid in protecting against brute force attacks.
  * @author Keith Donald
  */
-public class Digester {
+class Digester {
 
     private final MessageDigest messageDigest;
 

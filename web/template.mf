@@ -19,6 +19,7 @@ Ignored-Existing-Headers:
 Import-Template:
  org.apache.commons.logging.*;version="${cloggingRange}",
  org.springframework.security.core.*;version="${secRange}",
+ org.springframework.security.crypto.*;version="${secRange}",
  org.springframework.security.authentication.*;version="${secRange}",
  org.springframework.security.access.*;version="${secRange}",
  org.springframework.security.util;version="${secRange}",

@@ -16,8 +16,8 @@ package org.springframework.security.authentication.encoding;
 
 import java.io.UnsupportedEncodingException;
 
-import org.springframework.security.core.codec.Base64;
-import org.springframework.security.core.codec.Hex;
+import org.springframework.security.crypto.codec.Base64;
+import org.springframework.security.crypto.codec.Hex;
 
 /**
  * MD4 implementation of PasswordEncoder.

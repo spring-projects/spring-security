@@ -6,7 +6,7 @@ import static org.junit.Assert.assertFalse;
 import java.util.Arrays;
 
 import org.junit.Test;
-import org.springframework.security.crypto.util.EncodingUtils;
+import org.springframework.security.crypto.codec.Hex;
 
 public class KeyGeneratorsTests {
 
@@ -35,7 +35,7 @@ public class KeyGeneratorsTests {
         StringKeyGenerator keyGenerator = KeyGenerators.string();
         String hexStringKey = keyGenerator.generateKey();
         assertEquals(16, hexStringKey.length());
-        assertEquals(8, EncodingUtils.hexDecode(hexStringKey).length);
+        assertEquals(8, Hex.decode(hexStringKey).length);
         String hexStringKey2 = keyGenerator.generateKey();
         assertFalse(hexStringKey.equals(hexStringKey2));
     }

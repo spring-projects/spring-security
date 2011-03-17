@@ -15,10 +15,10 @@
  */
 package org.springframework.security.crypto.encrypt;
 
-import static org.springframework.security.crypto.util.CipherUtils.doFinal;
-import static org.springframework.security.crypto.util.CipherUtils.initCipher;
-import static org.springframework.security.crypto.util.CipherUtils.newCipher;
-import static org.springframework.security.crypto.util.CipherUtils.newSecretKey;
+import static org.springframework.security.crypto.encrypt.CipherUtils.doFinal;
+import static org.springframework.security.crypto.encrypt.CipherUtils.initCipher;
+import static org.springframework.security.crypto.encrypt.CipherUtils.newCipher;
+import static org.springframework.security.crypto.encrypt.CipherUtils.newSecretKey;
 import static org.springframework.security.crypto.util.EncodingUtils.concatenate;
 import static org.springframework.security.crypto.util.EncodingUtils.subArray;
 
@@ -28,11 +28,12 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
-import org.springframework.security.crypto.util.EncodingUtils;
 
 /**
  * Encryptor that uses 256-bit AES encryption.
+ *
  * @author Keith Donald
  */
 final class AesBytesEncryptor implements BytesEncryptor {
@@ -45,8 +46,8 @@ final class AesBytesEncryptor implements BytesEncryptor {
 
     private final BytesKeyGenerator ivGenerator;
 
-    public AesBytesEncryptor(String password, String salt, BytesKeyGenerator ivGenerator) {
-        PBEKeySpec keySpec = new PBEKeySpec(password.toCharArray(), EncodingUtils.hexDecode(salt), 1024, 256);
+    public AesBytesEncryptor(String password, CharSequence salt, BytesKeyGenerator ivGenerator) {
+        PBEKeySpec keySpec = new PBEKeySpec(password.toCharArray(), Hex.decode(salt), 1024, 256);
         SecretKey secretKey = newSecretKey("PBKDF2WithHmacSHA1", keySpec);
         this.secretKey = new SecretKeySpec(secretKey.getEncoded(), "AES");
         encryptor = newCipher(AES_ALGORITHM);

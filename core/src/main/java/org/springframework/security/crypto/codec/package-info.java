@@ -1,4 +1,4 @@
 /**
  * Internal codec classes. Only intended for use within the framework.
  */
-package org.springframework.security.core.codec;
+package org.springframework.security.crypto.codec;

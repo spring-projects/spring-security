@@ -19,7 +19,7 @@ public class StandardPasswordEncoderTests {
     @Test
     public void matchesLengthChecked() {
         String result = encoder.encode("password");
-        assertFalse(encoder.matches("password", result.substring(0,result.length()-1)));
+        assertFalse(encoder.matches("password", result.substring(0,result.length()-2)));
     }
 
     @Test

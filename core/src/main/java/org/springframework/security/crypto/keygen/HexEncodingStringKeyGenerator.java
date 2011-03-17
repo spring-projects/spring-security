@@ -15,7 +15,7 @@
  */
 package org.springframework.security.crypto.keygen;
 
-import static org.springframework.security.crypto.util.EncodingUtils.hexEncode;
+import org.springframework.security.crypto.codec.Hex;
 
 /**
  * A StringKeyGenerator that generates hex-encoded String keys.
@@ -31,7 +31,7 @@ final class HexEncodingStringKeyGenerator implements StringKeyGenerator {
     }
 
     public String generateKey() {
-        return hexEncode(keyGenerator.generateKey());
+        return new String(Hex.encode(keyGenerator.generateKey()));
     }
 
 }

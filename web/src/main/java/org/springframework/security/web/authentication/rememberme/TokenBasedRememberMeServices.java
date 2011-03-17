@@ -16,7 +16,7 @@
 package org.springframework.security.web.authentication.rememberme;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.codec.Hex;
+import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
 

@@ -5,8 +5,8 @@ import java.security.SecureRandom;
 import java.util.Date;
 
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.core.codec.Base64;
-import org.springframework.security.core.codec.Hex;
+import org.springframework.security.crypto.codec.Base64;
+import org.springframework.security.crypto.codec.Hex;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 

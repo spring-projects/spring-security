@@ -15,10 +15,8 @@
  */
 package org.springframework.security.crypto.encrypt;
 
-import static org.springframework.security.crypto.util.EncodingUtils.hexDecode;
-import static org.springframework.security.crypto.util.EncodingUtils.hexEncode;
-import static org.springframework.security.crypto.util.EncodingUtils.utf8Decode;
-import static org.springframework.security.crypto.util.EncodingUtils.utf8Encode;
+import org.springframework.security.crypto.codec.Hex;
+import org.springframework.security.crypto.codec.Utf8;
 
 /**
  * Delegates to an {@link BytesEncryptor} to encrypt text strings.
@@ -35,11 +33,11 @@ final class HexEncodingTextEncryptor implements TextEncryptor {
     }
 
     public String encrypt(String text) {
-        return hexEncode(encryptor.encrypt(utf8Encode(text)));
+        return new String(Hex.encode(encryptor.encrypt(Utf8.encode(text))));
     }
 
     public String decrypt(String encryptedText) {
-        return utf8Decode(encryptor.decrypt(hexDecode(encryptedText)));
+        return Utf8.decode(encryptor.decrypt(Hex.decode(encryptedText)));
     }
 
 }
