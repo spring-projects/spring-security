@@ -109,7 +109,7 @@ KeyGenerators.string();]]>
     <title>Password Encoding</title>
     <para>
         The password package of the spring-security-crypto module provides support for encoding passwords.
-        PasswordEncoder is the central service interface and has the following signature:
+        <interfacename>PasswordEncoder</interfacename> is the central service interface and has the following signature:
         <programlisting language="java"><![CDATA[
 public interface PasswordEncoder {
     String encode(String rawPassword);
@@ -120,7 +120,7 @@ public interface PasswordEncoder {
         This method is designed to support password-based authentication schemes.
     </para>
     <para>
-        The StandardPasswordEncoder implementation applies 1024 iterations of the SHA-256 hashing algorithm to the rawPassword combined with a site-wide secret and 8-byte random salt:
+        The <classname>StandardPasswordEncoder</classname> implementation applies 1024 iterations of the SHA-256 hashing algorithm to the rawPassword combined with a site-wide secret and 8-byte random salt:
     </para>
     <programlisting language="java"><![CDATA[
 StandardPasswordEncoder encoder = new StandardPasswordEncoder("secret");

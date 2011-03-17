@@ -73,24 +73,23 @@
             authenticate is made.</para>
         <section xml:id="core-services-erasing-credentials">
             <title>Erasing Credentials on Successful Authentication</title>
-            <para>
-                By default (from Spring Security 3.1 onwards) the <classname>ProviderManager</classname>
-                will attempt to clear any sensitive credentials information from the
-                <interfacename>Authentication</interfacename> object which is returned by a successful
-                authentication request. This prevents information like passwords being retained longer
-                than necessary.
-            </para>
-            <para>
-                This may cause issues when you are using a cache of user objects, for example, to
-                improve performance in a stateless application. If the <interfacename>Authentication</interfacename>
-                contains a reference to an object in the cache (such as a <interfacename>UserDetails</interfacename>
-                instance) and this has its credentials removed, then it will no longer be possible to authenticate
-                against the cached value. You need to take this into account if you are using a cache. An obvious
-                solution is to make a copy of the object first, either in the cache implementation or in
-                the <interfacename>AuthenticationProvider</interfacename> which creates the returned
-                <interfacename>Authentication</interfacename> object. Alternatively, you can disable the
-                <literal>eraseCredentialsAfterAuthentication</literal> property on <classname>ProviderManager</classname>.
-                See the Javadoc for more information.
+            <para> By default (from Spring Security 3.1 onwards) the
+                <classname>ProviderManager</classname> will attempt to clear any sensitive
+                credentials information from the <interfacename>Authentication</interfacename>
+                object which is returned by a successful authentication request. This prevents
+                information like passwords being retained longer than necessary. </para>
+            <para> This may cause issues when you are using a cache of user objects, for example, to
+                improve performance in a stateless application. If the
+                <interfacename>Authentication</interfacename> contains a reference to an object in
+                the cache (such as a <interfacename>UserDetails</interfacename> instance) and this
+                has its credentials removed, then it will no longer be possible to authenticate
+                against the cached value. You need to take this into account if you are using a
+                cache. An obvious solution is to make a copy of the object first, either in the
+                cache implementation or in the <interfacename>AuthenticationProvider</interfacename>
+                which creates the returned <interfacename>Authentication</interfacename> object.
+                Alternatively, you can disable the
+                <literal>eraseCredentialsAfterAuthentication</literal> property on
+                <classname>ProviderManager</classname>. See the Javadoc for more information.
             </para>
         </section>
         <section xml:id="core-services-dao-provider">
@@ -107,17 +106,13 @@
 <bean id="daoAuthenticationProvider"
     class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
   <property name="userDetailsService" ref="inMemoryDaoImpl"/>
-  <property name="saltSource" ref="saltSource"/>
   <property name="passwordEncoder" ref="passwordEncoder"/>
-</bean>]]></programlisting> The <interfacename>PasswordEncoder</interfacename> and
-                <interfacename>SaltSource</interfacename> are optional. A
+</bean>]]></programlisting> The <interfacename>PasswordEncoder</interfacename> is optional. A
                 <interfacename>PasswordEncoder</interfacename> provides encoding and decoding of
                 passwords presented in the <interfacename>UserDetails</interfacename> object that is
-                returned from the configured <interfacename>UserDetailsService</interfacename>. A
-                <interfacename>SaltSource</interfacename> enables the passwords to be populated with
-                a "salt", which enhances the security of the passwords in the authentication
-                repository. These will be discussed in more detail <link
-                xlink:href="#core-services-password-encoding">below</link>. </para>
+                returned from the configured <interfacename>UserDetailsService</interfacename>. This
+                will be discussed in more detail <link xlink:href="#core-services-password-encoding"
+                >below</link>. </para>
         </section>
     </section>
     <section>
@@ -129,7 +124,8 @@
         <para>
             <programlisting language="java">
   UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
-            </programlisting> </para>
+            </programlisting>
+        </para>
         <para>The returned <interfacename>UserDetails</interfacename> is an interface that provides
             getters that guarantee non-null provision of authentication information such as the
             username, password, granted authorities and whether the user account is enabled or
@@ -179,7 +175,8 @@
                 <interfacename>UserDetailsService</interfacename> to reuse the mapping files you've
                 probably already created. Returning to <literal>JdbcDaoImpl</literal>, an example
                 configuration is shown below:</para>
-            <para> <programlisting language="xml"><![CDATA[
+            <para>
+                <programlisting language="xml"><![CDATA[
 <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
   <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
   <property name="url" value="jdbc:hsqldb:hsql://localhost:9001"/>
@@ -190,7 +187,8 @@
 <bean id="userDetailsService"
       class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl">
   <property name="dataSource" ref="dataSource"/>
-</bean> ]]>       </programlisting> </para>
+</bean> ]]>       </programlisting>
+            </para>
             <para>You can use different relational database management systems by modifying the
                 <literal>DriverManagerDataSource</literal> shown above. You can also use a global
                 data source obtained from JNDI, as with any other Spring configuration.</para>
@@ -219,10 +217,18 @@
     </section>
     <section xml:id="core-services-password-encoding">
         <title>Password Encoding</title>
-        <para>Spring Security's <interfacename>PasswordEncoder</interfacename> interface is used to
-            support the use of passwords which are encoded in some way in persistent storage. This
-            will normally mean that the passwords are <quote>hashed</quote> using a digest algorithm
-            such as MD5 or SHA.</para>
+        <para xlink:href="#spring-security-crypto-passwordencoders">Spring Security's
+            <interfacename>PasswordEncoder</interfacename> interface is used to support the use of
+            passwords which are encoded in some way in persistent storage. This will normally mean
+            that the passwords are <quote>hashed</quote> using a digest algorithm such as MD5 or
+            SHA. Spring Security 3.1's <link xlink:href="#spring-security-crypto-passwordencoders"
+            ><literal>crypto</literal></link> package introduces a simpler API which encourages
+            best-practice for password hashing. We would encourage you to use these APIs for new
+            development and regard the classes in package
+            <literal>org.springframework.security.authentication.encoding</literal> as legacy
+            implementations. The <classname>DaoAuthenticationProvider</classname> can be injected
+            with either the new or legacy <interfacename>PasswordEncoder</interfacename>
+            types.</para>
         <section>
             <title>What is a hash?</title>
             <para>Password hashing is not unique to Spring Security but is a common source of
@@ -232,8 +238,8 @@
                 the string <quote>password</quote> (in hexadecimal) is
                 <programlisting language="txt">
     5f4dcc3b5aa765d61d8327deb882cf99
-</programlisting> A hash is
-                <quote>one-way</quote> in the sense that it is very difficult (effectively
+</programlisting>
+                A hash is <quote>one-way</quote> in the sense that it is very difficult (effectively
                 impossible) to obtain the original input given the hash value, or indeed any
                 possible input which would produce that hash value. This property makes hash values
                 very useful for authentication purposes. They can be stored in your user database as
@@ -254,16 +260,28 @@
                 <quote>salt</quote> when calculating the hashes. This is an additional string of
                 known data for each user which is combined with the password before calculating the
                 hash. Ideally the data should be as random as possible, but in practice any salt
-                value is usually preferable to none. Spring Security has a
-                <interfacename>SaltSource</interfacename> interface which can be used by an
-                authentication provider to generate a salt value for a particular user. Using a salt
-                means that an attacker has to build a separate dictionary of hashes for each salt
-                value, making the attack more complicated (but not impossible).</para>
+                value is usually preferable to none. Using a salt means that an attacker has to
+                build a separate dictionary of hashes for each salt value, making the attack more
+                complicated (but not impossible).</para>
+            <para>The <classname>StandardPasswordEncoder</classname> in the <link
+                xlink:href="#spring-security-crypto-passwordencoders"
+                ><literal>crypto</literal></link> package uses a random 8-byte salt, which is stored
+                in the same field as the password.<note>
+                <para>The legacy approach to handling salt was to inject a
+                    <interfacename>SaltSource</interfacename> into the
+                    <classname>DaoAuthenticationProvider</classname>, which would obtain a salt
+                    value for a particular user and pass it to the
+                    <interfacename>PasswordEncoder</interfacename>. Using a random salt and
+                    combining it with the password data field means you don't have to worry about
+                    the details of salt handling (such as where the the value is stored), as it is
+                    all done internally. So we'd strongly recommend you use this approach unless you
+                    already have a system in place which stores the salt separately.</para>
+                </note></para>
         </section>
         <section>
             <title> Hashing and Authentication</title>
             <para>When an authentication provider (such as Spring Security's
-                <classname>DaoAuthenticationProvider</classname> needs to check the password in a
+                <classname>DaoAuthenticationProvider</classname>) needs to check the password in a
                 submitted authentication request against the known value for a user, and the stored
                 password is encoded in some way, then the submitted value must be encoded using
                 exactly the same algorithm. It's up to you to check that these are compatible as
@@ -274,20 +292,13 @@
                 example, and your application is configured to use Spring Security's
                 <classname>Md5PasswordEncoder</classname>, there are still things that can go wrong.
                 The database may have the passwords encoded in Base 64, for example while the
-                enocoder is using hexadecimal strings (the default)<footnote>
-                <para>You can configure the encoder to use Base 64 instead of hex by setting the
-                    <literal>encodeHashAsBase64</literal> property to <literal>true</literal>. Check
-                    the Javadoc for <classname>MessageDigestPasswordEncoder</classname> and its
-                    parent classes for more information.</para>
-                </footnote>. Alternatively your database may be using upper-case while the output
-                from the encoder is lower-case. Make sure you write a test to check the output from
-                your configured password encoder with a known password and salt combination and
-                check that it matches the database value before going further and attempting to
-                authenticate through your application. For more information on the default method
-                for merging salt and password, see the Javadoc for
-                <classname>BasePasswordEncoder</classname>. If you want to generate encoded
-                passwords directly in Java for storage in your user database, then you can use the
-                <methodname>encodePassword</methodname> method on the
+                encoder is using hexadecimal strings (the default). Alternatively your database may
+                be using upper-case while the output from the encoder is lower-case. Make sure you
+                write a test to check the output from your configured password encoder with a known
+                password and salt combination and check that it matches the database value before
+                going further and attempting to authenticate through your application.</para>
+            <para>If you want to generate encoded passwords directly in Java for storage in your
+                user database, then you can use the <methodname>encode</methodname> method on the
                 <interfacename>PasswordEncoder</interfacename>.</para>
         </section>
     </section>
