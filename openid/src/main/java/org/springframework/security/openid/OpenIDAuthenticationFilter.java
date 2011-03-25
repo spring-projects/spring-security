@@ -15,28 +15,21 @@
 
 package org.springframework.security.openid;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.openid4java.consumer.ConsumerException;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
 
 
 /**
@@ -225,7 +218,14 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
      * Reads the <tt>claimedIdentityFieldName</tt> from the submitted request.
      */
     protected String obtainUsername(HttpServletRequest req) {
-        return req.getParameter(claimedIdentityFieldName);
+        String claimedIdentity = req.getParameter(claimedIdentityFieldName);
+
+        if (!StringUtils.hasText(claimedIdentity)) {
+            logger.error("No claimed identity supplied in authentication request");
+            return "";
+        }
+
+        return claimedIdentity.trim();
     }
 
     /**

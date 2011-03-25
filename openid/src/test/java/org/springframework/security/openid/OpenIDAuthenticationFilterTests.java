@@ -45,7 +45,7 @@ public class OpenIDAuthenticationFilterTests {
         MockHttpServletRequest req = new MockHttpServletRequest("GET", REQUEST_PATH);
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        req.setParameter("openid_identifier", CLAIMED_IDENTITY_URL);
+        req.setParameter("openid_identifier", " " + CLAIMED_IDENTITY_URL);
         req.setRemoteHost("www.example.com");
 
         filter.setConsumer(new MockOpenIDConsumer() {
