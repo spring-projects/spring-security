@@ -133,6 +133,15 @@ public final class AntPathRequestMatcher implements RequestMatcher {
     }
 
     @Override
+    public int hashCode() {
+        int code = 31 ^ pattern.hashCode();
+        if (httpMethod != null) {
+            code ^= httpMethod.hashCode();
+        }
+        return code;
+    }
+
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Ant [pattern='").append(pattern).append("'");
