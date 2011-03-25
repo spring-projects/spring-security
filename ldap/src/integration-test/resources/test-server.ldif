@@ -13,6 +13,11 @@ objectclass: top
 objectclass: organizationalUnit
 ou: people
 
+dn: ou=space cadets,dc=springframework,dc=org
+objectclass: top
+objectclass: organizationalUnit
+ou: space cadets
+
 dn: ou=\"quoted people\",dc=springframework,dc=org
 objectclass: top
 objectclass: organizationalUnit
@@ -82,6 +87,17 @@ cn: quote\"guy
 sn: Quote
 uid: quoteguy
 userPassword: quoteguyspassword
+
+dn: uid=space cadet,ou=space cadets,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Space Cadet
+sn: Cadet
+uid: space cadet
+userPassword: spacecadetspassword
+
 
 
 dn: cn=developers,ou=groups,dc=springframework,dc=org

@@ -63,8 +63,16 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
 //        com.sun.jndi.ldap.LdapPoolManager.showStats(System.out);
         // Now get it gain, with wrong password. Should fail.
         ctx = getContextSource().getContext("uid=Bob,ou=people,dc=springframework,dc=org", "wrongpassword");
+        ctx.close();
     }
 
+    @Test
+    public void serverUrlWithSpacesIsSupported() throws Exception {
+        DefaultSpringSecurityContextSource
+                contextSource = new DefaultSpringSecurityContextSource("ldap://127.0.0.1:53389/ou=space%20cadets,dc=springframework,dc=org");
+        contextSource.afterPropertiesSet();
+        contextSource.getContext("uid=space cadet,ou=space cadets,dc=springframework,dc=org", "spacecadetspassword");
+    }
 
     static class EnvExposingDefaultSpringSecurityContextSource extends DefaultSpringSecurityContextSource {
         public EnvExposingDefaultSpringSecurityContextSource(String providerUrl) {
