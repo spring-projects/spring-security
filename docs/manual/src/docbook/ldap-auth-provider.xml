@@ -32,12 +32,15 @@
             <listitem>
                 <para>Obtaining the unique LDAP <quote>Distinguished Name</quote>, or DN, from the
                     login name. This will often mean performing a search in the directory, unless
-                    the exact mapping of usernames to DNs is known in advance.</para>
+                    the exact mapping of usernames to DNs is known in advance. So a user might enter
+                    the name <quote>joe</quote> when logging in, but the actual name used to
+                    authenticate to LDAP will be the full DN, such as
+                    <literal>uid=joe,ou=users,dc=springsource,dc=com</literal>.</para>
             </listitem>
             <listitem>
-                <para>Authenticating the user, either by binding as that user or by performing a
-                    remote <quote>compare</quote> operation of the user's password against the
-                    password attribute in the directory entry for the DN.</para>
+                <para>Authenticating the user, either by <quote>binding</quote> as that user or by
+                    performing a remote <quote>compare</quote> operation of the user's password
+                    against the password attribute in the directory entry for the DN.</para>
             </listitem>
             <listitem>
                 <para>Loading the list of authorities for the user.</para>
@@ -100,9 +103,10 @@
                     ]]></programlisting> If used with the server definition above, this would
                 perform a search under the DN <literal>ou=people,dc=springframework,dc=org</literal>
                 using the value of the <literal>user-search-filter</literal> attribute as a filter.
-                Again the user login name is substituted for the parameter in the filter name. If
-                <literal>user-search-base</literal> isn't supplied, the search will be performed
-                from the root. </para>
+                Again the user login name is substituted for the parameter in the filter name, so it
+                will search for an entry with the <literal>uid</literal> attribute equal to the user
+                name. If <literal>user-search-base</literal> isn't supplied, the search will be
+                performed from the root. </para>
         </section>
         <section>
             <info>
