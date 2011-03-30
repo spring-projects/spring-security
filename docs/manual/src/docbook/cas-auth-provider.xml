@@ -233,7 +233,7 @@
         <para> <programlisting language="xml"><![CDATA[
 <security:http entry-point-ref="casEntryPoint">
    ...
-   <custom-filter position="FORM_LOGIN_FILTER" ref="myFilter" />
+   <custom-filter position="CAS_FILTER" ref="casFilter" />
 </security:http>
 
 <bean id="casFilter"
