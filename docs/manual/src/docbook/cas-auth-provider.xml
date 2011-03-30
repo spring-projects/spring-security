@@ -275,7 +275,7 @@
       <programlisting><![CDATA[
 <security:http entry-point-ref="casEntryPoint">
    ...
-   <custom-filter position="CAS_FILTER" ref="casFilter" />
+   <security:custom-filter position="CAS_FILTER" ref="casFilter" />
 </security:http>
 
 <bean id="casFilter"
