@@ -81,10 +81,8 @@ final class AuthenticationConfigBuilder {
     private String rememberMeServicesId;
     private BeanReference rememberMeProviderRef;
     private BeanDefinition basicFilter;
-    private BeanReference basicEntryPoint;
-    private RootBeanDefinition formFilter;
+    private RuntimeBeanReference basicEntryPoint;
     private BeanDefinition formEntryPoint;
-    private RootBeanDefinition openIDFilter;
     private BeanDefinition openIDEntryPoint;
     private BeanReference openIDProviderRef;
     private String openIDProviderId;
@@ -141,6 +139,7 @@ final class AuthenticationConfigBuilder {
     void createFormLoginFilter(BeanReference sessionStrategy, BeanReference authManager) {
 
         Element formLoginElt = DomUtils.getChildElementByTagName(httpElt, Elements.FORM_LOGIN);
+        RootBeanDefinition formFilter = null;
 
         if (formLoginElt != null || autoConfig) {
             FormLoginBeanDefinitionParser parser = new FormLoginBeanDefinitionParser("/j_spring_security_check",
@@ -165,6 +164,7 @@ final class AuthenticationConfigBuilder {
 
     void createOpenIDLoginFilter(BeanReference sessionStrategy, BeanReference authManager) {
         Element openIDLoginElt = DomUtils.getChildElementByTagName(httpElt, Elements.OPENID_LOGIN);
+        RootBeanDefinition openIDFilter = null;
 
         if (openIDLoginElt != null) {
             FormLoginBeanDefinitionParser parser = new FormLoginBeanDefinitionParser("/j_spring_openid_security_check",
@@ -318,7 +318,7 @@ final class AuthenticationConfigBuilder {
 
 
     void createLoginPageFilterIfNeeded() {
-        boolean needLoginPage = formFilter != null || openIDFilter != null;
+        boolean needLoginPage = formFilterId != null || openIDFilterId != null;
         String formLoginPage = getLoginFormUrl(formEntryPoint);
         String openIDLoginPage = getLoginFormUrl(openIDEntryPoint);
 
@@ -329,11 +329,11 @@ final class AuthenticationConfigBuilder {
             BeanDefinitionBuilder loginPageFilter =
                 BeanDefinitionBuilder.rootBeanDefinition(DefaultLoginPageGeneratingFilter.class);
 
-            if (formFilter != null) {
+            if (formFilterId != null) {
                 loginPageFilter.addConstructorArgReference(formFilterId);
             }
 
-            if (openIDFilter != null) {
+            if (openIDFilterId != null) {
                 loginPageFilter.addConstructorArgReference(openIDFilterId);
             }
 
@@ -497,12 +497,12 @@ final class AuthenticationConfigBuilder {
                     "but not both.", pc.extractSource(openIDLoginElt));
         }
 
-        if (formFilter != null && openIDLoginPage == null) {
+        if (formFilterId != null && openIDLoginPage == null) {
             return formEntryPoint;
         }
 
         // Otherwise use OpenID if enabled
-        if (openIDFilter != null) {
+        if (openIDFilterId != null) {
             return openIDEntryPoint;
         }
 
@@ -566,12 +566,12 @@ final class AuthenticationConfigBuilder {
             filters.add(new OrderDecorator(x509Filter, X509_FILTER));
         }
 
-        if (formFilter != null) {
-            filters.add(new OrderDecorator(formFilter, FORM_LOGIN_FILTER));
+        if (formFilterId != null) {
+            filters.add(new OrderDecorator(new RuntimeBeanReference(formFilterId), FORM_LOGIN_FILTER));
         }
 
-        if (openIDFilter != null) {
-            filters.add(new OrderDecorator(openIDFilter, OPENID_FILTER));
+        if (openIDFilterId != null) {
+            filters.add(new OrderDecorator(new RuntimeBeanReference(openIDFilterId), OPENID_FILTER));
         }
 
         if (loginPageGenerationFilter != null) {
