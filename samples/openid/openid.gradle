@@ -9,14 +9,13 @@ dependencies {
 
     providedCompile 'javax.servlet:servlet-api:2.5@jar'
 
-    runtime project(':spring-security-web'),
-            project(':spring-security-config'),
+    runtime project(':spring-security-config'),
             project(':spring-security-taglibs'),
+//            'xerces:xercesImpl:2.9.1',
+//            'net.sourceforge.nekohtml:nekohtml:1.9.7',
             "javax.servlet:jstl:$jstlVersion",
             "org.slf4j:jcl-over-slf4j:$slf4jVersion",
             "ch.qos.logback:logback-classic:$logbackVersion"
 }
 
-jettyRun {
-    contextPath = "/openid"
-}
+[jettyRun, jettyRunWar]*.contextPath = "/openid"
