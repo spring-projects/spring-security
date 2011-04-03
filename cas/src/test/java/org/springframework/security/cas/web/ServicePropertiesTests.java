@@ -36,6 +36,18 @@ public class ServicePropertiesTests {
     }
 
     @Test
+    public void allowNullServiceWhenAuthenticateAllTokens() throws Exception {
+        ServiceProperties sp = new ServiceProperties();
+        sp.setAuthenticateAllArtifacts(true);
+        sp.afterPropertiesSet();
+        sp.setAuthenticateAllArtifacts(false);
+        try {
+            sp.afterPropertiesSet();
+            fail("Expected Exception");
+        }catch(IllegalArgumentException success) {}
+    }
+
+    @Test
     public void testGettersSetters() throws Exception {
         ServiceProperties[] sps = {new ServiceProperties(), new SamlServiceProperties()};
         for(ServiceProperties sp : sps) {

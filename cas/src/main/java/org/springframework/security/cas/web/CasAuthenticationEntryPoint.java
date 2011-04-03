@@ -65,6 +65,7 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(this.loginUrl, "loginUrl must be specified");
         Assert.notNull(this.serviceProperties, "serviceProperties must be specified");
+        Assert.notNull(this.serviceProperties.getService(),"serviceProperties.getService() cannot be null.");
     }
 
     public final void commence(final HttpServletRequest servletRequest, final HttpServletResponse response,

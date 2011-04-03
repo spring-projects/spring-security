@@ -15,6 +15,8 @@
 
 package org.springframework.security.cas.authentication;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.TicketValidationException;
 import org.jasig.cas.client.validation.TicketValidator;
@@ -28,6 +30,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.web.CasAuthenticationFilter;
+import org.springframework.security.cas.web.authentication.ServiceAuthenticationDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
@@ -50,6 +53,9 @@ import org.springframework.util.Assert;
  * @author Scott Battaglia
  */
 public class CasAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
+    //~ Static fields/initializers =====================================================================================
+
+    private static final Log logger = LogFactory.getLog(CasAuthenticationProvider.class);
 
     //~ Instance fields ================================================================================================
 
@@ -72,7 +78,6 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
         Assert.notNull(this.statelessTicketCache, "A statelessTicketCache must be set");
         Assert.hasText(this.key, "A Key is required so CasAuthenticationProvider can identify tokens it previously authenticated");
         Assert.notNull(this.messages, "A message source must be set");
-        Assert.notNull(this.serviceProperties, "serviceProperties is a required field.");
     }
 
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -132,7 +137,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 
     private CasAuthenticationToken authenticateNow(final Authentication authentication) throws AuthenticationException {
         try {
-            final Assertion assertion = this.ticketValidator.validate(authentication.getCredentials().toString(), serviceProperties.getService());
+            final Assertion assertion = this.ticketValidator.validate(authentication.getCredentials().toString(), getServiceUrl(authentication));
             final UserDetails userDetails = loadUserByAssertion(assertion);
             userDetailsChecker.check(userDetails);
             return new CasAuthenticationToken(this.key, userDetails, authentication.getCredentials(),
@@ -140,6 +145,32 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
         } catch (final TicketValidationException e) {
             throw new BadCredentialsException(e.getMessage(), e);
         }
+    }
+
+    /**
+     * Gets the serviceUrl. If the {@link Authentication#getDetails()} is an
+     * instance of {@link ServiceAuthenticationDetails}, then
+     * {@link ServiceAuthenticationDetails#getServiceUrl()} is used. Otherwise,
+     * the {@link ServiceProperties#getService()} is used.
+     *
+     * @param authentication
+     * @return
+     */
+    private String getServiceUrl(Authentication authentication) {
+        String serviceUrl;
+        if(authentication.getDetails() instanceof ServiceAuthenticationDetails) {
+            serviceUrl = ((ServiceAuthenticationDetails)authentication.getDetails()).getServiceUrl();
+        }else if(serviceProperties == null){
+            throw new IllegalStateException("serviceProperties cannot be null unless Authentication.getDetails() implements ServiceAuthenticationDetails.");
+        }else if(serviceProperties.getService() == null){
+            throw new IllegalStateException("serviceProperties.getService() cannot be null unless Authentication.getDetails() implements ServiceAuthenticationDetails.");
+        }else {
+            serviceUrl = serviceProperties.getService();
+        }
+        if(logger.isDebugEnabled()) {
+            logger.debug("serviceUrl = "+serviceUrl);
+        }
+        return serviceUrl;
     }
 
     /**

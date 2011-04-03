@@ -15,7 +15,7 @@
 
 package org.springframework.security.cas.authentication;
 
-
+import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
 
 import org.jasig.cas.client.validation.Assertion;
@@ -23,11 +23,13 @@ import org.jasig.cas.client.validation.AssertionImpl;
 import org.jasig.cas.client.validation.TicketValidationException;
 import org.jasig.cas.client.validation.TicketValidator;
 import org.junit.*;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.web.CasAuthenticationFilter;
+import org.springframework.security.cas.web.authentication.ServiceAuthenticationDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -35,6 +37,7 @@ import org.springframework.security.core.userdetails.AuthenticationUserDetailsSe
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 import java.util.*;
 
@@ -146,6 +149,87 @@ public class CasAuthenticationProviderTests {
         Authentication newResult = cap.authenticate(token);
         assertEquals(makeUserDetailsFromAuthoritiesPopulator(), newResult.getPrincipal());
         assertEquals("ST-456", newResult.getCredentials());
+    }
+
+    @Test
+    public void authenticateAllNullService() throws Exception {
+        String serviceUrl = "https://service/context";
+        ServiceAuthenticationDetails details = mock(ServiceAuthenticationDetails.class);
+        when(details.getServiceUrl()).thenReturn(serviceUrl);
+        TicketValidator validator = mock(TicketValidator.class);
+        when(validator.validate(any(String.class),any(String.class))).thenReturn(new AssertionImpl("rod"));
+
+        ServiceProperties serviceProperties = makeServiceProperties();
+        serviceProperties.setAuthenticateAllArtifacts(true);
+
+        CasAuthenticationProvider cap = new CasAuthenticationProvider();
+        cap.setAuthenticationUserDetailsService(new MockAuthoritiesPopulator());
+        cap.setKey("qwerty");
+
+        cap.setTicketValidator(validator);
+        cap.setServiceProperties(serviceProperties);
+        cap.afterPropertiesSet();
+
+        String ticket = "ST-456";
+        UsernamePasswordAuthenticationToken token =
+            new UsernamePasswordAuthenticationToken(CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER, ticket);
+
+        Authentication result = cap.authenticate(token);
+    }
+
+    @Test
+    public void authenticateAllAuthenticationIsSuccessful() throws Exception {
+        String serviceUrl = "https://service/context";
+        ServiceAuthenticationDetails details = mock(ServiceAuthenticationDetails.class);
+        when(details.getServiceUrl()).thenReturn(serviceUrl);
+        TicketValidator validator = mock(TicketValidator.class);
+        when(validator.validate(any(String.class),any(String.class))).thenReturn(new AssertionImpl("rod"));
+
+        ServiceProperties serviceProperties = makeServiceProperties();
+        serviceProperties.setAuthenticateAllArtifacts(true);
+
+        CasAuthenticationProvider cap = new CasAuthenticationProvider();
+        cap.setAuthenticationUserDetailsService(new MockAuthoritiesPopulator());
+        cap.setKey("qwerty");
+
+        cap.setTicketValidator(validator);
+        cap.setServiceProperties(serviceProperties);
+        cap.afterPropertiesSet();
+
+        String ticket = "ST-456";
+        UsernamePasswordAuthenticationToken token =
+            new UsernamePasswordAuthenticationToken(CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER, ticket);
+
+        Authentication result = cap.authenticate(token);
+        verify(validator).validate(ticket, serviceProperties.getService());
+
+        serviceProperties.setAuthenticateAllArtifacts(true);
+        result = cap.authenticate(token);
+        verify(validator,times(2)).validate(ticket, serviceProperties.getService());
+
+        token.setDetails(details);
+        result = cap.authenticate(token);
+        verify(validator).validate(ticket, serviceUrl);
+
+        serviceProperties.setAuthenticateAllArtifacts(false);
+        serviceProperties.setService(null);
+        cap.setServiceProperties(serviceProperties);
+        cap.afterPropertiesSet();
+        result = cap.authenticate(token);
+        verify(validator,times(2)).validate(ticket, serviceUrl);
+
+        token.setDetails(new WebAuthenticationDetails(new MockHttpServletRequest()));
+        try {
+            cap.authenticate(token);
+            fail("Expected Exception");
+        }catch(IllegalStateException success) {}
+
+        cap.setServiceProperties(null);
+        cap.afterPropertiesSet();
+        try {
+            cap.authenticate(token);
+            fail("Expected Exception");
+        }catch(IllegalStateException success) {}
     }
 
     @Test(expected = BadCredentialsException.class)

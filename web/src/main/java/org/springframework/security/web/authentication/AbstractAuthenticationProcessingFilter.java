@@ -215,7 +215,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
             chain.doFilter(request, response);
         }
 
-        successfulAuthentication(request, response, authResult);
+        successfulAuthentication(request, response, chain, authResult);
     }
 
     /**
@@ -280,8 +280,35 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
      * <li>Delegates additional behaviour to the {@link AuthenticationSuccessHandler}.</li>
      * </ol>
      *
+     * Subclasses can override this method to continue the {@link FilterChain} after successful authentication.
+     * @param request
+     * @param response
+     * @param chain
      * @param authResult the object returned from the <tt>attemptAuthentication</tt> method.
+     * @throws IOException
+     * @throws ServletException
      */
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
+            Authentication authResult) throws IOException, ServletException{
+        successfulAuthentication(request, response, authResult);
+    }
+
+    /**
+     * Default behaviour for successful authentication.
+     * <ol>
+     * <li>Sets the successful <tt>Authentication</tt> object on the {@link SecurityContextHolder}</li>
+     * <li>Invokes the configured {@link SessionAuthenticationStrategy} to handle any session-related behaviour
+     * (such as creating a new session to protect against session-fixation attacks).</li>
+     * <li>Informs the configured <tt>RememberMeServices</tt> of the successful login</li>
+     * <li>Fires an {@link InteractiveAuthenticationSuccessEvent} via the configured
+     * <tt>ApplicationEventPublisher</tt></li>
+     * <li>Delegates additional behaviour to the {@link AuthenticationSuccessHandler}.</li>
+     * </ol>
+     *
+     * @param authResult the object returned from the <tt>attemptAuthentication</tt> method.
+     * @deprecated since 3.1. Use {@link #successfulAuthentication(HttpServletRequest, HttpServletResponse, FilterChain, Authentication)} instead.
+     */
+    @Deprecated
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
             Authentication authResult) throws IOException, ServletException {
 

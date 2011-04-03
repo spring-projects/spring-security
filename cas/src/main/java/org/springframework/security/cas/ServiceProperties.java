@@ -38,6 +38,8 @@ public class ServiceProperties implements InitializingBean {
 
     private String service;
 
+    private boolean authenticateAllArtifacts;
+
     private boolean sendRenew = false;
 
     private String artifactParameter = DEFAULT_CAS_ARTIFACT_PARAMETER;
@@ -47,7 +49,9 @@ public class ServiceProperties implements InitializingBean {
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        Assert.hasLength(this.service, "service must be specified.");
+        if(!authenticateAllArtifacts) {
+            Assert.hasLength(this.service, "service must be specified unless authenticateAllArtifacts is true.");
+        }
         Assert.hasLength(this.artifactParameter, "artifactParameter cannot be empty.");
         Assert.hasLength(this.serviceParameter, "serviceParameter cannot be empty.");
     }
@@ -114,5 +118,20 @@ public class ServiceProperties implements InitializingBean {
 
     public final void setServiceParameter(final String serviceParameter) {
         this.serviceParameter = serviceParameter;
+    }
+
+    public final boolean isAuthenticateAllArtifacts() {
+        return authenticateAllArtifacts;
+    }
+
+    /**
+     * If true, then any non-null artifact (ticket) should be authenticated.
+     * Additionally, the service will be determined dynamically in order to
+     * ensure the service matches the expected value for this artifact.
+     *
+     * @param authenticateAllArtifacts
+     */
+    public final void setAuthenticateAllArtifacts(final boolean authenticateAllArtifacts) {
+        this.authenticateAllArtifacts = authenticateAllArtifacts;
     }
 }

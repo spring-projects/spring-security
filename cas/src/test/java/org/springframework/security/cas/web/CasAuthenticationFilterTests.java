@@ -16,19 +16,34 @@
 package org.springframework.security.cas.web;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
+import java.lang.reflect.Method;
+
 import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
+import org.junit.After;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.NullRememberMeServices;
+import org.springframework.util.ReflectionUtils;
 
 
 /**
@@ -39,6 +54,11 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class CasAuthenticationFilterTests {
     //~ Methods ========================================================================================================
+
+    @After
+    public void tearDown() {
+        SecurityContextHolder.clearContext();
+    }
 
     @Test
     public void testGettersSetters() {
@@ -106,6 +126,31 @@ public class CasAuthenticationFilterTests {
     }
 
     @Test
+    public void testRequiresAuthenticationAuthAll() {
+        ServiceProperties properties = new ServiceProperties();
+        properties.setAuthenticateAllArtifacts(true);
+
+        CasAuthenticationFilter filter = new CasAuthenticationFilter();
+        filter.setServiceProperties(properties);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        request.setRequestURI(filter.getFilterProcessesUrl());
+        assertTrue(filter.requiresAuthentication(request, response));
+
+        request.setRequestURI("/other");
+        assertFalse(filter.requiresAuthentication(request, response));
+        request.setParameter(properties.getArtifactParameter(), "value");
+        assertTrue(filter.requiresAuthentication(request, response));
+        SecurityContextHolder.getContext().setAuthentication(new AnonymousAuthenticationToken("key", "principal", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
+        assertTrue(filter.requiresAuthentication(request, response));
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("un", "principal", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
+        assertTrue(filter.requiresAuthentication(request, response));
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("un", "principal", "ROLE_ANONYMOUS"));
+        assertFalse(filter.requiresAuthentication(request, response));
+    }
+
+    @Test
     public void testAuthenticateProxyUrl() throws Exception {
         CasAuthenticationFilter filter = new CasAuthenticationFilter();
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -117,9 +162,42 @@ public class CasAuthenticationFilterTests {
         assertNull(filter.attemptAuthentication(request, response));
     }
 
+    @Test
+    public void testDoFilterAuthenticateAll() throws Exception {
+        AuthenticationSuccessHandler successHandler = mock(AuthenticationSuccessHandler.class);
+        AuthenticationManager manager = mock(AuthenticationManager.class);
+        Authentication authentication = new TestingAuthenticationToken("un", "pwd","ROLE_USER");
+        when(manager.authenticate(any(Authentication.class))).thenReturn(authentication);
+        ServiceProperties serviceProperties = new ServiceProperties();
+        serviceProperties.setAuthenticateAllArtifacts(true);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setParameter("ticket", "ST-1-123");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        FilterChain chain = mock(FilterChain.class);
+
+        CasAuthenticationFilter filter = new CasAuthenticationFilter();
+        filter.setServiceProperties(serviceProperties);
+        filter.setAuthenticationSuccessHandler(successHandler);
+        filter.setProxyGrantingTicketStorage(mock(ProxyGrantingTicketStorage.class));
+        filter.setAuthenticationManager(manager);
+        filter.afterPropertiesSet();
+
+        filter.doFilter(request,response,chain);
+        assertFalse("Authentication should not be null",SecurityContextHolder.getContext().getAuthentication() == null);
+        verify(chain).doFilter(request, response);
+        verifyZeroInteractions(successHandler);
+
+        // validate for when the filterProcessUrl matches
+        filter.setFilterProcessesUrl(request.getRequestURI());
+        SecurityContextHolder.clearContext();
+        filter.doFilter(request,response,chain);
+        verifyNoMoreInteractions(chain);
+        verify(successHandler).onAuthenticationSuccess(request, response, authentication);
+    }
+
     // SEC-1592
     @Test
-    public void testChainNotInvokedForProxy() throws Exception {
+    public void testChainNotInvokedForProxyReceptor() throws Exception {
         CasAuthenticationFilter filter = new CasAuthenticationFilter();
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
