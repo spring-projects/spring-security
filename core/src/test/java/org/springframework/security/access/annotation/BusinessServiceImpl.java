@@ -3,8 +3,6 @@ package org.springframework.security.access.annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.security.access.annotation.Secured;
-
 /**
  *
  * @author Joe Scalise

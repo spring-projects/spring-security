@@ -16,12 +16,18 @@ package org.springframework.security.access.annotation;
 
 import static org.junit.Assert.*;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.util.Collection;
+import java.util.*;
 
 import org.junit.*;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.core.GrantedAuthority;
 
 
 /**
@@ -82,6 +88,7 @@ public class SecuredAnnotationSecurityMetadataDefinitionSourceTests {
         }
     }
 
+    @Test
     public void classLevelAttributesAreFound() {
         Collection<ConfigAttribute> attrs = this.mds.findAttributes(BusinessService.class);
 
@@ -96,6 +103,7 @@ public class SecuredAnnotationSecurityMetadataDefinitionSourceTests {
         assertEquals("ROLE_USER", sc.getAttribute());
     }
 
+    @Test
     public void methodLevelAttributesAreFound() {
         Method method = null;
 
@@ -130,25 +138,19 @@ public class SecuredAnnotationSecurityMetadataDefinitionSourceTests {
         assertTrue(user && admin);
     }
 
-}
-
-class Entity {
-    public Entity(String someParameter) {}
+    @Test
+    public void customAnnotationAttributesAreFound() throws Exception {
+        SecuredAnnotationSecurityMetadataSource mds =
+                new SecuredAnnotationSecurityMetadataSource(new CustomSecurityAnnotationMetadataExtractor());
+        Collection<ConfigAttribute> attrs = mds.findAttributes(CustomAnnotatedService.class);
+        assertEquals(1, attrs.size());
+        assertEquals(SecurityEnum.ADMIN, attrs.toArray()[0]);
+    }
 }
 
 class Department extends Entity {
-    private boolean active = true;
-
     public Department(String name) {
         super(name);
-    }
-
-    public boolean isActive() {
-        return this.active;
-    }
-
-    void deactive() {
-        this.active = true;
     }
 }
 
@@ -158,10 +160,47 @@ interface DepartmentService extends BusinessService {
     Department someUserMethod3(Department dept);
 }
 
-class DepartmentServiceImpl extends BusinessServiceImpl <Department> implements DepartmentService {
+class DepartmentServiceImpl extends BusinessServiceImpl<Department> implements DepartmentService {
 
     @Secured({"ROLE_ADMIN"})
     public Department someUserMethod3(final Department dept) {
         return super.someUserMethod3(dept);
+    }
+}
+
+// SEC-1491 Related classes. PoC for custom annotation with enum value.
+
+@CustomSecurityAnnotation(SecurityEnum.ADMIN)
+interface CustomAnnotatedService {
+}
+
+class CustomAnnotatedServiceImpl implements CustomAnnotatedService {
+}
+
+enum SecurityEnum implements ConfigAttribute, GrantedAuthority {
+    ADMIN,
+    USER;
+
+    public String getAttribute() {
+        return toString();
+    }
+
+    public String getAuthority() {
+        return toString();
+    }
+}
+
+@Target({ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@interface CustomSecurityAnnotation {
+    SecurityEnum[] value();
+}
+
+class CustomSecurityAnnotationMetadataExtractor implements AnnotationMetadataExtractor<CustomSecurityAnnotation> {
+
+    public Collection<? extends ConfigAttribute> extractAttributes(CustomSecurityAnnotation securityAnnotation) {
+        SecurityEnum[] values = securityAnnotation.value();
+
+        return EnumSet.copyOf(Arrays.asList(values));
     }
 }
