@@ -31,7 +31,7 @@ dependencies {
 def keystore = "$rootDir/samples/certificates/server.jks"
 
 [jettyRun, jettyRunWar]*.configure {
-    contextPath = "/cas"
+    contextPath = "/cas-sample"
     def httpConnector = new org.mortbay.jetty.nio.SelectChannelConnector();
     httpConnector.port = 8080
     httpConnector.confidentialPort = 8443

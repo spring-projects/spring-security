@@ -11,7 +11,15 @@
 
 <font color="red">
     Your CAS credentials were rejected.<br/><br/>
-    Reason: <%= ((AuthenticationException) session.getAttribute(AbstractAuthenticationProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY)).getMessage() %>
+    Reason:
+<%
+    Exception error = ((AuthenticationException) session.getAttribute(AbstractAuthenticationProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY));
+    if(error != null) {
+%>
+<%= error.getMessage() %>
+<%
+}
+%>
 </font>
 
 </body>

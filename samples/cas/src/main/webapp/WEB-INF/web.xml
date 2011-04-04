@@ -25,25 +25,40 @@
         <param-value>cas.root</param-value>
     </context-param>
 
+    <!--
+        Include the character encoding Filter as per JASIG recommenation when doing Single Sign Out
+        https://wiki.jasig.org/display/CASC/Configuring+Single+Sign+Out
+    -->
     <filter>
-       <filter-name>CAS Single Sign Out Filter</filter-name>
-       <filter-class>org.jasig.cas.client.session.SingleSignOutFilter</filter-class>
+        <filter-name>characterEncodingFilter</filter-name>
+        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
     </filter>
-
     <filter>
         <filter-name>springSecurityFilterChain</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
     </filter>
 
     <filter-mapping>
-       <filter-name>CAS Single Sign Out Filter</filter-name>
-       <url-pattern>/*</url-pattern>
+        <filter-name>characterEncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <url-pattern>/*</url-pattern>
     </filter-mapping>
 
-    <filter-mapping>
-      <filter-name>springSecurityFilterChain</filter-name>
-      <url-pattern>/*</url-pattern>
-    </filter-mapping>
+    <!--
+        Included to support Single Logout. Note that the SingleSignOutFilter is included in the
+        springSecurityFilterChain. However, it could also be placed as the first filter-mapping
+        in the web.xml
+    -->
+    <listener>
+        <listener-class>org.jasig.cas.client.session.SingleSignOutHttpSessionListener</listener-class>
+    </listener>
 
     <!--
       - Loads the root application context of this web app at startup.
@@ -51,16 +66,11 @@
       - WebApplicationContextUtils.getWebApplicationContext(servletContext).
     -->
     <listener>
-        <listener-class>org.jasig.cas.client.session.SingleSignOutHttpSessionListener</listener-class>
-    </listener>
-
-    <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
 
     <error-page>
         <error-code>403</error-code>
-        <location>/casfailed.jsp</location>
+        <location>/403.jsp</location>
     </error-page>
-
 </web-app>

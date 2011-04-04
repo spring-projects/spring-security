@@ -9,7 +9,7 @@
 
 <p>You have logged out of this application, but may still have an active single-sign on session with CAS.</p>
 
-<p><a href="https://localhost:9443/cas/logout">Logout of CAS</a></p>
+<p><a href="j_spring_cas_security_logout">Logout of CAS</a></p>
 
 </body>
 </html>
