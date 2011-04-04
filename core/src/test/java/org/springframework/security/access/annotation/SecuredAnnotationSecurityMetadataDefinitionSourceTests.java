@@ -14,10 +14,12 @@
  */
 package org.springframework.security.access.annotation;
 
+import static org.junit.Assert.*;
+
 import java.lang.reflect.Method;
 import java.util.Collection;
 
-import junit.framework.TestCase;
+import org.junit.*;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 
@@ -28,15 +30,17 @@ import org.springframework.security.access.SecurityConfig;
  * @author Mark St.Godard
  * @author Joe Scalise
  * @author Ben Alex
+ * @author Luke Taylor
  */
-public class SecuredAnnotationSecurityMetadataDefinitionSourceTests extends TestCase {
+public class SecuredAnnotationSecurityMetadataDefinitionSourceTests {
     //~ Instance fields ================================================================================================
 
-    private SecuredAnnotationSecurityMetadataSource mds = new SecuredAnnotationSecurityMetadataSource();;
+    private SecuredAnnotationSecurityMetadataSource mds = new SecuredAnnotationSecurityMetadataSource();
 
     //~ Methods ========================================================================================================
 
-    public void testGenericsSuperclassDeclarationsAreIncludedWhenSubclassesOverride() {
+    @Test
+    public void genericsSuperclassDeclarationsAreIncludedWhenSubclassesOverride() {
         Method method = null;
 
         try {
@@ -78,7 +82,7 @@ public class SecuredAnnotationSecurityMetadataDefinitionSourceTests extends Test
         }
     }
 
-    public void testGetAttributesClass() {
+    public void classLevelAttributesAreFound() {
         Collection<ConfigAttribute> attrs = this.mds.findAttributes(BusinessService.class);
 
         assertNotNull(attrs);
@@ -92,7 +96,7 @@ public class SecuredAnnotationSecurityMetadataDefinitionSourceTests extends Test
         assertEquals("ROLE_USER", sc.getAttribute());
     }
 
-    public void testGetAttributesMethod() {
+    public void methodLevelAttributesAreFound() {
         Method method = null;
 
         try {
@@ -126,4 +130,38 @@ public class SecuredAnnotationSecurityMetadataDefinitionSourceTests extends Test
         assertTrue(user && admin);
     }
 
+}
+
+class Entity {
+    public Entity(String someParameter) {}
+}
+
+class Department extends Entity {
+    private boolean active = true;
+
+    public Department(String name) {
+        super(name);
+    }
+
+    public boolean isActive() {
+        return this.active;
+    }
+
+    void deactive() {
+        this.active = true;
+    }
+}
+
+interface DepartmentService extends BusinessService {
+
+    @Secured({"ROLE_USER"})
+    Department someUserMethod3(Department dept);
+}
+
+class DepartmentServiceImpl extends BusinessServiceImpl <Department> implements DepartmentService {
+
+    @Secured({"ROLE_ADMIN"})
+    public Department someUserMethod3(final Department dept) {
+        return super.someUserMethod3(dept);
+    }
 }
