@@ -2,22 +2,35 @@
 
 apply plugin: 'war'
 apply plugin: 'jetty'
+apply plugin: 'groovy'
 
-def excludeModules = ['spring-security-acl', 'jsr250-api', 'ehcache', 'spring-jdbc', 'spring-tx']
+def excludeModules = ['spring-security-acl', 'jsr250-api', 'spring-jdbc', 'spring-tx']
+def jettyVersion = '7.1.6.v20100715'
+def keystore = "$rootDir/samples/certificates/server.jks"
+def password = 'password'
 
 configurations {
     casServer
-}
-
-configurations {
     excludeModules.each {name ->
         runtime.exclude module: name
     }
 
     runtime.exclude group: 'org.aspectj'
+
+    integrationTestCompile.extendsFrom groovy
+}
+
+sourceSets.integrationTest {
+    groovy.srcDir file('src/integration-test/groovy')
+}
+
+eclipseClasspath {
+    plusConfigurations += configurations.integrationTestRuntime
 }
 
 dependencies {
+    groovy 'org.codehaus.groovy:groovy:1.7.7'
+
     casServer "org.jasig.cas:cas-server-webapp:3.4.3.1@war"
 
     runtime project(':spring-security-web'),
@@ -25,10 +38,15 @@ dependencies {
             project(':spring-security-config'),
             "org.slf4j:jcl-over-slf4j:$slf4jVersion",
             "ch.qos.logback:logback-classic:$logbackVersion"
+
+    integrationTestCompile project(':spring-security-cas'),
+                   'org.seleniumhq.selenium:selenium-htmlunit-driver:2.0a7',
+                   'org.spockframework:spock-core:0.4-groovy-1.7',
+                   'org.codehaus.geb:geb-spock:0.5.1',
+                   'commons-httpclient:commons-httpclient:3.1',
+                   "org.eclipse.jetty:jetty-server:$jettyVersion",
+                   "org.eclipse.jetty:jetty-servlet:$jettyVersion"
 }
-
-
-def keystore = "$rootDir/samples/certificates/server.jks"
 
 [jettyRun, jettyRunWar]*.configure {
     contextPath = "/cas-sample"
@@ -38,28 +56,40 @@ def keystore = "$rootDir/samples/certificates/server.jks"
     def httpsConnector = new org.mortbay.jetty.security.SslSocketConnector();
     httpsConnector.port = 8443
     httpsConnector.keystore = httpsConnector.truststore = keystore
-    httpsConnector.keyPassword = httpsConnector.trustPassword = 'password'
+    httpsConnector.keyPassword = httpsConnector.trustPassword = password
 
     connectors = [httpConnector, httpsConnector]
+    doFirst() {
+        System.setProperty('cas.server.host', casServer.httpsHost)
+        System.setProperty('cas.service.host', jettyRunWar.httpsHost)
+    }
 }
-
 
 task casServer (type: org.gradle.api.plugins.jetty.JettyRunWar) {
     contextPath = "/cas"
     connectors = [new org.mortbay.jetty.security.SslSocketConnector()]
     connectors[0].port = 9443
     connectors[0].keystore = connectors[0].truststore = keystore
-    connectors[0].keyPassword = connectors[0].trustPassword = 'password'
+    connectors[0].keyPassword = connectors[0].trustPassword = password
     connectors[0].wantClientAuth = true
     connectors[0].needClientAuth = false
     webApp = configurations.casServer.resolve().toArray()[0]
     doFirst() {
         System.setProperty('javax.net.ssl.trustStore', keystore)
-        System.setProperty('javax.net.ssl.trustStorePassword', 'password')
+        System.setProperty('javax.net.ssl.trustStorePassword', password)
     }
 }
 
 task cas (dependsOn: [jettyRunWar, casServer]) {
+}
+
+integrationTest.dependsOn cas
+integrationTest.doFirst {
+    systemProperties['cas.server.host'] = casServer.httpsHost
+    systemProperties['cas.service.host'] = jettyRunWar.httpsHost
+    systemProperties['jar.path'] = jar.archivePath
+    systemProperties['javax.net.ssl.trustStore'] = keystore
+    systemProperties['javax.net.ssl.trustStorePassword'] = password
 }
 
 gradle.taskGraph.whenReady {graph ->
@@ -67,4 +97,25 @@ gradle.taskGraph.whenReady {graph ->
         jettyRunWar.dependsOn(casServer)
         casServer.daemon = true
     }
+    if(graph.hasTask(integrationTest)) {
+        jettyRunWar.daemon = true
+        jettyRunWar.httpConnector.port = availablePort()
+        jettyRunWar.httpsConnector.port = jettyRunWar.httpConnector.confidentialPort = availablePort()
+        casServer.httpsConnector.port = availablePort()
+    }
+}
+[casServer,jettyRunWar]*.metaClass*.getHttpsConnector {->
+    delegate.connectors.find { it instanceof org.mortbay.jetty.security.SslSocketConnector }
+}
+[casServer,jettyRunWar]*.metaClass*.getHttpsHost {->
+    "localhost:"+delegate.httpsConnector.port
+}
+jettyRunWar.metaClass.getHttpConnector {->
+    delegate.connectors.find { it instanceof org.mortbay.jetty.nio.SelectChannelConnector }
+}
+def availablePort() {
+    ServerSocket server = new ServerSocket(0)
+    int port = server.localPort
+    server.close()
+    port
 }
