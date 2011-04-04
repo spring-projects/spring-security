@@ -346,6 +346,28 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
         assertSame(ram, FieldUtils.getFieldValue(msi.getAdvice(), "runAsManager"));
     }
 
+    @Test
+    @SuppressWarnings("unchecked")
+    public void supportsExternalMetadataSource() throws Exception {
+        setContext(
+                "<b:bean id='target' class='" + ConcreteFoo.class.getName()  + "'/>" +
+                "<method-security-metadata-source id='mds'>" +
+                "      <protect method='"+ Foo.class.getName() + ".foo' access='ROLE_ADMIN'/>" +
+                "</method-security-metadata-source>" +
+                "<global-method-security pre-post-annotations='enabled' metadata-source-ref='mds'/>" + AUTH_PROVIDER_XML
+        );
+        // External MDS should take precedence over PreAuthorize
+        SecurityContextHolder.getContext().setAuthentication(bob);
+        Foo foo = (Foo) appContext.getBean("target");
+        try {
+            foo.foo(new SecurityConfig("A"));
+            fail("Bob can't invoke admin methods");
+        } catch (AccessDeniedException expected) {
+        }
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("admin", "password"));
+        foo.foo(new SecurityConfig("A"));
+    }
+
     private void setContext(String context) {
         appContext = new InMemoryXmlApplicationContext(context);
     }

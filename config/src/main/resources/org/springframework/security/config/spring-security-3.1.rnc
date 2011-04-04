@@ -226,6 +226,8 @@ global-method-security.attlist &=
 global-method-security.attlist &=
     ## Can be used to specify that AspectJ should be used instead of the default Spring AOP. If set, secured classes must be woven with the AnnotationSecurityAspect from the spring-security-aspects module.
     attribute mode {"aspectj"}?
+global-method-security.attlist &=
+    attribute metadata-source-ref {xsd:token}?
 
 after-invocation-provider =
     ## Allows addition of extra AfterInvocationProvider beans which should be called by the MethodSecurityInterceptor created by global-method-security.

@@ -576,6 +576,7 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
+    <xs:attribute name="metadata-source-ref" type="xs:token"/>
   </xs:attributeGroup>
   
   

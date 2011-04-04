@@ -79,6 +79,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
     private static final String ATT_REF = "ref";
     private static final String ATT_MODE = "mode";
     private static final String ATT_ADVICE_ORDER = "order";
+    private static final String ATT_META_DATA_SOURCE_REF = "metadata-source-ref";
 
     public BeanDefinition parse(Element element, ParserContext pc) {
         CompositeComponentDefinition compositeDef =
@@ -96,6 +97,13 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 
         BeanDefinition preInvocationVoter = null;
         ManagedList<BeanMetadataElement> afterInvocationProviders = new ManagedList<BeanMetadataElement>();
+
+        // Check for an external SecurityMetadataSource, which takes priority over other sources
+        String metaDataSourceId = element.getAttribute(ATT_META_DATA_SOURCE_REF);
+
+        if (StringUtils.hasText(metaDataSourceId)) {
+            delegates.add(new RuntimeBeanReference(metaDataSourceId));
+        }
 
         if (prePostAnnotationsEnabled) {
             Element prePostElt = DomUtils.getChildElementByTagName(element, INVOCATION_HANDLING);
