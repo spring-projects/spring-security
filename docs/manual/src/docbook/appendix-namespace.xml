@@ -634,6 +634,13 @@
                     you do this if you are using a custom implementation and want to use these
                     annotations. </para>
             </section>
+            <section xml:id="nsa-custom-metadata-source">
+                <title>The <literal>&lt;metadata-source-ref&gt;</literal> Attribute</title>
+                <para> An external <interfacename>MethodSecurityMetadataSource</interfacename>
+                    instance can be supplied which will take priority over other sources
+                    (such as the default annotations).
+                </para>
+            </section>
             <section xml:id="nsa-gms-mode">
                 <title>The <literal>mode</literal> Attribute</title>
                 <para>This attribute can be set to <quote>aspectj</quote> to specify that AspectJ
@@ -641,7 +648,7 @@
                     with the <classname>AnnotationSecurityAspect</classname> from the
                     <literal>spring-security-aspects</literal> module. </para>
             </section>
-            <section>
+            <section xml:id="nsa-protect-pointcut">
                 <title>Securing Methods using <literal>&lt;protect-pointcut&gt;</literal></title>
                 <para> Rather than defining security attributes on an individual method or class
                     basis using the <literal>@Secured</literal> annotation, you can define
