@@ -20,6 +20,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openid4java.association.AssociationException;
@@ -37,15 +38,17 @@ import org.openid4java.message.ParameterList;
 import org.openid4java.message.ax.AxMessage;
 import org.openid4java.message.ax.FetchRequest;
 import org.openid4java.message.ax.FetchResponse;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.util.StringUtils;
 
 
 /**
  * @author Ray Krueger
  * @author Luke Taylor
+ * @author Rob Winch
  */
 @SuppressWarnings("unchecked")
-public class OpenID4JavaConsumer implements OpenIDConsumer {
+public class OpenID4JavaConsumer implements OpenIDConsumer, DisposableBean {
     private static final String DISCOVERY_INFO_KEY = DiscoveryInformation.class.getName();
     private static final String ATTRIBUTE_LIST_KEY = "SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST";
 
@@ -55,6 +58,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 
     private final ConsumerManager consumerManager;
     private final AxFetchListFactory attributesToFetchFactory;
+    private boolean skipShutdownConnectionManager;
 
     //~ Constructors ===================================================================================================
 
@@ -222,5 +226,28 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
         }
 
         return attributes;
+    }
+
+    /**
+     * If <code>false</code> will invoke {@link MultiThreadedHttpConnectionManager#shutdownAll()}
+     * when the bean is destroyed. This ensures that threads are
+     * shutdown to prevent memory leaks. Default is <code>false</code>.
+     *
+     * @param shutdownConnectionManager
+     *            <code>false</code> (default value) if should shutdown
+     *            MultiThreadedHttpConnectionManager on destroy, otherwise
+     *            <code>true</code>.
+     */
+    public void setSkipShutdownConnectionManager(boolean skipShutdownConnectionManager) {
+        this.skipShutdownConnectionManager = skipShutdownConnectionManager;
+    }
+
+    public void destroy() throws Exception {
+        if(!skipShutdownConnectionManager) {
+            MultiThreadedHttpConnectionManager.shutdownAll();
+        }else if(logger.isDebugEnabled()) {
+            logger.debug("Skipping calling MultiThreadedHttpConnectionManager.shutdownAll(). "
+                    + "Note this could cause memory leaks if the resources are not cleaned up else where.");
+        }
     }
 }
