@@ -105,7 +105,8 @@ public class FilterSecurityInterceptorTests {
 
         interceptor.invoke(fi);
 
-        verify(publisher).publishEvent(any(AuthorizedEvent.class));
+        // SEC-1697
+        verify(publisher, never()).publishEvent(any(AuthorizedEvent.class));
     }
 
     @Test

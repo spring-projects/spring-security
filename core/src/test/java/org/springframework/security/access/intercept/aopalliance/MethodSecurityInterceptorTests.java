@@ -26,12 +26,15 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.ITargetObject;
 import org.springframework.security.TargetObject;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.access.event.AuthorizationFailureEvent;
+import org.springframework.security.access.event.AuthorizedEvent;
 import org.springframework.security.access.intercept.AfterInvocationManager;
 import org.springframework.security.access.intercept.RunAsManager;
 import org.springframework.security.access.intercept.RunAsUserToken;
@@ -58,6 +61,7 @@ public class MethodSecurityInterceptorTests {
     private AccessDecisionManager adm;
     private MethodSecurityMetadataSource mds;
     private AuthenticationManager authman;
+    private ApplicationEventPublisher eventPublisher;
 
     //~ Methods ========================================================================================================
 
@@ -69,9 +73,11 @@ public class MethodSecurityInterceptorTests {
         adm = mock(AccessDecisionManager.class);
         authman = mock(AuthenticationManager.class);
         mds = mock(MethodSecurityMetadataSource.class);
+        eventPublisher = mock(ApplicationEventPublisher.class);
         interceptor.setAccessDecisionManager(adm);
         interceptor.setAuthenticationManager(authman);
         interceptor.setSecurityMetadataSource(mds);
+        interceptor.setApplicationEventPublisher(eventPublisher);
         createTarget(false);
     }
 
@@ -210,6 +216,7 @@ public class MethodSecurityInterceptorTests {
     @Test
     public void callSucceedsIfAccessDecisionManagerGrantsAccess() throws Exception {
         token.setAuthenticated(true);
+        interceptor.setPublishAuthorizationSuccess(true);
         SecurityContextHolder.getContext().setAuthentication(token);
         mdsReturnsUserRole();
 
@@ -217,9 +224,10 @@ public class MethodSecurityInterceptorTests {
 
         // Note we check the isAuthenticated remained true in following line
         assertEquals("hello org.springframework.security.authentication.TestingAuthenticationToken true", result);
+        verify(eventPublisher).publishEvent(any(AuthorizedEvent.class));
     }
 
-    @Test(expected=AccessDeniedException.class)
+    @Test
     public void callIsntMadeWhenAccessDecisionManagerRejectsAccess() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(token);
         // Use mocked target to make sure invocation doesn't happen (not in expectations so test would fail)
@@ -228,7 +236,12 @@ public class MethodSecurityInterceptorTests {
         when(authman.authenticate(token)).thenReturn(token);
         doThrow(new AccessDeniedException("rejected")).when(adm).decide(any(Authentication.class), any(MethodInvocation.class), any(List.class));
 
-        advisedTarget.makeUpperCase("HELLO");
+        try {
+            advisedTarget.makeUpperCase("HELLO");
+            fail();
+        } catch (AccessDeniedException expected) {
+        }
+        verify(eventPublisher).publishEvent(any(AuthorizationFailureEvent.class));
     }
 
     @Test(expected=IllegalArgumentException.class)

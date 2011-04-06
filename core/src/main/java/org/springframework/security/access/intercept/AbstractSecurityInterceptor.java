@@ -109,6 +109,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
     private boolean alwaysReauthenticate = false;
     private boolean rejectPublicInvocations = false;
     private boolean validateConfigAttributes = true;
+    private boolean publishAuthorizationSuccess = false;
 
     //~ Methods ========================================================================================================
 
@@ -212,7 +213,9 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
             logger.debug("Authorization successful");
         }
 
-        publishEvent(new AuthorizedEvent(object, attributes, authenticated));
+        if (publishAuthorizationSuccess) {
+            publishEvent(new AuthorizedEvent(object, attributes, authenticated));
+        }
 
         // Attempt to run as a different user
         Authentication runAs = this.runAsManager.buildRunAs(authenticated, object, attributes);
@@ -400,6 +403,16 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
 
     public void setMessageSource(MessageSource messageSource) {
         this.messages = new MessageSourceAccessor(messageSource);
+    }
+
+    /**
+     * Only {@code AuthorizationFailureEvent} will be published.
+     * If you set this property to {@code true}, {@code AuthorizedEvent}s will also be published.
+     *
+     * @param publishAuthorizationSuccess default value is {@code false}
+     */
+    public void setPublishAuthorizationSuccess(boolean publishAuthorizationSuccess) {
+        this.publishAuthorizationSuccess = publishAuthorizationSuccess;
     }
 
     /**
