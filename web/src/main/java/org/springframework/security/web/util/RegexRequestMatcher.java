@@ -15,7 +15,7 @@ import org.springframework.util.StringUtils;
  * Can also be configured to match a specific HTTP method.
  *
  * The match is performed against the {@code servletPath + pathInfo + queryString} of the request and is case-sensitive
- * by default. Case-insensitive matching can be used by using the constructor which takes the {@code caseInsentitive}
+ * by default. Case-insensitive matching can be used by using the constructor which takes the {@code caseInsensitive}
  * argument.
  *
  * @author Luke Taylor
