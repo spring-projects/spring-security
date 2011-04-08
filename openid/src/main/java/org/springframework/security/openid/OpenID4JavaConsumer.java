@@ -39,6 +39,7 @@ import org.openid4java.message.ax.AxMessage;
 import org.openid4java.message.ax.FetchRequest;
 import org.openid4java.message.ax.FetchResponse;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.StringUtils;
 
 
@@ -48,7 +49,7 @@ import org.springframework.util.StringUtils;
  * @author Rob Winch
  */
 @SuppressWarnings("unchecked")
-public class OpenID4JavaConsumer implements OpenIDConsumer, DisposableBean {
+public class OpenID4JavaConsumer implements OpenIDConsumer, DisposableBean, InitializingBean {
     private static final String DISCOVERY_INFO_KEY = DiscoveryInformation.class.getName();
     private static final String ATTRIBUTE_LIST_KEY = "SPRING_SECURITY_OPEN_ID_ATTRIBUTES_FETCH_LIST";
 
@@ -59,6 +60,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer, DisposableBean {
     private final ConsumerManager consumerManager;
     private final AxFetchListFactory attributesToFetchFactory;
     private boolean skipShutdownConnectionManager;
+    private boolean skipSignedAxMessageRegistration;
 
     //~ Constructors ===================================================================================================
 
@@ -242,12 +244,36 @@ public class OpenID4JavaConsumer implements OpenIDConsumer, DisposableBean {
         this.skipShutdownConnectionManager = skipShutdownConnectionManager;
     }
 
+    /**
+     * If <code>false</code> {@link SignedAxMessageExtensionFactory} is
+     * registered with openid4java library in {@link #afterPropertiesSet()}. The
+     * effect is that all attributes from attribute exchange are guaranteed to
+     * be signed. If the value is <code>true</code>, then
+     * {@link SignedAxMessageExtensionFactory} is not registered. The default
+     * value is <code>false</code>.
+     *
+     * @param skipAxMessageRegistration
+     *            the new value to determine if
+     *            {@link SignedAxMessageExtensionFactory} is registered or not.
+     */
+    public void setSkipSignedAxMessageRegistration(boolean skipAxMessageRegistration) {
+        this.skipSignedAxMessageRegistration = skipAxMessageRegistration;
+    }
+
     public void destroy() throws Exception {
         if(!skipShutdownConnectionManager) {
             MultiThreadedHttpConnectionManager.shutdownAll();
         }else if(logger.isDebugEnabled()) {
             logger.debug("Skipping calling MultiThreadedHttpConnectionManager.shutdownAll(). "
                     + "Note this could cause memory leaks if the resources are not cleaned up else where.");
+        }
+    }
+
+    public void afterPropertiesSet() throws Exception {
+        if(!skipSignedAxMessageRegistration) {
+            Message.addExtensionFactory(SignedAxMessageExtensionFactory.class);
+        }else {
+            logger.debug("Skipping SignedAxMessageExtensionFactory. Attributes from attribute exchange are not guaranteed to be signed.");
         }
     }
 }

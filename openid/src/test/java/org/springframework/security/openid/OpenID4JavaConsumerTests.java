@@ -39,7 +39,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
  * @author Rob Winch
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(MultiThreadedHttpConnectionManager.class)
+@PrepareForTest({MultiThreadedHttpConnectionManager.class,Message.class})
 public class OpenID4JavaConsumerTests {
     List<OpenIDAttribute> attributes = Arrays.asList(new OpenIDAttribute("a","b"), new OpenIDAttribute("b","b", Arrays.asList("c")));
 
@@ -206,6 +206,26 @@ public class OpenID4JavaConsumerTests {
     public void additionalConstructorsWork() throws Exception {
         new OpenID4JavaConsumer();
         new OpenID4JavaConsumer(attributes);
+    }
+
+    @Test
+    public void afterPropertiesSetRegister() throws Exception {
+        mockStatic(Message.class);
+        new OpenID4JavaConsumer().afterPropertiesSet();
+
+        verifyStatic();
+        Message.addExtensionFactory(SignedAxMessageExtensionFactory.class);
+    }
+
+    @Test
+    public void afterPropertiesSetSkipRegister() throws Exception {
+        mockStatic(Message.class);
+        OpenID4JavaConsumer consumer = new OpenID4JavaConsumer();
+        consumer.setSkipSignedAxMessageRegistration(true);
+        consumer.afterPropertiesSet();
+
+        verifyStatic(never());
+        Message.addExtensionFactory(SignedAxMessageExtensionFactory.class);
     }
 
     @Test
