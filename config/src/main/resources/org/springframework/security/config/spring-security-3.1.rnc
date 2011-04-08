@@ -12,7 +12,7 @@ base64 =
     ## Whether a string should be base64 encoded
     attribute base64 {xsd:boolean}
 request-matcher =
-    ## Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'iciRegex' for case-insensitive regular expressions.
+    ## Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for case-insensitive regular expressions.
     attribute request-matcher {"ant" | "regex" | "ciRegex"}
 path-type =
     attribute path-type {"ant" | "regex"}
@@ -282,7 +282,7 @@ http.attlist &=
 http.attlist &=
     use-expressions?
 http.attlist &=
-    ## Controls the eagerness with which an HTTP session is created by Spring Security classes. If not set, defaults to "ifRequired". If "stateless" is used, this implies that the application guarantees that it will not create a session. This differs from the use of "never" which mans that Spring Security will not create a session, but will make use of one if the application does. 
+    ## Controls the eagerness with which an HTTP session is created by Spring Security classes. If not set, defaults to "ifRequired". If "stateless" is used, this implies that the application guarantees that it will not create a session. This differs from the use of "never" which mans that Spring Security will not create a session, but will make use of one if the application does.
     attribute create-session {"ifRequired" | "always" | "never" | "stateless"}?
 http.attlist &=
     ## A reference to a SecurityContextRepository bean. This can be used to customize how the SecurityContext is stored between requests.
@@ -305,7 +305,7 @@ http.attlist &=
     ## Optional attribute specifying the realm name that will be used for all authentication features that require a realm name (eg BASIC and Digest authentication). If unspecified, defaults to "Spring Security Application".
     attribute realm {xsd:token}?
 http.attlist &=
-    ## Allows a customized AuthenticationEntryPoint to be set on the ExceptionTranslationFilter. 
+    ## Allows a customized AuthenticationEntryPoint to be set on the ExceptionTranslationFilter.
     attribute entry-point-ref {xsd:token}?
 http.attlist &=
     ## Corresponds to the observeOncePerRequest property of FilterSecurityInterceptor. Defaults to "true"
@@ -351,16 +351,16 @@ intercept-url.attlist &=
     attribute requires-channel {xsd:token}?
 
 logout =
-	## Incorporates a logout processing filter. Most web applications require a logout filter, although you may not require one if you write a controller to provider similar logic.
+    ## Incorporates a logout processing filter. Most web applications require a logout filter, although you may not require one if you write a controller to provider similar logic.
     element logout {logout.attlist, empty}
 logout.attlist &=
-	## Specifies the URL that will cause a logout. Spring Security will initialize a filter that responds to this particular URL. Defaults to /j_spring_security_logout if unspecified.
+    ## Specifies the URL that will cause a logout. Spring Security will initialize a filter that responds to this particular URL. Defaults to /j_spring_security_logout if unspecified.
     attribute logout-url {xsd:token}?
 logout.attlist &=
-	## Specifies the URL to display once the user has logged out. If not specified, defaults to /.
+    ## Specifies the URL to display once the user has logged out. If not specified, defaults to /.
     attribute logout-success-url {xsd:token}?
 logout.attlist &=
-	## Specifies whether a logout also causes HttpSession invalidation, which is generally desirable. If unspecified, defaults to true.
+    ## Specifies whether a logout also causes HttpSession invalidation, which is generally desirable. If unspecified, defaults to true.
     attribute invalidate-session {xsd:boolean}?
 logout.attlist &=
     ## A reference to a LogoutSuccessHandler implementation which will be used to determine the destination to which the user is taken after logging out.
@@ -383,8 +383,8 @@ form-login.attlist &=
     ## The name of the request parameter which contains the username. Defaults to 'j_username'.
     attribute username-parameter {xsd:token}?
 form-login.attlist &=
-    ## The name of the request parameter which contains the password. Defaults to 'j_password'. 
-    attribute password-parameter {xsd:token}?    
+    ## The name of the request parameter which contains the password. Defaults to 'j_password'.
+    attribute password-parameter {xsd:token}?
 form-login.attlist &=
     ## The URL that will be redirected to after successful authentication, if the user's previous action could not be resumed. This generally happens if the user visits a login page without having first requested a secured operation that triggers authentication. If unspecified, defaults to the root of the application.
     attribute default-target-url {xsd:token}?
@@ -413,7 +413,7 @@ openid-login =
     element openid-login {form-login.attlist, user-service-ref?, attribute-exchange*}
 
 attribute-exchange =
-    ## Sets up an attribute exchange configuration to request specified attributes from the OpenID identity provider. When multiple elements are used, each must have an identifier-attribute attribute. Each configuration will be matched in turn against the supplied login identifier until a match is found. 
+    ## Sets up an attribute exchange configuration to request specified attributes from the OpenID identity provider. When multiple elements are used, each must have an identifier-attribute attribute. Each configuration will be matched in turn against the supplied login identifier until a match is found.
     element attribute-exchange {attribute-exchange.attlist, openid-attribute+}
 
 attribute-exchange.attlist &=
@@ -609,7 +609,7 @@ jee.attlist &=
     ## A comma-separate list of roles to look for in the incoming HttpServletRequest.
     attribute mappable-roles {xsd:token}
 jee.attlist &=
-    ## Explicitly specifies which user-service should be used to load user data for container authenticated clients. If ommitted, the set of mappable-roles will be used to construct the authorities for the user. 
+    ## Explicitly specifies which user-service should be used to load user data for container authenticated clients. If ommitted, the set of mappable-roles will be used to construct the authorities for the user.
     user-service-ref?
 
 authentication-manager =
@@ -639,29 +639,29 @@ properties-file =
     attribute properties {xsd:token}?
 
 user =
-	  ## Represents a user in the application.
+    ## Represents a user in the application.
     element user {user.attlist, empty}
 user.attlist &=
-	  ## The username assigned to the user.
+    ## The username assigned to the user.
     attribute name {xsd:token}
 user.attlist &=
-	  ## The password assigned to the user. This may be hashed if the corresponding authentication provider supports hashing (remember to set the "hash" attribute of the "user-service" element). This attribute be omitted in the case where the data will not be used for authentication, but only for accessing authorities. If omitted, the namespace will generate a random value, preventing its accidental use for authentication. Cannot be empty.
+    ## The password assigned to the user. This may be hashed if the corresponding authentication provider supports hashing (remember to set the "hash" attribute of the "user-service" element). This attribute be omitted in the case where the data will not be used for authentication, but only for accessing authorities. If omitted, the namespace will generate a random value, preventing its accidental use for authentication. Cannot be empty.
     attribute password {xsd:string}?
 user.attlist &=
-	  ## One of more authorities granted to the user. Separate authorities with a comma (but no space). For example, "ROLE_USER,ROLE_ADMINISTRATOR"
+    ## One of more authorities granted to the user. Separate authorities with a comma (but no space). For example, "ROLE_USER,ROLE_ADMINISTRATOR"
     attribute authorities {xsd:token}
 user.attlist &=
-	  ## Can be set to "true" to mark an account as locked and unusable.
+    ## Can be set to "true" to mark an account as locked and unusable.
     attribute locked {xsd:boolean}?
 user.attlist &=
-	  ## Can be set to "true" to mark an account as disabled and unusable.
+     ## Can be set to "true" to mark an account as disabled and unusable.
     attribute disabled {xsd:boolean}?
 
 jdbc-user-service =
-	  ## Causes creation of a JDBC-based UserDetailsService.
+    ## Causes creation of a JDBC-based UserDetailsService.
     element jdbc-user-service {id? & jdbc-user-service.attlist}
 jdbc-user-service.attlist &=
-	  ## The bean ID of the DataSource which provides the required tables.
+    ## The bean ID of the DataSource which provides the required tables.
     attribute data-source-ref {xsd:token}
 jdbc-user-service.attlist &=
     cache-ref?

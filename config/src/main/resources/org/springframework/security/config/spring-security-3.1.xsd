@@ -28,7 +28,7 @@
   <xs:attributeGroup name="request-matcher">
     <xs:attribute name="request-matcher" use="required">
       <xs:annotation>
-        <xs:documentation>Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'iciRegex' for case-insensitive regular expressions.</xs:documentation>
+        <xs:documentation>Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for case-insensitive regular expressions.</xs:documentation>
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
@@ -713,7 +713,7 @@
     </xs:attribute>
     <xs:attribute name="create-session">
       <xs:annotation>
-        <xs:documentation>Controls the eagerness with which an HTTP session is created by Spring Security classes. If not set, defaults to "ifRequired". If "stateless" is used, this implies that the application guarantees that it will not create a session. This differs from the use of "never" which mans that Spring Security will not create a session, but will make use of one if the application does. </xs:documentation>
+        <xs:documentation>Controls the eagerness with which an HTTP session is created by Spring Security classes. If not set, defaults to "ifRequired". If "stateless" is used, this implies that the application guarantees that it will not create a session. This differs from the use of "never" which mans that Spring Security will not create a session, but will make use of one if the application does.</xs:documentation>
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
@@ -731,7 +731,7 @@
     </xs:attribute>
     <xs:attribute name="request-matcher">
       <xs:annotation>
-        <xs:documentation>Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'iciRegex' for case-insensitive regular expressions.</xs:documentation>
+        <xs:documentation>Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for case-insensitive regular expressions.</xs:documentation>
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
@@ -771,7 +771,7 @@
     </xs:attribute>
     <xs:attribute name="entry-point-ref" type="xs:token">
       <xs:annotation>
-        <xs:documentation>Allows a customized AuthenticationEntryPoint to be set on the ExceptionTranslationFilter. </xs:documentation>
+        <xs:documentation>Allows a customized AuthenticationEntryPoint to be set on the ExceptionTranslationFilter.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="once-per-request" type="xs:boolean">
@@ -906,7 +906,7 @@
     </xs:attribute>
     <xs:attribute name="password-parameter" type="xs:token">
       <xs:annotation>
-        <xs:documentation>The name of the request parameter which contains the password. Defaults to 'j_password'. </xs:documentation>
+        <xs:documentation>The name of the request parameter which contains the password. Defaults to 'j_password'.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="default-target-url" type="xs:token">
@@ -947,7 +947,7 @@
   </xs:attributeGroup>
   
   <xs:element name="attribute-exchange"><xs:annotation>
-      <xs:documentation>Sets up an attribute exchange configuration to request specified attributes from the OpenID identity provider. When multiple elements are used, each must have an identifier-attribute attribute. Each configuration will be matched in turn against the supplied login identifier until a match is found. </xs:documentation>
+      <xs:documentation>Sets up an attribute exchange configuration to request specified attributes from the OpenID identity provider. When multiple elements are used, each must have an identifier-attribute attribute. Each configuration will be matched in turn against the supplied login identifier until a match is found.</xs:documentation>
     </xs:annotation><xs:complexType>
       <xs:sequence>
         <xs:element maxOccurs="unbounded" ref="security:openid-attribute"/>
@@ -993,7 +993,7 @@
     </xs:attribute>
     <xs:attribute name="request-matcher">
       <xs:annotation>
-        <xs:documentation>Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'iciRegex' for case-insensitive regular expressions.</xs:documentation>
+        <xs:documentation>Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for case-insensitive regular expressions.</xs:documentation>
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
@@ -1047,7 +1047,7 @@
     </xs:attribute>
     <xs:attribute name="request-matcher">
       <xs:annotation>
-        <xs:documentation>Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'iciRegex' for case-insensitive regular expressions.</xs:documentation>
+        <xs:documentation>Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for case-insensitive regular expressions.</xs:documentation>
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
