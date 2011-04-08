@@ -32,7 +32,6 @@ import java.util.*;
 
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.springframework.mock.web.MockHttpServletRequest;
 
 /**
  * @author Luke Taylor
@@ -43,6 +42,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 public class OpenID4JavaConsumerTests {
     List<OpenIDAttribute> attributes = Arrays.asList(new OpenIDAttribute("a","b"), new OpenIDAttribute("b","b", Arrays.asList("c")));
 
+    @SuppressWarnings("deprecation")
     @Test
     public void beginConsumptionCreatesExpectedSessionData() throws Exception {
         ConsumerManager mgr = mock(ConsumerManager.class);
@@ -147,6 +147,7 @@ public class OpenID4JavaConsumerTests {
 
     }
 
+    @SuppressWarnings("serial")
     @Test
     public void successfulVerificationReturnsExpectedAuthentication() throws Exception {
         ConsumerManager mgr = mock(ConsumerManager.class);
@@ -202,6 +203,7 @@ public class OpenID4JavaConsumerTests {
     }
 
 
+    @SuppressWarnings("deprecation")
     @Test
     public void additionalConstructorsWork() throws Exception {
         new OpenID4JavaConsumer();
