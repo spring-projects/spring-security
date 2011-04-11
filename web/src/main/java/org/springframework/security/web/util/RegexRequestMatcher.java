@@ -55,7 +55,7 @@ public final class RegexRequestMatcher implements RequestMatcher {
 
     /**
      * Performs the match of the request URL ({@code servletPath + pathInfo + queryString}) against
-     * the compiled pattern.
+     * the compiled pattern. If the query string is present, a question mark will be prepended.
      *
      * @param request the request to match
      * @return true if the pattern matches the URL, false otherwise.
@@ -77,7 +77,7 @@ public final class RegexRequestMatcher implements RequestMatcher {
             }
 
             if (query != null) {
-                sb.append(query);
+                sb.append('?').append(query);
             }
             url = sb.toString();
         }
