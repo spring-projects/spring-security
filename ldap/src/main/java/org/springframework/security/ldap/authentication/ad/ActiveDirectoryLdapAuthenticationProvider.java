@@ -2,42 +2,84 @@ package org.springframework.security.ldap.authentication.ad;
 
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.support.LdapUtils;
+import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.ldap.LdapUtils;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.ldap.authentication.AbstractLdapAuthenticationProvider;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import javax.naming.AuthenticationException;
 import javax.naming.Context;
 import javax.naming.NamingException;
+import javax.naming.OperationNotSupportedException;
 import javax.naming.directory.SearchControls;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Specialized LDAP authentication provider which uses Active Directory configuration conventions.
  * <p>
- * It will authenticate using the Active Directory {@code userPrincipalName} (in the form {@code username@domain}).
- * If the {@code usernameIncludesDomain} property is set to {@code true}, it is assumed that the user types in the
- * full value, including the domain. Otherwise (the default), the {@code userPrincipalName} will be built from the
- * username supplied in the authentication request.
+ * It will authenticate using the Active Directory
+ * <a href="http://msdn.microsoft.com/en-us/library/ms680857%28VS.85%29.aspx">{@code userPrincipalName}</a>
+ * (in the form {@code username@domain}). If the username does not already end with the domain name, the
+ * {@code userPrincipalName} will be built by appending the configured domain name to the username supplied in the
+ * authentication request. If no domain name is configured, it is assumed that the username will always contain the
+ * domain name.
  * <p>
  * The user authorities are obtained from the data contained in the {@code memberOf} attribute.
+ *
+ * <h3>Active Directory Sub-Error Codes</h3>
+ *
+ * When an authentication fails, resulting in a standard LDAP 49 error code, Active Directory also supplies its own
+ * sub-error codes within the error message. These will be used to provide additional log information on why an
+ * authentication has failed. Typical examples are
+ *
+ * <ul>
+ * <li>525 - user not found</li>
+ * <li>52e - invalid credentials</li>
+ * <li>530 - not permitted to logon at this time</li>
+ * <li>532 - password expired</li>
+ * <li>533 - account disabled</li>
+ * <li>701 - account expired</li>
+ * <li>773 - user must reset password</li>
+ * <li>775 - account locked</li>
+ * </ul>
+ *
+ * If you set the {@link #setConvertSubErrorCodesToExceptions(boolean) convertSubErrorCodesToExceptions} property to
+ * {@code true}, the codes will also be used to control the exception raised.
  *
  * @author Luke Taylor
  * @since 3.1
  */
 public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLdapAuthenticationProvider {
+    private static final Pattern SUB_ERROR_CODE = Pattern.compile(".*\\s([0-9a-f]{3,4}).*");
+
+    // Error codes
+    private static final int USERNAME_NOT_FOUND = 0x525;
+    private static final int INVALID_PASSWORD = 0x52e;
+    private static final int NOT_PERMITTED = 0x530;
+    private static final int PASSWORD_EXPIRED = 0x532;
+    private static final int ACCOUNT_DISABLED = 0x533;
+    private static final int ACCOUNT_EXPIRED = 0x701;
+    private static final int PASSWORD_NEEDS_RESET = 0x773;
+    private static final int ACCOUNT_LOCKED = 0x775;
+
     private final String domain;
     private final String rootDn;
     private final String url;
-    private boolean usernameIncludesDomain = false;
+    private boolean convertSubErrorCodesToExceptions;
 
     /**
      * @param domain the domain for which authentication should take place
@@ -52,7 +94,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
      */
     public ActiveDirectoryLdapAuthenticationProvider(String domain, String url) {
         Assert.isTrue(StringUtils.hasText(domain) || StringUtils.hasText(url), "Domain and url cannot both be empty");
-        this.domain = StringUtils.hasText(domain) ? domain : null;
+        this.domain = StringUtils.hasText(domain) ? domain.toLowerCase() : null;
         this.url = StringUtils.hasText(url) ? url : null;
         rootDn = this.domain == null ? null : rootDnFromDomain(this.domain);
     }
@@ -68,8 +110,8 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
             return searchForUser(ctx, username);
 
         } catch (NamingException e) {
-            logger.error("Failed to locate directory entry for authentication user: " + username, e);
-            throw authenticationFailure();
+            logger.error("Failed to locate directory entry for authenticated user: " + username, e);
+            throw badCredentials();
         } finally {
             LdapUtils.closeContext(ctx);
         }
@@ -108,7 +150,8 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 
         Hashtable<String,String> env = new Hashtable<String,String>();
         env.put(Context.SECURITY_AUTHENTICATION, "simple");
-        env.put(Context.SECURITY_PRINCIPAL, createBindPrincipal(username));
+        String bindPrincipal = createBindPrincipal(username);
+        env.put(Context.SECURITY_PRINCIPAL, bindPrincipal);
         env.put(Context.PROVIDER_URL, bindUrl);
         env.put(Context.SECURITY_CREDENTIALS, password);
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
@@ -116,12 +159,84 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
         try {
             return new InitialLdapContext(env, null);
         } catch (NamingException e) {
-            logger.debug("Authentication failed", e);
-            throw authenticationFailure();
+            if ((e instanceof AuthenticationException) || (e instanceof OperationNotSupportedException)) {
+                handleBindException(bindPrincipal, e);
+                throw badCredentials();
+            } else {
+                throw LdapUtils.convertLdapException(e);
+            }
         }
     }
 
-    private BadCredentialsException authenticationFailure() {
+    void handleBindException(String bindPrincipal, NamingException exception) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Authentication for " + bindPrincipal + " failed:" + exception);
+        }
+
+        int subErrorCode = parseSubErrorCode(exception.getMessage());
+
+        if (subErrorCode > 0) {
+            logger.info("Active Directory authentication failed: " + subCodeToLogMessage(subErrorCode));
+
+            if (convertSubErrorCodesToExceptions) {
+                raiseExceptionForErrorCode(subErrorCode);
+            }
+        } else {
+            logger.debug("Failed to locate AD-specific sub-error code in message");
+        }
+    }
+
+    int parseSubErrorCode(String message) {
+        Matcher m = SUB_ERROR_CODE.matcher(message);
+
+        if (m.matches()) {
+            return Integer.parseInt(m.group(1), 16);
+        }
+
+        return -1;
+    }
+
+    void raiseExceptionForErrorCode(int code) {
+        switch (code) {
+            case PASSWORD_EXPIRED:
+                throw new CredentialsExpiredException(messages.getMessage("LdapAuthenticationProvider.credentialsExpired",
+                        "User credentials have expired"));
+            case ACCOUNT_DISABLED:
+                throw new DisabledException(messages.getMessage("LdapAuthenticationProvider.disabled",
+                        "User is disabled"));
+            case ACCOUNT_EXPIRED:
+                throw new AccountExpiredException(messages.getMessage("LdapAuthenticationProvider.expired",
+                        "User account has expired"));
+            case ACCOUNT_LOCKED:
+                throw new LockedException(messages.getMessage("LdapAuthenticationProvider.locked",
+                        "User account is locked"));
+        }
+    }
+
+    String subCodeToLogMessage(int code) {
+        switch (code) {
+            case USERNAME_NOT_FOUND:
+                return "User was not found in directory";
+            case INVALID_PASSWORD:
+                return "Supplied password was invalid";
+            case NOT_PERMITTED:
+                return "User not permitted to logon at this time";
+            case PASSWORD_EXPIRED:
+                return "Password has expired";
+            case ACCOUNT_DISABLED:
+                return "Account is disabled";
+            case ACCOUNT_EXPIRED:
+                return "Account expired";
+            case PASSWORD_NEEDS_RESET:
+                return "User must reset password";
+            case ACCOUNT_LOCKED:
+                return "Account locked";
+        }
+
+        return "Unknown (error code " + Integer.toHexString(code) +")";
+    }
+
+    private BadCredentialsException badCredentials() {
         return new BadCredentialsException(messages.getMessage(
                         "LdapAuthenticationProvider.badCredentials", "Bad credentials"));
     }
@@ -158,18 +273,27 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
         return root.toString();
     }
 
-    private String createBindPrincipal(String username) {
-        if (usernameIncludesDomain || domain == null) {
+    String createBindPrincipal(String username) {
+        if (domain == null || username.toLowerCase().endsWith(domain)) {
             return username;
         }
 
         return username + "@" + domain;
     }
 
-    public void setUsernameIncludesDomain(boolean usernameIncludesDomain) {
-        Assert.isTrue(domain != null || usernameIncludesDomain,
-                "If the domain name is not included in the username, a domain must be set in the constructor");
-        this.usernameIncludesDomain = usernameIncludesDomain;
+    /**
+     * By default, a failed authentication (LDAP error 49) will result in a {@code BadCredentialsException}.
+     * <p>
+     * If this property is set to {@code true}, the exception message from a failed bind attempt will be parsed
+     * for the AD-specific error code and a {@link CredentialsExpiredException}, {@link DisabledException},
+     * {@link AccountExpiredException} or {@link LockedException} will be thrown for the corresponding codes. All
+     * other codes will result in the default {@code BadCredentialsException}.
+     *
+     * @param convertSubErrorCodesToExceptions {@code true} to raise an exception based on the AD error code.
+     */
+    public void setConvertSubErrorCodesToExceptions(boolean convertSubErrorCodesToExceptions) {
+        this.convertSubErrorCodesToExceptions = convertSubErrorCodesToExceptions;
     }
+
 
 }
