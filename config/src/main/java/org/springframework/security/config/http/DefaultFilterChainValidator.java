@@ -7,6 +7,7 @@ import javax.servlet.Filter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.web.FilterChainProxy;
@@ -34,10 +35,11 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
         }
     }
 
-    private Object getFilter(Class<?> type, List<Filter> filters) {
+    @SuppressWarnings({"unchecked"})
+    private <F extends Filter> F getFilter(Class<F> type, List<Filter> filters) {
         for (Filter f : filters) {
             if (type.isAssignableFrom(f.getClass())) {
-                return f;
+                return (F) f;
             }
         }
 
@@ -77,7 +79,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 
     /* Checks for the common error of having a login page URL protected by the security interceptor */
     private void checkLoginPageIsntProtected(FilterChainProxy fcp, List<Filter> filterStack) {
-        ExceptionTranslationFilter etf = (ExceptionTranslationFilter)getFilter(ExceptionTranslationFilter.class, filterStack);
+        ExceptionTranslationFilter etf = getFilter(ExceptionTranslationFilter.class, filterStack);
 
         if(etf == null || !(etf.getAuthenticationEntryPoint() instanceof LoginUrlAuthenticationEntryPoint)) {
             return;
@@ -98,7 +100,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
             return;
         }
 
-        FilterSecurityInterceptor fsi = (FilterSecurityInterceptor) getFilter(FilterSecurityInterceptor.class, filters);
+        FilterSecurityInterceptor fsi = getFilter(FilterSecurityInterceptor.class, filters);
         DefaultFilterInvocationSecurityMetadataSource fids =
                 (DefaultFilterInvocationSecurityMetadataSource) fsi.getSecurityMetadataSource();
 
@@ -113,7 +115,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
             return;
         }
 
-        AnonymousAuthenticationFilter anonPF = (AnonymousAuthenticationFilter) getFilter(AnonymousAuthenticationFilter.class, filters);
+        AnonymousAuthenticationFilter anonPF = getFilter(AnonymousAuthenticationFilter.class, filters);
         if (anonPF == null) {
             logger.warn("The login page is being protected by the filter chain, but you don't appear to have" +
                     " anonymous authentication enabled. This is almost certainly an error.");
@@ -124,8 +126,8 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
         AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("key", anonPF.getUserAttribute().getPassword(),
                         anonPF.getUserAttribute().getAuthorities());
         try {
-            fsi.getAccessDecisionManager().decide(token, new Object(), attributes);
-        } catch (Exception e) {
+            fsi.getAccessDecisionManager().decide(token, loginRequest, attributes);
+        } catch (AccessDeniedException e) {
             logger.warn("Anonymous access to the login page doesn't appear to be enabled. This is almost certainly " +
                     "an error. Please check your configuration allows unauthenticated access to the configured " +
                     "login page. (Simulated access was rejected: " + e + ")");

@@ -47,6 +47,9 @@ import org.springframework.security.web.authentication.logout.CookieClearingLogo
 import org.springframework.security.web.firewall.DefaultHttpFirewall
 import org.springframework.security.BeanNameCollectingPostProcessor
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
+import org.springframework.security.access.vote.RoleVoter
+import org.springframework.security.web.access.expression.WebExpressionVoter
+import org.springframework.security.access.vote.AffirmativeBased
 
 class MiscHttpConfigTests extends AbstractHttpConfigTests {
     def 'Minimal configuration parses'() {
@@ -494,6 +497,17 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         thrown(AccessDeniedException)
     }
 
+    def protectedLoginPageReportsWarning() {
+        when:
+        xml.http('use-expressions': 'true') {
+            'form-login'('login-page': '/login')
+            interceptUrl('/login*', "hasRole('ROLE_A')")
+        }
+        createAppContext()
+        then:
+        notThrown(BeansException)
+    }
+
     def disablingUrlRewritingThroughTheNamespaceSetsCorrectPropertyOnContextRepo() {
         xml.http('auto-config': 'true', 'disable-url-rewriting': 'true')
         createAppContext()
@@ -613,6 +627,23 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         FilterChainProxy fcp = appContext.getBean(BeanIds.FILTER_CHAIN_PROXY)
         expect:
         fcp.firewall == appContext.getBean('fw')
+    }
+
+    def customAccessDecisionManagerIsSupported() {
+        xml.http('auto-config': 'true', 'access-decision-manager-ref': 'adm')
+        xml.'b:bean'(id: 'adm', 'class': AffirmativeBased.class.name) {
+            'b:property'(name: 'decisionVoters') {
+                'b:list'() {
+                    'b:bean'('class': RoleVoter.class.name)
+                    'b:bean'('class': RoleVoter.class.name)
+                    'b:bean'('class': RoleVoter.class.name)
+                    'b:bean'('class': WebExpressionVoter.class.name)
+                }
+            }
+        }
+        createAppContext()
+        expect:
+        getFilter(FilterSecurityInterceptor.class).accessDecisionManager.decisionVoters[3] instanceof WebExpressionVoter
     }
 }
 
