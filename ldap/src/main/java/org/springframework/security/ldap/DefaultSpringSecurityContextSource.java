@@ -15,7 +15,7 @@ import org.springframework.util.Assert;
  * ContextSource implementation which uses Spring LDAP's <tt>LdapContextSource</tt> as a base
  * class. Used internally by the Spring Security LDAP namespace configuration.
  * <p>
- * From Spring Security 2.5, Spring LDAP 1.3 is used and the <tt>ContextSource</tt> interface
+ * From Spring Security 3.0, Spring LDAP 1.3 is used and the <tt>ContextSource</tt> interface
  * provides support for binding with a username and password. As a result, Spring LDAP <tt>ContextSource</tt>
  * implementations such as <tt>LdapContextSource</tt> may be used directly with Spring Security.
  * <p>
