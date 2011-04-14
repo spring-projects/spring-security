@@ -235,7 +235,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer, DisposableBean, Init
      * when the bean is destroyed. This ensures that threads are
      * shutdown to prevent memory leaks. Default is <code>false</code>.
      *
-     * @param shutdownConnectionManager
+     * @param skipShutdownConnectionManager
      *            <code>false</code> (default value) if should shutdown
      *            MultiThreadedHttpConnectionManager on destroy, otherwise
      *            <code>true</code>.
