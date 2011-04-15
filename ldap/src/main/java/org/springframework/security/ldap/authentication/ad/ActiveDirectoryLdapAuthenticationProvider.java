@@ -21,9 +21,9 @@ import javax.naming.AuthenticationException;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.OperationNotSupportedException;
+import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -64,7 +64,7 @@ import java.util.regex.Pattern;
  * @since 3.1
  */
 public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLdapAuthenticationProvider {
-    private static final Pattern SUB_ERROR_CODE = Pattern.compile(".*\\s([0-9a-f]{3,4}).*");
+    private static final Pattern SUB_ERROR_CODE = Pattern.compile(".*data\\s([0-9a-f]{3,4}).*");
 
     // Error codes
     private static final int USERNAME_NOT_FOUND = 0x525;
@@ -81,6 +81,9 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
     private final String url;
     private boolean convertSubErrorCodesToExceptions;
 
+    // Only used to allow tests to substitute a mock LdapContext
+    ContextFactory contextFactory = new ContextFactory();
+
     /**
      * @param domain the domain for which authentication should take place
      */
@@ -89,7 +92,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 //    }
 
     /**
-     * @param domain the domain name
+     * @param domain the domain name (may be null or empty)
      * @param url an LDAP url (or multiple URLs)
      */
     public ActiveDirectoryLdapAuthenticationProvider(String domain, String url) {
@@ -104,7 +107,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
         String username = auth.getName();
         String password = (String)auth.getCredentials();
 
-        LdapContext ctx = bindAsUser(username, password);
+        DirContext ctx = bindAsUser(username, password);
 
         try {
             return searchForUser(ctx, username);
@@ -144,7 +147,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
         return authorities;
     }
 
-    private LdapContext bindAsUser(String username, String password) {
+    private DirContext bindAsUser(String username, String password) {
         // TODO. add DNS lookup based on domain
         final String bindUrl = url;
 
@@ -157,7 +160,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
 
         try {
-            return new InitialLdapContext(env, null);
+            return contextFactory.createContext(env);
         } catch (NamingException e) {
             if ((e instanceof AuthenticationException) || (e instanceof OperationNotSupportedException)) {
                 handleBindException(bindPrincipal, e);
@@ -241,7 +244,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
                         "LdapAuthenticationProvider.badCredentials", "Bad credentials"));
     }
 
-    private DirContextOperations searchForUser(LdapContext ctx, String username) throws NamingException {
+    private DirContextOperations searchForUser(DirContext ctx, String username) throws NamingException {
         SearchControls searchCtls = new SearchControls();
         searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
@@ -256,7 +259,14 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
     }
 
     private String searchRootFromPrincipal(String bindPrincipal) {
-        return rootDnFromDomain(bindPrincipal.substring(bindPrincipal.lastIndexOf('@') + 1, bindPrincipal.length()));
+        int atChar = bindPrincipal.lastIndexOf('@');
+
+        if (atChar < 0) {
+            logger.debug("User principal '" + bindPrincipal + "' does not contain the domain, and no domain has been configured");
+            throw badCredentials();
+        }
+
+        return rootDnFromDomain(bindPrincipal.substring(atChar+ 1, bindPrincipal.length()));
     }
 
     private String rootDnFromDomain(String domain) {
@@ -295,5 +305,9 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
         this.convertSubErrorCodesToExceptions = convertSubErrorCodesToExceptions;
     }
 
-
+    static class ContextFactory {
+        DirContext createContext(Hashtable<?,?> env) throws NamingException {
+            return new InitialLdapContext(env, null);
+        }
+    }
 }
