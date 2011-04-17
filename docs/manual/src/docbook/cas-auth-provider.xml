@@ -285,7 +285,7 @@
     <property name="ticketValidator">
       <bean class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
         <constructor-arg index="0" value="https://localhost:9443/cas" />
-        </bean>
+      </bean>
     </property>
     <property name="key" value="an_id_for_this_auth_provider_only"/>
   </bean>
@@ -298,7 +298,7 @@
             <interfacename>UserDetailsService</interfacename> instance to load the authorities for a
             user, once they have been authenticated by CAS. We've shown a simple in-memory setup
             here. Note that the <classname>CasAuthenticationProvider</classname> does not actually use
-            the password for authentication.</para>
+            the password for authentication, but it does use the authorities.</para>
          <para>The beans are all reasonably self-explanatory if you refer back to the
               <link xlink:href="#cas-how-it-works">How CAS Works</link> section.</para>
          <para>This completes the most basic configuration for CAS. If you haven't made any
@@ -328,8 +328,8 @@
         class="org.springframework.security.web.authentication.logout.LogoutFilter">
     <constructor-arg value="https://localhost:9443/cas/logout"/>
     <constructor-arg>
-      <bean
-        class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler"/>
+      <bean class=
+          "org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler"/>
     </constructor-arg>
     <property name="filterProcessesUrl" value="/j_spring_cas_security_logout"/>
   </bean>
@@ -456,7 +456,8 @@
     // NOTE: The CasAuthenticationToken can also be obtained using
     // SecurityContextHolder.getContext().getAuthentication()
     final CasAuthenticationToken token = (CasAuthenticationToken) request.getUserPrincipal();
-    // proxyTicket could be reused to make calls to to the CAS service even if the target url differs
+    // proxyTicket could be reused to make calls to the CAS service even if the
+    // target url differs
     final String proxyTicket = token.getAssertion().getPrincipal().getProxyTicketFor(targetUrl);
 
     // Make a remote call using the proxy ticket
@@ -524,8 +525,8 @@
     ...
     <property name="serviceProperties" ref="serviceProperties"/>
     <property name="authenticationDetailsSource">
-      <bean
-        class="org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource"/>
+      <bean class=
+        "org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource"/>
     </property>
   </bean>
 ]]></programlisting></para>
