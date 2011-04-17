@@ -69,6 +69,13 @@ class CasSampleSpec extends BaseSpec {
         at SecurePage
     }
 
+    def 'access proxy ticket sample with ROLE_USER is allowed'() {
+        when: 'user with ROLE_USER requests the proxy ticket sample page'
+        to ProxyTicketSamplePage
+        then: 'the proxy ticket sample page is displayed'
+        at ProxyTicketSamplePage
+    }
+
     def 'access extremely secure page with ROLE_USER is denied'() {
         when: 'User with ROLE_USER accesses extremely secure page'
         to ExtremelySecurePage

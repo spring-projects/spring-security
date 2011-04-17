@@ -69,6 +69,15 @@
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
 
+    <servlet>
+        <servlet-name>ptSampleServlet</servlet-name>
+        <servlet-class>org.springframework.security.samples.cas.web.ProxyTicketSampleServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>ptSampleServlet</servlet-name>
+        <url-pattern>/secure/ptSample</url-pattern>
+    </servlet-mapping>
     <error-page>
         <error-code>403</error-code>
         <location>/403.jsp</location>

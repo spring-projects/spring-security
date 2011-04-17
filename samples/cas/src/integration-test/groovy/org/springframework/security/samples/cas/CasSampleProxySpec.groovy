@@ -54,6 +54,13 @@ class CasSampleProxySpec extends BaseSpec {
         content.contains('<h1>Secure Page</h1>')
     }
 
+    def 'access proxy ticket sample succeeds with ROLE_USER'() {
+        when: 'a proxy ticket is used to create another proxy ticket'
+        def content = getSecured(getBaseUrl()+ProxyTicketSamplePage.url).responseBodyAsString
+        then: 'The proxy ticket sample page is returned'
+        content.contains('<h1>Secure Page using a Proxy Ticket</h1>')
+    }
+
     def 'access extremely secure page with ROLE_USER is denied'() {
         when: 'User with ROLE_USER accesses the extremely secure page'
         GetMethod method = getSecured(getBaseUrl()+ExtremelySecurePage.url)

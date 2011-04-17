@@ -57,7 +57,9 @@
     <b:bean id="casFilter"
         class="org.springframework.security.cas.web.CasAuthenticationFilter"
         p:authenticationManager-ref="authManager"
-        p:serviceProperties-ref="serviceProperties">
+        p:serviceProperties-ref="serviceProperties"
+        p:proxyGrantingTicketStorage-ref="pgtStorage"
+        p:proxyReceptorUrl="/j_spring_cas_security_proxyreceptor">
         <b:property name="authenticationDetailsSource">
             <b:bean class="org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource"/>
         </b:property>
@@ -66,6 +68,11 @@
                 p:defaultFailureUrl="/casfailed.jsp"/>
         </b:property>
     </b:bean>
+    <!--
+        NOTE: In a real application you should not use an in memory implementation. You will also want
+              to ensure to clean up expired tickets by calling ProxyGrantingTicketStorage.cleanup()
+     -->
+    <b:bean id="pgtStorage" class="org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl"/>
     <b:bean id="casAuthProvider" class="org.springframework.security.cas.authentication.CasAuthenticationProvider"
         p:serviceProperties-ref="serviceProperties"
         p:key="casAuthProviderKey">
@@ -78,7 +85,9 @@
         <b:property name="ticketValidator">
             <b:bean
                 class="org.jasig.cas.client.validation.Cas20ProxyTicketValidator"
-                p:acceptAnyProxy="true">
+                p:acceptAnyProxy="true"
+                p:proxyCallbackUrl="https://${cas.service.host}/cas-sample/j_spring_cas_security_proxyreceptor"
+                p:proxyGrantingTicketStorage-ref="pgtStorage">
                 <b:constructor-arg value="https://${cas.server.host}/cas" />
             </b:bean>
         </b:property>
