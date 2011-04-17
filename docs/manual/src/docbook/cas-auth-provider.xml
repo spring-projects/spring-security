@@ -307,6 +307,83 @@
             need to be concerned about the fact CAS handled authentication. In the following sections
             we will discuss some (optional) more advanced configurations.</para>
         </section>
+        <section xml:id="cas-singlelogout">
+            <info>
+                <title>Single Logout</title>
+            </info>
+            <para>The CAS protocol supports Single Logout and can be easily added to your Spring
+                Security configuration. Below are updates to the Spring Security configuration
+                that handle Single Logout <programlisting language="xml"><![CDATA[
+  <security:http entry-point-ref="casEntryPoint">
+  ...
+    <security:logout logout-success-url="/cas-logout.jsp"/>
+    <security:custom-filter ref="requestSingleLogoutFilter" before="LOGOUT_FILTER"/>
+    <security:custom-filter ref="singleLogoutFilter" before="CAS_FILTER"/>
+  </security:http>
+
+  <!-- This filter handles a Single Logout Request from the CAS Server -->
+  <bean id="singleLogoutFilter" class="org.jasig.cas.client.session.SingleSignOutFilter"/>
+  <!-- This filter redirects to the CAS Server to signal Single Logout should be performed -->
+  <bean id="requestSingleLogoutFilter"
+        class="org.springframework.security.web.authentication.logout.LogoutFilter">
+    <constructor-arg value="https://localhost:9443/cas/logout"/>
+    <constructor-arg>
+      <bean
+        class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler"/>
+    </constructor-arg>
+    <property name="filterProcessesUrl" value="/j_spring_cas_security_logout"/>
+  </bean>
+            ]]></programlisting> The <literal>logout</literal> element logs the user out of the local application, but
+                does not terminate the session with the CAS server or any other applications that have been logged
+                into. The <literal>requestSingleLogoutFilter</literal> filter will allow the url of
+                <literal>/spring_security_cas_logout</literal> to be requested to redirect the application to the
+                configured CAS Server logout url. Then the CAS Server will send a Single Logout request to all the
+                services that were signed into. The <literal>singleLogoutFilter</literal> handles the Single Logout
+                request by looking up the <literal>HttpSession</literal> in a static <interfacename>Map</interfacename>
+                and then invalidating it.</para>
+            <para>It might be confusing why both the <literal>logout</literal> element and the
+                <literal>singleLogoutFilter</literal> are needed. It is considered best practice to logout locally
+                first since the <literal>SingleSignOutFilter</literal> just stores the
+                <interfacename>HttpSession</interfacename> in a static <interfacename>Map</interfacename> in order to
+                call invalidate on it. With the configuration above, the flow of logout would be:
+                <orderedlist inheritnum="ignore" continuation="restarts">
+                    <listitem>The user requests <literal>/j_spring_security_logout</literal> which would log the user
+                        out of the local application and send the user to the logout success page.</listitem>
+                    <listitem>The logout success page, <literal>/cas-logout.jsp</literal>, should instruct the user
+                        to click a link pointing to <literal>/j_spring_cas_security_logout</literal> in order to logout
+                        out of all applications.</listitem>
+                    <listitem>When the user clicks the link, the user is redirected to the CAS single logout URL
+                        (<literal>https://localhost:9443/cas/logout</literal>).</listitem>
+                    <listitem>On the CAS Server side, the CAS single logout URL then submits single logout requests to
+                        all the CAS Services. On the CAS Service side, JASIG's
+                        <classname>SingleSignOutFilter</classname> processes the logout request by invaliditing the
+                        original session.</listitem>
+                </orderedlist>
+            </para>
+            <para>The next step is to add the following to your web.xml
+                <programlisting language="xml"><![CDATA[
+  <filter>
+    <filter-name>characterEncodingFilter</filter-name>
+    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+    <init-param>
+      <param-name>encoding</param-name>
+      <param-value>UTF-8</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>characterEncodingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <listener>
+    <listener-class>org.jasig.cas.client.session.SingleSignOutHttpSessionListener</listener-class>
+  </listener>]]></programlisting></para>
+            <para>When using the SingleSignOutFilter you might encounter some encoding issues. Therefore it is
+                recommended to add the <classname>CharacterEncodingFilter</classname> to ensure that the character
+                encoding is correct when using the <classname>SingleSignOutFilter</classname>. Again, refer to JASIG's
+                documentation for details. The <classname>SingleSignOutHttpSessionListener</classname> ensures that
+                when an <interfacename>HttpSession</interfacename> expires, the mapping used for single logout is
+                removed.</para>
+        </section>
         <section xml:id="cas-pt">
             <info>
                 <title>Proxy Ticket Authentication</title>

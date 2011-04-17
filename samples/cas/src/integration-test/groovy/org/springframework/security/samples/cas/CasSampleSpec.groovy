@@ -21,6 +21,7 @@ import org.junit.runner.RunWith;
 import org.spockframework.runtime.Sputnik;
 import org.springframework.security.samples.cas.pages.*
 
+import spock.lang.Shared;
 import spock.lang.Stepwise;
 
 /**
@@ -30,6 +31,7 @@ import spock.lang.Stepwise;
  */
 @Stepwise
 class CasSampleSpec extends BaseSpec {
+    @Shared String casServerLogoutUrl = LoginPage.url.replaceFirst('/login','/logout')
 
     def 'access home page with unauthenticated user succeeds'() {
         when: 'Unauthenticated user accesses the Home Page'
@@ -106,6 +108,19 @@ class CasSampleSpec extends BaseSpec {
         casServerLogout.click()
         to ExtremelySecurePage
         then: 'login page is displayed'
+        at LoginPage
+    }
+
+    def 'loging out of the cas server successfully logs out of the cas servers'() {
+        setup: 'login with ROLE_USER'
+        to SecurePage
+        at LoginPage
+        login 'rod'
+        at SecurePage
+        when: 'logout of the CAS Server'
+        go casServerLogoutUrl
+        to SecurePage
+        then: 'user is logged out of the CAS Service'
         at LoginPage
     }
 }
