@@ -24,7 +24,7 @@ import geb.*
  */
 class LoginPage extends Page {
     static url = loginUrl()
-    static at = { driver.currentUrl == loginUrl(); true}
+    static at = { assert driver.currentUrl.startsWith(loginUrl()); true}
     static content = {
         login(required:false) { user, password=user ->
             loginForm.username = user
