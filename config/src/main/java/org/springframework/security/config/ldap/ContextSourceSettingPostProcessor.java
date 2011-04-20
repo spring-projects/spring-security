@@ -36,12 +36,12 @@ class ContextSourceSettingPostProcessor implements BeanFactoryPostProcessor, Ord
                     "jar file in your application", e);
         }
 
-        String[] sources = bf.getBeanNamesForType(contextSourceClass);
-
+        String[] sources = bf.getBeanNamesForType(contextSourceClass, false, false);
 
         if (sources.length == 0) {
             throw new ApplicationContextException("No BaseLdapPathContextSource instances found. Have you " +
-                    "added an <" + Elements.LDAP_SERVER + " /> element to your application context?");
+                    "added an <" + Elements.LDAP_SERVER + " /> element to your application context? If you have " +
+                    "declared an explicit bean, do not use lazy-init");
         }
 
         if (!bf.containsBean(BeanIds.CONTEXT_SOURCE) && defaultNameRequired) {
