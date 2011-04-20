@@ -15,16 +15,6 @@
 
 package org.springframework.security.authentication.jaas;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.security.Security;
-
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.login.Configuration;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.Resource;
@@ -34,6 +24,15 @@ import org.springframework.security.authentication.jaas.event.JaasAuthentication
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
+
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.Configuration;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.security.Security;
 
 
 /**
@@ -192,16 +191,22 @@ public class JaasAuthenticationProvider extends AbstractJaasAuthenticationProvid
     }
 
     private String convertLoginConfigToUrl() throws IOException {
-        String loginConfigPath = loginConfig.getFile().getAbsolutePath();
-        loginConfigPath = loginConfigPath.replace(File.separatorChar, '/');
+        String loginConfigPath;
 
-        if (!loginConfigPath.startsWith("/")) {
-            loginConfigPath = "/" + loginConfigPath;
+        try {
+            loginConfigPath = loginConfig.getFile().getAbsolutePath().replace(File.separatorChar, '/');
+
+            if (!loginConfigPath.startsWith("/")) {
+                loginConfigPath = "/" + loginConfigPath;
+            }
+
+            return new URL("file", "", loginConfigPath).toString();
+        } catch (IOException e) {
+            // SEC-1700:  May be inside a jar
+            return loginConfig.getURL().toString();
         }
-
-        return new URL("file", "", loginConfigPath).toString();
     }
-    
+
     /**
      * Publishes the {@link JaasAuthenticationFailedEvent}. Can be overridden by subclasses for different
      * functionality
@@ -233,7 +238,7 @@ public class JaasAuthenticationProvider extends AbstractJaasAuthenticationProvid
      * If set, a call to {@code Configuration#refresh()} will be made by {@code #configureJaas(Resource) }
      * method. Defaults to {@code true}.
      *
-     * @see <a href="https://jira.springsource.org/browse/SEC-1320">SEC-1230</a>
+     * @see <a href="https://jira.springsource.org/browse/SEC-1320">SEC-1320</a>
      *
      * @param refresh set to {@code false} to disable reloading of the configuration.
      * May be useful in some environments.
