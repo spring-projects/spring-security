@@ -25,7 +25,8 @@ bundlorProperties = [
     apacheDSRange: '[1.5.5, 1.6)',
     apacheDSSharedRange: '[0.9.15, 1.0)',
     ldapSdkRange: '[4.1, 5.0)',
-    aopAllianceRange: '[1.0.0, 2.0.0)'
+    aopAllianceRange: '[1.0.0, 2.0.0)',
+    commonsHttpRange: '[3.1.0, 4.0.0)'
 ]
 
 configurations {
