@@ -117,8 +117,9 @@ ideaModule {
 ideaProject {
     javaVersion = '1.6'
     subprojects = [rootProject] + javaProjects
-    withXml { node ->
+    withXml { provider ->
         // Use git
+        def node = provider.asNode()
         def vcsConfig = node.component.find { it.'@name' == 'VcsDirectoryMappings' }
         vcsConfig.mapping[0].'@vcs' = 'Git'
     }
