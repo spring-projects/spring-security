@@ -15,6 +15,8 @@
 
 package org.springframework.security.web.authentication;
 
+import org.springframework.security.core.SpringSecurityCoreVersion;
+
 import java.io.Serializable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -27,6 +29,9 @@ import javax.servlet.http.HttpSession;
  * @author Luke Taylor
  */
 public class WebAuthenticationDetails implements Serializable {
+
+    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
     //~ Instance fields ================================================================================================
 
     private final String remoteAddress;

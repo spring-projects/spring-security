@@ -1,5 +1,7 @@
 package org.springframework.security.authentication;
 
+import org.springframework.security.core.SpringSecurityCoreVersion;
+
 import java.io.Serializable;
 
 /**
@@ -10,6 +12,9 @@ import java.io.Serializable;
 */
 @Deprecated
 public class AuthenticationDetails implements Serializable {
+
+   private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
    //~ Instance fields ================================================================================================
 
    private final String context;

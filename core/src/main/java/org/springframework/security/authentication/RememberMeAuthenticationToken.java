@@ -18,6 +18,7 @@ package org.springframework.security.authentication;
 import java.util.Collection;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.SpringSecurityCoreVersion;
 
 
 /**
@@ -30,6 +31,9 @@ import org.springframework.security.core.GrantedAuthority;
  * @author Luke Taylor
  */
 public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
+
+    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
     //~ Instance fields ================================================================================================
 
     private final Object principal;

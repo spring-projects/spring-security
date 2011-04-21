@@ -16,6 +16,7 @@
 package org.springframework.security.authentication.jaas;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.SpringSecurityCoreVersion;
 
 import java.security.Principal;
 
@@ -29,12 +30,11 @@ import java.security.Principal;
  * @see AuthorityGranter
  */
 public final class JaasGrantedAuthority implements GrantedAuthority {
-    //~ Instance fields ================================================================================================
+
+    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
     private final String role;
     private final Principal principal;
-
-    //~ Constructors ===================================================================================================
 
     public JaasGrantedAuthority(String role, Principal principal) {
         this.role = role;

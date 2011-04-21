@@ -25,6 +25,7 @@ import java.util.TreeSet;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.CredentialsContainer;
+import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
 /**
@@ -43,6 +44,9 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  */
 public class User implements UserDetails, CredentialsContainer {
+
+    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
     //~ Instance fields ================================================================================================
     private String password;
     private final String username;
@@ -149,6 +153,8 @@ public class User implements UserDetails, CredentialsContainer {
     }
 
     private static class AuthorityComparator implements Comparator<GrantedAuthority>, Serializable {
+        private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
         public int compare(GrantedAuthority g1, GrantedAuthority g2) {
             // Neither should ever be null as each entry is checked before adding it to the set.
             // If the authority is null, it is a custom authority and should precede others.

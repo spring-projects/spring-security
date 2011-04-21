@@ -3,10 +3,14 @@ package org.springframework.security.core.authority;
 import java.util.*;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
 @Deprecated
 public class GrantedAuthoritiesContainerImpl implements MutableGrantedAuthoritiesContainer {
+
+    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
     private List<GrantedAuthority> authorities;
 
     public void setGrantedAuthorities(Collection<? extends GrantedAuthority> newAuthorities) {

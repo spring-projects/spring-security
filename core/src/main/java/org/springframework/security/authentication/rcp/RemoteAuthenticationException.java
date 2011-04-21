@@ -16,6 +16,7 @@
 package org.springframework.security.authentication.rcp;
 
 import org.springframework.core.NestedRuntimeException;
+import org.springframework.security.core.SpringSecurityCoreVersion;
 
 /**
  * Thrown if a <code>RemoteAuthenticationManager</code> cannot validate the presented authentication request.
@@ -27,6 +28,9 @@ import org.springframework.core.NestedRuntimeException;
  * @author Ben Alex
  */
 public class RemoteAuthenticationException extends NestedRuntimeException {
+
+    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
     //~ Constructors ===================================================================================================
 
     /**

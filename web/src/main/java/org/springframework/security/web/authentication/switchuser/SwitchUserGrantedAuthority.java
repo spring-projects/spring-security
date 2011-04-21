@@ -17,6 +17,7 @@ package org.springframework.security.web.authentication.switchuser;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.SpringSecurityCoreVersion;
 
 
 /**
@@ -30,6 +31,9 @@ import org.springframework.security.core.GrantedAuthority;
  * @see org.springframework.security.web.authentication.switchuser.SwitchUserFilter
  */
 public final class SwitchUserGrantedAuthority implements GrantedAuthority {
+
+    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
     //~ Instance fields ================================================================================================
     private final String role;
     private final Authentication source;

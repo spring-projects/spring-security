@@ -1,6 +1,7 @@
 package org.springframework.security.web.authentication.preauth;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.authority.GrantedAuthoritiesContainer;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
@@ -17,6 +18,8 @@ import java.util.*;
  */
 public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails extends WebAuthenticationDetails implements
         GrantedAuthoritiesContainer {
+
+    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
     private final List<GrantedAuthority> authorities;
 

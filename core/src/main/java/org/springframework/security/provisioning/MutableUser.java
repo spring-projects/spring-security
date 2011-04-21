@@ -3,6 +3,7 @@ package org.springframework.security.provisioning;
 import java.util.Collection;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
@@ -11,6 +12,9 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @since 3.1
  */
 class MutableUser implements MutableUserDetails {
+
+    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
     private String password;
     private final UserDetails delegate;
 

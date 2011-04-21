@@ -15,6 +15,7 @@
 
 package org.springframework.security.remoting.rmi;
 
+import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -43,7 +44,8 @@ import java.lang.reflect.InvocationTargetException;
  * @author Ben Alex
  */
 public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
-    //~ Static fields/initializers =====================================================================================
+
+    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
     private static final Log logger = LogFactory.getLog(ContextPropagatingRemoteInvocation.class);
 

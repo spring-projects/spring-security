@@ -12,13 +12,20 @@ import org.springframework.core.SpringVersion;
 public class SpringSecurityCoreVersion {
     private static final Log logger = LogFactory.getLog(SpringSecurityCoreVersion.class);
 
+    /**
+     * Global Serialization value for Spring Security classes.
+     *
+     * N.B. Classes are not intended to be serializable between different versions.
+     * See SEC-1709 for why we still need a serial version.
+     */
+    public static final long SERIAL_VERSION_UID = 310L;
+
     static {
         // Check Spring Compatibility
         String springVersion = SpringVersion.getVersion();
         String version = getVersion();
 
         if (springVersion != null) {
-            // TODO: Generate version class and information dynamically from a template in the build file
             logger.info("You are running with Spring Security Core " + version);
             if (!springVersion.startsWith("3")) {
                 logger.error("Spring Major version '3' expected, but you are running with version: "

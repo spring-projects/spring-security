@@ -15,6 +15,7 @@
 package org.springframework.security.ldap.userdetails;
 
 
+import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
 import org.springframework.ldap.core.DirContextAdapter;
@@ -33,6 +34,9 @@ import java.util.Arrays;
  * @since 2.0
  */
 public class Person extends LdapUserDetailsImpl {
+
+    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
     private String sn;
     private String description;
     private String telephoneNumber;

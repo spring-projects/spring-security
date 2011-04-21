@@ -16,6 +16,7 @@
 package org.springframework.security.core.context;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.SpringSecurityCoreVersion;
 
 
 /**
@@ -26,6 +27,9 @@ import org.springframework.security.core.Authentication;
  * @author Ben Alex
  */
 public class SecurityContextImpl implements SecurityContext {
+
+    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
     //~ Instance fields ================================================================================================
 
     private Authentication authentication;
