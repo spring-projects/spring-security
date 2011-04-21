@@ -22,6 +22,7 @@ dependencies {
             'xml-resolver:xml-resolver:1.2',
             'xerces:xercesImpl:2.9.1',
             'saxon:saxon:6.5.3',
+            'net.java.dev.jets3t:jets3t:0.6.1',
             fopDeps
 
     runtime 'net.sf.xslthl:xslthl:2.0.1',

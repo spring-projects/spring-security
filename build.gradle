@@ -1,5 +1,7 @@
 apply plugin: 'base'
 
+description = 'Spring Security'
+
 allprojects {
     version = '3.1.0.CI-SNAPSHOT'
     releaseBuild = version.endsWith('RELEASE')
@@ -41,89 +43,36 @@ configure (aspectjProjects) {
     apply plugin: 'aspectj'
 }
 
-apply from: "$rootDir/gradle/dist.gradle"
+// Task for creating the distro zip
 
-apply plugin: 'idea'
+task dist(type: Zip) {
+    dependsOn subprojects*.tasks*.matching { task -> task.name == 'assemble' }
 
-configure(javaProjects) {
-    apply plugin: 'idea'
-    apply plugin: 'eclipse'
+    evaluationDependsOn(':docs')
 
-    ideaModule {
-        downloadJavadoc=false
-        excludeDirs.add(buildDir)
-        gradleCacheVariable = 'GRADLE_CACHE'
-        outputDir = "$rootProject.projectDir/intellij/out" as File
-        testOutputDir = "$rootProject.projectDir/intellij/testOut" as File
-        whenConfigured { module ->
-            def allClasses = module.dependencies.findAll() { dep ->
-                if (dep instanceof org.gradle.plugins.idea.model.ModuleLibrary
-                    && dep.classes.find { path ->
-                        path.url.matches('.*jcl-over-slf4j.*') ||
-                        path.url.matches('.*servlet-api.*') ||
-                        path.url.matches('.*jsp-api.*')
-                    }) {
-                    dep.scope = 'COMPILE'
-                    dep.exported = false
-                }
-            }
+    def zipRootDir = "${project.name}-$version"
+    into(zipRootDir) {
+        from(rootDir) {
+            include '*.txt'
         }
-    }
-    // GRADLE-1116
-    eclipseClasspath.whenConfigured { classpath ->
-        classpath.entries.removeAll { entry -> entry.path.endsWith('/build/classes/test') }
-    }
-    eclipseClasspath.doFirst {
-        eclipseClasspath.whenConfigured { classpath ->
-            def includeDeps = project.configurations.getByName('runtime')?.collect { f-> f.absolutePath } as Set
-            classpath.entries.each { cp ->
-                  if(cp instanceof org.gradle.plugins.eclipse.model.Library) {
-                      def include = includeDeps.contains(cp.path)
-                      def attr = 'org.eclipse.jst.component.dependency'
-                      if(include && project.hasProperty('war')) {
-                          // GRADLE-1426 (part a)
-                          cp.entryAttributes.put(attr,'/WEB-INF/lib')
-                      } else if(!include) {
-                          // GRADLE-1422
-                          cp.entryAttributes.remove(attr)
-                      }
-                  }
-            }
+        into('docs') {
+            with(project(':docs').apiSpec)
+            with(project(':docs:manual').spec)
         }
-    }
-    // GRADLE-1426 (part b)
-    project.plugins.withType(org.gradle.api.plugins.WarPlugin.class).all {
-        eclipseWtpComponent.whenConfigured { wtpComp ->
-            wtpComp.wbModuleEntries.findAll { it instanceof org.gradle.plugins.eclipse.model.WbDependentModule }.each { e ->
-                if(!e.handle.startsWith('module:/resource/')) {
-                    wtpComp.wbModuleEntries.remove(e)
-                }
-            }
-        }
-    }
-    tasks.withType(org.gradle.plugins.eclipse.EclipseWtpComponent) {
-        whenConfigured { wtpComponent ->
-            wtpComponent.contextPath = project.tasks.findByName('jettyRun')?.contextPath?.replaceFirst('/','')
+        into('dist') {
+            from coreModuleProjects.collect {project -> project.libsDir }
+            from project(':spring-security-samples-tutorial').libsDir
+            from project(':spring-security-samples-contacts').libsDir
         }
     }
 }
 
-ideaModule {
-    excludeDirs += file('.gradle')
-    excludeDirs += file('buildSrc/build')
-    excludeDirs += file('buildSrc/.gradle')
+task uploadDist(type: S3DistroUpload) {
+    archiveFile = dist.archivePath
+    projectKey = 'SEC'
 }
 
-ideaProject {
-    javaVersion = '1.6'
-    subprojects = [rootProject] + javaProjects
-    withXml { provider ->
-        // Use git
-        def node = provider.asNode()
-        def vcsConfig = node.component.find { it.'@name' == 'VcsDirectoryMappings' }
-        vcsConfig.mapping[0].'@vcs' = 'Git'
-    }
-}
+apply from: "$rootDir/gradle/ide-integration.gradle"
 
 task wrapper(type: Wrapper) {
     gradleVersion = '1.0-milestone-1'
