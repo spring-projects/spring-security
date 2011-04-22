@@ -17,7 +17,8 @@ dependencies {
                 "org.springframework:spring-test:$springVersion",
                 "org.slf4j:jcl-over-slf4j:$slf4jVersion"
 
-    testRuntime "hsqldb:hsqldb:$hsqlVersion"
+    testRuntime "hsqldb:hsqldb:$hsqlVersion",
+                "cglib:cglib-nodep:$cglibVersion"
 }
 
 // jdkVersion = System.properties['java.version']

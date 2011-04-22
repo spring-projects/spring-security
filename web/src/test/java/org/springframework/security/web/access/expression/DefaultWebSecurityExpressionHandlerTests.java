@@ -25,8 +25,8 @@ public class DefaultWebSecurityExpressionHandlerTests {
 
         EvaluationContext ctx = handler.createEvaluationContext(mock(Authentication.class), mock(FilterInvocation.class));
         ExpressionParser parser = handler.getExpressionParser();
-        assertTrue(parser.parseExpression("role.getAttribute() == 'ROLE_A'").getValue(ctx, Boolean.class));
-        assertTrue(parser.parseExpression("role.attribute == 'ROLE_A'").getValue(ctx, Boolean.class));
+        assertTrue(parser.parseExpression("@role.getAttribute() == 'ROLE_A'").getValue(ctx, Boolean.class));
+        assertTrue(parser.parseExpression("@role.attribute == 'ROLE_A'").getValue(ctx, Boolean.class));
     }
 
 }

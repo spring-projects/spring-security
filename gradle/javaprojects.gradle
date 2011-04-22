@@ -11,6 +11,7 @@ jettyVersion = '6.1.22'
 hsqlVersion = '1.8.0.10'
 slf4jVersion = '1.6.1'
 logbackVersion = '0.9.24'
+cglibVersion = '2.2'
 
 bundlorProperties = [
     version: version,

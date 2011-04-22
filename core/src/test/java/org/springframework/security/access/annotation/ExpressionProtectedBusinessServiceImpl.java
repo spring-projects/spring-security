@@ -45,7 +45,7 @@ public class ExpressionProtectedBusinessServiceImpl implements BusinessService {
         return someArray;
     }
 
-    @PreAuthorize("#x == 'x' and number.intValue() == 1294 ")
+    @PreAuthorize("#x == 'x' and @number.intValue() == 1294 ")
     public void methodWithBeanNamePropertyAccessExpression(String x) {
 
     }

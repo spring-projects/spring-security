@@ -20,7 +20,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * @since 3.0
  */
 public class SecurityExpressionRootTests {
-    private final Authentication JOE = new TestingAuthenticationToken("joe", "pass", "A", "B");
+    final static Authentication JOE = new TestingAuthenticationToken("joe", "pass", "A", "B");
 
     @Test
     public void denyAllIsFalsePermitAllTrue() throws Exception {

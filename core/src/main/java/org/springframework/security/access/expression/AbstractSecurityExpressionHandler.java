@@ -2,6 +2,8 @@ package org.springframework.security.access.expression;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.expression.BeanFactoryResolver;
+import org.springframework.expression.BeanResolver;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -21,7 +23,7 @@ import org.springframework.security.core.Authentication;
 public abstract class AbstractSecurityExpressionHandler<T> implements SecurityExpressionHandler<T>, ApplicationContextAware {
     private final AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
     private final ExpressionParser expressionParser = new SpelExpressionParser();
-    private ApplicationContextPropertyAccessor sxrpa = new ApplicationContextPropertyAccessor(null);
+    private BeanResolver br;
     private RoleHierarchy roleHierarchy;
 
     public final ExpressionParser getExpressionParser() {
@@ -42,7 +44,7 @@ public abstract class AbstractSecurityExpressionHandler<T> implements SecurityEx
         root.setTrustResolver(trustResolver);
         root.setRoleHierarchy(roleHierarchy);
         StandardEvaluationContext ctx = createEvaluationContextInternal(authentication, invocation);
-        ctx.addPropertyAccessor(sxrpa);
+        ctx.setBeanResolver(br);
         ctx.setRootObject(root);
 
         return ctx;
@@ -76,6 +78,6 @@ public abstract class AbstractSecurityExpressionHandler<T> implements SecurityEx
     }
 
     public void setApplicationContext(ApplicationContext applicationContext) {
-        sxrpa = new ApplicationContextPropertyAccessor(applicationContext);
+        br = new BeanFactoryResolver(applicationContext);
     }
 }
