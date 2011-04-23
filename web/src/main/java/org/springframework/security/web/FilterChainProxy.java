@@ -23,7 +23,6 @@ import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.util.AnyRequestMatcher;
 import org.springframework.security.web.util.RequestMatcher;
 import org.springframework.security.web.util.UrlUtils;
-import org.springframework.util.Assert;
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -49,21 +48,21 @@ import java.util.*;
  *
  * <h2>Configuration</h2>
  * <p>
- * As of version 3.1, {@code FilterChainProxy} is configured using an ordered Map of {@link RequestMatcher} instances
- * to {@code List}s of {@code Filter}s. The Map instance will normally be created while parsing the namespace
- * configuration, so doesn't have to be set explicitly. Instead the {@code &lt;filter-chain-map&gt;}
- * element should be used within the bean declaration.
- * This in turn should have a list of child {@code &lt;filter-chain&gt;} elements which each define a URI pattern and
- * the list of filters (as comma-separated bean names) which should be applied to requests which match the pattern.
- * The default pattern matching strategy is to use {@link org.springframework.security.web.util.AntPathRequestMatcher
- * Ant-style paths}. An example configuration might look like this:
+ * As of version 3.1, {@code FilterChainProxy} is configured using a list of {@link SecurityFilterChain} instances,
+ * each of which contains a {@link RequestMatcher} and a list of filters which should be applied to matching requests.
+ * Most applications will only contain a single filter chain, and if you are using the namespace, you don't have to
+ * set the chains explicitly. If you require finer-grained control, you can make use of the {@code &lt;filter-chain&gt;}
+ * namespace element. This defines a URI pattern and the list of filters (as comma-separated bean names) which should be
+ * applied to requests which match the pattern. An example configuration might look like this:
  *
  * <pre>
- &lt;bean id="myfilterChainProxy" class="org.springframework.security.util.FilterChjainProxy">
-     &lt;security:filter-chain-map request-matcher="ant">
-         &lt;security:filter-chain pattern="/do/not/filter*" filters="none"/>
-         &lt;security:filter-chain pattern="/**" filters="filter1,filter2,filter3"/>
-     &lt;/security:filter-chain-map>
+ &lt;bean id="myfilterChainProxy" class="org.springframework.security.util.FilterChainProxy">
+     &lt;constructor-arg>
+         &lt;util:list>
+             &lt;security:filter-chain pattern="/do/not/filter*" filters="none"/>
+             &lt;security:filter-chain pattern="/**" filters="filter1,filter2,filter3"/>
+         &lt;/util:list>
+     &lt;/constructor-arg>
  &lt;/bean>
  * </pre>
  *
@@ -126,7 +125,7 @@ public class FilterChainProxy extends GenericFilterBean {
 
     //~ Instance fields ================================================================================================
 
-    private Map<RequestMatcher, List<Filter>> filterChainMap;
+    private List<SecurityFilterChain> filterChains;
 
     private FilterChainValidator filterChainValidator = new NullFilterChainValidator();
 
@@ -134,9 +133,20 @@ public class FilterChainProxy extends GenericFilterBean {
 
     //~ Methods ========================================================================================================
 
+    public FilterChainProxy() {
+    }
+
+    public FilterChainProxy(SecurityFilterChain chain) {
+        this(Arrays.asList(chain));
+    }
+
+    public FilterChainProxy(List<SecurityFilterChain> filterChains) {
+        this.filterChains = filterChains;
+        checkPathOrder();
+    }
+
     @Override
     public void afterPropertiesSet() {
-        Assert.notNull(filterChainMap, "filterChainMap must be set");
         filterChainValidator.validate(this);
     }
 
@@ -172,11 +182,9 @@ public class FilterChainProxy extends GenericFilterBean {
      * @return an ordered array of Filters defining the filter chain
      */
     private List<Filter> getFilters(HttpServletRequest request)  {
-        for (Map.Entry<RequestMatcher, List<Filter>> entry : filterChainMap.entrySet()) {
-            RequestMatcher matcher = entry.getKey();
-
-            if (matcher.matches(request)) {
-                return entry.getValue();
+        for (SecurityFilterChain chain : filterChains) {
+            if (chain.matches(request)) {
+                return chain.getFilters();
             }
         }
 
@@ -204,34 +212,44 @@ public class FilterChainProxy extends GenericFilterBean {
      * example.
      *
      * @param filterChainMap the map of path Strings to {@code List&lt;Filter&gt;}s.
+     * @deprecated Use the constructor which takes a {@code List&lt;SecurityFilterChain&gt;} instead.
      */
-    @SuppressWarnings("unchecked")
-    public void setFilterChainMap(Map filterChainMap) {
-        checkContents(filterChainMap);
-        this.filterChainMap = new LinkedHashMap<RequestMatcher, List<Filter>>(filterChainMap);
+    @Deprecated
+    public void setFilterChainMap(Map<RequestMatcher, List<Filter>> filterChainMap) {
+        filterChains = new ArrayList<SecurityFilterChain>(filterChainMap.size());
+
+        for (Map.Entry<RequestMatcher,List<Filter>> entry : filterChainMap.entrySet()) {
+            filterChains.add(new SecurityFilterChain(entry.getKey(), entry.getValue()));
+        }
+
         checkPathOrder();
     }
 
-    @SuppressWarnings("unchecked")
-    private void checkContents(Map filterChainMap) {
-        for (Object key : filterChainMap.keySet()) {
-            Assert.isInstanceOf(RequestMatcher.class, key, "Path key must be a RequestMatcher but found " + key);
-            Object filters = filterChainMap.get(key);
-            Assert.isInstanceOf(List.class, filters, "Value must be a filter list");
-            // Check the contents
+    /**
+     * Returns a copy of the underlying filter chain map. Modifications to the map contents
+     * will not affect the FilterChainProxy state.
+     *
+     * @return the map of path pattern Strings to filter chain lists (with ordering guaranteed).
+     *
+     * @deprecated use the list of {@link SecurityFilterChain}s instead
+     */
+    @Deprecated
+    public Map<RequestMatcher, List<Filter>> getFilterChainMap() {
+        LinkedHashMap<RequestMatcher, List<Filter>> map =  new LinkedHashMap<RequestMatcher, List<Filter>>();
 
-            for (Object filter : ((List) filters)) {
-                Assert.isInstanceOf(Filter.class, filter, "Objects in filter chain must be of type Filter. ");
-            }
+        for (SecurityFilterChain chain : filterChains) {
+            map.put(chain.getRequestMatcher(), chain.getFilters());
         }
+
+        return map;
     }
 
     private void checkPathOrder() {
         // Check that the universal pattern is listed at the end, if at all
-        Iterator<RequestMatcher> matchers = filterChainMap.keySet().iterator();
+        Iterator<SecurityFilterChain> chains = filterChains.iterator();
 
-        while(matchers.hasNext()) {
-            if ((matchers.next() instanceof AnyRequestMatcher && matchers.hasNext())) {
+        while(chains.hasNext()) {
+            if ((chains.next().getRequestMatcher() instanceof AnyRequestMatcher && chains.hasNext())) {
                 throw new IllegalArgumentException("A universal match pattern ('/**') is defined " +
                         " before other patterns in the filter chain, causing them to be ignored. Please check the " +
                         "ordering in your <security:http> namespace or FilterChainProxy bean configuration");
@@ -240,13 +258,11 @@ public class FilterChainProxy extends GenericFilterBean {
     }
 
     /**
-     * Returns a copy of the underlying filter chain map. Modifications to the map contents
-     * will not affect the FilterChainProxy state - to change the map call {@code setFilterChainMap}.
-     *
-     * @return the map of path pattern Strings to filter chain lists (with ordering guaranteed).
+     * @return the list of {@code SecurityFilterChain}s which will be matched against and
+     *         applied to incoming requests.
      */
-    public Map<RequestMatcher, List<Filter>> getFilterChainMap() {
-        return new LinkedHashMap<RequestMatcher, List<Filter>>(filterChainMap);
+    public List<SecurityFilterChain> getFilterChains() {
+        return Collections.unmodifiableList(filterChains);
     }
 
     /**
@@ -273,7 +289,7 @@ public class FilterChainProxy extends GenericFilterBean {
         StringBuilder sb = new StringBuilder();
         sb.append("FilterChainProxy[");
         sb.append("Filter Chains: ");
-        sb.append(filterChainMap);
+        sb.append(filterChains);
         sb.append("]");
 
         return sb.toString();

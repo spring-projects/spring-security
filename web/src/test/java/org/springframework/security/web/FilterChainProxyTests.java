@@ -35,8 +35,6 @@ public class FilterChainProxyTests {
 
     @Before
     public void setup() throws Exception {
-        fcp = new FilterChainProxy();
-        fcp.setFilterChainValidator(mock(FilterChainProxy.FilterChainValidator.class));
         matcher = mock(RequestMatcher.class);
         filter = mock(Filter.class);
         doAnswer(new Answer() {
@@ -49,9 +47,8 @@ public class FilterChainProxyTests {
                         return null;
                     }
                 }).when(filter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
-        LinkedHashMap map = new LinkedHashMap();
-        map.put(matcher, Arrays.asList(filter));
-        fcp.setFilterChainMap(map);
+        fcp = new FilterChainProxy(new SecurityFilterChain(matcher, Arrays.asList(filter)));
+        fcp.setFilterChainValidator(mock(FilterChainProxy.FilterChainValidator.class));
         request = new MockHttpServletRequest();
         request.setServletPath("/path");
         response = new MockHttpServletResponse();
@@ -68,12 +65,21 @@ public class FilterChainProxyTests {
     public void securityFilterChainIsNotInvokedIfMatchFails() throws Exception {
         when(matcher.matches(any(HttpServletRequest.class))).thenReturn(false);
         fcp.doFilter(request, response, chain);
-        assertEquals(1, fcp.getFilterChainMap().size());
-        assertSame(filter, fcp.getFilterChainMap().get(matcher).get(0));
+        assertEquals(1, fcp.getFilterChains().size());
+        assertSame(filter, fcp.getFilterChains().get(0).getFilters().get(0));
 
         verifyZeroInteractions(filter);
         // The actual filter chain should be invoked though
         verify(chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+    }
+
+    @Test
+    @Deprecated
+    public void filterChainMapIsCorrect() throws Exception {
+        fcp.setFilterChainMap(fcp.getFilterChainMap());
+        Map<RequestMatcher, List<Filter>> filterChainMap = fcp.getFilterChainMap();
+        assertEquals(1, filterChainMap.size());
+        assertSame(filter, filterChainMap.get(matcher).get(0));
     }
 
     @Test
@@ -87,9 +93,8 @@ public class FilterChainProxyTests {
 
     @Test
     public void originalFilterChainIsInvokedIfMatchingSecurityChainIsEmpty() throws Exception {
-        LinkedHashMap map = new LinkedHashMap();
-        map.put(matcher, Collections.emptyList());
-        fcp.setFilterChainMap(map);
+        List<Filter> noFilters = Collections.emptyList();
+        fcp = new FilterChainProxy(new SecurityFilterChain(matcher, noFilters));
 
         when(matcher.matches(any(HttpServletRequest.class))).thenReturn(true);
         fcp.doFilter(request, response, chain);
@@ -132,10 +137,7 @@ public class FilterChainProxyTests {
     @Test
     public void bothWrappersAreResetWithNestedFcps() throws Exception {
         HttpFirewall fw = mock(HttpFirewall.class);
-        FilterChainProxy firstFcp = new FilterChainProxy();
-        LinkedHashMap fcm = new LinkedHashMap();
-        fcm.put(matcher, Arrays.asList(fcp));
-        firstFcp.setFilterChainMap(fcm);
+        FilterChainProxy firstFcp = new FilterChainProxy(new SecurityFilterChain(matcher, fcp));
         firstFcp.setFirewall(fw);
         fcp.setFirewall(fw);
         FirewalledRequest firstFwr = mock(FirewalledRequest.class, "firstFwr");
