@@ -25,6 +25,7 @@ public abstract class BeanIds {
     public static final String METHOD_ACCESS_MANAGER = PREFIX + "defaultMethodAccessManager";
 
     public static final String FILTER_CHAIN_PROXY = PREFIX + "filterChainProxy";
+    public static final String FILTER_CHAINS = PREFIX + "filterChains";
 
     public static final String METHOD_SECURITY_METADATA_SOURCE_ADVISOR = PREFIX + "methodSecurityMetadataSourceAdvisor";
     public static final String EMBEDDED_APACHE_DS = PREFIX + "apacheDirectoryServerContainer";

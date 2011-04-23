@@ -32,7 +32,7 @@ public final class SecurityFilterChain {
 
     public SecurityFilterChain(RequestMatcher requestMatcher, List<Filter> filters) {
         this.requestMatcher = requestMatcher;
-        this.filters = filters;
+        this.filters = new ArrayList<Filter>(filters);
     }
 
     public RequestMatcher getRequestMatcher() {

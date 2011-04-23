@@ -1,10 +1,5 @@
 package org.springframework.security.config.http;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanMetadataElement;
@@ -13,12 +8,10 @@ import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.config.ListFactoryBean;
 import org.springframework.beans.factory.config.MethodInvokingFactoryBean;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
-import org.springframework.beans.factory.config.ConstructorArgumentValues.ValueHolder;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.parsing.CompositeComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
-import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -29,10 +22,13 @@ import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.Elements;
 import org.springframework.security.config.authentication.AuthenticationManagerFactoryBean;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.AnyRequestMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
+
+import java.util.*;
 
 /**
  * Sets up HTTP security: filter stack and protected URLs.
@@ -67,33 +63,29 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
      * By the end of this method, the default <tt>FilterChainProxy</tt> bean should have been registered and will have
      * the map of filter chains defined, with the "universal" match pattern mapped to the list of beans which have been parsed here.
      */
+    @SuppressWarnings({"unchecked"})
     public BeanDefinition parse(Element element, ParserContext pc) {
         CompositeComponentDefinition compositeDef =
             new CompositeComponentDefinition(element.getTagName(), pc.extractSource(element));
         pc.pushContainingComponent(compositeDef);
 
-        MatcherType matcherType = MatcherType.fromElement(element);
-        ManagedMap<BeanDefinition, BeanReference> filterChainMap = new ManagedMap<BeanDefinition, BeanReference>();
+        registerFilterChainProxyIfNecessary(pc, pc.extractSource(element));
 
-        String filterChainPattern = element.getAttribute(ATT_PATH_PATTERN);
+        // Obtain the filter chains and add the new chain to it
+        BeanDefinition listFactoryBean = pc.getRegistry().getBeanDefinition(BeanIds.FILTER_CHAINS);
+        List<BeanReference> filterChains = (List<BeanReference>)
+                listFactoryBean.getPropertyValues().getPropertyValue("sourceList").getValue();
 
-        BeanDefinition filterChainMatcher;
-
-        if (StringUtils.hasText(filterChainPattern)) {
-            filterChainMatcher = matcherType.createMatcher(filterChainPattern, null);
-        } else {
-            filterChainMatcher = new RootBeanDefinition(AnyRequestMatcher.class);
-        }
-
-        filterChainMap.put(filterChainMatcher, createFilterChain(element, pc, matcherType));
-
-        registerFilterChainProxy(pc, filterChainMap, pc.extractSource(element));
+        filterChains.add(createFilterChain(element, pc));
 
         pc.popAndRegisterContainingComponent();
         return null;
     }
 
-    BeanReference createFilterChain(Element element, ParserContext pc, MatcherType matcherType) {
+    /**
+     * Creates the {@code SecurityFilterChain} bean from an &lt;http&gt; element.
+     */
+    private BeanReference createFilterChain(Element element, ParserContext pc) {
         boolean secured = !OPT_SECURITY_NONE.equals(element.getAttribute(ATT_SECURED));
 
         if (!secured) {
@@ -109,7 +101,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 }
             }
 
-            return createFilterListBean(element, pc, Collections.emptyList());
+            return createSecurityFilterChainBean(element, pc, Collections.emptyList());
         }
 
         final String portMapperName = createPortMapper(element, pc);
@@ -117,7 +109,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         ManagedList<BeanReference> authenticationProviders = new ManagedList<BeanReference>();
         BeanReference authenticationManager = createAuthenticationManager(element, pc, authenticationProviders);
 
-        HttpConfigurationBuilder httpBldr = new HttpConfigurationBuilder(element, pc, matcherType,
+        HttpConfigurationBuilder httpBldr = new HttpConfigurationBuilder(element, pc,
                 portMapperName, authenticationManager);
 
         AuthenticationConfigBuilder authBldr = new AuthenticationConfigBuilder(element, pc,
@@ -135,27 +127,41 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         Collections.sort(unorderedFilterChain, new OrderComparator());
         checkFilterChainOrder(unorderedFilterChain, pc, pc.extractSource(element));
 
+        // The list of filter beans
         List<BeanMetadataElement> filterChain = new ManagedList<BeanMetadataElement>();
 
         for (OrderDecorator od : unorderedFilterChain) {
             filterChain.add(od.bean);
         }
 
-        return createFilterListBean(element, pc, filterChain);
+        return createSecurityFilterChainBean(element, pc, filterChain);
     }
 
-    private BeanReference createFilterListBean(Element element, ParserContext pc, List<?> filterChain) {
-        BeanDefinition listFactoryBean = new RootBeanDefinition(ListFactoryBean.class);
+    private BeanReference createSecurityFilterChainBean(Element element, ParserContext pc, List<?> filterChain) {
+        BeanDefinition filterChainMatcher;
+
+        String filterChainPattern = element.getAttribute(ATT_PATH_PATTERN);
+        if (StringUtils.hasText(filterChainPattern)) {
+            filterChainMatcher = MatcherType.fromElement(element).createMatcher(filterChainPattern, null);
+        } else {
+            filterChainMatcher = new RootBeanDefinition(AnyRequestMatcher.class);
+        }
+
+        BeanDefinitionBuilder filterChainBldr = BeanDefinitionBuilder.rootBeanDefinition(SecurityFilterChain.class);
+        filterChainBldr.addConstructorArgValue(filterChainMatcher);
+        filterChainBldr.addConstructorArgValue(filterChain);
+
+        BeanDefinition filterChainBean = filterChainBldr.getBeanDefinition();
 
         String id = element.getAttribute("name");
         if (!StringUtils.hasText(id)) {
             id = element.getAttribute("id");
             if (!StringUtils.hasText(id)) {
-                id = pc.getReaderContext().generateBeanName(listFactoryBean);
+                id = pc.getReaderContext().generateBeanName(filterChainBean);
             }
         }
-        listFactoryBean.getPropertyValues().add("sourceList", filterChain);
-        pc.registerBeanComponent(new BeanComponentDefinition(listFactoryBean, id));
+
+        pc.registerBeanComponent(new BeanComponentDefinition(filterChainBean, id));
 
         return new RuntimeBeanReference(id);
     }
@@ -262,35 +268,22 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         return customFilters;
     }
 
-    @SuppressWarnings("unchecked")
-    static void registerFilterChainProxy(ParserContext pc, Map<BeanDefinition, BeanReference> filterChainMap, Object source) {
+    static void registerFilterChainProxyIfNecessary(ParserContext pc, Object source) {
         if (pc.getRegistry().containsBeanDefinition(BeanIds.FILTER_CHAIN_PROXY)) {
-            // Already registered. Obtain the filter chain map and add the new entries to it
-
-            BeanDefinition fcp = pc.getRegistry().getBeanDefinition(BeanIds.FILTER_CHAIN_PROXY);
-            Map existingFilterChainMap = (Map) fcp.getPropertyValues().getPropertyValue("filterChainMap").getValue();
-
-            for (BeanDefinition matcherBean : filterChainMap.keySet()) {
-                if (existingFilterChainMap.containsKey(matcherBean)) {
-                    Map<Integer,ValueHolder> args = matcherBean.getConstructorArgumentValues().getIndexedArgumentValues();
-                    String matcherError = args.size() == 2 ? args.get(0).getValue() + ", " +args.get(1).getValue() :
-                            matcherBean.toString();
-                    pc.getReaderContext().error("The filter chain map already contains this request matcher ["
-                            + matcherError + "]. If you are using multiple <http> namespace elements, you must use a 'pattern' attribute" +
-                            " to define the request patterns to which they apply.", source);
-                }
-            }
-            existingFilterChainMap.putAll(filterChainMap);
-        } else {
-            // Not already registered, so register it
-            BeanDefinitionBuilder fcpBldr = BeanDefinitionBuilder.rootBeanDefinition(FilterChainProxy.class);
-            fcpBldr.getRawBeanDefinition().setSource(source);
-            fcpBldr.addPropertyValue("filterChainMap", filterChainMap);
-            fcpBldr.addPropertyValue("filterChainValidator", new RootBeanDefinition(DefaultFilterChainValidator.class));
-            BeanDefinition fcpBean = fcpBldr.getBeanDefinition();
-            pc.registerBeanComponent(new BeanComponentDefinition(fcpBean, BeanIds.FILTER_CHAIN_PROXY));
-            pc.getRegistry().registerAlias(BeanIds.FILTER_CHAIN_PROXY, BeanIds.SPRING_SECURITY_FILTER_CHAIN);
+            return;
         }
+        // Not already registered, so register the list of filter chains and the FilterChainProxy
+        BeanDefinition listFactoryBean = new RootBeanDefinition(ListFactoryBean.class);
+        listFactoryBean.getPropertyValues().add("sourceList", new ManagedList());
+        pc.registerBeanComponent(new BeanComponentDefinition(listFactoryBean, BeanIds.FILTER_CHAINS));
+
+        BeanDefinitionBuilder fcpBldr = BeanDefinitionBuilder.rootBeanDefinition(FilterChainProxy.class);
+        fcpBldr.getRawBeanDefinition().setSource(source);
+        fcpBldr.addConstructorArgReference(BeanIds.FILTER_CHAINS);
+        fcpBldr.addPropertyValue("filterChainValidator", new RootBeanDefinition(DefaultFilterChainValidator.class));
+        BeanDefinition fcpBean = fcpBldr.getBeanDefinition();
+        pc.registerBeanComponent(new BeanComponentDefinition(fcpBean, BeanIds.FILTER_CHAIN_PROXY));
+        pc.getRegistry().registerAlias(BeanIds.FILTER_CHAIN_PROXY, BeanIds.SPRING_SECURITY_FILTER_CHAIN);
     }
 
 }

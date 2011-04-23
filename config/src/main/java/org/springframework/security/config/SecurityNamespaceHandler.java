@@ -1,8 +1,5 @@
 package org.springframework.security.config;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -15,6 +12,7 @@ import org.springframework.security.config.authentication.AuthenticationManagerB
 import org.springframework.security.config.authentication.AuthenticationProviderBeanDefinitionParser;
 import org.springframework.security.config.authentication.JdbcUserServiceBeanDefinitionParser;
 import org.springframework.security.config.authentication.UserServiceBeanDefinitionParser;
+import org.springframework.security.config.http.FilterChainBeanDefinitionParser;
 import org.springframework.security.config.http.FilterChainMapBeanDefinitionDecorator;
 import org.springframework.security.config.http.FilterInvocationSecurityMetadataSourceParser;
 import org.springframework.security.config.http.HttpFirewallBeanDefinitionParser;
@@ -29,6 +27,8 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.ClassUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import java.util.*;
 
 /**
  * Parses elements from the "security" namespace (http://www.springframework.org/schema/security).
@@ -76,7 +76,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 
         if (parser == null) {
             if (Elements.HTTP.equals(name) || Elements.FILTER_SECURITY_METADATA_SOURCE.equals(name) ||
-                    Elements.FILTER_CHAIN_MAP.equals(name)) {
+                    Elements.FILTER_CHAIN_MAP.equals(name) || Elements.FILTER_CHAIN.equals(name)) {
                 reportMissingWebClasses(name, pc, element);
             } else {
                 reportUnsupportedNodeType(name, pc, element);
@@ -147,6 +147,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
             parsers.put(Elements.HTTP_FIREWALL, new HttpFirewallBeanDefinitionParser());
             parsers.put(Elements.FILTER_INVOCATION_DEFINITION_SOURCE, new FilterInvocationSecurityMetadataSourceParser());
             parsers.put(Elements.FILTER_SECURITY_METADATA_SOURCE, new FilterInvocationSecurityMetadataSourceParser());
+            parsers.put(Elements.FILTER_CHAIN, new FilterChainBeanDefinitionParser());
             filterChainMapBDD = new FilterChainMapBeanDefinitionDecorator();
         }
     }

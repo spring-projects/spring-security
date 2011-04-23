@@ -43,11 +43,19 @@ public class InvalidConfigurationTests {
         try {
             setContext("<http auto-config='true' />");
         } catch (BeanCreationException e) {
-            assertTrue(e.getCause().getCause() instanceof NoSuchBeanDefinitionException);
-            NoSuchBeanDefinitionException nsbe = (NoSuchBeanDefinitionException) e.getCause().getCause();
+            Throwable cause = ultimateCause(e);
+            assertTrue(cause instanceof NoSuchBeanDefinitionException);
+            NoSuchBeanDefinitionException nsbe = (NoSuchBeanDefinitionException) cause;
             assertEquals(BeanIds.AUTHENTICATION_MANAGER, nsbe.getBeanName());
             assertTrue(nsbe.getMessage().endsWith(AuthenticationManagerFactoryBean.MISSING_BEAN_ERROR_MESSAGE));
         }
+    }
+
+    private Throwable ultimateCause(Throwable e) {
+        if (e.getCause() == null) {
+            return e;
+        }
+        return ultimateCause(e.getCause());
     }
 
     private void setContext(String context) {

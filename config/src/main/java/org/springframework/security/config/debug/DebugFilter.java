@@ -1,7 +1,7 @@
 package org.springframework.security.config.debug;
 
 import org.springframework.security.web.FilterChainProxy;
-import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -13,8 +13,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Spring Security debugging filter.
@@ -28,12 +27,10 @@ import java.util.Map;
  */
 class DebugFilter extends OncePerRequestFilter {
     private final FilterChainProxy fcp;
-    private final Map<RequestMatcher, List<Filter>> filterChainMap;
     private final Logger logger = new Logger();
 
     public DebugFilter(FilterChainProxy fcp) {
         this.fcp = fcp;
-        this.filterChainMap = fcp.getFilterChainMap();
     }
 
     @Override
@@ -67,11 +64,9 @@ class DebugFilter extends OncePerRequestFilter {
     }
 
     private List<Filter> getFilters(HttpServletRequest request)  {
-        for (Map.Entry<RequestMatcher, List<Filter>> entry : filterChainMap.entrySet()) {
-            RequestMatcher matcher = entry.getKey();
-
-            if (matcher.matches(request)) {
-                return entry.getValue();
+        for (SecurityFilterChain chain : fcp.getFilterChains()) {
+            if (chain.matches(request)) {
+                return chain.getFilters();
             }
         }
 

@@ -95,13 +95,13 @@ class HttpConfigurationBuilder {
     private BeanReference fsi;
     private BeanReference requestCache;
 
-    public HttpConfigurationBuilder(Element element, ParserContext pc, MatcherType matcherType,
+    public HttpConfigurationBuilder(Element element, ParserContext pc,
             String portMapperName, BeanReference authenticationManager) {
 
         this.httpElt = element;
         this.pc = pc;
         this.portMapperName = portMapperName;
-        this.matcherType = matcherType;
+        this.matcherType = MatcherType.fromElement(element);
         interceptUrls = DomUtils.getChildElementsByTagName(element, Elements.INTERCEPT_URL);
 
         for (Element urlElt : interceptUrls) {
@@ -339,7 +339,7 @@ class HttpConfigurationBuilder {
             servApiFilter = new RootBeanDefinition(SecurityContextHolderAwareRequestFilter.class);
         }
     }
-    
+
     // Adds the jaas-api integration filter if required
     private void createJaasApiFilter() {
         final String ATT_JAAS_API_PROVISION = "jaas-api-provision";
@@ -354,7 +354,7 @@ class HttpConfigurationBuilder {
             jaasApiFilter = new RootBeanDefinition(JaasApiIntegrationFilter.class);
         }
     }
-    
+
     private void createChannelProcessingFilter() {
         ManagedMap<BeanDefinition,BeanDefinition> channelRequestMap = parseInterceptUrlsForChannelSecurity();
 
@@ -534,7 +534,7 @@ class HttpConfigurationBuilder {
         if (jaasApiFilter != null) {
             filters.add(new OrderDecorator(jaasApiFilter, JAAS_API_SUPPORT_FILTER));
         }
-        
+
         if (sfpf != null) {
             filters.add(new OrderDecorator(sfpf, SESSION_MANAGEMENT_FILTER));
         }

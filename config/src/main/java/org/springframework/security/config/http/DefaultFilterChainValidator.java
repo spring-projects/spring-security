@@ -1,7 +1,6 @@
 package org.springframework.security.config.http;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import javax.servlet.Filter;
 
@@ -12,6 +11,7 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
@@ -29,9 +29,23 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
     private final Log logger = LogFactory.getLog(getClass());
 
     public void validate(FilterChainProxy fcp) {
-        for(List<Filter> filters : fcp.getFilterChainMap().values()) {
-            checkLoginPageIsntProtected(fcp, filters);
-            checkFilterStack(filters);
+        for(SecurityFilterChain filterChain : fcp.getFilterChains()) {
+            checkLoginPageIsntProtected(fcp, filterChain.getFilters());
+            checkFilterStack(filterChain.getFilters());
+        }
+
+        checkForDuplicateMatchers(new ArrayList<SecurityFilterChain>(fcp.getFilterChains()));
+    }
+
+    private void checkForDuplicateMatchers(List<SecurityFilterChain> chains) {
+        SecurityFilterChain chain = chains.remove(0);
+
+        for (SecurityFilterChain test : chains) {
+            if (chain.getRequestMatcher().equals(test.getRequestMatcher())) {
+                throw new IllegalArgumentException("The FilterChainProxy contains two filter chains using the" +
+                        " matcher " + chain.getRequestMatcher() + ". If you are using multiple <http> namespace " +
+                        "elements, you must use a 'pattern' attribute to define the request patterns to which they apply.");
+            }
         }
     }
 

@@ -4,6 +4,8 @@ import org.springframework.beans.factory.parsing.BeanDefinitionParsingException
 import org.springframework.security.config.BeanIds
 import org.springframework.security.web.FilterChainProxy
 import org.junit.Assert
+import org.springframework.beans.factory.BeanCreationException
+import org.springframework.security.web.SecurityFilterChain
 
 /**
  * Tests scenarios with multiple &lt;http&gt; elements.
@@ -22,11 +24,11 @@ class MultiHttpBlockConfigTests extends AbstractHttpConfigTests {
         }
         createAppContext()
         FilterChainProxy fcp = appContext.getBean(BeanIds.FILTER_CHAIN_PROXY)
-        Map filterChains = fcp.getFilterChainMap();
+        def filterChains = fcp.getFilterChains();
 
         then:
         filterChains.size() == 2
-        (filterChains.keySet() as List)[0].pattern == '/stateless/**'
+        filterChains[0].requestMatcher.pattern == '/stateless/**'
     }
 
     def duplicateHttpElementsAreRejected () {
@@ -39,7 +41,8 @@ class MultiHttpBlockConfigTests extends AbstractHttpConfigTests {
         }
         createAppContext()
         then:
-        thrown(BeanDefinitionParsingException)
+        BeanCreationException e = thrown()
+        e.cause.cause instanceof IllegalArgumentException
     }
 
   def duplicatePatternsAreRejected () {
@@ -52,7 +55,8 @@ class MultiHttpBlockConfigTests extends AbstractHttpConfigTests {
       }
       createAppContext()
       then:
-      thrown(BeanDefinitionParsingException)
+      BeanCreationException e = thrown()
+      e.cause instanceof IllegalArgumentException
   }
 
 
@@ -64,9 +68,8 @@ class MultiHttpBlockConfigTests extends AbstractHttpConfigTests {
             'form-login'()
         }
         createAppContext()
-        def fcp = appContext.getBean(BeanIds.FILTER_CHAIN_PROXY)
-        List filterChains = fcp.getFilterChainMap().values() as List;
-        List basicChain = filterChains[0];
+        FilterChainProxy fcp = appContext.getBean(BeanIds.FILTER_CHAIN_PROXY)
+        SecurityFilterChain basicChain = fcp.filterChains[0];
 
         expect:
         Assert.assertSame (basicChain, appContext.getBean('basic'))

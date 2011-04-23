@@ -974,11 +974,7 @@
       <xs:documentation>Used to explicitly configure a FilterChainProxy instance with a FilterChainMap</xs:documentation>
     </xs:annotation><xs:complexType>
       <xs:sequence>
-        <xs:element maxOccurs="unbounded" name="filter-chain"><xs:annotation>
-      <xs:documentation>Used within filter-chain-map to define a specific URL pattern and the list of filters which apply to the URLs matching that pattern. When multiple filter-chain elements are used within a filter-chain-map element, the most specific patterns must be placed at the top of the list, with  most general ones at the bottom.</xs:documentation>
-    </xs:annotation><xs:complexType>
-      <xs:attributeGroup ref="security:filter-chain.attlist"/>
-    </xs:complexType></xs:element>
+        <xs:element maxOccurs="unbounded" ref="security:filter-chain"/>
       </xs:sequence>
       <xs:attributeGroup ref="security:filter-chain-map.attlist"/>
     </xs:complexType></xs:element>
@@ -1004,7 +1000,11 @@
       </xs:simpleType>
     </xs:attribute>
   </xs:attributeGroup>
-  
+  <xs:element name="filter-chain"><xs:annotation>
+      <xs:documentation>Used within to define a specific URL pattern and the list of filters which apply to the URLs matching that pattern. When multiple filter-chain elements are assembled in a list in order to configure a FilterChainProxy, the most specific patterns must be placed at the top of the list, with  most general ones at the bottom.</xs:documentation>
+    </xs:annotation><xs:complexType>
+      <xs:attributeGroup ref="security:filter-chain.attlist"/>
+    </xs:complexType></xs:element>
   <xs:attributeGroup name="filter-chain.attlist">
     <xs:attribute name="pattern" use="required" type="xs:token"/>
     <xs:attribute name="filters" use="required" type="xs:token"/>

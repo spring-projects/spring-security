@@ -14,4 +14,13 @@ public final class AnyRequestMatcher implements RequestMatcher {
         return true;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof AnyRequestMatcher;
+    }
+
+    @Override
+    public int hashCode() {
+        return 1;
+    }
 }

@@ -34,6 +34,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
@@ -109,10 +110,10 @@ public class FilterChainProxyConfigTests {
     public void mixingPatternsAndPlaceholdersDoesntCauseOrderingIssues() throws Exception {
         FilterChainProxy fcp = appCtx.getBean("sec1235FilterChainProxy", FilterChainProxy.class);
 
-        RequestMatcher[] matchers = fcp.getFilterChainMap().keySet().toArray(new RequestMatcher[fcp.getFilterChainMap().keySet().size()]);
-        assertEquals("/login*", ((AntPathRequestMatcher)matchers[0]).getPattern());
-        assertEquals("/logout", ((AntPathRequestMatcher)matchers[1]).getPattern());
-        assertTrue(matchers[2] instanceof AnyRequestMatcher);
+        List<SecurityFilterChain> chains = fcp.getFilterChains();
+        assertEquals("/login*", ((AntPathRequestMatcher)chains.get(0).getRequestMatcher()).getPattern());
+        assertEquals("/logout", ((AntPathRequestMatcher)chains.get(1).getRequestMatcher()).getPattern());
+        assertTrue(chains.get(2).getRequestMatcher() instanceof AnyRequestMatcher);
     }
 
     private void checkPathAndFilterOrder(FilterChainProxy filterChainProxy) throws Exception {
