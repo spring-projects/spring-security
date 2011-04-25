@@ -63,32 +63,39 @@
             <quote>filterChainProxy</quote>. The filter chain is then declared in the application
             context with the same bean name. Here's an example: <programlisting language="xml"><![CDATA[
 <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
-  <sec:filter-chain-map path-type="ant">
-     <sec:filter-chain pattern="/restful/**" filters="
+  <constructor-arg>
+    <list>
+      <sec:filter-chain pattern="/restful/**" filters="
            securityContextPersistenceFilterWithASCFalse,
            basicAuthenticationFilter,
            exceptionTranslationFilter,
            filterSecurityInterceptor" />
-     <sec:filter-chain pattern="/**" filters="
+      <sec:filter-chain pattern="/**" filters="
            securityContextPersistenceFilterWithASCTrue,
            formLoginFilter,
            exceptionTranslationFilter,
            filterSecurityInterceptor" />
-  </sec:filter-chain-map>
+    </list>
+  </constructor-arg>
 </bean>
 ]]>
-            </programlisting> The namespace element <literal>filter-chain-map</literal> is used for convenience
-            to set up the security filter chain(s) which are required within the application<footnote>
-            <para>Note that you'll need to include the security namespace in your application
-                context XML file in order to use this syntax.</para>
-            </footnote>. It maps a particular URL pattern to a chain of filters built up from the
-            bean names specified in the <literal>filters</literal> element. Both regular expressions
-            and Ant Paths are supported, and the most specific URIs appear first. At runtime the
-            <classname>FilterChainProxy</classname> will locate the first URI pattern that matches
-            the current web request and the list of filter beans specified by the
-            <literal>filters</literal> attribute will be applied to that request. The filters will
-            be invoked in the order they are defined, so you have complete control over the filter
-            chain which is applied to a particular URL.</para>
+            </programlisting> The namespace element <literal>filter-chain</literal> is used for convenience
+            to set up the security filter chain(s) which are required within the application.
+            <footnote><para>Note that you'll need to include the security namespace in your application
+                context XML file in order to use this syntax. The older syntax which used a
+                <literal>filter-chain-map</literal> is still supported, but is deprecated in favour of
+                the constructor argument injection.</para>
+            </footnote>. It maps a particular URL pattern to a list of filters built up from the
+            bean names specified in the <literal>filters</literal> element, and combines them in
+            a bean of type <classname>SecurityFilterChain</classname>. The <literal>pattern</literal>
+            attribute takes an Ant Paths and the most specific URIs should appear first
+            <footnote><para>Instead of a path pattern, the <literal>request-matcher-ref</literal> attribute
+            can be used to specify a <interfacename>RequestMatcher</interfacename> instance for more powerful
+            matching</para></footnote>. At runtime the <classname>FilterChainProxy</classname> will
+            locate the first URI pattern that matches the current web request and the list of filter beans
+            specified by the <literal>filters</literal> attribute will be applied to that request.
+            The filters will be invoked in the order they are defined, so you have complete control
+            over the filter chain which is applied to a particular URL.</para>
         <para>You may have noticed we have declared two
             <classname>SecurityContextPersistenceFilter</classname>s in the filter chain
             (<literal>ASC</literal> is short for <literal>allowSessionCreation</literal>, a property
@@ -158,11 +165,11 @@
                     <literal>HttpServletRequestWrapper</literal> into your servlet container</para>
             </listitem>
             <listitem>
-                <para>The <classname>JaasApiIntegrationFilter</classname>, if a 
-                    <classname>JaasAuthenticationToken</classname> is in the 
-                    <classname>SecurityContextHolder</classname> this will process the 
-                    <classname>FilterChain</classname> as the <classname>Subject</classname> in the 
-                    <classname>JaasAuthenticationToken</classname></para> 
+                <para>The <classname>JaasApiIntegrationFilter</classname>, if a
+                    <classname>JaasAuthenticationToken</classname> is in the
+                    <classname>SecurityContextHolder</classname> this will process the
+                    <classname>FilterChain</classname> as the <classname>Subject</classname> in the
+                    <classname>JaasAuthenticationToken</classname></para>
             </listitem>
             <listitem>
                 <para><classname>RememberMeAuthenticationFilter</classname>, so that if no earlier

@@ -36,8 +36,8 @@
         <para>The <classname>FilterSecurityInterceptor</classname> can be configured with
             configuration attributes in two ways. The first, which is shown above, is using the
             <literal>&lt;filter-security-metadata-source&gt;</literal> namespace element. This is
-            similar to the <literal>&lt;filter-chain-map&gt;</literal> used to configure a
-            <classname>FilterChainProxy</classname> but the <literal>&lt;intercept-url&gt;</literal>
+            similar to the <literal>&lt;http&gt;</literal> element from the namespace chapter
+            but the <literal>&lt;intercept-url&gt;</literal>
             child elements only use the <literal>pattern</literal> and <literal>access</literal>
             attributes. Commas are used to delimit the different configuration attributes that apply
             to each HTTP URL. The second option is to write your own

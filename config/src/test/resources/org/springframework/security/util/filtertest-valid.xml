@@ -53,11 +53,11 @@
 
     <bean id="filterChain" class="org.springframework.security.web.FilterChainProxy">
         <constructor-arg>
-           <util:list>
+           <list>
                <sec:filter-chain request-matcher-ref="fooMatcher" filters="mockFilter"/>
                <sec:filter-chain pattern="/some/other/path/**" filters="mockFilter"/>
                <sec:filter-chain pattern="/do/not/filter" filters="none"/>
-           </util:list>
+           </list>
         </constructor-arg>
     </bean>
 
