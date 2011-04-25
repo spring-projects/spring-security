@@ -446,7 +446,7 @@ filter-chain =
     ## Used within to define a specific URL pattern and the list of filters which apply to the URLs matching that pattern. When multiple filter-chain elements are assembled in a list in order to configure a FilterChainProxy, the most specific patterns must be placed at the top of the list, with  most general ones at the bottom.
     element filter-chain {filter-chain.attlist, empty}
 filter-chain.attlist &=
-    attribute pattern {xsd:token}
+    (attribute pattern {xsd:token} | attribute request-matcher-ref {xsd:token})
 filter-chain.attlist &=
     attribute filters {xsd:token}
 

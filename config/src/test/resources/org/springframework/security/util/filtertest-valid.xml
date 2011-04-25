@@ -47,10 +47,14 @@
 
     <bean id="mockNotAFilter" class="org.springframework.security.web.util.AnyRequestMatcher"/>
 
+    <bean id="fooMatcher" class="org.springframework.security.web.util.AntPathRequestMatcher">
+        <constructor-arg value="/foo/**"/>
+    </bean>
+
     <bean id="filterChain" class="org.springframework.security.web.FilterChainProxy">
         <constructor-arg>
            <util:list>
-               <sec:filter-chain pattern="/foo/**" filters="mockFilter"/>
+               <sec:filter-chain request-matcher-ref="fooMatcher" filters="mockFilter"/>
                <sec:filter-chain pattern="/some/other/path/**" filters="mockFilter"/>
                <sec:filter-chain pattern="/do/not/filter" filters="none"/>
            </util:list>
@@ -121,11 +125,7 @@
         <constructor-arg>
             <list>
                 <bean class="org.springframework.security.web.SecurityFilterChain">
-                    <constructor-arg>
-                        <bean class="org.springframework.security.web.util.AntPathRequestMatcher">
-                            <constructor-arg value="/foo/**"/>
-                        </bean>
-                    </constructor-arg>
+                    <constructor-arg ref="fooMatcher"/>
                     <constructor-arg>
                         <list>
                           <ref local="mockFilter"/>

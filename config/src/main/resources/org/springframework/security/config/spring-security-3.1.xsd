@@ -1006,7 +1006,8 @@
       <xs:attributeGroup ref="security:filter-chain.attlist"/>
     </xs:complexType></xs:element>
   <xs:attributeGroup name="filter-chain.attlist">
-    <xs:attribute name="pattern" use="required" type="xs:token"/>
+    <xs:attribute name="pattern" type="xs:token"/>
+    <xs:attribute name="request-matcher-ref" type="xs:token"/>
     <xs:attribute name="filters" use="required" type="xs:token"/>
   </xs:attributeGroup>
   <xs:element name="filter-security-metadata-source"><xs:annotation>
