@@ -12,7 +12,7 @@
 
     <sec:http use-expressions="true">
         <!-- Slip in a bean property name EL test -->
-        <sec:intercept-url pattern="/**" access="fsi.getAccessDecisionManager() eq accessDecisionManager" />
+        <sec:intercept-url pattern="/**" access="@fsi.getAccessDecisionManager() eq @accessDecisionManager" />
         <sec:form-login />
         <sec:custom-filter ref="fsi" after="FILTER_SECURITY_INTERCEPTOR " />
     </sec:http>
