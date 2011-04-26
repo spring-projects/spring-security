@@ -223,13 +223,6 @@
                 <para>The class <classname>PasswordComparisonAuthenticator</classname> implements
                     the password comparison authentication strategy.</para>
             </section>
-            <section xml:id="ldap-ldap-authenticators-active-directory">
-                <info>
-                    <title>Active Directory Authentication</title>
-                </info>
-                <para>In addition to standard LDAP authentication (binding with a DN), Active
-                    Directory has its own non-standard syntax for user authentication.</para>
-            </section>
         </section>
         <section xml:id="ldap-context-source">
             <info>
@@ -374,6 +367,57 @@ public interface UserDetailsContextMapper {
                 otherwise the data will be read using the standard context obtained from the
                 configured <interfacename>ContextSource</interfacename> (when a search is configured
                 to locate the user, this will be the data returned by the search object). </para>
+        </section>
+    </section>
+    <section xml:id="ldap-active-directory">
+        <title>Active Directory Authentication</title>
+        <para>Active Directory supports its own non-standard authentication options, and the normal usage pattern
+            doesn't fit too cleanly with the standard <classname>LdapAuthenticationProvider</classname>.
+            Typically authentication is performed using the domain username (in the form <literal>user@domain</literal>),
+            rather than using an LDAP distinguished name. To make this easier, Spring Security 3.1 has an
+            authentication provider which is customized for a typical Active Directory setup.
+        </para>
+        <section>
+            <title><classname>ActiveDirectoryLdapAuthenticationProvider</classname></title>
+            <para> Configuring <classname>ActiveDirectoryLdapAuthenticationProvider</classname> is
+                quite straightforward. You just need to supply the domain name and an LDAP URL
+                supplying the address of the server <footnote>
+                <para>It is also possible to obtain the server's IP address using a DNS lookup. This
+                    is not currently supported, but hopefully will be in a future version.</para>
+                </footnote>. An example configuration would then look like this: <programlisting language="xml"><![CDATA[
+<bean id="adAuthenticationProvider"
+  class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
+    <constructor-arg value="mydomain.com" />
+    <constructor-arg value="ldap://adserver.mydomain.com/" />
+</bean>
+}]]>
+                </programlisting> Note that there is no need to specify a separate
+                <literal>ContextSource</literal> in order to define the server location - the bean
+                is completely self-contained. A user named <quote>Sharon</quote>, for example, would
+                then be able to authenticate by entering either the username
+                <literal>sharon</literal> or the full Active Directory
+                <literal>userPrincipalName</literal>, namely <literal>sharon@mydomain.com</literal>.
+                The user's directory entry will then be located, and the attributes returned for
+                possible use in customizing the created <interfacename>UserDetails</interfacename>
+                object (a <interfacename>UserDetailsContextMapper</interfacename> can be injected
+                for this purpose, as described above). All interaction with the directory takes
+                place with the identity of the user themselves. There is no concept of a
+                <quote>manager</quote> user. </para>
+            <para>By default, the user authorities are obtained from the <literal>memberOf</literal>
+                attribute values of the user entry. The authorities allocated to the user can again
+                be customized using a <interfacename>UserDetailsContextMapper</interfacename>. You
+                can also inject a <interfacename>GrantedAuthoritiesMaper</interfacename> into the
+                provider instance to control the authorities which end up in the
+                <interfacename>Authentication</interfacename> object.</para>
+            <section>
+                <title>Active Directory Error Codes</title>
+                <para>By default, a failed result will cause a standard Spring Security
+                    <classname>BadCredentialsException</classname>. If you set the property
+                    <literal>convertSubErrorCodesToExceptions</literal> to <literal>true</literal>,
+                    the exception messages will be parsed to attempt to extract the Active
+                    Directory-specific error code and raise a more specific exception. Check the
+                    class Javadoc for more information.</para>
+            </section>
         </section>
     </section>
 </chapter>

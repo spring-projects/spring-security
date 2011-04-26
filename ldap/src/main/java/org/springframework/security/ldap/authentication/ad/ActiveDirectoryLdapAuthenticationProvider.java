@@ -96,9 +96,10 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
      * @param url an LDAP url (or multiple URLs)
      */
     public ActiveDirectoryLdapAuthenticationProvider(String domain, String url) {
-        Assert.isTrue(StringUtils.hasText(domain) || StringUtils.hasText(url), "Domain and url cannot both be empty");
+        Assert.isTrue(StringUtils.hasText(url), "Url cannot be empty");
         this.domain = StringUtils.hasText(domain) ? domain.toLowerCase() : null;
-        this.url = StringUtils.hasText(url) ? url : null;
+        //this.url = StringUtils.hasText(url) ? url : null;
+        this.url = url;
         rootDn = this.domain == null ? null : rootDnFromDomain(this.domain);
     }
 
