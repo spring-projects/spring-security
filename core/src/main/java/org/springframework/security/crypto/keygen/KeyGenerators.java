@@ -44,7 +44,7 @@ public class KeyGenerators {
      * @param keyLength the key length in bytes, e.g. 16, for a 16 byte key.
      */
     public static BytesKeyGenerator shared(int keyLength) {
-        return new SharedKeyGenerator(secureRandom(16).generateKey());
+        return new SharedKeyGenerator(secureRandom(keyLength).generateKey());
     }
 
     /**

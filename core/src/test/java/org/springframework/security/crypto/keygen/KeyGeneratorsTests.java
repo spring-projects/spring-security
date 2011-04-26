@@ -1,7 +1,6 @@
 package org.springframework.security.crypto.keygen;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 import java.util.Arrays;
 
@@ -22,12 +21,22 @@ public class KeyGeneratorsTests {
 
     @Test
     public void secureRandomCustomLength() {
-        BytesKeyGenerator keyGenerator = KeyGenerators.secureRandom(16);
-        assertEquals(16, keyGenerator.getKeyLength());
+        BytesKeyGenerator keyGenerator = KeyGenerators.secureRandom(21);
+        assertEquals(21, keyGenerator.getKeyLength());
         byte[] key = keyGenerator.generateKey();
-        assertEquals(16, key.length);
+        assertEquals(21, key.length);
         byte[] key2 = keyGenerator.generateKey();
         assertFalse(Arrays.equals(key, key2));
+    }
+
+    @Test
+    public void shared() throws Exception {
+        BytesKeyGenerator keyGenerator = KeyGenerators.shared(21);
+        assertEquals(21, keyGenerator.getKeyLength());
+        byte[] key = keyGenerator.generateKey();
+        assertEquals(21, key.length);
+        byte[] key2 = keyGenerator.generateKey();
+        assertTrue(Arrays.equals(key, key2));
     }
 
     @Test
