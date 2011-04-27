@@ -3,15 +3,9 @@ package org.springframework.security.openid;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
-import static org.powermock.api.mockito.PowerMockito.*;
-
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.junit.*;
-import org.junit.runner.RunWith;
-
 import org.openid4java.association.AssociationException;
 import org.openid4java.consumer.ConsumerException;
 import org.openid4java.consumer.ConsumerManager;
@@ -25,20 +19,13 @@ import org.openid4java.message.MessageException;
 import org.openid4java.message.ParameterList;
 import org.openid4java.message.ax.AxMessage;
 import org.openid4java.message.ax.FetchResponse;
-
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import java.util.*;
 
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 /**
  * @author Luke Taylor
- * @author Rob Winch
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(MultiThreadedHttpConnectionManager.class)
 public class OpenID4JavaConsumerTests {
     List<OpenIDAttribute> attributes = Arrays.asList(new OpenIDAttribute("a","b"), new OpenIDAttribute("b","b", Arrays.asList("c")));
 
@@ -210,24 +197,4 @@ public class OpenID4JavaConsumerTests {
         new OpenID4JavaConsumer(attributes);
     }
 
-    @Test
-    public void destroyInvokesShutdownAll() throws Exception {
-        mockStatic(MultiThreadedHttpConnectionManager.class);
-        new OpenID4JavaConsumer().destroy();
-
-        verifyStatic();
-        MultiThreadedHttpConnectionManager.shutdownAll();
-    }
-
-    @Test
-    public void destroyOverrideShutdownAll() throws Exception {
-        mockStatic(MultiThreadedHttpConnectionManager.class);
-        OpenID4JavaConsumer consumer = new OpenID4JavaConsumer();
-        consumer.setSkipShutdownConnectionManager(true);
-
-        consumer.destroy();
-
-        verifyStatic(never());
-        MultiThreadedHttpConnectionManager.shutdownAll();
-    }
 }
