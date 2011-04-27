@@ -75,5 +75,5 @@ task uploadDist(type: S3DistroUpload) {
 apply from: "$rootDir/gradle/ide-integration.gradle"
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.0-milestone-1'
+    gradleVersion = '1.0-milestone-3'
 }

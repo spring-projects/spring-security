@@ -61,11 +61,16 @@ uploadArchives {
 installer = install.repositories.mavenInstaller
 
 def optionalDeps = ['ehcache', 'log4j', 'apacheds-core', 'jsp-api', 'jsr250-api', 'ldapsdk']
-def clogging = new org.apache.maven.model.Dependency()
-clogging.artifactId = clogging.groupId = "commons-logging"
-clogging.scope = 'compile'
-clogging.optional = true
-clogging.version = '1.1.1'
+
+// Workaround for GRADLE-1497
+def cloggingDep(Class cl) {
+    clogging = cl.newInstance()
+    clogging.artifactId = clogging.groupId = "commons-logging"
+    clogging.scope = 'compile'
+    clogging.optional = true
+    clogging.version = '1.1.1'
+    clogging
+}
 
 [installer, deployer]*.pom.collect { pom ->
     pom.scopeMappings.addMapping(10, configurations.provided, 'provided')
@@ -80,7 +85,7 @@ clogging.version = '1.1.1'
         dep.groupId.startsWith('org.slf4j')
     }*.optional = true
 
-    pom.dependencies.add(clogging)
+    pom.dependencies.add(cloggingDep(pom.dependencies[0].class))
 
     if (pom.artifactId == 'spring-security-config') {
         pom.dependencies.find { dep -> dep.artifactId == 'spring-security-web'}.optional = true
