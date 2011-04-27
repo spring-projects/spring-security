@@ -21,28 +21,30 @@ import java.security.NoSuchProviderException;
 
 /**
  * Helper for working with the MessageDigest API.
+ *
  * Performs 1024 iterations of the hashing algorithm per digest to aid in protecting against brute force attacks.
+ *
  * @author Keith Donald
+ * @author Luke Taylor
  */
 class Digester {
 
     private final MessageDigest messageDigest;
 
-    private final int iterations = 1024;
+    private final int iterations;
 
     /**
      * Create a new Digester.
      * @param algorithm the digest algorithm; for example, "SHA-1" or "SHA-256".
-     * @param provider the provider of the digest algorithm, for example "SUN".
      */
-    public Digester(String algorithm, String provider) {
+    public Digester(String algorithm, int iterations) {
         try {
-            messageDigest = MessageDigest.getInstance(algorithm, provider);
+            messageDigest = MessageDigest.getInstance(algorithm);
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("No such hashing algorithm", e);
-        } catch (NoSuchProviderException e) {
-            throw new IllegalStateException("No such provider for hashing algorithm", e);
         }
+
+        this.iterations = iterations;
     }
 
     public byte[] digest(byte[] value) {

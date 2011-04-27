@@ -20,8 +20,11 @@ import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 
 /**
- * A KeyGenerator that uses SecureRandom to generate byte array-based keys.
- * Defaults to 8 byte keys produced by the SHA1PRNG algorithm developed by the Sun Provider.
+ * A KeyGenerator that uses {@link SecureRandom} to generate byte array-based keys.
+ * <p>
+ * No specific provider is used for the {@code SecureRandom}, so the platform default
+ * will be used.
+ *
  * @author Keith Donald
  */
 final class SecureRandomBytesKeyGenerator implements BytesKeyGenerator {
@@ -34,14 +37,15 @@ final class SecureRandomBytesKeyGenerator implements BytesKeyGenerator {
      * Creates a secure random key generator using the defaults.
      */
     public SecureRandomBytesKeyGenerator() {
-        this(DEFAULT_ALGORITHM, DEFAULT_PROVIDER, DEFAULT_KEY_LENGTH);
+        this(DEFAULT_KEY_LENGTH);
     }
 
     /**
      * Creates a secure random key generator with a custom key length.
      */
     public SecureRandomBytesKeyGenerator(int keyLength) {
-        this(DEFAULT_ALGORITHM, DEFAULT_PROVIDER, keyLength);
+        this.random = new SecureRandom();
+        this.keyLength = keyLength;
     }
 
     public int getKeyLength() {
@@ -53,32 +57,6 @@ final class SecureRandomBytesKeyGenerator implements BytesKeyGenerator {
         random.nextBytes(bytes);
         return bytes;
     }
-
-    // internal helpers
-
-    /**
-     * Creates a secure random key generator that is fully customized.
-     */
-    private SecureRandomBytesKeyGenerator(String algorithm, String provider, int keyLength) {
-        this.random = createSecureRandom(algorithm, provider, keyLength);
-        this.keyLength = keyLength;
-    }
-
-    private SecureRandom createSecureRandom(String algorithm, String provider, int keyLength) {
-        try {
-            SecureRandom random = SecureRandom.getInstance(algorithm, provider);
-            random.setSeed(random.generateSeed(keyLength));
-            return random;
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalArgumentException("Not a supported SecureRandom key generation algorithm", e);
-        } catch (NoSuchProviderException e) {
-            throw new IllegalArgumentException("Not a supported SecureRandom key provider", e);
-        }
-    }
-
-    private static final String DEFAULT_ALGORITHM = "SHA1PRNG";
-
-    private static final String DEFAULT_PROVIDER = "SUN";
 
     private static final int DEFAULT_KEY_LENGTH = 8;
 

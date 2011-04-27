@@ -7,28 +7,18 @@ import java.security.MessageDigest;
 import java.util.Arrays;
 
 import org.junit.Test;
+import org.springframework.security.crypto.codec.Hex;
+import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.password.Digester;
 
 public class DigesterTests {
 
-    private Digester digester = new Digester("SHA-1", "SUN");
-
     @Test
-    public void digest() {
-        byte[] result = digester.digest("text".getBytes());
-        assertEquals(20, result.length);
-        assertFalse(new String(result).equals("text"));
+    public void digestIsCorrectFor2Iterations() {
+        Digester digester = new Digester("SHA-1", 2);
+        byte[] result = digester.digest(Utf8.encode("text"));
+        // echo -n text | openssl sha1 -binary | openssl sha1
+        assertEquals("cdcefc6a573f294e60e1d633bca3aeba450954a3", new String(Hex.encode(result)));
     }
 
-    @Test
-    public void multiPassDigest() throws Exception {
-        MessageDigest d = MessageDigest.getInstance("SHA-1","SUN");
-        d.reset();
-        byte[] value = "text".getBytes("UTF-8");
-        byte[] singlePass = d.digest(value);
-        byte[] multiPass = digester.digest(value);
-        assertFalse(Arrays.toString(singlePass) + " should not be equal to "
-                + Arrays.toString(multiPass),
-                Arrays.equals(singlePass, multiPass));
-    }
 }

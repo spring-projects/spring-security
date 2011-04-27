@@ -30,6 +30,7 @@ import org.springframework.security.crypto.keygen.KeyGenerators;
  * The digest algorithm is invoked on the concatenated bytes of the salt, secret and password.
  *
  * @author Keith Donald
+ * @author Luke Taylor
  */
 public final class StandardPasswordEncoder implements PasswordEncoder {
 
@@ -40,11 +41,20 @@ public final class StandardPasswordEncoder implements PasswordEncoder {
     private final BytesKeyGenerator saltGenerator;
 
     /**
-     * Constructs a standard password encoder.
+     * Constructs a standard password encoder with no additional secret value.
+     */
+    public StandardPasswordEncoder() {
+        this("");
+    }
+
+    /**
+     * Constructs a standard password encoder with a secret value which is also included in the
+     * password hash.
+     *
      * @param secret the secret key used in the encoding process (should not be shared)
      */
     public StandardPasswordEncoder(CharSequence secret) {
-        this("SHA-256", "SUN", secret);
+        this("SHA-256", secret);
     }
 
     public String encode(CharSequence rawPassword) {
@@ -59,8 +69,8 @@ public final class StandardPasswordEncoder implements PasswordEncoder {
 
     // internal helpers
 
-    private StandardPasswordEncoder(String algorithm, String provider, CharSequence secret) {
-        this.digester = new Digester(algorithm, provider);
+    private StandardPasswordEncoder(String algorithm, CharSequence secret) {
+        this.digester = new Digester(algorithm, DEFAULT_ITERATIONS);
         this.secret = Utf8.encode(secret);
         this.saltGenerator = KeyGenerators.secureRandom();
     }
@@ -93,4 +103,7 @@ public final class StandardPasswordEncoder implements PasswordEncoder {
         }
         return result == 0;
     }
+
+    private static final int DEFAULT_ITERATIONS = 1024;
+
 }
