@@ -3,11 +3,18 @@
 dependencies {
     compile project(':spring-security-core'),
             project(':spring-security-web'),
-            'org.openid4java:openid4java-nodeps:0.9.6',
             "org.springframework:spring-aop:$springVersion",
             "org.springframework:spring-context:$springVersion",
             "org.springframework:spring-beans:$springVersion",
             "org.springframework:spring-web:$springVersion"
+
+    // openid4java has a compile time dep on guice with a group
+    // name which is different from the maven central one.
+    // We use the maven central version here instead.
+    compile('org.openid4java:openid4java-nodeps:0.9.6') {
+       exclude group: 'com.google.code.guice', module: 'guice'
+    }
+    compile 'com.google.inject:guice:2.0'
 
     provided 'javax.servlet:servlet-api:2.5'
 

@@ -12,7 +12,6 @@ allprojects {
     repositories {
         mavenLocal()
         mavenCentral()
-        mavenRepo name: 'Google Guice', urls: 'http://guice-maven.googlecode.com/svn/trunk'
     }
 }
 
