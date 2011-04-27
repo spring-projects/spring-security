@@ -13,7 +13,3 @@ dependencies {
 
     runtime 'org.apache.httpcomponents:httpclient:4.1.1'
 }
-
-repositories {
-    mavenRepo name: 'Google Guice', urls: 'http://guice-maven.googlecode.com/svn/trunk'
-}
