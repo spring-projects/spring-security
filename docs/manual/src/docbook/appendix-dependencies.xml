@@ -358,8 +358,18 @@
                         </row>
                         <row>
                             <entry>openid4java-nodeps</entry>
-                            <entry>0.95</entry>
+                            <entry>0.9.6</entry>
                             <entry>Spring Security's OpenID integration uses OpenID4Java.</entry>
+                        </row>
+                        <row>
+                            <entry>httpclient</entry>
+                            <entry>4.1.1</entry>
+                            <entry>openid4java-nodeps depends on HttpClient 4.</entry>
+                        </row>
+                        <row>
+                            <entry>guice</entry>
+                            <entry>2.0</entry>
+                            <entry>openid4java-nodeps depends on Guice 2.</entry>
                         </row>
                     </tbody>
                 </tgroup>

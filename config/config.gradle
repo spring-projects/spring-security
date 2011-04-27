@@ -13,6 +13,7 @@ configurations {
 dependencies {
     compile project(':spring-security-core'),
             project(':spring-security-web'),
+            'org.openid4java:openid4java-nodeps:0.9.6',
             "org.aspectj:aspectjweaver:$aspectjVersion",
             'aopalliance:aopalliance:1.0',
             "org.springframework:spring-aop:$springVersion",
@@ -26,7 +27,6 @@ dependencies {
 
     testCompile project(':spring-security-ldap'),
                 project(':spring-security-openid'),
-                'org.openid4java:openid4java-nodeps:0.9.5',
                 project(':spring-security-core').sourceSets.test.classes,
                 'javax.annotation:jsr250-api:1.0',
                 "org.springframework.ldap:spring-ldap-core:$springLdapVersion",
