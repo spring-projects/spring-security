@@ -36,7 +36,7 @@ class LoginPage extends Page {
     }
 
     /**
-     * Gets the login page url which might change based upon the system properties. This is to support using an randomly available port for CI.
+     * Gets the login page url which might change based upon the system properties. This is to support using a randomly available port for CI.
      * @return
      */
     private static String loginUrl() {
