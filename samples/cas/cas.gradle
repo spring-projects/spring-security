@@ -87,7 +87,7 @@ task casServer (type: org.gradle.api.plugins.jetty.JettyRunWar) {
 
 task cas (dependsOn: [jettyRunWar, casServer]) {
 }
-
+/*
 integrationTest.dependsOn cas
 integrationTest.doFirst {
     systemProperties['cas.server.host'] = casServer.httpsHost
@@ -96,6 +96,8 @@ integrationTest.doFirst {
     systemProperties['javax.net.ssl.trustStore'] = keystore
     systemProperties['javax.net.ssl.trustStorePassword'] = password
 }
+*/
+integrationTest.enabled = false
 
 gradle.taskGraph.whenReady {graph ->
     if (graph.hasTask(cas)) {
