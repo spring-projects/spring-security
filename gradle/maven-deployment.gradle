@@ -32,17 +32,15 @@ gradle.taskGraph.whenReady {graph ->
     }
 }
 
-def deployer = null
-
 uploadArchives {
+   // "mavenSyncRepoDir" should be set in properties
     def releaseRepositoryUrl = "file://${project.properties.mavenSyncRepoDir}"
     def milestoneRepositoryUrl = 's3://maven.springframework.org/milestone'
     def snapshotRepositoryUrl = 's3://maven.springframework.org/snapshot'
 
-    deployer = repositories.mavenDeployer {
+    repositories.mavenDeployer { deployer ->
         configuration = configurations.deployerJars
         if (releaseBuild) {
-            // "mavenSyncRepoDir" should be set in properties
             repository(url: releaseRepositoryUrl)
         } else {
             s3credentials = [userName: project.properties.s3AccessKey, passphrase: project.properties.s3SecretAccessKey]
@@ -53,42 +51,51 @@ uploadArchives {
                 authentication(s3credentials)
             }
         }
+        customizePom(deployer.pom)
     }
 }
 
-// Pom Customization
-
-installer = install.repositories.mavenInstaller
-
-def optionalDeps = ['ehcache', 'log4j', 'apacheds-core', 'jsp-api', 'jsr250-api', 'ldapsdk']
-
-// Workaround for GRADLE-1497
-def cloggingDep(Class cl) {
-    clogging = cl.newInstance()
-    clogging.artifactId = clogging.groupId = "commons-logging"
-    clogging.scope = 'compile'
-    clogging.optional = true
-    clogging.version = '1.1.1'
-    clogging
+install {
+    customizePom(repositories.mavenInstaller.pom)
 }
 
-[installer, deployer]*.pom.collect { pom ->
+def customizePom(pom) {
+    def optionalDeps = ['ehcache', 'log4j', 'apacheds-core', 'jsp-api', 'jsr250-api', 'ldapsdk']
+
     pom.scopeMappings.addMapping(10, configurations.provided, 'provided')
-}
+    pom.whenConfigured { p ->
+        // Remove test scope dependencies from published poms
+        p.dependencies = p.dependencies.findAll {it.scope != 'test'}
 
-[installer, deployer]*.pom*.whenConfigured { pom ->
-    // Remove test scope dependencies from published poms
-    pom.dependencies = pom.dependencies.findAll {it.scope != 'test'}
-    pom.dependencies.findAll { dep ->
-        optionalDeps.contains(dep.artifactId) ||
-        dep.groupId.startsWith('org.apache.directory') ||
-        dep.groupId.startsWith('org.slf4j')
-    }*.optional = true
+        // Flag optional deps
+        p.dependencies.findAll { dep ->
+            optionalDeps.contains(dep.artifactId) ||
+            dep.groupId.startsWith('org.apache.directory') ||
+            dep.groupId.startsWith('org.slf4j')
+        }*.optional = true
 
-    pom.dependencies.add(cloggingDep(pom.dependencies[0].class))
+        // Hack for specific case of config module
+        if (p.artifactId == 'spring-security-config') {
+            p.dependencies.find { dep -> dep.artifactId == 'spring-security-web'}.optional = true
+            p.dependencies.find { dep -> dep.artifactId == 'spring-web'}.optional = true
+        }
+    }
 
-    if (pom.artifactId == 'spring-security-config') {
-        pom.dependencies.find { dep -> dep.artifactId == 'spring-security-web'}.optional = true
-        pom.dependencies.find { dep -> dep.artifactId == 'spring-web'}.optional = true
+    pom.project {
+        licenses {
+            license {
+                name 'The Apache Software License, Version 2.0'
+                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution 'repo'
+            }
+        }
+        dependencies {
+            dependency {
+                artifactId = groupId = 'commons-logging'
+                scope = 'compile'
+                optional = 'true'
+                version = '1.1.1'
+            }
+        }
     }
 }
