@@ -3,7 +3,7 @@ apply plugin: 'base'
 description = 'Spring Security'
 
 allprojects {
-    version = '3.1.0.CI-SNAPSHOT'
+    version = '3.1.0.RC2'
     releaseBuild = version.endsWith('RELEASE')
     snapshotBuild = version.endsWith('SNAPSHOT')
 
