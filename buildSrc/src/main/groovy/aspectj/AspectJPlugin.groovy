@@ -9,6 +9,7 @@ import org.gradle.api.tasks.SourceSet
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 
+import org.gradle.plugins.ide.eclipse.GenerateEclipseProject
 import org.gradle.plugins.ide.eclipse.GenerateEclipseClasspath
 import org.gradle.plugins.ide.eclipse.model.BuildCommand
 import org.gradle.tooling.model.ProjectDependency
@@ -52,7 +53,7 @@ class AspectJPlugin implements Plugin<Project> {
             aspectPath = project.files(project.configurations.aspectpath, project.jar.archivePath)
         }
 
-        project.tasks.withType(GenerateEclipseClasspath).all {
+        project.tasks.withType(GenerateEclipseProject).all {
             whenConfigured { p ->
                 p.natures.add(0, 'org.eclipse.ajdt.ui.ajnature')
                 p.buildCommands = [new BuildCommand('org.eclipse.ajdt.core.ajbuilder',[:])]
