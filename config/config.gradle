@@ -11,9 +11,9 @@ configurations {
 }
 
 dependencies {
+    // NB: Don't add other compile time dependencies to the config module as this breaks tooling
     compile project(':spring-security-core'),
             project(':spring-security-web'),
-            'org.openid4java:openid4java-nodeps:0.9.6',
             "org.aspectj:aspectjweaver:$aspectjVersion",
             'aopalliance:aopalliance:1.0',
             "org.springframework:spring-aop:$springVersion",
@@ -34,6 +34,10 @@ dependencies {
                 "org.springframework:spring-tx:$springVersion",
                 'org.spockframework:spock-core:0.5-groovy-1.7',
                 "org.slf4j:jcl-over-slf4j:$slf4jVersion"
+    compile('org.openid4java:openid4java-nodeps:0.9.6') {
+       exclude group: 'com.google.code.guice', module: 'guice'
+    }
+
 
     testRuntime "hsqldb:hsqldb:$hsqlVersion",
                 "cglib:cglib-nodep:2.2"
