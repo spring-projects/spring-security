@@ -6,6 +6,7 @@ target/
 .settings/
 .idea/
 out/
+bin/
 intellij/
 build/
 *.log
