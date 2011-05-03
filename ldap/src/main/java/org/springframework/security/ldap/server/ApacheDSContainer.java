@@ -232,7 +232,11 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
         // We need a standard context.
         //DirContext dirContext = contextSource.getReadWriteContext();
 
-        if(ldifs != null && ldifs.length > 0) {
+        if (ldifs == null || ldifs.length == 0) {
+            return;
+        }
+
+        if(ldifs.length == 1) {
             String ldifFile;
 
             try {
@@ -243,6 +247,8 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
             logger.info("Loading LDIF file: " + ldifFile);
             LdifFileLoader loader = new LdifFileLoader(service.getAdminSession(), ldifFile);
             loader.execute();
+        } else {
+            throw new IllegalArgumentException("More than one LDIF resource found with the supplied pattern:" + ldifResources);
         }
     }
 
