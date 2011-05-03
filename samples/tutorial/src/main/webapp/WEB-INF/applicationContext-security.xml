@@ -18,7 +18,7 @@
     <http pattern="/loggedout.jsp" security="none"/>
 
     <http use-expressions="true">
-        <intercept-url pattern="/secure/extreme/**" access="hasRole('ROLE_SUPERVISOR')"/>
+        <intercept-url pattern="/secure/extreme/**" access="hasRole('supervisor')"/>
         <intercept-url pattern="/secure/**" access="isAuthenticated()" />
         <!--
              Allow all other requests. In a real application you should
@@ -46,14 +46,16 @@
         scott/wombat
         peter/opal
     -->
+    <beans:bean id="encoder" class="org.springframework.security.crypto.password.StandardPasswordEncoder"/>
+
     <authentication-manager>
         <authentication-provider>
-            <password-encoder hash="md5"/>
+            <password-encoder ref="encoder"/>
             <user-service>
-                <user name="rod" password="a564de63c2d0da68cf47586ee05984d7" authorities="ROLE_SUPERVISOR, ROLE_USER, ROLE_TELLER" />
-                <user name="dianne" password="65d15fe9156f9c4bbffd98085992a44e" authorities="ROLE_USER,ROLE_TELLER" />
-                <user name="scott" password="2b58af6dddbd072ed27ffc86725d7d3a" authorities="ROLE_USER" />
-                <user name="peter" password="22b5c9accc6e1ba628cedc63a72d57f8" authorities="ROLE_USER" />
+                <user name="rod" password="4efe081594ce25ee4efd9f7067f7f678a347bccf2de201f3adf2a3eb544850b465b4e51cdc3fcdde" authorities="supervisor, user, teller" />
+                <user name="dianne" password="957ea522524a41cbfb649a3e293d56268f840fd5b661b499b07858bc020d6d223f912e3ab303b00f" authorities="user,teller" />
+                <user name="scott" password="fb1f9e48058d30dc21c35ab4cf895e2a80f2f03fac549b51be637196dfb6b2b7276a89c65e38b7a1" authorities="user" />
+                <user name="peter" password="e175750688deee19d7179d444bfaf92129f4eea8b4503d83eb8f92a7dd9cda5fbae73638c913e420" authorities="user" />
             </user-service>
         </authentication-provider>
     </authentication-manager>

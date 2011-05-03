@@ -10,7 +10,7 @@ public interface BankService {
     public Account[] findAccounts();
 
     @PreAuthorize(
-            "hasRole('ROLE_SUPERVISOR') or " +
-            "hasRole('ROLE_TELLER') and (#account.balance + #amount >= -#account.overdraft)" )
+            "hasRole('supervisor') or " +
+            "hasRole('teller') and (#account.balance + #amount >= -#account.overdraft)" )
     public Account post(Account account, double amount);
 }

@@ -28,6 +28,7 @@ or if you've authenticated this session.
 <tr>
 <td>&lt;sec:authentication property='name' /&gt;</td><td><sec:authentication property="name"/></td>
 </tr>
+<sec:authorize access="isAuthenticated()">
 <tr>
 <td>&lt;sec:authentication property='principal.username' /&gt;</td><td><sec:authentication property="principal.username"/></td>
 </tr>
@@ -37,6 +38,7 @@ or if you've authenticated this session.
 <tr>
 <td>&lt;sec:authentication property='principal.accountNonLocked' /&gt;</td><td><sec:authentication property="principal.accountNonLocked"/></td>
 </tr>
+</sec:authorize>
 </table>
 
 

@@ -39,8 +39,6 @@
 
     <!--
       - Loads the root application context of this web app at startup.
-      - The application context is then available via
-      - WebApplicationContextUtils.getWebApplicationContext(servletContext).
     -->
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
@@ -55,7 +53,7 @@
     </listener>
 
   <!--
-    - Provides core MVC application controller. See contacts-servlet.xml.
+    - Provides core MVC application controller. See bank-servlet.xml.
     -->
     <servlet>
         <servlet-name>bank</servlet-name>

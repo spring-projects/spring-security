@@ -17,9 +17,9 @@ public class BankServiceImpl implements BankService {
     public Account post(Account account, double amount) {
         Assert.notNull(account);
 
-        // We read account bank from DAO so it reflects the latest balance
+        // We read account back from DAO so it reflects the latest balance
         Account a = bankDao.readAccount(account.getId());
-        if (account == null) {
+        if (a == null) {
             throw new IllegalArgumentException("Couldn't find requested account");
         }
 
