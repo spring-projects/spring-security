@@ -35,7 +35,7 @@ import org.springframework.util.Assert;
 
 /**
  * Provides lifecycle services for the embedded apacheDS server defined by the supplied configuration.
- * Used by {code LdapServerBeanDefinitionParser}. An instance will be stored in the application context for
+ * Used by {@code LdapServerBeanDefinitionParser}. An instance will be stored in the application context for
  * each embedded server instance. It will start the server when the context is initialized and shut it down when
  * it is closed. It is intended for temporary embedded use and will not retain changes across start/stop boundaries. The
  * working directory is deleted on shutdown.
@@ -227,18 +227,13 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
             ldifs = ctxt.getResources(ldifResources);
         }
 
-        // Note that we can't just import using the ServerContext returned
-        // from starting Apache DS, apparently because of the long-running issue DIRSERVER-169.
-        // We need a standard context.
-        //DirContext dirContext = contextSource.getReadWriteContext();
-
-        if(ldifs != null && ldifs.length > 0) {
+        for(Resource r : ldifs) {
             String ldifFile;
 
             try {
-                ldifFile = ldifs[0].getFile().getAbsolutePath();
+                ldifFile = r.getFile().getAbsolutePath();
             } catch (IOException e) {
-                ldifFile = ldifs[0].getURI().toString();
+                ldifFile = r.getURI().toString();
             }
             logger.info("Loading LDIF file: " + ldifFile);
             LdifFileLoader loader = new LdifFileLoader(service.getAdminSession(), ldifFile);

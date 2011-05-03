@@ -33,7 +33,7 @@ public final class ApacheDSServerIntegrationTests {
 //        contextSource = new DefaultSpringSecurityContextSource("ldap://127.0.0.1:22389/dc=springsource,dc=com");
 //        contextSource.setUserDn("cn=admin,dc=springsource,dc=com");
 //        contextSource.setPassword("password");
-        server = new ApacheDSContainer("dc=springframework,dc=org", "classpath:test-server.ldif");
+        server = new ApacheDSContainer("dc=springframework,dc=org", "classpath*:*.ldif");
         server.setPort(53389);
         server.afterPropertiesSet();
     }
