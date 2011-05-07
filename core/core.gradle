@@ -26,6 +26,9 @@ dependencies {
 int maxAESKeySize = javax.crypto.Cipher.getMaxAllowedKeyLength('AES')
 
 test {
+    systemProperties['springSecurityVersion'] = version
+    systemProperties['springVersion'] = springVersion
+
     if (maxAESKeySize < 256) {
         logger.warn("AES keysize limited to $maxAESKeySize, skipping EncryptorsTests")
         exclude '**/EncryptorsTests.class'
