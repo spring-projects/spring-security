@@ -72,9 +72,9 @@
             </section>
             <section xml:id="nsa-jaas-api-provision">
                 <title><literal>jaas-api-provision</literal></title>
-                <para>If available, runs the request as the <literal>Subject</literal> acquired from 
-                    the <classname>JaasAuthenticationToken</classname> which is implemented by 
-                    adding a <classname>JaasApiIntegrationFilter</classname> bean to the stack. 
+                <para>If available, runs the request as the <literal>Subject</literal> acquired from
+                    the <classname>JaasAuthenticationToken</classname> which is implemented by
+                    adding a <classname>JaasApiIntegrationFilter</classname> bean to the stack.
                     Defaults to "false".</para>
             </section>
             <section xml:id="nsa-path-type">
@@ -334,7 +334,7 @@
                 <para> Allows complete control of the
                     <interfacename>RememberMeServices</interfacename> implementation that will be
                     used by the filter. The value should be the <literal>id</literal> of a bean in the application
-                    context which implements this interface. Should also implement 
+                    context which implements this interface. Should also implement
                     <interfacename>LogoutHandler</interfacename> if a logout filter is in use.</para>
             </section>
             <section>
@@ -368,6 +368,17 @@
                     defined in the application context. If there is only one, it will be selected
                     and used automatically by the namespace configuration. If there are multiple
                     instances, you can specify a bean <literal>id</literal> explicitly using this attribute. </para>
+            </section>
+           <section>
+                <title><literal>use-secure-cookie</literal></title>
+                <para>It is recommended that remember-me cookies are only submitted over HTTPS and thus should
+                    be flagged as <quote>secure</quote>. By default, a secure cookie will be used if the
+                    connection over which the login request is made is secure (as it should be).
+                    If you set this property to <literal>false</literal>, secure cookies will not be used.
+                    Setting it to <literal>true</literal> will always set the secure flag on the cookie.
+                    This attribute maps to the <literal>useSecureCookie</literal> property of
+                    <classname>AbstractRememberMeServices</classname>.
+                </para>
             </section>
             <section>
                 <title><literal>authentication-success-handler-ref</literal></title>

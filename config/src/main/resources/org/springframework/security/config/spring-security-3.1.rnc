@@ -537,7 +537,7 @@ remember-me.attlist &=
     attribute services-alias {xsd:token}?
 
 remember-me.attlist &=
-    ## Determines whether the "secure" flag will be set on the remember-me cookie. If set to true, the cookie will only be submitted over HTTPS. Defaults to false.
+    ## Determines whether the "secure" flag will be set on the remember-me cookie. If set to true, the cookie will only be submitted over HTTPS (recommended). By default, secure cookies will be used if the request is made on a secure connection.
     attribute use-secure-cookie {xsd:boolean}?
 
 remember-me.attlist &=

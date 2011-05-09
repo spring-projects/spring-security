@@ -56,7 +56,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     private boolean alwaysRemember;
     private String key;
     private int tokenValiditySeconds = TWO_WEEKS_S;
-    private boolean useSecureCookie = false;
+    private Boolean useSecureCookie = null;
     private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
     public void afterPropertiesSet() throws Exception {
@@ -296,9 +296,6 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 
     /**
      * Sets a "cancel cookie" (with maxAge = 0) on the response to disable persistent logins.
-     *
-     * @param request
-     * @param response
      */
     protected void cancelCookie(HttpServletRequest request, HttpServletResponse response) {
         logger.debug("Cancelling cookie");
@@ -310,7 +307,11 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     }
 
     /**
-     * Sets the cookie on the response
+     * Sets the cookie on the response.
+     *
+     * By default a secure cookie will be used if the connection is secure. You can set the {@code useSecureCookie}
+     * property to {@code false} to override this. If you set it to {@code true}, the cookie will always be flagged
+     * as secure.
      *
      * @param tokens the tokens which will be encoded to make the cookie value.
      * @param maxAge the value passed to {@link Cookie#setMaxAge(int)}
@@ -322,7 +323,13 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
         Cookie cookie = new Cookie(cookieName, cookieValue);
         cookie.setMaxAge(maxAge);
         cookie.setPath(getCookiePath(request));
-        cookie.setSecure(useSecureCookie);
+
+        if (useSecureCookie == null) {
+            cookie.setSecure(request.isSecure());
+        } else {
+            cookie.setSecure(useSecureCookie);
+        }
+
         response.addCookie(cookie);
     }
 
@@ -332,7 +339,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     }
 
     /**
-     * Implementation of <tt>LogoutHandler</tt>. Default behaviour is to call <tt>cancelCookie()</tt>.
+     * Implementation of {@code LogoutHandler}. Default behaviour is to call {@code cancelCookie()}.
      */
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         if (logger.isDebugEnabled()) {
@@ -395,6 +402,15 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
         return tokenValiditySeconds;
     }
 
+    /**
+     * Whether the cookie should be flagged as secure or not. Secure cookies can only be sent over an HTTPS connection
+     * and this cannot be accidentally submitted over HTTP where they could be intercepted.
+     * <p>
+     * By default the cookie will be secure if the request is secure. If you only want to use remember-me over
+     * HTTPS (recommended) you should set this property to {@code true}.
+     *
+     * @param useSecureCookie set to {@code true} to always user secure cookies, {@code false} to disable their use.
+     */
     public void setUseSecureCookie(boolean useSecureCookie) {
         this.useSecureCookie = useSecureCookie;
     }

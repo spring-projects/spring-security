@@ -106,7 +106,7 @@ public class AbstractRememberMeServicesTests {
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         // set non-login cookie
-        request.setCookies(new Cookie[] {new Cookie("mycookie", "cookie")});
+        request.setCookies(new Cookie("mycookie", "cookie"));
         assertNull(services.autoLogin(request, response));
         assertNull(response.getCookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY));
     }
@@ -134,8 +134,7 @@ public class AbstractRememberMeServicesTests {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        request.setCookies(new Cookie[] {
-                new Cookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, "ZZZ")});
+        request.setCookies(new Cookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, "ZZZ"));
         Authentication result = services.autoLogin(request, response);
         assertNull(result);
         assertCookieCancelled(response);
@@ -147,8 +146,7 @@ public class AbstractRememberMeServicesTests {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        request.setCookies(new Cookie[] {
-                new Cookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, "")});
+        request.setCookies(new Cookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, ""));
         Authentication result = services.autoLogin(request, response);
         assertNull(result);
         assertCookieCancelled(response);

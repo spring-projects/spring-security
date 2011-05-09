@@ -1172,7 +1172,7 @@
     </xs:attribute>
     <xs:attribute name="use-secure-cookie" type="xs:boolean">
       <xs:annotation>
-        <xs:documentation>Determines whether the "secure" flag will be set on the remember-me cookie. If set to true, the cookie will only be submitted over HTTPS. Defaults to false.</xs:documentation>
+        <xs:documentation>Determines whether the "secure" flag will be set on the remember-me cookie. If set to true, the cookie will only be submitted over HTTPS (recommended). By default, secure cookies will be used if the request is made on a secure connection.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="token-validity-seconds" type="xs:integer">
