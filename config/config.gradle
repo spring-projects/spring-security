@@ -3,20 +3,7 @@
 apply plugin: 'groovy'
 
 compileTestJava.dependsOn(':spring-security-core:compileTestJava')
-task writeNewPom << {
-    pom {
-        project {
-            inceptionYear '2008'
-            licenses {
-                license {
-                    name 'The Apache Software License, Version 2.0'
-                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    distribution 'repo'
-                }
-            }
-        }
-    }.writeTo("$buildDir/newpom.xml")
-}
+
 configurations {
     // GRADLE-1124
     compile.extendsFrom = []
