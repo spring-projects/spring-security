@@ -3,7 +3,20 @@
 apply plugin: 'groovy'
 
 compileTestJava.dependsOn(':spring-security-core:compileTestJava')
-
+task writeNewPom << {
+    pom {
+        project {
+            inceptionYear '2008'
+            licenses {
+                license {
+                    name 'The Apache Software License, Version 2.0'
+                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    distribution 'repo'
+                }
+            }
+        }
+    }.writeTo("$buildDir/newpom.xml")
+}
 configurations {
     // GRADLE-1124
     compile.extendsFrom = []
@@ -34,7 +47,7 @@ dependencies {
                 "org.springframework:spring-tx:$springVersion",
                 'org.spockframework:spock-core:0.5-groovy-1.7',
                 "org.slf4j:jcl-over-slf4j:$slf4jVersion"
-    compile('org.openid4java:openid4java-nodeps:0.9.6') {
+    testCompile('org.openid4java:openid4java-nodeps:0.9.6') {
        exclude group: 'com.google.code.guice', module: 'guice'
     }
 
