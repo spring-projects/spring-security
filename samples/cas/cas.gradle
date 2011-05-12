@@ -69,8 +69,28 @@ dependencies {
         System.setProperty('cas.service.host', jettyRunWar.httpsHost)
     }
 }
+task casServerOverlay(type: Sync) {
+    war = configurations.casServer.resolve().toArray()[0]
+    warName = war.name.replace('.war','-custom')
+    overlayDir = file('src/cas-server-overlay/webapp')
+    explodedWar = file("$buildDir/tmp/${warName}")
+    customWar = file("$buildDir/tmp/${warName}.war")
 
-task casServer (type: org.gradle.api.plugins.jetty.JettyRunWar) {
+    inputs.files(war, overlayDir)
+    outputs.files(customWar, explodedWar, file("$buildDir/tmp/expandedArchives"))
+
+    from zipTree(war)
+    from overlayDir
+    into explodedWar
+
+    doLast {
+        if(customWar.exists()) {
+            customWar.delete()
+        }
+        ant.zip(destfile: customWar, baseDir: explodedWar)
+    }
+}
+task casServer (type: org.gradle.api.plugins.jetty.JettyRunWar, dependsOn: 'casServerOverlay') {
     contextPath = "/cas"
     connectors = [new org.mortbay.jetty.security.SslSocketConnector()]
     connectors[0].port = 9443
@@ -78,7 +98,10 @@ task casServer (type: org.gradle.api.plugins.jetty.JettyRunWar) {
     connectors[0].keyPassword = connectors[0].trustPassword = password
     connectors[0].wantClientAuth = true
     connectors[0].needClientAuth = false
-    webApp = configurations.casServer.resolve().toArray()[0]
+    webApp = casServerOverlay.customWar
+
+    inputs.file casServerOverlay.customWar
+
     doFirst() {
         System.setProperty('javax.net.ssl.trustStore', keystore)
         System.setProperty('javax.net.ssl.trustStorePassword', password)
@@ -87,7 +110,7 @@ task casServer (type: org.gradle.api.plugins.jetty.JettyRunWar) {
 
 task cas (dependsOn: [jettyRunWar, casServer]) {
 }
-/*
+
 integrationTest.dependsOn cas
 integrationTest.doFirst {
     systemProperties['cas.server.host'] = casServer.httpsHost
@@ -96,8 +119,6 @@ integrationTest.doFirst {
     systemProperties['javax.net.ssl.trustStore'] = keystore
     systemProperties['javax.net.ssl.trustStorePassword'] = password
 }
-*/
-integrationTest.enabled = false
 
 gradle.taskGraph.whenReady {graph ->
     if (graph.hasTask(cas)) {
