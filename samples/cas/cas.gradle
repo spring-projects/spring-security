@@ -1,5 +1,7 @@
 // CAS sample build file
 
+import org.apache.tools.ant.filters.ReplaceTokens
+
 apply plugin: 'war'
 apply plugin: 'jetty'
 apply plugin: 'groovy'
@@ -75,12 +77,16 @@ task casServerOverlay(type: Sync) {
     overlayDir = file('src/cas-server-overlay/webapp')
     explodedWar = file("$buildDir/tmp/${warName}")
     customWar = file("$buildDir/tmp/${warName}.war")
+    tokens = [logLevel: 'INFO']
 
     inputs.files(war, overlayDir)
-    outputs.files(customWar, explodedWar, file("$buildDir/tmp/expandedArchives"))
+    inputs.property('tokens',{tokens})
+    outputs.files(customWar,explodedWar,file("$buildDir/tmp/expandedArchives"))
 
     from zipTree(war)
-    from overlayDir
+    from (overlayDir) {
+        filter(ReplaceTokens,tokens: tokens)
+    }
     into explodedWar
 
     doLast {
@@ -90,6 +96,11 @@ task casServerOverlay(type: Sync) {
         ant.zip(destfile: customWar, baseDir: explodedWar)
     }
 }
+
+casServerOverlay.metaClass.setLogLevel { level ->
+    tokens['logLevel'] = level
+}
+
 task casServer (type: org.gradle.api.plugins.jetty.JettyRunWar, dependsOn: 'casServerOverlay') {
     contextPath = "/cas"
     connectors = [new org.mortbay.jetty.security.SslSocketConnector()]
@@ -126,6 +137,9 @@ gradle.taskGraph.whenReady {graph ->
         casServer.daemon = true
     }
     if(graph.hasTask(integrationTest)) {
+        casServerOverlay.logLevel = 'ERROR'
+        jettyRunWar.additionalRuntimeJars += file("src/integration-test/resources")
+
         jettyRunWar.daemon = true
         jettyRunWar.httpConnector.port = availablePort()
         jettyRunWar.httpsConnector.port = jettyRunWar.httpConnector.confidentialPort = availablePort()
