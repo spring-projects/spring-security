@@ -118,7 +118,7 @@ class CasSampleSpec extends BaseSpec {
         at LoginPage
     }
 
-    def 'logging out of the cas server successfully logs out of the cas server'() {
+    def 'logging out of the cas server successfully logs out of the cas sample application'() {
         setup: 'login with ROLE_USER'
         to SecurePage
         at LoginPage
