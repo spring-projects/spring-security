@@ -1,7 +1,5 @@
 // CAS sample build file
 
-import org.apache.tools.ant.filters.ReplaceTokens
-
 apply plugin: 'war'
 apply plugin: 'jetty'
 apply plugin: 'groovy'
@@ -32,8 +30,6 @@ eclipseClasspath {
 
 dependencies {
     groovy 'org.codehaus.groovy:groovy:1.7.7'
-
-    casServer "org.jasig.cas:cas-server-webapp:3.4.3.1@war"
 
     providedCompile 'javax.servlet:servlet-api:2.5@jar'
 
@@ -67,64 +63,20 @@ dependencies {
 
     connectors = [httpConnector, httpsConnector]
     doFirst() {
-        System.setProperty('cas.server.host', casServer.httpsHost)
+        System.setProperty('cas.server.host', casServer().httpsHost)
         System.setProperty('cas.service.host', jettyRunWar.httpsHost)
     }
 }
-task casServerOverlay(type: Sync) {
-    war = configurations.casServer.resolve().toArray()[0]
-    warName = war.name.replace('.war','-custom')
-    overlayDir = file('src/cas-server-overlay/webapp')
-    explodedWar = file("$buildDir/tmp/${warName}")
-    customWar = file("$buildDir/tmp/${warName}.war")
-    tokens = [logLevel: 'INFO']
 
-    inputs.files(war, overlayDir)
-    inputs.property('tokens',{tokens})
-    outputs.files(customWar,explodedWar,file("$buildDir/tmp/expandedArchives"))
-
-    from zipTree(war)
-    from (overlayDir) {
-        filter(ReplaceTokens,tokens: tokens)
-    }
-    into explodedWar
-
-    doLast {
-        if(customWar.exists()) {
-            customWar.delete()
-        }
-        ant.zip(destfile: customWar, baseDir: explodedWar)
-    }
+task cas (dependsOn: [jettyRunWar,':spring-security-samples-casserver:casServer']) {
 }
 
-casServerOverlay.metaClass.setLogLevel { level ->
-    tokens['logLevel'] = level
-}
-
-task casServer (type: org.gradle.api.plugins.jetty.JettyRunWar, dependsOn: 'casServerOverlay') {
-    contextPath = "/cas"
-    connectors = [new org.mortbay.jetty.security.SslSocketConnector()]
-    connectors[0].port = 9443
-    connectors[0].keystore = connectors[0].truststore = keystore
-    connectors[0].keyPassword = connectors[0].trustPassword = password
-    connectors[0].wantClientAuth = true
-    connectors[0].needClientAuth = false
-    webApp = casServerOverlay.customWar
-
-    inputs.file casServerOverlay.customWar
-
-    doFirst() {
-        System.setProperty('javax.net.ssl.trustStore', keystore)
-        System.setProperty('javax.net.ssl.trustStorePassword', password)
-    }
-}
-
-task cas (dependsOn: [jettyRunWar, casServer]) {
+task casServer(dependsOn: ':spring-security-samples-casserver:casServer') {
 }
 
 integrationTest.dependsOn cas
 integrationTest.doFirst {
-    systemProperties['cas.server.host'] = casServer.httpsHost
+    systemProperties['cas.server.host'] = casServer().httpsHost
     systemProperties['cas.service.host'] = jettyRunWar.httpsHost
     systemProperties['jar.path'] = jar.archivePath
     systemProperties['javax.net.ssl.trustStore'] = keystore
@@ -132,12 +84,22 @@ integrationTest.doFirst {
 }
 
 gradle.taskGraph.whenReady {graph ->
+    def casServer = casServer()
+    [casServer,jettyRunWar]*.metaClass*.getHttpsConnector {->
+        delegate.connectors.find { it instanceof org.mortbay.jetty.security.SslSocketConnector }
+    }
+    [casServer,jettyRunWar]*.metaClass*.getHttpsHost {->
+        "localhost:"+delegate.httpsConnector.port
+    }
+    jettyRunWar.metaClass.getHttpConnector {->
+        delegate.connectors.find { it instanceof org.mortbay.jetty.nio.SelectChannelConnector }
+    }
     if (graph.hasTask(cas)) {
         jettyRunWar.dependsOn(casServer)
         casServer.daemon = true
     }
     if(graph.hasTask(integrationTest)) {
-        casServerOverlay.logLevel = 'ERROR'
+        tasks.getByPath(':spring-security-samples-casserver:casServerOverlay').logLevel = 'ERROR'
         jettyRunWar.additionalRuntimeJars += file("src/integration-test/resources")
 
         jettyRunWar.daemon = true
@@ -146,15 +108,11 @@ gradle.taskGraph.whenReady {graph ->
         casServer.httpsConnector.port = availablePort()
     }
 }
-[casServer,jettyRunWar]*.metaClass*.getHttpsConnector {->
-    delegate.connectors.find { it instanceof org.mortbay.jetty.security.SslSocketConnector }
+
+def casServer() {
+    tasks.getByPath(':spring-security-samples-casserver:casServer')
 }
-[casServer,jettyRunWar]*.metaClass*.getHttpsHost {->
-    "localhost:"+delegate.httpsConnector.port
-}
-jettyRunWar.metaClass.getHttpConnector {->
-    delegate.connectors.find { it instanceof org.mortbay.jetty.nio.SelectChannelConnector }
-}
+
 def availablePort() {
     ServerSocket server = new ServerSocket(0)
     int port = server.localPort

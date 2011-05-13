@@ -18,6 +18,7 @@ def String[] samples = [
     'gae',
     'dms',
     'preauth',
+    'casserver',
     'cas',
     'ldap',
     'jaas'
