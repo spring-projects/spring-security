@@ -284,12 +284,14 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
     }
 
     /**
-     * If set to true, the <tt>extraInformation</tt> set on an <tt>AuthenticationException</tt> will be cleared
+     * If set to true, the {@code extraInformation} set on an {@code AuthenticationException</tt> will be cleared
      * before rethrowing it. This is useful for use with remoting protocols where the information shouldn't
      * be serialized to the client. Defaults to 'false'.
      *
      * @see org.springframework.security.core.AuthenticationException#getExtraInformation()
+     * @deprecated the {@code extraInformation} property is deprecated
      */
+    @Deprecated
     public void setClearExtraInformation(boolean clearExtraInformation) {
         this.clearExtraInformation = clearExtraInformation;
     }

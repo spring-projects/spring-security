@@ -25,12 +25,12 @@ public abstract class AuthenticationException extends RuntimeException {
     //~ Instance fields ================================================================================================
 
     private Authentication authentication;
-    private Object extraInformation;
+    private transient Object extraInformation;
 
     //~ Constructors ===================================================================================================
 
     /**
-     * Constructs an <code>AuthenticationException</code> with the specified message and root cause.
+     * Constructs an {@code AuthenticationException} with the specified message and root cause.
      *
      * @param msg the detail message
      * @param t the root cause
@@ -40,7 +40,7 @@ public abstract class AuthenticationException extends RuntimeException {
     }
 
     /**
-     * Constructs an <code>AuthenticationException</code> with the specified message and no root cause.
+     * Constructs an {@code AuthenticationException} with the specified message and no root cause.
      *
      * @param msg the detail message
      */
@@ -48,15 +48,22 @@ public abstract class AuthenticationException extends RuntimeException {
         super(msg);
     }
 
+    /**
+     * @deprecated Use the exception message or use a custom exception if you really need additional information.
+     */
+    @Deprecated
     public AuthenticationException(String msg, Object extraInformation) {
         super(msg);
+        if (extraInformation instanceof CredentialsContainer) {
+            ((CredentialsContainer) extraInformation).eraseCredentials();
+        }
         this.extraInformation = extraInformation;
     }
 
     //~ Methods ========================================================================================================
 
     /**
-     * The authentication request which this exception corresponds to (may be <code>null</code>)
+     * The authentication request which this exception corresponds to (may be {@code null})
      */
     public Authentication getAuthentication() {
         return authentication;
@@ -67,14 +74,17 @@ public abstract class AuthenticationException extends RuntimeException {
     }
 
     /**
-     * Any additional information about the exception. Generally a <code>UserDetails</code> object.
+     * Any additional information about the exception. Generally a {@code UserDetails} object.
      *
-     * @return extra information or <code>null</code>
+     * @return extra information or {@code null}
+     * @deprecated Use the exception message or use a custom exception if you really need additional information.
      */
+    @Deprecated
     public Object getExtraInformation() {
         return extraInformation;
     }
 
+    @Deprecated
     public void clearExtraInformation() {
         this.extraInformation = null;
     }
