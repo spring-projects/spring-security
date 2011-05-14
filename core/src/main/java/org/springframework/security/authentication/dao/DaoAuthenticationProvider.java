@@ -28,8 +28,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.Assert;
 
 /**
- * An {@link AuthenticationProvider} implementation that retrieves user details
- * from an {@link UserDetailsService}.
+ * An {@link AuthenticationProvider} implementation that retrieves user details from a {@link UserDetailsService}.
  *
  * @author Ben Alex
  */
@@ -42,8 +41,6 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
     private SaltSource saltSource;
 
     private UserDetailsService userDetailsService;
-
-    private boolean includeDetailsObject = true;
 
     //~ Methods ========================================================================================================
 
@@ -59,8 +56,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
             logger.debug("Authentication failed: no credentials provided");
 
             throw new BadCredentialsException(messages.getMessage(
-                    "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"),
-                    includeDetailsObject ? userDetails : null);
+                    "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"), userDetails);
         }
 
         String presentedPassword = authentication.getCredentials().toString();
@@ -69,8 +65,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
             logger.debug("Authentication failed: password does not match stored value");
 
             throw new BadCredentialsException(messages.getMessage(
-                    "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"),
-                    includeDetailsObject ? userDetails : null);
+                    "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"), userDetails);
         }
     }
 
@@ -170,20 +165,4 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
     protected UserDetailsService getUserDetailsService() {
         return userDetailsService;
     }
-
-    protected boolean isIncludeDetailsObject() {
-        return includeDetailsObject;
-    }
-
-    /**
-     * Determines whether the UserDetails will be included in the <tt>extraInformation</tt> field of a
-     * thrown BadCredentialsException. Defaults to true, but can be set to false if the exception will be
-     * used with a remoting protocol, for example.
-     *
-     * @deprecated use {@link org.springframework.security.authentication.ProviderManager#setClearExtraInformation(boolean)}
-     */
-    public void setIncludeDetailsObject(boolean includeDetailsObject) {
-        this.includeDetailsObject = includeDetailsObject;
-    }
-
 }
