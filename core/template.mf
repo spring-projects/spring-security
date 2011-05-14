@@ -17,7 +17,6 @@ Import-Template:
  org.springframework.context.*;version="${springRange}",
  org.springframework.core.*;version="${springRange}",
  org.springframework.expression.*;version="${springRange}";resolution:=optional,
- org.springframework.remoting.*;version="${springRange}";resolution:=optional,
  org.springframework.dao.*;version="${springRange}";resolution:=optional,
  org.springframework.jdbc.*;version="${springRange}";resolution:=optional,
  org.springframework.transaction.*;version="${springRange}";resolution:=optional,

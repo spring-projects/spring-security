@@ -239,10 +239,13 @@
                     <listitem>
                         <para><literal>org.springframework.security.provisioning</literal></para>
                     </listitem>
-                    <listitem>
-                        <para><literal>org.springframework.security.remoting</literal></para>
-                    </listitem>
                     </itemizedlist></para>
+            </section>
+            <section xml:id="spring-security-remoting">
+                <title>Remoting - <literal>spring-security-remoting.jar</literal></title>
+                <para>Provides intergration with Spring Remoting. You don't need this unless you are
+                    writing a remote client which uses Spring Remoting. The main package is
+                    <literal>org.springframework.security.remoting</literal>.</para>
             </section>
             <section xml:id="spring-security-web">
                 <title>Web - <literal>spring-security-web.jar</literal></title>

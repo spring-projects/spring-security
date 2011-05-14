@@ -1,0 +1,19 @@
+Implementation-Title: org.springframework.security.remoting
+Implementation-Version: ${version}
+Bundle-SymbolicName: org.springframework.security.remoting
+Bundle-Name: Spring Security Remoting
+Bundle-Vendor: SpringSource
+Bundle-Version: ${version}
+Bundle-ManifestVersion: 2
+Excluded-Imports:
+ javax.naming.*
+Ignored-Existing-Headers:
+ Import-Package,
+ Export-Package
+Import-Template:
+ org.aopalliance.*;version="${aopAllianceRange}",
+ org.apache.commons.logging.*;version="${cloggingRange}",
+ org.springframework.security.core.*;version="${secRange}",
+ org.springframework.security.crypto.*;version="${secRange}",
+ org.springframework.core.*;version="${springRange}",
+ org.springframework.remoting.*;version="${springRange}"

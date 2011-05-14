@@ -93,6 +93,34 @@
     </section>
 
     <section>
+        <title><literal>spring-security-remoting</literal></title>
+        <para>This module is typically required in web applications which use the Servlet API.
+            <table xml:id="deps-remoting">
+                <title>Remoting Dependencies</title>
+                <tgroup cols="3" align="left">
+                    <colspec colnum="1" colname="col1" colwidth="2*"/>
+                    <colspec colnum="2" colname="col2" colwidth="1*"/>
+                    <colspec colnum="3" colname="col3" colwidth="3*"/>
+                    <thead>
+                        <row>
+                            <entry align="center">Dependency</entry>
+                            <entry align="center">Version</entry>
+                            <entry align="center">Description</entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry>spring-security-core</entry>
+                            <entry></entry>
+                            <entry></entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+        </para>
+    </section>
+
+    <section>
         <title><literal>spring-security-web</literal></title>
         <para>This module is typically required in web applications which use the Servlet API.
             <table xml:id="deps-web">

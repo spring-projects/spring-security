@@ -9,7 +9,6 @@ dependencies {
             "org.springframework:spring-expression:$springVersion",
             "org.springframework:spring-jdbc:$springVersion",
             "org.springframework:spring-tx:$springVersion",
-            "org.springframework:spring-web:$springVersion",
             "org.aspectj:aspectjrt:$aspectjVersion",
             'javax.annotation:jsr250-api:1.0'
 
