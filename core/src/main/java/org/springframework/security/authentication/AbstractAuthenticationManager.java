@@ -77,7 +77,9 @@ public abstract class AbstractAuthenticationManager implements AuthenticationMan
      * be serialized to the client. Defaults to 'false'.
      *
      * @see org.springframework.security.core.AuthenticationException#getExtraInformation()
+     * @deprecated the {@code extraInformation} property is deprecated
      */
+    @Deprecated
     public void setClearExtraInformation(boolean clearExtraInformation) {
         this.clearExtraInformation = clearExtraInformation;
     }

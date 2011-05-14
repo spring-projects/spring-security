@@ -17,6 +17,7 @@ public abstract class AccountStatusException extends AuthenticationException {
         super(msg, t);
     }
 
+    @Deprecated
     protected AccountStatusException(String msg, Object extraInformation) {
         super(msg, extraInformation);
     }

@@ -36,6 +36,7 @@ public class BadCredentialsException extends AuthenticationException {
         super(msg);
     }
 
+    @Deprecated
     public BadCredentialsException(String msg, Object extraInformation) {
         super(msg, extraInformation);
     }

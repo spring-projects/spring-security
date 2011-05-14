@@ -37,19 +37,19 @@ public class UsernameNotFoundException extends AuthenticationException {
     }
 
     /**
-     * Constructs a <code>UsernameNotFoundException</code>, making use of the <tt>extraInformation</tt>
+     * Constructs a {@code UsernameNotFoundException}, making use of the {@code extraInformation}
      * property of the superclass.
      *
      * @param msg the detail message
      * @param extraInformation additional information such as the username.
      */
+    @Deprecated
     public UsernameNotFoundException(String msg, Object extraInformation) {
         super(msg, extraInformation);
     }
 
     /**
-     * Constructs a <code>UsernameNotFoundException</code> with the specified
-     * message and root cause.
+     * Constructs a {@code UsernameNotFoundException} with the specified message and root cause.
      *
      * @param msg the detail message.
      * @param t root cause
