@@ -119,7 +119,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
     }
 
     private void reportMissingWebClasses(String nodeName, ParserContext pc, Node node) {
-        pc.getReaderContext().fatal("spring-security-web classes are not available. " +
+        pc.getReaderContext().fatal("The classes from spring-security-web (or one of its transitive dependencies) are not available. " +
                 "You need these to use <" + nodeName + ">", node);
     }
 
