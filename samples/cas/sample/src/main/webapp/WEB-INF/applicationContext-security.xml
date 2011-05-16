@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<b:beans xmlns:b="http://www.springframework.org/schema/beans"
+    xmlns="http://www.springframework.org/schema/security"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+    <http entry-point-ref="casEntryPoint" use-expressions="true">
+        <intercept-url pattern="/" access="permitAll"/>
+        <intercept-url pattern="/index.jsp" access="permitAll"/>
+        <intercept-url pattern="/cas-logout.jsp" access="permitAll"/>
+        <intercept-url pattern="/casfailed.jsp" access="permitAll"/>
+
+        <intercept-url pattern="/secure/extreme/**"
+            access="hasRole('ROLE_SUPERVISOR')" />
+        <intercept-url pattern="/secure/**" access="hasRole('ROLE_USER')" />
+        <intercept-url pattern="/**" access="hasRole('ROLE_USER')" />
+        <custom-filter ref="requestSingleLogoutFilter" before="LOGOUT_FILTER"/>
+        <custom-filter ref="singleLogoutFilter" before="CAS_FILTER"/>
+        <custom-filter ref="casFilter" position="CAS_FILTER" />
+        <logout logout-success-url="/cas-logout.jsp"/>
+    </http>
+
+    <authentication-manager alias="authManager">
+        <authentication-provider ref="casAuthProvider" />
+    </authentication-manager>
+
+    <user-service id="userService">
+        <user name="rod" password="rod" authorities="ROLE_SUPERVISOR,ROLE_USER" />
+        <user name="dianne" password="dianne" authorities="ROLE_USER" />
+        <user name="scott" password="scott" authorities="ROLE_USER" />
+    </user-service>
+
+    <!-- This filter handles a Single Logout Request from the CAS Server -->
+    <b:bean id="singleLogoutFilter" class="org.jasig.cas.client.session.SingleSignOutFilter"/>
+    <!-- This filter redirects to the CAS Server to signal Single Logout should be performed -->
+    <b:bean id="requestSingleLogoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter"
+        p:filterProcessesUrl="/j_spring_cas_security_logout">
+        <b:constructor-arg value="https://${cas.server.host}/cas/logout"/>
+        <b:constructor-arg>
+            <b:bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler"/>
+        </b:constructor-arg>
+    </b:bean>
+
+    <b:bean id="serviceProperties"
+        class="org.springframework.security.cas.ServiceProperties"
+        p:service="https://${cas.service.host}/cas-sample/j_spring_cas_security_check"
+        p:authenticateAllArtifacts="true"/>
+    <b:bean id="casEntryPoint"
+        class="org.springframework.security.cas.web.CasAuthenticationEntryPoint"
+        p:serviceProperties-ref="serviceProperties" p:loginUrl="https://${cas.server.host}/cas/login" />
+    <b:bean id="casFilter"
+        class="org.springframework.security.cas.web.CasAuthenticationFilter"
+        p:authenticationManager-ref="authManager"
+        p:serviceProperties-ref="serviceProperties"
+        p:proxyGrantingTicketStorage-ref="pgtStorage"
+        p:proxyReceptorUrl="/j_spring_cas_security_proxyreceptor">
+        <b:property name="authenticationDetailsSource">
+            <b:bean class="org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource"/>
+        </b:property>
+        <b:property name="authenticationFailureHandler">
+            <b:bean class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler"
+                p:defaultFailureUrl="/casfailed.jsp"/>
+        </b:property>
+    </b:bean>
+    <!--
+        NOTE: In a real application you should not use an in memory implementation. You will also want
+              to ensure to clean up expired tickets by calling ProxyGrantingTicketStorage.cleanup()
+     -->
+    <b:bean id="pgtStorage" class="org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl"/>
+    <b:bean id="casAuthProvider" class="org.springframework.security.cas.authentication.CasAuthenticationProvider"
+        p:serviceProperties-ref="serviceProperties"
+        p:key="casAuthProviderKey">
+        <b:property name="authenticationUserDetailsService">
+            <b:bean
+                class="org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper">
+                <b:constructor-arg ref="userService" />
+            </b:bean>
+        </b:property>
+        <b:property name="ticketValidator">
+            <b:bean
+                class="org.jasig.cas.client.validation.Cas20ProxyTicketValidator"
+                p:acceptAnyProxy="true"
+                p:proxyCallbackUrl="https://${cas.service.host}/cas-sample/j_spring_cas_security_proxyreceptor"
+                p:proxyGrantingTicketStorage-ref="pgtStorage">
+                <b:constructor-arg value="https://${cas.server.host}/cas" />
+            </b:bean>
+        </b:property>
+        <b:property name="statelessTicketCache">
+            <b:bean class="org.springframework.security.cas.authentication.EhCacheBasedTicketCache">
+                <b:property name="cache">
+                    <b:bean class="net.sf.ehcache.Cache"
+                      init-method="initialise"
+                      destroy-method="dispose">
+                        <b:constructor-arg value="casTickets"/>
+                        <b:constructor-arg value="50"/>
+                        <b:constructor-arg value="true"/>
+                        <b:constructor-arg value="false"/>
+                        <b:constructor-arg value="3600"/>
+                        <b:constructor-arg value="900"/>
+                    </b:bean>
+                </b:property>
+            </b:bean>
+        </b:property>
+    </b:bean>
+
+    <!-- Configuration for the environment can be overriden by system properties -->
+    <context:property-placeholder system-properties-mode="OVERRIDE" properties-ref="environment"/>
+    <util:properties id="environment">
+        <b:prop key="cas.service.host">localhost:8443</b:prop>
+        <b:prop key="cas.server.host">localhost:9443</b:prop>
+    </util:properties>
+</b:beans>

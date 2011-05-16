@@ -19,8 +19,8 @@ def String[] samples = [
     'gae',
     'dms',
     'preauth',
-    'casserver',
-    'cas',
+    'cas/server',
+    'cas/sample',
     'ldap',
     'jaas'
 ]
@@ -42,8 +42,9 @@ include samples
 
 samples.each {name ->
     p = findProject(":${name}")
-    p.name = "spring-security-samples-${name}"
-    p.buildFileName = "${name}.gradle"
+    def fullName = name.replaceAll('/','')
+    p.name = "spring-security-samples-${fullName}"
+    p.buildFileName = "${fullName}.gradle"
     p.projectDir = new File(settingsDir, "samples/${name}");
 }
 
