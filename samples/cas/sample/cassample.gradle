@@ -68,7 +68,8 @@ dependencies {
     }
 }
 
-task cas (dependsOn: [jettyRunWar,':spring-security-samples-casserver:casServer']) {
+task cas (dependsOn: [jettyRunWar]) {
+    jettyRunWar.dependsOn(':spring-security-samples-casserver:casServer')
 }
 
 task casServer(dependsOn: ':spring-security-samples-casserver:casServer') {
@@ -95,7 +96,6 @@ gradle.taskGraph.whenReady {graph ->
         delegate.connectors.find { it instanceof org.mortbay.jetty.nio.SelectChannelConnector }
     }
     if (graph.hasTask(cas)) {
-        jettyRunWar.dependsOn(casServer)
         casServer.daemon = true
     }
     if(graph.hasTask(integrationTest)) {
