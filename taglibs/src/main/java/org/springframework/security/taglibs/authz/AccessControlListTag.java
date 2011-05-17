@@ -14,57 +14,33 @@
  */
 package org.springframework.security.taglibs.authz;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.security.access.PermissionEvaluator;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.taglibs.TagLibConfig;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.web.util.ExpressionEvaluationUtils;
 
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.Tag;
 import javax.servlet.jsp.tagext.TagSupport;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.security.acls.domain.DefaultPermissionFactory;
-import org.springframework.security.acls.domain.ObjectIdentityRetrievalStrategyImpl;
-import org.springframework.security.acls.domain.PermissionFactory;
-import org.springframework.security.acls.domain.SidRetrievalStrategyImpl;
-import org.springframework.security.acls.model.Acl;
-import org.springframework.security.acls.model.AclService;
-import org.springframework.security.acls.model.NotFoundException;
-import org.springframework.security.acls.model.ObjectIdentity;
-import org.springframework.security.acls.model.ObjectIdentityRetrievalStrategy;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.acls.model.Sid;
-import org.springframework.security.acls.model.SidRetrievalStrategy;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.taglibs.TagLibConfig;
-import org.springframework.web.context.support.WebApplicationContextUtils;
-import org.springframework.web.util.ExpressionEvaluationUtils;
+import java.util.*;
 
 
 /**
  * An implementation of {@link Tag} that allows its body through if some authorizations are granted to the request's
  * principal.
  * <p>
- * One or more comma separate numeric are specified via the <tt>hasPermission</tt> attribute.
- * These permissions are then converted into {@link Permission} instances using the {@link PermissionFactory}
- * instance obtained from the application context, or a {@link DefaultPermissionFactory} if one isn't found.
- * The <tt>Permission</tt> instances are then presented as a list
- * array to the {@link Acl#isGranted(List, List, boolean)} method.
- * The {@link Sid} presented is determined by the {@link SidRetrievalStrategy}.
+ * One or more comma separate numeric are specified via the {@code hasPermission} attribute. The tag delegates
+ * to the configured {@link PermissionEvaluator} which it obtains from the {@code ApplicationContext}.
  * <p>
  * For this class to operate it must be able to access the application context via the
- * <code>WebApplicationContextUtils</code> and attempt to locate an {@link AclService},
- * {@link ObjectIdentityRetrievalStrategy} and {@link SidRetrievalStrategy}.
- * There cannot be more than one of these present. The <tt>AclService</tt> must be provided, but a
- * {@link SidRetrievalStrategyImpl} and/or an {@link ObjectIdentityRetrievalStrategyImpl} will be created if no
- * implementations are found in the application context.
+ * {@code WebApplicationContextUtils} and attempt to locate the {@code PermissionEvaluator} instance.
+ * There cannot be more than one of these present for the tag to function.
  *
  * @author Ben Alex
  * @author Luke Taylor
@@ -76,12 +52,9 @@ public class AccessControlListTag extends TagSupport {
 
     //~ Instance fields ================================================================================================
 
-    private AclService aclService;
     private ApplicationContext applicationContext;
     private Object domainObject;
-    private ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy;
-    private SidRetrievalStrategy sidRetrievalStrategy;
-    private PermissionFactory permissionFactory;
+    private PermissionEvaluator permissionEvaluator;
     private String hasPermission = "";
     private String var;
 
@@ -96,8 +69,6 @@ public class AccessControlListTag extends TagSupport {
 
         final String evaledPermissionsString = ExpressionEvaluationUtils.evaluateString("hasPermission", hasPermission,
                 pageContext);
-
-        List<Permission> requiredPermissions = parsePermissionsString(evaledPermissionsString);
 
         Object resolvedDomainObject;
 
@@ -126,21 +97,12 @@ public class AccessControlListTag extends TagSupport {
             return skipBody();
         }
 
-        List<Sid> sids = sidRetrievalStrategy.getSids(SecurityContextHolder.getContext().getAuthentication());
-        ObjectIdentity oid = objectIdentityRetrievalStrategy.getObjectIdentity(resolvedDomainObject);
-
-        // Obtain aclEntrys applying to the current Authentication object
-        try {
-            Acl acl = aclService.readAclById(oid, sids);
-
-            if (acl.isGranted(requiredPermissions, sids, false)) {
-                return evalBody();
-            } else {
-                return skipBody();
-            }
-        } catch (NotFoundException nfe) {
-            return skipBody();
+        if (permissionEvaluator.hasPermission(SecurityContextHolder.getContext().getAuthentication(),
+                resolvedDomainObject, evaledPermissionsString)) {
+            return evalBody();
         }
+
+        return skipBody();
     }
 
     private int skipBody() {
@@ -187,25 +149,7 @@ public class AccessControlListTag extends TagSupport {
 
         this.applicationContext = getContext(pageContext);
 
-        aclService = getBeanOfType(AclService.class);
-
-        sidRetrievalStrategy = getBeanOfType(SidRetrievalStrategy.class);
-
-        if (sidRetrievalStrategy == null) {
-            sidRetrievalStrategy = new SidRetrievalStrategyImpl();
-        }
-
-        objectIdentityRetrievalStrategy = getBeanOfType(ObjectIdentityRetrievalStrategy.class);
-
-        if (objectIdentityRetrievalStrategy == null) {
-            objectIdentityRetrievalStrategy = new ObjectIdentityRetrievalStrategyImpl();
-        }
-
-        permissionFactory = getBeanOfType(PermissionFactory.class);
-
-        if (permissionFactory == null) {
-            permissionFactory = new DefaultPermissionFactory();
-        }
+        permissionEvaluator = getBeanOfType(PermissionEvaluator.class);
     }
 
     private <T> T getBeanOfType(Class<T> type) throws JspException {
@@ -224,24 +168,6 @@ public class AccessControlListTag extends TagSupport {
 
         throw new JspException("Found incorrect number of " + type.getSimpleName() +" instances in "
                     + "application context - you must have only have one!");
-    }
-
-    private List<Permission> parsePermissionsString(String permissionsString) throws NumberFormatException {
-        final Set<Permission> permissions = new HashSet<Permission>();
-        final StringTokenizer tokenizer;
-        tokenizer = new StringTokenizer(permissionsString, ",", false);
-
-        while (tokenizer.hasMoreTokens()) {
-            String permission = tokenizer.nextToken();
-            try {
-                permissions.add(permissionFactory.buildFromMask(Integer.valueOf(permission)));
-            } catch (NumberFormatException nfe) {
-                // Not an integer mask. Try using a name
-                permissions.add(permissionFactory.buildFromName(permission));
-            }
-        }
-
-        return new ArrayList<Permission>(permissions);
     }
 
     public void setDomainObject(Object domainObject) {
