@@ -183,7 +183,7 @@
                 <title>Authentication</title>
                 <qandaentry xml:id="faq-bad-credentials">
                     <question>
-                        <para>Whan I try to log in, I get an error message that says "Bad
+                        <para>When I try to log in, I get an error message that says "Bad
                             Credentials". What's wrong?</para>
                     </question>
                     <answer>
