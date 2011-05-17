@@ -1,8 +1,8 @@
 To run a CAS server and client application, just execute the command
 
-../../../gradlew cas
+./gradlew cas
 
-from samples/cas/sample. You should then be able to point your browser at
+from the project root directory. You should then be able to point your browser at
 
 https://localhost:8443/cas-sample/
 
