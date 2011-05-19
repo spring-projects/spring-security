@@ -23,13 +23,14 @@ dependencies {
 
     provided "javax.servlet:servlet-api:2.5"
 
-    groovy group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.7'
+    groovy group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.10'
 
     testCompile project(':spring-security-ldap'),
                 project(':spring-security-openid'),
                 project(':spring-security-core').sourceSets.test.classes,
                 'javax.annotation:jsr250-api:1.0',
                 "org.springframework.ldap:spring-ldap-core:$springLdapVersion",
+                "org.springframework:spring-expression:$springVersion",
                 "org.springframework:spring-jdbc:$springVersion",
                 "org.springframework:spring-tx:$springVersion",
                 'org.spockframework:spock-core:0.5-groovy-1.7',
