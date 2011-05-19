@@ -8,6 +8,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedMap;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -59,7 +60,7 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
         return mds;
     }
 
-    static BeanDefinition createSecurityMetadataSource(List<Element> interceptUrls, Element elt, ParserContext pc) {
+    static RootBeanDefinition createSecurityMetadataSource(List<Element> interceptUrls, Element elt, ParserContext pc) {
         MatcherType matcherType = MatcherType.fromElement(elt);
         boolean useExpressions = isUseExpressions(elt);
 
@@ -87,7 +88,7 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 
         fidsBuilder.getRawBeanDefinition().setSource(pc.extractSource(elt));
 
-        return fidsBuilder.getBeanDefinition();
+        return (RootBeanDefinition) fidsBuilder.getBeanDefinition();
     }
 
     static String registerDefaultExpressionHandler(ParserContext pc) {

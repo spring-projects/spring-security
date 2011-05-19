@@ -50,6 +50,9 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.access.vote.RoleVoter
 import org.springframework.security.web.access.expression.WebExpressionVoter
 import org.springframework.security.access.vote.AffirmativeBased
+import org.springframework.security.access.PermissionEvaluator
+import org.springframework.security.core.Authentication
+import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler
 
 class MiscHttpConfigTests extends AbstractHttpConfigTests {
     def 'Minimal configuration parses'() {
@@ -497,6 +500,25 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         thrown(AccessDeniedException)
     }
 
+    def expressionBasedAccessSupportsExternalExpressionHandler() {
+        setup:
+        xml.http('auto-config': 'true', 'use-expressions': 'true') {
+            interceptUrl('/**', "hasPermission('AnyObject','R')")
+            'expression-handler'(ref: 'expressionHandler')
+        }
+        bean('expressionHandler', DefaultWebSecurityExpressionHandler.class.name, [:], [permissionEvaluator: 'pe'])
+        bean('pe', MockPermissionEvaluator)
+        createAppContext()
+
+        def fis = getFilter(FilterSecurityInterceptor)
+
+        when: "Invoking allowed URL protected by hasPermission() expression succeeds"
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("joe", "", "ANY"));
+        fis.invoke(createFilterinvocation("/secure", null));
+        then:
+        notThrown(AccessDeniedException)
+    }
+
     def protectedLoginPageReportsWarning() {
         when:
         xml.http('use-expressions': 'true') {
@@ -645,6 +667,17 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         expect:
         getFilter(FilterSecurityInterceptor.class).accessDecisionManager.decisionVoters[3] instanceof WebExpressionVoter
     }
+}
+
+class MockPermissionEvaluator implements PermissionEvaluator {
+    boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
+        return true
+    }
+
+    boolean hasPermission(Authentication authentication, Serializable targetId, String targetType, Object permission) {
+        return true
+    }
+
 }
 
 class MockEntryPoint extends LoginUrlAuthenticationEntryPoint {

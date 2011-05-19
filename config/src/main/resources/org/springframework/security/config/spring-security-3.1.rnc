@@ -202,7 +202,7 @@ msmds.attlist &= use-expressions?
 
 global-method-security =
     ## Provides method security for all beans registered in the Spring application context. Specifically, beans will be scanned for matches with the ordered list of "protect-pointcut" sub-elements, Spring Security annotations and/or. Where there is a match, the beans will automatically be proxied and security authorization applied to the methods accordingly. If you use and enable all four sources of method security metadata (ie "protect-pointcut" declarations, expression annotations, @Secured and also JSR250 security annotations), the metadata sources will be queried in that order. In practical terms, this enables you to use XML to override method security metadata expressed in annotations. If using annotations, the order of precedence is EL-based (@PreAuthorize etc.), @Secured and finally JSR-250.
-	element global-method-security {global-method-security.attlist, (pre-post-annotation-handling | expression-handler)?, protect-pointcut*, after-invocation-provider*}
+    element global-method-security {global-method-security.attlist, (pre-post-annotation-handling | expression-handler)?, protect-pointcut*, after-invocation-provider*}
 global-method-security.attlist &=
     ## Specifies whether the use of Spring Security's pre and post invocation annotations (@PreFilter, @PreAuthorize, @PostFilter, @PostAuthorize) should be enabled for this application context. Defaults to "disabled".
     attribute pre-post-annotations {"disabled" | "enabled" }?
@@ -268,7 +268,7 @@ http-firewall =
 
 http =
     ## Container element for HTTP security configuration. Multiple elements can now be defined, each with a specific pattern to which the enclosed security configuration applies. A pattern can also be configured to bypass Spring Security's filters completely by setting the "secured" attribute to "false".
-    element http {http.attlist, (intercept-url* & access-denied-handler? & form-login? & openid-login? & x509? & jee? & http-basic? & logout? & session-management & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache?) }
+    element http {http.attlist, (intercept-url* & access-denied-handler? & form-login? & openid-login? & x509? & jee? & http-basic? & logout? & session-management & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache? & expression-handler?) }
 http.attlist &=
     ## The request URL pattern which will be mapped to the filter chain created by this <http> element. If omitted, the filter chain will match all requests.
     attribute pattern {xsd:token}?

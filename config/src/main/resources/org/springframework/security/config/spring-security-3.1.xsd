@@ -682,6 +682,11 @@
     </xs:complexType></xs:element>
         <xs:element ref="security:custom-filter"/>
         <xs:element ref="security:request-cache"/>
+        <xs:element name="expression-handler"><xs:annotation>
+      <xs:documentation>Defines the SecurityExpressionHandler instance which will be used if expression-based access-control is enabled. A default implementation (with no ACL support) will be used if not supplied.</xs:documentation>
+    </xs:annotation><xs:complexType>
+      <xs:attributeGroup ref="security:ref"/>
+    </xs:complexType></xs:element>
       </xs:choice>
       <xs:attributeGroup ref="security:http.attlist"/>
     </xs:complexType></xs:element>

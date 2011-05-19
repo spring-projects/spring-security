@@ -451,15 +451,17 @@ class HttpConfigurationBuilder {
 
     private void createFilterSecurityInterceptor(BeanReference authManager) {
         boolean useExpressions = FilterInvocationSecurityMetadataSourceParser.isUseExpressions(httpElt);
-        BeanDefinition securityMds = FilterInvocationSecurityMetadataSourceParser.createSecurityMetadataSource(interceptUrls, httpElt, pc);
+        RootBeanDefinition securityMds = FilterInvocationSecurityMetadataSourceParser.createSecurityMetadataSource(interceptUrls, httpElt, pc);
 
         RootBeanDefinition accessDecisionMgr;
         ManagedList<BeanDefinition> voters =  new ManagedList<BeanDefinition>(2);
 
         if (useExpressions) {
             BeanDefinitionBuilder expressionVoter = BeanDefinitionBuilder.rootBeanDefinition(WebExpressionVoter.class);
-            RuntimeBeanReference expressionHandler = new RuntimeBeanReference(
-                    FilterInvocationSecurityMetadataSourceParser.registerDefaultExpressionHandler(pc));
+            // Read the expression handler from the FISMS
+            RuntimeBeanReference expressionHandler = (RuntimeBeanReference)
+                    securityMds.getConstructorArgumentValues().getArgumentValue(1, RuntimeBeanReference.class).getValue();
+
             expressionVoter.addPropertyValue("expressionHandler", expressionHandler);
 
             voters.add(expressionVoter.getBeanDefinition());
