@@ -7,8 +7,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.aop.support.AopUtils;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.context.ApplicationContext;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -27,7 +25,6 @@ class MethodSecurityEvaluationContext extends StandardEvaluationContext {
 
     private ParameterNameDiscoverer parameterNameDiscoverer;
     private final MethodInvocation mi;
-    private ApplicationContext appContext;
     private boolean argumentsAdded;
 
     /**
@@ -62,16 +59,6 @@ class MethodSecurityEvaluationContext extends StandardEvaluationContext {
 
         if (variable != null) {
             return variable;
-        }
-
-        if (appContext != null) {
-            try {
-                super.setVariable(name, appContext.getBean(name));
-
-                return super.lookupVariable(name);
-            } catch (NoSuchBeanDefinitionException e) {
-                logger.debug("Bean lookup for variable '" + name + "' failed");
-            }
         }
 
         return null;

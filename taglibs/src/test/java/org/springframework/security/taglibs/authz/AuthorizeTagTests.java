@@ -44,6 +44,7 @@ public class AuthorizeTagTests {
     //~ Instance fields ================================================================================================
 
     private JspAuthorizeTag authorizeTag;
+    private MockHttpServletRequest request = new MockHttpServletRequest();
     private final TestingAuthenticationToken currentUser = new TestingAuthenticationToken("abc", "123", "ROLE SUPERVISOR", "ROLE_TELLER");
 
     //~ Methods ========================================================================================================
@@ -57,7 +58,7 @@ public class AuthorizeTagTests {
         MockServletContext servletCtx = new MockServletContext();
         servletCtx.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ctx);
         authorizeTag = new JspAuthorizeTag();
-        authorizeTag.setPageContext(new MockPageContext(servletCtx, new MockHttpServletRequest(), new MockHttpServletResponse()));
+        authorizeTag.setPageContext(new MockPageContext(servletCtx, request, new MockHttpServletResponse()));
     }
 
     @After
@@ -83,6 +84,13 @@ public class AuthorizeTagTests {
     @Test
     public void showsBodyIfAccessExpressionAllowsAccess() throws Exception {
         authorizeTag.setAccess("permitAll");
+        assertEquals(Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
+    }
+
+    @Test
+    public void requestAttributeIsResolvedAsElVariable() throws JspException {
+        request.setAttribute("blah", "blah");
+        authorizeTag.setAccess("#blah == 'blah'");
         assertEquals(Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
     }
 

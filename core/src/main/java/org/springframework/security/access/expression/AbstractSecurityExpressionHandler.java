@@ -8,6 +8,7 @@ import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
@@ -25,6 +26,7 @@ public abstract class AbstractSecurityExpressionHandler<T> implements SecurityEx
     private final ExpressionParser expressionParser = new SpelExpressionParser();
     private BeanResolver br;
     private RoleHierarchy roleHierarchy;
+    private PermissionEvaluator permissionEvaluator = new DenyAllPermissionEvaluator();
 
     public final ExpressionParser getExpressionParser() {
         return expressionParser;
@@ -75,6 +77,14 @@ public abstract class AbstractSecurityExpressionHandler<T> implements SecurityEx
 
     public void setRoleHierarchy(RoleHierarchy roleHierarchy) {
         this.roleHierarchy = roleHierarchy;
+    }
+
+    protected PermissionEvaluator getPermissionEvaluator() {
+        return permissionEvaluator;
+    }
+
+    public void setPermissionEvaluator(PermissionEvaluator permissionEvaluator) {
+        this.permissionEvaluator = permissionEvaluator;
     }
 
     public void setApplicationContext(ApplicationContext applicationContext) {

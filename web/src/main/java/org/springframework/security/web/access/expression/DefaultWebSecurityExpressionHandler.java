@@ -14,6 +14,8 @@ public class DefaultWebSecurityExpressionHandler extends AbstractSecurityExpress
 
     @Override
     protected SecurityExpressionRoot createSecurityExpressionRoot(Authentication authentication, FilterInvocation fi) {
-        return new WebSecurityExpressionRoot(authentication, fi);
+        WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(authentication, fi);
+        root.setPermissionEvaluator(getPermissionEvaluator());
+        return root;
     }
 }

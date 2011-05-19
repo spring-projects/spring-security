@@ -1,4 +1,4 @@
-package org.springframework.security.access.expression.method;
+package org.springframework.security.access.expression;
 
 import java.io.Serializable;
 
@@ -14,7 +14,7 @@ import org.springframework.security.core.Authentication;
  * @author Luke Taylor
  * @since 3.0
  */
-class DenyAllPermissionEvaluator implements PermissionEvaluator {
+public class DenyAllPermissionEvaluator implements PermissionEvaluator {
 
     private final Log logger = LogFactory.getLog(getClass());
 

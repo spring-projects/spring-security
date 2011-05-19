@@ -14,6 +14,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.access.PermissionCacheOptimizer;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.AbstractSecurityExpressionHandler;
+import org.springframework.security.access.expression.DenyAllPermissionEvaluator;
 import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.core.Authentication;
@@ -31,7 +32,6 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
     protected final Log logger = LogFactory.getLog(getClass());
 
     private ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
-    private PermissionEvaluator permissionEvaluator = new DenyAllPermissionEvaluator();
     private PermissionCacheOptimizer permissionCacheOptimizer = null;
 
     public DefaultMethodSecurityExpressionHandler() {
@@ -48,7 +48,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
     protected SecurityExpressionRoot createSecurityExpressionRoot(Authentication authentication, MethodInvocation invocation) {
         MethodSecurityExpressionRoot root = new MethodSecurityExpressionRoot(authentication);
         root.setThis(invocation.getThis());
-        root.setPermissionEvaluator(permissionEvaluator);
+        root.setPermissionEvaluator(getPermissionEvaluator());
 
         return root;
     }
@@ -138,10 +138,6 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 
     public void setParameterNameDiscoverer(ParameterNameDiscoverer parameterNameDiscoverer) {
         this.parameterNameDiscoverer = parameterNameDiscoverer;
-    }
-
-    public void setPermissionEvaluator(PermissionEvaluator permissionEvaluator) {
-        this.permissionEvaluator = permissionEvaluator;
     }
 
     public void setPermissionCacheOptimizer(PermissionCacheOptimizer permissionCacheOptimizer) {

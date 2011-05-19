@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.GenericTypeResolver;
+import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ParseException;
 import org.springframework.security.access.expression.ExpressionUtils;
@@ -161,8 +162,7 @@ public abstract class AbstractAuthorizeTag {
      * @throws IOException
      */
     public boolean authorizeUsingAccessExpression() throws IOException {
-        Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
-        if (currentUser == null) {
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
             return false;
         }
 
@@ -178,13 +178,20 @@ public abstract class AbstractAuthorizeTag {
             throw ioException;
         }
 
+        return ExpressionUtils.evaluateAsBoolean(accessExpression, createExpressionEvaluationContext(handler));
+    }
+
+    /**
+     * Allows the {@code EvaluationContext} to be customized for variable lookup etc.
+     */
+    protected EvaluationContext createExpressionEvaluationContext(SecurityExpressionHandler<FilterInvocation> handler) {
         FilterInvocation f = new FilterInvocation(getRequest(), getResponse(), new FilterChain() {
             public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
                 throw new UnsupportedOperationException();
             }
         });
 
-        return ExpressionUtils.evaluateAsBoolean(accessExpression, handler.createEvaluationContext(currentUser, f));
+        return handler.createEvaluationContext(SecurityContextHolder.getContext().getAuthentication(), f);
     }
 
     /**
