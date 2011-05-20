@@ -16,19 +16,12 @@
 package org.springframework.security.remoting.rmi;
 
 import junit.framework.TestCase;
-
+import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.security.TargetObject;
-
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import org.springframework.security.remoting.rmi.ContextPropagatingRemoteInvocation;
-import org.springframework.security.remoting.rmi.ContextPropagatingRemoteInvocationFactory;
-
 import org.springframework.security.util.SimpleMethodInvocation;
-
-import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Method;
 
@@ -57,8 +50,7 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
         return (ContextPropagatingRemoteInvocation) factory.createRemoteInvocation(mi);
     }
 
-    public void testContextIsResetEvenIfExceptionOccurs()
-        throws Exception {
+    public void testContextIsResetEvenIfExceptionOccurs() throws Exception {
         // Setup client-side context
         Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("rod", "koala");
         SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
@@ -96,10 +88,10 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
     }
 
     public void testNullContextHolderDoesNotCauseInvocationProblems() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(null); // just to be explicit
+        SecurityContextHolder.clearContext(); // just to be explicit
 
         ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
-        SecurityContextHolder.getContext().setAuthentication(null); // unnecessary, but for explicitness
+        SecurityContextHolder.clearContext(); // unnecessary, but for explicitness
 
         assertEquals("some_string Authentication empty", remoteInvocation.invoke(new TargetObject()));
     }
