@@ -18,6 +18,8 @@ package org.springframework.security.intercept;
 import junit.framework.TestCase;
 
 import org.springframework.security.ConfigAttributeDefinition;
+import org.springframework.security.context.SecurityContext;
+import org.springframework.security.context.SecurityContextImpl;
 import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 import org.springframework.security.util.SimpleMethodInvocation;
 
@@ -58,12 +60,13 @@ public class InterceptorStatusTokenTests extends TestCase {
         ConfigAttributeDefinition attr = new ConfigAttributeDefinition("FOO");
         MethodInvocation mi = new SimpleMethodInvocation();
 
-        InterceptorStatusToken token = new InterceptorStatusToken(new UsernamePasswordAuthenticationToken("rod",
-                    "koala"), true, attr, mi);
+        SecurityContext ctx = new SecurityContextImpl();
+
+        InterceptorStatusToken token = new InterceptorStatusToken(ctx, true, attr, mi);
 
         assertTrue(token.isContextHolderRefreshRequired());
         assertEquals(attr, token.getAttr());
         assertEquals(mi, token.getSecureObject());
-        assertEquals("rod", token.getAuthentication().getPrincipal());
+        assertSame(ctx, token.getSecurityContext());
     }
 }

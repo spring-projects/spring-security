@@ -34,6 +34,7 @@ import org.springframework.security.MockAuthenticationManager;
 import org.springframework.security.MockRunAsManager;
 import org.springframework.security.RunAsManager;
 
+import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
 
 import org.springframework.security.intercept.method.MethodDefinitionSource;
@@ -166,11 +167,15 @@ public class MethodSecurityInterceptorTests extends TestCase {
     public void testMethodCallWithRunAsReplacement() throws Exception {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("MOCK_UPPER")});
-        SecurityContextHolder.getContext().setAuthentication(token);
+        SecurityContext ctx = SecurityContextHolder.getContext();
+        ctx.setAuthentication(token);
 
         ITargetObject target = makeInterceptedTarget();
         String result = target.makeUpperCase("hello");
         assertEquals("HELLO org.springframework.security.MockRunAsAuthenticationToken true", result);
+        // Check reset afterwards
+        assertSame(ctx, SecurityContextHolder.getContext());
+        assertSame(token, SecurityContextHolder.getContext().getAuthentication());
     }
 
     public void testMethodCallWithoutRunAsReplacement()
