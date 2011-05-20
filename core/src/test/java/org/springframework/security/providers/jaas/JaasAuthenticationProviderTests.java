@@ -138,13 +138,7 @@ public class JaasAuthenticationProviderTests extends TestCase {
     }
 
     public void testFull() throws Exception {
-        GrantedAuthorityImpl role1 = new GrantedAuthorityImpl("ROLE_1");
-        GrantedAuthorityImpl role2 = new GrantedAuthorityImpl("ROLE_2");
-
-        GrantedAuthority[] defaultAuths = new GrantedAuthority[] {role1, role2,};
-
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password",
-                defaultAuths);
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password");
 
         assertTrue(jaasProvider.supports(UsernamePasswordAuthenticationToken.class));
 
@@ -160,10 +154,6 @@ public class JaasAuthenticationProviderTests extends TestCase {
         assertTrue("GrantedAuthorities should contain ROLE_TEST1", list.contains(new GrantedAuthorityImpl("ROLE_TEST1")));
 
         assertTrue("GrantedAuthorities should contain ROLE_TEST2", list.contains(new GrantedAuthorityImpl("ROLE_TEST2")));
-
-        assertTrue("GrantedAuthorities should contain ROLE_1", list.contains(role1));
-
-        assertTrue("GrantedAuthorities should contain ROLE_2", list.contains(role2));
 
         boolean foundit = false;
 

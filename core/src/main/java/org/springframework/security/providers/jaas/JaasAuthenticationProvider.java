@@ -158,7 +158,7 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
         Assert.hasLength(loginContextName, "loginContextName must be set on " + getClass());
 
         configureJaas(loginConfig);
-        
+
         Assert.notNull(Configuration.getConfiguration(),
               "As per http://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/login/Configuration.html "
             + "\"If a Configuration object was set via the Configuration.setConfiguration method, then that object is "
@@ -189,12 +189,8 @@ public class JaasAuthenticationProvider implements AuthenticationProvider, Appli
                 //Attempt to login the user, the LoginContext will call our InternalCallbackHandler at this point.
                 loginContext.login();
 
-                //create a set to hold the authorities, and add any that have already been applied.
+                //create a set to hold the authorities
                 Set authorities = new HashSet();
-
-                if (request.getAuthorities() != null) {
-                    authorities.addAll(Arrays.asList(request.getAuthorities()));
-                }
 
                 //get the subject principals and pass them to each of the AuthorityGranters
                 Set principals = loginContext.getSubject().getPrincipals();
