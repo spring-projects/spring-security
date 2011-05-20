@@ -15,8 +15,7 @@
 
 package org.springframework.security.access.intercept.aopalliance;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.List;
 
@@ -44,6 +43,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
@@ -276,7 +276,8 @@ public class MethodSecurityInterceptorTests {
 
     @Test
     public void runAsReplacementIsCorrectlySet() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(token);
+        SecurityContext ctx = SecurityContextHolder.getContext();
+        ctx.setAuthentication(token);
         token.setAuthenticated(true);
         final RunAsManager runAs = jmock.mock(RunAsManager.class);
         final RunAsUserToken runAsToken =
@@ -292,7 +293,8 @@ public class MethodSecurityInterceptorTests {
         String result = advisedTarget.makeUpperCase("hello");
         assertEquals("HELLO org.springframework.security.access.intercept.RunAsUserToken true", result);
         // Check we've changed back
-        assertEquals(token, SecurityContextHolder.getContext().getAuthentication());
+        assertSame(ctx, SecurityContextHolder.getContext());
+        assertSame(token, SecurityContextHolder.getContext().getAuthentication());
     }
 
     @Test(expected=AuthenticationCredentialsNotFoundException.class)

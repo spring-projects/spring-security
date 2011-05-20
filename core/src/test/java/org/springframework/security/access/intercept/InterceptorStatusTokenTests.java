@@ -15,8 +15,7 @@
 
 package org.springframework.security.access.intercept;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.List;
 
@@ -24,8 +23,8 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Test;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.access.intercept.InterceptorStatusToken;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.util.SimpleMethodInvocation;
 
 
@@ -40,12 +39,12 @@ public class InterceptorStatusTokenTests {
     public void testOperation() {
         List<ConfigAttribute> attr = SecurityConfig.createList("FOO");
         MethodInvocation mi = new SimpleMethodInvocation();
-        InterceptorStatusToken token = new InterceptorStatusToken(new UsernamePasswordAuthenticationToken("rod",
-                    "koala"), true, attr, mi);
+        SecurityContext ctx = SecurityContextHolder.createEmptyContext();
+        InterceptorStatusToken token = new InterceptorStatusToken(ctx, true, attr, mi);
 
         assertTrue(token.isContextHolderRefreshRequired());
         assertEquals(attr, token.getAttributes());
         assertEquals(mi, token.getSecureObject());
-        assertEquals("rod", token.getAuthentication().getPrincipal());
+        assertSame(ctx, token.getSecurityContext());
     }
 }
