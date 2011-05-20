@@ -15,33 +15,30 @@
 
 package org.springframework.security.context.rmi;
 
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-
 import org.aopalliance.intercept.MethodInvocation;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.remoting.support.RemoteInvocation;
+import org.springframework.security.Authentication;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
 
 import java.lang.reflect.InvocationTargetException;
 
 
 /**
- * The actual <code>RemoteInvocation</code> that is passed from the client to the server, which contains the
- * contents of {@link SecurityContextHolder}, being a {@link SecurityContext} object.<p>When constructed on the
- * client via {@link org.springframework.security.context.rmi.ContextPropagatingRemoteInvocationFactory}, the contents of the
- * <code>SecurityContext</code> are stored inside the object. The object is then passed to the server that is
- * processing the remote invocation. Upon the server invoking the remote invocation, it will retrieve the passed
- * contents of the <code>SecurityContextHolder</code> and set them to the server-side
- * <code>SecurityContextHolder</code> whilst the target object is invoked. When the target invocation has been
- * completed, the server-side <code>SecurityContextHolder</code> will be reset to a new instance of
- * <code>SecurityContextImpl</code>.</p>
+ * The actual {@code RemoteInvocation} that is passed from the client to the server.
+ * <p>
+ * The principal and credentials information will be extracted from the current
+ * security context and passed to the server as part of the invocation object.
+ * <p>
+ * To avoid potential serialization-based attacks, this implementation interprets the values as {@code String}s
+ * and creates a {@code UsernamePasswordAuthenticationToken} on the server side to hold them. If a different
+ * token type is required you can override the {@code createAuthenticationRequest} method.
  *
  * @author James Monaghan
  * @author Ben Alex
- * @version $Id$
+ * @author Luke Taylor
  */
 public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
     //~ Static fields/initializers =====================================================================================
@@ -50,33 +47,40 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
 
     //~ Instance fields ================================================================================================
 
-    private SecurityContext securityContext;
+    private final String principal;
+    private final String credentials;
 
     //~ Constructors ===================================================================================================
 
-/**
-     * Constructs the object, storing the value of the client-side
-     * <code>SecurityContextHolder</code> inside the object.
+    /**
+     * Constructs the object, storing the principal and credentials extracted from the client-side
+     * security context.
      *
      * @param methodInvocation the method to invoke
      */
     public ContextPropagatingRemoteInvocation(MethodInvocation methodInvocation) {
         super(methodInvocation);
-        securityContext = SecurityContextHolder.getContext();
+        Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
+
+        if (currentUser != null) {
+            principal = currentUser.getPrincipal().toString();
+            credentials = currentUser.getCredentials().toString();
+        } else {
+            principal = credentials = null;
+        }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("RemoteInvocation now has SecurityContext: " + securityContext);
+            logger.debug("RemoteInvocation now has principal: " + principal);
         }
     }
 
     //~ Methods ========================================================================================================
 
     /**
-     * Invoked on the server-side as described in the class JavaDocs.<p>Invocations will always have their
-     * {@link org.springframework.security.Authentication#setAuthenticated(boolean)} set to <code>false</code>, which is
-     * guaranteed to always be accepted by <code>Authentication</code> implementations. This ensures that even
-     * remotely authenticated <code>Authentication</code>s will be untrusted by the server-side, which is an
-     * appropriate security measure.</p>
+     * Invoked on the server-side.
+     * <p>
+     * The transmitted principal and credentials will be used to create an unauthenticated {@code Authentication}
+     * instance for processing by the {@code AuthenticationManager}.
      *
      * @param targetObject the target object to apply the invocation to
      *
@@ -87,16 +91,16 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
      * @throws InvocationTargetException if the method invocation resulted in an exception
      */
     public Object invoke(Object targetObject)
-        throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        SecurityContextHolder.setContext(securityContext);
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
 
-        if ((SecurityContextHolder.getContext() != null)
-            && (SecurityContextHolder.getContext().getAuthentication() != null)) {
-            SecurityContextHolder.getContext().getAuthentication().setAuthenticated(false);
-        }
+        if (principal != null) {
+            Authentication request = createAuthenticationRequest(principal, credentials);
+            request.setAuthenticated(false);
+            SecurityContextHolder.getContext().setAuthentication(request);
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Set SecurityContextHolder to contain: " + securityContext);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Set SecurityContextHolder to contain: " + request);
+            }
         }
 
         try {
@@ -105,8 +109,15 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
             SecurityContextHolder.clearContext();
 
             if (logger.isDebugEnabled()) {
-                logger.debug("Set SecurityContext to new instance of SecurityContextImpl");
+                logger.debug("Cleared SecurityContextHolder.");
             }
         }
+    }
+
+    /**
+     * Creates the server-side authentication request object.
+     */
+    protected Authentication createAuthenticationRequest(String principal, String credentials) {
+        return new UsernamePasswordAuthenticationToken(principal, credentials);
     }
 }
