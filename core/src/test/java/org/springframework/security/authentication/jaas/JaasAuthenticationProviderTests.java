@@ -179,7 +179,7 @@ public class JaasAuthenticationProviderTests {
 
     @Test
     public void testFull() throws Exception {
-        List<GrantedAuthority> defaultAuths = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
+        List<GrantedAuthority> defaultAuths = AuthorityUtils.createAuthorityList("ROLE_ONE");
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password",
                 defaultAuths);
 
@@ -196,8 +196,7 @@ public class JaasAuthenticationProviderTests {
 
         assertTrue("GrantedAuthorities should contain ROLE_TEST1", list.contains(new GrantedAuthorityImpl("ROLE_TEST1")));
         assertTrue("GrantedAuthorities should contain ROLE_TEST2", list.contains(new GrantedAuthorityImpl("ROLE_TEST2")));
-        assertTrue("GrantedAuthorities should contain ROLE_1", list.contains(defaultAuths.get(0)));
-        assertTrue("GrantedAuthorities should contain ROLE_2", list.contains(defaultAuths.get(1)));
+        assertFalse("GrantedAuthorities should not contain ROLE_ONE", list.contains(defaultAuths.get(0)));
 
         boolean foundit = false;
 
