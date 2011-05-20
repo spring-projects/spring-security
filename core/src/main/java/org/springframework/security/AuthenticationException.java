@@ -26,7 +26,7 @@ public abstract class AuthenticationException extends SpringSecurityException {
     //~ Instance fields ================================================================================================
 
     private Authentication authentication;
-    private Object extraInformation;
+    private transient Object extraInformation;
 
     //~ Constructors ===================================================================================================
 
