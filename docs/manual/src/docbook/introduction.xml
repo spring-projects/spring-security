@@ -274,7 +274,7 @@
                     is <literal>org.springframework.security.acls</literal>.</para>
             </section>
             <section xml:id="spring-security-cas">
-                <title>CAS - <literal>spring-security-cas-client.jar</literal></title>
+                <title>CAS - <literal>spring-security-cas.jar</literal></title>
                 <para>Spring Security's CAS client integration. If you want to use Spring Security
                     web authentication with a CAS single sign-on server. The top-level package is
                     <literal>org.springframework.security.cas</literal>.</para>
