@@ -52,7 +52,7 @@ public class Encryptors {
 
     /**
      * Creates an encryptor for queryable text strings that uses standard password-based encryption.
-     * Uses a shared, or constant 16 byte initialization vector so encrypting the same data results in the same encryption result.
+     * Uses a 16-byte all-zero initialization vector so encrypting the same data results in the same encryption result.
      * This is done to allow encrypted data to be queried against.
      * Encrypted text is hex-encoded.
      *
@@ -60,7 +60,7 @@ public class Encryptors {
      * @param salt a hex-encoded, random, site-global salt value to use to generate the secret key
      */
     public static TextEncryptor queryableText(CharSequence password, CharSequence salt) {
-        return new HexEncodingTextEncryptor(new AesBytesEncryptor(password.toString(), salt, KeyGenerators.shared(16)));
+        return new HexEncodingTextEncryptor(new AesBytesEncryptor(password.toString(), salt));
     }
 
     /**
