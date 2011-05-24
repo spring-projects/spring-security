@@ -30,9 +30,8 @@ import org.springframework.util.StringUtils;
  * will be used for the destination.
  * </li>
  * <li>
- * If {@code useTargetUrlparameter} is {@code true}, and a parameter matching the {@code targetUrlParameter} has been
- * set on the request, the value will be used as the destination. The default parameter name is
- * {@code spring-security-redirect}. If you are enabling this functionality, then you should ensure that the parameter
+ * If a parameter matching the value of {@code targetUrlParameter} has been set on the request, the value will be used
+ * as the destination. If you are enabling this functionality, then you should ensure that the parameter
  * cannot be used by an attacker to redirect the user to a malicious site (by clicking on a URL with the parameter
  * included, for example). Typically it would be used when the parameter is included in the login form and submitted with
  * the username and password.
