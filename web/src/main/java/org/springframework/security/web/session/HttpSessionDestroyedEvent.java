@@ -17,10 +17,12 @@ package org.springframework.security.web.session;
 
 import javax.servlet.http.HttpSession;
 
+import com.sun.xml.internal.ws.encoding.ContentType;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.session.SessionDestroyedEvent;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
+import java.util.*;
 
 /**
  * Published by the {@link HttpSessionEventPublisher} when a HttpSession is created in the container
@@ -39,9 +41,23 @@ public class HttpSessionDestroyedEvent extends SessionDestroyedEvent {
         return (HttpSession) getSource();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public SecurityContext getSecurityContext() {
-        return (SecurityContext) ((HttpSession)getSource()).getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
+    public List<SecurityContext> getSecurityContexts() {
+        HttpSession session = (HttpSession)getSource();
+
+        Enumeration<String> attributes = session.getAttributeNames();
+
+        ArrayList<SecurityContext> contexts = new ArrayList<SecurityContext>();
+
+        while(attributes.hasMoreElements()) {
+            Object attribute = attributes.nextElement();
+            if (attribute instanceof SecurityContext) {
+                contexts.add((SecurityContext) attribute);
+            }
+        }
+
+        return contexts;
     }
 
     @Override

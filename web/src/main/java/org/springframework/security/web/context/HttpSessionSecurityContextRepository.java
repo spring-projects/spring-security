@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,7 +20,7 @@ import javax.servlet.http.HttpSession;
  * between requests.
  * <p>
  * The {@code HttpSession} will be queried to retrieve the {@code SecurityContext} in the <tt>loadContext</tt>
- * method (using the key {@link #SPRING_SECURITY_CONTEXT_KEY}). If a valid {@code SecurityContext} cannot be
+ * method (using the key {@link #SPRING_SECURITY_CONTEXT_KEY} by default). If a valid {@code SecurityContext} cannot be
  * obtained from the {@code HttpSession} for whatever reason, a fresh {@code SecurityContext} will be created
  * by calling by {@link SecurityContextHolder#createEmptyContext()} and this instance will be returned instead.
  * <p>
@@ -50,6 +51,9 @@ import javax.servlet.http.HttpSession;
  * @since 3.0
  */
 public class HttpSessionSecurityContextRepository implements SecurityContextRepository {
+    /**
+     * The default key under which the security context will be stored in the session.
+     */
     public static final String SPRING_SECURITY_CONTEXT_KEY = "SPRING_SECURITY_CONTEXT";
 
     protected final Log logger = LogFactory.getLog(this.getClass());
@@ -59,6 +63,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
     private final Object contextObject = SecurityContextHolder.createEmptyContext();
     private boolean allowSessionCreation = true;
     private boolean disableUrlRewriting = false;
+    private String springSecurityContextKey = SPRING_SECURITY_CONTEXT_KEY;
 
     private final AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
 
@@ -108,7 +113,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
             return false;
         }
 
-        return session.getAttribute(SPRING_SECURITY_CONTEXT_KEY) != null;
+        return session.getAttribute(springSecurityContextKey) != null;
     }
 
     /**
@@ -128,7 +133,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 
         // Session exists, so try to obtain a context from it.
 
-        Object contextFromSession = httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY);
+        Object contextFromSession = httpSession.getAttribute(springSecurityContextKey);
 
         if (contextFromSession == null) {
             if (debug) {
@@ -141,7 +146,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
         // We now have the security context object from the session.
         if (!(contextFromSession instanceof SecurityContext)) {
             if (logger.isWarnEnabled()) {
-                logger.warn("SPRING_SECURITY_CONTEXT did not contain a SecurityContext but contained: '"
+                logger.warn(springSecurityContextKey + " did not contain a SecurityContext but contained: '"
                         + contextFromSession + "'; are you improperly modifying the HttpSession directly "
                         + "(you should always use SecurityContextHolder) or using the HttpSession attribute "
                         + "reserved for this class?");
@@ -151,7 +156,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
         }
 
         if (debug) {
-            logger.debug("Obtained a valid SecurityContext from SPRING_SECURITY_CONTEXT: '" + contextFromSession + "'");
+            logger.debug("Obtained a valid SecurityContext from " + springSecurityContextKey + ": '" + contextFromSession + "'");
         }
 
         // Everything OK. The only non-null return from this method.
@@ -210,6 +215,17 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
      */
     public void setDisableUrlRewriting(boolean disableUrlRewriting) {
         this.disableUrlRewriting = disableUrlRewriting;
+    }
+
+    /**
+     * Allows the session attribute name to be customized for this repository instance.
+     *
+     * @param springSecurityContextKey the key under which the security context will be stored. Defaults to
+     * {@link #SPRING_SECURITY_CONTEXT_KEY}.
+     */
+    public void setSpringSecurityContextKey(String springSecurityContextKey) {
+        Assert.hasText(springSecurityContextKey, "springSecurityContextKey cannot be empty");
+        this.springSecurityContextKey = springSecurityContextKey;
     }
 
     //~ Inner Classes ==================================================================================================
@@ -273,7 +289,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 
                 if (httpSession != null) {
                     // SEC-1587 A non-anonymous context may still be in the session
-                    httpSession.removeAttribute(SPRING_SECURITY_CONTEXT_KEY);
+                    httpSession.removeAttribute(springSecurityContextKey);
                 }
                 return;
             }
@@ -286,8 +302,8 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
             // actually changed in this thread (see SEC-37, SEC-1307, SEC-1528)
             if (httpSession != null) {
                 // We may have a new session, so check also whether the context attribute is set SEC-1561
-                if (contextChanged(context) || httpSession.getAttribute(SPRING_SECURITY_CONTEXT_KEY) == null) {
-                    httpSession.setAttribute(SPRING_SECURITY_CONTEXT_KEY, context);
+                if (contextChanged(context) || httpSession.getAttribute(springSecurityContextKey) == null) {
+                    httpSession.setAttribute(springSecurityContextKey, context);
 
                     if (logger.isDebugEnabled()) {
                         logger.debug("SecurityContext stored to HttpSession: '" + context + "'");

@@ -27,7 +27,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
+import java.util.*;
 
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
@@ -136,13 +136,13 @@ public class DefaultJaasAuthenticationProviderTests {
         JaasAuthenticationToken token = mock(JaasAuthenticationToken.class);
         LoginContext context = mock(LoginContext.class);
 
-        when(event.getSecurityContext()).thenReturn(securityContext);
+        when(event.getSecurityContexts()).thenReturn(Arrays.asList(securityContext));
         when(securityContext.getAuthentication()).thenReturn(token);
         when(token.getLoginContext()).thenReturn(context);
 
         provider.onApplicationEvent(event);
 
-        verify(event).getSecurityContext();
+        verify(event).getSecurityContexts();
         verify(securityContext).getAuthentication();
         verify(token).getLoginContext();
         verify(context).logout();
@@ -155,7 +155,7 @@ public class DefaultJaasAuthenticationProviderTests {
 
         provider.handleLogout(event);
 
-        verify(event).getSecurityContext();
+        verify(event).getSecurityContexts();
         verify(log).debug(anyString());
         verifyNoMoreInteractions(event);
     }
@@ -165,12 +165,12 @@ public class DefaultJaasAuthenticationProviderTests {
         SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
         SecurityContext securityContext = mock(SecurityContext.class);
 
-        when(event.getSecurityContext()).thenReturn(securityContext);
+        when(event.getSecurityContexts()).thenReturn(Arrays.asList(securityContext));
 
         provider.handleLogout(event);
 
-        verify(event).getSecurityContext();
-        verify(event).getSecurityContext();
+        verify(event).getSecurityContexts();
+        verify(event).getSecurityContexts();
         verify(securityContext).getAuthentication();
         verifyNoMoreInteractions(event, securityContext);
     }
@@ -180,13 +180,13 @@ public class DefaultJaasAuthenticationProviderTests {
         SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
         SecurityContext securityContext = mock(SecurityContext.class);
 
-        when(event.getSecurityContext()).thenReturn(securityContext);
+        when(event.getSecurityContexts()).thenReturn(Arrays.asList(securityContext));
         when(securityContext.getAuthentication()).thenReturn(token);
 
         provider.handleLogout(event);
 
-        verify(event).getSecurityContext();
-        verify(event).getSecurityContext();
+        verify(event).getSecurityContexts();
+        verify(event).getSecurityContexts();
         verify(securityContext).getAuthentication();
         verifyNoMoreInteractions(event, securityContext);
     }
@@ -197,11 +197,11 @@ public class DefaultJaasAuthenticationProviderTests {
         SecurityContext securityContext = mock(SecurityContext.class);
         JaasAuthenticationToken token = mock(JaasAuthenticationToken.class);
 
-        when(event.getSecurityContext()).thenReturn(securityContext);
+        when(event.getSecurityContexts()).thenReturn(Arrays.asList(securityContext));
         when(securityContext.getAuthentication()).thenReturn(token);
 
         provider.onApplicationEvent(event);
-        verify(event).getSecurityContext();
+        verify(event).getSecurityContexts();
         verify(securityContext).getAuthentication();
         verify(token).getLoginContext();
 
@@ -216,14 +216,14 @@ public class DefaultJaasAuthenticationProviderTests {
         LoginContext context = mock(LoginContext.class);
         LoginException loginException = new LoginException("Failed Login");
 
-        when(event.getSecurityContext()).thenReturn(securityContext);
+        when(event.getSecurityContexts()).thenReturn(Arrays.asList(securityContext));
         when(securityContext.getAuthentication()).thenReturn(token);
         when(token.getLoginContext()).thenReturn(context);
         doThrow(loginException).when(context).logout();
 
         provider.onApplicationEvent(event);
 
-        verify(event).getSecurityContext();
+        verify(event).getSecurityContexts();
         verify(securityContext).getAuthentication();
         verify(token).getLoginContext();
         verify(context).logout();

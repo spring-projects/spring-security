@@ -41,6 +41,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.session.SessionDestroyedEvent;
 
@@ -244,11 +246,11 @@ public class JaasAuthenticationProviderTests {
 
         JaasAuthenticationToken token = new JaasAuthenticationToken(null, null, loginContext);
 
-        SecurityContextImpl context = new SecurityContextImpl();
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(token);
 
         SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
-        when(event.getSecurityContext()).thenReturn(context);
+        when(event.getSecurityContexts()).thenReturn(Arrays.asList(context));
 
         jaasProvider.handleLogout(event);
 

@@ -3,6 +3,8 @@ package org.springframework.security.core.session;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.security.core.context.SecurityContext;
 
+import java.util.*;
+
 /**
  * Generic "session termination" event which indicates that a session (potentially
  * represented by a security context) has ended.
@@ -17,11 +19,13 @@ public abstract class SessionDestroyedEvent extends ApplicationEvent {
     }
 
     /**
-     * Provides the <tt>SecurityContext</tt> under which the session was running.
+     * Provides the {@code SecurityContext} instances which were associated with the destroyed session. Usually there
+     * will be only one security context per session.
      *
-     * @return the <tt>SecurityContext</tt> associated with the session, or null if there is no context.
+     * @return the {@code SecurityContext} instances which were stored in the current session (an empty list if there
+     * are none).
      */
-    public abstract SecurityContext getSecurityContext();
+    public abstract List<SecurityContext> getSecurityContexts();
 
     /**
      * @return the identifier associated with the destroyed session.

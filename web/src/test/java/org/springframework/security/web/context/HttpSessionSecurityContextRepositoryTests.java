@@ -47,9 +47,10 @@ public class HttpSessionSecurityContextRepositoryTests {
     @Test
     public void existingContextIsSuccessFullyLoadedFromSessionAndSavedBack() throws Exception {
         HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        repo.setSpringSecurityContextKey("imTheContext");
         MockHttpServletRequest request = new MockHttpServletRequest();
         SecurityContextHolder.getContext().setAuthentication(testToken);
-        request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
+        request.getSession().setAttribute("imTheContext", SecurityContextHolder.getContext());
         MockHttpServletResponse response = new MockHttpServletResponse();
         HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
         SecurityContext context = repo.loadContext(holder);
@@ -57,7 +58,7 @@ public class HttpSessionSecurityContextRepositoryTests {
         assertEquals(testToken, context.getAuthentication());
         // Won't actually be saved as it hasn't changed, but go through the use case anyway
         repo.saveContext(context, holder.getRequest(), holder.getResponse());
-        assertEquals(context, request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY));
+        assertEquals(context, request.getSession().getAttribute("imTheContext"));
     }
 
     // SEC-1528
@@ -113,33 +114,35 @@ public class HttpSessionSecurityContextRepositoryTests {
     @Test
     public void redirectCausesEarlySaveOfContext() throws Exception {
         HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        repo.setSpringSecurityContextKey("imTheContext");
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
         SecurityContextHolder.setContext(repo.loadContext(holder));
         SecurityContextHolder.getContext().setAuthentication(testToken);
         holder.getResponse().sendRedirect("/doesntmatter");
-        assertEquals(SecurityContextHolder.getContext(), request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY));
+        assertEquals(SecurityContextHolder.getContext(), request.getSession().getAttribute("imTheContext"));
         assertTrue(((SaveContextOnUpdateOrErrorResponseWrapper)holder.getResponse()).isContextSaved());
         repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
         // Check it's still the same
-        assertEquals(SecurityContextHolder.getContext(), request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY));
+        assertEquals(SecurityContextHolder.getContext(), request.getSession().getAttribute("imTheContext"));
     }
 
     @Test
     public void sendErrorCausesEarlySaveOfContext() throws Exception {
         HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        repo.setSpringSecurityContextKey("imTheContext");
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
         SecurityContextHolder.setContext(repo.loadContext(holder));
         SecurityContextHolder.getContext().setAuthentication(testToken);
         holder.getResponse().sendError(404);
-        assertEquals(SecurityContextHolder.getContext(), request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY));
+        assertEquals(SecurityContextHolder.getContext(), request.getSession().getAttribute("imTheContext"));
         assertTrue(((SaveContextOnUpdateOrErrorResponseWrapper)holder.getResponse()).isContextSaved());
         repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
         // Check it's still the same
-        assertEquals(SecurityContextHolder.getContext(), request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY));
+        assertEquals(SecurityContextHolder.getContext(), request.getSession().getAttribute("imTheContext"));
     }
 
     @Test
@@ -188,15 +191,16 @@ public class HttpSessionSecurityContextRepositoryTests {
     @Test
     public void contextIsRemovedFromSessionIfCurrentContextIsEmpty() throws Exception {
         HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        repo.setSpringSecurityContextKey("imTheContext");
         MockHttpServletRequest request = new MockHttpServletRequest();
         SecurityContext ctxInSession = SecurityContextHolder.createEmptyContext();
         ctxInSession.setAuthentication(testToken);
-        request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, ctxInSession);
+        request.getSession().setAttribute("imTheContext", ctxInSession);
         HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, new MockHttpServletResponse());
         repo.loadContext(holder);
         // Save an empty context
         repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
-        assertNull(request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY));
+        assertNull(request.getSession().getAttribute("imTheContext"));
     }
 
     @Test

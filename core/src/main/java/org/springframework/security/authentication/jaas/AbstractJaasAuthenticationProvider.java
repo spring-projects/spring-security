@@ -17,9 +17,7 @@ package org.springframework.security.authentication.jaas;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -54,7 +52,7 @@ import org.springframework.util.ObjectUtils;
  * <p>This implementation is backed by a <a
  * href="http://java.sun.com/j2se/1.5.0/docs/guide/security/jaas/JAASRefGuide.html">JAAS</a> configuration that is provided by
  * a subclass's implementation of {@link #createLoginContext(CallbackHandler)}.
- * 
+ *
  * <p>When using JAAS login modules as the authentication source, sometimes the
  * <a href="http://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/login/LoginContext.html">LoginContext</a> will
  * require <i>CallbackHandler</i>s. The AbstractJaasAuthenticationProvider uses an internal
@@ -91,7 +89,7 @@ import org.springframework.util.ObjectUtils;
  *   &lt;/list&gt;
  *  &lt;/property&gt;
  * </pre>
- * 
+ *
  * @author Ray Krueger
  * @author Rob Winch
  */
@@ -190,7 +188,7 @@ ApplicationEventPublisherAware, InitializingBean, ApplicationListener<SessionDes
 
     /**
      * Creates the LoginContext to be used for authentication.
-     * 
+     *
      * @param handler The CallbackHandler that should be used for the LoginContext (never <code>null</code>).
      * @return the LoginContext to use for authentication.
      * @throws LoginException
@@ -198,39 +196,42 @@ ApplicationEventPublisherAware, InitializingBean, ApplicationListener<SessionDes
     protected abstract LoginContext createLoginContext(CallbackHandler handler) throws LoginException;
 
     /**
-     * Handles the logout by getting the SecurityContext for the session that was destroyed. <b>MUST NOT use
-     * SecurityContextHolder as we are logging out a session that is not related to the current user.</b>
+     * Handles the logout by getting the security contexts for the destroyed session and invoking
+     * {@code LoginContext.logout()} for any which contain a {@code JaasAuthenticationToken}.
      *
-     * @param event
+     *
+     * @param event the session event which contains the current session
      */
     protected void handleLogout(SessionDestroyedEvent event) {
-        SecurityContext context = event.getSecurityContext();
+        List<SecurityContext> contexts = event.getSecurityContexts();
 
-        if (context == null) {
-            log.debug("The destroyed session has no SecurityContext");
+        if (contexts.isEmpty()) {
+            log.debug("The destroyed session has no SecurityContexts");
 
             return;
         }
 
-        Authentication auth = context.getAuthentication();
+        for(SecurityContext context : contexts) {
+            Authentication auth = context.getAuthentication();
 
-        if ((auth != null) && (auth instanceof JaasAuthenticationToken)) {
-            JaasAuthenticationToken token = (JaasAuthenticationToken) auth;
+            if ((auth != null) && (auth instanceof JaasAuthenticationToken)) {
+                JaasAuthenticationToken token = (JaasAuthenticationToken) auth;
 
-            try {
-                LoginContext loginContext = token.getLoginContext();
-                boolean debug = log.isDebugEnabled();
-                if (loginContext != null) {
-                    if (debug) {
-                        log.debug("Logging principal: [" + token.getPrincipal() + "] out of LoginContext");
+                try {
+                    LoginContext loginContext = token.getLoginContext();
+                    boolean debug = log.isDebugEnabled();
+                    if (loginContext != null) {
+                        if (debug) {
+                            log.debug("Logging principal: [" + token.getPrincipal() + "] out of LoginContext");
+                        }
+                        loginContext.logout();
+                    } else if (debug) {
+                        log.debug("Cannot logout principal: [" + token.getPrincipal() + "] from LoginContext. "
+                                + "The LoginContext is unavailable");
                     }
-                    loginContext.logout();
-                } else if (debug) {
-                    log.debug("Cannot logout principal: [" + token.getPrincipal() + "] from LoginContext. "
-                            + "The LoginContext is unavailable");
+                } catch (LoginException e) {
+                    log.warn("Error error logging out of LoginContext", e);
                 }
-            } catch (LoginException e) {
-                log.warn("Error error logging out of LoginContext", e);
             }
         }
     }

@@ -58,7 +58,7 @@ public class SessionRegistryImplTests {
             }
 
             @Override
-            public SecurityContext getSecurityContext() {
+            public List<SecurityContext> getSecurityContexts() {
                 return null;
             }
         });
