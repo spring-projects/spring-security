@@ -74,9 +74,10 @@ public class SwitchUserFilterTests {
 
     private Authentication switchToUser(String name) {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, name);
+        request.addParameter("myUsernameParameter", name);
 
         SwitchUserFilter filter = new SwitchUserFilter();
+        filter.setUsernameParameter("myUsernameParameter");
         filter.setUserDetailsService(new MockUserDetailsService());
 
         return filter.attemptSwitchUser(request);

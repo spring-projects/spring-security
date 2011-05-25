@@ -115,6 +115,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
     private String switchUserUrl = "/j_spring_security_switch_user";
     private String targetUrl;
     private String switchFailureUrl;
+    private String usernameParameter = SPRING_SECURITY_SWITCH_USERNAME_KEY;
     private SwitchUserAuthorityChanger switchUserAuthorityChanger;
     private UserDetailsService userDetailsService;
     private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
@@ -193,7 +194,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
     protected Authentication attemptSwitchUser(HttpServletRequest request) throws AuthenticationException {
         UsernamePasswordAuthenticationToken targetUserRequest;
 
-        String username = request.getParameter(SPRING_SECURITY_SWITCH_USERNAME_KEY);
+        String username = request.getParameter(usernameParameter);
 
         if (username == null) {
             username = "";
@@ -472,6 +473,15 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 
     public void setUserDetailsChecker(UserDetailsChecker userDetailsChecker) {
         this.userDetailsChecker = userDetailsChecker;
+    }
+
+    /**
+     * Allows the parameter containing the username to be customized.
+     *
+     * @param usernameParameter the parameter name. Defaults to {@code j_username}
+     */
+    public void setUsernameParameter(String usernameParameter) {
+        this.usernameParameter = usernameParameter;
     }
 
     /**
