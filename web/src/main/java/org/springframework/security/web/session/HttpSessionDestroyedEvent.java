@@ -17,10 +17,8 @@ package org.springframework.security.web.session;
 
 import javax.servlet.http.HttpSession;
 
-import com.sun.xml.internal.ws.encoding.ContentType;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.session.SessionDestroyedEvent;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
 import java.util.*;
 
