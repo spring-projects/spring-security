@@ -22,12 +22,12 @@ import java.security.NoSuchProviderException;
 /**
  * Helper for working with the MessageDigest API.
  *
- * Performs 1024 iterations of the hashing algorithm per digest to aid in protecting against brute force attacks.
+ * Performs the configured number of iterations of the hashing algorithm per digest to aid in protecting against brute force attacks.
  *
  * @author Keith Donald
  * @author Luke Taylor
  */
-class Digester {
+final class Digester {
 
     private final MessageDigest messageDigest;
 
@@ -36,6 +36,7 @@ class Digester {
     /**
      * Create a new Digester.
      * @param algorithm the digest algorithm; for example, "SHA-1" or "SHA-256".
+     * @param iterations the number of times to apply the digest algorithm to the input
      */
     public Digester(String algorithm, int iterations) {
         try {
@@ -49,16 +50,10 @@ class Digester {
 
     public byte[] digest(byte[] value) {
         synchronized (messageDigest) {
-            for (int i = 0; i < (iterations - 1); i++) {
-                value = invokeDigest(value);
+            for (int i = 0; i < iterations; i++) {
+                value = messageDigest.digest(value);
             }
-            return messageDigest.digest(value);
+            return value;
         }
     }
-
-    private byte[] invokeDigest(byte[] value) {
-        messageDigest.reset();
-        return messageDigest.digest(value);
-    }
-
 }

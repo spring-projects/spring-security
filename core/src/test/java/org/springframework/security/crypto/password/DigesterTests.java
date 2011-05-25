@@ -14,11 +14,11 @@ import org.springframework.security.crypto.password.Digester;
 public class DigesterTests {
 
     @Test
-    public void digestIsCorrectFor2Iterations() {
-        Digester digester = new Digester("SHA-1", 2);
+    public void digestIsCorrectFor3Iterations() {
+        Digester digester = new Digester("SHA-1", 3);
         byte[] result = digester.digest(Utf8.encode("text"));
-        // echo -n text | openssl sha1 -binary | openssl sha1
-        assertEquals("cdcefc6a573f294e60e1d633bca3aeba450954a3", new String(Hex.encode(result)));
+        // echo -n text | openssl sha1 -binary | openssl sha1 -binary | openssl sha1
+        assertEquals("3cfa28da425eca5b894f0af2b158adf7001e000f", new String(Hex.encode(result)));
     }
 
 }
