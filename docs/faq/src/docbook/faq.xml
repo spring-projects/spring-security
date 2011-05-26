@@ -721,6 +721,19 @@
                     </answer>
                 </qandaentry>
 
+                <qandaentry xml:id="faq-password-in-user-service">
+                    <question>
+                        <para>How do I access the user's password in a
+                            <interfacename>UserDetailsService</interfacename>?</para>
+                    </question>
+                    <answer>
+                        <para>You can't (and shouldn't). You are probably misunderstanding its purpose.
+                            See <quote><link xlink:href="#faq-what-is-userdetailservice">What is a UserDetailsService?</link></quote>
+                            above.
+                        </para>
+                    </answer>
+                </qandaentry>
+
                 <qandaentry xml:id="faq-dynamic-url-metadata">
                     <question>
                         <para>How do I define the secured URLs within an application
