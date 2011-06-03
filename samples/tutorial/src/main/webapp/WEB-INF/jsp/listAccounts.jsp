@@ -12,6 +12,14 @@
 <div id="content">
 
 <h1>Accounts</h1>
+<p>
+Anyone can view this page, but posting to an Account requires login and must be authorized. Below are some users to try posting to Accounts with.
+</p>
+<ul>
+<li>rod/koala - can post to any Account</li>
+<li>dianne/emu - can post to Accounts as long as the balance remains above the overdraft amount</li>
+<li>scott/wombat - cannot post to any Accounts</li>
+</ul>
 
 <a href="index.jsp">Home</a><br><br>
 

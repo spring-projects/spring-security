@@ -18,7 +18,7 @@
 Anyone can view this page.
 </p>
 <p>
-If you're logged in, you can <a href="listAccounts.html">list accounts</a>.
+While anyone can also view the <a href="listAccounts.html">list accounts</a> page, you must be authorized to post to an Account from the list accounts page.
 </p>
 <p>
 Your principal object is....: <%= request.getUserPrincipal() %>
