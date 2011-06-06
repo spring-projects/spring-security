@@ -259,7 +259,22 @@
           attributes such as <literal>requires-channel</literal>, so you will not be able to access
           information on the current user or call secured methods during the request. Use
             <literal>access='IS_AUTHENTICATED_ANONYMOUSLY'</literal> as an alternative if you still
-          want the security filter chain to be applied.</para>
+          want the security filter chain to be applied.
+          <note>
+              <para>Using <literal>filters="none"</literal> operates by creating an empty filter
+                        chain in Spring Security's <classname>FilterChainProxy</classname>, whereas
+                        the access attributes are used to configure the
+                        <classname>FilterSecurityInterceptor</classname> in the single filter chain
+                        which is created by the namespace configuration. The two are applied
+                        independently, so if you have an access contraint for a sub-pattern of a
+                        pattern which has a <literal>filters="none"</literal> attribute, the access
+                        constraint will be ignored, even if it is listed first. It isn't possible to
+                        apply a <literal>filters="none"</literal> attribute to the pattern
+                        <literal>/**</literal> since this is used by the namespace filter chain. In
+                        version 3.1 things are more flexible. You can define multiple filter chains
+                        and the <literal>filters</literal> attribute is no longer supported.</para>
+          </note>
+        </para>
         <para>If you want to use basic authentication instead of form login, then change the
           configuration to <programlisting language="xml"><![CDATA[
   <http auto-config='true'>
