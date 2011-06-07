@@ -28,7 +28,6 @@ public class IpAddressMatcherTests {
         assertTrue(v6matcher.matches(ipv6Request));
     }
 
-
     @Test
     public void ipv6MatcherDoesntMatchIpv4Address() {
         assertFalse(v6matcher.matches(ipv4Request));
@@ -47,5 +46,28 @@ public class IpAddressMatcherTests {
         assertFalse(matcher.matches(ipv4Request));
         ipv4Request.setRemoteAddr("192.168.1.159"); // 159 = 0x9f
         assertTrue(matcher.matches(ipv4Request));
+    }
+
+    @Test
+    public void ipv6RangeMatches() throws Exception {
+        IpAddressMatcher matcher = new IpAddressMatcher("2001:DB8::/48");
+
+        assertTrue(matcher.matches("2001:DB8:0:0:0:0:0:0"));
+        assertTrue(matcher.matches("2001:DB8:0:0:0:0:0:1"));
+        assertTrue(matcher.matches("2001:DB8:0:FFFF:FFFF:FFFF:FFFF:FFFF"));
+        assertFalse(matcher.matches("2001:DB8:1:0:0:0:0:0"));
+    }
+
+    // SEC-1733
+    @Test
+    public void zeroMaskMatchesAnything() throws Exception {
+        IpAddressMatcher matcher = new IpAddressMatcher("0.0.0.0/0");
+
+        assertTrue(matcher.matches("123.4.5.6"));
+        assertTrue(matcher.matches("192.168.0.159"));
+
+        matcher = new IpAddressMatcher("192.168.0.159/0");
+        assertTrue(matcher.matches("123.4.5.6"));
+        assertTrue(matcher.matches("192.168.0.159"));
     }
 }
