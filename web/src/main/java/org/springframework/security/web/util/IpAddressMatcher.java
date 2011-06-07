@@ -17,7 +17,7 @@ import org.springframework.util.StringUtils;
  * @author Luke Taylor
  * @since 3.0.2
  */
-public class IpAddressMatcher implements RequestMatcher {
+public final class IpAddressMatcher implements RequestMatcher {
     private final int nMaskBits;
     private final InetAddress requiredAddress;
 
@@ -34,19 +34,23 @@ public class IpAddressMatcher implements RequestMatcher {
             ipAddress = addressAndMask[0];
             nMaskBits = Integer.parseInt(addressAndMask[1]);
         } else {
-            nMaskBits = 0;
+            nMaskBits = -1;
         }
         requiredAddress = parseAddress(ipAddress);
     }
 
     public boolean matches(HttpServletRequest request) {
-        InetAddress remoteAddress = parseAddress(request.getRemoteAddr());
+        return matches(request.getRemoteAddr());
+    }
+
+    public boolean matches(String address) {
+        InetAddress remoteAddress = parseAddress(address);
 
         if (!requiredAddress.getClass().equals(remoteAddress.getClass())) {
             return false;
         }
 
-        if (nMaskBits == 0) {
+        if (nMaskBits < 0) {
             return remoteAddress.equals(requiredAddress);
         }
 
