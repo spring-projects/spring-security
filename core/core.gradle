@@ -1,5 +1,9 @@
 // Core build file
 
+// We don't define a module dependency on crypto to avoid creating a transitive dependency
+def cryptoProject = project(':spring-security-crypto')
+def cryptoClasses = cryptoProject.sourceSets.main.classes
+
 dependencies {
     compile 'aopalliance:aopalliance:1.0',
             "net.sf.ehcache:ehcache:$ehcacheVersion",
@@ -20,16 +24,22 @@ dependencies {
                 "cglib:cglib-nodep:$cglibVersion"
 }
 
-// jdkVersion = System.properties['java.version']
-// isJdk6 = jdkVersion >= '1.6'
-int maxAESKeySize = javax.crypto.Cipher.getMaxAllowedKeyLength('AES')
+compileJava.dependsOn cryptoProject.compileJava
+classes.dependsOn cryptoProject.classes
+
+classes.doLast {
+    copy {
+        from cryptoClasses
+        into sourceSets.main.classesDir
+    }
+}
+
+sourceSets.main.compileClasspath += cryptoClasses
+sourceSets.test.compileClasspath += cryptoClasses
+
+sourceJar.from cryptoProject.sourceSets.main.java
 
 test {
     systemProperties['springSecurityVersion'] = version
     systemProperties['springVersion'] = springVersion
-
-    if (maxAESKeySize < 256) {
-        logger.warn("AES keysize limited to $maxAESKeySize, skipping EncryptorsTests")
-        exclude '**/EncryptorsTests.class'
-    }
 }

@@ -45,6 +45,7 @@ class BundlorPlugin implements Plugin<Project> {
 
 public class Bundlor extends DefaultTask {
     @InputFile
+    @Optional
     File manifestTemplate
 
     @OutputDirectory
@@ -69,13 +70,26 @@ public class Bundlor extends DefaultTask {
 
     Bundlor() {
         manifestTemplate = new File(project.projectDir, 'template.mf')
+
+        if (!manifestTemplate.exists()) {
+            logger.info("No bundlor template for project " + project.name)
+            manifestTemplate = null
+        }
+
         inputPaths = project.files(project.sourceSets.main.classesDir)
-        project.jar.manifest.from manifest
-        project.jar.inputs.files manifest
+
+        if (manifestTemplate != null) {
+            project.jar.manifest.from manifest
+            project.jar.inputs.files manifest
+        }
     }
 
     @TaskAction
     void createManifest() {
+        if (manifestTemplate == null) {
+            return;
+        }
+
         logging.captureStandardOutput(LogLevel.INFO)
 
         project.mkdir(bundlorDir)
