@@ -11,10 +11,13 @@
         dependenices that are only used when building or testing Spring Security itself. Nor do we include
         transitive dependencies which are required by external dependencies.
     </para>
-    <para>The version of Spring required is listed on the project website, so the specific versions are omitted
-        for Spring dependencies below. Note that some of the dependencies listed as <quote>optional</quote>
-        below may still be required for other non-security functionality in a Spring application.
-    </para>
+    <para>The version of Spring required is listed on the project website, so the specific versions
+        are omitted for Spring dependencies below. Note that some of the dependencies listed as
+        <quote>optional</quote> below may still be required for other non-security functionality in
+        a Spring application. Also dependencies listed as <quote>optional</quote> may not actually be marked
+        as such in the project's Maven pom files if they are used in most applications. They are
+        <quote>optional</quote> only in the sense that you don't need them unless you are using the
+        specified functionality.</para>
     <para>Where a module depends on another Spring Security module, the non-optional dependencies of the
         module it depends on are also assumed to be required and are not listed separately.
     </para>
@@ -58,7 +61,7 @@
                         <row>
                             <entry>spring-expression</entry>
                             <entry></entry>
-                            <entry><para>Required for expression-based method security</para></entry>
+                            <entry><para>Required for expression-based method security (optional)</para></entry>
                         </row>
                         <row>
                             <entry>spring-jdbc</entry>
@@ -69,11 +72,6 @@
                             <entry>spring-tx</entry>
                             <entry></entry>
                             <entry><para>Required if using a database to store user data (optional).</para></entry>
-                        </row>
-                        <row>
-                            <entry>spring-web</entry>
-                            <entry></entry>
-                            <entry><para>Required for clients which use HTTP remoting support (optional).</para></entry>
                         </row>
                         <row>
                             <entry>aspectjrt</entry>
@@ -113,6 +111,11 @@
                             <entry>spring-security-core</entry>
                             <entry></entry>
                             <entry></entry>
+                        </row>
+                        <row>
+                            <entry>spring-web</entry>
+                            <entry></entry>
+                            <entry><para>Required for clients which use HTTP remoting support.</para></entry>
                         </row>
                     </tbody>
                 </tgroup>

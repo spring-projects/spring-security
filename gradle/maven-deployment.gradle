@@ -60,7 +60,7 @@ install {
 }
 
 def customizePom(pom) {
-    def optionalDeps = ['ehcache', 'log4j', 'apacheds-core', 'jsp-api', 'jsr250-api', 'ldapsdk']
+    def optionalDeps = ['ehcache', 'log4j', 'apacheds-core', 'jsp-api', 'jsr250-api', 'ldapsdk', 'aspectjrt', 'aspectjweaver']
 
     pom.scopeMappings.addMapping(10, configurations.provided, 'provided')
     pom.whenConfigured { p ->
@@ -78,6 +78,11 @@ def customizePom(pom) {
         if (p.artifactId == 'spring-security-config') {
             p.dependencies.find { dep -> dep.artifactId == 'spring-security-web'}.optional = true
             p.dependencies.find { dep -> dep.artifactId == 'spring-web'}.optional = true
+        }
+
+        if (p.artifactId == 'spring-security-core') {
+            p.dependencies.find { dep -> dep.artifactId == 'spring-jdbc'}.optional = true
+            p.dependencies.find { dep -> dep.artifactId == 'spring-tx'}.optional = true
         }
     }
 
