@@ -39,8 +39,8 @@ jettyRun {
     httpConnector.confidentialPort = 8443
     def httpsConnector = new org.mortbay.jetty.security.SslSocketConnector();
     httpsConnector.port = 8443
-    httpsConnector.keystore = httpsConnector.truststore = "$rootDir/samples/certificates/server.jks"
-    httpsConnector.keyPassword = httpsConnector.trustPassword = 'password'
+    httpsConnector.keystore = "$rootDir/samples/certificates/server.jks"
+    httpsConnector.keyPassword = 'password'
 
     connectors = [httpConnector, httpsConnector]
 }
