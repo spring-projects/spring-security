@@ -16,12 +16,12 @@
 package org.springframework.security.authentication.encoding;
 
 
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-
 import org.springframework.security.core.codec.Base64;
+import org.springframework.security.core.codec.Utf8;
 import org.springframework.util.Assert;
 
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
 
 /**
  * A version of {@link ShaPasswordEncoder} which supports Ldap SHA and SSHA (salted-SHA) encodings. The values are
@@ -101,7 +101,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
             prefix = forceLowerCasePrefix ? SSHA_PREFIX_LC : SSHA_PREFIX;
         }
 
-        return prefix + new String(Base64.encode(hash));
+        return prefix + Utf8.decode(Base64.encode(hash));
     }
 
     private byte[] extractSalt(String encPass) {

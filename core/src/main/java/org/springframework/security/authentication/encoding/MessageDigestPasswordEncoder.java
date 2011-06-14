@@ -1,12 +1,13 @@
 package org.springframework.security.authentication.encoding;
 
+import org.springframework.security.core.codec.Base64;
+import org.springframework.security.core.codec.Hex;
+import org.springframework.security.core.codec.Utf8;
+import org.springframework.util.Assert;
+
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import org.springframework.security.core.codec.Base64;
-import org.springframework.security.core.codec.Hex;
-import org.springframework.util.Assert;
 
 /**
  * Base for digest password encoders.
@@ -92,7 +93,7 @@ public class MessageDigestPasswordEncoder extends BaseDigestPasswordEncoder {
         }
 
         if (getEncodeHashAsBase64()) {
-            return new String(Base64.encode(digest));
+            return Utf8.decode(Base64.encode(digest));
         } else {
             return new String(Hex.encode(digest));
         }
