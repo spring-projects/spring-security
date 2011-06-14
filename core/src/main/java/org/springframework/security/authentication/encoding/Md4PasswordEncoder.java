@@ -47,13 +47,7 @@ public class Md4PasswordEncoder extends BaseDigestPasswordEncoder {
     public String encodePassword(String rawPass, Object salt) {
         String saltedPass = mergePasswordAndSalt(rawPass, salt, false);
 
-        byte[] passBytes;
-
-        try {
-            passBytes = saltedPass.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException("UTF-8 not supported!");
-        }
+        byte[] passBytes = Utf8.encode(saltedPass);
 
         Md4 md4 = new Md4();
         md4.update(passBytes, 0, passBytes.length);

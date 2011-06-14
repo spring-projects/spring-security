@@ -1,5 +1,7 @@
 package org.springframework.security.authentication.encoding;
 
+import org.springframework.security.crypto.codec.Utf8;
+
 import java.io.UnsupportedEncodingException;
 
 /**
@@ -35,11 +37,8 @@ class PasswordEncoderUtils {
         if(s == null) {
             return null;
         }
-        try {
-            return s.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException("Could not get bytes in UTF-8 format",e);
-        }
+
+        return Utf8.encode(s);
     }
     private PasswordEncoderUtils() {}
 }

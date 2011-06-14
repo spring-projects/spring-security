@@ -26,7 +26,7 @@ import org.springframework.security.authentication.encoding.LdapShaPasswordEncod
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.ldap.LdapUtils;
+import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.util.Assert;
 
@@ -96,7 +96,7 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
         }
 
         String encodedPassword = passwordEncoder.encodePassword(password, null);
-        byte[] passwordBytes = LdapUtils.getUtf8Bytes(encodedPassword);
+        byte[] passwordBytes = Utf8.encode(encodedPassword);
 
         if (!ldapTemplate.compare(user.getDn().toString(), passwordAttributeName, passwordBytes)) {
             throw new BadCredentialsException(messages.getMessage("PasswordComparisonAuthenticator.badCredentials",

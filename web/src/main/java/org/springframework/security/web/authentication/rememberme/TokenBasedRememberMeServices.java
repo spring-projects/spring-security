@@ -18,6 +18,7 @@ package org.springframework.security.web.authentication.rememberme;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -222,9 +223,6 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 
     /**
      * Constant time comparison to prevent against timing attacks.
-     * @param expected
-     * @param actual
-     * @return
      */
     private static boolean equals(String expected, String actual) {
         byte[] expectedBytes = bytesUtf8(expected);
@@ -241,13 +239,9 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
     }
 
     private static byte[] bytesUtf8(String s) {
-        if(s == null) {
+        if (s == null) {
             return null;
         }
-        try {
-            return s.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException("Could not get bytes in UTF-8 format",e);
-        }
+        return Utf8.encode(s);
     }
 }

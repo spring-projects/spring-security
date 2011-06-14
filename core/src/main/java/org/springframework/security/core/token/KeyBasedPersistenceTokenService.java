@@ -1,12 +1,12 @@
 package org.springframework.security.core.token;
 
-import java.io.UnsupportedEncodingException;
 import java.security.SecureRandom;
 import java.util.Date;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.crypto.codec.Hex;
+import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -68,7 +68,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
         // Compute key
         String sha512Hex = Sha512DigestUtils.shaHex(content + ":" + serverSecret);
         String keyPayload = content + ":" + sha512Hex;
-        String key = convertToString(Base64.encode(convertToBytes(keyPayload)));
+        String key = Utf8.decode(Base64.encode(Utf8.encode(keyPayload)));
 
         return new DefaultToken(key, creationTime, extendedInformation);
     }
@@ -77,7 +77,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
         if (key == null || "".equals(key)) {
             return null;
         }
-        String[] tokens = StringUtils.delimitedListToStringArray(convertToString(Base64.decode(convertToBytes(key))), ":");
+        String[] tokens = StringUtils.delimitedListToStringArray(Utf8.decode(Base64.decode(Utf8.encode(key))), ":");
         Assert.isTrue(tokens.length >= 4, "Expected 4 or more tokens but found " + tokens.length);
 
         long creationTime;
@@ -107,22 +107,6 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
         Assert.isTrue(expectedSha512Hex.equals(sha1Hex), "Key verification failure");
 
         return new DefaultToken(key, creationTime, extendedInfo.toString());
-    }
-
-    private byte[] convertToBytes(String input) {
-        try {
-            return input.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String convertToString(byte[] bytes) {
-        try {
-            return new String(bytes, "UTF-8");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     /**

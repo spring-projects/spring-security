@@ -79,13 +79,7 @@ public class MessageDigestPasswordEncoder extends BaseDigestPasswordEncoder {
 
         MessageDigest messageDigest = getMessageDigest();
 
-        byte[] digest;
-
-        try {
-            digest = messageDigest.digest(saltedPass.getBytes("UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException("UTF-8 not supported!");
-        }
+        byte[] digest = messageDigest.digest(Utf8.encode(saltedPass));
 
         // "stretch" the encoded value if configured to do so
         for (int i = 1; i < iterations; i++) {

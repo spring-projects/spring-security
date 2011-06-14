@@ -17,6 +17,7 @@ package org.springframework.security.ldap;
 
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.util.Assert;
 
 import org.apache.commons.logging.Log;
@@ -25,7 +26,6 @@ import org.apache.commons.logging.LogFactory;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -123,29 +123,11 @@ public final class LdapUtils {
         return baseDn;
     }
 
-    public static byte[] getUtf8Bytes(String s) {
-        try {
-            return s.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            // Should be impossible since UTF-8 is required by all implementations
-            throw new IllegalStateException("Failed to convert string to UTF-8 bytes. Shouldn't be possible");
-        }
-    }
-
-    public static String getUtf8BytesAsString(byte[] utf8) {
-        try {
-            return new String(utf8, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            // Should be impossible since UTF-8 is required by all implementations
-            throw new IllegalStateException("Failed to convert string to UTF-8 bytes. Shouldn't be possible");
-        }
-    }
-
     public static String convertPasswordToString(Object passObj) {
         Assert.notNull(passObj, "Password object to convert must not be null");
 
         if(passObj instanceof byte[]) {
-            return getUtf8BytesAsString((byte[])passObj);
+            return Utf8.decode((byte[])passObj);
         } else if (passObj instanceof String) {
             return (String)passObj;
         } else {

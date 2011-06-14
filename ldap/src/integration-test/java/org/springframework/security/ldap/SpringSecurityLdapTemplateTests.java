@@ -28,6 +28,7 @@ import javax.naming.directory.SearchResult;
 import org.junit.*;
 import org.springframework.ldap.UncategorizedLdapException;
 import org.springframework.ldap.core.ContextExecutor;
+import org.springframework.security.crypto.codec.Utf8;
 
 /**
  * @author Luke Taylor
@@ -51,12 +52,12 @@ public class SpringSecurityLdapTemplateTests extends AbstractLdapIntegrationTest
 
     @Test
     public void compareOfCorrectByteValueSucceeds() {
-        assertTrue(template.compare("uid=bob,ou=people", "userPassword", LdapUtils.getUtf8Bytes("bobspassword")));
+        assertTrue(template.compare("uid=bob,ou=people", "userPassword", Utf8.encode("bobspassword")));
     }
 
     @Test
     public void compareOfWrongByteValueFails() {
-        assertFalse(template.compare("uid=bob,ou=people", "userPassword", LdapUtils.getUtf8Bytes("wrongvalue")));
+        assertFalse(template.compare("uid=bob,ou=people", "userPassword", Utf8.encode("wrongvalue")));
     }
 
     @Test
