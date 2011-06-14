@@ -5,7 +5,8 @@ def cryptoProject = project(':spring-security-crypto')
 def cryptoClasses = cryptoProject.sourceSets.main.classes
 
 dependencies {
-    compile 'aopalliance:aopalliance:1.0',
+    compile cryptoProject,
+            'aopalliance:aopalliance:1.0',
             "net.sf.ehcache:ehcache:$ehcacheVersion",
             "org.springframework:spring-aop:$springVersion",
             "org.springframework:spring-beans:$springVersion",
@@ -42,4 +43,11 @@ sourceJar.from cryptoProject.sourceSets.main.java
 test {
     systemProperties['springSecurityVersion'] = version
     systemProperties['springVersion'] = springVersion
+}
+
+// Add the crypto module in the IDE
+ideaModule {
+    def cryptoDep = new org.gradle.plugins.ide.idea.model.ModuleDependency('spring-security-crypto', 'COMPILE')
+    cryptoDep.exported = true
+    module.dependencies.add(cryptoDep)
 }
