@@ -20,6 +20,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 
 import org.springframework.security.crypto.codec.Base64;
+import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.util.Assert;
 
 
@@ -101,7 +102,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
             prefix = forceLowerCasePrefix ? SSHA_PREFIX_LC : SSHA_PREFIX;
         }
 
-        return prefix + new String(Base64.encode(hash));
+        return prefix + Utf8.decode(Base64.encode(hash));
     }
 
     private byte[] extractSalt(String encPass) {

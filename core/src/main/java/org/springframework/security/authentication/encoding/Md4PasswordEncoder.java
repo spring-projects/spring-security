@@ -18,6 +18,7 @@ import java.io.UnsupportedEncodingException;
 
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.crypto.codec.Hex;
+import org.springframework.security.crypto.codec.Utf8;
 
 /**
  * MD4 implementation of PasswordEncoder.
@@ -60,7 +61,7 @@ public class Md4PasswordEncoder extends BaseDigestPasswordEncoder {
         byte[] resBuf = md4.digest();
 
         if (getEncodeHashAsBase64()) {
-            return new String(Base64.encode(resBuf));
+            return Utf8.decode(Base64.encode(resBuf));
         } else {
             return new String(Hex.encode(resBuf));
         }

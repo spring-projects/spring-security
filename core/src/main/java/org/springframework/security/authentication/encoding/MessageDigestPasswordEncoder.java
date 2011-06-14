@@ -6,6 +6,7 @@ import java.security.NoSuchAlgorithmException;
 
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.crypto.codec.Hex;
+import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.util.Assert;
 
 /**
@@ -92,7 +93,7 @@ public class MessageDigestPasswordEncoder extends BaseDigestPasswordEncoder {
         }
 
         if (getEncodeHashAsBase64()) {
-            return new String(Base64.encode(digest));
+            return Utf8.decode(Base64.encode(digest));
         } else {
             return new String(Hex.encode(digest));
         }
