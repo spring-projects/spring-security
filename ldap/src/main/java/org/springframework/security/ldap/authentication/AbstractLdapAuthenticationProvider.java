@@ -31,7 +31,7 @@ import java.util.*;
  * @since 3.1
  */
 public abstract class AbstractLdapAuthenticationProvider implements AuthenticationProvider, MessageSourceAware {
-    protected final Log logger = LogFactory.getLog(LdapAuthenticationProvider.class);
+    protected final Log logger = LogFactory.getLog(getClass());
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private boolean useAuthenticationRequestCredentials = true;
     private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
