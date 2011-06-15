@@ -23,7 +23,9 @@ public final class Utf8 {
         try {
             ByteBuffer bytes = CHARSET.newEncoder().encode(CharBuffer.wrap(string));
 
-            return Arrays.copyOfRange(bytes.array(), 0, bytes.limit());
+            byte[] copy = new byte[bytes.limit()];
+            System.arraycopy(bytes.array(), 0, copy, 0, bytes.limit());
+            return copy;
         } catch (CharacterCodingException e) {
             throw new IllegalArgumentException("Encoding failed", e);
         }
