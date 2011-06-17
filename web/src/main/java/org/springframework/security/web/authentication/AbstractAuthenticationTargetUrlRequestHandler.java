@@ -154,7 +154,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
      *  to "spring-security-redirect".
      */
     public void setTargetUrlParameter(String targetUrlParameter) {
-        Assert.hasText("targetUrlParameter canot be null or empty");
+        Assert.hasText(targetUrlParameter, "targetUrlParameter cannot be null or empty");
         this.targetUrlParameter = targetUrlParameter;
     }
 
