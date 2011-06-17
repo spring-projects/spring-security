@@ -137,11 +137,13 @@
                         <para>What Java and Spring Framework versions are required?</para>
                     </question>
                     <answer>
+                        <para> Spring Security 3.0 and 3.1 require at least JDK 1.5 and also
+                            require Spring 3.0.3 as a minimum. Ideally you should be using the latest
+                            release versions to avoid problems.
+                        </para>
                         <para> Spring Security 2.0.x requires a minimum JDK version of 1.4 and is
                             built against Spring 2.0.x. It should also be compatible with
                             applications using Spring 2.5.x. </para>
-                        <para> Spring Security 3.0 requires JDK 1.5 as a minimum and will also
-                            require Spring 3.0. </para>
                     </answer>
                 </qandaentry>
                 <qandaentry xml:id="faq-start-simple">
