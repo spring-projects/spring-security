@@ -25,8 +25,8 @@ public class SpringSecurityCoreVersion {
                         + springVersion + ". Please check your classpath for unwanted jar files.");
             }
 
-            if (springVersion.compareTo("3.0.3") < 0) {
-                logger.warn("You are advised to use Spring 3.0.3 or later with this version. You are running: " +
+            if (springVersion.compareTo("3.0.6") < 0) {
+                logger.warn("You are advised to use Spring 3.0.6 or later with this version. You are running: " +
                     springVersion);
             }
         }
