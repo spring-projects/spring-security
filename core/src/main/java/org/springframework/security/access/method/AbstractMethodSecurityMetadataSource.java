@@ -15,6 +15,7 @@
 
 package org.springframework.security.access.method;
 
+import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.security.access.ConfigAttribute;
 
 import org.aopalliance.intercept.MethodInvocation;
@@ -52,7 +53,12 @@ public abstract class AbstractMethodSecurityMetadataSource implements MethodSecu
             Class<?> targetClass = null;
 
             if (target != null) {
-                targetClass = target instanceof Class<?> ? (Class<?>)target : target.getClass();
+                targetClass = target instanceof Class<?> ? (Class<?>)target : AopProxyUtils.ultimateTargetClass(target);
+
+                if (targetClass == null) {
+                    // See SPR-7447. TODO: Only required for Spring < 3.0.4
+                    targetClass = target.getClass();
+                }
             }
 
             return getAttributes(mi.getMethod(), targetClass);
