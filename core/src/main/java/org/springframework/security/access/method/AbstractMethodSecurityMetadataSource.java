@@ -20,6 +20,7 @@ import java.util.Collection;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.security.access.ConfigAttribute;
 
 
@@ -43,7 +44,7 @@ public abstract class AbstractMethodSecurityMetadataSource implements MethodSecu
             Class<?> targetClass = null;
 
             if (target != null) {
-                targetClass = target instanceof Class<?> ? (Class<?>)target : target.getClass();
+                targetClass = target instanceof Class<?> ? (Class<?>)target : AopProxyUtils.ultimateTargetClass(target);
             }
 
             return getAttributes(mi.getMethod(), targetClass);
