@@ -91,7 +91,6 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements Application
         transactionalTarget.doSomething();
     }
 
-    @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.appContext = applicationContext;
     }
