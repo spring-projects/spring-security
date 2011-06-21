@@ -51,3 +51,7 @@ ideaModule {
     cryptoDep.exported = true
     module.dependencies.add(cryptoDep)
 }
+
+eclipseProject {
+    referencedProjects.add('spring-security-crypto')
+}
