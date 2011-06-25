@@ -31,4 +31,9 @@ public abstract class FirewalledRequest extends HttpServletRequestWrapper {
      * for the security infrastructure, while still maintaining the
      */
     public abstract void reset();
+
+    @Override
+    public String toString() {
+        return "FirewalledRequest[ " + getRequest() + "]";
+    }
 }

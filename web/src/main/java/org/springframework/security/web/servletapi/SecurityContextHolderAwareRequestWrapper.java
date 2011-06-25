@@ -159,4 +159,9 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
     public boolean isUserInRole(String role) {
         return isGranted(role);
     }
+
+    @Override
+    public String toString() {
+        return "SecurityContextHolderAwareRequestWrapper[ " + getRequest() + "]";
+    }
 }
