@@ -157,8 +157,19 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 
         // If unable to find a username and password, just abort as TokenBasedRememberMeServices is
         // unable to construct a valid token in this case.
-        if (!StringUtils.hasLength(username) || !StringUtils.hasLength(password)) {
+        if (!StringUtils.hasLength(username)) {
+            logger.debug("Unable to retrieve username");
             return;
+        }
+
+        if (!StringUtils.hasLength(password)) {
+            UserDetails user = getUserDetailsService().loadUserByUsername(username);
+            password = user.getPassword();
+
+            if (!StringUtils.hasLength(password)) {
+                logger.debug("Unable to obtain password for user: " + username);
+                return;
+            }
         }
 
         int tokenLifetime = calculateLoginLifetime(request, successfulAuthentication);
