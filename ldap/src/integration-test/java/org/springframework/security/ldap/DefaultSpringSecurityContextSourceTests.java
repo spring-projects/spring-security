@@ -2,7 +2,9 @@ package org.springframework.security.ldap;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 
 import javax.naming.directory.DirContext;
 
@@ -72,6 +74,35 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
                 contextSource = new DefaultSpringSecurityContextSource("ldap://127.0.0.1:53389/ou=space%20cadets,dc=springframework,dc=org");
         contextSource.afterPropertiesSet();
         contextSource.getContext("uid=space cadet,ou=space cadets,dc=springframework,dc=org", "spacecadetspassword");
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void instantiationFailsWithEmptyServerList() throws Exception {
+        List<String> serverUrls = new ArrayList<String>();
+        DefaultSpringSecurityContextSource ctxSrc = new DefaultSpringSecurityContextSource(serverUrls, "dc=springframework,dc=org");
+        ctxSrc.afterPropertiesSet();
+    }
+
+    @Test
+    public void instantiationSuceedsWithProperServerList() throws Exception {
+        List<String> serverUrls = new ArrayList<String>();
+        serverUrls.add("ldap://foo:789");
+        serverUrls.add("ldap://bar:389");
+        serverUrls.add("ldaps://blah:636");
+        DefaultSpringSecurityContextSource ctxSrc = new DefaultSpringSecurityContextSource(serverUrls, "dc=springframework,dc=org");
+
+        assertFalse(ctxSrc.isAnonymousReadOnly());
+        assertTrue(ctxSrc.isPooled());
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void instantiationFailsWithIncorrectServerUrl() throws Exception {
+        List<String> serverUrls = new ArrayList<String>();
+        // a simple trailing slash should be ok
+        serverUrls.add("ldaps://blah:636/");
+        // this url should be rejected because the root DN goes into a separate parameter
+        serverUrls.add("ldap://bar:389/dc=foobar,dc=org");
+        DefaultSpringSecurityContextSource ctxSrc = new DefaultSpringSecurityContextSource(serverUrls, "dc=springframework,dc=org");
     }
 
     static class EnvExposingDefaultSpringSecurityContextSource extends DefaultSpringSecurityContextSource {

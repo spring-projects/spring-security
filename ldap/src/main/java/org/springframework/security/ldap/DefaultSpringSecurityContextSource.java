@@ -2,6 +2,7 @@ package org.springframework.security.ldap;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
@@ -33,7 +34,9 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
     private String rootDn;
 
     /**
-     * Create and initialize an instance which will connect to the supplied LDAP URL.
+     * Create and initialize an instance which will connect to the supplied LDAP URL. If you
+     * want to use more than one server for fail-over, rather use
+     * the {@link #DefaultSpringSecurityContextSource(List, String)} constructor.
      *
      * @param providerUrl an LDAP URL of the form <code>ldap://localhost:389/base_dn<code>
      */
@@ -76,4 +79,64 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
             }
         });
     }
+
+    /**
+     * Create and initialize an instance which will connect of the LDAP Spring Security
+     * Context Source. It will connect to any of the provided LDAP server URLs.
+     * 
+     * @param urls
+     *          A list of string values which are LDAP server URLs. An example would be
+     *          <code>ldap://ldap.company.com:389</code>. LDAPS URLs (SSL-secured) may be used as well,
+     *          given that Spring Security is able to connect to the server.
+     *          Note that these <b>URLs must not include the base DN</b>!
+     * @param baseDn
+     *          The common Base DN for all provided servers, e.g.
+     *          <pre>dc=company,dc=com</pre>.
+     */
+    public DefaultSpringSecurityContextSource(List<String> urls, String baseDn) {
+        this(buildProviderUrl(urls, baseDn));
+    }
+
+    /**
+     * Builds a Spring LDAP-compliant Provider URL string, i.e. a space-separated list of LDAP servers
+     * with their base DNs. As the base DN must be identical for all servers, it needs to be supplied
+     * only once.
+     * 
+     * @param urls
+     *          A list of string values which are LDAP server URLs. An example would be
+     *          <pre>ldap://ldap.company.com:389</pre>. LDAPS URLs may be used as well,
+     *          given that Spring Security is able to connect to the server.
+     * @param baseDn
+     *          The common Base DN for all provided servers, e.g.
+     *          <pre>dc=company,dc=com</pre>.
+     * @return A Spring Security/Spring LDAP-compliant Provider URL string.
+     */
+    private static String buildProviderUrl(List<String> urls, String baseDn) {
+        Assert.notNull(baseDn, "The Base DN for the LDAP server must not be null.");
+        Assert.notEmpty(urls, "At least one LDAP server URL must be provided.");
+
+        String trimmedBaseDn = baseDn.trim();
+        StringBuilder providerUrl = new StringBuilder();
+
+        for (String serverUrl : urls) {
+            String trimmedUrl = serverUrl.trim();
+            if ("".equals(trimmedUrl)) {
+                continue;
+            }
+            if (trimmedUrl.contains(trimmedBaseDn)) {
+                throw new IllegalArgumentException("LDAP URL string must not include the base DN! '" + trimmedUrl + "'");
+            }
+
+            providerUrl.append(trimmedUrl);
+            if (! trimmedUrl.endsWith("/")) {
+                providerUrl.append("/");
+            }
+            providerUrl.append(trimmedBaseDn);
+            providerUrl.append(" ");
+        }
+
+        return providerUrl.toString();
+
+    }
+
 }
