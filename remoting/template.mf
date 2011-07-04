@@ -13,6 +13,7 @@ Ignored-Existing-Headers:
 Import-Template:
  org.aopalliance.*;version="${aopAllianceRange}",
  org.apache.commons.logging.*;version="${cloggingRange}",
+ org.springframework.security.authentication.*;version="${secRange}",
  org.springframework.security.core.*;version="${secRange}",
  org.springframework.security.crypto.*;version="${secRange}",
  org.springframework.core.*;version="${springRange}",
