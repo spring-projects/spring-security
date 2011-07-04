@@ -19,6 +19,7 @@ import java.util.Collection;
 
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 
 
 /**
@@ -33,16 +34,16 @@ import org.springframework.security.core.Authentication;
 public class InterceptorStatusToken {
     //~ Instance fields ================================================================================================
 
-    private final Authentication authentication;
-    private final Collection<ConfigAttribute> attr;
-    private final Object secureObject;
-    private final boolean contextHolderRefreshRequired;
+    private SecurityContext securityContext;
+    private Collection<ConfigAttribute> attr;
+    private Object secureObject;
+    private boolean contextHolderRefreshRequired;
 
     //~ Constructors ===================================================================================================
 
-    public InterceptorStatusToken(Authentication authentication, boolean contextHolderRefreshRequired,
+    public InterceptorStatusToken(SecurityContext securityContext, boolean contextHolderRefreshRequired,
             Collection<ConfigAttribute> attributes, Object secureObject) {
-        this.authentication = authentication;
+        this.securityContext = securityContext;
         this.contextHolderRefreshRequired = contextHolderRefreshRequired;
         this.attr = attributes;
         this.secureObject = secureObject;
@@ -54,8 +55,8 @@ public class InterceptorStatusToken {
         return attr;
     }
 
-    public Authentication getAuthentication() {
-        return authentication;
+    public SecurityContext getSecurityContext() {
+        return securityContext;
     }
 
     public Object getSecureObject() {

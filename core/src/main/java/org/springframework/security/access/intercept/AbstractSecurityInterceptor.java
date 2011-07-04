@@ -40,6 +40,7 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 
@@ -226,16 +227,18 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
             }
 
             // no further work post-invocation
-            return new InterceptorStatusToken(authenticated, false, attributes, object);
+            return new InterceptorStatusToken(SecurityContextHolder.getContext(), false, attributes, object);
         } else {
             if (debug) {
                 logger.debug("Switching to RunAs Authentication: " + runAs);
             }
 
+            SecurityContext origCtx = SecurityContextHolder.getContext();
+            SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext());
             SecurityContextHolder.getContext().setAuthentication(runAs);
 
             // need to revert to token.Authenticated post-invocation
-            return new InterceptorStatusToken(authenticated, true, attributes, object);
+            return new InterceptorStatusToken(origCtx, true, attributes, object);
         }
     }
 
@@ -255,21 +258,22 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
 
         if (token.isContextHolderRefreshRequired()) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Reverting to original Authentication: " + token.getAuthentication().toString());
+                logger.debug("Reverting to original Authentication: " + token.getSecurityContext().getAuthentication());
             }
 
-            SecurityContextHolder.getContext().setAuthentication(token.getAuthentication());
+            SecurityContextHolder.setContext(token.getSecurityContext());
         }
 
         if (afterInvocationManager != null) {
             // Attempt after invocation handling
             try {
-                returnedObject = afterInvocationManager.decide(token.getAuthentication(), token.getSecureObject(),
+                returnedObject = afterInvocationManager.decide(token.getSecurityContext().getAuthentication(),
+                        token.getSecureObject(),
                         token.getAttributes(), returnedObject);
             }
             catch (AccessDeniedException accessDeniedException) {
-                AuthorizationFailureEvent event = new AuthorizationFailureEvent(token.getSecureObject(),
-                        token.getAttributes(), token.getAuthentication(), accessDeniedException);
+                AuthorizationFailureEvent event = new AuthorizationFailureEvent(token.getSecureObject(), token
+                        .getAttributes(), token.getSecurityContext().getAuthentication(), accessDeniedException);
                 publishEvent(event);
 
                 throw accessDeniedException;
