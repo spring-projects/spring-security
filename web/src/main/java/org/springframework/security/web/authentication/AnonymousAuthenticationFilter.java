@@ -17,6 +17,7 @@ package org.springframework.security.web.authentication;
 
 
 import java.io.IOException;
+import java.util.*;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -28,6 +29,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.memory.UserAttribute;
 import org.springframework.util.Assert;
@@ -39,6 +42,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * populates it with one if needed.
  *
  * @author Ben Alex
+ * @author Luke Taylor
  */
 public class AnonymousAuthenticationFilter extends GenericFilterBean  implements InitializingBean {
 
@@ -47,14 +51,44 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean  implements
     private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource
             = new WebAuthenticationDetailsSource();
     private String key;
-    private UserAttribute userAttribute;
+    private Object principal;
+    private List<GrantedAuthority> authorities;
+
+    /**
+     * @deprecated Use constructor injection version
+     */
+    @Deprecated
+    public AnonymousAuthenticationFilter() {
+    }
+
+    /**
+     * Creates a filter with a principal named "anonymousUser" and the single authority "ROLE_ANONYMOUS".
+     *
+     * @param key the key to identify tokens created by this filter
+     */
+    public AnonymousAuthenticationFilter(String key) {
+        this(key, "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+    }
+
+    /**
+     *
+     * @param key key the key to identify tokens created by this filter
+     * @param principal the principal which will be used to represent anonymous users
+     * @param authorities the authority list for anonymous users
+     */
+    public AnonymousAuthenticationFilter(String key, Object principal, List<GrantedAuthority> authorities) {
+        this.key = key;
+        this.principal = principal;
+        this.authorities = authorities;
+    }
 
     //~ Methods ========================================================================================================
 
     @Override
     public void afterPropertiesSet() {
-        Assert.notNull(userAttribute);
         Assert.hasLength(key);
+        Assert.notNull(principal, "Anonymous authentication principal must be set");
+        Assert.notNull(authorities, "Anonymous authorities must be set");
     }
 
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
@@ -89,25 +123,18 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean  implements
      * @return <code>true</code> if the anonymous token should be setup for this request (provided that the request
      *         doesn't already have some other <code>Authentication</code> inside it), or <code>false</code> if no
      *         anonymous token should be setup for this request
+     * @deprecated no obvious use case and can easily be achieved by other means
      */
+    @Deprecated
     protected boolean applyAnonymousForThisRequest(HttpServletRequest request) {
         return true;
     }
 
     protected Authentication createAuthentication(HttpServletRequest request) {
-        AnonymousAuthenticationToken auth = new AnonymousAuthenticationToken(key, userAttribute.getPassword(),
-                userAttribute.getAuthorities());
+        AnonymousAuthenticationToken auth = new AnonymousAuthenticationToken(key, principal, authorities);
         auth.setDetails(authenticationDetailsSource.buildDetails(request));
 
         return auth;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public UserAttribute getUserAttribute() {
-        return userAttribute;
     }
 
     public void setAuthenticationDetailsSource(AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
@@ -115,11 +142,30 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean  implements
         this.authenticationDetailsSource = authenticationDetailsSource;
     }
 
+    public Object getPrincipal() {
+        return principal;
+    }
+
+    public List<GrantedAuthority> getAuthorities() {
+        return authorities;
+    }
+
+    /**
+     *
+     * @deprecated use constructor injection instead
+     */
+    @Deprecated
     public void setKey(String key) {
         this.key = key;
     }
 
+    /**
+     *
+     * @deprecated use constructor injection instead
+     */
+    @Deprecated
     public void setUserAttribute(UserAttribute userAttributeDefinition) {
-        this.userAttribute = userAttributeDefinition;
+        this.principal = userAttributeDefinition.getPassword();
+        this.authorities = userAttributeDefinition.getAuthorities();
     }
 }

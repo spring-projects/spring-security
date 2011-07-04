@@ -170,9 +170,9 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         AnonymousAuthenticationFilter filter = getFilter(AnonymousAuthenticationFilter);
 
         expect:
-        'customKey' == filter.getKey()
-        'joe' == filter.userAttribute.password
-        'anonymity' == filter.userAttribute.authorities[0].authority
+        'customKey' == filter.key
+        'joe' == filter.principal
+        'anonymity' == filter.authorities[0].authority
     }
 
     def httpMethodMatchIsSupported() {

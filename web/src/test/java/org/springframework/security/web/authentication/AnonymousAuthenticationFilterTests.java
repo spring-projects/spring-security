@@ -76,36 +76,13 @@ public class AnonymousAuthenticationFilterTests {
     }
 
     @Test
-    public void testGettersSetters() throws Exception {
-        UserAttribute user = new UserAttribute();
-        user.setPassword("anonymousUsername");
-        user.addAuthority(new SimpleGrantedAuthority("ROLE_ANONYMOUS"));
-
-        AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter();
-        filter.setKey("qwerty");
-        filter.setUserAttribute(user);
-        filter.afterPropertiesSet();
-
-        assertEquals("qwerty", filter.getKey());
-        assertEquals(user, filter.getUserAttribute());
-    }
-
-    @Test
-    public void testOperationWhenAuthenticationExistsInContextHolder()
-        throws Exception {
+    public void testOperationWhenAuthenticationExistsInContextHolder() throws Exception {
         // Put an Authentication object into the SecurityContextHolder
         Authentication originalAuth = new TestingAuthenticationToken("user", "password", "ROLE_A");
         SecurityContextHolder.getContext().setAuthentication(originalAuth);
 
-        // Setup our filter correctly
-        UserAttribute user = new UserAttribute();
-        user.setPassword("anonymousUsername");
-        user.addAuthority(new SimpleGrantedAuthority("ROLE_ANONYMOUS"));
-
-        AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter();
-        filter.setKey("qwerty");
-        filter.setUserAttribute(user);
-        filter.afterPropertiesSet();
+        AnonymousAuthenticationFilter filter =
+                new AnonymousAuthenticationFilter("qwerty", "anonymousUsername", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 
         // Test
         MockHttpServletRequest request = new MockHttpServletRequest();

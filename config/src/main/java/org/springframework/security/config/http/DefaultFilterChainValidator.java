@@ -137,8 +137,8 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
         }
 
         // Simulate an anonymous access with the supplied attributes.
-        AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("key", anonPF.getUserAttribute().getPassword(),
-                        anonPF.getUserAttribute().getAuthorities());
+        AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("key", anonPF.getPrincipal(),
+                        anonPF.getAuthorities());
         try {
             fsi.getAccessDecisionManager().decide(token, loginRequest, attributes);
         } catch (AccessDeniedException e) {
