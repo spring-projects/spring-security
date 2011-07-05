@@ -21,6 +21,7 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.Elements;
 import org.springframework.security.config.authentication.AuthenticationManagerFactoryBean;
+import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.AnyRequestMatcher;
@@ -147,7 +148,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             filterChainMatcher = new RootBeanDefinition(AnyRequestMatcher.class);
         }
 
-        BeanDefinitionBuilder filterChainBldr = BeanDefinitionBuilder.rootBeanDefinition(SecurityFilterChain.class);
+        BeanDefinitionBuilder filterChainBldr = BeanDefinitionBuilder.rootBeanDefinition(DefaultSecurityFilterChain.class);
         filterChainBldr.addConstructorArgValue(filterChainMatcher);
         filterChainBldr.addConstructorArgValue(filterChain);
 

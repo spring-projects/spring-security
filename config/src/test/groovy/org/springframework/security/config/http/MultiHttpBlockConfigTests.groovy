@@ -42,7 +42,7 @@ class MultiHttpBlockConfigTests extends AbstractHttpConfigTests {
         createAppContext()
         then:
         BeanCreationException e = thrown()
-        e.cause.cause instanceof IllegalArgumentException
+        e.cause instanceof IllegalArgumentException
     }
 
   def duplicatePatternsAreRejected () {

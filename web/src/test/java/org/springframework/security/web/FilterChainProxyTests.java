@@ -47,7 +47,7 @@ public class FilterChainProxyTests {
                         return null;
                     }
                 }).when(filter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
-        fcp = new FilterChainProxy(new SecurityFilterChain(matcher, Arrays.asList(filter)));
+        fcp = new FilterChainProxy(new DefaultSecurityFilterChain(matcher, Arrays.asList(filter)));
         fcp.setFilterChainValidator(mock(FilterChainProxy.FilterChainValidator.class));
         request = new MockHttpServletRequest();
         request.setServletPath("/path");
@@ -94,7 +94,7 @@ public class FilterChainProxyTests {
     @Test
     public void originalFilterChainIsInvokedIfMatchingSecurityChainIsEmpty() throws Exception {
         List<Filter> noFilters = Collections.emptyList();
-        fcp = new FilterChainProxy(new SecurityFilterChain(matcher, noFilters));
+        fcp = new FilterChainProxy(new DefaultSecurityFilterChain(matcher, noFilters));
 
         when(matcher.matches(any(HttpServletRequest.class))).thenReturn(true);
         fcp.doFilter(request, response, chain);
@@ -137,7 +137,7 @@ public class FilterChainProxyTests {
     @Test
     public void bothWrappersAreResetWithNestedFcps() throws Exception {
         HttpFirewall fw = mock(HttpFirewall.class);
-        FilterChainProxy firstFcp = new FilterChainProxy(new SecurityFilterChain(matcher, fcp));
+        FilterChainProxy firstFcp = new FilterChainProxy(new DefaultSecurityFilterChain(matcher, fcp));
         firstFcp.setFirewall(fw);
         fcp.setFirewall(fw);
         FirewalledRequest firstFwr = mock(FirewalledRequest.class, "firstFwr");

@@ -142,7 +142,6 @@ public class FilterChainProxy extends GenericFilterBean {
 
     public FilterChainProxy(List<SecurityFilterChain> filterChains) {
         this.filterChains = filterChains;
-        checkPathOrder();
     }
 
     @Override
@@ -219,10 +218,8 @@ public class FilterChainProxy extends GenericFilterBean {
         filterChains = new ArrayList<SecurityFilterChain>(filterChainMap.size());
 
         for (Map.Entry<RequestMatcher,List<Filter>> entry : filterChainMap.entrySet()) {
-            filterChains.add(new SecurityFilterChain(entry.getKey(), entry.getValue()));
+            filterChains.add(new DefaultSecurityFilterChain(entry.getKey(), entry.getValue()));
         }
-
-        checkPathOrder();
     }
 
     /**
@@ -238,23 +235,10 @@ public class FilterChainProxy extends GenericFilterBean {
         LinkedHashMap<RequestMatcher, List<Filter>> map =  new LinkedHashMap<RequestMatcher, List<Filter>>();
 
         for (SecurityFilterChain chain : filterChains) {
-            map.put(chain.getRequestMatcher(), chain.getFilters());
+            map.put(((DefaultSecurityFilterChain)chain).getRequestMatcher(), chain.getFilters());
         }
 
         return map;
-    }
-
-    private void checkPathOrder() {
-        // Check that the universal pattern is listed at the end, if at all
-        Iterator<SecurityFilterChain> chains = filterChains.iterator();
-
-        while(chains.hasNext()) {
-            if ((chains.next().getRequestMatcher() instanceof AnyRequestMatcher && chains.hasNext())) {
-                throw new IllegalArgumentException("A universal match pattern ('/**') is defined " +
-                        " before other patterns in the filter chain, causing them to be ignored. Please check the " +
-                        "ordering in your <security:http> namespace or FilterChainProxy bean configuration");
-            }
-        }
     }
 
     /**

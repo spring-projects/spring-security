@@ -9,6 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.SecurityFilterChain;
@@ -24,6 +25,7 @@ import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
+import org.springframework.security.web.util.AnyRequestMatcher;
 
 public class DefaultFilterChainValidator implements FilterChainProxy.FilterChainValidator {
     private final Log logger = LogFactory.getLog(getClass());
@@ -34,17 +36,34 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
             checkFilterStack(filterChain.getFilters());
         }
 
+        checkPathOrder(new ArrayList<SecurityFilterChain>(fcp.getFilterChains()));
         checkForDuplicateMatchers(new ArrayList<SecurityFilterChain>(fcp.getFilterChains()));
     }
 
-    private void checkForDuplicateMatchers(List<SecurityFilterChain> chains) {
-        SecurityFilterChain chain = chains.remove(0);
+    private void checkPathOrder(List<SecurityFilterChain> filterChains) {
+        // Check that the universal pattern is listed at the end, if at all
+        Iterator<SecurityFilterChain> chains = filterChains.iterator();
 
-        for (SecurityFilterChain test : chains) {
-            if (chain.getRequestMatcher().equals(test.getRequestMatcher())) {
-                throw new IllegalArgumentException("The FilterChainProxy contains two filter chains using the" +
-                        " matcher " + chain.getRequestMatcher() + ". If you are using multiple <http> namespace " +
-                        "elements, you must use a 'pattern' attribute to define the request patterns to which they apply.");
+        while (chains.hasNext()) {
+            if (((DefaultSecurityFilterChain)chains.next()).getRequestMatcher() instanceof AnyRequestMatcher && chains.hasNext()) {
+                throw new IllegalArgumentException("A universal match pattern ('/**') is defined " +
+                        " before other patterns in the filter chain, causing them to be ignored. Please check the " +
+                        "ordering in your <security:http> namespace or FilterChainProxy bean configuration");
+            }
+        }
+    }
+
+    private void checkForDuplicateMatchers(List<SecurityFilterChain> chains) {
+
+        while (chains.size() > 1) {
+            DefaultSecurityFilterChain chain = (DefaultSecurityFilterChain)chains.remove(0);
+
+            for (SecurityFilterChain test : chains) {
+                if (chain.getRequestMatcher().equals(((DefaultSecurityFilterChain)test).getRequestMatcher())) {
+                    throw new IllegalArgumentException("The FilterChainProxy contains two filter chains using the" +
+                            " matcher " + chain.getRequestMatcher() + ". If you are using multiple <http> namespace " +
+                            "elements, you must use a 'pattern' attribute to define the request patterns to which they apply.");
+                }
             }
         }
     }

@@ -33,6 +33,7 @@ import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -65,11 +66,6 @@ public class FilterChainProxyConfigTests {
         if (appCtx != null) {
             appCtx.close();
         }
-    }
-
-    @Test(expected=BeanCreationException.class)
-    public void misplacedUniversalPathShouldBeDetected() throws Exception {
-        appCtx.getBean("newFilterChainProxyWrongPathOrder", FilterChainProxy.class);
     }
 
     @Test
@@ -111,9 +107,13 @@ public class FilterChainProxyConfigTests {
         FilterChainProxy fcp = appCtx.getBean("sec1235FilterChainProxy", FilterChainProxy.class);
 
         List<SecurityFilterChain> chains = fcp.getFilterChains();
-        assertEquals("/login*", ((AntPathRequestMatcher)chains.get(0).getRequestMatcher()).getPattern());
-        assertEquals("/logout", ((AntPathRequestMatcher)chains.get(1).getRequestMatcher()).getPattern());
-        assertTrue(chains.get(2).getRequestMatcher() instanceof AnyRequestMatcher);
+        assertEquals("/login*", getPattern(chains.get(0)));
+        assertEquals("/logout", getPattern(chains.get(1)));
+        assertTrue(((DefaultSecurityFilterChain)chains.get(2)).getRequestMatcher() instanceof AnyRequestMatcher);
+    }
+
+    private String getPattern(SecurityFilterChain chain) {
+        return ((AntPathRequestMatcher)((DefaultSecurityFilterChain)chain).getRequestMatcher()).getPattern();
     }
 
     private void checkPathAndFilterOrder(FilterChainProxy filterChainProxy) throws Exception {

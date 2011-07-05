@@ -7,6 +7,7 @@ import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -26,7 +27,7 @@ public class FilterChainBeanDefinitionParser implements BeanDefinitionParser {
         String requestMatcher = elt.getAttribute(ATT_REQUEST_MATCHER_REF);
         String filters = elt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_FILTERS);
 
-        BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(SecurityFilterChain.class);
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(DefaultSecurityFilterChain.class);
 
         if (StringUtils.hasText(path)) {
             Assert.isTrue(!StringUtils.hasText(requestMatcher), "");

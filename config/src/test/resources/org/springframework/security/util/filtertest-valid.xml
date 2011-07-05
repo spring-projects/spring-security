@@ -98,7 +98,10 @@
             <sec:filter-chain pattern="/some/other/path/**" filters="sif,mockFilter,mockFilter2"/>
            </util:list>
         </constructor-arg>
+        <property name="filterChainValidator" ref="fcv" />
     </bean>
+
+    <bean id="fcv" class="org.springframework.security.config.http.DefaultFilterChainValidator" />
 
     <bean id="newFilterChainProxyRegex" class="org.springframework.security.web.FilterChainProxy">
         <sec:filter-chain-map path-type="regex">
@@ -124,7 +127,7 @@
     <bean id="newFilterChainProxyNonNamespace" class="org.springframework.security.web.FilterChainProxy">
         <constructor-arg>
             <list>
-                <bean class="org.springframework.security.web.SecurityFilterChain">
+                <bean class="org.springframework.security.web.DefaultSecurityFilterChain">
                     <constructor-arg ref="fooMatcher"/>
                     <constructor-arg>
                         <list>
@@ -132,7 +135,7 @@
                         </list>
                     </constructor-arg>
                 </bean>
-                <bean class="org.springframework.security.web.SecurityFilterChain">
+                <bean class="org.springframework.security.web.DefaultSecurityFilterChain">
                     <constructor-arg>
                         <bean class="org.springframework.security.web.util.AntPathRequestMatcher">
                             <constructor-arg value="/some/other/path/**"/>
@@ -146,7 +149,7 @@
                         </list>
                     </constructor-arg>
                 </bean>
-                <bean class="org.springframework.security.web.SecurityFilterChain">
+                <bean class="org.springframework.security.web.DefaultSecurityFilterChain">
                     <constructor-arg>
                         <bean class="org.springframework.security.web.util.AntPathRequestMatcher">
                             <constructor-arg value="/do/not/filter*"/>
@@ -156,7 +159,7 @@
                         <list />
                     </constructor-arg>
                 </bean>
-                <bean class="org.springframework.security.web.SecurityFilterChain">
+                <bean class="org.springframework.security.web.DefaultSecurityFilterChain">
                     <constructor-arg>
                         <bean class="org.springframework.security.web.util.AntPathRequestMatcher">
                             <constructor-arg value="/**"/>
