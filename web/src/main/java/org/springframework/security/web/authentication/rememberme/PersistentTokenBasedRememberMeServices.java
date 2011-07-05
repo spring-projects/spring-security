@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.RememberMeServices;
@@ -48,8 +49,19 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
     private int seriesLength = DEFAULT_SERIES_LENGTH;
     private int tokenLength = DEFAULT_TOKEN_LENGTH;
 
-    public PersistentTokenBasedRememberMeServices() throws Exception {
-        random = SecureRandom.getInstance("SHA1PRNG");
+    /**
+     * @deprecated Use constructor injection
+     */
+    @Deprecated
+    public PersistentTokenBasedRememberMeServices() {
+        random = new SecureRandom();
+    }
+
+    public PersistentTokenBasedRememberMeServices(String key, UserDetailsService userDetailsService,
+                                                  PersistentTokenRepository tokenRepository) {
+        super(key, userDetailsService);
+        random = new SecureRandom();
+        this.tokenRepository = tokenRepository;
     }
 
     /**
@@ -132,7 +144,6 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
             addCookie(persistentToken, request, response);
         } catch (DataAccessException e) {
             logger.error("Failed to save persistent token ", e);
-
         }
     }
 
@@ -161,6 +172,10 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
         setCookie(new String[] {token.getSeries(), token.getTokenValue()}, getTokenValiditySeconds(), request, response);
     }
 
+    /**
+     * @deprecated Use constructor injection
+     */
+    @Deprecated
     public void setTokenRepository(PersistentTokenRepository tokenRepository) {
         this.tokenRepository = tokenRepository;
     }

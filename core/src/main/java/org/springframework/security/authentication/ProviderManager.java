@@ -88,6 +88,22 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
     private boolean eraseCredentialsAfterAuthentication = true;
     private boolean clearExtraInformation = false;
 
+    /**
+     * @deprecated Use constructor which takes provider list
+     */
+    @Deprecated
+    public ProviderManager() {
+    }
+
+    public ProviderManager(List<AuthenticationProvider> providers) {
+        this(providers, null);
+    }
+
+    public ProviderManager(List<AuthenticationProvider> providers, AuthenticationManager parent) {
+        this.providers = providers;
+        this.parent = parent;
+    }
+
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
@@ -212,6 +228,10 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
         this.messages = new MessageSourceAccessor(messageSource);
     }
 
+    /**
+     * @deprecated Use constructor injection
+     */
+    @Deprecated
     public void setParent(AuthenticationManager parent) {
         this.parent = parent;
     }
@@ -244,7 +264,9 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
      *
      * @throws IllegalArgumentException if the list is empty or null, or any of the elements in the list is not an
      * AuthenticationProvider instance.
+     * @deprecated Use constructor injection
      */
+    @Deprecated
     @SuppressWarnings("unchecked")
     public void setProviders(List providers) {
         Assert.notNull(providers, "Providers list cannot be null");

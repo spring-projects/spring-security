@@ -59,6 +59,18 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     private Boolean useSecureCookie = null;
     private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
+    /**
+     * @deprecated Use cosntructor injection
+     */
+    @Deprecated
+    protected AbstractRememberMeServices() {
+    }
+
+    protected AbstractRememberMeServices(String key, UserDetailsService userDetailsService) {
+        this.key = key;
+        this.userDetailsService = userDetailsService;
+    }
+
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(key);
         Assert.notNull(userDetailsService, "A UserDetailsService is required");
@@ -381,11 +393,21 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
         return userDetailsService;
     }
 
+    /**
+     *
+     * @deprecated Use constructor injection
+     */
+    @Deprecated
     public void setUserDetailsService(UserDetailsService userDetailsService) {
         Assert.notNull(userDetailsService, "UserDetailsService canot be null");
         this.userDetailsService = userDetailsService;
     }
 
+    /**
+     *
+     * @deprecated Use constructor injection
+     */
+    @Deprecated
     public void setKey(String key) {
         this.key = key;
     }

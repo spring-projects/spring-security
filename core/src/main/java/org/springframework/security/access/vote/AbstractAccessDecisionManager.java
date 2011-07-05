@@ -50,6 +50,13 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
 
     private boolean allowIfAllAbstainDecisions = false;
 
+    protected AbstractAccessDecisionManager() {
+    }
+
+    protected AbstractAccessDecisionManager(List<AccessDecisionVoter> decisionVoters) {
+        this.decisionVoters = decisionVoters;
+    }
+
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
@@ -76,6 +83,10 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
         this.allowIfAllAbstainDecisions = allowIfAllAbstainDecisions;
     }
 
+    /**
+     * @deprecated Use constructor
+     */
+    @Deprecated
     public void setDecisionVoters(List<AccessDecisionVoter> newList) {
         Assert.notEmpty(newList);
 

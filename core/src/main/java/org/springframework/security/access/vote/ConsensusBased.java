@@ -15,7 +15,7 @@
 
 package org.springframework.security.access.vote;
 
-import java.util.Collection;
+import java.util.*;
 
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.AccessDeniedException;
@@ -33,6 +33,17 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
     //~ Instance fields ================================================================================================
 
     private boolean allowIfEqualGrantedDeniedDecisions = true;
+
+    /**
+     * @deprecated Use constructor which takes voter list
+     */
+    @Deprecated
+    public ConsensusBased() {
+    }
+
+    public ConsensusBased(List<AccessDecisionVoter> decisionVoters) {
+        super(decisionVoters);
+    }
 
     //~ Methods ========================================================================================================
 

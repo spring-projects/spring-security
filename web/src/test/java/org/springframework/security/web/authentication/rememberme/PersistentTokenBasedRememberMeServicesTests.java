@@ -27,12 +27,13 @@ public class PersistentTokenBasedRememberMeServicesTests {
 
     @Before
     public void setUpData() throws Exception {
-        services = new PersistentTokenBasedRememberMeServices();
+        services = new PersistentTokenBasedRememberMeServices("key",
+                new AbstractRememberMeServicesTests.MockUserDetailsService(AbstractRememberMeServicesTests.joe, false),
+                new InMemoryTokenRepositoryImpl());
         services.setCookieName("mycookiename");
         // Default to 100 days (see SEC-1081).
-        services.setTokenValiditySeconds(100*24*60*60);
-        services.setUserDetailsService(
-                new AbstractRememberMeServicesTests.MockUserDetailsService(AbstractRememberMeServicesTests.joe, false));
+        services.setTokenValiditySeconds(100 * 24 * 60 * 60);
+        services.afterPropertiesSet();
     }
 
     @Test(expected = InvalidCookieException.class)
@@ -111,7 +112,7 @@ public class PersistentTokenBasedRememberMeServicesTests {
     public void logoutClearsUsersTokenAndCookie() throws Exception {
         Cookie cookie = new Cookie("mycookiename", "somevalue");
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setCookies(new Cookie[] {cookie});
+        request.setCookies(cookie);
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockTokenRepository repo =
             new MockTokenRepository(new PersistentRememberMeToken("joe", "series","token", new Date()));

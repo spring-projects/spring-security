@@ -113,12 +113,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
     protected AuthenticationDetailsSource<HttpServletRequest,?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
     private AuthenticationManager authenticationManager;
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
-
-    /*
-     * Delay use of NullRememberMeServices until initialization so that namespace has a chance to inject
-     * the RememberMeServices implementation into custom implementations.
-     */
-    private RememberMeServices rememberMeServices = null;
+    private RememberMeServices rememberMeServices = new NullRememberMeServices();
 
     /**
      * The URL destination that this filter intercepts and processes (usually
@@ -373,6 +368,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
     }
 
     public void setRememberMeServices(RememberMeServices rememberMeServices) {
+        Assert.notNull("rememberMeServices cannot be null");
         this.rememberMeServices = rememberMeServices;
     }
 

@@ -79,6 +79,22 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
 
     private RequestCache requestCache = new HttpSessionRequestCache();
 
+    /**
+     * @deprecated Use constructor injection
+     */
+    @Deprecated
+    public ExceptionTranslationFilter() {
+    }
+
+    public ExceptionTranslationFilter(AuthenticationEntryPoint authenticationEntryPoint) {
+        this(authenticationEntryPoint, new HttpSessionRequestCache());
+    }
+
+    public ExceptionTranslationFilter(AuthenticationEntryPoint authenticationEntryPoint, RequestCache requestCache) {
+        this.authenticationEntryPoint = authenticationEntryPoint;
+        this.requestCache = requestCache;
+    }
+
     //~ Methods ========================================================================================================
 
     @Override
@@ -173,6 +189,10 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
         this.accessDeniedHandler = accessDeniedHandler;
     }
 
+    /**
+     * @deprecated Use constructor
+     */
+    @Deprecated
     public void setAuthenticationEntryPoint(AuthenticationEntryPoint authenticationEntryPoint) {
         this.authenticationEntryPoint = authenticationEntryPoint;
     }
@@ -190,7 +210,10 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
     /**
      * The RequestCache implementation used to store the current request before starting authentication.
      * Defaults to an {@link HttpSessionRequestCache}.
+     *
+     * @deprecated Use constructor
      */
+    @Deprecated
     public void setRequestCache(RequestCache requestCache) {
         Assert.notNull(requestCache, "requestCache cannot be null");
         this.requestCache = requestCache;

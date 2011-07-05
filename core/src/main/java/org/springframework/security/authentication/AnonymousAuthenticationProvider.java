@@ -40,11 +40,22 @@ public class AnonymousAuthenticationProvider implements AuthenticationProvider, 
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private String key;
 
+    /**
+     *
+     * @deprecated Use constructor injection
+     */
+    @Deprecated
+    public AnonymousAuthenticationProvider() {
+    }
+
+    public AnonymousAuthenticationProvider(String key) {
+        this.key = key;
+    }
+
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(key, "A Key is required");
-        Assert.notNull(this.messages, "A message source must be set");
     }
 
     public Authentication authenticate(Authentication authentication)
@@ -65,11 +76,17 @@ public class AnonymousAuthenticationProvider implements AuthenticationProvider, 
         return key;
     }
 
+    /**
+     *
+     * @deprecated Use constructor injection
+     */
+    @Deprecated
     public void setKey(String key) {
         this.key = key;
     }
 
     public void setMessageSource(MessageSource messageSource) {
+        Assert.notNull(messageSource, "messageSource cannot be null");
         this.messages = new MessageSourceAccessor(messageSource);
     }
 

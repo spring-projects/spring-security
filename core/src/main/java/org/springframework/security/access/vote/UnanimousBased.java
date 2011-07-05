@@ -30,6 +30,18 @@ import org.springframework.security.core.Authentication;
  * voters to abstain or grant access.
  */
 public class UnanimousBased extends AbstractAccessDecisionManager {
+
+    /**
+     * @deprecated Use constructor which takes voter list
+     */
+    @Deprecated
+    public UnanimousBased() {
+    }
+
+    public UnanimousBased(List<AccessDecisionVoter> decisionVoters) {
+        super(decisionVoters);
+    }
+
     //~ Methods ========================================================================================================
 
     /**

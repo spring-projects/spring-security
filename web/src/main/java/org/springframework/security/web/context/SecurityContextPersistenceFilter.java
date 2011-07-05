@@ -43,10 +43,17 @@ public class SecurityContextPersistenceFilter extends GenericFilterBean {
 
     static final String FILTER_APPLIED = "__spring_security_scpf_applied";
 
-    private SecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+    private SecurityContextRepository repo;
 
     private boolean forceEagerSessionCreation = false;
 
+    public SecurityContextPersistenceFilter() {
+        this(new HttpSessionSecurityContextRepository());
+    }
+
+    public SecurityContextPersistenceFilter(SecurityContextRepository repo) {
+        this.repo = repo;
+    }
 
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
@@ -92,6 +99,10 @@ public class SecurityContextPersistenceFilter extends GenericFilterBean {
         }
     }
 
+    /**
+     * @deprecated Use constructor injection
+     */
+    @Deprecated
     public void setSecurityContextRepository(SecurityContextRepository repo) {
         Assert.notNull(repo, "SecurityContextRepository cannot be null");
         this.repo = repo;

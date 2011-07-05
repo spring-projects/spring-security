@@ -16,6 +16,7 @@
 package org.springframework.security.web.authentication.rememberme;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.codec.Utf8;
@@ -80,6 +81,17 @@ import java.util.Date;
  * @author Ben Alex
  */
 public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
+
+    /**
+     * @deprecated Use with-args constructor
+     */
+    @Deprecated
+    public TokenBasedRememberMeServices() {
+    }
+
+    public TokenBasedRememberMeServices(String key, UserDetailsService userDetailsService) {
+        super(key, userDetailsService);
+    }
 
     //~ Methods ========================================================================================================
 

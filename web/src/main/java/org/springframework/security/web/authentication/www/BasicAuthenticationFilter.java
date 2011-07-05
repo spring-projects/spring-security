@@ -96,6 +96,37 @@ public class BasicAuthenticationFilter extends GenericFilterBean {
     private boolean ignoreFailure = false;
     private String credentialsCharset = "UTF-8";
 
+    /**
+     * @deprecated Use constructor injection
+     */
+    public BasicAuthenticationFilter() {
+    }
+
+    /**
+     * Creates an instance which will authenticate against the supplied {@code AuthenticationManager}
+     * and which will ignore failed authentication attempts, allowing the request to proceed down the filter chain.
+     *
+     * @param authenticationManager the bean to submit authentication requests to
+     */
+    public BasicAuthenticationFilter(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+        ignoreFailure = true;
+    }
+
+    /**
+     * Creates an instance which will authenticate against the supplied {@code AuthenticationManager} and
+     * use the supplied {@code AuthenticationEntryPoint} to handle authentication failures.
+     *
+     * @param authenticationManager the bean to submit authentication requests to
+     * @param authenticationEntryPoint will be invoked when authentication fails. Typically an instance of
+     * {@link BasicAuthenticationEntryPoint}.
+     */
+    public BasicAuthenticationFilter(AuthenticationManager authenticationManager,
+                                     AuthenticationEntryPoint authenticationEntryPoint) {
+        this.authenticationManager = authenticationManager;
+        this.authenticationEntryPoint = authenticationEntryPoint;
+    }
+
     //~ Methods ========================================================================================================
 
     @Override
@@ -172,7 +203,7 @@ public class BasicAuthenticationFilter extends GenericFilterBean {
 
     /**
      * Decodes the header into a username and password.
-     * <p>
+     *
      * @throws BadCredentialsException if the Basic header is not present or is not valid Base64
      */
     private String[] extractAndDecodeHeader(String header, HttpServletRequest request) throws IOException {
@@ -237,6 +268,10 @@ public class BasicAuthenticationFilter extends GenericFilterBean {
         return authenticationEntryPoint;
     }
 
+    /**
+     * @deprecated Use constructor injection
+     */
+    @Deprecated
     public void setAuthenticationEntryPoint(AuthenticationEntryPoint authenticationEntryPoint) {
         this.authenticationEntryPoint = authenticationEntryPoint;
     }
@@ -245,6 +280,10 @@ public class BasicAuthenticationFilter extends GenericFilterBean {
         return authenticationManager;
     }
 
+    /**
+     * @deprecated Use constructor injection
+     */
+    @Deprecated
     public void setAuthenticationManager(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
@@ -253,6 +292,11 @@ public class BasicAuthenticationFilter extends GenericFilterBean {
         return ignoreFailure;
     }
 
+    /**
+     *
+     * @deprecated Use the constructor which takes a single AuthenticationManager parameter
+     */
+    @Deprecated
     public void setIgnoreFailure(boolean ignoreFailure) {
         this.ignoreFailure = ignoreFailure;
     }

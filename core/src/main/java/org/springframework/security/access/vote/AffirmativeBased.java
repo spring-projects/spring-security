@@ -15,7 +15,7 @@
 
 package org.springframework.security.access.vote;
 
-import java.util.Collection;
+import java.util.*;
 
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.AccessDeniedException;
@@ -28,6 +28,18 @@ import org.springframework.security.core.Authentication;
  * <code>AccessDecisionVoter</code> returns an affirmative response.
  */
 public class AffirmativeBased extends AbstractAccessDecisionManager {
+
+    /**
+     * @deprecated Use constructor which takes voter list
+     */
+    @Deprecated
+    public AffirmativeBased() {
+    }
+
+    public AffirmativeBased(List<AccessDecisionVoter> decisionVoters) {
+        super(decisionVoters);
+    }
+
     //~ Methods ========================================================================================================
 
     /**

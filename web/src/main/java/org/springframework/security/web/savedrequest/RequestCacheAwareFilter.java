@@ -24,7 +24,15 @@ import org.springframework.web.filter.GenericFilterBean;
  */
 public class RequestCacheAwareFilter extends GenericFilterBean {
 
-    private RequestCache requestCache = new HttpSessionRequestCache();
+    private RequestCache requestCache;
+
+    public RequestCacheAwareFilter() {
+        this(new HttpSessionRequestCache());
+    }
+
+    public RequestCacheAwareFilter(RequestCache requestCache) {
+        this.requestCache = requestCache;
+    }
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
@@ -35,6 +43,10 @@ public class RequestCacheAwareFilter extends GenericFilterBean {
         chain.doFilter(wrappedSavedRequest == null ? request : wrappedSavedRequest, response);
     }
 
+    /**
+     * @deprecated Use constructor injection
+     */
+    @Deprecated
     public void setRequestCache(RequestCache requestCache) {
         this.requestCache = requestCache;
     }
