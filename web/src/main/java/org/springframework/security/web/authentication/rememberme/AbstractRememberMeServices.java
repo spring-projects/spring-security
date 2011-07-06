@@ -60,13 +60,15 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
     /**
-     * @deprecated Use cosntructor injection
+     * @deprecated Use constructor injection
      */
     @Deprecated
     protected AbstractRememberMeServices() {
     }
 
     protected AbstractRememberMeServices(String key, UserDetailsService userDetailsService) {
+        Assert.hasLength(key, "key cannot be empty or null");
+        Assert.notNull(userDetailsService, "UserDetailsService cannot be null");
         this.key = key;
         this.userDetailsService = userDetailsService;
     }

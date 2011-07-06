@@ -91,6 +91,8 @@ public class ExceptionTranslationFilter extends GenericFilterBean {
     }
 
     public ExceptionTranslationFilter(AuthenticationEntryPoint authenticationEntryPoint, RequestCache requestCache) {
+        Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint cannot be null");
+        Assert.notNull(requestCache, "requestCache cannot be null");
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.requestCache = requestCache;
     }

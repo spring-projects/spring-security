@@ -54,6 +54,7 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
     }
 
     protected AbstractAccessDecisionManager(List<AccessDecisionVoter> decisionVoters) {
+        Assert.notEmpty(decisionVoters, "A list of AccessDecisionVoters is required");
         this.decisionVoters = decisionVoters;
     }
 

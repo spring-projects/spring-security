@@ -9,6 +9,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
 
 /**
@@ -31,6 +32,7 @@ public class RequestCacheAwareFilter extends GenericFilterBean {
     }
 
     public RequestCacheAwareFilter(RequestCache requestCache) {
+        Assert.notNull(requestCache, "requestCache cannot be null");
         this.requestCache = requestCache;
     }
 

@@ -100,13 +100,19 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
     }
 
     public ProviderManager(List<AuthenticationProvider> providers, AuthenticationManager parent) {
+        Assert.notNull(providers, "providers list cannot be null");
         this.providers = providers;
         this.parent = parent;
+        checkState();
     }
 
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
+        checkState();
+    }
+
+    private void checkState() {
         if (parent == null && providers.isEmpty()) {
             throw new IllegalArgumentException("A parent AuthenticationManager or a list " +
                     "of AuthenticationProviders is required");

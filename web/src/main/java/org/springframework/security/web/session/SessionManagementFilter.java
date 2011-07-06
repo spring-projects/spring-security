@@ -52,6 +52,8 @@ public class SessionManagementFilter extends GenericFilterBean {
     }
 
     public SessionManagementFilter(SecurityContextRepository securityContextRepository, SessionAuthenticationStrategy sessionStrategy) {
+        Assert.notNull(securityContextRepository, "SecurityContextRepository cannot be null");
+        Assert.notNull(sessionStrategy, "SessionAuthenticationStrategy cannot be null");
         this.securityContextRepository = securityContextRepository;
         this.sessionStrategy = sessionStrategy;
     }
