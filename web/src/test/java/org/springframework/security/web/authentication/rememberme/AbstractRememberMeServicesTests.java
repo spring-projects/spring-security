@@ -23,6 +23,7 @@ import org.springframework.security.web.authentication.rememberme.AbstractRememb
 import org.springframework.security.web.authentication.rememberme.CookieTheftException;
 import org.springframework.security.web.authentication.rememberme.InvalidCookieException;
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationException;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -330,6 +331,15 @@ public class AbstractRememberMeServicesTests {
         assertTrue(cookie.getSecure());
     }
 
+    @Test
+    public void setHttpOnlyIgnoredForServlet25() throws Exception {
+        MockRememberMeServices services = new MockRememberMeServices();
+        assertNull(ReflectionTestUtils.getField(services, "setHttpOnlyMethod"));
+
+        services = new MockRememberMeServices("key",new MockUserDetailsService(joe, false));
+        assertNull(ReflectionTestUtils.getField(services, "setHttpOnlyMethod"));
+    }
+
     private Cookie[] createLoginCookie(String cookieToken) {
         MockRememberMeServices services = new MockRememberMeServices();
         Cookie cookie = new Cookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
@@ -346,10 +356,14 @@ public class AbstractRememberMeServicesTests {
 
     //~ Inner Classes ==================================================================================================
 
-    private class MockRememberMeServices extends AbstractRememberMeServices {
+    static class MockRememberMeServices extends AbstractRememberMeServices {
         boolean loginSuccessCalled;
 
-        private MockRememberMeServices() {
+        MockRememberMeServices(String key, UserDetailsService userDetailsService) {
+            super(key,userDetailsService);
+        }
+
+        MockRememberMeServices() {
             setKey("key");
         }
 

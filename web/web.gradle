@@ -1,4 +1,8 @@
 // Web module build file
+configurations {
+    servlet3Test
+    servlet3Test.exclude group: 'javax.servlet', name: 'sevlet-api'
+}
 
 dependencies {
     compile project(':spring-security-core'),
@@ -13,8 +17,30 @@ dependencies {
 
     provided 'javax.servlet:servlet-api:2.5'
 
+    servlet3Test 'org.jboss.spec.javax.servlet:jboss-servlet-api_3.0_spec:1.0.0.Final'
+
     testCompile project(':spring-security-core').sourceSets.test.classes,
                 'commons-codec:commons-codec:1.3',
                 "org.springframework:spring-test:$springVersion"
     testRuntime "hsqldb:hsqldb:$hsqlVersion"
 }
+
+configurations.testRuntime.allDependencies.each {
+    if( !(it.group == 'javax.servlet' && it.name == 'servlet-api') ) {
+        configurations.servlet3Test.addDependency it
+    }
+}
+
+test {
+    exclude '**/*Servlet3Tests.class'
+}
+
+task servlet3Test(type: Test, dependsOn: testClasses) {
+    testClassesDir = sourceSets.test.classesDir
+    logging.captureStandardOutput(LogLevel.INFO)
+    classpath = sourceSets.main.classes + sourceSets.test.classes + configurations.servlet3Test
+    maxParallelForks = 1
+    testReport = false
+    include '**/*Servlet3Tests.class'
+}
+check.dependsOn servlet3Test

@@ -1,5 +1,7 @@
 package org.springframework.security.web.authentication.rememberme;
 
+import java.lang.reflect.Method;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,12 +27,14 @@ import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
  * Base class for RememberMeServices implementations.
  *
  * @author Luke Taylor
+ * @author Rob Winch
  * @since 2.0
  */
 public abstract class AbstractRememberMeServices implements RememberMeServices, InitializingBean, LogoutHandler {
@@ -57,6 +61,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     private String key;
     private int tokenValiditySeconds = TWO_WEEKS_S;
     private Boolean useSecureCookie = null;
+    private Method setHttpOnlyMethod;
     private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
     /**
@@ -64,6 +69,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
      */
     @Deprecated
     protected AbstractRememberMeServices() {
+        this.setHttpOnlyMethod = ReflectionUtils.findMethod(Cookie.class,"setHttpOnly", boolean.class);
     }
 
     protected AbstractRememberMeServices(String key, UserDetailsService userDetailsService) {
@@ -71,6 +77,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
         Assert.notNull(userDetailsService, "UserDetailsService cannot be null");
         this.key = key;
         this.userDetailsService = userDetailsService;
+        this.setHttpOnlyMethod = ReflectionUtils.findMethod(Cookie.class,"setHttpOnly", boolean.class);
     }
 
     public void afterPropertiesSet() throws Exception {
@@ -325,7 +332,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
      *
      * By default a secure cookie will be used if the connection is secure. You can set the {@code useSecureCookie}
      * property to {@code false} to override this. If you set it to {@code true}, the cookie will always be flagged
-     * as secure.
+     * as secure. If Servlet 3.0 is used, the cookie will be marked as HttpOnly.
      *
      * @param tokens the tokens which will be encoded to make the cookie value.
      * @param maxAge the value passed to {@link Cookie#setMaxAge(int)}
@@ -342,6 +349,12 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
             cookie.setSecure(request.isSecure());
         } else {
             cookie.setSecure(useSecureCookie);
+        }
+
+        if(setHttpOnlyMethod != null) {
+            ReflectionUtils.invokeMethod(setHttpOnlyMethod, cookie, Boolean.TRUE);
+        } else if (logger.isDebugEnabled()) {
+            logger.debug("Note: Cookie will not be marked as HttpOnly because you are not using Servlet 3.0 (Cookie#setHttpOnly(boolean) was not found).");
         }
 
         response.addCookie(cookie);
