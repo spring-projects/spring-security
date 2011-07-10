@@ -329,7 +329,8 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
             if (!allowSessionCreation) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("The HttpSession is currently null, and the "
-                                    + "HttpSessionContextIntegrationFilter is prohibited from creating an HttpSession "
+                                    + HttpSessionSecurityContextRepository.class.getSimpleName()
+                                    + " is prohibited from creating an HttpSession "
                                     + "(because the allowSessionCreation property is false) - SecurityContext thus not "
                                     + "stored for next request");
                 }
