@@ -400,7 +400,7 @@
                     a new session and copy the session attributes to the new session. Defaults to
                     "migrateSession".</para>
                 <para> If session fixation protection is enabled, the
-                    <classname>SessionManagementFilter</classname> is inected with a appropriately
+                    <classname>SessionManagementFilter</classname> is injected with an appropriately
                     configured <classname>DefaultSessionAuthenticationStrategy</classname>. See the
                     Javadoc for this class for more details. </para>
             </section>
