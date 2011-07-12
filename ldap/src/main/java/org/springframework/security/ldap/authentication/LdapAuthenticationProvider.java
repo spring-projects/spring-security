@@ -76,15 +76,15 @@ import java.util.*;
  *   &lt;/bean&gt;
  *
  *   &lt;bean id=&quot;ldapAuthProvider&quot;
- *       class=&quot;org.springframework.security.authentication.ldap.LdapAuthenticationProvider&quot;&gt;
+ *       class=&quot;org.springframework.security.ldap.authentication.LdapAuthenticationProvider&quot;&gt;
  *     &lt;constructor-arg&gt;
- *       &lt;bean class=&quot;org.springframework.security.authentication.ldap.authenticator.BindAuthenticator&quot;&gt;
+ *       &lt;bean class=&quot;org.springframework.security.ldap.authentication.BindAuthenticator&quot;&gt;
  *           &lt;constructor-arg ref=&quot;contextSource&quot;/&gt;
  *           &lt;property name=&quot;userDnPatterns&quot;&gt;&lt;list&gt;&lt;value&gt;uid={0},ou=people&lt;/value&gt;&lt;/list&gt;&lt;/property&gt;
  *       &lt;/bean&gt;
  *     &lt;/constructor-arg&gt;
  *     &lt;constructor-arg&gt;
- *       &lt;bean class=&quot;org.springframework.security.ldap.populator.DefaultLdapAuthoritiesPopulator&quot;&gt;
+ *       &lt;bean class=&quot;org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator&quot;&gt;
  *           &lt;constructor-arg ref=&quot;contextSource&quot;/&gt;
  *           &lt;constructor-arg value=&quot;ou=groups&quot;/&gt;
  *           &lt;property name=&quot;groupRoleAttribute&quot; value=&quot;ou&quot;/&gt;
