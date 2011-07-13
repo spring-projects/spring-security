@@ -189,6 +189,11 @@ public class OpenID4JavaConsumerTests {
         consumer.fetchAxAttributes(msg, attributes);
     }
 
+    @Test(expected=OpenIDConsumerException.class)
+    public void missingDiscoveryInformationThrowsException() throws Exception {
+        OpenID4JavaConsumer consumer = new OpenID4JavaConsumer(new NullAxFetchListFactory());
+        consumer.endConsumption(new MockHttpServletRequest());
+    }
 
     @SuppressWarnings("deprecation")
     @Test

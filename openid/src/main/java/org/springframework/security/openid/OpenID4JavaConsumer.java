@@ -144,6 +144,11 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 
         // retrieve the previously stored discovery information
         DiscoveryInformation discovered = (DiscoveryInformation) request.getSession().getAttribute(DISCOVERY_INFO_KEY);
+
+        if (discovered == null) {
+            throw new OpenIDConsumerException("DiscoveryInformation is not available. Possible causes are lost session or replay attack");
+        }
+
         List<OpenIDAttribute> attributesToFetch = (List<OpenIDAttribute>) request.getSession().getAttribute(ATTRIBUTE_LIST_KEY);
 
         request.getSession().removeAttribute(DISCOVERY_INFO_KEY);
