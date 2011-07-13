@@ -2,6 +2,7 @@ package org.springframework.security.web.authentication.rememberme;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.jdbc.object.MappingSqlQuery;
@@ -11,7 +12,7 @@ import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.Date;
+import java.util.*;
 
 /**
  * JDBC based persistent login token repository implementation.
@@ -47,28 +48,19 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
     private String removeUserTokensSql = DEF_REMOVE_USER_TOKENS_SQL;
     private boolean createTableOnStartup;
 
-    private MappingSqlQuery<PersistentRememberMeToken> tokensBySeriesMapping;
-    private SqlUpdate insertToken;
-    private SqlUpdate updateToken;
-    private SqlUpdate removeUserTokens;
-
     protected void initDao() {
-        tokensBySeriesMapping = new TokensBySeriesMapping(getDataSource());
-        insertToken = new InsertToken(getDataSource());
-        updateToken = new UpdateToken(getDataSource());
-        removeUserTokens = new RemoveUserTokens(getDataSource());
-
         if (createTableOnStartup) {
             getJdbcTemplate().execute(CREATE_TABLE_SQL);
         }
     }
 
     public void createNewToken(PersistentRememberMeToken token) {
-        insertToken.update(token.getUsername(), token.getSeries(), token.getTokenValue(), token.getDate());
+        getJdbcTemplate().update(insertTokenSql, token.getUsername(), token.getSeries(),
+                token.getTokenValue(), token.getDate());
     }
 
     public void updateToken(String series, String tokenValue, Date lastUsed) {
-        updateToken.update(tokenValue, new Date(), series);
+        getJdbcTemplate().update(updateTokenSql, tokenValue, new Date(), series);
     }
 
     /**
@@ -82,7 +74,11 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
      */
     public PersistentRememberMeToken getTokenForSeries(String seriesId) {
         try {
-            return tokensBySeriesMapping.findObject(seriesId);
+            return getJdbcTemplate().queryForObject(tokensBySeriesSql, new RowMapper<PersistentRememberMeToken>() {
+                public PersistentRememberMeToken mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    return new PersistentRememberMeToken(rs.getString(1), rs.getString(2), rs.getString(3), rs.getTimestamp(4));
+                }
+            }, seriesId);
         } catch(IncorrectResultSizeDataAccessException moreThanOne) {
             logger.error("Querying token for series '" + seriesId + "' returned more than one value. Series" +
                     " should be unique");
@@ -94,7 +90,7 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
     }
 
     public void removeUserTokens(String username) {
-        removeUserTokens.update(username);
+        getJdbcTemplate().update(removeUserTokensSql, username);
     }
 
     /**
@@ -105,51 +101,5 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
      */
     public void setCreateTableOnStartup(boolean createTableOnStartup) {
         this.createTableOnStartup = createTableOnStartup;
-    }
-
-    //~ Inner Classes ==================================================================================================
-
-    private class TokensBySeriesMapping extends MappingSqlQuery<PersistentRememberMeToken> {
-        protected TokensBySeriesMapping(DataSource ds) {
-            super(ds, tokensBySeriesSql);
-            declareParameter(new SqlParameter(Types.VARCHAR));
-            compile();
-        }
-
-        protected PersistentRememberMeToken mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new PersistentRememberMeToken(rs.getString(1), rs.getString(2), rs.getString(3), rs.getTimestamp(4));
-        }
-    }
-
-    private class UpdateToken extends SqlUpdate {
-
-        public UpdateToken(DataSource ds) {
-            super(ds, updateTokenSql);
-            setMaxRowsAffected(1);
-            declareParameter(new SqlParameter(Types.VARCHAR));
-            declareParameter(new SqlParameter(Types.TIMESTAMP));
-            declareParameter(new SqlParameter(Types.VARCHAR));
-            compile();
-        }
-    }
-
-    private class InsertToken extends SqlUpdate {
-
-        public InsertToken(DataSource ds) {
-            super(ds, insertTokenSql);
-            declareParameter(new SqlParameter(Types.VARCHAR));
-            declareParameter(new SqlParameter(Types.VARCHAR));
-            declareParameter(new SqlParameter(Types.VARCHAR));
-            declareParameter(new SqlParameter(Types.TIMESTAMP));
-            compile();
-        }
-    }
-
-    private class RemoveUserTokens extends SqlUpdate {
-        public RemoveUserTokens(DataSource ds) {
-            super(ds, removeUserTokensSql);
-            declareParameter(new SqlParameter(Types.VARCHAR));
-            compile();
-        }
     }
 }
