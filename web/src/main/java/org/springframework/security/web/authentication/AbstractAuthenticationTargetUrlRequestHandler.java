@@ -91,12 +91,6 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
             targetUrl = request.getParameter(targetUrlParameter);
 
             if (StringUtils.hasText(targetUrl)) {
-                try {
-                    targetUrl = URLDecoder.decode(targetUrl, "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    throw new IllegalStateException("UTF-8 not supported. Shouldn't be possible");
-                }
-
                 logger.debug("Found targetUrlParameter in request: " + targetUrl);
 
                 return targetUrl;
