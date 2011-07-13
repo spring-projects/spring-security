@@ -101,7 +101,7 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
                     return;
                 } else {
                     // Non-expired - update last request date/time
-                    info.refreshLastRequest();
+                    sessionRegistry.refreshLastRequest(info.getSessionId());
                 }
             }
         }
