@@ -595,7 +595,8 @@
                             applications WEB-INF/lib directories. For a basic application, you can
                             start with the tutorial sample. If you want to use LDAP, with an
                             embedded test server, then use the LDAP sample as a starting point. The
-                            reference manual also includes an appendix listing the first-level
+                            reference manual also includes
+                            <link xlink:href="http://static.springsource.org/spring-security/site/docs/3.1.x/reference/springsecurity-single.html#appendix-dependencies">an appendix</link> listing the first-level
                             dependencies for each Spring Security module with some information on
                             whether they are optional and what they are required for. </para>
                         <para> If you are building your project with maven, then adding the
@@ -604,6 +605,24 @@
                             which are marked as "optional" in the Spring Security POM files will
                             have to be added to your own pom.xml file if you need them. </para>
                     </answer>
+                </qandaentry>
+                <qandaentry xml:id="faq-apacheds-deps">
+                    <question><para>What dependencies are needed to run an embedded ApacheDS LDAP server?</para></question>
+                    <answer><para>If you are using Maven, you need to add the folowing to your pom dependencies:<programlisting><![CDATA[
+        <dependency>
+            <groupId>org.apache.directory.server</groupId>
+            <artifactId>apacheds-core</artifactId>
+            <version>1.5.5</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.directory.server</groupId>
+            <artifactId>apacheds-server-jndi</artifactId>
+            <version>1.5.5</version>
+            <scope>runtime</scope>
+        </dependency>
+]]></programlisting>. The other required jars should be pulled in transitively.
+                    </para></answer>
                 </qandaentry>
                 <qandaentry xml:id="faq-what-is-userdetailservice">
                     <question>
