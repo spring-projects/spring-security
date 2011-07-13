@@ -374,6 +374,26 @@ public class SwitchUserFilterTests {
         assertTrue(AuthorityUtils.authorityListToSet(result.getAuthorities()).contains("ROLE_NEW"));
     }
 
+    // SEC-1763
+    @Test
+    public void nestedSwitchesAreNotAllowed() throws Exception {
+        // original user
+        UsernamePasswordAuthenticationToken source = new UsernamePasswordAuthenticationToken("orig", "hawaii50", ROLES_12);
+        SecurityContextHolder.getContext().setAuthentication(source);
+        SecurityContextHolder.getContext().setAuthentication(switchToUser("jacklord"));
+        Authentication switched = switchToUser("dano");
+
+        SwitchUserGrantedAuthority switchedFrom = null;
+
+        for (GrantedAuthority ga: switched.getAuthorities()) {
+            if (ga instanceof SwitchUserGrantedAuthority) {
+                switchedFrom = (SwitchUserGrantedAuthority)ga;
+                break;
+            }
+        }
+
+        assertSame(source, switchedFrom.getSource());
+    }
 
     //~ Inner Classes ==================================================================================================
 

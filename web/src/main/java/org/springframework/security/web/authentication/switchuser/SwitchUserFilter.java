@@ -75,11 +75,13 @@ import org.springframework.web.filter.GenericFilterBean;
  * <b>Note: This URL will be required to have appropriate security constraints configured so that only users of that
  * role can access it (e.g. ROLE_ADMIN).</b>
  * <p>
- * On a successful switch, the user's  <code>SecurityContextHolder</code> will be updated to reflect the
+ * On a successful switch, the user's  <code>SecurityContext</code> will be updated to reflect the
  * specified user and will also contain an additional
  * {@link org.springframework.security.web.authentication.switchuser.SwitchUserGrantedAuthority} which contains the original user.
+ * Before switching, a check will be made on whether the user is already currently switched, and any current switch will
+ * be exited to prevent "nested" switches.
  * <p>
- * To 'exit' from a user context, the user will then need to access a URL (see <code>exitUserUrl</code>)  that
+ * To 'exit' from a user context, the user needs to access a URL (see <code>exitUserUrl</code>)  that
  * will switch back to the original user as identified by the <code>ROLE_PREVIOUS_ADMINISTRATOR</code>.
  * <p>
  * To configure the Switch User Processing Filter, create a bean definition for the Switch User processing
@@ -288,7 +290,16 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 
         // grant an additional authority that contains the original Authentication object
         // which will be used to 'exit' from the current switched user.
-        Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+
+        Authentication currentAuth;
+
+        try {
+            // SEC-1763. Check first if we are already switched.
+            currentAuth = attemptExitUser(request);
+        } catch (AuthenticationCredentialsNotFoundException e) {
+            currentAuth = SecurityContextHolder.getContext().getAuthentication();
+        }
+
         GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(ROLE_PREVIOUS_ADMINISTRATOR, currentAuth);
 
         // get the original authorities
