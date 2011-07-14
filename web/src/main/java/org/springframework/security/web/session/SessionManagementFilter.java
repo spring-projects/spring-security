@@ -13,8 +13,6 @@ import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.DefaultRedirectStrategy;
-import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
@@ -41,11 +39,10 @@ public class SessionManagementFilter extends GenericFilterBean {
     //~ Instance fields ================================================================================================
 
     private final SecurityContextRepository securityContextRepository;
-    private SessionAuthenticationStrategy sessionStrategy;
+    private SessionAuthenticationStrategy sessionAuthenticationStrategy;
     private final AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
-    private String invalidSessionUrl;
+    private InvalidSessionStrategy invalidSessionStrategy = null;
     private AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
-    private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
     public SessionManagementFilter(SecurityContextRepository securityContextRepository) {
         this(securityContextRepository, new SessionFixationProtectionStrategy());
@@ -55,7 +52,7 @@ public class SessionManagementFilter extends GenericFilterBean {
         Assert.notNull(securityContextRepository, "SecurityContextRepository cannot be null");
         Assert.notNull(sessionStrategy, "SessionAuthenticationStrategy cannot be null");
         this.securityContextRepository = securityContextRepository;
-        this.sessionStrategy = sessionStrategy;
+        this.sessionAuthenticationStrategy = sessionStrategy;
     }
 
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
@@ -76,7 +73,7 @@ public class SessionManagementFilter extends GenericFilterBean {
             if (authentication != null && !authenticationTrustResolver.isAnonymous(authentication)) {
              // The user has been authenticated during the current request, so call the session strategy
                 try {
-                    sessionStrategy.onAuthentication(authentication, request, response);
+                    sessionAuthenticationStrategy.onAuthentication(authentication, request, response);
                 } catch (SessionAuthenticationException e) {
                     // The session strategy can reject the authentication
                     logger.debug("SessionAuthenticationStrategy rejected the authentication object", e);
@@ -93,11 +90,8 @@ public class SessionManagementFilter extends GenericFilterBean {
                 if (request.getRequestedSessionId() != null && !request.isRequestedSessionIdValid()) {
                     logger.debug("Requested session ID" + request.getRequestedSessionId() + " is invalid.");
 
-                    if (invalidSessionUrl != null) {
-                        logger.debug("Starting new session (if required) and redirecting to '" + invalidSessionUrl + "'");
-                        request.getSession();
-                        redirectStrategy.sendRedirect(request, response, invalidSessionUrl);
-
+                    if (invalidSessionStrategy != null) {
+                        invalidSessionStrategy.onInvalidSessionDetected(request, response);
                         return;
                     }
                 }
@@ -115,19 +109,19 @@ public class SessionManagementFilter extends GenericFilterBean {
      * @deprecated Use constructor injection
      */
     @Deprecated
-    public void setSessionAuthenticationStrategy(SessionAuthenticationStrategy sessionStrategy) {
-        Assert.notNull(sessionStrategy, "authenticatedSessionStratedy must not be null");
-        this.sessionStrategy = sessionStrategy;
+    public void setSessionAuthenticationStrategy(SessionAuthenticationStrategy sessionAuthenticationStrategy) {
+        Assert.notNull(sessionAuthenticationStrategy, "authenticatedSessionStratedy must not be null");
+        this.sessionAuthenticationStrategy = sessionAuthenticationStrategy;
     }
 
     /**
-     * Sets the URL to which the response should be redirected if the user agent requests an invalid session Id.
-     * If the property is not set, no action will be taken.
+     * Sets the strategy which will be invoked instead of allowing the filter chain to prceed, if the user agent
+     * requests an invalid session Id. If the property is not set, no action will be taken.
      *
-     * @param invalidSessionUrl
+     * @param invalidSessionStrategy the strategy to invoke. Typically a {@link SimpleRedirectInvalidSessionStrategy}.
      */
-    public void setInvalidSessionUrl(String invalidSessionUrl) {
-        this.invalidSessionUrl = invalidSessionUrl;
+    public void setInvalidSessionStrategy(InvalidSessionStrategy invalidSessionStrategy) {
+        this.invalidSessionStrategy = invalidSessionStrategy;
     }
 
     /**
@@ -139,9 +133,5 @@ public class SessionManagementFilter extends GenericFilterBean {
     public void setAuthenticationFailureHandler(AuthenticationFailureHandler failureHandler) {
         Assert.notNull(failureHandler, "failureHandler cannot be null");
         this.failureHandler = failureHandler;
-    }
-
-    public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
-        this.redirectStrategy  = redirectStrategy;
     }
 }

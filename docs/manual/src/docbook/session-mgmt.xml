@@ -28,10 +28,12 @@
             invoke the configured
             <interfacename>SessionAuthenticationStrategy</interfacename>.</para>
         <para>If the user is not currently authenticated, the filter will check whether an invalid
-            session ID has been requested (because of a timeout, for example) and will redirect to
-            the configured <literal>invalidSessionUrl</literal> if set. The easiest way to configure
-            this is through the namespace, <link xlink:href="#ns-session-mgmt">as described
-            earlier</link>.</para>
+            session ID has been requested (because of a timeout, for example) and will invoke the configured
+            <interfacename>InvalidSessionStrategy</interfacename>, if one is set. The most common behaviour
+            is just to redirect to a fixed URL and this is encapsulated in the standard implementation
+            <classname>SimpleRedirectInvalidSessionStrategy</classname>. The latter is also used
+            when configuring an invalid session URL through the namespace,
+            <link xlink:href="#ns-session-mgmt">as described earlier</link>.</para>
     </section>
     <section>
         <title><interfacename>SessionAuthenticationStrategy</interfacename></title>

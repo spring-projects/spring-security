@@ -121,7 +121,6 @@ public class SessionManagementFilterTests {
         SessionAuthenticationStrategy strategy = mock(SessionAuthenticationStrategy.class);
         SessionManagementFilter filter = new SessionManagementFilter(repo);
         filter.setSessionAuthenticationStrategy(strategy);
-        filter.setRedirectStrategy(new DefaultRedirectStrategy());
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestedSessionId("xxx");
         request.setRequestedSessionIdValid(false);
@@ -134,7 +133,9 @@ public class SessionManagementFilterTests {
         request = new MockHttpServletRequest();
         request.setRequestedSessionId("xxx");
         request.setRequestedSessionIdValid(false);
-        filter.setInvalidSessionUrl("/timedOut");
+        SimpleRedirectInvalidSessionStrategy iss = new SimpleRedirectInvalidSessionStrategy("/timedOut");
+        iss.setCreateNewSession(true);
+        filter.setInvalidSessionStrategy(iss);
         FilterChain fc = mock(FilterChain.class);
         filter.doFilter(request, response, fc);
         verifyZeroInteractions(fc);

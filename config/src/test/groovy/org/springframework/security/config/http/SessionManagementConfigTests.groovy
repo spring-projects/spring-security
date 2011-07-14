@@ -124,7 +124,7 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
         Object sessionRegistryFromFormLoginFilter = FieldUtils.getFieldValue(
                 getFilter(UsernamePasswordAuthenticationFilter.class),"sessionStrategy.sessionRegistry");
         Object sessionRegistryFromMgmtFilter = FieldUtils.getFieldValue(
-                getFilter(SessionManagementFilter.class),"sessionStrategy.sessionRegistry");
+                getFilter(SessionManagementFilter.class),"sessionAuthenticationStrategy.sessionRegistry");
 
         assertSame(sessionRegistry, sessionRegistryFromConcurrencyFilter);
         assertSame(sessionRegistry, sessionRegistryFromMgmtFilter);
@@ -183,7 +183,7 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
 
         expect:
         filter instanceof SessionManagementFilter
-        filter.invalidSessionUrl == '/timeoutUrl'
+        filter.invalidSessionStrategy.destinationUrl == '/timeoutUrl'
     }
 
 }

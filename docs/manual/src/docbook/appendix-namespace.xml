@@ -404,6 +404,14 @@
                     configured <classname>DefaultSessionAuthenticationStrategy</classname>. See the
                     Javadoc for this class for more details. </para>
             </section>
+            <section xml:id="nsa-invalid-session-url">
+                <title><literal>invalid-session-url</literal></title>
+                <para>Setting this attribute will inject the <classname>SessionManagementFilter</classname>
+                    with a <classname>SimpleRedirectInvalidSessionStrategy</classname> configured with
+                    the attribute value. When an invalid session ID is submitted, the strategy will be invoked,
+                    redirecting to the configured URL.
+                </para>
+            </section>
         </section>
         <section xml:id="nsa-concurrent-session-control">
             <title>The <literal>&lt;concurrency-control&gt;</literal> Element</title>

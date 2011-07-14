@@ -46,6 +46,7 @@ import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
+import org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -270,7 +271,7 @@ class HttpConfigurationBuilder {
         }
 
         if (StringUtils.hasText(invalidSessionUrl)) {
-            sessionMgmtFilter.addPropertyValue("invalidSessionUrl", invalidSessionUrl);
+            sessionMgmtFilter.addPropertyValue("invalidSessionStrategy", new SimpleRedirectInvalidSessionStrategy(invalidSessionUrl));
         }
 
         sessionMgmtFilter.addPropertyReference("sessionAuthenticationStrategy", sessionAuthStratRef);
