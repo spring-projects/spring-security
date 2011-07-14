@@ -284,6 +284,15 @@
                 <qandaentry xml:id="faq-ldap-authentication">
                     <question><para>I can't get LDAP authentication to work. What's wrong with my configuration?</para></question>
                     <answer>
+                        <para>
+                            Note that the permissions for an LDAP directory often do not allow you to read the password
+                            for a user. Hence it is often not possible to use the <link xlink:href="#faq-what-is-userdetailservice"><interfacename>UserDetailsService</interfacename>
+                            approach</link> where Spring Security compares the stored password with the one submitted by the user.
+                            The most common approach is to use LDAP <quote>bind</quote>, which is one of the operations
+                            supported by <link xlink:href="http://en.wikipedia.org/wiki/Lightweight_Directory_Access_Protocol">the LDAP protocol</link>.
+                            With this approach, Spring Security validates the password by attempting to authenticate to the directory
+                            as the user.
+                        </para>
                         <para>The most common problem with LDAP authentication is a lack of knowledge of the
                             directory server tree structure and configuration. This will be different in different
                             companies, so you have to find it out yourself. Before adding a Spring Security LDAP
@@ -305,7 +314,8 @@
 
     }
     ]]></programlisting>
-                    </para></answer>
+                        </para>
+                    </answer>
                 </qandaentry>
 
             </qandadiv>
@@ -626,7 +636,7 @@
                 </qandaentry>
                 <qandaentry xml:id="faq-what-is-userdetailservice">
                     <question>
-                        <para>What is a <literal>UserDetailsService</literal> and do I need
+                        <para>What is a <interfacename>UserDetailsService</interfacename> and do I need
                             one?</para>
                     </question>
                     <answer>
@@ -639,7 +649,8 @@
                             <classname>DaoAuthenticationProvider</classname>, which is injected with
                             a <interfacename>UserDetailsService</interfacename> to allow it to load
                             the password (and other data) for a user in order to compare it with the
-                            submitted value.</para>
+                            submitted value. Note that if you are using LDAP,
+                            <link xlink:href="#faq-ldap-authentication">this approach may not work</link>.</para>
                         <para> If you want to customize the authentication process then you should
                             implement <interfacename>AuthenticationProvider</interfacename>
                             yourself. See this <link
@@ -838,7 +849,7 @@
                             database?</para>
                     </question>
                     <answer>
-                        <para> The <code>LdapAuthenticationProvider</code> bean (which handles
+                        <para> The <classname>LdapAuthenticationProvider</classname> bean (which handles
                             normal LDAP authentication in Spring Security) is configured with two
                             separate strategy interfaces, one which performs the authenticatation
                             and one which loads the user authorities, called
