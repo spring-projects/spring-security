@@ -64,6 +64,22 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 
     //~ Methods ========================================================================================================
 
+
+    /**
+     * @deprecated Use constructor which injects the <tt>SessionRegistry</tt>.
+     */
+    public ConcurrentSessionFilter() {
+    }
+
+    public ConcurrentSessionFilter(SessionRegistry sessionRegistry) {
+        this(sessionRegistry, null);
+    }
+
+    public ConcurrentSessionFilter(SessionRegistry sessionRegistry, String expiredUrl) {
+        this.sessionRegistry = sessionRegistry;
+        this.expiredUrl = expiredUrl;
+    }
+
     @Override
     public void afterPropertiesSet() {
         Assert.notNull(sessionRegistry, "SessionRegistry required");
@@ -121,10 +137,18 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
         }
     }
 
+    /**
+     * @deprecated use constructor injection instead
+     */
+    @Deprecated
     public void setExpiredUrl(String expiredUrl) {
         this.expiredUrl = expiredUrl;
     }
 
+    /**
+     * @deprecated use constructor injection instead
+     */
+    @Deprecated
     public void setSessionRegistry(SessionRegistry sessionRegistry) {
         this.sessionRegistry = sessionRegistry;
     }
