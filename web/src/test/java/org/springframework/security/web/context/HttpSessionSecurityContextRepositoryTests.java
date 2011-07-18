@@ -1,6 +1,7 @@
 package org.springframework.security.web.context;
 
 import static org.junit.Assert.*;
+import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.*;
 
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -184,6 +185,21 @@ public class HttpSessionSecurityContextRepositoryTests {
         HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
         repo.setSecurityContextClass(MockContext.class);
         assertTrue(repo.generateNewContext() instanceof MockContext);
+    }
+
+    // SEC-1735
+    @Test
+    public void contextIsNotRemovedFromSessionIfContextBeforeExecutionDefault() throws Exception {
+        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, new MockHttpServletResponse());
+        repo.loadContext(holder);
+        SecurityContext ctxInSession = SecurityContextHolder.createEmptyContext();
+        ctxInSession.setAuthentication(testToken);
+        request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, ctxInSession);
+        SecurityContextHolder.getContext().setAuthentication(new AnonymousAuthenticationToken("x","x", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
+        repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
+        assertSame(ctxInSession,request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY));
     }
 
     @Test

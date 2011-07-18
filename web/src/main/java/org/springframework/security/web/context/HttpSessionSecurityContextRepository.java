@@ -93,7 +93,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
         }
 
         requestResponseHolder.setResponse(new SaveToSessionResponseWrapper(response, request,
-                httpSession != null, context.hashCode()));
+                httpSession != null, context));
 
         return context;
     }
@@ -295,6 +295,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
         private HttpServletRequest request;
         private boolean httpSessionExistedAtStartOfRequest;
         private int contextHashBeforeChainExecution;
+        private final SecurityContext contextBeforeExecution;
 
         /**
          * Takes the parameters required to call <code>saveContext()</code> successfully in
@@ -304,17 +305,17 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
          * @param httpSessionExistedAtStartOfRequest indicates whether there was a session in place before the
          *        filter chain executed. If this is true, and the session is found to be null, this indicates that it was
          *        invalidated during the request and a new session will now be created.
-         * @param contextHashBeforeChainExecution the hashcode of the context before the filter chain executed.
-         *        The context will only be stored if it has a different hashcode, indicating that the context changed
-         *        during the request.
+         * @param context the context before the filter chain executed.
+         *        The context will only be stored if it or its contents changed during the request.
          */
         SaveToSessionResponseWrapper(HttpServletResponse response, HttpServletRequest request,
                                                       boolean httpSessionExistedAtStartOfRequest,
-                                                      int contextHashBeforeChainExecution) {
+                                                      SecurityContext contextBeforeExcecution) {
             super(response, disableUrlRewriting);
             this.request = request;
             this.httpSessionExistedAtStartOfRequest = httpSessionExistedAtStartOfRequest;
-            this.contextHashBeforeChainExecution = contextHashBeforeChainExecution;
+            this.contextHashBeforeChainExecution = contextBeforeExcecution.hashCode();
+            this.contextBeforeExecution = contextBeforeExcecution;
         }
 
         /**
@@ -338,8 +339,9 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
                     logger.debug("SecurityContext is empty or anonymous - context will not be stored in HttpSession. ");
                 }
 
-                if (httpSession != null) {
+                if (httpSession != null && !contextObject.equals(contextBeforeExecution)) {
                     // SEC-1587 A non-anonymous context may still be in the session
+                    // SEC-1735 remove if the contextBeforeExecution was not anonymous
                     httpSession.removeAttribute(SPRING_SECURITY_CONTEXT_KEY);
                 }
                 return;
