@@ -203,6 +203,21 @@ public class HttpSessionSecurityContextRepositoryTests {
         assertNull(request.getSession().getAttribute("imTheContext"));
     }
 
+    // SEC-1735
+    @Test
+    public void contextIsNotRemovedFromSessionIfContextBeforeExecutionDefault() throws Exception {
+        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, new MockHttpServletResponse());
+        repo.loadContext(holder);
+        SecurityContext ctxInSession = SecurityContextHolder.createEmptyContext();
+        ctxInSession.setAuthentication(testToken);
+        request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, ctxInSession);
+        SecurityContextHolder.getContext().setAuthentication(new AnonymousAuthenticationToken("x","x", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
+        repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
+        assertSame(ctxInSession,request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY));
+    }
+
     @Test
     @SuppressWarnings("deprecation")
     public void sessionDisableUrlRewritingPreventsSessionIdBeingWrittenToUrl() throws Exception {

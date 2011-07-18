@@ -269,8 +269,9 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
                     logger.debug("SecurityContext is empty or contents are anonymous - context will not be stored in HttpSession.");
                 }
 
-                if (httpSession != null) {
+                if (httpSession != null && !contextObject.equals(contextBeforeExecution)) {
                     // SEC-1587 A non-anonymous context may still be in the session
+                    // SEC-1735 remove if the contextBeforeExecution was not anonymous
                     httpSession.removeAttribute(springSecurityContextKey);
                 }
                 return;
