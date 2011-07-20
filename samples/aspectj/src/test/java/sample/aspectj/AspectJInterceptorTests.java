@@ -16,6 +16,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:aspectj-context.xml")
 public class AspectJInterceptorTests {
+    private Authentication admin = new UsernamePasswordAuthenticationToken("test", "xxx", AuthorityUtils.createAuthorityList("ROLE_ADMIN"));
+    private Authentication user = new UsernamePasswordAuthenticationToken("test", "xxx", AuthorityUtils.createAuthorityList("ROLE_USER"));
 
     @Autowired
     private Service service;
@@ -35,17 +37,13 @@ public class AspectJInterceptorTests {
 
     @Test(expected = AccessDeniedException.class)
     public void testSecuredMethodWrongRole() throws Exception {
-        Authentication token = new UsernamePasswordAuthenticationToken("test", "xxx", AuthorityUtils
-                .createAuthorityList("ROLE_ADMIN"));
-        SecurityContextHolder.getContext().setAuthentication(token);
+        SecurityContextHolder.getContext().setAuthentication(admin);
         service.secureMethod();
     }
 
     @Test
     public void testSecuredMethodEverythingOk() throws Exception {
-        Authentication token = new UsernamePasswordAuthenticationToken("test", "xxx", AuthorityUtils
-                .createAuthorityList("ROLE_USER"));
-        SecurityContextHolder.getContext().setAuthentication(token);
+        SecurityContextHolder.getContext().setAuthentication(user);
         service.secureMethod();
     }
 
@@ -56,18 +54,21 @@ public class AspectJInterceptorTests {
 
     @Test(expected = AccessDeniedException.class)
     public void testSecuredClassWrongRole() throws Exception {
-        Authentication token = new UsernamePasswordAuthenticationToken("test", "xxx", AuthorityUtils
-                .createAuthorityList("ROLE_ADMIN"));
-        SecurityContextHolder.getContext().setAuthentication(token);
+        SecurityContextHolder.getContext().setAuthentication(admin);
         securedService.secureMethod();
+    }
+
+    @Test(expected = AccessDeniedException.class)
+    public void testSecuredClassWrongRoleOnNewedInstance() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(admin);
+        new SecuredService().secureMethod();
     }
 
     @Test
     public void testSecuredClassEverythingOk() throws Exception {
-        Authentication token = new UsernamePasswordAuthenticationToken("test", "xxx", AuthorityUtils
-                .createAuthorityList("ROLE_USER"));
-        SecurityContextHolder.getContext().setAuthentication(token);
+        SecurityContextHolder.getContext().setAuthentication(user);
         securedService.secureMethod();
+        new SecuredService().secureMethod();
     }
 
     @After
