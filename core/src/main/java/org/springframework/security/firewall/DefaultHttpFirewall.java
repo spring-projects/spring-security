@@ -33,7 +33,7 @@ public class DefaultHttpFirewall implements HttpFirewall {
     }
 
     public HttpServletResponse getFirewalledResponse(HttpServletResponse response) {
-        return response;
+        return new FirewalledResponse(response);
     }
 
     /**

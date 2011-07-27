@@ -6,6 +6,7 @@ out/
 *.ipr
 *.iml
 *.iws
+*.log
 intellij/
 .settings
 .classpath
