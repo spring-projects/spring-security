@@ -15,7 +15,6 @@
 
 package org.springframework.security.access.intercept;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
