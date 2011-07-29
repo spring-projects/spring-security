@@ -84,6 +84,14 @@ public class RunAsUserTokenTests extends TestCase {
         RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
                 new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
                 UsernamePasswordAuthenticationToken.class);
-        assertTrue(token.toString().lastIndexOf("Original Class:") != -1);
+        assertTrue(token.toString().lastIndexOf("Original Class: "+UsernamePasswordAuthenticationToken.class.getName().toString()) != -1);
+    }
+
+    // SEC-1792
+    public void testToStringNullOriginalAuthentication() {
+        RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
+                new GrantedAuthority[] {new GrantedAuthorityImpl("ROLE_ONE"), new GrantedAuthorityImpl("ROLE_TWO")},
+                null);
+        assertTrue(token.toString().lastIndexOf("Original Class: null") != -1);
     }
 }
