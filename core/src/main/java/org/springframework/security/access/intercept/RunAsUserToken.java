@@ -71,7 +71,8 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
 
     public String toString() {
         StringBuilder sb = new StringBuilder(super.toString());
-        sb.append("; Original Class: ").append(this.originalAuthentication.getName());
+        String className = this.originalAuthentication == null ? null : this.originalAuthentication.getName();
+        sb.append("; Original Class: ").append(className);
 
         return sb.toString();
     }
