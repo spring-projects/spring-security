@@ -130,24 +130,28 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
             return true;
         }
 
-        Object principal = getPreAuthenticatedPrincipal(request);
-        if (checkForPrincipalChanges &&
-                !currentUser.getName().equals(principal)) {
-            logger.debug("Pre-authenticated principal has changed to " + principal + " and will be reauthenticated");
-
-            if (invalidateSessionOnPrincipalChange) {
-                HttpSession session = request.getSession(false);
-
-                if (session != null) {
-                    logger.debug("Invalidating existing session");
-                    session.invalidate();
-                }
-            }
-
-            return true;
+        if (!checkForPrincipalChanges) {
+            return false;
         }
 
-        return false;
+        Object principal = getPreAuthenticatedPrincipal(request);
+
+        if (currentUser.getName().equals(principal)) {
+            return false;
+        }
+
+        logger.debug("Pre-authenticated principal has changed to " + principal + " and will be reauthenticated");
+
+        if (invalidateSessionOnPrincipalChange) {
+            HttpSession session = request.getSession(false);
+
+            if (session != null) {
+                logger.debug("Invalidating existing session");
+                session.invalidate();
+            }
+        }
+
+        return true;
     }
 
     /**
