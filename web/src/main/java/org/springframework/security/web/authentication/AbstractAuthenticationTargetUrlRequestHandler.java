@@ -30,8 +30,8 @@ import org.springframework.util.StringUtils;
  * will be used for the destination.
  * </li>
  * <li>
- * If a parameter matching the <tt>targetUrlParameter</tt> has been set on the request, the value will be used as
- * the destination.
+ * If a parameter matching the value of <tt>targetUrlParameter</tt> has been set on the request, the value will be used
+ * as the destination. By default this has the value "spring-security-redirect".
  * </li>
  * <li>
  * If the <tt>useReferer</tt> property is set, the "Referer" HTTP header value will be used, if present.
@@ -154,7 +154,9 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
      *  to "spring-security-redirect".
      */
     public void setTargetUrlParameter(String targetUrlParameter) {
-        Assert.hasText(targetUrlParameter, "targetUrlParameter cannot be null or empty");
+        if (!StringUtils.hasText(targetUrlParameter)) {
+            targetUrlParameter = null;
+        }
         this.targetUrlParameter = targetUrlParameter;
     }
 
