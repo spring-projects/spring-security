@@ -14,53 +14,36 @@
  */
 package org.springframework.security.openid;
 
-import java.io.ObjectStreamException;
-import java.io.Serializable;
-
-
 /**
- * Based on JanRain status codes
+ * Authentication status codes, based on JanRain status codes
  *
  * @author JanRain Inc.
  * @author Robin Bramley, Opsera Ltd
+ * @author Luke Taylor
  */
-public class OpenIDAuthenticationStatus implements Serializable {
-    //~ Static fields/initializers =====================================================================================
-
-    private static final long serialVersionUID = -998877665544332211L;
-    private static int nextOrdinal = 0;
+public enum OpenIDAuthenticationStatus {
 
     /** This code indicates a successful authentication request */
-    public static final OpenIDAuthenticationStatus SUCCESS = new OpenIDAuthenticationStatus("success");
+    SUCCESS("success"),
 
     /** This code indicates a failed authentication request */
-    public static final OpenIDAuthenticationStatus FAILURE = new OpenIDAuthenticationStatus("failure");
+    FAILURE("failure"),
 
     /** This code indicates the server reported an error */
-    public static final OpenIDAuthenticationStatus ERROR = new OpenIDAuthenticationStatus("error");
+    ERROR("error"),
 
     /** This code indicates that the user needs to do additional work to prove their identity */
-    public static final OpenIDAuthenticationStatus SETUP_NEEDED = new OpenIDAuthenticationStatus("setup needed");
+    SETUP_NEEDED("setup needed"),
 
     /** This code indicates that the user cancelled their login request */
-    public static final OpenIDAuthenticationStatus CANCELLED = new OpenIDAuthenticationStatus("cancelled");
-    private static final OpenIDAuthenticationStatus[] PRIVATE_VALUES = {SUCCESS, FAILURE, ERROR, SETUP_NEEDED, CANCELLED};
-
-    //~ Instance fields ================================================================================================
+    CANCELLED("cancelled");
 
     private final String name;
-    private final int ordinal = nextOrdinal++;
 
     //~ Constructors ===================================================================================================
 
     private OpenIDAuthenticationStatus(String name) {
         this.name = name;
-    }
-
-    //~ Methods ========================================================================================================
-
-    private Object readResolve() throws ObjectStreamException {
-        return PRIVATE_VALUES[ordinal];
     }
 
     public String toString() {
