@@ -22,6 +22,8 @@ import javax.servlet.jsp.tagext.Tag;
 
 import org.junit.After;
 import org.junit.Test;
+import org.springframework.mock.web.MockPageContext;
+import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -131,6 +133,7 @@ public class AuthenticationTagTests {
     @Test
     public void settingHtmlEscapeToFalsePreventsEscaping() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("<>& ", ""));
+        authenticationTag.setPageContext(new MockPageContext(new MockServletContext()));
         authenticationTag.setProperty("name");
         authenticationTag.setHtmlEscape("false");
         authenticationTag.doStartTag();

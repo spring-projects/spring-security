@@ -18,6 +18,8 @@ package org.springframework.security.taglibs.authz;
 import junit.framework.TestCase;
 
 
+import org.springframework.mock.web.MockPageContext;
+import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,7 +43,7 @@ public class AuthorizeTagCustomGrantedAuthorityTests extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-
+        authorizeTag.setPageContext(new MockPageContext(new MockServletContext()));
         currentUser = new TestingAuthenticationToken("abc", "123",
                 new GrantedAuthority[] {new CustomGrantedAuthority("ROLE_TELLER")});
 
@@ -52,14 +54,12 @@ public class AuthorizeTagCustomGrantedAuthorityTests extends TestCase {
         SecurityContextHolder.clearContext();
     }
 
-    public void testAllowsRequestWhenCustomAuthorityPresentsCorrectRole()
-        throws JspException {
+    public void testAllowsRequestWhenCustomAuthorityPresentsCorrectRole() throws JspException {
         authorizeTag.setIfAnyGranted("ROLE_TELLER");
         assertEquals("authorized - ROLE_TELLER in both sets", Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
     }
 
-    public void testRejectsRequestWhenCustomAuthorityReturnsNull()
-        throws JspException {
+    public void testRejectsRequestWhenCustomAuthorityReturnsNull() throws JspException {
         authorizeTag.setIfAnyGranted("ROLE_TELLER");
         SecurityContextHolder.getContext()
                              .setAuthentication(new TestingAuthenticationToken("abc", "123",
