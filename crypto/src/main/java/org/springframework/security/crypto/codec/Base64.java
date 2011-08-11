@@ -484,8 +484,8 @@ public final class Base64 {
      * @since 1.3
      */
     private static int decode4to3(
-    byte[] source, int srcOffset,
-    byte[] destination, int destOffset, int options ) {
+    final byte[] source, final int srcOffset,
+    final byte[] destination, final int destOffset, final int options ) {
 
         // Lots of error checking and exception throwing
         if( source == null ){
@@ -570,7 +570,7 @@ public final class Base64 {
      * @return decoded data
      * @throws IllegalArgumentException If bogus characters exist in source data
      */
-    private static byte[] decode( byte[] source, int off, int len, int options ) {
+    private static byte[] decode(final byte[] source, final int off, final int len, final int options ) {
 
         // Lots of error checking and exception throwing
         if( source == null ){
