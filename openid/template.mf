@@ -10,7 +10,6 @@ Ignored-Existing-Headers:
  Export-Package
 Import-Template:
  org.apache.commons.logging.*;version="${cloggingRange}",
- org.apache.commons.httpclient;version="${commonsHttpRange}",
  org.springframework.security.core.*;version="${secRange}",
  org.springframework.security.authentication.*;version="${secRange}",
  org.springframework.security.web.*;version="${secRange}",
