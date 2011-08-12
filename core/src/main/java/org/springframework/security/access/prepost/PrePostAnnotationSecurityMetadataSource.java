@@ -2,8 +2,7 @@ package org.springframework.security.access.prepost;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.access.ConfigAttribute;
@@ -38,13 +37,12 @@ public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecur
 
     public Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
         if (method.getDeclaringClass() == Object.class) {
-            return null;
+            return Collections.emptyList();
         }
 
         logger.trace("Looking for Pre/Post annotations for method '" +
                 method.getName() + "' on target class '" + targetClass + "'");
         PreFilter preFilter = findAnnotation(method, targetClass, PreFilter.class);
-
         PreAuthorize preAuthorize = findAnnotation(method, targetClass, PreAuthorize.class);
         PostFilter postFilter = findAnnotation(method, targetClass, PostFilter.class);
      // TODO: Can we check for void methods and throw an exception here?
@@ -53,7 +51,7 @@ public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecur
         if (preFilter == null && preAuthorize == null && postFilter == null && postAuthorize == null ) {
             // There is no meta-data so return
             logger.trace("No expression annotations found");
-            return null;
+            return Collections.emptyList();
         }
 
         String preFilterAttribute = preFilter == null ? null : preFilter.value();
@@ -78,7 +76,7 @@ public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecur
 
         attrs.trimToSize();
 
-        return attrs.isEmpty() ? null : attrs;
+        return attrs;
     }
 
     public Collection<ConfigAttribute> getAllConfigAttributes() {
@@ -112,21 +110,11 @@ public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecur
         }
 
         // Check the class-level (note declaringClass, not targetClass, which may not actually implement the method)
-        annotation = specificMethod.getDeclaringClass().getAnnotation(annotationClass);
+        annotation = AnnotationUtils.findAnnotation(specificMethod.getDeclaringClass(), annotationClass);
 
         if (annotation != null) {
             logger.debug(annotation + " found on: " + specificMethod.getDeclaringClass().getName());
             return annotation;
-        }
-
-        // Check for a possible interface annotation which would not be inherited by the declaring class
-        if (specificMethod != method) {
-            annotation = method.getDeclaringClass().getAnnotation(annotationClass);
-
-            if (annotation != null) {
-                logger.debug(annotation + " found on: " + method.getDeclaringClass().getName());
-                return annotation;
-            }
         }
 
         return null;

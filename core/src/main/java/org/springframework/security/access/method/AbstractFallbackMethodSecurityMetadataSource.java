@@ -1,7 +1,7 @@
 package org.springframework.security.access.method;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
+import java.util.*;
 
 import org.springframework.aop.support.AopUtils;
 import org.springframework.security.access.ConfigAttribute;
@@ -51,7 +51,7 @@ public abstract class AbstractFallbackMethodSecurityMetadataSource extends Abstr
             // Last fallback is the class of the original method.
             return findAttributes(method.getDeclaringClass());
         }
-        return null;
+        return Collections.emptyList();
     }
 
     /**

@@ -55,7 +55,7 @@ public class SecuredAnnotationSecurityMetadataSource extends AbstractFallbackMet
     }
 
     protected Collection<ConfigAttribute> findAttributes(Class<?> clazz) {
-        return processAnnotation(clazz.getAnnotation(annotationType));
+        return processAnnotation(AnnotationUtils.findAnnotation(clazz, annotationType));
     }
 
     protected Collection<ConfigAttribute> findAttributes(Method method, Class<?> targetClass) {

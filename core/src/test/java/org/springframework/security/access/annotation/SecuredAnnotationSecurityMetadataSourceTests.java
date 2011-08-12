@@ -19,9 +19,11 @@ import static org.junit.Assert.*;
 import org.junit.*;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.access.intercept.method.MockMethodInvocation;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -37,7 +39,7 @@ import java.util.*;
  * @author Ben Alex
  * @author Luke Taylor
  */
-public class SecuredAnnotationSecurityMetadataDefinitionSourceTests {
+public class SecuredAnnotationSecurityMetadataSourceTests {
     //~ Instance fields ================================================================================================
 
     private SecuredAnnotationSecurityMetadataSource mds = new SecuredAnnotationSecurityMetadataSource();
@@ -137,6 +139,7 @@ public class SecuredAnnotationSecurityMetadataDefinitionSourceTests {
         assertTrue(user && admin);
     }
 
+    // SEC-1491
     @Test
     public void customAnnotationAttributesAreFound() throws Exception {
         SecuredAnnotationSecurityMetadataSource mds =
@@ -145,61 +148,117 @@ public class SecuredAnnotationSecurityMetadataDefinitionSourceTests {
         assertEquals(1, attrs.size());
         assertEquals(SecurityEnum.ADMIN, attrs.toArray()[0]);
     }
-}
 
-class Department extends Entity {
-    public Department(String name) {
-        super(name);
-    }
-}
+    @Test
+    public void annotatedAnnotationAtClassLevelIsDetected() throws Exception {
+        MockMethodInvocation annotatedAtClassLevel = new MockMethodInvocation(new AnnotatedAnnotationAtClassLevel(), ReturnVoid.class, "doSomething", List.class);
 
-interface DepartmentService extends BusinessService {
+        ConfigAttribute[] attrs = mds.getAttributes(annotatedAtClassLevel).toArray(new ConfigAttribute[0]);
 
-    @Secured({"ROLE_USER"})
-    Department someUserMethod3(Department dept);
-}
-
-class DepartmentServiceImpl extends BusinessServiceImpl<Department> implements DepartmentService {
-
-    @Secured({"ROLE_ADMIN"})
-    public Department someUserMethod3(final Department dept) {
-        return super.someUserMethod3(dept);
-    }
-}
-
-// SEC-1491 Related classes. PoC for custom annotation with enum value.
-
-@CustomSecurityAnnotation(SecurityEnum.ADMIN)
-interface CustomAnnotatedService {
-}
-
-class CustomAnnotatedServiceImpl implements CustomAnnotatedService {
-}
-
-enum SecurityEnum implements ConfigAttribute, GrantedAuthority {
-    ADMIN,
-    USER;
-
-    public String getAttribute() {
-        return toString();
+        assertEquals(1, attrs.length);
+        assertEquals("CUSTOM", attrs[0].getAttribute());
     }
 
-    public String getAuthority() {
-        return toString();
+    @Test
+    public void annotatedAnnotationAtInterfaceLevelIsDetected() throws Exception {
+        MockMethodInvocation annotatedAtInterfaceLevel = new MockMethodInvocation(new AnnotatedAnnotationAtInterfaceLevel(), ReturnVoid2.class, "doSomething", List.class);
+
+        ConfigAttribute[] attrs = mds.getAttributes(annotatedAtInterfaceLevel).toArray(new ConfigAttribute[0]);
+
+        assertEquals(1, attrs.length);
+        assertEquals("CUSTOM", attrs[0].getAttribute());
     }
-}
 
-@Target({ElementType.METHOD, ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
-@interface CustomSecurityAnnotation {
-    SecurityEnum[] value();
-}
+    @Test
+    public void annotatedAnnotationAtMethodLevelIsDetected() throws Exception {
+        MockMethodInvocation annotatedAtMethodLevel = new MockMethodInvocation(new AnnotatedAnnotationAtMethodLevel(), ReturnVoid.class, "doSomething", List.class);
+        ConfigAttribute[] attrs = mds.getAttributes(annotatedAtMethodLevel).toArray(new ConfigAttribute[0]);
 
-class CustomSecurityAnnotationMetadataExtractor implements AnnotationMetadataExtractor<CustomSecurityAnnotation> {
+        assertEquals(1, attrs.length);
+        assertEquals("CUSTOM", attrs[0].getAttribute());
+    }
 
-    public Collection<? extends ConfigAttribute> extractAttributes(CustomSecurityAnnotation securityAnnotation) {
-        SecurityEnum[] values = securityAnnotation.value();
+    // Inner classes
+    class Department extends Entity {
+        public Department(String name) {
+            super(name);
+        }
+    }
 
-        return EnumSet.copyOf(Arrays.asList(values));
+    interface DepartmentService extends BusinessService {
+        @Secured({"ROLE_USER"})
+        Department someUserMethod3(Department dept);
+    }
+
+    class DepartmentServiceImpl extends BusinessServiceImpl<Department> implements DepartmentService {
+        @Secured({"ROLE_ADMIN"})
+        public Department someUserMethod3(final Department dept) {
+            return super.someUserMethod3(dept);
+        }
+    }
+
+    // SEC-1491 Related classes. PoC for custom annotation with enum value.
+
+    @CustomSecurityAnnotation(SecurityEnum.ADMIN)
+    interface CustomAnnotatedService {
+    }
+
+    class CustomAnnotatedServiceImpl implements CustomAnnotatedService {
+    }
+
+    enum SecurityEnum implements ConfigAttribute, GrantedAuthority {
+        ADMIN,
+        USER;
+
+        public String getAttribute() {
+            return toString();
+        }
+
+        public String getAuthority() {
+            return toString();
+        }
+    }
+
+    @Target({ElementType.METHOD, ElementType.TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface CustomSecurityAnnotation {
+        SecurityEnum[] value();
+    }
+
+    class CustomSecurityAnnotationMetadataExtractor implements AnnotationMetadataExtractor<CustomSecurityAnnotation> {
+        public Collection<? extends ConfigAttribute> extractAttributes(CustomSecurityAnnotation securityAnnotation) {
+            SecurityEnum[] values = securityAnnotation.value();
+
+            return EnumSet.copyOf(Arrays.asList(values));
+        }
+    }
+
+    @Target({ ElementType.METHOD, ElementType.TYPE })
+    @Retention(RetentionPolicy.RUNTIME)
+    @Inherited
+    @Secured("CUSTOM")
+    public @interface AnnotatedAnnotation {}
+
+    public static interface ReturnVoid {
+        public void doSomething(List<?> param);
+    }
+
+    @AnnotatedAnnotation
+    public static interface ReturnVoid2 {
+        public void doSomething(List<?> param);
+    }
+
+    @AnnotatedAnnotation
+    public static class AnnotatedAnnotationAtClassLevel implements ReturnVoid {
+        public void doSomething(List<?> param) {}
+    }
+
+    public static class AnnotatedAnnotationAtInterfaceLevel implements ReturnVoid2 {
+        public void doSomething(List<?> param) {}
+    }
+
+    public static class AnnotatedAnnotationAtMethodLevel implements ReturnVoid {
+        @AnnotatedAnnotation
+        public void doSomething(List<?> param) {}
     }
 }

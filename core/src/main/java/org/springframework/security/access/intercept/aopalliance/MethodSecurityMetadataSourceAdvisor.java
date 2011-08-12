@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.*;
 
 import org.aopalliance.aop.Advice;
 import org.springframework.aop.Pointcut;
@@ -113,7 +114,8 @@ public class MethodSecurityMetadataSourceAdvisor extends AbstractPointcutAdvisor
     class MethodSecurityMetadataSourcePointcut extends StaticMethodMatcherPointcut implements Serializable {
         @SuppressWarnings("unchecked")
         public boolean matches(Method m, Class targetClass) {
-            return attributeSource.getAttributes(m, targetClass) != null;
+            Collection attributes = attributeSource.getAttributes(m, targetClass);
+            return attributes != null && !attributes.isEmpty();
         }
     }
 }
