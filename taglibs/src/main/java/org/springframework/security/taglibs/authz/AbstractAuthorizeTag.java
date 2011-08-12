@@ -306,6 +306,7 @@ public abstract class AbstractAuthorizeTag {
         return target;
     }
 
+    @SuppressWarnings("unchecked")
     private SecurityExpressionHandler<FilterInvocation> getExpressionHandler() throws IOException {
         ApplicationContext appContext = WebApplicationContextUtils
                 .getRequiredWebApplicationContext(getServletContext());

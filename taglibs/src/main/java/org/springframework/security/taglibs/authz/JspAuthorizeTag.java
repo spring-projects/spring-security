@@ -23,7 +23,6 @@ import org.springframework.expression.TypedValue;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.taglibs.TagLibConfig;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.web.util.ExpressionEvaluationUtils;
 
 /**
  * A JSP {@link Tag} implementation of {@link AbstractAuthorizeTag}.
@@ -52,10 +51,6 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
      */
     public int doStartTag() throws JspException {
         try {
-            setIfNotGranted(ExpressionEvaluationUtils.evaluateString("ifNotGranted", getIfNotGranted(), pageContext));
-            setIfAllGranted(ExpressionEvaluationUtils.evaluateString("ifAllGranted", getIfAllGranted(), pageContext));
-            setIfAnyGranted(ExpressionEvaluationUtils.evaluateString("ifAnyGranted", getIfAnyGranted(), pageContext));
-
             authorized = super.authorize();
 
             if (!authorized && TagLibConfig.isUiSecurityDisabled()) {

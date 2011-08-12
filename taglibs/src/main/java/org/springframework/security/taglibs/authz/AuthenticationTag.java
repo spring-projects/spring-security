@@ -23,7 +23,6 @@ import org.springframework.security.web.util.TextEscapeUtils;
 
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.BeansException;
-import org.springframework.web.util.ExpressionEvaluationUtils;
 import org.springframework.web.util.TagUtils;
 
 import java.io.IOException;
@@ -144,7 +143,7 @@ public class AuthenticationTag extends TagSupport {
      * Set HTML escaping for this tag, as boolean value.
      */
     public void setHtmlEscape(String htmlEscape) throws JspException {
-        this.htmlEscape = ExpressionEvaluationUtils.evaluateBoolean("htmlEscape", htmlEscape, pageContext);
+        this.htmlEscape = Boolean.valueOf(htmlEscape);
     }
 
     /**

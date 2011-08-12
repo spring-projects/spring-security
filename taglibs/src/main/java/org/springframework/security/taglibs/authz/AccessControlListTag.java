@@ -21,7 +21,6 @@ import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.taglibs.TagLibConfig;
 import org.springframework.web.context.support.WebApplicationContextUtils;
-import org.springframework.web.util.ExpressionEvaluationUtils;
 
 import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspException;
@@ -67,19 +66,7 @@ public class AccessControlListTag extends TagSupport {
 
         initializeIfRequired();
 
-        final String evaledPermissionsString = ExpressionEvaluationUtils.evaluateString("hasPermission", hasPermission,
-                pageContext);
-
-        Object resolvedDomainObject;
-
-        if (domainObject instanceof String) {
-            resolvedDomainObject = ExpressionEvaluationUtils.evaluate("domainObject", (String) domainObject,
-                    Object.class, pageContext);
-        } else {
-            resolvedDomainObject = domainObject;
-        }
-
-        if (resolvedDomainObject == null) {
+        if (domainObject == null) {
             if (logger.isDebugEnabled()) {
                 logger.debug("domainObject resolved to null, so including tag body");
             }
@@ -98,7 +85,7 @@ public class AccessControlListTag extends TagSupport {
         }
 
         if (permissionEvaluator.hasPermission(SecurityContextHolder.getContext().getAuthentication(),
-                resolvedDomainObject, evaledPermissionsString)) {
+                domainObject, hasPermission)) {
             return evalBody();
         }
 

@@ -164,8 +164,7 @@ public class AuthorizeTagTests {
     @Test
     public void testOutputsBodyWhenNotGrantedSatisfied() throws JspException {
         authorizeTag.setIfNotGranted("ROLE_BANKER");
-        assertEquals(Tag.EVAL_BODY_INCLUDE,
-            authorizeTag.doStartTag());
+        assertEquals(Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
     }
 
     @Test
