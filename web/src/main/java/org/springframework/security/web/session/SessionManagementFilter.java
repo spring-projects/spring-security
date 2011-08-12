@@ -105,12 +105,12 @@ public class SessionManagementFilter extends GenericFilterBean {
      * Sets the strategy object which handles the session management behaviour when a
      * user has been authenticated during the current request.
      *
-     * @param sessionStrategy the strategy object. If not set, a {@link SessionFixationProtectionStrategy} is used.
+     * @param sessionAuthenticationStrategy the strategy object. If not set, a {@link SessionFixationProtectionStrategy} is used.
      * @deprecated Use constructor injection
      */
     @Deprecated
     public void setSessionAuthenticationStrategy(SessionAuthenticationStrategy sessionAuthenticationStrategy) {
-        Assert.notNull(sessionAuthenticationStrategy, "authenticatedSessionStratedy must not be null");
+        Assert.notNull(sessionAuthenticationStrategy, "authenticatedSessionStrategy must not be null");
         this.sessionAuthenticationStrategy = sessionAuthenticationStrategy;
     }
 

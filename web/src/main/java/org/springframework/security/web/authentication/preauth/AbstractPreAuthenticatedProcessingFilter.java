@@ -148,6 +148,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
             if (session != null) {
                 logger.debug("Invalidating existing session");
                 session.invalidate();
+                request.getSession();
             }
         }
 
