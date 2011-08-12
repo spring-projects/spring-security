@@ -105,21 +105,11 @@ public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecur
         }
 
         // Check the class-level (note declaringClass, not targetClass, which may not actually implement the method)
-        annotation = specificMethod.getDeclaringClass().getAnnotation(annotationClass);
+        annotation = AnnotationUtils.findAnnotation(specificMethod.getDeclaringClass(), annotationClass);
 
         if (annotation != null) {
             logger.debug(annotation + " found on: " + specificMethod.getDeclaringClass().getName());
             return annotation;
-        }
-
-        // Check for a possible interface annotation which would not be inherited by the declaring class
-        if (specificMethod != method) {
-            annotation = method.getDeclaringClass().getAnnotation(annotationClass);
-
-            if (annotation != null) {
-                logger.debug(annotation + " found on: " + method.getDeclaringClass().getName());
-                return annotation;
-            }
         }
 
         return null;
