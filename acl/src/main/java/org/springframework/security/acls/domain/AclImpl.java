@@ -275,15 +275,15 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
         if (obj instanceof AclImpl) {
             AclImpl rhs = (AclImpl) obj;
             if (this.aces.equals(rhs.aces)) {
-                if ((this.parentAcl == null && rhs.parentAcl == null) || (this.parentAcl.equals(rhs.parentAcl))) {
-                    if ((this.objectIdentity == null && rhs.objectIdentity == null) || (this.objectIdentity.equals(rhs.objectIdentity))) {
-                        if ((this.id == null && rhs.id == null) || (this.id.equals(rhs.id))) {
-                            if ((this.owner == null && rhs.owner == null) || this.owner.equals(rhs.owner)) {
+                if ((this.parentAcl == null && rhs.parentAcl == null) || (this.parentAcl !=null && this.parentAcl.equals(rhs.parentAcl))) {
+                    if ((this.objectIdentity == null && rhs.objectIdentity == null) || (this.objectIdentity != null && this.objectIdentity.equals(rhs.objectIdentity))) {
+                        if ((this.id == null && rhs.id == null) || (this.id != null && this.id.equals(rhs.id))) {
+                            if ((this.owner == null && rhs.owner == null) || (this.owner != null && this.owner.equals(rhs.owner))) {
                                 if (this.entriesInheriting == rhs.entriesInheriting) {
                                     if ((this.loadedSids == null && rhs.loadedSids == null)) {
                                         return true;
                                     }
-                                    if (this.loadedSids.size() == rhs.loadedSids.size()) {
+                                    if (this.loadedSids != null && (this.loadedSids.size() == rhs.loadedSids.size())) {
                                         for (int i = 0; i < this.loadedSids.size(); i++) {
                                             if (!this.loadedSids.get(i).equals(rhs.loadedSids.get(i))) {
                                                 return false;
