@@ -504,6 +504,16 @@ public class AclImplTests {
         acl.deleteAce(1);
     }
 
+    // SEC-1795
+    @Test
+    public void changingParentIsSuccessful() throws Exception {
+        AclImpl parentAcl = new AclImpl(objectIdentity, 1L, mockAuthzStrategy, mockAuditLogger);
+        AclImpl childAcl = new AclImpl(objectIdentity, 2L, mockAuthzStrategy, mockAuditLogger);
+        AclImpl changeParentAcl = new AclImpl(objectIdentity, 3L, mockAuthzStrategy, mockAuditLogger);
+
+        childAcl.setParent(parentAcl);
+        childAcl.setParent(changeParentAcl);
+    }
 
     //~ Inner Classes ==================================================================================================
 
