@@ -53,7 +53,7 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
             Collection<ConfigAttribute> attributes = null;
             for (MethodSecurityMetadataSource s : methodSecurityMetadataSources) {
                 attributes = s.getAttributes(method, targetClass);
-                if (attributes != null) {
+                if (attributes != null && !attributes.isEmpty()) {
                     break;
                 }
             }
