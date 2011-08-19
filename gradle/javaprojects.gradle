@@ -1,7 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
-springVersion = '3.0.5.RELEASE'
+springVersion = '3.0.6.RELEASE'
 springLdapVersion = '1.3.1.RELEASE'
 ehcacheVersion = '1.6.2'
 aspectjVersion = '1.6.10'
@@ -10,7 +10,7 @@ jstlVersion = '1.2'
 jettyVersion = '6.1.22'
 hsqlVersion = '1.8.0.10'
 slf4jVersion = '1.6.1'
-logbackVersion = '0.9.28'
+logbackVersion = '0.9.29'
 cglibVersion = '2.2'
 
 bundlorProperties = [
