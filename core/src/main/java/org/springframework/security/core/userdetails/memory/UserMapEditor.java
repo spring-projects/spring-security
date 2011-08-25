@@ -60,9 +60,8 @@ public class UserMapEditor extends PropertyEditorSupport {
 
             // Make a user object, assuming the properties were properly provided
             if (attr != null) {
-                UserDetails user = new User(username, attr.getPassword(), attr.isEnabled(), true, true, true,
-                        attr.getAuthorities());
-                userMap.addUser(user);
+                userMap.addUser(new User(username, attr.getPassword(), attr.isEnabled(), true, true, true,
+                        attr.getAuthorities()));
             }
         }
 

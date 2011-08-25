@@ -18,6 +18,7 @@ package org.springframework.security.core.userdetails.memory;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.apache.commons.logging.Log;
@@ -39,7 +40,7 @@ public class UserMap {
 
     //~ Instance fields ================================================================================================
 
-    private Map<String, UserDetails> userMap = new HashMap<String, UserDetails>();
+    private Map<String, User> userMap = new HashMap<String, User>();
 
     //~ Methods ========================================================================================================
 
@@ -50,7 +51,7 @@ public class UserMap {
      *
      * @throws IllegalArgumentException if a null User was passed
      */
-    public void addUser(UserDetails user) throws IllegalArgumentException {
+    public void addUser(User user) throws IllegalArgumentException {
         Assert.notNull(user, "Must be a valid User");
 
         logger.info("Adding user [" + user + "]");
@@ -66,14 +67,15 @@ public class UserMap {
      *
      * @throws UsernameNotFoundException if the user could not be found
      */
-    public UserDetails getUser(String username) throws UsernameNotFoundException {
-        UserDetails result = this.userMap.get(username.toLowerCase());
+    public User getUser(String username) throws UsernameNotFoundException {
+        User result = this.userMap.get(username.toLowerCase());
 
         if (result == null) {
             throw new UsernameNotFoundException("Could not find user: " + username, username);
         }
 
-        return result;
+        return new User(result.getUsername(), result.getPassword(), result.isEnabled(), result.isAccountNonExpired(),
+                result.isCredentialsNonExpired(), result.isAccountNonLocked(), result.getAuthorities());
     }
 
     /**
@@ -88,10 +90,10 @@ public class UserMap {
     /**
      * Set the users in this {@link UserMap}. Overrides previously added users.
      *
-     * @param users {@link Map} &lt;{@link String}, {@link UserDetails}> with pairs (username, userdetails)
+     * @param users {@link Map} &lt;{@link String}, {@link User}> with pairs (username, userdetails)
      * @since 1.1
      */
-    public void setUsers(Map<String, UserDetails> users) {
+    public void setUsers(Map<String, User> users) {
         this.userMap = users;
     }
 }

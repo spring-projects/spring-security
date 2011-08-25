@@ -53,8 +53,7 @@ public class InMemoryDaoImpl implements UserDetailsService, InitializingBean {
         return userMap;
     }
 
-    public UserDetails loadUserByUsername(String username)
-        throws UsernameNotFoundException, DataAccessException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
         return userMap.getUser(username);
     }
 

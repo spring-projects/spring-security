@@ -34,11 +34,11 @@ public class UserMapTests {
 
     @Test
     public void testAddAndRetrieveUser() {
-        UserDetails rod = new User("rod", "koala", true, true, true, true,
+        User rod = new User("rod", "koala", true, true, true, true,
                 AuthorityUtils.createAuthorityList("ROLE_ONE","ROLE_TWO"));
-        UserDetails scott = new User("scott", "wombat", true, true, true, true,
+        User scott = new User("scott", "wombat", true, true, true, true,
                 AuthorityUtils.createAuthorityList("ROLE_ONE","ROLE_THREE"));
-        UserDetails peter = new User("peter", "opal", true, true, true, true,
+        User peter = new User("peter", "opal", true, true, true, true,
                 AuthorityUtils.createAuthorityList("ROLE_ONE","ROLE_FOUR"));
         UserMap map = new UserMap();
         map.addUser(rod);
@@ -66,7 +66,7 @@ public class UserMapTests {
 
     @Test
     public void unknownUserIsNotRetrieved() {
-        UserDetails rod = new User("rod", "koala", true, true, true, true,
+        User rod = new User("rod", "koala", true, true, true, true,
                 AuthorityUtils.createAuthorityList("ROLE_ONE","ROLE_TWO"));
         UserMap map = new UserMap();
         assertEquals(0, map.getUserCount());
