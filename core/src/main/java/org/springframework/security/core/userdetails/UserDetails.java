@@ -35,16 +35,7 @@ import java.util.Collection;
  * Concrete implementations must take particular care to ensure the non-null
  * contract detailed for each method is enforced. See
  * {@link org.springframework.security.core.userdetails.User} for a
- * reference implementation (which you might like to extend).
- * <p>
- * Concrete implementations should be preferably be immutable &ndash; they should
- * have value object semantics, like a String. The <code>UserDetails</code> may be
- * stored in a cache and multiple threads may use the same instance. Immutable
- * objects are more robust and are guaranteed to be thread-safe. This is not strictly
- * essential (there's nothing within Spring Security itself which absolutely requires it),
- * but if your <tt>UserDetails</tt> object <em>can</em> be modified then it's up to you to make
- * sure that you do so safely and that you manage any caches which may contain copies of
- * the object.
+ * reference implementation (which you might like to extend or use in your code).
  *
  * @see UserDetailsService
  * @see UserCache

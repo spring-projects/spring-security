@@ -117,4 +117,7 @@ public class InMemoryUserDetailsManager implements UserDetailsManager {
                 user.isCredentialsNonExpired(), user.isAccountNonLocked(), user.getAuthorities());
     }
 
+    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+    }
 }
