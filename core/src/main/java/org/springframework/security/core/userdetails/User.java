@@ -31,7 +31,6 @@ import org.springframework.util.Assert;
 /**
  * Models core user information retrieved by a {@link UserDetailsService}.
  * <p>
- * Implemented with value object semantics (immutable after construction, like a <code>String</code>).
  * Developers may use this class directly, subclass it, or write their own {@link UserDetails} implementation from
  * scratch.
  * <p>
@@ -39,6 +38,11 @@ import org.springframework.util.Assert;
  * intention is that lookups of the same user principal object (in a user registry, for example) will match
  * where the objects represent the same user, not just when all the properties (authorities, password for
  * example) are the same.
+ * <p>
+ * Note that this implementation is not immutable. It implements the {@code CredentialsContainer} interface, in order
+ * to allow the password to be erased after authentication. This may cause side-effects if you are storing instances
+ * in-memory and reusing them. If so, make sure you return a copy from your {@code UserDetailsService} each time it is
+ * invoked.
  *
  * @author Ben Alex
  * @author Luke Taylor
