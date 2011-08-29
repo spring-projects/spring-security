@@ -83,7 +83,11 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
         }
 
         // Check for the parameter and use that if available
-        String targetUrl = request.getParameter(targetUrlParameter);
+        String targetUrl = null;
+
+        if (targetUrlParameter != null) {
+            targetUrl = request.getParameter(targetUrlParameter);
+        }
 
         if (StringUtils.hasText(targetUrl)) {
             try {
