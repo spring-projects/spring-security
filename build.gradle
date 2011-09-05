@@ -1,7 +1,7 @@
 apply plugin: 'base'
 
 allprojects {
-    version = '3.0.7.RELEASE'
+    version = '3.0.8.CI-SNAPSHOT'
     releaseBuild = version.endsWith('RELEASE')
     snapshotBuild = version.endsWith('SNAPSHOT')
 

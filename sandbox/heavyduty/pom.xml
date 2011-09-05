@@ -4,7 +4,7 @@
     <artifactId>spring-security-heavyduty</artifactId>
     <name>Spring Security - Heavy Duty Sample</name>
     <packaging>war</packaging>
-    <version>3.0.7.RELEASE</version>
+    <version>3.0.8.CI-SNAPSHOT</version>
     <dependencies>
         <dependency>
             <groupId>org.springframework.security</groupId>
