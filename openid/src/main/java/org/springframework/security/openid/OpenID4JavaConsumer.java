@@ -195,7 +195,7 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
     List<OpenIDAttribute> fetchAxAttributes(Message authSuccess, List<OpenIDAttribute> attributesToFetch)
             throws OpenIDConsumerException {
 
-        if (!authSuccess.hasExtension(AxMessage.OPENID_NS_AX)) {
+        if (attributesToFetch == null || !authSuccess.hasExtension(AxMessage.OPENID_NS_AX)) {
             return Collections.emptyList();
         }
 
