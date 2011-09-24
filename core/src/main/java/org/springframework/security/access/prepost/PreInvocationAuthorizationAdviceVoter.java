@@ -31,7 +31,7 @@ public class PreInvocationAuthorizationAdviceVoter implements AccessDecisionVote
     }
 
     public boolean supports(ConfigAttribute attribute) {
-        return attribute instanceof PreInvocationAuthorizationAdvice;
+        return attribute instanceof PreInvocationAttribute;
     }
 
     public boolean supports(Class<?> clazz) {
