@@ -20,7 +20,7 @@ public class DelegatingMethodSecurityMetadataSourceTests {
     DelegatingMethodSecurityMetadataSource mds;
 
     @Test
-    public void returnsNullIfDelegateReturnsNull() throws Exception {
+    public void returnsEmptyListIfDelegateReturnsNull() throws Exception {
         List sources = new ArrayList();
         MethodSecurityMetadataSource delegate = mock(MethodSecurityMetadataSource.class);
         when(delegate.getAttributes(Matchers.<Method>any(), Matchers.any(Class.class))).thenReturn(null);
@@ -29,9 +29,9 @@ public class DelegatingMethodSecurityMetadataSourceTests {
         assertSame(sources, mds.getMethodSecurityMetadataSources());
         assertTrue(mds.getAllConfigAttributes().isEmpty());
         MethodInvocation mi = new SimpleMethodInvocation(null, String.class.getMethod("toString"));
-        assertNull(mds.getAttributes(mi));
+        assertEquals(Collections.emptyList(), mds.getAttributes(mi));
         // Exercise the cached case
-        assertNull(mds.getAttributes(mi));
+        assertEquals(Collections.emptyList(), mds.getAttributes(mi));
     }
 
     @Test

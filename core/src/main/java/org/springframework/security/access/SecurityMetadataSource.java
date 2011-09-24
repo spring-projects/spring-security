@@ -35,8 +35,8 @@ public interface SecurityMetadataSource extends AopInfrastructureBean {
      *
      * @param object the object being secured
      *
-     * @return the attributes that apply to the passed in secured object. Can return either {@code null} or an
-     *         empty collection if there are no applicable attributes.
+     * @return the attributes that apply to the passed in secured object. Should return an empty collection if there
+     *         are no applicable attributes.
      *
      * @throws IllegalArgumentException if the passed object is not of a type supported by the
      *         <code>SecurityMetadataSource</code> implementation

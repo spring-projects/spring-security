@@ -15,7 +15,7 @@ import org.springframework.util.ObjectUtils;
 
 /**
  * Automatically tries a series of method definition sources, relying on the first source of metadata
- * that provides a non-null response. Provides automatic caching of the retrieved metadata.
+ * that provides a non-null/non-empty response. Provides automatic caching of the retrieved metadata.
  *
  * @author Ben Alex
  * @author Luke Taylor
@@ -41,9 +41,6 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
         synchronized (attributeCache) {
             Collection<ConfigAttribute> cached = attributeCache.get(cacheKey);
             // Check for canonical value indicating there is no config attribute,
-            if (cached == NULL_CONFIG_ATTRIBUTE) {
-                return null;
-            }
 
             if (cached != null) {
                 return cached;
@@ -59,13 +56,13 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
             }
 
             // Put it in the cache.
-            if (attributes == null) {
+            if (attributes == null || attributes.isEmpty()) {
                 this.attributeCache.put(cacheKey, NULL_CONFIG_ATTRIBUTE);
-                return null;
+                return NULL_CONFIG_ATTRIBUTE;
             }
 
             if (logger.isDebugEnabled()) {
-                logger.debug("Adding security method [" + cacheKey + "] with attributes " + attributes);
+                logger.debug("Caching method [" + cacheKey + "] with attributes " + attributes);
             }
 
             this.attributeCache.put(cacheKey, attributes);
