@@ -27,9 +27,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import javax.servlet.jsp.JspException;
 
 
-/**
- * DOCUMENT ME!
- */
 public class AuthzImplAttributeTest extends TestCase {
     //~ Instance fields ================================================================================================
 

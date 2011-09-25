@@ -15,10 +15,6 @@
 
 package org.springframework.security.access.annotation.test;
 
-/**
- * DOCUMENT ME!
- *
-  */
 public class PersonServiceImpl extends ServiceImpl<Person> implements PersonService {
     //~ Methods ========================================================================================================
 

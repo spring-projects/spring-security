@@ -48,8 +48,6 @@ public interface PasswordEncoder {
      *        <code>null</code> value is legal.
      *
      * @return encoded password
-     *
-     * @throws DataAccessException DOCUMENT ME!
      */
     String encodePassword(String rawPass, Object salt)
         throws DataAccessException;
@@ -67,8 +65,6 @@ public interface PasswordEncoder {
      *        <code>null</code> value is legal.
      *
      * @return true if the password is valid , false otherwise
-     *
-     * @throws DataAccessException DOCUMENT ME!
      */
     boolean isPasswordValid(String encPass, String rawPass, Object salt)
         throws DataAccessException;

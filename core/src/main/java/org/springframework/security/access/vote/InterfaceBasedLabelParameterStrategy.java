@@ -36,11 +36,6 @@ public class InterfaceBasedLabelParameterStrategy implements LabelParameterStrat
      * Test if the argument is labeled, and if so, downcast to LabeledData and retrieve the domain object's
      * labeled value. Otherwise, return an empty string. NOTE: The default for no label is an empty string. If somehow
      * the user wants to make that a label itself, he or she must inject an alternate value to the noLabel property.
-     *
-     * @param method DOCUMENT ME!
-     * @param arg DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
      */
     public String getLabel(Method method, Object arg) {
         if (isLabeled(method, arg)) {
@@ -57,11 +52,6 @@ public class InterfaceBasedLabelParameterStrategy implements LabelParameterStrat
     /**
      * Test if the argument implemented the LabeledData interface. NOTE: The invoking method has no bearing for
      * this strategy, only the argument itself.
-     *
-     * @param method DOCUMENT ME!
-     * @param arg DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
      */
     public boolean isLabeled(Method method, Object arg) {
         return (arg instanceof LabeledData);

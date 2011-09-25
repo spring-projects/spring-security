@@ -25,9 +25,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 
 
-/**
- * DOCUMENT ME!
- */
 public class AuthzImplAuthorizeTagTest extends TestCase {
     //~ Instance fields ================================================================================================
 
