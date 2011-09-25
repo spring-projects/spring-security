@@ -73,8 +73,6 @@ public class TargetObject implements ITargetObject {
      * Delegates through to the {@link #makeLowerCase(String)} method.
      *
      * @param input the message to be made lower-case
-     *
-     * @return DOCUMENT ME!
      */
     public String publicMakeLowerCase(String input) {
         return this.makeLowerCase(input);
