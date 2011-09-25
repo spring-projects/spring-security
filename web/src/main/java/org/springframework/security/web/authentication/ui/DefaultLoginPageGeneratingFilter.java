@@ -139,7 +139,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
             sb.append("<h3>Login with OpenID Identity</h3>");
             sb.append("<form name='oidf' action='").append(request.getContextPath()).append(openIDauthenticationUrl).append("' method='POST'>\n");
             sb.append(" <table>\n");
-            sb.append("    <tr><td>Identity:</td><td><input type='text' name='");
+            sb.append("    <tr><td>Identity:</td><td><input type='text' size='30' name='");
             sb.append(openIDusernameParameter).append("'/></td></tr>\n");
 
             if (openIDrememberMeParameter != null) {
