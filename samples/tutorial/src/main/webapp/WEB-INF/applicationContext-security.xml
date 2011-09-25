@@ -15,6 +15,7 @@
 
     <global-method-security pre-post-annotations="enabled" />
 
+    <http pattern="/static/**" security="none"/>
     <http pattern="/loggedout.jsp" security="none"/>
 
     <http use-expressions="true">
