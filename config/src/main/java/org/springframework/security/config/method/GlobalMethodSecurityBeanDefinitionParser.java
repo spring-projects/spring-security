@@ -247,7 +247,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
             voters.add(new RootBeanDefinition(Jsr250Voter.class));
         }
 
-        accessMgrBuilder.addPropertyValue("decisionVoters", voters);
+        accessMgrBuilder.addConstructorArgValue(voters);
 
         BeanDefinition accessManager = accessMgrBuilder.getBeanDefinition();
         String id = pc.getReaderContext().generateBeanName(accessManager);

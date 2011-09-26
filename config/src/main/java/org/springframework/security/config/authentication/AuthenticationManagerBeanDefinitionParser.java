@@ -83,7 +83,7 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
             providers.add(new RootBeanDefinition(NullAuthenticationProvider.class));
         }
 
-        providerManagerBldr.addPropertyValue("providers", providers);
+        providerManagerBldr.addConstructorArgValue(providers);
 
         if ("false".equals(element.getAttribute(ATT_ERASE_CREDENTIALS))) {
             providerManagerBldr.addPropertyValue("eraseCredentialsAfterAuthentication", false);

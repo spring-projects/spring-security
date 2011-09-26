@@ -471,7 +471,7 @@ class HttpConfigurationBuilder {
             voters.add(new RootBeanDefinition(AuthenticatedVoter.class));
         }
         accessDecisionMgr = new RootBeanDefinition(AffirmativeBased.class);
-        accessDecisionMgr.getPropertyValues().addPropertyValue("decisionVoters", voters);
+        accessDecisionMgr.getConstructorArgumentValues().addGenericArgumentValue(voters);
         accessDecisionMgr.setSource(pc.extractSource(httpElt));
 
         // Set up the access manager reference for http

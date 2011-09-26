@@ -187,8 +187,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     private BeanReference createAuthenticationManager(Element element, ParserContext pc,
             ManagedList<BeanReference> authenticationProviders) {
         BeanDefinitionBuilder authManager = BeanDefinitionBuilder.rootBeanDefinition(ProviderManager.class);
-        authManager.addPropertyValue("parent", new RootBeanDefinition(AuthenticationManagerFactoryBean.class));
-        authManager.addPropertyValue("providers", authenticationProviders);
+        authManager.addConstructorArgValue(authenticationProviders);
+        authManager.addConstructorArgValue(new RootBeanDefinition(AuthenticationManagerFactoryBean.class));
+
         RootBeanDefinition clearCredentials = new RootBeanDefinition(MethodInvokingFactoryBean.class);
         clearCredentials.getPropertyValues().addPropertyValue("targetObject", new RootBeanDefinition(AuthenticationManagerFactoryBean.class));
         clearCredentials.getPropertyValues().addPropertyValue("targetMethod", "isEraseCredentialsAfterAuthentication");
