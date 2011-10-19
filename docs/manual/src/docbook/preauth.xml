@@ -167,7 +167,7 @@ class="org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 
     <security:authentication-manager alias="authenticationManager">
       <security:authentication-provider ref="preauthAuthProvider" />
-    </security-authentication-manager>
+    </security:authentication-manager>
 ]]>
 </programlisting> We've assumed here that the security namespace is being used for configuration
                     (hence the user of the <literal>custom-filter</literal>,
