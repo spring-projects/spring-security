@@ -53,6 +53,7 @@ import org.springframework.security.access.vote.AffirmativeBased
 import org.springframework.security.access.PermissionEvaluator
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler
+import org.springframework.security.web.util.AntPathRequestMatcher
 
 class MiscHttpConfigTests extends AbstractHttpConfigTests {
     def 'Minimal configuration parses'() {
@@ -136,6 +137,17 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         then:
         getFilters('/imMixedCase').size() == 0
         filtersMatchExpectedAutoConfigList('/Im_caught_by_the_Universal_Match');
+    }
+
+    def requestMatcherRefWorksCorrectly() {
+        xml.http('request-matcher-ref': 'matcher', security: 'none')
+        bean('matcher', AntPathRequestMatcher.class.name, ['/nofilters'])
+        httpAutoConfig() {}
+        createAppContext()
+
+        expect:
+        getFilters('/nofilters').size() == 0
+        filtersMatchExpectedAutoConfigList('/somethingElse');
     }
 
     // SEC-1152

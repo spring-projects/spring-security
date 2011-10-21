@@ -41,6 +41,7 @@ import java.util.*;
 public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     private static final Log logger = LogFactory.getLog(HttpSecurityBeanDefinitionParser.class);
 
+    private static final String ATT_REQUEST_MATCHER_REF = "request-matcher-ref";
     static final String ATT_PATH_PATTERN = "pattern";
     static final String ATT_HTTP_METHOD = "method";
 
@@ -90,9 +91,11 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         boolean secured = !OPT_SECURITY_NONE.equals(element.getAttribute(ATT_SECURED));
 
         if (!secured) {
-            if (!StringUtils.hasText(element.getAttribute(ATT_PATH_PATTERN))) {
+            if (!StringUtils.hasText(element.getAttribute(ATT_PATH_PATTERN)) &&
+                    !StringUtils.hasText(ATT_REQUEST_MATCHER_REF)) {
                 pc.getReaderContext().error("The '" + ATT_SECURED + "' attribute must be used in combination with" +
-                        " the '" + ATT_PATH_PATTERN +"' attribute.", pc.extractSource(element));
+                        " the '" + ATT_PATH_PATTERN +"' or '" + ATT_REQUEST_MATCHER_REF + "' attributes.",
+                        pc.extractSource(element));
             }
 
             for (int n=0; n < element.getChildNodes().getLength(); n ++) {
@@ -139,10 +142,19 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     private BeanReference createSecurityFilterChainBean(Element element, ParserContext pc, List<?> filterChain) {
-        BeanDefinition filterChainMatcher;
+        BeanMetadataElement filterChainMatcher;
 
+        String requestMatcherRef = element.getAttribute(ATT_REQUEST_MATCHER_REF);
         String filterChainPattern = element.getAttribute(ATT_PATH_PATTERN);
+
+        if (StringUtils.hasText(requestMatcherRef)) {
         if (StringUtils.hasText(filterChainPattern)) {
+                pc.getReaderContext().error("You can't define a pattern and a request-matcher-ref for the " +
+                        "same filter chain", pc.extractSource(element));
+            }
+            filterChainMatcher = new RuntimeBeanReference(requestMatcherRef);
+
+        } else if (StringUtils.hasText(filterChainPattern)) {
             filterChainMatcher = MatcherType.fromElement(element).createMatcher(filterChainPattern, null);
         } else {
             filterChainMatcher = new RootBeanDefinition(AnyRequestMatcher.class);
