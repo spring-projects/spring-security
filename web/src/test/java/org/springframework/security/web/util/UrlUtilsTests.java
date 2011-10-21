@@ -13,6 +13,7 @@ public class UrlUtilsTests {
     @Test
     public void absoluteUrlsAreMatchedAsAbsolute() throws Exception {
         assertTrue(UrlUtils.isAbsoluteUrl("http://something/"));
+        assertTrue(UrlUtils.isAbsoluteUrl("http1://something/"));
         assertTrue(UrlUtils.isAbsoluteUrl("HTTP://something/"));
         assertTrue(UrlUtils.isAbsoluteUrl("https://something/"));
         assertTrue(UrlUtils.isAbsoluteUrl("a://something/"));

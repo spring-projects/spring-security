@@ -129,7 +129,7 @@ public final class UrlUtils {
      * Decides if a URL is absolute based on whether it contains a valid scheme name, as defined in RFC 1738.
      */
     public static boolean isAbsoluteUrl(String url) {
-        final Pattern ABSOLUTE_URL = Pattern.compile("\\A[a-z.+-]+://.*", Pattern.CASE_INSENSITIVE);
+        final Pattern ABSOLUTE_URL = Pattern.compile("\\A[a-z0-9.+-]+://.*", Pattern.CASE_INSENSITIVE);
 
         return ABSOLUTE_URL.matcher(url).matches();
     }
