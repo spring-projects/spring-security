@@ -24,10 +24,10 @@ url =
     attribute url { xsd:token }
 id =
     ## A bean identifier, used for referring to the bean elsewhere in the context.
-    attribute id {xsd:ID}
+    attribute id {xsd:token}
 name =
     ## A bean identifier, used for referring to the bean elsewhere in the context.
-    attribute name {xsd:ID}
+    attribute name {xsd:token}
 ref =
     ## Defines a reference to a Spring bean Id.
     attribute ref {xsd:token}
@@ -617,7 +617,7 @@ authentication-manager =
     element authentication-manager {authman.attlist & authentication-provider* & ldap-authentication-provider*}
 authman.attlist &=
     ## The alias you wish to use for the AuthenticationManager bean
-    attribute alias {xsd:ID}?
+    attribute alias {xsd:token}?
 authman.attlist &=
     ## If set to true, the AuthenticationManger will attempt to clear any credentials data in the returned Authentication object, once the user has been authenticated.
     attribute erase-credentials {xsd:boolean}?

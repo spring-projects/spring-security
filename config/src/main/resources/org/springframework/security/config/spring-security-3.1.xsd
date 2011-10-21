@@ -64,14 +64,14 @@
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="id">
-    <xs:attribute name="id" use="required" type="xs:ID">
+    <xs:attribute name="id" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="name">
-    <xs:attribute name="name" use="required" type="xs:ID">
+    <xs:attribute name="name" use="required" type="xs:token">
       <xs:annotation>
         <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.</xs:documentation>
       </xs:annotation>
@@ -172,7 +172,7 @@
       <xs:attributeGroup ref="security:ldap-server.attlist"/>
     </xs:complexType></xs:element>
   <xs:attributeGroup name="ldap-server.attlist">
-    <xs:attribute name="id" type="xs:ID">
+    <xs:attribute name="id" type="xs:token">
       <xs:annotation>
         <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.</xs:documentation>
       </xs:annotation>
@@ -274,7 +274,7 @@
       <xs:attributeGroup ref="security:ldap-us.attlist"/>
     </xs:complexType></xs:element>
   <xs:attributeGroup name="ldap-us.attlist">
-    <xs:attribute name="id" type="xs:ID">
+    <xs:attribute name="id" type="xs:token">
       <xs:annotation>
         <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.</xs:documentation>
       </xs:annotation>
@@ -464,7 +464,7 @@
       <xs:attributeGroup ref="security:msmds.attlist"/>
     </xs:complexType></xs:element>
   <xs:attributeGroup name="msmds.attlist">
-    <xs:attribute name="id" type="xs:ID">
+    <xs:attribute name="id" type="xs:token">
       <xs:annotation>
         <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.</xs:documentation>
       </xs:annotation>
@@ -794,7 +794,7 @@
         <xs:documentation>Prevents the jsessionid parameter from being added to rendered URLs.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="name" type="xs:ID">
+    <xs:attribute name="name" type="xs:token">
       <xs:annotation>
         <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.</xs:documentation>
       </xs:annotation>
@@ -1033,7 +1033,7 @@
         <xs:documentation>Enables the use of expressions in the 'access' attributes in &lt;intercept-url&gt; elements rather than the traditional list of configuration attributes. Defaults to 'false'. If enabled, each attribute should contain a single boolean expression. If the expression evaluates to 'true', access will be granted.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="id" type="xs:ID">
+    <xs:attribute name="id" type="xs:token">
       <xs:annotation>
         <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.</xs:documentation>
       </xs:annotation>
@@ -1352,7 +1352,7 @@
       <xs:attributeGroup ref="security:authman.attlist"/>
     </xs:complexType></xs:element>
   <xs:attributeGroup name="authman.attlist">
-    <xs:attribute name="alias" type="xs:ID">
+    <xs:attribute name="alias" type="xs:token">
       <xs:annotation>
         <xs:documentation>The alias you wish to use for the AuthenticationManager bean</xs:documentation>
       </xs:annotation>
@@ -1386,7 +1386,7 @@
       <xs:attributeGroup ref="security:user.attlist"/>
     </xs:complexType></xs:element>
       </xs:sequence>
-      <xs:attribute name="id" type="xs:ID">
+      <xs:attribute name="id" type="xs:token">
         <xs:annotation>
           <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.</xs:documentation>
         </xs:annotation>
@@ -1427,7 +1427,7 @@
   <xs:element name="jdbc-user-service" substitutionGroup="security:any-user-service"><xs:annotation>
       <xs:documentation>Causes creation of a JDBC-based UserDetailsService.</xs:documentation>
     </xs:annotation><xs:complexType>
-      <xs:attribute name="id" type="xs:ID">
+      <xs:attribute name="id" type="xs:token">
         <xs:annotation>
           <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.</xs:documentation>
         </xs:annotation>
