@@ -20,7 +20,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.security.web.firewall.FirewalledRequest;
 import org.springframework.security.web.firewall.HttpFirewall;
-import org.springframework.security.web.util.AnyRequestMatcher;
 import org.springframework.security.web.util.RequestMatcher;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.web.filter.DelegatingFilterProxy;

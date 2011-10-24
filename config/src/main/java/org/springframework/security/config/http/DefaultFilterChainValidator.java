@@ -119,9 +119,17 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
         }
 
         String loginPage = ((LoginUrlAuthenticationEntryPoint)etf.getAuthenticationEntryPoint()).getLoginFormUrl();
-        FilterInvocation loginRequest = new FilterInvocation(loginPage, "POST");
-        List<Filter> filters = fcp.getFilters(loginPage);
         logger.info("Checking whether login URL '" + loginPage + "' is accessible with your configuration");
+        FilterInvocation loginRequest = new FilterInvocation(loginPage, "POST");
+        List<Filter> filters = null;
+
+        try {
+            filters = fcp.getFilters(loginPage);
+        } catch (Exception e) {
+            // May happen legitimately if a filter-chain request matcher requires more request data than that provided
+            // by the dummy request used when creating the filter invocation.
+            logger.info("Failed to obtain filter chain information for the login page. Unable to complete check.");
+        }
 
         if (filters == null || filters.isEmpty()) {
             logger.debug("Filter chain is empty for the login page");

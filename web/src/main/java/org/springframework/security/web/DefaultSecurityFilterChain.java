@@ -1,5 +1,7 @@
 package org.springframework.security.web;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.web.util.RequestMatcher;
 
 import javax.servlet.Filter;
@@ -14,6 +16,7 @@ import java.util.*;
  * @since 3.1
  */
 public final class DefaultSecurityFilterChain implements SecurityFilterChain {
+    private static final Log logger = LogFactory.getLog(DefaultSecurityFilterChain.class);
     private final RequestMatcher requestMatcher;
     private final List<Filter> filters;
 
@@ -22,6 +25,7 @@ public final class DefaultSecurityFilterChain implements SecurityFilterChain {
     }
 
     public DefaultSecurityFilterChain(RequestMatcher requestMatcher, List<Filter> filters) {
+        logger.info("Creating filter chain: " + requestMatcher + ", " + filters);
         this.requestMatcher = requestMatcher;
         this.filters = new ArrayList<Filter>(filters);
     }

@@ -92,6 +92,7 @@ public class FilterInvocation {
         }
         request.setContextPath(contextPath);
         request.setServletPath(servletPath);
+        request.setRequestURI(contextPath + servletPath + (pathInfo == null ? "" : pathInfo));
         request.setPathInfo(pathInfo);
         request.setQueryString(query);
         request.setMethod(method);
