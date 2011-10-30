@@ -45,6 +45,7 @@ public class LockedException extends AccountStatusException {
         super(msg, t);
     }
 
+    @Deprecated
     public LockedException(String msg, Object extraInformation) {
         super(msg, extraInformation);
     }

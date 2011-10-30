@@ -45,6 +45,7 @@ public class AccountExpiredException extends AccountStatusException {
         super(msg, t);
     }
 
+    @Deprecated
     public AccountExpiredException(String msg, Object extraInformation) {
         super(msg, extraInformation);
     }

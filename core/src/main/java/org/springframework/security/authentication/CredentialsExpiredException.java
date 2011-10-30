@@ -45,6 +45,7 @@ public class CredentialsExpiredException extends AccountStatusException {
         super(msg, t);
     }
 
+    @Deprecated
     public CredentialsExpiredException(String msg, Object extraInformation) {
         super(msg, extraInformation);
     }

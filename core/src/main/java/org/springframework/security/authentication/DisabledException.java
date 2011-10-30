@@ -44,6 +44,7 @@ public class DisabledException extends AccountStatusException {
         super(msg, t);
     }
 
+    @Deprecated
     public DisabledException(String msg, Object extraInformation) {
         super(msg, extraInformation);
     }
