@@ -38,8 +38,13 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
     private static final String ATT_ERASE_CREDENTIALS = "erase-credentials";
 
     public BeanDefinition parse(Element element, ParserContext pc) {
-        Assert.state(!pc.getRegistry().containsBeanDefinition(BeanIds.AUTHENTICATION_MANAGER),
-                "AuthenticationManager has already been registered!");
+        String id = element.getAttribute("id");
+
+        if (!StringUtils.hasText(id)) {
+            Assert.state(!pc.getRegistry().containsBeanDefinition(BeanIds.AUTHENTICATION_MANAGER),
+                "Global AuthenticationManager has already been registered!");
+            id = BeanIds.AUTHENTICATION_MANAGER;
+        }
         pc.pushContainingComponent(new CompositeComponentDefinition(element.getTagName(), pc.extractSource(element)));
 
         BeanDefinitionBuilder providerManagerBldr = BeanDefinitionBuilder.rootBeanDefinition(ProviderManager.class);
@@ -72,9 +77,9 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
                 } else {
                     BeanDefinition provider = resolver.resolve(providerElt.getNamespaceURI()).parse(providerElt, pc);
                     Assert.notNull(provider, "Parser for " + providerElt.getNodeName() + " returned a null bean definition");
-                    String id = pc.getReaderContext().generateBeanName(provider);
-                    pc.registerBeanComponent(new BeanComponentDefinition(provider, id));
-                    providers.add(new RuntimeBeanReference(id));
+                    String providerId = pc.getReaderContext().generateBeanName(provider);
+                    pc.registerBeanComponent(new BeanComponentDefinition(provider, providerId));
+                    providers.add(new RuntimeBeanReference(providerId));
                 }
             }
         }
@@ -91,16 +96,15 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
 
         // Add the default event publisher
         BeanDefinition publisher = new RootBeanDefinition(DefaultAuthenticationEventPublisher.class);
-        String id = pc.getReaderContext().generateBeanName(publisher);
-        pc.registerBeanComponent(new BeanComponentDefinition(publisher, id));
-        providerManagerBldr.addPropertyReference("authenticationEventPublisher", id);
+        String pubId = pc.getReaderContext().generateBeanName(publisher);
+        pc.registerBeanComponent(new BeanComponentDefinition(publisher, pubId));
+        providerManagerBldr.addPropertyReference("authenticationEventPublisher", pubId);
 
-        pc.registerBeanComponent(
-                new BeanComponentDefinition(providerManagerBldr.getBeanDefinition(), BeanIds.AUTHENTICATION_MANAGER));
+        pc.registerBeanComponent(new BeanComponentDefinition(providerManagerBldr.getBeanDefinition(), id));
 
         if (StringUtils.hasText(alias)) {
-            pc.getRegistry().registerAlias(BeanIds.AUTHENTICATION_MANAGER, alias);
-            pc.getReaderContext().fireAliasRegistered(BeanIds.AUTHENTICATION_MANAGER, alias, pc.extractSource(element));
+            pc.getRegistry().registerAlias(id, alias);
+            pc.getReaderContext().fireAliasRegistered(id, alias, pc.extractSource(element));
         }
 
         pc.popAndRegisterContainingComponent();

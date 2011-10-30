@@ -98,6 +98,13 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
+  <xs:attributeGroup name="authentication-manager-ref">
+    <xs:attribute name="authentication-manager-ref" use="required" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>A reference to an AuthenticationManager bean</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
   <xs:attributeGroup name="data-source-ref">
     <xs:attribute name="data-source-ref" use="required" type="xs:token">
       <xs:annotation>
@@ -577,6 +584,11 @@
       </xs:simpleType>
     </xs:attribute>
     <xs:attribute name="metadata-source-ref" type="xs:token"/>
+    <xs:attribute name="authentication-manager-ref" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>A reference to an AuthenticationManager bean</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
   
   
@@ -802,6 +814,11 @@
     <xs:attribute name="name" type="xs:token">
       <xs:annotation>
         <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="authentication-manager-ref" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>A reference to an AuthenticationManager bean</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
@@ -1357,9 +1374,14 @@
       <xs:attributeGroup ref="security:authman.attlist"/>
     </xs:complexType></xs:element>
   <xs:attributeGroup name="authman.attlist">
+    <xs:attribute name="id" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="alias" type="xs:token">
       <xs:annotation>
-        <xs:documentation>The alias you wish to use for the AuthenticationManager bean</xs:documentation>
+        <xs:documentation>An alias you wish to use for the AuthenticationManager bean (not required it you are using a specific id)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="erase-credentials" type="xs:boolean">

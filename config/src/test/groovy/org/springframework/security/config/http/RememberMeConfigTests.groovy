@@ -69,10 +69,11 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
 
         List logoutHandlers = FieldUtils.getFieldValue(getFilter(LogoutFilter.class), "handlers");
         Map ams = appContext.getBeansOfType(ProviderManager.class);
-        ams.remove(BeanIds.AUTHENTICATION_MANAGER);
-        RememberMeAuthenticationProvider rmp = (ams.values() as List)[0].providers[1];
+        ProviderManager am = (ams.values() as List).find { it instanceof ProviderManager && it.providers.size() == 2}
+        RememberMeAuthenticationProvider rmp = am.providers.find { it instanceof RememberMeAuthenticationProvider}
 
         expect:
+        rmp != null
         5000 == FieldUtils.getFieldValue(rememberMeServices(), "tokenValiditySeconds")
         // SEC-909
         logoutHandlers.size() == 2

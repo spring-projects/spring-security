@@ -40,6 +40,10 @@ user-service-ref =
     ## A reference to a user-service (or UserDetailsService bean) Id
     attribute user-service-ref {xsd:token}
 
+authentication-manager-ref =
+    ## A reference to an AuthenticationManager bean
+    attribute authentication-manager-ref {xsd:token}
+
 data-source-ref =
     ## A reference to a DataSource bean
     attribute data-source-ref {xsd:token}
@@ -228,6 +232,9 @@ global-method-security.attlist &=
     attribute mode {"aspectj"}?
 global-method-security.attlist &=
     attribute metadata-source-ref {xsd:token}?
+global-method-security.attlist &=
+    authentication-manager-ref?
+
 
 after-invocation-provider =
     ## Allows addition of extra AfterInvocationProvider beans which should be called by the MethodSecurityInterceptor created by global-method-security.
@@ -319,9 +326,10 @@ http.attlist &=
     ## Prevents the jsessionid parameter from being added to rendered URLs.
     attribute disable-url-rewriting {xsd:boolean}?
 http.attlist &=
-    ## Exposes the list of filters defined by this configuration under this bean name in the application context. May be used by
+    ## Exposes the list of filters defined by this configuration under this bean name in the application context.
     name?
-
+http.attlist &=
+    authentication-manager-ref?
 
 access-denied-handler =
     ## Defines the access-denied strategy that should be used. An access denied page can be defined or a reference to an AccessDeniedHandler instance.
@@ -618,7 +626,9 @@ authentication-manager =
     ## Registers the AuthenticationManager instance and allows its list of AuthenticationProviders to be defined. Also allows you to define an alias to allow you to reference the AuthenticationManager in your own beans.
     element authentication-manager {authman.attlist & authentication-provider* & ldap-authentication-provider*}
 authman.attlist &=
-    ## The alias you wish to use for the AuthenticationManager bean
+    id?
+authman.attlist &=
+    ## An alias you wish to use for the AuthenticationManager bean (not required it you are using a specific id)
     attribute alias {xsd:token}?
 authman.attlist &=
     ## If set to true, the AuthenticationManger will attempt to clear any credentials data in the returned Authentication object, once the user has been authenticated.

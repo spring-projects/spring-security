@@ -54,6 +54,7 @@ import org.springframework.security.access.PermissionEvaluator
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler
 import org.springframework.security.web.util.AntPathRequestMatcher
+import org.springframework.security.authentication.AuthenticationManager
 
 class MiscHttpConfigTests extends AbstractHttpConfigTests {
     def 'Minimal configuration parses'() {
@@ -678,6 +679,20 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         createAppContext()
         expect:
         getFilter(FilterSecurityInterceptor.class).accessDecisionManager.decisionVoters[3] instanceof WebExpressionVoter
+    }
+
+    def customAuthenticationManagerIsSupported() {
+        xml.http('auto-config': 'true', 'authentication-manager-ref': 'am')
+        xml.'b:bean'(id: 'am', 'class': MockAuthenticationManager.class.name)
+        createAppContext("")
+        expect:
+        getFilter(UsernamePasswordAuthenticationFilter.class).authenticationManager.parent instanceof MockAuthenticationManager
+    }
+}
+
+class MockAuthenticationManager implements AuthenticationManager {
+    Authentication authenticate(Authentication authentication) {
+        return null
     }
 }
 

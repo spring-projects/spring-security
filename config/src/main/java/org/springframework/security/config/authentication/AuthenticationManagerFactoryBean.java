@@ -19,8 +19,9 @@ import org.springframework.security.config.BeanIds;
  */
 public class AuthenticationManagerFactoryBean implements FactoryBean<AuthenticationManager>, BeanFactoryAware {
     private BeanFactory bf;
-    public static final String MISSING_BEAN_ERROR_MESSAGE = "Did you forget to add an <authentication-manager> element " +
-            "to your configuration (with child <authentication-provider> elements) ?";
+    public static final String MISSING_BEAN_ERROR_MESSAGE = "Did you forget to add a gobal <authentication-manager> element " +
+            "to your configuration (with child <authentication-provider> elements)? Alternatively you can use the " +
+            "authentication-manager-ref attribute on your <http> and <global-method-security> elements.";
 
     public AuthenticationManager getObject() throws Exception {
         try {

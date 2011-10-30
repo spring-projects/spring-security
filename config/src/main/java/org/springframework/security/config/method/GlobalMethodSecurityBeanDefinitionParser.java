@@ -69,6 +69,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 
     private final Log logger = LogFactory.getLog(getClass());
 
+    private static final String ATT_AUTHENTICATION_MANAGER_REF = "authentication-manager-ref";
     private static final String ATT_ACCESS = "access";
     private static final String ATT_EXPRESSION = "expression";
     private static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
@@ -204,8 +205,10 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
             accessManagerId = registerAccessManager(pc, jsr250Enabled, preInvocationVoter);
         }
 
+        String authMgrRef = element.getAttribute(ATT_AUTHENTICATION_MANAGER_REF);
+
         String runAsManagerId = element.getAttribute(ATT_RUN_AS_MGR);
-        BeanReference interceptor = registerMethodSecurityInterceptor(pc, accessManagerId, runAsManagerId,
+        BeanReference interceptor = registerMethodSecurityInterceptor(pc, authMgrRef, accessManagerId, runAsManagerId,
                 metadataSource, afterInvocationProviders, source, useAspectJ);
 
         if (useAspectJ) {
@@ -307,7 +310,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
         return pointcutMap;
     }
 
-    private BeanReference registerMethodSecurityInterceptor(ParserContext pc, String accessManagerId,
+    private BeanReference registerMethodSecurityInterceptor(ParserContext pc, String authMgrRef, String accessManagerId,
             String runAsManagerId, BeanReference metadataSource,
             List<BeanMetadataElement> afterInvocationProviders, Object source, boolean useAspectJ) {
         BeanDefinitionBuilder bldr =
@@ -315,7 +318,9 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
                     AspectJMethodSecurityInterceptor.class : MethodSecurityInterceptor.class);
         bldr.getRawBeanDefinition().setSource(source);
         bldr.addPropertyReference("accessDecisionManager", accessManagerId);
-        bldr.addPropertyValue("authenticationManager", new RootBeanDefinition(AuthenticationManagerDelegator.class));
+        RootBeanDefinition authMgr = new RootBeanDefinition(AuthenticationManagerDelegator.class);
+        authMgr.getConstructorArgumentValues().addGenericArgumentValue(authMgrRef);
+        bldr.addPropertyValue("authenticationManager", authMgr);
         bldr.addPropertyValue("securityMetadataSource", metadataSource);
 
         if (StringUtils.hasText(runAsManagerId)) {
@@ -367,13 +372,18 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
         private AuthenticationManager delegate;
         private final Object delegateMonitor = new Object();
         private BeanFactory beanFactory;
+        private final String authMgrBean;
+
+        AuthenticationManagerDelegator(String authMgrBean) {
+            this.authMgrBean = StringUtils.hasText(authMgrBean) ? authMgrBean : BeanIds.AUTHENTICATION_MANAGER;
+        }
 
         public Authentication authenticate(Authentication authentication) throws AuthenticationException {
             synchronized(delegateMonitor) {
                 if (delegate == null) {
-                    Assert.state(beanFactory != null, "BeanFactory must be set to resolve " + BeanIds.AUTHENTICATION_MANAGER);
+                    Assert.state(beanFactory != null, "BeanFactory must be set to resolve " + authMgrBean);
                     try {
-                        delegate = beanFactory.getBean(BeanIds.AUTHENTICATION_MANAGER, ProviderManager.class);
+                        delegate = beanFactory.getBean(authMgrBean, ProviderManager.class);
                     } catch (NoSuchBeanDefinitionException e) {
                         if (BeanIds.AUTHENTICATION_MANAGER.equals(e.getBeanName())) {
                             throw new NoSuchBeanDefinitionException(BeanIds.AUTHENTICATION_MANAGER,

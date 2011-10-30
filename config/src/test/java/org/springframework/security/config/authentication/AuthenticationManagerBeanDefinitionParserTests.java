@@ -22,7 +22,7 @@ import org.springframework.security.util.FieldUtils;
  */
 public class AuthenticationManagerBeanDefinitionParserTests {
     private static final String CONTEXT =
-              "<authentication-manager>" +
+              "<authentication-manager id='am'>" +
               "    <authentication-provider>" +
               "        <user-service>" +
               "            <user name='bob' password='bobspassword' authorities='ROLE_A,ROLE_B' />" +

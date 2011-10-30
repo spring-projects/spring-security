@@ -23,7 +23,6 @@ import org.springframework.security.config.Elements;
 import org.springframework.security.config.authentication.AuthenticationManagerFactoryBean;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.AnyRequestMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
@@ -41,6 +40,7 @@ import java.util.*;
 public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     private static final Log logger = LogFactory.getLog(HttpSecurityBeanDefinitionParser.class);
 
+    private static final String ATT_AUTHENTICATION_MANAGER_REF = "authentication-manager-ref";
     private static final String ATT_REQUEST_MATCHER_REF = "request-matcher-ref";
     static final String ATT_PATH_PATTERN = "pattern";
     static final String ATT_HTTP_METHOD = "method";
@@ -190,22 +190,32 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     /**
-     * Creates the internal AuthenticationManager bean which uses the externally registered (global) one as
-     * a parent.
+     * Creates the internal AuthenticationManager bean which uses either the externally registered (global) one as
+     * a parent or the bean specified by "authentication-manager-ref".
      *
-     * All the providers registered by this &lt;http&gt; block will be registered with the internal
-     * authentication manager.
+     * All the providers registered by this &lt;http&gt; block will be registered with the internal authentication
+     * manager.
      */
     private BeanReference createAuthenticationManager(Element element, ParserContext pc,
             ManagedList<BeanReference> authenticationProviders) {
+        String parentMgrRef = element.getAttribute(ATT_AUTHENTICATION_MANAGER_REF);
         BeanDefinitionBuilder authManager = BeanDefinitionBuilder.rootBeanDefinition(ProviderManager.class);
         authManager.addConstructorArgValue(authenticationProviders);
-        authManager.addConstructorArgValue(new RootBeanDefinition(AuthenticationManagerFactoryBean.class));
 
-        RootBeanDefinition clearCredentials = new RootBeanDefinition(MethodInvokingFactoryBean.class);
-        clearCredentials.getPropertyValues().addPropertyValue("targetObject", new RootBeanDefinition(AuthenticationManagerFactoryBean.class));
-        clearCredentials.getPropertyValues().addPropertyValue("targetMethod", "isEraseCredentialsAfterAuthentication");
-        authManager.addPropertyValue("eraseCredentialsAfterAuthentication", clearCredentials);
+        if (StringUtils.hasText(parentMgrRef)) {
+            authManager.addConstructorArgValue(new RuntimeBeanReference(parentMgrRef));
+        } else {
+            RootBeanDefinition amfb = new RootBeanDefinition(AuthenticationManagerFactoryBean.class);
+            amfb.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+            String amfbId = pc.getReaderContext().generateBeanName(amfb);
+            pc.registerBeanComponent(new BeanComponentDefinition(amfb, amfbId));
+            RootBeanDefinition clearCredentials = new RootBeanDefinition(MethodInvokingFactoryBean.class);
+            clearCredentials.getPropertyValues().addPropertyValue("targetObject", new RuntimeBeanReference(amfbId));
+            clearCredentials.getPropertyValues().addPropertyValue("targetMethod", "isEraseCredentialsAfterAuthentication");
+
+            authManager.addConstructorArgValue(new RuntimeBeanReference(amfbId));
+            authManager.addPropertyValue("eraseCredentialsAfterAuthentication", clearCredentials);
+        }
 
         authManager.getRawBeanDefinition().setSource(pc.extractSource(element));
         BeanDefinition authMgrBean = authManager.getBeanDefinition();
