@@ -123,7 +123,7 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
         apacheContainer.getConstructorArgumentValues().addGenericArgumentValue(ldifs);
         apacheContainer.getPropertyValues().addPropertyValue("port", port);
 
-        logger.info("Embedded LDAP server bean created for URL: " + url);
+        logger.info("Embedded LDAP server bean definition created for URL: " + url);
 
         if (parserContext.getRegistry().containsBeanDefinition(BeanIds.EMBEDDED_APACHE_DS)) {
             parserContext.getReaderContext().error("Only one embedded server bean is allowed per application context",
