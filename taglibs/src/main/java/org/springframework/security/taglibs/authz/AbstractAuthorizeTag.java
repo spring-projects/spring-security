@@ -61,7 +61,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 public abstract class AbstractAuthorizeTag {
     private String access;
     private String url;
-    private String method;
+    private String method = "GET";
     private String ifAllGranted;
     private String ifAnyGranted;
     private String ifNotGranted;
