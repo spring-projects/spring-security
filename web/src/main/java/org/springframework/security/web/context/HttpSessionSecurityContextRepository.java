@@ -58,7 +58,6 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 
     protected final Log logger = LogFactory.getLog(this.getClass());
 
-    private final Class<? extends SecurityContext> securityContextClass = null;
     /** SecurityContext instance used to check for equality with default (unauthenticated) content */
     private final Object contextObject = SecurityContextHolder.createEmptyContext();
     private boolean allowSessionCreation = true;
@@ -169,28 +168,11 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
      * no context present in the holder when this method is called). Using this approach the context creation
      * strategy is decided by the {@link SecurityContextHolderStrategy} in use. The default implementations
      * will return a new <tt>SecurityContextImpl</tt>.
-     * <p>
-     * An alternative way of customizing the <tt>SecurityContext</tt> implementation is by setting the
-     * <tt>securityContextClass</tt> property. In this case, the method will attempt to invoke the no-args
-     * constructor on the supplied class instead and return the created instance.
      *
      * @return a new SecurityContext instance. Never null.
      */
-    SecurityContext generateNewContext() {
-        SecurityContext context = null;
-
-        if (securityContextClass == null) {
-            context = SecurityContextHolder.createEmptyContext();
-
-            return context;
-        }
-
-        try {
-            context = securityContextClass.newInstance();
-        } catch (Exception e) {
-            ReflectionUtils.handleReflectionException(e);
-        }
-        return context;
+    protected SecurityContext generateNewContext() {
+        return SecurityContextHolder.createEmptyContext();
     }
 
     /**
