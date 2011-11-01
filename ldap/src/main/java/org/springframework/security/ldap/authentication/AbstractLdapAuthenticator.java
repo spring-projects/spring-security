@@ -15,6 +15,7 @@
 
 package org.springframework.security.ldap.authentication;
 
+import org.springframework.ldap.core.LdapEncoder;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.ldap.search.LdapUserSearch;
 import org.springframework.beans.factory.InitializingBean;
@@ -91,7 +92,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
         }
 
         List<String> userDns = new ArrayList<String>(userDnFormat.length);
-        String[] args = new String[] {username};
+        String[] args = new String[] {LdapEncoder.nameEncode(username)};
 
         synchronized (userDnFormat) {
             for (MessageFormat formatter : userDnFormat) {

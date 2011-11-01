@@ -55,10 +55,11 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
 
     @Test
     public void testAuthenticationWithCorrectPasswordSucceeds() {
-        authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people"});
+        authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people", "cn={0},ou=people"});
 
         DirContextOperations user = authenticator.authenticate(bob);
         assertEquals("bob", user.getStringAttribute("uid"));
+        authenticator.authenticate(new UsernamePasswordAuthenticationToken("mouse, jerry", "jerryspassword"));
     }
 
     @Test
