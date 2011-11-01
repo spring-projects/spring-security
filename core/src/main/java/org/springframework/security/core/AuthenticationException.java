@@ -64,11 +64,14 @@ public abstract class AuthenticationException extends RuntimeException {
 
     /**
      * The authentication request which this exception corresponds to (may be {@code null})
+     * @deprecated to avoid potential leaking of sensitive information (e.g. through serialization/remoting).
      */
+    @Deprecated
     public Authentication getAuthentication() {
         return authentication;
     }
 
+    @Deprecated
     public void setAuthentication(Authentication authentication) {
         this.authentication = authentication;
     }
