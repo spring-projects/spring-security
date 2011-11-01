@@ -42,9 +42,9 @@
 
         <attribute>
             <description>
-                Can be used to narrow down the HTTP method (typically GET or POST) to which the URL
-                applies. Only has any meaning when used in combination with the "url" attribute. This method will
-                be used when looking up the security metadata for the URL. Defaults to GET.
+                Can be used to specify the HTTP method (typically GET or POST) which is used in combination
+                with the URL when consulting the AccessDecisionManager. Only has any meaning when used in combination
+                with the "url" attribute. Defaults to GET.
             </description>
             <name>method</name>
             <required>false</required>
