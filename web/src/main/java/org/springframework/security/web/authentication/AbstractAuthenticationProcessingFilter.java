@@ -429,11 +429,11 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
         this.failureHandler = failureHandler;
     }
 
-    public AuthenticationSuccessHandler getSuccessHandler() {
+    protected AuthenticationSuccessHandler getSuccessHandler() {
         return successHandler;
     }
 
-    public AuthenticationFailureHandler getFailureHandler() {
+    protected AuthenticationFailureHandler getFailureHandler() {
         return failureHandler;
     }
 }
