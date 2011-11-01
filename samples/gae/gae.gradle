@@ -26,7 +26,7 @@ dependencies {
             "org.springframework:spring-context-support:$springVersion",
             "com.google.appengine:appengine-api-1.0-sdk:$gaeVersion",
             'javax.validation:validation-api:1.0.0.GA',
-            'org.hibernate:hibernate-validator:4.1.0.Final',
+            'org.hibernate:hibernate-validator:4.2.0.Final',
             "org.slf4j:slf4j-api:$slf4jVersion"
 
     runtime project(':spring-security-config'),
