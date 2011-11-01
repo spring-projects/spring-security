@@ -428,4 +428,12 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
         Assert.notNull(failureHandler, "failureHandler cannot be null");
         this.failureHandler = failureHandler;
     }
+
+    public AuthenticationSuccessHandler getSuccessHandler() {
+        return successHandler;
+    }
+
+    public AuthenticationFailureHandler getFailureHandler() {
+        return failureHandler;
+    }
 }
