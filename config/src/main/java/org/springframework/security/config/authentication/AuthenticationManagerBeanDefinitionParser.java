@@ -41,8 +41,9 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
         String id = element.getAttribute("id");
 
         if (!StringUtils.hasText(id)) {
-            Assert.state(!pc.getRegistry().containsBeanDefinition(BeanIds.AUTHENTICATION_MANAGER),
-                "Global AuthenticationManager has already been registered!");
+            if (pc.getRegistry().containsBeanDefinition(BeanIds.AUTHENTICATION_MANAGER)) {
+                pc.getReaderContext().warning("Overriding globally registered AuthenticationManager", pc.extractSource(element));
+            }
             id = BeanIds.AUTHENTICATION_MANAGER;
         }
         pc.pushContainingComponent(new CompositeComponentDefinition(element.getTagName(), pc.extractSource(element)));
