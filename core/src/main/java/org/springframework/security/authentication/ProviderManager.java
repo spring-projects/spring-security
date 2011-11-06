@@ -203,6 +203,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
         throw lastException;
     }
 
+    @SuppressWarnings("deprecation")
     private void prepareException(AuthenticationException ex, Authentication auth) {
         ex.setAuthentication(auth);
 
@@ -273,7 +274,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
      * @deprecated Use constructor injection
      */
     @Deprecated
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void setProviders(List providers) {
         Assert.notNull(providers, "Providers list cannot be null");
         for(Object currentObject : providers) {
@@ -284,7 +285,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
     }
 
     /**
-     * If set to true, the {@code extraInformation} set on an {@code AuthenticationException</tt> will be cleared
+     * If set to true, the {@code extraInformation} set on an {@code AuthenticationException} will be cleared
      * before rethrowing it. This is useful for use with remoting protocols where the information shouldn't
      * be serialized to the client. Defaults to 'false'.
      *
