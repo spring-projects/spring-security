@@ -15,6 +15,7 @@ request-matcher =
     ## Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for case-insensitive regular expressions.
     attribute request-matcher {"ant" | "regex" | "ciRegex"}
 path-type =
+    ## Deprecated. Use request-matcher instead.
     attribute path-type {"ant" | "regex"}
 port =
     ## Specifies an IP port number. Used to configure an embedded LDAP server, for example.
@@ -87,10 +88,10 @@ ldap-server.attlist &=
     ## Username (DN) of the "manager" user identity which will be used to authenticate to a (non-embedded) LDAP server. If omitted, anonymous access will be used.
     attribute manager-dn {xsd:string}?
 ldap-server.attlist &=
-    ## The password for the manager DN.
+    ## The password for the manager DN. This is required if the manager-dn is specified.
     attribute manager-password {xsd:string}?
 ldap-server.attlist &=
-    ## Explicitly specifies an ldif file resource to load into an embedded LDAP server
+    ## Explicitly specifies an ldif file resource to load into an embedded LDAP server. The default is classpath*:*.ldiff
     attribute ldif { xsd:string }?
 ldap-server.attlist &=
     ## Optional root suffix for the embedded LDAP server. Default is "dc=springframework,dc=org"
@@ -125,6 +126,7 @@ user-context-mapper-attribute =
 
 
 ldap-user-service =
+    ## This element configures a LdapUserDetailsService which is a combination of a FilterBasedLdapUserSearch and a DefaultLdapAuthoritiesPopulator.
     element ldap-user-service {ldap-us.attlist}
 ldap-us.attlist &= id?
 ldap-us.attlist &=
@@ -226,11 +228,13 @@ global-method-security.attlist &=
     ## Allows the advice "order" to be set for the method security interceptor.
     attribute order {xsd:token}?
 global-method-security.attlist &=
+    ## If true, class based proxying will be used instead of interface based proxying.
     attribute proxy-target-class {xsd:boolean}?
 global-method-security.attlist &=
     ## Can be used to specify that AspectJ should be used instead of the default Spring AOP. If set, secured classes must be woven with the AnnotationSecurityAspect from the spring-security-aspects module.
     attribute mode {"aspectj"}?
 global-method-security.attlist &=
+    ## An external MethodSecurityMetadataSource instance can be supplied which will take priority over other sources (such as the default annotations).
     attribute metadata-source-ref {xsd:token}?
 global-method-security.attlist &=
     authentication-manager-ref?
@@ -249,9 +253,11 @@ invocation-attribute-factory =
     element invocation-attribute-factory {ref}
 
 pre-invocation-advice =
+    ## Customizes the PreInvocationAuthorizationAdviceVoter with the ref as the PreInvocationAuthorizationAdviceVoter for the <pre-post-annotation-handling> element.
     element pre-invocation-advice {ref}
 
 post-invocation-advice =
+    ## Customizes the PostInvocationAdviceProvider with the ref as the PostInvocationAuthorizationAdvice for the <pre-post-annotation-handling> element.
     element post-invocation-advice {ref}
 
 
@@ -431,15 +437,20 @@ attribute-exchange.attlist &=
     attribute identifier-match {xsd:token}?
 
 openid-attribute =
+    ## Attributes used when making an OpenID AX Fetch Request
     element openid-attribute {openid-attribute.attlist}
 
 openid-attribute.attlist &=
+    ## Specifies the name of the attribute that you wish to get back. For example, email.
     attribute name {xsd:token}
 openid-attribute.attlist &=
+    ## Specifies the attribute type. For example, http://axschema.org/contact/email. See your OP's documentation for valid attribute types.
     attribute type {xsd:token}
 openid-attribute.attlist &=
+    ## Specifies if this attribute is required to the OP, but does not error out if the OP does not return the attribute. Default is false.
     attribute required {xsd:boolean}?
 openid-attribute.attlist &=
+    ## Specifies the number of attributes that you wish to get back. For example, return 3 emails. The default value is 1.
     attribute count {xsd:int}?
 
 
@@ -456,9 +467,17 @@ filter-chain =
     ## Used within to define a specific URL pattern and the list of filters which apply to the URLs matching that pattern. When multiple filter-chain elements are assembled in a list in order to configure a FilterChainProxy, the most specific patterns must be placed at the top of the list, with  most general ones at the bottom.
     element filter-chain {filter-chain.attlist, empty}
 filter-chain.attlist &=
-    (attribute pattern {xsd:token} | attribute request-matcher-ref {xsd:token})
+    (pattern | request-matcher-ref)
 filter-chain.attlist &=
+    ## A comma separated list of bean names that implement Filter that should be processed for this FilterChain. If the value is none, then no Filters will be used for this FilterChain.
     attribute filters {xsd:token}
+
+pattern =
+    ## The request URL pattern which will be mapped to the FilterChain.
+    attribute pattern {xsd:token}
+request-matcher-ref =
+    ## Allows a RequestMatcher instance to be used, as an alternative to pattern-matching.
+    attribute request-matcher-ref {xsd:token}
 
 filter-security-metadata-source =
     ## Used to explicitly configure a FilterSecurityMetadataSource bean for use with a FilterSecurityInterceptor. Usually only needed if you are configuring a FilterChainProxy explicitly, rather than using the <http> element. The intercept-url elements used should only contain pattern, method and access attributes. Any others will result in a configuration error.
@@ -468,7 +487,7 @@ fsmds.attlist &=
 fsmds.attlist &=
     id?
 fsmds.attlist &=
-    ## as for http element
+    ## Compare after forcing to lowercase
     attribute lowercase-comparisons {xsd:boolean}?
 fsmds.attlist &=
     ## Deprecate. Use request-matcher instead.
@@ -492,6 +511,7 @@ http-basic.attlist &=
     attribute authentication-details-source-ref {xsd:token}?
 
 session-management =
+    ## Session-management related functionality is implemented by the addition of a SessionManagementFilter to the filter stack.
     element session-management {session-management.attlist, concurrency-control?}
 
 session-management.attlist &=
@@ -593,11 +613,16 @@ port-mappings =
 port-mappings.attlist &= empty
 
 port-mapping =
+    ## Provides a method to map http ports to https ports when forcing a redirect.
     element port-mapping {http-port, https-port}
 
-http-port = attribute http {xsd:token}
+http-port =
+    ## The http port to use.
+    attribute http {xsd:token}
 
-https-port = attribute https {xsd:token}
+https-port =
+    ## The https port to use.
+    attribute https {xsd:token}
 
 
 x509 =
@@ -610,6 +635,7 @@ x509.attlist &=
     ## Explicitly specifies which user-service should be used to load user data for X.509 authenticated clients. If ommitted, the default user-service will be used.
     user-service-ref?
 x509.attlist &=
+    ## Reference to an AuthenticationDetailsSource which will be used by the authentication filter
     attribute authentication-details-source-ref {xsd:token}?
 
 jee =
@@ -648,6 +674,7 @@ user-service =
     ## Creates an in-memory UserDetailsService from a properties file or a list of "user" child elements. Usernames are converted to lower-case internally to allow for case-insensitive lookups, so this should not be used if case-sensitivity is required.
     element user-service {id? & (properties-file | (user*))}
 properties-file =
+    ## The location of a Properties file where each line is in the format of username=password,grantedAuthority[,grantedAuthority][,enabled|disabled]
     attribute properties {xsd:token}?
 
 user =
@@ -678,13 +705,13 @@ jdbc-user-service.attlist &=
 jdbc-user-service.attlist &=
     cache-ref?
 jdbc-user-service.attlist &=
-    ## An SQL statement to query a username, password, and enabled status given a username
+    ## An SQL statement to query a username, password, and enabled status given a username. Default is "select username,password,enabled from users where username = ?"
     attribute users-by-username-query {xsd:token}?
 jdbc-user-service.attlist &=
-    ## An SQL statement to query for a user's granted authorities given a username.
+    ## An SQL statement to query for a user's granted authorities given a username. The default is "select username, authority from authorities where username = ?"
     attribute authorities-by-username-query {xsd:token}?
 jdbc-user-service.attlist &=
-    ## An SQL statement to query user's group authorities given a username.
+    ## An SQL statement to query user's group authorities given a username. The default is "select g.id, g.group_name, ga.authority from groups g, group_members gm, group_authorities ga where gm.username = ? and g.id = ga.group_id and g.id = gm.group_id"
     attribute group-authorities-by-username-query {xsd:token}?
 jdbc-user-service.attlist &=
     role-prefix?

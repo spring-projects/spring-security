@@ -41,6 +41,9 @@
   </xs:attributeGroup>
   <xs:attributeGroup name="path-type">
     <xs:attribute name="path-type" use="required">
+      <xs:annotation>
+        <xs:documentation>Deprecated. Use request-matcher instead.</xs:documentation>
+      </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
           <xs:enumeration value="ant"/>
@@ -201,12 +204,12 @@
     </xs:attribute>
     <xs:attribute name="manager-password" type="xs:string">
       <xs:annotation>
-        <xs:documentation>The password for the manager DN.</xs:documentation>
+        <xs:documentation>The password for the manager DN. This is required if the manager-dn is specified.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="ldif" type="xs:string">
       <xs:annotation>
-        <xs:documentation>Explicitly specifies an ldif file resource to load into an embedded LDAP server</xs:documentation>
+        <xs:documentation>Explicitly specifies an ldif file resource to load into an embedded LDAP server. The default is classpath*:*.ldiff</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="root" type="xs:string">
@@ -277,7 +280,9 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
-  <xs:element name="ldap-user-service" substitutionGroup="security:any-user-service"><xs:complexType>
+  <xs:element name="ldap-user-service" substitutionGroup="security:any-user-service"><xs:annotation>
+      <xs:documentation>This element configures a LdapUserDetailsService which is a combination of a FilterBasedLdapUserSearch and a DefaultLdapAuthoritiesPopulator.</xs:documentation>
+    </xs:annotation><xs:complexType>
       <xs:attributeGroup ref="security:ldap-us.attlist"/>
     </xs:complexType></xs:element>
   <xs:attributeGroup name="ldap-us.attlist">
@@ -496,10 +501,14 @@
     </xs:annotation><xs:complexType>
       <xs:attributeGroup ref="security:ref"/>
     </xs:complexType></xs:element>
-        <xs:element name="pre-invocation-advice"><xs:complexType>
+        <xs:element name="pre-invocation-advice"><xs:annotation>
+      <xs:documentation>Customizes the PreInvocationAuthorizationAdviceVoter with the ref as the PreInvocationAuthorizationAdviceVoter for the &lt;pre-post-annotation-handling&gt; element.</xs:documentation>
+    </xs:annotation><xs:complexType>
       <xs:attributeGroup ref="security:ref"/>
     </xs:complexType></xs:element>
-        <xs:element name="post-invocation-advice"><xs:complexType>
+        <xs:element name="post-invocation-advice"><xs:annotation>
+      <xs:documentation>Customizes the PostInvocationAdviceProvider with the ref as the PostInvocationAuthorizationAdvice for the &lt;pre-post-annotation-handling&gt; element.</xs:documentation>
+    </xs:annotation><xs:complexType>
       <xs:attributeGroup ref="security:ref"/>
     </xs:complexType></xs:element>
       </xs:sequence>
@@ -572,7 +581,11 @@
         <xs:documentation>Allows the advice "order" to be set for the method security interceptor.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="proxy-target-class" type="xs:boolean"/>
+    <xs:attribute name="proxy-target-class" type="xs:boolean">
+      <xs:annotation>
+        <xs:documentation>If true, class based proxying will be used instead of interface based proxying.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="mode">
       <xs:annotation>
         <xs:documentation>Can be used to specify that AspectJ should be used instead of the default Spring AOP. If set, secured classes must be woven with the AnnotationSecurityAspect from the spring-security-aspects module.</xs:documentation>
@@ -583,7 +596,11 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
-    <xs:attribute name="metadata-source-ref" type="xs:token"/>
+    <xs:attribute name="metadata-source-ref" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>An external MethodSecurityMetadataSource instance can be supplied which will take priority over other sources (such as the default annotations).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="authentication-manager-ref" type="xs:token">
       <xs:annotation>
         <xs:documentation>A reference to an AuthenticationManager bean</xs:documentation>
@@ -662,7 +679,9 @@
     </xs:annotation><xs:complexType>
       <xs:attributeGroup ref="security:logout.attlist"/>
     </xs:complexType></xs:element>
-        <xs:element name="session-management"><xs:complexType>
+        <xs:element name="session-management"><xs:annotation>
+      <xs:documentation>Session-management related functionality is implemented by the addition of a SessionManagementFilter to the filter stack.</xs:documentation>
+    </xs:annotation><xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="concurrency-control"><xs:annotation>
       <xs:documentation>Enables concurrent session control, limiting the number of authenticated sessions a user may have at the same time.</xs:documentation>
@@ -686,7 +705,9 @@
       <xs:documentation>Defines the list of mappings between http and https ports for use in redirects</xs:documentation>
     </xs:annotation><xs:complexType>
       <xs:sequence>
-        <xs:element maxOccurs="unbounded" name="port-mapping"><xs:complexType>
+        <xs:element maxOccurs="unbounded" name="port-mapping"><xs:annotation>
+      <xs:documentation>Provides a method to map http ports to https ports when forcing a redirect.</xs:documentation>
+    </xs:annotation><xs:complexType>
       <xs:attributeGroup ref="security:http-port"/>
       <xs:attributeGroup ref="security:https-port"/>
     </xs:complexType></xs:element>
@@ -764,6 +785,9 @@
       </xs:simpleType>
     </xs:attribute>
     <xs:attribute name="path-type">
+      <xs:annotation>
+        <xs:documentation>Deprecated. Use request-matcher instead.</xs:documentation>
+      </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
           <xs:enumeration value="ant"/>
@@ -988,14 +1012,32 @@
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>
-  <xs:element name="openid-attribute"><xs:complexType>
+  <xs:element name="openid-attribute"><xs:annotation>
+      <xs:documentation>Attributes used when making an OpenID AX Fetch Request</xs:documentation>
+    </xs:annotation><xs:complexType>
       <xs:attributeGroup ref="security:openid-attribute.attlist"/>
     </xs:complexType></xs:element>
   <xs:attributeGroup name="openid-attribute.attlist">
-    <xs:attribute name="name" use="required" type="xs:token"/>
-    <xs:attribute name="type" use="required" type="xs:token"/>
-    <xs:attribute name="required" type="xs:boolean"/>
-    <xs:attribute name="count" type="xs:int"/>
+    <xs:attribute name="name" use="required" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>Specifies the name of the attribute that you wish to get back. For example, email.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="type" use="required" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>Specifies the attribute type. For example, http://axschema.org/contact/email. See your OP's documentation for valid attribute types.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="required" type="xs:boolean">
+      <xs:annotation>
+        <xs:documentation>Specifies if this attribute is required to the OP, but does not error out if the OP does not return the attribute. Default is false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="count" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Specifies the number of attributes that you wish to get back. For example, return 3 emails. The default value is 1.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="filter-chain-map"><xs:annotation>
       <xs:documentation>Used to explicitly configure a FilterChainProxy instance with a FilterChainMap</xs:documentation>
@@ -1007,6 +1049,9 @@
     </xs:complexType></xs:element>
   <xs:attributeGroup name="filter-chain-map.attlist">
     <xs:attribute name="path-type">
+      <xs:annotation>
+        <xs:documentation>Deprecated. Use request-matcher instead.</xs:documentation>
+      </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
           <xs:enumeration value="ant"/>
@@ -1033,9 +1078,35 @@
       <xs:attributeGroup ref="security:filter-chain.attlist"/>
     </xs:complexType></xs:element>
   <xs:attributeGroup name="filter-chain.attlist">
-    <xs:attribute name="pattern" type="xs:token"/>
-    <xs:attribute name="request-matcher-ref" type="xs:token"/>
-    <xs:attribute name="filters" use="required" type="xs:token"/>
+    <xs:attribute name="pattern" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>The request URL pattern which will be mapped to the FilterChain.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="request-matcher-ref" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>Allows a RequestMatcher instance to be used, as an alternative to pattern-matching.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="filters" use="required" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>A comma separated list of bean names that implement Filter that should be processed for this FilterChain. If the value is none, then no Filters will be used for this FilterChain.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="pattern">
+    <xs:attribute name="pattern" use="required" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>The request URL pattern which will be mapped to the FilterChain.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+  <xs:attributeGroup name="request-matcher-ref">
+    <xs:attribute name="request-matcher-ref" use="required" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>Allows a RequestMatcher instance to be used, as an alternative to pattern-matching.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="filter-security-metadata-source"><xs:annotation>
       <xs:documentation>Used to explicitly configure a FilterSecurityMetadataSource bean for use with a FilterSecurityInterceptor. Usually only needed if you are configuring a FilterChainProxy explicitly, rather than using the &lt;http&gt; element. The intercept-url elements used should only contain pattern, method and access attributes. Any others will result in a configuration error.</xs:documentation>
@@ -1062,10 +1133,13 @@
     </xs:attribute>
     <xs:attribute name="lowercase-comparisons" type="xs:boolean">
       <xs:annotation>
-        <xs:documentation>as for http element</xs:documentation>
+        <xs:documentation>Compare after forcing to lowercase</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="path-type">
+      <xs:annotation>
+        <xs:documentation>Deprecated. Use request-matcher instead.</xs:documentation>
+      </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:token">
           <xs:enumeration value="ant"/>
@@ -1256,10 +1330,18 @@
   
   
   <xs:attributeGroup name="http-port">
-    <xs:attribute name="http" use="required" type="xs:token"/>
+    <xs:attribute name="http" use="required" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>The http port to use.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="https-port">
-    <xs:attribute name="https" use="required" type="xs:token"/>
+    <xs:attribute name="https" use="required" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>The https port to use.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
   
   <xs:attributeGroup name="x509.attlist">
@@ -1273,7 +1355,11 @@
         <xs:documentation>A reference to a user-service (or UserDetailsService bean) Id</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="authentication-details-source-ref" type="xs:token"/>
+    <xs:attribute name="authentication-details-source-ref" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>Reference to an AuthenticationDetailsSource which will be used by the authentication filter</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="jee"><xs:annotation>
       <xs:documentation>Adds a J2eePreAuthenticatedProcessingFilter to the filter chain to provide integration with container authentication.</xs:documentation>
@@ -1421,7 +1507,11 @@
       <xs:attributeGroup ref="security:properties-file"/>
     </xs:complexType></xs:element>
   <xs:attributeGroup name="properties-file">
-    <xs:attribute name="properties" type="xs:token"/>
+    <xs:attribute name="properties" type="xs:token">
+      <xs:annotation>
+        <xs:documentation>The location of a Properties file where each line is in the format of username=password,grantedAuthority[,grantedAuthority][,enabled|disabled]</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
   
   <xs:attributeGroup name="user.attlist">
@@ -1474,17 +1564,17 @@
     </xs:attribute>
     <xs:attribute name="users-by-username-query" type="xs:token">
       <xs:annotation>
-        <xs:documentation>An SQL statement to query a username, password, and enabled status given a username</xs:documentation>
+        <xs:documentation>An SQL statement to query a username, password, and enabled status given a username. Default is "select username,password,enabled from users where username = ?"</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="authorities-by-username-query" type="xs:token">
       <xs:annotation>
-        <xs:documentation>An SQL statement to query for a user's granted authorities given a username.</xs:documentation>
+        <xs:documentation>An SQL statement to query for a user's granted authorities given a username. The default is "select username, authority from authorities where username = ?"</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="group-authorities-by-username-query" type="xs:token">
       <xs:annotation>
-        <xs:documentation>An SQL statement to query user's group authorities given a username.</xs:documentation>
+        <xs:documentation>An SQL statement to query user's group authorities given a username. The default is "select g.id, g.group_name, ga.authority from groups g, group_members gm, group_authorities ga where gm.username = ? and g.id = ga.group_id and g.id = gm.group_id"</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="role-prefix" type="xs:token">
