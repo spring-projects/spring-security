@@ -17,228 +17,344 @@
         an XSD schema. If you are familiar with this format, you may wish to examine the <link
         xlink:href="https://fisheye.springsource.org/browse/spring-security/config/src/main/resources/org/springframework/security/config/spring-security-3.1.rnc"
         >schema file</link> directly.</para>
-    <section xml:id="nsa-http">
-        <title>Web Application Security - the <literal>&lt;http&gt;</literal> Element</title>
-        <para> If you use an <literal>&lt;http&gt;</literal> element within your application, a
-            <classname>FilterChainProxy</classname> bean named "springSecurityFilterChain" is
-            created and the configuration within the element is used to build a filter chain within
-            <classname>FilterChainProxy</classname>. As of Spring Security 3.1, additional
-            <literal>http</literal> elements can be used to add extra filter chains <footnote>
-            <para>See the <link xlink:href="#ns-web-xml"> introductory chapter</link> for how to set
-                up the mapping from your <literal>web.xml</literal></para>
-            </footnote>. Some core filters are always created in a filter chain and others will be
-            added to the stack depending on the attributes and child elements which are present. The
-            positions of the standard filters are fixed (see <link xlink:href="#filter-stack">the
-            filter order table</link> in the namespace introduction), removing a common source of
-            errors with previous versions of the framework when users had to configure the filter
-            chain explicitly in the<classname>FilterChainProxy</classname> bean. You can, of course,
-            still do this if you need full control of the configuration. </para>
-        <para> All filters which require a reference to the
-            <interfacename>AuthenticationManager</interfacename> will be automatically injected with
-            the internal instance created by the namespace configuration (see the <link
-            xlink:href="#ns-auth-manager"> introductory chapter</link> for more on the
-            <interfacename>AuthenticationManager</interfacename>). </para>
-        <para> Each <literal>&lt;http&gt;</literal> namespace block always creates an
-            <classname>SecurityContextPersistenceFilter</classname>, an
-            <classname>ExceptionTranslationFilter</classname> and a
-            <classname>FilterSecurityInterceptor</classname>. These are fixed and cannot be replaced
-            with alternatives. </para>
-        <section xml:id="nsa-http-attributes">
-            <title><literal>&lt;http&gt;</literal> Attributes</title>
-            <para> The attributes on the <literal>&lt;http&gt;</literal> element control some of the
-                properties on the core filters. </para>
-            <section xml:id="nsa-http-pattern">
-                <title><literal>pattern</literal></title>
-                <para>Defining a pattern for the <literal>http</literal> element controls the
-                    requests which will be filtered through the list of filters which it defines.
-                    The interpretation is dependent on the configured <link
-                    xlink:href="#nsa-path-type">request-matcher</link>. If no pattern is defined,
-                    all requests will be matched, so the most specific patterns should be declared
-                    first. </para>
+    <section xml:id="nsa-web">
+        <title>Web Application Security</title>
+        <section xml:id="nsa-debug">
+            <title><literal>&lt;debug&gt;</literal></title>
+            <para>Enables Spring Security debugging infrastructure. This will provide human-readable (multi-line)
+                debugging information to monitor requests coming into the security filters. This may include sensitive
+                information, such as request parameters or headers, and should only be used in a development
+                environment.</para>
+        </section>
+        <section xml:id="nsa-http">
+            <title><literal>&lt;http&gt;</literal></title>
+            <para> If you use an <literal>&lt;http&gt;</literal> element within your application, a
+                <classname>FilterChainProxy</classname> bean named "springSecurityFilterChain" is
+                created and the configuration within the element is used to build a filter chain within
+                <classname>FilterChainProxy</classname>. As of Spring Security 3.1, additional
+                <literal>http</literal> elements can be used to add extra filter chains <footnote>
+                <para>See the <link xlink:href="#ns-web-xml">introductory chapter</link> for how to set
+                    up the mapping from your <literal>web.xml</literal></para>
+                </footnote>. Some core filters are always created in a filter chain and others will be
+                added to the stack depending on the attributes and child elements which are present. The
+                positions of the standard filters are fixed (see <link xlink:href="#filter-stack">the
+                filter order table</link> in the namespace introduction), removing a common source of
+                errors with previous versions of the framework when users had to configure the filter
+                chain explicitly in the <classname>FilterChainProxy</classname> bean. You can, of course,
+                still do this if you need full control of the configuration. </para>
+            <para> All filters which require a reference to the
+                <interfacename>AuthenticationManager</interfacename> will be automatically injected with
+                the internal instance created by the namespace configuration (see the <link
+                xlink:href="#ns-auth-manager">introductory chapter</link> for more on the
+                <interfacename>AuthenticationManager</interfacename>). </para>
+            <para> Each <literal>&lt;http&gt;</literal> namespace block always creates an
+                <classname>SecurityContextPersistenceFilter</classname>, an
+                <classname>ExceptionTranslationFilter</classname> and a
+                <classname>FilterSecurityInterceptor</classname>. These are fixed and cannot be replaced
+                with alternatives. </para>
+            <section xml:id="nsa-http-attributes">
+                <title><literal>&lt;http&gt;</literal> Attributes</title>
+                <para> The attributes on the <literal>&lt;http&gt;</literal> element control some of the
+                    properties on the core filters. </para>
+                <section xml:id="nsa-http-access-decision-manager-ref">
+                    <title><literal>access-decision-manager-ref</literal></title>
+                    <para> Optional attribute specifying the ID of the
+                        <interfacename>AccessDecisionManager</interfacename> implementation which should
+                        be used for authorizing HTTP requests. By default an
+                        <classname>AffirmativeBased</classname> implementation is used for with a
+                        <classname>RoleVoter</classname> and an
+                        <classname>AuthenticatedVoter</classname>. </para>
+                </section>
+                <section xml:id="nsa-http-access-denied-page">
+                    <title><literal>access-denied-page</literal></title>
+                    <para> Deprecated in favour of the <link xlink:href="#nsa-access-denied-handler">access-denied-handler</link>
+                        child element.</para>
+                </section>
+                <section xml:id="nsa-http-authentication-manager-ref">
+                    <title><literal>authentication-manager-ref</literal></title>
+                    <para>A reference to the <interfacename>AuthenticationManager</interfacename> used for the
+                        <classname>FilterChain</classname> created by this http element.</para>
+                </section>
+                <section xml:id="nsa-http-auto-config">
+                    <title><literal>auto-config</literal></title>
+                    <para>Automatically registers a login form, BASIC authentication, anonymous authentication, logout
+                        services, remember-me and servlet-api-integration. If set to "true", all of these capabilities are added
+                        (although you can still customize the configuration of each by providing the respective element). If
+                        unspecified, defaults to "false".</para>
+                </section>
+                <section xml:id="nsa-http-create-session">
+                    <title><literal>create-session</literal></title>
+                    <para>Controls the eagerness with which an HTTP session is created by Spring Security classes.
+                        Options include:
+                        <itemizedlist>
+                            <listitem>
+                                <literal>always</literal> - Spring Security will proactively create a session if one
+                                does not exist.
+                            </listitem>
+                            <listitem>
+                                <literal>ifRequired</literal> - Spring Security will only create a session only if one
+                                is required (default value).
+                            </listitem>
+                            <listitem>
+                                <literal>never</literal> - Spring Security will never create a session, but will
+                                make use of one if the application does.</listitem>
+                            <listitem>
+                                <literal>stateless</literal> - Spring Security will not create a session and ignore the
+                                session for obtaining a Spring <interfacename>Authentication</interfacename>.
+                            </listitem>
+                        </itemizedlist>
+                    </para>
+                </section>
+                <section xml:id="nsa-http-disable-url-rewriting">
+                    <title><literal>disable-url-rewriting</literal></title>
+                    <para>Prevents session IDs from being appended to URLs in the application. Clients
+                        must use cookies if this attribute is set to <literal>true</literal>. The default is
+                        <literal>false</literal>.</para>
+                </section>
+                <section xml:id="nsa-http-entry-point-ref">
+                    <title><literal>entry-point-ref</literal></title>
+                    <para> Normally the <interfacename>AuthenticationEntryPoint</interfacename> used
+                        will be set depending on which authentication mechanisms have been configured.
+                        This attribute allows this behaviour to be overridden by defining a customized
+                        <interfacename>AuthenticationEntryPoint</interfacename> bean which will start
+                        the authentication process.</para>
+                </section>
+                <section xml:id="nsa-http-jaas-api-provision">
+                    <title><literal>jaas-api-provision</literal></title>
+                    <para>If available, runs the request as the <literal>Subject</literal> acquired from
+                        the <classname>JaasAuthenticationToken</classname> which is implemented by
+                        adding a <classname>JaasApiIntegrationFilter</classname> bean to the stack.
+                        Defaults to <literal>false</literal>.</para>
+                </section>
+                <section xml:id="nsa-http-name">
+                    <title><literal>name</literal></title>
+                    <para>A bean identifier, used for referring to the bean elsewhere in the context.</para>
+                </section>
+                <section xml:id="nsa-http-once-per-request">
+                    <title><literal>once-per-request</literal></title>
+                    <para>Corresponds to the <literal>observeOncePerRequest</literal> property of
+                        <classname>FilterSecurityInterceptor</classname>. Defaults to <literal>true</literal>.</para>
+                </section>
+                <section xml:id="nsa-http-path-type">
+                    <title><literal>path-type</literal></title>
+                    <para>Deprecated in favor of <link xlink:href="#nsa-http-request-matcher">request-matcher</link>.
+                        </para>
+                </section>
+                <section xml:id="nsa-http-pattern">
+                    <title><literal>pattern</literal></title>
+                    <para>Defining a pattern for the <link xlink:href="#nsa-http">http</link> element controls the
+                        requests which will be filtered through the list of filters which it defines.
+                        The interpretation is dependent on the configured <link
+                        xlink:href="#nsa-http-request-matcher">request-matcher</link>. If no pattern is defined,
+                        all requests will be matched, so the most specific patterns should be declared
+                        first.</para>
+                </section>
+                <section xml:id="nsa-http-realm">
+                    <title><literal>realm</literal></title>
+                    <para>Sets the realm name used for basic authentication (if enabled). Corresponds
+                        to the <literal>realmName</literal> property on
+                        <classname>BasicAuthenticationEntryPoint</classname>.</para>
+                </section>
+                <section xml:id="nsa-http-request-matcher">
+                    <title><literal>request-matcher</literal></title>
+                    <para>Defines the <interfacename>RequestMatcher</interfacename> strategy used in
+                        the <classname>FilterChainProxy</classname> and the beans created by the
+                        <literal>intercept-url</literal> to match incoming requests. Options are
+                        currently <literal>ant</literal>, <literal>regex</literal> and
+                        <literal>ciRegex</literal>, for ant, regular-expression and case-insensitive
+                        regular-expression repsectively. A separate instance is created for each
+                        <link xlink:href="#nsa-intercept-url">intercept-url</link> element using its
+                        <link xlink:href="#nsa-intercept-url-pattern">pattern</link> and
+                        <link xlink:href="#nsa-intercept-url-method">method</link> attributes. Ant paths
+                        are matched using an <classname>AntPathRequestMatcher</classname> and regular expressions
+                        are matched using a <classname>RegexRequestMatcher</classname>. See the Javadoc
+                        for these classes for more details on exactly how the matching is preformed. Ant
+                        paths are the default strategy.</para>
+                </section>
+                <section xml:id="nsa-http-request-matcher-ref">
+                    <title><literal>request-matcher-ref</literal></title>
+                    <para>A referenece to a bean that implements <interfacename>RequestMatcher</interfacename> that
+                        will determine if this <classname>FilterChain</classname> should be used. This is a more
+                        powerful alternative to <link xlink:href="#nsa-http-pattern">pattern</link>.</para>
+                </section>
+                <section xml:id="nsa-http-security">
+                    <title><literal>security</literal></title>
+                    <para>A request pattern can be mapped to an empty filter chain, by setting this
+                        attribute to <literal>none</literal>. No security will be applied and none of
+                        Spring Security's features will be available.</para>
+                </section>
+                <section xml:id="nsa-http-security-context-repository-ref">
+                    <title><literal>security-context-repository-ref</literal></title>
+                    <para>Allows injection of a custom
+                        <interfacename>SecurityContextRepository</interfacename> into the
+                        <classname>SecurityContextPersistenceFilter</classname>.</para>
+                </section>
+                <section xml:id="nsa-http-servlet-api-provision">
+                    <title><literal>servlet-api-provision</literal></title>
+                    <para>Provides versions of <literal>HttpServletRequest</literal> security methods
+                        such as <literal>isUserInRole()</literal> and <literal>getPrincipal()</literal>
+                        which are implemented by adding a
+                        <classname>SecurityContextHolderAwareRequestFilter</classname> bean to the
+                        stack. Defaults to <literal>true</literal>.</para>
+                </section>
+                <section xml:id="nsa-http-use-expressions">
+                    <title><literal>use-expressions</literal></title>
+                    <para>Enables EL-expressions in the <literal>access</literal> attribute, as
+                        described in the chapter on <link xlink:href="#el-access-web">expression-based
+                        access-control</link>.</para>
+                </section>
             </section>
-            <section xml:id="nsa-http-secured">
-                <title><literal>security</literal></title>
-                <para>A request pattern can be mapped to an empty filter chain, by setting this
-                    attribute to <literal>none</literal>. No security will be applied and none of
-                    Spring Security's features will be available. </para>
-            </section>
-            <section xml:id="nsa-servlet-api-provision">
-                <title><literal>servlet-api-provision</literal></title>
-                <para> Provides versions of <literal>HttpServletRequest</literal> security methods
-                    such as <literal>isUserInRole()</literal> and <literal>getPrincipal()</literal>
-                    which are implemented by adding a
-                    <classname>SecurityContextHolderAwareRequestFilter</classname> bean to the
-                    stack. Defaults to "true".</para>
-            </section>
-            <section xml:id="nsa-jaas-api-provision">
-                <title><literal>jaas-api-provision</literal></title>
-                <para>If available, runs the request as the <literal>Subject</literal> acquired from
-                    the <classname>JaasAuthenticationToken</classname> which is implemented by
-                    adding a <classname>JaasApiIntegrationFilter</classname> bean to the stack.
-                    Defaults to "false".</para>
-            </section>
-            <section xml:id="nsa-path-type">
-                <title><literal>request-matcher</literal></title>
-                <para> Defines the <interfacename>RequestMatcher</interfacename> strategy used in
-                    the <classname>FilterChainProxy</classname> and the beans created by the
-                    <literal>intercept-url</literal> to match incoming requests. Options are
-                    currently <literal>ant</literal>, <literal>regex</literal> and
-                    <literal>ciRegex</literal>, for ant, regular-expression and case-insensitive
-                    regular-expression repsectively. A separate instance is created for each
-                    <literal>intercept-url</literal> element using its <literal>pattern</literal>
-                    and <literal>method</literal> attributes (see below). Ant paths are matched
-                    using an <classname>AntPathRequestMatcher</classname> and regular expressions
-                    are matched using a <classname>RegexRequestMatcher</classname>. See the Javadoc
-                    for these classes for more details on exactly how the matching is preformed. Ant
-                    paths are the default strategy.</para>
-            </section>
-            <section xml:id="nsa-realm">
-                <title><literal>realm</literal></title>
-                <para> Sets the realm name used for basic authentication (if enabled). Corresponds
-                    to the <literal>realmName</literal> property on
-                    <classname>BasicAuthenticationEntryPoint</classname>. </para>
-            </section>
-            <section xml:id="nsa-entry-point-ref">
-                <title><literal>entry-point-ref</literal></title>
-                <para> Normally the <interfacename>AuthenticationEntryPoint</interfacename> used
-                    will be set depending on which authentication mechanisms have been configured.
-                    This attribute allows this behaviour to be overridden by defining a customized
-                    <interfacename>AuthenticationEntryPoint</interfacename> bean which will start
-                    the authentication process. </para>
-            </section>
-            <section xml:id="nsa-security-context-repo-ref">
-                <title><literal>security-context-repository-ref</literal></title>
-                <para> Allows injection of a custom
-                    <interfacename>SecurityContextRepository</interfacename> into the
-                    <classname>SecurityContextPersistenceFilter</classname>. </para>
-            </section>
-            <section xml:id="nsa-access-decision-manager-ref">
-                <title><literal>access-decision-manager-ref</literal></title>
-                <para> Optional attribute specifying the ID of the
-                    <interfacename>AccessDecisionManager</interfacename> implementation which should
-                    be used for authorizing HTTP requests. By default an
-                    <classname>AffirmativeBased</classname> implementation is used for with a
-                    <classname>RoleVoter</classname> and an
-                    <classname>AuthenticatedVoter</classname>. </para>
-            </section>
-            <section xml:id="nsa-access-denied-page">
-                <title><literal>access-denied-page</literal></title>
-                <para> Deprecated in favour of the <literal>access-denied-handler</literal> child
-                    element. </para>
-            </section>
-            <section xml:id="nsa-once-per-request">
-                <title><literal>once-per-request</literal></title>
-                <para> Corresponds to the <literal>observeOncePerRequest</literal> property of
-                    <classname>FilterSecurityInterceptor</classname>. Defaults to "true". </para>
-            </section>
-            <section xml:id="nsa-create-session">
-                <title><literal>create-session</literal></title>
-                <para> Controls the eagerness with which an HTTP session is created. If not set,
-                    defaults to "ifRequired". Other options are "always" and "never". The setting of
-                    this attribute affect the <literal>allowSessionCreation</literal> and
-                    <literal>forceEagerSessionCreation</literal> properties of
-                    <classname>HttpSessionContextIntegrationFilter</classname>.
-                    <literal>allowSessionCreation</literal> will always be true unless this
-                    attribute is set to "never". <literal>forceEagerSessionCreation</literal> is
-                    "false" unless it is set to "always". So the default configuration allows
-                    session creation but does not force it. The exception is if concurrent session
-                    control is enabled, when <literal>forceEagerSessionCreation</literal> will be
-                    set to true, regardless of what the setting is here. Using "never" would then
-                    cause an exception during the initialization of
-                    <classname>HttpSessionContextIntegrationFilter</classname>. </para>
-            </section>
-            <section xml:id="nsa-use-expressions">
-                <title><literal>use-expressions</literal></title>
-                <para>Enables EL-expressions in the <literal>access</literal> attribute, as
-                    described in the chapter on <link xlink:href="#el-access-web">expression-based
-                    access-control</link>. </para>
-            </section>
-            <section xml:id="nsa-disable-url-rewriting">
-                <title><literal>disable-url-rewriting</literal></title>
-                <para>Prevents session IDs from being appended to URLs in the application. Clients
-                    must use cookies if this attribute is set to <literal>true</literal>. </para>
+            <section xml:id="nsa-http-children">
+                <title>Child Elements of &lt;http&gt;</title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-access-denied-handler">access-denied-handler</link></listitem>
+                    <listitem><link xlink:href="#nsa-anonymous">anonymous</link></listitem>
+                    <listitem><link xlink:href="#nsa-custom-filter">custom-filter</link></listitem>
+                    <listitem><link xlink:href="#nsa-expression-handler">expression-handler</link></listitem>
+                    <listitem><link xlink:href="#nsa-form-login">form-login</link></listitem>
+                    <listitem><link xlink:href="#nsa-http-basic">http-basic</link></listitem>
+                    <listitem><link xlink:href="#nsa-intercept-url">intercept-url</link></listitem>
+                    <listitem><link xlink:href="#nsa-jee">jee</link></listitem>
+                    <listitem><link xlink:href="#nsa-logout">logout</link></listitem>
+                    <listitem><link xlink:href="#nsa-openid-login">openid-login</link></listitem>
+                    <listitem><link xlink:href="#nsa-port-mappings">port-mappings</link></listitem>
+                    <listitem><link xlink:href="#nsa-remember-me">remember-me</link></listitem>
+                    <listitem><link xlink:href="#nsa-request-cache">request-cache</link></listitem>
+                    <listitem><link xlink:href="#nsa-session-management">session-management</link></listitem>
+                    <listitem><link xlink:href="#nsa-x509">x509</link></listitem>
+                </itemizedlist>
             </section>
         </section>
         <section xml:id="nsa-access-denied-handler">
-            <title><literal>&lt;access-denied-handler></literal></title>
-            <para> This element allows you to set the <literal>errorPage</literal> property for the
+            <title><literal>&lt;access-denied-handler&gt;</literal></title>
+            <para>This element allows you to set the <literal>errorPage</literal> property for the
                 default <interfacename>AccessDeniedHandler</interfacename> used by the
-                <classname>ExceptionTranslationFilter</classname>, (using the
-                <literal>error-page</literal> attribute, or to supply your own implementation using
-                the <literal>ref</literal> attribute. This is discussed in more detail in the
-                section on <link xlink:href="#access-denied-handler">the
+                <classname>ExceptionTranslationFilter</classname>, using the
+                <link xlink:href="#nsa-access-denied-handler-error-page">error-page</link> attribute, or
+                to supply your own implementation using the
+                <link xlink:href="#nsa-access-denied-handler-ref">ref</link> attribute. This is discussed
+                in more detail in the section on the <link xlink:href="#access-denied-handler">
                 <classname>ExceptionTranslationFilter</classname></link>.</para>
-        </section>
-        <section>
-            <title>The <literal>&lt;intercept-url&gt;</literal> Element</title>
-            <para> This element is used to define the set of URL patterns that the application is
-                interested in and to configure how they should be handled. It is used to construct
-                the <interfacename>FilterInvocationSecurityMetadataSource</interfacename> used by
-                the <classname>FilterSecurityInterceptor</classname>. It is also responsible for
-                configuring a <classname>ChannelAuthenticationFilter</classname> if particular URLs
-                need to be accessed by HTTPS, for example. When matching the specified patterns
-                against an incoming request, the matching is done in the order in which the elements
-                are declared. So the most specific matches patterns should come first and the most
-                general should come last.</para>
-            <section xml:id="nsa-pattern">
-                <title><literal>pattern</literal></title>
-                <para> The pattern which defines the URL path. The content will depend on the
-                    <literal>request-matcher</literal> attribute from the containing http element,
-                    so will default to ant path syntax. </para>
+            <section xml:id="nsa-access-denied-handler-parents">
+                <title>Parent Elements of <literal>&lt;access-denied-handler&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                </itemizedlist>
             </section>
-            <section xml:id="nsa-method">
-                <title><literal>method</literal></title>
-                <para> The HTTP Method which will be used in combination with the pattern to match
-                    an incoming request. If omitted, any method will match. If an identical pattern
-                    is specified with and without a method, the method-specific match will take
-                    precedence.</para>
-            </section>
-            <section xml:id="nsa-access">
-                <title><literal>access</literal></title>
-                <para> Lists the access attributes which will be stored in the
-                    <interfacename>FilterInvocationSecurityMetadataSource</interfacename> for the
-                    defined URL pattern/method combination. This should be a comma-separated list of
-                    the security configuration attributes (such as role names). </para>
-            </section>
-            <section xml:id="nsa-requires-channel">
-                <title><literal>requires-channel</literal></title>
-                <para> Can be <quote>http</quote> or <quote>https</quote> depending on whether a
-                    particular URL pattern should be accessed over HTTP or HTTPS respectively.
-                    Alternatively the value <quote>any</quote> can be used when there is no
-                    preference. If this attribute is present on any
-                    <literal>&lt;intercept-url&gt;</literal> element, then a
-                    <classname>ChannelAuthenticationFilter</classname> will be added to the filter
-                    stack and its additional dependencies added to the application
-                    context.<!--See the chapter on <link
-            xlink:href="#channel-security-config">channel security</link> for an example
-          configuration using traditional beans. --></para>
-                <para> If a <literal>&lt;port-mappings&gt;</literal> configuration is added, this
-                    will be used to by the <classname>SecureChannelProcessor</classname> and
-                    <classname>InsecureChannelProcessor</classname> beans to determine the ports
-                    used for redirecting to HTTP/HTTPS. </para>
-            </section>
-            <section>
-                <title><literal>filters</literal></title>
-                <para>Can only take the value <quote>none</quote>. This will cause any matching
-                    request to bypass the Spring Security filter chain entirely. None of the rest of
-                    the <literal>&lt;http></literal> configuration will have any effect on the
-                    request and there will be no security context available for its duration. Access
-                    to secured methods during the request will fail.</para>
+            <section xml:id="nsa-access-denied-handler-attributes">
+                <title><literal>&lt;access-denied-handler&gt;</literal> Attributes</title>
+                <section xml:id="nsa-access-denied-handler-error-page">
+                    <title><literal>error-page</literal></title>
+                    <para>The access denied page that an authenticated user will be redirected to if they request a
+                        page which they don't have the authority to access.</para>
+                </section>
+                <section xml:id="nsa-access-denied-handler-ref">
+                    <title><literal>ref</literal></title>
+                    <para>Defines a reference to a Spring bean of type <interfacename>AccessDeniedHandler
+                        </interfacename>.</para>
+                </section>
             </section>
         </section>
-        <section>
-            <title>The <literal>&lt;port-mappings&gt;</literal> Element</title>
-            <para> By default, an instance of <classname>PortMapperImpl</classname> will be added to
-                the configuration for use in redirecting to secure and insecure URLs. This element
-                can optionally be used to override the default mappings which that class defines.
-                Each child <literal>&lt;port-mapping&gt;</literal> element defines a pair of
-                HTTP:HTTPS ports. The default mappings are 80:443 and 8080:8443. An example of
-                overriding these can be found in the <link xlink:href="#ns-requires-channel"
-                >namespace introduction</link>. </para>
+        <section xml:id="nsa-anonymous">
+            <title><literal>&lt;anonymous&gt;</literal></title>
+            <para>Adds an <classname>AnonymousAuthenticationFilter</classname> to the stack and an
+                <classname>AnonymousAuthenticationProvider</classname>. Required if you are using
+                the <literal>IS_AUTHENTICATED_ANONYMOUSLY</literal> attribute.</para>
+            <section xml:id="nsa-anonymous-parents">
+                <title>Parent Elements of <literal>&lt;anonymous&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-anonymous-attributes">
+                <title><literal>&lt;anonymous&gt;</literal> Attributes</title>
+                <section xml:id="nsa-anonymous-enabled">
+                    <title><literal>enabled</literal></title>
+                    <para>With the default namespace setup, the anonymous "authentication" facility is automatically
+                        enabled. You can disable it using this property.</para>
+                </section>
+                <section xml:id="nsa-anonymous-granted-authority">
+                    <title><literal>granted-authority</literal></title>
+                    <para>The granted authority that should be assigned to the anonymous request. Commonly this is used
+                        to assign the anonymous request particular roles, which can subsequently be used in authorization
+                        decisions. If unset, defaults to <literal>ROLE_ANONYMOUS</literal>.</para>
+                </section>
+                <section xml:id="nsa-anonymous-key">
+                    <title><literal>key</literal></title>
+                    <para>The key shared between the provider and filter. This generally does not need to be set. If
+                        unset, it will default to a secure randomly generated value. This means setting this value can
+                        improve startup time when using the anonymous functionality since secure random values can take
+                        a while to be generated.</para>
+                </section>
+                <section xml:id="nsa-anonymous-username">
+                    <title><literal>username</literal></title>
+                    <para>The username that should be assigned to the anonymous request. This allows the principal to
+                        be identified, which may be important for logging and auditing. if unset, defaults to
+                        <literal>anonymousUser</literal>.</para>
+                </section>
+            </section>
+        </section>
+        <section xml:id="nsa-custom-filter">
+            <title><literal>&lt;custom-filter&gt;</literal></title>
+            <para>This element is used to add a filter to the filter chain. It doesn't create any
+                additional beans but is used to select a bean of type
+                <interfacename>javax.servlet.Filter</interfacename> which is already defined in the
+                application context and add that at a particular position in the filter chain
+                maintained by Spring Security. Full details can be found in the <link xlink:href="#ns-custom-filters">
+                namespace chapter</link>.</para>
+            <section xml:id="nsa-custom-filter-parents">
+                <title>Parent Elements of <literal>&lt;custom-filter&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-custom-filter-attributes">
+                <title><literal>&lt;custom-filter&gt;</literal> Attributes</title>
+                <section xml:id="nsa-custom-filter-after">
+                    <title><literal>after</literal></title>
+                    <para>The filter immediately after which the custom-filter should be placed in the chain. This
+                        feature will only be needed by advanced users who wish to mix their own filters into the
+                        security filter chain and have some knowledge of the standard Spring Security filters. The
+                        filter names map to specific Spring Security implementation filters.</para>
+                </section>
+                <section xml:id="nsa-custom-filter-before">
+                    <title><literal>before</literal></title>
+                    <para>The filter immediately before which the custom-filter should be placed in the chain</para>
+                </section>
+                <section xml:id="nsa-custom-filter-position">
+                    <title><literal>position</literal></title>
+                    <para>The explicit position at which the custom-filter should be placed in the chain. Use if you
+                        are replacing a standard filter.</para>
+                </section>
+                <section xml:id="nsa-custom-filter-ref">
+                    <title><literal>ref</literal></title>
+                    <para>Defines a reference to a Spring bean that implements <interfacename>Filter</interfacename>.</para>
+                </section>
+            </section>
+        </section>
+        <section xml:id="nsa-expression-handler">
+            <title><literal>&lt;expression-handler&gt;</literal></title>
+            <para>Defines the <interfacename>SecurityExpressionHandler</interfacename> instance which will be used if
+                expression-based access-control is enabled. A default implementation (with no ACL support) will be used
+                if not supplied.</para>
+            <section xml:id="nsa-expression-handler-parents">
+                <title>Parent Elements of <literal>&lt;expression-handler&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-global-method-security">global-method-security</link></listitem>
+                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-expression-handler-attributes">
+                <title><literal>&lt;expression-handler&gt;</literal> Attributes</title>
+                <section xml:id="nsa-expression-handler-ref">
+                    <title><literal>ref</literal></title>
+                    <para>Defines a reference to a Spring bean that implements <interfacename>SecurityExpressionHandler</interfacename>.</para>
+                </section>
+            </section>
         </section>
         <section xml:id="nsa-form-login">
-            <title>The <literal>&lt;form-login&gt;</literal> Element</title>
-            <para> Used to add an <classname>UsernamePasswordAuthenticationFilter</classname> to the
+            <title><literal>&lt;form-login&gt;</literal></title>
+            <para>Used to add an <classname>UsernamePasswordAuthenticationFilter</classname> to the
                 filter stack and an <classname>LoginUrlAuthenticationEntryPoint</classname> to the
                 application context to provide authentication on demand. This will always take
                 precedence over other namespace-created entry points. If no attributes are supplied,
@@ -249,172 +365,613 @@
                     <classname>DefaultLoginPageGeneratingFilter</classname> is responsible for
                     rendering the login page and will provide login forms for both normal form login
                     and/or OpenID if required.</para>
-                </footnote> The behaviour can be customized using the following attributes. </para>
-            <section>
-                <title><literal>login-page</literal></title>
-                <para> The URL that should be used to render the login page. Maps to the
-                    <literal>loginFormUrl</literal> property of the
-                    <classname>LoginUrlAuthenticationEntryPoint</classname>. Defaults to
-                    "/spring_security_login". </para>
+                </footnote> The behaviour can be customized using the <link xlink:href="#nsa-form-login-attributes">
+                    <literal>&lt;form-login&gt;</literal> Attributes</link>.</para>
+            <section xml:id="nsa-form-login-parents">
+                <title>Parent Elements of <literal>&lt;form-login&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                </itemizedlist>
             </section>
-            <section>
-                <title><literal>login-processing-url</literal></title>
-                <para> Maps to the <literal>filterProcessesUrl</literal> property of
-                    <classname>UsernamePasswordAuthenticationFilter</classname>. The default value
-                    is "/j_spring_security_check". </para>
-            </section>
-            <section>
-                <title><literal>default-target-url</literal></title>
-                <para>Maps to the <literal>defaultTargetUrl</literal> property of
-                    <classname>UsernamePasswordAuthenticationFilter</classname>. If not set, the
-                    default value is "/" (the application root). A user will be taken to this URL
-                    after logging in, provided they were not asked to login while attempting to
-                    access a secured resource, when they will be taken to the originally requested
-                    URL. </para>
-            </section>
-            <section>
-                <title><literal>always-use-default-target</literal></title>
-                <para> If set to "true", the user will always start at the value given by
-                    <literal>default-target-url</literal>, regardless of how they arrived at the
-                    login page. Maps to the <literal>alwaysUseDefaultTargetUrl</literal> property of
-                    <classname>UsernamePasswordAuthenticationFilter</classname>. Default value is
-                    "false". </para>
-            </section>
-            <section>
-                <title><literal>authentication-failure-url</literal></title>
-                <para> Maps to the <literal>authenticationFailureUrl</literal> property of
-                    <classname>UsernamePasswordAuthenticationFilter</classname>. Defines the URL the
-                    browser will be redirected to on login failure. Defaults to
-                    "/spring_security_login?login_error", which will be automatically handled by the
-                    automatic login page generator, re-rendering the login page with an error
-                    message. </para>
-            </section>
-            <section>
-                <title><literal>authentication-success-handler-ref</literal></title>
-                <para>This can be used as an alternative to <literal>default-target-url</literal>
-                    and <literal>always-use-default-target</literal>, giving you full control over
-                    the navigation flow after a successful authentication. The value should be the
-                    name of an <interfacename>AuthenticationSuccessHandler</interfacename> bean in
-                    the application context. By default, an imlementation of
-                    <classname>SavedRequestAwareAuthenticationSuccessHandler</classname> is used and
-                    injected with the <literal>default-target-url</literal>.</para>
-            </section>
-            <section>
-                <title><literal>authentication-failure-handler-ref</literal></title>
-                <para>Can be used as an alternative to
-                    <literal>authentication-failure-url</literal>, giving you full control over the
-                    navigation flow after an authentication failure. The value should be he name of
-                    an <interfacename>AuthenticationFailureHandler</interfacename> bean in the
-                    application context. </para>
+            <section xml:id="nsa-form-login-attributes">
+                <title><literal>&lt;form-login&gt;</literal> Attributes</title>
+                <section xml:id="nsa-form-login-always-use-default-target">
+                    <title><literal>always-use-default-target</literal></title>
+                    <para>If set to <literal>true</literal>, the user will always start at the value given by
+                        <link xlink:href="#nsa-form-login-default-target-url">default-target-url</link>, regardless
+                        of how they arrived at the login page. Maps to the <literal>alwaysUseDefaultTargetUrl</literal>
+                        property of <classname>UsernamePasswordAuthenticationFilter</classname>. Default value is
+                        <literal>false</literal>.</para>
+                </section>
+                <section xml:id="nsa-form-login-authentication-details-source-ref">
+                    <title><literal>authentication-details-source-ref</literal></title>
+                    <para>Reference to an <interfacename>AuthenticationDetailsSource</interfacename> which will be used
+                        by the authentication filter</para>
+                </section>
+                <section xml:id="nsa-form-login-authentication-failure-handler-ref">
+                    <title><literal>authentication-failure-handler-ref</literal></title>
+                    <para>Can be used as an alternative to
+                        <link xlink:href="#nsa-form-login-authentication-failure-url">authentication-failure-url</link>,
+                        giving you full control over the navigation flow after an authentication failure. The value
+                        should be he name of an <interfacename>AuthenticationFailureHandler</interfacename> bean in the
+                        application context.</para>
+                </section>
+                <section xml:id="nsa-form-login-authentication-failure-url">
+                    <title><literal>authentication-failure-url</literal></title>
+                    <para>Maps to the <literal>authenticationFailureUrl</literal> property of
+                        <classname>UsernamePasswordAuthenticationFilter</classname>. Defines the URL the
+                        browser will be redirected to on login failure. Defaults to
+                        <literal>/spring_security_login?login_error</literal>, which will be automatically handled by
+                        the automatic login page generator, re-rendering the login page with an error message.</para>
+                </section>
+                <section xml:id="nsa-form-login-authentication-success-handler-ref">
+                    <title><literal>authentication-success-handler-ref</literal></title>
+                    <para>This can be used as an alternative to
+                        <link xlink:href="#nsa-form-login-default-target-url">default-target-url</link>
+                        and <link xlink:href="#nsa-form-login-always-use-default-target">always-use-default-target</link>,
+                        giving you full control over the navigation flow after a successful authentication. The value
+                        should be the name of an <interfacename>AuthenticationSuccessHandler</interfacename> bean in
+                        the application context. By default, an implementation of
+                        <classname>SavedRequestAwareAuthenticationSuccessHandler</classname> is used and
+                        injected with the <link xlink:href="#nsa-form-login-default-target-url">default-target-url
+                        </link>.</para>
+                </section>
+                <section xml:id="nsa-form-login-default-target-url">
+                    <title><literal>default-target-url</literal></title>
+                    <para>Maps to the <literal>defaultTargetUrl</literal> property of
+                        <classname>UsernamePasswordAuthenticationFilter</classname>. If not set, the
+                        default value is "/" (the application root). A user will be taken to this URL
+                        after logging in, provided they were not asked to login while attempting to
+                        access a secured resource, when they will be taken to the originally requested
+                        URL.</para>
+                </section>
+                <section xml:id="nsa-form-login-login-page">
+                    <title><literal>login-page</literal></title>
+                    <para> The URL that should be used to render the login page. Maps to the
+                        <literal>loginFormUrl</literal> property of the
+                        <classname>LoginUrlAuthenticationEntryPoint</classname>. Defaults to
+                        "/spring_security_login".</para>
+                </section>
+                <section xml:id="nsa-form-login-login-processing-url">
+                    <title><literal>login-processing-url</literal></title>
+                    <para> Maps to the <literal>filterProcessesUrl</literal> property of
+                        <classname>UsernamePasswordAuthenticationFilter</classname>. The default value
+                        is "/j_spring_security_check".</para>
+                </section>
+                <section xml:id="nsa-form-login-password-parameter">
+                    <title><literal>password-parameter</literal></title>
+                    <para>The name of the request parameter which contains the password. Defaults to "j_password".</para>
+                </section>
+                <section xml:id="nsa-form-login-username-parameter">
+                    <title><literal>username-parameter</literal></title>
+                    <para>The name of the request parameter which contains the username. Defaults to "j_username".</para>
+                </section>
             </section>
         </section>
         <section xml:id="nsa-http-basic">
-            <title>The <literal>&lt;http-basic&gt;</literal> Element</title>
-            <para> Adds a <classname>BasicAuthenticationFilter</classname> and
+            <title><literal>&lt;http-basic&gt;</literal></title>
+            <para>Adds a <classname>BasicAuthenticationFilter</classname> and
                 <classname>BasicAuthenticationEntryPoint</classname> to the configuration. The
                 latter will only be used as the configuration entry point if form-based login is not
-                enabled. </para>
+                enabled.</para>
+            <section xml:id="nsa-http-basic-parents">
+                <title>Parent Elements of <literal>&lt;http-basic&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-http-basic-attributes">
+                <title><literal>&lt;http-basic&gt;</literal> Attributes</title>
+                <section xml:id="nsa-http-basic-authentication-details-source-ref">
+                    <title><literal>authentication-details-source-ref</literal></title>
+                    <para>Reference to an <interfacename>AuthenticationDetailsSource</interfacename> which will be used
+                        by the authentication filter</para>
+                </section>
+                <section xml:id="nsa-http-basic-entry-point-ref">
+                    <title><literal>entry-point-ref</literal></title>
+                    <para>Sets the <interfacename>AuthenticationEntryPoint</interfacename> which is used by the
+                        <classname>BasicAuthenticationFilter</classname>.</para>
+                </section>
+            </section>
+        </section>
+        <section xml:id="nsa-http-firewall">
+            <title><literal>&lt;http-firewall></literal> Element</title>
+            <para>This is a top-level element which can be used to inject a custom implementation of
+                <interfacename>HttpFirewall</interfacename> into the
+                <classname>FilterChainProxy</classname> created by the namespace. The default
+                implementation should be suitable for most applications.</para>
+            <section xml:id="nsa-http-firewall-attributes">
+                <title><literal>&lt;http-firewall&gt;</literal> Attributes</title>
+                <section xml:id="nsa-http-firewall-ref">
+                    <title><literal>ref</literal></title>
+                    <para>Defines a reference to a Spring bean that implements <interfacename>HttpFirewall</interfacename>.</para>
+                </section>
+            </section>
+        </section>
+        <section xml:id="nsa-intercept-url">
+            <title><literal>&lt;intercept-url&gt;</literal></title>
+            <para>This element is used to define the set of URL patterns that the application is
+                interested in and to configure how they should be handled. It is used to construct
+                the <interfacename>FilterInvocationSecurityMetadataSource</interfacename> used by
+                the <classname>FilterSecurityInterceptor</classname>. It is also responsible for
+                configuring a <classname>ChannelAuthenticationFilter</classname> if particular URLs
+                need to be accessed by HTTPS, for example. When matching the specified patterns
+                against an incoming request, the matching is done in the order in which the elements
+                are declared. So the most specific matches patterns should come first and the most
+                general should come last.</para>
+            <section xml:id="nsa-intercept-url-parents">
+                <title>Parent Elements of <literal>&lt;intercept-url&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-filter-invocation-definition-source">filter-invocation-definition-source</link></listitem>
+                    <listitem><link xlink:href="#nsa-filter-security-metadata-source">filter-security-metadata-source</link></listitem>
+                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-intercept-url-attributes">
+                <title><literal>&lt;intercept-url&gt;</literal> Attributes</title>
+                <section xml:id="nsa-intercept-url-access">
+                    <title><literal>access</literal></title>
+                    <para>Lists the access attributes which will be stored in the
+                        <interfacename>FilterInvocationSecurityMetadataSource</interfacename> for the
+                        defined URL pattern/method combination. This should be a comma-separated list of
+                        the security configuration attributes (such as role names).</para>
+                </section>
+                <section xml:id="nsa-intercept-url-filters">
+                    <title><literal>filters</literal></title>
+                    <para>Can only take the value <quote>none</quote>. This will cause any matching
+                        request to bypass the Spring Security filter chain entirely. None of the rest of
+                        the <literal>&lt;http&gt;</literal> configuration will have any effect on the
+                        request and there will be no security context available for its duration. Access
+                        to secured methods during the request will fail.</para>
+                </section>
+                <section xml:id="nsa-intercept-url-method">
+                    <title><literal>method</literal></title>
+                    <para>The HTTP Method which will be used in combination with the pattern to match
+                        an incoming request. If omitted, any method will match. If an identical pattern
+                        is specified with and without a method, the method-specific match will take
+                        precedence.</para>
+                </section>
+                <section xml:id="nsa-intercept-url-pattern">
+                    <title><literal>pattern</literal></title>
+                    <para>The pattern which defines the URL path. The content will depend on the
+                        <literal>request-matcher</literal> attribute from the containing http element,
+                        so will default to ant path syntax.</para>
+                </section>
+                <section xml:id="nsa-intercept-url-requires-channel">
+                    <title><literal>requires-channel</literal></title>
+                    <para>Can be <quote>http</quote> or <quote>https</quote> depending on whether a
+                        particular URL pattern should be accessed over HTTP or HTTPS respectively.
+                        Alternatively the value <quote>any</quote> can be used when there is no
+                        preference. If this attribute is present on any
+                        <literal>&lt;intercept-url&gt;</literal> element, then a
+                        <classname>ChannelAuthenticationFilter</classname> will be added to the filter
+                        stack and its additional dependencies added to the application
+                        context.<!--See the chapter on <link
+                xlink:href="#channel-security-config">channel security</link> for an example
+              configuration using traditional beans. --></para>
+                    <para>If a <literal>&lt;port-mappings&gt;</literal> configuration is added, this
+                        will be used to by the <classname>SecureChannelProcessor</classname> and
+                        <classname>InsecureChannelProcessor</classname> beans to determine the ports
+                        used for redirecting to HTTP/HTTPS. </para>
+                </section>
+            </section>
+        </section>
+        <section xml:id="nsa-jee">
+            <title><literal>&lt;jee&gt;</literal></title>
+            <para>Adds a J2eePreAuthenticatedProcessingFilter to the filter chain to provide integration with container
+                authentication.</para>
+            <section xml:id="nsa-jee-parents">
+                <title>Parent Elements of <literal>&lt;jee&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-jee-attributes">
+                <title><literal>&lt;jee&gt;</literal> Attributes</title>
+                <section xml:id="nsa-jee-mappable-roles">
+                    <title><literal>mappable-roles</literal></title>
+                    <para>A comma-separate list of roles to look for in the incoming HttpServletRequest.</para>
+                </section>
+                <section xml:id="nsa-jee-user-service-ref">
+                    <title><literal>user-service-ref</literal></title>
+                    <para>A reference to a user-service (or UserDetailsService bean) Id</para>
+                </section>
+            </section>
+        </section>
+        <section xml:id="nsa-logout">
+            <title><literal>&lt;logout&gt;</literal></title>
+            <para>Adds a <classname>LogoutFilter</classname> to the filter stack. This is
+                configured with a <classname>SecurityContextLogoutHandler</classname>.</para>
+            <section xml:id="nsa-logout-parents">
+                <title>Parent Elements of <literal>&lt;logout&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-logout-attributes">
+                <title><literal>&lt;logout&gt;</literal> Attributes</title>
+                <section xml:id="nsa-logout-delete-cookies">
+                    <title>The <literal>delete-cookies</literal> attribute</title>
+                    <para>A comma-separated list of the names of cookies which should be deleted when the user logs out.
+                    </para>
+                </section>
+                <section xml:id="nsa-logout-invalidate-session">
+                    <title>The <literal>invalidate-session</literal> attribute</title>
+                    <para> Maps to the <literal>invalidateHttpSession</literal> of the
+                        <classname>SecurityContextLogoutHandler</classname>. Defaults to "true", so the
+                        session will be invalidated on logout.</para>
+                </section>
+                <section xml:id="nsa-logout-logout-success-url">
+                    <title>The <literal>logout-success-url</literal> attribute</title>
+                    <para> The destination URL which the user will be taken to after logging out.
+                        Defaults to "/". </para>
+                </section>
+                <section xml:id="nsa-logout-logout-url">
+                    <title>The <literal>logout-url</literal> attribute</title>
+                    <para> The URL which will cause a logout (i.e. which will be processed by the
+                        filter). Defaults to "/j_spring_security_logout". </para>
+                </section>
+                <section xml:id="nsa-logout-success-handler-ref">
+                    <title>The <literal>success-handler-ref</literal> attribute</title>
+                    <para>May be used to supply an instance of <interfacename>LogoutSuccessHandler</interfacename>
+                        which will be invoked to control the navigation after logging out.
+                    </para>
+                </section>
+            </section>
+        </section>
+        <section xml:id="nsa-openid-login">
+            <title><literal>&lt;openid-login&gt;</literal></title>
+            <para> Similar to <literal>&lt;form-login&gt;</literal> and has the same attributes. The
+                default value for <literal>login-processing-url</literal> is
+                "/j_spring_openid_security_check". An
+                <classname>OpenIDAuthenticationFilter</classname> and
+                <classname>OpenIDAuthenticationProvider</classname> will be registered. The latter
+                requires a reference to a <interfacename>UserDetailsService</interfacename>. Again,
+                this can be specified by <literal>id</literal>, using the <literal>user-service-ref</literal>
+                attribute, or will be located automatically in the application context. </para>
+            <section xml:id="nsa-openid-login-parents">
+                <title>Parent Elements of <literal>&lt;openid-login&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-openid-login-attributes">
+                <title><literal>&lt;openid-login&gt;</literal> Attributes</title>
+                <section xml:id="nsa-openid-login-always-use-default-target">
+                    <title><literal>always-use-default-target</literal></title>
+                    <para>Whether the user should always be redirected to the default-target-url after login.</para>
+                </section>
+                <section xml:id="nsa-openid-login-authentication-details-source-ref">
+                    <title><literal>authentication-details-source-ref</literal></title>
+                    <para>Reference to an AuthenticationDetailsSource which will be used by the authentication filter</para>
+                </section>
+                <section xml:id="nsa-openid-login-authentication-failure-handler-ref">
+                    <title><literal>authentication-failure-handler-ref</literal></title>
+                    <para>Reference to an AuthenticationFailureHandler bean which should be used to handle a failed
+                        authentication request. Should not be used in combination with authentication-failure-url as the
+                        implementation should always deal with navigation to the subsequent destination</para>
+                </section>
+                <section xml:id="nsa-openid-login-authentication-failure-url">
+                    <title><literal>authentication-failure-url</literal></title>
+                    <para>The URL for the login failure page. If no login failure URL is specified, Spring Security will
+                        automatically create a failure login URL at /spring_security_login?login_error and a corresponding
+                        filter to render that login failure URL when requested.</para>
+                </section>
+                <section xml:id="nsa-openid-login-authentication-success-handler-ref">
+                    <title><literal>authentication-success-handler-ref</literal></title>
+                    <para>Reference to an AuthenticationSuccessHandler bean which should be used to handle a successful
+                        authentication request. Should not be used in combination with
+                        <link xlink:href="#nsa-openid-login-default-target-url">default-target-url</link> (or
+                        <link xlink:href="#nsa-openid-login-always-use-default-target">
+                        always-use-default-target</link>) as the implementation should always deal with navigation
+                        to the subsequent destination</para>
+                </section>
+                <section xml:id="nsa-openid-login-default-target-url">
+                    <title><literal>default-target-url</literal></title>
+                    <para>The URL that will be redirected to after successful authentication, if the user's previous action
+                        could not be resumed. This generally happens if the user visits a login page without having first requested a
+                        secured operation that triggers authentication. If unspecified, defaults to the root of the application.</para>
+                </section>
+                <section xml:id="nsa-openid-login-login-page">
+                    <title><literal>login-page</literal></title>
+                    <para>The URL for the login page. If no login URL is specified, Spring Security will automatically
+                        create a login URL at /spring_security_login and a corresponding filter to render that login URL when requested.
+                    </para>
+                </section>
+                <section xml:id="nsa-openid-login-login-processing-url">
+                    <title><literal>login-processing-url</literal></title>
+                    <para>The URL that the login form is posted to. If unspecified, it defaults to /j_spring_security_check.</para>
+                </section>
+                <section xml:id="nsa-openid-login-password-parameter">
+                    <title><literal>password-parameter</literal></title>
+                    <para>The name of the request parameter which contains the password. Defaults to "j_password".</para>
+                </section>
+                <section xml:id="nsa-openid-login-user-service-ref">
+                    <title><literal>user-service-ref</literal></title>
+                    <para>A reference to a user-service (or UserDetailsService bean) Id</para>
+                </section>
+                <section xml:id="nsa-openid-login-username-parameter">
+                    <title><literal>username-parameter</literal></title>
+                    <para>The name of the request parameter which contains the username. Defaults to "j_username".</para>
+                </section>
+            </section>
+            <section xml:id="nsa-openid-login-children">
+                <title>Child Elements of &lt;openid-login&gt;</title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-attribute-exchange">attribute-exchange</link></listitem>
+                </itemizedlist>
+            </section>
+        </section>
+        <section xml:id="nsa-attribute-exchange">
+            <title><literal>&lt;attribute-exchange&gt;</literal></title>
+            <para>The <literal>attribute-exchange</literal> element defines the list of
+                attributes which should be requested from the identity provider. An example can be found
+                in the <link xlink:href="#ns-openid">OpenID Support</link> section of the namespace configuration
+                chapter. More than one can be used, in which case each must have an <literal>identifier-match</literal>
+                attribute, containing a regular expression which is matched against the supplied
+                OpenID identifier. This allows different attribute lists to be fetched from
+                different providers (Google, Yahoo etc).</para>
+            <section xml:id="nsa-attribute-exchange-parents">
+                <title>Parent Elements of <literal>&lt;attribute-exchange&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-openid-login">openid-login</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-attribute-exchange-attributes">
+                <title><literal>&lt;attribute-exchange&gt;</literal> Attributes</title>
+                <section xml:id="nsa-attribute-exchange-identifier-match">
+                    <title><literal>identifier-match</literal></title>
+                    <para>A regular expression which will be compared against the claimed identity, when deciding which
+                        attribute-exchange configuration to use during authentication.</para>
+                </section>
+            </section>
+            <section xml:id="nsa-attribute-exchange-children">
+                <title>Child Elements of <literal>&lt;attribute-exchange&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-openid-attribute">openid-attribute</link></listitem>
+                </itemizedlist>
+            </section>
+        </section>
+        <section xml:id="nsa-openid-attribute">
+            <title><literal>&lt;openid-attribute&gt;</literal></title>
+            <para>Attributes used when making an OpenID AX
+                <link xlink:href="http://openid.net/specs/openid-attribute-exchange-1_0.html#fetch_request">
+                    Fetch Request</link></para>
+            <section xml:id="nsa-openid-attribute-parents">
+                <title>Parent Elements of <literal>&lt;openid-attribute&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-attribute-exchange">attribute-exchange</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-openid-attribute-attributes">
+                <title><literal>&lt;openid-attribute&gt;</literal> Attributes</title>
+                <section xml:id="nsa-openid-attribute-count">
+                    <title><literal>count</literal></title>
+                    <para>Specifies the number of attributes that you wish to get back. For example, return 3 emails.
+                        The default value is 1.</para>
+                </section>
+                <section xml:id="nsa-openid-attribute-name">
+                    <title><literal>name</literal></title>
+                    <para>Specifies the name of the attribute that you wish to get back. For example, email.</para>
+                </section>
+                <section xml:id="nsa-openid-attribute-required">
+                    <title><literal>required</literal></title>
+                    <para>Specifies if this attribute is required to the OP, but does not error out if the OP does not
+                        return the attribute. Default is false.</para>
+                </section>
+                <section xml:id="nsa-openid-attribute-type">
+                    <title><literal>type</literal></title>
+                    <para>Specifies the attribute type. For example, http://axschema.org/contact/email. See your OP's
+                        documentation for valid attribute types.</para>
+                </section>
+            </section>
+        </section>
+        <section xml:id="nsa-port-mappings">
+            <title><literal>&lt;port-mappings&gt;</literal></title>
+            <para> By default, an instance of <classname>PortMapperImpl</classname> will be added to
+                the configuration for use in redirecting to secure and insecure URLs. This element
+                can optionally be used to override the default mappings which that class defines.
+                Each child <literal>&lt;port-mapping&gt;</literal> element defines a pair of
+                HTTP:HTTPS ports. The default mappings are 80:443 and 8080:8443. An example of
+                overriding these can be found in the <link xlink:href="#ns-requires-channel"
+                >namespace introduction</link>. </para>
+            <section xml:id="nsa-port-mappings-parents">
+                <title>Parent Elements of <literal>&lt;port-mappings&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-port-mappings-children">
+                <title>Child Elements of <literal>&lt;port-mappings&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-port-mapping">port-mapping</link></listitem>
+                </itemizedlist>
+            </section>
+        </section>
+        <section xml:id="nsa-port-mapping">
+            <title><literal>&lt;port-mapping&gt;</literal></title>
+            <para>Provides a method to map http ports to https ports when forcing a redirect.</para>
+            <section xml:id="nsa-port-mapping-parents">
+                <title>Parent Elements of <literal>&lt;port-mapping&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-port-mappings">port-mappings</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-port-mapping-attributes">
+                <title><literal>&lt;port-mapping&gt;</literal> Attributes</title>
+                <section xml:id="nsa-port-mapping-http">
+                    <title><literal>http</literal></title>
+                    <para>The http port to use.</para>
+                </section>
+                <section xml:id="nsa-port-mapping-https">
+                    <title><literal>https</literal></title>
+                    <para>The https port to use.</para>
+                </section>
+            </section>
         </section>
         <section xml:id="nsa-remember-me">
-            <title>The <literal>&lt;remember-me&gt;</literal> Element</title>
+            <title><literal>&lt;remember-me&gt;</literal></title>
             <para> Adds the <classname>RememberMeAuthenticationFilter</classname> to the stack. This
                 in turn will be configured with either a
                 <classname>TokenBasedRememberMeServices</classname>, a
                 <classname>PersistentTokenBasedRememberMeServices</classname> or a user-specified
                 bean implementing <interfacename>RememberMeServices</interfacename> depending on the
                 attribute settings. </para>
-            <section>
-                <title><literal>data-source-ref</literal></title>
-                <para> If this is set, <classname>PersistentTokenBasedRememberMeServices</classname>
-                    will be used and configured with a
-                    <classname>JdbcTokenRepositoryImpl</classname> instance. </para>
+            <section xml:id="nsa-remember-me-parents">
+                <title>Parent Elements of <literal>&lt;remember-me&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                </itemizedlist>
             </section>
-            <section>
-                <title><literal>services-ref</literal></title>
-                <para> Allows complete control of the
-                    <interfacename>RememberMeServices</interfacename> implementation that will be
-                    used by the filter. The value should be the <literal>id</literal> of a bean in the application
-                    context which implements this interface. Should also implement
-                    <interfacename>LogoutHandler</interfacename> if a logout filter is in use.</para>
-            </section>
-            <section>
-                <title><literal>token-repository-ref</literal></title>
-                <para> Configures a <classname>PersistentTokenBasedRememberMeServices</classname>
-                    but allows the use of a custom
-                    <interfacename>PersistentTokenRepository</interfacename> bean. </para>
-            </section>
-            <section>
-                <title>The <literal>key</literal> Attribute</title>
-                <para>Maps to the "key" property of
-                    <classname>AbstractRememberMeServices</classname>. Should be set to a unique
-                    value to ensure that remember-me cookies are only valid within the one
-                    application <footnote>
-                    <para>This doesn't affect the use of
-                        <classname>PersistentTokenBasedRememberMeServices</classname>, where the
-                        tokens are stored on the server side.</para>
-                    </footnote>. </para>
-            </section>
-            <section>
-                <title><literal>token-validity-seconds</literal></title>
-                <para> Maps to the <literal>tokenValiditySeconds</literal> property of
-                    <classname>AbstractRememberMeServices</classname>. Specifies the period in
-                    seconds for which the remember-me cookie should be valid. By default it will be
-                    valid for 14 days. </para>
-            </section>
-            <section>
-                <title><literal>user-service-ref</literal></title>
-                <para> The remember-me services implementations require access to a
-                    <interfacename>UserDetailsService</interfacename>, so there has to be one
-                    defined in the application context. If there is only one, it will be selected
-                    and used automatically by the namespace configuration. If there are multiple
-                    instances, you can specify a bean <literal>id</literal> explicitly using this attribute. </para>
-            </section>
-           <section>
-                <title><literal>use-secure-cookie</literal></title>
-                <para>It is recommended that remember-me cookies are only submitted over HTTPS and thus should
-                    be flagged as <quote>secure</quote>. By default, a secure cookie will be used if the
-                    connection over which the login request is made is secure (as it should be).
-                    If you set this property to <literal>false</literal>, secure cookies will not be used.
-                    Setting it to <literal>true</literal> will always set the secure flag on the cookie.
-                    This attribute maps to the <literal>useSecureCookie</literal> property of
-                    <classname>AbstractRememberMeServices</classname>.
-                </para>
-            </section>
-            <section>
-                <title><literal>authentication-success-handler-ref</literal></title>
-                <para>Sets the <code>authenticationSuccessHandler</code> property on the
-                    <classname>RememberMeAuthenticationFilter</classname> if custom navigation is required.
-                    The value should be the name of a <interfacename>AuthenticationSuccessHandler</interfacename>
-                    bean in the application context. </para>
+            <section xml:id="nsa-remember-me-attributes">
+                <title><literal>&lt;remember-me&gt;</literal> Attributes</title>
+                <section xml:id="nsa-remember-me-authentication-success-handler-ref">
+                    <title><literal>authentication-success-handler-ref</literal></title>
+                    <para>Sets the <code>authenticationSuccessHandler</code> property on the
+                        <classname>RememberMeAuthenticationFilter</classname> if custom navigation is required.
+                        The value should be the name of a <interfacename>AuthenticationSuccessHandler</interfacename>
+                        bean in the application context. </para>
+                </section>
+                <section xml:id="nsa-remember-me-data-source-ref">
+                    <title><literal>data-source-ref</literal></title>
+                    <para>A reference to a <interfacename>DataSource</interfacename> bean. If this is set,
+                        <classname>PersistentTokenBasedRememberMeServices</classname> will be used and configured with a
+                        <classname>JdbcTokenRepositoryImpl</classname> instance. </para>
+                </section>
+                <section xml:id="nsa-remember-me-key">
+                    <title><literal>key</literal></title>
+                    <para>Maps to the "key" property of
+                        <classname>AbstractRememberMeServices</classname>. Should be set to a unique
+                        value to ensure that remember-me cookies are only valid within the one
+                        application <footnote>
+                        <para>This doesn't affect the use of
+                            <classname>PersistentTokenBasedRememberMeServices</classname>, where the
+                            tokens are stored on the server side.</para>
+                        </footnote>. If this is not set a secure random value will be generated. Since generating secure
+                        random values can take a while, setting this value explicitly can help improve startup times when
+                        using the remember me functionality.</para>
+                </section>
+                <section xml:id="nsa-remember-me-services-alias">
+                    <title><literal>services-alias</literal></title>
+                    <para>Exports the internally defined <interfacename>RememberMeServices</interfacename> as a bean alias,
+                        allowing it to be used by other beans in the application context.</para>
+                </section>
+                <section xml:id="nsa-remember-me-services-ref">
+                    <title><literal>services-ref</literal></title>
+                    <para> Allows complete control of the
+                        <interfacename>RememberMeServices</interfacename> implementation that will be
+                        used by the filter. The value should be the <literal>id</literal> of a bean in the application
+                        context which implements this interface. Should also implement
+                        <interfacename>LogoutHandler</interfacename> if a logout filter is in use.</para>
+                </section>
+                <section xml:id="nsa-remember-me-token-repository-ref">
+                    <title><literal>token-repository-ref</literal></title>
+                    <para> Configures a <classname>PersistentTokenBasedRememberMeServices</classname>
+                        but allows the use of a custom
+                        <interfacename>PersistentTokenRepository</interfacename> bean. </para>
+                </section>
+                <section xml:id="nsa-remember-me-token-validity-seconds">
+                    <title><literal>token-validity-seconds</literal></title>
+                    <para> Maps to the <literal>tokenValiditySeconds</literal> property of
+                        <classname>AbstractRememberMeServices</classname>. Specifies the period in
+                        seconds for which the remember-me cookie should be valid. By default it will be
+                        valid for 14 days. </para>
+                </section>
+               <section xml:id="nsa-remember-me-use-secure-cookie">
+                    <title><literal>use-secure-cookie</literal></title>
+                    <para>It is recommended that remember-me cookies are only submitted over HTTPS and thus should
+                        be flagged as <quote>secure</quote>. By default, a secure cookie will be used if the
+                        connection over which the login request is made is secure (as it should be).
+                        If you set this property to <literal>false</literal>, secure cookies will not be used.
+                        Setting it to <literal>true</literal> will always set the secure flag on the cookie.
+                        This attribute maps to the <literal>useSecureCookie</literal> property of
+                        <classname>AbstractRememberMeServices</classname>.
+                    </para>
+                </section>
+                <section xml:id="nsa-remember-me-user-service-ref">
+                    <title><literal>user-service-ref</literal></title>
+                    <para> The remember-me services implementations require access to a
+                        <interfacename>UserDetailsService</interfacename>, so there has to be one
+                        defined in the application context. If there is only one, it will be selected
+                        and used automatically by the namespace configuration. If there are multiple
+                        instances, you can specify a bean <literal>id</literal> explicitly using this attribute. </para>
+                </section>
             </section>
         </section>
-        <section xml:id="nsa-session-mgmt">
-            <title>The <literal>&lt;session-management&gt;</literal> Element</title>
-            <para>Session-management related functionality is implemented by the addition of a
+        <section xml:id="nsa-request-cache">
+            <title><literal>&lt;request-cache></literal> Element</title>
+            <para>Sets the <interfacename>RequestCache</interfacename> instance which will be used
+                by the <classname>ExceptionTranslationFilter</classname> to store request
+                information before invoking an
+                <interfacename>AuthenticationEntryPoint</interfacename>. </para>
+            <section xml:id="nsa-request-cache-parents">
+                <title>Parent Elements of <literal>&lt;request-cache&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-request-cache-attributes">
+                <title><literal>&lt;request-cache&gt;</literal> Attributes</title>
+                <section xml:id="nsa-request-cache-ref">
+                    <title><literal>ref</literal></title>
+                    <para>Defines a reference to a Spring bean that is a <interfacename>RequestCache</interfacename>.</para>
+                </section>
+            </section>
+        </section>
+        <section xml:id="nsa-session-management">
+            <title><literal>&lt;session-management&gt;</literal></title>
+            <para> Session-management related functionality is implemented by the addition of a
                 <classname>SessionManagementFilter</classname> to the filter stack.</para>
-            <section xml:id="session-fixation-protection">
-                <title><literal>session-fixation-protection</literal></title>
-                <para> Indicates whether an existing session should be invalidated when a user
-                    authenticates and a new session started. If set to "none" no change will be
-                    made. "newSession" will create a new empty session. "migrateSession" will create
-                    a new session and copy the session attributes to the new session. Defaults to
-                    "migrateSession".</para>
-                <para> If session fixation protection is enabled, the
-                    <classname>SessionManagementFilter</classname> is injected with an appropriately
-                    configured <classname>DefaultSessionAuthenticationStrategy</classname>. See the
-                    Javadoc for this class for more details. </para>
+            <section xml:id="nsa-session-management-parents">
+                <title>Parent Elements of <literal>&lt;session-management&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                </itemizedlist>
             </section>
-            <section xml:id="nsa-invalid-session-url">
-                <title><literal>invalid-session-url</literal></title>
-                <para>Setting this attribute will inject the <classname>SessionManagementFilter</classname>
-                    with a <classname>SimpleRedirectInvalidSessionStrategy</classname> configured with
-                    the attribute value. When an invalid session ID is submitted, the strategy will be invoked,
-                    redirecting to the configured URL.
-                </para>
+            <section xml:id="nsa-session-management-attributes">
+                <title><literal>&lt;session-management&gt;</literal> Attributes</title>
+                <section xml:id="nsa-session-management-invalid-session-url">
+                    <title><literal>invalid-session-url</literal></title>
+                    <para>Setting this attribute will inject the <classname>SessionManagementFilter</classname>
+                        with a <classname>SimpleRedirectInvalidSessionStrategy</classname> configured with
+                        the attribute value. When an invalid session ID is submitted, the strategy will be invoked,
+                        redirecting to the configured URL.
+                    </para>
+                </section>
+                <section xml:id="nsa-session-management-session-authentication-error-url">
+                    <title><literal>session-authentication-error-url</literal></title>
+                    <para>Defines the URL of the error page which should be shown when the SessionAuthenticationStrategy
+                        raises an exception. If not set, an unauthorized (402) error code will be returned to the client.
+                        Note that this attribute doesn't apply if the error occurs during a form-based login, where the URL
+                        for authentication failure will take precedence.</para>
+                </section>
+                <section xml:id="nsa-session-management-session-authentication-strategy-ref">
+                    <title><literal>session-authentication-strategy-ref</literal></title>
+                    <para>Allows injection of the SessionAuthenticationStrategy instance used by the
+                        SessionManagementFilter</para>
+                </section>
+                <section xml:id="nsa-session-management-session-fixation-protection">
+                    <title><literal>session-fixation-protection</literal></title>
+                    <para> Indicates whether an existing session should be invalidated when a user
+                        authenticates and a new session started. If set to "none" no change will be
+                        made. "newSession" will create a new empty session. "migrateSession" will create
+                        a new session and copy the session attributes to the new session. Defaults to
+                        "migrateSession".</para>
+                    <para> If session fixation protection is enabled, the
+                        <classname>SessionManagementFilter</classname> is injected with an appropriately
+                        configured <classname>DefaultSessionAuthenticationStrategy</classname>. See the
+                        Javadoc for this class for more details. </para>
+                </section>
+            </section>
+            <section xml:id="nsa-session-management-children">
+                <title>Child elements of <literal>&lt;session-management&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-concurrency-control">concurrency-control</link></listitem>
+                </itemizedlist>
             </section>
         </section>
-        <section xml:id="nsa-concurrent-session-control">
-            <title>The <literal>&lt;concurrency-control&gt;</literal> Element</title>
+        <section xml:id="nsa-concurrency-control">
+            <title><literal>&lt;concurrency-control&gt;</literal></title>
             <para> Adds support for concurrent session control, allowing limits to be placed on the
                 number of active sessions a user can have. A
                 <classname>ConcurrentSessionFilter</classname> will be created, and a
@@ -425,143 +982,224 @@
                 <interfacename>SessionRegistry</interfacename> (a
                 <classname>SessionRegistryImpl</classname> instance unless the user wishes to use a
                 custom bean) will be created for use by the strategy.</para>
-            <section>
-                <title>The <literal>max-sessions</literal> attribute</title>
-                <para>Maps to the <literal>maximumSessions</literal> property of
-                    <classname>ConcurrentSessionControlStrategy</classname>.</para>
+            <section xml:id="nsa-concurrency-control-parents">
+                <title>Parent Elements of <literal>&lt;concurrency-control&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-session-management">session-management</link></listitem>
+                </itemizedlist>
             </section>
-            <section>
-                <title>The <literal>expired-url</literal> attribute</title>
-                <para> The URL a user will be redirected to if they attempt to use a session which
-                    has been "expired" by the concurrent session controller because the user has
-                    exceeded the number of allowed sessions and has logged in again elsewhere.
-                    Should be set unless <literal>exception-if-maximum-exceeded</literal> is set. If
-                    no value is supplied, an expiry message will just be written directly back to
-                    the response. </para>
+            <section xml:id="nsa-concurrency-control-attributes">
+                <title><literal>&lt;concurrency-control&gt;</literal> Attributes</title>
+                <section xml:id="nsa-concurrency-control-error-if-maximum-exceeded">
+                    <title><literal>error-if-maximum-exceeded</literal></title>
+                    <para>If set to "true" a
+                        <exceptionname>SessionAuthenticationException</exceptionname> will be raised
+                        when a user attempts to exceed the maximum allowed number of sessions. The
+                        default behaviour is to expire the original session. </para>
+                </section>
+                <section xml:id="nsa-concurrency-control-expired-url">
+                    <title><literal>expired-url</literal></title>
+                    <para> The URL a user will be redirected to if they attempt to use a session which
+                        has been "expired" by the concurrent session controller because the user has
+                        exceeded the number of allowed sessions and has logged in again elsewhere.
+                        Should be set unless <literal>exception-if-maximum-exceeded</literal> is set. If
+                        no value is supplied, an expiry message will just be written directly back to
+                        the response. </para>
+                </section>
+                <section xml:id="nsa-concurrency-control-max-sessions">
+                    <title><literal>max-sessions</literal></title>
+                    <para>Maps to the <literal>maximumSessions</literal> property of
+                        <classname>ConcurrentSessionControlStrategy</classname>.</para>
+                </section>
+                <section xml:id="nsa-concurrency-control-session-registry-alias">
+                    <title><literal>session-registry-alias</literal></title>
+                    <para> It can also be useful to have a reference to the internal session registry
+                        for use in your own beans or an admin interface. You can expose the internal bean
+                        using the <literal>session-registry-alias</literal> attribute, giving it a name
+                        that you can use elsewhere in your configuration. </para>
+                </section>
+                <section xml:id="nsa-concurrency-control-session-registry-ref">
+                    <title><literal>session-registry-ref</literal></title>
+                    <para> The user can supply their own <interfacename>SessionRegistry</interfacename>
+                        implementation using the <literal>session-registry-ref</literal> attribute. The
+                        other concurrent session control beans will be wired up to use it. </para>
+                </section>
             </section>
-            <section>
-                <title>The <literal>error-if-maximum-exceeded</literal> attribute</title>
-                <para>If set to "true" a
-                    <exceptionname>SessionAuthenticationException</exceptionname> will be raised
-                    when a user attempts to exceed the maximum allowed number of sessions. The
-                    default behaviour is to expire the original session. </para>
-            </section>
-            <section>
-                <title>The <literal>session-registry-alias</literal> and
-                    <literal>session-registry-ref</literal> attributes</title>
-                <para> The user can supply their own <interfacename>SessionRegistry</interfacename>
-                    implementation using the <literal>session-registry-ref</literal> attribute. The
-                    other concurrent session control beans will be wired up to use it. </para>
-                <para> It can also be useful to have a reference to the internal session registry
-                    for use in your own beans or an admin interface. You can expose the interal bean
-                    using the <literal>session-registry-alias</literal> attribute, giving it a name
-                    that you can use elsewhere in your configuration. </para>
-            </section>
-        </section>
-        <section xml:id="nsa-anonymous">
-            <title>The <literal>&lt;anonymous&gt;</literal> Element</title>
-            <para> Adds an <classname>AnonymousAuthenticationFilter</classname> to the stack and an
-                <classname>AnonymousAuthenticationProvider</classname>. Required if you are using
-                the <literal>IS_AUTHENTICATED_ANONYMOUSLY</literal> attribute. </para>
         </section>
         <section xml:id="nsa-x509">
-            <title>The <literal>&lt;x509&gt;</literal> Element</title>
+            <title><literal>&lt;x509&gt;</literal></title>
             <para> Adds support for X.509 authentication. An
                 <classname>X509AuthenticationFilter</classname> will be added to the stack and an
                 <classname>Http403ForbiddenEntryPoint</classname> bean will be created. The latter
-                will only be used if no other authentication mechanisms are in use (it's only
+                will only be used if no other authentication mechanisms are in use (its only
                 functionality is to return an HTTP 403 error code). A
                 <classname>PreAuthenticatedAuthenticationProvider</classname> will also be created
                 which delegates the loading of user authorities to a
                 <interfacename>UserDetailsService</interfacename>. </para>
-            <section>
-                <title>The <literal>subject-principal-regex</literal> attribute</title>
-                <para> Defines a regular expression which will be used to extract the username from
-                    the certificate (for use with the
-                    <interfacename>UserDetailsService</interfacename>). </para>
+            <section xml:id="nsa-x509-parents">
+                <title>Parent Elements of <literal>&lt;x509&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                </itemizedlist>
             </section>
-            <section>
-                <title>The <literal>user-service-ref</literal> attribute</title>
-                <para> Allows a specific <interfacename>UserDetailsService</interfacename> to be
-                    used with X.509 in the case where multiple instances are configured. If not set,
-                    an attempt will be made to locate a suitable instance automatically and use
-                    that. </para>
-            </section>
-        </section>
-        <section xml:id="nsa-openid-login">
-            <title>The <literal>&lt;openid-login&gt;</literal> Element</title>
-            <para> Similar to <literal>&lt;form-login&gt;</literal> and has the same attributes. The
-                default value for <literal>login-processing-url</literal> is
-                "/j_spring_openid_security_check". An
-                <classname>OpenIDAuthenticationFilter</classname> and
-                <classname>OpenIDAuthenticationProvider</classname> will be registered. The latter
-                requires a reference to a <interfacename>UserDetailsService</interfacename>. Again,
-                this can be specified by <literal>id</literal>, using the <literal>user-service-ref</literal>
-                attribute, or will be located automatically in the application context. </para>
-            <section>
-                <title>The <literal>&lt;attribute-exchange></literal> Element</title>
-                <para>The <literal>attribute-exchange</literal> element defines the list of
-                    attributes which should be requested from the identity provider. More than one
-                    can be used, in which case each must have an <literal>identifier-match</literal>
-                    attribute, containing a regular expression which is matched against the supplied
-                    OpenID identifer. This allows different attribute lists to be fetched from
-                    different providers (Google, Yahoo etc).</para>
+            <section xml:id="nsa-x509-attributes">
+                <title><literal>&lt;x509&gt;</literal> Attributes</title>
+                <section xml:id="nsa-x509-authentication-details-source-ref">
+                    <title><literal>authentication-details-source-ref</literal></title>
+                    <para>A reference to an <interfacename>AuthenticationDetailsSource</interfacename></para>
+                </section>
+                <section xml:id="nsa-x509-subject-principal-regex">
+                    <title><literal>subject-principal-regex</literal></title>
+                    <para> Defines a regular expression which will be used to extract the username from
+                        the certificate (for use with the
+                        <interfacename>UserDetailsService</interfacename>). </para>
+                </section>
+                <section xml:id="nsa-x509-user-service-ref">
+                    <title><literal>user-service-ref</literal></title>
+                    <para> Allows a specific <interfacename>UserDetailsService</interfacename> to be
+                        used with X.509 in the case where multiple instances are configured. If not set,
+                        an attempt will be made to locate a suitable instance automatically and use
+                        that. </para>
+                </section>
             </section>
         </section>
-        <section xml:id="nsa-logout">
-            <title>The <literal>&lt;logout&gt;</literal> Element</title>
-            <para> Adds a <classname>LogoutFilter</classname> to the filter stack. This is
-                configured with a <classname>SecurityContextLogoutHandler</classname>. </para>
-            <section>
-                <title>The <literal>logout-url</literal> attribute</title>
-                <para> The URL which will cause a logout (i.e. which will be processed by the
-                    filter). Defaults to "/j_spring_security_logout". </para>
+        <section xml:id="nsa-filter-chain-map">
+            <title><literal>&lt;filter-chain-map&gt;</literal></title>
+            <para>Used to explicitly configure a FilterChainProxy instance with a FilterChainMap</para>
+            <section xml:id="nsa-filter-chain-map-attributes">
+                <title><literal>&lt;filter-chain-map&gt;</literal> Attributes</title>
+                <section xml:id="nsa-filter-chain-map-path-type">
+                    <title><literal>path-type</literal></title>
+                    <para>Superseded by the
+                        <link xlink:href="#nsa-filter-chain-map-request-matcher">request-matcher</link> attribute</para>
+                </section>
+                <section xml:id="nsa-filter-chain-map-request-matcher">
+                    <title><literal>request-matcher</literal></title>
+                    <para>Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming requests.
+                        Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for
+                        case-insensitive regular expressions.</para>
+                </section>
             </section>
-            <section>
-                <title>The <literal>logout-success-url</literal> attribute</title>
-                <para> The destination URL which the user will be taken to after logging out.
-                    Defaults to "/". </para>
-            </section>
-            <section>
-                <title>The <literal>success-handler-ref</literal> attribute</title>
-                <para>May be used to supply an instance of <interfacename>LogoutSuccessHandler</interfacename>
-                    which will be invoked to control the navigation after logging out.
-                </para>
-            </section>
-            <section>
-                <title>The <literal>invalidate-session</literal> attribute</title>
-                <para> Maps to the <literal>invalidateHttpSession</literal> of the
-                    <classname>SecurityContextLogoutHandler</classname>. Defaults to "true", so the
-                    session will be invalidated on logout.</para>
-            </section>
-            <section>
-                <title>The <literal>delete-cookies</literal> attribute</title>
-                <para>A comma-separated list of the names of cookies which should be deleted when the user logs out.
-                </para>
+            <section xml:id="nsa-filter-chain-map-children">
+                <title>Child Elements of <literal>&lt;filter-chain-map&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-filter-chain">filter-chain</link></listitem>
+                </itemizedlist>
             </section>
         </section>
-        <section>
-            <title>The <literal>&lt;custom-filter></literal> Element</title>
-            <para>This element is used to add a filter to the filter chain. It doesn't create any
-                additional beans but is used to select a bean of type
-                <interfacename>javax.servlet.Filter</interfacename> which is already defined in the
-                appllication context and add that at a particular position in the filter chain
-                maintained by Spring Security. Full details can be found in the namespace
-                chapter.</para>
+        <section xml:id="nsa-filter-chain">
+            <title><literal>&lt;filter-chain&gt;</literal></title>
+            <para>Used within to define a specific URL pattern and the list of filters which apply to the URLs matching
+                that pattern. When multiple filter-chain elements are assembled in a list in order to configure a FilterChainProxy,
+                the most specific patterns must be placed at the top of the list, with most general ones at the bottom.</para>
+            <section xml:id="nsa-filter-chain-parents">
+                <title>Parent Elements of <literal>&lt;filter-chain&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-filter-chain-map">filter-chain-map</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-filter-chain-attributes">
+                <title><literal>&lt;filter-chain&gt;</literal> Attributes</title>
+                <section xml:id="nsa-filter-chain-filters">
+                    <title><literal>filters</literal></title>
+                    <para>A comma separated list of references to Spring beans that implement
+                        <interfacename>Filter</interfacename>. The value "none" means that no
+                        <interfacename>Filter</interfacename>'s should be used for this
+                        <classname>FilterChain</classname>.</para>
+                </section>
+                <section xml:id="nsa-filter-chain-pattern">
+                    <title><literal>pattern</literal></title>
+                    <para>A-pattern that creates RequestMatcher in combination with the
+                        <link xlink:href="#nsa-filter-chain-map-request-matcher">request-matcher</link></para>
+                </section>
+                <section xml:id="nsa-filter-chain-request-matcher-ref">
+                    <title><literal>request-matcher-ref</literal></title>
+                    <para>A reference to a <interfacename>RequestMatcher</interfacename> that will be used to determine if the
+                        <interfacename>Filter</interfacename>'s from the <literal>filters</literal> attribute should be invoked.</para>
+                </section>
+            </section>
         </section>
-        <section xml:id="nsa-request-cache">
-            <title>The <literal>&lt;request-cache></literal> Element</title>
-            <para>Sets the <interfacename>RequestCache</interfacename> instance which will be used
-                by the <classname>ExceptionTranslationFilter</classname> to store request
-                information before invoking an
-                <interfacename>AuthenticationEntryPoint</interfacename>. </para>
+        <section xml:id="nsa-filter-invocation-definition-source">
+            <title><literal>&lt;filter-invocation-definition-source&gt;</literal></title>
+            <para>Deprecated synonym for filter-security-metadata-source</para>
+            <section xml:id="nsa-filter-invocation-definition-source-attributes">
+                <title><literal>&lt;filter-invocation-definition-source&gt;</literal> Attributes</title>
+                <section xml:id="nsa-filter-invocation-definition-source-id">
+                    <title><literal>id</literal></title>
+                    <para>A bean identifier, used for referring to the bean elsewhere in the context.</para>
+                </section>
+                <section xml:id="nsa-filter-invocation-definition-source-lowercase-comparisons">
+                    <title><literal>lowercase-comparisons</literal></title>
+                    <para>Compare after forcing to lowercase</para>
+                </section>
+                <section xml:id="nsa-filter-invocation-definition-source-path-type">
+                    <title><literal>path-type</literal></title>
+                    <para>Superseded by
+                        <link xlink:href="#nsa-filter-invocation-definition-source-request-matcher">request-matcher</link></para>
+                </section>
+                <section xml:id="nsa-filter-invocation-definition-source-request-matcher">
+                    <title><literal>request-matcher</literal></title>
+                    <para>Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming requests.
+                        Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for
+                        case-insensitive regular expressions.</para>
+                </section>
+                <section xml:id="nsa-filter-invocation-definition-source-use-expressions">
+                    <title><literal>use-expressions</literal></title>
+                    <para>Enables the use of expressions in the 'access' attributes in &lt;intercept-url&gt; elements
+                        rather than the traditional list of configuration attributes. Defaults to 'false'. If
+                        enabled, each attribute should contain a single boolean expression. If the expression evaluates to 'true', access will be
+                        granted.</para>
+                </section>
+            </section>
+            <section xml:id="nsa-filter-invocation-definition-source-children">
+                <title>Child Elements of <literal>&lt;filter-invocation-definition-source&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-intercept-url">intercept-url</link></listitem>
+                </itemizedlist>
+            </section>
         </section>
-        <section>
-            <title>The <literal>&lt;http-firewall></literal> Element</title>
-            <para>This is a top-level element which can be used to inject a custom implementation of
-                <interfacename>HttpFirewall</interfacename> into the
-                <classname>FilterChainProxy</classname> created by the namespace. The default
-                implementation should be suitable for most applications.</para>
+        <section xml:id="nsa-filter-security-metadata-source">
+            <title><literal>&lt;filter-security-metadata-source&gt;</literal></title>
+            <para>Used to explicitly configure a FilterSecurityMetadataSource bean for use with a FilterSecurityInterceptor. Usually
+                only needed if you are configuring a FilterChainProxy explicitly, rather than using the
+                &lt;http&gt; element. The intercept-url elements used should only contain pattern, method and access attributes. Any
+                others will result in a configuration error.</para>
+            <section xml:id="nsa-filter-security-metadata-source-attributes">
+                <title><literal>&lt;filter-security-metadata-source&gt;</literal> Attributes</title>
+                <section xml:id="nsa-filter-security-metadata-source-id">
+                    <title><literal>id</literal></title>
+                    <para>A bean identifier, used for referring to the bean elsewhere in the context.</para>
+                </section>
+                <section xml:id="nsa-filter-security-metadata-source-lowercase-comparisons">
+                    <title><literal>lowercase-comparisons</literal></title>
+                    <para>Compare after forcing to lower case</para>
+                </section>
+                <section xml:id="nsa-filter-security-metadata-source-path-type">
+                    <title><literal>path-type</literal></title>
+                    <para>Superseded by
+                        <link xlink:href="#nsa-filter-security-metadata-source-request-matcher">request-matcher</link>
+                        </para>
+                </section>
+                <section xml:id="nsa-filter-security-metadata-source-request-matcher">
+                    <title><literal>request-matcher</literal></title>
+                    <para>Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming requests.
+                        Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for
+                        case-insensitive regular expressions.</para>
+                </section>
+                <section xml:id="nsa-filter-security-metadata-source-use-expressions">
+                    <title><literal>use-expressions</literal></title>
+                    <para>Enables the use of expressions in the 'access' attributes in
+                        &lt;intercept-url&gt; elements rather than the traditional list of configuration attributes. Defaults to 'false'. If
+                        enabled, each attribute should contain a single boolean expression. If the expression evaluates to 'true',
+                        access will be granted.</para>
+                </section>
+            </section>
+            <section xml:id="nsa-filter-security-metadata-source-children">
+                <title>Child Elements of <literal>&lt;filter-security-metadata-source&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-intercept-url">intercept-url</link></listitem>
+                </itemizedlist>
+            </section>
         </section>
     </section>
     <section xml:id="nsa-authentication">
@@ -576,173 +1214,684 @@
             definitions, marked for addition to the list using the
             <literal>authentication-provider</literal> element. </para>
         <section xml:id="nsa-authentication-manager">
-            <title>The <literal>&lt;authentication-manager&gt;</literal> Element</title>
+            <title><literal>&lt;authentication-manager&gt;</literal></title>
             <para> Every Spring Security application which uses the namespace must have include this
                 element somewhere. It is responsible for registering the
                 <interfacename>AuthenticationManager</interfacename> which provides authentication
-                services to the application. It also allows you to define an alias name for the
-                internal instance for use in your own configuration. Its use is described in the
-                <link xlink:href="#ns-auth-manager">namespace introduction</link>. All elements
+                services to the application. All elements
                 which create <interfacename>AuthenticationProvider</interfacename> instances should
                 be children of this element.</para>
-            <para> The element also exposes an <literal>erase-credentials</literal> attribute which
-                maps to the <literal>eraseCredentialsAfterAuthentication</literal> property of the
-                <classname>ProviderManager</classname>. This is discussed in the <link
-                xlink:href="#core-services-erasing-credentials">Core Services</link> chapter.</para>
-            <section xml:id="nsa-authentication-provider">
-                <title>The <literal>&lt;authentication-provider&gt;</literal> Element</title>
-                <para> Unless used with a <literal>ref</literal> attribute, this element is
-                    shorthand for configuring a <link xlink:href="#core-services-dao-provider"
-                    ><classname>DaoAuthenticationProvider</classname></link>.
-                    <classname>DaoAuthenticationProvider</classname> loads user information from a
-                    <interfacename>UserDetailsService</interfacename> and compares the
-                    username/password combination with the values supplied at login. The
-                    <interfacename>UserDetailsService</interfacename> instance can be defined either
-                    by using an available namespace element (<literal>jdbc-user-service</literal> or
-                    by using the <literal>user-service-ref</literal> attribute to point to a bean
-                    defined elsewhere in the application context). You can find examples of these
-                    variations in the <link xlink:href="#ns-auth-providers">namespace
-                    introduction</link>. </para>
-                <section>
-                    <title>The <literal>&lt;password-encoder&gt;</literal> Element</title>
-                    <para>Authentication providers can optionally be configured to use a password
-                        encoder as described in the <link xlink:href="#ns-password-encoder"
-                        >namespace introduction</link>. This will result in the bean being injected
-                        with the appropriate <interfacename>PasswordEncoder</interfacename>
-                        instance, potentially with an accompanying
-                        <interfacename>SaltSource</interfacename> bean to provide salt values for
-                        hashing. </para>
+            <section xml:id="nsa-authentication-manager-attributes">
+                <title><literal>&lt;authentication-manager&gt;</literal> Attributes</title>
+                <section xml:id="nsa-authentication-manager-alias">
+                    <title><literal>alias</literal></title>
+                    <para>This attribute allows you to define an alias name for the
+                        internal instance for use in your own configuration. Its use is described in the
+                        <link xlink:href="#ns-auth-manager">namespace introduction</link>.</para>
+                </section>
+                <section xml:id="nsa-authentication-manager-erase-credentials">
+                    <title><literal>erase-credentials</literal></title>
+                    <para>If set to true, the AuthenticationManger will attempt to clear any credentials data in the
+                        returned Authentication object, once the user has been authenticated. Literally it maps to
+                        the <literal>eraseCredentialsAfterAuthentication</literal> property of the
+                        <classname>ProviderManager</classname>. This is discussed in the <link
+                        xlink:href="#core-services-erasing-credentials">Core Services</link> chapter.</para>
+                </section>
+                <section xml:id="nsa-authentication-manager-id">
+                    <title><literal>id</literal></title>
+                    <para>This attribute allows you to define an id for the internal instance for use in your own
+                        configuration. It is the same a the alias element, but provides a more consistent experience
+                        with elements that use the id attribute.</para>
                 </section>
             </section>
-            <section>
-                <title>Using <literal>&lt;authentication-provider&gt;</literal> to refer to an
-                    <interfacename>AuthenticationProvider</interfacename> Bean</title>
-                <para> If you have written your own
-                    <interfacename>AuthenticationProvider</interfacename> implementation (or want to
-                    configure one of Spring Security's own implementations as a traditional bean for
-                    some reason, then you can use the following syntax to add it to the internal
-                    <classname>ProviderManager</classname>'s list: <programlisting language="xml"><![CDATA[
-  <security:authentication-manager>
-    <security:authentication-provider ref="myAuthenticationProvider" />
-  </security:authentication-manager>
-  <bean id="myAuthenticationProvider" class="com.something.MyAuthenticationProvider"/>
-  ]]></programlisting></para>
+            <section xml:id="nsa-authentication-manager-children">
+                <title>Child Elements of <literal>&lt;authentication-manager&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-authentication-provider">authentication-provider</link></listitem>
+                    <listitem><link xlink:href="#nsa-ldap-authentication-provider">ldap-authentication-provider</link></listitem>
+                </itemizedlist>
+            </section>
+        </section>
+        <section xml:id="nsa-authentication-provider">
+            <title><literal>&lt;authentication-provider&gt;</literal></title>
+            <para> Unless used with a <literal>ref</literal> attribute, this element is
+                shorthand for configuring a <link xlink:href="#core-services-dao-provider"
+                ><classname>DaoAuthenticationProvider</classname></link>.
+                <classname>DaoAuthenticationProvider</classname> loads user information from a
+                <interfacename>UserDetailsService</interfacename> and compares the
+                username/password combination with the values supplied at login. The
+                <interfacename>UserDetailsService</interfacename> instance can be defined either
+                by using an available namespace element (<literal>jdbc-user-service</literal> or
+                by using the <literal>user-service-ref</literal> attribute to point to a bean
+                defined elsewhere in the application context). You can find examples of these
+                variations in the <link xlink:href="#ns-auth-providers">namespace
+                introduction</link>. </para>
+            <section xml:id="nsa-authentication-provider-parents">
+                <title>Parent Elements of <literal>&lt;authentication-provider&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-authentication-manager">authentication-manager</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-authentication-provider-attributes">
+                <title><literal>&lt;authentication-provider&gt;</literal> Attributes</title>
+                <section xml:id="nsa-authentication-provider-ref">
+                    <title><literal>ref</literal></title>
+                    <para>Defines a reference to a Spring bean that implements <interfacename>AuthenticationProvider
+                        </interfacename>.</para>
+                    <para> If you have written your own
+                        <interfacename>AuthenticationProvider</interfacename> implementation (or want to
+                        configure one of Spring Security's own implementations as a traditional bean for
+                        some reason, then you can use the following syntax to add it to the internal
+                        <classname>ProviderManager</classname>'s list: <programlisting language="xml"><![CDATA[
+<security:authentication-manager>
+  <security:authentication-provider ref="myAuthenticationProvider" />
+</security:authentication-manager>
+<bean id="myAuthenticationProvider" class="com.something.MyAuthenticationProvider"/>
+    ]]></programlisting></para>
+                </section>
+                <section xml:id="nsa-authentication-provider-user-service-ref">
+                    <title><literal>user-service-ref</literal></title>
+                    <para>A reference to a bean that implements UserDetailsService that may be created using the standard bean
+                        element or the custom user-service element.</para>
+                </section>
+            </section>
+            <section xml:id="nsa-authentication-provider-children">
+                <title>Child Elements of <literal>&lt;authentication-provider&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-jdbc-user-service">jdbc-user-service</link></listitem>
+                    <listitem><link xlink:href="#nsa-ldap-user-service">ldap-user-service</link></listitem>
+                    <listitem><link xlink:href="#nsa-password-encoder">password-encoder</link></listitem>
+                    <listitem><link xlink:href="#nsa-user-service">user-service</link></listitem>
+                </itemizedlist>
+            </section>
+        </section>
+        <section xml:id="nsa-jdbc-user-service">
+            <title><literal>&lt;jdbc-user-service&gt;</literal></title>
+            <para>Causes creation of a JDBC-based UserDetailsService.</para>
+            <section xml:id="nsa-jdbc-user-service-attributes">
+                <title><literal>&lt;jdbc-user-service&gt;</literal> Attributes</title>
+                <section xml:id="nsa-jdbc-user-service-authorities-by-username-query">
+                    <title><literal>authorities-by-username-query</literal></title>
+                    <para>An SQL statement to query for a user's granted authorities given a username.</para>
+                    <para>The default is
+                        <programlisting><![CDATA[select username, authority from authorities where username = ?]]></programlisting></para>
+                </section>
+                <section xml:id="nsa-jdbc-user-service-cache-ref">
+                    <title><literal>cache-ref</literal></title>
+                    <para>Defines a reference to a cache for use with a UserDetailsService.</para>
+                </section>
+                <section xml:id="nsa-jdbc-user-service-data-source-ref">
+                    <title><literal>data-source-ref</literal></title>
+                    <para>The bean ID of the DataSource which provides the required tables.</para>
+                </section>
+                <section xml:id="nsa-jdbc-user-service-group-authorities-by-username-query">
+                    <title><literal>group-authorities-by-username-query</literal></title>
+                    <para>An SQL statement to query user's group authorities given a username.</para>
+                    <para>The default is
+                        <programlisting><![CDATA[select
+  g.id, g.group_name, ga.authority
+from
+  groups g, group_members gm, group_authorities ga
+where
+  gm.username = ? and g.id = ga.group_id and g.id = gm.group_id]]></programlisting></para>
+                </section>
+                <section xml:id="nsa-jdbc-user-service-id">
+                    <title><literal>id</literal></title>
+                    <para>A bean identifier, used for referring to the bean elsewhere in the context.</para>
+                </section>
+                <section xml:id="nsa-jdbc-user-service-role-prefix">
+                    <title><literal>role-prefix</literal></title>
+                    <para>A non-empty string prefix that will be added to role strings loaded from persistent
+                        storage (default is "ROLE_"). Use the value "none" for no prefix in cases where the default is non-empty.</para>
+                </section>
+                <section xml:id="nsa-jdbc-user-service-users-by-username-query">
+                    <title><literal>users-by-username-query</literal></title>
+                    <para>An SQL statement to query a username, password, and enabled status given a username.</para>
+                    <para>The default is
+                        <programlisting><![CDATA[select username, password, enabled from users where username = ?]]></programlisting></para>
+                </section>
+            </section>
+        </section>
+        <section xml:id="nsa-password-encoder">
+            <title><literal>&lt;password-encoder&gt;</literal></title>
+            <para>Authentication providers can optionally be configured to use a password
+                encoder as described in the <link xlink:href="#ns-password-encoder"
+                >namespace introduction</link>. This will result in the bean being injected
+                with the appropriate <interfacename>PasswordEncoder</interfacename>
+                instance, potentially with an accompanying
+                <interfacename>SaltSource</interfacename> bean to provide salt values for
+                hashing. </para>
+            <section xml:id="nsa-password-encoder-parents">
+                <title>Parent Elements of <literal>&lt;password-encoder&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-authentication-provider">authentication-provider</link></listitem>
+                    <listitem><link xlink:href="#nsa-password-compare">password-compare</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-password-encoder-attributes">
+                <title><literal>&lt;password-encoder&gt;</literal> Attributes</title>
+                <section xml:id="nsa-password-encoder-base64">
+                    <title><literal>base64</literal></title>
+                    <para>Whether a string should be base64 encoded</para>
+                </section>
+                <section xml:id="nsa-password-encoder-hash">
+                    <title><literal>hash</literal></title>
+                    <para>Defines the hashing algorithm used on user passwords. We recommend strongly against using
+                        MD4, as it is a very weak hashing algorithm.</para>
+                </section>
+                <section xml:id="nsa-password-encoder-ref">
+                    <title><literal>ref</literal></title>
+                    <para>Defines a reference to a Spring bean that implements <interfacename>PasswordEncoder
+                        </interfacename>.</para>
+                </section>
+            </section>
+            <section xml:id="nsa-password-encoder-children">
+                <title>Child Elements of <literal>&lt;password-encoder&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-salt-source">salt-source</link></listitem>
+                </itemizedlist>
+            </section>
+        </section>
+        <section xml:id="nsa-salt-source">
+            <title><literal>&lt;salt-source&gt;</literal></title>
+            <para>Password salting strategy. A system-wide constant or a property from the UserDetails object
+                can be used.</para>
+            <section xml:id="nsa-salt-source-parents">
+                <title>Parent Elements of <literal>&lt;salt-source&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-password-encoder">password-encoder</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-salt-source-attributes">
+                <title><literal>&lt;salt-source&gt;</literal> Attributes</title>
+                <section xml:id="nsa-salt-source-ref">
+                    <title><literal>ref</literal></title>
+                    <para>Defines a reference to a Spring bean Id.</para>
+                </section>
+                <section xml:id="nsa-salt-source-system-wide">
+                    <title><literal>system-wide</literal></title>
+                    <para>A single value that will be used as the salt for a password encoder.</para>
+                </section>
+                <section xml:id="nsa-salt-source-user-property">
+                    <title><literal>user-property</literal></title>
+                    <para>A property of the UserDetails object which will be used as salt by a password encoder.
+                        Typically something like "username" might be used.</para>
+                </section>
+            </section>
+        </section>
+        <section xml:id="nsa-user-service">
+            <title><literal>&lt;user-service&gt;</literal></title>
+            <para>Creates an in-memory UserDetailsService from a properties file or a list of "user" child
+                elements. Usernames are converted to lower-case internally to allow for case-insensitive lookups, so
+                this should not be used if case-sensitivity is required.</para>
+            <section xml:id="nsa-user-service-attributes">
+                <title><literal>&lt;user-service&gt;</literal> Attributes</title>
+                <section xml:id="nsa-user-service-id">
+                    <title><literal>id</literal></title>
+                    <para>A bean identifier, used for referring to the bean elsewhere in the context.</para>
+                </section>
+                <section xml:id="nsa-user-service-properties">
+                    <title><literal>properties</literal></title>
+                    <para>The location of a Properties file where each line is in the format of
+                        <programlisting><![CDATA[username=password,grantedAuthority[,grantedAuthority][,enabled|disabled]]]></programlisting></para>
+                </section>
+            </section>
+            <section xml:id="nsa-user-service-children">
+                <title>Child Elements of <literal>&lt;user-service&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-user">user</link></listitem>
+                </itemizedlist>
+            </section>
+        </section>
+        <section xml:id="nsa-user">
+            <title><literal>&lt;user&gt;</literal></title>
+            <para>Represents a user in the application.</para>
+            <section xml:id="nsa-user-parents">
+                <title>Parent Elements of <literal>&lt;user&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-user-service">user-service</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-user-attributes">
+                <title><literal>&lt;user&gt;</literal> Attributes</title>
+                <section xml:id="nsa-user-authorities">
+                    <title><literal>authorities</literal></title>
+                    <para>One of more authorities granted to the user. Separate authorities with a comma
+                        (but no space). For example, "ROLE_USER,ROLE_ADMINISTRATOR"</para>
+                </section>
+                <section xml:id="nsa-user-disabled">
+                    <title><literal>disabled</literal></title>
+                    <para>Can be set to "true" to mark an account as disabled and unusable.</para>
+                </section>
+                <section xml:id="nsa-user-locked">
+                    <title><literal>locked</literal></title>
+                    <para>Can be set to "true" to mark an account as locked and unusable.</para>
+                </section>
+                <section xml:id="nsa-user-name">
+                    <title><literal>name</literal></title>
+                    <para>The username assigned to the user.</para>
+                </section>
+                <section xml:id="nsa-user-password">
+                    <title><literal>password</literal></title>
+                    <para>The password assigned to the user. This may be hashed if the corresponding
+                        authentication provider supports hashing (remember to set the "hash" attribute of the
+                        "user-service" element). This attribute be omitted in the case where the data will
+                        not be used for authentication, but only for accessing authorities. If omitted, the
+                        namespace will generate a random value, preventing its accidental use for
+                        authentication. Cannot be empty.</para>
+                </section>
             </section>
         </section>
     </section>
     <section xml:id="nsa-method-security">
         <title>Method Security</title>
-        <section xml:id="nsa-gms">
-            <title>The <literal>&lt;global-method-security&gt;</literal> Element</title>
+        <section xml:id="nsa-global-method-security">
+            <title><literal>&lt;global-method-security&gt;</literal></title>
             <para> This element is the primary means of adding support for securing methods on
                 Spring Security beans. Methods can be secured by the use of annotations (defined at
                 the interface or class level) or by defining a set of pointcuts as child elements,
                 using AspectJ syntax. </para>
-            <para> Method security uses the same
-                <interfacename>AccessDecisionManager</interfacename> configuration as web security,
-                but this can be overridden as explained above <xref
-                xlink:href="#nsa-access-decision-manager-ref"/>, using the same attribute. </para>
-            <section>
-                <title>The <literal>secured-annotations</literal> and
-                    <literal>jsr250-annotations</literal> Attributes</title>
-                <para> Setting these to "true" will enable support for Spring Security's own
-                    <literal>@Secured</literal> annotations and JSR-250 annotations, respectively.
-                    They are both disabled by default. Use of JSR-250 annotations also adds a
-                    <classname>Jsr250Voter</classname> to the
-                    <interfacename>AccessDecisionManager</interfacename>, so you need to make sure
-                    you do this if you are using a custom implementation and want to use these
-                    annotations. </para>
+            <section xml:id="nsa-global-method-security-attributes">
+                <title><literal>&lt;global-method-security&gt;</literal> Attributes</title>
+                <section xml:id="nsa-global-method-security-access-decision-manager-ref">
+                    <title><literal>access-decision-manager-ref</literal></title>
+                    <para>Method security uses the same <interfacename>AccessDecisionManager</interfacename>
+                        configuration as web security, but this can be overridden using this attribute. By default
+                        an AffirmativeBased implementation is used for with a RoleVoter and an AuthenticatedVoter. </para>
+                </section>
+                <section xml:id="nsa-global-method-security-authentication-manager-ref">
+                    <title><literal>authentication-manager-ref</literal></title>
+                    <para>A reference to an <interfacename>AuthenticationManager</interfacename>
+                        that should be used for method security.</para>
+                </section>
+                <section xml:id="nsa-global-method-security-jsr250-annotations">
+                    <title><literal>jsr250-annotations</literal></title>
+                    <para>Specifies whether JSR-250 style attributes are to be used (for example "RolesAllowed"). This
+                        will require the javax.annotation.security classes on the classpath. Setting this to true also
+                        adds a <classname>Jsr250Voter</classname> to the
+                        <interfacename>AccessDecisionManager</interfacename>, so you need to make sure you do this if
+                        you are using a custom implementation and want to use these annotations.</para>
+                </section>
+                <section xml:id="nsa-global-method-security-metadata-source-ref">
+                    <title><literal>&lt;metadata-source-ref&gt;</literal> Attribute</title>
+                    <para> An external <interfacename>MethodSecurityMetadataSource</interfacename>
+                        instance can be supplied which will take priority over other sources
+                        (such as the default annotations).
+                    </para>
+                </section>
+                <section xml:id="nsa-global-method-security-mode">
+                    <title>The <literal>mode</literal> Attribute</title>
+                    <para>This attribute can be set to <quote>aspectj</quote> to specify that AspectJ
+                        should be used instead of the default Spring AOP. Secured methods must be woven
+                        with the <classname>AnnotationSecurityAspect</classname> from the
+                        <literal>spring-security-aspects</literal> module. </para>
+                </section>
+                <section xml:id="nsa-global-method-security-order">
+                    <title><literal>order</literal></title>
+                    <para>Allows the advice "order" to be set for the method security interceptor.</para>
+                </section>
+                <section xml:id="nsa-global-method-security-pre-post-annotations">
+                    <title><literal>pre-post-annotations</literal></title>
+                    <para>Specifies whether the use of Spring Security's pre and post invocation annotations (@PreFilter,
+                        @PreAuthorize, @PostFilter, @PostAuthorize) should be enabled for this application context.
+                        Defaults to "disabled".</para>
+                </section>
+                <section xml:id="nsa-global-method-security-proxy-target-class">
+                    <title><literal>proxy-target-class</literal></title>
+                    <para>If true, class based proxying will be used instead of interface based proxying.</para>
+                </section>
+                <section xml:id="nsa-global-method-security-run-as-manager-ref">
+                    <title><literal>run-as-manager-ref</literal></title>
+                    <para>A reference to an optional <interfacename>RunAsManager</interfacename> implementation which
+                        will be used by the configured <classname>MethodSecurityInterceptor</classname></para>
+                </section>
+                <section xml:id="nsa-global-method-security-secured-annotations">
+                    <title><literal>secured-annotations</literal></title>
+                    <para>Specifies whether the use of Spring Security's @Secured annotations should be enabled for this
+                        application context. Defaults to "disabled".</para>
+                </section>
             </section>
-            <section xml:id="nsa-custom-metadata-source">
-                <title>The <literal>&lt;metadata-source-ref&gt;</literal> Attribute</title>
-                <para> An external <interfacename>MethodSecurityMetadataSource</interfacename>
-                    instance can be supplied which will take priority over other sources
-                    (such as the default annotations).
-                </para>
-            </section>
-            <section xml:id="nsa-gms-mode">
-                <title>The <literal>mode</literal> Attribute</title>
-                <para>This attribute can be set to <quote>aspectj</quote> to specify that AspectJ
-                    should be used instead of the default Spring AOP. Secured methods must be woven
-                    with the <classname>AnnotationSecurityAspect</classname> from the
-                    <literal>spring-security-aspects</literal> module. </para>
-            </section>
-            <section xml:id="nsa-protect-pointcut">
-                <title>Securing Methods using <literal>&lt;protect-pointcut&gt;</literal></title>
-                <para> Rather than defining security attributes on an individual method or class
-                    basis using the <literal>@Secured</literal> annotation, you can define
-                    cross-cutting security constraints across whole sets of methods and interfaces
-                    in your service layer using the <literal>&lt;protect-pointcut&gt;</literal>
-                    element. This has two attributes: <itemizedlist>
-                    <listitem>
-                        <para><literal>expression</literal> - the pointcut expression</para>
-                    </listitem>
-                    <listitem>
-                        <para><literal>access</literal> - the security attributes which apply</para>
-                    </listitem>
-                    </itemizedlist> You can find an example in the <link
-                    xlink:href="#ns-protect-pointcut">namespace introduction</link>. </para>
-            </section>
-            <section xml:id="nsa-custom-after-invocation">
-                <title>The <literal>&lt;after-invocation-provider&gt;</literal> Element</title>
-                <para> This element can be used to decorate an
-                    <interfacename>AfterInvocationProvider</interfacename> for use by the security
-                    interceptor maintained by the <literal>&lt;global-method-security&gt;</literal>
-                    namespace. You can define zero or more of these within the
-                    <literal>global-method-security</literal> element, each with a
-                    <literal>ref</literal> attribute pointing to an
-                    <interfacename>AfterInvocationProvider</interfacename> bean instance within your
-                    application context. </para>
+            <section xml:id="nsa-global-method-security-children">
+                <title>Child Elements of <literal>&lt;global-method-security&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-after-invocation-provider">after-invocation-provider</link></listitem>
+                    <listitem><link xlink:href="#nsa-expression-handler">expression-handler</link></listitem>
+                    <listitem><link xlink:href="#nsa-pre-post-annotation-handling">pre-post-annotation-handling</link></listitem>
+                    <listitem><link xlink:href="#nsa-protect-pointcut">protect-pointcut</link></listitem>
+                </itemizedlist>
             </section>
         </section>
-        <section xml:id="nsa-ldap">
-            <title>LDAP Namespace Options</title>
-            <para> LDAP is covered in some details in <link xlink:href="#ldap">its own
-                chapter</link>. We will expand on that here with some explanation of how the
-                namespace options map to Spring beans. The LDAP implementation uses Spring LDAP
-                extensively, so some familiarity with that project's API may be useful. </para>
-            <section>
-                <title>Defining the LDAP Server using the <literal>&lt;ldap-server&gt;</literal>
-                    Element</title>
-                <para> This element sets up a Spring LDAP
-                    <interfacename>ContextSource</interfacename> for use by the other LDAP beans,
-                    defining the location of the LDAP server and other information (such as a
-                    username and password, if it doesn't allow anonymous access) for connecting to
-                    it. It can also be used to create an embedded server for testing. Details of the
-                    syntax for both options are covered in the <link xlink:href="#ldap-server">LDAP
-                    chapter</link>. The actual <interfacename>ContextSource</interfacename>
-                    implementation is <classname>DefaultSpringSecurityContextSource</classname>
-                    which extends Spring LDAP's <classname>LdapContextSource</classname> class. The
-                    <literal>manager-dn</literal> and <literal>manager-password</literal> attributes
-                    map to the latter's <literal>userDn</literal> and <literal>password</literal>
-                    properties respectively. </para>
-                <para> If you only have one server defined in your application context, the other
-                    LDAP namespace-defined beans will use it automatically. Otherwise, you can give
-                    the element an "id" attribute and refer to it from other namespace beans using
-                    the <literal>server-ref</literal> attribute. This is actually the bean <literal>id</literal> of the
-                    <literal>ContextSource</literal> instance, if you want to use it in other
-                    traditional Spring beans. </para>
+        <section xml:id="nsa-after-invocation-provider">
+            <title><literal>&lt;after-invocation-provider&gt;</literal></title>
+            <para> This element can be used to decorate an
+                <interfacename>AfterInvocationProvider</interfacename> for use by the security
+                interceptor maintained by the <literal>&lt;global-method-security&gt;</literal>
+                namespace. You can define zero or more of these within the
+                <literal>global-method-security</literal> element, each with a
+                <literal>ref</literal> attribute pointing to an
+                <interfacename>AfterInvocationProvider</interfacename> bean instance within your
+                application context. </para>
+                <section xml:id="nsa-after-invocation-provider-parents">
+                    <title>Parent Elements of <literal>&lt;after-invocation-provider&gt;</literal></title>
+                    <itemizedlist>
+                        <listitem><link xlink:href="#nsa-global-method-security">global-method-security</link></listitem>
+                    </itemizedlist>
+                </section>
+                <section xml:id="nsa-after-invocation-provider-attributes">
+                    <title><literal>&lt;after-invocation-provider&gt;</literal> Attributes</title>
+                    <section xml:id="nsa-after-invocation-provider-ref">
+                        <title><literal>ref</literal></title>
+                        <para>Defines a reference to a Spring bean that implements <interfacename>
+                            AfterInvocationProvider</interfacename>.</para>
+                    </section>
+                </section>
+        </section>
+        <section xml:id="nsa-pre-post-annotation-handling">
+            <title><literal>&lt;pre-post-annotation-handling&gt;</literal></title>
+            <para>Allows the default expression-based mechanism for handling Spring Security's pre and post invocation
+                annotations (@PreFilter, @PreAuthorize, @PostFilter, @PostAuthorize) to be replace entirely. Only
+                applies if these annotations are enabled.</para>
+            <section xml:id="nsa-pre-post-annotation-handling-parents">
+                <title>Parent Elements of <literal>&lt;pre-post-annotation-handling&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-global-method-security">global-method-security</link></listitem>
+                </itemizedlist>
             </section>
-            <section xml:id="nsa-ldap-authentication-provider">
-                <title>The <literal>&lt;ldap-authentication-provider&gt;</literal> Element</title>
-                <para> This element is shorthand for the creation of an
-                    <classname>LdapAuthenticationProvider</classname> instance. By default this will
-                    be configured with a <classname>BindAuthenticator</classname> instance and a
-                    <classname>DefaultAuthoritiesPopulator</classname>. As with all namespace
-                    authentication providers, it must be included as a child of the
-                    <literal>authentication-provider</literal> element.</para>
-                <section>
-                    <title>The <literal>user-dn-pattern</literal> Attribute</title>
-                    <para> If your users are at a fixed location in the directory (i.e. you can work
+            <section xml:id="nsa-pre-post-annotation-handling-children">
+                <title>Child Elements of <literal>&lt;pre-post-annotation-handling&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-invocation-attribute-factory">invocation-attribute-factory</link></listitem>
+                    <listitem><link xlink:href="#nsa-post-invocation-advice">post-invocation-advice</link></listitem>
+                    <listitem><link xlink:href="#nsa-pre-invocation-advice">pre-invocation-advice</link></listitem>
+                </itemizedlist>
+            </section>
+        </section>
+        <section xml:id="nsa-invocation-attribute-factory">
+            <title><literal>&lt;invocation-attribute-factory&gt;</literal></title>
+            <para>Defines the PrePostInvocationAttributeFactory instance which is used to generate pre and post
+                invocation metadata from the annotated methods.</para>
+            <section xml:id="nsa-invocation-attribute-factory-parents">
+                <title>Parent Elements of <literal>&lt;invocation-attribute-factory&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-pre-post-annotation-handling">pre-post-annotation-handling</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-invocation-attribute-factory-attributes">
+                <title><literal>&lt;invocation-attribute-factory&gt;</literal> Attributes</title>
+                <section xml:id="nsa-invocation-attribute-factory-ref">
+                    <title><literal>ref</literal></title>
+                    <para>Defines a reference to a Spring bean Id.</para>
+                </section>
+            </section>
+        </section>
+        <section xml:id="nsa-post-invocation-advice">
+            <title><literal>&lt;post-invocation-advice&gt;</literal></title>
+            <para>Customizes the <classname>PostInvocationAdviceProvider</classname> with the ref as the
+                <classname>PostInvocationAuthorizationAdvice</classname> for the &lt;pre-post-annotation-handling&gt;
+                element.</para>
+            <section xml:id="nsa-post-invocation-advice-parents">
+                <title>Parent Elements of <literal>&lt;post-invocation-advice&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-pre-post-annotation-handling">pre-post-annotation-handling</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-post-invocation-advice-attributes">
+                <title><literal>&lt;post-invocation-advice&gt;</literal> Attributes</title>
+                <section xml:id="nsa-post-invocation-advice-ref">
+                    <title><literal>ref</literal></title>
+                    <para>Defines a reference to a Spring bean Id.</para>
+                </section>
+            </section>
+        </section>
+        <section xml:id="nsa-pre-invocation-advice">
+            <title><literal>&lt;pre-invocation-advice&gt;</literal></title>
+            <para>Customizes the <classname>PreInvocationAuthorizationAdviceVoter</classname> with the ref as the
+                <classname>PreInvocationAuthorizationAdviceVoter</classname> for the
+                &lt;pre-post-annotation-handling&gt; element.</para>
+            <section xml:id="nsa-pre-invocation-advice-parents">
+                <title>Parent Elements of <literal>&lt;pre-invocation-advice&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-pre-post-annotation-handling">pre-post-annotation-handling</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-pre-invocation-advice-attributes">
+                <title><literal>&lt;pre-invocation-advice&gt;</literal> Attributes</title>
+                <section xml:id="nsa-pre-invocation-advice-ref">
+                    <title><literal>ref</literal></title>
+                    <para>Defines a reference to a Spring bean Id.</para>
+                </section>
+            </section>
+        </section>
+        <section xml:id="nsa-protect-pointcut">
+            <title>Securing Methods using <literal>&lt;protect-pointcut&gt;</literal></title>
+            <para> Rather than defining security attributes on an individual method or class
+                basis using the <literal>@Secured</literal> annotation, you can define
+                cross-cutting security constraints across whole sets of methods and interfaces
+                in your service layer using the <literal>&lt;protect-pointcut&gt;</literal>
+                element. You can find an example in the <link
+                xlink:href="#ns-protect-pointcut">namespace introduction</link>.</para>
+            <section xml:id="nsa-protect-pointcut-parents">
+                <title>Parent Elements of <literal>&lt;protect-pointcut&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-global-method-security">global-method-security</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-protect-pointcut-attributes">
+                <title><literal>&lt;protect-pointcut&gt;</literal> Attributes</title>
+                <section xml:id="nsa-protect-pointcut-access">
+                    <title><literal>access</literal></title>
+                    <para>Access configuration attributes list that applies to all methods matching the pointcut,
+                        e.g. "ROLE_A,ROLE_B"</para>
+                </section>
+                <section xml:id="nsa-protect-pointcut-expression">
+                    <title><literal>expression</literal></title>
+                    <para>An AspectJ expression, including the 'execution' keyword. For example, 'execution(int
+                        com.foo.TargetObject.countLength(String))' (without the quotes).</para>
+                </section>
+            </section>
+        </section>
+        <section xml:id="nsa-intercept-methods">
+            <title><literal>&lt;intercept-methods&gt;</literal></title>
+            <para>Can be used inside a bean definition to add a security interceptor to the bean and set up access
+                configuration attributes for the bean's methods</para>
+            <section xml:id="nsa-intercept-methods-attributes">
+                <title><literal>&lt;intercept-methods&gt;</literal> Attributes</title>
+                <section xml:id="nsa-intercept-methods-access-decision-manager-ref">
+                    <title><literal>access-decision-manager-ref</literal></title>
+                    <para>Optional AccessDecisionManager bean ID to be used by the created method security interceptor.</para>
+                </section>
+            </section>
+            <section xml:id="nsa-intercept-methods-children">
+                <title>Child Elements of <literal>&lt;intercept-methods&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-protect">protect</link></listitem>
+                </itemizedlist>
+            </section>
+        </section>
+        <section xml:id="nsa-method-security-metadata-source">
+            <title><literal>&lt;method-security-metadata-source&gt;</literal></title>
+            <para>Creates a MethodSecurityMetadataSource instance</para>
+            <section xml:id="nsa-method-security-metadata-source-attributes">
+                <title><literal>&lt;method-security-metadata-source&gt;</literal> Attributes</title>
+                <section xml:id="nsa-method-security-metadata-source-id">
+                    <title><literal>id</literal></title>
+                    <para>A bean identifier, used for referring to the bean elsewhere in the context.</para>
+                </section>
+                <section xml:id="nsa-method-security-metadata-source-use-expressions">
+                    <title><literal>use-expressions</literal></title>
+                    <para>Enables the use of expressions in the 'access' attributes in
+                        &lt;intercept-url&gt; elements rather than the traditional list of configuration attributes.
+                        Defaults to 'false'. If enabled, each attribute should contain a single boolean expression.
+                        If the expression evaluates to 'true', access will be granted.</para>
+                </section>
+            </section>
+            <section xml:id="nsa-method-security-metadata-source-children">
+                <title>Child Elements of <literal>&lt;method-security-metadata-source&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-protect">protect</link></listitem>
+                </itemizedlist>
+            </section>
+        </section>
+        <section xml:id="nsa-protect">
+            <title><literal>&lt;protect&gt;</literal></title>
+            <para>Defines a protected method and the access control configuration attributes that apply to it. We
+                strongly advise you NOT to mix "protect" declarations with any services provided "global-method-security".</para>
+            <section xml:id="nsa-protect-parents">
+                <title>Parent Elements of <literal>&lt;protect&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-intercept-methods">intercept-methods</link></listitem>
+                    <listitem><link xlink:href="#nsa-method-security-metadata-source">method-security-metadata-source</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-protect-attributes">
+                <title><literal>&lt;protect&gt;</literal> Attributes</title>
+                <section xml:id="nsa-protect-access">
+                    <title><literal>access</literal></title>
+                    <para>Access configuration attributes list that applies to the method, e.g. "ROLE_A,ROLE_B".</para>
+                </section>
+                <section xml:id="nsa-protect-method">
+                    <title><literal>method</literal></title>
+                    <para>A method name</para>
+                </section>
+            </section>
+        </section>
+    </section>
+    <section xml:id="nsa-ldap">
+        <title>LDAP Namespace Options</title>
+        <para> LDAP is covered in some details in <link xlink:href="#ldap">its own
+            chapter</link>. We will expand on that here with some explanation of how the
+            namespace options map to Spring beans. The LDAP implementation uses Spring LDAP
+            extensively, so some familiarity with that project's API may be useful. </para>
+        <section xml:id="nsa-ldap-server">
+            <title>Defining the LDAP Server using the <literal>&lt;ldap-server&gt;</literal>
+                Element</title>
+            <para> This element sets up a Spring LDAP
+                <interfacename>ContextSource</interfacename> for use by the other LDAP beans,
+                defining the location of the LDAP server and other information (such as a
+                username and password, if it doesn't allow anonymous access) for connecting to
+                it. It can also be used to create an embedded server for testing. Details of the
+                syntax for both options are covered in the <link xlink:href="#ldap-server">LDAP
+                chapter</link>. The actual <interfacename>ContextSource</interfacename>
+                implementation is <classname>DefaultSpringSecurityContextSource</classname>
+                which extends Spring LDAP's <classname>LdapContextSource</classname> class. The
+                <literal>manager-dn</literal> and <literal>manager-password</literal> attributes
+                map to the latter's <literal>userDn</literal> and <literal>password</literal>
+                properties respectively. </para>
+            <para> If you only have one server defined in your application context, the other
+                LDAP namespace-defined beans will use it automatically. Otherwise, you can give
+                the element an "id" attribute and refer to it from other namespace beans using
+                the <literal>server-ref</literal> attribute. This is actually the bean <literal>id</literal> of the
+                <literal>ContextSource</literal> instance, if you want to use it in other
+                traditional Spring beans. </para>
+            <section xml:id="nsa-ldap-server-attributes">
+                <title><literal>&lt;ldap-server&gt;</literal> Attributes</title>
+                <section xml:id="nsa-ldap-server-id">
+                    <title><literal>id</literal></title>
+                    <para>A bean identifier, used for referring to the bean elsewhere in the context.</para>
+                </section>
+                <section xml:id="nsa-ldap-server-ldif">
+                    <title><literal>ldif</literal></title>
+                    <para>Explicitly specifies an ldif file resource to load into an embedded LDAP server. The ldiff
+                        is should be a Spring resource pattern (i.e. classpath:init.ldiff). The default is
+                        classpath*:*.ldiff</para>
+                </section>
+                <section xml:id="nsa-ldap-server-manager-dn">
+                    <title><literal>manager-dn</literal></title>
+                    <para>Username (DN) of the "manager" user identity which will be used to authenticate to a
+                        (non-embedded) LDAP server. If omitted, anonymous access will be used.</para>
+                </section>
+                <section xml:id="nsa-ldap-server-manager-password">
+                    <title><literal>manager-password</literal></title>
+                    <para>The password for the manager DN. This is required if the manager-dn is specified.</para>
+                </section>
+                <section xml:id="nsa-ldap-server-port">
+                    <title><literal>port</literal></title>
+                    <para>Specifies an IP port number. Used to configure an embedded LDAP server, for example. The
+                        default value is 33389.</para>
+                </section>
+                <section xml:id="nsa-ldap-server-root">
+                    <title><literal>root</literal></title>
+                    <para>Optional root suffix for the embedded LDAP server. Default is "dc=springframework,dc=org"
+                        </para>
+                </section>
+                <section xml:id="nsa-ldap-server-url">
+                    <title><literal>url</literal></title>
+                    <para>Specifies the ldap server URL when not using the embedded LDAP server.</para>
+                </section>
+            </section>
+        </section>
+        <section xml:id="nsa-ldap-authentication-provider">
+            <title><literal>&lt;ldap-authentication-provider&gt;</literal></title>
+            <para> This element is shorthand for the creation of an
+                <classname>LdapAuthenticationProvider</classname> instance. By default this will
+                be configured with a <classname>BindAuthenticator</classname> instance and a
+                <classname>DefaultAuthoritiesPopulator</classname>. As with all namespace
+                authentication providers, it must be included as a child of the
+                <literal>authentication-provider</literal> element.</para>
+            <section xml:id="nsa-ldap-authentication-provider-parents">
+                <title>Parent Elements of <literal>&lt;ldap-authentication-provider&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-authentication-manager">authentication-manager</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-ldap-authentication-provider-attributes">
+                <title><literal>&lt;ldap-authentication-provider&gt;</literal> Attributes</title>
+                <section xml:id="nsa-ldap-authentication-provider-group-role-attribute">
+                    <title><literal>group-role-attribute</literal></title>
+                    <para>The LDAP attribute name which contains the role name which will be used within Spring
+                        Security. Maps to the <classname>DefaultLdapAuthoritiesPopulator</classname>'s
+                        <literal>groupRoleAttribute</literal> property. Defaults to "cn".</para>
+                </section>
+                <section xml:id="nsa-ldap-authentication-provider-group-search-base">
+                    <title><literal>group-search-base</literal></title>
+                    <para>Search base for group membership searches. Maps to the
+                        <classname>DefaultLdapAuthoritiesPopulator</classname>'s <literal>groupSearchBase</literal>
+                        constructor argument. Defaults to "" (searching from the root).</para>
+                </section>
+                <section xml:id="nsa-ldap-authentication-provider-group-search-filter">
+                    <title><literal>group-search-filter</literal></title>
+                    <para>Group search filter. Maps to the <classname>DefaultLdapAuthoritiesPopulator</classname>'s
+                        <literal>groupSearchFilter</literal> property. Defaults to (uniqueMember={0}).
+                        The substituted parameter is the DN of the user.</para>
+                </section>
+                <section xml:id="nsa-ldap-authentication-provider-role-prefix">
+                    <title><literal>role-prefix</literal></title>
+                    <para>A non-empty string prefix that will be added to role strings loaded from persistent.
+                        Maps to the <classname>DefaultLdapAuthoritiesPopulator</classname>'s
+                        <literal>rolePrefix</literal> property. Defaults to "ROLE_". Use the value "none" for
+                        no prefix in cases where the default is non-empty.</para>
+                </section>
+                <section xml:id="nsa-ldap-authentication-provider-server-ref">
+                    <title><literal>server-ref</literal></title>
+                    <para>The optional server to use. If omitted, and a default LDAP server is registered (using
+                        &lt;ldap-server&gt; with no Id), that server will be used.</para>
+                </section>
+                <section xml:id="nsa-ldap-authentication-provider-user-context-mapper-ref">
+                    <title><literal>user-context-mapper-ref</literal></title>
+                    <para>Allows explicit customization of the loaded user object by specifying a
+                        UserDetailsContextMapper bean which will be called with the context information
+                        from the user's directory entry</para>
+                </section>
+                <section xml:id="nsa-ldap-authentication-provider-user-details-class">
+                    <title><literal>user-details-class</literal></title>
+                    <para>Allows the objectClass of the user entry to be specified. If set, the framework will
+                        attempt to load standard attributes for the defined class into the returned UserDetails
+                        object</para>
+                </section>
+                <section xml:id="nsa-ldap-authentication-provider-user-dn-pattern">
+                    <title><literal>user-dn-pattern</literal></title>
+                    <para>If your users are at a fixed location in the directory (i.e. you can work
                         out the DN directly from the username without doing a directory search), you
                         can use this attribute to map directly to the DN. It maps directly to the
                         <literal>userDnPatterns</literal> property of
-                        <classname>AbstractLdapAuthenticator</classname>. </para>
+                        <classname>AbstractLdapAuthenticator</classname>. The value is a specific pattern
+                        used to build the user's DN, for example "uid={0},ou=people". The key
+                        "{0}" must be present and will be substituted with the username.</para>
                 </section>
-                <section>
-                    <title>The <literal>user-search-base</literal> and
-                        <literal>user-search-filter</literal> Attributes</title>
-                    <para> If you need to perform a search to locate the user in the directory, then
+                <section xml:id="nsa-ldap-authentication-provider-user-search-base">
+                    <title><literal>user-search-base</literal></title>
+                    <para>Search base for user searches. Defaults to "". Only used with a 'user-search-filter'.</para>
+                    <para>If you need to perform a search to locate the user in the directory, then
                         you can set these attributes to control the search. The
                         <classname>BindAuthenticator</classname> will be configured with a
                         <classname>FilterBasedLdapUserSearch</classname> and the attribute values
@@ -752,40 +1901,124 @@
                         <literal>user-search-filter="(uid={0})"</literal> and
                         <literal>user-search-base=""</literal> will be used. </para>
                 </section>
-                <section>
-                    <title><literal>group-search-filter</literal>,
-                        <literal>group-search-base</literal>,
-                        <literal>group-role-attribute</literal> and <literal>role-prefix</literal>
-                        Attributes</title>
-                    <para> The value of <literal>group-search-base</literal> is mapped to the
-                        <literal>groupSearchBase</literal> constructor argument of
-                        <classname>DefaultAuthoritiesPopulator</classname> and defaults to
-                        "ou=groups". The default filter value is "(uniqueMember={0})", which assumes
-                        that the entry is of type "groupOfUniqueNames".
-                        <literal>group-role-attribute</literal> maps to the
-                        <literal>groupRoleAttribute</literal> attribute and defaults to "cn".
-                        Similarly <literal>role-prefix</literal> maps to
-                        <literal>rolePrefix</literal> and defaults to "ROLE_". </para>
-                </section>
-                <section>
-                    <title>The <literal>&lt;password-compare&gt;</literal> Element</title>
-                    <para> This is used as child element to <literal>&lt;ldap-provider&gt;</literal>
-                        and switches the authentication strategy from
-                        <classname>BindAuthenticator</classname> to
-                        <classname>PasswordComparisonAuthenticator</classname>. This can optionally
-                        be supplied with a <literal>hash</literal> attribute or with a child
-                        <literal>&lt;password-encoder&gt;</literal> element to hash the password
-                        before submitting it to the directory for comparison. </para>
+                <section xml:id="nsa-ldap-authentication-provider-user-search-filter">
+                    <title><literal>user-search-filter</literal></title>
+                    <para>The LDAP filter used to search for users (optional). For example "(uid={0})". The
+                        substituted parameter is the user's login name.</para>
+                    <para>If you need to perform a search to locate the user in the directory, then
+                        you can set these attributes to control the search. The
+                        <classname>BindAuthenticator</classname> will be configured with a
+                        <classname>FilterBasedLdapUserSearch</classname> and the attribute values
+                        map directly to the first two arguments of that bean's constructor. If these
+                        attributes aren't set and no <literal>user-dn-pattern</literal> has been
+                        supplied as an alternative, then the default search values of
+                        <literal>user-search-filter="(uid={0})"</literal> and
+                        <literal>user-search-base=""</literal> will be used. </para>
                 </section>
             </section>
-            <section>
-                <title>The <literal>&lt;ldap-user-service&gt;</literal> Element</title>
-                <para> This element configures an LDAP
-                    <interfacename>UserDetailsService</interfacename>. The class used is
-                    <classname>LdapUserDetailsService</classname> which is a combination of a
-                    <classname>FilterBasedLdapUserSearch</classname> and a
-                    <classname>DefaultAuthoritiesPopulator</classname>. The attributes it supports
-                    have the same usage as in <literal>&lt;ldap-provider&gt;</literal>. </para>
+            <section xml:id="nsa-ldap-authentication-provider-children">
+                <title>Child Elements of <literal>&lt;ldap-authentication-provider&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-password-compare">password-compare</link></listitem>
+                </itemizedlist>
+            </section>
+        </section>
+        <section xml:id="nsa-password-compare">
+            <title><literal>&lt;password-compare&gt;</literal></title>
+            <para> This is used as child element to <literal>&lt;ldap-provider&gt;</literal>
+                and switches the authentication strategy from
+                <classname>BindAuthenticator</classname> to
+                <classname>PasswordComparisonAuthenticator</classname>.</para>
+            <section xml:id="nsa-password-compare-parents">
+                <title>Parent Elements of <literal>&lt;password-compare&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-ldap-authentication-provider">ldap-authentication-provider</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-password-compare-attributes">
+                <title><literal>&lt;password-compare&gt;</literal> Attributes</title>
+                <section xml:id="nsa-password-compare-hash">
+                    <title><literal>hash</literal></title>
+                    <para>Defines the hashing algorithm used on user passwords. We recommend strongly against
+                        using MD4, as it is a very weak hashing algorithm.</para>
+                </section>
+                <section xml:id="nsa-password-compare-password-attribute">
+                    <title><literal>password-attribute</literal></title>
+                    <para>The attribute in the directory which contains the user password. Defaults to "userPassword".
+                        </para>
+                </section>
+            </section>
+            <section xml:id="nsa-password-compare-children">
+                <title>Child Elements of <literal>&lt;password-compare&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-password-encoder">password-encoder</link></listitem>
+                </itemizedlist>
+            </section>
+        </section>
+        <section xml:id="nsa-ldap-user-service">
+            <title><literal>&lt;ldap-user-service&gt;</literal></title>
+            <para> This element configures an LDAP
+                <interfacename>UserDetailsService</interfacename>. The class used is
+                <classname>LdapUserDetailsService</classname> which is a combination of a
+                <classname>FilterBasedLdapUserSearch</classname> and a
+                <classname>DefaultLdapAuthoritiesPopulator</classname>. The attributes it supports
+                have the same usage as in <literal>&lt;ldap-provider&gt;</literal>. </para>
+            <section xml:id="nsa-ldap-user-service-attributes">
+                <title><literal>&lt;ldap-user-service&gt;</literal> Attributes</title>
+                <section xml:id="nsa-ldap-user-service-cache-ref">
+                    <title><literal>cache-ref</literal></title>
+                    <para>Defines a reference to a cache for use with a UserDetailsService.</para>
+                </section>
+                <section xml:id="nsa-ldap-user-service-group-role-attribute">
+                    <title><literal>group-role-attribute</literal></title>
+                    <para>The LDAP attribute name which contains the role name which will be used within Spring
+                        Security. Defaults to "cn".</para>
+                </section>
+                <section xml:id="nsa-ldap-user-service-group-search-base">
+                    <title><literal>group-search-base</literal></title>
+                    <para>Search base for group membership searches. Defaults to "" (searching from the root).</para>
+                </section>
+                <section xml:id="nsa-ldap-user-service-group-search-filter">
+                    <title><literal>group-search-filter</literal></title>
+                    <para>Group search filter. Defaults to (uniqueMember={0}). The substituted parameter is the DN of
+                        the user.</para>
+                </section>
+                <section xml:id="nsa-ldap-user-service-id">
+                    <title><literal>id</literal></title>
+                    <para>A bean identifier, used for referring to the bean elsewhere in the context.</para>
+                </section>
+                <section xml:id="nsa-ldap-user-service-role-prefix">
+                    <title><literal>role-prefix</literal></title>
+                    <para>A non-empty string prefix that will be added to role strings loaded from persistent
+                        storage (e.g. "ROLE_"). Use the value "none" for no prefix in cases where the default is
+                        non-empty.</para>
+                </section>
+                <section xml:id="nsa-ldap-user-service-server-ref">
+                    <title><literal>server-ref</literal></title>
+                    <para>The optional server to use. If omitted, and a default LDAP server is registered (using
+                            &lt;ldap-server&gt; with no Id), that server will be used.</para>
+                </section>
+                <section xml:id="nsa-ldap-user-service-user-context-mapper-ref">
+                    <title><literal>user-context-mapper-ref</literal></title>
+                    <para>Allows explicit customization of the loaded user object by specifying a
+                        UserDetailsContextMapper bean which will be called with the context information from the
+                        user's directory entry</para>
+                </section>
+                <section xml:id="nsa-ldap-user-service-user-details-class">
+                    <title><literal>user-details-class</literal></title>
+                    <para>Allows the objectClass of the user entry to be specified. If set, the framework will
+                        attempt to load standard attributes for the defined class into the returned UserDetails object
+                        </para>
+                </section>
+                <section xml:id="nsa-ldap-user-service-user-search-base">
+                    <title><literal>user-search-base</literal></title>
+                    <para>Search base for user searches. Defaults to "". Only used with a 'user-search-filter'.</para>
+                </section>
+                <section xml:id="nsa-ldap-user-service-user-search-filter">
+                    <title><literal>user-search-filter</literal></title>
+                    <para>The LDAP filter used to search for users (optional). For example "(uid={0})". The
+                        substituted parameter is the user's login name.</para>
+                </section>
             </section>
         </section>
     </section>

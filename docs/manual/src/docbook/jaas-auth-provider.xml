@@ -225,7 +225,7 @@ JAASTest {
             Subject subject = Subject.getSubject(AccessController.getContext());
 ]]></programlisting>
             This integration can easily be configured using the
-            <link xlink:href="#nsa-jaas-api-provision">jaas-api-provision</link> attribute. This
+            <link xlink:href="#nsa-http-jaas-api-provision">jaas-api-provision</link> attribute. This
             feature is useful when integrating with legacy or external API's that rely on the
             JAAS Subject being populated.</para>
     </section>
