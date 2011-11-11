@@ -44,6 +44,10 @@ dependencies {
                 "cglib:cglib-nodep:2.2"
 }
 
+test {
+    inputs.file file("$rootDir/docs/manual/src/docbook/appendix-namespace.xml")
+}
+
 integrationTest {
     systemProperties['apacheDSWorkDir'] = "${buildDir}/apacheDSWork"
 }
