@@ -162,8 +162,6 @@ class SpringSecurityXsdParser {
         e.childElmts = elements(n)
         e.attrs = attrs(n)
         e.attrs.addAll(attrgrps(n))
-        e.childElmts.values()*.indent()
-        e.attrs*.indent()
         e.attrs*.elmt = e
         e.childElmts.values()*.each { it.parentElmts.put(e.name,e) }
 

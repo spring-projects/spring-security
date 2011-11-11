@@ -23,27 +23,11 @@ package org.springframework.security.config.doc
  * @see XsdDocumentedSpec
  */
 class Attribute {
-    def prefix = ""
     def name
     def desc
     def elmt
 
-    def indent() {
-        prefix += "    "
-    }
-
-    def toDocbook(prefix) {
-        def indent = "    "+prefix
-        """
-${prefix}<section xml:id="${id}">
-${indent}<title><literal>${name}</literal></title>
-${indent}<para>${desc}</para>
-${prefix}</section>"""
-    }
     def getId() {
         return "${elmt.id}-${name}".toString()
-    }
-    public String toString() {
-        prefix + '@' + name + " - " + desc
     }
 }

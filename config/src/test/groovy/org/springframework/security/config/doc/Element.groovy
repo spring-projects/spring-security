@@ -23,7 +23,6 @@ package org.springframework.security.config.doc
 * @see XsdDocumentedSpec
 */
 class Element {
-    def prefix = ""
     def name
     def desc
     def attrs
@@ -33,12 +32,6 @@ class Element {
     def subGrps = []
     def childElmts = [:]
     def parentElmts = [:]
-
-    def indent() {
-        prefix += "    "
-        attrs*.indent()
-        childElmts.values()*.indent()
-    }
 
     def getId() {
         return "nsa-${name}".toString()
@@ -81,73 +74,6 @@ class Element {
             ids.add id+'-parents'
         }
         ids
-    }
-
-    def getFullName() {
-        parentElmt ? parentElmt.fullName+"-"+name : name
-    }
-
-    def docbookParentElmts(prefix) {
-        if(parentElmts.empty) {
-            return ''
-        }
-        def indent = prefix+'    '
-        def parents = """
-${prefix}<section xml:id="${id}-parents">
-${indent}<title>Parent Elements of <literal>&lt;${name}&gt;</literal></title>
-${indent}<orderedlist>"""
-        parentElmts.sort {l,r -> l.name.compareTo(r.name)}.each {
-            parents += """\n${indent}    <listitem><link xlink:href="#${it.id}">${it.name}</link></listitem>"""
-        }
-        parents += "\n${indent}</orderedlist>\n${prefix}</section>"
-        parents
-    }
-
-    def docbookChildElmts(prefix) {
-        if(!childElmts) {
-            return ''
-        }
-        def indent = prefix+'    '
-        def children = """
-${prefix}<section xml:id="${id}-children">
-${indent}<title>Child Elements of <literal>&lt;${name}&gt;</literal></title>
-${indent}<orderedlist>"""
-        childElmts.values().sort {l,r -> l.name.compareTo(r.name)}.each {
-            children += """\n${indent}    <listitem><link xlink:href="#${it.id}">${it.name}</link></listitem>"""
-        }
-        children += "\n${indent}</orderedlist>\n${prefix}</section>"
-        children
-    }
-    def toDocbook(prefix) {
-        def indent = prefix+'    '
-        def parentElmt = docbookParentElmts(indent)
-        def attributes = ""
-        attrs.sort {l,r -> l.name.compareTo(r.name)}.each {
-            attributes += it.toDocbook(indent+'    ')
-        }
-        if(attributes) {
-            attributes = """
-${indent}<section xml:id="${id}-attributes">
-${indent}    <title><literal>&lt;${name}&gt;</literal> Attributes</title>${attributes}
-${indent}</section>"""
-        }
-        def childElmts = docbookChildElmts(indent)
-        def elements = ""
-        childElmts.values().sort {l,r -> l.name.compareTo(r.name)}.each {
-            elements += it.toDocbook(prefix)
-        }
-        """
-${prefix}<section xml:id="${id}">
-${indent}<title><literal>&lt;${name}&gt;</literal></title>
-${indent}<para>${desc}</para>${parentElmt}${attributes}${childElmts}
-${prefix}</section>${elements}"""
-    }
-
-    public String toString() {
-        def result = prefix + name + " - " + desc+"\n"
-        attrs.sort {l,r -> l.name.compareTo(r.name)}.each { result+= it.toString()}
-        childElmts.values().sort {l,r -> l.name.compareTo(r.name)}.each { result+= it.toString() }
-        result
     }
 
     def getAllChildElmts() {
