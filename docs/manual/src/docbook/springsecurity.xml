@@ -93,6 +93,7 @@
                 plus links to articles, videos and tutorials. </para>
         </partintro>
         <xi:include href="introduction.xml"/>
+        <xi:include href="new-3-1.xml"/>
         <xi:include href="namespace-config.xml"/>
         <xi:include href="samples.xml"/>
         <xi:include href="community.xml"/>
