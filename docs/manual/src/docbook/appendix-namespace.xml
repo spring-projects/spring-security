@@ -603,8 +603,12 @@
                 </section>
                 <section xml:id="nsa-logout-logout-success-url">
                     <title>The <literal>logout-success-url</literal> attribute</title>
-                    <para> The destination URL which the user will be taken to after logging out.
+                    <para>The destination URL which the user will be taken to after logging out.
                         Defaults to "/". </para>
+                    <para>Setting this attribute will inject the <classname>SessionManagementFilter</classname>
+                        with a <classname>SimpleRedirectInvalidSessionStrategy</classname> configured with
+                        the attribute value. When an invalid session ID is submitted, the strategy will be invoked,
+                        redirecting to the configured URL.</para>
                 </section>
                 <section xml:id="nsa-logout-logout-url">
                     <title>The <literal>logout-url</literal> attribute</title>
