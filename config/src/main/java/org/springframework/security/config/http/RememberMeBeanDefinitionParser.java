@@ -98,8 +98,9 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 
             services.getPropertyValues().addPropertyValue("userDetailsService", uds);
 
-            if ("true".equals(element.getAttribute(ATT_SECURE_COOKIE))) {
-                services.getPropertyValues().addPropertyValue("useSecureCookie", true);
+            String useSecureCookie = element.getAttribute(ATT_SECURE_COOKIE);
+            if (StringUtils.hasText(useSecureCookie)) {
+                services.getPropertyValues().addPropertyValue("useSecureCookie", Boolean.valueOf(useSecureCookie));
             }
 
             if (tokenValiditySet) {

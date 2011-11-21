@@ -31,7 +31,7 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
 
         expect:
         rememberMeServices() instanceof PersistentTokenBasedRememberMeServices
-        !FieldUtils.getFieldValue(rememberMeServices(), "useSecureCookie")
+        FieldUtils.getFieldValue(rememberMeServices(), "useSecureCookie") == null
     }
 
     def rememberMeServiceWorksWithDataSourceRef() {
@@ -110,6 +110,17 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
         createAppContext(AUTH_PROVIDER_XML)
         expect:
         FieldUtils.getFieldValue(rememberMeServices(), "useSecureCookie")
+    }
+
+    // SEC-1827
+    def rememberMeSecureCookieAttributeFalse() {
+        httpAutoConfig () {
+            'remember-me'('key': 'ourkey', 'use-secure-cookie':'false')
+        }
+
+        createAppContext(AUTH_PROVIDER_XML)
+        expect: 'useSecureCookie is false'
+        FieldUtils.getFieldValue(rememberMeServices(), "useSecureCookie") == Boolean.FALSE
     }
 
     def 'Negative token-validity is rejected with persistent implementation'() {
