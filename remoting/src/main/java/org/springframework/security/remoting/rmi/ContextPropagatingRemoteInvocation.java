@@ -65,7 +65,7 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
         Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
 
         if (currentUser != null) {
-            principal = currentUser.getPrincipal().toString();
+            principal = currentUser.getName();
             credentials = currentUser.getCredentials().toString();
         } else {
             principal = credentials = null;
