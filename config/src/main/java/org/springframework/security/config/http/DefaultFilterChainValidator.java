@@ -172,6 +172,10 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
             logger.warn("Anonymous access to the login page doesn't appear to be enabled. This is almost certainly " +
                     "an error. Please check your configuration allows unauthenticated access to the configured " +
                     "login page. (Simulated access was rejected: " + e + ")");
+        } catch (Exception e) {
+            // May happen legitimately if a filter-chain request matcher requires more request data than that provided
+            // by the dummy request used when creating the filter invocation. See SEC-1878
+            logger.info("Unable to check access to the login page to determine if anonymous access is allowed. This might be an error, but can happen under normal circumstances.", e);
         }
     }
 
