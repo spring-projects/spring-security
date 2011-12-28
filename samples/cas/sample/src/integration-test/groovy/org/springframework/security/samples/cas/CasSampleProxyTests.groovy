@@ -32,7 +32,7 @@ import spock.lang.*
  * @author Rob Winch
  */
 @Stepwise
-class CasSampleProxySpec extends BaseSpec {
+class CasSampleProxyTests extends AbstractCasTests {
     HttpClient client = new HttpClient()
     @Shared String casServerUrl = LoginPage.url.replaceFirst('/login','')
     @Shared JettyCasService service = new JettyCasService().init(casServerUrl)

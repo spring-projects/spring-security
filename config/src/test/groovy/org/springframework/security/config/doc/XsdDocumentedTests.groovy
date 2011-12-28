@@ -23,7 +23,7 @@ import spock.lang.*
  *
  * @author Rob Winch
  */
-class XsdDocumentedSpec extends Specification {
+class XsdDocumentedTests extends Specification {
 
     def ignoredIds = ['nsa-any-user-service','nsa-any-user-service-parents','nsa-authentication','nsa-ldap','nsa-method-security','nsa-web']
     @Shared def appendix = new File('../docs/manual/src/docbook/appendix-namespace.xml')

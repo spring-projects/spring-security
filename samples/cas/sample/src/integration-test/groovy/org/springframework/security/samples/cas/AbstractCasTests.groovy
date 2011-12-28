@@ -25,7 +25,7 @@ import geb.spock.*
  *
  * @author Rob Winch
  */
-class BaseSpec extends GebReportingSpec {
+class AbstractCasTests extends GebReportingSpec {
 
     /**
      * All relative urls will be interpreted against this. The host can change based upon a system property. This

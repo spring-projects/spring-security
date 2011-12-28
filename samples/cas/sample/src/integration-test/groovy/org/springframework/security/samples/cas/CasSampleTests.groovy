@@ -30,7 +30,7 @@ import spock.lang.Stepwise;
  * @author Rob Winch
  */
 @Stepwise
-class CasSampleSpec extends BaseSpec {
+class CasSampleTests extends AbstractCasTests {
     @Shared String casServerLogoutUrl = LoginPage.url.replaceFirst('/login','/logout')
 
     def 'access home page with unauthenticated user succeeds'() {
