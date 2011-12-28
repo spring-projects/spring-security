@@ -19,7 +19,7 @@ import org.springframework.security.core.authority.mapping.MapBasedAttributes2Gr
  * @author Ruud Senden
  */
 @SuppressWarnings("unchecked")
-public class MapBasedAttributes2GrantedAuthoritiesMapperTest {
+public class MapBasedAttributes2GrantedAuthoritiesMapperTests {
 
     @Test(expected=IllegalArgumentException.class)
     public void testAfterPropertiesSetNoMap() throws Exception {

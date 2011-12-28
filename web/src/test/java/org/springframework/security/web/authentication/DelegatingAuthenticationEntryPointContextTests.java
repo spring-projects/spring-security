@@ -18,7 +18,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:org/springframework/security/web/authentication/DelegatingAuthenticationEntryPointTest-context.xml")
-public class DelegatingAuthenticationEntryPointContextTest {
+public class DelegatingAuthenticationEntryPointContextTests {
 
     @Autowired
     private DelegatingAuthenticationEntryPoint daep;

@@ -24,7 +24,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
  * @author Mike Wiesner
  * @since 3.0.2
  */
-public class ELRequestMatcherTest {
+public class ELRequestMatcherTests {
 
     @Test
     public void testHasIpAddressTrue() throws Exception {
