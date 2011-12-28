@@ -19,7 +19,7 @@ import junit.framework.TestCase;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-public class AuthzImplAuthorizeTagTest extends TestCase {
+public class AuthzImplAuthorizeTagTests extends TestCase {
     //~ Instance fields ================================================================================================
 
     private Authz authz = new AuthzImpl();

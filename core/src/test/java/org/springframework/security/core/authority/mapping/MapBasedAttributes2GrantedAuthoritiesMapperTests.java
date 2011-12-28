@@ -13,7 +13,7 @@ import java.util.*;
  * @author Ruud Senden
  */
 @SuppressWarnings("unchecked")
-public class MapBasedAttributes2GrantedAuthoritiesMapperTest {
+public class MapBasedAttributes2GrantedAuthoritiesMapperTests {
 
     @Test(expected=IllegalArgumentException.class)
     public void testAfterPropertiesSetNoMap() throws Exception {

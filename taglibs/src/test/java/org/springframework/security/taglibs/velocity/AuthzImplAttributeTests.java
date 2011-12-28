@@ -22,7 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import javax.servlet.jsp.JspException;
 
 
-public class AuthzImplAttributeTest extends TestCase {
+public class AuthzImplAttributeTests extends TestCase {
     //~ Instance fields ================================================================================================
 
     private final Authz authz = new AuthzImpl();

@@ -29,18 +29,18 @@ import org.springframework.security.web.util.RequestMatcher;
 
 /**
  * Test class for {@link DelegatingAuthenticationEntryPoint}
- * 
+ *
  * @author Mike Wiesner
  * @since 3.0.2
  * @version $Id:$
  */
-public class DelegatingAuthenticationEntryPointTest {
-    
+public class DelegatingAuthenticationEntryPointTests {
+
     private DelegatingAuthenticationEntryPoint daep;
     private LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints;
     private AuthenticationEntryPoint defaultEntryPoint;
     private HttpServletRequest request = new MockHttpServletRequest();
-    
+
     @Before
     public void before() {
         defaultEntryPoint = mock(AuthenticationEntryPoint.class);
@@ -48,20 +48,20 @@ public class DelegatingAuthenticationEntryPointTest {
         daep = new DelegatingAuthenticationEntryPoint(entryPoints);
         daep.setDefaultEntryPoint(defaultEntryPoint);
     }
-    
+
     @Test
     public void testDefaultEntryPoint() throws Exception {
         AuthenticationEntryPoint firstAEP = mock(AuthenticationEntryPoint.class);
         RequestMatcher firstRM = mock(RequestMatcher.class);
         when(firstRM.matches(request)).thenReturn(false);
         entryPoints.put(firstRM, firstAEP);
-        
+
         daep.commence(request, null, null);
-        
+
         verify(defaultEntryPoint).commence(request, null, null);
         verify(firstAEP, never()).commence(request, null, null);
     }
-    
+
     @Test
     public void testFirstEntryPoint() throws Exception {
         AuthenticationEntryPoint firstAEP = mock(AuthenticationEntryPoint.class);
@@ -71,15 +71,15 @@ public class DelegatingAuthenticationEntryPointTest {
         when(firstRM.matches(request)).thenReturn(true);
         entryPoints.put(firstRM, firstAEP);
         entryPoints.put(secondRM, secondAEP);
-        
+
         daep.commence(request, null, null);
-        
+
         verify(firstAEP).commence(request, null, null);
         verify(secondAEP, never()).commence(request, null, null);
         verify(defaultEntryPoint, never()).commence(request, null, null);
         verify(secondRM, never()).matches(request);
     }
-    
+
     @Test
     public void testSecondEntryPoint() throws Exception {
         AuthenticationEntryPoint firstAEP = mock(AuthenticationEntryPoint.class);
@@ -90,9 +90,9 @@ public class DelegatingAuthenticationEntryPointTest {
         when(secondRM.matches(request)).thenReturn(true);
         entryPoints.put(firstRM, firstAEP);
         entryPoints.put(secondRM, secondAEP);
-        
+
         daep.commence(request, null, null);
-        
+
         verify(secondAEP).commence(request, null, null);
         verify(firstAEP, never()).commence(request, null, null);
         verify(defaultEntryPoint, never()).commence(request, null, null);

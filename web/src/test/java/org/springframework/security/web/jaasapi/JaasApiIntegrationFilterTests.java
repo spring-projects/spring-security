@@ -57,7 +57,7 @@ import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter;
  *
  * @author Rob Winch
  */
-public class JaasApiIntegrationFilterTest {
+public class JaasApiIntegrationFilterTests {
     //~ Instance fields ================================================================================================
     private JaasApiIntegrationFilter filter;
     private MockHttpServletRequest request;

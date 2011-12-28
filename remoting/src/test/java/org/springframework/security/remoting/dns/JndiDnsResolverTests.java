@@ -34,7 +34,7 @@ import org.junit.Test;
  * @author Mike Wiesner
  * @since 3.0
  */
-public class JndiDnsResolverTest {
+public class JndiDnsResolverTests {
 
     private JndiDnsResolver dnsResolver;
     private InitialContextFactory contextFactory;
