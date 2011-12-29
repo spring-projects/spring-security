@@ -27,6 +27,7 @@ import java.util.*;
  *
  * @author Ray Krueger
  * @author Luke Taylor
+ * @author Rob Winch
  */
 public class HttpSessionDestroyedEvent extends SessionDestroyedEvent {
     //~ Constructors ===================================================================================================
@@ -42,16 +43,17 @@ public class HttpSessionDestroyedEvent extends SessionDestroyedEvent {
     @SuppressWarnings("unchecked")
     @Override
     public List<SecurityContext> getSecurityContexts() {
-        HttpSession session = (HttpSession)getSource();
+        HttpSession session = getSession();
 
         Enumeration<String> attributes = session.getAttributeNames();
 
         ArrayList<SecurityContext> contexts = new ArrayList<SecurityContext>();
 
         while(attributes.hasMoreElements()) {
-            Object attribute = attributes.nextElement();
-            if (attribute instanceof SecurityContext) {
-                contexts.add((SecurityContext) attribute);
+            String attributeName = attributes.nextElement();
+            Object attributeValue = session.getAttribute(attributeName);
+            if (attributeValue instanceof SecurityContext) {
+                contexts.add((SecurityContext) attributeValue);
             }
         }
 
