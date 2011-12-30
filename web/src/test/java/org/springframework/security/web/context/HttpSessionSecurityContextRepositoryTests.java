@@ -6,6 +6,7 @@ import static org.springframework.security.web.context.HttpSessionSecurityContex
 
 import javax.servlet.http.HttpSession;
 
+import org.junit.After;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -17,6 +18,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 public class HttpSessionSecurityContextRepositoryTests {
     private final TestingAuthenticationToken testToken = new TestingAuthenticationToken("someone", "passwd", "ROLE_A");
+
+    @After
+    public void tearDown() {
+        SecurityContextHolder.clearContext();
+    }
 
     @Test
     public void sessionIsntCreatedIfContextDoesntChange() throws Exception {
