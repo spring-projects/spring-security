@@ -3,6 +3,7 @@ package org.springframework.security.web.context;
 import static org.junit.Assert.*;
 import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.*;
 
+import org.junit.After;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -18,6 +19,11 @@ import org.springframework.security.web.context.SaveContextOnUpdateOrErrorRespon
 
 public class HttpSessionSecurityContextRepositoryTests {
     private final TestingAuthenticationToken testToken = new TestingAuthenticationToken("someone", "passwd", "ROLE_A");
+
+    @After
+    public void tearDown() {
+        SecurityContextHolder.clearContext();
+    }
 
     @Test(expected=IllegalArgumentException.class)
     @Deprecated
