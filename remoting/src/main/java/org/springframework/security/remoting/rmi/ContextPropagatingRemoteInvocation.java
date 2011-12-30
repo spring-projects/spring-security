@@ -66,13 +66,17 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
 
         if (currentUser != null) {
             principal = currentUser.getName();
-            credentials = currentUser.getCredentials().toString();
+            Object userCredentials = currentUser.getCredentials();
+            credentials = userCredentials == null ? null : userCredentials.toString();
         } else {
             principal = credentials = null;
         }
 
         if (logger.isDebugEnabled()) {
             logger.debug("RemoteInvocation now has principal: " + principal);
+            if(credentials == null) {
+                logger.debug("RemoteInvocation now has null credentials.");
+            }
         }
     }
 

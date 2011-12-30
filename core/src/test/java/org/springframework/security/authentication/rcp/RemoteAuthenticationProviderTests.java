@@ -21,6 +21,7 @@ import junit.framework.TestCase;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 
@@ -75,6 +76,17 @@ public class RemoteAuthenticationProviderTests extends TestCase {
         assertEquals("rod", result.getPrincipal());
         assertEquals("password", result.getCredentials());
         assertTrue(AuthorityUtils.authorityListToSet(result.getAuthorities()).contains("foo"));
+    }
+
+    public void testNullCredentialsDoesNotCauseNullPointerException() {
+        RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
+        provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(false));
+
+        try {
+            provider.authenticate(new UsernamePasswordAuthenticationToken("rod", null));
+            fail("Expected Exception");
+        } catch(RemoteAuthenticationException success) {}
+
     }
 
     public void testSupports() {

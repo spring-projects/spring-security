@@ -22,6 +22,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.util.SimpleMethodInvocation;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.lang.reflect.Method;
 
@@ -94,5 +95,14 @@ public class ContextPropagatingRemoteInvocationTests extends TestCase {
         SecurityContextHolder.clearContext(); // unnecessary, but for explicitness
 
         assertEquals("some_string Authentication empty", remoteInvocation.invoke(new TargetObject()));
+    }
+
+    // SEC-1867
+    public void testNullCredentials() throws Exception {
+        Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("rod", null);
+        SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
+
+        ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
+        assertEquals(null, ReflectionTestUtils.getField(remoteInvocation, "credentials"));
     }
 }
