@@ -35,9 +35,11 @@ import java.util.*;
  *
  * @author Luke Taylor
  * @author Ben Alex
+ * @author Rob Winch
  * @since 2.0
  */
 public final class SecurityNamespaceHandler implements NamespaceHandler {
+    private static final String FILTER_CHAIN_PROXY_CLASSNAME = "org.springframework.security.web.FilterChainProxy";
     private final Log logger = LogFactory.getLog(getClass());
     private final Map<String, BeanDefinitionParser> parsers = new HashMap<String, BeanDefinitionParser>();
     private final BeanDefinitionDecorator interceptMethodsBDD = new InterceptMethodsBeanDefinitionDecorator();
@@ -119,8 +121,16 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
     }
 
     private void reportMissingWebClasses(String nodeName, ParserContext pc, Node node) {
-        pc.getReaderContext().fatal("The classes from the spring-security-web jar " +
-                "(or one of its dependencies) are not available. You need these to use <" + nodeName + ">", node);
+        String errorMessage = "The classes from the spring-security-web jar "
+                + "(or one of its dependencies) are not available. You need these to use <" + nodeName + ">";
+        try {
+            ClassUtils.forName(FILTER_CHAIN_PROXY_CLASSNAME, getClass().getClassLoader());
+            // no details available
+            pc.getReaderContext().fatal(errorMessage, node);
+        } catch (Throwable cause) {
+            // provide details on why it could not be loaded
+            pc.getReaderContext().fatal(errorMessage, node, cause);
+        }
     }
 
     public void init() {
@@ -141,8 +151,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
         parsers.put(Elements.METHOD_SECURITY_METADATA_SOURCE, new MethodSecurityMetadataSourceBeanDefinitionParser());
 
         // Only load the web-namespace parsers if the web classes are available
-        try {
-            ClassUtils.forName("org.springframework.security.web.FilterChainProxy", getClass().getClassLoader());
+        if(ClassUtils.isPresent(FILTER_CHAIN_PROXY_CLASSNAME, getClass().getClassLoader())) {
             parsers.put(Elements.DEBUG, new DebugBeanDefinitionParser());
             parsers.put(Elements.HTTP, new HttpSecurityBeanDefinitionParser());
             parsers.put(Elements.HTTP_FIREWALL, new HttpFirewallBeanDefinitionParser());
@@ -150,8 +159,6 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
             parsers.put(Elements.FILTER_SECURITY_METADATA_SOURCE, new FilterInvocationSecurityMetadataSourceParser());
             parsers.put(Elements.FILTER_CHAIN, new FilterChainBeanDefinitionParser());
             filterChainMapBDD = new FilterChainMapBeanDefinitionDecorator();
-        } catch(Throwable t) {
-            logger.error("Failed to load required web classes", t);
         }
     }
 
