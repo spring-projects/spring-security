@@ -63,7 +63,7 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 
         if (StringUtils.hasText(successHandlerRef)) {
             if (StringUtils.hasText(logoutSuccessUrl)) {
-                pc.getReaderContext().error("Use " + ATT_LOGOUT_URL + " or " + ATT_LOGOUT_HANDLER + ", but not both",
+                pc.getReaderContext().error("Use " + ATT_LOGOUT_SUCCESS_URL + " or " + ATT_LOGOUT_HANDLER + ", but not both",
                         pc.extractSource(element));
             }
             builder.addConstructorArgReference(successHandlerRef);
