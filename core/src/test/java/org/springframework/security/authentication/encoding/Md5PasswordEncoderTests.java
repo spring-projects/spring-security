@@ -20,8 +20,9 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 
+
 /**
- * <p>TestCase for PlaintextPasswordEncoder.</p>
+ * <p>TestCase for Md5PasswordEncoder.</p>
  *
  * @author colin sampaleanu
  * @author Ben Alex
@@ -45,8 +46,10 @@ public class Md5PasswordEncoderTests {
     }
 
     @Test
-    public void nonAsciiPasswordHasCorrectHash() {
+    public void nonAsciiPasswordHasCorrectHash() throws Exception{
         Md5PasswordEncoder md5 = new Md5PasswordEncoder();
+        // $ echo -n "你好" | md5
+        // 7eca689f0d3389d9dea66ae112e5cfd7
         String encodedPassword = md5.encodePassword("\u4F60\u597d", null);
         assertEquals("7eca689f0d3389d9dea66ae112e5cfd7", encodedPassword);
     }
