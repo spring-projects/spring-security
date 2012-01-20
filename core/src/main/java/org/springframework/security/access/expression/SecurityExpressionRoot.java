@@ -20,7 +20,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * @author Luke Taylor
  * @since 3.0
  */
-public abstract class SecurityExpressionRoot {
+public abstract class SecurityExpressionRoot implements SecurityExpressionOperations {
     protected final Authentication authentication;
     private AuthenticationTrustResolver trustResolver;
     private RoleHierarchy roleHierarchy;
@@ -45,19 +45,35 @@ public abstract class SecurityExpressionRoot {
         this.authentication = a;
     }
 
-    public final boolean hasAuthority(String authority) {
+    /* (non-Javadoc)
+	 * @see org.springframework.security.access.expression.SecurityExpressionOperations#hasAuthority(java.lang.String)
+	 */
+    @Override
+	public final boolean hasAuthority(String authority) {
         return hasRole(authority);
     }
 
-    public final boolean hasAnyAuthority(String... authorities) {
+    /* (non-Javadoc)
+	 * @see org.springframework.security.access.expression.SecurityExpressionOperations#hasAnyAuthority(java.lang.String)
+	 */
+    @Override
+	public final boolean hasAnyAuthority(String... authorities) {
         return hasAnyRole(authorities);
     }
 
-    public final boolean hasRole(String role) {
+    /* (non-Javadoc)
+	 * @see org.springframework.security.access.expression.SecurityExpressionOperations#hasRole(java.lang.String)
+	 */
+    @Override
+	public final boolean hasRole(String role) {
         return getAuthoritySet().contains(role);
     }
 
-    public final boolean hasAnyRole(String... roles) {
+    /* (non-Javadoc)
+	 * @see org.springframework.security.access.expression.SecurityExpressionOperations#hasAnyRole(java.lang.String)
+	 */
+    @Override
+	public final boolean hasAnyRole(String... roles) {
         Set<String> roleSet = getAuthoritySet();
 
         for (String role : roles) {
@@ -73,27 +89,51 @@ public abstract class SecurityExpressionRoot {
         return authentication;
     }
 
-    public final boolean permitAll() {
+    /* (non-Javadoc)
+	 * @see org.springframework.security.access.expression.SecurityExpressionOperations#permitAll()
+	 */
+    @Override
+	public final boolean permitAll() {
         return true;
     }
 
-    public final boolean denyAll() {
+    /* (non-Javadoc)
+	 * @see org.springframework.security.access.expression.SecurityExpressionOperations#denyAll()
+	 */
+    @Override
+	public final boolean denyAll() {
         return false;
     }
 
-    public final boolean isAnonymous() {
+    /* (non-Javadoc)
+	 * @see org.springframework.security.access.expression.SecurityExpressionOperations#isAnonymous()
+	 */
+    @Override
+	public final boolean isAnonymous() {
         return trustResolver.isAnonymous(authentication);
     }
 
-    public final boolean isAuthenticated() {
+    /* (non-Javadoc)
+	 * @see org.springframework.security.access.expression.SecurityExpressionOperations#isAuthenticated()
+	 */
+    @Override
+	public final boolean isAuthenticated() {
         return !isAnonymous();
     }
 
-    public final boolean isRememberMe() {
+    /* (non-Javadoc)
+	 * @see org.springframework.security.access.expression.SecurityExpressionOperations#isRememberMe()
+	 */
+    @Override
+	public final boolean isRememberMe() {
         return trustResolver.isRememberMe(authentication);
     }
 
-    public final boolean isFullyAuthenticated() {
+    /* (non-Javadoc)
+	 * @see org.springframework.security.access.expression.SecurityExpressionOperations#isFullyAuthenticated()
+	 */
+    @Override
+	public final boolean isFullyAuthenticated() {
         return !trustResolver.isAnonymous(authentication) && !trustResolver.isRememberMe(authentication);
     }
 
@@ -124,11 +164,19 @@ public abstract class SecurityExpressionRoot {
         return roles;
     }
 
-    public boolean hasPermission(Object target, Object permission) {
+    /* (non-Javadoc)
+	 * @see org.springframework.security.access.expression.SecurityExpressionOperations#hasPermission(java.lang.Object, java.lang.Object)
+	 */
+    @Override
+	public boolean hasPermission(Object target, Object permission) {
         return permissionEvaluator.hasPermission(authentication, target, permission);
     }
 
-    public boolean hasPermission(Object targetId, String targetType, Object permission) {
+    /* (non-Javadoc)
+	 * @see org.springframework.security.access.expression.SecurityExpressionOperations#hasPermission(java.lang.Object, java.lang.String, java.lang.Object)
+	 */
+    @Override
+	public boolean hasPermission(Object targetId, String targetType, Object permission) {
         return permissionEvaluator.hasPermission(authentication, (Serializable)targetId, targetType, permission);
     }
 

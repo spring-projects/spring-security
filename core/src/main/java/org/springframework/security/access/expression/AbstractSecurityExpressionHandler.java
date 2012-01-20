@@ -10,8 +10,6 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
-import org.springframework.security.authentication.AuthenticationTrustResolver;
-import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
 
 /**
@@ -22,7 +20,6 @@ import org.springframework.security.core.Authentication;
  * @since 3.1
  */
 public abstract class AbstractSecurityExpressionHandler<T> implements SecurityExpressionHandler<T>, ApplicationContextAware {
-    private final AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
     private final ExpressionParser expressionParser = new SpelExpressionParser();
     private BeanResolver br;
     private RoleHierarchy roleHierarchy;
@@ -34,17 +31,14 @@ public abstract class AbstractSecurityExpressionHandler<T> implements SecurityEx
 
     /**
      * Invokes the internal template methods to create {@code StandardEvaluationContext} and {@code SecurityExpressionRoot}
-     * objects. The root object will be injected with references to the application context, the {@code roleHierarchy}
-     * if set, and an {@code AuthenticationTrustResolver}.
+     * objects.
      *
      * @param authentication the current authentication object
      * @param invocation the invocation (filter, method, channel)
      * @return the context object for use in evaluating the expression, populated with a suitable root object.
      */
     public final EvaluationContext createEvaluationContext(Authentication authentication, T invocation) {
-        SecurityExpressionRoot root = createSecurityExpressionRoot(authentication, invocation);
-        root.setTrustResolver(trustResolver);
-        root.setRoleHierarchy(roleHierarchy);
+        SecurityExpressionOperations root = createSecurityExpressionRoot(authentication, invocation);
         StandardEvaluationContext ctx = createEvaluationContextInternal(authentication, invocation);
         ctx.setBeanResolver(br);
         ctx.setRootObject(root);
@@ -73,8 +67,12 @@ public abstract class AbstractSecurityExpressionHandler<T> implements SecurityEx
      * @param invocation the invocation (filter, method, channel)
      * @return the object wh
      */
-    protected abstract SecurityExpressionRoot createSecurityExpressionRoot(Authentication authentication, T invocation);
+    protected abstract SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication, T invocation);
 
+    protected RoleHierarchy getRoleHierarchy() {
+		return roleHierarchy;
+	}
+    
     public void setRoleHierarchy(RoleHierarchy roleHierarchy) {
         this.roleHierarchy = roleHierarchy;
     }

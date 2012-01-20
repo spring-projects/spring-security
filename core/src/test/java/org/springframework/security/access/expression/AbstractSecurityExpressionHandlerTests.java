@@ -23,7 +23,7 @@ public class AbstractSecurityExpressionHandlerTests {
     public void setUp() throws Exception {
         handler = new AbstractSecurityExpressionHandler<Object>() {
             @Override
-            protected SecurityExpressionRoot createSecurityExpressionRoot(Authentication authentication, Object o) {
+            protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication, Object o) {
                 return new SecurityExpressionRoot(authentication) {};
             }
         };

@@ -1,7 +1,10 @@
 package org.springframework.security.access.expression.method;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
@@ -12,11 +15,11 @@ import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.access.PermissionCacheOptimizer;
-import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.AbstractSecurityExpressionHandler;
-import org.springframework.security.access.expression.DenyAllPermissionEvaluator;
 import org.springframework.security.access.expression.ExpressionUtils;
-import org.springframework.security.access.expression.SecurityExpressionRoot;
+import org.springframework.security.access.expression.SecurityExpressionOperations;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
 
 /**
@@ -31,6 +34,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 
     protected final Log logger = LogFactory.getLog(getClass());
 
+    private final AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
     private ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
     private PermissionCacheOptimizer permissionCacheOptimizer = null;
 
@@ -45,10 +49,12 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
     }
 
     @Override
-    protected SecurityExpressionRoot createSecurityExpressionRoot(Authentication authentication, MethodInvocation invocation) {
+    protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication, MethodInvocation invocation) {
         MethodSecurityExpressionRoot root = new MethodSecurityExpressionRoot(authentication);
         root.setThis(invocation.getThis());
         root.setPermissionEvaluator(getPermissionEvaluator());
+        root.setTrustResolver(trustResolver);
+        root.setRoleHierarchy(getRoleHierarchy());
 
         return root;
     }
