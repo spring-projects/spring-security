@@ -880,13 +880,19 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
    }
         </programlisting>Expression-based
                 annotations are a good choice if you need to define simple rules that go beyond
-                checking the role names against the user's list of authorities. You can enable more
-                than one type of annotation in the same application, but you should avoid mixing
-                annotations types in the same interface or class to avoid confusion. <note>
+                checking the role names against the user's list of authorities. <note>
                 <para>The annotated methods will only be secured for instances which are defined as
                     Spring beans (in the same application context in which method-security is
                     enabled). If you want to secure instances which are not created by Spring (using
                     the <literal>new</literal> operator, for example) then you need to use AspectJ.
+                </para>
+            </note>
+                <note>
+                    <para>
+                    You can enable more than one type of annotation in the same application, but
+                    only one type should be used for any interface or class as the behaviour will not
+                    be well-defined otherwise. If two annotations are found which apply to a particular
+                    method, then only one of them will be applied.
                 </para>
                 </note> </para>
             <section xml:id="ns-protect-pointcut">
@@ -904,7 +910,9 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                     whose class names end in "Service". Only users with the
                     <literal>ROLE_USER</literal> role will be able to invoke these methods. As with
                     URL matching, the most specific matches must come first in the list of
-                    pointcuts, as the first matching expression will be used. </para>
+                    pointcuts, as the first matching expression will be used. Security
+                    annotations take precedence over pointcuts.
+                    </para>
             </section>
         </section>
     </section>
