@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  * @author Luke Taylor
  */
 class FirewalledResponse extends HttpServletResponseWrapper {
-    Pattern CR_OR_LF = Pattern.compile("\\r|\\n");
+    private static final Pattern CR_OR_LF = Pattern.compile("\\r|\\n");
 
     public FirewalledResponse(HttpServletResponse response) {
         super(response);
