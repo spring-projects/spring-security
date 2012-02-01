@@ -127,10 +127,14 @@
                     <para> <literal>group-search-filter</literal>. The filter which is used to
                         search for group membership. The default is
                         <literal>uniqueMember={0}</literal>, corresponding to the
-                        <literal>groupOfUniqueMembers</literal> LDAP class. In this case, the
-                        substituted parameter is the full distinguished name of the user. The
-                        parameter <literal>{1}</literal> can be used if you want to filter on the
-                        login name.</para>
+                        <literal>groupOfUniqueNames</literal> LDAP class <footnote><para>
+                            Note that this is different from the default configuration of the
+                            underlying <classname>DefaultLdapAuthoritiesPopulator</classname>
+                            which uses <literal>member={0}</literal>.
+                        </para></footnote>.
+                        In this case, the substituted parameter is the full distinguished name
+                        of the user. The parameter <literal>{1}</literal> can be used if you
+                        want to filter on the login name.</para>
                 </listitem>
                 </itemizedlist> So if we used the following configuration <programlisting language="xml"><![CDATA[
   <ldap-authentication-provider user-dn-pattern="uid={0},ou=people"
