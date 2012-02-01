@@ -13,8 +13,8 @@ import org.springframework.security.web.FilterInvocation;
  * @since 3.0
  */
 public class DefaultWebSecurityExpressionHandler extends AbstractSecurityExpressionHandler<FilterInvocation> {
-	
-	private final AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+
+    private final AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
     @Override
     protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication, FilterInvocation fi) {

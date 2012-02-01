@@ -48,8 +48,10 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
         return new MethodSecurityEvaluationContext(auth, mi, parameterNameDiscoverer);
     }
 
-    @Override
-    protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication, MethodInvocation invocation) {
+    /**
+     * Creates the root object for expression evaluation.
+     */
+    protected MethodSecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication, MethodInvocation invocation) {
         MethodSecurityExpressionRoot root = new MethodSecurityExpressionRoot(authentication);
         root.setThis(invocation.getThis());
         root.setPermissionEvaluator(getPermissionEvaluator());
@@ -68,7 +70,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
      */
     @SuppressWarnings("unchecked")
     public Object filter(Object filterTarget, Expression filterExpression, EvaluationContext ctx) {
-        MethodSecurityExpressionRoot rootObject = (MethodSecurityExpressionRoot) ctx.getRootObject().getValue();
+        MethodSecurityExpressionOperations rootObject = (MethodSecurityExpressionOperations) ctx.getRootObject().getValue();
         final boolean debug = logger.isDebugEnabled();
         List retainList;
 

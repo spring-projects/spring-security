@@ -1,30 +1,41 @@
 package org.springframework.security.access.expression;
 
+import org.springframework.security.core.Authentication;
+
+/**
+ * Standard interface for expression root objects used with expression-based
+ * security.
+ *
+ * @author Andrei Stefan
+ * @author Luke Taylor
+ * @since 3.1.1
+ */
 public interface SecurityExpressionOperations {
 
-	public abstract boolean hasAuthority(String authority);
+    Authentication getAuthentication();
 
-	public abstract boolean hasAnyAuthority(String... authorities);
+    boolean hasAuthority(String authority);
 
-	public abstract boolean hasRole(String role);
+    boolean hasAnyAuthority(String... authorities);
 
-	public abstract boolean hasAnyRole(String... roles);
+    boolean hasRole(String role);
 
-	public abstract boolean permitAll();
+    boolean hasAnyRole(String... roles);
 
-	public abstract boolean denyAll();
+    boolean permitAll();
 
-	public abstract boolean isAnonymous();
+    boolean denyAll();
 
-	public abstract boolean isAuthenticated();
+    boolean isAnonymous();
 
-	public abstract boolean isRememberMe();
+    boolean isAuthenticated();
 
-	public abstract boolean isFullyAuthenticated();
+    boolean isRememberMe();
 
-	public abstract boolean hasPermission(Object target, Object permission);
+    boolean isFullyAuthenticated();
 
-	public abstract boolean hasPermission(Object targetId, String targetType,
-			Object permission);
+    boolean hasPermission(Object target, Object permission);
+
+    boolean hasPermission(Object targetId, String targetType, Object permission);
 
 }

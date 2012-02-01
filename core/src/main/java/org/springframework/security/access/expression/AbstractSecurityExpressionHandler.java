@@ -70,9 +70,9 @@ public abstract class AbstractSecurityExpressionHandler<T> implements SecurityEx
     protected abstract SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication, T invocation);
 
     protected RoleHierarchy getRoleHierarchy() {
-		return roleHierarchy;
-	}
-    
+        return roleHierarchy;
+    }
+
     public void setRoleHierarchy(RoleHierarchy roleHierarchy) {
         this.roleHierarchy = roleHierarchy;
     }

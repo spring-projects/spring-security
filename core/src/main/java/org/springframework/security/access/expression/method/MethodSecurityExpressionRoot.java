@@ -10,7 +10,7 @@ import org.springframework.security.core.Authentication;
  * @author Luke Taylor
  * @since 3.0
  */
-class MethodSecurityExpressionRoot extends SecurityExpressionRoot {
+class MethodSecurityExpressionRoot extends SecurityExpressionRoot implements MethodSecurityExpressionOperations {
     private Object filterObject;
     private Object returnObject;
     private Object target;
