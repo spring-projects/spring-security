@@ -651,6 +651,10 @@ public class BCrypt {
         char minor = (char)0;
         int rounds, off = 0;
         StringBuffer rs = new StringBuffer();
+        
+        if (salt==null || salt.length()<4) {
+            throw new IllegalArgumentException ("Invalid salt length");      	
+        }
 
         if (salt.charAt(0) != '$' || salt.charAt(1) != '2')
             throw new IllegalArgumentException ("Invalid salt version");
@@ -663,7 +667,11 @@ public class BCrypt {
             off = 4;
         }
 
-        // Extract number of rounds
+        if (salt.length()<off+25) {
+            throw new IllegalArgumentException ("Invalid real salt length");      	
+        }
+
+       // Extract number of rounds
         if (salt.charAt(off + 2) > '$')
             throw new IllegalArgumentException ("Missing salt rounds");
         rounds = Integer.parseInt(salt.substring(off, off + 2));

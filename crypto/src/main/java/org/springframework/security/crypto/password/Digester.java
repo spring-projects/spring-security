@@ -17,7 +17,6 @@ package org.springframework.security.crypto.password;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 
 /**
  * Helper for working with the MessageDigest API.
