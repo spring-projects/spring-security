@@ -132,9 +132,11 @@ public abstract class AbstractAuthorizeTag {
         final Collection<? extends GrantedAuthority> granted = getPrincipalAuthorities();
 
         if (hasTextAllGranted) {
-            if (!granted.containsAll(toAuthorities(getIfAllGranted()))) {
-                return false;
-            }
+            Set<String> grantedRoles = authoritiesToRoles(granted);
+            Set<String> requiredRoles = authoritiesToRoles(toAuthorities(getIfAllGranted()));
+            if (!grantedRoles.containsAll(requiredRoles)) { 
+                return false; 
+            } 
         }
 
         if (hasTextAnyGranted) {
