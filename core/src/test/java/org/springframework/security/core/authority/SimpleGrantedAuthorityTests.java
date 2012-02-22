@@ -50,5 +50,17 @@ public class SimpleGrantedAuthorityTests {
         SimpleGrantedAuthority auth = new SimpleGrantedAuthority("TEST");
         assertEquals("TEST", auth.toString());
     }
+    
+    @Test
+    public void equalityWithGrantedAuthority() {
+        GrantedAuthority grantedAuthority = new GrantedAuthority() {
+            private static final long serialVersionUID = 1L;
+            public String getAuthority() {
+                return "ROLE_STATIC";
+            }
+        };
+        SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority("ROLE_STATIC");
+        Assert.assertTrue(simpleGrantedAuthority.equals(grantedAuthority));
+    }
 
 }

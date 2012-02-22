@@ -33,8 +33,8 @@ public final class SimpleGrantedAuthority implements GrantedAuthority {
             return true;
         }
 
-        if (obj instanceof SimpleGrantedAuthority) {
-            return role.equals(((SimpleGrantedAuthority) obj).role);
+        if (obj instanceof GrantedAuthority) {
+            return role.equals(((GrantedAuthority) obj).getAuthority());
         }
 
         return false;
