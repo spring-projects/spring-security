@@ -38,7 +38,6 @@ import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
@@ -56,6 +55,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * @author Francois Beausoleil
  * @author Luke Taylor
  * @author Rossen Stoyanchev
+ * @author Rob Winch
  * @since 3.1.0
  */
 public abstract class AbstractAuthorizeTag {
@@ -130,23 +130,25 @@ public abstract class AbstractAuthorizeTag {
         }
 
         final Collection<? extends GrantedAuthority> granted = getPrincipalAuthorities();
+        final Set<String> grantedRoles = authoritiesToRoles(granted);
 
         if (hasTextAllGranted) {
-            if (!granted.containsAll(toAuthorities(getIfAllGranted()))) {
+            final Set<String> requiredRoles = splitRoles(getIfAllGranted());
+            if (!grantedRoles.containsAll(requiredRoles)) {
                 return false;
             }
         }
 
         if (hasTextAnyGranted) {
-            Set<GrantedAuthority> grantedCopy = retainAll(granted, toAuthorities(getIfAnyGranted()));
-            if (grantedCopy.isEmpty()) {
+            final Set<String> expectOneOfRoles = splitRoles(getIfAnyGranted());
+            if (!containsAnyValue(grantedRoles, expectOneOfRoles)) {
                 return false;
             }
         }
 
         if (hasTextNotGranted) {
-            Set<GrantedAuthority> grantedCopy = retainAll(granted, toAuthorities(getIfNotGranted()));
-            if (!grantedCopy.isEmpty()) {
+            final Set<String> expectNoneOfRoles = splitRoles(getIfNotGranted());
+            if (containsAnyValue(expectNoneOfRoles, grantedRoles)) {
                 return false;
             }
         }
@@ -265,19 +267,33 @@ public abstract class AbstractAuthorizeTag {
         return currentUser.getAuthorities();
     }
 
-    private Set<GrantedAuthority> toAuthorities(String authorizations) {
-        final Set<GrantedAuthority> requiredAuthorities = new HashSet<GrantedAuthority>();
-        requiredAuthorities.addAll(AuthorityUtils.commaSeparatedStringToAuthorityList(authorizations));
-        return requiredAuthorities;
+    /**
+     * Splits the authorityString using "," as a delimiter into a Set.
+     * @param authorityString
+     * @return
+     */
+    private Set<String> splitRoles(String authorityString) {
+        String[] rolesArray = StringUtils.tokenizeToStringArray(authorityString, ",");
+        Set<String> roles = new HashSet<String>(rolesArray.length);
+        for(String role : rolesArray) {
+            roles.add(role);
+        }
+        return roles;
     }
 
-    private Set<GrantedAuthority> retainAll(final Collection<? extends GrantedAuthority> granted,
-                                            final Set<GrantedAuthority> required) {
-        Set<String> grantedRoles = authoritiesToRoles(granted);
-        Set<String> requiredRoles = authoritiesToRoles(required);
-        grantedRoles.retainAll(requiredRoles);
-
-        return rolesToAuthorities(grantedRoles, granted);
+    /**
+     * Returns true if any of the values are contained in toTest. Otherwise, false.
+     * @param toTest Check this Set to see if any of the values are contained in it.
+     * @param values The values to check if they are in toTest.
+     * @return
+     */
+    private boolean containsAnyValue(Set<String> toTest, Collection<String> values) {
+        for(String value : values) {
+            if(toTest.contains(value)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Set<String> authoritiesToRoles(Collection<? extends GrantedAuthority> c) {
@@ -289,19 +305,6 @@ public abstract class AbstractAuthorizeTag {
                                 + authority.toString());
             }
             target.add(authority.getAuthority());
-        }
-        return target;
-    }
-
-    private Set<GrantedAuthority> rolesToAuthorities(Set<String> grantedRoles, Collection<? extends GrantedAuthority> granted) {
-        Set<GrantedAuthority> target = new HashSet<GrantedAuthority>();
-        for (String role : grantedRoles) {
-            for (GrantedAuthority authority : granted) {
-                if (authority.getAuthority().equals(role)) {
-                    target.add(authority);
-                    break;
-                }
-            }
         }
         return target;
     }
