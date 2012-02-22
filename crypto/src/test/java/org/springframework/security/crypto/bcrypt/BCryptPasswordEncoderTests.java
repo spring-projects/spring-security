@@ -20,6 +20,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import java.security.SecureRandom;
+
 
 /**
  * @author Dave Syer
@@ -44,17 +46,49 @@ public class BCryptPasswordEncoderTests {
     }
 
     @Test
-    public void matchesLengthChecked() {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String result = encoder.encode("password");
-        assertFalse(encoder.matches("password", result.substring(0,result.length()-2)));
-    }
-
-    @Test
     public void notMatches() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         String result = encoder.encode("password");
         assertFalse(encoder.matches("bogus", result));
+    }
+
+    @Test
+    public void customStrength() {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(8);
+        String result = encoder.encode("password");
+        assertTrue(encoder.matches("password", result));
+    }
+
+    @Test
+    public void customRandom() {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(8, new SecureRandom());
+        String result = encoder.encode("password");
+        assertTrue(encoder.matches("password", result));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void barfsOnNullEncodedValue() {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        assertFalse(encoder.matches("password", null));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void barfsOnEmptyEncodedValue() {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        assertFalse(encoder.matches("password", ""));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void barfsOnShortEncodedValue() {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String result = encoder.encode("password");
+        assertFalse(encoder.matches("password", result.substring(0, 4)));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void barfsOnBogusEncodedValue() {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        assertFalse(encoder.matches("password", "012345678901234567890123456789"));
     }
 
 }

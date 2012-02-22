@@ -16,6 +16,7 @@
 package org.springframework.security.crypto.bcrypt;
 
 import java.security.SecureRandom;
+import java.util.regex.Pattern;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -28,6 +29,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  *
  */
 public class BCryptPasswordEncoder implements PasswordEncoder {
+    private Pattern BCRYPT_PATTERN = Pattern.compile("\\A\\$2a?\\$\\d\\d\\$[./0-9A-Za-z]{53}");
 
     private final int strength;
 
@@ -71,7 +73,14 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
     }
 
     public boolean matches(CharSequence rawPassword, String encodedPassword) {
+        if (encodedPassword == null || encodedPassword.length() == 0) {
+            throw new IllegalArgumentException("Encoded password cannot be null or empty");
+        }
+
+        if (!BCRYPT_PATTERN.matcher(encodedPassword).matches()) {
+            throw new IllegalArgumentException("Encoded password does not look like BCrypt");
+        }
+
         return BCrypt.checkpw(rawPassword.toString(), encodedPassword);
     }
-
 }
