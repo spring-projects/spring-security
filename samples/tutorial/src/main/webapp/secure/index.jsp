@@ -18,7 +18,7 @@ This is a protected page. You can get to me if you've been remembered,
 or if you've authenticated this session.
 </p>
 <p>
-<sec:authorize access="hasRole('ROLE_SUPERVISOR')">
+<sec:authorize access="hasRole('supervisor')">
     You are a supervisor! You can therefore see the <a href="extreme/index.jsp">extremely secure page</a>.<br/><br/>
 </sec:authorize>
 </p>
