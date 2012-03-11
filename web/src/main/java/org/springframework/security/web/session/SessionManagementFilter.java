@@ -88,7 +88,9 @@ public class SessionManagementFilter extends GenericFilterBean {
             } else {
              // No security context or authentication present. Check for a session timeout
                 if (request.getRequestedSessionId() != null && !request.isRequestedSessionIdValid()) {
-                    logger.debug("Requested session ID" + request.getRequestedSessionId() + " is invalid.");
+                    if(logger.isDebugEnabled()) {
+                        logger.debug("Requested session ID " + request.getRequestedSessionId() + " is invalid.");
+                    }
 
                     if (invalidSessionStrategy != null) {
                         invalidSessionStrategy.onInvalidSessionDetected(request, response);
