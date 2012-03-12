@@ -17,6 +17,7 @@ import org.w3c.dom.Element;
 /**
  * @author Luke Taylor
  * @author Ben Alex
+ * @author Rob Winch
  */
 public class FormLoginBeanDefinitionParser {
     protected final Log logger = LogFactory.getLog(getClass());
@@ -44,18 +45,22 @@ public class FormLoginBeanDefinitionParser {
     private final BeanReference requestCache;
     private final BeanReference sessionStrategy;
     private final boolean allowSessionCreation;
+    private final BeanReference portMapper;
+    private final BeanReference portResolver;
 
     private RootBeanDefinition filterBean;
     private RootBeanDefinition entryPointBean;
     private String loginPage;
 
     FormLoginBeanDefinitionParser(String defaultLoginProcessingUrl, String filterClassName,
-            BeanReference requestCache, BeanReference sessionStrategy, boolean allowSessionCreation) {
+            BeanReference requestCache, BeanReference sessionStrategy, boolean allowSessionCreation, BeanReference portMapper, BeanReference portResolver) {
         this.defaultLoginProcessingUrl = defaultLoginProcessingUrl;
         this.filterClassName = filterClassName;
         this.requestCache = requestCache;
         this.sessionStrategy = sessionStrategy;
         this.allowSessionCreation = allowSessionCreation;
+        this.portMapper = portMapper;
+        this.portResolver = portResolver;
     }
 
     public BeanDefinition parse(Element elt, ParserContext pc) {
@@ -111,6 +116,8 @@ public class FormLoginBeanDefinitionParser {
                 BeanDefinitionBuilder.rootBeanDefinition(LoginUrlAuthenticationEntryPoint.class);
         entryPointBuilder.getRawBeanDefinition().setSource(source);
         entryPointBuilder.addPropertyValue("loginFormUrl", loginPage != null ? loginPage : DEF_LOGIN_PAGE);
+        entryPointBuilder.addPropertyValue("portMapper", portMapper);
+        entryPointBuilder.addPropertyValue("portResolver", portResolver);
         entryPointBean = (RootBeanDefinition) entryPointBuilder.getBeanDefinition();
 
         return null;

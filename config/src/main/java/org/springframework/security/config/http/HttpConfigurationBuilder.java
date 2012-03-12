@@ -55,6 +55,7 @@ import org.w3c.dom.Element;
  * Stateful class which helps HttpSecurityBDP to create the configuration for the &lt;http&gt; element.
  *
  * @author Luke Taylor
+ * @author Rob Winch
  * @since 3.0
  */
 class HttpConfigurationBuilder {
@@ -92,16 +93,18 @@ class HttpConfigurationBuilder {
     private RootBeanDefinition sfpf;
     private BeanDefinition servApiFilter;
     private BeanDefinition jaasApiFilter;
-    private final String portMapperName;
+    private final BeanReference portMapper;
+    private final BeanReference portResolver;
     private BeanReference fsi;
     private BeanReference requestCache;
 
     public HttpConfigurationBuilder(Element element, ParserContext pc,
-            String portMapperName, BeanReference authenticationManager) {
+            BeanReference portMapper, BeanReference portResolver, BeanReference authenticationManager) {
 
         this.httpElt = element;
         this.pc = pc;
-        this.portMapperName = portMapperName;
+        this.portMapper = portMapper;
+        this.portResolver = portResolver;
         this.matcherType = MatcherType.fromElement(element);
         interceptUrls = DomUtils.getChildElementsByTagName(element, Elements.INTERCEPT_URL);
 
@@ -374,9 +377,11 @@ class HttpConfigurationBuilder {
         RootBeanDefinition secureChannelProcessor = new RootBeanDefinition(SecureChannelProcessor.class);
         RootBeanDefinition retryWithHttp = new RootBeanDefinition(RetryWithHttpEntryPoint.class);
         RootBeanDefinition retryWithHttps = new RootBeanDefinition(RetryWithHttpsEntryPoint.class);
-        RuntimeBeanReference portMapper = new RuntimeBeanReference(portMapperName);
+
         retryWithHttp.getPropertyValues().addPropertyValue("portMapper", portMapper);
+        retryWithHttp.getPropertyValues().addPropertyValue("portResolver", portResolver);
         retryWithHttps.getPropertyValues().addPropertyValue("portMapper", portMapper);
+        retryWithHttps.getPropertyValues().addPropertyValue("portResolver", portResolver);
         secureChannelProcessor.getPropertyValues().addPropertyValue("entryPoint", retryWithHttps);
         RootBeanDefinition inSecureChannelProcessor = new RootBeanDefinition(InsecureChannelProcessor.class);
         inSecureChannelProcessor.getPropertyValues().addPropertyValue("entryPoint", retryWithHttp);
@@ -433,10 +438,8 @@ class HttpConfigurationBuilder {
                 requestCacheBldr = BeanDefinitionBuilder.rootBeanDefinition(NullRequestCache.class);
             } else {
                 requestCacheBldr = BeanDefinitionBuilder.rootBeanDefinition(HttpSessionRequestCache.class);
-                BeanDefinitionBuilder portResolver = BeanDefinitionBuilder.rootBeanDefinition(PortResolverImpl.class);
-                portResolver.addPropertyReference("portMapper", portMapperName);
                 requestCacheBldr.addPropertyValue("createSessionAllowed", sessionPolicy == SessionCreationPolicy.ifRequired);
-                requestCacheBldr.addPropertyValue("portResolver", portResolver.getBeanDefinition());
+                requestCacheBldr.addPropertyValue("portResolver", portResolver);
             }
 
             BeanDefinition bean = requestCacheBldr.getBeanDefinition();
