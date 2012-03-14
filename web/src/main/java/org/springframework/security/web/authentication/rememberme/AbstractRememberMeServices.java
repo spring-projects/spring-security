@@ -441,7 +441,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 
     /**
      * Whether the cookie should be flagged as secure or not. Secure cookies can only be sent over an HTTPS connection
-     * and this cannot be accidentally submitted over HTTP where they could be intercepted.
+     * and thus cannot be accidentally submitted over HTTP where they could be intercepted.
      * <p>
      * By default the cookie will be secure if the request is secure. If you only want to use remember-me over
      * HTTPS (recommended) you should set this property to {@code true}.
