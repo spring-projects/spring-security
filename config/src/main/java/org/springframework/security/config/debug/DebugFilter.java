@@ -3,11 +3,13 @@ package org.springframework.security.config.debug;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.UrlUtils;
-import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
@@ -23,9 +25,12 @@ import java.util.*;
  *
  *
  * @author Luke Taylor
+ * @author Rob Winch
  * @since 3.1
  */
-class DebugFilter extends OncePerRequestFilter {
+class DebugFilter implements Filter {
+    private static final String ALREADY_FILTERED_ATTR_NAME = DebugFilter.class.getName().concat(".FILTERED");
+
     private final FilterChainProxy fcp;
     private final Logger logger = new Logger();
 
@@ -33,8 +38,15 @@ class DebugFilter extends OncePerRequestFilter {
         this.fcp = fcp;
     }
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    public final void doFilter(ServletRequest srvltRequest, ServletResponse srvltResponse, FilterChain filterChain)
+            throws ServletException, IOException {
+
+        if (!(srvltRequest instanceof HttpServletRequest) || !(srvltResponse instanceof HttpServletResponse)) {
+            throw new ServletException("DebugFilter just supports HTTP requests");
+        }
+        HttpServletRequest request = (HttpServletRequest) srvltRequest;
+        HttpServletResponse response = (HttpServletResponse) srvltResponse;
+
         List<Filter> filters = getFilters(request);
         logger.log("Request received for '" + UrlUtils.buildRequestUrl(request) + "':\n\n" +
                 request + "\n\n" +
@@ -42,7 +54,23 @@ class DebugFilter extends OncePerRequestFilter {
                 "pathInfo:" + request.getPathInfo() + "\n\n" +
                 formatFilters(filters));
 
-        fcp.doFilter(new DebugRequestWrapper(request), response, filterChain);
+        if (request.getAttribute(ALREADY_FILTERED_ATTR_NAME) == null) {
+            invokeWithWrappedRequest(request, response, filterChain);
+        } else {
+            fcp.doFilter(request, response, filterChain);
+        }
+    }
+
+    private void invokeWithWrappedRequest(HttpServletRequest request,
+            HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+        request.setAttribute(ALREADY_FILTERED_ATTR_NAME, Boolean.TRUE);
+        request = new DebugRequestWrapper(request);
+        try {
+            fcp.doFilter(request, response, filterChain);
+        }
+        finally {
+            request.removeAttribute(ALREADY_FILTERED_ATTR_NAME);
+        }
     }
 
     String formatFilters(List<Filter> filters) {
@@ -71,6 +99,12 @@ class DebugFilter extends OncePerRequestFilter {
         }
 
         return null;
+    }
+
+    public void init(FilterConfig filterConfig) throws ServletException {
+    }
+
+    public void destroy() {
     }
 }
 
