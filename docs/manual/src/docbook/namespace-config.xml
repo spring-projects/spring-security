@@ -726,7 +726,7 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                         </row>
                         <row>
                             <entry> SERVLET_API_SUPPORT_FILTER</entry>
-                            <entry><literal>SecurityContextHolderAwareFilter</literal></entry>
+                            <entry><literal>SecurityContextHolderAwareRequestFilter</literal></entry>
                             <entry><literal>http/@servlet-api-provision</literal></entry>
                         </row>
                         <row>
