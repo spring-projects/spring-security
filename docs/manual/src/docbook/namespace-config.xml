@@ -585,7 +585,7 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                     </entry><entry><literal>UsernamePasswordAuthenticationFilter</literal></entry><entry><literal>http/form-login</literal></entry></row><row><entry>
                   BASIC_AUTH_FILTER
                   </entry><entry><literal>BasicAuthenticationFilter</literal></entry><entry><literal>http/http-basic</literal></entry></row><row><entry>
-                  SERVLET_API_SUPPORT_FILTER</entry><entry><literal>SecurityContextHolderAwareFilter</literal></entry><entry><literal>http/@servlet-api-provision</literal></entry></row><row><entry>
+                  SERVLET_API_SUPPORT_FILTER</entry><entry><literal>SecurityContextHolderAwareRequestFilter</literal></entry><entry><literal>http/@servlet-api-provision</literal></entry></row><row><entry>
                   REMEMBER_ME_FILTER
                     </entry><entry><classname>RememberMeAuthenticationFilter</classname></entry><entry><literal>http/remember-me</literal></entry></row><row><entry>
                   ANONYMOUS_FILTER
