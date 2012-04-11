@@ -28,7 +28,6 @@ import java.util.*;
  * @author Luke Taylor
  * @author Rob Winch
  */
-@SuppressWarnings({"unchecked"})
 public class FilterChainProxyTests {
     private FilterChainProxy fcp;
     private RequestMatcher matcher;
@@ -41,7 +40,7 @@ public class FilterChainProxyTests {
     public void setup() throws Exception {
         matcher = mock(RequestMatcher.class);
         filter = mock(Filter.class);
-        doAnswer(new Answer() {
+        doAnswer(new Answer<Object>() {
                     public Object answer(InvocationOnMock inv) throws Throwable {
                         Object[] args = inv.getArguments();
                         FilterChain fc = (FilterChain) args[2];
