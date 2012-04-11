@@ -17,6 +17,7 @@ package org.springframework.security.web;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.security.web.firewall.FirewalledRequest;
 import org.springframework.security.web.firewall.HttpFirewall;
@@ -149,6 +150,16 @@ public class FilterChainProxy extends GenericFilterBean {
     }
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+        try {
+            doFilterInternal(request, response, chain);
+        } finally {
+            // SEC-1950
+            SecurityContextHolder.clearContext();
+        }
+    }
+
+    private void doFilterInternal(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
         FirewalledRequest fwRequest = firewall.getFirewalledRequest((HttpServletRequest) request);
