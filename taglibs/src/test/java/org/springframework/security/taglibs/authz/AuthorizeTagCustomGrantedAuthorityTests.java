@@ -73,4 +73,28 @@ public class AuthorizeTagCustomGrantedAuthorityTests {
             assertTrue("expected", true);
         }
     }
+    
+    /**
+     * Tests that it is possible to use the authorize tag with any authorization
+     * object that implements GrantedAuthority.
+     * @throws JspException on tag failures (not supposed to happen in this test case)
+     */
+    @Test
+    public void testAuthorizeUsingGrantedAuthorities() throws JspException {
+        authorizeTag.setIfAnyGranted(null);
+        authorizeTag.setIfNotGranted(null);
+        authorizeTag.setIfAllGranted("ROLE_TEST");
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        authorities.add(new GrantedAuthority() {
+                    public String getAuthority() {
+                        return "ROLE_TEST";
+                    }
+                });
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("abc", "123", authorities));
+        int testResult = authorizeTag.doStartTag();
+        Assert.assertEquals("Not authorized even though having correct authorities.", 
+                Tag.EVAL_BODY_INCLUDE, testResult);
+        
+    }
+    
 }
