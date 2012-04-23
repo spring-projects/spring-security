@@ -33,6 +33,7 @@ import java.util.*;
  *
  * @author Francois Beausoleil
  */
+@SuppressWarnings("deprecation")
 public class AuthorizeTagCustomGrantedAuthorityTests {
     //~ Instance fields ================================================================================================
 
@@ -57,6 +58,7 @@ public class AuthorizeTagCustomGrantedAuthorityTests {
     }
 
     @Test
+    @SuppressWarnings("serial")
     public void testRejectsRequestWhenCustomAuthorityReturnsNull() throws JspException {
         authorizeTag.setIfAnyGranted("ROLE_TELLER");
         List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
