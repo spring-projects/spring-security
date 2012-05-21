@@ -19,10 +19,16 @@ import org.w3c.dom.Element;
  */
 public class AuthenticationProviderBeanDefinitionParser implements BeanDefinitionParser {
     private static final String ATT_USER_DETAILS_REF = "user-service-ref";
+    private static final String CACHE_REF = "cache-ref";
 
     public BeanDefinition parse(Element element, ParserContext pc) {
         RootBeanDefinition authProvider = new RootBeanDefinition(DaoAuthenticationProvider.class);
         authProvider.setSource(pc.extractSource(element));
+
+        String cacheRef = element.getAttribute(CACHE_REF);
+        if (StringUtils.hasText(cacheRef)) {
+            authProvider.getPropertyValues().addPropertyValue("userCache", new RuntimeBeanReference(cacheRef));
+		}
 
         Element passwordEncoderElt = DomUtils.getChildElementByTagName(element, Elements.PASSWORD_ENCODER);
 
@@ -62,10 +68,10 @@ public class AuthenticationProviderBeanDefinitionParser implements BeanDefinitio
             }
 
             // Pinch the cache-ref from the UserDetailService element, if set.
-            String cacheRef = userServiceElt.getAttribute(AbstractUserDetailsServiceBeanDefinitionParser.CACHE_REF);
+            String userDetailsServiceCacheRef = userServiceElt.getAttribute(AbstractUserDetailsServiceBeanDefinitionParser.CACHE_REF);
 
-            if (StringUtils.hasText(cacheRef)) {
-                authProvider.getPropertyValues().addPropertyValue("userCache", new RuntimeBeanReference(cacheRef));
+            if (StringUtils.hasText(userDetailsServiceCacheRef)) {
+                authProvider.getPropertyValues().addPropertyValue("userCache", new RuntimeBeanReference(userDetailsServiceCacheRef));
             }
         }
 
