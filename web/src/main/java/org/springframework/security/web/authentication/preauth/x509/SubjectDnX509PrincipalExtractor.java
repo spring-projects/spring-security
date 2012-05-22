@@ -33,7 +33,7 @@ public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor {
     private Pattern subjectDnPattern;
 
     public SubjectDnX509PrincipalExtractor() {
-        setSubjectDnRegex("CN=(.*?),");
+        setSubjectDnRegex("CN=(.*?)(?:,.*)*$");
     }
 
     public Object extractPrincipal(X509Certificate clientCert) {
