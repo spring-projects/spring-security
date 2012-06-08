@@ -127,4 +127,20 @@ public class BindAuthenticatorTests extends AbstractLdapIntegrationTests {
         authenticator.setUserDnPatterns(new String[] {"cn={0},ou=people"});
         assertEquals("cn=Joe,ou=people", authenticator.getUserDns("Joe").get(0));
     }
+    
+    @Test
+    public void testRetrieveUserAttributes() {    	  
+        authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people", "cn={0},ou=people"});        
+        DirContextOperations user = authenticator.authenticate(new UsernamePasswordAuthenticationToken("mouse, jerry", "jerryspassword"));
+        assertEquals("Mouse", user.getStringAttribute("sn"));        
+    }
+
+    @Test
+    public void testDoNotRetrieveUserAttributes() {    	  
+        authenticator.setUserDnPatterns(new String[] {"uid={0},ou=people", "cn={0},ou=people"});        
+        authenticator.setRetrieveUserAttributes(false);
+        DirContextOperations user = authenticator.authenticate(new UsernamePasswordAuthenticationToken("mouse, jerry", "jerryspassword"));
+        assertNull(user.getStringAttribute("sn"));        
+    }
+    
 }
