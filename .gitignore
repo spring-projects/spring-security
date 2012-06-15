@@ -2,6 +2,8 @@ target/
 .classpath
 .project
 .settings/
+*/src/*/java/META-INF
+bin/
 build/
 out/
 intellij/
