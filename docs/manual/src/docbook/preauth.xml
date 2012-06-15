@@ -169,13 +169,9 @@ class="org.springframework.security.web.authentication.preauth.PreAuthenticatedA
       <security:authentication-provider ref="preauthAuthProvider" />
     </security:authentication-manager>
 ]]>
-</programlisting> We've assumed here that the security namespace is being used for configuration
-                    (hence the user of the <literal>custom-filter</literal>,
-                    <literal>authentication-manager</literal> and
-                    <literal>custom-authentication-provider</literal> elements (you can read more
-                    about them in the <link xlink:href="#ns-config">namespace chapter</link>). You
-                    would leave these out of a traditional bean configuration. It's also assumed
-                    that you have added a <interfacename>UserDetailsService</interfacename> (called
+</programlisting> We've assumed here that the <link xlink:href="#ns-config">security namespace</link>
+                    is being used for configuration. It's also assumed that you have added a
+                    <interfacename>UserDetailsService</interfacename> (called
                     <quote>userDetailsService</quote>) to your configuration to load the user's
                     roles. </para>
             </section>
