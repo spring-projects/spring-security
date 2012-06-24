@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
  * This class evaluates if the CAS authentication token is in remember me mode.
  * 
  * @author Jerome Leleu
+ * @since 3.1.1
  */
 public class CasAuthenticationTokenEvaluator {
     

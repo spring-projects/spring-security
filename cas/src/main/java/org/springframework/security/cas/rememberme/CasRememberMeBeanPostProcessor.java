@@ -3,36 +3,47 @@ package org.springframework.security.cas.rememberme;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.security.access.vote.AuthenticatedVoter;
-import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.web.CasAuthenticationEntryPoint;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
-import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
-import org.springframework.util.Assert;
 
 /**
  * This class loads automatically the appropriate beans if the user has defined a simplified security context configuration with
- * &lt;http&gt;.<br />
- * In the AuthenticatedVoter bean, the AuthenticationTrustResolver bean is replaced by a {@link CasRememberMeAuthenticationTrustResolver}
- * bean.<br />
- * In the ExceptionTranslationFilter bean, the AccessDeniedHandlerImpl bean is replaced by a {@link CasRememberMeAccessDeniedHandlerImpl}
- * bean.<br />
- * The CasAuthenticationEntryPoint bean has to be specified for this class, it's the default CAS entry point : it's cloned with renew=true
- * parameter to be used in the {@link CasRememberMeAccessDeniedHandlerImpl} bean.
+ * &lt;http&gt;.
+ * <p>
+ * In the <code>AuthenticatedVoter</code> bean, the <code>AuthenticationTrustResolverImpl</code> bean is replaced by a
+ * {@link CasRememberMeAuthenticationTrustResolverImpl} bean. In the <code>ExceptionTranslationFilter</code> bean, the
+ * <code>AccessDeniedHandlerImpl</code> bean is replaced by a {@link CasRememberMeAccessDeniedHandlerImpl} bean.
+ * <p>
+ * By default, this class could be defined in Spring context with a minimal configuration (just the current CAS entry point) :
+ * 
+ * <pre>
+ * &lt;bean id="casRememberMeBeanPostProcessor" class="org.springframework.security.cas.rememberme.CasRememberMeBeanPostProcessor"&gt;
+ *   &lt;property name="casAuthenticationEntryPoint" ref="myCasEntryPoint" /&gt;
+ * &lt;/bean&gt;
+ * </pre>
+ * 
+ * However, the <code>CasRememberMeAuthenticationTrustResolverImpl</code> and the <code>CasRememberMeAccessDeniedHandlerImpl</code> could be
+ * specified instead of the entry point to allow maximum configuration options :
+ * 
+ * <pre>
+ * &lt;bean id="casRememberMeBeanPostProcessor" class="org.springframework.security.cas.rememberme.CasRememberMeBeanPostProcessor"&gt;
+ *   &lt;property name="casRememberMeAuthenticationTrustResolverImpl" ref="myCasRmeAuthenticationTrustResolverImpl" /&gt;
+ *   &lt;property name="casRememberMeAccessDeniedHandlerImpl" ref="myCasRmeAccessDeniedHandlerImpl" /&gt;
+ * &lt;/bean&gt;
+ * </pre>
  * 
  * @author Jerome Leleu
+ * @since 3.1.1
  */
-public class CasRememberMeBeanPostProcessor implements BeanPostProcessor, InitializingBean {
+public class CasRememberMeBeanPostProcessor implements BeanPostProcessor {
     
     private static final Log logger = LogFactory.getLog(CasRememberMeBeanPostProcessor.class);
     
     private CasRememberMeAuthenticationTrustResolverImpl casRememberMeAuthenticationTrustResolverImpl = new CasRememberMeAuthenticationTrustResolverImpl();
     
     private CasRememberMeAccessDeniedHandlerImpl casRememberMeAccessDeniedHandlerImpl = new CasRememberMeAccessDeniedHandlerImpl();
-    
-    private CasAuthenticationEntryPoint casAuthenticationEntryPoint = null;
     
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         return bean;
@@ -42,29 +53,25 @@ public class CasRememberMeBeanPostProcessor implements BeanPostProcessor, Initia
         if (bean instanceof AuthenticatedVoter) {
             AuthenticatedVoter authenticatedVoter = (AuthenticatedVoter) bean;
             authenticatedVoter.setAuthenticationTrustResolver(casRememberMeAuthenticationTrustResolverImpl);
-            logger
-                .info("Replace AuthenticationTrustResolverImpl by CasRememberMeAuthenticationTrustResolverImpl in AuthenticatedVoter");
+            logger.info("Replace AuthenticationTrustResolverImpl by CasRememberMeAuthenticationTrustResolverImpl("
+                        + casRememberMeAuthenticationTrustResolverImpl + ") in AuthenticatedVoter (" + beanName + ")");
         } else if (bean instanceof ExceptionTranslationFilter) {
             ExceptionTranslationFilter exceptionTranslationFilter = (ExceptionTranslationFilter) bean;
             exceptionTranslationFilter.setAccessDeniedHandler(casRememberMeAccessDeniedHandlerImpl);
-            logger
-                .info("Replace AccessDeniedHandlerImpl by CasRememberMeAccessDeniedHandlerImpl in ExceptionTranslationFilter");
+            logger.info("Replace AccessDeniedHandlerImpl by CasRememberMeAccessDeniedHandlerImpl("
+                        + casRememberMeAccessDeniedHandlerImpl + ") in ExceptionTranslationFilter (" + beanName + ")");
         }
         return bean;
     }
     
-    public CasAuthenticationEntryPoint getCasAuthenticationEntryPoint() {
-        return casAuthenticationEntryPoint;
-    }
-    
+    /**
+     * This setter is not a real one as it doesn't set a private property, instead it updates the entry point of the
+     * casRememberMeAccessDeniedHandlerImpl bean property. It avoids complicated configuration by allowing just to specify the entry point.
+     * 
+     * @param casAuthenticationEntryPoint
+     */
     public void setCasAuthenticationEntryPoint(CasAuthenticationEntryPoint casAuthenticationEntryPoint) {
-        this.casAuthenticationEntryPoint = new CasAuthenticationEntryPoint();
-        this.casAuthenticationEntryPoint.setLoginUrl(casAuthenticationEntryPoint.getLoginUrl());
-        ServiceProperties serviceProperties = new ServiceProperties();
-        serviceProperties.setService(casAuthenticationEntryPoint.getServiceProperties().getService());
-        // use renew parameter when redirecting to CAS server as it will be used to "override" a previous CAS remember me authentication
-        serviceProperties.setSendRenew(true);
-        this.casAuthenticationEntryPoint.setServiceProperties(serviceProperties);
+        casRememberMeAccessDeniedHandlerImpl.setCasAuthenticationEntryPoint(casAuthenticationEntryPoint);
     }
     
     public CasRememberMeAuthenticationTrustResolverImpl getCasRememberMeAuthenticationTrustResolverImpl() {
@@ -81,14 +88,5 @@ public class CasRememberMeBeanPostProcessor implements BeanPostProcessor, Initia
     
     public void setCasRememberMeAccessDeniedHandlerImpl(CasRememberMeAccessDeniedHandlerImpl casRememberMeAccessDeniedHandlerImpl) {
         this.casRememberMeAccessDeniedHandlerImpl = casRememberMeAccessDeniedHandlerImpl;
-    }
-    
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.casAuthenticationEntryPoint, "casAuthenticationEntryPoint must be specified");
-        // if no RequestCache defined, use default
-        if (casRememberMeAccessDeniedHandlerImpl.getRequestCache() == null) {
-            casRememberMeAccessDeniedHandlerImpl.setRequestCache(new HttpSessionRequestCache());
-        }
-        casRememberMeAccessDeniedHandlerImpl.setCasAuthenticationEntryPoint(casAuthenticationEntryPoint);
     }
 }

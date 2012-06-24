@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
  * This class is an authentication trust resolver taking into account the CAS remember me feature.
  * 
  * @author Jerome Leleu
+ * @since 3.1.1
  */
 public class CasRememberMeAuthenticationTrustResolverImpl extends AuthenticationTrustResolverImpl {
     
@@ -28,13 +29,5 @@ public class CasRememberMeAuthenticationTrustResolverImpl extends Authentication
     
     public void setCasAuthenticationTokenEvaluator(CasAuthenticationTokenEvaluator casAuthenticationTokenEvaluator) {
         this.casAuthenticationTokenEvaluator = casAuthenticationTokenEvaluator;
-    }
-    
-    public void setAnonymousClass(Class<? extends Authentication> anonymousClass) {
-        super.setAnonymousClass(anonymousClass);
-    }
-    
-    public void setRememberMeClass(Class<? extends Authentication> rememberMeClass) {
-        super.setRememberMeClass(rememberMeClass);
     }
 }
