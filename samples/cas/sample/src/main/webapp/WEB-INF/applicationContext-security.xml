@@ -18,6 +18,10 @@
 
         <intercept-url pattern="/secure/extreme/**"
             access="hasRole('ROLE_SUPERVISOR')" />
+        <!-- for CAS remember-me testing -->
+        <intercept-url pattern="/fully/**" access="isFullyAuthenticated()" />
+        <intercept-url pattern="/rme/**" access="isRememberMe()" />
+        <!-- for CAS remembe-rme testing -->
         <intercept-url pattern="/secure/**" access="hasRole('ROLE_USER')" />
         <intercept-url pattern="/**" access="hasRole('ROLE_USER')" />
         <custom-filter ref="requestSingleLogoutFilter" before="LOGOUT_FILTER"/>
@@ -115,4 +119,8 @@
         <b:prop key="cas.service.host">localhost:8443</b:prop>
         <b:prop key="cas.server.host">localhost:9443</b:prop>
     </util:properties>
+    
+    <!-- to handle CAS remember-me -->
+    <b:bean id="casRememberMeBeanPostProcessor" class="org.springframework.security.cas.rememberme.CasRememberMeBeanPostProcessor"
+      p:casAuthenticationEntryPoint-ref="casEntryPoint" />
 </b:beans>

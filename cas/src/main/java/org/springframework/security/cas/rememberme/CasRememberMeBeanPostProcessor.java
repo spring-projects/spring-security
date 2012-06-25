@@ -7,14 +7,19 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.cas.web.CasAuthenticationEntryPoint;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 
 /**
  * This class loads automatically the appropriate beans if the user has defined a simplified security context configuration with
  * &lt;http&gt;.
  * <p>
  * In the <code>AuthenticatedVoter</code> bean, the <code>AuthenticationTrustResolverImpl</code> bean is replaced by a
- * {@link CasRememberMeAuthenticationTrustResolverImpl} bean. In the <code>ExceptionTranslationFilter</code> bean, the
- * <code>AccessDeniedHandlerImpl</code> bean is replaced by a {@link CasRememberMeAccessDeniedHandlerImpl} bean.
+ * {@link CasRememberMeAuthenticationTrustResolverImpl} bean (corresponding to &lt;http&gt; with use-expressions="false") and in the
+ * <code>DefaultWebSecurityExpressionHandler</code>, the <code> AuthenticationTrustResolverImpl</code> bean is replaced by a
+ * {@link CasRememberMeAuthenticationTrustResolverImpl} bean (corresponding to &lt;http&gt; with use-expressions="true").
+ * <p>
+ * In the <code>ExceptionTranslationFilter</code> bean, the <code>AccessDeniedHandlerImpl</code> bean is replaced by a
+ * {@link CasRememberMeAccessDeniedHandlerImpl} bean.
  * <p>
  * By default, this class could be defined in Spring context with a minimal configuration (just the current CAS entry point) :
  * 
@@ -55,6 +60,13 @@ public class CasRememberMeBeanPostProcessor implements BeanPostProcessor {
             authenticatedVoter.setAuthenticationTrustResolver(casRememberMeAuthenticationTrustResolverImpl);
             logger.info("Replace AuthenticationTrustResolverImpl by CasRememberMeAuthenticationTrustResolverImpl("
                         + casRememberMeAuthenticationTrustResolverImpl + ") in AuthenticatedVoter (" + beanName + ")");
+        } else if (bean instanceof DefaultWebSecurityExpressionHandler) {
+            DefaultWebSecurityExpressionHandler defaultWebSecurityExpressionHandler = (DefaultWebSecurityExpressionHandler) bean;
+            defaultWebSecurityExpressionHandler
+                .setAuthenticationTrustResolver(casRememberMeAuthenticationTrustResolverImpl);
+            logger.info("Replace AuthenticationTrustResolverImpl by CasRememberMeAuthenticationTrustResolverImpl("
+                        + casRememberMeAuthenticationTrustResolverImpl + ") in DefaultWebSecurityExpressionHandler ("
+                        + beanName + ")");
         } else if (bean instanceof ExceptionTranslationFilter) {
             ExceptionTranslationFilter exceptionTranslationFilter = (ExceptionTranslationFilter) bean;
             exceptionTranslationFilter.setAccessDeniedHandler(casRememberMeAccessDeniedHandlerImpl);
