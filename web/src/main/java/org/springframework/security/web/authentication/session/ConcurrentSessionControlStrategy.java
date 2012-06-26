@@ -141,13 +141,6 @@ public class ConcurrentSessionControlStrategy extends SessionFixationProtectionS
         leastRecentlyUsed.expireNow();
     }
 
-    @Override
-    protected void onSessionChange(String originalSessionId, HttpSession newSession, Authentication auth) {
-        // Update the session registry
-        sessionRegistry.removeSessionInformation(originalSessionId);
-        sessionRegistry.registerNewSession(newSession.getId(), auth.getPrincipal());
-    }
-
     /**
      * Sets the <tt>exceptionIfMaximumExceeded</tt> property, which determines whether the user should be prevented
      * from opening more sessions than allowed. If set to <tt>true</tt>, a <tt>SessionAuthenticationException</tt>
