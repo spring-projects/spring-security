@@ -12,7 +12,8 @@ import org.springframework.security.web.FilterInvocation;
  * @author Luke Taylor
  * @since 3.0
  */
-public class DefaultWebSecurityExpressionHandler extends AbstractSecurityExpressionHandler<FilterInvocation> {
+@SuppressWarnings("deprecation")
+public class DefaultWebSecurityExpressionHandler extends AbstractSecurityExpressionHandler<FilterInvocation> implements WebSecurityExpressionHandler {
 
     private final AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
