@@ -142,7 +142,7 @@ public class SwitchUserFilterTests {
         assertNotNull(switchToUser("jacklord"));
     }
 
-/*    @Test
+    @Test
     public void switchToLockedAccountCausesRedirectToSwitchFailureUrl() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/j_spring_security_switch_user");
@@ -176,7 +176,7 @@ public class SwitchUserFilterTests {
 
         assertEquals("/mywebapp/switchfailed", response.getRedirectedUrl());
         assertEquals("/switchfailed", FieldUtils.getFieldValue(filter, "switchFailureUrl"));
-    }*/
+    }
 
     @Test(expected=IllegalArgumentException.class)
     public void configMissingUserDetailsServiceFails() throws Exception {
