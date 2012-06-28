@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 the original author or authors.
+ * Copyright 2011-2012 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,10 @@ class LoginPage extends Page {
     static url = loginUrl()
     static at = { assert driver.currentUrl.startsWith(loginUrl()); true}
     static content = {
-        login(required:false) { user, password=user ->
+        login(required:false) { user, rme=false, password=user ->
             loginForm.username = user
             loginForm.password = password
+            loginForm.rememberMe = rme
             submit.click()
         }
         loginForm { $('#login') }

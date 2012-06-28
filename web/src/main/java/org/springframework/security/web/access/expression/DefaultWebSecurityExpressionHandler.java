@@ -14,15 +14,23 @@ import org.springframework.security.web.FilterInvocation;
  */
 @SuppressWarnings("deprecation")
 public class DefaultWebSecurityExpressionHandler extends AbstractSecurityExpressionHandler<FilterInvocation> implements WebSecurityExpressionHandler {
-
-    private final AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
-
-    @Override
-    protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication, FilterInvocation fi) {
-        WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(authentication, fi);
-        root.setPermissionEvaluator(getPermissionEvaluator());
-        root.setTrustResolver(trustResolver);
-        root.setRoleHierarchy(getRoleHierarchy());
-        return root;
-    }
+	
+	private AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
+	
+	@Override
+	protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication, FilterInvocation fi) {
+		WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(authentication, fi);
+		root.setPermissionEvaluator(getPermissionEvaluator());
+		root.setTrustResolver(authenticationTrustResolver);
+		root.setRoleHierarchy(getRoleHierarchy());
+		return root;
+	}
+	
+	public AuthenticationTrustResolver getAuthenticationTrustResolver() {
+		return authenticationTrustResolver;
+	}
+	
+	public void setAuthenticationTrustResolver(	AuthenticationTrustResolver authenticationTrustResolver) {
+		this.authenticationTrustResolver = authenticationTrustResolver;
+	}
 }
