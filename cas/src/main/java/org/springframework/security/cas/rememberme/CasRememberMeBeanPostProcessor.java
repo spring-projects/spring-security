@@ -1,3 +1,18 @@
+/*
+ * Copyright 2012 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.springframework.security.cas.rememberme;
 
 import org.apache.commons.logging.Log;
@@ -43,62 +58,67 @@ import org.springframework.security.web.access.expression.DefaultWebSecurityExpr
  * @since 3.1.1
  */
 public class CasRememberMeBeanPostProcessor implements BeanPostProcessor {
-    
-    private static final Log logger = LogFactory.getLog(CasRememberMeBeanPostProcessor.class);
-    
-    private CasRememberMeAuthenticationTrustResolverImpl casRememberMeAuthenticationTrustResolverImpl = new CasRememberMeAuthenticationTrustResolverImpl();
-    
-    private CasRememberMeAccessDeniedHandlerImpl casRememberMeAccessDeniedHandlerImpl = new CasRememberMeAccessDeniedHandlerImpl();
-    
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        return bean;
-    }
-    
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        if (bean instanceof AuthenticatedVoter) {
-            AuthenticatedVoter authenticatedVoter = (AuthenticatedVoter) bean;
-            authenticatedVoter.setAuthenticationTrustResolver(casRememberMeAuthenticationTrustResolverImpl);
-            logger.info("Replace AuthenticationTrustResolverImpl by CasRememberMeAuthenticationTrustResolverImpl("
-                        + casRememberMeAuthenticationTrustResolverImpl + ") in AuthenticatedVoter (" + beanName + ")");
-        } else if (bean instanceof DefaultWebSecurityExpressionHandler) {
-            DefaultWebSecurityExpressionHandler defaultWebSecurityExpressionHandler = (DefaultWebSecurityExpressionHandler) bean;
-            defaultWebSecurityExpressionHandler
-                .setAuthenticationTrustResolver(casRememberMeAuthenticationTrustResolverImpl);
-            logger.info("Replace AuthenticationTrustResolverImpl by CasRememberMeAuthenticationTrustResolverImpl("
-                        + casRememberMeAuthenticationTrustResolverImpl + ") in DefaultWebSecurityExpressionHandler ("
-                        + beanName + ")");
-        } else if (bean instanceof ExceptionTranslationFilter) {
-            ExceptionTranslationFilter exceptionTranslationFilter = (ExceptionTranslationFilter) bean;
-            exceptionTranslationFilter.setAccessDeniedHandler(casRememberMeAccessDeniedHandlerImpl);
-            logger.info("Replace AccessDeniedHandlerImpl by CasRememberMeAccessDeniedHandlerImpl("
-                        + casRememberMeAccessDeniedHandlerImpl + ") in ExceptionTranslationFilter (" + beanName + ")");
-        }
-        return bean;
-    }
-    
-    /**
-     * This setter is not a real one as it doesn't set a private property, instead it updates the entry point of the
-     * casRememberMeAccessDeniedHandlerImpl bean property. It avoids complicated configuration by allowing just to specify the entry point.
-     * 
-     * @param casAuthenticationEntryPoint
-     */
-    public void setCasAuthenticationEntryPoint(CasAuthenticationEntryPoint casAuthenticationEntryPoint) {
-        casRememberMeAccessDeniedHandlerImpl.setCasAuthenticationEntryPoint(casAuthenticationEntryPoint);
-    }
-    
-    public CasRememberMeAuthenticationTrustResolverImpl getCasRememberMeAuthenticationTrustResolverImpl() {
-        return casRememberMeAuthenticationTrustResolverImpl;
-    }
-    
-    public void setCasRememberMeAuthenticationTrustResolverImpl(CasRememberMeAuthenticationTrustResolverImpl casRememberMeAuthenticationTrustResolverImpl) {
-        this.casRememberMeAuthenticationTrustResolverImpl = casRememberMeAuthenticationTrustResolverImpl;
-    }
-    
-    public CasRememberMeAccessDeniedHandlerImpl getCasRememberMeAccessDeniedHandlerImpl() {
-        return casRememberMeAccessDeniedHandlerImpl;
-    }
-    
-    public void setCasRememberMeAccessDeniedHandlerImpl(CasRememberMeAccessDeniedHandlerImpl casRememberMeAccessDeniedHandlerImpl) {
-        this.casRememberMeAccessDeniedHandlerImpl = casRememberMeAccessDeniedHandlerImpl;
-    }
+	
+	private static final Log logger = LogFactory.getLog(CasRememberMeBeanPostProcessor.class);
+	
+	private CasRememberMeAuthenticationTrustResolverImpl casRememberMeAuthenticationTrustResolverImpl = new CasRememberMeAuthenticationTrustResolverImpl();
+	
+	private CasRememberMeAccessDeniedHandlerImpl casRememberMeAccessDeniedHandlerImpl = new CasRememberMeAccessDeniedHandlerImpl();
+	
+	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+		return bean;
+	}
+	
+	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+		
+		if (bean instanceof AuthenticatedVoter) {
+			AuthenticatedVoter authenticatedVoter = (AuthenticatedVoter) bean;
+			authenticatedVoter.setAuthenticationTrustResolver(casRememberMeAuthenticationTrustResolverImpl);
+			logger.info("Replace AuthenticationTrustResolverImpl by CasRememberMeAuthenticationTrustResolverImpl("
+						+ casRememberMeAuthenticationTrustResolverImpl
+						+ ") in AuthenticatedVoter (" + beanName + ")");
+			
+		} else if (bean instanceof DefaultWebSecurityExpressionHandler) {
+			DefaultWebSecurityExpressionHandler defaultWebSecurityExpressionHandler = (DefaultWebSecurityExpressionHandler) bean;
+			defaultWebSecurityExpressionHandler.setAuthenticationTrustResolver(casRememberMeAuthenticationTrustResolverImpl);
+			logger.info("Replace AuthenticationTrustResolverImpl by CasRememberMeAuthenticationTrustResolverImpl("
+						+ casRememberMeAuthenticationTrustResolverImpl
+						+ ") in DefaultWebSecurityExpressionHandler (" + beanName + ")");
+			
+		} else if (bean instanceof ExceptionTranslationFilter) {
+			ExceptionTranslationFilter exceptionTranslationFilter = (ExceptionTranslationFilter) bean;
+			exceptionTranslationFilter.setAccessDeniedHandler(casRememberMeAccessDeniedHandlerImpl);
+			logger.info("Replace AccessDeniedHandlerImpl by CasRememberMeAccessDeniedHandlerImpl("
+						+ casRememberMeAccessDeniedHandlerImpl
+						+ ") in ExceptionTranslationFilter (" + beanName + ")");
+		}
+		
+		return bean;
+	}
+	
+	/**
+	 * This setter is not a real one as it doesn't set a private property, instead it updates the entry point of the
+	 * casRememberMeAccessDeniedHandlerImpl bean property. It avoids complicated configuration by allowing just to specify the entry point.
+	 * 
+	 * @param casAuthenticationEntryPoint
+	 */
+	public void setCasAuthenticationEntryPoint(	CasAuthenticationEntryPoint casAuthenticationEntryPoint) {
+		casRememberMeAccessDeniedHandlerImpl.setCasAuthenticationEntryPoint(casAuthenticationEntryPoint);
+	}
+	
+	public CasRememberMeAuthenticationTrustResolverImpl getCasRememberMeAuthenticationTrustResolverImpl() {
+		return casRememberMeAuthenticationTrustResolverImpl;
+	}
+	
+	public void setCasRememberMeAuthenticationTrustResolverImpl(CasRememberMeAuthenticationTrustResolverImpl casRememberMeAuthenticationTrustResolverImpl) {
+		this.casRememberMeAuthenticationTrustResolverImpl = casRememberMeAuthenticationTrustResolverImpl;
+	}
+	
+	public CasRememberMeAccessDeniedHandlerImpl getCasRememberMeAccessDeniedHandlerImpl() {
+		return casRememberMeAccessDeniedHandlerImpl;
+	}
+	
+	public void setCasRememberMeAccessDeniedHandlerImpl(CasRememberMeAccessDeniedHandlerImpl casRememberMeAccessDeniedHandlerImpl) {
+		this.casRememberMeAccessDeniedHandlerImpl = casRememberMeAccessDeniedHandlerImpl;
+	}
 }

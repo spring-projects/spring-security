@@ -1,6 +1,7 @@
 target/
 */src/*/java/META-INF
 */src/META-INF/
+*/src/*/java/META-INF/
 .classpath
 .springBeans
 .project

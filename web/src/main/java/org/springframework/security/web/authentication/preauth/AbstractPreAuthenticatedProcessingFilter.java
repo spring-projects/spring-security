@@ -143,6 +143,8 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
         logger.debug("Pre-authenticated principal has changed to " + principal + " and will be reauthenticated");
 
         if (invalidateSessionOnPrincipalChange) {
+            SecurityContextHolder.clearContext();
+
             HttpSession session = request.getSession(false);
 
             if (session != null) {

@@ -19,7 +19,7 @@
             </footnote>. The first approach uses a <link xlink:href="#el-access-web">web-security
             expression</link>, specified in the <literal>access</literal> attribute of the tag. The
             expression evaluation will be delegated to the
-            <interfacename>WebSecurityExpressionHandler</interfacename> defined in the application
+            <interfacename>SecurityExpressionHandler&lt;FilterInvocation&gt;</interfacename> defined in the application
             context (you should have web expressions enabled in your <literal>&lt;http></literal>
             namespace configuration to make sure this service is available). So, for example, you
             might

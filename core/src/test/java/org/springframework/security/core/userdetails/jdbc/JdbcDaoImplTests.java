@@ -82,7 +82,7 @@ public class JdbcDaoImplTests extends TestCase {
         assertEquals("SELECT USERS FROM FOO", dao.getUsersByUsernameQuery());
     }
 
-    public void testLookupFailsIfUserHasNoGrantedAuthorities() throws Exception {
+/*    public void testLookupFailsIfUserHasNoGrantedAuthorities() throws Exception {
         JdbcDaoImpl dao = makePopulatedJdbcDao();
 
         try {
@@ -91,7 +91,7 @@ public class JdbcDaoImplTests extends TestCase {
         } catch (UsernameNotFoundException expected) {
             assertEquals("User cooper has no GrantedAuthority", expected.getMessage());
         }
-    }
+    }*/
 
     public void testLookupFailsWithWrongUsername() throws Exception {
         JdbcDaoImpl dao = makePopulatedJdbcDao();
