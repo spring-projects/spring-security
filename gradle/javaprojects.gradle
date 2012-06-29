@@ -12,7 +12,7 @@ hsqlVersion = '1.8.0.10'
 slf4jVersion = '1.6.1'
 logbackVersion = '0.9.29'
 cglibVersion = '2.2'
-powerMockVersion = '1.4.10'
+powerMockVersion = '1.4.12'
 
 bundlorProperties = [
     version: version,
