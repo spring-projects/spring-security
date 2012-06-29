@@ -17,7 +17,7 @@ project('faq') {
     [docbookHtml, docbookFoPdf, docbookHtmlSingle]*.sourceFileName = 'faq.xml'
     docbookHtmlSingle.suffix = ''
 
-    spec = copySpec {
+    ext.spec = copySpec {
         into ('faq') {
             from("$buildDir/docs")
             from("$projectDir/src/resources")
@@ -36,7 +36,7 @@ project('manual') {
 //    docbookFoPdf.admonGraphicsPath = "${imagesDir}/"
     docbookFoPdf.imgSrcPath = "${projectDir}/src/docbook/"
 
-    spec = copySpec {
+    ext.spec = copySpec {
         into ('reference') {
             from("$buildDir/docs")
             from("$projectDir/src/resources")
@@ -56,7 +56,6 @@ task reference (type: Copy) {
 task apidocs(type: Javadoc) {
     destinationDir = new File(buildDir, 'apidocs')
     title = "Spring Security $version API"
-    optionsFile = file("$buildDir/tmp/javadoc.options")
 
     source coreModuleProjects.collect { project ->
         project.sourceSets.main.allJava
@@ -94,7 +93,7 @@ apidocs.options.groups = [
 
 ]
 
-apiSpec = copySpec {
+ext.apiSpec = copySpec {
     into('apidocs') {
         from(apidocs.destinationDir)
     }

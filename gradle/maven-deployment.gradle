@@ -43,7 +43,7 @@ uploadArchives {
         if (releaseBuild) {
             repository(url: releaseRepositoryUrl)
         } else {
-            s3credentials = [userName: project.properties.s3AccessKey, passphrase: project.properties.s3SecretAccessKey]
+            def s3credentials = [userName: project.properties.s3AccessKey, passphrase: project.properties.s3SecretAccessKey]
             repository(url: milestoneRepositoryUrl) {
                 authentication(s3credentials)
             }

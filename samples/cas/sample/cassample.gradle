@@ -24,9 +24,7 @@ sourceSets.integrationTest {
     groovy.srcDir file('src/integration-test/groovy')
 }
 
-eclipseClasspath {
-    plusConfigurations += configurations.integrationTestRuntime
-}
+eclipse.classpath.plusConfigurations += configurations.integrationTestRuntime
 
 dependencies {
     groovy 'org.codehaus.groovy:groovy:1.7.10'
@@ -53,10 +51,10 @@ dependencies {
 
 [jettyRun, jettyRunWar]*.configure {
     contextPath = "/cas-sample"
-    def httpConnector = new org.mortbay.jetty.nio.SelectChannelConnector();
+    def httpConnector = jettyRunWar.class.classLoader.loadClass('org.mortbay.jetty.nio.SelectChannelConnector').newInstance()
     httpConnector.port = 8080
     httpConnector.confidentialPort = 8443
-    def httpsConnector = new org.mortbay.jetty.security.SslSocketConnector();
+    def httpsConnector = jettyRunWar.class.classLoader.loadClass('org.mortbay.jetty.security.SslSocketConnector').newInstance()
     httpsConnector.port = 8443
     httpsConnector.keystore = httpsConnector.truststore = keystore
     httpsConnector.keyPassword = httpsConnector.trustPassword = password
@@ -87,13 +85,15 @@ integrationTest.doFirst {
 gradle.taskGraph.whenReady {graph ->
     def casServer = casServer()
     [casServer,jettyRunWar]*.metaClass*.getHttpsConnector {->
-        delegate.connectors.find { it instanceof org.mortbay.jetty.security.SslSocketConnector }
+        def sslSocketConnClass = jettyRunWar.class.classLoader.loadClass('org.mortbay.jetty.security.SslSocketConnector')
+        delegate.connectors.find { it in sslSocketConnClass }
     }
     [casServer,jettyRunWar]*.metaClass*.getHttpsHost {->
         "localhost:"+delegate.httpsConnector.port
     }
     jettyRunWar.metaClass.getHttpConnector {->
-        delegate.connectors.find { it instanceof org.mortbay.jetty.nio.SelectChannelConnector }
+        def channelConnClass = jettyRunWar.class.classLoader.loadClass('org.mortbay.jetty.nio.SelectChannelConnector')
+        delegate.connectors.find { it in channelConnClass }
     }
     if (graph.hasTask(cas)) {
         casServer.daemon = true

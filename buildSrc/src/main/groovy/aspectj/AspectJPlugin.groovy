@@ -12,7 +12,7 @@ import org.gradle.api.GradleException
 import org.gradle.plugins.ide.eclipse.GenerateEclipseProject
 import org.gradle.plugins.ide.eclipse.GenerateEclipseClasspath
 import org.gradle.plugins.ide.eclipse.model.BuildCommand
-import org.gradle.tooling.model.ProjectDependency
+import org.gradle.plugins.ide.eclipse.model.ProjectDependency
 
 /**
  *
@@ -41,7 +41,7 @@ class AspectJPlugin implements Plugin<Project> {
             dependsOn project.processResources
             sourceSet = project.sourceSets.main
             inputs.files(sourceSet.java.srcDirs)
-            outputs.dir(sourceSet.classesDir)
+            outputs.dir(sourceSet.output.classesDir)
             aspectPath = project.configurations.aspectpath
         }
 
@@ -49,19 +49,19 @@ class AspectJPlugin implements Plugin<Project> {
             dependsOn project.processTestResources, project.compileJava, project.jar
             sourceSet = project.sourceSets.test
             inputs.files(sourceSet.java.srcDirs)
-            outputs.dir(sourceSet.classesDir)
+            outputs.dir(sourceSet.output.classesDir)
             aspectPath = project.files(project.configurations.aspectpath, project.jar.archivePath)
         }
 
-        project.tasks.withType(GenerateEclipseProject).all {
-            whenConfigured { p ->
+        project.tasks.withType(GenerateEclipseProject) {
+            project.eclipse.project.file.whenMerged { p ->
                 p.natures.add(0, 'org.eclipse.ajdt.ui.ajnature')
-                p.buildCommands = [new BuildCommand('org.eclipse.ajdt.core.ajbuilder',[:])]
+                p.buildCommands = [new BuildCommand('org.eclipse.ajdt.core.ajbuilder')]
             }
         }
 
-        project.tasks.withType(GenerateEclipseClasspath).all {
-            whenConfigured { classpath ->
+        project.tasks.withType(GenerateEclipseClasspath) {
+            project.eclipse.classpath.file.whenMerged { classpath ->
                 def entries = classpath.entries.findAll { it instanceof ProjectDependency}.findAll { entry ->
                     def projectPath = entry.path.replaceAll('/',':')
                     project.rootProject.findProject(projectPath).plugins.findPlugin(AspectJPlugin)
@@ -86,7 +86,7 @@ class Ajc extends DefaultTask {
     def compile() {
         logger.info("Running ajc ...")
         ant.taskdef(resource: "org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties", classpath: project.configurations.ajtools.asPath)
-        ant.iajc(classpath: sourceSet.compileClasspath.asPath, fork: 'true', destDir: sourceSet.classesDir.absolutePath,
+        ant.iajc(classpath: sourceSet.compileClasspath.asPath, fork: 'true', destDir: sourceSet.output.classesDir.absolutePath,
                 source: project.convention.plugins.java.sourceCompatibility,
                 target: project.convention.plugins.java.targetCompatibility,
                 aspectPath: aspectPath.asPath, sourceRootCopyFilter: '**/*.java', showWeaveInfo: 'true') {

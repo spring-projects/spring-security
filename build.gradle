@@ -4,8 +4,8 @@ description = 'Spring Security'
 
 allprojects {
     version = '3.1.1.CI-SNAPSHOT'
-    releaseBuild = version.endsWith('RELEASE')
-    snapshotBuild = version.endsWith('SNAPSHOT')
+    ext.releaseBuild = version.endsWith('RELEASE')
+    ext.snapshotBuild = version.endsWith('SNAPSHOT')
 
     group = 'org.springframework.security'
 
@@ -16,11 +16,11 @@ allprojects {
 }
 
 // Set up different subproject lists for individual configuration
-javaProjects = subprojects.findAll { project -> project.name != 'docs' && project.name != 'faq' && project.name != 'manual' }
-sampleProjects = subprojects.findAll { project -> project.name.startsWith('spring-security-samples') }
-itestProjects = subprojects.findAll { project -> project.name.startsWith('itest') }
-coreModuleProjects = javaProjects - sampleProjects - itestProjects
-aspectjProjects = [project(':spring-security-aspects'), project(':spring-security-samples-aspectj')]
+ext.javaProjects = subprojects.findAll { project -> project.name != 'docs' && project.name != 'faq' && project.name != 'manual' }
+ext.sampleProjects = subprojects.findAll { project -> project.name.startsWith('spring-security-samples') }
+ext.itestProjects = subprojects.findAll { project -> project.name.startsWith('itest') }
+ext.coreModuleProjects = javaProjects - sampleProjects - itestProjects
+ext.aspectjProjects = [project(':spring-security-aspects'), project(':spring-security-samples-aspectj')]
 
 configure(javaProjects) {
     apply from: "$rootDir/gradle/javaprojects.gradle"
@@ -28,7 +28,7 @@ configure(javaProjects) {
 
 configure(coreModuleProjects) {
     // Gives better names in structure101 jar diagram
-    sourceSets.main.classesDir = new File(buildDir, "classes/" + project.name.substring("spring-security".length() + 1))
+    sourceSets.main.output.classesDir = new File(buildDir, "classes/" + project.name.substring("spring-security".length() + 1))
     apply plugin: 'bundlor'
     bundlor.expansions = bundlorProperties
     apply from: "$rootDir/gradle/maven-deployment.gradle"
@@ -75,5 +75,5 @@ task uploadDist(type: S3DistroUpload) {
 apply from: "$rootDir/gradle/ide-integration.gradle"
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.0-milestone-3'
+    gradleVersion = '1.0'
 }

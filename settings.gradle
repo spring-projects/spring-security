@@ -34,7 +34,7 @@ def String[] itest = [
 include modules
 
 modules.each {name ->
-    p = findProject(":${name}")
+    def p = findProject(":${name}")
     p.name = "spring-security-${name}"
     p.buildFileName = "${name}.gradle"
 }
@@ -42,7 +42,7 @@ modules.each {name ->
 include samples
 
 samples.each {name ->
-    p = findProject(":${name}")
+    def p = findProject(":${name}")
     def fullName = name.replaceAll('/','')
     p.name = "spring-security-samples-${fullName}"
     p.buildFileName = "${fullName}.gradle"
@@ -52,7 +52,7 @@ samples.each {name ->
 include itest
 
 itest.each { name ->
-    p = findProject(":${name}")
+    def p = findProject(":${name}")
     p.name = "itest-${name}"
     p.buildFileName = "itest-${name}.gradle"
     p.projectDir = new File(settingsDir, "itest/${name}");
@@ -60,7 +60,7 @@ itest.each { name ->
 
 include 'docs', 'docs:faq', 'docs:manual'
 
-docs = findProject(':docs')
+def docs = findProject(':docs')
 docs.buildFileName = 'docs.gradle'
 
 rootProject.children.each {project ->

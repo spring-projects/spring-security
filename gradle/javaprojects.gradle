@@ -1,20 +1,20 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
-springVersion = '3.0.6.RELEASE'
-springLdapVersion = '1.3.1.RELEASE'
-ehcacheVersion = '1.6.2'
-aspectjVersion = '1.6.10'
-apacheDsVersion = '1.5.5'
-jstlVersion = '1.2'
-jettyVersion = '6.1.26'
-hsqlVersion = '1.8.0.10'
-slf4jVersion = '1.6.1'
-logbackVersion = '0.9.29'
-cglibVersion = '2.2'
-powerMockVersion = '1.4.12'
+ext.springVersion = '3.0.6.RELEASE'
+ext.springLdapVersion = '1.3.1.RELEASE'
+ext.ehcacheVersion = '1.6.2'
+ext.aspectjVersion = '1.6.10'
+ext.apacheDsVersion = '1.5.5'
+ext.jstlVersion = '1.2'
+ext.jettyVersion = '6.1.26'
+ext.hsqlVersion = '1.8.0.10'
+ext.slf4jVersion = '1.6.1'
+ext.logbackVersion = '0.9.29'
+ext.cglibVersion = '2.2'
+ext.powerMockVersion = '1.4.12'
 
-bundlorProperties = [
+ext.bundlorProperties = [
     version: version,
     secRange: "[$version, 3.2.0)",
     springRange: "[$springVersion, 3.2.0)",
@@ -55,13 +55,13 @@ sourceSets {
     integrationTest {
         java.srcDir file('src/integration-test/java')
         resources.srcDir file('src/integration-test/resources')
-        compileClasspath = sourceSets.main.classes + sourceSets.test.classes + configurations.integrationTestCompile
-        runtimeClasspath = classes + compileClasspath + configurations.integrationTestRuntime
+        compileClasspath = sourceSets.main.output + sourceSets.test.output + configurations.integrationTestCompile
+        runtimeClasspath = output + compileClasspath + configurations.integrationTestRuntime
     }
 }
 
 task integrationTest(type: Test, dependsOn: jar) {
-    testClassesDir = sourceSets.integrationTest.classesDir
+    testClassesDir = sourceSets.integrationTest.output.classesDir
     logging.captureStandardOutput(LogLevel.INFO)
     classpath = sourceSets.integrationTest.runtimeClasspath
     maxParallelForks = 1

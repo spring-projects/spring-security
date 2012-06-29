@@ -76,7 +76,7 @@ public class Bundlor extends DefaultTask {
             manifestTemplate = null
         }
 
-        inputPaths = project.files(project.sourceSets.main.classesDir)
+        inputPaths = project.files(project.sourceSets.main.output.classesDir)
 
         if (manifestTemplate != null) {
             project.jar.manifest.from manifest

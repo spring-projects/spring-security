@@ -13,12 +13,12 @@ dependencies {
 }
 
 task casServerOverlay(type: Sync) {
-    war = configurations.casServer.resolve().toArray()[0]
-    warName = war.name.replace('.war','-custom')
-    overlayDir = file('src/main/webapp')
-    explodedWar = file("$buildDir/tmp/${warName}")
-    customWar = file("$buildDir/tmp/${warName}.war")
-    tokens = [logLevel: 'INFO']
+    def war = configurations.casServer.resolve().toArray()[0]
+    def warName = war.name.replace('.war','-custom')
+    def overlayDir = file('src/main/webapp')
+    def explodedWar = file("$buildDir/tmp/${warName}")
+    ext.customWar = file("$buildDir/tmp/${warName}.war")
+    ext.tokens = [logLevel: 'INFO']
 
     inputs.files(war, overlayDir)
     inputs.property('tokens',{tokens})
@@ -44,7 +44,7 @@ casServerOverlay.metaClass.setLogLevel { level ->
 
 task casServer (type: org.gradle.api.plugins.jetty.JettyRunWar, dependsOn: 'casServerOverlay') {
     contextPath = "/cas"
-    connectors = [new org.mortbay.jetty.security.SslSocketConnector()]
+    connectors = [casServer.class.classLoader.loadClass('org.mortbay.jetty.security.SslSocketConnector').newInstance()]
     connectors[0].port = 9443
     connectors[0].keystore = connectors[0].truststore = keystore
     connectors[0].keyPassword = connectors[0].trustPassword = password

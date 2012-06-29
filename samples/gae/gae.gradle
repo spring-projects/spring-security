@@ -2,13 +2,19 @@ apply plugin: 'war'
 apply plugin: 'jetty'
 apply plugin: 'gae'
 
-gaeVersion="1.4.2"
+def gaeVersion="1.4.2"
 
 repositories {
-    // Hibernate Validator
-    mavenRepo name: 'JBoss', urls: 'https://repository.jboss.org/nexus/content/repositories/releases'
-    // GAE Jars
-    mavenRepo name: 'GAE', urls:'http://maven-gae-plugin.googlecode.com/svn/repository'
+    maven {
+        // Hibernate Validator
+        name =  'JBoss'
+        url = 'https://repository.jboss.org/nexus/content/repositories/releases'
+    }
+    maven {
+        // GAE Jars
+        name =  'GAE'
+        url = 'http://maven-gae-plugin.googlecode.com/svn/repository'
+    }
 }
 
 // Remove logback as it causes security issues with GAE.
