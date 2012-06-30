@@ -45,7 +45,9 @@ public class AuthenticationTrustResolverImplTests extends TestCase {
         AuthenticationTrustResolverImpl trustResolver = new AuthenticationTrustResolverImpl();
         assertTrue(trustResolver.isRememberMe(
                 new RememberMeAuthenticationToken("ignored", "ignored", AuthorityUtils.createAuthorityList("ignored"))));
-        assertFalse(trustResolver.isAnonymous(
+        assertTrue(trustResolver.isRememberMe(
+                new TestingAuthenticationToken("ignored", "ignored", AuthorityUtils.createAuthorityList("ignored"), true)));
+        assertFalse(trustResolver.isRememberMe(
                 new TestingAuthenticationToken("ignored", "ignored", AuthorityUtils.createAuthorityList("ignored"))));
     }
 

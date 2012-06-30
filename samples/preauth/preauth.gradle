@@ -23,5 +23,5 @@ dependencies {
 
 jettyRun {
     contextPath = "/preauth"
-    userRealms = [new org.mortbay.jetty.security.HashUserRealm('Preauth Realm', "$projectDir/realm.properties")]
+    userRealms = [jettyRun.class.classLoader.loadClass('org.mortbay.jetty.security.HashUserRealm').newInstance('Preauth Realm', "$projectDir/realm.properties")]
 }

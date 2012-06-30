@@ -3,8 +3,14 @@ apply plugin: 'groovy'
 repositories {
     mavenLocal()
     mavenCentral()
-    mavenRepo name: 'SpringSource Enterprise Release', urls: 'http://repository.springsource.com/maven/bundles/release'
-    mavenRepo name: 'SpringSource Enterprise External', urls: 'http://repository.springsource.com/maven/bundles/external'
+    maven {
+        name = 'SpringSource Enterprise Release'
+        url = 'http://repository.springsource.com/maven/bundles/release'
+    }
+    maven {
+        name = 'SpringSource Enterprise External'
+        url = 'http://repository.springsource.com/maven/bundles/external'
+    }
 }
 
 // Docbook Plugin
@@ -47,10 +53,4 @@ dependencies {
 task ide(type: Copy)  {
     from configurations.runtime
     into 'ide'
-}
-
-apply plugin: 'idea'
-
-ideaModule {
-    excludeDirs += file('.gradle')
 }
