@@ -89,7 +89,6 @@ public class JdbcDaoImplTests extends TestCase {
             dao.loadUserByUsername("cooper");
             fail("Should have thrown UsernameNotFoundException");
         } catch (UsernameNotFoundException expected) {
-            assertEquals("User cooper has no GrantedAuthority", expected.getMessage());
         }
     }
 
