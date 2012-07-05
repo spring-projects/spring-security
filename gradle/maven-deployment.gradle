@@ -83,6 +83,7 @@ def customizePom(pom) {
         if (p.artifactId == 'spring-security-core') {
             p.dependencies.find { dep -> dep.artifactId == 'spring-jdbc'}.optional = true
             p.dependencies.find { dep -> dep.artifactId == 'spring-tx'}.optional = true
+            p.dependencies.removeAll { dep -> dep.artifactId == 'spring-security-crypto' }
         }
     }
 
