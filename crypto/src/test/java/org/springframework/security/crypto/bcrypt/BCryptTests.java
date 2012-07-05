@@ -23,18 +23,16 @@ import static org.junit.Assert.*;
  * JUnit unit tests for BCrypt routines
  * @author Damien Miller
  */
-public class BCryptTest {
+public class BCryptTests {
 
-    private static void print(String s)
-    {
-//        System.out.print(s);
+    private static void print(String s) {
+        // System.out.print(s);
     }
-    
-    private static void println(String s)
-    {
-//        System.out.println(s);
+
+    private static void println(String s) {
+        // System.out.println(s);
     }
-    
+
     String test_vectors[][] = {
         {"",
             "$2a$06$DCq7YPn5Rq63x1Lad4cll.",
@@ -153,8 +151,7 @@ public class BCryptTest {
     }
 
     /**
-     * Test method for 'BCrypt.checkpw(String, String)'
-     * expecting success
+     * Test method for 'BCrypt.checkpw(String, String)' expecting success
      */
     @Test
     public void testCheckpw_success() {
@@ -169,8 +166,7 @@ public class BCryptTest {
     }
 
     /**
-     * Test method for 'BCrypt.checkpw(String, String)'
-     * expecting failure
+     * Test method for 'BCrypt.checkpw(String, String)' expecting failure
      */
     @Test
     public void testCheckpw_failure() {
@@ -205,101 +201,90 @@ public class BCryptTest {
     }
 
     @Test
-    public void roundsForDoesNotOverflow()
-    {
+    public void roundsForDoesNotOverflow() {
         assertEquals(1024, BCrypt.roundsForLogRounds(10));
         assertEquals(0x80000000L, BCrypt.roundsForLogRounds(31));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void emptyByteArrayCannotBeEncoded()
-    {
+    public void emptyByteArrayCannotBeEncoded() {
         BCrypt.encode_base64(new byte[0], 0, new StringBuilder());
     }
-    
+
     @Test(expected = IllegalArgumentException.class)
-    public void moreBytesThanInTheArrayCannotBeEncoded()
-    {
+    public void moreBytesThanInTheArrayCannotBeEncoded() {
         BCrypt.encode_base64(new byte[1], 2, new StringBuilder());
     }
-    
+
     @Test(expected = IllegalArgumentException.class)
-    public void decodingMustRequestMoreThanZeroBytes()
-    {
+    public void decodingMustRequestMoreThanZeroBytes() {
         BCrypt.decode_base64("", 0);
     }
-    
-    private static String encode_base64(byte d[], int len)
-            throws IllegalArgumentException
-    {
+
+    private static String encode_base64(byte d[], int len) throws IllegalArgumentException {
         StringBuilder rs = new StringBuilder();
         BCrypt.encode_base64(d, len, rs);
         return rs.toString();
     }
-    
+
     @Test
-    public void testBase64EncodeSimpleByteArrays()
-    {
-        assertEquals("..", encode_base64(new byte[]{0}, 1));
-        assertEquals("...", encode_base64(new byte[]{0, 0}, 2));
-        assertEquals("....", encode_base64(new byte[]{0, 0, 0}, 3));
+    public void testBase64EncodeSimpleByteArrays() {
+        assertEquals("..", encode_base64(new byte[] { 0 }, 1));
+        assertEquals("...", encode_base64(new byte[] { 0, 0 }, 2));
+        assertEquals("....", encode_base64(new byte[] { 0, 0, 0 }, 3));
     }
-    
+
     @Test
-    public void decodingCharsOutsideAsciiGivesNoResults()
-    {
+    public void decodingCharsOutsideAsciiGivesNoResults() {
         byte[] ba = BCrypt.decode_base64("ππππππππ", 1);
         assertEquals(0, ba.length);
     }
 
     @Test
-    public void decodingStopsWithFirstInvalidCharacter()
-    {
+    public void decodingStopsWithFirstInvalidCharacter() {
         assertEquals(1, BCrypt.decode_base64("....", 1).length);
         assertEquals(0, BCrypt.decode_base64(" ....", 1).length);
     }
 
     @Test
-    public void decodingOnlyProvidesAvailableBytes()
-    {
+    public void decodingOnlyProvidesAvailableBytes() {
         assertEquals(0, BCrypt.decode_base64("", 1).length);
         assertEquals(3, BCrypt.decode_base64("......", 3).length);
         assertEquals(4, BCrypt.decode_base64("......", 4).length);
         assertEquals(4, BCrypt.decode_base64("......", 5).length);
     }
-    
+
     /**
      * Encode and decode each byte value in each position.
      */
     @Test
-    public void testBase64EncodeDecode()
-    {
+    public void testBase64EncodeDecode() {
         byte[] ba = new byte[3];
 
         for (int b = 0; b <= 0xFF; b++) {
             for (int i = 0; i < ba.length; i++) {
                 Arrays.fill(ba, (byte) 0);
                 ba[i] = (byte) b;
-                
+
                 String s = encode_base64(ba, 3);
                 assertEquals(4, s.length());
-                
+
                 byte[] decoded = BCrypt.decode_base64(s, 3);
                 assertArrayEquals(ba, decoded);
             }
         }
     }
-    
+
     @Test(expected = IllegalArgumentException.class)
     public void genSaltFailsWithTooFewRounds() {
         BCrypt.gensalt(3);
     }
-    
+
     @Test(expected = IllegalArgumentException.class)
     public void genSaltFailsWithTooManyRounds() {
         BCrypt.gensalt(32);
     }
-    
+
     @Test
     public void genSaltGeneratesCorrectSaltPrefix() {
         assertTrue(BCrypt.gensalt(4).startsWith("$2a$04$"));
@@ -310,35 +295,31 @@ public class BCryptTest {
     public void hashpwFailsWhenSaltSpecifiesTooFewRounds() {
         BCrypt.hashpw("password", "$2a$03$......................");
     }
-    
+
     @Test(expected = IllegalArgumentException.class)
     public void hashpwFailsWhenSaltSpecifiesTooManyRounds() {
         BCrypt.hashpw("password", "$2a$32$......................");
     }
-    
+
     @Test(expected = IllegalArgumentException.class)
-    public void saltLengthIsChecked()
-    {
+    public void saltLengthIsChecked() {
         BCrypt.hashpw("", "");
     }
-    
+
     @Test
-    public void hashpwWorksWithOldRevision()
-    {
-        assertEquals(
-                "$2$05$......................bvpG2UfzdyW/S0ny/4YyEZrmczoJfVm",
+    public void hashpwWorksWithOldRevision() {
+        assertEquals("$2$05$......................bvpG2UfzdyW/S0ny/4YyEZrmczoJfVm",
                 BCrypt.hashpw("password", "$2$05$......................"));
     }
-    
+
     @Test
-    public void equalsOnStringsIsCorrect()
-    {
+    public void equalsOnStringsIsCorrect() {
         assertTrue(BCrypt.equalsNoEarlyReturn("", ""));
         assertTrue(BCrypt.equalsNoEarlyReturn("test", "test"));
-        
+
         assertFalse(BCrypt.equalsNoEarlyReturn("test", ""));
         assertFalse(BCrypt.equalsNoEarlyReturn("", "test"));
-        
+
         assertFalse(BCrypt.equalsNoEarlyReturn("test", "pass"));
     }
 }

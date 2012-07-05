@@ -599,7 +599,7 @@ public class BCrypt {
         }
         return 1L << log_rounds;
     }
-    
+
     /**
      * Perform the central password hashing step in the
      * bcrypt scheme
@@ -655,11 +655,11 @@ public class BCrypt {
         StringBuilder rs = new StringBuilder();
 
         int saltLength = salt.length();
-        
+
         if (saltLength < 28) {
             throw new IllegalArgumentException("Invalid salt");
         }
-        
+
         if (salt.charAt(0) != '$' || salt.charAt(1) != '2') {
             throw new IllegalArgumentException("Invalid salt version");
         }
@@ -676,7 +676,7 @@ public class BCrypt {
         if (saltLength - off < 25) {
             throw new IllegalArgumentException("Invalid salt");
         }
-        
+
         // Extract number of rounds
         if (salt.charAt(off + 2) > '$') {
             throw new IllegalArgumentException("Missing salt rounds");
@@ -769,15 +769,15 @@ public class BCrypt {
     public static boolean checkpw(String plaintext, String hashed) {
         return equalsNoEarlyReturn(hashed, hashpw(plaintext, hashed));
     }
-    
+
     static boolean equalsNoEarlyReturn(String a, String b) {
         char[] caa = a.toCharArray();
         char[] cab = b.toCharArray();
-        
+
         if (caa.length != cab.length) {
             return false;
         }
-        
+
         byte ret = 0;
         for (int i = 0; i < caa.length; i++) {
             ret |= caa[i] ^ cab[i];
