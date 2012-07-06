@@ -21,12 +21,14 @@ import org.springframework.security.core.Authentication;
 /**
  * Basic implementation of {@link AuthenticationTrustResolver}.
  * <p>
- * Makes trust decisions based on whether the passed <code>Authentication</code> is an instance of a defined class.
+ * Makes trust decisions based on whether the passed <code>Authentication</code> is an instance of a defined class or
+ * implements the {@link RememberMeAware} interface and its <code>isRemember()</code> method returns <code>true</code>.
  * <p>
  * If {@link #anonymousClass} or {@link #rememberMeClass} is <code>null</code>, the corresponding method will
  * always return <code>false</code>.
  *
  * @author Ben Alex
+ * @see RememberMeAware#isRememberMe()
  */
 public class AuthenticationTrustResolverImpl implements AuthenticationTrustResolver {
     //~ Instance fields ================================================================================================
@@ -57,7 +59,15 @@ public class AuthenticationTrustResolverImpl implements AuthenticationTrustResol
             return false;
         }
 
-        return rememberMeClass.isAssignableFrom(authentication.getClass());
+        if (rememberMeClass.isAssignableFrom(authentication.getClass())) {
+            return true;
+        }
+        
+        if (authentication instanceof RememberMeAware) {
+            return ((RememberMeAware) authentication).isRememberMe();
+        }
+        
+        return false;
     }
 
     public void setAnonymousClass(Class<? extends Authentication> anonymousClass) {

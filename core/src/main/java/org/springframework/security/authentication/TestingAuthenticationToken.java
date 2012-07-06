@@ -15,7 +15,6 @@
 
 package org.springframework.security.authentication;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -29,12 +28,13 @@ import org.springframework.security.core.authority.AuthorityUtils;
  *
  * @author Ben Alex
  */
-public class TestingAuthenticationToken extends AbstractAuthenticationToken {
+public class TestingAuthenticationToken extends AbstractAuthenticationToken implements RememberMeAware {
     //~ Instance fields ================================================================================================
 
     private static final long serialVersionUID = 1L;
     private final Object credentials;
     private final Object principal;
+    private final boolean isRemember;
 
     //~ Constructors ===================================================================================================
 
@@ -42,6 +42,7 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
         super(null);
         this.principal = principal;
         this.credentials = credentials;
+        this.isRemember = false;
     }
 
     public TestingAuthenticationToken(Object principal, Object credentials, String... authorities) {
@@ -53,6 +54,14 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
         super(authorities);
         this.principal = principal;
         this.credentials = credentials;
+        this.isRemember = false;
+    }
+
+    public TestingAuthenticationToken(Object principal, Object credentials, List<GrantedAuthority> authorities, boolean isRemember) {
+        super(authorities);
+        this.principal = principal;
+        this.credentials = credentials;
+        this.isRemember = isRemember;
     }
 
     //~ Methods ========================================================================================================
@@ -63,5 +72,9 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
 
     public Object getPrincipal() {
         return this.principal;
+    }
+
+    public boolean isRememberMe() {
+        return isRemember;
     }
 }

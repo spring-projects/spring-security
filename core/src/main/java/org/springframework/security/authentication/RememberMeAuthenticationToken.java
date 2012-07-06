@@ -30,7 +30,7 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
  * @author Ben Alex
  * @author Luke Taylor
  */
-public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
+public class RememberMeAuthenticationToken extends AbstractAuthenticationToken implements RememberMeAware {
 
     private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
@@ -99,4 +99,12 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
         return false;
     }
 
+    /**
+     * This method always returns true as a <code>RememberMeAuthenticationToken</code> is always considered as remember-me.
+     * 
+     * @return true
+     */
+    public final boolean isRememberMe() {
+        return true;
+    }
 }
