@@ -32,7 +32,7 @@ class EmmaPlugin implements Plugin<Project> {
 
             doFirst {
                 InstrProcessor processor = InstrProcessor.create ();
-                String[] classesDirPath = [project.sourceSets.main.classesDir.absolutePath]
+                String[] classesDirPath = [project.sourceSets.main.output.classesDir.absolutePath]
 
                 processor.setInstrPath(classesDirPath, false);
                 processor.setOutMode(InstrProcessor.OutMode.OUT_MODE_COPY);
