@@ -13,7 +13,7 @@
             </author>
         </authorgroup>
         <productname>Spring Security</productname>
-        <releaseinfo>3.1.1</releaseinfo>
+        <releaseinfo>3.1.2.CI-SNAPSHOT</releaseinfo>
     </info>
     <toc/>
     <preface xml:id="preface">
