@@ -16,8 +16,13 @@
         <intercept-url pattern="/cas-logout.jsp" access="permitAll"/>
         <intercept-url pattern="/casfailed.jsp" access="permitAll"/>
 
-        <intercept-url pattern="/secure/extreme/**"
-            access="hasRole('ROLE_SUPERVISOR')" />
+        <!-- to test CAS remember-me -->
+        <access-denied-handler ref="casRememberMeAccessDeniedHandler" />
+        <intercept-url pattern="/fully/**" access="isFullyAuthenticated()" />
+        <intercept-url pattern="/auth/**" access="isAuthenticated()" />
+        <!-- to test CAS remember-me -->
+
+        <intercept-url pattern="/secure/extreme/**" access="hasRole('ROLE_SUPERVISOR')" />
         <intercept-url pattern="/secure/**" access="hasRole('ROLE_USER')" />
         <intercept-url pattern="/**" access="hasRole('ROLE_USER')" />
         <custom-filter ref="requestSingleLogoutFilter" before="LOGOUT_FILTER"/>
@@ -25,6 +30,10 @@
         <custom-filter ref="casFilter" position="CAS_FILTER" />
         <logout logout-success-url="/cas-logout.jsp"/>
     </http>
+
+    <!-- to handle CAS remember-me -->
+    <b:bean id="casRememberMeAccessDeniedHandler" class="org.springframework.security.cas.web.CasRememberMeAccessDeniedHandler"
+      p:casAuthenticationEntryPoint-ref="casEntryPoint" />
 
     <authentication-manager alias="authManager">
         <authentication-provider ref="casAuthProvider" />

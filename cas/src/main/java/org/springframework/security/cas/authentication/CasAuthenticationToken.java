@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import org.jasig.cas.client.validation.Assertion;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.RememberMeAware;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,7 +31,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @author Ben Alex
  * @author Scott Battaglia
  */
-public class CasAuthenticationToken extends AbstractAuthenticationToken implements Serializable {
+public class CasAuthenticationToken extends AbstractAuthenticationToken implements Serializable, RememberMeAware {
 
     private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
@@ -40,6 +41,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
     private final UserDetails userDetails;
     private final int keyHash;
     private final Assertion assertion;
+    private final boolean rememberMe;
 
     //~ Constructors ===================================================================================================
 
@@ -57,15 +59,18 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
      *        org.springframework.security.core.userdetails.UserDetailsService}) (cannot be <code>null</code>)
      * @param assertion the assertion returned from the CAS servers.  It contains the principal and how to obtain a
      *        proxy ticket for the user.
+     * @param rememberMeAttributeName the CAS remember-me attribute name
      *
      * @throws IllegalArgumentException if a <code>null</code> was passed
      */
     public CasAuthenticationToken(final String key, final Object principal, final Object credentials,
-        final Collection<? extends GrantedAuthority> authorities, final UserDetails userDetails, final Assertion assertion) {
+        final Collection<? extends GrantedAuthority> authorities, final UserDetails userDetails, final Assertion assertion,
+        String rememberMeAttributeName) {
         super(authorities);
 
         if ((key == null) || ("".equals(key)) || (principal == null) || "".equals(principal) || (credentials == null)
-            || "".equals(credentials) || (authorities == null) || (userDetails == null) || (assertion == null)) {
+            || "".equals(credentials) || (authorities == null) || (userDetails == null) || (assertion == null) ||
+            (rememberMeAttributeName == null)) {
             throw new IllegalArgumentException("Cannot pass null or empty values to constructor");
         }
 
@@ -74,6 +79,8 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
         this.credentials = credentials;
         this.userDetails = userDetails;
         this.assertion = assertion;
+        String rememberMeStringValue = (String) assertion.getPrincipal().getAttributes().get(rememberMeAttributeName);
+        this.rememberMe = rememberMeStringValue != null && Boolean.parseBoolean(rememberMeStringValue);
         setAuthenticated(true);
     }
 
@@ -121,9 +128,14 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
         return userDetails;
     }
 
+    public boolean isRememberMe() {
+        return rememberMe;
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(super.toString());
+        sb.append(" RememberMe: ").append(this.rememberMe);
         sb.append(" Assertion: ").append(this.assertion);
         sb.append(" Credentials (Service/Proxy Ticket): ").append(this.credentials);
 

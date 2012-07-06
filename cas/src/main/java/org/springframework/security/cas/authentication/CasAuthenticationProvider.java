@@ -56,6 +56,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(CasAuthenticationProvider.class);
+    public static final String DEFAULT_REMEMBERME_ATTRIBUTE_NAME = "longTermAuthenticationRequestTokenUsed";
 
     //~ Instance fields ================================================================================================
 
@@ -68,6 +69,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
     private TicketValidator ticketValidator;
     private ServiceProperties serviceProperties;
     private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
+    private String rememberMeAttributeName = DEFAULT_REMEMBERME_ATTRIBUTE_NAME;
 
 
     //~ Methods ========================================================================================================
@@ -141,7 +143,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
             final UserDetails userDetails = loadUserByAssertion(assertion);
             userDetailsChecker.check(userDetails);
             return new CasAuthenticationToken(this.key, userDetails, authentication.getCredentials(),
-                    authoritiesMapper.mapAuthorities(userDetails.getAuthorities()), userDetails, assertion);
+                    authoritiesMapper.mapAuthorities(userDetails.getAuthorities()), userDetails, assertion, rememberMeAttributeName);
         } catch (final TicketValidationException e) {
             throw new BadCredentialsException(e.getMessage(), e);
         }
@@ -232,6 +234,14 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 
     public void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
         this.authoritiesMapper = authoritiesMapper;
+    }
+
+    public String getRememberMeAttributeName() {
+        return rememberMeAttributeName;
+    }
+
+    public void setRememberMeAttributeName(String rememberMeAttributeName) {
+        this.rememberMeAttributeName = rememberMeAttributeName;
     }
 
     public boolean supports(final Class<?> authentication) {

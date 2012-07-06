@@ -26,9 +26,10 @@ class LoginPage extends Page {
     static url = loginUrl()
     static at = { assert driver.currentUrl.startsWith(loginUrl()); true}
     static content = {
-        login(required:false) { user, password=user ->
+        login(required:false) { user, rme=false, password=user ->
             loginForm.username = user
             loginForm.password = password
+            loginForm.rememberMe = rme
             submit.click()
         }
         loginForm { $('#login') }

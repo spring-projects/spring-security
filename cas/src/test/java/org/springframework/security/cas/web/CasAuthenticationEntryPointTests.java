@@ -108,4 +108,25 @@ public class CasAuthenticationEntryPointTests extends TestCase {
             + URLEncoder.encode("https://mycompany.com/bigWebApp/j_spring_cas_security_check", "UTF-8") + "&renew=true",
             response.getRedirectedUrl());
     }
+
+    public void testNormalOperationWithForceRenewTrue() throws Exception {
+        ServiceProperties sp = new ServiceProperties();
+        sp.setSendRenew(false);
+        sp.setService("https://mycompany.com/bigWebApp/j_spring_cas_security_check");
+
+        CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
+        ep.setLoginUrl("https://cas/login");
+        ep.setServiceProperties(sp);
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/some_path");
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        ep.afterPropertiesSet();
+        ep.commence(request, response, null, true);
+        assertEquals("https://cas/login?service="
+            + URLEncoder.encode("https://mycompany.com/bigWebApp/j_spring_cas_security_check", "UTF-8") + "&renew=true",
+            response.getRedirectedUrl());
+    }
 }

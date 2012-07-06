@@ -25,7 +25,7 @@ public abstract class AbstractStatelessTicketCacheTests {
         final Assertion assertion = new AssertionImpl("rod");
 
         return new CasAuthenticationToken("key", user, "ST-0-ER94xMJmn6pha35CQRoZ",
-                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), user, assertion);
+                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), user, assertion, CasAuthenticationProviderTests.TEST_REMEMBERME_ATTRIBUTE_NAME);
     }
 
 }
