@@ -16,6 +16,9 @@
 package org.springframework.security.cas.authentication;
 
 import junit.framework.TestCase;
+
+import org.jasig.cas.client.authentication.AttributePrincipal;
+import org.jasig.cas.client.authentication.AttributePrincipalImpl;
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.AssertionImpl;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -50,51 +53,59 @@ public class CasAuthenticationTokenTests extends TestCase {
     public void testConstructorRejectsNulls() {
         final Assertion assertion = new AssertionImpl("test");
         try {
-            new CasAuthenticationToken(null, makeUserDetails(), "Password", ROLES, makeUserDetails(), assertion);
+            new CasAuthenticationToken(null, makeUserDetails(), "Password", ROLES, makeUserDetails(), assertion, CasAuthenticationProviderTests.TEST_REMEMBERME_ATTRIBUTE_NAME);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
         }
 
         try {
-            new CasAuthenticationToken("key", null, "Password", ROLES, makeUserDetails(), assertion);
+            new CasAuthenticationToken("key", null, "Password", ROLES, makeUserDetails(), assertion, CasAuthenticationProviderTests.TEST_REMEMBERME_ATTRIBUTE_NAME);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
         }
 
         try {
-            new CasAuthenticationToken("key", makeUserDetails(), null, ROLES, makeUserDetails(), assertion);
+            new CasAuthenticationToken("key", makeUserDetails(), null, ROLES, makeUserDetails(), assertion, CasAuthenticationProviderTests.TEST_REMEMBERME_ATTRIBUTE_NAME);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
         }
 
         try {
-            new CasAuthenticationToken("key", makeUserDetails(), "Password", ROLES, makeUserDetails(), null);
+            new CasAuthenticationToken("key", makeUserDetails(), "Password", ROLES, makeUserDetails(), null, CasAuthenticationProviderTests.TEST_REMEMBERME_ATTRIBUTE_NAME);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
         }
 
         try {
-            new CasAuthenticationToken("key", makeUserDetails(), "Password", ROLES, null, assertion);
+            new CasAuthenticationToken("key", makeUserDetails(), "Password", ROLES, null, assertion, CasAuthenticationProviderTests.TEST_REMEMBERME_ATTRIBUTE_NAME);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
         }
 
         try {
-            new CasAuthenticationToken("key", makeUserDetails(), "Password", AuthorityUtils.createAuthorityList("ROLE_1", null), makeUserDetails(), assertion);
+            new CasAuthenticationToken("key", makeUserDetails(), "Password", AuthorityUtils.createAuthorityList("ROLE_1", null),
+                                       makeUserDetails(), assertion, CasAuthenticationProviderTests.TEST_REMEMBERME_ATTRIBUTE_NAME);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
         }
-    }
+
+        try {
+            new CasAuthenticationToken("key", makeUserDetails(), "Password", ROLES, makeUserDetails(), assertion, null);
+            fail("Should have thrown IllegalArgumentException");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(true);
+        }
+}
 
     public void testEqualsWhenEqual() {
         final Assertion assertion = new AssertionImpl("test");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key", makeUserDetails(), "Password", ROLES,
-                makeUserDetails(), assertion);
+                makeUserDetails(), assertion, CasAuthenticationProviderTests.TEST_REMEMBERME_ATTRIBUTE_NAME);
 
         CasAuthenticationToken token2 = new CasAuthenticationToken("key", makeUserDetails(), "Password", ROLES,
-                makeUserDetails(), assertion);
+                makeUserDetails(), assertion, CasAuthenticationProviderTests.TEST_REMEMBERME_ATTRIBUTE_NAME);
 
         assertEquals(token1, token2);
     }
@@ -103,7 +114,7 @@ public class CasAuthenticationTokenTests extends TestCase {
         // Build the proxy list returned in the ticket from CAS
         final Assertion assertion = new AssertionImpl("test");
         CasAuthenticationToken token = new CasAuthenticationToken("key", makeUserDetails(), "Password", ROLES,
-                makeUserDetails(), assertion);
+                makeUserDetails(), assertion, CasAuthenticationProviderTests.TEST_REMEMBERME_ATTRIBUTE_NAME);
         assertEquals("key".hashCode(), token.getKeyHash());
         assertEquals(makeUserDetails(), token.getPrincipal());
         assertEquals("Password", token.getCredentials());
@@ -111,6 +122,7 @@ public class CasAuthenticationTokenTests extends TestCase {
         assertTrue(token.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_TWO")));
         assertEquals(assertion, token.getAssertion());
         assertEquals(makeUserDetails().getUsername(), token.getUserDetails().getUsername());
+        assertFalse(token.isRememberMe());
     }
 
     public void testNoArgConstructorDoesntExist() {
@@ -126,10 +138,10 @@ public class CasAuthenticationTokenTests extends TestCase {
         final Assertion assertion = new AssertionImpl("test");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key", makeUserDetails(), "Password", ROLES,
-                makeUserDetails(), assertion);
+                makeUserDetails(), assertion, CasAuthenticationProviderTests.TEST_REMEMBERME_ATTRIBUTE_NAME);
 
         CasAuthenticationToken token2 = new CasAuthenticationToken("key", makeUserDetails("OTHER_NAME"), "Password",
-                ROLES, makeUserDetails(), assertion);
+                ROLES, makeUserDetails(), assertion, CasAuthenticationProviderTests.TEST_REMEMBERME_ATTRIBUTE_NAME);
 
         assertTrue(!token1.equals(token2));
     }
@@ -138,7 +150,7 @@ public class CasAuthenticationTokenTests extends TestCase {
         final Assertion assertion = new AssertionImpl("test");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key", makeUserDetails(), "Password", ROLES,
-                makeUserDetails(), assertion);
+                makeUserDetails(), assertion, CasAuthenticationProviderTests.TEST_REMEMBERME_ATTRIBUTE_NAME);
 
         UsernamePasswordAuthenticationToken token2 = new UsernamePasswordAuthenticationToken("Test", "Password", ROLES);
         assertTrue(!token1.equals(token2));
@@ -148,10 +160,10 @@ public class CasAuthenticationTokenTests extends TestCase {
         final Assertion assertion = new AssertionImpl("test");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key", makeUserDetails(), "Password", ROLES,
-                makeUserDetails(), assertion);
+                makeUserDetails(), assertion, CasAuthenticationProviderTests.TEST_REMEMBERME_ATTRIBUTE_NAME);
 
         CasAuthenticationToken token2 = new CasAuthenticationToken("DIFFERENT_KEY", makeUserDetails(), "Password",
-                ROLES, makeUserDetails(), assertion);
+                ROLES, makeUserDetails(), assertion, CasAuthenticationProviderTests.TEST_REMEMBERME_ATTRIBUTE_NAME);
 
         assertTrue(!token1.equals(token2));
     }
@@ -161,10 +173,10 @@ public class CasAuthenticationTokenTests extends TestCase {
         final Assertion assertion2 = new AssertionImpl("test");
 
         CasAuthenticationToken token1 = new CasAuthenticationToken("key", makeUserDetails(), "Password", ROLES,
-                makeUserDetails(), assertion);
+                makeUserDetails(), assertion, CasAuthenticationProviderTests.TEST_REMEMBERME_ATTRIBUTE_NAME);
 
         CasAuthenticationToken token2 = new CasAuthenticationToken("key", makeUserDetails(), "Password", ROLES,
-                makeUserDetails(), assertion2);
+                makeUserDetails(), assertion2, CasAuthenticationProviderTests.TEST_REMEMBERME_ATTRIBUTE_NAME);
 
         assertTrue(!token1.equals(token2));
     }
@@ -172,16 +184,29 @@ public class CasAuthenticationTokenTests extends TestCase {
     public void testSetAuthenticated() {
         final Assertion assertion = new AssertionImpl("test");
         CasAuthenticationToken token = new CasAuthenticationToken("key", makeUserDetails(), "Password", ROLES,
-                makeUserDetails(), assertion);
+                makeUserDetails(), assertion, CasAuthenticationProviderTests.TEST_REMEMBERME_ATTRIBUTE_NAME);
         assertTrue(token.isAuthenticated());
         token.setAuthenticated(false);
         assertTrue(!token.isAuthenticated());
     }
 
+    @SuppressWarnings({
+        "rawtypes", "unchecked"
+    })
+    public void testIsRemember() {
+        Map attributes = new HashMap();
+        attributes.put(CasAuthenticationProviderTests.TEST_REMEMBERME_ATTRIBUTE_NAME, "true");
+        final AttributePrincipal principal = new AttributePrincipalImpl("test", attributes);
+        final Assertion assertion = new AssertionImpl(principal);
+        CasAuthenticationToken token = new CasAuthenticationToken("key", makeUserDetails(), "Password", ROLES,
+                makeUserDetails(), assertion, CasAuthenticationProviderTests.TEST_REMEMBERME_ATTRIBUTE_NAME);
+        assertTrue(token.isRememberMe());
+    }
+
     public void testToString() {
         final Assertion assertion = new AssertionImpl("test");
         CasAuthenticationToken token = new CasAuthenticationToken("key", makeUserDetails(), "Password",ROLES,
-                makeUserDetails(), assertion);
+                makeUserDetails(), assertion, CasAuthenticationProviderTests.TEST_REMEMBERME_ATTRIBUTE_NAME);
         String result = token.toString();
         assertTrue(result.lastIndexOf("Credentials (Service/Proxy Ticket):") != -1);
     }

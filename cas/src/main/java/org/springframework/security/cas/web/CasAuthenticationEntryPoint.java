@@ -36,8 +36,9 @@ import org.springframework.util.Assert;
  * The user's browser will be redirected to the JA-SIG CAS enterprise-wide login page.
  * This page is specified by the <code>loginUrl</code> property. Once login is complete, the CAS login page will
  * redirect to the page indicated by the <code>service</code> property. The <code>service</code> is a HTTP URL
- * belonging to the current application. The <code>service</code> URL is monitored by the {@link CasAuthenticationFilter},
- * which will validate the CAS login was successful.
+ * belonging to the current application. The <code>renew</code> parameter can be forced to true when redirecting
+ * to the CAS server. The <code>service</code> URL is monitored by the {@link CasAuthenticationFilter}, which will
+ * validate the CAS login was successful.
  *
  * @author Ben Alex
  * @author Scott Battaglia
@@ -68,11 +69,18 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
         Assert.notNull(this.serviceProperties.getService(),"serviceProperties.getService() cannot be null.");
     }
 
+
     public final void commence(final HttpServletRequest servletRequest, final HttpServletResponse response,
-            final AuthenticationException authenticationException) throws IOException, ServletException {
+                               final AuthenticationException authenticationException) throws IOException, ServletException {
+        // by default, don't force the renew parameter to true
+        commence(servletRequest, response, authenticationException, false);
+    }
+
+    public final void commence(final HttpServletRequest servletRequest, final HttpServletResponse response,
+            final AuthenticationException authenticationException, boolean forceRenew) throws IOException, ServletException {
 
         final String urlEncodedService = createServiceUrl(servletRequest, response);
-        final String redirectUrl = createRedirectUrl(urlEncodedService);
+        final String redirectUrl = createRedirectUrl(urlEncodedService, forceRenew);
 
         preCommence(servletRequest, response);
 
@@ -91,12 +99,19 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
 
     /**
      * Constructs the Url for Redirection to the CAS server.  Default implementation relies on the CAS client to do the bulk of the work.
+     * The renew parameter can be forced to true if the forceRenew parameter is true.
      *
      * @param serviceUrl the service url that should be included.
+     * @param forceRenew if the renew parameter should be forced to true
      * @return the redirect url.  CANNOT be NULL.
      */
-    protected String createRedirectUrl(final String serviceUrl) {
-        return CommonUtils.constructRedirectUrl(this.loginUrl, this.serviceProperties.getServiceParameter(), serviceUrl, this.serviceProperties.isSendRenew(), false);
+    protected String createRedirectUrl(final String serviceUrl, final boolean forceRenew) {
+        boolean renew = this.serviceProperties.isSendRenew();
+        // if forceRenew is true, the renew parameter is forced to true
+        if (forceRenew) {
+            renew = true;
+        }
+        return CommonUtils.constructRedirectUrl(this.loginUrl, this.serviceProperties.getServiceParameter(), serviceUrl, renew, false);
     }
 
     /**
