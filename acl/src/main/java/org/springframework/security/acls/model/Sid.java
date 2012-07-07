@@ -31,7 +31,14 @@ import java.io.Serializable;
  * @author Ben Alex
  */
 public interface Sid extends Serializable {
-    //~ Methods ========================================================================================================
+    boolean isPrincipal();
+    /**
+     * Gets the unique identifier of the SID (usually a database ID of the entity). It is string since the ACL tables
+     * require this.
+     *
+     * @return the unique identifier of the SID (usually a database ID of the entity)
+     */
+    String getSidId();
 
     /**
      * Refer to the <code>java.lang.Object</code> documentation for the interface contract.

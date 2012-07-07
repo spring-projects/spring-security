@@ -32,16 +32,7 @@ import javax.sql.DataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.security.acls.domain.AccessControlEntryImpl;
-import org.springframework.security.acls.domain.AclAuthorizationStrategy;
-import org.springframework.security.acls.domain.AclImpl;
-import org.springframework.security.acls.domain.AuditLogger;
-import org.springframework.security.acls.domain.DefaultPermissionFactory;
-import org.springframework.security.acls.domain.DefaultPermissionGrantingStrategy;
-import org.springframework.security.acls.domain.GrantedAuthoritySid;
-import org.springframework.security.acls.domain.ObjectIdentityImpl;
-import org.springframework.security.acls.domain.PermissionFactory;
-import org.springframework.security.acls.domain.PrincipalSid;
+import org.springframework.security.acls.domain.*;
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.AclCache;
@@ -122,6 +113,7 @@ public final class BasicLookupStrategy implements LookupStrategy {
     private String lookupPrimaryKeysWhereClause = DEFAULT_LOOKUP_KEYS_WHERE_CLAUSE;
     private String lookupObjectIdentitiesWhereClause = DEFAULT_LOOKUP_IDENTITIES_WHERE_CLAUSE;
     private String orderByClause = DEFAULT_ORDER_BY_CLAUSE;
+    private SidFactory sidFactory = new DefaultSidFactory();
 
     //~ Constructors ===================================================================================================
 
@@ -557,13 +549,7 @@ public final class BasicLookupStrategy implements LookupStrategy {
 
                 boolean entriesInheriting = rs.getBoolean("entries_inheriting");
                 Sid owner;
-
-                if (rs.getBoolean("acl_principal")) {
-                    owner = new PrincipalSid(rs.getString("acl_sid"));
-                } else {
-                    owner = new GrantedAuthoritySid(rs.getString("acl_sid"));
-                }
-
+                owner = sidFactory.create(rs.getString("acl_sid"), rs.getBoolean("acl_principal"));
                 acl = new AclImpl(objectIdentity, id, aclAuthorizationStrategy, grantingStrategy, parentAcl, null,
                         entriesInheriting, owner);
 
@@ -574,14 +560,7 @@ public final class BasicLookupStrategy implements LookupStrategy {
             // It is permissible to have no ACEs in an ACL (which is detected by a null ACE_SID)
             if (rs.getString("ace_sid") != null) {
                 Long aceId = new Long(rs.getLong("ace_id"));
-                Sid recipient;
-
-                if (rs.getBoolean("ace_principal")) {
-                    recipient = new PrincipalSid(rs.getString("ace_sid"));
-                } else {
-                    recipient = new GrantedAuthoritySid(rs.getString("ace_sid"));
-                }
-
+                Sid recipient = sidFactory.create(rs.getString("ace_sid"), rs.getBoolean("ace_principal"));
                 int mask = rs.getInt("mask");
                 Permission permission = permissionFactory.buildFromMask(mask);
                 boolean granting = rs.getBoolean("granting");
@@ -600,6 +579,10 @@ public final class BasicLookupStrategy implements LookupStrategy {
                 }
             }
         }
+    }
+
+    public void setSidFactory(SidFactory sidFactory) {
+        this.sidFactory = sidFactory;
     }
 
     private class StubAclParent implements Acl {

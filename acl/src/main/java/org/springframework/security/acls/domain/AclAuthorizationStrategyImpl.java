@@ -45,6 +45,7 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
     private final GrantedAuthority gaModifyAuditing;
     private final GrantedAuthority gaTakeOwnership;
     private SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
+    private SidFactory sidFactory = new DefaultSidFactory();
 
     //~ Constructors ===================================================================================================
 
@@ -83,7 +84,7 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         // Check if authorized by virtue of ACL ownership
-        Sid currentUser = new PrincipalSid(authentication);
+        Sid currentUser = sidFactory.createPrincipal(authentication);
 
         if (currentUser.equals(acl.getOwner())
                 && ((changeType == CHANGE_GENERAL) || (changeType == CHANGE_OWNERSHIP))) {
@@ -122,5 +123,9 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
     public void setSidRetrievalStrategy(SidRetrievalStrategy sidRetrievalStrategy) {
         Assert.notNull(sidRetrievalStrategy, "SidRetrievalStrategy required");
         this.sidRetrievalStrategy = sidRetrievalStrategy;
+    }
+
+    public void setSidFactory(SidFactory sidFactory) {
+        this.sidFactory = sidFactory;
     }
 }

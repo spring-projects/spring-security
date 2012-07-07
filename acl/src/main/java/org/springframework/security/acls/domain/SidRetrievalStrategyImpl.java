@@ -37,7 +37,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 public class SidRetrievalStrategyImpl implements SidRetrievalStrategy {
-
+    private SidFactory sidFactory = new DefaultSidFactory();
     private RoleHierarchy roleHierarchy = new NullRoleHierarchy();
 
     public SidRetrievalStrategyImpl() {
@@ -53,13 +53,12 @@ public class SidRetrievalStrategyImpl implements SidRetrievalStrategy {
     public List<Sid> getSids(Authentication authentication) {
         Collection<? extends GrantedAuthority> authorities = roleHierarchy.getReachableGrantedAuthorities(authentication.getAuthorities());
         List<Sid> sids = new ArrayList<Sid>(authorities.size() + 1);
-
-        sids.add(new PrincipalSid(authentication));
-
-        for (GrantedAuthority authority : authorities) {
-            sids.add(new GrantedAuthoritySid(authority));
-        }
-
+        sids.add(sidFactory.createPrincipal(authentication));
+        sids.addAll(sidFactory.createGrantedAuthorities(authorities));
         return sids;
+    }
+
+    public void setSidFactory(SidFactory sidFactory) {
+        this.sidFactory = sidFactory;
     }
 }
