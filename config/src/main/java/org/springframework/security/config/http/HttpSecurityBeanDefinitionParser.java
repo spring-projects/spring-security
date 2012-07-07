@@ -23,6 +23,7 @@ import org.springframework.security.config.Elements;
 import org.springframework.security.config.authentication.AuthenticationManagerFactoryBean;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.util.AnyRequestMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
@@ -35,6 +36,7 @@ import java.util.*;
  *
  * @author Luke Taylor
  * @author Ben Alex
+ * @author Rob Winch
  * @since 2.0
  */
 public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
@@ -108,17 +110,18 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
             return createSecurityFilterChainBean(element, pc, Collections.emptyList());
         }
 
-        final String portMapperName = createPortMapper(element, pc);
+        final BeanReference portMapper = createPortMapper(element, pc);
+        final BeanReference portResolver = createPortResolver(portMapper, pc);
 
         ManagedList<BeanReference> authenticationProviders = new ManagedList<BeanReference>();
         BeanReference authenticationManager = createAuthenticationManager(element, pc, authenticationProviders);
 
         HttpConfigurationBuilder httpBldr = new HttpConfigurationBuilder(element, pc,
-                portMapperName, authenticationManager);
+                portMapper, portResolver, authenticationManager);
 
         AuthenticationConfigBuilder authBldr = new AuthenticationConfigBuilder(element, pc,
                 httpBldr.getSessionCreationPolicy(), httpBldr.getRequestCache(), authenticationManager,
-                httpBldr.getSessionStrategy());
+                httpBldr.getSessionStrategy(), portMapper, portResolver);
 
         authenticationProviders.addAll(authBldr.getProviders());
 
@@ -179,14 +182,22 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         return new RuntimeBeanReference(id);
     }
 
-    private String createPortMapper(Element elt, ParserContext pc) {
+    private BeanReference createPortMapper(Element elt, ParserContext pc) {
         // Register the portMapper. A default will always be created, even if no element exists.
         BeanDefinition portMapper = new PortMappingsBeanDefinitionParser().parse(
                 DomUtils.getChildElementByTagName(elt, Elements.PORT_MAPPINGS), pc);
         String portMapperName = pc.getReaderContext().generateBeanName(portMapper);
         pc.registerBeanComponent(new BeanComponentDefinition(portMapper, portMapperName));
 
-        return portMapperName;
+        return new RuntimeBeanReference(portMapperName);
+    }
+
+    private RuntimeBeanReference createPortResolver(BeanReference portMapper, ParserContext pc) {
+        RootBeanDefinition portResolver = new RootBeanDefinition(PortResolverImpl.class);
+        portResolver.getPropertyValues().addPropertyValue("portMapper", portMapper);
+        String portResolverName = pc.getReaderContext().generateBeanName(portResolver);
+        pc.registerBeanComponent(new BeanComponentDefinition(portResolver, portResolverName));
+        return new RuntimeBeanReference(portResolverName);
     }
 
     /**

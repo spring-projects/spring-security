@@ -3,15 +3,14 @@ package org.springframework.security.access.expression;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
-import org.junit.*;
-import org.springframework.context.ApplicationContext;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.expression.Expression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.security.core.Authentication;
-
-import java.util.*;
 
 /**
  * @author Luke Taylor
@@ -35,6 +34,18 @@ public class AbstractSecurityExpressionHandlerTests {
 
         Expression expression = handler.getExpressionParser().parseExpression("@number10.compareTo(@number20) < 0");
         assertTrue((Boolean) expression.getValue(handler.createEvaluationContext(mock(Authentication.class), new Object())));
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void setExpressionParserNull() {
+        handler.setExpressionParser(null);
+    }
+
+    @Test
+    public void setExpressionParser() {
+        SpelExpressionParser parser = new SpelExpressionParser();
+        handler.setExpressionParser(parser);
+        assertTrue(parser == handler.getExpressionParser());
     }
 }
 

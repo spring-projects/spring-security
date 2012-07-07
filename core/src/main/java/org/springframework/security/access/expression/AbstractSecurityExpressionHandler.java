@@ -11,6 +11,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.Assert;
 
 /**
  * Base implementation of the facade which isolates Spring Security's requirements for evaluating security expressions
@@ -20,13 +21,18 @@ import org.springframework.security.core.Authentication;
  * @since 3.1
  */
 public abstract class AbstractSecurityExpressionHandler<T> implements SecurityExpressionHandler<T>, ApplicationContextAware {
-    private final ExpressionParser expressionParser = new SpelExpressionParser();
+    private ExpressionParser expressionParser = new SpelExpressionParser();
     private BeanResolver br;
     private RoleHierarchy roleHierarchy;
     private PermissionEvaluator permissionEvaluator = new DenyAllPermissionEvaluator();
 
     public final ExpressionParser getExpressionParser() {
         return expressionParser;
+    }
+
+    public final void setExpressionParser(ExpressionParser expressionParser) {
+        Assert.notNull(expressionParser, "expressionParser cannot be null");
+        this.expressionParser = expressionParser;
     }
 
     /**

@@ -1,26 +1,46 @@
 package org.springframework.security.web.authentication.rememberme;
 
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.spy;
+import static org.powermock.api.mockito.PowerMockito.verifyStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
+
+import java.lang.reflect.Method;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServicesTests.MockRememberMeServices;
 import org.springframework.util.ReflectionUtils;
 
 /**
- * Note: This test will fail in the IDE since it needs to be ran with servlet 3.0 and servlet 2.5 is also on the classpath.
  *
  * @author Rob Winch
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({Method.class, ReflectionUtils.class})
 public class AbstractRememberMeServicesServlet3Tests {
+    @Mock
+    private Method method;
+
+    @Before
+    public void setUp() throws Exception {
+        spy(ReflectionUtils.class);
+
+        when(ReflectionUtils.findMethod(Cookie.class, "setHttpOnly", boolean.class)).thenReturn(method);
+    }
 
     @Test
     public void httpOnlySetInServlet30DefaultConstructor() throws Exception {
@@ -31,8 +51,8 @@ public class AbstractRememberMeServicesServlet3Tests {
         MockRememberMeServices services = new MockRememberMeServices();
         services.setCookie(new String[] {"mycookie"}, 1000, request, response);
         verify(response).addCookie(cookie.capture());
-        Cookie rememberme = cookie.getValue();
-        assertTrue((Boolean)ReflectionUtils.invokeMethod(rememberme.getClass().getMethod("isHttpOnly"),rememberme));
+        verifyStatic();
+        ReflectionUtils.invokeMethod(same(method), eq(cookie.getValue()), eq(true));
     }
 
     @Test
@@ -44,7 +64,7 @@ public class AbstractRememberMeServicesServlet3Tests {
         MockRememberMeServices services = new MockRememberMeServices("key",mock(UserDetailsService.class));
         services.setCookie(new String[] {"mycookie"}, 1000, request, response);
         verify(response).addCookie(cookie.capture());
-        Cookie rememberme = cookie.getValue();
-        assertTrue((Boolean)ReflectionUtils.invokeMethod(rememberme.getClass().getMethod("isHttpOnly"),rememberme));
+        verifyStatic();
+        ReflectionUtils.invokeMethod(same(method), eq(cookie.getValue()), eq(true));
     }
 }

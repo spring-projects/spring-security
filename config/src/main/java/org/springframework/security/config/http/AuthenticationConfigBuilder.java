@@ -47,6 +47,7 @@ import java.util.*;
  * Handles creation of authentication mechanism filters and related beans for &lt;http&gt; parsing.
  *
  * @author Luke Taylor
+ * @author Rob Winch
  * @since 3.0
  */
 final class AuthenticationConfigBuilder {
@@ -102,15 +103,19 @@ final class AuthenticationConfigBuilder {
     private BeanDefinition loginPageGenerationFilter;
     private BeanDefinition etf;
     private final BeanReference requestCache;
+    private final BeanReference portMapper;
+    private final BeanReference portResolver;
 
     public AuthenticationConfigBuilder(Element element, ParserContext pc, SessionCreationPolicy sessionPolicy,
-            BeanReference requestCache, BeanReference authenticationManager, BeanReference sessionStrategy) {
+            BeanReference requestCache, BeanReference authenticationManager, BeanReference sessionStrategy, BeanReference portMapper, BeanReference portResolver) {
         this.httpElt = element;
         this.pc = pc;
         this.requestCache = requestCache;
         autoConfig = "true".equals(element.getAttribute(ATT_AUTO_CONFIG));
         this.allowSessionCreation = sessionPolicy != SessionCreationPolicy.never
                 && sessionPolicy != SessionCreationPolicy.stateless;
+        this.portMapper = portMapper;
+        this.portResolver = portResolver;
 
         createAnonymousFilter();
         createRememberMeFilter(authenticationManager);
@@ -164,7 +169,7 @@ final class AuthenticationConfigBuilder {
 
         if (formLoginElt != null || autoConfig) {
             FormLoginBeanDefinitionParser parser = new FormLoginBeanDefinitionParser("/j_spring_security_check",
-                    AUTHENTICATION_PROCESSING_FILTER_CLASS, requestCache, sessionStrategy, allowSessionCreation);
+                    AUTHENTICATION_PROCESSING_FILTER_CLASS, requestCache, sessionStrategy, allowSessionCreation, portMapper, portResolver);
 
             parser.parse(formLoginElt, pc);
             formFilter = parser.getFilterBean();
@@ -188,7 +193,7 @@ final class AuthenticationConfigBuilder {
 
         if (openIDLoginElt != null) {
             FormLoginBeanDefinitionParser parser = new FormLoginBeanDefinitionParser("/j_spring_openid_security_check",
-                    OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS, requestCache, sessionStrategy, allowSessionCreation);
+                    OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS, requestCache, sessionStrategy, allowSessionCreation, portMapper, portResolver);
 
             parser.parse(openIDLoginElt, pc);
             openIDFilter = parser.getFilterBean();

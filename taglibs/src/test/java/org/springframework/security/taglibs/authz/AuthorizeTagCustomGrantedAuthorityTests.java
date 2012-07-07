@@ -20,6 +20,7 @@ import static org.junit.Assert.*;
 import org.junit.*;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.servlet.jsp.JspException;
@@ -32,6 +33,7 @@ import java.util.*;
  *
  * @author Francois Beausoleil
  */
+@SuppressWarnings("deprecation")
 public class AuthorizeTagCustomGrantedAuthorityTests {
     //~ Instance fields ================================================================================================
 
@@ -56,6 +58,7 @@ public class AuthorizeTagCustomGrantedAuthorityTests {
     }
 
     @Test
+    @SuppressWarnings("serial")
     public void testRejectsRequestWhenCustomAuthorityReturnsNull() throws JspException {
         authorizeTag.setIfAnyGranted("ROLE_TELLER");
         List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
@@ -72,5 +75,57 @@ public class AuthorizeTagCustomGrantedAuthorityTests {
         } catch (IllegalArgumentException expected) {
             assertTrue("expected", true);
         }
+    }
+
+    @Test
+    @SuppressWarnings("serial")
+    public void testAuthorizeCustomGrantedAuthority() throws JspException {
+        authorizeTag.setIfAnyGranted(null);
+        authorizeTag.setIfNotGranted(null);
+        authorizeTag.setIfAllGranted("ROLE_TEST");
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        authorities.add(new GrantedAuthority() {
+            public String getAuthority() {
+                return "ROLE_TEST";
+            }
+        });
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("abc", "123", authorities));
+        assertEquals("Expected to be authorized", Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
+    }
+
+    @Test
+    @SuppressWarnings("serial")
+    public void testAuthorizeExtendsGrantedAuthorityImpl() throws JspException {
+        authorizeTag.setIfAnyGranted(null);
+        authorizeTag.setIfNotGranted(null);
+        authorizeTag.setIfAllGranted("ROLE_TEST");
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        authorities.add(new GrantedAuthorityImpl("ROLE_TEST") {});
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("abc", "123", authorities));
+        assertEquals("Expected to be authorized", Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
+    }
+
+    // SEC-1900
+    @Test
+    public void testAuthorizeUsingGrantedAuthorityImpl() throws JspException {
+        authorizeTag.setIfAnyGranted(null);
+        authorizeTag.setIfNotGranted(null);
+        authorizeTag.setIfAllGranted("ROLE_TEST");
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        authorities.add(new GrantedAuthorityImpl("ROLE_TEST"));
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("abc", "123", authorities));
+        assertEquals("Expected to be authorized", Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
+    }
+
+    // SEC-1900
+    @Test
+    public void testNotAuthorizeUsingGrantedAuthorityImpl() throws JspException {
+        authorizeTag.setIfAnyGranted(null);
+        authorizeTag.setIfNotGranted(null);
+        authorizeTag.setIfAllGranted("ROLE_ADMIN");
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        authorities.add(new GrantedAuthorityImpl("ROLE_TEST"));
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("abc", "123", authorities));
+        assertEquals("Expected to not be authorized", Tag.SKIP_BODY, authorizeTag.doStartTag());
     }
 }

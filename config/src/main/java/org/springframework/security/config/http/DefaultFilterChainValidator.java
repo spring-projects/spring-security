@@ -14,7 +14,7 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
-import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
+import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
@@ -142,8 +142,8 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
         }
 
         FilterSecurityInterceptor fsi = getFilter(FilterSecurityInterceptor.class, filters);
-        DefaultFilterInvocationSecurityMetadataSource fids =
-                (DefaultFilterInvocationSecurityMetadataSource) fsi.getSecurityMetadataSource();
+        FilterInvocationSecurityMetadataSource fids =
+                fsi.getSecurityMetadataSource();
 
         Collection<ConfigAttribute> attributes = fids.getAttributes(loginRequest);
 

@@ -2,7 +2,7 @@
 
 // We don't define a module dependency on crypto to avoid creating a transitive dependency
 def cryptoProject = project(':spring-security-crypto')
-def cryptoClasses = cryptoProject.sourceSets.main.classes
+def cryptoClasses = cryptoProject.sourceSets.main.output
 
 dependencies {
     compile cryptoProject,
@@ -31,7 +31,7 @@ classes.dependsOn cryptoProject.classes
 classes.doLast {
     copy {
         from cryptoClasses
-        into sourceSets.main.classesDir
+        into sourceSets.main.output.classesDir
     }
 }
 
@@ -43,15 +43,4 @@ sourceJar.from cryptoProject.sourceSets.main.java
 test {
     systemProperties['springSecurityVersion'] = version
     systemProperties['springVersion'] = springVersion
-}
-
-// Add the crypto module in the IDE
-ideaModule {
-    def cryptoDep = new org.gradle.plugins.ide.idea.model.ModuleDependency('spring-security-crypto', 'COMPILE')
-    cryptoDep.exported = true
-    module.dependencies.add(cryptoDep)
-}
-
-eclipseProject {
-    referencedProjects.add('spring-security-crypto')
 }

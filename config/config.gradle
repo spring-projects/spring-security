@@ -27,7 +27,7 @@ dependencies {
 
     testCompile project(':spring-security-ldap'),
                 project(':spring-security-openid'),
-                project(':spring-security-core').sourceSets.test.classes,
+                project(':spring-security-core').sourceSets.test.output,
                 'javax.annotation:jsr250-api:1.0',
                 "org.springframework.ldap:spring-ldap-core:$springLdapVersion",
                 "org.springframework:spring-expression:$springVersion",

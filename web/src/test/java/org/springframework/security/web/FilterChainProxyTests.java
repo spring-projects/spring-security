@@ -3,18 +3,22 @@ package org.springframework.security.web;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.firewall.FirewalledRequest;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.util.RequestMatcher;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
@@ -24,7 +28,6 @@ import java.util.*;
  * @author Luke Taylor
  * @author Rob Winch
  */
-@SuppressWarnings({"unchecked"})
 public class FilterChainProxyTests {
     private FilterChainProxy fcp;
     private RequestMatcher matcher;
@@ -37,7 +40,7 @@ public class FilterChainProxyTests {
     public void setup() throws Exception {
         matcher = mock(RequestMatcher.class);
         filter = mock(Filter.class);
-        doAnswer(new Answer() {
+        doAnswer(new Answer<Object>() {
                     public Object answer(InvocationOnMock inv) throws Throwable {
                         Object[] args = inv.getArguments();
                         FilterChain fc = (FilterChain) args[2];
@@ -53,6 +56,11 @@ public class FilterChainProxyTests {
         request.setServletPath("/path");
         response = new MockHttpServletResponse();
         chain = mock(FilterChain.class);
+    }
+
+    @After
+    public void teardown() {
+        SecurityContextHolder.clearContext();
     }
 
     @Test
@@ -154,5 +162,38 @@ public class FilterChainProxyTests {
         firstFcp.doFilter(request, response, chain);
         verify(firstFwr).reset();
         verify(fwr).reset();
+    }
+
+    @Test
+    public void doFilterClearsSecurityContextHolder() throws Exception {
+        when(matcher.matches(any(HttpServletRequest.class))).thenReturn(true);
+        doAnswer(new Answer<Object>() {
+            public Object answer(InvocationOnMock inv) throws Throwable {
+                SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("username", "password"));
+                return null;
+            }
+        }).when(filter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
+
+        fcp.doFilter(request, response, chain);
+
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+    }
+
+    @Test
+    public void doFilterClearsSecurityContextHolderWithException() throws Exception {
+        when(matcher.matches(any(HttpServletRequest.class))).thenReturn(true);
+        doAnswer(new Answer<Object>() {
+            public Object answer(InvocationOnMock inv) throws Throwable {
+                SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("username", "password"));
+                throw new ServletException("oops");
+            }
+        }).when(filter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
+
+        try {
+            fcp.doFilter(request, response, chain);
+            fail("Expected Exception");
+        }catch(ServletException success) {}
+
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 }

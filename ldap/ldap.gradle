@@ -1,6 +1,6 @@
 // Ldap build file
 
-apacheds_libs = [
+def apacheds_libs = [
          "org.apache.directory.server:apacheds-core:$apacheDsVersion",
          "org.apache.directory.server:apacheds-core-entry:$apacheDsVersion",
          "org.apache.directory.server:apacheds-protocol-shared:$apacheDsVersion",

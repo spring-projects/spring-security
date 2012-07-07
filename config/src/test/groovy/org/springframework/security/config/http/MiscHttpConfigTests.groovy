@@ -688,6 +688,33 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         expect:
         getFilter(UsernamePasswordAuthenticationFilter.class).authenticationManager.parent instanceof MockAuthenticationManager
     }
+
+    // SEC-1893
+    def customPortMappings() {
+        when: 'A custom port-mappings is registered'
+        def expectedHttpsPortMappings = [8443:8080]
+        xml.http('auto-config': 'true') {
+            'intercept-url'('pattern':'/**','requires-channel':'https')
+            'port-mappings' {
+                'port-mapping'(http:'8443',https:'8080')
+            }
+        }
+        createAppContext()
+
+        then: 'All the components created by the namespace use that port mapping'
+        getFilter(RequestCacheAwareFilter.class).requestCache.portResolver.portMapper.httpsPortMappings == expectedHttpsPortMappings
+
+        def channelProcessors = getFilter(ChannelProcessingFilter.class).channelDecisionManager.channelProcessors
+        channelProcessors.size() == 2
+        channelProcessors.each { cp->
+            cp.entryPoint.portMapper.httpsPortMappings == expectedHttpsPortMappings
+            cp.entryPoint.portResolver.portMapper.httpsPortMappings == expectedHttpsPortMappings
+        }
+
+        def authEntryPoint = getFilter(ExceptionTranslationFilter.class).authenticationEntryPoint
+        authEntryPoint.portMapper.httpsPortMappings == expectedHttpsPortMappings
+        authEntryPoint.portResolver.portMapper.httpsPortMappings == expectedHttpsPortMappings
+    }
 }
 
 class MockAuthenticationManager implements AuthenticationManager {

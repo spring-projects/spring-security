@@ -158,7 +158,7 @@ public class SwitchUserFilterTests {
         filter.doFilter(request, response, chain);
         verify(chain, never()).doFilter(request, response);
 
-        assertEquals("Authentication Failed: User is disabled", response.getErrorMessage());
+        assertNotNull(response.getErrorMessage());
 
         // Now check for the redirect
         request.setContextPath("/mywebapp");

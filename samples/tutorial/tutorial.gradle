@@ -34,10 +34,10 @@ dependencies {
 jettyRun {
     contextPath = "/tutorial"
 
-    def httpConnector = new org.mortbay.jetty.nio.SelectChannelConnector();
+    def httpConnector = jettyRunWar.class.classLoader.loadClass('org.mortbay.jetty.nio.SelectChannelConnector').newInstance()
     httpConnector.port = 8080
     httpConnector.confidentialPort = 8443
-    def httpsConnector = new org.mortbay.jetty.security.SslSocketConnector();
+    def httpsConnector = jettyRunWar.class.classLoader.loadClass('org.mortbay.jetty.security.SslSocketConnector').newInstance()
     httpsConnector.port = 8443
     httpsConnector.keystore = "$rootDir/samples/certificates/server.jks"
     httpsConnector.keyPassword = 'password'

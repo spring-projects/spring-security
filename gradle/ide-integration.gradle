@@ -2,80 +2,40 @@ apply plugin: 'idea'
 
 configure(javaProjects) {
     apply plugin: 'idea'
-    apply plugin: 'eclipse'
+    apply plugin: 'eclipse-wtp'
 
-    ideaModule {
-        downloadJavadoc=false
-        excludeDirs.add(buildDir)
-        gradleCacheVariable = 'GRADLE_CACHE'
-        outputDir = "$rootProject.projectDir/intellij/out" as File
-        testOutputDir = "$rootProject.projectDir/intellij/testOut" as File
-        whenConfigured { module ->
-            def allClasses = module.dependencies.findAll() { dep ->
-                if (dep instanceof org.gradle.plugins.ide.idea.model.ModuleLibrary
-                    && dep.classes.find { path ->
-                        path.url.matches('.*jcl-over-slf4j.*') ||
-                        path.url.matches('.*servlet-api.*') ||
-                        path.url.matches('.*jsp-api.*')
-                    }) {
-                    dep.scope = 'COMPILE'
-                    dep.exported = false
-                }
-            }
-        }
-    }
-    // GRADLE-1116
-    eclipseClasspath.whenConfigured { classpath ->
-        classpath.entries.removeAll { entry -> entry.path.endsWith('/build/classes/test') }
-    }
-    eclipseClasspath.doFirst {
-        eclipseClasspath.whenConfigured { classpath ->
-            def includeDeps = project.configurations.getByName('runtime')?.collect { f-> f.absolutePath } as Set
-            classpath.entries.each { cp ->
-                  if(cp instanceof org.gradle.plugins.ide.eclipse.model.Library) {
-                      def include = includeDeps.contains(cp.path)
-                      def attr = 'org.eclipse.jst.component.dependency'
-                      if(include && project.hasProperty('war')) {
-                          // GRADLE-1426 (part a)
-                          cp.entryAttributes.put(attr,'/WEB-INF/lib')
-                      } else if(!include) {
-                          // GRADLE-1422
-                          cp.entryAttributes.remove(attr)
-                      }
-                  }
-            }
-        }
-    }
-    // GRADLE-1426 (part b)
-    project.plugins.withType(org.gradle.api.plugins.WarPlugin.class).all {
-        eclipseWtpComponent.whenConfigured { wtpComp ->
-            wtpComp.wbModuleEntries.findAll { it instanceof org.gradle.plugins.ide.eclipse.model.WbDependentModule }.each { e ->
-                if(!e.handle.startsWith('module:/resource/')) {
-                    wtpComp.wbModuleEntries.remove(e)
-                }
-            }
-        }
-    }
+    eclipse.classpath.downloadSources = true
+
     tasks.withType(org.gradle.plugins.ide.eclipse.GenerateEclipseWtpComponent) {
-        whenConfigured { wtpComponent ->
-            wtpComponent.contextPath = project.tasks.findByName('jettyRun')?.contextPath?.replaceFirst('/','')
+        project.eclipse.classpath.file.whenMerged { classpath->
+            project.eclipse.wtp.component.file.whenMerged { wtpComponent ->
+                wtpComponent.contextPath = project.tasks.findByName('jettyRun')?.contextPath?.replaceFirst('/','')
+            }
         }
     }
 }
 
-ideaModule {
-    excludeDirs += file('.gradle')
-    excludeDirs += file('buildSrc/build')
-    excludeDirs += file('buildSrc/.gradle')
-}
+project(':spring-security-samples-aspectj') {
+    task afterEclipseImport {
+        ext.srcFile = file('.classpath')
+        inputs.file srcFile
+        outputs.dir srcFile
 
-ideaProject {
-    javaVersion = '1.6'
-    subprojects = [rootProject] + javaProjects
-    withXml { provider ->
-        // Use git
-        def node = provider.asNode()
-        def vcsConfig = node.component.find { it.'@name' == 'VcsDirectoryMappings' }
-        vcsConfig.mapping[0].'@vcs' = 'Git'
+        onlyIf { srcFile.exists() }
+
+        doLast {
+            def classpath = new XmlParser().parse(srcFile)
+
+            classpath.classpathentry.findAll{ it.@path == '/spring-security-aspects' }.each { node ->
+                if(node.children().size() == 0) {
+                    def attrs = new Node(node,'attributes')
+                    def adjtAttr = new Node(attrs,'attributes',[name: 'org.eclipse.ajdt.aspectpath', value: 'org.eclipse.ajdt.aspectpath'])
+                    node.appendNode(adjtAttr)
+                }
+            }
+
+            def writer = new FileWriter(srcFile)
+            new XmlNodePrinter(new PrintWriter(writer)).print(classpath)
+        }
     }
 }
