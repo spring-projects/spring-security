@@ -72,3 +72,10 @@ located at the Spring Community's forum site:
 Links to the forums, and other useful resources are
 available from the web site.
 
+-------------------------------------------------------------------------------
+CONTRIBUTING
+-------------------------------------------------------------------------------
+
+Contributions are welcome. Please refer to the Contributor Guidelines for details
+
+  https://github.com/SpringSource/spring-security/wiki/Contributor-Guidelines
