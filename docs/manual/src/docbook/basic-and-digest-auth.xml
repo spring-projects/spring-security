@@ -138,9 +138,12 @@
             <para>The configured <interfacename>UserDetailsService</interfacename> is needed because
                 <literal>DigestAuthenticationFilter</literal> must have direct access to the clear
                 text password of a user. Digest Authentication will NOT work if you are using
-                encoded passwords in your DAO. The DAO collaborator, along with the
-                <literal>UserCache</literal>, are typically shared directly with a
-                <classname>DaoAuthenticationProvider</classname>. The
+                encoded passwords in your DAO <footnote>It is possible to encode the password in the
+                format HEX( MD5(username:realm:password) ) provided the
+                <code>DigestAuthenticationFilter.passwordAlreadyEncoded</code> is set to <code>true</code>.
+                However, other password encodings will not work with digest authentication.</footnote>. The DAO
+                collaborator, along with the <literal>UserCache</literal>, are typically shared directly
+                with a <classname>DaoAuthenticationProvider</classname>. The
                 <literal>authenticationEntryPoint</literal> property must be
                 <classname>DigestAuthenticationEntryPoint</classname>, so that
                 <classname>DigestAuthenticationFilter</classname> can obtain the correct
