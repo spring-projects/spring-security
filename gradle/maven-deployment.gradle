@@ -3,7 +3,8 @@ apply plugin: 'maven'
 // Create a source jar for uploading
 task sourceJar(type: Jar) {
     classifier = 'sources'
-    from sourceSets.main.java
+    from sourceSets.main.java.srcDirs
+    include '**/*.java', '**/*.aj'
 }
 
 artifacts {
