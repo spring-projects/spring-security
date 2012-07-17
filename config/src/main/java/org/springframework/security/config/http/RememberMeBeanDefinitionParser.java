@@ -1,8 +1,24 @@
+/*
+ * Copyright 2002-2012 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.springframework.security.config.http;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.parsing.CompositeComponentDefinition;
@@ -21,6 +37,7 @@ import org.w3c.dom.Element;
 /**
  * @author Luke Taylor
  * @author Ben Alex
+ * @author Rob Winch
  */
 class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_DATA_SOURCE = "data-source-ref";
@@ -34,9 +51,12 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 
     protected final Log logger = LogFactory.getLog(getClass());
     private final String key;
+    private final BeanReference authenticationManager;
+    private String rememberMeServicesId;
 
-    RememberMeBeanDefinitionParser(String key) {
+    RememberMeBeanDefinitionParser(String key, BeanReference authenticationManager) {
         this.key = key;
+        this.authenticationManager = authenticationManager;
     }
 
     public BeanDefinition parse(Element element, ParserContext pc) {
@@ -83,7 +103,7 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
                 ((BeanDefinition)tokenRepo).getPropertyValues().addPropertyValue("dataSource",
                         new RuntimeBeanReference(dataSource));
             }
-            services.getPropertyValues().addPropertyValue("tokenRepository", tokenRepo);
+            services.getConstructorArgumentValues().addIndexedArgumentValue(2, tokenRepo);
         } else if (!servicesRefSet) {
             services = new RootBeanDefinition(TokenBasedRememberMeServices.class);
         }
@@ -96,7 +116,9 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
             uds.setFactoryMethodName("cachingUserDetailsService");
             uds.getConstructorArgumentValues().addGenericArgumentValue(userServiceRef);
 
-            services.getPropertyValues().addPropertyValue("userDetailsService", uds);
+            services.getConstructorArgumentValues().addGenericArgumentValue(key);
+            services.getConstructorArgumentValues().addGenericArgumentValue(uds);
+            // tokenRepo is already added if it is a PersistentTokenBasedRememberMeServices
 
             String useSecureCookie = element.getAttribute(ATT_SECURE_COOKIE);
             if (StringUtils.hasText(useSecureCookie)) {
@@ -112,7 +134,6 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
                 services.getPropertyValues().addPropertyValue("tokenValiditySeconds", tokenValidity);
             }
             services.setSource(source);
-            services.getPropertyValues().addPropertyValue("key", key);
             servicesName = pc.getReaderContext().generateBeanName(services);
             pc.registerBeanComponent(new BeanComponentDefinition(services, servicesName));
         } else {
@@ -123,6 +144,8 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
             pc.getRegistry().registerAlias(servicesName, element.getAttribute(ATT_SERVICES_ALIAS));
         }
 
+        this.rememberMeServicesId = servicesName;
+
         BeanDefinitionBuilder filter = BeanDefinitionBuilder.rootBeanDefinition(RememberMeAuthenticationFilter.class);
         filter.getRawBeanDefinition().setSource(source);
 
@@ -130,11 +153,15 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
             filter.addPropertyReference("authenticationSuccessHandler", successHandlerRef);
         }
 
-        filter.addPropertyReference("rememberMeServices", servicesName);
+        filter.addConstructorArgValue(authenticationManager);
+        filter.addConstructorArgReference(servicesName);
 
         pc.popAndRegisterContainingComponent();
 
         return filter.getBeanDefinition();
     }
 
+    String getRememberMeServicesId() {
+        return this.rememberMeServicesId;
+    }
 }

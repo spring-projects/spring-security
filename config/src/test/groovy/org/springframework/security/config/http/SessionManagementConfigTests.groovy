@@ -1,3 +1,18 @@
+/*
+ * Copyright 2002-2012 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.springframework.security.config.http
 
 import org.springframework.mock.web.MockFilterChain
@@ -22,6 +37,7 @@ import static org.junit.Assert.assertSame
  * Tests session-related functionality for the &lt;http&gt; namespace element and &lt;session-management&gt;
  *
  * @author Luke Taylor
+ * @author Rob Winch
  */
 class SessionManagementConfigTests extends AbstractHttpConfigTests {
 
@@ -87,9 +103,23 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
 
         expect:
         filters.get(0) instanceof ConcurrentSessionFilter
+        filters.get(0).expiredUrl == '/expired'
         appContext.getBean("sr") != null
         getFilter(SessionManagementFilter.class) != null
         sessionRegistryIsValid();
+    }
+
+    def 'concurrency-control handles default expired-url as null'() {
+        httpAutoConfig {
+            'session-management'() {
+                'concurrency-control'('session-registry-alias':'sr')
+            }
+        }
+        createAppContext();
+        List filters = getFilters("/someurl");
+
+        expect:
+        filters.get(0).expiredUrl == null
     }
 
     def externalSessionStrategyIsSupported() {

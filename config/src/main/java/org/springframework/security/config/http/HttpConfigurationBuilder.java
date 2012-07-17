@@ -1,3 +1,18 @@
+/*
+ * Copyright 2002-2012 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.springframework.security.config.http;
 
 import static org.springframework.security.config.http.HttpSecurityBeanDefinitionParser.*;
@@ -22,7 +37,6 @@ import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.config.Elements;
 import org.springframework.security.core.session.SessionRegistryImpl;
-import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.channel.ChannelDecisionManagerImpl;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
@@ -179,7 +193,7 @@ class HttpConfigurationBuilder {
         }
 
         contextRepoRef = new RuntimeBeanReference(repoRef);
-        scpf.addPropertyValue("securityContextRepository", contextRepoRef);
+        scpf.addConstructorArgValue(contextRepoRef);
 
         securityContextPersistenceFilter = scpf.getBeanDefinition();
     }
@@ -277,7 +291,7 @@ class HttpConfigurationBuilder {
             sessionMgmtFilter.addPropertyValue("invalidSessionStrategy", new SimpleRedirectInvalidSessionStrategy(invalidSessionUrl));
         }
 
-        sessionMgmtFilter.addPropertyReference("sessionAuthenticationStrategy", sessionAuthStratRef);
+        sessionMgmtFilter.addConstructorArgReference(sessionAuthStratRef);
 
         sfpf = (RootBeanDefinition) sessionMgmtFilter.getBeanDefinition();
         sessionStrategyRef = new RuntimeBeanReference(sessionAuthStratRef);
@@ -310,7 +324,7 @@ class HttpConfigurationBuilder {
 
         BeanDefinitionBuilder filterBuilder =
                 BeanDefinitionBuilder.rootBeanDefinition(ConcurrentSessionFilter.class);
-        filterBuilder.addPropertyReference("sessionRegistry", sessionRegistryId);
+        filterBuilder.addConstructorArgReference(sessionRegistryId);
 
         Object source = pc.extractSource(element);
         filterBuilder.getRawBeanDefinition().setSource(source);
@@ -320,7 +334,7 @@ class HttpConfigurationBuilder {
 
         if (StringUtils.hasText(expiryUrl)) {
             WebConfigUtils.validateHttpRedirect(expiryUrl, pc, source);
-            filterBuilder.addPropertyValue("expiredUrl", expiryUrl);
+            filterBuilder.addConstructorArgValue(expiryUrl);
         }
 
         pc.popAndRegisterContainingComponent();
@@ -450,7 +464,7 @@ class HttpConfigurationBuilder {
         }
 
         requestCacheAwareFilter = new RootBeanDefinition(RequestCacheAwareFilter.class);
-        requestCacheAwareFilter.getPropertyValues().addPropertyValue("requestCache", requestCache);
+        requestCacheAwareFilter.getConstructorArgumentValues().addGenericArgumentValue(requestCache);
     }
 
     private void createFilterSecurityInterceptor(BeanReference authManager) {

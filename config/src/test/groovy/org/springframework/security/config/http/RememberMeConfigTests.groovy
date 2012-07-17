@@ -1,3 +1,18 @@
+/*
+ * Copyright 2002-2012 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.springframework.security.config.http
 
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException
@@ -9,15 +24,19 @@ import org.springframework.security.core.userdetails.MockUserDetailsService
 import org.springframework.security.util.FieldUtils
 import org.springframework.security.web.authentication.logout.LogoutFilter
 import org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices
 import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML
+
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
 
 /**
  *
  * @author Luke Taylor
+ * @author Rob Winch
  */
 class RememberMeConfigTests extends AbstractHttpConfigTests {
 
@@ -25,13 +44,16 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
         httpAutoConfig () {
             'remember-me'('token-repository-ref': 'tokenRepo')
         }
-        bean('tokenRepo', InMemoryTokenRepositoryImpl.class.name)
+        bean('tokenRepo', CustomTokenRepository.class.name)
 
         createAppContext(AUTH_PROVIDER_XML)
 
+        def rememberMeServices  = rememberMeServices()
+
         expect:
-        rememberMeServices() instanceof PersistentTokenBasedRememberMeServices
-        FieldUtils.getFieldValue(rememberMeServices(), "useSecureCookie") == null
+        rememberMeServices instanceof PersistentTokenBasedRememberMeServices
+        rememberMeServices.tokenRepository instanceof CustomTokenRepository
+        FieldUtils.getFieldValue(rememberMeServices, "useSecureCookie") == null
     }
 
     def rememberMeServiceWorksWithDataSourceRef() {
@@ -42,8 +64,11 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
 
         createAppContext(AUTH_PROVIDER_XML)
 
+        def rememberMeServices  = rememberMeServices()
+
         expect:
-        rememberMeServices() instanceof PersistentTokenBasedRememberMeServices
+        rememberMeServices instanceof PersistentTokenBasedRememberMeServices
+        rememberMeServices.tokenRepository instanceof JdbcTokenRepositoryImpl
     }
 
     def rememberMeServiceWorksWithAuthenticationSuccessHandlerRef() {
@@ -62,8 +87,11 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
         httpAutoConfig () {
             'remember-me'('key': "#{'our' + 'key'}", 'services-ref': 'rms')
         }
-        bean('rms', TokenBasedRememberMeServices.class.name,
-                ['key':'ourKey', 'tokenValiditySeconds':'5000'], ['userDetailsService':'us'])
+        xml.'b:bean'(id: 'rms', 'class': TokenBasedRememberMeServices.class.name) {
+            'b:constructor-arg'(value: 'ourKey')
+            'b:constructor-arg'(ref: 'us')
+            'b:property'(name: 'tokenValiditySeconds', value: '5000')
+        }
 
         createAppContext(AUTH_PROVIDER_XML)
 
@@ -88,8 +116,15 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
         }
 
         createAppContext(AUTH_PROVIDER_XML)
+
+        def rememberMeServices = rememberMeServices()
+        def rememberMeFilter = getFilter(RememberMeAuthenticationFilter.class)
+
         expect:
-        rememberMeServices().tokenValiditySeconds == 10000
+        rememberMeFilter.authenticationManager
+        rememberMeServices.key == 'ourkey'
+        rememberMeServices.tokenValiditySeconds == 10000
+        rememberMeServices.userDetailsService
     }
 
     def 'Remember-me token validity allows negative value for non-persistent implementation'() {
@@ -164,5 +199,9 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
 
     def rememberMeServices() {
         getFilter(RememberMeAuthenticationFilter.class).getRememberMeServices()
+    }
+
+    static class CustomTokenRepository extends InMemoryTokenRepositoryImpl {
+
     }
 }

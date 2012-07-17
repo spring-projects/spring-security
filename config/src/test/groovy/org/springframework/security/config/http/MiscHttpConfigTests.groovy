@@ -1,3 +1,18 @@
+/*
+ * Copyright 2002-2012 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.springframework.security.config.http;
 
 
@@ -12,6 +27,7 @@ import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.access.SecurityConfig
+import org.springframework.security.authentication.AnonymousAuthenticationProvider;
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.config.BeanIds
 import org.springframework.security.config.MockUserServiceBeanPostProcessor
@@ -56,6 +72,12 @@ import org.springframework.security.web.access.expression.DefaultWebSecurityExpr
 import org.springframework.security.web.util.AntPathRequestMatcher
 import org.springframework.security.authentication.AuthenticationManager
 
+
+/**
+ *
+ * @author Luke Taylor
+ * @author Rob Winch
+ */
 class MiscHttpConfigTests extends AbstractHttpConfigTests {
     def 'Minimal configuration parses'() {
         setup:
@@ -181,8 +203,10 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         AnonymousAuthenticationFilter filter = getFilter(AnonymousAuthenticationFilter);
+        def providers = appContext.getBeansOfType(AuthenticationManager).values()*.providers.flatten()
 
         expect:
+        'customKey' == providers.find { it instanceof AnonymousAuthenticationProvider }.key
         'customKey' == filter.key
         'joe' == filter.principal
         'anonymity' == filter.authorities[0].authority
@@ -667,7 +691,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
     def customAccessDecisionManagerIsSupported() {
         xml.http('auto-config': 'true', 'access-decision-manager-ref': 'adm')
         xml.'b:bean'(id: 'adm', 'class': AffirmativeBased.class.name) {
-            'b:property'(name: 'decisionVoters') {
+            'b:constructor-arg' {
                 'b:list'() {
                     'b:bean'('class': RoleVoter.class.name)
                     'b:bean'('class': RoleVoter.class.name)
@@ -736,6 +760,6 @@ class MockPermissionEvaluator implements PermissionEvaluator {
 
 class MockEntryPoint extends LoginUrlAuthenticationEntryPoint {
     public MockEntryPoint() {
-        super.setLoginFormUrl("/notused");
+        super("/notused");
     }
 }

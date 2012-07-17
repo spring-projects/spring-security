@@ -1,3 +1,18 @@
+/*
+ * Copyright 2002-2012 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.springframework.security.config.http;
 
 import static org.springframework.security.config.http.SecurityFilters.*;
@@ -5,10 +20,10 @@ import static org.springframework.security.config.http.SecurityFilters.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanMetadataElement;
-import org.springframework.beans.PropertyValue;
-import org.springframework.beans.PropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
+import org.springframework.beans.factory.config.ConstructorArgumentValues;
+import org.springframework.beans.factory.config.ConstructorArgumentValues.ValueHolder;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -20,6 +35,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationProvid
 import org.springframework.security.authentication.RememberMeAuthenticationProvider;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.Elements;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.mapping.SimpleAttributes2GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.SimpleMappableAttributesRetriever;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
@@ -143,9 +159,9 @@ final class AuthenticationConfigBuilder {
                 key = createKey();
             }
 
-            rememberMeFilter = new RememberMeBeanDefinitionParser(key).parse(rememberMeElt, pc);
-            rememberMeFilter.getPropertyValues().addPropertyValue("authenticationManager", authenticationManager);
-            rememberMeServicesId = ((RuntimeBeanReference) rememberMeFilter.getPropertyValues().getPropertyValue("rememberMeServices").getValue()).getBeanName();
+            RememberMeBeanDefinitionParser rememberMeParser = new RememberMeBeanDefinitionParser(key, authenticationManager);
+            rememberMeFilter = rememberMeParser.parse(rememberMeElt, pc);
+            rememberMeServicesId = rememberMeParser.getRememberMeServicesId();
             createRememberMeProvider(key);
         }
     }
@@ -154,7 +170,7 @@ final class AuthenticationConfigBuilder {
         RootBeanDefinition provider = new RootBeanDefinition(RememberMeAuthenticationProvider.class);
         provider.setSource(rememberMeFilter.getSource());
 
-        provider.getPropertyValues().addPropertyValue("key", key);
+        provider.getConstructorArgumentValues().addGenericArgumentValue(key);
 
         String id = pc.getReaderContext().generateBeanName(provider);
         pc.registerBeanComponent(new BeanComponentDefinition(provider, id));
@@ -320,8 +336,8 @@ final class AuthenticationConfigBuilder {
             basicEntryPoint = new RuntimeBeanReference(entryPointId);
         }
 
-        filterBuilder.addPropertyValue("authenticationManager", authManager);
-        filterBuilder.addPropertyValue("authenticationEntryPoint", basicEntryPoint);
+        filterBuilder.addConstructorArgValue(authManager);
+        filterBuilder.addConstructorArgValue(basicEntryPoint);
         basicFilter = filterBuilder.getBeanDefinition();
     }
 
@@ -500,15 +516,14 @@ final class AuthenticationConfigBuilder {
         }
 
         anonymousFilter = new RootBeanDefinition(AnonymousAuthenticationFilter.class);
-
-        PropertyValue keyPV = new PropertyValue("key", key);
+        anonymousFilter.getConstructorArgumentValues().addIndexedArgumentValue(0, key);
+        anonymousFilter.getConstructorArgumentValues().addIndexedArgumentValue(1, username);
+        anonymousFilter.getConstructorArgumentValues().addIndexedArgumentValue(2, AuthorityUtils.createAuthorityList(grantedAuthority));
         anonymousFilter.setSource(source);
-        anonymousFilter.getPropertyValues().addPropertyValue("userAttribute", username + "," + grantedAuthority);
-        anonymousFilter.getPropertyValues().addPropertyValue(keyPV);
 
         RootBeanDefinition anonymousProviderBean = new RootBeanDefinition(AnonymousAuthenticationProvider.class);
+        anonymousProviderBean.getConstructorArgumentValues().addIndexedArgumentValue(0, key);
         anonymousProviderBean.setSource(anonymousFilter.getSource());
-        anonymousProviderBean.getPropertyValues().addPropertyValue(keyPV);
         String id = pc.getReaderContext().generateBeanName(anonymousProviderBean);
         pc.registerBeanComponent(new BeanComponentDefinition(anonymousProviderBean, id));
 
@@ -525,8 +540,8 @@ final class AuthenticationConfigBuilder {
         BeanDefinitionBuilder etfBuilder = BeanDefinitionBuilder.rootBeanDefinition(ExceptionTranslationFilter.class);
         etfBuilder.addPropertyValue("accessDeniedHandler", createAccessDeniedHandler(httpElt, pc));
         assert requestCache != null;
-        etfBuilder.addPropertyValue("requestCache", requestCache);
-        etfBuilder.addPropertyValue("authenticationEntryPoint", selectEntryPoint());
+        etfBuilder.addConstructorArgValue(selectEntryPoint());
+        etfBuilder.addConstructorArgValue(requestCache);
 
         etf = etfBuilder.getBeanDefinition();
     }
@@ -620,18 +635,18 @@ final class AuthenticationConfigBuilder {
             return null;
         }
 
-        PropertyValues pvs = entryPoint.getPropertyValues();
-        PropertyValue pv = pvs.getPropertyValue("loginFormUrl");
-        if (pv == null) {
+        ConstructorArgumentValues cavs = entryPoint.getConstructorArgumentValues();
+        ValueHolder vh = cavs.getIndexedArgumentValue(0, String.class);
+        if (vh == null) {
              return null;
         }
 
         // If the login URL is the default one, then it is assumed not to have been set explicitly
-        if (DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL.equals(pv.getValue())) {
+        if (DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL.equals(vh.getValue())) {
             return null;
         }
 
-        return (String) pv.getValue();
+        return (String) vh.getValue();
     }
 
     private void createUserDetailsServiceFactory() {
