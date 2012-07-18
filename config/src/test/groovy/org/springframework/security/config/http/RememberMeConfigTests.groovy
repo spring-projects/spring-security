@@ -23,6 +23,7 @@ import org.springframework.security.config.BeanIds
 import org.springframework.security.core.userdetails.MockUserDetailsService
 import org.springframework.security.util.FieldUtils
 import org.springframework.security.web.authentication.logout.LogoutFilter
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
 import org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices
@@ -108,6 +109,22 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
         logoutHandlers.get(1) == rememberMeServices()
         // SEC-1281
         rmp.key == "ourkey"
+    }
+
+    def rememberMeAddsLogoutHandlerToLogoutFilter() {
+        httpAutoConfig () {
+            'remember-me'()
+        }
+        createAppContext(AUTH_PROVIDER_XML)
+
+        def rememberMeServices = rememberMeServices()
+        List logoutHandlers = getFilter(LogoutFilter.class).handlers
+
+        expect:
+        rememberMeServices
+        logoutHandlers.size() == 2
+        logoutHandlers.get(0) instanceof SecurityContextLogoutHandler
+        logoutHandlers.get(1) == rememberMeServices
     }
 
     def rememberMeTokenValidityIsParsedCorrectly() {
