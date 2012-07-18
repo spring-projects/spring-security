@@ -44,7 +44,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 /**
  * @author Luke Taylor
  */
-@SuppressWarnings("unchecked")
 @RunWith(MockitoJUnitRunner.class)
 public class JdbcTokenRepositoryImplTests {
     @Mock
@@ -145,7 +144,7 @@ public class JdbcTokenRepositoryImplTests {
 
         repo.removeUserTokens("joeuser");
 
-        List results = template.queryForList("select * from persistent_logins where username = 'joeuser'");
+        List<Map<String,Object>> results = template.queryForList("select * from persistent_logins where username = 'joeuser'");
 
         assertEquals(0, results.size());
     }
@@ -157,7 +156,7 @@ public class JdbcTokenRepositoryImplTests {
                 "('joesseries', 'joeuser', 'atoken', '" + ts.toString() + "')");
         repo.updateToken("joesseries", "newtoken", new Date());
 
-        Map results = template.queryForMap("select * from persistent_logins where series = 'joesseries'");
+        Map<String,Object> results = template.queryForMap("select * from persistent_logins where series = 'joesseries'");
 
         assertEquals("joeuser", results.get("username"));
         assertEquals("joesseries", results.get("series"));

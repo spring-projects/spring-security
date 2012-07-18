@@ -19,15 +19,10 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
-import org.springframework.jdbc.object.MappingSqlQuery;
-import org.springframework.jdbc.object.SqlUpdate;
 
-import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.*;
 
 /**
