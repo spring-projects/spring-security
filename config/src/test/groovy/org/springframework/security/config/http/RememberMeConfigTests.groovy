@@ -15,24 +15,22 @@
  */
 package org.springframework.security.config.http
 
+import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML
+
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException
 import org.springframework.security.TestDataSource
 import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.RememberMeAuthenticationProvider
-import org.springframework.security.config.BeanIds
 import org.springframework.security.core.userdetails.MockUserDetailsService
 import org.springframework.security.util.FieldUtils
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
 import org.springframework.security.web.authentication.logout.LogoutFilter
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
 import org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl
-import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices
-import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML
-
-import org.springframework.security.web.authentication.RememberMeServices;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
 
 /**
  *
