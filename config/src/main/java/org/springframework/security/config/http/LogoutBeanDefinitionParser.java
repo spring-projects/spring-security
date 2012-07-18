@@ -1,3 +1,18 @@
+/*
+ * Copyright 2002-2012 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.springframework.security.config.http;
 
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -29,6 +44,7 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_DELETE_COOKIES = "delete-cookies";
 
     final String rememberMeServices;
+    private ManagedList logoutHandlers = new ManagedList();
 
     public LogoutBeanDefinitionParser(String rememberMeServices) {
         this.rememberMeServices = rememberMeServices;
@@ -75,24 +91,27 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
             builder.addConstructorArgValue(logoutSuccessUrl);
         }
 
-        ManagedList handlers = new ManagedList();
         BeanDefinition sclh = new RootBeanDefinition(SecurityContextLogoutHandler.class);
         sclh.getPropertyValues().addPropertyValue("invalidateHttpSession", !"false".equals(invalidateSession));
-        handlers.add(sclh);
+        logoutHandlers.add(sclh);
 
         if (rememberMeServices != null) {
-            handlers.add(new RuntimeBeanReference(rememberMeServices));
+            logoutHandlers.add(new RuntimeBeanReference(rememberMeServices));
         }
 
         if (StringUtils.hasText(deleteCookies)) {
             BeanDefinition cookieDeleter = new RootBeanDefinition(CookieClearingLogoutHandler.class);
             String[] names = StringUtils.tokenizeToStringArray(deleteCookies, ",");
             cookieDeleter.getConstructorArgumentValues().addGenericArgumentValue(names);
-            handlers.add(cookieDeleter);
+            logoutHandlers.add(cookieDeleter);
         }
 
-        builder.addConstructorArgValue(handlers);
+        builder.addConstructorArgValue(logoutHandlers);
 
         return builder.getBeanDefinition();
+    }
+
+    ManagedList getLogoutHandlers() {
+        return logoutHandlers;
     }
 }

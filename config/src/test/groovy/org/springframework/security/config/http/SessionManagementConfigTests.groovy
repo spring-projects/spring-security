@@ -23,7 +23,12 @@ import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.session.SessionRegistryImpl
 import org.springframework.security.util.FieldUtils
+import org.springframework.security.web.authentication.RememberMeServices
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler
+import org.springframework.security.web.authentication.logout.LogoutFilter
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
+import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter
 import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy
 import org.springframework.security.web.context.NullSecurityContextRepository
 import org.springframework.security.web.context.SaveContextOnUpdateOrErrorResponseWrapper
@@ -93,6 +98,7 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
     }
 
     def concurrentSessionSupportAddsFilterAndExpectedBeans() {
+        when:
         httpAutoConfig {
             'session-management'() {
                 'concurrency-control'('session-registry-alias':'sr', 'expired-url': '/expired')
@@ -100,13 +106,89 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
         }
         createAppContext();
         List filters = getFilters("/someurl");
+        def concurrentSessionFilter = filters.get(0)
 
-        expect:
-        filters.get(0) instanceof ConcurrentSessionFilter
-        filters.get(0).expiredUrl == '/expired'
+        then:
+        concurrentSessionFilter instanceof ConcurrentSessionFilter
+        concurrentSessionFilter.expiredUrl == '/expired'
         appContext.getBean("sr") != null
         getFilter(SessionManagementFilter.class) != null
         sessionRegistryIsValid();
+
+        concurrentSessionFilter.handlers.size() == 1
+        def logoutHandler = concurrentSessionFilter.handlers[0]
+        logoutHandler instanceof SecurityContextLogoutHandler
+        logoutHandler.invalidateHttpSession
+
+    }
+
+    def 'concurrency-control adds custom logout handlers'() {
+        when: 'Custom logout and remember-me'
+        httpAutoConfig {
+            'session-management'() {
+                'concurrency-control'()
+            }
+            'logout'('invalidate-session': false, 'delete-cookies': 'testCookie')
+            'remember-me'()
+        }
+        createAppContext();
+
+        List filters = getFilters("/someurl")
+        ConcurrentSessionFilter concurrentSessionFilter = filters.get(0)
+        def logoutHandlers = concurrentSessionFilter.handlers
+
+        then: 'ConcurrentSessionFilter contains the customized LogoutHandlers'
+        logoutHandlers.size() == 3
+        def securityCtxlogoutHandler = logoutHandlers.find { it instanceof SecurityContextLogoutHandler }
+        securityCtxlogoutHandler.invalidateHttpSession == false
+        def cookieClearingLogoutHandler = logoutHandlers.find { it instanceof CookieClearingLogoutHandler }
+        cookieClearingLogoutHandler.cookiesToClear == ['testCookie']
+        def remembermeLogoutHandler = logoutHandlers.find { it instanceof RememberMeServices }
+        remembermeLogoutHandler == getFilter(RememberMeAuthenticationFilter.class).rememberMeServices
+    }
+
+    def 'concurrency-control with remember-me and no LogoutFilter contains SecurityContextLogoutHandler and RememberMeServices as LogoutHandlers'() {
+        when: 'RememberMe and No LogoutFilter'
+        xml.http(['entry-point-ref': 'entryPoint'], {
+            'session-management'() {
+                'concurrency-control'()
+            }
+            'remember-me'()
+        })
+        bean('entryPoint', 'org.springframework.security.web.authentication.Http403ForbiddenEntryPoint')
+        createAppContext()
+
+        List filters = getFilters("/someurl")
+        ConcurrentSessionFilter concurrentSessionFilter = filters.get(0)
+        def logoutHandlers = concurrentSessionFilter.handlers
+
+        then: 'SecurityContextLogoutHandler and RememberMeServices are in ConcurrentSessionFilter logoutHandlers'
+        !filters.find { it instanceof LogoutFilter }
+        logoutHandlers.size() == 2
+        def securityCtxlogoutHandler = logoutHandlers.find { it instanceof SecurityContextLogoutHandler }
+        securityCtxlogoutHandler.invalidateHttpSession == true
+        logoutHandlers.find { it instanceof RememberMeServices } == getFilter(RememberMeAuthenticationFilter).rememberMeServices
+    }
+
+    def 'concurrency-control with no remember-me or LogoutFilter contains SecurityContextLogoutHandler as LogoutHandlers'() {
+        when: 'No Logout Filter or RememberMe'
+        xml.http(['entry-point-ref': 'entryPoint'], {
+            'session-management'() {
+                'concurrency-control'()
+            }
+        })
+        bean('entryPoint', 'org.springframework.security.web.authentication.Http403ForbiddenEntryPoint')
+        createAppContext()
+
+        List filters = getFilters("/someurl")
+        ConcurrentSessionFilter concurrentSessionFilter = filters.get(0)
+        def logoutHandlers = concurrentSessionFilter.handlers
+
+        then: 'Only SecurityContextLogoutHandler is found in ConcurrentSessionFilter logoutHandlers'
+        !filters.find { it instanceof LogoutFilter }
+        logoutHandlers.size() == 1
+        def securityCtxlogoutHandler = logoutHandlers.find { it instanceof SecurityContextLogoutHandler }
+        securityCtxlogoutHandler.invalidateHttpSession == true
     }
 
     def 'concurrency-control handles default expired-url as null'() {
