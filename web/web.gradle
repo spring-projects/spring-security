@@ -13,6 +13,7 @@ dependencies {
 
     testCompile project(':spring-security-core').sourceSets.test.output,
                 'commons-codec:commons-codec:1.3',
+                "org.slf4j:jcl-over-slf4j:$slf4jVersion",
                 "org.springframework:spring-test:$springVersion",
                 "org.powermock:powermock-core:$powerMockVersion",
                 "org.powermock:powermock-api-support:$powerMockVersion",
