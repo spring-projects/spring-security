@@ -339,7 +339,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
         if (logger.isDebugEnabled()) {
             logger.debug("Authentication request failed: " + failed.toString());
             logger.debug("Updated SecurityContextHolder to contain null Authentication");
-            logger.debug("Delegating to authentication failure handler" + failureHandler);
+            logger.debug("Delegating to authentication failure handler " + failureHandler);
         }
 
         rememberMeServices.loginFail(request, response);
