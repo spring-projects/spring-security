@@ -318,9 +318,11 @@ boolean supports(Class clazz);
 <bean id="roleHierarchy"
         class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl">
     <property name="hierarchy">
-        ROLE_ADMIN > ROLE_STAFF
-        ROLE_STAFF > ROLE_USER
-        ROLE_USER > ROLE_GUEST
+        <value>
+            ROLE_ADMIN > ROLE_STAFF
+            ROLE_STAFF > ROLE_USER
+            ROLE_USER > ROLE_GUEST
+        </value>
     </property>
 </bean>]]>
 </programlisting>
