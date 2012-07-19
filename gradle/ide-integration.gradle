@@ -37,6 +37,7 @@ configure(javaProjects) {
     }
 }
 
+// STS-2723
 project(':spring-security-samples-aspectj') {
     task afterEclipseImport {
         ext.srcFile = file('.classpath')
