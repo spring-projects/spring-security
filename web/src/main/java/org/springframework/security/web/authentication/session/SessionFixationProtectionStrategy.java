@@ -21,8 +21,6 @@ import java.util.*;
  * This approach will only be effective if your servlet container always assigns a new session Id when a session is
  * invalidated and a new session created by calling {@link HttpServletRequest#getSession()}.
  * <p>
- * If concurrent session control is in use, then a {@code SessionRegistry} must be injected.
- * <p>
  * <h3>Issues with {@code HttpSessionBindingListener}</h3>
  * <p>
  * The migration of existing attributes to the newly-created session may cause problems if any of the objects
