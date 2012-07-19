@@ -54,6 +54,9 @@ public class ConcurrentSessionControlStrategy extends SessionFixationProtectionS
         this.sessionRegistry = sessionRegistry;
     }
 
+    /**
+     * In addition to the steps from the superclass, the sessionRegistry will be updated with the new session information.
+     */
     @Override
     public void onAuthentication(Authentication authentication, HttpServletRequest request,
             HttpServletResponse response) {

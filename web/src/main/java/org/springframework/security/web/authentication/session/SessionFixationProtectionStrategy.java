@@ -62,9 +62,8 @@ public class SessionFixationProtectionStrategy implements SessionAuthenticationS
      * <p>
      * If a session already exists, and matches the session Id from the client, a new session will be created, and the
      * session attributes copied to it (if {@code migrateSessionAttributes} is set).
-     * The sessionRegistry will be updated with the new session information. If the client's requested session Id is
-     * invalid, nothing will be done, since there is no need to change the session Id if it doesn't match the current
-     * session.
+     * If the client's requested session Id is invalid, nothing will be done, since there is no need to change the
+     * session Id if it doesn't match the current session.
      * <p>
      * If there is no session, no action is taken unless the {@code alwaysCreateSession} property is set, in which
      * case a session will be created if one doesn't already exist.
