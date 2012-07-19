@@ -6,6 +6,28 @@ configure(javaProjects) {
 
     eclipse.classpath.downloadSources = true
 
+    // GRADLE-1116
+    project.eclipse.classpath.file.whenMerged { classpath ->
+        classpath.entries.removeAll { entry -> entry.path.endsWith('/build/classes/test') }
+    }
+
+    // GRADLE-1422
+    project.eclipseClasspath.doFirst {
+       // delay adding whenMerged till the entryAttributes are added (must be the last whenMerged)
+       project.eclipse.classpath.file.whenMerged { classpath ->
+           def includeDeps = project.configurations.getByName('runtime').collect {f -> f.absolutePath } as Set
+           classpath.entries.each { cp ->
+               if(cp instanceof org.gradle.plugins.ide.eclipse.model.Library) {
+                   def include = includeDeps.contains(cp.path)
+                   def attr = 'org.eclipse.jst.component.dependency'
+                   if(!include) {
+                       cp.entryAttributes.remove(attr)
+                   }
+               }
+           }
+       }
+    }
+
     tasks.withType(org.gradle.plugins.ide.eclipse.GenerateEclipseWtpComponent) {
         project.eclipse.classpath.file.whenMerged { classpath->
             project.eclipse.wtp.component.file.whenMerged { wtpComponent ->
