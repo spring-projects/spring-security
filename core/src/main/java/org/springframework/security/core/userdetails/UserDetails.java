@@ -55,7 +55,7 @@ public interface UserDetails extends Serializable {
     /**
      * Returns the password used to authenticate the user. Cannot return <code>null</code>.
      *
-     * @return the password (never <code>null</code>)
+     * @return the password
      */
     String getPassword();
 
