@@ -11,7 +11,7 @@ package org.springframework.security.config;
 public abstract class BeanIds {
     private static final String PREFIX = "org.springframework.security.";
 
-    /** The "global" AuthenticationManager instance, registered by the <authentication-manager> element */
+    /** The "global" AuthenticationManager instance, registered by the &lt;authentication-manager&gt; element */
     public static final String AUTHENTICATION_MANAGER = PREFIX + "authenticationManager";
 
     /** External alias for FilterChainProxy bean, for use in web.xml files */
