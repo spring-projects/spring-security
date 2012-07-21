@@ -53,7 +53,7 @@ public interface UserDetails extends Serializable {
     Collection<? extends GrantedAuthority> getAuthorities();
 
     /**
-     * Returns the password used to authenticate the user. Cannot return <code>null</code>.
+     * Returns the password used to authenticate the user.
      *
      * @return the password
      */
