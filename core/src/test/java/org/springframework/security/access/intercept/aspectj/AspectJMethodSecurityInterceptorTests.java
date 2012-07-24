@@ -56,7 +56,6 @@ import java.util.List;
  * @author Luke Taylor
  * @author Rob Winch
  */
-@SuppressWarnings("deprecation")
 public class AspectJMethodSecurityInterceptorTests {
     private TestingAuthenticationToken token;
     private AspectJMethodSecurityInterceptor interceptor;
@@ -77,7 +76,6 @@ public class AspectJMethodSecurityInterceptorTests {
         interceptor.setAccessDecisionManager(adm);
         interceptor.setAuthenticationManager(authman);
         interceptor.setSecurityMetadataSource(mds);
-        Method method = TargetObject.class.getMethod("countLength", new Class[] {String.class});
         // Set up joinpoint information for the countLength method on TargetObject
         joinPoint = mock(ProceedingJoinPoint.class); //new MockJoinPoint(new TargetObject(), method);
         Signature sig = mock(Signature.class);
