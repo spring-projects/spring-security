@@ -12,6 +12,7 @@ import org.springframework.security.access.intercept.aopalliance.MethodSecurityI
  * Alternatively you can use one of the pre-defined aspects from the aspects module.
  *
  * @author Luke Taylor
+ * @author Rob Winch
  * @since 3.0.3
  */
 public final class AspectJMethodSecurityInterceptor extends MethodSecurityInterceptor {
@@ -39,7 +40,12 @@ public final class AspectJMethodSecurityInterceptor extends MethodSecurityInterc
     public Object invoke(JoinPoint jp, AspectJCallback advisorProceed) {
         InterceptorStatusToken token = super.beforeInvocation(new MethodInvocationAdapter(jp));
 
-        Object result = advisorProceed.proceedWithObject();
+        Object result;
+        try {
+            result = advisorProceed.proceedWithObject();
+        }finally {
+            super.finallyInvocation(token);
+        }
 
         return super.afterInvocation(token, result);
     }

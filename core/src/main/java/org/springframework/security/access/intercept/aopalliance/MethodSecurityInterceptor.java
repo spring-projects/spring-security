@@ -34,6 +34,7 @@ import org.aopalliance.intercept.MethodInvocation;
  * Refer to {@link AbstractSecurityInterceptor} for details on the workflow.
  *
  * @author Ben Alex
+ * @author Rob Winch
  */
 public class MethodSecurityInterceptor extends AbstractSecurityInterceptor implements MethodInterceptor {
     //~ Instance fields ================================================================================================
@@ -58,8 +59,12 @@ public class MethodSecurityInterceptor extends AbstractSecurityInterceptor imple
     public Object invoke(MethodInvocation mi) throws Throwable {
         InterceptorStatusToken token = super.beforeInvocation(mi);
 
-        Object result = mi.proceed();
-
+        Object result;
+        try {
+            result = mi.proceed();
+        } finally {
+            super.finallyInvocation(token);
+        }
         return super.afterInvocation(token, result);
     }
 

@@ -15,7 +15,7 @@
 
 package org.springframework.security.web.access.intercept;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -28,9 +28,11 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.event.AuthorizedEvent;
 import org.springframework.security.access.intercept.AfterInvocationManager;
 import org.springframework.security.access.intercept.RunAsManager;
+import org.springframework.security.access.intercept.RunAsUserToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
 
@@ -44,6 +46,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Ben Alex
  * @author Luke Taylor
+ * @author Rob Winch
  */
 public class FilterSecurityInterceptorTests {
     private AuthenticationManager am;
@@ -130,6 +133,39 @@ public class FilterSecurityInterceptorTests {
         }
 
         verifyZeroInteractions(aim);
+    }
+
+    // SEC-1967
+    @Test
+    @SuppressWarnings("unchecked")
+    public void finallyInvocationIsInvokedIfExceptionThrown() throws Exception {
+        SecurityContext ctx = SecurityContextHolder.getContext();
+        Authentication token = new TestingAuthenticationToken("Test", "Password", "NOT_USED");
+        token.setAuthenticated(true);
+        ctx.setAuthentication(token);
+
+        RunAsManager runAsManager = mock(RunAsManager.class);
+        when(runAsManager.buildRunAs(eq(token), any(), anyCollection())).thenReturn(new RunAsUserToken("key", "someone", "creds", token.getAuthorities(), token.getClass()));
+        interceptor.setRunAsManager(runAsManager);
+
+        FilterInvocation fi = createinvocation();
+        FilterChain chain = fi.getChain();
+
+        doThrow(new RuntimeException()).when(chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+        when(ods.getAttributes(fi)).thenReturn(SecurityConfig.createList("MOCK_OK"));
+
+        AfterInvocationManager aim = mock(AfterInvocationManager.class);
+        interceptor.setAfterInvocationManager(aim);
+
+        try {
+            interceptor.invoke(fi);
+            fail("Expected exception");
+        } catch (RuntimeException expected) {
+        }
+
+        // Check we've changed back
+        assertSame(ctx, SecurityContextHolder.getContext());
+        assertSame(token, SecurityContextHolder.getContext().getAuthentication());
     }
 
     private FilterInvocation createinvocation() {

@@ -45,11 +45,11 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.*;
-
 /**
  * Tests {@link MethodSecurityInterceptor}.
  *
  * @author Ben Alex
+ * @author Rob Winch
  */
 @SuppressWarnings("unchecked")
 public class MethodSecurityInterceptorTests {
@@ -262,6 +262,31 @@ public class MethodSecurityInterceptorTests {
 
         String result = advisedTarget.makeUpperCase("hello");
         assertEquals("HELLO org.springframework.security.access.intercept.RunAsUserToken true", result);
+        // Check we've changed back
+        assertSame(ctx, SecurityContextHolder.getContext());
+        assertSame(token, SecurityContextHolder.getContext().getAuthentication());
+    }
+
+    // SEC-1967
+    @Test
+    public void runAsReplacementCleansAfterException() throws Exception {
+        createTarget(true);
+        when(realTarget.makeUpperCase(anyString())).thenThrow(new RuntimeException());
+        SecurityContext ctx = SecurityContextHolder.getContext();
+        ctx.setAuthentication(token);
+        token.setAuthenticated(true);
+        final RunAsManager runAs = mock(RunAsManager.class);
+        final RunAsUserToken runAsToken =
+            new RunAsUserToken("key", "someone", "creds", token.getAuthorities(), TestingAuthenticationToken.class);
+        interceptor.setRunAsManager(runAs);
+        mdsReturnsUserRole();
+        when(runAs.buildRunAs(eq(token), any(MethodInvocation.class), any(List.class))).thenReturn(runAsToken);
+
+        try {
+            advisedTarget.makeUpperCase("hello");
+            fail("Expected Exception");
+        }catch(RuntimeException success) {}
+
         // Check we've changed back
         assertSame(ctx, SecurityContextHolder.getContext());
         assertSame(token, SecurityContextHolder.getContext().getAuthentication());

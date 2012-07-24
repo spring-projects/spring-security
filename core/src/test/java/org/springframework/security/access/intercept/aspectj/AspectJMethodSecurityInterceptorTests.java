@@ -34,15 +34,19 @@ import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.intercept.AfterInvocationManager;
+import org.springframework.security.access.intercept.RunAsManager;
+import org.springframework.security.access.intercept.RunAsUserToken;
 import org.springframework.security.access.method.MethodSecurityMetadataSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.ClassUtils;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.List;
 
 
 /**
@@ -50,6 +54,7 @@ import java.util.Collection;
  *
  * @author Ben Alex
  * @author Luke Taylor
+ * @author Rob Winch
  */
 @SuppressWarnings("deprecation")
 public class AspectJMethodSecurityInterceptorTests {
@@ -151,4 +156,51 @@ public class AspectJMethodSecurityInterceptorTests {
         verifyZeroInteractions(aim);
     }
 
+    // SEC-1967
+    @Test
+    @SuppressWarnings("unchecked")
+    public void invokeWithAspectJCallbackRunAsReplacementCleansAfterException() throws Exception {
+        SecurityContext ctx = SecurityContextHolder.getContext();
+        ctx.setAuthentication(token);
+        token.setAuthenticated(true);
+        final RunAsManager runAs = mock(RunAsManager.class);
+        final RunAsUserToken runAsToken =
+            new RunAsUserToken("key", "someone", "creds", token.getAuthorities(), TestingAuthenticationToken.class);
+        interceptor.setRunAsManager(runAs);
+        when(runAs.buildRunAs(eq(token), any(MethodInvocation.class), any(List.class))).thenReturn(runAsToken);
+        when(aspectJCallback.proceedWithObject()).thenThrow(new RuntimeException());
+
+        try {
+            interceptor.invoke(joinPoint, aspectJCallback);
+            fail("Expected Exception");
+        }catch(RuntimeException success) {}
+
+        // Check we've changed back
+        assertSame(ctx, SecurityContextHolder.getContext());
+        assertSame(token, SecurityContextHolder.getContext().getAuthentication());
+    }
+
+    // SEC-1967
+    @Test
+    @SuppressWarnings("unchecked")
+    public void invokeRunAsReplacementCleansAfterException() throws Throwable {
+        SecurityContext ctx = SecurityContextHolder.getContext();
+        ctx.setAuthentication(token);
+        token.setAuthenticated(true);
+        final RunAsManager runAs = mock(RunAsManager.class);
+        final RunAsUserToken runAsToken =
+            new RunAsUserToken("key", "someone", "creds", token.getAuthorities(), TestingAuthenticationToken.class);
+        interceptor.setRunAsManager(runAs);
+        when(runAs.buildRunAs(eq(token), any(MethodInvocation.class), any(List.class))).thenReturn(runAsToken);
+        when(joinPoint.proceed()).thenThrow(new RuntimeException());
+
+        try {
+            interceptor.invoke(joinPoint);
+            fail("Expected Exception");
+        }catch(RuntimeException success) {}
+
+        // Check we've changed back
+        assertSame(ctx, SecurityContextHolder.getContext());
+        assertSame(token, SecurityContextHolder.getContext().getAuthentication());
+    }
 }

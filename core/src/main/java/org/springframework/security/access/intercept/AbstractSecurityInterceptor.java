@@ -66,7 +66,7 @@ import org.springframework.util.Assert;
  * <li>Pass control back to the concrete subclass, which will actually proceed with executing the object.
  * A {@link InterceptorStatusToken} is returned so that after the subclass has finished proceeding with
  * execution of the object, its finally clause can ensure the <code>AbstractSecurityInterceptor</code>
- * is re-called and tidies up correctly.</li>
+ * is re-called and tidies up correctly using {@link #finallyInvocation(InterceptorStatusToken)}.</li>
  * <li>The concrete subclass will re-call the <code>AbstractSecurityInterceptor</code> via the
  * {@link #afterInvocation(InterceptorStatusToken, Object)} method.</li>
  * <li>If the <code>RunAsManager</code> replaced the <code>Authentication</code> object, return the
@@ -91,6 +91,7 @@ import org.springframework.util.Assert;
  * </ol>
  *
  * @author Ben Alex
+ * @author Rob Winch
  */
 public abstract class AbstractSecurityInterceptor implements InitializingBean, ApplicationEventPublisherAware,
         MessageSourceAware {
@@ -243,6 +244,23 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
     }
 
     /**
+     * Cleans up the work of the <tt>AbstractSecurityInterceptor</tt> after the secure object invocation has been
+     * completed. This method should be invoked after the secure object invocation and before afterInvocation regardless
+     * of the secure object invocation returning successfully (i.e. it should be done in a finally block).
+     *
+     * @param token as returned by the {@link #beforeInvocation(Object)} method
+     */
+    protected void finallyInvocation(InterceptorStatusToken token) {
+        if (token != null && token.isContextHolderRefreshRequired()) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Reverting to original Authentication: " + token.getSecurityContext().getAuthentication());
+            }
+
+            SecurityContextHolder.setContext(token.getSecurityContext());
+        }
+    }
+
+    /**
      * Completes the work of the <tt>AbstractSecurityInterceptor</tt> after the secure object invocation has been
      * completed.
      *
@@ -256,13 +274,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
             return returnedObject;
         }
 
-        if (token.isContextHolderRefreshRequired()) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Reverting to original Authentication: " + token.getSecurityContext().getAuthentication());
-            }
-
-            SecurityContextHolder.setContext(token.getSecurityContext());
-        }
+        finallyInvocation(token); // continue to clean in this method for passivity
 
         if (afterInvocationManager != null) {
             // Attempt after invocation handling

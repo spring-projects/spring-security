@@ -39,6 +39,7 @@ import org.springframework.security.web.FilterInvocation;
  * Refer to {@link AbstractSecurityInterceptor} for details on the workflow.</p>
  *
  * @author Ben Alex
+ * @author Rob Winch
  */
 public class FilterSecurityInterceptor extends AbstractSecurityInterceptor implements Filter {
     //~ Static fields/initializers =====================================================================================
@@ -113,7 +114,11 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 
             InterceptorStatusToken token = super.beforeInvocation(fi);
 
-            fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
+            try {
+                fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
+            } finally {
+                super.finallyInvocation(token);
+            }
 
             super.afterInvocation(token, null);
         }
