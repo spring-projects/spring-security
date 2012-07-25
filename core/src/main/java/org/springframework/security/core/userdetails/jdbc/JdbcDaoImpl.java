@@ -119,6 +119,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
     private boolean usernameBasedPrimaryKey = true;
     private boolean enableAuthorities = true;
     private boolean enableGroups;
+	private boolean allowEmptyAuthorities = false;
 
     //~ Constructors ===================================================================================================
 
@@ -173,7 +174,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 
         addCustomAuthorities(user.getUsername(), dbAuths);
 
-        if (dbAuths.size() == 0) {
+        if ((!isAllowEmptyAuthorities()) && dbAuths.isEmpty()) {
             logger.debug("User '" + username + "' has no authorities and will be treated as 'not found'");
 
             throw new UsernameNotFoundException(
@@ -351,4 +352,12 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
     public void setEnableGroups(boolean enableGroups) {
         this.enableGroups = enableGroups;
     }
+
+	protected boolean isAllowEmptyAuthorities() {
+		return allowEmptyAuthorities;
+	}
+
+	public void setAllowEmptyAuthorities(boolean allowEmptyAuthorities) {
+		this.allowEmptyAuthorities = allowEmptyAuthorities;
+	}
 }

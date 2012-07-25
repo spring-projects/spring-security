@@ -16,6 +16,7 @@ public class JdbcUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
     static final String ATT_AUTHORITIES_BY_USERNAME_QUERY = "authorities-by-username-query";
     static final String ATT_GROUP_AUTHORITIES_QUERY = "group-authorities-by-username-query";
     static final String ATT_ROLE_PREFIX = "role-prefix";
+	static final String ATT_ALLOW_EMPTY_AUTHORITIES = "allow-empty-authorities";
 
     protected String getBeanClassName(Element element) {
         return "org.springframework.security.provisioning.JdbcUserDetailsManager";
@@ -35,6 +36,7 @@ public class JdbcUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
         String authoritiesQuery = element.getAttribute(ATT_AUTHORITIES_BY_USERNAME_QUERY);
         String groupAuthoritiesQuery = element.getAttribute(ATT_GROUP_AUTHORITIES_QUERY);
         String rolePrefix = element.getAttribute(ATT_ROLE_PREFIX);
+		String allowEmptyAuthorities = element.getAttribute(ATT_ALLOW_EMPTY_AUTHORITIES);
 
         if (StringUtils.hasText(rolePrefix)) {
             builder.addPropertyValue("rolePrefix", rolePrefix);
@@ -52,5 +54,9 @@ public class JdbcUserServiceBeanDefinitionParser extends AbstractUserDetailsServ
             builder.addPropertyValue("enableGroups", Boolean.TRUE);
             builder.addPropertyValue("groupAuthoritiesByUsernameQuery", groupAuthoritiesQuery);
         }
+
+		if (StringUtils.hasText(allowEmptyAuthorities)) {
+			builder.addPropertyValue("allowEmptyAuthorities", Boolean.parseBoolean(allowEmptyAuthorities));
+		}
     }
 }
