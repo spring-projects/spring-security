@@ -14,7 +14,7 @@ Import-Template:
  org.springframework.security.core.*;version="${secRange}",
  org.springframework.security.access.*;version="${secRange}",
  org.springframework.security.util.*;version="${secRange}",
- org.springframework.context.*;version="${secRange}";resolution:=optional,
+ org.springframework.context.*;version="${springRange}";resolution:=optional,
  org.springframework.dao.*;version="${springRange}";resolution:=optional,
  org.springframework.jdbc.core.*;version="${springRange}";resolution:=optional,
  org.springframework.transaction.support.*;version="${springRange}";resolution:=optional,
