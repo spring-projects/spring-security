@@ -18,5 +18,4 @@ build/
 *.ipr
 *.iws
 .gradle/
-gradle.properties
 atlassian-ide-plugin.xml
