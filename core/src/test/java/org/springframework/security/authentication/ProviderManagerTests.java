@@ -267,6 +267,26 @@ public class ProviderManagerTests {
         verify(publisher).publishAuthenticationFailure(expected, authReq);
     }
 
+    @Test
+    @SuppressWarnings("deprecation")
+    public void statusExceptionIsPublished() throws Exception {
+        AuthenticationManager parent = mock(AuthenticationManager.class);
+        final LockedException expected = new LockedException("");
+        ProviderManager mgr = new ProviderManager(
+                Arrays.asList(createProviderWhichThrows(expected)), parent);
+        final Authentication authReq = mock(Authentication.class);
+        AuthenticationEventPublisher publisher = mock(AuthenticationEventPublisher.class);
+        mgr.setAuthenticationEventPublisher(publisher);
+        try {
+            mgr.authenticate(authReq);
+            fail("Expected exception");
+        } catch (LockedException e) {
+            assertSame(expected, e);
+            assertSame(authReq, e.getAuthentication());
+        }
+        verify(publisher).publishAuthenticationFailure(expected, authReq);
+    }
+
     private AuthenticationProvider createProviderWhichThrows(final AuthenticationException e) {
         AuthenticationProvider provider = mock(AuthenticationProvider.class);
         when(provider.supports(any(Class.class))).thenReturn(true);

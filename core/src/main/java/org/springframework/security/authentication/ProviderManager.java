@@ -197,7 +197,6 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
                         new Object[] {toTest.getName()}, "No AuthenticationProvider found for {0}"));
         }
 
-        eventPublisher.publishAuthenticationFailure(lastException, authentication);
         prepareException(lastException, authentication);
 
         throw lastException;
@@ -205,6 +204,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 
     @SuppressWarnings("deprecation")
     private void prepareException(AuthenticationException ex, Authentication auth) {
+        eventPublisher.publishAuthenticationFailure(ex, auth);
         ex.setAuthentication(auth);
 
         if (clearExtraInformation) {
