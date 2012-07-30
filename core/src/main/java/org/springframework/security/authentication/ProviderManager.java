@@ -160,6 +160,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
                     break;
                 }
             } catch (AccountStatusException e) {
+                eventPublisher.publishAuthenticationFailure(e, authentication);
                 prepareException(e, authentication);
                 // SEC-546: Avoid polling additional providers if auth failure is due to invalid account status
                 throw e;
