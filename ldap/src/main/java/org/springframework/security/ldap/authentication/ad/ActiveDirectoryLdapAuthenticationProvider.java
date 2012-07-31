@@ -1,3 +1,15 @@
+/*
+ * Copyright 2002-2012 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ */
 package org.springframework.security.ldap.authentication.ad;
 
 import org.springframework.ldap.core.DirContextOperations;
@@ -61,6 +73,7 @@ import java.util.regex.Pattern;
  * {@code true}, the codes will also be used to control the exception raised.
  *
  * @author Luke Taylor
+ * @author Rob Winch
  * @since 3.1
  */
 public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLdapAuthenticationProvider {
@@ -115,7 +128,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 
         } catch (NamingException e) {
             logger.error("Failed to locate directory entry for authenticated user: " + username, e);
-            throw badCredentials();
+            throw badCredentials(e);
         } finally {
             LdapUtils.closeContext(ctx);
         }
@@ -165,7 +178,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
         } catch (NamingException e) {
             if ((e instanceof AuthenticationException) || (e instanceof OperationNotSupportedException)) {
                 handleBindException(bindPrincipal, e);
-                throw badCredentials();
+                throw badCredentials(e);
             } else {
                 throw LdapUtils.convertLdapException(e);
             }
@@ -183,7 +196,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
             logger.info("Active Directory authentication failed: " + subCodeToLogMessage(subErrorCode));
 
             if (convertSubErrorCodesToExceptions) {
-                raiseExceptionForErrorCode(subErrorCode);
+                raiseExceptionForErrorCode(subErrorCode, exception);
             }
         } else {
             logger.debug("Failed to locate AD-specific sub-error code in message");
@@ -200,20 +213,24 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
         return -1;
     }
 
-    void raiseExceptionForErrorCode(int code) {
+    void raiseExceptionForErrorCode(int code, NamingException exception) {
+        String hexString = Integer.toHexString(code);
+        Throwable cause = new ActiveDirectoryAuthenticationException(hexString, exception.getMessage(), exception);
         switch (code) {
             case PASSWORD_EXPIRED:
                 throw new CredentialsExpiredException(messages.getMessage("LdapAuthenticationProvider.credentialsExpired",
-                        "User credentials have expired"));
+                        "User credentials have expired"), cause);
             case ACCOUNT_DISABLED:
                 throw new DisabledException(messages.getMessage("LdapAuthenticationProvider.disabled",
-                        "User is disabled"));
+                        "User is disabled"), cause);
             case ACCOUNT_EXPIRED:
                 throw new AccountExpiredException(messages.getMessage("LdapAuthenticationProvider.expired",
-                        "User account has expired"));
+                        "User account has expired"), cause);
             case ACCOUNT_LOCKED:
                 throw new LockedException(messages.getMessage("LdapAuthenticationProvider.locked",
-                        "User account is locked"));
+                        "User account is locked"), cause);
+            default:
+                throw badCredentials(cause);
         }
     }
 
@@ -243,6 +260,10 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
     private BadCredentialsException badCredentials() {
         return new BadCredentialsException(messages.getMessage(
                         "LdapAuthenticationProvider.badCredentials", "Bad credentials"));
+    }
+
+    private BadCredentialsException badCredentials(Throwable cause) {
+        return (BadCredentialsException) badCredentials().initCause(cause);
     }
 
     private DirContextOperations searchForUser(DirContext ctx, String username) throws NamingException {
