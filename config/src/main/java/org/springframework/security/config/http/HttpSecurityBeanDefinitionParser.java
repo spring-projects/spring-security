@@ -32,6 +32,7 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.Elements;
@@ -231,7 +232,13 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         authManager.addConstructorArgValue(authenticationProviders);
 
         if (StringUtils.hasText(parentMgrRef)) {
-            authManager.addConstructorArgValue(new RuntimeBeanReference(parentMgrRef));
+            RuntimeBeanReference parentAuthManager = new RuntimeBeanReference(parentMgrRef);
+            authManager.addConstructorArgValue(parentAuthManager);
+            RootBeanDefinition clearCredentials = new RootBeanDefinition(ClearCredentialsMethodInvokingFactoryBean.class);
+            clearCredentials.getPropertyValues().addPropertyValue("targetObject", parentAuthManager);
+            clearCredentials.getPropertyValues().addPropertyValue("targetMethod", "isEraseCredentialsAfterAuthentication");
+
+            authManager.addPropertyValue("eraseCredentialsAfterAuthentication", clearCredentials);
         } else {
             RootBeanDefinition amfb = new RootBeanDefinition(AuthenticationManagerFactoryBean.class);
             amfb.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
@@ -363,3 +370,33 @@ class OrderDecorator implements Ordered {
     }
 }
 
+/**
+ * Custom {@link MethodInvokingFactoryBean} that is specifically used for looking up the child {@link ProviderManager}
+ * value for {@link ProviderManager#setEraseCredentialsAfterAuthentication(boolean)} given the parent
+ * {@link AuthenticationManager}. This is necessary because the parent {@link AuthenticationManager} might not be a
+ * {@link ProviderManager}.
+ *
+ * @author Rob Winch
+ */
+final class ClearCredentialsMethodInvokingFactoryBean extends MethodInvokingFactoryBean {
+    public void afterPropertiesSet() throws Exception {
+        boolean isTargetProviderManager = getTargetObject() instanceof ProviderManager;
+        if(!isTargetProviderManager) {
+            setTargetObject(this);
+        }
+        super.afterPropertiesSet();
+    }
+
+    /**
+     * The default value if the target object is not a ProviderManager is false. We use false because this feature is
+     * associated with {@link ProviderManager} not {@link AuthenticationManager}. If the user wants to leverage
+     * {@link ProviderManager#setEraseCredentialsAfterAuthentication(boolean)} their original
+     * {@link AuthenticationManager} must be a {@link ProviderManager} (we should not magically add this functionality
+     * to their implementation since we cannot determine if it should be on or off).
+     *
+     * @return
+     */
+    public boolean isEraseCredentialsAfterAuthentication() {
+        return false;
+    }
+}

@@ -624,6 +624,29 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         !getFilter(UsernamePasswordAuthenticationFilter).authenticationManager.eraseCredentialsAfterAuthentication
     }
 
+    def 'SEC-2020 authentication-manager@erase-credentials with http@authentication-manager-ref'() {
+        xml.http('authentication-manager-ref':'authMgr') {
+            'form-login'()
+        }
+        createAppContext("<authentication-manager id='authMgr' erase-credentials='false' />");
+        expect:
+        def authManager = getFilter(UsernamePasswordAuthenticationFilter).authenticationManager
+        !authManager.eraseCredentialsAfterAuthentication
+        !authManager.parent.eraseCredentialsAfterAuthentication
+    }
+
+    def 'authentication-manager@erase-credentials with http@authentication-manager-ref not ProviderManager'() {
+        xml.http('authentication-manager-ref':'authMgr') {
+            'form-login'()
+        }
+        xml.'b:bean'(id: 'authMgr', 'class': MockAuthenticationManager.class.name)
+        createAppContext()
+        expect:
+        def authManager = getFilter(UsernamePasswordAuthenticationFilter).authenticationManager
+        !authManager.eraseCredentialsAfterAuthentication
+        authManager.parent instanceof MockAuthenticationManager
+    }
+
     def jeeFilterExtractsExpectedRoles() {
         xml.http() {
             jee('mappable-roles': 'admin,user,a,b,c')
