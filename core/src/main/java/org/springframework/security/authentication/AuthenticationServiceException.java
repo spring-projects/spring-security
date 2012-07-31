@@ -23,6 +23,7 @@ import org.springframework.security.core.AuthenticationException;
  * This might be thrown if a backend authentication repository is  unavailable, for example.
  *
  * @author Ben Alex
+ * @see InternalAuthenticationServiceException
  */
 public class AuthenticationServiceException extends AuthenticationException {
     //~ Constructors ===================================================================================================

@@ -31,6 +31,7 @@ import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -197,6 +198,11 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
                 return;
             }
             sessionStrategy.onAuthentication(authResult, request, response);
+        } catch(InternalAuthenticationServiceException failed) {
+            logger.error("An internal error occurred while trying to authenticate the user.", failed);
+            unsuccessfulAuthentication(request, response, failed);
+
+            return;
         }
         catch (AuthenticationException failed) {
             // Authentication failed

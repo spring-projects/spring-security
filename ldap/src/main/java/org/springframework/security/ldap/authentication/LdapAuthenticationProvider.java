@@ -17,8 +17,8 @@ package org.springframework.security.ldap.authentication;
 
 import org.springframework.ldap.NamingException;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -188,7 +188,7 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
                 throw notFound;
             }
         } catch (NamingException ldapAccessFailure) {
-            throw new AuthenticationServiceException(ldapAccessFailure.getMessage(), ldapAccessFailure);
+            throw new InternalAuthenticationServiceException(ldapAccessFailure.getMessage(), ldapAccessFailure);
         }
     }
 

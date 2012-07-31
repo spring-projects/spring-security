@@ -21,10 +21,12 @@ import static org.mockito.Mockito.*;
 import java.util.*;
 
 import org.junit.Test;
+import org.springframework.ldap.CommunicationException;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -39,6 +41,7 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
  * Tests {@link LdapAuthenticationProvider}.
  *
  * @author Luke Taylor
+ * @author Rob Winch
  */
 public class LdapAuthenticationProviderTests {
 
@@ -145,6 +148,22 @@ public class LdapAuthenticationProviderTests {
         UserDetails user = (UserDetails) ldapProvider.authenticate(authRequest).getPrincipal();
         assertEquals(1, user.getAuthorities().size());
         assertTrue(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains("ROLE_FROM_ENTRY"));
+    }
+
+    @Test
+    public void authenticateWithNamingException() {
+        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken("ben", "benspassword");
+        LdapAuthenticator mockAuthenticator = mock(LdapAuthenticator.class);
+        CommunicationException expectedCause = new CommunicationException(new javax.naming.CommunicationException());
+        when(mockAuthenticator.authenticate(authRequest)).thenThrow(expectedCause);
+
+        LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(mockAuthenticator);
+        try {
+            ldapProvider.authenticate(authRequest);
+            fail("Expected Exception");
+        } catch(InternalAuthenticationServiceException success) {
+            assertSame(expectedCause, success.getCause());
+        }
     }
 
     //~ Inner Classes ==================================================================================================

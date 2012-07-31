@@ -18,6 +18,7 @@ package org.springframework.security.web.authentication;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import org.apache.commons.logging.Log;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +27,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -33,6 +35,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -49,6 +52,7 @@ import java.io.IOException;
  *
  * @author Ben Alex
  * @author Luke Taylor
+ * @author Rob Winch
  */
 @SuppressWarnings("deprecation")
 public class AbstractAuthenticationProcessingFilterTests {
@@ -352,6 +356,28 @@ public class AbstractAuthenticationProcessingFilterTests {
         assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
     }
 
+    /**
+     * SEC-1919
+     */
+    @Test
+    public void loginErrorWithInternAuthenticationServiceExceptionLogsError() throws Exception {
+        MockHttpServletRequest request = createMockAuthenticationRequest();
+
+        MockFilterChain chain = new MockFilterChain(true);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        Log logger = mock(Log.class);
+        MockAuthenticationFilter filter = new MockAuthenticationFilter(false);
+        ReflectionTestUtils.setField(filter, "logger", logger);
+        filter.exceptionToThrow = new InternalAuthenticationServiceException("Mock requested to do so");
+        successHandler.setDefaultTargetUrl("http://monkeymachine.co.uk/");
+        filter.setAuthenticationSuccessHandler(successHandler);
+
+        filter.doFilter(request, response, chain);
+
+        verify(logger).error(anyString(), eq(filter.exceptionToThrow));
+        assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
+    }
 
     //~ Inner Classes ==================================================================================================
 
