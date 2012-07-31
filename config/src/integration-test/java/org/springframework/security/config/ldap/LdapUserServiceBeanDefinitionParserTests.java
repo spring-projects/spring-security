@@ -1,3 +1,15 @@
+/*
+ * Copyright 2002-2012 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ */
 package org.springframework.security.config.ldap;
 
 import static org.junit.Assert.*;
@@ -23,6 +35,7 @@ import java.util.*;
 
 /**
  * @author Luke Taylor
+ * @author Rob Winch
  */
 public class LdapUserServiceBeanDefinitionParserTests {
     private InMemoryXmlApplicationContext appCtx;
@@ -47,12 +60,12 @@ public class LdapUserServiceBeanDefinitionParserTests {
 
     @Test
     public void minimalConfigurationIsParsedOk() throws Exception {
-        setContext("<ldap-user-service user-search-filter='(uid={0})' /><ldap-server url='ldap://127.0.0.1:343/dc=springframework,dc=org' />");
+        setContext("<ldap-user-service user-search-filter='(uid={0})' /><ldap-server ldif='classpath:test-server.ldif' url='ldap://127.0.0.1:343/dc=springframework,dc=org' />");
     }
 
     @Test
     public void userServiceReturnsExpectedData() throws Exception {
-        setContext("<ldap-user-service id='ldapUDS' user-search-filter='(uid={0})' group-search-filter='member={0}' /><ldap-server />");
+        setContext("<ldap-user-service id='ldapUDS' user-search-filter='(uid={0})' group-search-filter='member={0}' /><ldap-server ldif='classpath:test-server.ldif'/>");
 
         UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
         UserDetails ben = uds.loadUserByUsername("ben");
@@ -67,7 +80,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
         setContext("<ldap-user-service id='ldapUDS' " +
                 "       user-search-base='ou=otherpeople' " +
                 "       user-search-filter='(cn={0})' " +
-                "       group-search-filter='member={0}' /><ldap-server />");
+                "       group-search-filter='member={0}' /><ldap-server ldif='classpath:test-server.ldif'/>");
 
         UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
         UserDetails joe = uds.loadUserByUsername("Joe Smeth");
@@ -83,7 +96,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
                 "     group-search-filter='member={0}' role-prefix='PREFIX_'/>" +
                 "<ldap-user-service id='ldapUDSNoPrefix' " +
                 "     user-search-filter='(uid={0})' " +
-                "     group-search-filter='member={0}' role-prefix='none'/><ldap-server />");
+                "     group-search-filter='member={0}' role-prefix='none'/><ldap-server ldif='classpath:test-server.ldif'/>");
 
         UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
         UserDetails ben = uds.loadUserByUsername("ben");
@@ -98,7 +111,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
 
     @Test
     public void differentGroupRoleAttributeWorksAsExpected() throws Exception {
-        setContext("<ldap-user-service id='ldapUDS' user-search-filter='(uid={0})' group-role-attribute='ou' group-search-filter='member={0}' /><ldap-server />");
+        setContext("<ldap-user-service id='ldapUDS' user-search-filter='(uid={0})' group-role-attribute='ou' group-search-filter='member={0}' /><ldap-server ldif='classpath:test-server.ldif'/>");
 
         UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
         UserDetails ben = uds.loadUserByUsername("ben");
@@ -112,7 +125,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
     @Test
     public void isSupportedByAuthenticationProviderElement() {
         setContext(
-                "<ldap-server url='ldap://127.0.0.1:343/dc=springframework,dc=org'/>" +
+                "<ldap-server url='ldap://127.0.0.1:343/dc=springframework,dc=org' ldif='classpath:test-server.ldif'/>" +
                 "<authentication-manager>" +
                 "  <authentication-provider>" +
                 "    <ldap-user-service user-search-filter='(uid={0})' />" +
@@ -123,7 +136,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
     @Test
     public void personContextMapperIsSupported() {
         setContext(
-                "<ldap-server />" +
+                "<ldap-server ldif='classpath:test-server.ldif'/>" +
                 "<ldap-user-service id='ldapUDS' user-search-filter='(uid={0})' user-details-class='person'/>");
         UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
         UserDetails ben = uds.loadUserByUsername("ben");
@@ -133,7 +146,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
     @Test
     public void inetOrgContextMapperIsSupported() {
         setContext(
-                "<ldap-server id='someServer'/>" +
+                "<ldap-server id='someServer' ldif='classpath:test-server.ldif'/>" +
                 "<ldap-user-service id='ldapUDS' user-search-filter='(uid={0})' user-details-class='inetOrgPerson'/>");
         UserDetailsService uds = (UserDetailsService) appCtx.getBean("ldapUDS");
         UserDetails ben = uds.loadUserByUsername("ben");
@@ -143,7 +156,7 @@ public class LdapUserServiceBeanDefinitionParserTests {
     @Test
     public void externalContextMapperIsSupported() {
         setContext(
-                "<ldap-server id='someServer'/>" +
+                "<ldap-server id='someServer' ldif='classpath:test-server.ldif'/>" +
                 "<ldap-user-service id='ldapUDS' user-search-filter='(uid={0})' user-context-mapper-ref='mapper'/>" +
                 "<b:bean id='mapper' class='"+ InetOrgPersonContextMapper.class.getName() +"'/>");
 

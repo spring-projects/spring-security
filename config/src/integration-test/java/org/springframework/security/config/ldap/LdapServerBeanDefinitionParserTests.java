@@ -1,4 +1,18 @@
+/*
+ * Copyright 2002-2012 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ */
 package org.springframework.security.config.ldap;
+
+import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.Test;
@@ -6,9 +20,12 @@ import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
+import org.springframework.security.ldap.server.ApacheDSContainer;
+import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  * @author Luke Taylor
+ * @author Rob Winch
  */
 public class LdapServerBeanDefinitionParserTests {
     InMemoryXmlApplicationContext appCtx;
@@ -23,7 +40,7 @@ public class LdapServerBeanDefinitionParserTests {
 
     @Test
     public void embeddedServerCreationContainsExpectedContextSourceAndData() {
-        appCtx = new InMemoryXmlApplicationContext("<ldap-server />");
+        appCtx = new InMemoryXmlApplicationContext("<ldap-server ldif='classpath:test-server.ldif'/>");
 
         DefaultSpringSecurityContextSource contextSource = (DefaultSpringSecurityContextSource) appCtx.getBean(BeanIds.CONTEXT_SOURCE);
 
@@ -35,8 +52,8 @@ public class LdapServerBeanDefinitionParserTests {
     @Test
     public void useOfUrlAttributeCreatesCorrectContextSource() {
         // Create second "server" with a url pointing at embedded one
-        appCtx = new InMemoryXmlApplicationContext("<ldap-server port='33388'/>" +
-                "<ldap-server id='blah' url='ldap://127.0.0.1:33388/dc=springframework,dc=org' />");
+        appCtx = new InMemoryXmlApplicationContext("<ldap-server ldif='classpath:test-server.ldif' port='33388'/>" +
+                "<ldap-server ldif='classpath:test-server.ldif' id='blah' url='ldap://127.0.0.1:33388/dc=springframework,dc=org' />");
 
         // Check the default context source is still there.
         appCtx.getBean(BeanIds.CONTEXT_SOURCE);
@@ -58,6 +75,12 @@ public class LdapServerBeanDefinitionParserTests {
         template.lookup("uid=pg,ou=gorillas");
     }
 
+    @Test
+    public void defaultLdifFileIsSuccessful() {
+        appCtx = new InMemoryXmlApplicationContext(
+                "<ldap-server/>");
+        ApacheDSContainer dsContainer = appCtx.getBean(ApacheDSContainer.class);
 
-
+        assertEquals("classpath*:*.ldif", ReflectionTestUtils.getField(dsContainer, "ldifResources"));
+    }
 }
