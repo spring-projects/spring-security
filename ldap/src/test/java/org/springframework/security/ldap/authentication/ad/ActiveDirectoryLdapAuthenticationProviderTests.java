@@ -16,12 +16,14 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider.ContextFactory;
 
+import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.security.authentication.AccountExpiredException;
@@ -32,6 +34,7 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import javax.naming.AuthenticationException;
 import javax.naming.CommunicationException;
@@ -119,6 +122,37 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
         when(ctx.getNameInNamespace()).thenReturn("");
         when(ctx.search(any(Name.class), any(String.class), any(Object[].class), any(SearchControls.class)))
                 .thenThrow(new NameNotFoundException());
+
+        provider.contextFactory = createContextFactoryReturning(ctx);
+
+        provider.authenticate(joe);
+    }
+
+    // SEC-2017
+    @Test(expected = BadCredentialsException.class)
+    public void noUserSearchCausesUsernameNotFound() throws Exception {
+        DirContext ctx = mock(DirContext.class);
+        when(ctx.getNameInNamespace()).thenReturn("");
+        when(ctx.search(any(Name.class), any(String.class), any(Object[].class), any(SearchControls.class)))
+                .thenReturn(new EmptyEnumeration<SearchResult>());
+
+        provider.contextFactory = createContextFactoryReturning(ctx);
+
+        provider.authenticate(joe);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test(expected = IncorrectResultSizeDataAccessException.class)
+    public void duplicateUserSearchCausesError() throws Exception {
+        DirContext ctx = mock(DirContext.class);
+        when(ctx.getNameInNamespace()).thenReturn("");
+        NamingEnumeration<SearchResult> searchResults = mock(NamingEnumeration.class);
+        when(searchResults.hasMore()).thenReturn(true,true,false);
+        SearchResult searchResult = mock(SearchResult.class);
+        when(searchResult.getName()).thenReturn("ou=1","ou=2");
+        when(searchResults.next()).thenReturn(searchResult);
+        when(ctx.search(any(Name.class), any(String.class), any(Object[].class), any(SearchControls.class)))
+                .thenReturn(searchResults );
 
         provider.contextFactory = createContextFactoryReturning(ctx);
 

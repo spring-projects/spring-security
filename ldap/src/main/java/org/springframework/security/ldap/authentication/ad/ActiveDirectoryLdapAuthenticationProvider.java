@@ -12,6 +12,7 @@
  */
 package org.springframework.security.ldap.authentication.ad;
 
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.support.LdapUtils;
@@ -24,6 +25,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.ldap.authentication.AbstractLdapAuthenticationProvider;
 import org.springframework.util.Assert;
@@ -266,6 +268,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
         return (BadCredentialsException) badCredentials().initCause(cause);
     }
 
+    @SuppressWarnings("deprecation")
     private DirContextOperations searchForUser(DirContext ctx, String username) throws NamingException {
         SearchControls searchCtls = new SearchControls();
         searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -276,8 +279,18 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 
         String searchRoot = rootDn != null ? rootDn : searchRootFromPrincipal(bindPrincipal);
 
-        return SpringSecurityLdapTemplate.searchForSingleEntryInternal(ctx, searchCtls, searchRoot, searchFilter,
+        try {
+            return SpringSecurityLdapTemplate.searchForSingleEntryInternal(ctx, searchCtls, searchRoot, searchFilter,
                 new Object[]{bindPrincipal});
+        } catch (IncorrectResultSizeDataAccessException incorrectResults) {
+            if (incorrectResults.getActualSize() == 0) {
+                UsernameNotFoundException userNameNotFoundException = new UsernameNotFoundException("User " + username + " not found in directory.", username);
+                userNameNotFoundException.initCause(incorrectResults);
+                throw badCredentials(userNameNotFoundException);
+            }
+            // Search should never return multiple results if properly configured, so just rethrow
+            throw incorrectResults;
+        }
     }
 
     private String searchRootFromPrincipal(String bindPrincipal) {
