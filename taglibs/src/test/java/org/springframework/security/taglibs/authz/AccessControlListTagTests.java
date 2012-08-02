@@ -43,6 +43,7 @@ public class AccessControlListTagTests {
     Authentication bob = new TestingAuthenticationToken("bob","bobspass","A");
 
     @Before
+    @SuppressWarnings("rawtypes")
     public void setup() {
         SecurityContextHolder.getContext().setAuthentication(bob);
         tag = new AccessControlListTag();
