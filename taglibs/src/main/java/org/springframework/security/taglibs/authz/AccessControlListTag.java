@@ -18,6 +18,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.PermissionEvaluator;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.taglibs.TagLibConfig;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -43,6 +44,7 @@ import java.util.*;
  *
  * @author Ben Alex
  * @author Luke Taylor
+ * @author Rob Winch
  */
 public class AccessControlListTag extends TagSupport {
     //~ Static fields/initializers =====================================================================================
@@ -75,7 +77,8 @@ public class AccessControlListTag extends TagSupport {
             return evalBody();
         }
 
-        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
             if (logger.isDebugEnabled()) {
                 logger.debug(
                     "SecurityContextHolder did not return a non-null Authentication object, so skipping tag body");
@@ -84,12 +87,14 @@ public class AccessControlListTag extends TagSupport {
             return skipBody();
         }
 
-        if (permissionEvaluator.hasPermission(SecurityContextHolder.getContext().getAuthentication(),
-                domainObject, hasPermission)) {
-            return evalBody();
+        String[] requiredPermissions = hasPermission.split(",");
+        for(String requiredPermission : requiredPermissions) {
+            if (!permissionEvaluator.hasPermission(authentication, domainObject, requiredPermission)) {
+                return skipBody();
+            }
         }
 
-        return skipBody();
+        return evalBody();
     }
 
     private int skipBody() {
