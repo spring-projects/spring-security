@@ -87,14 +87,27 @@ public class AccessControlListTag extends TagSupport {
             return skipBody();
         }
 
-        String[] requiredPermissions = hasPermission.split(",");
-        for(String requiredPermission : requiredPermissions) {
+        List<Object> requiredPermissions = parseHasPermission(hasPermission);
+        for(Object requiredPermission : requiredPermissions) {
             if (!permissionEvaluator.hasPermission(authentication, domainObject, requiredPermission)) {
                 return skipBody();
             }
         }
 
         return evalBody();
+    }
+
+    private List<Object> parseHasPermission(String hasPermission) {
+        String[] requiredPermissions = hasPermission.split(",");
+        List<Object> parsedPermissions = new ArrayList<Object>(requiredPermissions.length);
+        for(String permissionToParse : requiredPermissions) {
+            Object parsedPermission = permissionToParse;
+            try {
+                parsedPermission = Integer.parseInt(permissionToParse);
+            }catch(NumberFormatException notBitMask) {}
+            parsedPermissions.add(parsedPermission);
+        }
+        return parsedPermissions;
     }
 
     private int skipBody() {

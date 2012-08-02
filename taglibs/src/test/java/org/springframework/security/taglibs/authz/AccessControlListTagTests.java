@@ -100,6 +100,45 @@ public class AccessControlListTagTests {
         verifyNoMoreInteractions(pe);
     }
 
+    // SEC-2023
+    @Test
+    public void hasPermissionsBitMaskSupported() throws Exception {
+        Object domainObject = new Object();
+        when(pe.hasPermission(bob, domainObject, 1)).thenReturn(true);
+        when(pe.hasPermission(bob, domainObject, 2)).thenReturn(true);
+
+        tag.setDomainObject(domainObject);
+        tag.setHasPermission("1,2");
+        tag.setVar("allowed");
+        assertSame(domainObject, tag.getDomainObject());
+        assertEquals("1,2", tag.getHasPermission());
+
+        assertEquals(Tag.EVAL_BODY_INCLUDE, tag.doStartTag());
+        assertTrue((Boolean)pageContext.getAttribute("allowed"));
+        verify(pe).hasPermission(bob, domainObject, 1);
+        verify(pe).hasPermission(bob, domainObject, 2);
+        verifyNoMoreInteractions(pe);
+    }
+
+    @Test
+    public void hasPermissionsMixedBitMaskSupported() throws Exception {
+        Object domainObject = new Object();
+        when(pe.hasPermission(bob, domainObject, 1)).thenReturn(true);
+        when(pe.hasPermission(bob, domainObject, "WRITE")).thenReturn(true);
+
+        tag.setDomainObject(domainObject);
+        tag.setHasPermission("1,WRITE");
+        tag.setVar("allowed");
+        assertSame(domainObject, tag.getDomainObject());
+        assertEquals("1,WRITE", tag.getHasPermission());
+
+        assertEquals(Tag.EVAL_BODY_INCLUDE, tag.doStartTag());
+        assertTrue((Boolean)pageContext.getAttribute("allowed"));
+        verify(pe).hasPermission(bob, domainObject, 1);
+        verify(pe).hasPermission(bob, domainObject, "WRITE");
+        verifyNoMoreInteractions(pe);
+    }
+
     @Test
     public void bodyIsSkippedIfAclDeniesAccess() throws Exception {
         Object domainObject = new Object();
