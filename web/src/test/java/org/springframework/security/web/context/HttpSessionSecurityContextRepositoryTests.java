@@ -1,3 +1,15 @@
+/*
+ * Copyright 2002-2012 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ */
 package org.springframework.security.web.context;
 
 import static org.junit.Assert.*;
@@ -16,6 +28,10 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+/**
+ * @author Luke Taylor
+ * @author Rob Winch
+ */
 public class HttpSessionSecurityContextRepositoryTests {
     private final TestingAuthenticationToken testToken = new TestingAuthenticationToken("someone", "passwd", "ROLE_A");
 
@@ -144,6 +160,96 @@ public class HttpSessionSecurityContextRepositoryTests {
         SecurityContextHolder.setContext(repo.loadContext(holder));
         SecurityContextHolder.getContext().setAuthentication(testToken);
         holder.getResponse().sendError(404);
+        assertEquals(SecurityContextHolder.getContext(), request.getSession().getAttribute("imTheContext"));
+        assertTrue(((SaveContextOnUpdateOrErrorResponseWrapper)holder.getResponse()).isContextSaved());
+        repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
+        // Check it's still the same
+        assertEquals(SecurityContextHolder.getContext(), request.getSession().getAttribute("imTheContext"));
+    }
+
+    // SEC-2005
+    @Test
+    public void flushBufferCausesEarlySaveOfContext() throws Exception {
+        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        repo.setSpringSecurityContextKey("imTheContext");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
+        SecurityContextHolder.setContext(repo.loadContext(holder));
+        SecurityContextHolder.getContext().setAuthentication(testToken);
+        holder.getResponse().flushBuffer();
+        assertEquals(SecurityContextHolder.getContext(), request.getSession().getAttribute("imTheContext"));
+        assertTrue(((SaveContextOnUpdateOrErrorResponseWrapper)holder.getResponse()).isContextSaved());
+        repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
+        // Check it's still the same
+        assertEquals(SecurityContextHolder.getContext(), request.getSession().getAttribute("imTheContext"));
+    }
+
+    // SEC-2005
+    @Test
+    public void writerFlushCausesEarlySaveOfContext() throws Exception {
+        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        repo.setSpringSecurityContextKey("imTheContext");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
+        SecurityContextHolder.setContext(repo.loadContext(holder));
+        SecurityContextHolder.getContext().setAuthentication(testToken);
+        holder.getResponse().getWriter().flush();
+        assertEquals(SecurityContextHolder.getContext(), request.getSession().getAttribute("imTheContext"));
+        assertTrue(((SaveContextOnUpdateOrErrorResponseWrapper)holder.getResponse()).isContextSaved());
+        repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
+        // Check it's still the same
+        assertEquals(SecurityContextHolder.getContext(), request.getSession().getAttribute("imTheContext"));
+    }
+
+    // SEC-2005
+    @Test
+    public void writerCloseCausesEarlySaveOfContext() throws Exception {
+        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        repo.setSpringSecurityContextKey("imTheContext");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
+        SecurityContextHolder.setContext(repo.loadContext(holder));
+        SecurityContextHolder.getContext().setAuthentication(testToken);
+        holder.getResponse().getWriter().close();
+        assertEquals(SecurityContextHolder.getContext(), request.getSession().getAttribute("imTheContext"));
+        assertTrue(((SaveContextOnUpdateOrErrorResponseWrapper)holder.getResponse()).isContextSaved());
+        repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
+        // Check it's still the same
+        assertEquals(SecurityContextHolder.getContext(), request.getSession().getAttribute("imTheContext"));
+    }
+
+    // SEC-2005
+    @Test
+    public void outputStreamFlushCausesEarlySaveOfContext() throws Exception {
+        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        repo.setSpringSecurityContextKey("imTheContext");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
+        SecurityContextHolder.setContext(repo.loadContext(holder));
+        SecurityContextHolder.getContext().setAuthentication(testToken);
+        holder.getResponse().getOutputStream().flush();
+        assertEquals(SecurityContextHolder.getContext(), request.getSession().getAttribute("imTheContext"));
+        assertTrue(((SaveContextOnUpdateOrErrorResponseWrapper)holder.getResponse()).isContextSaved());
+        repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
+        // Check it's still the same
+        assertEquals(SecurityContextHolder.getContext(), request.getSession().getAttribute("imTheContext"));
+    }
+
+    // SEC-2005
+    @Test
+    public void outputStreamCloseCausesEarlySaveOfContext() throws Exception {
+        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        repo.setSpringSecurityContextKey("imTheContext");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
+        SecurityContextHolder.setContext(repo.loadContext(holder));
+        SecurityContextHolder.getContext().setAuthentication(testToken);
+        holder.getResponse().getOutputStream().close();
         assertEquals(SecurityContextHolder.getContext(), request.getSession().getAttribute("imTheContext"));
         assertTrue(((SaveContextOnUpdateOrErrorResponseWrapper)holder.getResponse()).isContextSaved());
         repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
