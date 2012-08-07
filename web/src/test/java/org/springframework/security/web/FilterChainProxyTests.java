@@ -196,4 +196,31 @@ public class FilterChainProxyTests {
 
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
+
+    // SEC-2027
+    @Test
+    public void doFilterClearsSecurityContextHolderOnceOnForwards() throws Exception {
+        final FilterChain innerChain = mock(FilterChain.class);
+        when(matcher.matches(any(HttpServletRequest.class))).thenReturn(true);
+        doAnswer(new Answer<Object>() {
+            public Object answer(InvocationOnMock inv) throws Throwable {
+                TestingAuthenticationToken expected = new TestingAuthenticationToken("username", "password");
+                SecurityContextHolder.getContext().setAuthentication(expected);
+                doAnswer(new Answer<Object>() {
+                    public Object answer(InvocationOnMock inv) throws Throwable {
+                        innerChain.doFilter(request, response);
+                        return null;
+                    }
+                }).when(filter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));;
+                fcp.doFilter(request, response, innerChain);
+                assertSame(expected, SecurityContextHolder.getContext().getAuthentication());
+                return null;
+            }
+        }).when(filter).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class), any(FilterChain.class));
+
+        fcp.doFilter(request, response, chain);
+
+        verify(innerChain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+    }
 }

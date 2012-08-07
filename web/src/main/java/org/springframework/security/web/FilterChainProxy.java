@@ -125,6 +125,8 @@ public class FilterChainProxy extends GenericFilterBean {
 
     //~ Instance fields ================================================================================================
 
+    private final static String FILTER_APPLIED = FilterChainProxy.class.getName().concat(".APPLIED");
+
     private List<SecurityFilterChain> filterChains;
 
     private FilterChainValidator filterChainValidator = new NullFilterChainValidator();
@@ -151,11 +153,17 @@ public class FilterChainProxy extends GenericFilterBean {
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        try {
+        boolean clearContext = request.getAttribute(FILTER_APPLIED) == null;
+        if(clearContext) {
+            try {
+                request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
+                doFilterInternal(request, response, chain);
+            } finally {
+                SecurityContextHolder.clearContext();
+                request.removeAttribute(FILTER_APPLIED);
+            }
+        } else {
             doFilterInternal(request, response, chain);
-        } finally {
-            // SEC-1950
-            SecurityContextHolder.clearContext();
         }
     }
 
