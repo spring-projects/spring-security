@@ -44,7 +44,8 @@ configure (aspectjProjects) {
 // Task for creating the distro zip
 
 task dist(type: Zip) {
-    dependsOn subprojects*.tasks*.matching { task -> task.name == 'assemble' }
+    dependsOn subprojects*.tasks*.matching { task -> task.name == 'assemble' || task.name.endsWith('Zip') }
+    classifier = 'dist'
 
     evaluationDependsOn(':docs')
 
@@ -65,9 +66,10 @@ task dist(type: Zip) {
     }
 }
 
-task uploadDist(type: S3DistroUpload) {
-    archiveFile = dist.archivePath
-    projectKey = 'SEC'
+artifacts {
+    archives dist
+    archives project(':docs').docsZip
+    archives project(':docs').schemaZip
 }
 
 apply from: "$rootDir/gradle/ide-integration.gradle"

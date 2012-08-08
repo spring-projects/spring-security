@@ -92,7 +92,7 @@ public class Docbook extends DefaultTask {
         factory.setXIncludeAware(XIncludeAware);
         docsDir.mkdirs();
 
-        File srcFile = new File(sourceDirectory, sourceFileName);
+        File srcFile = new File(filterDocbookSources(sourceDirectory), sourceFileName);
         String outputFilename = srcFile.getName().substring(0, srcFile.getName().length() - 4) + suffix + '.' + extension;
 
         File outputFile = new File(getDocsDir(), outputFilename);
@@ -134,6 +134,32 @@ public class Docbook extends DefaultTask {
 
         postTransform(outputFile);
     }
+
+    /**
+    * @param sourceDir directory of unfiltered sources
+    * @return directory of filtered sources
+    * @author Chris Beams
+    */
+   private File filterDocbookSources(File sourceDir) {
+       def docbookWorkDir = new File("${project.buildDir}/reference-work")
+
+       docbookWorkDir.mkdirs()
+
+       // copy everything but springsecurity.xml
+       project.copy {
+           into(docbookWorkDir)
+           from(sourceDir) { exclude '**/springsecurity.xml' }
+       }
+       // copy index.xml and expand ${...} variables along the way
+       // e.g.: ${version} needs to be replaced in the header
+       project.copy {
+           into(docbookWorkDir)
+           from(sourceDir) { include '**/springsecurity.xml' }
+           expand(version: "${project.version}")
+       }
+
+       return docbookWorkDir
+   }
 
     private void extractHighlightFiles(File toDir) {
         URLClassLoader cl = (URLClassLoader) getClass().getClassLoader();

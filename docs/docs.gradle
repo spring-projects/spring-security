@@ -99,49 +99,45 @@ ext.apiSpec = copySpec {
     }
 }
 
-task docSiteLogin(type: Login) {
-    if (project.hasProperty('sshHost')) {
-        host = project.property('sshHost')
-    }
-}
-
-// Define remoteSiteDir and sshHost in gradle.properties
-def remoteDocsDir = null
-
-if (hasProperty('remoteSiteDir')) {
-    remoteDocsDir="$remoteSiteDir/docs/3.1.x"
-}
-
-task uploadApidocs(type: TarUpload) {
-    dependsOn apidocs
-    baseName = "${rootProject.name}"
-    appendix = 'apidocs'
-    remoteDir = remoteDocsDir
-    login = docSiteLogin
-
-    with(apiSpec)
-}
-
-task uploadManual(type: TarUpload) {
-    dependsOn 'manual:docbook'
-    baseName = "${rootProject.name}"
-    appendix = 'doc'
-    remoteDir = remoteDocsDir
-    login = docSiteLogin
-
-    with(project('manual').spec)
-}
-
-task uploadFaq(type: TarUpload) {
-    dependsOn 'faq:docbookHtmlSingle'
-    baseName = "${rootProject.name}"
-    appendix = 'faq'
-    if (project.hasProperty('remoteSiteDir')) {
-        remoteDir = project.property('remoteSiteDir')
-    }
-    login = docSiteLogin
-
-    with(project('faq').spec)
-}
-
 assemble.dependsOn = [apidocs, 'manual:docbook']
+
+task docsZip(type: Zip) {
+    dependsOn docs
+    group = 'Distribution'
+    baseName = rootProject.name
+    classifier = 'docs'
+    description = "Builds -${classifier} archive containing api and reference " +
+        "for deployment at static.springframework.org/spring-security/site/docs."
+
+    with(project(':docs').apiSpec)
+    with(project(':docs:manual').spec)
+    with(project(':docs:faq').spec)
+}
+
+task schemaZip(type: Zip) {
+    group = 'Distribution'
+    baseName = rootProject.name
+    classifier = 'schema'
+    description = "Builds -${classifier} archive containing all " +
+        "XSDs for deployment at static.springframework.org/schema."
+
+    coreModuleProjects.each { module ->
+        def Properties schemas = new Properties();
+
+        module.sourceSets.main.resources.find {
+            it.path.endsWith('META-INF/spring.schemas')
+        }?.withInputStream { schemas.load(it) }
+
+        for (def key : schemas.keySet()) {
+            def shortName = key.replaceAll(/http.*schema.(.*).spring-.*/, '$1')
+            assert shortName != key
+            File xsdFile = module.sourceSets.main.resources.find {
+                it.path.endsWith(schemas.get(key))
+            }
+            assert xsdFile != null
+            into (shortName) {
+                from xsdFile.path
+            }
+        }
+    }
+}

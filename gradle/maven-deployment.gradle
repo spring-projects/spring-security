@@ -25,37 +25,6 @@ configurations.default.extendsFrom = [configurations.runtime] as Set
 // Add the main jar into the default configuration
 artifacts { 'default' jar }
 
-gradle.taskGraph.whenReady {graph ->
-    if (graph.hasTask(uploadArchives)) {
-        // check properties defined and fail early
-        s3AccessKey
-        s3SecretAccessKey
-    }
-}
-
-uploadArchives {
-   // "mavenSyncRepoDir" should be set in properties
-    def releaseRepositoryUrl = "file://${project.properties.mavenSyncRepoDir}"
-    def milestoneRepositoryUrl = 's3://maven.springframework.org/milestone'
-    def snapshotRepositoryUrl = 's3://maven.springframework.org/snapshot'
-
-    repositories.mavenDeployer { deployer ->
-        configuration = configurations.deployerJars
-        if (releaseBuild) {
-            repository(url: releaseRepositoryUrl)
-        } else {
-            def s3credentials = [userName: project.properties.s3AccessKey, passphrase: project.properties.s3SecretAccessKey]
-            repository(url: milestoneRepositoryUrl) {
-                authentication(s3credentials)
-            }
-            snapshotRepository(url: snapshotRepositoryUrl) {
-                authentication(s3credentials)
-            }
-        }
-        customizePom(deployer.pom)
-    }
-}
-
 install {
     customizePom(repositories.mavenInstaller.pom)
 }
