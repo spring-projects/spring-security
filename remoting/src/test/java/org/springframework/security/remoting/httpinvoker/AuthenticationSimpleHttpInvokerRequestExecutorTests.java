@@ -18,8 +18,10 @@ package org.springframework.security.remoting.httpinvoker;
 import junit.framework.TestCase;
 
 
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.springframework.security.remoting.httpinvoker.AuthenticationSimpleHttpInvokerRequestExecutor;
@@ -37,6 +39,7 @@ import java.util.Map;
  * Tests {@link AuthenticationSimpleHttpInvokerRequestExecutor}.
  *
  * @author Ben Alex
+ * @author Rob Winch
  */
 public class AuthenticationSimpleHttpInvokerRequestExecutorTests extends TestCase {
 
@@ -66,6 +69,22 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests extends TestCas
 
     public void testNullContextHolderIsNull() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(null);
+
+        // Create a connection and ensure our executor sets its
+        // properties correctly
+        AuthenticationSimpleHttpInvokerRequestExecutor executor = new AuthenticationSimpleHttpInvokerRequestExecutor();
+        HttpURLConnection conn = new MockHttpURLConnection(new URL("http://localhost/"));
+        executor.prepareConnection(conn, 10);
+
+        // Check connection properties (shouldn't be an Authorization header)
+        assertNull(conn.getRequestProperty("Authorization"));
+    }
+
+    // SEC-1975
+    public void testNullContextHolderWhenAnonymous() throws Exception {
+        AnonymousAuthenticationToken anonymous = new AnonymousAuthenticationToken("key", "principal",
+                AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+        SecurityContextHolder.getContext().setAuthentication(anonymous);
 
         // Create a connection and ensure our executor sets its
         // properties correctly

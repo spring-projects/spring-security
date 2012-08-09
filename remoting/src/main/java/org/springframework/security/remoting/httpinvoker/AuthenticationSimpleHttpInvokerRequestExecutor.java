@@ -21,6 +21,8 @@ import java.net.HttpURLConnection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.remoting.httpinvoker.SimpleHttpInvokerRequestExecutor;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,11 +32,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * Adds BASIC authentication support to <code>SimpleHttpInvokerRequestExecutor</code>.
  *
  * @author Ben Alex
+ * @author Rob Winch
  */
 public class AuthenticationSimpleHttpInvokerRequestExecutor extends SimpleHttpInvokerRequestExecutor {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(AuthenticationSimpleHttpInvokerRequestExecutor.class);
+
+    //~ Instance fields ================================================================================================
+
+    private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
     //~ Methods ========================================================================================================
 
@@ -65,7 +72,7 @@ public class AuthenticationSimpleHttpInvokerRequestExecutor extends SimpleHttpIn
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if ((auth != null) && (auth.getName() != null) && (auth.getCredentials() != null)) {
+        if ((auth != null) && (auth.getName() != null) && (auth.getCredentials() != null) && !trustResolver.isAnonymous(auth)) {
             String base64 = auth.getName() + ":" + auth.getCredentials().toString();
             con.setRequestProperty("Authorization", "Basic " + new String(Base64.encode(base64.getBytes())));
 
