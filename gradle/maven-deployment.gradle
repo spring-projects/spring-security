@@ -78,6 +78,13 @@ def customizePom(pom, gradleProject) {
             connection = 'scm:git:git://github.com/SpringSource/spring-security'
             developerConnection = 'scm:git:git://github.com/SpringSource/spring-security'
         }
+        developers {
+            developer {
+                id = 'rwinch'
+                name = 'Rob Winch'
+                email = 'rwinch@vmware.com'
+            }
+        }
         dependencies {
             dependency {
                 artifactId = groupId = 'commons-logging'
