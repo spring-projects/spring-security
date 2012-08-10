@@ -106,3 +106,41 @@ def guessMaxForks() {
     return Math.max(2, (int) (processors / 2))
 }
 
+javadoc {
+    title = "Spring Security $version API"
+    source = sourceSets.main.allJava
+    classpath +=  configurations.compileOnly + configurations.provided
+    options {
+        memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
+        author = true
+        header = project.name
+        outputLevel = org.gradle.external.javadoc.JavadocOutputLevel.QUIET
+        links = [
+            "http://static.springframework.org/spring/docs/3.0.x/javadoc-api",
+            "http://static.springsource.org/spring-ldap/docs/1.3.x/apidocs/",
+            "http://download.oracle.com/javase/6/docs/api/"
+        ]
+        groups = [
+            'Spring Security Core':[
+                'org.springframework.security.core*',
+                'org.springframework.security.authentication*',
+                'org.springframework.security.access*',
+                'org.springframework.security.remoting*',
+                'org.springframework.security.provisioning*',
+                'org.springframework.security.util*'],
+            'Spring Security Web':['org.springframework.security.web*'],
+            'Spring Security LDAP':['org.springframework.security.ldap*'],
+            'Spring Security Crypto':['org.springframework.security.crypto*'],
+            'Spring Security OpenID':['org.springframework.security.openid*'],
+            'Spring Security CAS':['org.springframework.security.cas*'],
+            'Spring Security ACL':['org.springframework.security.acls*'],
+            'Spring Security Config':['org.springframework.security.config*'],
+            'Spring Security Taglibs':['org.springframework.security.taglibs*'],
+        ]
+    }
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}

@@ -9,6 +9,7 @@ task sourceJar(type: Jar) {
 
 artifacts {
     archives sourceJar
+    archives javadocJar
 }
 
 // Configuration for SpringSource s3 maven deployer
@@ -26,10 +27,10 @@ configurations.default.extendsFrom = [configurations.runtime] as Set
 artifacts { 'default' jar }
 
 install {
-    customizePom(repositories.mavenInstaller.pom)
+    customizePom(repositories.mavenInstaller.pom, project)
 }
 
-def customizePom(pom) {
+def customizePom(pom, gradleProject) {
     def optionalDeps = ['ehcache', 'log4j', 'apacheds-core', 'jsp-api', 'jsr250-api', 'ldapsdk', 'aspectjrt', 'aspectjweaver']
 
     pom.scopeMappings.addMapping(10, configurations.provided, 'provided')
@@ -58,12 +59,24 @@ def customizePom(pom) {
     }
 
     pom.project {
+        name = gradleProject.name
+        description = gradleProject.name
+        url = 'http://springsource.org/spring-security'
+        organization {
+            name = 'SpringSource'
+            url = 'http://springsource.org/'
+        }
         licenses {
             license {
                 name 'The Apache Software License, Version 2.0'
                 url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                 distribution 'repo'
             }
+        }
+        scm {
+            url = 'https://github.com/SpringSource/spring-security'
+            connection = 'scm:git:git://github.com/SpringSource/spring-security'
+            developerConnection = 'scm:git:git://github.com/SpringSource/spring-security'
         }
         dependencies {
             dependency {
