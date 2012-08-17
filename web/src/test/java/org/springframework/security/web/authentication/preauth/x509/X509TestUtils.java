@@ -98,4 +98,41 @@ public class X509TestUtils {
 
         return (X509Certificate) cf.generateCertificate(in);
     }
+
+    /**
+     * Builds an X.509 certificate with a subject DN where the CN field is at the end of the line.
+     * The actual DN line is:
+     * <pre>
+     *  L=Cupertino,C=US,ST=CA,OU=Java Software,O=Sun Microsystems\, Inc,CN=Duke
+     * </pre>
+     *
+     */
+    public static X509Certificate buildTestCertificateWithCnAtEnd() throws Exception {
+        String cert = "-----BEGIN CERTIFICATE-----\n" +
+                "MIIDjTCCAnWgAwIBAgIBATALBgkqhkiG9w0BAQswdTENMAsGA1UEAwwERHVrZTEe\n" +
+                "MBwGA1UECgwVU3VuIE1pY3Jvc3lzdGVtcywgSW5jMRYwFAYDVQQLDA1KYXZhIFNv\n" +
+                "ZnR3YXJlMQswCQYDVQQIDAJDQTELMAkGA1UEBhMCVVMxEjAQBgNVBAcMCUN1cGVy\n" +
+                "dGlubzAeFw0xMjA1MTgxNDQ4MzBaFw0xMzA1MTgxNDQ4MzBaMHUxDTALBgNVBAMM\n" +
+                "BER1a2UxHjAcBgNVBAoMFVN1biBNaWNyb3N5c3RlbXMsIEluYzEWMBQGA1UECwwN\n" +
+                "SmF2YSBTb2Z0d2FyZTELMAkGA1UECAwCQ0ExCzAJBgNVBAYTAlVTMRIwEAYDVQQH\n" +
+                "DAlDdXBlcnRpbm8wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDGLaCx\n" +
+                "Dy5oRJ/FelcoO/lAEApAhR4wxmUIu0guzN0Tx/cuWfyo4349NOxf5XfRcje37B//\n" +
+                "hyMwK1Q/pRhRYtZlK+O+9tNCAupekmSxEw9wNsRXNJ18QTTvQRPReXhG8gOiGmU2\n" +
+                "kpTVjpZURo/0WGuEyAWYzH99cQfUM92vIaGKq2fApNfwCULtFnAY9WPDZtwSZYhC\n" +
+                "qSAoy6B1I2A3i+G5Ep++eCa9PZKCZIPWJiC5+nMmzwCOnQqcZlorsrQ+M+I4GgE2\n" +
+                "Rryb/AeKoSPsrm4t0aWhFhKcuHpk3jfKhJhi5e+5bnY17pCoY9hx5EK3WqfKL/x1\n" +
+                "3HKsPpf/MieRWiAdAgMBAAGjKjAoMA4GA1UdDwEB/wQEAwIHgDAWBgNVHSUBAf8E\n" +
+                "DDAKBggrBgEFBQcDAjANBgkqhkiG9w0BAQsFAAOCAQEAdAtXZYCdb7JKzfwY7vEO\n" +
+                "9TOMyxxwxhxs+26urL2wQWqtRgHXopoi/GGSuZG5aPQcHWLoqZ1f7nZoWfKzJMKw\n" +
+                "MOvaw6wSSkmEoEvdek3s/bH6Gp0spnykqtb+kunGr/XFxyBhHmfdSroEgzspslFh\n" +
+                "Glqe/XfrQmFgPWd13GH8mqzSU1zc+0Ka7s68jcuNfz9ble5rT0IrdjRm5E64mVGk\n" +
+                "aJTAO5N87ks5JjkDHDJzcyYRcIpqBGotJtyZTjGpIeAG8xLGlkSsUg88iUOchI7s\n" +
+                "dOmse9mpgEjCb4kdZ0PnoxMFjsPR8AoGOz4A5vA19nKqWM8bxK9hqLGKsaiQpQg7\n" +
+                "bA==\n" +
+                "-----END CERTIFICATE-----\n";
+        ByteArrayInputStream in = new ByteArrayInputStream(cert.getBytes());
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+
+        return (X509Certificate) cf.generateCertificate(in);
+    }
 }
