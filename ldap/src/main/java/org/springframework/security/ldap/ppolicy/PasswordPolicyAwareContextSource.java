@@ -58,10 +58,8 @@ public class PasswordPolicyAwareContextSource extends DefaultSpringSecurityConte
 
             LdapUtils.closeContext(ctx);
 
-            if (ctrl != null) {
-                if (ctrl.isLocked()) {
+            if (ctrl != null && ctrl.getErrorStatus()!=null) {
                     throw new PasswordPolicyException(ctrl.getErrorStatus());
-                }
             }
 
             throw LdapUtils.convertLdapException(ne);
