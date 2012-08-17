@@ -17,7 +17,7 @@ import java.util.regex.Matcher;
  * Obtains the principal from a certificate using a regular expression match against the Subject (as returned by a call
  * to {@link X509Certificate#getSubjectDN()}).
  * <p>
- * The regular expression should contain a single group; for example the default expression "CN=(.?)," matches the
+ * The regular expression should contain a single group; for example the default expression "CN=(.*?)(?:,|$)" matches the
  * common name field. So "CN=Jimi Hendrix, OU=..." will give a user name of "Jimi Hendrix".
  * <p>
  * The matches are case insensitive. So "emailAddress=(.?)," will match "EMAILADDRESS=jimi@hendrix.org, CN=..." giving a
@@ -33,7 +33,7 @@ public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor {
     private Pattern subjectDnPattern;
 
     public SubjectDnX509PrincipalExtractor() {
-        setSubjectDnRegex("CN=(.*?),");
+        setSubjectDnRegex("CN=(.*?)(?:,|$)");
     }
 
     public Object extractPrincipal(X509Certificate clientCert) {
@@ -64,7 +64,7 @@ public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor {
      * Sets the regular expression which will by used to extract the user name from the certificate's Subject
      * DN.
      * <p>
-     * It should contain a single group; for example the default expression "CN=(.?)," matches the common
+     * It should contain a single group; for example the default expression "CN=(.*?)(?:,|$)" matches the common
      * name field. So "CN=Jimi Hendrix, OU=..." will give a user name of "Jimi Hendrix".
      * <p>
      * The matches are case insensitive. So "emailAddress=(.?)," will match "EMAILADDRESS=jimi@hendrix.org,
