@@ -23,7 +23,7 @@ dependencies {
 
     provided "javax.servlet:servlet-api:2.5"
 
-    groovy group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.10'
+    groovy 'org.codehaus.groovy:groovy:1.8.7'
 
     testCompile project(':spring-security-ldap'),
                 project(':spring-security-openid'),
@@ -33,7 +33,7 @@ dependencies {
                 "org.springframework:spring-expression:$springVersion",
                 "org.springframework:spring-jdbc:$springVersion",
                 "org.springframework:spring-tx:$springVersion",
-                'org.spockframework:spock-core:0.5-groovy-1.7',
+                'org.spockframework:spock-core:0.6-groovy-1.8',
                 "org.slf4j:jcl-over-slf4j:$slf4jVersion",
                 "org.powermock:powermock-core:$powerMockVersion",
                 "org.powermock:powermock-api-support:$powerMockVersion",

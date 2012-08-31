@@ -51,7 +51,6 @@ class CasSampleTests extends AbstractCasTests {
         when: 'present invalid ticket'
         go "j_spring_cas_security_check?ticket=invalid"
         then: 'the login failed page is displayed'
-        println driver.pageSource
         $("h2").text() == 'Login to CAS failed!'
     }
 

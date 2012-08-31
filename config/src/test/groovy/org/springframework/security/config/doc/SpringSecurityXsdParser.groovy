@@ -88,8 +88,8 @@ class SpringSecurityXsdParser {
                if(c.attributes().get('name')) {
                    r.addAll(attrgrp(c))
                } else {
-                   private def n = c.attributes().get('ref').split(':')[1]
-                   private def attrGrp = findNode(element,n)
+                   def n = c.attributes().get('ref').split(':')[1]
+                   def attrGrp = findNode(element,n)
                    r.addAll(attrgrp(attrGrp))
                }
             } else {

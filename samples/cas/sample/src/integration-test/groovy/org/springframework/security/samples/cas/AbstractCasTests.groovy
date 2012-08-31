@@ -27,19 +27,4 @@ import geb.spock.*
  */
 class AbstractCasTests extends GebReportingSpec {
 
-    /**
-     * All relative urls will be interpreted against this. The host can change based upon a system property. This
-     * allows for the port to be randomly selected from available ports for CI.
-     */
-    String getBaseUrl() {
-        def host = System.getProperty('cas.service.host', 'localhost:8443')
-        "https://${host}/cas-sample/"
-    }
-
-    /**
-     * Write out responses and screenshots here.
-     */
-    File getReportDir() {
-        new File('build/geb-reports')
-    }
 }

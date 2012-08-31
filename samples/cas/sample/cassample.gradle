@@ -20,14 +20,15 @@ configurations {
     integrationTestCompile.extendsFrom groovy
 }
 
-sourceSets.integrationTest {
-    groovy.srcDir file('src/integration-test/groovy')
+sourceSets {
+    test.resources.exclude 'GebConfig.groovy'
+    integrationTest.groovy.srcDir file('src/integration-test/groovy')
 }
 
 eclipse.classpath.plusConfigurations += configurations.integrationTestRuntime
 
 dependencies {
-    groovy 'org.codehaus.groovy:groovy:1.7.10'
+    groovy 'org.codehaus.groovy:groovy:1.8.7'
 
     providedCompile 'javax.servlet:servlet-api:2.5@jar'
 
@@ -41,9 +42,9 @@ dependencies {
             "ch.qos.logback:logback-classic:$logbackVersion"
 
     integrationTestCompile project(':spring-security-cas'),
-                   'org.seleniumhq.selenium:selenium-htmlunit-driver:2.0a7',
-                   'org.spockframework:spock-core:0.4-groovy-1.7',
-                   'org.codehaus.geb:geb-spock:0.5.1',
+                   'org.seleniumhq.selenium:selenium-htmlunit-driver:2.25.0',
+                   'org.spockframework:spock-core:0.6-groovy-1.8',
+                   'org.codehaus.geb:geb-spock:0.7.2',
                    'commons-httpclient:commons-httpclient:3.1',
                    "org.eclipse.jetty:jetty-server:$jettyVersion",
                    "org.eclipse.jetty:jetty-servlet:$jettyVersion"
@@ -75,8 +76,11 @@ task casServer(dependsOn: ':spring-security-samples-casserver:casServer') {
 
 integrationTest.dependsOn cas
 integrationTest.doFirst {
+    def casServiceHost = jettyRunWar.httpsHost
     systemProperties['cas.server.host'] = casServer().httpsHost
-    systemProperties['cas.service.host'] = jettyRunWar.httpsHost
+    systemProperties['cas.service.host'] = casServiceHost
+    systemProperties['geb.build.baseUrl'] = 'https://'+casServiceHost+'/cas-sample/'
+    systemProperties['geb.build.reportsDir'] = 'build/geb-reports'
     systemProperties['jar.path'] = jar.archivePath
     systemProperties['javax.net.ssl.trustStore'] = keystore
     systemProperties['javax.net.ssl.trustStorePassword'] = password
