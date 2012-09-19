@@ -13,7 +13,11 @@
 package org.springframework.security.web.context;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.*;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 
 import org.junit.After;
 import org.junit.Test;
@@ -240,6 +244,36 @@ public class HttpSessionSecurityContextRepositoryTests {
         repo.saveContext(SecurityContextHolder.getContext(), holder.getRequest(), holder.getResponse());
         // Check it's still the same
        assertEquals(SecurityContextHolder.getContext(), request.getSession().getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY));
+    }
+
+    // SEC-SEC-2055
+    @Test
+    public void outputStreamCloseDelegate() throws Exception {
+        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        ServletOutputStream outputstream = mock(ServletOutputStream.class);
+        when(response.getOutputStream()).thenReturn(outputstream);
+        HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
+        SecurityContextHolder.setContext(repo.loadContext(holder));
+        SecurityContextHolder.getContext().setAuthentication(testToken);
+        holder.getResponse().getOutputStream().close();
+        verify(outputstream).close();
+    }
+
+    // SEC-SEC-2055
+    @Test
+    public void outputStreamFlushesDelegate() throws Exception {
+        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        ServletOutputStream outputstream = mock(ServletOutputStream.class);
+        when(response.getOutputStream()).thenReturn(outputstream);
+        HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
+        SecurityContextHolder.setContext(repo.loadContext(holder));
+        SecurityContextHolder.getContext().setAuthentication(testToken);
+        holder.getResponse().getOutputStream().flush();
+        verify(outputstream).flush();
     }
 
     @Test

@@ -203,16 +203,14 @@ public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends HttpServ
             this.delegate.write(b);
         }
 
-        @Override
         public void flush() throws IOException {
             doSaveContext();
-            super.flush();
+            delegate.flush();
         }
 
-        @Override
         public void close() throws IOException {
             doSaveContext();
-            super.close();
+            delegate.close();
         }
     }
 }
