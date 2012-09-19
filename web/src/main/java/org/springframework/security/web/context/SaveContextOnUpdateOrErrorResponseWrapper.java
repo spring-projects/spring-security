@@ -14,7 +14,7 @@ package org.springframework.security.web.context;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Writer;
+import java.util.Locale;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -167,28 +167,174 @@ public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends HttpServ
     }
 
     /**
-     * Ensures the {@link SecurityContext} is updated prior to methods that commit the response.
+     * Ensures the {@link SecurityContext} is updated prior to methods that commit the response. We delegate all methods
+     * to the original {@link PrintWriter} to ensure that the behavior is as close to the original {@link PrintWriter}
+     * as possible. See SEC-2039
      * @author Rob Winch
      */
     private class SaveContextPrintWriter extends PrintWriter {
+        private final PrintWriter delegate;
 
-        public SaveContextPrintWriter(Writer out) {
-            super(out);
+        public SaveContextPrintWriter(PrintWriter delegate) {
+            super(delegate);
+            this.delegate = delegate;
         }
 
         public void flush() {
             doSaveContext();
-            super.flush();
+            delegate.flush();
         }
 
         public void close() {
             doSaveContext();
-            super.close();
+            delegate.close();
+        }
+
+        public int hashCode() {
+            return delegate.hashCode();
+        }
+
+        public boolean equals(Object obj) {
+            return delegate.equals(obj);
+        }
+
+        public String toString() {
+            return getClass().getName() + "[delegate=" + delegate.toString() + "]";
+        }
+
+        public boolean checkError() {
+            return delegate.checkError();
+        }
+
+        public void write(int c) {
+            delegate.write(c);
+        }
+
+        public void write(char[] buf, int off, int len) {
+            delegate.write(buf, off, len);
+        }
+
+        public void write(char[] buf) {
+            delegate.write(buf);
+        }
+
+        public void write(String s, int off, int len) {
+            delegate.write(s, off, len);
+        }
+
+        public void write(String s) {
+            delegate.write(s);
+        }
+
+        public void print(boolean b) {
+            delegate.print(b);
+        }
+
+        public void print(char c) {
+            delegate.print(c);
+        }
+
+        public void print(int i) {
+            delegate.print(i);
+        }
+
+        public void print(long l) {
+            delegate.print(l);
+        }
+
+        public void print(float f) {
+            delegate.print(f);
+        }
+
+        public void print(double d) {
+            delegate.print(d);
+        }
+
+        public void print(char[] s) {
+            delegate.print(s);
+        }
+
+        public void print(String s) {
+            delegate.print(s);
+        }
+
+        public void print(Object obj) {
+            delegate.print(obj);
+        }
+
+        public void println() {
+            delegate.println();
+        }
+
+        public void println(boolean x) {
+            delegate.println(x);
+        }
+
+        public void println(char x) {
+            delegate.println(x);
+        }
+
+        public void println(int x) {
+            delegate.println(x);
+        }
+
+        public void println(long x) {
+            delegate.println(x);
+        }
+
+        public void println(float x) {
+            delegate.println(x);
+        }
+
+        public void println(double x) {
+            delegate.println(x);
+        }
+
+        public void println(char[] x) {
+            delegate.println(x);
+        }
+
+        public void println(String x) {
+            delegate.println(x);
+        }
+
+        public void println(Object x) {
+            delegate.println(x);
+        }
+
+        public PrintWriter printf(String format, Object... args) {
+            return delegate.printf(format, args);
+        }
+
+        public PrintWriter printf(Locale l, String format, Object... args) {
+            return delegate.printf(l, format, args);
+        }
+
+        public PrintWriter format(String format, Object... args) {
+            return delegate.format(format, args);
+        }
+
+        public PrintWriter format(Locale l, String format, Object... args) {
+            return delegate.format(l, format, args);
+        }
+
+        public PrintWriter append(CharSequence csq) {
+            return delegate.append(csq);
+        }
+
+        public PrintWriter append(CharSequence csq, int start, int end) {
+            return delegate.append(csq, start, end);
+        }
+
+        public PrintWriter append(char c) {
+            return delegate.append(c);
         }
     }
 
     /**
-     * Ensures the {@link SecurityContext} is updated prior to methods that commit the response.
+     * Ensures the {@link SecurityContext} is updated prior to methods that commit the response. We delegate all methods
+     * to the original {@link ServletOutputStream} to ensure that the behavior is as close to the original {@link ServletOutputStream}
+     * as possible. See SEC-2039
      *
      * @author Rob Winch
      */
@@ -211,6 +357,86 @@ public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends HttpServ
         public void close() throws IOException {
             doSaveContext();
             delegate.close();
+        }
+
+        public int hashCode() {
+            return delegate.hashCode();
+        }
+
+        public boolean equals(Object obj) {
+            return delegate.equals(obj);
+        }
+
+        public void print(boolean b) throws IOException {
+            delegate.print(b);
+        }
+
+        public void print(char c) throws IOException {
+            delegate.print(c);
+        }
+
+        public void print(double d) throws IOException {
+            delegate.print(d);
+        }
+
+        public void print(float f) throws IOException {
+            delegate.print(f);
+        }
+
+        public void print(int i) throws IOException {
+            delegate.print(i);
+        }
+
+        public void print(long l) throws IOException {
+            delegate.print(l);
+        }
+
+        public void print(String arg0) throws IOException {
+            delegate.print(arg0);
+        }
+
+        public void println() throws IOException {
+            delegate.println();
+        }
+
+        public void println(boolean b) throws IOException {
+            delegate.println(b);
+        }
+
+        public void println(char c) throws IOException {
+            delegate.println(c);
+        }
+
+        public void println(double d) throws IOException {
+            delegate.println(d);
+        }
+
+        public void println(float f) throws IOException {
+            delegate.println(f);
+        }
+
+        public void println(int i) throws IOException {
+            delegate.println(i);
+        }
+
+        public void println(long l) throws IOException {
+            delegate.println(l);
+        }
+
+        public void println(String s) throws IOException {
+            delegate.println(s);
+        }
+
+        public void write(byte[] b) throws IOException {
+            delegate.write(b);
+        }
+
+        public void write(byte[] b, int off, int len) throws IOException {
+            delegate.write(b, off, len);
+        }
+
+        public String toString() {
+            return getClass().getName() + "[delegate=" + delegate.toString() + "]";
         }
     }
 }
