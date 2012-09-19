@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * A logout handler which clears a defined list of cookies, using the context path as the
@@ -26,7 +27,11 @@ public final class CookieClearingLogoutHandler implements LogoutHandler {
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         for (String cookieName : cookiesToClear) {
             Cookie cookie = new Cookie(cookieName, null);
-            cookie.setPath(request.getContextPath());
+            String cookiePath = request.getContextPath();
+            if(!StringUtils.hasLength(cookiePath)) {
+                cookiePath = "/";
+            }
+            cookie.setPath(cookiePath);
             cookie.setMaxAge(0);
             response.addCookie(cookie);
         }
