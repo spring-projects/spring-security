@@ -5,7 +5,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.junit.After;
@@ -78,16 +77,6 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
         }
     }
 
-    // SEC-2045
-    @Test
-    public void testAfterPropertiesSetInvokesSuper() throws Exception {
-        ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
-        AuthenticationManager am = mock(AuthenticationManager.class);
-        filter.setAuthenticationManager(am);
-        filter.afterPropertiesSet();
-        assertTrue(filter.initFilterBeanInvoked);
-    }
-
     @Test
     public void testDoFilterAuthenticated() throws Exception {
         testDoFilter(true);
@@ -151,17 +140,11 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 
     private static class ConcretePreAuthenticatedProcessingFilter extends AbstractPreAuthenticatedProcessingFilter {
         private String principal = "testPrincipal";
-        private boolean initFilterBeanInvoked;
         protected Object getPreAuthenticatedPrincipal(HttpServletRequest httpRequest) {
             return principal;
         }
         protected Object getPreAuthenticatedCredentials(HttpServletRequest httpRequest) {
             return "testCredentials";
-        }
-        @Override
-        protected void initFilterBean() throws ServletException {
-            super.initFilterBean();
-            initFilterBeanInvoked = true;
         }
     }
 
