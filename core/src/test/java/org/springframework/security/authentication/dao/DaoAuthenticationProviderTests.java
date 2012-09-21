@@ -15,6 +15,15 @@
 
 package org.springframework.security.authentication.dao;
 
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -38,12 +47,15 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.cache.EhCacheBasedUserCache;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 /**
  * Tests {@link DaoAuthenticationProvider}.
  *
  * @author Ben Alex
+ * @author Rob Winch
  */
 public class DaoAuthenticationProviderTests extends TestCase {
     private static final List<GrantedAuthority> ROLES_12 = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
@@ -431,6 +443,113 @@ public class DaoAuthenticationProviderTests extends TestCase {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         assertTrue(provider.supports(UsernamePasswordAuthenticationToken.class));
         assertTrue(!provider.supports(TestingAuthenticationToken.class));
+    }
+
+    // SEC-2056
+    public void testUserNotFoundEncodesPassword() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("missing", "koala");
+        PasswordEncoder encoder = mock(PasswordEncoder.class);
+        when(encoder.encode(anyString())).thenReturn("koala");
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setHideUserNotFoundExceptions(false);
+        provider.setPasswordEncoder(encoder);
+        provider.setUserDetailsService(new MockAuthenticationDaoUserrod());
+        try {
+            provider.authenticate(token);
+            fail("Expected Exception");
+        } catch(UsernameNotFoundException success) {}
+
+        // ensure encoder invoked w/ non-null strings since PasswordEncoder impls may fail if encoded password is null
+        verify(encoder).matches(isA(String.class),  isA(String.class));
+    }
+
+    public void testUserNotFoundBCryptPasswordEncoder() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("missing", "koala");
+        PasswordEncoder encoder =  new BCryptPasswordEncoder();
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setHideUserNotFoundExceptions(false);
+        provider.setPasswordEncoder(encoder);
+        MockAuthenticationDaoUserrod userDetailsService = new MockAuthenticationDaoUserrod();
+        userDetailsService.password = encoder.encode((CharSequence) token.getCredentials());
+        provider.setUserDetailsService(userDetailsService);
+        try {
+            provider.authenticate(token);
+            fail("Expected Exception");
+        } catch(UsernameNotFoundException success) {}
+    }
+
+    public void testUserNotFoundDefaultEncoder() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("missing", null);
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setHideUserNotFoundExceptions(false);
+        provider.setUserDetailsService(new MockAuthenticationDaoUserrod());
+        try {
+            provider.authenticate(token);
+            fail("Expected Exception");
+        } catch(UsernameNotFoundException success) {}
+    }
+
+    /**
+     * This is an explicit test for SEC-2056. It is intentionally ignored since this test is not
+     * deterministic and {@link #testUserNotFoundEncodesPassword()} ensures that SEC-2056 is fixed.
+     */
+    public void IGNOREtestSec2056() {
+        UsernamePasswordAuthenticationToken foundUser = new UsernamePasswordAuthenticationToken("rod", "koala");
+        UsernamePasswordAuthenticationToken notFoundUser = new UsernamePasswordAuthenticationToken("notFound", "koala");
+        PasswordEncoder encoder = new BCryptPasswordEncoder(10,new SecureRandom());
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setHideUserNotFoundExceptions(false);
+        provider.setPasswordEncoder(encoder);
+        MockAuthenticationDaoUserrod userDetailsService = new MockAuthenticationDaoUserrod();
+        userDetailsService.password = encoder.encode((CharSequence) foundUser.getCredentials());
+        provider.setUserDetailsService(userDetailsService);
+
+        int sampleSize = 100;
+
+        List<Long> userFoundTimes = new ArrayList<Long>(sampleSize);
+        for(int i=0;i<sampleSize;i++) {
+            long start = System.currentTimeMillis();
+            provider.authenticate(foundUser);
+            userFoundTimes.add(System.currentTimeMillis() - start);
+        }
+
+        List<Long> userNotFoundTimes = new ArrayList<Long>(sampleSize);
+        for(int i=0;i<sampleSize;i++) {
+            long start = System.currentTimeMillis();
+            try {
+                provider.authenticate(notFoundUser);
+                fail("Expected Exception");
+            } catch(UsernameNotFoundException success) {}
+            userNotFoundTimes.add(System.currentTimeMillis() - start);
+        }
+
+        double userFoundAvg = avg(userFoundTimes);
+        double userNotFoundAvg = avg(userNotFoundTimes);
+        assertTrue("User not found average " + userNotFoundAvg + " should be within 3ms of user found average " + userFoundAvg,
+                Math.abs(userNotFoundAvg - userFoundAvg) <= 3);
+    }
+
+    private double avg(List<Long> counts) {
+        long sum = 0;
+        for(Long time : counts) {
+            sum += time;
+        }
+        return sum / counts.size();
+    }
+
+    public void testUserNotFoundNullCredentials() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("missing", null);
+        PasswordEncoder encoder = mock(PasswordEncoder.class);
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setHideUserNotFoundExceptions(false);
+        provider.setPasswordEncoder(encoder);
+        provider.setUserDetailsService(new MockAuthenticationDaoUserrod());
+        try {
+            provider.authenticate(token);
+            fail("Expected Exception");
+        } catch(UsernameNotFoundException success) {}
+
+        verify(encoder,times(0)).matches(anyString(), anyString());
     }
 
     //~ Inner Classes ==================================================================================================

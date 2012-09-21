@@ -31,19 +31,39 @@ import org.springframework.util.Assert;
  * An {@link AuthenticationProvider} implementation that retrieves user details from a {@link UserDetailsService}.
  *
  * @author Ben Alex
+ * @author Rob Winch
  */
 public class DaoAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
+    //~ Static fields/initializers =====================================================================================
+
+    /**
+     * The plaintext password used to perform {@link PasswordEncoder#isPasswordValid(String, String, Object)} on when the user is
+     * not found to avoid SEC-2056.
+     */
+    private static final String USER_NOT_FOUND_PASSWORD = "userNotFoundPassword";
 
     //~ Instance fields ================================================================================================
 
-    private PasswordEncoder passwordEncoder = new PlaintextPasswordEncoder();
+    private PasswordEncoder passwordEncoder;
+
+    /**
+     * The password used to perform {@link PasswordEncoder#isPasswordValid(String, String, Object)} on when the user is
+     * not found to avoid SEC-2056. This is necessary, because some {@link PasswordEncoder} implementations will short circuit if the
+     * password is not in a valid format.
+     */
+    private String userNotFoundEncodedPassword;
 
     private SaltSource saltSource;
 
     private UserDetailsService userDetailsService;
 
+    public DaoAuthenticationProvider() {
+        setPasswordEncoder(new PlaintextPasswordEncoder());
+    }
+
     //~ Methods ========================================================================================================
 
+    @SuppressWarnings("deprecation")
     protected void additionalAuthenticationChecks(UserDetails userDetails,
             UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
         Object salt = null;
@@ -80,6 +100,10 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
         try {
             loadedUser = this.getUserDetailsService().loadUserByUsername(username);
         } catch (UsernameNotFoundException notFound) {
+            if(authentication.getCredentials() != null) {
+                String presentedPassword = authentication.getCredentials().toString();
+                passwordEncoder.isPasswordValid(userNotFoundEncodedPassword, presentedPassword, null);
+            }
             throw notFound;
         } catch (Exception repositoryProblem) {
             throw new AuthenticationServiceException(repositoryProblem.getMessage(), repositoryProblem);
@@ -106,14 +130,14 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
         Assert.notNull(passwordEncoder, "passwordEncoder cannot be null");
 
         if (passwordEncoder instanceof PasswordEncoder) {
-            this.passwordEncoder = (PasswordEncoder) passwordEncoder;
+            setPasswordEncoder((PasswordEncoder) passwordEncoder);
             return;
         }
 
         if (passwordEncoder instanceof org.springframework.security.crypto.password.PasswordEncoder) {
             final org.springframework.security.crypto.password.PasswordEncoder delegate =
                     (org.springframework.security.crypto.password.PasswordEncoder)passwordEncoder;
-            this.passwordEncoder = new PasswordEncoder() {
+            setPasswordEncoder(new PasswordEncoder() {
                 public String encodePassword(String rawPass, Object salt) {
                     checkSalt(salt);
                     return delegate.encode(rawPass);
@@ -127,12 +151,19 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
                 private void checkSalt(Object salt) {
                     Assert.isNull(salt, "Salt value must be null when used with crypto module PasswordEncoder");
                 }
-            };
+            });
 
             return;
         }
 
         throw new IllegalArgumentException("passwordEncoder must be a PasswordEncoder instance");
+    }
+
+    private void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+        Assert.notNull(passwordEncoder, "passwordEncoder cannot be null");
+
+        this.userNotFoundEncodedPassword = passwordEncoder.encodePassword(USER_NOT_FOUND_PASSWORD, null);
+        this.passwordEncoder = passwordEncoder;
     }
 
     protected PasswordEncoder getPasswordEncoder() {
