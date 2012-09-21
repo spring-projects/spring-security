@@ -68,12 +68,6 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
      */
     @Override
     public void afterPropertiesSet() {
-        try {
-            super.afterPropertiesSet();
-        } catch(ServletException e) {
-            // convert to RuntimeException for passivity on afterPropertiesSet signature
-            throw new RuntimeException(e);
-        }
         Assert.notNull(authenticationManager, "An AuthenticationManager must be set");
     }
 
