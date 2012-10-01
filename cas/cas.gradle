@@ -10,4 +10,4 @@ dependencies {
             "net.sf.ehcache:ehcache:$ehcacheVersion"
 
     provided 'javax.servlet:servlet-api:2.5'
-}            
+}

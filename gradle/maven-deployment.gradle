@@ -1,0 +1,51 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+apply plugin: 'maven'
+
+// Create a source jar for uploading
+task sourceJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.java.srcDirs
+    include '**/*.java', '**/*.aj'
+}
+
+// Configuration for SpringSource s3 maven deployer
+configurations {
+    deployerJars
+}
+dependencies {
+    deployerJars "org.springframework.build.aws:org.springframework.build.aws.maven:3.0.0.RELEASE"
+}
+
+// Remove the archive configuration from the runtime configuration, so that anything added to archives
+// (such as the source jar) is no longer included in the runtime classpath
+configurations.default.extendsFrom = [configurations.runtime] as Set
+// Add the main jar into the default configuration
+artifacts { 'default' jar }
+
+install {
+    customizePom(repositories.mavenInstaller.pom, project)
+}
+
+if(project != project(":spring-security-parent")) {
+    install.dependsOn ':spring-security-parent:install'
+    artifacts {
+        archives sourceJar
+        archives javadocJar
+    }
+}
+
+task generatePom(type: Copy) {
+    from 'pom.xml'
+    into 'build/'
+    filter(ReplaceTokens, tokens: [pomVersion : project.properties.version])
+}
+install.dependsOn generatePom
+
+def customizePom(pom, gradleProject) {
+    pom.withXml { provider ->
+        def builder = provider.asString()
+        builder.length = 0 // delete existing content
+        builder.append(file("build/pom.xml").text)
+    }
+}

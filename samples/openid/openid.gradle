@@ -4,6 +4,8 @@ apply plugin: 'war'
 apply plugin: 'jetty'
 
 dependencies {
+    compile project(':spring-security-core'),
+            project(':spring-security-openid')
     providedCompile 'javax.servlet:servlet-api:2.5@jar'
 
     runtime project(':spring-security-config'),

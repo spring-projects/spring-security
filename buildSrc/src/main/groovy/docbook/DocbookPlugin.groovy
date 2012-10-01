@@ -48,6 +48,9 @@ class DocbookPlugin implements Plugin<Project> {
         Task docbookFoPdf = project.tasks.add("docbookFoPdf", DocbookFoPdf.class);
         docbookFoPdf.setDescription('Generates PDF output');
         docbookFoPdf.extension = 'fo'
+
+        Task docbook = project.tasks.add("docbook", DefaultTask.class);
+        docbook.dependsOn (docbookHtml, docbookHtmlSingle, docbookFoPdf)
     }
 }
 
@@ -69,6 +72,8 @@ public class Docbook extends DefaultTask {
 
     String admonGraphicsPath;
 
+    String imgSrcPath;
+
     @InputDirectory
     File sourceDirectory = new File(project.getProjectDir(), "src/docbook");
 
@@ -87,7 +92,7 @@ public class Docbook extends DefaultTask {
         factory.setXIncludeAware(XIncludeAware);
         docsDir.mkdirs();
 
-        File srcFile = new File(sourceDirectory, sourceFileName);
+        File srcFile = new File(filterDocbookSources(sourceDirectory), sourceFileName);
         String outputFilename = srcFile.getName().substring(0, srcFile.getName().length() - 4) + suffix + '.' + extension;
 
         File outputFile = new File(getDocsDir(), outputFilename);
@@ -112,11 +117,15 @@ public class Docbook extends DefaultTask {
             }
 
             transformer.setParameter("highlight.xslthl.config", new File(highlightingDir, "xslthl-config.xml").toURI().toURL());
+        }
 
-            if (admonGraphicsPath != null) {
-                transformer.setParameter("admon.graphics", "1");
-                transformer.setParameter("admon.graphics.path", admonGraphicsPath);
-            }
+        if (admonGraphicsPath != null) {
+            transformer.setParameter("admon.graphics", "1");
+            transformer.setParameter("admon.graphics.path", admonGraphicsPath);
+        }
+
+        if (imgSrcPath != null) {
+            transformer.setParameter("img.src.path", imgSrcPath);
         }
 
         preTransform(transformer, srcFile, outputFile);
@@ -125,6 +134,32 @@ public class Docbook extends DefaultTask {
 
         postTransform(outputFile);
     }
+
+    /**
+    * @param sourceDir directory of unfiltered sources
+    * @return directory of filtered sources
+    * @author Chris Beams
+    */
+   private File filterDocbookSources(File sourceDir) {
+       def docbookWorkDir = new File("${project.buildDir}/reference-work")
+
+       docbookWorkDir.mkdirs()
+
+       // copy everything but springsecurity.xml
+       project.copy {
+           into(docbookWorkDir)
+           from(sourceDir) { exclude '**/springsecurity.xml' }
+       }
+       // copy index.xml and expand ${...} variables along the way
+       // e.g.: ${version} needs to be replaced in the header
+       project.copy {
+           into(docbookWorkDir)
+           from(sourceDir) { include '**/springsecurity.xml' }
+           expand(version: "${project.version}")
+       }
+
+       return docbookWorkDir
+   }
 
     private void extractHighlightFiles(File toDir) {
         URLClassLoader cl = (URLClassLoader) getClass().getClassLoader();
@@ -254,9 +289,9 @@ class DocbookFoPdf extends Docbook {
             }
         }
 
-        if (!foFile.delete()) {
+/*        if (!foFile.delete()) {
             logger.warn("Failed to delete 'fo' file " + foFile);
-        }
+        }*/
     }
 
     private File getPdfOutputFile(File foFile) {

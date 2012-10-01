@@ -7,58 +7,63 @@ def String[] modules = [
     'cas',
     'openid',
     'taglibs',
-    'aspects'
+    'aspects',
+    'parent'
 ]
 
 def String[] samples = [
     'tutorial',
     'contacts',
     'openid',
-    'aspectj'
-]
-
-def String[] docs = [
-    'faq',
-    'manual'
+    'aspectj',
+    'dms',
+    'preauth',
+    'cas/server',
+    'cas/sample',
+    'ldap'
 ]
 
 def String[] itest = [
-    'web'
+    'web',
+    'context'
 ]
 
 include modules
 
 modules.each {name ->
-    p = findProject(":${name}")
+    def p = findProject(":${name}")
     p.name = "spring-security-${name}"
     p.buildFileName = "${name}.gradle"
 }
 
+def casClient = findProject(":spring-security-cas")
+casClient.name = 'spring-security-cas-client'
+
 include samples
 
 samples.each {name ->
-    p = findProject(":${name}")
-    p.name = "spring-security-samples-${name}"
-    p.buildFileName = "${name}.gradle"
+    def p = findProject(":${name}")
+    def fullName = name.replaceAll('/','')
+    p.name = "spring-security-samples-${fullName}"
+    p.buildFileName = "${fullName}.gradle"
     p.projectDir = new File(settingsDir, "samples/${name}");
 }
 
 include itest
 
 itest.each { name ->
-    p = findProject(":${name}")
+    def p = findProject(":${name}")
     p.name = "itest-${name}"
     p.buildFileName = "itest-${name}.gradle"
     p.projectDir = new File(settingsDir, "itest/${name}");
 }
 
-include docs
+include 'docs', 'docs:faq', 'docs:manual'
 
-docs.each { name ->
-    p = findProject(":${name}")
-    p.buildFileName = "${name}.gradle"
-    p.projectDir = new File(settingsDir, "docs/${name}");
-}
+def docs = findProject(':docs')
+docs.buildFileName = 'docs.gradle'
+
+rootProject.name = 'spring-security'
 
 rootProject.children.each {project ->
     assert project.projectDir.isDirectory()

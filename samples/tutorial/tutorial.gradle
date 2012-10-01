@@ -3,6 +3,15 @@
 apply plugin: 'war'
 apply plugin: 'jetty'
 
+def excludeModules = ['spring-security-acl', 'jsr250-api', 'ehcache', 'spring-jdbc', 'spring-tx']
+
+configurations {
+    excludeModules.each {name ->
+        runtime.exclude module: name
+    }
+
+}
+
 dependencies {
     providedCompile 'javax.servlet:servlet-api:2.5@jar'
 
@@ -10,10 +19,28 @@ dependencies {
             "org.springframework:spring-beans:$springVersion",
             "org.springframework:spring-web:$springVersion",
             "org.springframework:spring-webmvc:$springVersion",
-            "org.aspectj:aspectjrt:$aspectjVersion"
+	    "org.aspectj:aspectjrt:$aspectjVersion",
+            "org.slf4j:slf4j-api:$slf4jVersion"
 
     runtime project(':spring-security-web'),
             project(':spring-security-config'),
             project(':spring-security-taglibs'),
-            'log4j:log4j:1.2.15@jar'
+            "javax.servlet:jstl:$jstlVersion",
+            "org.slf4j:jcl-over-slf4j:$slf4jVersion",
+            "ch.qos.logback:logback-core:$logbackVersion",
+            "ch.qos.logback:logback-classic:$logbackVersion"
+}
+
+jettyRun {
+    contextPath = "/tutorial"
+
+    def httpConnector = jettyRunWar.class.classLoader.loadClass('org.mortbay.jetty.nio.SelectChannelConnector').newInstance()
+    httpConnector.port = 8080
+    httpConnector.confidentialPort = 8443
+    def httpsConnector = jettyRunWar.class.classLoader.loadClass('org.mortbay.jetty.security.SslSocketConnector').newInstance()
+    httpsConnector.port = 8443
+    httpsConnector.keystore = "$rootDir/samples/certificates/server.jks"
+    httpsConnector.keyPassword = 'password'
+
+    connectors = [httpConnector, httpsConnector]
 }

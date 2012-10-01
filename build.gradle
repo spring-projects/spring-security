@@ -1,120 +1,58 @@
 apply plugin: 'base'
 
+description = 'Spring Security'
 allprojects {
-    version = '3.0.8.CI-SNAPSHOT'
-    releaseBuild = version.endsWith('RELEASE')
-    snapshotBuild = version.endsWith('SNAPSHOT')
+    ext.releaseBuild = version.endsWith('RELEASE')
+    ext.snapshotBuild = version.endsWith('SNAPSHOT')
 
     group = 'org.springframework.security'
 
     repositories {
-        mavenRepo name:'Local', urls: "file://" + System.properties['user.home'] + "/.m2/repository"
         mavenCentral()
-        mavenRepo name: 'SpringSource Milestone Repo', urls: 'http://repository.springsource.com/maven/bundles/milestone'
-        mavenRepo name: 'SpringSource Maven Snapshot Repo', urls: 'http://maven.springframework.org/snapshot/'
-        mavenRepo name: 'SpringSource Enterprise Release', urls: 'http://repository.springsource.com/maven/bundles/release'
-        mavenRepo name: 'SpringSource Enterprise External', urls: 'http://repository.springsource.com/maven/bundles/external'
     }
 }
 
+// Set up different subproject lists for individual configuration
+ext.javaProjects = subprojects.findAll { project -> project.name != 'docs' && project.name != 'faq' && project.name != 'manual' }
+ext.sampleProjects = subprojects.findAll { project -> project.name.startsWith('spring-security-samples') }
+ext.itestProjects = subprojects.findAll { project -> project.name.startsWith('itest') }
+ext.coreModuleProjects = javaProjects - sampleProjects - itestProjects
+ext.aspectjProjects = [project(':spring-security-aspects'), project(':spring-security-samples-aspectj')]
 configure(javaProjects) {
     apply from: "$rootDir/gradle/javaprojects.gradle"
-    apply from: "$rootDir/gradle/maven.gradle"
 }
 
 configure(coreModuleProjects) {
-    apply from: "$rootDir/gradle/bundlor.gradle"
     // Gives better names in structure101 jar diagram
-    sourceSets.main.classesDir = new File(buildDir, "classes/" + project.name.substring("spring-security".length() + 1))
+    sourceSets.main.output.classesDir = new File(buildDir, "classes/" + project.name.substring("spring-security".length() + 1))
+    apply plugin: 'bundlor'
+    bundlor.expansions = bundlorProperties
+    apply from: "$rootDir/gradle/maven-deployment.gradle"
+    apply plugin: 'emma'
+}
+
+task coreBuild {
+    dependsOn coreModuleProjects*.tasks*.matching { task -> task.name == 'build' }
 }
 
 configure (aspectjProjects) {
-    apply from: "$rootDir/gradle/aspectj.gradle"
+    apply plugin: 'aspectj'
 }
 
-configurations {
-    antlibs
-}
-
-dependencies {
-    antlibs "org.springframework.build:org.springframework.build.aws.ant:3.0.3.RELEASE",
-            "net.java.dev.jets3t:jets3t:0.6.1"
-}
-
-task apidocs(type: Javadoc) {
-    destinationDir = new File(buildDir, 'apidocs')
-    title = "Spring Security $version API"
-    optionsFile = file("$buildDir/tmp/javadoc.options")
-
-    source coreModuleProjects.collect {project ->
-        project.sourceSets.main.allJava
-    }
-
-    classpath = files(coreModuleProjects.collect {project ->
-        project.sourceSets.main.compileClasspath
-    })
-}
-
-task docSiteLogin(type: Login) {
-    if (project.hasProperty('sshHost')) {
-        host = project.property('sshHost')
-    }
-}
-
-// Define remoteSiteDir and sshHost in gradle.properties
-def remoteDocsDir = null
-
-if (hasProperty('remoteSiteDir')) {
-    remoteDocsDir="$remoteSiteDir/docs/3.0.x"
-}
-
-task uploadApidocs(type: TarUpload) {
-    dependsOn apidocs
-    classifier = 'apidocs'
-    remoteDir = remoteDocsDir
-    login = docSiteLogin
-
-    into('apidocs') {
-        from apidocs.destinationDir
-    }
-}
-
-def docsDir = new File(project(':manual').buildDir, 'docs')
-
-task uploadDoc(type: TarUpload) {
-    dependsOn ':manual:doc'
-    classifier = 'doc'
-    remoteDir = remoteDocsDir
-    login = docSiteLogin
-
-    into('reference') {
-        from docsDir
-    }
-}
-
-task uploadFaq(type: TarUpload) {
-    dependsOn ':faq:docbookHtmlSingle'
-    classifier = 'faq'
-    if (project.hasProperty('remoteSiteDir')) {
-        remoteDir = project.property('remoteSiteDir')
-    }
-    login = docSiteLogin
-
-    def faqDir = new File(project(':faq').buildDir, 'docs')
-
-    into('faq') {
-        from faqDir
-    }
-}
+// Task for creating the distro zip
 
 task dist(type: Zip) {
+    dependsOn subprojects*.tasks*.matching { task -> task.name == 'assemble' || task.name.endsWith('Zip') }
+    classifier = 'dist'
+    evaluationDependsOn(':docs')
     def zipRootDir = "${project.name}-$version"
     into(zipRootDir) {
-        into('docs/apidocs') {
-            from apidocs.destinationDir
+        from(rootDir) {
+            include '*.txt'
         }
-        into('docs/reference') {
-            from docsDir
+        into('docs') {
+            with(project(':docs').apiSpec)
+            with(project(':docs:manual').spec)
         }
         into('dist') {
             from coreModuleProjects.collect {project -> project.libsDir }
@@ -124,83 +62,14 @@ task dist(type: Zip) {
     }
 }
 
-dist {
-    dependsOn apidocs, ':manual:doc', subprojects.collect { "$it.path:assemble" }
-    doLast {
-        ant.checksum(file: archivePath, algorithm: 'SHA1', fileext: '.sha1')
-    }
+artifacts {
+    archives dist
+    archives project(':docs').docsZip
+    archives project(':docs').schemaZip
 }
 
-task uploadDist(type: UploadDist) {
-    archiveFile = dist.archivePath
-    shaFile = "${dist.archivePath}.sha1" as File
-    archiveName = dist.archiveName
-    classpath = configurations.antlibs
+apply from: "$rootDir/gradle/ide-integration.gradle"
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.1'
 }
-
-def getJavaProjects() {
-    subprojects.findAll {project -> project.name != 'faq' && project.name != 'manual' }
-}
-
-def getSampleProjects() {
-    subprojects.findAll {project -> project.name.startsWith('spring-security-samples') }
-}
-
-def getItestProjects() {
-    subprojects.findAll {project -> project.name.startsWith('itest') }
-}
-
-def getCoreModuleProjects() {
-    javaProjects - sampleProjects - itestProjects - aspectjProjects
-}
-
-def getAspectjProjects() {
-    subprojects.findAll {project -> project.name == 'spring-security-aspects' || project.name == 'spring-security-samples-aspectj'}
-}
-
-class UploadDist extends DefaultTask {
-    @InputFile
-    File shaFile
-
-    @InputFile
-    File archiveFile
-
-    @Input
-    String archiveName
-
-    @InputFiles
-    def classpath
-
-    @TaskAction
-    def upload() {
-        def accessKey = project.s3AccessKey
-        def secretKey = project.s3SecretAccessKey
-        def version = project.version
-
-        project.ant {
-            taskdef(resource: 'org/springframework/build/aws/ant/antlib.xml', classpath: classpath.asPath)
-            s3(accessKey: accessKey, secretKey: secretKey) {
-                upload(bucketName: 'dist.springframework.org', file: archiveFile,
-                        toFile: releaseType() + "/SEC/${archiveName}", publicRead: 'true') {
-                    metadata(name: 'project.name', value: 'Spring Security')
-                    metadata(name: 'release.type', value: releaseType())
-                    metadata(name: 'bundle.version', value: version)
-                    metadata(name: 'package.file.name', value: archiveName)
-                }
-                upload(bucketName: 'dist.springframework.org', file: shaFile,
-                        toFile: releaseType() + "/SEC/${archiveName}.sha1", publicRead: 'true')
-            }
-        }
-    }
-
-    def releaseType() {
-        if (project.releaseBuild) {
-            'release'
-        } else if (project.snapshotBuild) {
-            'snapshot'
-        } else {
-            'milestone'
-        }
-    }
-}
-

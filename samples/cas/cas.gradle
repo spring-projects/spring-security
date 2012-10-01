@@ -1,9 +1,0 @@
-apply plugin: 'war'
-apply plugin: 'jetty'
-
-dependencies {
-    runtime project(':spring-security-core'),
-            project(':spring-security-web'),
-            project(':spring-security-config'),
-            'log4j:log4j:1.2.15@jar'
-}
