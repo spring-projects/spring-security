@@ -41,6 +41,7 @@ import org.openid4java.message.ax.FetchResponse;
 
 /**
  * @author Ray Krueger
+ * @author Rob Winch
  */
 public class OpenID4JavaConsumer implements OpenIDConsumer {
     private static final String DISCOVERY_INFO_KEY = DiscoveryInformation.class.getName();
@@ -113,6 +114,10 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
 
         // retrieve the previously stored discovery information
         DiscoveryInformation discovered = (DiscoveryInformation) request.getSession().getAttribute(DISCOVERY_INFO_KEY);
+
+        if (discovered == null) {
+            throw new OpenIDConsumerException("DiscoveryInformation is not available. Possible causes are lost session or replay attack");
+        }
 
         // extract the receiving URL from the HTTP request
         StringBuffer receivingURL = request.getRequestURL();
