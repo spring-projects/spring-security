@@ -1,8 +1,11 @@
-apply plugin: 'idea'
-
-configure(javaProjects) {
+configure(allprojects) {
+    apply plugin: 'idea'
     apply plugin: 'eclipse-wtp'
 
+    eclipse.project.name = "${project.name}-3.0.x"
+}
+
+configure(javaProjects) {
     eclipse.classpath.downloadSources = true
 
     // GRADLE-1116
