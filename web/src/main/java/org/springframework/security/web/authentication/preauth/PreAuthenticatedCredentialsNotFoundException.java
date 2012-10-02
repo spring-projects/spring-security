@@ -8,4 +8,12 @@ public class PreAuthenticatedCredentialsNotFoundException extends Authentication
         super(msg);
     }
 
+    /**
+     *
+     * @param message The message for the Exception
+     * @param cause The Exception that caused this Exception.
+     */
+    public PreAuthenticatedCredentialsNotFoundException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
