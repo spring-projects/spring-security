@@ -787,7 +787,7 @@ public class HttpSecurityBeanDefinitionParserTests {
                 "</http>" + AUTH_PROVIDER_XML);
         List<Filter> filters = getFilters("/someurl");
 
-        assertTrue(filters.get(0) instanceof ConcurrentSessionFilter);
+        assertTrue(filters.get(1) instanceof ConcurrentSessionFilter);
         assertNotNull(appContext.getBean("sr"));
         SessionManagementFilter smf = getFilter(SessionManagementFilter.class);
         assertNotNull(smf);

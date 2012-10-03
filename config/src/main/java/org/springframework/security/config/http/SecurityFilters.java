@@ -10,8 +10,8 @@ package org.springframework.security.config.http;
 enum SecurityFilters {
     FIRST (Integer.MIN_VALUE),
     CHANNEL_FILTER,
-    CONCURRENT_SESSION_FILTER,
     SECURITY_CONTEXT_FILTER,
+    CONCURRENT_SESSION_FILTER,
     LOGOUT_FILTER,
     X509_FILTER,
     PRE_AUTH_FILTER,

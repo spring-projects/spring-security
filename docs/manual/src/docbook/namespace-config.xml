@@ -570,9 +570,9 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                   align="center">Namespace Element or
                   Attribute</entry></row></thead><tbody><row><entry>
                     CHANNEL_FILTER</entry><entry><literal>ChannelProcessingFilter</literal></entry><entry><literal>http/intercept-url@requires-channel</literal></entry></row><row><entry>
+                  SECURITY_CONTEXT_FILTER</entry><entry><classname>SecurityContextPersistenceFilter</classname></entry><entry><literal>http</literal></entry></row><row><entry>
                   CONCURRENT_SESSION_FILTER</entry><entry><literal>ConcurrentSessionFilter</literal>
                 </entry><entry><literal>session-management/concurrency-control</literal></entry></row><row><entry>
-                  SECURITY_CONTEXT_FILTER</entry><entry><classname>SecurityContextPersistenceFilter</classname></entry><entry><literal>http</literal></entry></row><row><entry>
                   LOGOUT_FILTER
                     </entry><entry><literal>LogoutFilter</literal></entry><entry><literal>http/logout</literal></entry></row><row><entry>
                   X509_FILTER
