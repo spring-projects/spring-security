@@ -106,7 +106,7 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
         }
         createAppContext();
         List filters = getFilters("/someurl");
-        def concurrentSessionFilter = filters.get(0)
+        def concurrentSessionFilter = filters.get(1)
 
         then:
         concurrentSessionFilter instanceof ConcurrentSessionFilter
@@ -134,7 +134,7 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
         createAppContext();
 
         List filters = getFilters("/someurl")
-        ConcurrentSessionFilter concurrentSessionFilter = filters.get(0)
+        ConcurrentSessionFilter concurrentSessionFilter = filters.get(1)
         def logoutHandlers = concurrentSessionFilter.handlers
 
         then: 'ConcurrentSessionFilter contains the customized LogoutHandlers'
@@ -159,7 +159,7 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         List filters = getFilters("/someurl")
-        ConcurrentSessionFilter concurrentSessionFilter = filters.get(0)
+        ConcurrentSessionFilter concurrentSessionFilter = filters.get(1)
         def logoutHandlers = concurrentSessionFilter.handlers
 
         then: 'SecurityContextLogoutHandler and RememberMeServices are in ConcurrentSessionFilter logoutHandlers'
@@ -181,7 +181,7 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         List filters = getFilters("/someurl")
-        ConcurrentSessionFilter concurrentSessionFilter = filters.get(0)
+        ConcurrentSessionFilter concurrentSessionFilter = filters.get(1)
         def logoutHandlers = concurrentSessionFilter.handlers
 
         then: 'Only SecurityContextLogoutHandler is found in ConcurrentSessionFilter logoutHandlers'
@@ -189,6 +189,20 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
         logoutHandlers.size() == 1
         def securityCtxlogoutHandler = logoutHandlers.find { it instanceof SecurityContextLogoutHandler }
         securityCtxlogoutHandler.invalidateHttpSession == true
+    }
+
+    def 'SEC-2057: ConcurrentSessionFilter is after SecurityContextPersistenceFilter'() {
+        httpAutoConfig {
+            'session-management'() {
+                'concurrency-control'()
+            }
+        }
+        createAppContext()
+        List filters = getFilters("/someurl")
+
+        expect:
+        filters.get(0) instanceof SecurityContextPersistenceFilter
+        filters.get(1) instanceof ConcurrentSessionFilter
     }
 
     def 'concurrency-control handles default expired-url as null'() {
@@ -201,7 +215,7 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
         List filters = getFilters("/someurl");
 
         expect:
-        filters.get(0).expiredUrl == null
+        filters.get(1).expiredUrl == null
     }
 
     def externalSessionStrategyIsSupported() {

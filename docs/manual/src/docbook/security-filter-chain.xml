@@ -138,18 +138,18 @@
                     redirect to a different protocol</para>
             </listitem>
             <listitem>
-                <para><classname>ConcurrentSessionFilter</classname>, because it doesn't use any
-                    <classname>SecurityContextHolder</classname> functionality but needs to update
-                    the <interfacename>SessionRegistry</interfacename> to reflect ongoing requests
-                    from the principal</para>
-            </listitem>
-            <listitem>
                 <para><classname>SecurityContextPersistenceFilter</classname>, so a
                     <interfacename>SecurityContext</interfacename> can be set up in the
                     <classname>SecurityContextHolder</classname> at the beginning of a web request,
                     and any changes to the <interfacename>SecurityContext</interfacename> can be
                     copied to the <literal>HttpSession</literal> when the web request ends (ready
                     for use with the next web request)</para>
+            </listitem>
+            <listitem>
+                <para><classname>ConcurrentSessionFilter</classname>, because it uses the
+                    <classname>SecurityContextHolder</classname> functionality and needs to update
+                    the <interfacename>SessionRegistry</interfacename> to reflect ongoing requests
+                    from the principal</para>
             </listitem>
             <listitem>
                 <para>Authentication processing mechanisms -
