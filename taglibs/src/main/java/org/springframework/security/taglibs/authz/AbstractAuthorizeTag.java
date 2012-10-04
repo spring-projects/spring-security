@@ -40,6 +40,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -328,6 +329,12 @@ public abstract class AbstractAuthorizeTag {
     }
 
     private WebInvocationPrivilegeEvaluator getPrivilegeEvaluator() throws IOException {
+        WebInvocationPrivilegeEvaluator privEvaluatorFromRequest = (WebInvocationPrivilegeEvaluator) getRequest()
+                .getAttribute(WebAttributes.WEB_INVOCATION_PRIVILEGE_EVALUATOR_ATTRIBUTE);
+        if(privEvaluatorFromRequest != null) {
+            return privEvaluatorFromRequest;
+        }
+
         ApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
         Map<String, WebInvocationPrivilegeEvaluator> wipes = ctx.getBeansOfType(WebInvocationPrivilegeEvaluator.class);
 
