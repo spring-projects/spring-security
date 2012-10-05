@@ -51,7 +51,7 @@ public class AuthzImplAuthorizeTagTests extends TestCase {
         SecurityContextHolder.clearContext();
     }
 
-    public void IGNOREtestAlwaysReturnsUnauthorizedIfNoUserFound() {
+    public void testAlwaysReturnsUnauthorizedIfNoUserFound() {
         SecurityContextHolder.getContext().setAuthentication(null);
 
         //prevents request - no principal in Context
@@ -65,39 +65,39 @@ public class AuthzImplAuthorizeTagTests extends TestCase {
         assertFalse(authz.noneGranted(""));
     }
 
-    public void IGNOREtestOutputsBodyIfOneRolePresent() {
+    public void testOutputsBodyIfOneRolePresent() {
         //authorized - ROLE_TELLER in both sets
         assertTrue(authz.anyGranted("ROLE_TELLER"));
     }
 
-    public void IGNOREtestOutputsBodyWhenAllGranted() {
+    public void testOutputsBodyWhenAllGranted() {
         // allows request - all required roles granted on principal
         assertTrue(authz.allGranted("ROLE_SUPERVISOR,ROLE_TELLER"));
     }
 
-    public void IGNOREtestOutputsBodyWhenNotGrantedSatisfied() {
+    public void testOutputsBodyWhenNotGrantedSatisfied() {
         // allows request - principal doesn't have ROLE_BANKER
         assertTrue(authz.noneGranted("ROLE_BANKER"));
     }
 
-    public void IGNOREtestPreventsBodyOutputIfNoSecureContext() {
+    public void testPreventsBodyOutputIfNoSecureContext() {
         SecurityContextHolder.getContext().setAuthentication(null);
 
         // prevents output - no context defined
         assertFalse(authz.anyGranted("ROLE_BANKER"));
     }
 
-    public void IGNOREtestSkipsBodyIfNoAnyRolePresent() {
+    public void testSkipsBodyIfNoAnyRolePresent() {
         // unauthorized - ROLE_BANKER not in granted authorities
         assertFalse(authz.anyGranted("ROLE_BANKER"));
     }
 
-    public void IGNOREtestSkipsBodyWhenMissingAnAllGranted() {
+    public void testSkipsBodyWhenMissingAnAllGranted() {
         //  prevents request - missing ROLE_BANKER on principal
         assertFalse(authz.allGranted("ROLE_SUPERVISOR,ROLE_TELLER,ROLE_BANKER"));
     }
 
-    public void IGNOREtestSkipsBodyWhenNotGrantedUnsatisfied() {
+    public void testSkipsBodyWhenNotGrantedUnsatisfied() {
         //  prevents request - principal has ROLE_TELLER
         assertFalse(authz.noneGranted("ROLE_TELLER"));
     }

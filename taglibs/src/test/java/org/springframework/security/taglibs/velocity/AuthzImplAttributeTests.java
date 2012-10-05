@@ -31,7 +31,6 @@ import javax.servlet.jsp.JspException;
  * Ignoring these tests so that we can rename the file, but still get tests to pass till SEC-1882 can be
  * addressed.
  */
-@Ignore
 public class AuthzImplAttributeTests extends TestCase {
     //~ Instance fields ================================================================================================
 
