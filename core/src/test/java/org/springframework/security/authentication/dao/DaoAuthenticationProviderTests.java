@@ -15,6 +15,14 @@
 
 package org.springframework.security.authentication.dao;
 
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -29,6 +37,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -45,6 +54,7 @@ import org.springframework.security.core.userdetails.cache.NullUserCache;
  * Tests {@link DaoAuthenticationProvider}.
  *
  * @author Ben Alex
+ * @author Rob Winch
  */
 public class DaoAuthenticationProviderTests extends TestCase {
     private static final List<GrantedAuthority> ROLES_12 = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
@@ -432,6 +442,39 @@ public class DaoAuthenticationProviderTests extends TestCase {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         assertTrue(provider.supports(UsernamePasswordAuthenticationToken.class));
         assertTrue(!provider.supports(TestingAuthenticationToken.class));
+    }
+
+    // SEC-2056
+    public void testUserNotFoundEncodesPassword() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("missing", "koala");
+        PasswordEncoder encoder = mock(PasswordEncoder.class);
+        when(encoder.encodePassword(anyString(), anyObject())).thenReturn("koala");
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setHideUserNotFoundExceptions(false);
+        provider.setPasswordEncoder(encoder);
+        provider.setUserDetailsService(new MockAuthenticationDaoUserrod());
+        try {
+            provider.authenticate(token);
+            fail("Expected Exception");
+        } catch(UsernameNotFoundException success) {}
+
+        // ensure encoder invoked w/ non-null strings since PasswordEncoder impls may fail if encoded password is null
+        verify(encoder).isPasswordValid(isA(String.class),  isA(String.class), anyObject());
+    }
+
+    public void testUserNotFoundNullCredentials() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("missing", null);
+        PasswordEncoder encoder = mock(PasswordEncoder.class);
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setHideUserNotFoundExceptions(false);
+        provider.setPasswordEncoder(encoder);
+        provider.setUserDetailsService(new MockAuthenticationDaoUserrod());
+        try {
+            provider.authenticate(token);
+            fail("Expected Exception");
+        } catch(UsernameNotFoundException success) {}
+
+        verify(encoder,times(0)).isPasswordValid(anyString(), anyString(), anyObject());
     }
 
     //~ Inner Classes ==================================================================================================
