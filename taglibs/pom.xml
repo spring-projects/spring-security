@@ -57,7 +57,6 @@
                 <directory>
                     ${basedir}/src/main/resources
                 </directory>
-                <targetPath>/</targetPath>
                 <includes>
                     <include>**/*</include>
                 </includes>
