@@ -250,7 +250,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
         Authentication original = getSourceAuthentication(current);
 
         if (original == null) {
-            logger.error("Could not find original user Authentication object!");
+            logger.debug("Could not find original user Authentication object!");
             throw new AuthenticationCredentialsNotFoundException(messages.getMessage(
                     "SwitchUserFilter.noOriginalAuthentication",
                     "Could not find original Authentication object"));
