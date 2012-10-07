@@ -35,7 +35,7 @@ public class PreInvocationAuthorizationAdviceVoter implements AccessDecisionVote
     }
 
     public boolean supports(Class<?> clazz) {
-        return clazz.isAssignableFrom(MethodInvocation.class);
+        return MethodInvocation.class.isAssignableFrom(clazz);
     }
 
     public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
