@@ -35,6 +35,12 @@
         </license>
     </licenses>
 
+    <scm>
+        <url>https://github.com/SpringSource/spring-security</url>
+        <connection>scm:git:git://github.com/SpringSource/spring-security</connection>
+        <developerConnection>scm:git:git://github.com/SpringSource/spring-security</developerConnection>
+    </scm>
+
     <issueManagement>
         <system>jira</system>
         <url>http://jira.springframework.org/browse/SEC</url>
