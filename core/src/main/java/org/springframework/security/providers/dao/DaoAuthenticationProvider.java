@@ -24,6 +24,7 @@ import org.springframework.security.providers.encoding.PasswordEncoder;
 import org.springframework.security.providers.encoding.PlaintextPasswordEncoder;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.UserDetailsService;
+import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.util.Assert;
 
@@ -35,16 +36,34 @@ import org.springframework.util.Assert;
  * @version $Id$
  */
 public class DaoAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
+    //~ Static fields/initializers =====================================================================================
+
+    /**
+     * The plaintext password used to perform {@link PasswordEncoder#isPasswordValid(String, String, Object)} on when the user is
+     * not found to avoid SEC-2056.
+     */
+    private static final String USER_NOT_FOUND_PASSWORD = "userNotFoundPassword";
 
     //~ Instance fields ================================================================================================
 
-    private PasswordEncoder passwordEncoder = new PlaintextPasswordEncoder();
+    private PasswordEncoder passwordEncoder;
+
+    /**
+     * The password used to perform {@link PasswordEncoder#isPasswordValid(String, String, Object)} on when the user is
+     * not found to avoid SEC-2056. This is necessary, because some {@link PasswordEncoder} implementations will short circuit if the
+     * password is not in a valid format.
+     */
+    private String userNotFoundEncodedPassword;
 
     private SaltSource saltSource;
 
     private UserDetailsService userDetailsService;
 
     private boolean includeDetailsObject = true;
+
+    public DaoAuthenticationProvider() {
+        setPasswordEncoder(new PlaintextPasswordEncoder());
+    }
 
     //~ Methods ========================================================================================================
 
@@ -85,6 +104,13 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
         catch (DataAccessException repositoryProblem) {
             throw new AuthenticationServiceException(repositoryProblem.getMessage(), repositoryProblem);
         }
+        catch (UsernameNotFoundException notFound) {
+            if(authentication.getCredentials() != null) {
+                String presentedPassword = authentication.getCredentials().toString();
+                passwordEncoder.isPasswordValid(userNotFoundEncodedPassword, presentedPassword, null);
+            }
+            throw notFound;
+        }
 
         if (loadedUser == null) {
             throw new AuthenticationServiceException(
@@ -100,6 +126,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
      * @param passwordEncoder The passwordEncoder to use
      */
     public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+        this.userNotFoundEncodedPassword = passwordEncoder.encodePassword(USER_NOT_FOUND_PASSWORD, null);
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -143,6 +170,6 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
      */
     public void setIncludeDetailsObject(boolean includeDetailsObject) {
         this.includeDetailsObject = includeDetailsObject;
-	}
+    }
 
 }

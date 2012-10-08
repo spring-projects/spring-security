@@ -15,6 +15,13 @@
 
 package org.springframework.security.providers.dao;
 
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import junit.framework.TestCase;
 
 import org.springframework.security.AccountExpiredException;
@@ -32,6 +39,7 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 import org.springframework.security.providers.dao.cache.EhCacheBasedUserCache;
 import org.springframework.security.providers.dao.cache.NullUserCache;
 import org.springframework.security.providers.dao.salt.SystemWideSaltSource;
+import org.springframework.security.providers.encoding.PasswordEncoder;
 import org.springframework.security.providers.encoding.ShaPasswordEncoder;
 
 import org.springframework.security.userdetails.User;
@@ -434,6 +442,40 @@ public class DaoAuthenticationProviderTests extends TestCase {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         assertTrue(provider.supports(UsernamePasswordAuthenticationToken.class));
         assertTrue(!provider.supports(TestingAuthenticationToken.class));
+    }
+
+
+    // SEC-2056
+    public void testUserNotFoundEncodesPassword() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("missing", "koala");
+        PasswordEncoder encoder = mock(PasswordEncoder.class);
+        when(encoder.encodePassword(anyString(), anyObject())).thenReturn("koala");
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setHideUserNotFoundExceptions(false);
+        provider.setPasswordEncoder(encoder);
+        provider.setUserDetailsService(new MockAuthenticationDaoUserrod());
+        try {
+            provider.authenticate(token);
+            fail("Expected Exception");
+        } catch(UsernameNotFoundException success) {}
+
+        // ensure encoder invoked w/ non-null strings since PasswordEncoder impls may fail if encoded password is null
+        verify(encoder).isPasswordValid(isA(String.class),  isA(String.class), anyObject());
+    }
+
+    public void testUserNotFoundNullCredentials() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("missing", null);
+        PasswordEncoder encoder = mock(PasswordEncoder.class);
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setHideUserNotFoundExceptions(false);
+        provider.setPasswordEncoder(encoder);
+        provider.setUserDetailsService(new MockAuthenticationDaoUserrod());
+        try {
+            provider.authenticate(token);
+            fail("Expected Exception");
+        } catch(UsernameNotFoundException success) {}
+
+        verify(encoder,times(0)).isPasswordValid(anyString(), anyString(), anyObject());
     }
 
     //~ Inner Classes ==================================================================================================
