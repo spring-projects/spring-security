@@ -372,6 +372,59 @@
                     </dependenciesAsLibraries>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.4</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+                <configuration>                    
+                    <header>Spring Security Framework</header>
+                    <quiet>true</quiet>
+                    <excludePackageNames>sample,bigbank,zzz</excludePackageNames>
+                    <links>
+                        <link>
+                            http://java.sun.com/j2se/1.5.0/docs/api
+                        </link>
+                        <link>
+                            http://static.springframework.org/spring/docs/2.5.x/api/
+                        </link>
+                        <link>
+                            http://commons.apache.org/dbcp/apidocs/
+                        </link>
+                        <link>
+                            http://commons.apache.org/httpclient/apidocs/
+                        </link>
+                        <link>
+                            http://commons.apache.org/pool/apidocs/
+                        </link>
+                        <link>
+                            http://commons.apache.org/lang/api/
+                        </link>
+                        <link>
+                            http://commons.apache.org/codec/apidocs/
+                        </link>
+                        <link>
+                            http://commons.apache.org/collections/apidocs/
+                        </link>
+                        <link>
+                            http://velocity.apache.org/engine/releases/velocity-1.5/apidocs/
+                        </link>
+                        <link>
+                            http://developer.ja-sig.org/projects/cas/cas-server-core/cas-server/cas-server-core/apidocs/
+                        </link>
+                        <link>
+                            http://tomcat.apache.org/tomcat-5.5-doc/servletapi/
+                        </link>
+                    </links>
+                </configuration>
+            </plugin>
             <!-- Site -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
