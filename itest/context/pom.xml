@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-itest</artifactId>
-        <version>2.0.8.RELEASE</version>
+        <version>2.0.9.CI-SNAPSHOT</version>
     </parent>
     <artifactId>spring-security-itest-context</artifactId>
     <name>Spring Security - Miscellaneous Application Context Integration Tests</name>
