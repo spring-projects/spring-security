@@ -48,7 +48,7 @@
             attributes associated with a single secure HTTP URL.</para>
         <para>It should be noted that the
             <literal>FilterSecurityInterceptor.setSecurityMetadataSource()</literal> method actually
-            expects an instance of <interfacename>FilterSecurityMetadataSource</interfacename>. This
+            expects an instance of <interfacename>FilterInvocationSecurityMetadataSource</interfacename>. This
             is a marker interface which subclasses
             <interfacename>SecurityMetadataSource</interfacename>. It simply denotes the
             <interfacename>SecurityMetadataSource</interfacename> understands
