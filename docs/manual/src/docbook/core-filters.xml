@@ -50,7 +50,7 @@
         <para>It should be noted that the
                 <literal>FilterSecurityInterceptor.setSecurityMetadataSource()</literal> method
             actually expects an instance of
-                <interfacename>FilterSecurityMetadataSource</interfacename>. This is a marker
+                <interfacename>FilterInvocationSecurityMetadataSource</interfacename>. This is a marker
             interface which subclasses <interfacename>SecurityMetadataSource</interfacename>. It
             simply denotes the <interfacename>SecurityMetadataSource</interfacename> understands
                 <classname>FilterInvocation</classname>s. In the interests of simplicity we'll
