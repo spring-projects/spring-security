@@ -49,3 +49,20 @@ def customizePom(pom, gradleProject) {
         builder.append(file("build/pom.xml").text)
     }
 }
+
+task generatePom {
+    group = 'Build'
+    description = 'Generates the Maven pom.xml'
+
+    ext.generatedPomFileName = 'pom.xml'
+
+    inputs.files('**/*.gradle')
+    outputs.files(generatedPomFileName)
+
+    doLast() {
+        def p = pom {}
+        customizePom(p, project)
+        p.writeTo(generatedPomFileName)
+    }
+
+}
