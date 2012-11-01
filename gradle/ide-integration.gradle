@@ -1,10 +1,12 @@
-apply plugin: 'idea'
-
-configure(javaProjects) {
+configure(allprojects) {
     apply plugin: 'idea'
     apply plugin: 'eclipse-wtp'
 
-    eclipse.classpath.downloadSources = true
+    eclipse.project.name = "${project.name}-3.2.x"
+}
+
+configure(javaProjects) {
+     eclipse.classpath.downloadSources = true
 
     // GRADLE-1116
     project.eclipse.classpath.file.whenMerged { classpath ->
@@ -49,7 +51,7 @@ project(':spring-security-samples-aspectj') {
         doLast {
             def classpath = new XmlParser().parse(srcFile)
 
-            classpath.classpathentry.findAll{ it.@path == '/spring-security-aspects' }.each { node ->
+            classpath.classpathentry.findAll{ it.@path.startsWith('/spring-security-aspects') }.each { node ->
                 if(node.children().size() == 0) {
                     def attrs = new Node(node,'attributes')
                     def adjtAttr = new Node(attrs,'attributes',[name: 'org.eclipse.ajdt.aspectpath', value: 'org.eclipse.ajdt.aspectpath'])
