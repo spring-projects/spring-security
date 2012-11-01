@@ -104,22 +104,26 @@ gradle.taskGraph.whenReady {graph ->
     }
     if(graph.hasTask(integrationTest)) {
         tasks.getByPath(':spring-security-samples-casserver:casServerOverlay').logLevel = 'ERROR'
-        jettyRunWar.additionalRuntimeJars += file("src/integration-test/resources")
+        jettyRunWar {
+            additionalRuntimeJars += file("src/integration-test/resources")
+            daemon = true
+        }
 
-        jettyRunWar.daemon = true
-        jettyRunWar.httpConnector.port = availablePort()
-        jettyRunWar.httpsConnector.port = jettyRunWar.httpConnector.confidentialPort = availablePort()
-        casServer.httpsConnector.port = availablePort()
+        [jettyRunWar.httpConnector,jettyRunWar.httpsConnector,casServer.httpsConnector]*.metaClass*.reservePort { taskToCloseSocket ->
+            def serverSocket = new ServerSocket(0)
+            delegate.metaClass.serverSocket = serverSocket
+            delegate.port = serverSocket.localPort
+            taskToCloseSocket.doFirst {
+                serverSocket.close()
+            }
+        }
+
+        [jettyRunWar.httpConnector,jettyRunWar.httpsConnector]*.reservePort(jettyRunWar)
+        jettyRunWar.httpConnector.confidentialPort = jettyRunWar.httpsConnector.port
+        casServer.httpsConnector.reservePort(casServer)
     }
 }
 
 def casServer() {
     tasks.getByPath(':spring-security-samples-casserver:casServer')
-}
-
-def availablePort() {
-    ServerSocket server = new ServerSocket(0)
-    int port = server.localPort
-    server.close()
-    port
 }
