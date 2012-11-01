@@ -11,6 +11,7 @@ import org.gradle.api.GradleException
 
 import org.gradle.plugins.ide.eclipse.GenerateEclipseProject
 import org.gradle.plugins.ide.eclipse.GenerateEclipseClasspath
+import org.gradle.plugins.ide.eclipse.EclipsePlugin
 import org.gradle.plugins.ide.eclipse.model.BuildCommand
 import org.gradle.plugins.ide.eclipse.model.ProjectDependency
 
@@ -63,8 +64,13 @@ class AspectJPlugin implements Plugin<Project> {
         project.tasks.withType(GenerateEclipseClasspath) {
             project.eclipse.classpath.file.whenMerged { classpath ->
                 def entries = classpath.entries.findAll { it instanceof ProjectDependency}.findAll { entry ->
-                    def projectPath = entry.path.replaceAll('/',':')
-                    project.rootProject.findProject(projectPath).plugins.findPlugin(AspectJPlugin)
+                    def projectPath = entry.path.replaceAll('/','')
+                    project.rootProject.allprojects.find{ p->
+                        if(p.plugins.findPlugin(EclipsePlugin)) {
+                            return p.eclipse.project.name == projectPath && p.plugins.findPlugin(AspectJPlugin)
+                        }
+                        false
+                    }
                 }
                 entries.each { entry->
                     entry.entryAttributes.put('org.eclipse.ajdt.aspectpath','org.eclipse.ajdt.aspectpath')
