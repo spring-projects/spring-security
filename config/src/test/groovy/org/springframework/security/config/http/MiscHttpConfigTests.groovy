@@ -212,6 +212,23 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         'anonymity' == filter.authorities[0].authority
     }
 
+    def anonymousSupportsMultipleGrantedAuthorities() {
+        xml.http {
+            'form-login'()
+            'anonymous'(username: 'joe', 'granted-authority':'ROLE_INVITADO,ROLE_PROFILE_INVITADO,ROLE_GRUPO_PUBLICO', key: 'customKey')
+        }
+        createAppContext()
+
+        AnonymousAuthenticationFilter filter = getFilter(AnonymousAuthenticationFilter);
+        def providers = appContext.getBeansOfType(AuthenticationManager).values()*.providers.flatten()
+
+        expect:
+        'customKey' == providers.find { it instanceof AnonymousAuthenticationProvider }.key
+        'customKey' == filter.key
+        'joe' == filter.principal
+        ['ROLE_INVITADO','ROLE_PROFILE_INVITADO','ROLE_GRUPO_PUBLICO'] == filter.authorities*.authority
+    }
+
     def httpMethodMatchIsSupported() {
         httpAutoConfig {
             interceptUrl '/secure*', 'DELETE', 'ROLE_SUPERVISOR'

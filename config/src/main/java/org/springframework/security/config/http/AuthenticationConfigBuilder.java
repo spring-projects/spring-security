@@ -534,7 +534,7 @@ final class AuthenticationConfigBuilder {
         anonymousFilter = new RootBeanDefinition(AnonymousAuthenticationFilter.class);
         anonymousFilter.getConstructorArgumentValues().addIndexedArgumentValue(0, key);
         anonymousFilter.getConstructorArgumentValues().addIndexedArgumentValue(1, username);
-        anonymousFilter.getConstructorArgumentValues().addIndexedArgumentValue(2, AuthorityUtils.createAuthorityList(grantedAuthority));
+        anonymousFilter.getConstructorArgumentValues().addIndexedArgumentValue(2, AuthorityUtils.commaSeparatedStringToAuthorityList(grantedAuthority));
         anonymousFilter.setSource(source);
 
         RootBeanDefinition anonymousProviderBean = new RootBeanDefinition(AnonymousAuthenticationProvider.class);
