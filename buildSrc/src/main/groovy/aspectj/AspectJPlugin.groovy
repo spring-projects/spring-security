@@ -64,11 +64,9 @@ class AspectJPlugin implements Plugin<Project> {
         project.tasks.withType(GenerateEclipseClasspath) {
             project.eclipse.classpath.file.whenMerged { classpath ->
                 def entries = classpath.entries.findAll { it instanceof ProjectDependency}.findAll { entry ->
-                    def projectPath = entry.path.replaceAll('/',':')
-println projectPath
+                    def projectPath = entry.path.replaceAll('/','')
                     project.rootProject.allprojects.find{ p-> 
                         if(p.plugins.findPlugin(EclipsePlugin)) {
-                             println "    checking " + p.eclipse.project.name
                              return p.eclipse.project.name == projectPath && p.plugins.findPlugin(AspectJPlugin)
                         }
                         false
