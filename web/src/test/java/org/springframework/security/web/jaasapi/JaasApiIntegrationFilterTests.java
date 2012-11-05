@@ -35,6 +35,7 @@ import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
@@ -191,7 +192,7 @@ public class JaasApiIntegrationFilterTests {
 
     private void assertJaasSubjectEquals(final Subject expectedValue) throws Exception {
         MockFilterChain chain = new MockFilterChain() {
-            public void doFilter(ServletRequest request, ServletResponse response) {
+            public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
                 // See if the subject was updated
                 Subject currentSubject = Subject.getSubject(AccessController.getContext());
                 assertEquals(expectedValue, currentSubject);

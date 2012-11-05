@@ -85,6 +85,12 @@ def customizePom(pom, gradleProject) {
                 email = 'rwinch@vmware.com'
             }
         }
+        repositories {
+            repository {
+                id 'spring-snapshot'
+                url 'http://repo.springsource.org/libs-snapshot'
+            }
+        }
         dependencies {
             dependency {
                 artifactId = groupId = 'commons-logging'

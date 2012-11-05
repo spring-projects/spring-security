@@ -4,7 +4,7 @@ apply plugin: 'eclipse'
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
 
-ext.springVersion = '3.0.7.RELEASE'
+ext.springVersion = '3.2.0.BUILD-SNAPSHOT'
 ext.springLdapVersion = '1.3.1.RELEASE'
 ext.ehcacheVersion = '1.6.2'
 ext.aspectjVersion = '1.6.10'

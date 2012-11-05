@@ -9,7 +9,7 @@ allprojects {
     group = 'org.springframework.security'
 
     repositories {
-        mavenCentral()
+        maven { url "http://repo.springsource.org/libs-snapshot" }
     }
 }
 
