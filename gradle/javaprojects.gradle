@@ -80,7 +80,8 @@ dependencies {
 
     testCompile 'junit:junit:4.7',
             'org.mockito:mockito-core:1.8.5',
-            "org.springframework:spring-test:$springVersion"
+            "org.springframework:spring-test:$springVersion",
+            'org.easytesting:fest-assert:1.4'
 
     // Use slf4j/logback for logging
     testRuntime "org.slf4j:jcl-over-slf4j:$slf4jVersion",
