@@ -35,12 +35,7 @@ dependencies {
                 "org.springframework:spring-tx:$springVersion",
                 'org.spockframework:spock-core:0.6-groovy-1.8',
                 "org.slf4j:jcl-over-slf4j:$slf4jVersion",
-                "org.powermock:powermock-core:$powerMockVersion",
-                "org.powermock:powermock-api-support:$powerMockVersion",
-                "org.powermock:powermock-module-junit4-common:$powerMockVersion",
-                "org.powermock:powermock-module-junit4:$powerMockVersion",
-                "org.powermock:powermock-api-mockito:$powerMockVersion",
-                "org.powermock:powermock-reflect:$powerMockVersion"
+                powerMockDependencies
     testCompile('org.openid4java:openid4java-nodeps:0.9.6') {
        exclude group: 'com.google.code.guice', module: 'guice'
     }

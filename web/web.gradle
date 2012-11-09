@@ -15,12 +15,7 @@ dependencies {
                 'commons-codec:commons-codec:1.3',
                 "org.slf4j:jcl-over-slf4j:$slf4jVersion",
                 "org.springframework:spring-test:$springVersion",
-                "org.powermock:powermock-core:$powerMockVersion",
-                "org.powermock:powermock-api-support:$powerMockVersion",
-                "org.powermock:powermock-module-junit4-common:$powerMockVersion",
-                "org.powermock:powermock-module-junit4:$powerMockVersion",
-                "org.powermock:powermock-api-mockito:$powerMockVersion",
-                "org.powermock:powermock-reflect:$powerMockVersion"
+                powerMockDependencies
 
     testRuntime "hsqldb:hsqldb:$hsqlVersion"
 }

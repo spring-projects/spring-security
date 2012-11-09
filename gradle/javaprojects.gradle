@@ -17,6 +17,15 @@ ext.logbackVersion = '0.9.29'
 ext.cglibVersion = '2.2'
 ext.powerMockVersion = '1.4.12'
 
+ext.powerMockDependencies = [
+    "org.powermock:powermock-core:$powerMockVersion",
+    "org.powermock:powermock-api-support:$powerMockVersion",
+    "org.powermock:powermock-module-junit4-common:$powerMockVersion",
+    "org.powermock:powermock-module-junit4:$powerMockVersion",
+    "org.powermock:powermock-api-mockito:$powerMockVersion",
+    "org.powermock:powermock-reflect:$powerMockVersion"
+]
+
 ext.bundlorProperties = [
     version: version,
     secRange: "[$version, 3.2.0)",
