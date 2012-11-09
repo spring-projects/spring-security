@@ -19,7 +19,8 @@ dependencies {
 
     testCompile 'commons-collections:commons-collections:3.2',
                 "org.springframework:spring-test:$springVersion",
-                "org.slf4j:jcl-over-slf4j:$slf4jVersion"
+                "org.slf4j:jcl-over-slf4j:$slf4jVersion",
+                powerMockDependencies
 
     testRuntime "hsqldb:hsqldb:$hsqlVersion",
                 "cglib:cglib-nodep:$cglibVersion"
