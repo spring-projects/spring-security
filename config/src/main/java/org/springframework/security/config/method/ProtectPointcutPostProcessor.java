@@ -51,6 +51,7 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
     private final PointcutParser parser;
     private final Set<String> processedBeans = new HashSet<String>();
 
+
     public ProtectPointcutPostProcessor(MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource) {
         Assert.notNull(mapBasedMethodSecurityMetadataSource, "MapBasedMethodSecurityMetadataSource to populate is required");
         this.mapBasedMethodSecurityMetadataSource = mapBasedMethodSecurityMetadataSource;
@@ -80,26 +81,34 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
             return bean;
         }
 
-        // Obtain methods for the present bean
-        Method[] methods;
-        try {
-            methods = bean.getClass().getMethods();
-        } catch (Exception e) {
-            throw new IllegalStateException(e.getMessage());
-        }
+        synchronized(processedBeans) {
+            // check again synchronized this time
+            if (processedBeans.contains(beanName)) {
+                return bean;
+            }
 
-        // Check to see if any of those methods are compatible with our pointcut expressions
-        for (Method method : methods) {
-            for (PointcutExpression expression : pointCutExpressions) {
-                // Try for the bean class directly
-                if (attemptMatch(bean.getClass(), method, expression, beanName)) {
-                    // We've found the first expression that matches this method, so move onto the next method now
-                    break; // the "while" loop, not the "for" loop
+            // Obtain methods for the present bean
+            Method[] methods;
+            try {
+                methods = bean.getClass().getMethods();
+            } catch (Exception e) {
+                throw new IllegalStateException(e.getMessage());
+            }
+
+            // Check to see if any of those methods are compatible with our pointcut expressions
+            for (Method method : methods) {
+                for (PointcutExpression expression : pointCutExpressions) {
+                    // Try for the bean class directly
+                    if (attemptMatch(bean.getClass(), method, expression, beanName)) {
+                        // We've found the first expression that matches this method, so move onto the next method now
+                        break; // the "while" loop, not the "for" loop
+                    }
                 }
             }
+
+            processedBeans.add(beanName);
         }
 
-        processedBeans.add(beanName);
 
         return bean;
     }
