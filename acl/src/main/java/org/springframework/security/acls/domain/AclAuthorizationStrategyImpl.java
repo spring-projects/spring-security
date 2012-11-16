@@ -31,10 +31,14 @@ import org.springframework.util.Assert;
 /**
  * Default implementation of {@link AclAuthorizationStrategy}.
  * <p>
- * Permission will be granted provided the current principal is either the owner (as defined by the ACL), has
- * {@link BasePermission#ADMINISTRATION} (as defined by the ACL and via a {@link Sid} retrieved for the current
- * principal via {@link #sidRetrievalStrategy}), or if the current principal holds the relevant system-wide
- * {@link GrantedAuthority} and injected into the constructor.
+ * Permission will be granted if at least one of the following conditions is true for the current 
+ * principal. 
+ * <ul>
+ * <li> is the owner (as defined by the ACL). </li>
+ * <li> holds the relevant system-wide {@link GrantedAuthority} injected into the 
+ *      constructor. </li>
+ * <li> has {@link BasePermission#ADMINISTRATION} permission (as defined by the ACL). </li>
+ * </ul>
  *
  * @author Ben Alex
  */
