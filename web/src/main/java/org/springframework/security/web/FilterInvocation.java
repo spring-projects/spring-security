@@ -1,4 +1,5 @@
-/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+/* Copyright 2002-2012 the original author or authors.
+ * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +21,16 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.servlet.AsyncContext;
+import javax.servlet.DispatcherType;
 import javax.servlet.FilterChain;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
@@ -35,6 +40,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
 
 import org.springframework.security.web.util.UrlUtils;
 
@@ -50,6 +56,7 @@ import org.springframework.security.web.util.UrlUtils;
  * @author Ben Alex
  * @author colin sampaleanu
  * @author Luke Taylor
+ * @author Rob Winch
  */
 public class FilterInvocation {
     //~ Static fields ==================================================================================================
@@ -147,7 +154,7 @@ public class FilterInvocation {
     }
 }
 
-@SuppressWarnings({"unchecked", "deprecation"})
+@SuppressWarnings({"unchecked"})
 class DummyRequest implements HttpServletRequest {
     private String requestURI;
     private String contextPath = "";
@@ -221,10 +228,12 @@ class DummyRequest implements HttpServletRequest {
         throw new UnsupportedOperationException();
     }
 
+    @SuppressWarnings("rawtypes")
     public Enumeration getHeaderNames() {
         throw new UnsupportedOperationException();
     }
 
+    @SuppressWarnings("rawtypes")
     public Enumeration getHeaders(String name) {
         throw new UnsupportedOperationException();
     }
@@ -285,6 +294,7 @@ class DummyRequest implements HttpServletRequest {
         throw new UnsupportedOperationException();
     }
 
+    @SuppressWarnings("rawtypes")
     public Enumeration getAttributeNames() {
         throw new UnsupportedOperationException();
     }
@@ -322,6 +332,7 @@ class DummyRequest implements HttpServletRequest {
         throw new UnsupportedOperationException();
     }
 
+    @SuppressWarnings("rawtypes")
     public Enumeration getLocales() {
         throw new UnsupportedOperationException();
     }
@@ -330,10 +341,12 @@ class DummyRequest implements HttpServletRequest {
         throw new UnsupportedOperationException();
     }
 
+    @SuppressWarnings("rawtypes")
     public Map getParameterMap() {
         throw new UnsupportedOperationException();
     }
 
+    @SuppressWarnings("rawtypes")
     public Enumeration getParameterNames() {
         throw new UnsupportedOperationException();
     }
@@ -397,9 +410,56 @@ class DummyRequest implements HttpServletRequest {
     public void setCharacterEncoding(String env) throws UnsupportedEncodingException {
         throw new UnsupportedOperationException();
     }
+
+    public ServletContext getServletContext() {
+        throw new UnsupportedOperationException();
+    }
+
+    public AsyncContext startAsync() {
+        throw new UnsupportedOperationException();
+    }
+
+    public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean isAsyncStarted() {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean isAsyncSupported() {
+        throw new UnsupportedOperationException();
+    }
+
+    public AsyncContext getAsyncContext() {
+        throw new UnsupportedOperationException();
+    }
+
+    public DispatcherType getDispatcherType() {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
+        throw new UnsupportedOperationException();
+    }
+
+    public void login(String username, String password) throws ServletException {
+        throw new UnsupportedOperationException();
+    }
+
+    public void logout() throws ServletException {
+        throw new UnsupportedOperationException();
+    }
+
+    public Collection<Part> getParts() throws IOException, IllegalStateException, ServletException {
+        throw new UnsupportedOperationException();
+    }
+
+    public Part getPart(String name) throws IOException, IllegalStateException, ServletException {
+        throw new UnsupportedOperationException();
+    }
 }
 
-@SuppressWarnings({"deprecation"})
 class DummyResponse implements HttpServletResponse {
     public void addCookie(Cookie cookie) {
         throw new UnsupportedOperationException();
@@ -527,6 +587,22 @@ class DummyResponse implements HttpServletResponse {
     }
 
     public void setLocale(Locale loc) {
+        throw new UnsupportedOperationException();
+    }
+
+    public int getStatus() {
+        throw new UnsupportedOperationException();
+    }
+
+    public String getHeader(String name) {
+        throw new UnsupportedOperationException();
+    }
+
+    public Collection<String> getHeaders(String name) {
+        throw new UnsupportedOperationException();
+    }
+
+    public Collection<String> getHeaderNames() {
         throw new UnsupportedOperationException();
     }
 }

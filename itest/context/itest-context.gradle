@@ -10,7 +10,7 @@ dependencies {
                 "org.springframework:spring-beans:$springVersion"
 
     testCompile project(':spring-security-web'),
-                'javax.servlet:servlet-api:2.5',
+                "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion",
                 "org.springframework:spring-web:$springVersion"
     testRuntime project(':spring-security-config')
 

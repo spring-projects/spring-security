@@ -110,7 +110,7 @@ public class DefaultSavedRequest implements SavedRequest {
         }
 
         // Parameters
-        Map<String,Object> parameters = request.getParameterMap();
+        Map<String,String[]> parameters = request.getParameterMap();
 
         for(String paramName : parameters.keySet()) {
             Object paramValues = parameters.get(paramName);

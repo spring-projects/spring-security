@@ -24,9 +24,9 @@ dependencies {
             'org.aspectj:aspectjrt:1.6.8',
             'org.hibernate:ejb3-persistence:1.0.2.GA',
             'javax.persistence:persistence-api:1.0',
-            'org.slf4j:jcl-over-slf4j:1.5.11'            
+            'org.slf4j:jcl-over-slf4j:1.5.11'
 
-    providedCompile 'javax.servlet:servlet-api:2.5'
+    providedCompile "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion"
 
     runtime 'org.hibernate:hibernate-entitymanager:3.4.0.GA',
             "org.springframework:spring-context-support:$springVersion",

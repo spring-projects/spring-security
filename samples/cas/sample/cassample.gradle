@@ -30,7 +30,7 @@ eclipse.classpath.plusConfigurations += configurations.integrationTestRuntime
 dependencies {
     groovy 'org.codehaus.groovy:groovy:1.8.7'
 
-    providedCompile 'javax.servlet:servlet-api:2.5@jar'
+    providedCompile "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion"
 
     compile project(':spring-security-core'),
             project(':spring-security-cas'),

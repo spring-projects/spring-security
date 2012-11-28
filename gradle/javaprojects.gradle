@@ -16,6 +16,7 @@ ext.slf4jVersion = '1.6.1'
 ext.logbackVersion = '0.9.29'
 ext.cglibVersion = '2.2'
 ext.powerMockVersion = '1.4.12'
+ext.servletApiVersion = '7.0.33'
 
 ext.powerMockDependencies = [
     "org.powermock:powermock-core:$powerMockVersion",

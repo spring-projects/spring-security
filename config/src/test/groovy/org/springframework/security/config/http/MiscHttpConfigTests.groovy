@@ -54,6 +54,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationEn
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository
 import org.springframework.security.web.context.SecurityContextPersistenceFilter
+import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter
@@ -79,6 +80,7 @@ import org.springframework.security.authentication.AuthenticationManager
  * @author Rob Winch
  */
 class MiscHttpConfigTests extends AbstractHttpConfigTests {
+
     def 'Minimal configuration parses'() {
         setup:
         xml.http {
@@ -101,6 +103,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         Iterator<Filter> filters = filterList.iterator();
 
         assert filters.next() instanceof SecurityContextPersistenceFilter
+        assert filters.next() instanceof WebAsyncManagerIntegrationFilter
         assert filters.next() instanceof LogoutFilter
         Object authProcFilter = filters.next();
         assert authProcFilter instanceof UsernamePasswordAuthenticationFilter
@@ -181,7 +184,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         expect:
-        getFilters("/anything")[5] instanceof AnonymousAuthenticationFilter
+        getFilters("/anything")[6] instanceof AnonymousAuthenticationFilter
     }
 
     def anonymousFilterIsRemovedIfDisabledFlagSet() {
@@ -354,7 +357,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         AUTO_CONFIG_FILTERS + 3 == filters.size();
         filters[0] instanceof SecurityContextHolderAwareRequestFilter
         filters[1] instanceof SecurityContextPersistenceFilter
-        filters[4] instanceof SecurityContextHolderAwareRequestFilter
+        filters[5] instanceof SecurityContextHolderAwareRequestFilter
         filters[1] instanceof SecurityContextPersistenceFilter
     }
 
@@ -377,7 +380,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         expect:
-        getFilters("/someurl")[2] instanceof X509AuthenticationFilter
+        getFilters("/someurl")[3] instanceof X509AuthenticationFilter
     }
 
     def x509SubjectPrincipalRegexCanBeSetUsingPropertyPlaceholder() {

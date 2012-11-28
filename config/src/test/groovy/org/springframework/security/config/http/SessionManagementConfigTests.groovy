@@ -305,7 +305,7 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
             'session-management'('session-fixation-protection': 'none', 'invalid-session-url': '/timeoutUrl')
         }
         createAppContext()
-        def filter = getFilters("/someurl")[8]
+        def filter = getFilters("/someurl")[9]
 
         expect:
         filter instanceof SessionManagementFilter

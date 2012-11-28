@@ -21,7 +21,7 @@ repositories {
 configurations.runtime.exclude(group: 'ch.qos.logback')
 
 dependencies {
-    providedCompile 'javax.servlet:servlet-api:2.5@jar'
+    providedCompile "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion"
 
     compile project(':spring-security-core'),
             project(':spring-security-web'),

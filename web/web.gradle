@@ -9,7 +9,7 @@ dependencies {
             "org.springframework:spring-tx:$springVersion",
             "org.springframework:spring-web:$springVersion"
 
-    provided 'javax.servlet:servlet-api:2.5'
+    provided "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion"
 
     testCompile project(':spring-security-core').sourceSets.test.output,
                 'commons-codec:commons-codec:1.3',

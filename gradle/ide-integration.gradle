@@ -39,10 +39,29 @@ configure(javaProjects) {
     }
 }
 
-// STS-2723
-project(':spring-security-samples-aspectj') {
+// STS-3057
+configure(allprojects) {
     task afterEclipseImport {
         ext.srcFile = file('.classpath')
+        inputs.file srcFile
+        outputs.dir srcFile
+
+        onlyIf { srcFile.exists() }
+
+        doLast {
+            def classpath = new XmlParser().parse(srcFile)
+            classpath.classpathentry.findAll{ it.@path == 'GROOVY_SUPPORT' }.each { classpath.remove(it) }
+
+            def writer = new FileWriter(srcFile)
+            new XmlNodePrinter(new PrintWriter(writer)).print(classpath)
+        }
+    }
+}
+
+// STS-2723
+project(':spring-security-samples-aspectj') {
+    task afterEclipseImportAjdtFix {
+        ext.srcFile = afterEclipseImport.srcFile
         inputs.file srcFile
         outputs.dir srcFile
 
@@ -63,4 +82,6 @@ project(':spring-security-samples-aspectj') {
             new XmlNodePrinter(new PrintWriter(writer)).print(classpath)
         }
     }
+    afterEclipseImport.dependsOn afterEclipseImportAjdtFix
 }
+

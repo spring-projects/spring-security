@@ -1,13 +1,23 @@
 package org.springframework.security.web.authentication.rememberme;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.powermock.api.mockito.PowerMockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.core.classloader.annotations.PrepareOnlyThisForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
@@ -19,17 +29,16 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
-import org.springframework.security.web.authentication.rememberme.CookieTheftException;
-import org.springframework.security.web.authentication.rememberme.InvalidCookieException;
-import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationException;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
  * @author Luke Taylor
  */
 @SuppressWarnings("unchecked")
+@RunWith(PowerMockRunner.class)
+@PrepareOnlyThisForTest(ReflectionUtils.class)
 public class AbstractRememberMeServicesTests {
     static User joe = new User("joe", "password", true, true,true,true, AuthorityUtils.createAuthorityList("ROLE_A"));
 
@@ -333,6 +342,9 @@ public class AbstractRememberMeServicesTests {
 
     @Test
     public void setHttpOnlyIgnoredForServlet25() throws Exception {
+        spy(ReflectionUtils.class);
+        when(ReflectionUtils.findMethod(Cookie.class,"setHttpOnly", boolean.class)).thenReturn(null);
+
         MockRememberMeServices services = new MockRememberMeServices();
         assertNull(ReflectionTestUtils.getField(services, "setHttpOnlyMethod"));
 

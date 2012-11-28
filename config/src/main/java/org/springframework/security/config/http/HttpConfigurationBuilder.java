@@ -21,6 +21,8 @@ import static org.springframework.security.config.http.SecurityFilters.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.ServletRequest;
+
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -53,6 +55,7 @@ import org.springframework.security.web.authentication.session.SessionFixationPr
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.NullSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.NullRequestCache;
@@ -61,6 +64,7 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
 import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -102,6 +106,7 @@ class HttpConfigurationBuilder {
     private BeanReference contextRepoRef;
     private BeanReference sessionRegistryRef;
     private BeanDefinition concurrentSessionFilter;
+    private BeanDefinition webAsyncManagerFilter;
     private BeanDefinition requestCacheAwareFilter;
     private BeanReference sessionStrategyRef;
     private RootBeanDefinition sfpf;
@@ -114,7 +119,6 @@ class HttpConfigurationBuilder {
 
     public HttpConfigurationBuilder(Element element, ParserContext pc,
             BeanReference portMapper, BeanReference portResolver, BeanReference authenticationManager) {
-
         this.httpElt = element;
         this.pc = pc;
         this.portMapper = portMapper;
@@ -140,6 +144,7 @@ class HttpConfigurationBuilder {
 
         createSecurityContextPersistenceFilter();
         createSessionManagementFilters();
+        createWebAsyncManagerFilter();
         createRequestCacheFilter();
         createServletApiFilter();
         createJaasApiFilter();
@@ -350,6 +355,13 @@ class HttpConfigurationBuilder {
         sessionRegistryRef = new RuntimeBeanReference(sessionRegistryId);
     }
 
+    private void createWebAsyncManagerFilter() {
+        boolean asyncSupported = ClassUtils.hasMethod(ServletRequest.class, "startAsync");
+        if(asyncSupported) {
+            webAsyncManagerFilter = new RootBeanDefinition(WebAsyncManagerIntegrationFilter.class);
+        }
+    }
+
     // Adds the servlet-api integration filter if required
     private void createServletApiFilter() {
         final String ATT_SERVLET_API_PROVISION = "servlet-api-provision";
@@ -550,6 +562,10 @@ class HttpConfigurationBuilder {
 
         if (concurrentSessionFilter != null) {
             filters.add(new OrderDecorator(concurrentSessionFilter, CONCURRENT_SESSION_FILTER));
+        }
+
+        if (webAsyncManagerFilter != null) {
+            filters.add(new OrderDecorator(webAsyncManagerFilter, WEB_ASYNC_MANAGER_FILTER));
         }
 
         filters.add(new OrderDecorator(securityContextPersistenceFilter, SECURITY_CONTEXT_FILTER));
