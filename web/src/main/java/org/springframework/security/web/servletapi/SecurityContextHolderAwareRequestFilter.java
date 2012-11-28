@@ -24,6 +24,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.web.filter.GenericFilterBean;
 
 
@@ -40,17 +41,26 @@ import org.springframework.web.filter.GenericFilterBean;
 public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
     //~ Instance fields ================================================================================================
 
-    private String rolePrefix;
+    private HttpServletRequestFactory requestFactory;
+
+    public SecurityContextHolderAwareRequestFilter() {
+        setRequestFactory(null);
+    }
 
     //~ Methods ========================================================================================================
 
     public void setRolePrefix(String rolePrefix) {
         Assert.notNull(rolePrefix, "Role prefix must not be null");
-        this.rolePrefix = rolePrefix.trim();
+        setRequestFactory(rolePrefix.trim());
+    }
+
+    private void setRequestFactory(String rolePrefix) {
+        boolean isServlet3 = ClassUtils.hasMethod(ServletRequest.class, "startAsync");
+        requestFactory = isServlet3 ? new HttpServlet3RequestFactory(rolePrefix) : new HttpServlet25RequestFactory(rolePrefix);
     }
 
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
-        chain.doFilter(new SecurityContextHolderAwareRequestWrapper((HttpServletRequest) req, rolePrefix), res);
+        chain.doFilter(requestFactory.create((HttpServletRequest)req), res);
     }
 }
