@@ -20,14 +20,17 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- * Base class for response wrappers which encapsulate the logic for storing a security context and which
- * store the <code>SecurityContext</code> when a <code>sendError()</code>, <code>sendRedirect</code>,
+ * Base class for response wrappers which encapsulate the logic for storing a security context and which store the
+ * <code>SecurityContext</code> when a <code>sendError()</code>, <code>sendRedirect</code>,
  * <code>getOutputStream().close()</code>, <code>getOutputStream().flush()</code>, <code>getWriter().close()</code>, or
- * <code>getWriter().flush()</code> happens. See issue SEC-398 and SEC-2005.
+ * <code>getWriter().flush()</code> happens on the same thread that this
+ * {@link SaveContextOnUpdateOrErrorResponseWrapper} was created. See issue SEC-398 and SEC-2005.
  * <p>
  * Sub-classes should implement the {@link #saveContext(SecurityContext context)} method.
  * <p>
@@ -39,6 +42,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @since 3.0
  */
 public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends HttpServletResponseWrapper {
+    private final Log logger = LogFactory.getLog(getClass());
+
+    private final Thread SUPPORTED_THREAD = Thread.currentThread();
 
     private boolean contextSaved = false;
     /* See SEC-1052 */
@@ -120,11 +126,19 @@ public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends HttpServ
     }
 
     /**
-     * Calls <code>saveContext()</code> with the current contents of the <tt>SecurityContextHolder</tt>.
+     * Calls <code>saveContext()</code> with the current contents of the <tt>SecurityContextHolder</tt> as long as
+     * {@link #doSaveContext()} is invoked on the same Thread that {@link SaveContextOnUpdateOrErrorResponseWrapper} was
+     * created on. This prevents issues when dealing with Async Web Requests where the {@link SecurityContext} is not
+     * present on the Thread that processes the response.
      */
     private void doSaveContext() {
-        saveContext(SecurityContextHolder.getContext());
-        contextSaved = true;
+        Thread currentThread = Thread.currentThread();
+        if(SUPPORTED_THREAD == currentThread) {
+            saveContext(SecurityContextHolder.getContext());
+            contextSaved = true;
+        } else if(logger.isDebugEnabled()){
+            logger.debug("Skip saving SecurityContext since processing the HttpServletResponse on a different Thread than the original HttpServletRequest");
+        }
     }
 
     @Override
