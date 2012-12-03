@@ -1,12 +1,27 @@
+/*
+ * Copyright 2002-2012 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ */
 package org.springframework.security.web.util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import org.junit.*;
+import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 /**
  * @author Luke Taylor
+ * @author Rob Winch
  */
 public class AntPathRequestMatcherTests {
 
@@ -44,6 +59,39 @@ public class AntPathRequestMatcherTests {
         assertTrue(matcher.matches(createRequest("/blah/blah")));
         assertFalse(matcher.matches(createRequest("/blah/bleh")));
         assertTrue(matcher.matches(createRequest("/blah/aaa/blah/bbb")));
+    }
+
+    @Test
+    public void requestHasNullMethodMatches() {
+        AntPathRequestMatcher matcher = new AntPathRequestMatcher("/something/*", "GET");
+        MockHttpServletRequest request = createRequest("/something/here");
+        request.setMethod(null);
+        assertTrue(matcher.matches(request));
+    }
+
+    // SEC-2084
+    @Test
+    public void requestHasNullMethodNoMatch() {
+        AntPathRequestMatcher matcher = new AntPathRequestMatcher("/something/*", "GET");
+        MockHttpServletRequest request = createRequest("/nomatch");
+        request.setMethod(null);
+        assertFalse(matcher.matches(request));
+    }
+
+    @Test
+    public void requestHasNullMethodAndNullMatcherMatches() {
+        AntPathRequestMatcher matcher = new AntPathRequestMatcher("/something/*");
+        MockHttpServletRequest request = createRequest("/something/here");
+        request.setMethod(null);
+        assertTrue(matcher.matches(request));
+    }
+
+    @Test
+    public void requestHasNullMethodAndNullMatcherNoMatch() {
+        AntPathRequestMatcher matcher = new AntPathRequestMatcher("/something/*");
+        MockHttpServletRequest request = createRequest("/nomatch");
+        request.setMethod(null);
+        assertFalse(matcher.matches(request));
     }
 
     @Test
