@@ -35,10 +35,10 @@
   <property name="accessDecisionManager" ref="accessDecisionManager"/>
   <property name="afterInvocationManager" ref="afterInvocationManager"/>
   <property name="securityMetadataSource">
-    <value>
-      com.mycompany.BankManager.delete*=ROLE_SUPERVISOR
-      com.mycompany.BankManager.getBalance=ROLE_TELLER,ROLE_SUPERVISOR
-    </value>
+    <sec:method-security-metadata-source>
+      <sec:protect method="com.mycompany.BankManager.delete*" access="ROLE_SUPERVISOR"/>
+      <sec:protect method="com.mycompany.BankManager.getBalance" access="ROLE_TELLER,ROLE_SUPERVISOR"/>
+    </sec:method-security-metadata-source>
   </property>
 </bean> ]]>
 </programlisting></para>
@@ -69,10 +69,10 @@
   <property name="accessDecisionManager" ref="accessDecisionManager"/>
   <property name="afterInvocationManager" ref="afterInvocationManager"/>
   <property name="securityMetadataSource">
-    <value>
-        com.mycompany.BankManager.delete*=ROLE_SUPERVISOR
-        com.mycompany.BankManager.getBalance=ROLE_TELLER,ROLE_SUPERVISOR
-    </value>
+    <sec:method-security-metadata-source>
+      <sec:protect method="com.mycompany.BankManager.delete*" access="ROLE_SUPERVISOR"/>
+      <sec:protect method="com.mycompany.BankManager.getBalance" access="ROLE_TELLER,ROLE_SUPERVISOR"/>
+    </sec:method-security-metadata-source>
 </property>
 </bean>]]>        </programlisting>
         <para>As you can see, aside from the class name, the
