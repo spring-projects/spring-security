@@ -64,7 +64,7 @@
             configured in the Spring application context:</para>
         <programlisting language="xml"><![CDATA[
 <bean id="bankManagerSecurity" class=
-    "org.springframework.security.access.intercept.aspectj.AspectJSecurityInterceptor">
+    "org.springframework.security.access.intercept.aspectj.AspectJMethodSecurityInterceptor">
   <property name="authenticationManager" ref="authenticationManager"/>
   <property name="accessDecisionManager" ref="accessDecisionManager"/>
   <property name="afterInvocationManager" ref="afterInvocationManager"/>
