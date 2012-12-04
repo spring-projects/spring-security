@@ -1,8 +1,26 @@
+/*
+ * Copyright 2002-2012 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ */
 package org.springframework.security.web.authentication.preauth;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -19,9 +37,17 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 
+/**
+ *
+ * @author Rob Winch
+ *
+ */
 public class AbstractPreAuthenticatedProcessingFilterTests {
     private AbstractPreAuthenticatedProcessingFilter filter;
 
@@ -123,6 +149,111 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
         assertEquals(authentication, SecurityContextHolder.getContext().getAuthentication());
     }
 
+    @Test
+    public void requiresAuthenticationFalsePrincipalString() throws Exception {
+        Object principal = "sameprincipal";
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(principal, "something", "ROLE_USER"));
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+
+        ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
+        filter.setCheckForPrincipalChanges(true);
+        filter.principal = principal;
+        AuthenticationManager am = mock(AuthenticationManager.class);
+        filter.setAuthenticationManager(am);
+        filter.afterPropertiesSet();
+
+        filter.doFilter(request, response, chain);
+
+        verifyZeroInteractions(am);
+    }
+
+    @Test
+    public void requiresAuthenticationTruePrincipalString() throws Exception {
+        Object currentPrincipal = "currentUser";
+        TestingAuthenticationToken authRequest = new TestingAuthenticationToken(currentPrincipal, "something", "ROLE_USER");
+        SecurityContextHolder.getContext().setAuthentication(authRequest);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+
+        ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
+        filter.setCheckForPrincipalChanges(true);
+        filter.principal = "newUser";
+        AuthenticationManager am = mock(AuthenticationManager.class);
+        filter.setAuthenticationManager(am);
+        filter.afterPropertiesSet();
+
+        filter.doFilter(request, response, chain);
+
+        verify(am).authenticate(any(PreAuthenticatedAuthenticationToken.class));
+    }
+
+    // SEC-2078
+    @Test
+    public void requiresAuthenticationFalsePrincipalNotString() throws Exception {
+        Object principal = new Object();
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(principal, "something", "ROLE_USER"));
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+
+        ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
+        filter.setCheckForPrincipalChanges(true);
+        filter.principal = principal;
+        AuthenticationManager am = mock(AuthenticationManager.class);
+        filter.setAuthenticationManager(am);
+        filter.afterPropertiesSet();
+
+        filter.doFilter(request, response, chain);
+
+        verifyZeroInteractions(am);
+    }
+
+    @Test
+    public void requiresAuthenticationFalsePrincipalUser() throws Exception {
+        User currentPrincipal = new User("user","password", AuthorityUtils.createAuthorityList("ROLE_USER"));
+        UsernamePasswordAuthenticationToken currentAuthentication = new UsernamePasswordAuthenticationToken(
+                currentPrincipal, currentPrincipal.getPassword(), currentPrincipal.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(currentAuthentication);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+
+        ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
+        filter.setCheckForPrincipalChanges(true);
+        filter.principal = new User(currentPrincipal.getUsername(), currentPrincipal.getPassword(), AuthorityUtils.NO_AUTHORITIES);
+        AuthenticationManager am = mock(AuthenticationManager.class);
+        filter.setAuthenticationManager(am);
+        filter.afterPropertiesSet();
+
+        filter.doFilter(request, response, chain);
+
+        verifyZeroInteractions(am);
+    }
+
+    @Test
+    public void requiresAuthenticationTruePrincipalNotString() throws Exception {
+        Object currentPrincipal = new Object();
+        TestingAuthenticationToken authRequest = new TestingAuthenticationToken(currentPrincipal, "something", "ROLE_USER");
+        SecurityContextHolder.getContext().setAuthentication(authRequest);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+
+        ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
+        filter.setCheckForPrincipalChanges(true);
+        filter.principal = new Object();
+        AuthenticationManager am = mock(AuthenticationManager.class);
+        filter.setAuthenticationManager(am);
+        filter.afterPropertiesSet();
+
+        filter.doFilter(request, response, chain);
+
+        verify(am).authenticate(any(PreAuthenticatedAuthenticationToken.class));
+    }
+
     private void testDoFilter(boolean grantAccess) throws Exception {
         MockHttpServletRequest req = new MockHttpServletRequest();
         MockHttpServletResponse res = new MockHttpServletResponse();
@@ -150,7 +281,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
     }
 
     private static class ConcretePreAuthenticatedProcessingFilter extends AbstractPreAuthenticatedProcessingFilter {
-        private String principal = "testPrincipal";
+        private Object principal = "testPrincipal";
         private boolean initFilterBeanInvoked;
         protected Object getPreAuthenticatedPrincipal(HttpServletRequest httpRequest) {
             return principal;
