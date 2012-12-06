@@ -250,9 +250,9 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
     }
 
     /**
-     * If set, the pre-authenticated principal will be checked on each request and compared against the name of the
-     * current <tt>Authentication</tt> object. A check to determine if {@link Authentication#getPrincipal()} is equal
-     * to the principal will also be performed. If a change is detected, the user will be reauthenticated.
+     * If set, the pre-authenticated principal will be checked on each request and compared
+     * against the name of the current <tt>Authentication</tt> object. If a change is detected,
+     * the user will be reauthenticated.
      *
      * @param checkForPrincipalChanges
      */
