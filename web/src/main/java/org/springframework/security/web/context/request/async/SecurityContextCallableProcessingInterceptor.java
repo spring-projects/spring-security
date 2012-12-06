@@ -29,7 +29,7 @@ import org.springframework.web.context.request.async.CallableProcessingIntercept
  * A {@link CallableProcessingInterceptor} that establishes the injected {@link SecurityContext} on the
  * {@link SecurityContextHolder} when {@link #preProcess(NativeWebRequest, Callable)} is invoked. It also clear out the
  * {@link SecurityContextHolder} by invoking {@link SecurityContextHolder#clearContext()} in the
- * {@link #afterCompletion(NativeWebRequest, Callable)} method.
+ * {@link #postProcess(NativeWebRequest, Callable, Object)} method.
  * </p>
  *
  * @author Rob Winch
@@ -64,13 +64,13 @@ public final class SecurityContextCallableProcessingInterceptor extends Callable
     }
 
     @Override
-    public <T> void afterCompletion(NativeWebRequest request, Callable<T> task) throws Exception {
-        SecurityContextHolder.clearContext();
+    public <T> void preProcess(NativeWebRequest request, Callable<T> task) throws Exception {
+        SecurityContextHolder.setContext(securityContext);
     }
 
     @Override
-    public <T> void preProcess(NativeWebRequest request, Callable<T> task) throws Exception {
-        SecurityContextHolder.setContext(securityContext);
+    public <T> void postProcess(NativeWebRequest request, Callable<T> task, Object concurrentResult) throws Exception {
+        SecurityContextHolder.clearContext();
     }
 
     private void setSecurityContext(SecurityContext securityContext) {

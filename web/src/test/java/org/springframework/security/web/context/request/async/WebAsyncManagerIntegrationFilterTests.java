@@ -31,7 +31,9 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.async.AsyncWebRequest;
+import org.springframework.web.context.request.async.CallableProcessingInterceptorAdapter;
 import org.springframework.web.context.request.async.WebAsyncManager;
 import org.springframework.web.context.request.async.WebAsyncUtils;
 
@@ -84,6 +86,13 @@ public class WebAsyncManagerIntegrationFilterTests {
     @Test
     public void doFilterInternalRegistersSecurityContextCallableProcessor() throws Exception {
         SecurityContextHolder.setContext(securityContext);
+        asyncManager.registerCallableInterceptors(new CallableProcessingInterceptorAdapter() {
+            @Override
+            public <T> void postProcess(NativeWebRequest request, Callable<T> task, Object concurrentResult)
+                    throws Exception {
+                assertThat(SecurityContextHolder.getContext()).isNotSameAs(securityContext);
+            }
+        });
         filter.doFilterInternal(request, response, filterChain);
 
         VerifyingCallable verifyingCallable = new VerifyingCallable();
@@ -95,6 +104,13 @@ public class WebAsyncManagerIntegrationFilterTests {
     @Test
     public void doFilterInternalRegistersSecurityContextCallableProcessorContextUpdated() throws Exception {
         SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext());
+        asyncManager.registerCallableInterceptors(new CallableProcessingInterceptorAdapter() {
+            @Override
+            public <T> void postProcess(NativeWebRequest request, Callable<T> task, Object concurrentResult)
+                    throws Exception {
+                assertThat(SecurityContextHolder.getContext()).isNotSameAs(securityContext);
+            }
+        });
         filter.doFilterInternal(request, response, filterChain);
         SecurityContextHolder.setContext(securityContext);
 

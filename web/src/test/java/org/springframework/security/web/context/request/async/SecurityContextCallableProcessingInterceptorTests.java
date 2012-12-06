@@ -59,7 +59,7 @@ public class SecurityContextCallableProcessingInterceptorTests {
         interceptor.preProcess(webRequest, callable);
         assertThat(SecurityContextHolder.getContext()).isSameAs(securityContext);
 
-        interceptor.afterCompletion(webRequest, callable);
+        interceptor.postProcess(webRequest, callable, null);
         assertThat(SecurityContextHolder.getContext()).isNotSameAs(securityContext);
     }
 
@@ -71,7 +71,7 @@ public class SecurityContextCallableProcessingInterceptorTests {
         interceptor.preProcess(webRequest, callable);
         assertThat(SecurityContextHolder.getContext()).isSameAs(securityContext);
 
-        interceptor.afterCompletion(webRequest, callable);
+        interceptor.postProcess(webRequest, callable, null);
         assertThat(SecurityContextHolder.getContext()).isNotSameAs(securityContext);
     }
 }
