@@ -95,6 +95,8 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
     private final String rootDn;
     private final String url;
     private boolean convertSubErrorCodesToExceptions;
+    private String searchFilter = "(&(objectClass=user)(userPrincipalName={0}))";
+    private boolean searchByBindPrincipal = true;
 
     // Only used to allow tests to substitute a mock LdapContext
     ContextFactory contextFactory = new ContextFactory();
@@ -169,7 +171,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 
         Hashtable<String,String> env = new Hashtable<String,String>();
         env.put(Context.SECURITY_AUTHENTICATION, "simple");
-        String bindPrincipal = createBindPrincipal(username);
+        String bindPrincipal = searchByBindPrincipal ? createBindPrincipal(username) : username;
         env.put(Context.SECURITY_PRINCIPAL, bindPrincipal);
         env.put(Context.PROVIDER_URL, bindUrl);
         env.put(Context.SECURITY_CREDENTIALS, password);
@@ -273,9 +275,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
         SearchControls searchCtls = new SearchControls();
         searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-        String searchFilter = "(&(objectClass=user)(userPrincipalName={0}))";
-
-        final String bindPrincipal = createBindPrincipal(username);
+        final String bindPrincipal = searchByBindPrincipal ? createBindPrincipal(username) : username;
 
         String searchRoot = rootDn != null ? rootDn : searchRootFromPrincipal(bindPrincipal);
 
@@ -339,6 +339,31 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
     public void setConvertSubErrorCodesToExceptions(boolean convertSubErrorCodesToExceptions) {
         this.convertSubErrorCodesToExceptions = convertSubErrorCodesToExceptions;
     }
+
+    /**
+     * If this property is set to {@code true}, the bind principal ({@code user@domain})
+     * is used to bind and lookup users's authorities.
+     * If set to {@code false} only the username is used.
+     * Defaults to {@code true}.
+     *
+     * @param searchByBindPrincipal
+     */
+    public void setSearchByBindPrincipal(boolean searchByBindPrincipal)
+	{
+		this.searchByBindPrincipal = searchByBindPrincipal;
+	}
+
+    /**
+     * Custom search filter that is used to lookup user's authorities.
+     * Occurrences of {0} are replaced with the username or bind principal, depending on {@link #searchByBindPrincipal}.
+     * The default is: {@code (&amp;(objectClass=user)(userPrincipalName={0})) }.
+     *
+     * @param searchFilter
+     */
+    public void setSearchFilter(String searchFilter)
+	{
+		this.searchFilter = searchFilter;
+	}
 
     static class ContextFactory {
         DirContext createContext(Hashtable<?,?> env) throws NamingException {
