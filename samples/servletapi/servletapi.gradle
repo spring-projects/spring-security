@@ -1,0 +1,34 @@
+// Servlet API integration sample build file
+
+apply plugin: 'war'
+
+def excludeModules = ['spring-security-acl', 'jsr250-api', 'ehcache', 'spring-jdbc', 'spring-tx']
+
+configurations {
+    excludeModules.each {name ->
+        runtime.exclude module: name
+    }
+
+    runtime.exclude group: 'org.aspectj'
+}
+
+dependencies {
+    providedCompile "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion"
+
+    compile project(':spring-security-core'),
+            project(':spring-security-web'),
+            "javax.servlet:jstl:$jstlVersion",
+            "org.springframework:spring-beans:$springVersion",
+            "org.springframework:spring-context:$springVersion",
+            "org.springframework:spring-web:$springVersion",
+            "org.springframework:spring-webmvc:$springVersion"
+
+    runtime project(':spring-security-config'),
+            project(':spring-security-taglibs'),
+            "org.springframework:spring-context-support:$springVersion",
+            "javax.servlet:jstl:$jstlVersion",
+            "org.slf4j:jcl-over-slf4j:$slf4jVersion",
+            "ch.qos.logback:logback-classic:$logbackVersion"
+}
+
+eclipse.wtp.component.contextPath = "servletapi"

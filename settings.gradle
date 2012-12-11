@@ -23,7 +23,8 @@ def String[] samples = [
     'cas/server',
     'cas/sample',
     'ldap',
-    'jaas'
+    'jaas',
+    'servletapi'
 ]
 
 def String[] itest = [
