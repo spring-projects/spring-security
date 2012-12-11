@@ -23,6 +23,7 @@ import java.util.List;
 
 import javax.servlet.ServletRequest;
 
+import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -146,7 +147,7 @@ class HttpConfigurationBuilder {
         createSessionManagementFilters();
         createWebAsyncManagerFilter();
         createRequestCacheFilter();
-        createServletApiFilter();
+        createServletApiFilter(authenticationManager);
         createJaasApiFilter();
         createChannelProcessingFilter();
         createFilterSecurityInterceptor(authenticationManager);
@@ -154,8 +155,19 @@ class HttpConfigurationBuilder {
 
     @SuppressWarnings("rawtypes")
     void setLogoutHandlers(ManagedList logoutHandlers) {
-        if(logoutHandlers != null && concurrentSessionFilter != null) {
-            concurrentSessionFilter.getPropertyValues().add("logoutHandlers", logoutHandlers);
+        if(logoutHandlers != null) {
+            if(concurrentSessionFilter != null) {
+                concurrentSessionFilter.getPropertyValues().add("logoutHandlers", logoutHandlers);
+            }
+            if(servApiFilter != null) {
+                servApiFilter.getPropertyValues().add("logoutHandlers", logoutHandlers);
+            }
+        }
+    }
+
+    void setEntryPoint(BeanMetadataElement entryPoint) {
+        if(servApiFilter != null) {
+            servApiFilter.getPropertyValues().add("authenticationEntryPoint", entryPoint);
         }
     }
 
@@ -363,7 +375,7 @@ class HttpConfigurationBuilder {
     }
 
     // Adds the servlet-api integration filter if required
-    private void createServletApiFilter() {
+    private void createServletApiFilter(BeanReference authenticationManager) {
         final String ATT_SERVLET_API_PROVISION = "servlet-api-provision";
         final String DEF_SERVLET_API_PROVISION = "true";
 
@@ -374,6 +386,7 @@ class HttpConfigurationBuilder {
 
         if ("true".equals(provideServletApi)) {
             servApiFilter = new RootBeanDefinition(SecurityContextHolderAwareRequestFilter.class);
+            servApiFilter.getPropertyValues().add("authenticationManager", authenticationManager);
         }
     }
 

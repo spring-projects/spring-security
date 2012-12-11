@@ -33,8 +33,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 /**
  * A Spring Security-aware <code>HttpServletRequestWrapper</code>, which uses the
  * <code>SecurityContext</code>-defined <code>Authentication</code> object to implement the servlet API security
- * methods {@link SecurityContextHolderAwareRequestWrapper#isUserInRole(String)} and {@link
- * HttpServletRequestWrapper#getRemoteUser()}.
+ * methods:
+ *
+ * <ul>
+ * <li>{@link #getUserPrincipal()}</li>
+ * <li>{@link SecurityContextHolderAwareRequestWrapper#isUserInRole(String)}</li>
+ * <li>{@link HttpServletRequestWrapper#getRemoteUser()}.</li>
+ * </ul>
  *
  * @see SecurityContextHolderAwareRequestFilter
  *

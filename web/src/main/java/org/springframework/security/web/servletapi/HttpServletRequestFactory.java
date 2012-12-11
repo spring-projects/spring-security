@@ -13,6 +13,7 @@
 package org.springframework.security.web.servletapi;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Internal interface for creating a {@link HttpServletRequest}. This allows for creating a different implementation for
@@ -29,7 +30,8 @@ interface HttpServletRequestFactory {
      * Given a {@link HttpServletRequest} returns a {@link HttpServletRequest} that in most cases wraps the original
      * {@link HttpServletRequest}.
      * @param request the original {@link HttpServletRequest}. Cannot be null.
+     * @param response the original {@link HttpServletResponse}. Cannot be null.
      * @return a non-null HttpServletRequest
      */
-    public HttpServletRequest create(HttpServletRequest request);
+    public HttpServletRequest create(HttpServletRequest request, HttpServletResponse response);
 }

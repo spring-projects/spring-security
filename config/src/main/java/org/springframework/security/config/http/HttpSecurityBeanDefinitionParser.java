@@ -140,6 +140,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
                 httpBldr.getSessionStrategy(), portMapper, portResolver);
 
         httpBldr.setLogoutHandlers(authBldr.getLogoutHandlers());
+        httpBldr.setEntryPoint(authBldr.getEntryPointBean());
 
         authenticationProviders.addAll(authBldr.getProviders());
 

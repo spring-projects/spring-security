@@ -115,6 +115,7 @@ final class AuthenticationConfigBuilder {
     private BeanDefinition jeeFilter;
     private BeanReference jeeProviderRef;
     private RootBeanDefinition preAuthEntryPoint;
+    private BeanMetadataElement mainEntryPoint;
 
     private BeanDefinition logoutFilter;
     @SuppressWarnings("rawtypes")
@@ -499,6 +500,10 @@ final class AuthenticationConfigBuilder {
         return logoutHandlers;
     }
 
+    BeanMetadataElement getEntryPointBean() {
+        return mainEntryPoint;
+    }
+
     void createAnonymousFilter() {
         Element anonymousElt = DomUtils.getChildElementByTagName(httpElt, Elements.ANONYMOUS);
 
@@ -556,7 +561,8 @@ final class AuthenticationConfigBuilder {
         BeanDefinitionBuilder etfBuilder = BeanDefinitionBuilder.rootBeanDefinition(ExceptionTranslationFilter.class);
         etfBuilder.addPropertyValue("accessDeniedHandler", createAccessDeniedHandler(httpElt, pc));
         assert requestCache != null;
-        etfBuilder.addConstructorArgValue(selectEntryPoint());
+        mainEntryPoint = selectEntryPoint();
+        etfBuilder.addConstructorArgValue(mainEntryPoint);
         etfBuilder.addConstructorArgValue(requestCache);
 
         etf = etfBuilder.getBeanDefinition();
