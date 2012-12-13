@@ -20,6 +20,10 @@ ext.itestProjects = subprojects.findAll { project -> project.name.startsWith('it
 ext.coreModuleProjects = javaProjects - sampleProjects - itestProjects
 ext.aspectjProjects = [project(':spring-security-aspects'), project(':spring-security-samples-aspectj')]
 
+configure(subprojects - coreModuleProjects) {
+    tasks.findByPath("artifactoryPublish")?.enabled = false
+}
+
 configure(javaProjects) {
     apply from: "$rootDir/gradle/javaprojects.gradle"
 }
