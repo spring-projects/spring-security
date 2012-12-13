@@ -1,0 +1,32 @@
+task checkDependencies << {
+    verifyNoDependenciesMatchingVersion(".*-SNAPSHOT")
+    if(releaseBuild) {
+        verifyNoDependenciesMatchingVersion(".*M.*")
+        verifyNoDependenciesMatchingVersion(".*RC.*")
+    }
+}
+
+task checkRepositories << {
+    verifyNoRepositoriesMatching(".*snapshot.*")
+    if(releaseBuild) {
+        verifyNoRepositoriesMatching(".*milestone.*")
+    }
+}
+
+if(!snapshotBuild) {
+    tasks.findByPath('check')?.dependsOn checkRepositories, checkDependencies
+}
+
+def verifyNoDependenciesMatchingVersion(def pattern) {
+    def dependencies = configurations.all*.allDependencies*.findAll { d -> d.version?.matches(pattern) }.flatten().toSet().join("\n    ")
+    if(dependencies) {
+        throw new GradleException("${project.name} cannot have dependencies with a version that matches $pattern when its version is ${project.version}. Got\n    $dependencies")
+    }
+}
+
+def verifyNoRepositoriesMatching(def pattern) {
+    def matchingRepositories = repositories.findAll { r -> r.url?.toString()?.matches(pattern) }.flatten().collect { it.url }.toSet().join("\n    ")
+    if(matchingRepositories) {
+        throw new GradleException("${project.name} cannot have repositories with a version that matches $pattern when its version is ${project.version}. Got\n    $matchingRepositories")
+    }
+}

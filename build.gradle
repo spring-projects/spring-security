@@ -11,6 +11,8 @@ allprojects {
     repositories {
         maven { url "http://repo.springsource.org/libs-snapshot" }
     }
+
+
 }
 
 // Set up different subproject lists for individual configuration
@@ -26,6 +28,7 @@ configure(subprojects - coreModuleProjects) {
 
 configure(javaProjects) {
     apply from: "$rootDir/gradle/javaprojects.gradle"
+    apply from: "$rootDir/gradle/release-checks.gradle"
 }
 
 configure(coreModuleProjects) {
