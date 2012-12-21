@@ -29,7 +29,7 @@ class XsdDocumentedTests extends Specification {
     @Shared def appendix = new File('../docs/manual/src/docbook/appendix-namespace.xml')
     @Shared def appendixRoot = new XmlSlurper().parse(appendix)
 
-    @Shared File schemaDocument = new File('src/main/resources/org/springframework/security/config/spring-security-3.1.xsd')
+    @Shared File schemaDocument = new File('src/main/resources/org/springframework/security/config/spring-security-3.2.xsd')
     @Shared Map<String,Element> elementNameToElement
 
     def setupSpec() {
@@ -64,8 +64,8 @@ class XsdDocumentedTests extends Specification {
     def 'the latest schema is being validated'() {
         when: 'all the schemas are found'
         def schemas = schemaDocument.getParentFile().list().findAll { it.endsWith('.xsd') }
-        then: 'the count is equal to 7, if not then schemaDocument needs updated'
-        schemas.size() == 7
+        then: 'the count is equal to 8, if not then schemaDocument needs updated'
+        schemas.size() == 8
     }
 
     /**

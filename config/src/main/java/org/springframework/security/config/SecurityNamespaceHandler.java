@@ -180,7 +180,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 
     private boolean matchesVersionInternal(Element element) {
         String schemaLocation = element.getAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation");
-        return schemaLocation.matches("(?m).*spring-security-3\\.1.*.xsd.*")
+        return schemaLocation.matches("(?m).*spring-security-3\\.[12].*.xsd.*")
                  || schemaLocation.matches("(?m).*spring-security.xsd.*")
                  || !schemaLocation.matches("(?m).*spring-security.*");
     }
