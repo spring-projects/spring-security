@@ -34,13 +34,13 @@ public class AuthenticationManagerBeanDefinitionParserTests {
     @Test
     // SEC-1225
     public void providersAreRegisteredAsTopLevelBeans() throws Exception {
-        setContext(CONTEXT, "3.1");
+        setContext(CONTEXT, "3.2");
         assertEquals(1, appContext.getBeansOfType(AuthenticationProvider.class).size());
     }
 
     @Test
     public void eventsArePublishedByDefault() throws Exception {
-        setContext(CONTEXT, "3.1");
+        setContext(CONTEXT, "3.2");
         AuthListener listener = new AuthListener();
         appContext.addApplicationListener(listener);
 
@@ -55,14 +55,14 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 
     @Test
     public void credentialsAreClearedByDefault() throws Exception {
-        setContext(CONTEXT, "3.1");
+        setContext(CONTEXT, "3.2");
         ProviderManager pm = (ProviderManager) appContext.getBeansOfType(ProviderManager.class).values().toArray()[0];
         assertTrue(pm.isEraseCredentialsAfterAuthentication());
     }
 
     @Test
     public void clearCredentialsPropertyIsRespected() throws Exception {
-        setContext("<authentication-manager erase-credentials='false'/>", "3.1");
+        setContext("<authentication-manager erase-credentials='false'/>", "3.2");
         ProviderManager pm = (ProviderManager) appContext.getBeansOfType(ProviderManager.class).values().toArray()[0];
         assertFalse(pm.isEraseCredentialsAfterAuthentication());
     }

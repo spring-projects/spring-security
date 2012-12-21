@@ -48,7 +48,7 @@ public class SecurityNamespaceHandlerTests {
     }
 
     @Test
-    public void pre31SchemaAreNotSupported() throws Exception {
+    public void pre32SchemaAreNotSupported() throws Exception {
         try {
             new InMemoryXmlApplicationContext(
                     "<user-service id='us'>" +
@@ -57,7 +57,7 @@ public class SecurityNamespaceHandlerTests {
             );
             fail("Expected BeanDefinitionParsingException");
         } catch (BeanDefinitionParsingException expected) {
-            assertTrue(expected.getMessage().contains("You cannot use a spring-security-2.0.xsd or"));
+            assertTrue(expected.getMessage().contains("You cannot use a spring-security-2.0.xsd"));
         }
     }
 

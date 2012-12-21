@@ -612,7 +612,7 @@ class HttpConfigurationBuilder {
         }
 
         if (addHeadersFilter != null) {
-            filters.add(new OrderDecorator(addHeadersFilter, ADD_HEADERS_FILTER));
+            filters.add(new OrderDecorator(addHeadersFilter, HEADERS_FILTER));
         }
 
         return filters;

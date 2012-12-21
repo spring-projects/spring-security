@@ -15,7 +15,7 @@
         explaining their purpose. The namespace is written in <link
         xlink:href="http://www.relaxng.org/">RELAX NG</link> Compact format and later converted into
         an XSD schema. If you are familiar with this format, you may wish to examine the <link
-        xlink:href="https://fisheye.springsource.org/browse/spring-security/config/src/main/resources/org/springframework/security/config/spring-security-3.1.rnc"
+        xlink:href="https://fisheye.springsource.org/browse/spring-security/config/src/main/resources/org/springframework/security/config/spring-security-3.2.rnc"
         >schema file</link> directly.</para>
     <section xml:id="nsa-web">
         <title>Web Application Security</title>
@@ -204,68 +204,6 @@
                         access-control</link>.</para>
                 </section>
             </section>
-            <section xml:id="nsa-headers">
-                <title><literal>&lt;headers&gt;</literal></title>
-                <para>This element allows for configuring additional (security) headers to be send with the response.
-                    It enables easy configuration for several headers and also allows for setting additional custom
-                    headers through the <link xlink:href="#nsa-header">header</link> element.
-                    <itemizedlist>
-                        <listitem><literal>X-Frame-Options</literal> - Can be set using the
-                            <link xlink:href="#nsa-frame-options">frame-options</link> element. The
-                            <link xlink:href="http://en.wikipedia.org/wiki/Clickjacking#X-Frame-Options">X-Frame-Options
-                            </link> header can be used to prevent clickjacking attacks.</listitem>
-                        <listitem><literal>X-XSS-Protection</literal> - Can be set using the
-                            <link xlink:href="#nsa-xss-protection">xss-protection</link> element.
-                            The <link xlink:href="http://en.wikipedia.org/wiki/Cross-site_scripting">X-XSS-Protection
-                            </link> header can be used by browser to do basic control.</listitem>
-                        <listitem><literal>X-Content-Type-Options</literal> - Can be set using the
-                            <link xlink:href="#nsa-content-type-options">content-type-options</link> element. The
-                            <link xlink:href="">X-Content-Type-Options</link> header prevents Internet Explorer from
-                            MIME-sniffing a response away from the declared content-type. This also applies to Google
-                            Chrome, when downloading extensions. </listitem>
-                    </itemizedlist>
-                </para>
-
-                <section xml:id="nsa-frame-options">
-                    <title><literal>&lt;frame-options&gt;</literal></title>
-                    <section xml:id="nsa-frame-options-attributes">
-                        <section xml:id="nsa-frame-options-policy"></section>
-                        <section xml:id="nsa-frame-options-origin"></section>
-                    </section>
-                </section>
-                <section xml:id="nsa-xss-protection">
-                    <title><literal>&lt;xss-protection&gt;</literal></title>
-                    <section xml:id="nsa-xss-protection-attributes">
-                        <section xml:id="nsa-xss-protection-enable"></section>
-                        <section xml:id="nsa-xss-protection-block"></section>
-                    </section>
-                </section>
-                <section xml:id="nsa-content-type-options">
-                    <title><literal>&lt;content-type-options&gt;</literal></title>
-                </section>
-                <section xml:id="nsa-header">
-                    <title><literal>&lt;header&gt;</literal></title>
-                    <section xml:id="nsa-header-attributes">
-                        <section xml:id="nsa-header-name"></section>
-                        <section xml:id="nsa-header-value"></section>
-                    </section>
-                </section>
-                <section xml:id="nsa-headers-parents">
-                    <title>Parent Elements of <literal>&lt;headers&gt;</literal></title>
-                    <itemizedlist>
-                        <listitem><link xlink:href="#nsa-http">http</link></listitem>
-                    </itemizedlist>
-                </section>
-                <section xml:id="nsa-headers-children">
-                    <title>Child Elements of <literal>&lt;headers&gt;</literal></title>
-                    <itemizedlist>
-                        <listitem><link xlink:href="#nsa-frame-options">frame-options</link></listitem>
-                        <listitem><link xlink:href="#nsa-xss-protection">xss-protection</link></listitem>
-                        <listitem><link xlink:href="#nsa-content-type-options">content-type-options</link></listitem>
-                        <listitem><link xlink:href="#nsa-header">header</link></listitem>
-                    </itemizedlist>
-                </section>
-            </section>
             <section xml:id="nsa-http-children">
                 <title>Child Elements of &lt;http&gt;</title>
                 <itemizedlist>
@@ -285,7 +223,7 @@
                     <listitem><link xlink:href="#nsa-request-cache">request-cache</link></listitem>
                     <listitem><link xlink:href="#nsa-session-management">session-management</link></listitem>
                     <listitem><link xlink:href="#nsa-x509">x509</link></listitem>
-                    <listitem><link xlink:href="#nsa-add-headers">add-headers</link></listitem>
+                    <listitem><link xlink:href="#nsa-headers">headers</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -319,8 +257,8 @@
                 </section>
             </section>
         </section>
-        <section xml:id="nsa-add-headers">
-            <title><literal>&lt;add-headers&gt;</literal></title>
+        <section xml:id="nsa-headers">
+            <title><literal>&lt;headers&gt;</literal></title>
             <para>This element allows for configuring additional (security) headers to be send with the response.
                 It enables easy configuration for several headers and also allows for setting custom headers through
                 the <link xlink:href="#nsa-header">header</link> element.
@@ -340,14 +278,14 @@
                         Chrome, when downloading extensions. </listitem>
                 </itemizedlist>
             </para>
-            <section xml:id="nsa-add-headers-parents">
-                <title>Parent Elements of <literal>&lt;add-headers&gt;</literal></title>
+            <section xml:id="nsa-headers-parents">
+                <title>Parent Elements of <literal>&lt;headers&gt;</literal></title>
                 <itemizedlist>
                     <listitem><link xlink:href="#nsa-http">http</link></listitem>
                 </itemizedlist>
             </section>
-            <section xml:id="nsa-add-headers-children">
-                <title>Child Elements of <literal>&lt;add-headers&gt;</literal></title>
+            <section xml:id="nsa-headers-children">
+                <title>Child Elements of <literal>&lt;headers&gt;</literal></title>
                 <itemizedlist>
                     <listitem><link xlink:href="#nsa-content-type-options">content-type-options</link></listitem>
                     <listitem><link xlink:href="#nsa-frame-options">frame-options</link></listitem>
@@ -388,7 +326,7 @@
              <section xml:id="nsa-frame-options-parents">
                 <title>Parent Elements of <literal>&lt;frame-options&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-add-headers">add-headers</link></listitem>
+                    <listitem><link xlink:href="#nsa-headers">headers</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -408,7 +346,7 @@
             <section xml:id="nsa-xss-protection-parents">
                 <title>Parent Elements of <literal>&lt;xss-protection&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-add-headers">add-headers</link></listitem>
+                    <listitem><link xlink:href="#nsa-headers">headers</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -419,7 +357,7 @@
             <section xml:id="nsa-content-type-options-parents">
                 <title>Parent Elements of <literal>&lt;content-type-options&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-add-headers">add-headers</link></listitem>
+                    <listitem><link xlink:href="#nsa-headers">headers</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -440,7 +378,7 @@
             <section xml:id="nsa-header-parents">
                 <title>Parent Elements of <literal>&lt;header&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-add-headers">add-headers</link></listitem>
+                    <listitem><link xlink:href="#nsa-headers">headers</link></listitem>
                 </itemizedlist>
             </section>
         </section>
