@@ -1024,6 +1024,7 @@
                   <xs:attributeGroup ref="security:ref"/>
                </xs:complexType>
             </xs:element>
+            <xs:element ref="security:headers"/>
          </xs:choice>
          <xs:attributeGroup ref="security:http.attlist"/>
       </xs:complexType>
@@ -2227,6 +2228,106 @@
             <xs:documentation>A non-empty string prefix that will be added to role strings loaded from persistent
                 storage (e.g. "ROLE_"). Use the value "none" for no prefix in cases where the default is
                 non-empty.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="headers">
+      <xs:annotation>
+         <xs:documentation>Element for configuration of the AddHeadersFilter. Enables easy setting for the
+                X-Frame-Options, X-XSS-Protection and X-Content-Type-Options headers.
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element ref="security:xss-protection"/>
+            <xs:element ref="security:frame-options"/>
+            <xs:element ref="security:content-type-options"/>
+            <xs:element ref="security:header"/>
+         </xs:choice>
+      </xs:complexType>
+   </xs:element>
+  <xs:element name="frame-options">
+      <xs:annotation>
+         <xs:documentation>Enable basic clickjacking support for newer browsers (IE8+), will set the X-Frame-Options
+                header.
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:frame-options.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="frame-options.attlist">
+      <xs:attribute name="policy">
+         <xs:annotation>
+            <xs:documentation>Specify the policy to use for the X-Frame-Options-Header.
+                </xs:documentation>
+         </xs:annotation>
+         <xs:simpleType>
+            <xs:restriction base="xs:token">
+               <xs:enumeration value="DENY"/>
+               <xs:enumeration value="SAMEORIGIN"/>
+               <xs:enumeration value="ALLOW-FROM"/>
+            </xs:restriction>
+         </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="origin" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Specify the origin to use when ALLOW-FROM is chosen.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="xss-protection">
+      <xs:annotation>
+         <xs:documentation>Enable basic XSS browser protection, supported by newer browsers (IE8+), will set the
+                X-XSS-Protection header.
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:xss-protection.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="xss-protection.attlist">
+      <xs:attribute name="enabled" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>enable or disable the X-XSS-Protection header. Default is 'true' meaning it is enabled.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="block" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>Add mode=block to the header or not, default is on.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="content-type-options">
+      <xs:annotation>
+         <xs:documentation>Add a X-Content-Type-Options header to the resopnse. Value is always 'nosniff'.
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType/>
+   </xs:element>
+  <xs:element name="header">
+      <xs:annotation>
+         <xs:documentation>Add additional headers to the response.
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:header.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="header.attlist">
+      <xs:attribute name="name" use="required" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The name of the header to add.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="value" use="required" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The value for the header.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>

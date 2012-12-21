@@ -281,7 +281,7 @@ http-firewall =
 
 http =
     ## Container element for HTTP security configuration. Multiple elements can now be defined, each with a specific pattern to which the enclosed security configuration applies. A pattern can also be configured to bypass Spring Security's filters completely by setting the "secured" attribute to "false".
-    element http {http.attlist, (intercept-url* & access-denied-handler? & form-login? & openid-login? & x509? & jee? & http-basic? & logout? & session-management & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache? & expression-handler?) }
+    element http {http.attlist, (intercept-url* & access-denied-handler? & form-login? & openid-login? & x509? & jee? & http-basic? & logout? & session-management & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache? & expression-handler? & headers?) }
 http.attlist &=
     ## The request URL pattern which will be mapped to the filter chain created by this <http> element. If omitted, the filter chain will match all requests.
     attribute pattern {xsd:token}?
@@ -718,6 +718,43 @@ jdbc-user-service.attlist &=
 jdbc-user-service.attlist &=
     role-prefix?
 
+headers =
+ ## Element for configuration of the AddHeadersFilter. Enables easy setting for the X-Frame-Options, X-XSS-Protection and X-Content-Type-Options headers.
+ element headers {xss-protection? & frame-options? & content-type-options? & header*}
+
+frame-options =
+	## Enable basic clickjacking support for newer browsers (IE8+), will set the X-Frame-Options header.
+	element frame-options {frame-options.attlist,empty}
+frame-options.attlist &=
+	## Specify the policy to use for the X-Frame-Options-Header.
+	attribute policy {"DENY","SAMEORIGIN","ALLOW-FROM"}?
+frame-options.attlist &=
+	## Specify the origin to use when ALLOW-FROM is chosen.
+	attribute origin {xsd:token}?
+
+xss-protection =
+	## Enable basic XSS browser protection, supported by newer browsers (IE8+), will set the X-XSS-Protection header.
+	element xss-protection {xss-protection.attlist,empty}
+xss-protection.attlist &=
+	## enable or disable the X-XSS-Protection header. Default is 'true' meaning it is enabled.
+	attribute enabled {xsd:boolean}?
+xss-protection.attlist &=
+	## Add mode=block to the header or not, default is on.
+	attribute block {xsd:boolean}?
+
+content-type-options =
+	## Add a X-Content-Type-Options header to the resopnse. Value is always 'nosniff'.
+	element content-type-options {empty}
+
+header=
+	## Add additional headers to the response.
+	element header {header.attlist}
+header.attlist &=
+	## The name of the header to add.
+	attribute name {xsd:token}
+header.attlist &=
+	## The value for the header.
+	attribute value {xsd:token}
 
 any-user-service = user-service | jdbc-user-service | ldap-user-service
 

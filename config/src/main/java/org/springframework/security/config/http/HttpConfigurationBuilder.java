@@ -117,6 +117,7 @@ class HttpConfigurationBuilder {
     private final BeanReference portResolver;
     private BeanReference fsi;
     private BeanReference requestCache;
+    private BeanDefinition addHeadersFilter;
 
     public HttpConfigurationBuilder(Element element, ParserContext pc,
             BeanReference portMapper, BeanReference portResolver, BeanReference authenticationManager) {
@@ -151,6 +152,7 @@ class HttpConfigurationBuilder {
         createJaasApiFilter();
         createChannelProcessingFilter();
         createFilterSecurityInterceptor(authenticationManager);
+        createAddHeadersFilter();
     }
 
     @SuppressWarnings("rawtypes")
@@ -554,6 +556,14 @@ class HttpConfigurationBuilder {
         this.fsi = new RuntimeBeanReference(fsiId);
     }
 
+    private void createAddHeadersFilter() {
+        Element elmt = DomUtils.getChildElementByTagName(httpElt, Elements.ADD_HEADERS);
+        if (elmt != null) {
+            this.addHeadersFilter = new HeadersBeanDefinitionParser().parse(elmt, pc);
+        }
+
+    }
+
     BeanReference getSessionStrategy() {
         return sessionStrategyRef;
     }
@@ -599,6 +609,10 @@ class HttpConfigurationBuilder {
 
         if (sessionPolicy != SessionCreationPolicy.stateless) {
             filters.add(new OrderDecorator(requestCacheAwareFilter, REQUEST_CACHE_FILTER));
+        }
+
+        if (addHeadersFilter != null) {
+            filters.add(new OrderDecorator(addHeadersFilter, HEADERS_FILTER));
         }
 
         return filters;

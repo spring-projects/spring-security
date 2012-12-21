@@ -15,7 +15,7 @@
         explaining their purpose. The namespace is written in <link
         xlink:href="http://www.relaxng.org/">RELAX NG</link> Compact format and later converted into
         an XSD schema. If you are familiar with this format, you may wish to examine the <link
-        xlink:href="https://fisheye.springsource.org/browse/spring-security/config/src/main/resources/org/springframework/security/config/spring-security-3.1.rnc"
+        xlink:href="https://fisheye.springsource.org/browse/spring-security/config/src/main/resources/org/springframework/security/config/spring-security-3.2.rnc"
         >schema file</link> directly.</para>
     <section xml:id="nsa-web">
         <title>Web Application Security</title>
@@ -210,6 +210,7 @@
                 <title>Child Elements of &lt;http&gt;</title>
                 <itemizedlist>
                     <listitem><link xlink:href="#nsa-access-denied-handler">access-denied-handler</link></listitem>
+                    <listitem><link xlink:href="#nsa-headers">headers</link></listitem>
                     <listitem><link xlink:href="#nsa-anonymous">anonymous</link></listitem>
                     <listitem><link xlink:href="#nsa-custom-filter">custom-filter</link></listitem>
                     <listitem><link xlink:href="#nsa-expression-handler">expression-handler</link></listitem>
@@ -224,6 +225,7 @@
                     <listitem><link xlink:href="#nsa-request-cache">request-cache</link></listitem>
                     <listitem><link xlink:href="#nsa-session-management">session-management</link></listitem>
                     <listitem><link xlink:href="#nsa-x509">x509</link></listitem>
+                    <listitem><link xlink:href="#nsa-headers">headers</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -255,6 +257,131 @@
                     <para>Defines a reference to a Spring bean of type <interfacename>AccessDeniedHandler
                         </interfacename>.</para>
                 </section>
+            </section>
+        </section>
+        <section xml:id="nsa-headers">
+            <title><literal>&lt;headers&gt;</literal></title>
+            <para>This element allows for configuring additional (security) headers to be send with the response.
+                It enables easy configuration for several headers and also allows for setting custom headers through
+                the <link xlink:href="#nsa-header">header</link> element.
+                <itemizedlist>
+                    <listitem><literal>X-Frame-Options</literal> - Can be set using the
+                        <link xlink:href="#nsa-frame-options">frame-options</link> element. The
+                        <link xlink:href="http://en.wikipedia.org/wiki/Clickjacking#X-Frame-Options">X-Frame-Options
+                        </link> header can be used to prevent clickjacking attacks.</listitem>
+                    <listitem><literal>X-XSS-Protection</literal> - Can be set using the
+                        <link xlink:href="#nsa-xss-protection">xss-protection</link> element.
+                        The <link xlink:href="http://en.wikipedia.org/wiki/Cross-site_scripting">X-XSS-Protection
+                        </link> header can be used by browser to do basic control.</listitem>
+                    <listitem><literal>X-Content-Type-Options</literal> - Can be set using the
+                        <link xlink:href="#nsa-content-type-options">content-type-options</link> element. The
+                        <link xlink:href="">X-Content-Type-Options</link> header prevents Internet Explorer from
+                        MIME-sniffing a response away from the declared content-type. This also applies to Google
+                        Chrome, when downloading extensions. </listitem>
+                </itemizedlist>
+            </para>
+            <section xml:id="nsa-headers-parents">
+                <title>Parent Elements of <literal>&lt;headers&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-headers-children">
+                <title>Child Elements of <literal>&lt;headers&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-content-type-options">content-type-options</link></listitem>
+                    <listitem><link xlink:href="#nsa-frame-options">frame-options</link></listitem>
+                    <listitem><link xlink:href="#nsa-header">header</link></listitem>
+                    <listitem><link xlink:href="#nsa-xss-protection">xss-protection</link></listitem>
+                </itemizedlist>
+            </section>
+        </section>
+        <section xml:id="nsa-frame-options">
+            <title><literal>&lt;frame-options&gt;</literal></title>
+            <para>When enabled adds the <link xlink:href="http://tools.ietf.org/html/draft-ietf-websec-x-frame-options-01">X-Frame-Options header</link> to the response, this allows newer browsers to do some security
+                 checks and prevent clickjacking attacks.</para>
+            <section xml:id="nsa-frame-options-attributes">
+                <title><literal>&lt;frame-options&gt;</literal> Attributes</title>
+                <section xml:id="nsa-frame-options-policy">
+                    <title><literal>frame-options-policy</literal></title>
+                    <para>
+                        <itemizedlist>
+                            <listitem><literal>DENY</literal> The page cannot be displayed in a frame, regardless of
+                                the site attempting to do so. </listitem>
+                            <listitem><literal>SAMEORIGIN</literal> The page can only be displayed in a frame on the
+                                same origin as the page itself</listitem>
+                            <listitem><literal>ALLOW-FROM <link xlink:href="#nsa-frame-options-origin">origin</link></literal>
+                                The page can only be displayed in a frame on the specified origin.
+                            </listitem>
+                        </itemizedlist>
+                        In other words, if you specify DENY, not only will attempts to load the page in a frame fail
+                        when loaded from other sites, attempts to do so will fail when loaded from the same site. On the
+                        other hand, if you specify SAMEORIGIN, you can still use the page in a frame as long as the site
+                        including it in a frame it is the same as the one serving the page.
+                    </para>
+                </section>
+                <section xml:id="nsa-frame-options-origin">
+                    <title><literal>frame-options-origin</literal></title>
+                    <para>The origin</para>
+                </section>
+            </section>
+             <section xml:id="nsa-frame-options-parents">
+                <title>Parent Elements of <literal>&lt;frame-options&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-headers">headers</link></listitem>
+                </itemizedlist>
+            </section>
+        </section>
+        <section xml:id="nsa-xss-protection">
+            <title><literal>&lt;xss-protection&gt;</literal></title>
+            <para>Adds the X-XSS-Protection header to the response. This is in no-way a full protection to XSS attacks!</para>
+            <section xml:id="nsa-xss-protection-attributes">
+                <section xml:id="nsa-xss-protection-enabled">
+                    <title><literal>xss-protection-enabled</literal></title>
+                    <para>Enable or Disable xss-protection.</para>
+                </section>
+                <section xml:id="nsa-xss-protection-block">
+                    <title><literal>xss-protection-block</literal></title>
+                    <para>When enabled adds mode=block to the header. Which indicates to the browser that loading should be blocked.</para>
+                </section>
+            </section>
+            <section xml:id="nsa-xss-protection-parents">
+                <title>Parent Elements of <literal>&lt;xss-protection&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-headers">headers</link></listitem>
+                </itemizedlist>
+            </section>
+        </section>
+        <section xml:id="nsa-content-type-options">
+            <title><literal>&lt;content-type-options&gt;</literal></title>
+            <para>Add the X-Content-Type-Options header to the response. Indicates the browser (IE8+) to enable detection
+            for MIME-sniffing.</para>
+            <section xml:id="nsa-content-type-options-parents">
+                <title>Parent Elements of <literal>&lt;content-type-options&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-headers">headers</link></listitem>
+                </itemizedlist>
+            </section>
+        </section>
+        <section xml:id="nsa-header">
+            <title><literal>&lt;header&gt;</literal></title>
+            <para>Add additional headers to the response, both the name and value need to be specified.</para>
+            <section xml:id="nsa-header-attributes">
+                <title><literal>&lt;header-attributes&gt;</literal> Attributes</title>
+                <section xml:id="nsa-header-name">
+                    <title><literal>header-name</literal></title>
+                    <para>The <literal>name</literal> of the header.</para>
+                </section>
+                <section xml:id="nsa-header-value">
+                    <title><literal>header-value</literal></title>
+                    <para>The <literal>value</literal> of the header to add.</para>
+                </section>
+            </section>
+            <section xml:id="nsa-header-parents">
+                <title>Parent Elements of <literal>&lt;header&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-headers">headers</link></listitem>
+                </itemizedlist>
             </section>
         </section>
         <section xml:id="nsa-anonymous">

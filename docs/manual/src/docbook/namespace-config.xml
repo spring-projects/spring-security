@@ -609,6 +609,23 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                     MyOpenID providers.</para>
             </section>
         </section>
+        <section xml:id="ns-headers">
+            <title>Response Headers</title>
+            <para>A lot of different attacks to hijack content, sessions or connections are available and lately
+                browsers (optionally) can help to prevent those attacks. To enable these features we need to send some
+                additional headers to the client. Spring Security allows for easy configuration for several headers.
+                <progamlisting language="xml">
+                    <![CDATA[
+                            <headers>
+                                <xss-protection/>
+                                <frame-options/>
+                                <content-type-options/>
+                                <header name="foo" value="bar"/>
+                            </headers>
+                    ]]>
+                </progamlisting>
+            </para>
+        </section>
         <section xml:id="ns-custom-filters">
             <title>Adding in Your Own Filters</title>
             <para>If you've used Spring Security before, you'll know that the framework maintains a
@@ -662,6 +679,11 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                             <entry> CONCURRENT_SESSION_FILTER</entry>
                             <entry><literal>ConcurrentSessionFilter</literal> </entry>
                             <entry><literal>session-management/concurrency-control</literal></entry>
+                        </row>
+                        <row>
+                            <entry>HEADERS_FILTER</entry>
+                            <entry><literal>HeadersFilter</literal> </entry>
+                            <entry><literal>http/headers</literal></entry>
                         </row>
                         <row>
                             <entry> LOGOUT_FILTER </entry>
