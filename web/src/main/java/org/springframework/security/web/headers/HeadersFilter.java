@@ -15,14 +15,12 @@
  */
 package org.springframework.security.web.headers;
 
-import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,24 +33,22 @@ import java.util.Map;
  * @since 3.2
  *
  */
-public class AddHeadersFilter extends GenericFilterBean {
+public class HeadersFilter extends OncePerRequestFilter {
 
     /** Map of headers to add to a response */
     private final Map<String, String> headers = new HashMap<String, String>();
 
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        chain.doFilter(request, response);
-
-        if (response instanceof HttpServletResponse) {
-            for (Map.Entry<String, String> header : headers.entrySet()) {
-                String name = header.getKey();
-                String value = header.getValue();
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Adding header '" + name + "' with value '"+value +"'");
-                }
-                ((HttpServletResponse) response).setHeader(header.getKey(), header.getValue());
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        for (Map.Entry<String, String> header : headers.entrySet()) {
+            String name = header.getKey();
+            String value = header.getValue();
+            if (logger.isTraceEnabled()) {
+                logger.trace("Adding header '" + name + "' with value '"+value +"'");
             }
+            response.setHeader(header.getKey(), header.getValue());
         }
+        filterChain.doFilter(request, response);
     }
 
     public void setHeaders(Map<String, String> headers) {

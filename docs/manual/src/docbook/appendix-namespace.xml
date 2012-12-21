@@ -204,11 +204,11 @@
                         access-control</link>.</para>
                 </section>
             </section>
-            <section xml:id="nsa-add-headers">
-                <title><literal>&lt;add-headers&gt;</literal></title>
+            <section xml:id="nsa-headers">
+                <title><literal>&lt;headers&gt;</literal></title>
                 <para>This element allows for configuring additional (security) headers to be send with the response.
-                    It enables easy configuration for several headers and also allows for setting custom headers through
-                    the <link xlink:href="#nsa-header">header</link> element.
+                    It enables easy configuration for several headers and also allows for setting additional custom
+                    headers through the <link xlink:href="#nsa-header">header</link> element.
                     <itemizedlist>
                         <listitem><literal>X-Frame-Options</literal> - Can be set using the
                             <link xlink:href="#nsa-frame-options">frame-options</link> element. The
@@ -250,14 +250,14 @@
                         <section xml:id="nsa-header-value"></section>
                     </section>
                 </section>
-                <section xml:id="nsa-add-headers-parents">
-                    <title>Parent Elements of <literal>&lt;add-headers&gt;</literal></title>
+                <section xml:id="nsa-headers-parents">
+                    <title>Parent Elements of <literal>&lt;headers&gt;</literal></title>
                     <itemizedlist>
                         <listitem><link xlink:href="#nsa-http">http</link></listitem>
                     </itemizedlist>
                 </section>
-                <section xml:id="nsa-add-headers-children">
-                    <title>Child Elements of <literal>&lt;add-headers&gt;</literal></title>
+                <section xml:id="nsa-headers-children">
+                    <title>Child Elements of <literal>&lt;headers&gt;</literal></title>
                     <itemizedlist>
                         <listitem><link xlink:href="#nsa-frame-options">frame-options</link></listitem>
                         <listitem><link xlink:href="#nsa-xss-protection">xss-protection</link></listitem>
@@ -270,7 +270,7 @@
                 <title>Child Elements of &lt;http&gt;</title>
                 <itemizedlist>
                     <listitem><link xlink:href="#nsa-access-denied-handler">access-denied-handler</link></listitem>
-                    <listitem><link xlink:href="#nsa-add-headers">add-headers</link></listitem>
+                    <listitem><link xlink:href="#nsa-headers">headers</link></listitem>
                     <listitem><link xlink:href="#nsa-anonymous">anonymous</link></listitem>
                     <listitem><link xlink:href="#nsa-custom-filter">custom-filter</link></listitem>
                     <listitem><link xlink:href="#nsa-expression-handler">expression-handler</link></listitem>
