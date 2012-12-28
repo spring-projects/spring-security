@@ -161,7 +161,8 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
      * to perform the authentication. There are then three possible outcomes:
      * <ol>
      * <li>An <tt>Authentication</tt> object is returned.
-     * The configured {link SessionAuthenticationStrategy} will be invoked followed by the
+     * The configured {@link SessionAuthenticationStrategy} will be invoked (to handle any session-related behaviour
+     * such as creating a new session to protect against session-fixation attacks) followed by the invocation of
      * {@link #successfulAuthentication(HttpServletRequest, HttpServletResponse, Authentication)
      * successfulAuthentication} method</li>
      * <li>An <tt>AuthenticationException</tt> occurs during authentication.
@@ -273,8 +274,6 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
      * Default behaviour for successful authentication.
      * <ol>
      * <li>Sets the successful <tt>Authentication</tt> object on the {@link SecurityContextHolder}</li>
-     * <li>Invokes the configured {@link SessionAuthenticationStrategy} to handle any session-related behaviour
-     * (such as creating a new session to protect against session-fixation attacks).</li>
      * <li>Informs the configured <tt>RememberMeServices</tt> of the successful login</li>
      * <li>Fires an {@link InteractiveAuthenticationSuccessEvent} via the configured
      * <tt>ApplicationEventPublisher</tt></li>
@@ -298,8 +297,6 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
      * Default behaviour for successful authentication.
      * <ol>
      * <li>Sets the successful <tt>Authentication</tt> object on the {@link SecurityContextHolder}</li>
-     * <li>Invokes the configured {@link SessionAuthenticationStrategy} to handle any session-related behaviour
-     * (such as creating a new session to protect against session-fixation attacks).</li>
      * <li>Informs the configured <tt>RememberMeServices</tt> of the successful login</li>
      * <li>Fires an {@link InteractiveAuthenticationSuccessEvent} via the configured
      * <tt>ApplicationEventPublisher</tt></li>
