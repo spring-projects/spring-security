@@ -39,7 +39,7 @@ public class AddHeadersBeanDefinitionParser implements BeanDefinitionParser {
     private static final String ATT_BLOCK = "block";
 
     private static final String ATT_POLICY = "policy";
-    private static final String ATT_ORIGIN = "policy";
+    private static final String ATT_ORIGIN = "origin";
 
     private static final String ATT_NAME = "name";
     private static final String ATT_VALUE = "value";
@@ -51,7 +51,7 @@ public class AddHeadersBeanDefinitionParser implements BeanDefinitionParser {
 
     private static final String XSS_PROTECTION_HEADER = "X-XSS-Protection";
     private static final String FRAME_OPTIONS_HEADER = "X-Frame-Options";
-    private static final String CONENT_TYPE_OPTIONS_HEADER = "X-Content-Type-Options";
+    private static final String CONTENT_TYPE_OPTIONS_HEADER = "X-Content-Type-Options";
 
     private static final String ALLOW_FROM = "ALLOW-FROM";
 
@@ -85,7 +85,7 @@ public class AddHeadersBeanDefinitionParser implements BeanDefinitionParser {
         }
 
         if (contentTypeElt != null) {
-            headers.put(CONENT_TYPE_OPTIONS_HEADER, "nosniff");
+            headers.put(CONTENT_TYPE_OPTIONS_HEADER, "nosniff");
         }
 
         List<Element> headerEtls = DomUtils.getChildElementsByTagName(element, GENERIC_HEADER_ELEMENT);
