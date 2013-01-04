@@ -55,7 +55,6 @@ public class AddHeadersBeanDefinitionParser implements BeanDefinitionParser {
 
     private static final String ALLOW_FROM = "ALLOW-FROM";
 
-    @Override
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(AddHeadersFilter.class);
         final Map<String, String> headers = new HashMap<String, String>();

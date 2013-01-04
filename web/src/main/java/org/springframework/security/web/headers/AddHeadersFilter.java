@@ -40,7 +40,6 @@ public class AddHeadersFilter extends GenericFilterBean {
     /** Map of headers to add to a response */
     private final Map<String, String> headers = new HashMap<String, String>();
 
-    @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         chain.doFilter(request, response);
 
