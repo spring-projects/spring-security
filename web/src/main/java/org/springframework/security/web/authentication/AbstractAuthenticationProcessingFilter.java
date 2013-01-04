@@ -199,6 +199,9 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
                 return;
             }
             sessionStrategy.onAuthentication(authResult, request, response);
+        } catch (AuthenticationRedirectException e) {
+            response.sendRedirect(e.getRedirectUrl()); 
+            return;
         } catch(InternalAuthenticationServiceException failed) {
             logger.error("An internal error occurred while trying to authenticate the user.", failed);
             unsuccessfulAuthentication(request, response, failed);

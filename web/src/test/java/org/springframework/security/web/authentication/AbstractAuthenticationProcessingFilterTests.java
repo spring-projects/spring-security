@@ -379,6 +379,23 @@ public class AbstractAuthenticationProcessingFilterTests {
         assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
     }
 
+    @Test
+    public void handleRedirect() throws Exception {
+        String redirectUrl = "www.example.com/redirect";
+        
+        MockHttpServletRequest request = createMockAuthenticationRequest();
+
+        MockFilterChain chain = new MockFilterChain(true);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        MockAuthenticationFilter filter = new MockAuthenticationFilter(false);
+        filter.exceptionToThrow = new AuthenticationRedirectException(redirectUrl);
+
+        filter.doFilter(request, response, chain);
+
+        assertEquals(redirectUrl, response.getRedirectedUrl());
+        
+    }
     //~ Inner Classes ==================================================================================================
 
     private class MockAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
