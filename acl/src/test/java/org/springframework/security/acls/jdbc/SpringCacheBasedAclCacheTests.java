@@ -1,7 +1,6 @@
 package org.springframework.security.acls.jdbc;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.cache.Cache;
@@ -17,15 +16,14 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.util.FieldUtils;
 
-import java.io.*;
 import java.util.Map;
 
 import static org.junit.Assert.*;
 
 /**
- * Tests {@link org.springframework.security.acls.domain.EhCacheBasedAclCache}
+ * Tests {@link org.springframework.security.acls.domain.SpringCacheBasedAclCache}
  *
- * @author Andrei Stefan
+ * @author Marten Deinum
  */
 public class SpringCacheBasedAclCacheTests {
     private static final String TARGET_CLASS = "org.springframework.security.acls.TargetObject";
@@ -55,6 +53,7 @@ public class SpringCacheBasedAclCacheTests {
         new SpringCacheBasedAclCache(null, null, null);
     }
 
+    @SuppressWarnings("rawtypes")
     @Test
     public void cacheOperationsAclWithoutParent() throws Exception {
         Cache cache = getCache();
@@ -98,7 +97,7 @@ public class SpringCacheBasedAclCacheTests {
         assertEquals(realCache.size(), 0);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     @Test
     public void cacheOperationsAclWithParent() throws Exception {
         Cache cache = getCache();
@@ -139,34 +138,5 @@ public class SpringCacheBasedAclCacheTests {
         assertEquals(parentAcl, parentAclFromCache);
         assertNotNull(FieldUtils.getFieldValue(parentAclFromCache, "aclAuthorizationStrategy"));
         assertEquals(parentAcl, myCache.getFromCache(identityParent));
-    }
-
-    //~ Inner Classes ==================================================================================================
-
-    private class MockCache implements Cache {
-
-        @Override
-        public String getName() {
-            return "mockcache";
-        }
-
-        @Override
-        public Object getNativeCache() {
-            return null;
-        }
-
-        @Override
-        public ValueWrapper get(Object key) {
-            return null;
-        }
-
-        @Override
-        public void put(Object key, Object value) {}
-
-        @Override
-        public void evict(Object key) {}
-
-        @Override
-        public void clear() {}
     }
 }

@@ -15,9 +15,6 @@
  */
 package org.springframework.security.acls.domain;
 
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
 import org.springframework.cache.Cache;
 import org.springframework.security.acls.model.AclCache;
 import org.springframework.security.acls.model.MutableAcl;
@@ -84,34 +81,12 @@ public class SpringCacheBasedAclCache implements AclCache {
 
     public MutableAcl getFromCache(ObjectIdentity objectIdentity) {
         Assert.notNull(objectIdentity, "ObjectIdentity required");
-
-        Cache.ValueWrapper element = null;
-
-        try {
-            element = cache.get(objectIdentity);
-        } catch (CacheException ignored) {}
-
-        if (element == null) {
-            return null;
-        }
-
-        return initializeTransientFields((MutableAcl)element.get());
+        return getFromCache((Object)objectIdentity);
     }
 
     public MutableAcl getFromCache(Serializable pk) {
         Assert.notNull(pk, "Primary key (identifier) required");
-
-        Cache.ValueWrapper element = null;
-
-        try {
-            element = cache.get(pk);
-        } catch (CacheException ignored) {}
-
-        if (element == null) {
-            return null;
-        }
-
-        return initializeTransientFields((MutableAcl) element.get());
+        return getFromCache((Object)pk);
     }
 
     public void putInCache(MutableAcl acl) {
@@ -125,6 +100,16 @@ public class SpringCacheBasedAclCache implements AclCache {
 
         cache.put(acl.getObjectIdentity(), acl);
         cache.put(acl.getId(), acl);
+    }
+
+    private MutableAcl getFromCache(Object key) {
+        Cache.ValueWrapper element = cache.get(key);
+
+        if (element == null) {
+            return null;
+        }
+
+        return initializeTransientFields((MutableAcl) element.get());
     }
 
     private MutableAcl initializeTransientFields(MutableAcl value) {

@@ -2,19 +2,18 @@ package org.springframework.security.core.userdetails.cache;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cache.Cache;
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.Assert;
 
 /**
- * Caches {@link UserDetails} intances in a Spring defined {@link Cache}.
+ * Caches {@link UserDetails} instances in a Spring defined {@link Cache}.
  *
  * @author Marten Deinum
  * @since 3.2
  */
-public class SpringCacheBasedUserCache implements UserCache, InitializingBean {
+public class SpringCacheBasedUserCache implements UserCache {
 
 
     //~ Static fields/initializers =====================================================================================
@@ -23,17 +22,16 @@ public class SpringCacheBasedUserCache implements UserCache, InitializingBean {
 
     //~ Instance fields ================================================================================================
 
-    private Cache cache;
+    private final Cache cache;
+
+    //~ Constructors ===================================================================================================
+
+    public SpringCacheBasedUserCache(Cache cache) throws Exception {
+        Assert.notNull(cache, "cache mandatory");
+        this.cache = cache;
+    }
 
     //~ Methods ========================================================================================================
-
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(cache, "cache mandatory");
-    }
-
-    public Cache getCache() {
-        return cache;
-    }
 
     public UserDetails getUserFromCache(String username) {
         Cache.ValueWrapper element = username != null ? cache.get(username) : null;
@@ -66,9 +64,5 @@ public class SpringCacheBasedUserCache implements UserCache, InitializingBean {
 
     public void removeUserFromCache(String username) {
         cache.evict(username);
-    }
-
-    public void setCache(Cache cache) {
-        this.cache = cache;
     }
 }
