@@ -1,6 +1,7 @@
 // Config Module build file
 
 apply plugin: 'groovy'
+apply plugin: 'trang'
 
 compileTestJava.dependsOn(':spring-security-core:compileTestJava')
 
@@ -52,3 +53,11 @@ test {
 integrationTest {
     systemProperties['apacheDSWorkDir'] = "${buildDir}/apacheDSWork"
 }
+
+rncToXsd {
+    rncDir = file('src/main/resources/org/springframework/security/config/')
+    xsdDir = rncDir
+    xslFile = new File(rncDir, 'spring-security.xsl')
+}
+
+build.dependsOn rncToXsd
