@@ -49,6 +49,12 @@ dependencies {
             'com.springsource.bundlor:com.springsource.bundlor.blint:1.0.0.RELEASE'
 }
 
+// Trang
+dependencies {
+    compile 'com.thaiopensource:trang:20091111',
+            'net.sourceforge.saxon:saxon:9.1.0.8'
+}
+
 task ide(type: Copy)  {
     from configurations.runtime
     into 'ide'
