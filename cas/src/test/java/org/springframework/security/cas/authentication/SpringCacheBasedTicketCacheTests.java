@@ -15,10 +15,8 @@
 
 package org.springframework.security.cas.authentication;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 
@@ -35,6 +33,7 @@ public class SpringCacheBasedTicketCacheTests extends AbstractStatelessTicketCac
     private static CacheManager cacheManager;
 
     //~ Methods ========================================================================================================
+
     @BeforeClass
     public static void initCacheManaer() {
         cacheManager = new ConcurrentMapCacheManager();
@@ -43,9 +42,7 @@ public class SpringCacheBasedTicketCacheTests extends AbstractStatelessTicketCac
 
     @Test
     public void testCacheOperation() throws Exception {
-        SpringCacheBasedTicketCache cache = new SpringCacheBasedTicketCache();
-        cache.setCache(cacheManager.getCache("castickets"));
-        cache.afterPropertiesSet();
+        SpringCacheBasedTicketCache cache = new SpringCacheBasedTicketCache(cacheManager.getCache("castickets"));
 
         final CasAuthenticationToken token = getToken();
 
@@ -62,19 +59,8 @@ public class SpringCacheBasedTicketCacheTests extends AbstractStatelessTicketCac
         assertNull(cache.getByTicketId("UNKNOWN_SERVICE_TICKET"));
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testStartupDetectsMissingCache() throws Exception {
-        SpringCacheBasedTicketCache cache = new SpringCacheBasedTicketCache();
-
-        try {
-            cache.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-
-        Cache myCache = cacheManager.getCache("castickets");
-        cache.setCache(myCache);
-        assertEquals(myCache, cache.getCache());
+        new SpringCacheBasedTicketCache(null);
     }
 }

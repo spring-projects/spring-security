@@ -17,7 +17,6 @@ package org.springframework.security.cas.authentication;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cache.Cache;
 import org.springframework.util.Assert;
 
@@ -29,20 +28,23 @@ import org.springframework.util.Assert;
  * @since 3.2
  *
  */
-public class SpringCacheBasedTicketCache implements StatelessTicketCache, InitializingBean {
+public class SpringCacheBasedTicketCache implements StatelessTicketCache {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(SpringCacheBasedTicketCache.class);
 
     //~ Instance fields ================================================================================================
 
-    private Cache cache;
+    private final Cache cache;
+
+    //~ Constructors ===================================================================================================
+
+    public SpringCacheBasedTicketCache(Cache cache) throws Exception {
+        Assert.notNull(cache, "cache mandatory");
+        this.cache = cache;
+    }
 
     //~ Methods ========================================================================================================
-
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(cache, "cache mandatory");
-    }
 
     public CasAuthenticationToken getByTicketId(final String serviceTicket) {
         final Cache.ValueWrapper element = serviceTicket != null ? cache.get(serviceTicket) : null;
@@ -52,10 +54,6 @@ public class SpringCacheBasedTicketCache implements StatelessTicketCache, Initia
         }
 
         return element == null ? null : (CasAuthenticationToken) element.get();
-    }
-
-    public Cache getCache() {
-        return cache;
     }
 
     public void putTicketInCache(final CasAuthenticationToken token) {
@@ -78,9 +76,5 @@ public class SpringCacheBasedTicketCache implements StatelessTicketCache, Initia
 
     public void removeTicketFromCache(final String serviceTicket) {
         cache.evict(serviceTicket);
-    }
-
-    public void setCache(final Cache cache) {
-        this.cache = cache;
     }
 }

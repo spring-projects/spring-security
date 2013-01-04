@@ -61,9 +61,7 @@ public class SpringCacheBasedUserCacheTests {
 
     @Test
     public void cacheOperationsAreSuccessful() throws Exception {
-        SpringCacheBasedUserCache cache = new SpringCacheBasedUserCache();
-        cache.setCache(getCache());
-        cache.afterPropertiesSet();
+        SpringCacheBasedUserCache cache = new SpringCacheBasedUserCache(getCache());
 
         // Check it gets stored in the cache
         cache.putUserInCache(getUser());
@@ -80,13 +78,6 @@ public class SpringCacheBasedUserCacheTests {
 
     @Test(expected = IllegalArgumentException.class)
     public void startupDetectsMissingCache() throws Exception {
-        SpringCacheBasedUserCache cache = new SpringCacheBasedUserCache();
-
-        cache.afterPropertiesSet();
-        fail("Should have thrown IllegalArgumentException");
-
-        Cache myCache = getCache();
-        cache.setCache(myCache);
-        assertEquals(myCache, cache.getCache());
+        new SpringCacheBasedUserCache(null);
     }
 }
