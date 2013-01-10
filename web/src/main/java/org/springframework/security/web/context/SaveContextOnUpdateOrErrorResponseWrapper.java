@@ -44,7 +44,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends HttpServletResponseWrapper {
     private final Log logger = LogFactory.getLog(getClass());
 
-    private final Thread SUPPORTED_THREAD = Thread.currentThread();
+    private boolean disableSaveOnResponseCommitted;
 
     private boolean contextSaved = false;
     /* See SEC-1052 */
@@ -58,6 +58,16 @@ public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends HttpServ
     public SaveContextOnUpdateOrErrorResponseWrapper(HttpServletResponse response, boolean disableUrlRewriting) {
         super(response);
         this.disableUrlRewriting = disableUrlRewriting;
+    }
+
+    /**
+     * Invoke this method to disable automatic saving of the
+     * {@link SecurityContext} when the {@link HttpServletResponse} is
+     * committed. This can be useful in the event that Async Web Requests are
+     * made which may no longer contain the {@link SecurityContext} on it.
+     */
+    public void disableSaveOnResponseCommitted() {
+        this.disableSaveOnResponseCommitted = true;
     }
 
     /**
@@ -126,18 +136,16 @@ public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends HttpServ
     }
 
     /**
-     * Calls <code>saveContext()</code> with the current contents of the <tt>SecurityContextHolder</tt> as long as
-     * {@link #doSaveContext()} is invoked on the same Thread that {@link SaveContextOnUpdateOrErrorResponseWrapper} was
-     * created on. This prevents issues when dealing with Async Web Requests where the {@link SecurityContext} is not
-     * present on the Thread that processes the response.
+     * Calls <code>saveContext()</code> with the current contents of the
+     * <tt>SecurityContextHolder</tt> as long as
+     * {@link #disableSaveOnResponseCommitted()()} was not invoked.
      */
     private void doSaveContext() {
-        Thread currentThread = Thread.currentThread();
-        if(SUPPORTED_THREAD == currentThread) {
+        if(!disableSaveOnResponseCommitted) {
             saveContext(SecurityContextHolder.getContext());
             contextSaved = true;
         } else if(logger.isDebugEnabled()){
-            logger.debug("Skip saving SecurityContext since processing the HttpServletResponse on a different Thread than the original HttpServletRequest");
+            logger.debug("Skip saving SecurityContext since saving on response commited is disabled");
         }
     }
 

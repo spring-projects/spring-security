@@ -1,5 +1,13 @@
 package org.springframework.security.web.context;
 
+import javax.servlet.AsyncContext;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
@@ -9,11 +17,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
-import org.springframework.util.ReflectionUtils;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import org.springframework.util.ClassUtils;
 
 /**
  * A {@code SecurityContextRepository} implementation which stores the security context in the {@code HttpSession}
@@ -62,6 +66,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
     private final Object contextObject = SecurityContextHolder.createEmptyContext();
     private boolean allowSessionCreation = true;
     private boolean disableUrlRewriting = false;
+    private boolean isServlet3 = ClassUtils.hasMethod(ServletRequest.class, "startAsync");
     private String springSecurityContextKey = SPRING_SECURITY_CONTEXT_KEY;
 
     private final AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
@@ -89,8 +94,12 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 
         }
 
-        requestResponseHolder.setResponse(
-                new SaveToSessionResponseWrapper(response, request, httpSession != null, context));
+        SaveToSessionResponseWrapper wrappedResponse = new SaveToSessionResponseWrapper(response, request, httpSession != null, context);
+        requestResponseHolder.setResponse(wrappedResponse);
+
+        if(isServlet3) {
+            requestResponseHolder.setRequest(new Servlet3SaveToSessionRequestWrapper(request, wrappedResponse));
+        }
 
         return context;
     }
@@ -211,6 +220,28 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
     }
 
     //~ Inner Classes ==================================================================================================
+
+    private static class Servlet3SaveToSessionRequestWrapper extends HttpServletRequestWrapper {
+        private final SaveContextOnUpdateOrErrorResponseWrapper response;
+
+        public Servlet3SaveToSessionRequestWrapper(HttpServletRequest request,SaveContextOnUpdateOrErrorResponseWrapper response) {
+            super(request);
+            this.response = response;
+        }
+
+        @Override
+        public AsyncContext startAsync() {
+            response.disableSaveOnResponseCommitted();
+            return super.startAsync();
+        }
+
+        @Override
+        public AsyncContext startAsync(ServletRequest servletRequest,
+                ServletResponse servletResponse) throws IllegalStateException {
+            response.disableSaveOnResponseCommitted();
+            return super.startAsync(servletRequest, servletResponse);
+        }
+    }
 
     /**
      * Wrapper that is applied to every request/response to update the <code>HttpSession<code> with

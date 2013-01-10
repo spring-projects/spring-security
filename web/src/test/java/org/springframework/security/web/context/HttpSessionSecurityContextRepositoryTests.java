@@ -12,16 +12,26 @@
  */
 package org.springframework.security.web.context;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Matchers.*;
+import static org.powermock.api.mockito.PowerMockito.*;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.junit.After;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -29,17 +39,67 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.ClassUtils;
 
 /**
  * @author Luke Taylor
  * @author Rob Winch
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({ClassUtils.class})
 public class HttpSessionSecurityContextRepositoryTests {
     private final TestingAuthenticationToken testToken = new TestingAuthenticationToken("someone", "passwd", "ROLE_A");
 
     @After
     public void tearDown() {
         SecurityContextHolder.clearContext();
+    }
+
+    @Test
+    public void servlet25Compatability() throws Exception {
+        spy(ClassUtils.class);
+        when(ClassUtils.class,"hasMethod", ServletRequest.class, "startAsync", new Class[] {}).thenReturn(false);
+        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
+        repo.loadContext(holder);
+        assertThat(holder.getRequest()).isSameAs(request);
+    }
+
+    @Test
+    public void startAsyncDisablesSaveOnCommit() throws Exception {
+        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
+        repo.loadContext(holder);
+
+        reset(request);
+        holder.getRequest().startAsync();
+        holder.getResponse().sendError(HttpServletResponse.SC_BAD_REQUEST);
+
+        // ensure that sendError did cause interaction with the HttpSession
+        verify(request, never()).getSession(anyBoolean());
+        verify(request, never()).getSession();
+    }
+
+
+    @Test
+    public void startAsyncRequestResponseDisablesSaveOnCommit() throws Exception {
+        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
+        repo.loadContext(holder);
+
+        reset(request);
+        holder.getRequest().startAsync(request,response);
+        holder.getResponse().sendError(HttpServletResponse.SC_BAD_REQUEST);
+
+        // ensure that sendError did cause interaction with the HttpSession
+        verify(request, never()).getSession(anyBoolean());
+        verify(request, never()).getSession();
     }
 
     @Test

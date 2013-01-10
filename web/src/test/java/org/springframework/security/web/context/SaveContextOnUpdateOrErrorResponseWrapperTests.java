@@ -14,8 +14,6 @@ package org.springframework.security.web.context;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-import java.io.IOException;
-
 import javax.servlet.http.HttpServletResponse;
 
 import org.junit.After;
@@ -63,19 +61,10 @@ public class SaveContextOnUpdateOrErrorResponseWrapperTests {
     }
 
     @Test
-    public void sendErrorSkipsSaveSecurityContextOnNewThread() throws Exception {
+    public void sendErrorSkipsSaveSecurityContextDisables() throws Exception {
         final int error = HttpServletResponse.SC_FORBIDDEN;
-        Thread t = new Thread() {
-            public void run() {
-                try {
-                    wrappedResponse.sendError(error);
-                } catch(IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        };
-        t.start();
-        t.join();
+        wrappedResponse.disableSaveOnResponseCommitted();
+        wrappedResponse.sendError(error);
         assertThat(wrappedResponse.securityContext).isNull();
         assertThat(response.getStatus()).isEqualTo(error);
     }
@@ -91,20 +80,11 @@ public class SaveContextOnUpdateOrErrorResponseWrapperTests {
     }
 
     @Test
-    public void sendErrorWithMessageSkipsSaveSecurityContextOnNewThread() throws Exception {
+    public void sendErrorWithMessageSkipsSaveSecurityContextDisables() throws Exception {
         final int error = HttpServletResponse.SC_FORBIDDEN;
         final String message = "Forbidden";
-        Thread t = new Thread() {
-            public void run() {
-                try {
-                    wrappedResponse.sendError(error, message);
-                } catch(IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        };
-        t.start();
-        t.join();
+        wrappedResponse.disableSaveOnResponseCommitted();
+        wrappedResponse.sendError(error, message);
         assertThat(wrappedResponse.securityContext).isNull();
         assertThat(response.getStatus()).isEqualTo(error);
         assertThat(response.getErrorMessage()).isEqualTo(message);
@@ -119,19 +99,10 @@ public class SaveContextOnUpdateOrErrorResponseWrapperTests {
     }
 
     @Test
-    public void sendRedirectSkipsSaveSecurityContextOnNewThread() throws Exception {
+    public void sendRedirectSkipsSaveSecurityContextDisables() throws Exception {
         final String url = "/location";
-        Thread t = new Thread() {
-            public void run() {
-                try {
-                    wrappedResponse.sendRedirect(url);
-                } catch(IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        };
-        t.start();
-        t.join();
+        wrappedResponse.disableSaveOnResponseCommitted();
+        wrappedResponse.sendRedirect(url);
         assertThat(wrappedResponse.securityContext).isNull();
         assertThat(response.getRedirectedUrl()).isEqualTo(url);
     }
@@ -143,18 +114,9 @@ public class SaveContextOnUpdateOrErrorResponseWrapperTests {
     }
 
     @Test
-    public void outputFlushSkipsSaveSecurityContextOnNewThread() throws Exception {
-        Thread t = new Thread() {
-            public void run() {
-                try {
-                    wrappedResponse.getOutputStream().flush();
-                } catch(IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        };
-        t.start();
-        t.join();
+    public void outputFlushSkipsSaveSecurityContextDisables() throws Exception {
+        wrappedResponse.disableSaveOnResponseCommitted();
+        wrappedResponse.getOutputStream().flush();
         assertThat(wrappedResponse.securityContext).isNull();
     }
 
@@ -165,18 +127,9 @@ public class SaveContextOnUpdateOrErrorResponseWrapperTests {
     }
 
     @Test
-    public void outputCloseSkipsSaveSecurityContextOnNewThread() throws Exception {
-        Thread t = new Thread() {
-            public void run() {
-                try {
-                    wrappedResponse.getOutputStream().close();
-                } catch(IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        };
-        t.start();
-        t.join();
+    public void outputCloseSkipsSaveSecurityContextDisables() throws Exception {
+        wrappedResponse.disableSaveOnResponseCommitted();
+        wrappedResponse.getOutputStream().close();
         assertThat(wrappedResponse.securityContext).isNull();
     }
 
@@ -187,18 +140,9 @@ public class SaveContextOnUpdateOrErrorResponseWrapperTests {
     }
 
     @Test
-    public void writerFlushSkipsSaveSecurityContextOnNewThread() throws Exception {
-        Thread t = new Thread() {
-            public void run() {
-                try {
-                    wrappedResponse.getWriter().flush();
-                } catch(IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        };
-        t.start();
-        t.join();
+    public void writerFlushSkipsSaveSecurityContextDisables() throws Exception {
+        wrappedResponse.disableSaveOnResponseCommitted();
+        wrappedResponse.getWriter().flush();
         assertThat(wrappedResponse.securityContext).isNull();
     }
 
@@ -209,18 +153,9 @@ public class SaveContextOnUpdateOrErrorResponseWrapperTests {
     }
 
     @Test
-    public void writerCloseSkipsSaveSecurityContextOnNewThread() throws Exception {
-        Thread t = new Thread() {
-            public void run() {
-                try {
-                    wrappedResponse.getWriter().close();
-                } catch(IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        };
-        t.start();
-        t.join();
+    public void writerCloseSkipsSaveSecurityContextDisables() throws Exception {
+        wrappedResponse.disableSaveOnResponseCommitted();
+        wrappedResponse.getWriter().close();
         assertThat(wrappedResponse.securityContext).isNull();
     }
 
@@ -231,18 +166,9 @@ public class SaveContextOnUpdateOrErrorResponseWrapperTests {
     }
 
     @Test
-    public void flushBufferSkipsSaveSecurityContextOnNewThread() throws Exception {
-        Thread t = new Thread() {
-            public void run() {
-                try {
-                    wrappedResponse.flushBuffer();
-                } catch(IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        };
-        t.start();
-        t.join();
+    public void flushBufferSkipsSaveSecurityContextDisables() throws Exception {
+        wrappedResponse.disableSaveOnResponseCommitted();
+        wrappedResponse.flushBuffer();
         assertThat(wrappedResponse.securityContext).isNull();
     }
 
