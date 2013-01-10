@@ -60,7 +60,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(HeadersFilter.class);
         final Map<String, String> headers = new HashMap<String, String>();
 
-        parseXssElement(element, headers);
+        parseXssElement(element, parserContext, headers);
         parseFrameOptionsElement(element, parserContext, headers);
         parseContentTypeOptionsElement(element, headers);
 
@@ -91,7 +91,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
             if (ALLOW_FROM.equals(header) ) {
                 String origin = frameElt.getAttribute(ATT_ORIGIN);
                 if (!StringUtils.hasText(origin) ) {
-                    parserContext.getReaderContext().error("Frame options header value ALLOW-FROM required an origin to be specified.", frameElt);
+                    parserContext.getReaderContext().error("<frame-options policy=\"ALLOW-FROM\"/> requires a non-empty string value for the origin attribute to be specified.", frameElt);
                 }
                 header += " " + origin;
             }
@@ -99,15 +99,17 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
         }
     }
 
-    private void parseXssElement(Element element, Map<String, String> headers) {
+    private void parseXssElement(Element element, ParserContext parserContext, Map<String, String> headers) {
         Element xssElt = DomUtils.getChildElementByTagName(element, XSS_ELEMENT);
         if (xssElt != null) {
             boolean enabled = Boolean.valueOf(getAttribute(xssElt, ATT_ENABLED, "true"));
-            boolean block = Boolean.valueOf(getAttribute(xssElt, ATT_BLOCK, "true"));
+            boolean block = Boolean.valueOf(getAttribute(xssElt, ATT_BLOCK, enabled ? "true" : "false"));
 
             String value = enabled ? "1" : "0";
             if (enabled && block) {
                 value += "; mode=block";
+            } else if (!enabled && block) {
+                parserContext.getReaderContext().error("<xss-protection enabled=\"false\"/> does not allow for the block=\"true\".", xssElt);
             }
             headers.put(XSS_PROTECTION_HEADER, value);
         }

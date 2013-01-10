@@ -210,11 +210,11 @@
                 <title>Child Elements of &lt;http&gt;</title>
                 <itemizedlist>
                     <listitem><link xlink:href="#nsa-access-denied-handler">access-denied-handler</link></listitem>
-                    <listitem><link xlink:href="#nsa-headers">headers</link></listitem>
                     <listitem><link xlink:href="#nsa-anonymous">anonymous</link></listitem>
                     <listitem><link xlink:href="#nsa-custom-filter">custom-filter</link></listitem>
                     <listitem><link xlink:href="#nsa-expression-handler">expression-handler</link></listitem>
                     <listitem><link xlink:href="#nsa-form-login">form-login</link></listitem>
+                    <listitem><link xlink:href="#nsa-headers">headers</link></listitem>
                     <listitem><link xlink:href="#nsa-http-basic">http-basic</link></listitem>
                     <listitem><link xlink:href="#nsa-intercept-url">intercept-url</link></listitem>
                     <listitem><link xlink:href="#nsa-jee">jee</link></listitem>
@@ -225,7 +225,6 @@
                     <listitem><link xlink:href="#nsa-request-cache">request-cache</link></listitem>
                     <listitem><link xlink:href="#nsa-session-management">session-management</link></listitem>
                     <listitem><link xlink:href="#nsa-x509">x509</link></listitem>
-                    <listitem><link xlink:href="#nsa-headers">headers</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -307,7 +306,7 @@
                     <para>
                         <itemizedlist>
                             <listitem><literal>DENY</literal> The page cannot be displayed in a frame, regardless of
-                                the site attempting to do so. </listitem>
+                                the site attempting to do so. This is the default when frame-options-policy is specified.</listitem>
                             <listitem><literal>SAMEORIGIN</literal> The page can only be displayed in a frame on the
                                 same origin as the page itself</listitem>
                             <listitem><literal>ALLOW-FROM <link xlink:href="#nsa-frame-options-origin">origin</link></literal>
@@ -334,15 +333,20 @@
         </section>
         <section xml:id="nsa-xss-protection">
             <title><literal>&lt;xss-protection&gt;</literal></title>
-            <para>Adds the X-XSS-Protection header to the response. This is in no-way a full protection to XSS attacks!</para>
+            <para>Adds the <a href="http://blogs.msdn.com/b/ie/archive/2008/07/02/ie8-security-part-iv-the-xss-filter.aspx">X-XSS-Protection header</a>
+                to the response to assist in protecting against <a href="http://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent">reflected / “Type-1” Cross-Site Scripting (XSS)</a>
+                attacks. This is in no-way a full protection to XSS attacks!</para>
             <section xml:id="nsa-xss-protection-attributes">
                 <section xml:id="nsa-xss-protection-enabled">
                     <title><literal>xss-protection-enabled</literal></title>
-                    <para>Enable or Disable xss-protection.</para>
+                    <para>Enable or Disable <a href="http://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent">reflected / “Type-1” Cross-Site Scripting (XSS)</a> protection.</para>
                 </section>
                 <section xml:id="nsa-xss-protection-block">
                     <title><literal>xss-protection-block</literal></title>
-                    <para>When enabled adds mode=block to the header. Which indicates to the browser that loading should be blocked.</para>
+                    <para>When true and xss-protection-enabled is true, adds mode=block to the header. This indicates to the browser that the
+                        page should not be loaded at all. When false and xss-protection-enabled is true, the page will still be rendered when
+                        an reflected attack is detected but the response will be modified to protect against the attack. Note that there are
+                        sometimes ways of bypassing this mode which can often times make blocking the page more desirable.</para>
                 </section>
             </section>
             <section xml:id="nsa-xss-protection-parents">
@@ -354,8 +358,9 @@
         </section>
         <section xml:id="nsa-content-type-options">
             <title><literal>&lt;content-type-options&gt;</literal></title>
-            <para>Add the X-Content-Type-Options header to the response. Indicates the browser (IE8+) to enable detection
-            for MIME-sniffing.</para>
+            <para>Add the X-Content-Type-Options header with the value of nosniff to the response. This
+                <a href="http://blogs.msdn.com/b/ie/archive/2008/09/02/ie8-security-part-vi-beta-2-update.aspx">disables MIME-sniffing</a>
+                for IE8+ and Chrome extensions.</para>
             <section xml:id="nsa-content-type-options-parents">
                 <title>Parent Elements of <literal>&lt;content-type-options&gt;</literal></title>
                 <itemizedlist>
