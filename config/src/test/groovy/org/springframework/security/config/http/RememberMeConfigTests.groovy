@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 the original author or authors.
+ * Copyright 2002-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import org.springframework.security.web.authentication.rememberme.TokenBasedReme
  *
  * @author Luke Taylor
  * @author Rob Winch
+ * @author Oliver Becker
  */
 class RememberMeConfigTests extends AbstractHttpConfigTests {
 
@@ -210,6 +211,27 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
 
         then: "Parses OK"
         notThrown BeanDefinitionParsingException
+    }
+
+    // SEC-2119
+    def 'Custom form-parameter is supported'() {
+        httpAutoConfig () {
+            'remember-me'('form-parameter': 'ourParam')
+        }
+
+        createAppContext(AUTH_PROVIDER_XML)
+        expect:
+        rememberMeServices().parameter == 'ourParam'
+    }
+
+    def 'form-parameter cannot be used together with services-ref'() {
+        when:
+        httpAutoConfig () {
+            'remember-me'('form-parameter': 'ourParam', 'services-ref': 'ourService')
+        }
+        createAppContext(AUTH_PROVIDER_XML)
+        then:
+        BeanDefinitionParsingException e = thrown()
     }
 
     def rememberMeServices() {
