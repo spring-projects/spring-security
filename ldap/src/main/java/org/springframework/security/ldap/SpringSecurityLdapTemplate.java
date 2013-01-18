@@ -52,14 +52,14 @@ import org.springframework.util.Assert;
  */
 public class SpringSecurityLdapTemplate extends LdapTemplate {
     //~ Static fields/initializers =====================================================================================
-    private static final Log logger = LogFactory.getLog(SpringSecurityLdapTemplate.class);
+    protected static final Log logger = LogFactory.getLog(SpringSecurityLdapTemplate.class);
 
     public static final String[] NO_ATTRS = new String[0];
 
     //~ Instance fields ================================================================================================
 
     /** Default search controls */
-    private SearchControls searchControls = new SearchControls();
+    protected SearchControls searchControls = new SearchControls();
 
     //~ Constructors ===================================================================================================
 
