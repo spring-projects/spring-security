@@ -314,7 +314,7 @@ boolean supports(Class clazz);
 <programlisting language="xml"><![CDATA[
 <bean id="roleVoter" class="org.springframework.security.access.vote.RoleHierarchyVoter">
     <constructor-arg ref="roleHierarchy" />
-</class>
+</bean>
 <bean id="roleHierarchy"
         class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl">
     <property name="hierarchy">
