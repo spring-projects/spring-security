@@ -2,6 +2,8 @@ package org.springframework.security.web.authentication.session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
@@ -36,8 +38,11 @@ import java.util.*;
  * @author Luke Taylor
  * @since 3.0
  */
-public class SessionFixationProtectionStrategy implements SessionAuthenticationStrategy {
+public class SessionFixationProtectionStrategy implements SessionAuthenticationStrategy,
+        ApplicationEventPublisherAware {
     protected final Log logger = LogFactory.getLog(this.getClass());
+
+    private ApplicationEventPublisher applicationEventPublisher;
 
     /**
      * Indicates that the session attributes of an existing session
@@ -112,12 +117,23 @@ public class SessionFixationProtectionStrategy implements SessionAuthenticationS
     /**
      * Called when the session has been changed and the old attributes have been migrated to the new session.
      * Only called if a session existed to start with. Allows subclasses to plug in additional behaviour.
+     * <p>
+     * The default implementation of this method publishes the appropriate {@link SessionMigrationEvent} (if
+     * {@code migrateSessionAttributes} is {@code true}) or {@link SessionIdChangedEvent} (if
+     * {@code migrateSessionAttributes} is {@code false}). If you override this method and still wish these events
+     * to be published, you should call {@code super.onSessionChange()} within your overriding method.
      *
      * @param originalSessionId the original session identifier
      * @param newSession the newly created session
      * @param auth the token for the newly authenticated principal
      */
     protected void onSessionChange(String originalSessionId, HttpSession newSession, Authentication auth) {
+        String newId = newSession.getId();
+        if(migrateSessionAttributes) {
+            applicationEventPublisher.publishEvent(new SessionMigrationEvent(auth, originalSessionId, newId));
+        } else {
+            applicationEventPublisher.publishEvent(new SessionIdChangedEvent(auth, originalSessionId, newId));
+        }
     }
 
     /**
@@ -191,6 +207,10 @@ public class SessionFixationProtectionStrategy implements SessionAuthenticationS
      */
     public void setMigrateSessionAttributes(boolean migrateSessionAttributes) {
         this.migrateSessionAttributes = migrateSessionAttributes;
+    }
+
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     /**
