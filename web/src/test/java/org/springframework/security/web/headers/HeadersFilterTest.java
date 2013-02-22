@@ -20,9 +20,9 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.*;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -39,7 +39,8 @@ public class HeadersFilterTest {
 
     @Test
     public void noHeadersConfigured() throws Exception {
-        HeadersFilter filter = new HeadersFilter();
+        List<HeaderFactory> factories = new ArrayList();
+        HeadersFilter filter = new HeadersFilter(factories);
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain filterChain = new MockFilterChain();
@@ -51,11 +52,18 @@ public class HeadersFilterTest {
 
     @Test
     public void additionalHeadersShouldBeAddedToTheResponse() throws Exception {
-        HeadersFilter filter = new HeadersFilter();
-        Map<String, String> headers = new HashMap<String, String>();
-        headers.put("X-Header1", "foo");
-        headers.put("X-Header2", "bar");
-        filter.setHeaders(headers);
+        List<HeaderFactory> factories = new ArrayList();
+        MockHeaderFactory factory1 = new MockHeaderFactory();
+        factory1.setName("X-Header1");
+        factory1.setValue("foo");
+        MockHeaderFactory factory2 = new MockHeaderFactory();
+        factory2.setName("X-Header2");
+        factory2.setValue("bar");
+
+        factories.add(factory1);
+        factories.add(factory2);
+
+        HeadersFilter filter = new HeadersFilter(factories);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -68,6 +76,26 @@ public class HeadersFilterTest {
         assertThat(headerNames, hasItems("X-Header1", "X-Header2"));
         assertThat(response.getHeader("X-Header1"), is("foo"));
         assertThat(response.getHeader("X-Header2"), is("bar"));
+
+    }
+
+    private static final class MockHeaderFactory implements HeaderFactory {
+
+        private String name;
+        private String value;
+
+        @Override
+        public Header create(HttpServletRequest request, HttpServletResponse response) {
+            return new Header(name, value);
+        }
+
+        public void setName(String name) {
+            this.name=name;
+        }
+
+        public void setValue(String value) {
+            this.value=value;
+        }
 
     }
 }

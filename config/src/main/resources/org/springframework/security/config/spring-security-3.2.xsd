@@ -2271,9 +2271,35 @@
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
-      <xs:attribute name="origin" type="xs:token">
+      <xs:attribute name="strategy">
          <xs:annotation>
-            <xs:documentation>Specify the origin to use when ALLOW-FROM is chosen.
+            <xs:documentation>Specify the strategy to use when ALLOW-FROM is chosen.
+                </xs:documentation>
+         </xs:annotation>
+         <xs:simpleType>
+            <xs:restriction base="xs:token">
+               <xs:enumeration value="static"/>
+               <xs:enumeration value="whitelist"/>
+               <xs:enumeration value="regexp"/>
+            </xs:restriction>
+         </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Defines a reference to a Spring bean Id.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="value" type="xs:string">
+         <xs:annotation>
+            <xs:documentation>Specify the a value to use for the chosen strategy.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="from-parameter" type="xs:string">
+         <xs:annotation>
+            <xs:documentation>Specify the request parameter to use for the origin when using a 'whitelist' or 'regexp'
+                based strategy. Default is 'from'.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
@@ -2319,15 +2345,21 @@
       </xs:complexType>
    </xs:element>
   <xs:attributeGroup name="header.attlist">
-      <xs:attribute name="name" use="required" type="xs:token">
+      <xs:attribute name="name" type="xs:token">
          <xs:annotation>
             <xs:documentation>The name of the header to add.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="value" use="required" type="xs:token">
+      <xs:attribute name="value" type="xs:token">
          <xs:annotation>
             <xs:documentation>The value for the header.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Defines a reference to a Spring bean Id.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>

@@ -319,9 +319,44 @@
                         including it in a frame it is the same as the one serving the page.
                     </para>
                 </section>
-                <section xml:id="nsa-frame-options-origin">
-                    <title><literal>frame-options-origin</literal></title>
-                    <para>The origin</para>
+                <section xml:id="nsa=frame-options-strategy">
+                    <title><literal>frame-options-strategy</literal></title>
+                    <para>
+                        Select the <classname>AllowFromStrategy</classname> to use when using the ALLOW-FROM policy.
+                        <itemizedlist>
+                            <listitem><literal>static</literal> Use a single static ALLOW-FROM value. The value can be set
+                            through the <link xlink:href="#nsa-frame-options-value">value</link> attribute.
+                            </listitem>
+                            <listitem><literal>regexp</literal> Use a regelur expression to validate incoming requests and
+                            if they are allowed. The regular expression can be set through the <link xlink:href="#nsa-frame-options-value">value</link>
+                            attribute. The request parameter used to retrieve the value to validate can be specified
+                            using the <link xlink:href="#nsa-frame-options-from-parameter">from-parameter</link>.
+                            </listitem>
+                            <listitem><literal>whitelist</literal>A comma-seperated list containing the allowed domains.
+                                The comma-seperated list can be set through the <link xlink:href="#nsa-frame-options-value">value</link>
+                                attribute. The request parameter used to retrieve the value to validate can be specified
+                                using the <link xlink:href="#nsa-frame-options-from-parameter">from-parameter</link>.
+                            </listitem>
+                        </itemizedlist>
+                    </para>
+                </section>
+                <section xml:id="nsa-frame-options-ref">
+                    <title><literal>frame-options-ref</literal></title>
+                    <para>
+                        Instead of using one of the predefined strategies it is also possible to use a custom <classname>AllowFromStrategy</classname>.
+                        The reference to this bean can be specified through this ref attribute.
+                    </para>
+                </section>
+                <section xml:id="nsa-frame-options-value">
+                    <title><literal>frame-options-value</literal></title>
+                    <para>The value to use when ALLOW-FROM is used a <link xlink:href="#nsa-frame-options-strategy">strategy</link>.</para>
+                </section>
+                <section xml:id="nsa-frame-options-from-parameter">
+                    <title><literal>frame-options-from-parameter</literal></title>
+                    <para>
+                        Specify the name of the request parameter to use when using regexp or whitelist for the ALLOW-FROM
+                        strategy.
+                    </para>
                 </section>
             </section>
              <section xml:id="nsa-frame-options-parents">
@@ -380,6 +415,10 @@
                 <section xml:id="nsa-header-value">
                     <title><literal>header-value</literal></title>
                     <para>The <literal>value</literal> of the header to add.</para>
+                </section>
+                <section xml:id="nsa-header-ref">
+                    <title><literal>header-ref</literal></title>
+                    <para>Reference to a custom implementation of the <classname>HeaderFactory</classname> interface.</para>
                 </section>
             </section>
             <section xml:id="nsa-header-parents">

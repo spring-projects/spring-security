@@ -12,6 +12,8 @@
  */
 package org.springframework.security.config.http
 
+import org.springframework.security.util.FieldUtils
+
 import javax.servlet.Filter
 import javax.servlet.http.HttpServletRequest
 
@@ -54,10 +56,12 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         def hf = getFilter(HeadersFilter)
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        hf.doFilter(new MockHttpServletRequest(), response);
 
         expect:
         hf
-        hf.headers.isEmpty()
+        response.headers.isEmpty()
     }
 
     def 'http headers content-type-options'() {
@@ -69,10 +73,11 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         def hf = getFilter(HeadersFilter)
-
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        hf.doFilter(new MockHttpServletRequest(), response);
         expect:
         hf
-        hf.headers == ['X-Content-Type-Options':'nosniff']
+        response.headers == ['X-Content-Type-Options':'nosniff']
     }
 
     def 'http headers frame-options defaults to DENY'() {
@@ -288,6 +293,6 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 
         then:
         BeanDefinitionParsingException e = thrown()
-        e.message.contains '<xss-protection enabled="false"/> does not allow for the block="true".'
+        e.message.contains '<xss-protection enabled="false"/> does not allow block="true".'
     }
 }

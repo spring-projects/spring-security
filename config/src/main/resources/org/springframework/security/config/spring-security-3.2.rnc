@@ -729,8 +729,18 @@ frame-options.attlist &=
 	## Specify the policy to use for the X-Frame-Options-Header.
 	attribute policy {"DENY","SAMEORIGIN","ALLOW-FROM"}?
 frame-options.attlist &=
-	## Specify the origin to use when ALLOW-FROM is chosen.
-	attribute origin {xsd:token}?
+	## Specify the strategy to use when ALLOW-FROM is chosen.
+	attribute strategy {"static","whitelist","regexp"}?
+frame-options.attlist &=
+	## Specify the a reference to the custom AllowFromStrategy to use when ALLOW-FROM is chosen.
+	ref?
+frame-options.attlist &=
+	## Specify the a value to use for the chosen strategy.
+	attribute value {xsd:string}?
+frame-options.attlist &=
+	## Specify the request parameter to use for the origin when using a 'whitelist' or 'regexp' based strategy. Default is 'from'.
+	attribute from-parameter {xsd:string}?
+
 
 xss-protection =
 	## Enable basic XSS browser protection, supported by newer browsers (IE8+), will set the X-XSS-Protection header.
@@ -751,10 +761,13 @@ header=
 	element header {header.attlist}
 header.attlist &=
 	## The name of the header to add.
-	attribute name {xsd:token}
+	attribute name {xsd:token}?
 header.attlist &=
 	## The value for the header.
-	attribute value {xsd:token}
+	attribute value {xsd:token}?
+header.attlist &=
+    ## Reference to a custom HeaderFactory implementation.
+    ref?
 
 any-user-service = user-service | jdbc-user-service | ldap-user-service
 
