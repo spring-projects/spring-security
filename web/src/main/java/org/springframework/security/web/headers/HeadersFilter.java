@@ -22,8 +22,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Filter implementation to add headers to the current request. Can be useful to add certain headers which enable
@@ -35,28 +34,41 @@ import java.util.Map;
  */
 public class HeadersFilter extends OncePerRequestFilter {
 
-    /** Map of headers to add to a response */
-    private final Map<String, String> headers = new HashMap<String, String>();
+    /** Collection of HeaderFactory instances to produce Headers. */
+    private final List<HeaderFactory> factories;
+
+    public HeadersFilter(List<HeaderFactory> factories) {
+        this.factories = factories;
+    }
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        for (Map.Entry<String, String> header : headers.entrySet()) {
-            String name = header.getKey();
-            String value = header.getValue();
-            if (logger.isTraceEnabled()) {
-                logger.trace("Adding header '" + name + "' with value '"+value +"'");
+
+        for (HeaderFactory factory : factories) {
+            Header header = factory.create(request, response);
+            if (header != null) {
+                String name = header.getName();
+                String[] values = header.getValues();
+                boolean first = true;
+                for (String value : values) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Adding header '" + name + "' with value '"+value +"'");
+                    }
+                    if (first) {
+                        response.setHeader(name, value);
+                        first = false;
+                    } else {
+                        response.addHeader(name, value);
+                    }
+                }
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Factory produced no header.");
+                }
             }
-            response.setHeader(header.getKey(), header.getValue());
         }
         filterChain.doFilter(request, response);
     }
 
-    public void setHeaders(Map<String, String> headers) {
-        this.headers.clear();
-        this.headers.putAll(headers);
-    }
-
-    public void addHeader(String name, String value) {
-        headers.put(name, value);
-    }
 }
