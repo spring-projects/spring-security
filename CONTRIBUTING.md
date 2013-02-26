@@ -7,7 +7,7 @@ _Please refer back to this document as a checklist before issuing any pull reque
 Each Spring module is slightly different than another in terms of team size, number of issues, etc. Therefore each project is managed slightly different. You will notice that this document is very similar to the [Spring Framework Contributor guidelines](https://github.com/SpringSource/spring-framework/wiki/Contributor-guidelines). However, there are some subtle differences between the two documents, so please be sure to read this document thoroughly.
 
 # Understand the basics 
-Not sure what a pull request is, or how to submit one? Take a look at GitHub's excellent [help documentation first](http://help.github.com/send-pull-requests).
+Not sure what a pull request is, or how to submit one? Take a look at GitHub's excellent [help documentation first](https://help.github.com/articles/using-pull-requests).
 
 # Search JIRA first; create an issue if necessary
 Is there already an issue that addresses your concern? Do a bit of searching in our [JIRA issue tracker](https://jira.springsource.org/browse/SEC) to see if you can find something similar. If not, please create a new issue before submitting a pull request unless the change is not a user facing issue.
