@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
  * To change this template use File | Settings | File Templates.
  */
 public class NullAllowFromStrategy implements AllowFromStrategy {
-    @Override
     public String apply(HttpServletRequest request) {
         return null;
     }

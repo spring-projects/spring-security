@@ -24,7 +24,6 @@ public abstract class RequestParameterAllowFromStrategy implements AllowFromStra
     protected final Log log = LogFactory.getLog(getClass());
 
 
-    @Override
     public String apply(HttpServletRequest request) {
         String from = request.getParameter(parameter);
         if (log.isDebugEnabled()) {

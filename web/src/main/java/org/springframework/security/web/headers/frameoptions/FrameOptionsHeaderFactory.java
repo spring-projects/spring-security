@@ -33,11 +33,10 @@ public class FrameOptionsHeaderFactory implements HeaderFactory {
         this.allowFromStrategy=allowFromStrategy;
     }
 
-    @Override
     public Header create(HttpServletRequest request, HttpServletResponse response) {
         if (ALLOW_FROM.equals(mode)) {
             String value = allowFromStrategy.apply(request);
-            return new Header(FRAME_OPTIONS_HEADER, value);
+            return new Header(FRAME_OPTIONS_HEADER, ALLOW_FROM + " " + value);
         } else {
             return new Header(FRAME_OPTIONS_HEADER, mode);
         }

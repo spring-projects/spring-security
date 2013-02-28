@@ -84,7 +84,6 @@ public class HeadersFilterTest {
         private String name;
         private String value;
 
-        @Override
         public Header create(HttpServletRequest request, HttpServletResponse response) {
             return new Header(name, value);
         }

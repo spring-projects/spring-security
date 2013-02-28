@@ -17,6 +17,7 @@ import org.springframework.security.util.FieldUtils
 import javax.servlet.Filter
 import javax.servlet.http.HttpServletRequest
 
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException
 import org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException;
 import org.springframework.mock.web.MockFilterChain
@@ -56,11 +57,10 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         def hf = getFilter(HeadersFilter)
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        hf.doFilter(new MockHttpServletRequest(), response);
+        MockHttpServletResponse response = new MockHttpServletResponse()
+        hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
 
         expect:
-        hf
         response.headers.isEmpty()
     }
 
@@ -73,11 +73,11 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         def hf = getFilter(HeadersFilter)
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        hf.doFilter(new MockHttpServletRequest(), response);
+        MockHttpServletResponse response = new MockHttpServletResponse()
+        hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+
         expect:
-        hf
-        response.headers == ['X-Content-Type-Options':'nosniff']
+        assertHeaders(response, ['X-Content-Type-Options':'nosniff'])
     }
 
     def 'http headers frame-options defaults to DENY'() {
@@ -89,10 +89,11 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         def hf = getFilter(HeadersFilter)
+        MockHttpServletResponse response = new MockHttpServletResponse()
+        hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
 
         expect:
-        hf
-        hf.headers == ['X-Frame-Options':'DENY']
+        assertHeaders(response, ['X-Frame-Options':'DENY'])
     }
 
     def 'http headers frame-options DENY'() {
@@ -104,10 +105,11 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         def hf = getFilter(HeadersFilter)
+        MockHttpServletResponse response = new MockHttpServletResponse()
+        hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
 
         expect:
-        hf
-        hf.headers == ['X-Frame-Options':'DENY']
+        assertHeaders(response, ['X-Frame-Options':'DENY'])
     }
 
     def 'http headers frame-options SAMEORIGIN'() {
@@ -119,17 +121,18 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         def hf = getFilter(HeadersFilter)
+        MockHttpServletResponse response = new MockHttpServletResponse()
+        hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
 
         expect:
-        hf
-        hf.headers == ['X-Frame-Options':'SAMEORIGIN']
+        assertHeaders(response, ['X-Frame-Options':'SAMEORIGIN'])
     }
 
     def 'http headers frame-options ALLOW-FROM no origin reports error'() {
         when:
         httpAutoConfig {
             'headers'() {
-                'frame-options'(policy : 'ALLOW-FROM')
+                'frame-options'(policy : 'ALLOW-FROM', strategy : 'static')
             }
         }
         createAppContext()
@@ -138,14 +141,14 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 
         then:
         BeanDefinitionParsingException e = thrown()
-        e.message.contains '<frame-options policy="ALLOW-FROM"/> requires a non-empty string value for the origin attribute to be specified.'
+        e.message.contains "Strategy requires a 'value' to be set." // FIME better error message?
     }
 
     def 'http headers frame-options ALLOW-FROM spaces only origin reports error'() {
         when:
         httpAutoConfig {
             'headers'() {
-                'frame-options'(policy : 'ALLOW-FROM', origin : ' ')
+                'frame-options'(policy : 'ALLOW-FROM', strategy: 'static', value : ' ')
             }
         }
         createAppContext()
@@ -154,23 +157,24 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 
         then:
         BeanDefinitionParsingException e = thrown()
-        e.message.contains '<frame-options policy="ALLOW-FROM"/> requires a non-empty string value for the origin attribute to be specified.'
+        e.message.contains "Strategy requires a 'value' to be set." // FIME better error message?
     }
 
     def 'http headers frame-options ALLOW-FROM'() {
         when:
         httpAutoConfig {
             'headers'() {
-                'frame-options'(policy : 'ALLOW-FROM', origin : 'https://example.com')
+                'frame-options'(policy : 'ALLOW-FROM', strategy: 'static', value : 'https://example.com')
             }
         }
         createAppContext()
 
         def hf = getFilter(HeadersFilter)
+        MockHttpServletResponse response = new MockHttpServletResponse()
+        hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
 
         then:
-        hf
-        hf.headers == ['X-Frame-Options':'ALLOW-FROM https://example.com']
+        assertHeaders(response, ['X-Frame-Options':'ALLOW-FROM https://example.com'])
     }
 
     def 'http headers header a=b'() {
@@ -183,10 +187,11 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         def hf = getFilter(HeadersFilter)
+        MockHttpServletResponse response = new MockHttpServletResponse()
+        hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
 
         then:
-        hf
-        hf.headers == ['a':'b']
+        assertHeaders(response, ['a':'b'])
     }
 
     def 'http headers header a=b and c=d'() {
@@ -200,10 +205,11 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         def hf = getFilter(HeadersFilter)
+        MockHttpServletResponse response = new MockHttpServletResponse()
+        hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
 
         then:
-        hf
-        hf.headers.sort() == ['a':'b', 'c':'d'].sort()
+        assertHeaders(response , ['a':'b', 'c':'d'])
     }
 
     def 'http headers header no name produces error'() {
@@ -216,7 +222,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         then:
-        thrown(XmlBeanDefinitionStoreException)
+        thrown(BeanCreationException)
     }
 
     def 'http headers header no value produces error'() {
@@ -229,7 +235,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         then:
-        thrown(XmlBeanDefinitionStoreException)
+        thrown(BeanCreationException)
     }
 
     def 'http headers xss-protection defaults'() {
@@ -242,10 +248,11 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         def hf = getFilter(HeadersFilter)
+        MockHttpServletResponse response = new MockHttpServletResponse()
+        hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
 
         then:
-        hf
-        hf.headers == ['X-XSS-Protection':'1; mode=block']
+        assertHeaders(response, ['X-XSS-Protection':'1; mode=block'])
     }
 
     def 'http headers xss-protection enabled=true'() {
@@ -258,10 +265,11 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         def hf = getFilter(HeadersFilter)
+        MockHttpServletResponse response = new MockHttpServletResponse()
+        hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
 
         then:
-        hf
-        hf.headers == ['X-XSS-Protection':'1; mode=block']
+        assertHeaders(response, ['X-XSS-Protection':'1; mode=block'])
     }
 
     def 'http headers xss-protection enabled=false'() {
@@ -274,10 +282,11 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         def hf = getFilter(HeadersFilter)
+        MockHttpServletResponse response = new MockHttpServletResponse()
+        hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
 
         then:
-        hf
-        hf.headers == ['X-XSS-Protection':'0']
+        assertHeaders(response, ['X-XSS-Protection':'0'])
     }
 
     def 'http headers xss-protection enabled=false and block=true produces error'() {
@@ -294,5 +303,12 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         then:
         BeanDefinitionParsingException e = thrown()
         e.message.contains '<xss-protection enabled="false"/> does not allow block="true".'
+    }
+
+    def assertHeaders(MockHttpServletResponse response, Map<String,String> expected) {
+        assert response.headerNames == expected.keySet()
+        expected.each { headerName, value ->
+            assert response.getHeaderValues(headerName) == [value]
+        }
     }
 }

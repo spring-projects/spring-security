@@ -319,7 +319,7 @@
                         including it in a frame it is the same as the one serving the page.
                     </para>
                 </section>
-                <section xml:id="nsa=frame-options-strategy">
+                <section xml:id="nsa-frame-options-strategy">
                     <title><literal>frame-options-strategy</literal></title>
                     <para>
                         Select the <classname>AllowFromStrategy</classname> to use when using the ALLOW-FROM policy.
