@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 the original author or authors.
+ * Copyright 2002-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import org.w3c.dom.Element;
  * @author Luke Taylor
  * @author Ben Alex
  * @author Rob Winch
+ * @author Oliver Becker
  */
 class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_DATA_SOURCE = "data-source-ref";
@@ -48,6 +49,7 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_SUCCESS_HANDLER_REF = "authentication-success-handler-ref";
     static final String ATT_TOKEN_VALIDITY = "token-validity-seconds";
     static final String ATT_SECURE_COOKIE = "use-secure-cookie";
+    static final String ATT_FORM_PARAMETER = "form-parameter";
 
     protected final Log logger = LogFactory.getLog(getClass());
     private final String key;
@@ -70,6 +72,8 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
         String successHandlerRef = element.getAttribute(ATT_SUCCESS_HANDLER_REF);
         String rememberMeServicesRef = element.getAttribute(ATT_SERVICES_REF);
         String tokenValiditySeconds = element.getAttribute(ATT_TOKEN_VALIDITY);
+        String useSecureCookie = element.getAttribute(ATT_SECURE_COOKIE);
+        String formParameter = element.getAttribute(ATT_FORM_PARAMETER);
         Object source = pc.extractSource(element);
 
         RootBeanDefinition services = null;
@@ -78,11 +82,14 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
         boolean tokenRepoSet = StringUtils.hasText(tokenRepository);
         boolean servicesRefSet = StringUtils.hasText(rememberMeServicesRef);
         boolean userServiceSet = StringUtils.hasText(userServiceRef);
+        boolean useSecureCookieSet = StringUtils.hasText(useSecureCookie);
         boolean tokenValiditySet = StringUtils.hasText(tokenValiditySeconds);
+        boolean formParameterSet = StringUtils.hasText(formParameter);
 
-        if (servicesRefSet && (dataSourceSet || tokenRepoSet || userServiceSet || tokenValiditySet)) {
+        if (servicesRefSet && (dataSourceSet || tokenRepoSet || userServiceSet || tokenValiditySet || useSecureCookieSet || formParameterSet)) {
             pc.getReaderContext().error(ATT_SERVICES_REF + " can't be used in combination with attributes "
-                    + ATT_TOKEN_REPOSITORY + "," + ATT_DATA_SOURCE + ", " + ATT_USER_SERVICE_REF + " or " + ATT_TOKEN_VALIDITY, source);
+                    + ATT_TOKEN_REPOSITORY + "," + ATT_DATA_SOURCE + ", " + ATT_USER_SERVICE_REF + ", " + ATT_TOKEN_VALIDITY
+                    + ", " + ATT_SECURE_COOKIE + " or " + ATT_FORM_PARAMETER, source);
         }
 
         if (dataSourceSet && tokenRepoSet) {
@@ -120,8 +127,7 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
             services.getConstructorArgumentValues().addGenericArgumentValue(uds);
             // tokenRepo is already added if it is a PersistentTokenBasedRememberMeServices
 
-            String useSecureCookie = element.getAttribute(ATT_SECURE_COOKIE);
-            if (StringUtils.hasText(useSecureCookie)) {
+            if (useSecureCookieSet) {
                 services.getPropertyValues().addPropertyValue("useSecureCookie", Boolean.valueOf(useSecureCookie));
             }
 
@@ -133,6 +139,11 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
                 }
                 services.getPropertyValues().addPropertyValue("tokenValiditySeconds", tokenValidity);
             }
+
+            if (formParameterSet) {
+                services.getPropertyValues().addPropertyValue("parameter", formParameter);
+            }
+
             services.setSource(source);
             servicesName = pc.getReaderContext().generateBeanName(services);
             pc.registerBeanComponent(new BeanComponentDefinition(services, servicesName));
