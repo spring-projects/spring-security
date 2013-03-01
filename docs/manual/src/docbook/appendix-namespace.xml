@@ -842,6 +842,11 @@
                         <classname>PersistentTokenBasedRememberMeServices</classname> will be used and configured with a
                         <classname>JdbcTokenRepositoryImpl</classname> instance. </para>
                 </section>
+                <section xml:id="nsa-remember-me-form-parameter">
+                    <title><literal>form-parameter</literal></title>
+                    <para>The name of the request parameter which toggles remember-me authentication. Defaults to "_spring_security_remember_me".
+                        Maps to the "parameter" property of <classname>AbstractRememberMeServices</classname>.</para>
+                </section>
                 <section xml:id="nsa-remember-me-key">
                     <title><literal>key</literal></title>
                     <para>Maps to the "key" property of
