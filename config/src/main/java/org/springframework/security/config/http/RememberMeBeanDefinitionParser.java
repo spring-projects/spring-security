@@ -49,7 +49,7 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_SUCCESS_HANDLER_REF = "authentication-success-handler-ref";
     static final String ATT_TOKEN_VALIDITY = "token-validity-seconds";
     static final String ATT_SECURE_COOKIE = "use-secure-cookie";
-    static final String ATT_FORM_PARAMETER = "form-parameter";
+    static final String ATT_FORM_REMEMBERME_PARAMETER = "rememberme-parameter";
 
     protected final Log logger = LogFactory.getLog(getClass());
     private final String key;
@@ -73,7 +73,7 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
         String rememberMeServicesRef = element.getAttribute(ATT_SERVICES_REF);
         String tokenValiditySeconds = element.getAttribute(ATT_TOKEN_VALIDITY);
         String useSecureCookie = element.getAttribute(ATT_SECURE_COOKIE);
-        String formParameter = element.getAttribute(ATT_FORM_PARAMETER);
+        String remembermeParameter = element.getAttribute(ATT_FORM_REMEMBERME_PARAMETER);
         Object source = pc.extractSource(element);
 
         RootBeanDefinition services = null;
@@ -84,12 +84,12 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
         boolean userServiceSet = StringUtils.hasText(userServiceRef);
         boolean useSecureCookieSet = StringUtils.hasText(useSecureCookie);
         boolean tokenValiditySet = StringUtils.hasText(tokenValiditySeconds);
-        boolean formParameterSet = StringUtils.hasText(formParameter);
+        boolean remembermeParameterSet = StringUtils.hasText(remembermeParameter);
 
-        if (servicesRefSet && (dataSourceSet || tokenRepoSet || userServiceSet || tokenValiditySet || useSecureCookieSet || formParameterSet)) {
+        if (servicesRefSet && (dataSourceSet || tokenRepoSet || userServiceSet || tokenValiditySet || useSecureCookieSet || remembermeParameterSet)) {
             pc.getReaderContext().error(ATT_SERVICES_REF + " can't be used in combination with attributes "
                     + ATT_TOKEN_REPOSITORY + "," + ATT_DATA_SOURCE + ", " + ATT_USER_SERVICE_REF + ", " + ATT_TOKEN_VALIDITY
-                    + ", " + ATT_SECURE_COOKIE + " or " + ATT_FORM_PARAMETER, source);
+                    + ", " + ATT_SECURE_COOKIE + " or " + ATT_FORM_REMEMBERME_PARAMETER, source);
         }
 
         if (dataSourceSet && tokenRepoSet) {
@@ -140,8 +140,8 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
                 services.getPropertyValues().addPropertyValue("tokenValiditySeconds", tokenValidity);
             }
 
-            if (formParameterSet) {
-                services.getPropertyValues().addPropertyValue("parameter", formParameter);
+            if (remembermeParameterSet) {
+                services.getPropertyValues().addPropertyValue("parameter", remembermeParameter);
             }
 
             services.setSource(source);

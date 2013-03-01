@@ -1801,11 +1801,12 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="form-parameter" type="xs:token">
-          <xs:annotation>
-              <xs:documentation>The name of the request parameter which toggles remember-me authentication. Defaults to '_spring_security_remember_me'.
-              </xs:documentation>
-          </xs:annotation>
+      <xs:attribute name="rememberme-parameter" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The name of the request parameter which toggles remember-me authentication. Defaults to
+                '_spring_security_remember_me'.
+                </xs:documentation>
+         </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="token-repository-ref">

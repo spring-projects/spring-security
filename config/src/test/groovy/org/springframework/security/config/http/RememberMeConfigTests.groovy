@@ -26,6 +26,7 @@ import org.springframework.security.util.FieldUtils
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
 import org.springframework.security.web.authentication.logout.LogoutFilter
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
+import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices
@@ -213,10 +214,20 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
         notThrown BeanDefinitionParsingException
     }
 
+    def 'Default form-parameter is correct'() {
+        httpAutoConfig () {
+            'remember-me'()
+        }
+
+        createAppContext(AUTH_PROVIDER_XML)
+        expect:
+        rememberMeServices().parameter == AbstractRememberMeServices.DEFAULT_PARAMETER
+    }
+
     // SEC-2119
     def 'Custom form-parameter is supported'() {
         httpAutoConfig () {
-            'remember-me'('form-parameter': 'ourParam')
+            'remember-me'('rememberme-parameter': 'ourParam')
         }
 
         createAppContext(AUTH_PROVIDER_XML)
@@ -227,7 +238,7 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
     def 'form-parameter cannot be used together with services-ref'() {
         when:
         httpAutoConfig () {
-            'remember-me'('form-parameter': 'ourParam', 'services-ref': 'ourService')
+            'remember-me'('rememberme-parameter': 'ourParam', 'services-ref': 'ourService')
         }
         createAppContext(AUTH_PROVIDER_XML)
         then:
