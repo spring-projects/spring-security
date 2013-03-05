@@ -10,6 +10,8 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.config.AopNamespaceUtils;
+import org.springframework.aop.framework.ProxyFactoryBean;
+import org.springframework.aop.target.LazyInitTargetSource;
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
@@ -17,15 +19,19 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.parsing.CompositeComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.annotation.Jsr250MethodSecurityMetadataSource;
 import org.springframework.security.access.annotation.Jsr250Voter;
@@ -34,6 +40,7 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.expression.method.ExpressionBasedAnnotationAttributeFactory;
 import org.springframework.security.access.expression.method.ExpressionBasedPostInvocationAdvice;
 import org.springframework.security.access.expression.method.ExpressionBasedPreInvocationAdvice;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.intercept.AfterInvocationProviderManager;
 import org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor;
 import org.springframework.security.access.intercept.aopalliance.MethodSecurityMetadataSourceAdvisor;
@@ -139,6 +146,20 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 
                 if (StringUtils.hasText(expressionHandlerRef)) {
                     logger.info("Using bean '" + expressionHandlerRef + "' as method ExpressionHandler implementation");
+                    RootBeanDefinition lazyInitPP = new RootBeanDefinition(LazyInitBeanDefinitionRegistryPostProcessor.class);
+                    lazyInitPP.getConstructorArgumentValues().addGenericArgumentValue(expressionHandlerRef);
+                    pc.getReaderContext().registerWithGeneratedName(lazyInitPP);
+
+                    BeanDefinitionBuilder lazyMethodSecurityExpressionHandlerBldr = BeanDefinitionBuilder.rootBeanDefinition(LazyInitTargetSource.class);
+                    lazyMethodSecurityExpressionHandlerBldr.addPropertyValue("targetBeanName", expressionHandlerRef);
+
+                    BeanDefinitionBuilder expressionHandlerProxyBldr = BeanDefinitionBuilder.rootBeanDefinition(ProxyFactoryBean.class);
+                    expressionHandlerProxyBldr.addPropertyValue("targetSource", lazyMethodSecurityExpressionHandlerBldr.getBeanDefinition());
+                    expressionHandlerProxyBldr.addPropertyValue("proxyInterfaces", MethodSecurityExpressionHandler.class);
+
+                    expressionHandlerRef = pc.getReaderContext().generateBeanName(expressionHandlerProxyBldr.getBeanDefinition());
+
+                    pc.registerBeanComponent(new BeanComponentDefinition(expressionHandlerProxyBldr.getBeanDefinition(), expressionHandlerRef));
                 } else {
                     BeanDefinition expressionHandler = new RootBeanDefinition(DefaultMethodSecurityExpressionHandler.class);
                     expressionHandlerRef = pc.getReaderContext().generateBeanName(expressionHandler);
@@ -399,6 +420,28 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
 
         public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
             this.beanFactory = beanFactory;
+        }
+    }
+
+    /**
+     * Delays setting a bean of a given name to be lazyily initialized until after all the beans are registered.
+     *
+     * @author Rob Winch
+     * @since 3.2
+     */
+    private static final class LazyInitBeanDefinitionRegistryPostProcessor implements BeanDefinitionRegistryPostProcessor {
+        private final String beanName;
+
+        private LazyInitBeanDefinitionRegistryPostProcessor(String beanName) {
+            this.beanName = beanName;
+        }
+
+        public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+            BeanDefinition beanDefinition = registry.getBeanDefinition(beanName);
+            beanDefinition.setLazyInit(true);
+        }
+
+        public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         }
     }
 }

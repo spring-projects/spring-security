@@ -81,8 +81,11 @@ class XsdDocumentedTests extends Specification {
         elementNameToElement*.value*.ids*.each { expectedIds.addAll it }
         documentedIds.removeAll ignoredIds
         expectedIds.removeAll ignoredIds
+        def undocumentedIds = (expectedIds - documentedIds)
+        def shouldNotBeDocumented = (documentedIds - expectedIds)
         then: 'all the elements and attributes are documented'
-        documentedIds.sort() == expectedIds.sort()
+        shouldNotBeDocumented.empty
+        undocumentedIds.empty
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 the original author or authors.
+ * Copyright 2002-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.springframework.security.util.FieldUtils
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
 import org.springframework.security.web.authentication.logout.LogoutFilter
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
+import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices
@@ -36,6 +37,7 @@ import org.springframework.security.web.authentication.rememberme.TokenBasedReme
  *
  * @author Luke Taylor
  * @author Rob Winch
+ * @author Oliver Becker
  */
 class RememberMeConfigTests extends AbstractHttpConfigTests {
 
@@ -210,6 +212,37 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
 
         then: "Parses OK"
         notThrown BeanDefinitionParsingException
+    }
+
+    def 'Default form-parameter is correct'() {
+        httpAutoConfig () {
+            'remember-me'()
+        }
+
+        createAppContext(AUTH_PROVIDER_XML)
+        expect:
+        rememberMeServices().parameter == AbstractRememberMeServices.DEFAULT_PARAMETER
+    }
+
+    // SEC-2119
+    def 'Custom form-parameter is supported'() {
+        httpAutoConfig () {
+            'remember-me'('rememberme-parameter': 'ourParam')
+        }
+
+        createAppContext(AUTH_PROVIDER_XML)
+        expect:
+        rememberMeServices().parameter == 'ourParam'
+    }
+
+    def 'form-parameter cannot be used together with services-ref'() {
+        when:
+        httpAutoConfig () {
+            'remember-me'('rememberme-parameter': 'ourParam', 'services-ref': 'ourService')
+        }
+        createAppContext(AUTH_PROVIDER_XML)
+        then:
+        BeanDefinitionParsingException e = thrown()
     }
 
     def rememberMeServices() {

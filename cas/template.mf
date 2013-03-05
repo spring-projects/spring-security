@@ -15,6 +15,7 @@ Import-Template:
  org.springframework.security.authentication.*;version="${secRange}",
  org.springframework.security.web.*;version="${secRange}",
  org.springframework.beans.factory;version="${springRange}",
+ org.springframework.cache.*;version="${springRange}";resolution:=optional,
  org.springframework.context.*;version="${springRange}",
  org.springframework.dao;version="${springRange}",
  org.springframework.util;version="${springRange}",
