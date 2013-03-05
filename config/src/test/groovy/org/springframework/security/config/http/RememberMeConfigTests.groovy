@@ -214,7 +214,7 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
         notThrown BeanDefinitionParsingException
     }
 
-    def 'Default form-parameter is correct'() {
+    def 'Default remember-me-parameter is correct'() {
         httpAutoConfig () {
             'remember-me'()
         }
@@ -225,9 +225,9 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
     }
 
     // SEC-2119
-    def 'Custom form-parameter is supported'() {
+    def 'Custom remember-me-parameter is supported'() {
         httpAutoConfig () {
-            'remember-me'('rememberme-parameter': 'ourParam')
+            'remember-me'('remember-me-parameter': 'ourParam')
         }
 
         createAppContext(AUTH_PROVIDER_XML)
@@ -235,10 +235,10 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
         rememberMeServices().parameter == 'ourParam'
     }
 
-    def 'form-parameter cannot be used together with services-ref'() {
+    def 'remember-me-parameter cannot be used together with services-ref'() {
         when:
         httpAutoConfig () {
-            'remember-me'('rememberme-parameter': 'ourParam', 'services-ref': 'ourService')
+            'remember-me'('remember-me-parameter': 'ourParam', 'services-ref': 'ourService')
         }
         createAppContext(AUTH_PROVIDER_XML)
         then:

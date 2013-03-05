@@ -49,7 +49,7 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_SUCCESS_HANDLER_REF = "authentication-success-handler-ref";
     static final String ATT_TOKEN_VALIDITY = "token-validity-seconds";
     static final String ATT_SECURE_COOKIE = "use-secure-cookie";
-    static final String ATT_FORM_REMEMBERME_PARAMETER = "rememberme-parameter";
+    static final String ATT_FORM_REMEMBERME_PARAMETER = "remember-me-parameter";
 
     protected final Log logger = LogFactory.getLog(getClass());
     private final String key;

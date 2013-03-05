@@ -579,7 +579,7 @@ remember-me.attlist &=
     attribute authentication-success-handler-ref {xsd:token}?
 remember-me.attlist &=
     ## The name of the request parameter which toggles remember-me authentication. Defaults to '_spring_security_remember_me'.
-    attribute rememberme-parameter {xsd:token}?
+    attribute remember-me-parameter {xsd:token}?
 
 token-repository-ref =
     ## Reference to a PersistentTokenRepository bean for use with the persistent token remember-me implementation.
