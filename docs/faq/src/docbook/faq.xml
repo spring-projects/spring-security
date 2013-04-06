@@ -424,7 +424,7 @@
                             information will not be removed from the registry.</para>
                         <programlisting language="xml"><![CDATA[
     <listener>
-        <listener-class>org.springframework.security.ui.session.HttpSessionEventPublisher</listener-class>
+        <listener-class>org.springframework.security.web.session.HttpSessionEventPublisher</listener-class>
     </listener> ]]>
             </programlisting>
                     </answer>
