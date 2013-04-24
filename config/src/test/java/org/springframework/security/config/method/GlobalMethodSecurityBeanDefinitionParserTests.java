@@ -10,9 +10,11 @@ import org.junit.After;
 import org.junit.Test;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.Advised;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.context.support.StaticApplicationContext;
 import org.springframework.security.access.AccessDeniedException;
@@ -29,11 +31,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreInvocationAuthorizationAdviceVoter;
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.ConfigTestUtils;
 import org.springframework.security.config.PostProcessedMockUserDetailsService;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -366,6 +370,52 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
         }
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("admin", "password"));
         foo.foo(new SecurityConfig("A"));
+    }
+
+    @Test
+    public void supportsCustomAuthenticationManager() throws Exception {
+        setContext(
+                "<b:bean id='target' class='" + ConcreteFoo.class.getName()  + "'/>" +
+                "<method-security-metadata-source id='mds'>" +
+                "      <protect method='"+ Foo.class.getName() + ".foo' access='ROLE_ADMIN'/>" +
+                "</method-security-metadata-source>" +
+                "<global-method-security pre-post-annotations='enabled' metadata-source-ref='mds' authentication-manager-ref='customAuthMgr'/>" +
+                "<b:bean id='customAuthMgr' class='org.springframework.security.config.method.GlobalMethodSecurityBeanDefinitionParserTests$CustomAuthManager'>" +
+                "      <b:constructor-arg value='authManager'/>" +
+                "</b:bean>" +
+                AUTH_PROVIDER_XML
+        );
+        SecurityContextHolder.getContext().setAuthentication(bob);
+        Foo foo = (Foo) appContext.getBean("target");
+        try {
+            foo.foo(new SecurityConfig("A"));
+            fail("Bob can't invoke admin methods");
+        } catch (AccessDeniedException expected) {
+        }
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("admin", "password"));
+        foo.foo(new SecurityConfig("A"));
+    }
+
+    static class CustomAuthManager implements AuthenticationManager, ApplicationContextAware {
+        private String beanName;
+        private AuthenticationManager authenticationManager;
+
+        CustomAuthManager(String beanName) {
+            this.beanName = beanName;
+        }
+
+        public Authentication authenticate(Authentication authentication)
+                throws AuthenticationException {
+            return authenticationManager.authenticate(authentication);
+        }
+
+        /* (non-Javadoc)
+         * @see org.springframework.context.ApplicationContextAware#setApplicationContext(org.springframework.context.ApplicationContext)
+         */
+        public void setApplicationContext(ApplicationContext applicationContext)
+                throws BeansException {
+            this.authenticationManager = applicationContext.getBean(beanName,AuthenticationManager.class);
+        }
     }
 
     private void setContext(String context) {

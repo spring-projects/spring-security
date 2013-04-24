@@ -1,3 +1,18 @@
+/*
+ * Copyright 2002-2013 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.springframework.security.config.method;
 
 import static org.springframework.security.config.Elements.*;
@@ -54,7 +69,6 @@ import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.Elements;
 import org.springframework.security.config.authentication.AuthenticationManagerFactoryBean;
@@ -70,6 +84,7 @@ import org.w3c.dom.Element;
  *
  * @author Ben Alex
  * @author Luke Taylor
+ * @author Rob Winch
  * @since 2.0
  */
 public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionParser {
@@ -255,7 +270,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
      * expression voter if expression-based access control is enabled.
      * @return
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private String registerAccessManager(ParserContext pc, boolean jsr250Enabled, BeanDefinition expressionVoter) {
 
         BeanDefinitionBuilder accessMgrBuilder = BeanDefinitionBuilder.rootBeanDefinition(AffirmativeBased.class);
@@ -280,7 +295,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
         return id;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     private BeanReference registerDelegatingMethodSecurityMetadataSource(ParserContext pc, ManagedList delegates, Object source) {
         RootBeanDefinition delegatingMethodSecurityMetadataSource = new RootBeanDefinition(DelegatingMethodSecurityMetadataSource.class);
         delegatingMethodSecurityMetadataSource.setSource(source);
@@ -404,7 +419,7 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
                 if (delegate == null) {
                     Assert.state(beanFactory != null, "BeanFactory must be set to resolve " + authMgrBean);
                     try {
-                        delegate = beanFactory.getBean(authMgrBean, ProviderManager.class);
+                        delegate = beanFactory.getBean(authMgrBean, AuthenticationManager.class);
                     } catch (NoSuchBeanDefinitionException e) {
                         if (BeanIds.AUTHENTICATION_MANAGER.equals(e.getBeanName())) {
                             throw new NoSuchBeanDefinitionException(BeanIds.AUTHENTICATION_MANAGER,
