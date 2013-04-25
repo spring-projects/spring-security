@@ -1,5 +1,7 @@
 package org.springframework.security.ldap.server;
 
+import static junit.framework.Assert.fail;
+
 import org.apache.directory.shared.ldap.name.LdapDN;
 import org.junit.Test;
 
@@ -22,5 +24,26 @@ public class ApacheDSContainerTests {
 //        server.getService().getAdminSession().lookup(people);
 //
 //        server.stop();
+    }
+
+    // SEC-2162
+    @Test
+    public void failsToStartThrowsException() throws Exception {
+        ApacheDSContainer server1 = new ApacheDSContainer("dc=springframework,dc=org", "classpath:test-server.ldif");
+        ApacheDSContainer server2 = new ApacheDSContainer("dc=springframework,dc=org", "classpath:test-server.ldif");
+        try {
+            server1.afterPropertiesSet();
+            try {
+                server2.afterPropertiesSet();
+                fail("Expected Exception");
+            } catch(RuntimeException success) {}
+        } finally {
+            try {
+                server1.destroy();
+            }catch(Throwable t) {}
+            try {
+                server2.destroy();
+            }catch(Throwable t) {}
+        }
     }
 }
