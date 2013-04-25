@@ -17,7 +17,6 @@ package org.springframework.security.ldap.server;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -119,7 +118,7 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
             String apacheWorkDir = System.getProperty("apacheDSWorkDir");
 
             if (apacheWorkDir == null) {
-                apacheWorkDir = System.getProperty("java.io.tmpdir") + File.separator + "apacheds-spring-security";
+                apacheWorkDir = createTempDirectory("apacheds-spring-security-");
             }
 
             setWorkingDirectory(new File(apacheWorkDir));
@@ -265,6 +264,22 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
         } else {
             throw new IllegalArgumentException("More than one LDIF resource found with the supplied pattern:" + ldifResources);
         }
+    }
+
+    private String createTempDirectory(String prefix) throws IOException {
+        String parentTempDir = System.getProperty("java.io.tmpdir");
+        String fileNamePrefix = prefix + System.nanoTime();
+        String fileName = fileNamePrefix;
+
+        for(int i=0;i<1000;i++) {
+            File tempDir = new File(parentTempDir, fileName);
+            if(!tempDir.exists()) {
+                return tempDir.getAbsolutePath();
+            }
+            fileName = fileNamePrefix + "~" + i;
+        }
+
+        throw new IOException("Failed to create a temporary directory for file at " + new File(parentTempDir, fileNamePrefix));
     }
 
     private boolean deleteDir(File dir) {
