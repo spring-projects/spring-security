@@ -20,7 +20,12 @@ package org.springframework.security.authentication.encoding;
  * Interface for performing authentication operations on a password.
  *
  * @author colin sampaleanu
+ * @deprecated It is recommended to use
+ *             {@link org.springframework.security.crypto.password.PasswordEncoder}
+ *             instead which better accommodates best practice of randomly
+ *             generated salt that is included with the password.
  */
+@Deprecated
 public interface PasswordEncoder {
     //~ Methods ========================================================================================================
 
