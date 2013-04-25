@@ -494,7 +494,7 @@
                 interested in and to configure how they should be handled. It is used to construct
                 the <interfacename>FilterInvocationSecurityMetadataSource</interfacename> used by
                 the <classname>FilterSecurityInterceptor</classname>. It is also responsible for
-                configuring a <classname>ChannelAuthenticationFilter</classname> if particular URLs
+                configuring a <classname>ChannelProcessingFilter</classname> if particular URLs
                 need to be accessed by HTTPS, for example. When matching the specified patterns
                 against an incoming request, the matching is done in the order in which the elements
                 are declared. So the most specific matches patterns should come first and the most
@@ -544,7 +544,7 @@
                         Alternatively the value <quote>any</quote> can be used when there is no
                         preference. If this attribute is present on any
                         <literal>&lt;intercept-url&gt;</literal> element, then a
-                        <classname>ChannelAuthenticationFilter</classname> will be added to the filter
+                        <classname>ChannelProcessingFilter</classname> will be added to the filter
                         stack and its additional dependencies added to the application
                         context.<!--See the chapter on <link
                 xlink:href="#channel-security-config">channel security</link> for an example
