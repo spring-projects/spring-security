@@ -33,9 +33,11 @@
         <custom-filter ref="switchUserProcessingFilter" position="SWITCH_USER_FILTER"/>
     </http>
 
+    <b:bean id="encoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/>
+
     <authentication-manager>
         <authentication-provider>
-           <password-encoder hash="md5"/>
+           <password-encoder ref="encoder"/>
            <jdbc-user-service data-source-ref="dataSource"/>
         </authentication-provider>
     </authentication-manager>

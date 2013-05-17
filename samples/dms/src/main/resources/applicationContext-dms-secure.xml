@@ -64,7 +64,7 @@
       <property name="userDetailsService" ref="jdbcDaoImpl"/>
       <property name="userCache" ref="userCache"/>
       <property name="passwordEncoder">
-        <bean class="org.springframework.security.authentication.encoding.Md5PasswordEncoder"/>
+        <bean class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/>
       </property>
    </bean>
 
