@@ -6,12 +6,12 @@
   <xs:attributeGroup name="hash">
       <xs:attribute name="hash" use="required">
          <xs:annotation>
-            <xs:documentation>Defines the hashing algorithm used on user passwords. We recommend strongly against using
-                MD4, as it is a very weak hashing algorithm.
+            <xs:documentation>Defines the hashing algorithm used on user passwords. Bcrypt is recommended.
                 </xs:documentation>
          </xs:annotation>
          <xs:simpleType>
             <xs:restriction base="xs:token">
+               <xs:enumeration value="bcrypt"/>
                <xs:enumeration value="plaintext"/>
                <xs:enumeration value="sha"/>
                <xs:enumeration value="sha-256"/>
@@ -154,12 +154,12 @@
       </xs:attribute>
       <xs:attribute name="hash">
          <xs:annotation>
-            <xs:documentation>Defines the hashing algorithm used on user passwords. We recommend strongly against using
-                MD4, as it is a very weak hashing algorithm.
+            <xs:documentation>Defines the hashing algorithm used on user passwords. Bcrypt is recommended.
                 </xs:documentation>
          </xs:annotation>
          <xs:simpleType>
             <xs:restriction base="xs:token">
+               <xs:enumeration value="bcrypt"/>
                <xs:enumeration value="plaintext"/>
                <xs:enumeration value="sha"/>
                <xs:enumeration value="sha-256"/>
@@ -537,12 +537,12 @@
       </xs:attribute>
       <xs:attribute name="hash">
          <xs:annotation>
-            <xs:documentation>Defines the hashing algorithm used on user passwords. We recommend strongly against using
-                MD4, as it is a very weak hashing algorithm.
+            <xs:documentation>Defines the hashing algorithm used on user passwords. Bcrypt is recommended.
                 </xs:documentation>
          </xs:annotation>
          <xs:simpleType>
             <xs:restriction base="xs:token">
+               <xs:enumeration value="bcrypt"/>
                <xs:enumeration value="plaintext"/>
                <xs:enumeration value="sha"/>
                <xs:enumeration value="sha-256"/>

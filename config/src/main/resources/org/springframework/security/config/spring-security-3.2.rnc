@@ -6,8 +6,8 @@ default namespace = "http://www.springframework.org/schema/security"
 start = http | ldap-server | authentication-provider | ldap-authentication-provider | any-user-service | ldap-server | ldap-authentication-provider
 
 hash =
-    ## Defines the hashing algorithm used on user passwords. We recommend strongly against using MD4, as it is a very weak hashing algorithm.
-    attribute hash {"plaintext" | "sha" | "sha-256" | "md5" | "md4" | "{sha}" | "{ssha}"}
+    ## Defines the hashing algorithm used on user passwords. Bcrypt is recommended.
+    attribute hash {"bcrypt" | "plaintext" | "sha" | "sha-256" | "md5" | "md4" | "{sha}" | "{ssha}"}
 base64 =
     ## Whether a string should be base64 encoded
     attribute base64 {xsd:boolean}

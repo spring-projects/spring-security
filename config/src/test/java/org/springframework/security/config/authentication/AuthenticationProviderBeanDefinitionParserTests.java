@@ -58,6 +58,35 @@ public class AuthenticationProviderBeanDefinitionParserTests {
     }
 
     @Test
+    public void providerWithBCryptPasswordEncoderWorks() throws Exception {
+        setContext(" <authentication-provider>" +
+                "        <password-encoder hash='bcrypt'/>" +
+                "        <user-service>" +
+                "            <user name='bob' password='$2a$05$dRmjl1T05J7rvCPD2NgsHesCEJHww3pdmesUhjM3PD4m/gaEYyx/G' authorities='ROLE_A' />" +
+                "        </user-service>" +
+                "    </authentication-provider>");
+
+        getProvider().authenticate(bob);
+    }
+
+    @Test(expected=BeanDefinitionParsingException.class)
+    public void bCryptAndSaltSourceRaisesException() throws Exception {
+        appContext = new InMemoryXmlApplicationContext("" +
+                " <authentication-manager>" +
+                "    <authentication-provider>" +
+                "        <password-encoder hash='bcrypt'>" +
+                "            <salt-source ref='saltSource'/>" +
+                "        </password-encoder>" +
+                "        <user-service>" +
+                "            <user name='bob' password='$2a$05$dRmjl1T05J7rvCPD2NgsHesCEJHww3pdmesUhjM3PD4m/gaEYyx/G' authorities='ROLE_A' />" +
+                "        </user-service>" +
+                "    </authentication-provider>" +
+                " </authentication-manager>" +
+                " <b:bean id='saltSource'  class='" + ReflectionSaltSource.class.getName() +"'>" +
+                "     <b:property name='userPropertyToUse' value='username'/>" +
+                " </b:bean>");
+    }
+    @Test
     public void providerWithMd5PasswordEncoderWorks() throws Exception {
         setContext(" <authentication-provider>" +
                 "        <password-encoder hash='md5'/>" +

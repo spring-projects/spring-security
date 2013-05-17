@@ -14,6 +14,7 @@ Import-Template:
  org.springframework.security.access.*;version="${secRange}",
  org.springframework.security.authentication.*;version="${secRange}",
  org.springframework.security.core.*;version="${secRange}",
+ org.springframework.security.crypto.bcrypt.*;version="${secRange}",
  org.springframework.security.util;version="${secRange}",
  org.springframework.security.provisioning;version="${secRange}",
  org.springframework.security.web.*;version="${secRange}";resolution:=optional,

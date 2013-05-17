@@ -19,6 +19,7 @@ import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.authentication.encoding.PlaintextPasswordEncoder;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.security.config.Elements;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -34,6 +35,7 @@ public class PasswordEncoderParser {
     static final String ATT_REF = "ref";
     public static final String ATT_HASH = "hash";
     static final String ATT_BASE_64 = "base64";
+    static final String OPT_HASH_BCRYPT = "bcrypt";
     static final String OPT_HASH_PLAINTEXT = "plaintext";
     static final String OPT_HASH_SHA = "sha";
     static final String OPT_HASH_SHA256 = "sha-256";
@@ -42,11 +44,12 @@ public class PasswordEncoderParser {
     static final String OPT_HASH_LDAP_SHA = "{sha}";
     static final String OPT_HASH_LDAP_SSHA = "{ssha}";
 
-    private static final Map<String, Class<? extends PasswordEncoder>> ENCODER_CLASSES;
+    private static final Map<String, Class<?>> ENCODER_CLASSES;
 
     static {
-        ENCODER_CLASSES = new HashMap<String, Class<? extends PasswordEncoder>>();
+        ENCODER_CLASSES = new HashMap<String, Class<?>>();
         ENCODER_CLASSES.put(OPT_HASH_PLAINTEXT, PlaintextPasswordEncoder.class);
+        ENCODER_CLASSES.put(OPT_HASH_BCRYPT, BCryptPasswordEncoder.class);
         ENCODER_CLASSES.put(OPT_HASH_SHA, ShaPasswordEncoder.class);
         ENCODER_CLASSES.put(OPT_HASH_SHA256, ShaPasswordEncoder.class);
         ENCODER_CLASSES.put(OPT_HASH_MD4, Md4PasswordEncoder.class);
@@ -84,12 +87,17 @@ public class PasswordEncoderParser {
         Element saltSourceElt = DomUtils.getChildElementByTagName(element, Elements.SALT_SOURCE);
 
         if (saltSourceElt != null) {
-            saltSource = new SaltSourceBeanDefinitionParser().parse(saltSourceElt, parserContext);
+            if (OPT_HASH_BCRYPT.equals(hash)) {
+                parserContext.getReaderContext().error(Elements.SALT_SOURCE + " isn't compatible with bcrypt",
+                        parserContext.extractSource(saltSourceElt));
+            } else {
+                saltSource = new SaltSourceBeanDefinitionParser().parse(saltSourceElt, parserContext);
+            }
         }
     }
 
     public static BeanDefinition createPasswordEncoderBeanDefinition(String hash, boolean useBase64) {
-        Class<? extends PasswordEncoder> beanClass = ENCODER_CLASSES.get(hash);
+        Class<?> beanClass = ENCODER_CLASSES.get(hash);
         BeanDefinitionBuilder beanBldr = BeanDefinitionBuilder.rootBeanDefinition(beanClass);
 
         if (OPT_HASH_SHA256.equals(hash)) {
