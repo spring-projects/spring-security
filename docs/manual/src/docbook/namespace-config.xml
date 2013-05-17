@@ -400,13 +400,16 @@
                 namespace. </para>
             <section xml:id="ns-password-encoder">
                 <title>Adding a Password Encoder</title>
-                <para> Often your password data will be encoded using a hashing algorithm. This is
-                    supported by the <literal>&lt;password-encoder&gt;</literal> element. With SHA
+                <para> Passwords should always be encoded using a secure hashing algorithm designed for the purpose
+                    (not a standard algorithm like SHA or MD5). This is supported by the
+                    <literal>&lt;password-encoder&gt;</literal> element. With bcrypt
                     encoded passwords, the original authentication provider configuration would look
                     like this: <programlisting language="xml"><![CDATA[
+<beans:bean name="bcryptEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/>
+
 <authentication-manager>
   <authentication-provider>
-    <password-encoder hash="sha"/>
+    <password-encoder ref="bcryptEncoder"/>
     <user-service>
       <user name="jimi" password="d7e6351eaa13189a5a3641bab846c8e8c69ba39f"
             authorities="ROLE_USER, ROLE_ADMIN" />
@@ -417,20 +420,10 @@
 </authentication-manager>
   ]]>
           </programlisting></para>
-                <para> When using hashed passwords, it's also a good idea to use a salt value to
-                    protect against dictionary attacks and Spring Security supports this too.
-                    Ideally you would want to use a randomly generated salt value for each user, but
-                    you can use any property of the <classname>UserDetails</classname> object which
-                    is loaded by your <classname>UserDetailsService</classname>. For example, to use
-                    the <literal>username</literal> property, you would use <programlisting language="xml"><![CDATA[
-  <password-encoder hash="sha">
-    <salt-source user-property="username"/>
-  </password-encoder>
-    ]]></programlisting> You can use a custom password encoder bean by using the
-                    <literal>ref</literal> attribute of <literal>password-encoder</literal>. This
-                    should contain the name of a bean in the application context which is an
-                    instance of Spring Security's <interfacename>PasswordEncoder</interfacename>
-                    interface. </para>
+                <para>Bcrypt is a good choice for most cases, unless you have a legacy system which forces
+                    you to use a different algorithm. If you are using a simple hashing algorithm or, even worse,
+                    storing plain text passwords, then you should consider migrating to a more secure option like bcrypt.
+                </para>
             </section>
         </section>
     </section>

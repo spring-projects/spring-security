@@ -120,18 +120,19 @@ public interface PasswordEncoder {
         This method is designed to support password-based authentication schemes.
     </para>
     <para>
-        The <classname>StandardPasswordEncoder</classname> implementation applies 1024 iterations of the SHA-256 hashing algorithm to the rawPassword combined with a site-wide secret and 8-byte random salt:
+        The <classname>BCryptPasswordEncoder</classname> implementation uses the widely supported "bcrypt" algorithm
+        to hash the passwords. Bcrypt uses a random 16 byte salt value and is a deliberately slow algorithm, in order to
+        hinder password crackers. The amount of work it does can be tuned using the "strength" parameter which takes values
+        from 4 to 31. The higher the value, the more work has to be done to calculate the hash. The default value is 10.
+        You can change this value in your deployed system without affecting existing passwords, as the value is also stored
+        in the encoded hash.
     </para>
     <programlisting language="java"><![CDATA[
-StandardPasswordEncoder encoder = new StandardPasswordEncoder("secret");
+// Create an encoder with strength 16
+BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(16);
 String result = encoder.encode("myPassword");
 assertTrue(encoder.matches("myPassword", result));]]>
     </programlisting>
-    <para>
-        The random salt ensures each hash is unique when the same password is used multiple times.
-        The site-wide secret should be stored in a safe place separate from where passwords are stored, and is used to protect against a bruce force attack in the event the database of passwords is compromised.
-        1024 iterations of the hashing algorithm strengthens the key and makes it more difficult to compromise using a brute force attack.
-    </para>
   </section>
 
 </chapter>

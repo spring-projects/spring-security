@@ -28,6 +28,9 @@ import org.springframework.security.crypto.keygen.KeyGenerators;
  * random 8-byte random salt value. It uses an additional system-wide secret value to provide additional protection.
  * <p>
  * The digest algorithm is invoked on the concatenated bytes of the salt, secret and password.
+ * <p>
+ * If you are developing a new system, {@link org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder} is
+ * a better choice both in terms of security and interoperability with other languages.
  *
  * @author Keith Donald
  * @author Luke Taylor

@@ -219,14 +219,27 @@
         <title>Password Encoding</title>
         <para xlink:href="#spring-security-crypto-passwordencoders">Spring Security's
             <interfacename>PasswordEncoder</interfacename> interface is used to support the use of
-            passwords which are encoded in some way in persistent storage. This will normally mean
-            that the passwords are <quote>hashed</quote> using a digest algorithm such as MD5 or
-            SHA. Spring Security 3.1's <link xlink:href="#spring-security-crypto-passwordencoders"
-            ><literal>crypto</literal></link> package introduces a simpler API which encourages
-            best-practice for password hashing. We would encourage you to use these APIs for new
-            development and regard the classes in package
-            <literal>org.springframework.security.authentication.encoding</literal> as legacy
-            implementations. The <classname>DaoAuthenticationProvider</classname> can be injected
+            passwords which are encoded in some way in persistent storage. You should never store
+            passwords in plain text. Always use a one-way password hashing algorithm such as bcrypt
+            which uses a built-in salt value which is different for each stored password. Do not use
+            a plain hash function such as MD5 or SHA, or even a salted version. Bcrypt is deliberately
+            designed to be slow and to hinder offline password cracking, whereas standard hash algorithms
+            are fast and can easily be used to test thousands of passwords in parallel on custom
+            hardware. You might think this doesn't apply to you since your password database is
+            secure and offline attacks aren't a risk. If so, do some research and read up on all
+            the high-profile sites which have been compromised in this way and have been pilloried
+            for storing their passwords insecurely. It's best to be on the safe side. Using
+            <code>org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"</code>
+            is a good choice for security. There are also compatible implementations in other common
+            programming languages so it a good choice for interoperability too.</para>
+        <para>
+            If you are using a legacy system which already has hashed passwords, then you will
+            need to use an encoder which matches your current algorithm, at least until you can
+            migrate your users to a more secure scheme (usually this will involve asking the user
+            to set a new password, since hashes are irreversible). Spring Security has a package
+            containing legacy password encoding implementation, namely,
+            <literal>org.springframework.security.authentication.encoding</literal>.
+            The <classname>DaoAuthenticationProvider</classname> can be injected
             with either the new or legacy <interfacename>PasswordEncoder</interfacename>
             types.</para>
         <section>
@@ -251,7 +264,8 @@
             <title>Adding Salt to a Hash</title>
             <para> One potential problem with the use of password hashes that it is relatively easy
                 to get round the one-way property of the hash if a common word is used for the
-                input. For example, if you search for the hash value
+                input. People tend to choose similar passwords and huge dictionaries of these from
+                previously hacked sites are available online. For example, if you search for the hash value
                 <literal>5f4dcc3b5aa765d61d8327deb882cf99</literal> using google, you will quickly
                 find the original word <quote>password</quote>. In a similar way, an attacker can
                 build a dictionary of hashes from a standard word list and use this to lookup the
@@ -263,19 +277,16 @@
                 value is usually preferable to none. Using a salt means that an attacker has to
                 build a separate dictionary of hashes for each salt value, making the attack more
                 complicated (but not impossible).</para>
-            <para>The <classname>StandardPasswordEncoder</classname> in the <link
-                xlink:href="#spring-security-crypto-passwordencoders"
-                ><literal>crypto</literal></link> package uses a random 8-byte salt, which is stored
-                in the same field as the password.<note>
-                <para>The legacy approach to handling salt was to inject a
+            <para>Bcrypt automatically generates a random salt value for each password when it
+                is encoded, and stores it in the bcrypt string in a standard format.
+                <note><para>The legacy approach to handling salt was to inject a
                     <interfacename>SaltSource</interfacename> into the
                     <classname>DaoAuthenticationProvider</classname>, which would obtain a salt
                     value for a particular user and pass it to the
-                    <interfacename>PasswordEncoder</interfacename>. Using a random salt and
-                    combining it with the password data field means you don't have to worry about
-                    the details of salt handling (such as where the the value is stored), as it is
-                    all done internally. So we'd strongly recommend you use this approach unless you
-                    already have a system in place which stores the salt separately.</para>
+                    <interfacename>PasswordEncoder</interfacename>. Using bcrypt means you don't have
+                    worry about the details of salt handling (such as where the the value is stored),
+                    as it is all done internally. So we'd strongly recommend you use bcrypt
+                    unless you already have a system in place which stores the salt separately.</para>
                 </note></para>
         </section>
         <section>
@@ -296,7 +307,9 @@
                 be using upper-case while the output from the encoder is lower-case. Make sure you
                 write a test to check the output from your configured password encoder with a known
                 password and salt combination and check that it matches the database value before
-                going further and attempting to authenticate through your application.</para>
+                going further and attempting to authenticate through your application. Using a standard
+                like bcrypt will avoid these issues.
+            </para>
             <para>If you want to generate encoded passwords directly in Java for storage in your
                 user database, then you can use the <methodname>encode</methodname> method on the
                 <interfacename>PasswordEncoder</interfacename>.</para>
