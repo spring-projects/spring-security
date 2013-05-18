@@ -77,10 +77,12 @@
                 </section>
                 <section xml:id="nsa-http-auto-config">
                     <title><literal>auto-config</literal></title>
-                    <para>Automatically registers a login form, BASIC authentication, anonymous authentication, logout
-                        services, remember-me and servlet-api-integration. If set to "true", all of these capabilities are added
+                    <para>Automatically registers a login form, BASIC authentication, logout
+                        services. If set to "true", all of these capabilities are added
                         (although you can still customize the configuration of each by providing the respective element). If
-                        unspecified, defaults to "false".</para>
+                        unspecified, defaults to "false". Use of this attribute is not recommended. Use explicit
+                        configuration elements instead to avoid confusion.
+                    </para>
                 </section>
                 <section xml:id="nsa-http-create-session">
                     <title><literal>create-session</literal></title>

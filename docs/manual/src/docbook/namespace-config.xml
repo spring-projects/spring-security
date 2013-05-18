@@ -133,12 +133,16 @@
         <section xml:id="ns-minimal">
             <title>A Minimal <literal>&lt;http&gt;</literal> Configuration</title>
             <para> All you need to enable web security to begin with is <programlisting language="xml"><![CDATA[
-  <http auto-config='true'>
+  <http>
     <intercept-url pattern="/**" access="ROLE_USER" />
+    <form-login />
+    <logout />
   </http>
   ]]>
 </programlisting> Which says that we want all URLs within our application to be secured,
-                requiring the role <literal>ROLE_USER</literal> to access them. The
+                requiring the role <literal>ROLE_USER</literal> to access them, we want to log in to
+                the application using a form with username and password, and that we want a logout URL
+                registered which will allow us to log out of the application.
                 <literal>&lt;http></literal> element is the parent for all web-related namespace
                 functionality. The <literal>&lt;intercept-url></literal> element defines a
                 <literal>pattern</literal> which is matched against the URLs of incoming requests
@@ -216,33 +220,7 @@
                 turn.</para>
             <para> At this point you should be able to start up your application and you will be
                 required to log in to proceed. Try it out, or try experimenting with the
-                <quote>tutorial</quote> sample application that comes with the project. The above
-                configuration actually adds quite a few services to the application because we have
-                used the <literal>auto-config</literal> attribute. For example, form-based login
-                processing is automatically enabled. </para>
-            <section xml:id="ns-auto-config">
-                <title>What does <literal>auto-config</literal> Include?</title>
-                <para> The <literal>auto-config</literal> attribute, as we have used it above, is
-                    just a shorthand syntax for: <programlisting language="xml"><![CDATA[
-  <http>
-    <form-login />
-    <http-basic />
-    <logout />
-  </http>
-  ]]></programlisting> These other elements are responsible for setting up form-login, basic
-                    authentication and logout handling services respectively <footnote>
-                    <para>In versions prior to 3.0, this list also included remember-me
-                        functionality. This could cause some confusing errors with some
-                        configurations and was removed in 3.0. In 3.0, the addition of an
-                        <classname>AnonymousAuthenticationFilter</classname> is part of the default
-                        <literal>&lt;http></literal> configuration, so the <literal>&lt;anonymous
-                        /></literal> element is added regardless of whether
-                        <literal>auto-config</literal> is enabled.</para>
-                    </footnote>. They each have attributes which can be used to alter their
-                    behaviour. In anything other than very basic scenarios, it is probably better to
-                    omit the <literal>auto-config</literal> attribute and configure what you require
-                    explicitly in the interest of clarity.</para>
-            </section>
+                <quote>tutorial</quote> sample application that comes with the project.</para>
         </section>
         <section xml:id="ns-form-and-basic">
             <title>Form and Basic Login Options</title>
@@ -251,17 +229,16 @@
                 explicitly set a URL for the login page, Spring Security generates one
                 automatically, based on the features that are enabled and using standard values for
                 the URL which processes the submitted login, the default target URL the user will be
-                sent to after loggin in and so on. However, the namespace offers plenty of support
+                sent to after logging in and so on. However, the namespace offers plenty of support
                 to allow you to customize these options. For example, if you want to supply your own
                 login page, you could use: <programlisting language="xml"><![CDATA[
-  <http auto-config='true'>
+  <http>
     <intercept-url pattern="/login.jsp*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
     <intercept-url pattern="/**" access="ROLE_USER" />
     <form-login login-page='/login.jsp'/>
   </http>
   ]]>
-    </programlisting> Note that you can still use <literal>auto-config</literal>. The
-                <literal>form-login</literal> element just overrides the default settings. Also note
+    </programlisting> Also note
                 that we've added an extra <literal>intercept-url</literal> element to say that any
                 requests for the login page should be available to anonymous users <footnote>
                 <para>See the chapter on <link xlink:href="#anonymous">anonymous
@@ -278,7 +255,7 @@
   <http pattern="/css/**" security="none"/>
   <http pattern="/login.jsp*" security="none"/>
 
-  <http auto-config='true'>
+  <http>
     <intercept-url pattern="/**" access="ROLE_USER" />
     <form-login login-page='/login.jsp'/>
   </http>
@@ -305,7 +282,7 @@
                 still want the security filter chain to be applied.</para>
             <para>If you want to use basic authentication instead of form login, then change the
                 configuration to <programlisting language="xml"><![CDATA[
-  <http auto-config='true'>
+  <http>
     <intercept-url pattern="/**" access="ROLE_USER" />
     <http-basic />
   </http>
@@ -777,8 +754,7 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                 <title>Avoiding filter position conflicts</title>
                 <para> If you are inserting a custom filter which may occupy the same position as
                     one of the standard filters created by the namespace then it's important that
-                    you don't include the namespace versions by mistake. Avoid using the
-                    <literal>auto-config</literal> attribute and remove any elements which create
+                    you don't include the namespace versions by mistake. Remove any elements which create
                     filters whose functionality you want to replace. </para>
                 <para> Note that you can't replace filters which are created by the use of the
                     <literal>&lt;http&gt;</literal> element itself -
