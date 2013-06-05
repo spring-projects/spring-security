@@ -1,14 +1,37 @@
+/*
+ * Copyright 2002-2013 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.security.web.authentication.session;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.util.Assert;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.*;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.security.core.Authentication;
+import org.springframework.util.Assert;
 
 /**
  * The default implementation of {@link SessionAuthenticationStrategy}.
@@ -36,8 +59,13 @@ import java.util.*;
  * @author Luke Taylor
  * @since 3.0
  */
-public class SessionFixationProtectionStrategy implements SessionAuthenticationStrategy {
+public class SessionFixationProtectionStrategy implements SessionAuthenticationStrategy, ApplicationEventPublisherAware {
     protected final Log logger = LogFactory.getLog(this.getClass());
+
+    /**
+     * Used for publishing events related to session fixation protection, such as {@link SessionFixationProtectionEvent}.
+     */
+    private ApplicationEventPublisher applicationEventPublisher = new NullEventPublisher();
 
     /**
      * Indicates that the session attributes of an existing session
@@ -112,12 +140,19 @@ public class SessionFixationProtectionStrategy implements SessionAuthenticationS
     /**
      * Called when the session has been changed and the old attributes have been migrated to the new session.
      * Only called if a session existed to start with. Allows subclasses to plug in additional behaviour.
+     * * <p>
+     * The default implementation of this method publishes a {@link SessionFixationProtectionEvent} to notify
+     * the application that the session ID has changed. If you override this method and still wish these events to be
+     * published, you should call {@code super.onSessionChange()} within your overriding method.
      *
      * @param originalSessionId the original session identifier
      * @param newSession the newly created session
      * @param auth the token for the newly authenticated principal
      */
     protected void onSessionChange(String originalSessionId, HttpSession newSession, Authentication auth) {
+        applicationEventPublisher.publishEvent(new SessionFixationProtectionEvent(
+                auth, originalSessionId, newSession.getId()
+        ));
     }
 
     /**
@@ -179,6 +214,10 @@ public class SessionFixationProtectionStrategy implements SessionAuthenticationS
         return attributesToMigrate;
     }
 
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
+    }
+
     /**
      * Defines whether attributes should be migrated to a new session or not. Has no effect if you
      * override the {@code extractAttributes} method.
@@ -205,5 +244,9 @@ public class SessionFixationProtectionStrategy implements SessionAuthenticationS
 
     public void setAlwaysCreateSession(boolean alwaysCreateSession) {
         this.alwaysCreateSession = alwaysCreateSession;
+    }
+
+    private static final class NullEventPublisher implements ApplicationEventPublisher {
+        public void publishEvent(ApplicationEvent event) { }
     }
 }
