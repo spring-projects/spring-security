@@ -103,4 +103,14 @@ public class ConcurrentSessionControlStrategyTests {
         assertEquals(request.getSession().getId(), event.getNewSessionId());
         assertSame(authentication, event.getAuthentication());
     }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void setApplicationEventPublisherForbidsNulls() {
+        strategy.setApplicationEventPublisher(null);
+    }
+
+    @Test
+    public void onAuthenticationNoExceptionWhenRequireApplicationEventPublisherSet() {
+        strategy.onAuthentication(authentication, request, response);
+    }
 }

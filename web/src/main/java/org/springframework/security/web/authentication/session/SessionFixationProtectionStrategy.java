@@ -214,7 +214,16 @@ public class SessionFixationProtectionStrategy implements SessionAuthenticationS
         return attributesToMigrate;
     }
 
+    /**
+     * Sets the {@link ApplicationEventPublisher} to use for submitting
+     * {@link SessionFixationProtectionEvent}. The default is to not submit the
+     * {@link SessionFixationProtectionEvent}.
+     *
+     * @param applicationEventPublisher
+     *            the {@link ApplicationEventPublisher}. Cannot be null.
+     */
     public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        Assert.notNull(applicationEventPublisher, "applicationEventPublisher cannot be null");
         this.applicationEventPublisher = applicationEventPublisher;
     }
 
