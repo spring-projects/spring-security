@@ -1057,10 +1057,9 @@
       </xs:attribute>
       <xs:attribute name="auto-config" type="xs:boolean">
          <xs:annotation>
-            <xs:documentation>Automatically registers a login form, BASIC authentication, anonymous authentication,
-                logout services, remember-me and servlet-api-integration. If set to "true", all of these
-                capabilities are added (although you can still customize the configuration of each by
-                providing the respective element). If unspecified, defaults to "false".
+            <xs:documentation>A legacy attribute which automatically registers a login form, BASIC authentication and a
+                logout URL and logout services. If unspecified, defaults to "false". We'd recommend you
+                avoid using this and instead explicitly configure the services you require.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
