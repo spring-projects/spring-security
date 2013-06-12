@@ -24,4 +24,17 @@ public class DefaultRedirectStrategyTests {
 
         assertEquals("remainder", response.getRedirectedUrl());
     }
+
+    @Test
+    public void contextRelativeUrlWithMultipleSchemesInHostnameIsHandledCorrectly() throws Exception {
+        DefaultRedirectStrategy rds = new DefaultRedirectStrategy();
+        rds.setContextRelative(true);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setContextPath("/context");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        rds.sendRedirect(request, response, "http://http://context.blah.com/context/remainder");
+
+        assertEquals("remainder", response.getRedirectedUrl());
+    }
 }
