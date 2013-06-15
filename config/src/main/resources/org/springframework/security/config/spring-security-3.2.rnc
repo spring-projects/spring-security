@@ -516,7 +516,7 @@ session-management =
 
 session-management.attlist &=
     ## Indicates whether an existing session should be invalidated when a user authenticates and a new session started. If set to "none" no change will be made. "newSession" will create a new empty session. "migrateSession" will create a new session and copy the session attributes to the new session. Defaults to "migrateSession".
-    attribute session-fixation-protection {"none" | "newSession" | "migrateSession" }?
+    attribute session-fixation-protection {"none" | "newSession" | "migrateSession" | "changeSessionId"}?
 session-management.attlist &=
     ## The URL to which a user will be redirected if they submit an invalid session indentifier. Typically used to detect session timeouts.
     attribute invalid-session-url {xsd:token}?

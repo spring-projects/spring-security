@@ -34,31 +34,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
 /**
- * The default implementation of {@link SessionAuthenticationStrategy}.
- * <p>
- * Creates a new session for the newly authenticated user if they already have a session (as a defence against
- * session-fixation protection attacks), and copies their session attributes across to the new session.
- * The copying of the attributes can be disabled by setting {@code migrateSessionAttributes} to {@code false}
- * (note that even in this case, internal Spring Security attributes will still be migrated to the new session).
- * <p>
- * This approach will only be effective if your servlet container always assigns a new session Id when a session is
- * invalidated and a new session created by calling {@link HttpServletRequest#getSession()}.
- * <p>
- * <h3>Issues with {@code HttpSessionBindingListener}</h3>
- * <p>
- * The migration of existing attributes to the newly-created session may cause problems if any of the objects
- * implement the {@code HttpSessionBindingListener} interface in a way which makes assumptions about the life-cycle of
- * the object. An example is the use of Spring session-scoped beans, where the initial removal of the bean from the
- * session will cause the {@code DisposableBean} interface to be invoked, in the assumption that the bean is no longer
- * required.
- * <p>
- * We'd recommend that you take account of this when designing your application and do not store attributes which
- * may not function correctly when they are removed and then placed back in the session. Alternatively, you should
- * customize the {@code SessionAuthenticationStrategy} to deal with the issue in an application-specific way.
+ * Previously the default implementation of {@link SessionAuthenticationStrategy}, this has been replaced with
+ * {@link SessionFixationProtectionSchemeStrategy}. It is recommended that you switch to that as soon as possible. This
+ * will be removed in a future version.
  *
  * @author Luke Taylor
  * @since 3.0
+ * @deprecated Use {@link SessionFixationProtectionSchemeStrategy} instead. Will be removed in a future version.
  */
+@Deprecated
+@SuppressWarnings({ "unused", "deprecation" })
 public class SessionFixationProtectionStrategy implements SessionAuthenticationStrategy, ApplicationEventPublisherAware {
     protected final Log logger = LogFactory.getLog(this.getClass());
 

@@ -33,9 +33,11 @@ import org.springframework.security.web.authentication.session.SessionFixationPr
 import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
 
 /**
+ * This test class will go away when {@link SessionFixationProtectionStrategy} is removed in a later version.
  *
  * @author Luke Taylor
  */
+@SuppressWarnings("deprecation")
 public class DefaultSessionAuthenticationStrategyTests {
 
     @Test

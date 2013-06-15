@@ -17,7 +17,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
-import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
+import org.springframework.security.web.authentication.session.SessionFixationProtectionSchemeStrategy;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
@@ -45,7 +45,7 @@ public class SessionManagementFilter extends GenericFilterBean {
     private AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
 
     public SessionManagementFilter(SecurityContextRepository securityContextRepository) {
-        this(securityContextRepository, new SessionFixationProtectionStrategy());
+        this(securityContextRepository, new SessionFixationProtectionSchemeStrategy());
     }
 
     public SessionManagementFilter(SecurityContextRepository securityContextRepository, SessionAuthenticationStrategy sessionStrategy) {
@@ -107,7 +107,7 @@ public class SessionManagementFilter extends GenericFilterBean {
      * Sets the strategy object which handles the session management behaviour when a
      * user has been authenticated during the current request.
      *
-     * @param sessionAuthenticationStrategy the strategy object. If not set, a {@link SessionFixationProtectionStrategy} is used.
+     * @param sessionAuthenticationStrategy the strategy object. If not set, a {@link SessionFixationProtectionSchemeStrategy} is used.
      * @deprecated Use constructor injection
      */
     @Deprecated

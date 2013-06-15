@@ -26,6 +26,7 @@ import org.springframework.util.Assert;
  * @author Nicholas Williams
  * @since 3.2
  * @see SessionFixationProtectionStrategy
+ * @see SessionFixationProtectionSchemeStrategy
  */
 public class SessionFixationProtectionEvent extends AbstractAuthenticationEvent {
     //~ Instance fields ================================================================================================

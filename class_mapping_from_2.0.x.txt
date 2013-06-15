@@ -17,7 +17,7 @@ BasicProcessingFilterEntryPoint, BasicAuthenticationEntryPoint
 
 CasProcessingFilter, CasAuthenticationFilter
 CasProcessingFilterEntryPoint, CasAuthenticationEntryPoint
-ConcurrentSessionController, ConcurrentSessionControlStrategy (Now implemented through the SessionManagementFilter)
+ConcurrentSessionController, ConcurrentSessionFixationProtectionSchemeStrategy (Now implemented through the SessionManagementFilter)
 ConfigAttributeDefinition, Collection<ConfigAttribute>
 
 DefaultFilterInvocationDefinitionSource, DefaultFilterInvocationSecurityMetadataSource
@@ -44,7 +44,7 @@ RememberMeProcessingFilter, RememberMeAuthenticationFilter
 RequestHeaderPreAuthenticatedProcessingFilter, RequestHeaderAuthenticationFilter
 
 SecuredMethodDefinitionSource, SecuredAnnotationSecurityMetadataSource
-SessionFixationProtectionFilter, SessionManagementFilter (See also SessionAuthenticationStrategy, SessionFixationProtectionStrategy)
+SessionFixationProtectionFilter, SessionManagementFilter (See also SessionAuthenticationStrategy, SessionFixationProtectionSchemeStrategy)
 SpringSecurityContextSource, LdapContextSource (from Spring LDAP 1.3, which introduced the ability to bind as a specific user)
 SwitchUserFilter, SwitchUserProcessingFilter
 

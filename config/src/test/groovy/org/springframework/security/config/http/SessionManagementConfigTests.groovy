@@ -29,7 +29,8 @@ import org.springframework.security.web.authentication.logout.CookieClearingLogo
 import org.springframework.security.web.authentication.logout.LogoutFilter
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter
-import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy
+import org.springframework.security.web.authentication.session.SessionFixationProtectionScheme
+import org.springframework.security.web.authentication.session.SessionFixationProtectionSchemeStrategy
 import org.springframework.security.web.context.NullSecurityContextRepository
 import org.springframework.security.web.context.SaveContextOnUpdateOrErrorResponseWrapper
 import org.springframework.security.web.context.SecurityContextPersistenceFilter
@@ -223,7 +224,7 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
         httpAutoConfig {
             'session-management'('session-authentication-strategy-ref':'ss')
         }
-        bean('ss', SessionFixationProtectionStrategy.class.name)
+        bean('ss', SessionFixationProtectionSchemeStrategy.class.name)
         createAppContext();
 
         then:
@@ -310,6 +311,37 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
         expect:
         filter instanceof SessionManagementFilter
         filter.invalidSessionStrategy.destinationUrl == '/timeoutUrl'
+        filter.sessionAuthenticationStrategy != null
+        filter.sessionAuthenticationStrategy instanceof SessionFixationProtectionSchemeStrategy
+        filter.sessionAuthenticationStrategy.scheme == SessionFixationProtectionScheme.NONE
+    }
+
+    def enablingSessionProtectionAddsSessionManagementFilterWithNewSessionStrategyScheme() {
+        httpAutoConfig {
+            'session-management'('session-fixation-protection': 'newSession')
+        }
+        createAppContext()
+        def filter = getFilters("/someurl")[9]
+
+        expect:
+        filter instanceof SessionManagementFilter
+        filter.sessionAuthenticationStrategy != null
+        filter.sessionAuthenticationStrategy instanceof SessionFixationProtectionSchemeStrategy
+        filter.sessionAuthenticationStrategy.scheme == SessionFixationProtectionScheme.NEW_SESSION
+    }
+
+    def enablingSessionProtectionAddsSessionManagementFilterWithMigrateSessionStrategyScheme() {
+        httpAutoConfig {
+            'session-management'('session-fixation-protection': 'migrateSession')
+        }
+        createAppContext()
+        def filter = getFilters("/someurl")[9]
+
+        expect:
+        filter instanceof SessionManagementFilter
+        filter.sessionAuthenticationStrategy != null
+        filter.sessionAuthenticationStrategy instanceof SessionFixationProtectionSchemeStrategy
+        filter.sessionAuthenticationStrategy.scheme == SessionFixationProtectionScheme.MIGRATE_SESSION
     }
 
 }
