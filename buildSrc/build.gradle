@@ -43,12 +43,6 @@ dependencies{
     compile "emma:emma:2.0.5312"
 }
 
-// Bundlor
-dependencies {
-    compile 'com.springsource.bundlor:com.springsource.bundlor:1.0.0.RELEASE',
-            'com.springsource.bundlor:com.springsource.bundlor.blint:1.0.0.RELEASE'
-}
-
 // Trang
 dependencies {
     compile 'com.thaiopensource:trang:20091111',

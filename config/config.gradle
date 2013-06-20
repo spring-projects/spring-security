@@ -5,12 +5,6 @@ apply plugin: 'trang'
 
 compileTestJava.dependsOn(':spring-security-core:compileTestJava')
 
-configurations {
-    // GRADLE-1124
-    compile.extendsFrom = []
-    testCompile.extendsFrom groovy
-}
-
 dependencies {
     // NB: Don't add other compile time dependencies to the config module as this breaks tooling
     compile project(':spring-security-core'),
@@ -34,8 +28,6 @@ dependencies {
 
     provided "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion"
 
-    groovy 'org.codehaus.groovy:groovy:1.8.7'
-
     testCompile project(':spring-security-ldap'),
                 project(':spring-security-openid'),
                 project(':spring-security-cas'),
@@ -50,7 +42,8 @@ dependencies {
                 "org.slf4j:jcl-over-slf4j:$slf4jVersion",
                 "org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.1.Final",
                 "org.hibernate:hibernate-entitymanager:4.1.0.Final",
-                powerMockDependencies
+                powerMockDependencies,
+                'org.codehaus.groovy:groovy:1.8.7'
     testCompile('org.openid4java:openid4java-nodeps:0.9.6') {
        exclude group: 'com.google.code.guice', module: 'guice'
     }

@@ -9,6 +9,7 @@ import org.gradle.api.tasks.SourceSet
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 
+import org.gradle.api.plugins.JavaPlugin
 import org.gradle.plugins.ide.eclipse.GenerateEclipseProject
 import org.gradle.plugins.ide.eclipse.GenerateEclipseClasspath
 import org.gradle.plugins.ide.eclipse.EclipsePlugin
@@ -22,6 +23,8 @@ import org.gradle.plugins.ide.eclipse.model.ProjectDependency
 class AspectJPlugin implements Plugin<Project> {
 
     void apply(Project project) {
+        project.plugins.apply(JavaPlugin)
+
         if (!project.hasProperty('aspectjVersion')) {
             throw new GradleException("You must set the property 'aspectjVersion' before applying the aspectj plugin")
         }
@@ -38,18 +41,24 @@ class AspectJPlugin implements Plugin<Project> {
             project.configurations.add('aspectpath')
         }
 
+        project.tasks.compileJava.deleteAllActions()
+
         project.tasks.add(name: 'compileJava', overwrite: true, description: 'Compiles AspectJ Source', type: Ajc) {
+            dependsOn project.configurations*.getTaskDependencyFromProjectDependency(true, "compileJava")
+
             dependsOn project.processResources
             sourceSet = project.sourceSets.main
-            inputs.files(sourceSet.java.srcDirs)
+            inputs.files(sourceSet.allSource)
             outputs.dir(sourceSet.output.classesDir)
             aspectPath = project.configurations.aspectpath
         }
 
+        project.tasks.compileTestJava.deleteAllActions()
+
         project.tasks.add(name: 'compileTestJava', overwrite: true, description: 'Compiles AspectJ Test Source', type: Ajc) {
             dependsOn project.processTestResources, project.compileJava, project.jar
             sourceSet = project.sourceSets.test
-            inputs.files(sourceSet.java.srcDirs)
+            inputs.files(sourceSet.allSource)
             outputs.dir(sourceSet.output.classesDir)
             aspectPath = project.files(project.configurations.aspectpath, project.jar.archivePath)
         }
@@ -90,7 +99,11 @@ class Ajc extends DefaultTask {
 
     @TaskAction
     def compile() {
+        logger.info("="*30)
+        logger.info("="*30)
         logger.info("Running ajc ...")
+        logger.info("classpath: ${sourceSet.compileClasspath.asPath}")
+        logger.info("srcDirs $sourceSet.java.srcDirs")
         ant.taskdef(resource: "org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties", classpath: project.configurations.ajtools.asPath)
         ant.iajc(classpath: sourceSet.compileClasspath.asPath, fork: 'true', destDir: sourceSet.output.classesDir.absolutePath,
                 source: project.convention.plugins.java.sourceCompatibility,
@@ -98,6 +111,7 @@ class Ajc extends DefaultTask {
                 aspectPath: aspectPath.asPath, sourceRootCopyFilter: '**/*.java', showWeaveInfo: 'true') {
             sourceroots {
                 sourceSet.java.srcDirs.each {
+                    logger.info("   sourceRoot $it")
                     pathelement(location: it.absolutePath)
                 }
             }

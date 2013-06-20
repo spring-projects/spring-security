@@ -37,6 +37,7 @@ Import-Template:
  org.springframework.web.*;version="${springRange}";resolution:=optional,
  org.springframework.web.context.*;version="${springRange}";resolution:=optional,
  org.springframework.web.filter.*;version="${springRange}",
+ org.springframework.web.*;version="${springRange}",
  org.springframework.util;version="${springRange}";resolution:=optional,
  org.w3c.dom;version="0";resolution:=optional,
  org.xml.sax;version="0";resolution:=optional,

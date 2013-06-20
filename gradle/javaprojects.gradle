@@ -87,7 +87,6 @@ task integrationTest(type: Test, dependsOn: jar) {
     logging.captureStandardOutput(LogLevel.INFO)
     classpath = sourceSets.integrationTest.runtimeClasspath
     maxParallelForks = 1
-    testReport = false
 }
 
 dependencies {
@@ -118,7 +117,6 @@ test {
     jvmArgs = ['-ea', '-Xmx500m']
     maxParallelForks = guessMaxForks()
     logging.captureStandardOutput(LogLevel.INFO)
-    testReport = false
 }
 
 def guessMaxForks() {
