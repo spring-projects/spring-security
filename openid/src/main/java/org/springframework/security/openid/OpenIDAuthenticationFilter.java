@@ -27,8 +27,10 @@ import org.springframework.util.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.*;
 
 
@@ -186,32 +188,37 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
      * @return The <tt>return_to</tt> URL.
      */
     protected String buildReturnToUrl(HttpServletRequest request) {
-        StringBuffer sb = request.getRequestURL();
-
-        Iterator<String> iterator = returnToUrlParameters.iterator();
-        boolean isFirst = true;
-
-        while (iterator.hasNext()) {
-            String name = iterator.next();
-            // Assume for simplicity that there is only one value
-            String value = request.getParameter(name);
-
-            if (value == null) {
-                continue;
+        try {
+            StringBuffer sb = request.getRequestURL();
+    
+            Iterator<String> iterator = returnToUrlParameters.iterator();
+            boolean isFirst = true;
+    
+            while (iterator.hasNext()) {
+                String name = iterator.next();
+                // Assume for simplicity that there is only one value
+                String value = request.getParameter(name);
+    
+                if (value == null) {
+                    continue;
+                }
+    
+                if (isFirst) {
+                    sb.append("?");
+                    isFirst = false;
+                }
+                sb.append(URLEncoder.encode(name, "UTF-8")).append("=").append(URLEncoder.encode(value, "UTF-8"));
+    
+                if (iterator.hasNext()) {
+                    sb.append("&");
+                }
             }
-
-            if (isFirst) {
-                sb.append("?");
-                isFirst = false;
-            }
-            sb.append(name).append("=").append(value);
-
-            if (iterator.hasNext()) {
-                sb.append("&");
-            }
+            return sb.toString();
+        } catch(UnsupportedEncodingException e) {
+            Error err = new AssertionError("The Java platform guarantees UTF-8 support, but it seemingly is not present.");
+            err.initCause(e);
+            throw err;
         }
-
-        return sb.toString();
     }
 
     /**
