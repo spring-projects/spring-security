@@ -4,7 +4,7 @@ apply plugin: 'eclipse'
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
 
-ext.springVersion = '3.2.0.RELEASE'
+ext.springVersion = '3.2.3.RELEASE'
 ext.springLdapVersion = '1.3.1.RELEASE'
 ext.ehcacheVersion = '1.6.2'
 ext.aspectjVersion = '1.6.10'
@@ -25,6 +25,15 @@ ext.powerMockDependencies = [
     "org.powermock:powermock-module-junit4:$powerMockVersion",
     "org.powermock:powermock-api-mockito:$powerMockVersion",
     "org.powermock:powermock-reflect:$powerMockVersion"
+]
+
+ext.apacheds_libs = [
+         "org.apache.directory.server:apacheds-core:$apacheDsVersion",
+         "org.apache.directory.server:apacheds-core-entry:$apacheDsVersion",
+         "org.apache.directory.server:apacheds-protocol-shared:$apacheDsVersion",
+         "org.apache.directory.server:apacheds-protocol-ldap:$apacheDsVersion",
+         "org.apache.directory.server:apacheds-server-jndi:$apacheDsVersion",
+         'org.apache.directory.shared:shared-ldap:0.9.15'
 ]
 
 ext.bundlorProperties = [

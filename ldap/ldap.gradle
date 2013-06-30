@@ -1,14 +1,5 @@
 // Ldap build file
 
-def apacheds_libs = [
-         "org.apache.directory.server:apacheds-core:$apacheDsVersion",
-         "org.apache.directory.server:apacheds-core-entry:$apacheDsVersion",
-         "org.apache.directory.server:apacheds-protocol-shared:$apacheDsVersion",
-         "org.apache.directory.server:apacheds-protocol-ldap:$apacheDsVersion",
-         "org.apache.directory.server:apacheds-server-jndi:$apacheDsVersion",
-         'org.apache.directory.shared:shared-ldap:0.9.15'
-]
-
 dependencies {
     compile project(':spring-security-core'),
             "org.springframework:spring-beans:$springVersion",

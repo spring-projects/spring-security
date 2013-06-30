@@ -22,7 +22,7 @@ public class SpringSecurityCoreVersion {
 
     static final String SPRING_MAJOR_VERSION = "3";
 
-    static final String MIN_SPRING_VERSION = "3.2.0.RELEASE";
+    static final String MIN_SPRING_VERSION = "3.2.3.RELEASE";
 
     static {
         // Check Spring Compatibility

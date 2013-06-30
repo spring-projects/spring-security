@@ -47,7 +47,15 @@ def customizePom(pom, gradleProject) {
 
         // Hack for specific case of config module
         if (p.artifactId == 'spring-security-config') {
+            p.dependencies.find { dep -> dep.artifactId == 'spring-security-ldap'}.optional = true
+            p.dependencies.find { dep -> dep.artifactId == 'spring-ldap-core'}.optional = true
+            p.dependencies.find { dep -> dep.groupId.startsWith "org.apache.directory" }*.optional = true
             p.dependencies.find { dep -> dep.artifactId == 'spring-security-web'}.optional = true
+            p.dependencies.find { dep -> dep.artifactId == 'spring-security-openid'}.optional = true
+            p.dependencies.find { dep -> dep.artifactId == 'guice'}.optional = true
+            p.dependencies.find { dep -> dep.artifactId == 'openid4java-nodeps'}.optional = true
+            p.dependencies.find { dep -> dep.artifactId == 'spring-jdbc'}.optional = true
+            p.dependencies.find { dep -> dep.artifactId == 'spring-tx'}.optional = true
             p.dependencies.find { dep -> dep.artifactId == 'spring-web'}.optional = true
         }
 

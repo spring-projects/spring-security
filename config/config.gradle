@@ -15,12 +15,22 @@ dependencies {
     // NB: Don't add other compile time dependencies to the config module as this breaks tooling
     compile project(':spring-security-core'),
             project(':spring-security-web'),
+            project(':spring-security-openid'),
+            project(':spring-security-ldap'),
             "org.aspectj:aspectjweaver:$aspectjVersion",
             'aopalliance:aopalliance:1.0',
             "org.springframework:spring-aop:$springVersion",
             "org.springframework:spring-context:$springVersion",
             "org.springframework:spring-web:$springVersion",
-            "org.springframework:spring-beans:$springVersion"
+            "org.springframework:spring-beans:$springVersion",
+            "org.springframework:spring-jdbc:$springVersion",
+            "org.springframework:spring-tx:$springVersion",
+            "org.springframework.ldap:spring-ldap-core:$springLdapVersion"
+            compile('org.openid4java:openid4java-nodeps:0.9.6') {
+                exclude group: 'com.google.code.guice', module: 'guice'
+            }
+            compile 'com.google.inject:guice:2.0'
+            compile apacheds_libs
 
     provided "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion"
 
@@ -28,6 +38,7 @@ dependencies {
 
     testCompile project(':spring-security-ldap'),
                 project(':spring-security-openid'),
+                project(':spring-security-cas'),
                 project(':spring-security-core').sourceSets.test.output,
                 'javax.annotation:jsr250-api:1.0',
                 "org.springframework.ldap:spring-ldap-core:$springLdapVersion",
