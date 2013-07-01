@@ -74,9 +74,7 @@ import org.springframework.util.Assert;
  */
 @Configuration
 public class GlobalMethodSecurityConfiguration implements ImportAware {
-    @Autowired
     private ApplicationContext context;
-    @Autowired(required=false)
     private ObjectPostProcessor<Object> objectPostProcessor = new ObjectPostProcessor<Object>() {
         @Override
         public <T> T postProcess(T object) {
@@ -335,6 +333,16 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
                         .getName());
         enableMethodSecurity = AnnotationAttributes
                 .fromMap(annotationAttributes);
+    }
+
+    @Autowired
+    public void setApplicationContext(ApplicationContext context) {
+        this.context = context;
+    }
+
+    @Autowired(required=false)
+    public void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
+        this.objectPostProcessor = objectPostProcessor;
     }
 
     @SuppressWarnings("unchecked")
