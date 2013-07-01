@@ -47,7 +47,7 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
  * @author Rob Winch
  */
 public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer<Filter,WebSecurity> {
-    private final Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(WebSecurityConfigurerAdapter.class);
 
     private ApplicationContext context;
 
