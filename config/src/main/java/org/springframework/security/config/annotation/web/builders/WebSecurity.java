@@ -88,6 +88,10 @@ public final class WebSecurity extends
 
     private SecurityExpressionHandler<FilterInvocation> expressionHandler = new DefaultWebSecurityExpressionHandler();
 
+    private Runnable postBuildAction = new Runnable() {
+        public void run() {}
+    };
+
     /**
      * Creates a new instance
      * @see WebSecurityConfiguration
@@ -198,7 +202,7 @@ public final class WebSecurity extends
     /**
      * Set the {@link WebInvocationPrivilegeEvaluator} to be used. If this is
      * null, then a {@link DefaultWebInvocationPrivilegeEvaluator} will be
-     * created when {@link #setSecurityInterceptor(FilterSecurityInterceptor)}
+     * created when {@link #securityInterceptor(FilterSecurityInterceptor)}
      * is non null.
      *
      * @param privilegeEvaluator
@@ -246,9 +250,22 @@ public final class WebSecurity extends
     /**
      * Sets the {@link FilterSecurityInterceptor}. This is typically invoked by {@link WebSecurityConfigurerAdapter}.
      * @param securityInterceptor the {@link FilterSecurityInterceptor} to use
+     * @return the {@link WebSecurity} for further customizations
      */
-    public void setSecurityInterceptor(FilterSecurityInterceptor securityInterceptor) {
+    public WebSecurity securityInterceptor(FilterSecurityInterceptor securityInterceptor) {
         this.filterSecurityInterceptor = securityInterceptor;
+        return this;
+    }
+
+    /**
+     * Executes the Runnable immediately after the build takes place
+     *
+     * @param postBuildAction
+     * @return the {@link WebSecurity} for further customizations
+     */
+    public WebSecurity postBuildAction(Runnable postBuildAction) {
+        this.postBuildAction = postBuildAction;
+        return this;
     }
 
     @Override
@@ -278,6 +295,7 @@ public final class WebSecurity extends
                     "********************************************************************\n\n");
             result = new DebugFilter(filterChainProxy);
         }
+        postBuildAction.run();
         return result;
     }
 

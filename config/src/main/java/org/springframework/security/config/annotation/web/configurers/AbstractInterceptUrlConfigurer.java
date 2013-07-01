@@ -106,6 +106,7 @@ abstract class AbstractInterceptUrlConfigurer<H extends HttpSecurityBuilder<H>,C
         if(filterSecurityInterceptorOncePerRequest != null) {
             securityInterceptor.setObserveOncePerRequest(filterSecurityInterceptorOncePerRequest);
         }
+        securityInterceptor = postProcess(securityInterceptor);
         http.addFilter(securityInterceptor);
         http.setSharedObject(FilterSecurityInterceptor.class, securityInterceptor);
     }
