@@ -33,6 +33,7 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.web.FilterChainProxy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
+import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.expression.WebSecurityExpressionHandler;
 import org.springframework.security.web.util.AnyRequestMatcher
 
@@ -212,6 +213,26 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
         public void configure(WebSecurity web) throws Exception {
             web
                 .expressionHandler(EH)
+        }
+    }
+
+    def "#138 webSecurityExpressionHandler defaults"() {
+        when:
+            loadConfig(WebSecurityExpressionHandlerDefaultsConfig)
+        then:
+            WebSecurityExpressionHandler wseh = context.getBean(WebSecurityExpressionHandler)
+            wseh instanceof DefaultWebSecurityExpressionHandler
+    }
+
+    @EnableWebSecurity
+    @Configuration
+    static class WebSecurityExpressionHandlerDefaultsConfig extends WebSecurityConfigurerAdapter {
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .authorizeUrls()
+                    .anyRequest().authenticated()
         }
     }
 }
