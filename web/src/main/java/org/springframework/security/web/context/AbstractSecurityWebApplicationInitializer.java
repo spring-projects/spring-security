@@ -66,10 +66,13 @@ import org.springframework.web.filter.DelegatingFilterProxy;
  * </p>
  *
  * @author Rob Winch
+ * @author Keesun Baik
  */
 public abstract class AbstractSecurityWebApplicationInitializer implements WebApplicationInitializer {
 
     private static final String SERVLET_CONTEXT_PREFIX = "org.springframework.web.servlet.FrameworkServlet.CONTEXT.";
+
+    public static final String DEFAULT_FILTER_NAME = "springSecurityFilterChain";
 
     /* (non-Javadoc)
      * @see org.springframework.web.WebApplicationInitializer#onStartup(javax.servlet.ServletContext)
@@ -100,7 +103,7 @@ public abstract class AbstractSecurityWebApplicationInitializer implements WebAp
      * @param servletContext the {@link ServletContext}
      */
     private void insertSpringSecurityFilterChain(ServletContext servletContext) {
-        String filterName = "springSecurityFilterChain";
+        String filterName = DEFAULT_FILTER_NAME;
         DelegatingFilterProxy springSecurityFilterChain = new DelegatingFilterProxy(filterName);
         String contextAttribute = getWebApplicationContextAttribute();
         if(contextAttribute != null) {
