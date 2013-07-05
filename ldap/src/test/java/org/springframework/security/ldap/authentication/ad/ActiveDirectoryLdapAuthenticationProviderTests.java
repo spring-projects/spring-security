@@ -13,6 +13,7 @@
 package org.springframework.security.ldap.authentication.ad;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider.ContextFactory;
 
@@ -33,11 +34,9 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-
 import javax.naming.AuthenticationException;
 import javax.naming.CommunicationException;
+import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
@@ -86,7 +85,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 
         assertEquals(0, result.getAuthorities().size());
 
-        dca.addAttributeValue("memberOf","CN=Admin,CN=Users,DC=mydomain,DC=eu");
+        dca.addAttributeValue("memberOf", "CN=Admin,CN=Users,DC=mydomain,DC=eu");
 
         sr.setAttributes(dca.getAttributes());
 
@@ -94,6 +93,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 
         assertEquals(1, result.getAuthorities().size());
     }
+
 
     @Test
     public void nullDomainIsSupportedIfAuthenticatingWithFullUserPrincipal() throws Exception {
@@ -264,6 +264,43 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
         provider.authenticate(joe);
     }
 
+    @Test
+    public void searchFilterIsUsedInAuthorityLookup() throws Exception {
+
+    	String customFilter = "(&(objectClass=user)(sAMAccountName={0}))";
+        DirContext ctx = mock(DirContext.class);
+        when(ctx.getNameInNamespace()).thenReturn("");
+
+        DirContextAdapter dca = new DirContextAdapter();
+        SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", null, dca.getAttributes());
+		when(ctx.search(any(Name.class), eq(customFilter), any(Object[].class), any(SearchControls.class)))
+                .thenReturn(new MockNamingEnumeration(sr))
+                .thenReturn(new MockNamingEnumeration(sr));
+
+        provider.contextFactory = createContextFactoryReturning(ctx);
+        provider.setSearchFilter(customFilter);
+        provider.authenticate(joe);
+    }
+
+    @Test
+    public void usernameUsedInAuthorityLookupWhenSearchByBindPrincipalIsFalse() throws Exception {
+
+        DirContext ctx = mock(DirContext.class);
+        when(ctx.getNameInNamespace()).thenReturn("");
+
+        DirContextAdapter dca = new DirContextAdapter();
+        SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", null, dca.getAttributes());
+		when(ctx.search(any(Name.class), any(String.class), eq(new String[]{joe.getName()}), any(SearchControls.class)))
+                .thenReturn(new MockNamingEnumeration(sr))
+                .thenReturn(new MockNamingEnumeration(sr));
+
+        provider.contextFactory = createContextFactoryReturning(ctx);
+        provider.setSearchByBindPrincipal(false);
+        provider.authenticate(joe);
+
+        assertEquals(joe.getName(), ctx.getEnvironment().get(Context.SECURITY_PRINCIPAL) );
+    }
+
     ContextFactory createContextFactoryThrowing(final NamingException e) {
         return new ContextFactory() {
             @Override
@@ -277,7 +314,8 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
     ContextFactory createContextFactoryReturning(final DirContext ctx) {
         return new ContextFactory() {
             @Override
-            DirContext createContext(Hashtable<?, ?> env) throws NamingException {
+            DirContext createContext(Hashtable env) throws NamingException {
+            	when(ctx.getEnvironment()).thenReturn( env );
                 return ctx;
             }
         };
