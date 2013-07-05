@@ -21,8 +21,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.aopalliance.intercept.MethodInterceptor;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.aop.target.LazyInitTargetSource;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
@@ -74,6 +77,7 @@ import org.springframework.util.Assert;
  */
 @Configuration
 public class GlobalMethodSecurityConfiguration implements ImportAware {
+    private static final Log logger = LogFactory.getLog(GlobalMethodSecurityConfiguration.class);
     private ApplicationContext context;
     private ObjectPostProcessor<Object> objectPostProcessor = new ObjectPostProcessor<Object>() {
         @Override
@@ -82,7 +86,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
         }
     };
     private AuthenticationManager authenticationManager;
-    private AuthenticationManagerBuilder auth = new AuthenticationManagerBuilder();
+    private AuthenticationManagerBuilder auth = new AuthenticationManagerBuilder(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR);
     private boolean disableAuthenticationRegistry;
     private AnnotationAttributes enableMethodSecurity;
     private MethodSecurityExpressionHandler expressionHandler;
@@ -235,6 +239,13 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
             registerAuthentication(auth);
             if(!disableAuthenticationRegistry) {
                 authenticationManager = auth.build();
+            }
+            if(authenticationManager == null) {
+                try {
+                    authenticationManager = context.getBean(AuthenticationManagerBuilder.class).getOrBuild();
+                } catch(NoSuchBeanDefinitionException e) {
+                    logger.debug("Could not obtain the AuthenticationManagerBuilder. This is ok for now, we will try using an AuthenticationManager directly",e);
+                }
             }
             if(authenticationManager == null) {
                 authenticationManager = lazyBean(AuthenticationManager.class);

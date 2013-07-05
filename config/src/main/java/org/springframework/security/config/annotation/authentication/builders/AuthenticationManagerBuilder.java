@@ -54,9 +54,10 @@ public class AuthenticationManagerBuilder extends AbstractConfiguredSecurityBuil
 
     /**
      * Creates a new instance
+     * @param the {@link ObjectPostProcessor} instance to use.
      */
-    public AuthenticationManagerBuilder() {
-        super(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR,true);
+    public AuthenticationManagerBuilder(ObjectPostProcessor<Object> objectPostProcessor) {
+        super(objectPostProcessor,true);
     }
 
     /**

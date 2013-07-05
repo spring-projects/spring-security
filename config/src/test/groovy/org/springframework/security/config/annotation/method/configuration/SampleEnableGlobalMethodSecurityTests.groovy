@@ -15,6 +15,7 @@
  */
 package org.springframework.security.config.annotation.method.configuration
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.access.AccessDeniedException
@@ -65,14 +66,12 @@ public class SampleEnableGlobalMethodSecurityTests extends BaseSpringSpec {
             return new MethodSecurityServiceImpl()
         }
 
-        @Bean
-        public AuthenticationManager authenticationManager() throws Exception {
-            return new AuthenticationManagerBuilder()
+        @Autowired
+        public void registerAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+            auth
                 .inMemoryAuthentication()
                     .withUser("user").password("password").roles("USER").and()
-                    .withUser("admin").password("password").roles("USER", "ADMIN").and()
-                    .and()
-                .build();
+                    .withUser("admin").password("password").roles("USER", "ADMIN");
         }
     }
 

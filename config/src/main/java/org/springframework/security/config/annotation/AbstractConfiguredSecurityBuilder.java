@@ -23,6 +23,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.DelegatingFilterProxy;
@@ -51,6 +53,7 @@ import com.google.inject.internal.ImmutableList.Builder;
  *            The type of this builder (that is returned by the base class)
  */
 public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBuilder<O>> extends AbstractSecurityBuilder<O> {
+    private final Log logger = LogFactory.getLog(getClass());
 
     private final LinkedHashMap<Class<? extends SecurityConfigurer<O, B>>, List<SecurityConfigurer<O, B>>> configurers =
             new LinkedHashMap<Class<? extends SecurityConfigurer<O, B>>, List<SecurityConfigurer<O, B>>>();
@@ -93,6 +96,27 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
         Assert.notNull(objectPostProcessor, "objectPostProcessor cannot be null");
         this.objectPostProcessor = objectPostProcessor;
         this.allowConfigurersOfSameType = allowConfigurersOfSameType;
+    }
+
+
+    /**
+     * Similar to {@link #build()} and {@link #getObject()} but checks the state
+     * to determine if {@link #build()} needs to be called first.
+     *
+     * @return the result of {@link #build()} or {@link #getObject()}. If an
+     *         error occurs while building, returns null.
+     */
+    public O getOrBuild() {
+        if(isUnbuilt()) {
+            try {
+                return build();
+            } catch(Exception e) {
+                logger.debug("Failed to perform build. Returning null", e);
+                return null;
+            }
+        } else {
+            return getObject();
+        }
     }
 
     /**
@@ -368,6 +392,16 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
             result.addAll(configs);
         }
         return result;
+    }
+
+    /**
+     * Determines if the object is unbuilt.
+     * @return true, if unbuilt else false
+     */
+    private boolean isUnbuilt() {
+        synchronized(configurers) {
+            return buildState == BuildState.UNBUILT;
+        }
     }
 
     /**

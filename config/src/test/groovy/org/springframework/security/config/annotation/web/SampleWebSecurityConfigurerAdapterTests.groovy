@@ -15,6 +15,7 @@
  */
 package org.springframework.security.config.annotation.web
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
@@ -272,14 +273,12 @@ public class SampleWebSecurityConfigurerAdapterTests extends BaseWebSpecuritySpe
     @Configuration
     @EnableWebSecurity
     public static class SampleMultiHttpSecurityConfig {
-        @Bean
-        public AuthenticationManager authenticationManager() {
-            return new AuthenticationManagerBuilder()
-                    .inMemoryAuthentication()
-                        .withUser("user").password("password").roles("USER").and()
-                        .withUser("admin").password("password").roles("USER", "ADMIN").and()
-                        .and()
-                    .build();
+        @Autowired
+        public void registerAuthentication(AuthenticationManagerBuilder auth) {
+            auth
+                .inMemoryAuthentication()
+                    .withUser("user").password("password").roles("USER").and()
+                    .withUser("admin").password("password").roles("USER", "ADMIN");
         }
 
         @Configuration

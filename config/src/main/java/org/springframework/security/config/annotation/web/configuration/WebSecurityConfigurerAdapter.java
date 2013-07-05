@@ -58,8 +58,8 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
         }
     };
 
-    private final AuthenticationManagerBuilder authenticationBuilder = new AuthenticationManagerBuilder();
-    private final AuthenticationManagerBuilder parentAuthenticationBuilder = new AuthenticationManagerBuilder() {
+    private final AuthenticationManagerBuilder authenticationBuilder = new AuthenticationManagerBuilder(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR);
+    private final AuthenticationManagerBuilder parentAuthenticationBuilder = new AuthenticationManagerBuilder(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR) {
         @Override
         public AuthenticationManagerBuilder eraseCredentials(boolean eraseCredentials) {
             authenticationBuilder.eraseCredentials(eraseCredentials);
@@ -194,12 +194,18 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
             registerAuthentication(parentAuthenticationBuilder);
             if(disableAuthenticationRegistration) {
                 try {
-                    authenticationManager = context.getBean(AuthenticationManager.class);
+                    authenticationManager = context.getBean(AuthenticationManagerBuilder.class).getOrBuild();
                 } catch(NoSuchBeanDefinitionException e) {
-                    logger.debug("The AuthenticationManager was not found. This is ok for now as it may not be required.",e);
+                    logger.debug("Could not obtain the AuthenticationManagerBuilder. This is ok for now, we will try using an AuthenticationManager directly",e);
+                }
+                if(authenticationManager == null) {
+                    try {
+                        authenticationManager = context.getBean(AuthenticationManager.class);
+                    } catch(NoSuchBeanDefinitionException e) {
+                        logger.debug("The AuthenticationManager was not found. This is ok for now as it may not be required.",e);
+                    }
                 }
             } else {
-                authenticationManagerInitialized = true;
                 authenticationManager = parentAuthenticationBuilder.build();
             }
             authenticationManagerInitialized = true;

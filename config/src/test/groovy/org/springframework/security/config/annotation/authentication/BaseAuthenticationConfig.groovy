@@ -17,6 +17,7 @@ package org.springframework.security.config.annotation.authentication
 
 import java.rmi.registry.Registry;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
@@ -33,18 +34,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
  */
 @Configuration
 class BaseAuthenticationConfig {
+    @Autowired
     protected void registerAuthentication(
                 AuthenticationManagerBuilder auth) throws Exception {
         auth
             .inMemoryAuthentication()
                 .withUser("user").password("password").roles("USER").and()
                 .withUser("admin").password("password").roles("USER", "ADMIN").and()
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager() {
-        AuthenticationManagerBuilder registry = new AuthenticationManagerBuilder();
-        registerAuthentication(registry);
-        return registry.build();
     }
 }

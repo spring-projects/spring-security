@@ -57,7 +57,7 @@ abstract class BaseSpringSpec extends Specification {
         chain = new MockFilterChain()
     }
 
-    AuthenticationManagerBuilder authenticationBldr = new AuthenticationManagerBuilder().inMemoryAuthentication().and()
+    AuthenticationManagerBuilder authenticationBldr = new AuthenticationManagerBuilder(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR).inMemoryAuthentication().and()
 
     def cleanup() {
         SecurityContextHolder.clearContext()
