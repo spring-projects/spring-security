@@ -188,37 +188,31 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
      * @return The <tt>return_to</tt> URL.
      */
     protected String buildReturnToUrl(HttpServletRequest request) {
-        try {
-            StringBuffer sb = request.getRequestURL();
-    
-            Iterator<String> iterator = returnToUrlParameters.iterator();
-            boolean isFirst = true;
-    
-            while (iterator.hasNext()) {
-                String name = iterator.next();
-                // Assume for simplicity that there is only one value
-                String value = request.getParameter(name);
-    
-                if (value == null) {
-                    continue;
-                }
-    
-                if (isFirst) {
-                    sb.append("?");
-                    isFirst = false;
-                }
-                sb.append(URLEncoder.encode(name, "UTF-8")).append("=").append(URLEncoder.encode(value, "UTF-8"));
-    
-                if (iterator.hasNext()) {
-                    sb.append("&");
-                }
+        StringBuffer sb = request.getRequestURL();
+
+        Iterator<String> iterator = returnToUrlParameters.iterator();
+        boolean isFirst = true;
+
+        while (iterator.hasNext()) {
+            String name = iterator.next();
+            // Assume for simplicity that there is only one value
+            String value = request.getParameter(name);
+
+            if (value == null) {
+                continue;
             }
-            return sb.toString();
-        } catch(UnsupportedEncodingException e) {
-            Error err = new AssertionError("The Java platform guarantees UTF-8 support, but it seemingly is not present.");
-            err.initCause(e);
-            throw err;
+
+            if (isFirst) {
+                sb.append("?");
+                isFirst = false;
+            }
+            sb.append(utf8UrlEncode(name)).append("=").append(utf8UrlEncode(value));
+
+            if (iterator.hasNext()) {
+                sb.append("&");
+            }
         }
+        return sb.toString();
     }
 
     /**
@@ -275,5 +269,21 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
     public void setReturnToUrlParameters(Set<String> returnToUrlParameters) {
         Assert.notNull(returnToUrlParameters, "returnToUrlParameters cannot be null");
         this.returnToUrlParameters = returnToUrlParameters;
+    }
+
+    /**
+     * Performs URL encoding with UTF-8
+     *
+     * @param value the value to URL encode
+     * @return the encoded value
+     */
+    private String utf8UrlEncode(String value) {
+        try {
+            return URLEncoder.encode(value, "UTF-8");
+        } catch(UnsupportedEncodingException e) {
+            Error err = new AssertionError("The Java platform guarantees UTF-8 support, but it seemingly is not present.");
+            err.initCause(e);
+            throw err;
+        }
     }
 }
