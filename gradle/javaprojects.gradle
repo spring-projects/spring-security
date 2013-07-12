@@ -17,6 +17,10 @@ ext.logbackVersion = '0.9.29'
 ext.cglibVersion = '2.2'
 ext.powerMockVersion = '1.4.12'
 ext.servletApiVersion = '7.0.33'
+ext.seleniumVersion = '2.33.0'
+ext.groovyVersion = '2.0.5'
+ext.spockVersion = '0.7-groovy-2.0'
+ext.gebVersion = '0.9.0'
 
 ext.powerMockDependencies = [
     "org.powermock:powermock-core:$powerMockVersion",

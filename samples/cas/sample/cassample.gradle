@@ -5,7 +5,7 @@ apply plugin: 'jetty'
 apply plugin: 'groovy'
 
 def excludeModules = ['spring-security-acl', 'jsr250-api', 'spring-jdbc', 'spring-tx']
-def jettyVersion = '7.1.6.v20100715'
+def jettyVersion = '8.1.9.v20130131'
 def keystore = "$rootDir/samples/certificates/server.jks"
 def password = 'password'
 
@@ -16,8 +16,6 @@ configurations {
     }
 
     runtime.exclude group: 'org.aspectj'
-
-    integrationTestCompile.extendsFrom groovy
 }
 
 sourceSets {
@@ -28,8 +26,6 @@ sourceSets {
 eclipse.classpath.plusConfigurations += configurations.integrationTestRuntime
 
 dependencies {
-    groovy 'org.codehaus.groovy:groovy:1.8.7'
-
     providedCompile "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion"
 
     compile project(':spring-security-core'),
@@ -42,12 +38,13 @@ dependencies {
             "ch.qos.logback:logback-classic:$logbackVersion"
 
     integrationTestCompile project(':spring-security-cas'),
-                   'org.seleniumhq.selenium:selenium-htmlunit-driver:2.25.0',
-                   'org.spockframework:spock-core:0.6-groovy-1.8',
-                   'org.codehaus.geb:geb-spock:0.7.2',
+                   "org.seleniumhq.selenium:selenium-htmlunit-driver:$seleniumVersion",
+                   "org.spockframework:spock-core:$spockVersion",
+                   "org.gebish:geb-spock:$gebVersion",
                    'commons-httpclient:commons-httpclient:3.1',
                    "org.eclipse.jetty:jetty-server:$jettyVersion",
-                   "org.eclipse.jetty:jetty-servlet:$jettyVersion"
+                   "org.eclipse.jetty:jetty-servlet:$jettyVersion",
+                   "org.codehaus.groovy:groovy:$groovyVersion"
 }
 
 [jettyRun, jettyRunWar]*.configure {

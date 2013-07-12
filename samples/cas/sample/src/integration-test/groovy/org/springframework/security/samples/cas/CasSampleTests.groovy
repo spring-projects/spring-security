@@ -17,8 +17,11 @@ package org.springframework.security.samples.cas
 
 import geb.spock.*
 
+import org.apache.http.impl.conn.DefaultClientConnectionOperator;
 import org.junit.runner.RunWith;
 import org.spockframework.runtime.Sputnik;
+import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
+import org.springframework.security.core.context.ThreadLocalSecurityContextHolderStrategy;
 import org.springframework.security.samples.cas.pages.*
 
 import spock.lang.Shared;
@@ -42,7 +45,7 @@ class CasSampleTests extends AbstractCasTests {
 
     def 'access extremely secure page with unauthenitcated user requires login'() {
         when: 'Unauthenticated user accesses the extremely secure page'
-        to ExtremelySecurePage
+        via ExtremelySecurePage
         then: 'The login page is displayed'
         at LoginPage
     }
@@ -56,7 +59,7 @@ class CasSampleTests extends AbstractCasTests {
 
     def 'access secure page with unauthenticated user requires login'() {
         when: 'Unauthenticated user accesses the secure page'
-        to SecurePage
+        via SecurePage
         then: 'The login page is displayed'
         at LoginPage
     }
@@ -77,7 +80,7 @@ class CasSampleTests extends AbstractCasTests {
 
     def 'access extremely secure page with ROLE_USER is denied'() {
         when: 'User with ROLE_USER accesses extremely secure page'
-        to ExtremelySecurePage
+        via ExtremelySecurePage
         then: 'the access denied page is displayed'
         at AccessDeniedPage
     }
@@ -94,7 +97,7 @@ class CasSampleTests extends AbstractCasTests {
     def 'clicking cas server logout link successfully performs logout'() {
         when: 'the cas server logout link is clicked and the secure page is requested'
         casServerLogout.click()
-        to SecurePage
+        via SecurePage
         then: 'the login page is displayed'
         at LoginPage
     }
@@ -112,20 +115,20 @@ class CasSampleTests extends AbstractCasTests {
         when: 'logout and request extremely secure page'
         navModule.logout.click()
         casServerLogout.click()
-        to ExtremelySecurePage
+        via ExtremelySecurePage
         then: 'login page is displayed'
         at LoginPage
     }
 
     def 'logging out of the cas server successfully logs out of the cas sample application'() {
         setup: 'login with ROLE_USER'
-        to SecurePage
+        via SecurePage
         at LoginPage
         login 'rod'
         at SecurePage
         when: 'logout of the CAS Server'
         go casServerLogoutUrl
-        to SecurePage
+        via SecurePage
         then: 'user is logged out of the CAS Service'
         at LoginPage
     }
