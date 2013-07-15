@@ -16,7 +16,7 @@ ext.hsqlVersion = '1.8.0.10'
 ext.slf4jVersion = '1.6.1'
 ext.logbackVersion = '0.9.29'
 ext.cglibVersion = '2.2'
-ext.powerMockVersion = '1.4.12'
+ext.powerMockVersion = '1.5.1'
 
 ext.bundlorProperties = [
     version: version,
@@ -79,8 +79,8 @@ dependencies {
         exclude(group: 'commons-logging', module: 'commons-logging')
     }
 
-    testCompile 'junit:junit:4.7',
-            'org.mockito:mockito-core:1.8.5',
+    testCompile 'junit:junit:4.10',
+            'org.mockito:mockito-core:1.9.5',
             "org.springframework:spring-test:$springVersion"
 
     // Use slf4j/logback for logging
