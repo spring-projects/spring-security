@@ -38,21 +38,26 @@ class AspectJPlugin implements Plugin<Project> {
             project.configurations.add('aspectpath')
         }
 
-        project.tasks.add(name: 'compileJava', overwrite: true, description: 'Compiles AspectJ Source', type: Ajc) {
+        project.tasks.add(name: 'compileAspect', overwrite: true, description: 'Compiles AspectJ Source', type: Ajc) {
+            dependsOn project.configurations*.getTaskDependencyFromProjectDependency(true, "compileJava")
             dependsOn project.processResources
             sourceSet = project.sourceSets.main
             inputs.files(sourceSet.java.srcDirs)
             outputs.dir(sourceSet.output.classesDir)
             aspectPath = project.configurations.aspectpath
         }
+        project.tasks.compileJava.deleteAllActions()
+        project.tasks.compileJava.dependsOn project.tasks.compileAspect
 
-        project.tasks.add(name: 'compileTestJava', overwrite: true, description: 'Compiles AspectJ Test Source', type: Ajc) {
+        project.tasks.add(name: 'compileTestAspect', overwrite: true, description: 'Compiles AspectJ Test Source', type: Ajc) {
             dependsOn project.processTestResources, project.compileJava, project.jar
             sourceSet = project.sourceSets.test
             inputs.files(sourceSet.java.srcDirs)
             outputs.dir(sourceSet.output.classesDir)
             aspectPath = project.files(project.configurations.aspectpath, project.jar.archivePath)
         }
+        project.tasks.compileTestJava.deleteAllActions()
+        project.tasks.compileTestJava.dependsOn project.tasks.compileTestAspect
 
         project.tasks.withType(GenerateEclipseProject) {
             project.eclipse.project.file.whenMerged { p ->
