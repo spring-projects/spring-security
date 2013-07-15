@@ -9,6 +9,7 @@ buildscript {
     }
 }
 
+apply plugin: 'sonar-runner'
 apply plugin: 'base'
 
 description = 'Spring Security'
@@ -20,8 +21,21 @@ allprojects {
     group = 'org.springframework.security'
 
     repositories {
-        maven { url "http://repo.springsource.org/libs-snapshot" }
         maven { url "http://repo.springsource.org/plugins-release" }
+    }
+}
+
+sonarRunner {
+    sonarProperties {
+        property "sonar.java.coveragePlugin", "jacoco"
+        property "sonar.projectName", "Spring Security"
+        property "sonar.jacoco.reportPath", "${buildDir.name}/jacoco.exec"
+        property "sonar.links.homepage", 'https://www.springsource.org/spring-security'
+        property "sonar.links.ci", 'https://build.springsource.org/browse/SEC-B32X'
+        property "sonar.links.issue", 'https://jira.springsource.org/browse/SEC'
+        property "sonar.links.scm", 'https://github.com/SpringSource/spring-security'
+        property "sonar.links.scm_dev", 'https://github.com/SpringSource/spring-security.git'
+        property "sonar.java.coveragePlugin", "jacoco"
     }
 }
 
@@ -34,6 +48,9 @@ ext.aspectjProjects = [project(':spring-security-aspects'), project(':spring-sec
 
 configure(subprojects - coreModuleProjects) {
     tasks.findByPath("artifactoryPublish")?.enabled = false
+    sonarRunner {
+        skipProject = true
+    }
 }
 
 configure(javaProjects) {
@@ -42,8 +59,6 @@ configure(javaProjects) {
 }
 
 configure(coreModuleProjects) {
-    // Gives better names in structure101 jar diagram
-    sourceSets.main.output.classesDir = new File(buildDir, "classes/" + project.name.substring("spring-security".length() + 1))
     apply plugin: 'bundlor'
     apply from: "$rootDir/gradle/maven-deployment.gradle"
     apply plugin: 'emma'
@@ -52,8 +67,18 @@ configure(coreModuleProjects) {
         def templateText = file("template.mf").text
         bundlor.manifestTemplate = new SimpleTemplateEngine().createTemplate(templateText).make(bundlorProperties).toString()
     }
-
-    bundlor.dependsOn 'compileJava'
+    configurations {
+        jacoco //Configuration Group used by Sonar to provide Code Coverage using JaCoCo
+    }
+    dependencies {
+        jacoco "org.jacoco:org.jacoco.agent:0.6.2.201302030002:runtime"
+    }
+    test {
+        jvmArgs "-javaagent:${configurations.jacoco.asPath}=destfile=${buildDir}/jacoco.exec,includes=${project.group}.*"
+    }
+    integrationTest {
+        jvmArgs "-javaagent:${configurations.jacoco.asPath}=destfile=${buildDir}/jacoco.exec,includes=${project.group}.*"
+    }
 }
 
 configure (aspectjProjects) {
