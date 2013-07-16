@@ -85,6 +85,9 @@ task integrationTest(type: Test, dependsOn: jar) {
     classpath = sourceSets.integrationTest.runtimeClasspath
     maxParallelForks = 1
 }
+project.conf2ScopeMappings.addMapping(MavenPlugin.TEST_COMPILE_PRIORITY + 1, project.configurations.getByName("integrationTestCompile"), Conf2ScopeMappingContainer.TEST)
+project.conf2ScopeMappings.addMapping(MavenPlugin.TEST_COMPILE_PRIORITY + 2, project.configurations.getByName("integrationTestRuntime"), Conf2ScopeMappingContainer.TEST)
+
 dependencies {
     optional 'commons-logging:commons-logging:1.1.1'
 

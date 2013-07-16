@@ -57,11 +57,11 @@ configure(subprojects - coreModuleProjects) {
 configure(javaProjects) {
     apply from: "$rootDir/gradle/javaprojects.gradle"
     apply from: "$rootDir/gradle/release-checks.gradle"
+		apply from: "$rootDir/gradle/maven-deployment.gradle"
 }
 
 configure(coreModuleProjects) {
     apply plugin: 'bundlor'
-    apply from: "$rootDir/gradle/maven-deployment.gradle"
     apply plugin: 'emma'
 
     bundlor.doFirst {

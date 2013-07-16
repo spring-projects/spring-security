@@ -90,3 +90,5 @@ task generatePom {
         p.writeTo(generatedPomFileName)
     }
 }
+
+build.dependsOn generatePom
