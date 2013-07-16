@@ -62,14 +62,6 @@ def customizePom(pom, gradleProject) {
                 email = 'rwinch@vmware.com'
             }
         }
-        dependencies {
-            dependency {
-                artifactId = groupId = 'commons-logging'
-                scope = 'compile'
-                optional = 'true'
-                version = '1.1.1'
-            }
-        }
     }
 }
 

@@ -20,6 +20,9 @@ dependencies {
         exclude(group: 'org.springframework', module: 'spring-tx')
         exclude(group: 'org.springframework', module: 'spring-beans')
     }
+
+    testCompile "org.slf4j:slf4j-api:$slf4jVersion",
+                "org.slf4j:jcl-over-slf4j:$slf4jVersion"
 }
 
 integrationTest {

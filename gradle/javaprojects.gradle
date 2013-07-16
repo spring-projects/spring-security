@@ -16,7 +16,7 @@ ext.apacheDsVersion = '1.5.5'
 ext.jstlVersion = '1.2'
 ext.jettyVersion = '6.1.26'
 ext.hsqlVersion = '1.8.0.10'
-ext.slf4jVersion = '1.6.1'
+ext.slf4jVersion = '1.7.5'
 ext.logbackVersion = '0.9.29'
 ext.cglibVersion = '2.2'
 ext.powerMockVersion = '1.4.12'
@@ -63,7 +63,7 @@ ext.bundlorProperties = [
 // Integration test setup
 configurations {
     integrationTestCompile {
-        extendsFrom testCompile
+        extendsFrom testCompile, optional, provided
     }
     integrationTestRuntime {
         extendsFrom integrationTestCompile, testRuntime

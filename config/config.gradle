@@ -16,14 +16,14 @@ dependencies {
             "org.springframework:spring-beans:$springVersion"
 
     optional project(':spring-security-web'),
+             project(':spring-security-ldap'),
+             project(':spring-security-openid'),
              "org.springframework:spring-web:$springVersion",
              "org.aspectj:aspectjweaver:$aspectjVersion"
 
     provided "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion"
 
-    testCompile project(':spring-security-ldap'),
-                project(':spring-security-openid'),
-                project(':spring-security-cas'),
+    testCompile project(':spring-security-cas'),
                 project(':spring-security-core').sourceSets.test.output,
                 'javax.annotation:jsr250-api:1.0',
                 "org.springframework.ldap:spring-ldap-core:$springLdapVersion",

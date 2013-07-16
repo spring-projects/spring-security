@@ -90,6 +90,20 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-ldap</artifactId>
+      <version>3.2.0.CI-SNAPSHOT</version>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-openid</artifactId>
+      <version>3.2.0.CI-SNAPSHOT</version>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
       <version>3.2.0.CI-SNAPSHOT</version>
       <scope>compile</scope>
@@ -261,7 +275,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>jcl-over-slf4j</artifactId>
-      <version>1.6.1</version>
+      <version>1.7.5</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -278,13 +292,7 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-ldap</artifactId>
-      <version>3.2.0.CI-SNAPSHOT</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-openid</artifactId>
+      <artifactId>spring-security-cas</artifactId>
       <version>3.2.0.CI-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
