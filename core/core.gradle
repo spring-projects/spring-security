@@ -18,7 +18,8 @@ dependencies {
              "org.springframework:spring-jdbc:$springVersion",
              "org.springframework:spring-tx:$springVersion"
 
-    testCompile 'commons-collections:commons-collections:3.2',
+    testCompile cryptoProject,
+                'commons-collections:commons-collections:3.2',
                 "org.springframework:spring-test:$springVersion",
                 "org.slf4j:jcl-over-slf4j:$slf4jVersion",
                 powerMockDependencies
