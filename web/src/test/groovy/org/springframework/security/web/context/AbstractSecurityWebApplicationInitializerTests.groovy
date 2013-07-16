@@ -60,7 +60,7 @@ class AbstractSecurityWebApplicationInitializerTests extends Specification {
             1 * context.addFilter("springSecurityFilterChain", {DelegatingFilterProxy f -> f.targetBeanName == "springSecurityFilterChain" && f.contextAttribute == null}) >> registration
             1 * registration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR), false, "/*");
             1 * registration.setAsyncSupported(true)
-            1 * context.addListener(HttpSessionEventPublisher)
+            1 * context.addListener(HttpSessionEventPublisher.class.name)
     }
 
     def "custom getSecurityDispatcherTypes()"() {

@@ -81,7 +81,7 @@ public abstract class AbstractSecurityWebApplicationInitializer implements WebAp
     public final void onStartup(ServletContext servletContext)
             throws ServletException {
         if(enableHttpSessionEventPublisher()) {
-            servletContext.addListener(HttpSessionEventPublisher.class);
+            servletContext.addListener("org.springframework.security.web.session.HttpSessionEventPublisher");
         }
         insertSpringSecurityFilterChain(servletContext);
         afterSpringSecurityFilterChain(servletContext);
