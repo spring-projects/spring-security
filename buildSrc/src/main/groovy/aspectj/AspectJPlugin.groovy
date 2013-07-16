@@ -33,7 +33,7 @@ class AspectJPlugin implements Plugin<Project> {
             project.configurations.add('ajtools')
             project.dependencies {
                 ajtools "org.aspectj:aspectjtools:${project.aspectjVersion}"
-                compile "org.aspectj:aspectjrt:${project.aspectjVersion}"
+                optional "org.aspectj:aspectjrt:${project.aspectjVersion}"
             }
         }
 

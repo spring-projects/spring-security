@@ -1,5 +1,9 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'propdeps'
+apply plugin: 'propdeps-maven'
+apply plugin: 'propdeps-idea'
+apply plugin: 'propdeps-eclipse'
 
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
@@ -56,17 +60,6 @@ ext.bundlorProperties = [
     aopAllianceRange: '[1.0.0, 2.0.0)'
 ]
 
-configurations {
-    // Configuration which is ONLY used for compileJava and will not be inherited by any others
-    // Revisit post Gradle 1.0
-    compileOnly
-    // Used to identify deps which should be marked as "provided" in maven poms
-    provided
-    testCompile.extendsFrom provided
-    compile.transitive = false
-    testCompile.transitive = false
-}
-
 // Integration test setup
 configurations {
     integrationTestCompile {
@@ -92,9 +85,8 @@ task integrationTest(type: Test, dependsOn: jar) {
     classpath = sourceSets.integrationTest.runtimeClasspath
     maxParallelForks = 1
 }
-
 dependencies {
-    compileOnly 'commons-logging:commons-logging:1.1.1'
+    optional 'commons-logging:commons-logging:1.1.1'
 
     compile ("org.springframework:spring-core:$springVersion") {
         exclude(group: 'commons-logging', module: 'commons-logging')
@@ -112,9 +104,6 @@ dependencies {
 
 [configurations.runtime, configurations.default]*.exclude(module: 'commons-logging')
 
-sourceSets.main.compileClasspath += configurations.compileOnly
-sourceSets.main.compileClasspath += configurations.provided
-
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 test {
@@ -131,7 +120,6 @@ def guessMaxForks() {
 javadoc {
     title = "Spring Security $version API"
     source = sourceSets.main.allJava
-    classpath +=  configurations.compileOnly + configurations.provided
     options {
         memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
         author = true

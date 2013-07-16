@@ -10,7 +10,7 @@ dependencies {
 
     runtime project(':spring-security-config'),
             "hsqldb:hsqldb:$hsqlVersion",
-            "net.sf.ehcache:ehcache:$ehcacheVersion",
             "org.springframework:spring-context-support:$springVersion"
 
+    optional "net.sf.ehcache:ehcache:$ehcacheVersion"
 }

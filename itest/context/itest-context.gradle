@@ -12,6 +12,6 @@ dependencies {
     testCompile project(':spring-security-web'),
                 "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion",
                 "org.springframework:spring-web:$springVersion"
-    testRuntime project(':spring-security-config')
-
+    testRuntime project(':spring-security-config'),
+                "org.aspectj:aspectjweaver:$aspectjVersion"
 }

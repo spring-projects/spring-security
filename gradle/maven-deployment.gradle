@@ -20,52 +20,21 @@ dependencies {
     deployerJars "org.springframework.build.aws:org.springframework.build.aws.maven:3.0.0.RELEASE"
 }
 
-// Remove the archive configuration from the runtime configuration, so that anything added to archives
-// (such as the source jar) is no longer included in the runtime classpath
-configurations.default.extendsFrom = [configurations.runtime] as Set
-// Add the main jar into the default configuration
-artifacts { 'default' jar }
-
 install {
     customizePom(repositories.mavenInstaller.pom, project)
 }
 
 def customizePom(pom, gradleProject) {
-    def optionalDeps = ['ehcache', 'log4j', 'apacheds-core', 'jsp-api', 'jsr250-api', 'ldapsdk', 'aspectjrt', 'aspectjweaver']
-
-    pom.scopeMappings.addMapping(10, configurations.provided, 'provided')
     pom.whenConfigured { p ->
-        // Remove test scope dependencies from published poms
-        p.dependencies = p.dependencies.findAll {it.scope != 'test'}
-
-        // Flag optional deps
-        p.dependencies.findAll { dep ->
-            optionalDeps.contains(dep.artifactId) ||
-            dep.groupId.startsWith('org.apache.directory') ||
-            dep.groupId.startsWith('org.slf4j')
-        }*.optional = true
-
-        // Hack for specific case of config module
-        if (p.artifactId == 'spring-security-config') {
-            p.dependencies.find { dep -> dep.artifactId == 'spring-security-ldap'}.optional = true
-            p.dependencies.find { dep -> dep.artifactId == 'spring-ldap-core'}.optional = true
-            p.dependencies.find { dep -> dep.groupId.startsWith "org.apache.directory" }*.optional = true
-            p.dependencies.find { dep -> dep.artifactId == 'spring-security-web'}.optional = true
-            p.dependencies.find { dep -> dep.artifactId == 'spring-security-openid'}.optional = true
-            p.dependencies.find { dep -> dep.artifactId == 'guice'}.optional = true
-            p.dependencies.find { dep -> dep.artifactId == 'openid4java-nodeps'}.optional = true
-            p.dependencies.find { dep -> dep.artifactId == 'spring-jdbc'}.optional = true
-            p.dependencies.find { dep -> dep.artifactId == 'spring-tx'}.optional = true
-            p.dependencies.find { dep -> dep.artifactId == 'spring-web'}.optional = true
+        p.dependencies.findAll{ it.scope == "optional" }.each {
+            it.scope = "compile"
+            it.optional = true
         }
-
-        if (p.artifactId == 'spring-security-core') {
-            p.dependencies.find { dep -> dep.artifactId == 'spring-jdbc'}.optional = true
-            p.dependencies.find { dep -> dep.artifactId == 'spring-tx'}.optional = true
-            p.dependencies.removeAll { dep -> dep.artifactId == 'spring-security-crypto' }
+        // sort to make pom dependencies order consistent to ease comparison of older poms
+        p.dependencies = p.dependencies.sort { dep ->
+            "$dep.scope:$dep.optional:$dep.groupId:$dep.artifactId"
         }
     }
-
     pom.project {
         name = gradleProject.name
         description = gradleProject.name
@@ -93,12 +62,6 @@ def customizePom(pom, gradleProject) {
                 email = 'rwinch@vmware.com'
             }
         }
-        repositories {
-            repository {
-                id 'spring-milestone'
-                url 'http://repo.springsource.org/libs-milestone'
-            }
-        }
         dependencies {
             dependency {
                 artifactId = groupId = 'commons-logging'
@@ -112,11 +75,13 @@ def customizePom(pom, gradleProject) {
 
 task generatePom {
     group = 'Build'
-    description = 'Generates the Maven pom.xml'
+    description = 'Generates a Maven pom.xml'
 
-    ext.generatedPomFileName = 'pom.xml'
+    ext.generatedPomFileName = "pom.xml"
+    onlyIf { install.enabled }
 
-    inputs.files('**/*.gradle')
+    inputs.files(fileTree(project.rootProject.rootDir).include("**/*.gradle").files)
+    inputs.files(new File(project.rootProject.rootDir, Project.GRADLE_PROPERTIES))
     outputs.files(generatedPomFileName)
 
     doLast() {
@@ -124,5 +89,4 @@ task generatePom {
         customizePom(p, project)
         p.writeTo(generatedPomFileName)
     }
-
 }

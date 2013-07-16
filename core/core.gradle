@@ -5,17 +5,18 @@ def cryptoProject = project(':spring-security-crypto')
 def cryptoClasses = cryptoProject.sourceSets.main.output
 
 dependencies {
-    compile cryptoProject,
+    compile cryptoProject.sourceSets.main.output,
             'aopalliance:aopalliance:1.0',
-            "net.sf.ehcache:ehcache:$ehcacheVersion",
             "org.springframework:spring-aop:$springVersion",
             "org.springframework:spring-beans:$springVersion",
             "org.springframework:spring-context:$springVersion",
-            "org.springframework:spring-expression:$springVersion",
-            "org.springframework:spring-jdbc:$springVersion",
-            "org.springframework:spring-tx:$springVersion",
-            "org.aspectj:aspectjrt:$aspectjVersion",
-            'javax.annotation:jsr250-api:1.0'
+            "org.springframework:spring-expression:$springVersion"
+
+    optional "net.sf.ehcache:ehcache:$ehcacheVersion",
+             'javax.annotation:jsr250-api:1.0',
+             "org.aspectj:aspectjrt:$aspectjVersion",
+             "org.springframework:spring-jdbc:$springVersion",
+             "org.springframework:spring-tx:$springVersion"
 
     testCompile 'commons-collections:commons-collections:3.2',
                 "org.springframework:spring-test:$springVersion",
@@ -35,9 +36,6 @@ classes.doLast {
         into sourceSets.main.output.classesDir
     }
 }
-
-sourceSets.main.compileClasspath += cryptoClasses
-sourceSets.test.compileClasspath += cryptoClasses
 
 sourceJar.from cryptoProject.sourceSets.main.java
 

@@ -35,7 +35,8 @@ dependencies {
     runtime project(':spring-security-web'),
             project(':spring-security-config'),
             "org.slf4j:jcl-over-slf4j:$slf4jVersion",
-            "ch.qos.logback:logback-classic:$logbackVersion"
+            "ch.qos.logback:logback-classic:$logbackVersion",
+            "net.sf.ehcache:ehcache:$ehcacheVersion"
 
     integrationTestCompile project(':spring-security-cas'),
                    "org.seleniumhq.selenium:selenium-htmlunit-driver:$seleniumVersion",

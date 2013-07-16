@@ -1,3 +1,5 @@
+import javax.security.auth.login.ConfigurationSpi;
+
 // Config Module build file
 
 apply plugin: 'groovy'
@@ -8,23 +10,14 @@ compileTestJava.dependsOn(':spring-security-core:compileTestJava')
 dependencies {
     // NB: Don't add other compile time dependencies to the config module as this breaks tooling
     compile project(':spring-security-core'),
-            project(':spring-security-web'),
-            project(':spring-security-openid'),
-            project(':spring-security-ldap'),
-            "org.aspectj:aspectjweaver:$aspectjVersion",
             'aopalliance:aopalliance:1.0',
             "org.springframework:spring-aop:$springVersion",
             "org.springframework:spring-context:$springVersion",
-            "org.springframework:spring-web:$springVersion",
-            "org.springframework:spring-beans:$springVersion",
-            "org.springframework:spring-jdbc:$springVersion",
-            "org.springframework:spring-tx:$springVersion",
-            "org.springframework.ldap:spring-ldap-core:$springLdapVersion"
-            compile('org.openid4java:openid4java-nodeps:0.9.6') {
-                exclude group: 'com.google.code.guice', module: 'guice'
-            }
-            compile 'com.google.inject:guice:2.0'
-            compile apacheds_libs
+            "org.springframework:spring-beans:$springVersion"
+
+    optional project(':spring-security-web'),
+             "org.springframework:spring-web:$springVersion",
+             "org.aspectj:aspectjweaver:$aspectjVersion"
 
     provided "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion"
 
@@ -43,6 +36,13 @@ dependencies {
                 "org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.1.Final",
                 "org.hibernate:hibernate-entitymanager:4.1.0.Final",
                 "org.codehaus.groovy:groovy-all:$groovyVersion",
+                "org.apache.directory.server:apacheds-core:$apacheDsVersion",
+                "org.apache.directory.server:apacheds-core-entry:$apacheDsVersion",
+                "org.apache.directory.server:apacheds-protocol-shared:$apacheDsVersion",
+                "org.apache.directory.server:apacheds-protocol-ldap:$apacheDsVersion",
+                "org.apache.directory.server:apacheds-server-jndi:$apacheDsVersion",
+                'org.apache.directory.shared:shared-ldap:0.9.15',
+                'ldapsdk:ldapsdk:4.1',
                 powerMockDependencies
     testCompile('org.openid4java:openid4java-nodeps:0.9.6') {
        exclude group: 'com.google.code.guice', module: 'guice'

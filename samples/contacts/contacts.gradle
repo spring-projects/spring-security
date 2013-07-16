@@ -3,10 +3,6 @@
 apply plugin: 'war'
 apply plugin: 'jetty'
 
-configurations {
-    runtime.exclude module: 'jsr250-api'
-    runtime.exclude group: 'org.aspectj'
-}
 
 dependencies {
     providedCompile "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion"
@@ -26,10 +22,12 @@ dependencies {
             project(':spring-security-taglibs'),
             "org.springframework:spring-context-support:$springVersion",
             "javax.servlet:jstl:$jstlVersion",
-            "net.sf.ehcache:ehcache:$ehcacheVersion",
             "hsqldb:hsqldb:$hsqlVersion",
             "org.slf4j:jcl-over-slf4j:$slf4jVersion",
             "ch.qos.logback:logback-classic:$logbackVersion"
+
+    optional "net.sf.ehcache:ehcache:$ehcacheVersion"
+
 }
 
 jettyRun {
