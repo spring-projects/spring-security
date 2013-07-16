@@ -2,53 +2,42 @@
 apply plugin: 'base'
 
 task docs {
-    dependsOn 'manual:docbook', 'faq:docbookHtmlSingle', 'apidocs'
+    dependsOn 'manual:reference', 'faq:referenceHtmlSingle', 'apidocs'
 }
 
 subprojects {
     apply plugin: 'base'
-    apply plugin: 'docbook'
+    apply plugin: 'docbook-reference'
 
-    docbookHtmlSingle.stylesheet = new File(projectDir, 'src/xsl/html-single-custom.xsl')
+    [referenceHtmlMulti, referencePdf, referenceHtmlSingle]*.sourceDir = file('src/docbook')
 }
 
 project('faq') {
-    defaultTasks 'docbookHtmlSingle'
-    [docbookHtml, docbookFoPdf, docbookHtmlSingle]*.sourceFileName = 'faq.xml'
-    docbookHtmlSingle.suffix = ''
+    defaultTasks 'referenceHtmlSingle'
+    referenceHtmlSingle.stylesheet = 'html-single-custom.xsl'
+    [referenceHtmlMulti, referencePdf, referenceHtmlSingle]*.sourceFileName = 'faq.xml'
 
     ext.spec = copySpec {
         into ('faq') {
-            from("$buildDir/docs")
+            from("$buildDir/reference/htmlsingle")
             from("$projectDir/src/resources")
         }
     }
 }
 
 project('manual') {
-    defaultTasks 'docbookHtml', 'docbookHtmlSingle', 'docbookFoPdf'
-    [docbookHtml, docbookFoPdf, docbookHtmlSingle]*.sourceFileName = 'springsecurity.xml'
-
-    docbookHtml.stylesheet = new File(projectDir, 'src/xsl/html-custom.xsl')
-    docbookHtmlSingle.stylesheet = new File(projectDir, 'src/xsl/html-single-custom.xsl')
-    docbookFoPdf.stylesheet = new File(projectDir, 'src/xsl/pdf-custom.xsl')
+    defaultTasks 'referenceHtmlMulti', 'referenceHtmlSingle', 'referencePdf'
     def imagesDir = new File(projectDir, 'src/docbook/images');
-//    docbookFoPdf.admonGraphicsPath = "${imagesDir}/"
-    docbookFoPdf.imgSrcPath = "${projectDir}/src/docbook/"
 
     ext.spec = copySpec {
         into ('reference') {
-            from("$buildDir/docs")
-            from("$projectDir/src/resources")
-        }
-        into ('reference/images') {
-            from (imagesDir)
+            from("$buildDir/reference")
         }
     }
 }
 
 task reference (type: Copy) {
-    dependsOn 'manual:docbook'
+    dependsOn 'manual:reference'
     destinationDir = buildDir
     with(project('manual').spec)
 }
@@ -99,7 +88,7 @@ ext.apiSpec = copySpec {
     }
 }
 
-assemble.dependsOn = [apidocs, 'manual:docbook']
+assemble.dependsOn = [apidocs, 'manual:reference']
 
 task docsZip(type: Zip) {
     dependsOn docs

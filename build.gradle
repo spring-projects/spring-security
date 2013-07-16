@@ -1,3 +1,4 @@
+import sun.awt.geom.AreaOp.IntOp;
 import groovy.text.SimpleTemplateEngine
 
 buildscript {
@@ -6,6 +7,7 @@ buildscript {
     }
     dependencies {
         classpath("org.springframework.build.gradle:propdeps-plugin:0.0.3")
+        classpath("org.springframework.build.gradle:docbook-reference-plugin:0.2.7")
         classpath("org.springframework.build.gradle:bundlor-plugin:0.1.2")
     }
 }
@@ -22,7 +24,8 @@ allprojects {
     group = 'org.springframework.security'
 
     repositories {
-        maven { url "http://repo.springsource.org/plugins-release" }
+       maven { url "http://repo.springsource.org/libs-release" }
+       maven { url "http://repo.springsource.org/plugins-release" }
     }
 }
 
@@ -57,7 +60,7 @@ configure(subprojects - coreModuleProjects) {
 configure(javaProjects) {
     apply from: "$rootDir/gradle/javaprojects.gradle"
     apply from: "$rootDir/gradle/release-checks.gradle"
-		apply from: "$rootDir/gradle/maven-deployment.gradle"
+    apply from: "$rootDir/gradle/maven-deployment.gradle"
 }
 
 configure(coreModuleProjects) {
@@ -94,7 +97,7 @@ task coreBuild {
 // Task for creating the distro zip
 
 task dist(type: Zip) {
-    dependsOn subprojects*.tasks*.matching { task -> task.name == 'assemble' || task.name.endsWith('Zip') }
+    dependsOn subprojects*.tasks*.matching { task -> task.name == 'assemble' || task.name.endsWith('Zip') || task.name.endsWith('generatePom') }
     classifier = 'dist'
 
     evaluationDependsOn(':docs')
@@ -110,8 +113,14 @@ task dist(type: Zip) {
         }
         into('dist') {
             from coreModuleProjects.collect {project -> project.libsDir }
-            from project(':spring-security-samples-tutorial').libsDir
-            from project(':spring-security-samples-contacts').libsDir
+        }
+        sampleProjects.each { project->
+            into("$zipRootDir/samples/$project.name") {
+                from(project.projectDir) {
+                    include "src/main/**"
+                    include "pom.xml"
+                }
+            }
         }
     }
 }
