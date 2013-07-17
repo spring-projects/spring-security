@@ -136,6 +136,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.codehaus.groovy</groupId>
+      <artifactId>groovy</artifactId>
+      <version>2.0.5</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.easytesting</groupId>
       <artifactId>fest-assert</artifactId>
       <version>1.4</version>
@@ -192,7 +198,7 @@
     <dependency>
       <groupId>org.spockframework</groupId>
       <artifactId>spock-core</artifactId>
-      <version>0.6-groovy-1.8</version>
+      <version>0.7-groovy-2.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
