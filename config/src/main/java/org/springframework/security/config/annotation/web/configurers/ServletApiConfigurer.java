@@ -15,12 +15,16 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 
 /**
@@ -67,9 +71,16 @@ public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>> extend
     }
 
     @Override
-    public void configure(H builder)
-            throws Exception {
+    @SuppressWarnings("unchecked")
+    public void configure(H http) throws Exception {
+        securityContextRequestFilter.setAuthenticationManager(http.getAuthenticationManager());
+        ExceptionHandlingConfigurer<H> exceptionConf = http.getConfigurer(ExceptionHandlingConfigurer.class);
+        AuthenticationEntryPoint authenticationEntryPoint = exceptionConf == null ? null : exceptionConf.getEntryPoint(http);
+        securityContextRequestFilter.setAuthenticationEntryPoint(authenticationEntryPoint);
+        LogoutConfigurer<H> logoutConf = http.getConfigurer(LogoutConfigurer.class);
+        List<LogoutHandler> logoutHandlers = logoutConf == null ? null : logoutConf.getLogoutHandlers();
+        securityContextRequestFilter.setLogoutHandlers(logoutHandlers);
         securityContextRequestFilter = postProcess(securityContextRequestFilter);
-        builder.addFilter(securityContextRequestFilter);
+        http.addFilter(securityContextRequestFilter);
     }
 }

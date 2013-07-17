@@ -16,6 +16,7 @@
 package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -222,6 +223,14 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends Ab
      */
     private String getLogoutSuccessUrl() {
         return logoutSuccessUrl;
+    }
+
+    /**
+     * Gets the {@link LogoutHandler} instances that will be used.
+     * @return the {@link LogoutHandler} instances. Cannot be null.
+     */
+    List<LogoutHandler> getLogoutHandlers() {
+        return logoutHandlers;
     }
 
     /**

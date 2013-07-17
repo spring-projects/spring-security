@@ -132,7 +132,7 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
      * @param http the {@link HttpSecurity} used to look up shared {@link AuthenticationEntryPoint}
      * @return the {@link AuthenticationEntryPoint} to use
      */
-    private AuthenticationEntryPoint getEntryPoint(H http) {
+    AuthenticationEntryPoint getEntryPoint(H http) {
         AuthenticationEntryPoint entryPoint = this.authenticationEntryPoint;
         if(entryPoint == null) {
             AuthenticationEntryPoint sharedEntryPoint = http.getSharedObject(AuthenticationEntryPoint.class);

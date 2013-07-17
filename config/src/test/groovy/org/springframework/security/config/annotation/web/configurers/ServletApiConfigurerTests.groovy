@@ -15,10 +15,17 @@
  */
 package org.springframework.security.config.annotation.web.configurers
 
+import groovy.transform.CompileStatic
+
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.AnyObjectPostProcessor
 import org.springframework.security.config.annotation.BaseSpringSpec
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.web.AuthenticationEntryPoint
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
 
 /**
@@ -39,5 +46,65 @@ class ServletApiConfigurerTests extends BaseSpringSpec {
 
         then: "SecurityContextHolderAwareRequestFilter is registered with LifecycleManager"
             1 * opp.postProcess(_ as SecurityContextHolderAwareRequestFilter) >> {SecurityContextHolderAwareRequestFilter o -> o}
+    }
+
+    def "SecurityContextHolderAwareRequestFilter properties set"() {
+        when:
+            loadConfig(ServletApiConfig)
+            SecurityContextHolderAwareRequestFilter filter = findFilter(SecurityContextHolderAwareRequestFilter)
+        then: "SEC-2215: authenticationManager != null"
+            filter.authenticationManager != null
+        and: "authenticationEntryPoint != null"
+            filter.authenticationEntryPoint != null
+        and: "requestFactory != null"
+            filter.requestFactory != null
+        and: "logoutHandlers populated"
+            filter.logoutHandlers.collect { it.class } == [SecurityContextLogoutHandler]
+    }
+
+    @CompileStatic
+    @EnableWebSecurity
+    @Configuration
+    static class ServletApiConfig extends WebSecurityConfigurerAdapter {
+
+        @Override
+        protected void registerAuthentication(AuthenticationManagerBuilder auth)
+            throws Exception {
+            auth
+                .inMemoryAuthentication()
+                    .withUser("user").password("password").roles("USER")
+        }
+    }
+
+    def "SecurityContextHolderAwareRequestFilter.authenticationEntryPoint = customEntryPoint"() {
+        setup:
+            CustomEntryPointConfig.ENTRYPOINT = Mock(AuthenticationEntryPoint)
+        when: "load config with customEntryPoint"
+            loadConfig(CustomEntryPointConfig)
+        then: "SecurityContextHolderAwareRequestFilter.authenticationEntryPoint == customEntryPoint"
+            findFilter(SecurityContextHolderAwareRequestFilter).authenticationEntryPoint == CustomEntryPointConfig.ENTRYPOINT
+    }
+
+    @EnableWebSecurity
+    @Configuration
+    static class CustomEntryPointConfig extends WebSecurityConfigurerAdapter {
+        static AuthenticationEntryPoint ENTRYPOINT
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .exceptionHandling()
+                    .authenticationEntryPoint(ENTRYPOINT)
+                    .and()
+                .formLogin()
+        }
+
+        @Override
+        protected void registerAuthentication(AuthenticationManagerBuilder auth)
+            throws Exception {
+            auth
+                .inMemoryAuthentication()
+                    .withUser("user").password("password").roles("USER")
+        }
     }
 }
