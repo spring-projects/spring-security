@@ -15,10 +15,16 @@
  */
 package org.springframework.security.config.annotation.web.configurers
 
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.AnyObjectPostProcessor
 import org.springframework.security.config.annotation.BaseSpringSpec
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.web.AuthenticationEntryPoint
+import org.springframework.security.web.access.ExceptionTranslationFilter
+import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 
 /**
@@ -39,5 +45,58 @@ class HttpBasicConfigurerTests extends BaseSpringSpec {
 
         then: "ExceptionTranslationFilter is registered with LifecycleManager"
             1 * opp.postProcess(_ as BasicAuthenticationFilter) >> {BasicAuthenticationFilter o -> o}
+    }
+
+    def "SEC-2198: http.httpBasic() defaults AuthenticationEntryPoint"() {
+        when:
+            loadConfig(DefaultsEntryPointConfig)
+        then:
+            findFilter(ExceptionTranslationFilter).authenticationEntryPoint.class == BasicAuthenticationEntryPoint
+    }
+
+    @EnableWebSecurity
+    @Configuration
+    static class DefaultsEntryPointConfig extends WebSecurityConfigurerAdapter {
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .httpBasic()
+        }
+
+        @Override
+        protected void registerAuthentication(AuthenticationManagerBuilder auth)
+                throws Exception {
+            auth
+                .inMemoryAuthentication()
+        }
+    }
+
+    def "http.httpBasic().authenticationEntryPoint used for AuthenticationEntryPoint"() {
+        setup:
+            CustomAuthenticationEntryPointConfig.ENTRY_POINT = Mock(AuthenticationEntryPoint)
+        when:
+            loadConfig(CustomAuthenticationEntryPointConfig)
+        then:
+            findFilter(ExceptionTranslationFilter).authenticationEntryPoint == CustomAuthenticationEntryPointConfig.ENTRY_POINT
+    }
+
+    @EnableWebSecurity
+    @Configuration
+    static class CustomAuthenticationEntryPointConfig extends WebSecurityConfigurerAdapter {
+        static AuthenticationEntryPoint ENTRY_POINT
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .httpBasic()
+                    .authenticationEntryPoint(ENTRY_POINT)
+        }
+
+        @Override
+        protected void registerAuthentication(AuthenticationManagerBuilder auth)
+                throws Exception {
+            auth
+                .inMemoryAuthentication()
+        }
     }
 }

@@ -33,6 +33,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.filter.OncePerRequestFilter
 
+import spock.lang.Unroll;
 /**
  * HttpSecurity tests
  *
@@ -82,7 +83,8 @@ public class HttpSecurityTests extends BaseSpringSpec {
     }
 
 
-    def "requestMatchers() javadoc"() {
+    @Unroll
+    def "requestMatchers javadoc"() {
         setup: "load configuration like the config on the requestMatchers() javadoc"
             loadConfig(RequestMatcherRegistryConfigs)
         when:
@@ -90,15 +92,15 @@ public class HttpSecurityTests extends BaseSpringSpec {
             request.servletPath = "/oauth/a"
             springSecurityFilterChain.doFilter(request, response, chain)
         then:
-            response.status == 403
+            response.status == HttpServletResponse.SC_UNAUTHORIZED
         where:
-            servletPath | status
-            "/oauth/a"  | 403
-            "/oauth/b"  | 403
-            "/api/a"    | 403
-            "/api/b"    | 403
-            "/oauth2/b" | 200
-            "/api2/b"   | 200
+            servletPath | _
+            "/oauth/a"  | _
+            "/oauth/b"  | _
+            "/api/a"    | _
+            "/api/b"    | _
+            "/oauth2/b" | _
+            "/api2/b"   | _
     }
 
     @EnableWebSecurity

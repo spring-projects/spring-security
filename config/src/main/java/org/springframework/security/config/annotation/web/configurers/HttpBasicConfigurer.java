@@ -36,20 +36,23 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
  *
  * <ul>
  * <li>
- * {@link BasicAuthenticationFilter}
- * </li>
+ * {@link BasicAuthenticationFilter}</li>
  * </ul>
  *
  * <h2>Shared Objects Created</h2>
  *
- * No shared objects are populated
+ * <ul>
+ * <li>AuthenticationEntryPoint - populated with the
+ * {@link #authenticationEntryPoint(AuthenticationEntryPoint)} (default
+ * {@link BasicAuthenticationEntryPoint})</li>
+ * </ul>
  *
  * <h2>Shared Objects Used</h2>
  *
  * The following shared objects are used:
  *
  * <ul>
- * <li>{@link HttpSecurity#getAuthenticationManager()} </li>
+ * <li>{@link HttpSecurity#getAuthenticationManager()}</li>
  * </ul>
  *
  * @author Rob Winch
@@ -58,7 +61,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends AbstractHttpConfigurer<B> {
     private static final String DEFAULT_REALM = "Spring Security Application";
 
-    private AuthenticationEntryPoint authenticationEntryPoint;
+    private AuthenticationEntryPoint authenticationEntryPoint = new BasicAuthenticationEntryPoint();
     private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
 
     /**
@@ -112,6 +115,11 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
     public HttpBasicConfigurer<B> authenticationDetailsSource(AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
         this.authenticationDetailsSource = authenticationDetailsSource;
         return this;
+    }
+
+    public void init(B http) throws Exception {
+        http
+            .setSharedObject(AuthenticationEntryPoint.class, authenticationEntryPoint);
     }
 
     @Override

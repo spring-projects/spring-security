@@ -57,7 +57,7 @@ public class NamespaceHttpBasicTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.status == HttpServletResponse.SC_FORBIDDEN
+            response.status == HttpServletResponse.SC_UNAUTHORIZED
         when: "fail to log in"
             setup()
             login("user","invalid")
@@ -132,7 +132,7 @@ public class NamespaceHttpBasicTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.status == HttpServletResponse.SC_FORBIDDEN
+            response.status == HttpServletResponse.SC_INTERNAL_SERVER_ERROR
         when: "fail to log in"
             setup()
             login("user","invalid")

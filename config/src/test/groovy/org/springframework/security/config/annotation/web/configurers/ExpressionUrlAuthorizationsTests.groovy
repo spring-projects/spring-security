@@ -15,19 +15,20 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
-import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.access.vote.AffirmativeBased;
+import javax.servlet.http.HttpServletResponse
+
+import org.springframework.beans.factory.BeanCreationException
+import org.springframework.context.annotation.Configuration
+import org.springframework.security.access.vote.AffirmativeBased
 import org.springframework.security.authentication.RememberMeAuthenticationToken
 import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.SecurityExpressions.*
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.core.authority.AuthorityUtils
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor
 
 public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
 
@@ -112,19 +113,19 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.status == 403
+            response.status == HttpServletResponse.SC_UNAUTHORIZED
         when:
             super.setup()
             login()
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.status == 200
+            response.status == HttpServletResponse.SC_OK
         when:
             super.setup()
             login("user","ROLE_INVALID")
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.status == 403
+            response.status == HttpServletResponse.SC_FORBIDDEN
     }
 
     @EnableWebSecurity
@@ -145,25 +146,25 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.status == 403
+            response.status == HttpServletResponse.SC_UNAUTHORIZED
         when:
             super.setup()
             login("user","ROLE_ADMIN")
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.status == 200
+            response.status == HttpServletResponse.SC_OK
         when:
             super.setup()
             login("user","ROLE_DBA")
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.status == 200
+            response.status == HttpServletResponse.SC_OK
         when:
             super.setup()
             login("user","ROLE_INVALID")
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.status == 403
+            response.status == HttpServletResponse.SC_FORBIDDEN
     }
 
     @EnableWebSecurity
@@ -185,13 +186,13 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
             request.remoteAddr = "192.168.1.1"
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.status == 403
+            response.status == HttpServletResponse.SC_UNAUTHORIZED
         when:
             super.setup()
             request.remoteAddr = "192.168.1.0"
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.status == 200
+            response.status == HttpServletResponse.SC_OK
     }
 
     @EnableWebSecurity
@@ -212,13 +213,13 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.status == 200
+            response.status == HttpServletResponse.SC_OK
         when:
             super.setup()
             login()
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.status == 403
+            response.status == HttpServletResponse.SC_FORBIDDEN
     }
 
     @EnableWebSecurity
@@ -239,13 +240,13 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.status == 403
+            response.status == HttpServletResponse.SC_UNAUTHORIZED
         when:
             super.setup()
             login(new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.status == 200
+            response.status == HttpServletResponse.SC_OK
     }
 
     @EnableWebSecurity
@@ -276,13 +277,13 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.status == 403
+            response.status == HttpServletResponse.SC_UNAUTHORIZED
         when:
             super.setup()
             login(new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.status == 403
+            response.status == HttpServletResponse.SC_FORBIDDEN
     }
 
     @EnableWebSecurity
@@ -303,13 +304,13 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.status == 200
+            response.status == HttpServletResponse.SC_OK
         when:
             super.setup()
             login(new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.status == 200
+            response.status == HttpServletResponse.SC_OK
     }
 
     @EnableWebSecurity
@@ -330,19 +331,19 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.status == 403
+            response.status == HttpServletResponse.SC_UNAUTHORIZED
         when:
             super.setup()
             login(new RememberMeAuthenticationToken("key", "user", AuthorityUtils.createAuthorityList("ROLE_USER")))
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.status == 403
+            response.status == HttpServletResponse.SC_FORBIDDEN
         when:
             super.setup()
             login()
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.status == 200
+            response.status == HttpServletResponse.SC_OK
     }
 
     @EnableWebSecurity
@@ -373,20 +374,20 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "Access is granted due to GET"
-            response.status == 200
+            response.status == HttpServletResponse.SC_OK
         when:
             super.setup()
             login()
             request.method = "POST"
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "Access is granted due to role"
-            response.status == 200
+            response.status == HttpServletResponse.SC_OK
         when:
             super.setup()
             request.method = "POST"
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "Access is denied"
-            response.status == 403
+            response.status == HttpServletResponse.SC_UNAUTHORIZED
     }
 
     @EnableWebSecurity

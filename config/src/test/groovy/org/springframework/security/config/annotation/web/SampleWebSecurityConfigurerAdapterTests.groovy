@@ -15,8 +15,9 @@
  */
 package org.springframework.security.config.annotation.web
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean
+import javax.servlet.http.HttpServletResponse
+
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
 import org.springframework.security.authentication.AuthenticationManager
@@ -38,11 +39,13 @@ public class SampleWebSecurityConfigurerAdapterTests extends BaseWebSpecuritySpe
         setup: "Sample Config is loaded"
             loadConfig(HelloWorldWebSecurityConfigurerAdapter)
         when:
+            request.addHeader("Accept", "text/html")
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
             response.getRedirectedUrl() == "http://localhost/login"
         when: "fail to log in"
             super.setup()
+            request.addHeader("Accept", "text/html")
             request.requestURI = "/login"
             request.method = "POST"
             springSecurityFilterChain.doFilter(request,response,chain)
@@ -213,8 +216,8 @@ public class SampleWebSecurityConfigurerAdapterTests extends BaseWebSpecuritySpe
             super.setup()
             request.servletPath = "/api/admin/test"
             springSecurityFilterChain.doFilter(request,response,chain)
-        then: "get 403"
-            response.getStatus() == 403
+        then: "get 401"
+            response.getStatus() == HttpServletResponse.SC_UNAUTHORIZED
 
         when: "request API for admins with user"
             super.setup()
@@ -222,7 +225,7 @@ public class SampleWebSecurityConfigurerAdapterTests extends BaseWebSpecuritySpe
             request.addHeader("Authorization", "Basic " + "user:password".bytes.encodeBase64().toString())
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "get 403"
-            response.getStatus() == 403
+            response.getStatus() == HttpServletResponse.SC_FORBIDDEN
 
         when: "request API for admins with admin"
             super.setup()
@@ -230,7 +233,7 @@ public class SampleWebSecurityConfigurerAdapterTests extends BaseWebSpecuritySpe
             request.addHeader("Authorization", "Basic " + "admin:password".bytes.encodeBase64().toString())
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "get 200"
-            response.getStatus() == 200
+            response.getStatus() == HttpServletResponse.SC_OK
     }
 
 
