@@ -15,15 +15,19 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.LinkedHashMap;
+
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.util.RequestMatcher;
 
 /**
  * Adds exception handling for Spring Security related exceptions to an application. All properties have reasonable
@@ -47,8 +51,6 @@ import org.springframework.security.web.savedrequest.RequestCache;
  * The following shared objects are used:
  *
  * <ul>
- *     <li>{@link HttpSecurity#authenticationEntryPoint()} is used to process requests that require
- *     authentication</li>
  *     <li>If no explicit {@link RequestCache}, is provided a {@link RequestCache} shared object is used to replay
  *     the request after authentication is successful</li>
  *     <li>{@link AuthenticationEntryPoint} - see {@link #authenticationEntryPoint(AuthenticationEntryPoint)} </li>
@@ -62,6 +64,8 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
     private AuthenticationEntryPoint authenticationEntryPoint;
 
     private AccessDeniedHandler accessDeniedHandler;
+
+    private LinkedHashMap<RequestMatcher,AuthenticationEntryPoint> defaultEntryPointMappings = new LinkedHashMap<RequestMatcher, AuthenticationEntryPoint>();
 
     /**
      * Creates a new instance
@@ -96,15 +100,48 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
     }
 
     /**
-     * Sets the {@link AuthenticationEntryPoint} to be used. Defaults to the
-     * {@link HttpSecurity#getSharedObject(Class)} value. If that is not
-     * provided defaults to {@link Http403ForbiddenEntryPoint}.
+     * Sets the {@link AuthenticationEntryPoint} to be used.
      *
-     * @param authenticationEntryPoint the {@link AuthenticationEntryPoint} to use
-     * @return the {@link ExceptionHandlingConfigurer} for further customizations
+     * <p>
+     * If no {@link #authenticationEntryPoint(AuthenticationEntryPoint)} is
+     * specified, then
+     * {@link #defaultAuthenticationEntryPointFor(AuthenticationEntryPoint, RequestMatcher)}
+     * will be used. The first {@link AuthenticationEntryPoint} will be used as
+     * the default is no matches were found.
+     * </p>
+     *
+     * <p>
+     * If that is not provided defaults to {@link Http403ForbiddenEntryPoint}.
+     * </p>
+     *
+     * @param authenticationEntryPoint
+     *            the {@link AuthenticationEntryPoint} to use
+     * @return the {@link ExceptionHandlingConfigurer} for further
+     *         customizations
      */
     public ExceptionHandlingConfigurer<H> authenticationEntryPoint(AuthenticationEntryPoint authenticationEntryPoint) {
         this.authenticationEntryPoint = authenticationEntryPoint;
+        return this;
+    }
+
+    /**
+     * Sets a default {@link AuthenticationEntryPoint} to be used which prefers
+     * being invoked for the provided {@link RequestMatcher}. If only a single
+     * default {@link AuthenticationEntryPoint} is specified, it will be what is
+     * used for the default {@link AuthenticationEntryPoint}. If multiple
+     * default {@link AuthenticationEntryPoint} instances are configured, then a
+     * {@link DelegatingAuthenticationEntryPoint} will be used.
+     *
+     * @param entryPoint
+     *            the {@link AuthenticationEntryPoint} to use
+     * @param preferredMatcher
+     *            the {@link RequestMatcher} for this default
+     *            {@link AuthenticationEntryPoint}
+     * @return the {@link ExceptionHandlingConfigurer} for further
+     *         customizations
+     */
+    public ExceptionHandlingConfigurer<H> defaultAuthenticationEntryPointFor(AuthenticationEntryPoint entryPoint, RequestMatcher preferredMatcher) {
+        this.defaultEntryPointMappings.put(preferredMatcher, entryPoint);
         return this;
     }
 
@@ -118,7 +155,7 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 
     @Override
     public void configure(H http) throws Exception {
-        AuthenticationEntryPoint entryPoint = getEntryPoint(http);
+        AuthenticationEntryPoint entryPoint = getAuthenticationEntryPoint(http);
         ExceptionTranslationFilter exceptionTranslationFilter = new ExceptionTranslationFilter(entryPoint, getRequestCache(http));
         if(accessDeniedHandler != null) {
             exceptionTranslationFilter.setAccessDeniedHandler(accessDeniedHandler);
@@ -126,22 +163,28 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
         exceptionTranslationFilter = postProcess(exceptionTranslationFilter);
         http.addFilter(exceptionTranslationFilter);
     }
-
     /**
      * Gets the {@link AuthenticationEntryPoint} according to the rules specified by {@link #authenticationEntryPoint(AuthenticationEntryPoint)}
      * @param http the {@link HttpSecurity} used to look up shared {@link AuthenticationEntryPoint}
      * @return the {@link AuthenticationEntryPoint} to use
      */
-    AuthenticationEntryPoint getEntryPoint(H http) {
+     AuthenticationEntryPoint getAuthenticationEntryPoint(H http) {
         AuthenticationEntryPoint entryPoint = this.authenticationEntryPoint;
         if(entryPoint == null) {
-            AuthenticationEntryPoint sharedEntryPoint = http.getSharedObject(AuthenticationEntryPoint.class);
-            if(sharedEntryPoint != null) {
-                entryPoint = sharedEntryPoint;
-            } else {
-                entryPoint = new Http403ForbiddenEntryPoint();
-            }
+            entryPoint = createDefaultEntryPoint(http);
         }
+        return entryPoint;
+    }
+
+    private AuthenticationEntryPoint createDefaultEntryPoint(H http) {
+        if(defaultEntryPointMappings.isEmpty()) {
+            return new Http403ForbiddenEntryPoint();
+        }
+        if(defaultEntryPointMappings.size() == 1) {
+            return defaultEntryPointMappings.values().iterator().next();
+        }
+        DelegatingAuthenticationEntryPoint entryPoint = new DelegatingAuthenticationEntryPoint(defaultEntryPointMappings);
+        entryPoint.setDefaultEntryPoint(defaultEntryPointMappings.values().iterator().next());
         return entryPoint;
     }
 

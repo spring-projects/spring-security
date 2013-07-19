@@ -29,6 +29,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.BaseWebConfig;
 import org.springframework.security.config.annotation.web.configurers.DefaultLoginPageConfigurer;
 import org.springframework.security.web.FilterChainProxy
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler
@@ -331,6 +332,8 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
             http
                 // must set builder manually due to groovy not selecting correct method
                 .apply(defaultLoginConfig).and()
+                .exceptionHandling()
+                    .and()
                 .formLogin()
                     .and()
                 .build()
@@ -339,5 +342,6 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
             1 * objectPostProcessor.postProcess(_ as DefaultLoginPageViewFilter) >> {DefaultLoginPageViewFilter o -> o}
             1 * objectPostProcessor.postProcess(_ as UsernamePasswordAuthenticationFilter) >> {UsernamePasswordAuthenticationFilter o -> o}
             1 * objectPostProcessor.postProcess(_ as LoginUrlAuthenticationEntryPoint) >> {LoginUrlAuthenticationEntryPoint o -> o}
+            1 * objectPostProcessor.postProcess(_ as ExceptionTranslationFilter) >> {ExceptionTranslationFilter o -> o}
     }
 }

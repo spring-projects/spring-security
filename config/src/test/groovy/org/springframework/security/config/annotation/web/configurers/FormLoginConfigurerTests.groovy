@@ -202,13 +202,17 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
             HttpSecurity http = new HttpSecurity(opp, authenticationBldr, [:])
         when:
             http
+                .exceptionHandling()
+                    .and()
                 .formLogin()
                     .and()
                 .build()
 
-        then: "UsernamePasswordAuthenticationFilter is registered with LifecycleManager"
+        then: "UsernamePasswordAuthenticationFilter is registered with ObjectPostProcessor"
             1 * opp.postProcess(_ as UsernamePasswordAuthenticationFilter) >> {UsernamePasswordAuthenticationFilter o -> o}
-        and: "LoginUrlAuthenticationEntryPoint is registered with LifecycleManager"
+        and: "LoginUrlAuthenticationEntryPoint is registered with ObjectPostProcessor"
             1 * opp.postProcess(_ as LoginUrlAuthenticationEntryPoint) >> {LoginUrlAuthenticationEntryPoint o -> o}
+        and: "ExceptionTranslationFilter is registered with ObjectPostProcessor"
+            1 * opp.postProcess(_ as ExceptionTranslationFilter) >> {ExceptionTranslationFilter o -> o}
     }
 }

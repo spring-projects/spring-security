@@ -37,6 +37,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.web.accept.ContentNegotiationStrategy;
+import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 
 /**
  * Provides a convenient base class for creating a {@link WebSecurityConfigurer}
@@ -50,6 +52,8 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
     private final Log logger = LogFactory.getLog(WebSecurityConfigurerAdapter.class);
 
     private ApplicationContext context;
+
+    private ContentNegotiationStrategy contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
 
     private ObjectPostProcessor<Object> objectPostProcessor = new ObjectPostProcessor<Object>() {
         @Override
@@ -145,6 +149,7 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
         authenticationBuilder.parentAuthenticationManager(authenticationManager);
         http = new HttpSecurity(objectPostProcessor,authenticationBuilder, parentAuthenticationBuilder.getSharedObjects());
         http.setSharedObject(UserDetailsService.class, userDetailsService());
+        http.setSharedObject(ContentNegotiationStrategy.class, contentNegotiationStrategy);
         if(!disableDefaults) {
             http
                 .exceptionHandling().and()
@@ -302,6 +307,11 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
     @Autowired
     public void setApplicationContext(ApplicationContext context) {
         this.context = context;
+    }
+
+    @Autowired(required=false)
+    public void setContentNegotationStrategy(ContentNegotiationStrategy contentNegotiationStrategy) {
+        this.contentNegotiationStrategy = contentNegotiationStrategy;
     }
 
     @Autowired(required=false)

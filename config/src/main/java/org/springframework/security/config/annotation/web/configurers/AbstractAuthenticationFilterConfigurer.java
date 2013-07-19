@@ -17,11 +17,11 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.openid.OpenIDLoginConfigurer;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -33,6 +33,10 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.util.MediaTypeRequestMatcher;
+import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.web.accept.ContentNegotiationStrategy;
+import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 
 /**
  * Base class for confuring {@link AbstractAuthenticationFilterConfigurer}. This is intended for internal use only.
@@ -221,7 +225,21 @@ public abstract class AbstractAuthenticationFilterConfigurer<B  extends HttpSecu
         if(permitAll) {
             PermitAllSupport.permitAll(http, loginPage, loginProcessingUrl, failureUrl);
         }
-        http.setSharedObject(AuthenticationEntryPoint.class, postProcess(authenticationEntryPoint));
+        registerDefaultAuthenticationEntryPoint(http);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void registerDefaultAuthenticationEntryPoint(B http) {
+        ExceptionHandlingConfigurer<B> exceptionHandling = http.getConfigurer(ExceptionHandlingConfigurer.class);
+        if(exceptionHandling == null) {
+            return;
+        }
+        ContentNegotiationStrategy contentNegotiationStrategy = http.getSharedObject(ContentNegotiationStrategy.class);
+        if(contentNegotiationStrategy == null) {
+            contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
+        }
+        RequestMatcher preferredMatcher = new MediaTypeRequestMatcher(contentNegotiationStrategy, MediaType.APPLICATION_XHTML_XML, new MediaType("image","*"), MediaType.TEXT_HTML, MediaType.TEXT_PLAIN);
+        exceptionHandling.defaultAuthenticationEntryPointFor(postProcess(authenticationEntryPoint), preferredMatcher);
     }
 
     @Override

@@ -15,8 +15,11 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.Collections;
+
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
@@ -25,6 +28,10 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.util.MediaTypeRequestMatcher;
+import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.web.accept.ContentNegotiationStrategy;
+import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 
 /**
  * Adds HTTP basic based authentication. All attributes have reasonable defaults
@@ -118,8 +125,22 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
     }
 
     public void init(B http) throws Exception {
-        http
-            .setSharedObject(AuthenticationEntryPoint.class, authenticationEntryPoint);
+        registerDefaultAuthenticationEntryPoint(http);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void registerDefaultAuthenticationEntryPoint(B http) {
+        ExceptionHandlingConfigurer<B> exceptionHandling = http.getConfigurer(ExceptionHandlingConfigurer.class);
+        if(exceptionHandling == null) {
+            return;
+        }
+        ContentNegotiationStrategy contentNegotiationStrategy = http.getSharedObject(ContentNegotiationStrategy.class);
+        if(contentNegotiationStrategy == null) {
+            contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
+        }
+        MediaTypeRequestMatcher preferredMatcher = new MediaTypeRequestMatcher(contentNegotiationStrategy, MediaType.APPLICATION_ATOM_XML, MediaType.APPLICATION_FORM_URLENCODED,  MediaType.APPLICATION_JSON, MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_XML, MediaType.MULTIPART_FORM_DATA, MediaType.TEXT_XML);
+        preferredMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
+        exceptionHandling.defaultAuthenticationEntryPointFor(postProcess(authenticationEntryPoint), preferredMatcher);
     }
 
     @Override

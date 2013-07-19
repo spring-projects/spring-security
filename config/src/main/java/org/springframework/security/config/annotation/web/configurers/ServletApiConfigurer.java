@@ -75,7 +75,7 @@ public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>> extend
     public void configure(H http) throws Exception {
         securityContextRequestFilter.setAuthenticationManager(http.getAuthenticationManager());
         ExceptionHandlingConfigurer<H> exceptionConf = http.getConfigurer(ExceptionHandlingConfigurer.class);
-        AuthenticationEntryPoint authenticationEntryPoint = exceptionConf == null ? null : exceptionConf.getEntryPoint(http);
+        AuthenticationEntryPoint authenticationEntryPoint = exceptionConf == null ? null : exceptionConf.getAuthenticationEntryPoint(http);
         securityContextRequestFilter.setAuthenticationEntryPoint(authenticationEntryPoint);
         LogoutConfigurer<H> logoutConf = http.getConfigurer(LogoutConfigurer.class);
         List<LogoutHandler> logoutHandlers = logoutConf == null ? null : logoutConf.getLogoutHandlers();
