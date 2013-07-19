@@ -21,6 +21,7 @@ import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.FilterRegistration;
 import javax.servlet.ServletContext;
+import javax.servlet.SessionTrackingMode;
 
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.web.filter.DelegatingFilterProxy;
@@ -237,6 +238,33 @@ class AbstractSecurityWebApplicationInitializerTests extends Specification {
             1 * context.addFilter("springSecurityFilterChain", {DelegatingFilterProxy f -> f.targetBeanName == "springSecurityFilterChain" && f.contextAttribute == null}) >> registration
             IllegalArgumentException success = thrown()
             success.message == "filters cannot be null or empty"
+    }
+
+    def "sessionTrackingModes defaults"() {
+        setup:
+            ServletContext context = Mock()
+            FilterRegistration.Dynamic registration = Mock()
+        when:
+            new AbstractSecurityWebApplicationInitializer(){ }.onStartup(context)
+        then:
+            1 * context.addFilter("springSecurityFilterChain", {DelegatingFilterProxy f -> f.targetBeanName == "springSecurityFilterChain" && f.contextAttribute == null}) >> registration
+            1 * context.setSessionTrackingModes({Set<SessionTrackingMode> modes -> modes.size() == 2 && modes.containsAll([SessionTrackingMode.COOKIE, SessionTrackingMode.SSL]) })
+    }
+
+    def "sessionTrackingModes override"() {
+        setup:
+            ServletContext context = Mock()
+            FilterRegistration.Dynamic registration = Mock()
+        when:
+            new AbstractSecurityWebApplicationInitializer(){
+                @Override
+                public Set<SessionTrackingMode> getSessionTrackingModes() {
+                    return [SessionTrackingMode.COOKIE]
+                }
+            }.onStartup(context)
+        then:
+            1 * context.addFilter("springSecurityFilterChain", {DelegatingFilterProxy f -> f.targetBeanName == "springSecurityFilterChain" && f.contextAttribute == null}) >> registration
+            1 * context.setSessionTrackingModes({Set<SessionTrackingMode> modes -> modes.size() == 1 && modes.containsAll([SessionTrackingMode.COOKIE]) })
     }
 
     def "appendFilters filters with null"() {

@@ -17,12 +17,15 @@ package org.springframework.security.web.context;
 
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.FilterRegistration.Dynamic;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.SessionTrackingMode;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.Conventions;
@@ -83,6 +86,7 @@ public abstract class AbstractSecurityWebApplicationInitializer implements WebAp
         if(enableHttpSessionEventPublisher()) {
             servletContext.addListener("org.springframework.security.web.session.HttpSessionEventPublisher");
         }
+        servletContext.setSessionTrackingModes(getSessionTrackingModes());
         insertSpringSecurityFilterChain(servletContext);
         afterSpringSecurityFilterChain(servletContext);
     }
@@ -205,6 +209,35 @@ public abstract class AbstractSecurityWebApplicationInitializer implements WebAp
             return null;
         }
         return SERVLET_CONTEXT_PREFIX + dispatcherServletName;
+    }
+
+    /**
+     * Determines how a session should be tracked. By default, the following
+     * modes are used:
+     *
+     * <ul>
+     * <li> {@link SessionTrackingMode#COOKIE}</li>
+     * <li> {@link SessionTrackingMode#SSL}</li>
+     * </ul>
+     *
+     * <p>
+     * Note that {@link SessionTrackingMode#URL} is intentionally omitted to
+     * help protected against <a
+     * href="http://en.wikipedia.org/wiki/Session_fixation">session fixation
+     * attacks</a>.
+     * </p>
+     *
+     * <p>
+     * Subclasses can override this method to make customizations.
+     * </p>
+     *
+     * @return
+     */
+    protected Set<SessionTrackingMode> getSessionTrackingModes() {
+        Set<SessionTrackingMode> modes = new HashSet<SessionTrackingMode>();
+        modes.add(SessionTrackingMode.COOKIE);
+        modes.add(SessionTrackingMode.SSL);
+        return modes;
     }
 
     /**
