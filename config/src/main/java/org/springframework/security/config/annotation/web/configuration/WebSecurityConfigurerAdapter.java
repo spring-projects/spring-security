@@ -113,7 +113,7 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
      * <pre>
      * &#064;Override
      * protected void registerAuthentication(AuthenticationManagerBuilder auth) {
-     *     registry
+     *     auth
      *         // enable in memory based authentication with a user named "user" and "admin"
      *         .inMemoryAuthentication()
      *             .withUser("user").password("password").roles("USER").and()
