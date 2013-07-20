@@ -212,19 +212,15 @@ public abstract class AbstractSecurityWebApplicationInitializer implements WebAp
     }
 
     /**
-     * Determines how a session should be tracked. By default, the following
-     * modes are used:
-     *
-     * <ul>
-     * <li> {@link SessionTrackingMode#COOKIE}</li>
-     * <li> {@link SessionTrackingMode#SSL}</li>
-     * </ul>
+     * Determines how a session should be tracked. By default,
+     * {@link SessionTrackingMode#COOKIE} is used.
      *
      * <p>
      * Note that {@link SessionTrackingMode#URL} is intentionally omitted to
      * help protected against <a
      * href="http://en.wikipedia.org/wiki/Session_fixation">session fixation
-     * attacks</a>.
+     * attacks</a>. {@link SessionTrackingMode#SSL} is omitted because SSL
+     * configuration is required for this to work.
      * </p>
      *
      * <p>
@@ -236,7 +232,6 @@ public abstract class AbstractSecurityWebApplicationInitializer implements WebAp
     protected Set<SessionTrackingMode> getSessionTrackingModes() {
         Set<SessionTrackingMode> modes = new HashSet<SessionTrackingMode>();
         modes.add(SessionTrackingMode.COOKIE);
-        modes.add(SessionTrackingMode.SSL);
         return modes;
     }
 

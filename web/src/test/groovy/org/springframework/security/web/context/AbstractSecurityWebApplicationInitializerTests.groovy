@@ -248,7 +248,7 @@ class AbstractSecurityWebApplicationInitializerTests extends Specification {
             new AbstractSecurityWebApplicationInitializer(){ }.onStartup(context)
         then:
             1 * context.addFilter("springSecurityFilterChain", {DelegatingFilterProxy f -> f.targetBeanName == "springSecurityFilterChain" && f.contextAttribute == null}) >> registration
-            1 * context.setSessionTrackingModes({Set<SessionTrackingMode> modes -> modes.size() == 2 && modes.containsAll([SessionTrackingMode.COOKIE, SessionTrackingMode.SSL]) })
+            1 * context.setSessionTrackingModes({Set<SessionTrackingMode> modes -> modes.size() == 1 && modes.containsAll([SessionTrackingMode.COOKIE]) })
     }
 
     def "sessionTrackingModes override"() {
@@ -259,12 +259,12 @@ class AbstractSecurityWebApplicationInitializerTests extends Specification {
             new AbstractSecurityWebApplicationInitializer(){
                 @Override
                 public Set<SessionTrackingMode> getSessionTrackingModes() {
-                    return [SessionTrackingMode.COOKIE]
+                    return [SessionTrackingMode.SSL]
                 }
             }.onStartup(context)
         then:
             1 * context.addFilter("springSecurityFilterChain", {DelegatingFilterProxy f -> f.targetBeanName == "springSecurityFilterChain" && f.contextAttribute == null}) >> registration
-            1 * context.setSessionTrackingModes({Set<SessionTrackingMode> modes -> modes.size() == 1 && modes.containsAll([SessionTrackingMode.COOKIE]) })
+            1 * context.setSessionTrackingModes({Set<SessionTrackingMode> modes -> modes.size() == 1 && modes.containsAll([SessionTrackingMode.SSL]) })
     }
 
     def "appendFilters filters with null"() {
