@@ -28,7 +28,8 @@ public abstract class FirewalledRequest extends HttpServletRequestWrapper {
      * proper.
      * <p>
      * An implementation can thus choose to modify the state of the request
-     * for the security infrastructure, while still maintaining the
+     * for the security infrastructure, while still maintaining the original
+     * {@link HttpServletRequest}.
      */
     public abstract void reset();
 
