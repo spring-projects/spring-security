@@ -15,43 +15,36 @@
  */
 package org.springframework.security.config.annotation.web.configurers
 
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.AnyObjectPostProcessor
 import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.web.authentication.preauth.j2ee.J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource
-import org.springframework.security.web.authentication.preauth.j2ee.J2eePreAuthenticatedProcessingFilter
+import org.springframework.security.config.annotation.web.configurers.SessionCreationPolicy;
+import org.springframework.security.web.access.ExceptionTranslationFilter
+import org.springframework.security.web.context.NullSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter
+import org.springframework.security.web.context.SecurityContextRepository
+import org.springframework.security.web.savedrequest.RequestCache
+import org.springframework.security.web.session.ConcurrentSessionFilter
+import org.springframework.security.web.session.SessionManagementFilter
 
 /**
  *
  * @author Rob Winch
  */
-class JeeConfigurerTests extends BaseSpringSpec {
+class PortMapperConfigurerTests extends BaseSpringSpec {
 
-    def "jee ObjectPostProcessor"() {
+    def "invoke portMapper twice does not override"() {
         setup:
-            AnyObjectPostProcessor opp = Mock()
-            HttpSecurity http = new HttpSecurity(opp, authenticationBldr, [:])
-        when:
-            http
-                .jee()
-                    .and()
-                .build()
-
-        then: "J2eePreAuthenticatedProcessingFilter is registered with LifecycleManager"
-            1 * opp.postProcess(_ as J2eePreAuthenticatedProcessingFilter) >> {J2eePreAuthenticatedProcessingFilter o -> o}
-        and: "J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource is registered with LifecycleManager"
-            1 * opp.postProcess(_ as J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource) >> {J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource o -> o}
-    }
-
-    def "invoke jee twice does not override"() {
-        when:
             loadConfig(InvokeTwiceDoesNotOverride)
+            request.setServerPort(543)
+        when:
+            springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            findFilter(J2eePreAuthenticatedProcessingFilter).authenticationDetailsSource.j2eeMappableRoles == ["ROLE_USER"] as Set
+            response.redirectedUrl == "https://localhost:123"
     }
 
     @Configuration
@@ -60,10 +53,13 @@ class JeeConfigurerTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .jee()
-                    .mappableRoles("USER")
+                .requiresChannel()
+                    .anyRequest().requiresSecure()
                     .and()
-                .jee()
+                .portMapper()
+                    .http(543).mapsTo(123)
+                    .and()
+                .portMapper()
         }
     }
 }

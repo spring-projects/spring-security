@@ -69,4 +69,19 @@ public class RememberMeConfigurerTests extends BaseSpringSpec {
         then: "RememberMeAuthenticationFilter is registered with LifecycleManager"
             1 * opp.postProcess(_ as RememberMeAuthenticationFilter) >> {RememberMeAuthenticationFilter o -> o}
     }
+
+    def "invoke rememberMe twice does not reset"() {
+        setup:
+            AnyObjectPostProcessor opp = Mock()
+            HttpSecurity http = new HttpSecurity(opp, authenticationBldr, [:])
+            UserDetailsService uds = authenticationBldr.getDefaultUserDetailsService()
+        when:
+            http
+                .rememberMe()
+                    .userDetailsService(authenticationBldr.getDefaultUserDetailsService())
+                    .and()
+                .rememberMe()
+        then: "RememberMeAuthenticationFilter is registered with LifecycleManager"
+            http.getConfigurer(RememberMeConfigurer).userDetailsService != null
+    }
 }

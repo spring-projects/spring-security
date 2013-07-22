@@ -411,4 +411,36 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
                     .withUser("user").password("password").roles("USER")
         }
     }
+
+
+    def "invoke authorizeUrls twice does not reset"() {
+        setup:
+            loadConfig(InvokeTwiceDoesNotResetConfig)
+        when:
+            request.method = "POST"
+            springSecurityFilterChain.doFilter(request,response,chain)
+        then: "Access is denied"
+            response.status == HttpServletResponse.SC_UNAUTHORIZED
+    }
+
+    @EnableWebSecurity
+    @Configuration
+    static class InvokeTwiceDoesNotResetConfig extends WebSecurityConfigurerAdapter {
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .httpBasic()
+                    .and()
+                .authorizeUrls()
+                    .anyRequest().authenticated()
+                    .and()
+                .authorizeUrls()
+        }
+
+        @Override
+        protected void registerAuthentication(AuthenticationManagerBuilder auth)
+                throws Exception {
+            auth
+                .inMemoryAuthentication()
+        }
+    }
 }

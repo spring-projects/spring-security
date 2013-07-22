@@ -107,4 +107,28 @@ class ServletApiConfigurerTests extends BaseSpringSpec {
                     .withUser("user").password("password").roles("USER")
         }
     }
+
+    def "invoke servletApi twice does not override"() {
+        setup:
+            InvokeTwiceDoesNotOverrideConfig.ENTRYPOINT = Mock(AuthenticationEntryPoint)
+        when:
+            loadConfig(InvokeTwiceDoesNotOverrideConfig)
+        then:
+            findFilter(SecurityContextHolderAwareRequestFilter).authenticationEntryPoint == InvokeTwiceDoesNotOverrideConfig.ENTRYPOINT
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    static class InvokeTwiceDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+        static AuthenticationEntryPoint ENTRYPOINT
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .exceptionHandling()
+                    .authenticationEntryPoint(ENTRYPOINT)
+                    .and()
+                .exceptionHandling()
+        }
+    }
 }

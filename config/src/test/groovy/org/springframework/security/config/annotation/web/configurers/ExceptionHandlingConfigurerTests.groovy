@@ -29,6 +29,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.config.annotation.web.configurers.JeeConfigurerTests.InvokeTwiceDoesNotOverride;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.ExceptionTranslationFilter
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint
@@ -176,6 +177,29 @@ class ExceptionHandlingConfigurerTests extends BaseSpringSpec {
                 .httpBasic()
                     .and()
                 .formLogin()
+        }
+    }
+
+    def "invoke exceptionHandling twice does not override"() {
+        setup:
+            InvokeTwiceDoesNotOverrideConfig.AEP = Mock(AuthenticationEntryPoint)
+        when:
+            loadConfig(InvokeTwiceDoesNotOverrideConfig)
+        then:
+            findFilter(ExceptionTranslationFilter).authenticationEntryPoint == InvokeTwiceDoesNotOverrideConfig.AEP
+    }
+
+    @EnableWebSecurity
+    @Configuration
+    static class InvokeTwiceDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+        static AuthenticationEntryPoint AEP
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .exceptionHandling()
+                    .authenticationEntryPoint(AEP)
+                    .and()
+                .exceptionHandling()
         }
     }
 }

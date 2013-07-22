@@ -15,10 +15,13 @@
  */
 package org.springframework.security.config.annotation.web.configurers
 
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.AnyObjectPostProcessor
 import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter
 
 /**
@@ -39,5 +42,19 @@ class X509ConfigurerTests extends BaseSpringSpec {
 
         then: "X509AuthenticationFilter is registered with LifecycleManager"
             1 * opp.postProcess(_ as X509AuthenticationFilter) >> {X509AuthenticationFilter o -> o}
+    }
+
+    def "invoke x509 twice does not override"() {
+        setup:
+            AnyObjectPostProcessor opp = Mock()
+            HttpSecurity http = new HttpSecurity(opp, authenticationBldr, [:])
+        when:
+            http
+                .x509()
+                    .subjectPrincipalRegex(".*")
+                    .and()
+                .x509()
+        then:
+            http.getConfigurer(X509Configurer).subjectPrincipalRegex == ".*"
     }
 }

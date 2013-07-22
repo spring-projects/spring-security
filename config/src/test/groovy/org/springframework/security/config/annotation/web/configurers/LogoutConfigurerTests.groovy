@@ -15,10 +15,13 @@
  */
 package org.springframework.security.config.annotation.web.configurers
 
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.AnyObjectPostProcessor
 import org.springframework.security.config.annotation.BaseSpringSpec
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.web.authentication.logout.LogoutFilter
 
 /**
@@ -39,5 +42,26 @@ class LogoutConfigurerTests extends BaseSpringSpec {
 
         then: "LogoutFilter is registered with LifecycleManager"
             1 * opp.postProcess(_ as LogoutFilter) >> {LogoutFilter o -> o}
+    }
+
+    def "invoke logout twice does not override"() {
+        when:
+            loadConfig(InvokeTwiceDoesNotOverride)
+        then:
+            findFilter(LogoutFilter).filterProcessesUrl == "/custom/logout"
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .logout()
+                    .logoutUrl("/custom/logout")
+                    .and()
+                .logout()
+        }
     }
 }

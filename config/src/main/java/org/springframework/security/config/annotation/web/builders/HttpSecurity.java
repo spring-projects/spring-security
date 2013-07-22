@@ -29,6 +29,7 @@ import org.springframework.security.config.annotation.AbstractConfiguredSecurity
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityBuilder;
 import org.springframework.security.config.annotation.SecurityConfigurer;
+import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherConfigurer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
@@ -111,6 +112,7 @@ import org.springframework.util.Assert;
 public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<DefaultSecurityFilterChain,HttpSecurity> implements SecurityBuilder<DefaultSecurityFilterChain>, HttpSecurityBuilder<HttpSecurity> {
     private AuthenticationManager authenticationManager;
 
+    private final RequestMatcherConfigurer requestMatcherConfigurer = new RequestMatcherConfigurer();
     private List<Filter> filters =  new ArrayList<Filter>();
     private RequestMatcher requestMatcher = new AnyRequestMatcher();
     private FilterComparator comparitor = new FilterComparator();
@@ -132,8 +134,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
     }
 
     /**
-     * Allows configuring OpenID based authentication. Multiple invocations of
-     * {@link #openidLogin()} will override previous invocations.
+     * Allows configuring OpenID based authentication.
      *
      * <h2>Example Configurations</h2>
      *
@@ -235,12 +236,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * @see OpenIDLoginConfigurer
      */
     public OpenIDLoginConfigurer<HttpSecurity> openidLogin() throws Exception {
-        return apply(new OpenIDLoginConfigurer<HttpSecurity>());
+        return getOrApply(new OpenIDLoginConfigurer<HttpSecurity>());
     }
 
     /**
-     * Allows configuring of Session Management. Multiple invocations of
-     * {@link #sessionManagement()} will override previous invocations.
+     * Allows configuring of Session Management.
      *
      * <h2>Example Configuration</h2>
      *
@@ -303,7 +303,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * @throws Exception
      */
     public SessionManagementConfigurer<HttpSecurity> sessionManagement() throws Exception {
-        return apply(new SessionManagementConfigurer<HttpSecurity>());
+        return getOrApply(new SessionManagementConfigurer<HttpSecurity>());
     }
 
     /**
@@ -358,7 +358,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * @see {@link #requiresChannel()}
      */
     public PortMapperConfigurer<HttpSecurity> portMapper() throws Exception {
-        return apply(new PortMapperConfigurer<HttpSecurity>());
+        return getOrApply(new PortMapperConfigurer<HttpSecurity>());
     }
 
     /**
@@ -434,7 +434,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * @throws Exception
      */
     public JeeConfigurer<HttpSecurity> jee() throws Exception {
-        return apply(new JeeConfigurer<HttpSecurity>());
+        return getOrApply(new JeeConfigurer<HttpSecurity>());
     }
 
     /**
@@ -467,12 +467,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * @throws Exception
      */
     public X509Configurer<HttpSecurity> x509() throws Exception {
-        return apply(new X509Configurer<HttpSecurity>());
+        return getOrApply(new X509Configurer<HttpSecurity>());
     }
 
     /**
-     * Allows configuring of Remember Me authentication. Multiple invocations of
-     * {@link #rememberMe()} will override previous invocations.
+     * Allows configuring of Remember Me authentication.
      *
      * <h2>Example Configuration</h2>
      *
@@ -514,15 +513,12 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * @throws Exception
      */
     public RememberMeConfigurer<HttpSecurity> rememberMe() throws Exception {
-        return apply(new RememberMeConfigurer<HttpSecurity>());
+        return getOrApply(new RememberMeConfigurer<HttpSecurity>());
     }
 
 
     /**
      * Allows restricting access based upon the {@link HttpServletRequest} using
-     * {@link RequestMatcher} implementations (i.e. via URL patterns). Invoking
-     * {@link #authorizeUrls()} twice will override previous invocations of
-     * {@link #authorizeUrls()}.
      *
      * <h2>Example Configurations</h2>
      *
@@ -611,7 +607,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * @throws Exception
      */
     public ExpressionUrlAuthorizationConfigurer<HttpSecurity> authorizeUrls() throws Exception {
-        return apply(new ExpressionUrlAuthorizationConfigurer<HttpSecurity>());
+        return getOrApply(new ExpressionUrlAuthorizationConfigurer<HttpSecurity>());
     }
 
     /**
@@ -624,7 +620,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * @throws Exception
      */
     public RequestCacheConfigurer<HttpSecurity> requestCache() throws Exception {
-        return apply(new RequestCacheConfigurer<HttpSecurity>());
+        return getOrApply(new RequestCacheConfigurer<HttpSecurity>());
     }
 
     /**
@@ -635,7 +631,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * @throws Exception
      */
     public ExceptionHandlingConfigurer<HttpSecurity> exceptionHandling() throws Exception {
-        return apply(new ExceptionHandlingConfigurer<HttpSecurity>());
+        return getOrApply(new ExceptionHandlingConfigurer<HttpSecurity>());
     }
 
     /**
@@ -647,7 +643,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * @throws Exception
      */
     public SecurityContextConfigurer<HttpSecurity> securityContext() throws Exception {
-        return apply(new SecurityContextConfigurer<HttpSecurity>());
+        return getOrApply(new SecurityContextConfigurer<HttpSecurity>());
     }
 
     /**
@@ -659,7 +655,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * @throws Exception
      */
     public ServletApiConfigurer<HttpSecurity> servletApi() throws Exception {
-        return apply(new ServletApiConfigurer<HttpSecurity>());
+        return getOrApply(new ServletApiConfigurer<HttpSecurity>());
     }
 
     /**
@@ -715,7 +711,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * @throws Exception
      */
     public LogoutConfigurer<HttpSecurity> logout() throws Exception {
-        return apply(new LogoutConfigurer<HttpSecurity>());
+        return getOrApply(new LogoutConfigurer<HttpSecurity>());
     }
 
     /**
@@ -796,7 +792,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * @throws Exception
      */
     public AnonymousConfigurer<HttpSecurity> anonymous() throws Exception {
-        return apply(new AnonymousConfigurer<HttpSecurity>());
+        return getOrApply(new AnonymousConfigurer<HttpSecurity>());
     }
 
     /**
@@ -876,13 +872,12 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * @throws Exception
      */
     public FormLoginConfigurer<HttpSecurity> formLogin() throws Exception {
-        return apply(new FormLoginConfigurer<HttpSecurity>());
+        return getOrApply(new FormLoginConfigurer<HttpSecurity>());
     }
 
     /**
      * Configures channel security. In order for this configuration to be useful at least
-     * one mapping to a required channel must be provided. Invoking this method multiple times
-     * will reset previous invocations of the method.
+     * one mapping to a required channel must be provided.
      *
      * <h2>Example Configuration</h2>
      *
@@ -925,12 +920,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * @throws Exception
      */
     public ChannelSecurityConfigurer<HttpSecurity> requiresChannel() throws Exception {
-        return apply(new ChannelSecurityConfigurer<HttpSecurity>());
+        return getOrApply(new ChannelSecurityConfigurer<HttpSecurity>());
     }
 
     /**
-     * Configures HTTP Basic authentication. Multiple infocations of
-     * {@link #httpBasic()} will override previous invocations.
+     * Configures HTTP Basic authentication.
      *
      * <h2>Example Configuration</h2>
      *
@@ -968,7 +962,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * @throws Exception
      */
     public HttpBasicConfigurer<HttpSecurity> httpBasic() throws Exception {
-        return apply(new HttpBasicConfigurer<HttpSecurity>());
+        return getOrApply(new HttpBasicConfigurer<HttpSecurity>());
     }
 
     @Override
@@ -1115,9 +1109,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * }
      * </pre>
      *
-     * The configuration differs from the previous configurations because it invokes
-     * {@link #requestMatchers()} twice which resets the {@link RequestMatcherConfigurer}.
-     * Therefore the configuration below only matches on URLs that start with "/oauth/**".
+     * The configuration below is also the same as the above configuration.
      *
      * <pre>
      * &#064;Configuration
@@ -1153,7 +1145,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * @return the {@link RequestMatcherConfigurer} for further customizations
      */
     public RequestMatcherConfigurer requestMatchers() {
-        return new RequestMatcherConfigurer();
+        return requestMatcherConfigurer;
     }
 
     /**
@@ -1250,6 +1242,23 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
         }
 
         private RequestMatcherConfigurer(){}
+    }
+
+    /**
+     * If the {@link SecurityConfigurer} has already been specified get the original, otherwise apply the new {@link SecurityConfigurerAdapter}.
+     *
+     * @param configurer the {@link SecurityConfigurer} to apply if one is not found for this {@link SecurityConfigurer} class.
+     * @return the current {@link SecurityConfigurer} for the configurer passed in
+     * @throws Exception
+     */
+    @SuppressWarnings("unchecked")
+    private <C extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity>> C getOrApply(C configurer)
+            throws Exception {
+        C existingConfig = (C) getConfigurer(configurer.getClass());
+        if(existingConfig != null) {
+            return existingConfig;
+        }
+        return apply(configurer);
     }
 
     /**

@@ -17,8 +17,9 @@ package org.springframework.security.config.annotation.web.configurers
 
 import org.springframework.security.config.annotation.AnyObjectPostProcessor
 import org.springframework.security.config.annotation.BaseSpringSpec
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.web.savedrequest.RequestCache
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter
 
 /**
@@ -39,5 +40,21 @@ class RequestCacheConfigurerTests extends BaseSpringSpec {
 
         then: "RequestCacheAwareFilter is registered with LifecycleManager"
             1 * opp.postProcess(_ as RequestCacheAwareFilter) >> {RequestCacheAwareFilter o -> o}
+    }
+
+    def "invoke requestCache twice does not reset"() {
+        setup:
+            RequestCache RC = Mock()
+            AnyObjectPostProcessor opp = Mock()
+            HttpSecurity http = new HttpSecurity(opp, authenticationBldr, [:])
+        when:
+            http
+                .requestCache()
+                    .requestCache(RC)
+                    .and()
+                .requestCache()
+
+        then:
+            http.getSharedObject(RequestCache) == RC
     }
 }

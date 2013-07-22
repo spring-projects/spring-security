@@ -99,4 +99,35 @@ class HttpBasicConfigurerTests extends BaseSpringSpec {
                 .inMemoryAuthentication()
         }
     }
+
+    def "duplicate httpBasic invocations does not override"() {
+        setup:
+            DuplicateDoesNotOverrideConfig.ENTRY_POINT = Mock(AuthenticationEntryPoint)
+        when:
+            loadConfig(DuplicateDoesNotOverrideConfig)
+        then:
+            findFilter(ExceptionTranslationFilter).authenticationEntryPoint == DuplicateDoesNotOverrideConfig.ENTRY_POINT
+    }
+
+    @EnableWebSecurity
+    @Configuration
+    static class DuplicateDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+        static AuthenticationEntryPoint ENTRY_POINT
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .httpBasic()
+                    .authenticationEntryPoint(ENTRY_POINT)
+                    .and()
+                .httpBasic()
+        }
+
+        @Override
+        protected void registerAuthentication(AuthenticationManagerBuilder auth)
+                throws Exception {
+            auth
+                .inMemoryAuthentication()
+        }
+    }
 }

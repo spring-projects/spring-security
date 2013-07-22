@@ -15,10 +15,13 @@
  */
 package org.springframework.security.config.annotation.web.configurers.openid
 
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.AnyObjectPostProcessor
 import org.springframework.security.config.annotation.BaseSpringSpec
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.openid.OpenIDAuthenticationFilter
@@ -47,5 +50,39 @@ class OpenIDLoginConfigurerTests extends BaseSpringSpec {
             1 * opp.postProcess(_ as OpenIDAuthenticationFilter) >> {OpenIDAuthenticationFilter o -> o}
         and: "OpenIDAuthenticationProvider is registered with LifecycleManager"
             1 * opp.postProcess(_ as OpenIDAuthenticationProvider) >> {OpenIDAuthenticationProvider o -> o}
+    }
+
+    def "invoke openidLogin twice does not override"() {
+        setup:
+            loadConfig(InvokeTwiceDoesNotOverrideConfig)
+        when:
+            springSecurityFilterChain.doFilter(request,response,chain)
+        then:
+            response.redirectedUrl.endsWith("/login/custom")
+
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    static class InvokeTwiceDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+
+        @Override
+        protected void registerAuthentication(AuthenticationManagerBuilder auth)
+                throws Exception {
+            auth
+                .inMemoryAuthentication()
+        }
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .authorizeUrls()
+                    .anyRequest().authenticated()
+                    .and()
+                .openidLogin()
+                    .loginPage("/login/custom")
+                    .and()
+                .openidLogin()
+        }
     }
 }

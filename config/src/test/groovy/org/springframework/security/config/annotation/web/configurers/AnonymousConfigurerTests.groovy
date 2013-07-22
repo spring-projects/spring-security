@@ -22,50 +22,33 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.web.context.SecurityContextPersistenceFilter
-import org.springframework.security.web.context.SecurityContextRepository
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter
 
 /**
  *
  * @author Rob Winch
  */
-class SecurityContextConfigurerTests extends BaseSpringSpec {
+class AnonymousConfigurerTests extends BaseSpringSpec {
 
-    def "securityContext ObjectPostProcessor"() {
-        setup:
-            AnyObjectPostProcessor opp = Mock()
-            HttpSecurity http = new HttpSecurity(opp, authenticationBldr, [:])
+    def "invoke logout twice does not override"() {
         when:
-            http
-                .securityContext()
-                    .and()
-                .build()
-
-        then: "SecurityContextPersistenceFilter is registered with LifecycleManager"
-            1 * opp.postProcess(_ as SecurityContextPersistenceFilter) >> {SecurityContextPersistenceFilter o -> o}
-    }
-
-    def "invoke securityContext twice does not override"() {
-        setup:
-            InvokeTwiceDoesNotOverrideConfig.SCR = Mock(SecurityContextRepository)
-        when:
-            loadConfig(InvokeTwiceDoesNotOverrideConfig)
+            loadConfig(InvokeTwiceDoesNotOverride)
         then:
-            findFilter(SecurityContextPersistenceFilter).repo == InvokeTwiceDoesNotOverrideConfig.SCR
+            findFilter(AnonymousAuthenticationFilter).key == "custom"
     }
 
     @Configuration
     @EnableWebSecurity
-    static class InvokeTwiceDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
-        static SecurityContextRepository SCR
+    static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .securityContext()
-                    .securityContextRepository(SCR)
+                .anonymous()
+                    .key("custom")
                     .and()
-                .securityContext()
+                .anonymous()
         }
     }
 }

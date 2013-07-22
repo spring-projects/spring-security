@@ -196,6 +196,30 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
         }
     }
 
+    def "duplicate formLogin does not override"() {
+        setup:
+            DuplicateInvocationsDoesNotOverrideConfig.FAILURE_HANDLER = Mock(AuthenticationFailureHandler)
+        when:
+            loadConfig(DuplicateInvocationsDoesNotOverrideConfig)
+        then:
+            findFilter(UsernamePasswordAuthenticationFilter).usernameParameter == "custom-username"
+    }
+
+    @EnableWebSecurity
+    @Configuration
+    static class DuplicateInvocationsDoesNotOverrideConfig extends BaseWebConfig {
+        static AuthenticationFailureHandler FAILURE_HANDLER
+
+        @Override
+        protected void configure(HttpSecurity http) {
+            http
+                .formLogin()
+                    .usernameParameter("custom-username")
+                    .and()
+                .formLogin()
+        }
+    }
+
     def "formLogin ObjectPostProcessor"() {
         setup: "initialize the AUTH_FILTER as a mock"
             AnyObjectPostProcessor opp = Mock()

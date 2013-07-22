@@ -24,6 +24,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.SessionCreationPolicy;
 import org.springframework.security.web.access.ExceptionTranslationFilter
+import org.springframework.security.web.context.NullSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.context.SecurityContextRepository
 import org.springframework.security.web.savedrequest.RequestCache
@@ -84,6 +85,27 @@ class SessionManagementConfigurerTests extends BaseSpringSpec {
                     .and()
                 .sessionManagement()
                     .sessionCreationPolicy(SessionCreationPolicy.stateless)
+        }
+
+    }
+
+    def "invoke sessionManagement twice does not override"() {
+        when:
+            loadConfig(InvokeTwiceDoesNotOverride)
+        then:
+            findFilter(SecurityContextPersistenceFilter).repo.class == NullSecurityContextRepository
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.stateless)
+                    .and()
+                .sessionManagement()
         }
 
     }

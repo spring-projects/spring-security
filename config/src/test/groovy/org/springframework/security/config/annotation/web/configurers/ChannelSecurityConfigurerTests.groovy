@@ -15,10 +15,13 @@
  */
 package org.springframework.security.config.annotation.web.configurers
 
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.AnyObjectPostProcessor
 import org.springframework.security.config.annotation.BaseSpringSpec
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.web.access.channel.ChannelDecisionManagerImpl
 import org.springframework.security.web.access.channel.ChannelProcessingFilter
 import org.springframework.security.web.access.channel.InsecureChannelProcessor
@@ -49,5 +52,28 @@ class ChannelSecurityConfigurerTests extends BaseSpringSpec {
             1 * objectPostProcessor.postProcess(_ as ChannelDecisionManagerImpl) >> {ChannelDecisionManagerImpl o -> o}
         and: "ChannelProcessingFilter is registered with LifecycleManager"
             1 * objectPostProcessor.postProcess(_ as ChannelProcessingFilter) >> {ChannelProcessingFilter o -> o}
+    }
+
+    def "invoke requiresChannel twice does not override"() {
+        setup:
+            loadConfig(DuplicateInvocationsDoesNotOverrideConfig)
+        when:
+            springSecurityFilterChain.doFilter(request,response,chain)
+        then:
+            response.redirectedUrl == "https://localhost"
+    }
+
+    @EnableWebSecurity
+    @Configuration
+    static class DuplicateInvocationsDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .requiresChannel()
+                    .anyRequest().requiresSecure()
+                    .and()
+                .requiresChannel()
+        }
     }
 }
