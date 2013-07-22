@@ -78,7 +78,7 @@ public class NamespaceHttpOpenIDLoginTests extends BaseSpringSpec {
     static class OpenIDLoginConfig extends BaseWebConfig {
         protected void configure(HttpSecurity http) {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .openidLogin()
@@ -129,7 +129,7 @@ public class NamespaceHttpOpenIDLoginTests extends BaseSpringSpec {
     static class OpenIDLoginAttributeExchangeConfig extends BaseWebConfig {
         protected void configure(HttpSecurity http) {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .openidLogin()
@@ -184,7 +184,7 @@ public class NamespaceHttpOpenIDLoginTests extends BaseSpringSpec {
         protected void configure(HttpSecurity http) throws Exception {
             boolean alwaysUseDefaultSuccess = true;
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .openidLogin()
@@ -218,7 +218,7 @@ public class NamespaceHttpOpenIDLoginTests extends BaseSpringSpec {
 
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .openidLogin()

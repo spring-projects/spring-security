@@ -64,7 +64,7 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageViewFi
  * 	&#064;Override
  * 	protected void configure(HttpSecurity http) {
  * 		http
- * 			.authorizeUrls()
+ * 			.authorizeRequests()
  * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
  * 				.and()
  * 			.openidLogin()

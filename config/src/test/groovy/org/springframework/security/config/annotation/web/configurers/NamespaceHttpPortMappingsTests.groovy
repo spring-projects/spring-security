@@ -88,7 +88,7 @@ public class NamespaceHttpPortMappingsTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .portMapper()

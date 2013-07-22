@@ -62,7 +62,7 @@ class EnableWebSecurityTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .antMatchers("/*").hasRole("USER")
                     .and()
                 .formLogin();

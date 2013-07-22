@@ -138,7 +138,7 @@ public class NamespaceHttpInterceptUrlTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     // the line below is similar to intercept-url@pattern:
                     //    <intercept-url pattern="/users**" access="hasRole('ROLE_ADMIN')"/>
                     //    <intercept-url pattern="/sessions/**" access="hasRole('ROLE_ADMIN')"/>

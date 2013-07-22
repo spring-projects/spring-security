@@ -130,7 +130,7 @@ class DefaultFiltersTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER");
         }
     }

@@ -54,7 +54,7 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
             e.message == "role should not start with 'ROLE_' since it is automatically inserted. Got 'ROLE_USER'"
     }
 
-    def "authorizeUrls() uses AffirmativeBased AccessDecisionManager"() {
+    def "authorizeRequests() uses AffirmativeBased AccessDecisionManager"() {
         when: "Load Config with no specific AccessDecisionManager"
             loadConfig(NoSpecificAccessDecessionManagerConfig)
         then: "AccessDecessionManager matches the HttpSecurityBuilder's default"
@@ -66,17 +66,17 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
     static class NoSpecificAccessDecessionManagerConfig extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
         }
     }
 
-    def "authorizeUrls() no requests"() {
+    def "authorizeRequests() no requests"() {
         when: "Load Config with no requests"
             loadConfig(NoRequestsConfig)
         then: "A meaningful exception is thrown"
             BeanCreationException success = thrown()
-            success.message.contains "At least one mapping is required (i.e. authorizeUrls().anyRequest.authenticated())"
+            success.message.contains "At least one mapping is required (i.e. authorizeRequests().anyRequest.authenticated())"
     }
 
     @EnableWebSecurity
@@ -84,11 +84,11 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
     static class NoRequestsConfig extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .authorizeUrls()
+                .authorizeRequests()
         }
     }
 
-    def "authorizeUrls() incomplete mapping"() {
+    def "authorizeRequests() incomplete mapping"() {
         when: "Load Config with incomplete mapping"
             loadConfig(IncompleteMappingConfig)
         then: "A meaningful exception is thrown"
@@ -101,13 +101,13 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
     static class IncompleteMappingConfig extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .antMatchers("/a").authenticated()
                     .anyRequest()
         }
     }
 
-    def "authorizeUrls() hasAuthority"() {
+    def "authorizeRequests() hasAuthority"() {
         setup:
             loadConfig(HasAuthorityConfig)
         when:
@@ -135,12 +135,12 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
             http
                 .httpBasic()
                     .and()
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasAuthority("ROLE_USER")
         }
     }
 
-    def "authorizeUrls() hasAnyAuthority"() {
+    def "authorizeRequests() hasAnyAuthority"() {
         setup:
             loadConfig(HasAnyAuthorityConfig)
         when:
@@ -174,12 +174,12 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
             http
                 .httpBasic()
                     .and()
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasAnyAuthority("ROLE_ADMIN","ROLE_DBA")
         }
     }
 
-    def "authorizeUrls() hasIpAddress"() {
+    def "authorizeRequests() hasIpAddress"() {
         setup:
             loadConfig(HasIpAddressConfig)
         when:
@@ -202,12 +202,12 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
             http
                 .httpBasic()
                     .and()
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasIpAddress("192.168.1.0")
         }
     }
 
-    def "authorizeUrls() anonymous"() {
+    def "authorizeRequests() anonymous"() {
         setup:
             loadConfig(AnonymousConfig)
         when:
@@ -229,12 +229,12 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
             http
                 .httpBasic()
                     .and()
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().anonymous()
         }
     }
 
-    def "authorizeUrls() rememberMe"() {
+    def "authorizeRequests() rememberMe"() {
         setup:
             loadConfig(RememberMeConfig)
         when:
@@ -258,7 +258,7 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
                     .and()
                 .httpBasic()
                     .and()
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().rememberMe()
         }
 
@@ -271,7 +271,7 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
         }
     }
 
-    def "authorizeUrls() denyAll"() {
+    def "authorizeRequests() denyAll"() {
         setup:
             loadConfig(DenyAllConfig)
         when:
@@ -293,12 +293,12 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
             http
                 .httpBasic()
                     .and()
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().denyAll()
         }
     }
 
-    def "authorizeUrls() not denyAll"() {
+    def "authorizeRequests() not denyAll"() {
         setup:
             loadConfig(NotDenyAllConfig)
         when:
@@ -320,12 +320,12 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
             http
                 .httpBasic()
                     .and()
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().not().denyAll()
         }
     }
 
-    def "authorizeUrls() fullyAuthenticated"() {
+    def "authorizeRequests() fullyAuthenticated"() {
         setup:
             loadConfig(FullyAuthenticatedConfig)
         when:
@@ -355,7 +355,7 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
                     .and()
                 .httpBasic()
                     .and()
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().fullyAuthenticated()
         }
 
@@ -368,7 +368,7 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
         }
     }
 
-    def "authorizeUrls() access"() {
+    def "authorizeRequests() access"() {
         setup:
             loadConfig(AccessConfig)
         when:
@@ -399,7 +399,7 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
                     .and()
                 .httpBasic()
                     .and()
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().access("hasRole('ROLE_USER') or request.method == 'GET'")
         }
 
@@ -430,10 +430,10 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
             http
                 .httpBasic()
                     .and()
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().authenticated()
                     .and()
-                .authorizeUrls()
+                .authorizeRequests()
         }
 
         @Override

@@ -46,7 +46,7 @@ class PermitAllSupportTests extends BaseSpringSpec {
             loadConfig(NoAuthorizedUrlsConfig)
         then:
             BeanCreationException e = thrown()
-            e.message.contains "permitAll only works with HttpSecurity.authorizeUrls"
+            e.message.contains "permitAll only works with HttpSecurity.authorizeRequests"
 
     }
 

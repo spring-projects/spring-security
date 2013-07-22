@@ -112,7 +112,7 @@ public class NamespaceRememberMeTests extends BaseSpringSpec {
     static class RememberMeConfig extends BaseWebConfig {
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .formLogin()

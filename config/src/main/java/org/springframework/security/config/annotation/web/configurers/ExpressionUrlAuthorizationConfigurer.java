@@ -65,7 +65,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Rob Winch
  * @since 3.2
- * @see {@link org.springframework.security.config.annotation.web.builders.HttpSecurity#authorizeUrls()}
+ * @see {@link org.springframework.security.config.annotation.web.builders.HttpSecurity#authorizeRequests()}
  */
 public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractInterceptUrlConfigurer<H,ExpressionUrlAuthorizationConfigurer<H>,ExpressionUrlAuthorizationConfigurer<H>.AuthorizedUrl> {
     static final String permitAll = "permitAll";
@@ -79,7 +79,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 
     /**
      * Creates a new instance
-     * @see HttpSecurity#authorizeUrls()
+     * @see HttpSecurity#authorizeRequests()
      */
     public ExpressionUrlAuthorizationConfigurer() {
     }
@@ -114,7 +114,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
     final ExpressionBasedFilterInvocationSecurityMetadataSource createMetadataSource() {
         LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = createRequestMap();
         if(requestMap.isEmpty()) {
-            throw new IllegalStateException("At least one mapping is required (i.e. authorizeUrls().anyRequest.authenticated())");
+            throw new IllegalStateException("At least one mapping is required (i.e. authorizeRequests().anyRequest.authenticated())");
         }
         return new ExpressionBasedFilterInvocationSecurityMetadataSource(requestMap, expressionHandler);
     }

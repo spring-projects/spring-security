@@ -36,7 +36,7 @@ final class PermitAllSupport {
         ExpressionUrlAuthorizationConfigurer<?> configurer = http.getConfigurer(ExpressionUrlAuthorizationConfigurer.class);
 
         if(configurer == null) {
-            throw new IllegalStateException("permitAll only works with HttpSecurity.authorizeUrls()");
+            throw new IllegalStateException("permitAll only works with HttpSecurity.authorizeRequests()");
         }
 
         for(String url : urls) {

@@ -282,7 +282,7 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
      *
      * <pre>
      * http
-     *     .authorizeUrls()
+     *     .authorizeRequests()
      *         .anyRequest().authenticated().and()
      *     .formLogin().and()
      *     .httpBasic();
@@ -297,7 +297,7 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
         logger.debug("Using default configure(HttpSecurity). If subclassed this will potentially override subclass configure(HttpSecurity).");
 
         http
-            .authorizeUrls()
+            .authorizeRequests()
                 .anyRequest().authenticated()
                 .and()
             .formLogin().and()

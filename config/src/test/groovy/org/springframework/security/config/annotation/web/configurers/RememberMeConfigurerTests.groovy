@@ -45,7 +45,7 @@ public class RememberMeConfigurerTests extends BaseSpringSpec {
     static class NullUserDetailsConfig extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .formLogin()

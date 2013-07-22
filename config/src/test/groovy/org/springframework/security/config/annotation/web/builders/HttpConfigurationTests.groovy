@@ -113,7 +113,7 @@ public class HttpSecurityTests extends BaseSpringSpec {
                   .antMatchers("/api/**")
                   .antMatchers("/oauth/**")
                   .and()
-              .authorizeUrls()
+              .authorizeRequests()
                   .antMatchers("/**").hasRole("USER")
                   .and()
               .httpBasic()

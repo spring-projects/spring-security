@@ -169,7 +169,7 @@ public class SampleWebSecurityConfigurerAdapterTests extends BaseWebSpecuritySpe
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .antMatchers("/signup","/about").permitAll()
                     .anyRequest().hasRole("USER")
                     .and()
@@ -290,7 +290,7 @@ public class SampleWebSecurityConfigurerAdapterTests extends BaseWebSpecuritySpe
             protected void configure(HttpSecurity http) throws Exception {
                 http
                     .antMatcher("/api/**")
-                    .authorizeUrls()
+                    .authorizeRequests()
                         .antMatchers("/api/admin/**").hasRole("ADMIN")
                         .antMatchers("/api/**").hasRole("USER")
                         .and()
@@ -310,7 +310,7 @@ public class SampleWebSecurityConfigurerAdapterTests extends BaseWebSpecuritySpe
             @Override
             protected void configure(HttpSecurity http) throws Exception {
                 http
-                    .authorizeUrls()
+                    .authorizeRequests()
                         .antMatchers("/signup","/about").permitAll()
                         .anyRequest().hasRole("USER")
                         .and()

@@ -77,7 +77,7 @@ public class NamespaceHttpTests extends BaseSpringSpec {
 
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().permitAll()
                     .accessDecisionManager(ACCESS_DECISION_MGR)
         }
@@ -118,7 +118,7 @@ public class NamespaceHttpTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER");
         }
 
@@ -301,7 +301,7 @@ public class NamespaceHttpTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER");
         }
     }
@@ -318,7 +318,7 @@ public class NamespaceHttpTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http.
-                authorizeUrls()
+                authorizeRequests()
                     .filterSecurityInterceptorOncePerRequest(false)
                     .antMatchers("/users**","/sessions/**").hasRole("ADMIN")
                     .antMatchers("/signup").permitAll()
@@ -482,7 +482,7 @@ public class NamespaceHttpTests extends BaseSpringSpec {
     static class UseExpressionsConfig extends BaseWebConfig {
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .antMatchers("/users**","/sessions/**").hasRole("USER")
                     .antMatchers("/signup").permitAll()
                     .anyRequest().hasRole("USER")

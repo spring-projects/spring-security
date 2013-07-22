@@ -99,7 +99,7 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .formLogin()
@@ -131,7 +131,7 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .formLogin()
@@ -155,7 +155,7 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .formLogin()
@@ -187,7 +187,7 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .formLogin()

@@ -110,7 +110,7 @@ class ExceptionHandlingConfigurerTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().authenticated()
                     .and()
                 .httpBasic()

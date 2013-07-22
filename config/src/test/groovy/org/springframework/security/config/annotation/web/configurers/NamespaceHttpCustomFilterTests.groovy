@@ -152,7 +152,7 @@ public class NamespaceHttpCustomFilterTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .addFilterBefore(new CustomFilter(), UsernamePasswordAuthenticationFilter.class)

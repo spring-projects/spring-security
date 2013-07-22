@@ -42,7 +42,7 @@ public class WebSecurityConfigurerAdapterTestsConfigs {
         protected void configure(HttpSecurity http) throws Exception {
             http
                 .antMatcher("/role1/**")
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("1");
         }
 

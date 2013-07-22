@@ -76,7 +76,7 @@ public class NamespaceHttpBasicTests extends BaseSpringSpec {
     static class HttpBasicConfig extends BaseWebConfig {
         protected void configure(HttpSecurity http) {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .httpBasic();
@@ -99,7 +99,7 @@ public class NamespaceHttpBasicTests extends BaseSpringSpec {
     static class CustomHttpBasicConfig extends BaseWebConfig {
         protected void configure(HttpSecurity http) {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .httpBasic().realmName("Custom Realm");
@@ -150,7 +150,7 @@ public class NamespaceHttpBasicTests extends BaseSpringSpec {
     static class EntryPointRefHttpBasicConfig extends BaseWebConfig {
         protected void configure(HttpSecurity http) {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .httpBasic()

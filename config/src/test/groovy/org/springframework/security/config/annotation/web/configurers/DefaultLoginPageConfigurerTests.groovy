@@ -134,7 +134,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .formLogin()
@@ -159,7 +159,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .logout()
@@ -187,7 +187,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .logout()
@@ -222,7 +222,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .formLogin()
@@ -252,7 +252,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .openidLogin()
@@ -289,7 +289,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .rememberMe()
@@ -315,7 +315,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
                 .exceptionHandling()
                     .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
                     .and()
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .formLogin()

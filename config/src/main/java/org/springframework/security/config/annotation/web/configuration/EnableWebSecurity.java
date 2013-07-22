@@ -45,7 +45,7 @@ import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
  *    &#064;Override
  *    protected void configure(HttpSecurity http) throws Exception {
  *        http
- *            .authorizeUrls()
+ *            .authorizeRequests()
  *                .antMatchers("/public/**").permitAll()
  *                .anyRequest().hasRole("USER")
  *                .and()

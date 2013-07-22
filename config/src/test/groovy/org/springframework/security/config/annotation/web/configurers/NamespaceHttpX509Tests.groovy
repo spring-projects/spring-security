@@ -103,7 +103,7 @@ public class NamespaceHttpX509Tests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .x509();
@@ -136,7 +136,7 @@ public class NamespaceHttpX509Tests extends BaseSpringSpec {
 
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .x509()
@@ -170,7 +170,7 @@ public class NamespaceHttpX509Tests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .x509()
@@ -204,7 +204,7 @@ public class NamespaceHttpX509Tests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .x509()
@@ -238,7 +238,7 @@ public class NamespaceHttpX509Tests extends BaseSpringSpec {
 
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .x509()

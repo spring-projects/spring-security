@@ -79,7 +79,7 @@ public class NamespaceHttpFormLoginTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .formLogin()
@@ -117,7 +117,7 @@ public class NamespaceHttpFormLoginTests extends BaseSpringSpec {
         protected void configure(HttpSecurity http) throws Exception {
             boolean alwaysUseDefaultSuccess = true;
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .formLogin()

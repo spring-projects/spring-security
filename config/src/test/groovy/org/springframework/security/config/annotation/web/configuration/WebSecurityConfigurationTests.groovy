@@ -87,7 +87,7 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
             protected void configure(HttpSecurity http) throws Exception {
                 http
                     .antMatcher("/role1/**")
-                    .authorizeUrls()
+                    .authorizeRequests()
                         .anyRequest().hasRole("1");
             }
         }
@@ -99,7 +99,7 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
             protected void configure(HttpSecurity http) throws Exception {
                 http
                     .antMatcher("/role2/**")
-                        .authorizeUrls()
+                        .authorizeRequests()
                             .anyRequest().hasRole("2");
             }
         }
@@ -111,7 +111,7 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
             protected void configure(HttpSecurity http) throws Exception {
                 http
                     .antMatcher("/role3/**")
-                    .authorizeUrls()
+                    .authorizeRequests()
                         .anyRequest().hasRole("3");
             }
         }
@@ -122,7 +122,7 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
             @Override
             protected void configure(HttpSecurity http) throws Exception {
                 http
-                    .authorizeUrls()
+                    .authorizeRequests()
                         .anyRequest().hasRole("4");
             }
         }
@@ -155,7 +155,7 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
             protected void configure(HttpSecurity http) throws Exception {
                 http
                     .antMatcher("/role1/**")
-                    .authorizeUrls()
+                    .authorizeRequests()
                         .anyRequest().hasRole("1");
             }
         }
@@ -166,7 +166,7 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
             protected void configure(HttpSecurity http) throws Exception {
                 http
                     .antMatcher("/role2/**")
-                    .authorizeUrls()
+                    .authorizeRequests()
                         .anyRequest().hasRole("2");
             }
         }
@@ -232,7 +232,7 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().authenticated()
         }
     }
@@ -253,7 +253,7 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().authenticated()
         }
     }

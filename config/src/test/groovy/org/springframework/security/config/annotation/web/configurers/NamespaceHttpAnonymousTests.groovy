@@ -47,7 +47,7 @@ public class NamespaceHttpAnonymousTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER");
         }
     }
@@ -98,7 +98,7 @@ public class NamespaceHttpAnonymousTests extends BaseSpringSpec {
     static class AnonymousKeyConfig extends BaseWebConfig {
         protected void configure(HttpSecurity http) {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .anonymous().key("AnonymousKeyConfig")
@@ -120,7 +120,7 @@ public class NamespaceHttpAnonymousTests extends BaseSpringSpec {
     static class AnonymousUsernameConfig extends BaseWebConfig {
         protected void configure(HttpSecurity http) {
             http
-                .authorizeUrls()
+                .authorizeRequests()
                     .anyRequest().hasRole("USER")
                     .and()
                 .anonymous().principal("AnonymousUsernameConfig")
