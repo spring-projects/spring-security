@@ -15,33 +15,35 @@
  */
 package org.springframework.security.config.annotation.web;
 
-import static org.springframework.security.config.annotation.web.WebSecurityConfigurerAdapterTestsConfigs.*
 import static org.junit.Assert.*
+import static org.springframework.security.config.annotation.web.WebSecurityConfigurerAdapterTestsConfigs.*
 
-import javax.sql.DataSource
+import javax.servlet.FilterChain
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationListener
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType
-import org.springframework.ldap.core.support.BaseLdapPathContextSource
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent
 import org.springframework.security.config.annotation.BaseSpringSpec
-import org.springframework.security.config.annotation.authentication.configurers.ldap.LdapAuthenticationProviderConfigurer;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.authority.AuthorityUtils
-import org.springframework.security.ldap.DefaultSpringSecurityContextSource
-import org.springframework.web.accept.ContentNegotiationStrategy;
-import org.springframework.web.accept.HeaderContentNegotiationStrategy;
+import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.core.userdetails.UsernameNotFoundException
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.web.accept.ContentNegotiationStrategy
+import org.springframework.web.accept.HeaderContentNegotiationStrategy
+import org.springframework.web.filter.OncePerRequestFilter
 
 /**
  * @author Rob Winch
@@ -132,4 +134,63 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
     @EnableWebSecurity
     @Configuration
     static class ContentNegotiationStrategyDefaultSharedObjectConfig extends WebSecurityConfigurerAdapter {}
+
+    def "UserDetailsService lazy"() {
+        setup:
+            loadConfig(RequiresUserDetailsServiceConfig,UserDetailsServiceConfig)
+        when:
+            findFilter(MyFilter).userDetailsService.loadUserByUsername("user")
+        then:
+            noExceptionThrown()
+        when:
+            findFilter(MyFilter).userDetailsService.loadUserByUsername("admin")
+        then:
+            thrown(UsernameNotFoundException)
+    }
+
+    @Configuration
+    static class RequiresUserDetailsServiceConfig {
+        @Bean
+        public MyFilter myFilter(UserDetailsService uds) {
+            return new MyFilter(uds)
+        }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    static class UserDetailsServiceConfig extends WebSecurityConfigurerAdapter {
+        @Autowired
+        private MyFilter myFilter;
+
+        @Bean
+        @Override
+        public UserDetailsService userDetailsServiceBean() {
+            return super.userDetailsServiceBean()
+        }
+
+        @Override
+        public void configure(HttpSecurity http) {
+            http
+                .addFilterBefore(myFilter,UsernamePasswordAuthenticationFilter)
+        }
+
+        @Override
+        protected void registerAuthentication(AuthenticationManagerBuilder auth)
+                throws Exception {
+            auth
+                .inMemoryAuthentication()
+                    .withUser("user").password("password").roles("USER")
+        }
+    }
+
+    static class MyFilter extends OncePerRequestFilter {
+        private UserDetailsService userDetailsService
+        public MyFilter(UserDetailsService uds) {
+            assert uds != null
+            this.userDetailsService = uds
+        }
+        public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
+            chain.doFilter(request,response)
+        }
+    }
 }

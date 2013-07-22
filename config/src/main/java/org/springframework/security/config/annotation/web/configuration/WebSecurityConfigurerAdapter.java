@@ -35,7 +35,9 @@ import org.springframework.security.config.annotation.web.configurers.DefaultLog
 import org.springframework.security.config.annotation.web.configurers.SecurityContextConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
@@ -238,7 +240,7 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
      * @see {@link #userDetailsService()}
      */
     public UserDetailsService userDetailsServiceBean() throws Exception {
-        return userDetailsService();
+        return new UserDetailsServiceDelegator(parentAuthenticationBuilder);
     }
 
     /**
@@ -317,6 +319,41 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
     @Autowired(required=false)
     public void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
         this.objectPostProcessor = objectPostProcessor;
+    }
+
+
+    /**
+     * Delays the use of the {@link UserDetailsService} from the
+     * {@link AuthenticationManagerBuilder} to ensure that it has been fully
+     * configured.
+     *
+     * @author Rob Winch
+     * @since 3.2
+     */
+    static final class UserDetailsServiceDelegator implements UserDetailsService {
+        private AuthenticationManagerBuilder delegateBuilder;
+        private UserDetailsService delegate;
+        private final Object delegateMonitor = new Object();
+
+        UserDetailsServiceDelegator(AuthenticationManagerBuilder authentication) {
+            this.delegateBuilder = authentication;
+        }
+
+        @Override
+        public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+            if(delegate != null) {
+                return delegate.loadUserByUsername(username);
+            }
+
+            synchronized(delegateMonitor) {
+                if (delegate == null) {
+                    delegate = this.delegateBuilder.getDefaultUserDetailsService();
+                    this.delegateBuilder = null;
+                }
+            }
+
+            return delegate.loadUserByUsername(username);
+        }
     }
 
 
