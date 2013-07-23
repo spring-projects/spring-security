@@ -50,14 +50,14 @@ public class NamespaceHttpFormLoginTests extends BaseSpringSpec {
             response.getRedirectedUrl() == "http://localhost/login"
         when: "fail to log in"
             super.setup()
-            request.requestURI = "/login"
+            request.servletPath = "/login"
             request.method = "POST"
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "sent to login error page"
             response.getRedirectedUrl() == "/login?error"
         when: "login success"
             super.setup()
-            request.requestURI = "/login"
+            request.servletPath = "/login"
             request.method = "POST"
             request.parameters.username = ["user"] as String[]
             request.parameters.password = ["password"] as String[]
@@ -96,14 +96,14 @@ public class NamespaceHttpFormLoginTests extends BaseSpringSpec {
             response.getRedirectedUrl() == "http://localhost/authentication/login"
         when: "fail to log in"
             super.setup()
-            request.requestURI = "/authentication/login/process"
+            request.servletPath = "/authentication/login/process"
             request.method = "POST"
             springSecurityFilterChain.doFilter(request,response,chain)
             then: "sent to login error page"
             response.getRedirectedUrl() == "/authentication/login?failed"
         when: "login success"
             super.setup()
-            request.requestURI = "/authentication/login/process"
+            request.servletPath = "/authentication/login/process"
             request.method = "POST"
             request.parameters.j_username = ["user"] as String[]
             request.parameters.j_password = ["password"] as String[]
@@ -137,14 +137,14 @@ public class NamespaceHttpFormLoginTests extends BaseSpringSpec {
             then: "CustomWebAuthenticationDetailsSource is used"
             findFilter(UsernamePasswordAuthenticationFilter).authenticationDetailsSource.class == CustomWebAuthenticationDetailsSource
         when: "fail to log in"
-            request.requestURI = "/login"
+            request.servletPath = "/login"
             request.method = "POST"
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "sent to login error page"
             response.getRedirectedUrl() == "/custom/failure"
         when: "login success"
             super.setup()
-            request.requestURI = "/login"
+            request.servletPath = "/login"
             request.method = "POST"
             request.parameters.username = ["user"] as String[]
             request.parameters.password = ["password"] as String[]

@@ -54,24 +54,13 @@ import org.springframework.test.util.ReflectionTestUtils;
  *
  */
 public class NamespaceRememberMeTests extends BaseSpringSpec {
-    FilterChainProxy springSecurityFilterChain
-    MockHttpServletRequest request
-    MockHttpServletResponse response
-    MockFilterChain chain
-
-    def setup() {
-        request = new MockHttpServletRequest()
-        response = new MockHttpServletResponse()
-        chain = new MockFilterChain()
-    }
 
     def "http/remember-me"() {
         setup:
             loadConfig(RememberMeConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
         when: "login with remember me"
-            setup()
-            request.requestURI = "/login"
+            super.setup()
+            request.servletPath = "/login"
             request.method = "POST"
             request.parameters.username = ["user"] as String[]
             request.parameters.password = ["password"] as String[]
@@ -81,7 +70,7 @@ public class NamespaceRememberMeTests extends BaseSpringSpec {
         then: "response contains remember me cookie"
             rememberMeCookie != null
         when: "session expires"
-            setup()
+            super.setup()
             request.setCookies(rememberMeCookie)
             request.requestURI = "/abc"
             springSecurityFilterChain.doFilter(request,response,chain)
@@ -90,7 +79,7 @@ public class NamespaceRememberMeTests extends BaseSpringSpec {
             SecurityContext context = new HttpSessionSecurityContextRepository().loadContext(new HttpRequestResponseHolder(request, response))
             context.getAuthentication() instanceof RememberMeAuthenticationToken
         when: "logout"
-            setup()
+            super.setup()
             request.setSession(session)
             request.setCookies(rememberMeCookie)
             request.requestURI = "/logout"
@@ -100,7 +89,7 @@ public class NamespaceRememberMeTests extends BaseSpringSpec {
             response.getRedirectedUrl() == "/login?logout"
             rememberMeCookie.maxAge == 0
         when: "use remember me after logout"
-            setup()
+            super.setup()
             request.setCookies(rememberMeCookie)
             request.requestURI = "/abc"
             springSecurityFilterChain.doFilter(request,response,chain)

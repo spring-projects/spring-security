@@ -49,6 +49,8 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageViewFilter;
+import org.springframework.security.web.util.AntPathRequestMatcher;
+import org.springframework.security.web.util.RequestMatcher;
 
 /**
  * Adds support for OpenID based authentication.
@@ -246,6 +248,15 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
     public void configure(H http) throws Exception {
         getAuthenticationFilter().setConsumer(getConsumer());
         super.configure(http);
+    }
+
+    /* (non-Javadoc)
+     * @see org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer#createLoginProcessingUrlMatcher(java.lang.String)
+     */
+    @Override
+    protected RequestMatcher createLoginProcessingUrlMatcher(
+            String loginProcessingUrl) {
+        return new AntPathRequestMatcher(loginProcessingUrl);
     }
 
     /**

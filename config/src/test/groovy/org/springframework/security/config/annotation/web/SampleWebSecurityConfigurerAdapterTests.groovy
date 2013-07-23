@@ -46,14 +46,14 @@ public class SampleWebSecurityConfigurerAdapterTests extends BaseWebSpecuritySpe
         when: "fail to log in"
             super.setup()
             request.addHeader("Accept", "text/html")
-            request.requestURI = "/login"
+            request.servletPath = "/login"
             request.method = "POST"
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "sent to login error page"
             response.getRedirectedUrl() == "/login?error"
         when: "login success"
             super.setup()
-            request.requestURI = "/login"
+            request.servletPath = "/login"
             request.method = "POST"
             request.parameters.username = ["user"] as String[]
             request.parameters.password = ["password"] as String[]
@@ -108,14 +108,14 @@ public class SampleWebSecurityConfigurerAdapterTests extends BaseWebSpecuritySpe
             response.getRedirectedUrl() == "http://localhost/login"
         when: "fail to log in"
             super.setup()
-            request.requestURI = "/login"
+            request.servletPath = "/login"
             request.method = "POST"
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "sent to login error page"
             response.getRedirectedUrl() == "/login?error"
         when: "login success"
             super.setup()
-            request.requestURI = "/login"
+            request.servletPath = "/login"
             request.method = "POST"
             request.parameters.username = ["user"] as String[]
             request.parameters.password = ["password"] as String[]
@@ -197,14 +197,14 @@ public class SampleWebSecurityConfigurerAdapterTests extends BaseWebSpecuritySpe
             response.getRedirectedUrl() == "http://localhost/login"
         when: "fail to log in"
             super.setup()
-            request.requestURI = "/login"
+            request.servletPath = "/login"
             request.method = "POST"
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "sent to login error page"
             response.getRedirectedUrl() == "/login?error"
         when: "login success"
             super.setup()
-            request.requestURI = "/login"
+            request.servletPath = "/login"
             request.method = "POST"
             request.parameters.username = ["user"] as String[]
             request.parameters.password = ["password"] as String[]

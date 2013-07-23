@@ -30,7 +30,7 @@ import org.springframework.security.web.WebAttributes;
 import org.springframework.web.filter.GenericFilterBean;
 
 /**
- * This class generates a default login page if one was not specified. The class is quite similar
+ * This class generates a default login page if one was not specified.
  *
  * @author Rob Winch
  * @since 3.2
@@ -202,7 +202,7 @@ public class DefaultLoginPageViewFilter extends GenericFilterBean {
     }
 
     private boolean matches(HttpServletRequest request, String url) {
-        if(!"GET".equals(request.getMethod())) {
+        if(!"GET".equals(request.getMethod()) || url == null) {
             return false;
         }
         String uri = request.getRequestURI();

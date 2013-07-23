@@ -72,8 +72,8 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
             authFilter.passwordParameter == "password"
             authFilter.failureHandler.defaultFailureUrl == "/login?error"
             authFilter.successHandler.defaultTargetUrl == "/"
-            authFilter.requiresAuthentication(new MockHttpServletRequest(requestURI : "/login", method: "POST"), new MockHttpServletResponse())
-            !authFilter.requiresAuthentication(new MockHttpServletRequest(requestURI : "/login", method: "GET"), new MockHttpServletResponse())
+            authFilter.requiresAuthentication(new MockHttpServletRequest(servletPath : "/login", method: "POST"), new MockHttpServletResponse())
+            !authFilter.requiresAuthentication(new MockHttpServletRequest(servletPath : "/login", method: "GET"), new MockHttpServletResponse())
 
         and: "SessionFixationProtectionStrategy is configured correctly"
             SessionFixationProtectionStrategy sessionStrategy = ReflectionTestUtils.getField(authFilter,"sessionStrategy")
@@ -82,7 +82,7 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
         and: "Exception handling is configured correctly"
             AuthenticationEntryPoint authEntryPoint = filterChains[1].filters.find { it instanceof ExceptionTranslationFilter}.authenticationEntryPoint
             MockHttpServletResponse response = new MockHttpServletResponse()
-            authEntryPoint.commence(new MockHttpServletRequest(requestURI: "/private/"), response, new BadCredentialsException(""))
+            authEntryPoint.commence(new MockHttpServletRequest(servletPath: "/private/"), response, new BadCredentialsException(""))
             response.redirectedUrl == "http://localhost/login"
     }
 
@@ -172,7 +172,7 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
             loadConfig(PermitAllIgnoresFailureHandlerConfig)
             FilterChainProxy springSecurityFilterChain = context.getBean(FilterChainProxy)
         when: "access default failureUrl and configured explicit FailureHandler"
-            MockHttpServletRequest request = new MockHttpServletRequest(requestURI:"/login",queryString:"error")
+            MockHttpServletRequest request = new MockHttpServletRequest(servletPath:"/login",requestURI:"/login",queryString:"error",method:"GET")
             MockHttpServletResponse response = new MockHttpServletResponse()
             springSecurityFilterChain.doFilter(request,response,new MockFilterChain())
         then: "access is not granted to the failure handler (sent to login page)"

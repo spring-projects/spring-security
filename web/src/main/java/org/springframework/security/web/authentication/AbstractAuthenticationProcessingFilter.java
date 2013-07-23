@@ -40,6 +40,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.util.RequestMatcher;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
@@ -53,8 +54,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * required to process the authentication request tokens created by implementing classes.
  * <p>
  * This filter will intercept a request and attempt to perform authentication from that request if
- * the request URL matches the value of the <tt>filterProcessesUrl</tt> property. This behaviour can modified by
- * overriding the  method {@link #requiresAuthentication(HttpServletRequest, HttpServletResponse) requiresAuthentication}.
+ * the request matches the {@link #setRequiresAuthenticationRequestMatcher(RequestMatcher)}.
  * <p>
  * Authentication is performed by the {@link #attemptAuthentication(HttpServletRequest, HttpServletResponse)
  * attemptAuthentication} method, which must be implemented by subclasses.
@@ -116,10 +116,14 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private RememberMeServices rememberMeServices = new NullRememberMeServices();
 
+    private RequestMatcher requiresAuthenticationRequestMatcher;
+
     /**
      * The URL destination that this filter intercepts and processes (usually
      * something like <code>/j_spring_security_check</code>)
+     * @deprecated use {@link #requiresAuthenticationRequestMatcher} instead
      */
+    @Deprecated
     private String filterProcessesUrl;
 
     private boolean continueChainBeforeSuccessfulAuthentication = false;
@@ -137,15 +141,26 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
      * @param defaultFilterProcessesUrl the default value for <tt>filterProcessesUrl</tt>.
      */
     protected AbstractAuthenticationProcessingFilter(String defaultFilterProcessesUrl) {
+        this.requiresAuthenticationRequestMatcher = new FilterProcessUrlRequestMatcher(defaultFilterProcessesUrl);
         this.filterProcessesUrl = defaultFilterProcessesUrl;
+    }
+
+    /**
+     * Creates a new instance
+     *
+     * @param requiresAuthenticationRequestMatcher
+     *            the {@link RequestMatcher} used to determine if authentication
+     *            is required. Cannot be null.
+     */
+    protected AbstractAuthenticationProcessingFilter(RequestMatcher requiresAuthenticationRequestMatcher) {
+        Assert.notNull(requiresAuthenticationRequestMatcher, "requiresAuthenticationRequestMatcher cannot be null");
+        this.requiresAuthenticationRequestMatcher = requiresAuthenticationRequestMatcher;
     }
 
     //~ Methods ========================================================================================================
 
     @Override
     public void afterPropertiesSet() {
-        Assert.hasLength(filterProcessesUrl, "filterProcessesUrl must be specified");
-        Assert.isTrue(UrlUtils.isValidRedirectUrl(filterProcessesUrl), filterProcessesUrl + " isn't a valid redirect URL");
         Assert.notNull(authenticationManager, "authenticationManager must be specified");
 
         if (rememberMeServices == null) {
@@ -231,21 +246,11 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
      * Subclasses may override for special requirements, such as Tapestry integration.
      *
      * @return <code>true</code> if the filter should attempt authentication, <code>false</code> otherwise.
+     * @deprecated use {@link #setRequiresAuthenticationRequestMatcher(RequestMatcher)} instead
      */
+    @Deprecated
     protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
-        String uri = request.getRequestURI();
-        int pathParamIndex = uri.indexOf(';');
-
-        if (pathParamIndex > 0) {
-            // strip everything after the first semi-colon
-            uri = uri.substring(0, pathParamIndex);
-        }
-
-        if ("".equals(request.getContextPath())) {
-            return uri.endsWith(filterProcessesUrl);
-        }
-
-        return uri.endsWith(request.getContextPath() + filterProcessesUrl);
+        return requiresAuthenticationRequestMatcher.matches(request);
     }
 
     /**
@@ -358,12 +363,27 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
         this.authenticationManager = authenticationManager;
     }
 
+    @Deprecated
     public String getFilterProcessesUrl() {
         return filterProcessesUrl;
     }
 
+    /**
+     * Sets the URL that determines if authentication is required
+     *
+     * @param filterProcessesUrl
+     * @deprecated use {@link #setRequiresAuthenticationRequestMatcher(RequestMatcher)} instead
+     */
+    @Deprecated
     public void setFilterProcessesUrl(String filterProcessesUrl) {
+        this.requiresAuthenticationRequestMatcher = new FilterProcessUrlRequestMatcher(filterProcessesUrl);
         this.filterProcessesUrl = filterProcessesUrl;
+    }
+
+    public final void setRequiresAuthenticationRequestMatcher(RequestMatcher requestMatcher) {
+        Assert.notNull(requestMatcher, "requestMatcher cannot be null");
+        this.filterProcessesUrl = null;
+        this.requiresAuthenticationRequestMatcher = requestMatcher;
     }
 
     public RememberMeServices getRememberMeServices() {
@@ -438,5 +458,32 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 
     protected AuthenticationFailureHandler getFailureHandler() {
         return failureHandler;
+    }
+
+    private static final class FilterProcessUrlRequestMatcher implements RequestMatcher {
+        private final String filterProcessesUrl;
+
+        private FilterProcessUrlRequestMatcher(String filterProcessesUrl) {
+            Assert.hasLength(filterProcessesUrl, "filterProcessesUrl must be specified");
+            Assert.isTrue(UrlUtils.isValidRedirectUrl(filterProcessesUrl), filterProcessesUrl + " isn't a valid redirect URL");
+            this.filterProcessesUrl = filterProcessesUrl;
+        }
+
+        @Override
+        public boolean matches(HttpServletRequest request) {
+            String uri = request.getRequestURI();
+            int pathParamIndex = uri.indexOf(';');
+
+            if (pathParamIndex > 0) {
+                // strip everything after the first semi-colon
+                uri = uri.substring(0, pathParamIndex);
+            }
+
+            if ("".equals(request.getContextPath())) {
+                return uri.endsWith(filterProcessesUrl);
+            }
+
+            return uri.endsWith(request.getContextPath() + filterProcessesUrl);
+        }
     }
 }

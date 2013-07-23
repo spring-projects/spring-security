@@ -172,6 +172,7 @@ public class CasAuthenticationFilterTests {
         serviceProperties.setAuthenticateAllArtifacts(true);
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setParameter("ticket", "ST-1-123");
+        request.setRequestURI("/authenticate");
         MockHttpServletResponse response = new MockHttpServletResponse();
         FilterChain chain = mock(FilterChain.class);
 

@@ -213,10 +213,9 @@ public class AbstractAuthenticationProcessingFilterTests {
         filter.setAuthenticationFailureHandler(failureHandler);
         filter.setAuthenticationManager(mock(AuthenticationManager.class));
         filter.setAuthenticationSuccessHandler(successHandler);
-        filter.setFilterProcessesUrl(null);
 
         try {
-            filter.afterPropertiesSet();
+            filter.setFilterProcessesUrl(null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertEquals("filterProcessesUrl must be specified", expected.getMessage());

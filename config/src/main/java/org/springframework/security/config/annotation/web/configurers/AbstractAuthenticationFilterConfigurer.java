@@ -33,6 +33,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.util.AntPathRequestMatcher;
 import org.springframework.security.web.util.MediaTypeRequestMatcher;
 import org.springframework.security.web.util.RequestMatcher;
 import org.springframework.web.accept.ContentNegotiationStrategy;
@@ -139,9 +140,16 @@ public abstract class AbstractAuthenticationFilterConfigurer<B  extends HttpSecu
      */
     public T loginProcessingUrl(String loginProcessingUrl) {
         this.loginProcessingUrl = loginProcessingUrl;
-        authFilter.setFilterProcessesUrl(loginProcessingUrl);
+        authFilter.setRequiresAuthenticationRequestMatcher(createLoginProcessingUrlMatcher(loginProcessingUrl));
         return getSelf();
     }
+
+    /**
+     * Create the {@link RequestMatcher} given a loginProcessingUrl
+     * @param loginProcessingUrl creates the {@link RequestMatcher} based upon the loginProcessingUrl
+     * @return the {@link RequestMatcher} to use based upon the loginProcessingUrl
+     */
+    protected abstract RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl);
 
     /**
      * Specifies a custom {@link AuthenticationDetailsSource}. The default is {@link WebAuthenticationDetailsSource}.

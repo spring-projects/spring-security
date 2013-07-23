@@ -37,7 +37,7 @@ abstract class BaseWebSpecuritySpec extends BaseSpringSpec {
     MockFilterChain chain
 
     def setup() {
-        request = new MockHttpServletRequest()
+        request = new MockHttpServletRequest(method:"GET")
         response = new MockHttpServletResponse()
         chain = new MockFilterChain()
     }

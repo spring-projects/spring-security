@@ -67,7 +67,7 @@ public class NamespaceHttpOpenIDLoginTests extends BaseSpringSpec {
             response.getRedirectedUrl() == "http://localhost/login"
         when: "fail to log in"
             setup()
-            request.requestURI = "/login/openid"
+            request.servletPath = "/login/openid"
             request.method = "POST"
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "sent to login error page"
@@ -118,7 +118,7 @@ public class NamespaceHttpOpenIDLoginTests extends BaseSpringSpec {
             response.getRedirectedUrl() == "http://localhost/login"
         when: "fail to log in"
             setup()
-            request.requestURI = "/login/openid"
+            request.servletPath = "/login/openid"
             request.method = "POST"
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "sent to login error page"
@@ -172,7 +172,7 @@ public class NamespaceHttpOpenIDLoginTests extends BaseSpringSpec {
             response.getRedirectedUrl() == "http://localhost/authentication/login"
         when: "fail to log in"
             setup()
-            request.requestURI = "/authentication/login/process"
+            request.servletPath = "/authentication/login/process"
             request.method = "POST"
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "sent to login error page"
@@ -205,7 +205,7 @@ public class NamespaceHttpOpenIDLoginTests extends BaseSpringSpec {
             findFilter(OpenIDAuthenticationFilter).authenticationDetailsSource.class == CustomWebAuthenticationDetailsSource
             findAuthenticationProvider(OpenIDAuthenticationProvider).userDetailsService == OpenIDLoginCustomRefsConfig.AUDS
         when: "fail to log in"
-            request.requestURI = "/login/openid"
+            request.servletPath = "/login/openid"
             request.method = "POST"
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "sent to login error page"

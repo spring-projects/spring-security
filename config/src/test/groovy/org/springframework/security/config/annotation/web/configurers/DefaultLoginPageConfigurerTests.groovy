@@ -77,7 +77,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
 </form></body></html>"""
         when: "fail to log in"
             setup()
-            request.requestURI = "/login"
+            request.servletPath = "/login"
             request.method = "POST"
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "sent to login error page"
@@ -100,7 +100,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
 </form></body></html>"""
         when: "login success"
             setup()
-            request.requestURI = "/login"
+            request.servletPath = "/login"
             request.method = "POST"
             request.parameters.username = ["user"] as String[]
             request.parameters.password = ["password"] as String[]

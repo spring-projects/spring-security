@@ -15,9 +15,6 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -26,6 +23,8 @@ import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageViewFilter;
+import org.springframework.security.web.util.AntPathRequestMatcher;
+import org.springframework.security.web.util.RequestMatcher;
 
 /**
  * Adds form based authentication. All attributes have reasonable defaults
@@ -71,7 +70,7 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
      * @see HttpSecurity#formLogin()
      */
     public FormLoginConfigurer() {
-        super(createUsernamePasswordAuthenticationFilter(),"/login");
+        super(new UsernamePasswordAuthenticationFilter(),"/login");
         usernameParameter("username");
         passwordParameter("password");
     }
@@ -193,6 +192,15 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
         initDefaultLoginFilter(http);
     }
 
+    /* (non-Javadoc)
+     * @see org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer#createLoginProcessingUrlMatcher(java.lang.String)
+     */
+    @Override
+    protected RequestMatcher createLoginProcessingUrlMatcher(
+            String loginProcessingUrl) {
+        return new AntPathRequestMatcher(loginProcessingUrl, "POST");
+    }
+
     /**
      * Gets the HTTP parameter that is used to submit the username.
      *
@@ -226,14 +234,5 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
             loginPageGeneratingFilter.setFailureUrl(getFailureUrl());
             loginPageGeneratingFilter.setAuthenticationUrl(getLoginProcessingUrl());
         }
-    }
-
-    private static UsernamePasswordAuthenticationFilter createUsernamePasswordAuthenticationFilter() {
-        return new UsernamePasswordAuthenticationFilter() {
-            @Override
-            protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
-                return "POST".equals(request.getMethod()) && super.requiresAuthentication(request, response);
-            }
-        };
     }
 }
