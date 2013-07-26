@@ -418,7 +418,7 @@
                 </section>
                 <section xml:id="nsa-header-ref">
                     <title><literal>header-ref</literal></title>
-                    <para>Reference to a custom implementation of the <classname>HeaderFactory</classname> interface.</para>
+                    <para>Reference to a custom implementation of the <classname>HeaderWriter</classname> interface.</para>
                 </section>
             </section>
             <section xml:id="nsa-header-parents">

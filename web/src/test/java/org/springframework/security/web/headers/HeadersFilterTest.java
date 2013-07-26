@@ -15,19 +15,19 @@
  */
 package org.springframework.security.web.headers;
 
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.verify;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.*;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.matchers.JUnitMatchers.hasItems;
 
 /**
  * Tests for the {@code HeadersFilter}
@@ -35,12 +35,18 @@ import static org.junit.matchers.JUnitMatchers.hasItems;
  * @author Marten Deinum
  * @since 3.2
  */
+@RunWith(MockitoJUnitRunner.class)
 public class HeadersFilterTest {
+    @Mock
+    private HeaderWriter writer1;
+
+    @Mock
+    private HeaderWriter writer2;
 
     @Test
     public void noHeadersConfigured() throws Exception {
-        List<HeaderFactory> factories = new ArrayList();
-        HeadersFilter filter = new HeadersFilter(factories);
+        List<HeaderWriter> headerWriters = new ArrayList<HeaderWriter>();
+        HeadersFilter filter = new HeadersFilter(headerWriters);
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain filterChain = new MockFilterChain();
@@ -52,18 +58,11 @@ public class HeadersFilterTest {
 
     @Test
     public void additionalHeadersShouldBeAddedToTheResponse() throws Exception {
-        List<HeaderFactory> factories = new ArrayList();
-        MockHeaderFactory factory1 = new MockHeaderFactory();
-        factory1.setName("X-Header1");
-        factory1.setValue("foo");
-        MockHeaderFactory factory2 = new MockHeaderFactory();
-        factory2.setName("X-Header2");
-        factory2.setValue("bar");
+        List<HeaderWriter> headerWriters = new ArrayList<HeaderWriter>();
+        headerWriters.add(writer1);
+        headerWriters.add(writer2);
 
-        factories.add(factory1);
-        factories.add(factory2);
-
-        HeadersFilter filter = new HeadersFilter(factories);
+        HeadersFilter filter = new HeadersFilter(headerWriters);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -71,30 +70,7 @@ public class HeadersFilterTest {
 
         filter.doFilter(request, response, filterChain);
 
-        Collection<String> headerNames = response.getHeaderNames();
-        assertThat(headerNames.size(), is(2));
-        assertThat(headerNames, hasItems("X-Header1", "X-Header2"));
-        assertThat(response.getHeader("X-Header1"), is("foo"));
-        assertThat(response.getHeader("X-Header2"), is("bar"));
-
-    }
-
-    private static final class MockHeaderFactory implements HeaderFactory {
-
-        private String name;
-        private String value;
-
-        public Header create(HttpServletRequest request, HttpServletResponse response) {
-            return new Header(name, value);
-        }
-
-        public void setName(String name) {
-            this.name=name;
-        }
-
-        public void setValue(String value) {
-            this.value=value;
-        }
-
+        verify(writer1).writeHeaders(request, response);
+        verify(writer2).writeHeaders(request, response);
     }
 }

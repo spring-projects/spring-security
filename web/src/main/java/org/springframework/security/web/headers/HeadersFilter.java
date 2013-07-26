@@ -34,10 +34,10 @@ import java.util.*;
  */
 public class HeadersFilter extends OncePerRequestFilter {
 
-    /** Collection of HeaderFactory instances to produce Headers. */
-    private final List<HeaderFactory> factories;
+    /** Collection of {@link HeaderWriter} instances to  write out the headers to the response . */
+    private final List<HeaderWriter> factories;
 
-    public HeadersFilter(List<HeaderFactory> factories) {
+    public HeadersFilter(List<HeaderWriter> factories) {
         this.factories = factories;
     }
 
@@ -45,28 +45,8 @@ public class HeadersFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        for (HeaderFactory factory : factories) {
-            Header header = factory.create(request, response);
-            if (header != null) {
-                String name = header.getName();
-                String[] values = header.getValues();
-                boolean first = true;
-                for (String value : values) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Adding header '" + name + "' with value '"+value +"'");
-                    }
-                    if (first) {
-                        response.setHeader(name, value);
-                        first = false;
-                    } else {
-                        response.addHeader(name, value);
-                    }
-                }
-            } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Factory produced no header.");
-                }
-            }
+        for (HeaderWriter factory : factories) {
+            factory.writeHeaders(request, response);
         }
         filterChain.doFilter(request, response);
     }

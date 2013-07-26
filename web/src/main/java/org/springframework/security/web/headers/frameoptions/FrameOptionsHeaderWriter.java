@@ -1,13 +1,12 @@
 package org.springframework.security.web.headers.frameoptions;
 
-import org.springframework.security.web.headers.Header;
-import org.springframework.security.web.headers.HeaderFactory;
+import org.springframework.security.web.headers.HeaderWriter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * {@code HeaderFactory} implementation for the X-Frame-Options headers. When using the ALLOW-FROM directive the actual
+ * {@code HeaderWriter} implementation for the X-Frame-Options headers. When using the ALLOW-FROM directive the actual
  * value is determined by a {@code AllowFromStrategy}.
  *
  * @author Marten Deinum
@@ -15,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @see AllowFromStrategy
  */
-public class FrameOptionsHeaderFactory implements HeaderFactory {
+public class FrameOptionsHeaderWriter implements HeaderWriter {
 
     public static final String FRAME_OPTIONS_HEADER = "X-Frame-Options";
 
@@ -24,21 +23,21 @@ public class FrameOptionsHeaderFactory implements HeaderFactory {
     private final AllowFromStrategy allowFromStrategy;
     private final String mode;
 
-    public FrameOptionsHeaderFactory(String mode) {
+    public FrameOptionsHeaderWriter(String mode) {
         this(mode, new NullAllowFromStrategy());
     }
 
-    public FrameOptionsHeaderFactory(String mode, AllowFromStrategy allowFromStrategy) {
+    public FrameOptionsHeaderWriter(String mode, AllowFromStrategy allowFromStrategy) {
         this.mode=mode;
         this.allowFromStrategy=allowFromStrategy;
     }
 
-    public Header create(HttpServletRequest request, HttpServletResponse response) {
+    public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
         if (ALLOW_FROM.equals(mode)) {
             String value = allowFromStrategy.apply(request);
-            return new Header(FRAME_OPTIONS_HEADER, ALLOW_FROM + " " + value);
+            response.addHeader(FRAME_OPTIONS_HEADER, ALLOW_FROM + " " + value);
         } else {
-            return new Header(FRAME_OPTIONS_HEADER, mode);
+            response.addHeader(FRAME_OPTIONS_HEADER, mode);
         }
     }
 

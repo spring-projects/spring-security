@@ -6,23 +6,25 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.util.Assert;
 
 /**
- * {@code HeaderFactory} implementation which returns the same {@code Header} instance.
+ * {@code HeaderWriter} implementation which writes the same {@code Header} instance.
  *
  * @author Marten Deinum
  * @since 3.2
  */
-public class StaticHeaderFactory implements HeaderFactory {
+public class StaticHeadersWriter implements HeaderWriter {
 
     private final Header header;
 
-    public StaticHeaderFactory(String name, String... values) {
+    public StaticHeadersWriter(String name, String... values) {
         Assert.hasText(name, "Header name is required");
         Assert.notEmpty(values, "Header values cannot be null or empty");
         Assert.noNullElements(values, "Header values cannot contain null values");
         header = new Header(name, values);
     }
 
-    public Header create(HttpServletRequest request, HttpServletResponse response) {
-        return header;
+    public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
+        for(String value : header.getValues()) {
+            response.addHeader(header.getName(), value);
+        }
     }
 }

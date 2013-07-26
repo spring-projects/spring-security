@@ -22,7 +22,7 @@ import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.web.headers.HeadersFilter;
-import org.springframework.security.web.headers.StaticHeaderFactory;
+import org.springframework.security.web.headers.StaticHeadersWriter;
 import org.springframework.security.web.headers.frameoptions.*;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
@@ -85,7 +85,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
             if (StringUtils.hasText(headerFactoryRef)) {
                 headerFactories.add(new RuntimeBeanReference(headerFactoryRef));
             } else {
-                BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(StaticHeaderFactory.class);
+                BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(StaticHeadersWriter.class);
                 builder.addConstructorArgValue(headerElt.getAttribute(ATT_NAME));
                 builder.addConstructorArgValue(headerElt.getAttribute(ATT_VALUE));
                 headerFactories.add(builder.getBeanDefinition());
@@ -96,7 +96,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
     private void parseContentTypeOptionsElement(Element element) {
         Element contentTypeElt = DomUtils.getChildElementByTagName(element, CONTENT_TYPE_ELEMENT);
         if (contentTypeElt != null) {
-            BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(StaticHeaderFactory.class);
+            BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(StaticHeadersWriter.class);
             builder.addConstructorArgValue(CONTENT_TYPE_OPTIONS_HEADER);
             builder.addConstructorArgValue("nosniff");
             headerFactories.add(builder.getBeanDefinition());
@@ -104,7 +104,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     private void parseFrameOptionsElement(Element element, ParserContext parserContext) {
-        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(FrameOptionsHeaderFactory.class);
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(FrameOptionsHeaderWriter.class);
 
         Element frameElt = DomUtils.getChildElementByTagName(element, FRAME_OPTIONS_ELEMENT);
         if (frameElt != null) {
@@ -170,7 +170,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
             } else if (!enabled && block) {
                 parserContext.getReaderContext().error("<xss-protection enabled=\"false\"/> does not allow block=\"true\".", xssElt);
             }
-            BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(StaticHeaderFactory.class);
+            BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(StaticHeadersWriter.class);
             builder.addConstructorArgValue(XSS_PROTECTION_HEADER);
             builder.addConstructorArgValue(value);
             headerFactories.add(builder.getBeanDefinition());
