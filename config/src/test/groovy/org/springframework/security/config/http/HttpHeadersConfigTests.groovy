@@ -32,6 +32,8 @@ import org.springframework.security.web.access.ExceptionTranslationFilter
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter
 import org.springframework.security.web.headers.HeadersFilter
+import org.springframework.security.web.headers.StaticHeadersWriter;
+import org.springframework.security.web.headers.frameoptions.StaticAllowFromStrategy;
 
 /**
  *
@@ -51,17 +53,14 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
     }
 
     def 'http headers with empty headers'() {
-        httpAutoConfig {
-            'headers'()
-        }
-        createAppContext()
-
-        def hf = getFilter(HeadersFilter)
-        MockHttpServletResponse response = new MockHttpServletResponse()
-        hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
-
-        expect:
-        response.headers.isEmpty()
+        when:
+            httpAutoConfig {
+                'headers'()
+            }
+            createAppContext()
+        then:
+            BeanDefinitionParsingException success = thrown()
+            success.message.contains "At least one type of header must be specified when using <headers>"
     }
 
     def 'http headers content-type-options'() {
@@ -210,6 +209,26 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
 
         then:
         assertHeaders(response , ['a':'b', 'c':'d'])
+    }
+
+    def 'http headers with ref'() {
+        setup:
+            httpAutoConfig {
+                'headers'() {
+                    'header'(ref:'headerWriter')
+                }
+            }
+            xml.'b:bean'(id: 'headerWriter', 'class': StaticHeadersWriter.name) {
+                'b:constructor-arg'(value:'abc') {}
+                'b:constructor-arg'(value:'def') {}
+            }
+            createAppContext()
+        when:
+            def hf = getFilter(HeadersFilter)
+            MockHttpServletResponse response = new MockHttpServletResponse()
+            hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+        then:
+             assertHeaders(response, ['abc':'def'])
     }
 
     def 'http headers header no name produces error'() {

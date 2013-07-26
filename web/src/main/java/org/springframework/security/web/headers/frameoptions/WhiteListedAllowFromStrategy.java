@@ -1,9 +1,8 @@
 package org.springframework.security.web.headers.frameoptions;
 
-import org.springframework.util.Assert;
-
 import java.util.Collection;
-import java.util.List;
+
+import org.springframework.util.Assert;
 
 /**
  * Implementation which checks the supplied origin against a list of allowed origins.
@@ -11,17 +10,21 @@ import java.util.List;
  * @author Marten Deinum
  * @since 3.2
  */
-public class WhiteListedAllowFromStrategy extends RequestParameterAllowFromStrategy {
+public class WhiteListedAllowFromStrategy extends AbstractRequestParameterAllowFromStrategy {
 
     private final Collection<String> allowed;
 
+    /**
+     * Creates a new instance
+     * @param allowed the origins that are allowed.
+     */
     public WhiteListedAllowFromStrategy(Collection<String> allowed) {
         Assert.notEmpty(allowed, "Allowed origins cannot be empty.");
         this.allowed = allowed;
     }
 
     @Override
-    protected boolean allowed(String from) {
-        return allowed.contains(from);
+    protected boolean allowed(String allowFromOrigin) {
+        return allowed.contains(allowFromOrigin);
     }
 }

@@ -617,14 +617,19 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                 <progamlisting language="xml">
                     <![CDATA[
                             <headers>
+                                <!-- Adds X-XSS-Protection with value of 1 -->
                                 <xss-protection/>
+                                <!-- Add X-Frame-Options with a value of DENY -->
                                 <frame-options/>
+                                <!-- Add X-Content-Type-Options with value of nosniff -->
                                 <content-type-options/>
+                                <!-- Add custom headers -->
                                 <header name="foo" value="bar"/>
                             </headers>
                     ]]>
                 </progamlisting>
             </para>
+            <para>For additional information refer to <link xlink:href="nsa-headers">headers</link> section of the Security Namespace appendix.</para>
         </section>
         <section xml:id="ns-custom-filters">
             <title>Adding in Your Own Filters</title>

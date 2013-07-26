@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Contract for a factory that creates {@code Header} instances.
+ * Contract for writing headers to a {@link HttpServletResponse}
  *
  * @see HeadersFilter
  *

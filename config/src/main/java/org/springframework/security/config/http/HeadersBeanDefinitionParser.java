@@ -62,10 +62,10 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 
     private static final String ALLOW_FROM = "ALLOW-FROM";
 
-    private ManagedList headerFactories;
+    private ManagedList headerWriters;
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
-        headerFactories = new ManagedList();
+        headerWriters = new ManagedList();
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(HeadersFilter.class);
 
         parseXssElement(element, parserContext);
@@ -74,7 +74,11 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 
         parseHeaderElements(element);
 
-        builder.addConstructorArgValue(headerFactories);
+        if(headerWriters.isEmpty()) {
+            parserContext.getReaderContext().error("At least one type of header must be specified when using <headers>",
+                    element);
+        }
+        builder.addConstructorArgValue(headerWriters);
         return builder.getBeanDefinition();
     }
 
@@ -83,12 +87,12 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
         for (Element headerElt : headerElts) {
             String headerFactoryRef = headerElt.getAttribute(ATT_REF);
             if (StringUtils.hasText(headerFactoryRef)) {
-                headerFactories.add(new RuntimeBeanReference(headerFactoryRef));
+                headerWriters.add(new RuntimeBeanReference(headerFactoryRef));
             } else {
                 BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(StaticHeadersWriter.class);
                 builder.addConstructorArgValue(headerElt.getAttribute(ATT_NAME));
                 builder.addConstructorArgValue(headerElt.getAttribute(ATT_VALUE));
-                headerFactories.add(builder.getBeanDefinition());
+                headerWriters.add(builder.getBeanDefinition());
             }
         }
     }
@@ -99,17 +103,16 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
             BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(StaticHeadersWriter.class);
             builder.addConstructorArgValue(CONTENT_TYPE_OPTIONS_HEADER);
             builder.addConstructorArgValue("nosniff");
-            headerFactories.add(builder.getBeanDefinition());
+            headerWriters.add(builder.getBeanDefinition());
         }
     }
 
     private void parseFrameOptionsElement(Element element, ParserContext parserContext) {
-        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(FrameOptionsHeaderWriter.class);
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(XFrameOptionsHeaderWriter.class);
 
         Element frameElt = DomUtils.getChildElementByTagName(element, FRAME_OPTIONS_ELEMENT);
         if (frameElt != null) {
             String header = getAttribute(frameElt, ATT_POLICY, "DENY");
-            builder.addConstructorArgValue(header);
             if (ALLOW_FROM.equals(header) ) {
                 String strategyRef = getAttribute(frameElt, ATT_REF, null);
                 String strategy = getAttribute(frameElt, ATT_STRATEGY, null);
@@ -133,7 +136,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
                                     "'value' attribute doesn't represent a valid URI.", frameElt, e);
                         }
                     } else {
-                        RequestParameterAllowFromStrategy allowFromStrategy = null;
+                        AbstractRequestParameterAllowFromStrategy allowFromStrategy = null;
                         if ("whitelist".equals(strategy)) {
                             allowFromStrategy = new WhiteListedAllowFromStrategy(
                                     StringUtils.commaDelimitedListToSet(value));
@@ -146,15 +149,17 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
                             }
                         }
                         String fromParameter = getAttribute(frameElt, ATT_FROM_PARAMETER, "from");
-                        allowFromStrategy.setParameterName(fromParameter);
+                        allowFromStrategy.setAllowFromParameterName(fromParameter);
                         builder.addConstructorArgValue(allowFromStrategy);
                     }
                 } else {
                     parserContext.getReaderContext().error("One of 'strategy' and 'strategy-ref' must be set.",
                             frameElt);
                 }
+            } else {
+                builder.addConstructorArgValue(header);
             }
-            headerFactories.add(builder.getBeanDefinition());
+            headerWriters.add(builder.getBeanDefinition());
         }
     }
 
@@ -173,7 +178,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
             BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(StaticHeadersWriter.class);
             builder.addConstructorArgValue(XSS_PROTECTION_HEADER);
             builder.addConstructorArgValue(value);
-            headerFactories.add(builder.getBeanDefinition());
+            headerWriters.add(builder.getBeanDefinition());
         }
     }
 

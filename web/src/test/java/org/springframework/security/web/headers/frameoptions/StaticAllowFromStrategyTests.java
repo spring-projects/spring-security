@@ -13,12 +13,12 @@ import static org.junit.Assert.assertEquals;
  * @author Marten Deinum
  * @since 3.2
  */
-public class StaticAllowFromStrategyTest {
+public class StaticAllowFromStrategyTests {
 
     @Test
     public void shouldReturnUri() {
         String uri = "http://www.test.com";
         StaticAllowFromStrategy strategy = new StaticAllowFromStrategy(URI.create(uri));
-        assertEquals(uri, strategy.apply(new MockHttpServletRequest()));
+        assertEquals(uri, strategy.getAllowFromValue(new MockHttpServletRequest()));
     }
 }

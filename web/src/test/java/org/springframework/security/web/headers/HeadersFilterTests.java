@@ -15,7 +15,7 @@
  */
 package org.springframework.security.web.headers;
 
-import static org.junit.Assert.assertTrue;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
@@ -33,27 +33,26 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * Tests for the {@code HeadersFilter}
  *
  * @author Marten Deinum
+ * @author Rob Winch
  * @since 3.2
  */
 @RunWith(MockitoJUnitRunner.class)
-public class HeadersFilterTest {
+public class HeadersFilterTests {
     @Mock
     private HeaderWriter writer1;
 
     @Mock
     private HeaderWriter writer2;
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void noHeadersConfigured() throws Exception {
         List<HeaderWriter> headerWriters = new ArrayList<HeaderWriter>();
-        HeadersFilter filter = new HeadersFilter(headerWriters);
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        MockFilterChain filterChain = new MockFilterChain();
+        new HeadersFilter(headerWriters);
+    }
 
-        filter.doFilter(request, response, filterChain);
-
-        assertTrue(response.getHeaderNames().isEmpty());
+    @Test(expected = IllegalArgumentException.class)
+    public void constructorNullWriters() throws Exception {
+        new HeadersFilter(null);
     }
 
     @Test
@@ -72,5 +71,6 @@ public class HeadersFilterTest {
 
         verify(writer1).writeHeaders(request, response);
         verify(writer2).writeHeaders(request, response);
+        assertThat(filterChain.getRequest()).isEqualTo(request); // verify the filterChain continued
     }
 }

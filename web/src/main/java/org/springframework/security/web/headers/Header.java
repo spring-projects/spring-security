@@ -1,37 +1,56 @@
 package org.springframework.security.web.headers;
 
 import java.util.Arrays;
+import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.util.Assert;
 
 /**
- * Created with IntelliJ IDEA.
- * User: marten
- * Date: 29-01-13
- * Time: 20:26
- * To change this template use File | Settings | File Templates.
+ * Represents a Header to be added to the {@link HttpServletResponse}
  */
-public final class Header {
+final class Header {
 
-    private final String name;
-    private final String[] values;
+    private final String headerName;
+    private final List<String> headerValues;
 
-    public Header(String name, String... values) {
-        this.name = name;
-        this.values = values;
+    /**
+     * Creates a new instance
+     * @param headerName the name of the header
+     * @param headerValues the values of the header
+     */
+    public Header(String headerName, String... headerValues) {
+        Assert.hasText(headerName, "headerName is required");
+        Assert.notEmpty(headerValues, "headerValues cannot be null or empty");
+        Assert.noNullElements(headerValues, "headerValues cannot contain null values");
+        this.headerName = headerName;
+        this.headerValues = Arrays.asList(headerValues);
     }
 
+    /**
+     * Gets the name of the header. Cannot be <code>null</code>.
+     * @return the name of the header.
+     */
     public String getName() {
-        return this.name;
+        return this.headerName;
     }
 
-    public String[] getValues() {
-        return this.values;
+    /**
+     * Gets the values of the header. Cannot be null, empty, or contain null
+     * values.
+     *
+     * @return the values of the header
+     */
+    public List<String> getValues() {
+        return this.headerValues;
     }
 
     public int hashCode() {
-        return name.hashCode() + Arrays.hashCode(values);
+        return headerName.hashCode() + headerValues.hashCode();
     }
 
     public String toString() {
-        return "Header [name: " + name + ", values: " + Arrays.toString(values)+"]";
+        return "Header [name: " + headerName + ", values: " + headerValues +"]";
     }
 }

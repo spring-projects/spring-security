@@ -3,8 +3,6 @@ package org.springframework.security.web.headers;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.util.Assert;
-
 /**
  * {@code HeaderWriter} implementation which writes the same {@code Header} instance.
  *
@@ -15,11 +13,13 @@ public class StaticHeadersWriter implements HeaderWriter {
 
     private final Header header;
 
-    public StaticHeadersWriter(String name, String... values) {
-        Assert.hasText(name, "Header name is required");
-        Assert.notEmpty(values, "Header values cannot be null or empty");
-        Assert.noNullElements(values, "Header values cannot contain null values");
-        header = new Header(name, values);
+    /**
+     * Creates a new instance
+     * @param headerName the name of the header
+     * @param headerValues the values for the header
+     */
+    public StaticHeadersWriter(String headerName, String... headerValues) {
+        header = new Header(headerName, headerValues);
     }
 
     public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {

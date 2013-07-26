@@ -15,6 +15,7 @@
  */
 package org.springframework.security.web.headers;
 
+import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -35,17 +36,22 @@ import java.util.*;
 public class HeadersFilter extends OncePerRequestFilter {
 
     /** Collection of {@link HeaderWriter} instances to  write out the headers to the response . */
-    private final List<HeaderWriter> factories;
+    private final List<HeaderWriter> headerWriters;
 
-    public HeadersFilter(List<HeaderWriter> factories) {
-        this.factories = factories;
+    /**
+     * Creates a new instance.
+     *
+     * @param headerWriters the {@link HeaderWriter} instances to write out headers to the {@link HttpServletResponse}.
+     */
+    public HeadersFilter(List<HeaderWriter> headerWriters) {
+        Assert.notEmpty(headerWriters, "headerWriters cannot be null");
+        this.headerWriters = headerWriters;
     }
-
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        for (HeaderWriter factory : factories) {
+        for (HeaderWriter factory : headerWriters) {
             factory.writeHeaders(request, response);
         }
         filterChain.doFilter(request, response);
