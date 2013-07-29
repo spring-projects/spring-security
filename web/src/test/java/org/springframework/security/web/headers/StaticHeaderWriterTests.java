@@ -18,6 +18,7 @@ package org.springframework.security.web.headers;
 import static org.fest.assertions.Assertions.assertThat;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +40,16 @@ public class StaticHeaderWriterTests {
     public void setup() {
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructorNullHeaders() {
+        new StaticHeadersWriter(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructorEmptyHeaders() {
+        new StaticHeadersWriter(Collections.<Header>emptyList());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -64,5 +75,18 @@ public class StaticHeaderWriterTests {
 
         factory.writeHeaders(request, response);
         assertThat(response.getHeaderValues(headerName)).isEqualTo(Arrays.asList(headerValue));
+    }
+
+    @Test
+    public void writeHeadersMulti() {
+        Header pragma = new Header("Pragma","no-cache");
+        Header cacheControl= new Header("Cache-Control","no-cache","no-store","must-revalidate");
+        StaticHeadersWriter factory = new StaticHeadersWriter(Arrays.asList(pragma, cacheControl));
+
+        factory.writeHeaders(request, response);
+
+        assertThat(response.getHeaderNames().size()).isEqualTo(2);
+        assertThat(response.getHeaderValues(pragma.getName())).isEqualTo(pragma.getValues());
+        assertThat(response.getHeaderValues(cacheControl.getName())).isEqualTo(cacheControl.getValues());
     }
 }

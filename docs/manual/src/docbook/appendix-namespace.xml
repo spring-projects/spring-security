@@ -264,6 +264,9 @@
                 It enables easy configuration for several headers and also allows for setting custom headers through
                 the <link xlink:href="#nsa-header">header</link> element.
                 <itemizedlist>
+                    <listitem><literal>Cache-Control</literal> and <literal>Pragma</literal> - Can be set using the
+                        <link xlink:href="#nsa-cache-control">cache-control</link> element. This ensures that the
+                        browser does not cache your secured pages.</listitem>
                     <listitem><literal>X-Frame-Options</literal> - Can be set using the
                         <link xlink:href="#nsa-frame-options">frame-options</link> element. The
                         <link xlink:href="http://en.wikipedia.org/wiki/Clickjacking#X-Frame-Options">X-Frame-Options
@@ -288,10 +291,22 @@
             <section xml:id="nsa-headers-children">
                 <title>Child Elements of <literal>&lt;headers&gt;</literal></title>
                 <itemizedlist>
+                    <listitem><link xlink:href="#nsa-cache-control">cache-control</link></listitem>
                     <listitem><link xlink:href="#nsa-content-type-options">content-type-options</link></listitem>
                     <listitem><link xlink:href="#nsa-frame-options">frame-options</link></listitem>
                     <listitem><link xlink:href="#nsa-header">header</link></listitem>
                     <listitem><link xlink:href="#nsa-xss-protection">xss-protection</link></listitem>
+                </itemizedlist>
+            </section>
+        </section>
+        <section xml:id="nsa-cache-control">
+            <title><literal>&lt;cache-control&gt;</literal></title>
+            <para>Adds <literal>Cache-Control</literal> and <literal>Pragma</literal> headers to ensure that the
+                browser does not cache your secured pages.</para>
+            <section xml:id="nsa-cache-control-parents">
+                <title>Parent Elements of <literal>&lt;cache-control&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-headers">headers</link></listitem>
                 </itemizedlist>
             </section>
         </section>

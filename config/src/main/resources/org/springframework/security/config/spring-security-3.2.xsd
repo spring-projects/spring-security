@@ -2240,12 +2240,20 @@
       </xs:annotation>
       <xs:complexType>
          <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element ref="security:cache-control"/>
             <xs:element ref="security:xss-protection"/>
             <xs:element ref="security:frame-options"/>
             <xs:element ref="security:content-type-options"/>
             <xs:element ref="security:header"/>
          </xs:choice>
       </xs:complexType>
+   </xs:element>
+  <xs:element name="cache-control">
+      <xs:annotation>
+         <xs:documentation>Adds Cache-Control no-cache, no-store, must-revalidate and Pragma no-cache every URL
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType/>
    </xs:element>
   <xs:element name="frame-options">
       <xs:annotation>

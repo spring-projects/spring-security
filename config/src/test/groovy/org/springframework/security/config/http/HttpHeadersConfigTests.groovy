@@ -28,6 +28,7 @@ import org.springframework.security.openid.OpenIDAuthenticationFilter
 import org.springframework.security.openid.OpenIDAuthenticationToken
 import org.springframework.security.openid.OpenIDConsumer
 import org.springframework.security.openid.OpenIDConsumerException
+import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.access.ExceptionTranslationFilter
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter
@@ -324,10 +325,26 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         e.message.contains '<xss-protection enabled="false"/> does not allow block="true".'
     }
 
+    def 'http headers cache-control'() {
+        setup:
+            httpAutoConfig {
+                'headers'() {
+                    'cache-control'()
+                }
+            }
+            createAppContext()
+            def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
+            MockHttpServletResponse response = new MockHttpServletResponse()
+        when:
+            springSecurityFilterChain.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+        then:
+            assertHeaders(response, ['Cache-Control': 'no-cache,no-store,max-age=0,must-revalidate','Pragma':'no-cache'])
+    }
+
     def assertHeaders(MockHttpServletResponse response, Map<String,String> expected) {
         assert response.headerNames == expected.keySet()
         expected.each { headerName, value ->
-            assert response.getHeaderValues(headerName) == [value]
+            assert response.getHeaderValues(headerName) == value.split(',')
         }
     }
 }

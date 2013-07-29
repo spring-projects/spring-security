@@ -10,7 +10,7 @@ import org.springframework.util.Assert;
 /**
  * Represents a Header to be added to the {@link HttpServletResponse}
  */
-final class Header {
+public final class Header {
 
     private final String headerName;
     private final List<String> headerValues;

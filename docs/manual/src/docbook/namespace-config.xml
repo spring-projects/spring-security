@@ -617,6 +617,8 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                 <progamlisting language="xml">
                     <![CDATA[
                             <headers>
+                                <!-- Add Cache-Control and Pragma headers -->
+                                <cache-control/>
                                 <!-- Adds X-XSS-Protection with value of 1 -->
                                 <xss-protection/>
                                 <!-- Add X-Frame-Options with a value of DENY -->
