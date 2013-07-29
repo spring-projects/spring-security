@@ -2242,12 +2242,44 @@
          <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element ref="security:cache-control"/>
             <xs:element ref="security:xss-protection"/>
+            <xs:element ref="security:hsts"/>
             <xs:element ref="security:frame-options"/>
             <xs:element ref="security:content-type-options"/>
             <xs:element ref="security:header"/>
          </xs:choice>
       </xs:complexType>
    </xs:element>
+  <xs:element name="hsts">
+      <xs:annotation>
+         <xs:documentation>Adds support for HTTP Strict Transport Security (HSTS)
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:hsts-options.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="hsts-options.attlist">
+      <xs:attribute name="include-subdomains" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>Specifies if subdomains should be included. Default true.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="max-age-seconds" type="xs:integer">
+         <xs:annotation>
+            <xs:documentation>Specifies the maximum ammount of time the host should be considered a Known HSTS Host.
+                Default one year.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="request-matcher-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The RequestMatcher instance to be used to determine if the header should be set. Default
+                is if HttpServletRequest.isSecure() is true.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
   <xs:element name="cache-control">
       <xs:annotation>
          <xs:documentation>Adds Cache-Control no-cache, no-store, must-revalidate and Pragma no-cache every URL

@@ -28,6 +28,7 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.web.headers.Header;
 import org.springframework.security.web.headers.HeadersFilter;
+import org.springframework.security.web.headers.HstsHeaderWriter;
 import org.springframework.security.web.headers.StaticHeadersWriter;
 import org.springframework.security.web.headers.frameoptions.AbstractRequestParameterAllowFromStrategy;
 import org.springframework.security.web.headers.frameoptions.RegExpAllowFromStrategy;
@@ -57,7 +58,13 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
     private static final String ATT_VALUE = "value";
     private static final String ATT_REF = "ref";
 
+    private static final String ATT_INCLUDE_SUBDOMAINS = "include-subdomains";
+    private static final String ATT_MAX_AGE_SECONDS = "max-age-seconds";
+    private static final String ATT_REQUEST_MATCHER_REF = "request-matcher-ref";
+
     private static final String CACHE_CONTROL_ELEMENT = "cache-control";
+
+    private static final String HSTS_ELEMENT = "hsts";
 
     private static final String XSS_ELEMENT = "xss-protection";
     private static final String CONTENT_TYPE_ELEMENT = "content-type-options";
@@ -76,6 +83,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(HeadersFilter.class);
 
         parseCacheControlElement(element);
+        parseHstsElement(element);
         parseXssElement(element, parserContext);
         parseFrameOptionsElement(element, parserContext);
         parseContentTypeOptionsElement(element);
@@ -115,6 +123,26 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
             BeanDefinitionBuilder headersWriter = BeanDefinitionBuilder.genericBeanDefinition(StaticHeadersWriter.class);
             headersWriter.addConstructorArgValue(headers);
 
+            headerWriters.add(headersWriter.getBeanDefinition());
+        }
+    }
+
+    private void parseHstsElement(Element element) {
+        Element hstsElement = DomUtils.getChildElementByTagName(element, HSTS_ELEMENT);
+        if (hstsElement != null) {
+            BeanDefinitionBuilder headersWriter = BeanDefinitionBuilder.genericBeanDefinition(HstsHeaderWriter.class);
+            String includeSubDomains = hstsElement.getAttribute(ATT_INCLUDE_SUBDOMAINS);
+            if(StringUtils.hasText(includeSubDomains)) {
+                headersWriter.addPropertyValue("includeSubDomains", includeSubDomains);
+            }
+            String maxAgeSeconds = hstsElement.getAttribute(ATT_MAX_AGE_SECONDS);
+            if(StringUtils.hasText(maxAgeSeconds)) {
+                headersWriter.addPropertyValue("maxAgeInSeconds", maxAgeSeconds);
+            }
+            String requestMatcherRef = hstsElement.getAttribute(ATT_REQUEST_MATCHER_REF);
+            if(StringUtils.hasText(requestMatcherRef)) {
+                headersWriter.addPropertyReference("requestMatcher", requestMatcherRef);
+            }
             headerWriters.add(headersWriter.getBeanDefinition());
         }
     }

@@ -35,6 +35,7 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
 import org.springframework.security.web.headers.HeadersFilter
 import org.springframework.security.web.headers.StaticHeadersWriter;
 import org.springframework.security.web.headers.frameoptions.StaticAllowFromStrategy;
+import org.springframework.security.web.util.AnyRequestMatcher;
 
 /**
  *
@@ -339,6 +340,56 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
             springSecurityFilterChain.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
         then:
             assertHeaders(response, ['Cache-Control': 'no-cache,no-store,max-age=0,must-revalidate','Pragma':'no-cache'])
+    }
+
+    def 'http headers hsts'() {
+        setup:
+            httpAutoConfig {
+                'headers'() {
+                    'hsts'()
+                }
+            }
+            createAppContext()
+            def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
+            MockHttpServletResponse response = new MockHttpServletResponse()
+        when:
+            springSecurityFilterChain.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
+        then:
+            assertHeaders(response, ['Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains'])
+    }
+
+    def 'http headers hsts default only invokes on HttpServletRequest.isSecure = true'() {
+        setup:
+            httpAutoConfig {
+                'headers'() {
+                    'hsts'()
+                }
+            }
+            createAppContext()
+            def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
+            MockHttpServletResponse response = new MockHttpServletResponse()
+        when:
+            springSecurityFilterChain.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+        then:
+            response.headerNames.empty
+    }
+
+    def 'http headers hsts custom'() {
+        setup:
+            httpAutoConfig {
+                'headers'() {
+                    'hsts'('max-age-seconds':'1','include-subdomains':false, 'request-matcher-ref' : 'matcher')
+                }
+            }
+
+            xml.'b:bean'(id: 'matcher', 'class': AnyRequestMatcher.name)
+            createAppContext()
+            def springSecurityFilterChain = appContext.getBean(FilterChainProxy)
+            MockHttpServletResponse response = new MockHttpServletResponse()
+        when:
+            springSecurityFilterChain.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
+        then:
+            assertHeaders(response, ['Strict-Transport-Security': 'max-age=1'])
     }
 
     def assertHeaders(MockHttpServletResponse response, Map<String,String> expected) {
