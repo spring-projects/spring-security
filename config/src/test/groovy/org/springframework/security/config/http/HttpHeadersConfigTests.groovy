@@ -55,14 +55,22 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
     }
 
     def 'http headers with empty headers'() {
-        when:
+        setup:
             httpAutoConfig {
                 'headers'()
             }
             createAppContext()
+        when:
+            def hf = getFilter(HeadersFilter)
+            MockHttpServletResponse response = new MockHttpServletResponse()
+            hf.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
         then:
-            BeanDefinitionParsingException success = thrown()
-            success.message.contains "At least one type of header must be specified when using <headers>"
+            assertHeaders(response, ['X-Content-Type-Options':'nosniff',
+                                     'X-Frame-Options':'DENY',
+                                     'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
+                                     'Cache-Control': 'no-cache,no-store,max-age=0,must-revalidate',
+                                     'Pragma':'no-cache',
+                                     'X-XSS-Protection' : '1; mode=block'])
     }
 
     def 'http headers content-type-options'() {

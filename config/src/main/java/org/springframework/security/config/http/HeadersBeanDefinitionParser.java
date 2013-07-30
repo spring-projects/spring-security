@@ -20,6 +20,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.regex.PatternSyntaxException;
 
+import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -76,10 +77,10 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 
     private static final String ALLOW_FROM = "ALLOW-FROM";
 
-    private ManagedList headerWriters;
+    private ManagedList<BeanMetadataElement> headerWriters;
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
-        headerWriters = new ManagedList();
+        headerWriters = new ManagedList<BeanMetadataElement>();
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(HeadersFilter.class);
 
         parseCacheControlElement(element);
@@ -91,8 +92,18 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
         parseHeaderElements(element);
 
         if(headerWriters.isEmpty()) {
-            parserContext.getReaderContext().error("At least one type of header must be specified when using <headers>",
-                    element);
+            addCacheControl();
+            addHsts(null);
+            addContentTypeOptions();
+
+            BeanDefinitionBuilder frameOptions = BeanDefinitionBuilder.genericBeanDefinition(XFrameOptionsHeaderWriter.class);
+            frameOptions.addConstructorArgValue("DENY");
+            headerWriters.add(frameOptions.getBeanDefinition());
+
+            BeanDefinitionBuilder xss = BeanDefinitionBuilder.genericBeanDefinition(StaticHeadersWriter.class);
+            xss.addConstructorArgValue(XSS_PROTECTION_HEADER);
+            xss.addConstructorArgValue("1; mode=block");
+            headerWriters.add(xss.getBeanDefinition());
         }
         builder.addConstructorArgValue(headerWriters);
         return builder.getBeanDefinition();
@@ -101,36 +112,46 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
     private void parseCacheControlElement(Element element) {
         Element cacheControlElement = DomUtils.getChildElementByTagName(element, CACHE_CONTROL_ELEMENT);
         if (cacheControlElement != null) {
-            ManagedList<BeanDefinition> headers = new ManagedList<BeanDefinition>();
-
-            BeanDefinitionBuilder pragmaHeader = BeanDefinitionBuilder.genericBeanDefinition(Header.class);
-            pragmaHeader.addConstructorArgValue("Pragma");
-            ManagedList<String> pragmaValues = new ManagedList<String>();
-            pragmaValues.add("no-cache");
-            pragmaHeader.addConstructorArgValue(pragmaValues);
-            headers.add(pragmaHeader.getBeanDefinition());
-
-            BeanDefinitionBuilder cacheControlHeader = BeanDefinitionBuilder.genericBeanDefinition(Header.class);
-            cacheControlHeader.addConstructorArgValue("Cache-Control");
-            ManagedList<String> cacheControlValues = new ManagedList<String>();
-            cacheControlValues.add("no-cache");
-            cacheControlValues.add("no-store");
-            cacheControlValues.add("max-age=0");
-            cacheControlValues.add("must-revalidate");
-            cacheControlHeader.addConstructorArgValue(cacheControlValues);
-            headers.add(cacheControlHeader.getBeanDefinition());
-
-            BeanDefinitionBuilder headersWriter = BeanDefinitionBuilder.genericBeanDefinition(StaticHeadersWriter.class);
-            headersWriter.addConstructorArgValue(headers);
-
-            headerWriters.add(headersWriter.getBeanDefinition());
+            addCacheControl();
         }
+    }
+
+    private void addCacheControl() {
+        ManagedList<BeanDefinition> headers = new ManagedList<BeanDefinition>();
+
+        BeanDefinitionBuilder pragmaHeader = BeanDefinitionBuilder.genericBeanDefinition(Header.class);
+        pragmaHeader.addConstructorArgValue("Pragma");
+        ManagedList<String> pragmaValues = new ManagedList<String>();
+        pragmaValues.add("no-cache");
+        pragmaHeader.addConstructorArgValue(pragmaValues);
+        headers.add(pragmaHeader.getBeanDefinition());
+
+        BeanDefinitionBuilder cacheControlHeader = BeanDefinitionBuilder.genericBeanDefinition(Header.class);
+        cacheControlHeader.addConstructorArgValue("Cache-Control");
+        ManagedList<String> cacheControlValues = new ManagedList<String>();
+        cacheControlValues.add("no-cache");
+        cacheControlValues.add("no-store");
+        cacheControlValues.add("max-age=0");
+        cacheControlValues.add("must-revalidate");
+        cacheControlHeader.addConstructorArgValue(cacheControlValues);
+        headers.add(cacheControlHeader.getBeanDefinition());
+
+        BeanDefinitionBuilder headersWriter = BeanDefinitionBuilder.genericBeanDefinition(StaticHeadersWriter.class);
+        headersWriter.addConstructorArgValue(headers);
+
+        headerWriters.add(headersWriter.getBeanDefinition());
     }
 
     private void parseHstsElement(Element element) {
         Element hstsElement = DomUtils.getChildElementByTagName(element, HSTS_ELEMENT);
         if (hstsElement != null) {
-            BeanDefinitionBuilder headersWriter = BeanDefinitionBuilder.genericBeanDefinition(HstsHeaderWriter.class);
+            addHsts(hstsElement);
+        }
+    }
+
+    private void addHsts(Element hstsElement) {
+        BeanDefinitionBuilder headersWriter = BeanDefinitionBuilder.genericBeanDefinition(HstsHeaderWriter.class);
+        if(hstsElement != null) {
             String includeSubDomains = hstsElement.getAttribute(ATT_INCLUDE_SUBDOMAINS);
             if(StringUtils.hasText(includeSubDomains)) {
                 headersWriter.addPropertyValue("includeSubDomains", includeSubDomains);
@@ -143,8 +164,8 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
             if(StringUtils.hasText(requestMatcherRef)) {
                 headersWriter.addPropertyReference("requestMatcher", requestMatcherRef);
             }
-            headerWriters.add(headersWriter.getBeanDefinition());
         }
+        headerWriters.add(headersWriter.getBeanDefinition());
     }
 
     private void parseHeaderElements(Element element) {
@@ -165,11 +186,15 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
     private void parseContentTypeOptionsElement(Element element) {
         Element contentTypeElt = DomUtils.getChildElementByTagName(element, CONTENT_TYPE_ELEMENT);
         if (contentTypeElt != null) {
-            BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(StaticHeadersWriter.class);
-            builder.addConstructorArgValue(CONTENT_TYPE_OPTIONS_HEADER);
-            builder.addConstructorArgValue("nosniff");
-            headerWriters.add(builder.getBeanDefinition());
+            addContentTypeOptions();
         }
+    }
+
+    private void addContentTypeOptions() {
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(StaticHeadersWriter.class);
+        builder.addConstructorArgValue(CONTENT_TYPE_OPTIONS_HEADER);
+        builder.addConstructorArgValue("nosniff");
+        headerWriters.add(builder.getBeanDefinition());
     }
 
     private void parseFrameOptionsElement(Element element, ParserContext parserContext) {
