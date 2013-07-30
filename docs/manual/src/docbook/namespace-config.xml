@@ -616,22 +616,34 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                 additional headers to the client. Spring Security allows for easy configuration for several headers.
                 <progamlisting language="xml">
                     <![CDATA[
+                            <headers/>
+                    ]]>
+                </progamlisting>
+            </para>
+            <para>Specifying the single headers element adds all the explicitly supported headers
+                with their default settings. If you only want select headers to be added,
+                you can add one or more of the child elements as shown below.
+                <progamlisting language="xml">
+                    <![CDATA[
                             <headers>
                                 <!-- Add Cache-Control and Pragma headers -->
                                 <cache-control/>
-                                <!-- Adds X-XSS-Protection with value of 1 -->
-                                <xss-protection/>
-                                <!-- Add X-Frame-Options with a value of DENY -->
-                                <frame-options/>
                                 <!-- Add X-Content-Type-Options with value of nosniff -->
                                 <content-type-options/>
                                 <!-- Add custom headers -->
                                 <header name="foo" value="bar"/>
+                                <-- Adds HTTP Strict Transport Security (HSTS) for secure requests -->
+                                <hsts/>
+                                <!-- Add X-Frame-Options with a value of DENY -->
+                                <frame-options/>
+                                <!-- Adds X-XSS-Protection with value of 1; mode=block-->
+                                <xss-protection/>
                             </headers>
                     ]]>
                 </progamlisting>
             </para>
-            <para>For additional information refer to <link xlink:href="nsa-headers">headers</link> section of the Security Namespace appendix.</para>
+            <para>For additional information on how to customize the headers element refer to the <link xlink:href="nsa-headers">headers</link>
+                section of the Security Namespace appendix.</para>
         </section>
         <section xml:id="ns-custom-filters">
             <title>Adding in Your Own Filters</title>
