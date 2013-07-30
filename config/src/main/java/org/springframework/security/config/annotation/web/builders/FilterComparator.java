@@ -36,6 +36,7 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageViewFi
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.authentication.www.DigestAuthenticationFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
@@ -62,6 +63,8 @@ final class FilterComparator implements Comparator<Filter>, Serializable {
         put(ConcurrentSessionFilter.class, order);
         order += STEP;
         put(SecurityContextPersistenceFilter.class, order);
+        order += STEP;
+        put(HeaderWriterFilter.class, order);
         order += STEP;
         put(LogoutFilter.class, order);
         order += STEP;

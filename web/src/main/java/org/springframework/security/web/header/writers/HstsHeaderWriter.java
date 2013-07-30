@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.headers;
+package org.springframework.security.web.header.writers;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.util.RequestMatcher;
 import org.springframework.util.Assert;
 
@@ -48,11 +49,13 @@ import org.springframework.util.Assert;
  * @since 3.2
  */
 public final class HstsHeaderWriter implements HeaderWriter {
+    private static final long DEFAULT_MAX_AGE_SECONDS = 31536000;
+
     private static final String HSTS_HEADER_NAME = "Strict-Transport-Security";
 
     private final Log logger = LogFactory.getLog(getClass());
 
-    private RequestMatcher requestMatcher = new SecureRequestMatcher();
+    private RequestMatcher requestMatcher;
 
     private long maxAgeInSeconds;
 
@@ -60,10 +63,55 @@ public final class HstsHeaderWriter implements HeaderWriter {
 
     private String hstsHeaderValue;
 
-    public HstsHeaderWriter() {
-        this.maxAgeInSeconds = 31536000;
-        this.includeSubDomains = true;
+    /**
+     * Creates a new instance
+     *
+     * @param requestMatcher maps to {@link #setRequestMatcher(RequestMatcher)}
+     * @param maxAgeInSeconds maps to {@link #setMaxAgeInSeconds(long)}
+     * @param includeSubDomains maps to {@link #setIncludeSubDomains(boolean)}
+     */
+    public HstsHeaderWriter(RequestMatcher requestMatcher,
+            long maxAgeInSeconds, boolean includeSubDomains) {
+        super();
+        this.requestMatcher = requestMatcher;
+        this.maxAgeInSeconds = maxAgeInSeconds;
+        this.includeSubDomains = includeSubDomains;
         updateHstsHeaderValue();
+    }
+
+    /**
+     * Creates a new instance
+     *
+     * @param maxAgeInSeconds maps to {@link #setMaxAgeInSeconds(long)}
+     * @param includeSubDomains maps to {@link #setIncludeSubDomains(boolean)}
+     */
+    public HstsHeaderWriter(long maxAgeInSeconds, boolean includeSubDomains) {
+        this(new SecureRequestMatcher(),maxAgeInSeconds,includeSubDomains);
+    }
+
+    /**
+     * Creates a new instance
+     *
+     * @param maxAgeInSeconds maps to {@link #setMaxAgeInSeconds(long)}
+     */
+    public HstsHeaderWriter(long maxAgeInSeconds) {
+        this(new SecureRequestMatcher(),maxAgeInSeconds,true);
+    }
+
+    /**
+     * Creates a new instance
+     *
+     * @param includeSubDomains maps to {@link #setIncludeSubDomains(boolean)}
+     */
+    public HstsHeaderWriter(boolean includeSubDomains) {
+        this(new SecureRequestMatcher(),DEFAULT_MAX_AGE_SECONDS,includeSubDomains);
+    }
+
+    /**
+     * Creates a new instance
+     */
+    public HstsHeaderWriter() {
+        this(DEFAULT_MAX_AGE_SECONDS);
     }
 
     /*

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.headers;
+package org.springframework.security.web.header;
 
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -33,7 +33,7 @@ import java.util.*;
  * @since 3.2
  *
  */
-public class HeadersFilter extends OncePerRequestFilter {
+public class HeaderWriterFilter extends OncePerRequestFilter {
 
     /** Collection of {@link HeaderWriter} instances to  write out the headers to the response . */
     private final List<HeaderWriter> headerWriters;
@@ -43,7 +43,7 @@ public class HeadersFilter extends OncePerRequestFilter {
      *
      * @param headerWriters the {@link HeaderWriter} instances to write out headers to the {@link HttpServletResponse}.
      */
-    public HeadersFilter(List<HeaderWriter> headerWriters) {
+    public HeaderWriterFilter(List<HeaderWriter> headerWriters) {
         Assert.notEmpty(headerWriters, "headerWriters cannot be null");
         this.headerWriters = headerWriters;
     }

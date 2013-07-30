@@ -1,4 +1,4 @@
-package org.springframework.security.web.headers.frameoptions;
+package org.springframework.security.web.header.writers.frameoptions;
 
 import java.util.Collection;
 

@@ -66,6 +66,39 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
             authenticationManager.messages.messageSource instanceof ApplicationContext
     }
 
+    def "headers are populated by default"() {
+        setup: "load config that overrides http and accepts defaults"
+            loadConfig(HeadersArePopulatedByDefaultConfig)
+            request.secure = true
+        when: "invoke the springSecurityFilterChain"
+            springSecurityFilterChain.doFilter(request, response, chain)
+        then: "the default headers are added"
+            responseHeaders == ['X-Content-Type-Options':'nosniff',
+                         'X-Frame-Options':'DENY',
+                         'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
+                         'Cache-Control': 'no-cache,no-store,max-age=0,must-revalidate',
+                         'Pragma':'no-cache',
+                         'X-XSS-Protection' : '1; mode=block']
+    }
+
+    @EnableWebSecurity
+    @Configuration
+    static class HeadersArePopulatedByDefaultConfig extends WebSecurityConfigurerAdapter {
+
+        @Override
+        protected void registerAuthentication(AuthenticationManagerBuilder auth)
+                throws Exception {
+            auth
+                .inMemoryAuthentication()
+                    .withUser("user").password("password").roles("USER")
+        }
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+
+        }
+    }
+
     def "AuthenticationEventPublisher is registered for Web registerAuthentication"() {
         when:
             loadConfig(InMemoryAuthWithWebSecurityConfigurerAdapter)

@@ -1,7 +1,8 @@
-package org.springframework.security.web.headers.frameoptions;
+package org.springframework.security.web.header.writers.frameoptions;
 
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.web.header.writers.frameoptions.WhiteListedAllowFromStrategy;
 
 import java.util.ArrayList;
 import java.util.List;

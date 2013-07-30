@@ -84,6 +84,14 @@ abstract class BaseSpringSpec extends Specification {
         context.getBean("springSecurityFilterChain",Filter.class)
     }
 
+    def getResponseHeaders() {
+        def headers = [:]
+        response.headerNames.each { name ->
+            headers.put(name, response.getHeaderValues(name).join(','))
+        }
+        return headers
+    }
+
     AuthenticationManager authenticationManager() {
         context.getBean(AuthenticationManager)
     }

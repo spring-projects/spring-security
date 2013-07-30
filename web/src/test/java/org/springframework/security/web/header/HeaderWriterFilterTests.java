@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.headers;
+package org.springframework.security.web.header;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -28,6 +28,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.web.header.HeaderWriter;
+import org.springframework.security.web.header.HeaderWriterFilter;
 
 /**
  * Tests for the {@code HeadersFilter}
@@ -37,7 +39,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
  * @since 3.2
  */
 @RunWith(MockitoJUnitRunner.class)
-public class HeadersFilterTests {
+public class HeaderWriterFilterTests {
     @Mock
     private HeaderWriter writer1;
 
@@ -47,12 +49,12 @@ public class HeadersFilterTests {
     @Test(expected = IllegalArgumentException.class)
     public void noHeadersConfigured() throws Exception {
         List<HeaderWriter> headerWriters = new ArrayList<HeaderWriter>();
-        new HeadersFilter(headerWriters);
+        new HeaderWriterFilter(headerWriters);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorNullWriters() throws Exception {
-        new HeadersFilter(null);
+        new HeaderWriterFilter(null);
     }
 
     @Test
@@ -61,7 +63,7 @@ public class HeadersFilterTests {
         headerWriters.add(writer1);
         headerWriters.add(writer2);
 
-        HeadersFilter filter = new HeadersFilter(headerWriters);
+        HeaderWriterFilter filter = new HeaderWriterFilter(headerWriters);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();

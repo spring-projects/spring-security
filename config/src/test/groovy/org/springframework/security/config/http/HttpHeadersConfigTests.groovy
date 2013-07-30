@@ -12,30 +12,15 @@
  */
 package org.springframework.security.config.http
 
-import org.springframework.security.util.FieldUtils
-
-import javax.servlet.Filter
-import javax.servlet.http.HttpServletRequest
-
-import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.beans.factory.BeanCreationException
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException
-import org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException;
 import org.springframework.mock.web.MockFilterChain
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
-import org.springframework.security.config.BeanIds
-import org.springframework.security.openid.OpenIDAuthenticationFilter
-import org.springframework.security.openid.OpenIDAuthenticationToken
-import org.springframework.security.openid.OpenIDConsumer
-import org.springframework.security.openid.OpenIDConsumerException
-import org.springframework.security.web.FilterChainProxy;
-import org.springframework.security.web.access.ExceptionTranslationFilter
-import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices
-import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter
-import org.springframework.security.web.headers.HeadersFilter
-import org.springframework.security.web.headers.StaticHeadersWriter;
-import org.springframework.security.web.headers.frameoptions.StaticAllowFromStrategy;
-import org.springframework.security.web.util.AnyRequestMatcher;
+import org.springframework.security.web.FilterChainProxy
+import org.springframework.security.web.header.HeaderWriterFilter
+import org.springframework.security.web.header.writers.StaticHeadersWriter
+import org.springframework.security.web.util.AnyRequestMatcher
 
 /**
  *
@@ -48,7 +33,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         }
         createAppContext()
 
-        def hf = getFilter(HeadersFilter)
+        def hf = getFilter(HeaderWriterFilter)
 
         expect:
         !hf
@@ -61,7 +46,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
             }
             createAppContext()
         when:
-            def hf = getFilter(HeadersFilter)
+            def hf = getFilter(HeaderWriterFilter)
             MockHttpServletResponse response = new MockHttpServletResponse()
             hf.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
         then:
@@ -81,7 +66,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         }
         createAppContext()
 
-        def hf = getFilter(HeadersFilter)
+        def hf = getFilter(HeaderWriterFilter)
         MockHttpServletResponse response = new MockHttpServletResponse()
         hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
 
@@ -97,7 +82,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         }
         createAppContext()
 
-        def hf = getFilter(HeadersFilter)
+        def hf = getFilter(HeaderWriterFilter)
         MockHttpServletResponse response = new MockHttpServletResponse()
         hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
 
@@ -113,7 +98,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         }
         createAppContext()
 
-        def hf = getFilter(HeadersFilter)
+        def hf = getFilter(HeaderWriterFilter)
         MockHttpServletResponse response = new MockHttpServletResponse()
         hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
 
@@ -129,7 +114,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         }
         createAppContext()
 
-        def hf = getFilter(HeadersFilter)
+        def hf = getFilter(HeaderWriterFilter)
         MockHttpServletResponse response = new MockHttpServletResponse()
         hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
 
@@ -146,7 +131,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         }
         createAppContext()
 
-        def hf = getFilter(HeadersFilter)
+        def hf = getFilter(HeaderWriterFilter)
 
         then:
         BeanDefinitionParsingException e = thrown()
@@ -162,7 +147,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         }
         createAppContext()
 
-        def hf = getFilter(HeadersFilter)
+        def hf = getFilter(HeaderWriterFilter)
 
         then:
         BeanDefinitionParsingException e = thrown()
@@ -178,7 +163,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         }
         createAppContext()
 
-        def hf = getFilter(HeadersFilter)
+        def hf = getFilter(HeaderWriterFilter)
         MockHttpServletResponse response = new MockHttpServletResponse()
         hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
 
@@ -195,7 +180,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         }
         createAppContext()
 
-        def hf = getFilter(HeadersFilter)
+        def hf = getFilter(HeaderWriterFilter)
         MockHttpServletResponse response = new MockHttpServletResponse()
         hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
 
@@ -213,7 +198,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         }
         createAppContext()
 
-        def hf = getFilter(HeadersFilter)
+        def hf = getFilter(HeaderWriterFilter)
         MockHttpServletResponse response = new MockHttpServletResponse()
         hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
 
@@ -234,7 +219,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
             }
             createAppContext()
         when:
-            def hf = getFilter(HeadersFilter)
+            def hf = getFilter(HeaderWriterFilter)
             MockHttpServletResponse response = new MockHttpServletResponse()
             hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
         then:
@@ -276,7 +261,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         }
         createAppContext()
 
-        def hf = getFilter(HeadersFilter)
+        def hf = getFilter(HeaderWriterFilter)
         MockHttpServletResponse response = new MockHttpServletResponse()
         hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
 
@@ -293,7 +278,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         }
         createAppContext()
 
-        def hf = getFilter(HeadersFilter)
+        def hf = getFilter(HeaderWriterFilter)
         MockHttpServletResponse response = new MockHttpServletResponse()
         hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
 
@@ -310,7 +295,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         }
         createAppContext()
 
-        def hf = getFilter(HeadersFilter)
+        def hf = getFilter(HeaderWriterFilter)
         MockHttpServletResponse response = new MockHttpServletResponse()
         hf.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
 
@@ -327,11 +312,11 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         }
         createAppContext()
 
-        def hf = getFilter(HeadersFilter)
+        def hf = getFilter(HeaderWriterFilter)
 
         then:
-        BeanDefinitionParsingException e = thrown()
-        e.message.contains '<xss-protection enabled="false"/> does not allow block="true".'
+        BeanCreationException e = thrown()
+        e.message.contains 'Cannot set block to true with enabled false'
     }
 
     def 'http headers cache-control'() {

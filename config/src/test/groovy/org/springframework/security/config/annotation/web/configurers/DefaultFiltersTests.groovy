@@ -23,12 +23,12 @@ import org.springframework.mock.web.MockFilterChain
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.security.config.annotation.BaseSpringSpec
-import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
-import org.springframework.security.config.annotation.web.configuration.BaseWebConfig;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.WebSecurityConfigurer
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.builders.WebSecurity
+import org.springframework.security.config.annotation.web.configuration.BaseWebConfig
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.web.DefaultSecurityFilterChain
 import org.springframework.security.web.FilterChainProxy
 import org.springframework.security.web.access.ExceptionTranslationFilter
@@ -37,9 +37,10 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.authentication.logout.LogoutFilter
 import org.springframework.security.web.context.SecurityContextPersistenceFilter
+import org.springframework.security.web.header.HeaderWriterFilter
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
-import org.springframework.security.web.session.SessionManagementFilter;
+import org.springframework.security.web.session.SessionManagementFilter
 import org.springframework.security.web.util.AnyRequestMatcher
 
 /**
@@ -113,7 +114,7 @@ class DefaultFiltersTests extends BaseSpringSpec {
         filterChains[0].filters.empty
         filterChains[1].requestMatcher instanceof AnyRequestMatcher
         filterChains[1].filters.collect { it.class } ==
-                [SecurityContextPersistenceFilter, LogoutFilter, RequestCacheAwareFilter,
+                [SecurityContextPersistenceFilter, HeaderWriterFilter, LogoutFilter, RequestCacheAwareFilter,
                  SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter,
                  ExceptionTranslationFilter, FilterSecurityInterceptor ]
     }

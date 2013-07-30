@@ -40,6 +40,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.LogoutFilter
 import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy
 import org.springframework.security.web.context.SecurityContextPersistenceFilter
+import org.springframework.security.web.header.HeaderWriterFilter
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
 import org.springframework.security.web.session.SessionManagementFilter
@@ -62,7 +63,7 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
             filterChains[0].filters.empty
             filterChains[1].requestMatcher instanceof AnyRequestMatcher
             filterChains[1].filters.collect { it.class.name.contains('$') ? it.class.superclass : it.class } ==
-                    [SecurityContextPersistenceFilter, LogoutFilter, UsernamePasswordAuthenticationFilter,
+                    [SecurityContextPersistenceFilter, HeaderWriterFilter, LogoutFilter, UsernamePasswordAuthenticationFilter,
                      RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter,
                      AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, FilterSecurityInterceptor ]
 

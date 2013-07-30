@@ -155,6 +155,7 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
         if(!disableDefaults) {
             http
                 .exceptionHandling().and()
+                .headers().and()
                 .sessionManagement().and()
                 .securityContext().and()
                 .requestCache().and()

@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.headers.frameoptions;
+package org.springframework.security.web.header.writers.frameoptions;
 
-import org.springframework.security.web.headers.HeaderWriter;
+import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,6 +37,13 @@ public class XFrameOptionsHeaderWriter implements HeaderWriter {
 
     private final AllowFromStrategy allowFromStrategy;
     private final XFrameOptionsMode frameOptionsMode;
+
+    /**
+     * Creates an instance with {@link XFrameOptionsMode#DENY}
+     */
+    public XFrameOptionsHeaderWriter() {
+        this(XFrameOptionsMode.DENY);
+    }
 
     /**
      * Creates a new instance

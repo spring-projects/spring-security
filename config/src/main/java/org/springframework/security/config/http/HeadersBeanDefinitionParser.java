@@ -27,15 +27,17 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.security.web.headers.Header;
-import org.springframework.security.web.headers.HeadersFilter;
-import org.springframework.security.web.headers.HstsHeaderWriter;
-import org.springframework.security.web.headers.StaticHeadersWriter;
-import org.springframework.security.web.headers.frameoptions.AbstractRequestParameterAllowFromStrategy;
-import org.springframework.security.web.headers.frameoptions.RegExpAllowFromStrategy;
-import org.springframework.security.web.headers.frameoptions.StaticAllowFromStrategy;
-import org.springframework.security.web.headers.frameoptions.WhiteListedAllowFromStrategy;
-import org.springframework.security.web.headers.frameoptions.XFrameOptionsHeaderWriter;
+import org.springframework.security.web.header.HeaderWriterFilter;
+import org.springframework.security.web.header.writers.CacheControlHeadersWriter;
+import org.springframework.security.web.header.writers.HstsHeaderWriter;
+import org.springframework.security.web.header.writers.StaticHeadersWriter;
+import org.springframework.security.web.header.writers.XContentTypeOptionsHeaderWriter;
+import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
+import org.springframework.security.web.header.writers.frameoptions.AbstractRequestParameterAllowFromStrategy;
+import org.springframework.security.web.header.writers.frameoptions.RegExpAllowFromStrategy;
+import org.springframework.security.web.header.writers.frameoptions.StaticAllowFromStrategy;
+import org.springframework.security.web.header.writers.frameoptions.WhiteListedAllowFromStrategy;
+import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -72,16 +74,13 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
     private static final String FRAME_OPTIONS_ELEMENT = "frame-options";
     private static final String GENERIC_HEADER_ELEMENT = "header";
 
-    private static final String XSS_PROTECTION_HEADER = "X-XSS-Protection";
-    private static final String CONTENT_TYPE_OPTIONS_HEADER = "X-Content-Type-Options";
-
     private static final String ALLOW_FROM = "ALLOW-FROM";
 
     private ManagedList<BeanMetadataElement> headerWriters;
 
     public BeanDefinition parse(Element element, ParserContext parserContext) {
         headerWriters = new ManagedList<BeanMetadataElement>();
-        BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(HeadersFilter.class);
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(HeaderWriterFilter.class);
 
         parseCacheControlElement(element);
         parseHstsElement(element);
@@ -100,9 +99,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
             frameOptions.addConstructorArgValue("DENY");
             headerWriters.add(frameOptions.getBeanDefinition());
 
-            BeanDefinitionBuilder xss = BeanDefinitionBuilder.genericBeanDefinition(StaticHeadersWriter.class);
-            xss.addConstructorArgValue(XSS_PROTECTION_HEADER);
-            xss.addConstructorArgValue("1; mode=block");
+            BeanDefinitionBuilder xss = BeanDefinitionBuilder.genericBeanDefinition(XXssProtectionHeaderWriter.class);
             headerWriters.add(xss.getBeanDefinition());
         }
         builder.addConstructorArgValue(headerWriters);
@@ -117,28 +114,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     private void addCacheControl() {
-        ManagedList<BeanDefinition> headers = new ManagedList<BeanDefinition>();
-
-        BeanDefinitionBuilder pragmaHeader = BeanDefinitionBuilder.genericBeanDefinition(Header.class);
-        pragmaHeader.addConstructorArgValue("Pragma");
-        ManagedList<String> pragmaValues = new ManagedList<String>();
-        pragmaValues.add("no-cache");
-        pragmaHeader.addConstructorArgValue(pragmaValues);
-        headers.add(pragmaHeader.getBeanDefinition());
-
-        BeanDefinitionBuilder cacheControlHeader = BeanDefinitionBuilder.genericBeanDefinition(Header.class);
-        cacheControlHeader.addConstructorArgValue("Cache-Control");
-        ManagedList<String> cacheControlValues = new ManagedList<String>();
-        cacheControlValues.add("no-cache");
-        cacheControlValues.add("no-store");
-        cacheControlValues.add("max-age=0");
-        cacheControlValues.add("must-revalidate");
-        cacheControlHeader.addConstructorArgValue(cacheControlValues);
-        headers.add(cacheControlHeader.getBeanDefinition());
-
-        BeanDefinitionBuilder headersWriter = BeanDefinitionBuilder.genericBeanDefinition(StaticHeadersWriter.class);
-        headersWriter.addConstructorArgValue(headers);
-
+        BeanDefinitionBuilder headersWriter = BeanDefinitionBuilder.genericBeanDefinition(CacheControlHeadersWriter.class);
         headerWriters.add(headersWriter.getBeanDefinition());
     }
 
@@ -191,9 +167,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     private void addContentTypeOptions() {
-        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(StaticHeadersWriter.class);
-        builder.addConstructorArgValue(CONTENT_TYPE_OPTIONS_HEADER);
-        builder.addConstructorArgValue("nosniff");
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(XContentTypeOptionsHeaderWriter.class);
         headerWriters.add(builder.getBeanDefinition());
     }
 
@@ -256,18 +230,16 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
     private void parseXssElement(Element element, ParserContext parserContext) {
         Element xssElt = DomUtils.getChildElementByTagName(element, XSS_ELEMENT);
         if (xssElt != null) {
-            boolean enabled = Boolean.valueOf(getAttribute(xssElt, ATT_ENABLED, "true"));
-            boolean block = Boolean.valueOf(getAttribute(xssElt, ATT_BLOCK, enabled ? "true" : "false"));
+            String enabled = xssElt.getAttribute(ATT_ENABLED);
+            String block = xssElt.getAttribute(ATT_BLOCK);
 
-            String value = enabled ? "1" : "0";
-            if (enabled && block) {
-                value += "; mode=block";
-            } else if (!enabled && block) {
-                parserContext.getReaderContext().error("<xss-protection enabled=\"false\"/> does not allow block=\"true\".", xssElt);
+            BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(XXssProtectionHeaderWriter.class);
+            if(StringUtils.hasText(enabled)) {
+                builder.addPropertyValue("enabled", enabled);
             }
-            BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(StaticHeadersWriter.class);
-            builder.addConstructorArgValue(XSS_PROTECTION_HEADER);
-            builder.addConstructorArgValue(value);
+            if(StringUtils.hasText(block)) {
+                builder.addPropertyValue("block", block);
+            }
             headerWriters.add(builder.getBeanDefinition());
         }
     }

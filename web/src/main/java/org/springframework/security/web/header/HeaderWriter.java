@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.headers;
+package org.springframework.security.web.header;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * Contract for writing headers to a {@link HttpServletResponse}
  *
- * @see HeadersFilter
+ * @see HeaderWriterFilter
  *
  * @author Marten Deinum
  * @author Rob Winch

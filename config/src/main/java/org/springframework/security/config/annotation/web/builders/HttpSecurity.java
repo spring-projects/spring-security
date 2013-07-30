@@ -41,6 +41,7 @@ import org.springframework.security.config.annotation.web.configurers.ChannelSec
 import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.annotation.web.configurers.JeeConfigurer;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
@@ -237,6 +238,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      */
     public OpenIDLoginConfigurer<HttpSecurity> openidLogin() throws Exception {
         return getOrApply(new OpenIDLoginConfigurer<HttpSecurity>());
+    }
+
+    public HeadersConfigurer<HttpSecurity> headers() throws Exception {
+        return getOrApply(new HeadersConfigurer<HttpSecurity>());
     }
 
     /**

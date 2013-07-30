@@ -1,4 +1,4 @@
-package org.springframework.security.web.headers.frameoptions;
+package org.springframework.security.web.header.writers.frameoptions;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
