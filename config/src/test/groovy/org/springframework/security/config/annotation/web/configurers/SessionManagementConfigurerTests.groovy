@@ -22,7 +22,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.annotation.web.configurers.SessionCreationPolicy;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.access.ExceptionTranslationFilter
 import org.springframework.security.web.context.NullSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter
@@ -58,7 +58,7 @@ class SessionManagementConfigurerTests extends BaseSpringSpec {
                     .requestCache(REQUEST_CACHE)
                     .and()
                 .sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.stateless)
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         }
 
     }
@@ -84,7 +84,7 @@ class SessionManagementConfigurerTests extends BaseSpringSpec {
                     .securityContextRepository(SECURITY_CONTEXT_REPO)
                     .and()
                 .sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.stateless)
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         }
 
     }
@@ -103,7 +103,7 @@ class SessionManagementConfigurerTests extends BaseSpringSpec {
         protected void configure(HttpSecurity http) throws Exception {
             http
                 .sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.stateless)
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                     .and()
                 .sessionManagement()
         }

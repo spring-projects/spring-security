@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
@@ -74,7 +75,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
     private Integer maximumSessions;
     private String expiredUrl;
     private boolean maxSessionsPreventsLogin;
-    private SessionCreationPolicy sessionPolicy = SessionCreationPolicy.ifRequired;
+    private SessionCreationPolicy sessionPolicy = SessionCreationPolicy.IF_REQUIRED;
     private boolean enableSessionUrlRewriting;
     private String invalidSessionUrl;
     private String sessionAuthenticationErrorUrl;
@@ -289,7 +290,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
      * @return true if the {@link SessionCreationPolicy} allows session creation
      */
     private boolean isAllowSessionCreation() {
-        return SessionCreationPolicy.always == sessionPolicy || SessionCreationPolicy.ifRequired == sessionPolicy;
+        return SessionCreationPolicy.ALWAYS == sessionPolicy || SessionCreationPolicy.IF_REQUIRED == sessionPolicy;
     }
 
     /**
@@ -297,7 +298,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
      * @return
      */
     private boolean isStateless() {
-        return SessionCreationPolicy.stateless == sessionPolicy;
+        return SessionCreationPolicy.STATELESS == sessionPolicy;
     }
 
     /**

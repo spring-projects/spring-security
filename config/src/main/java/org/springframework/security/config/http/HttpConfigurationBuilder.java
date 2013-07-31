@@ -139,9 +139,9 @@ class HttpConfigurationBuilder {
         String createSession = element.getAttribute(ATT_CREATE_SESSION);
 
         if (StringUtils.hasText(createSession)) {
-            sessionPolicy = SessionCreationPolicy.valueOf(createSession);
+            sessionPolicy = createPolicy(createSession);
         } else {
-            sessionPolicy = SessionCreationPolicy.ifRequired;
+            sessionPolicy = SessionCreationPolicy.IF_REQUIRED;
         }
 
         createSecurityContextPersistenceFilter();
@@ -153,6 +153,20 @@ class HttpConfigurationBuilder {
         createChannelProcessingFilter();
         createFilterSecurityInterceptor(authenticationManager);
         createAddHeadersFilter();
+    }
+
+    private SessionCreationPolicy createPolicy(String createSession) {
+        if("ifRequired".equals(createSession)) {
+            return SessionCreationPolicy.IF_REQUIRED;
+        } else if("always".equals(createSession)) {
+            return SessionCreationPolicy.ALWAYS;
+        } else if("never".equals(createSession)) {
+            return SessionCreationPolicy.NEVER;
+        } else if("stateless".equals(createSession)) {
+            return SessionCreationPolicy.STATELESS;
+        }
+
+        throw new IllegalStateException("Cannot convert " + createSession + " to " + SessionCreationPolicy.class.getName());
     }
 
     @SuppressWarnings("rawtypes")
@@ -185,21 +199,21 @@ class HttpConfigurationBuilder {
         String disableUrlRewriting = httpElt.getAttribute(ATT_DISABLE_URL_REWRITING);
 
         if (StringUtils.hasText(repoRef)) {
-            if (sessionPolicy == SessionCreationPolicy.always) {
+            if (sessionPolicy == SessionCreationPolicy.ALWAYS) {
                 scpf.addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
             }
         } else {
             BeanDefinitionBuilder contextRepo;
-            if (sessionPolicy == SessionCreationPolicy.stateless) {
+            if (sessionPolicy == SessionCreationPolicy.STATELESS) {
                 contextRepo = BeanDefinitionBuilder.rootBeanDefinition(NullSecurityContextRepository.class);
             } else {
                 contextRepo = BeanDefinitionBuilder.rootBeanDefinition(HttpSessionSecurityContextRepository.class);
                 switch (sessionPolicy) {
-                    case always:
+                    case ALWAYS:
                         contextRepo.addPropertyValue("allowSessionCreation", Boolean.TRUE);
                         scpf.addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
                         break;
-                    case never:
+                    case NEVER:
                         contextRepo.addPropertyValue("allowSessionCreation", Boolean.FALSE);
                         scpf.addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
                         break;
@@ -234,9 +248,9 @@ class HttpConfigurationBuilder {
         String errorUrl = null;
 
         if (sessionMgmtElt != null) {
-            if (sessionPolicy == SessionCreationPolicy.stateless) {
+            if (sessionPolicy == SessionCreationPolicy.STATELESS) {
                 pc.getReaderContext().error(Elements.SESSION_MANAGEMENT + "  cannot be used" +
-                        " in combination with " + ATT_CREATE_SESSION + "='"+ SessionCreationPolicy.stateless +"'",
+                        " in combination with " + ATT_CREATE_SESSION + "='"+ SessionCreationPolicy.STATELESS +"'",
                         pc.extractSource(sessionMgmtElt));
             }
             sessionFixationAttribute = sessionMgmtElt.getAttribute(ATT_SESSION_FIXATION_PROTECTION);
@@ -261,7 +275,7 @@ class HttpConfigurationBuilder {
                     " in combination with " + ATT_SESSION_AUTH_STRATEGY_REF, pc.extractSource(sessionMgmtElt));
         }
 
-        if (sessionPolicy == SessionCreationPolicy.stateless) {
+        if (sessionPolicy == SessionCreationPolicy.STATELESS) {
             // SEC-1424: do nothing
             return;
         }
@@ -482,11 +496,11 @@ class HttpConfigurationBuilder {
         } else {
             BeanDefinitionBuilder requestCacheBldr;
 
-            if (sessionPolicy == SessionCreationPolicy.stateless) {
+            if (sessionPolicy == SessionCreationPolicy.STATELESS) {
                 requestCacheBldr = BeanDefinitionBuilder.rootBeanDefinition(NullRequestCache.class);
             } else {
                 requestCacheBldr = BeanDefinitionBuilder.rootBeanDefinition(HttpSessionRequestCache.class);
-                requestCacheBldr.addPropertyValue("createSessionAllowed", sessionPolicy == SessionCreationPolicy.ifRequired);
+                requestCacheBldr.addPropertyValue("createSessionAllowed", sessionPolicy == SessionCreationPolicy.IF_REQUIRED);
                 requestCacheBldr.addPropertyValue("portResolver", portResolver);
             }
 
@@ -607,7 +621,7 @@ class HttpConfigurationBuilder {
 
         filters.add(new OrderDecorator(fsi, FILTER_SECURITY_INTERCEPTOR));
 
-        if (sessionPolicy != SessionCreationPolicy.stateless) {
+        if (sessionPolicy != SessionCreationPolicy.STATELESS) {
             filters.add(new OrderDecorator(requestCacheAwareFilter, REQUEST_CACHE_FILTER));
         }
 

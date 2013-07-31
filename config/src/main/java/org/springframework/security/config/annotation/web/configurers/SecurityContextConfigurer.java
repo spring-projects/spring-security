@@ -17,6 +17,7 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
@@ -86,7 +87,7 @@ public final class SecurityContextConfigurer<H extends HttpSecurityBuilder<H>> e
         SessionManagementConfigurer<?> sessionManagement = http.getConfigurer(SessionManagementConfigurer.class);
         SessionCreationPolicy sessionCreationPolicy = sessionManagement == null ? null
                 : sessionManagement.getSessionCreationPolicy();
-        if (SessionCreationPolicy.always == sessionCreationPolicy) {
+        if (SessionCreationPolicy.ALWAYS == sessionCreationPolicy) {
             securityContextFilter.setForceEagerSessionCreation(true);
         }
         securityContextFilter = postProcess(securityContextFilter);

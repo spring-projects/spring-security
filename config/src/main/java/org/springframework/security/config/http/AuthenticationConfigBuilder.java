@@ -132,8 +132,8 @@ final class AuthenticationConfigBuilder {
         this.pc = pc;
         this.requestCache = requestCache;
         autoConfig = "true".equals(element.getAttribute(ATT_AUTO_CONFIG));
-        this.allowSessionCreation = sessionPolicy != SessionCreationPolicy.never
-                && sessionPolicy != SessionCreationPolicy.stateless;
+        this.allowSessionCreation = sessionPolicy != SessionCreationPolicy.NEVER
+                && sessionPolicy != SessionCreationPolicy.STATELESS;
         this.portMapper = portMapper;
         this.portResolver = portResolver;
 
