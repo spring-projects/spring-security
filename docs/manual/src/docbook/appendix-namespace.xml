@@ -280,9 +280,9 @@
                         </link> header can be used by browser to do basic control.</listitem>
                     <listitem><literal>X-Content-Type-Options</literal> - Can be set using the
                         <link xlink:href="#nsa-content-type-options">content-type-options</link> element. The
-                        <link xlink:href="">X-Content-Type-Options</link> header prevents Internet Explorer from
-                        MIME-sniffing a response away from the declared content-type. This also applies to Google
-                        Chrome, when downloading extensions. </listitem>
+                        <a href="http://blogs.msdn.com/b/ie/archive/2008/09/02/ie8-security-part-vi-beta-2-update.aspx">X-Content-Type-Options</a>
+                        header prevents Internet Explorer from MIME-sniffing a response away from the declared
+                        content-type. This also applies to Google Chrome, when downloading extensions. </listitem>
                 </itemizedlist>
             </para>
             <section xml:id="nsa-headers-parents">
