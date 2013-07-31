@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author Marten Deinum
  * @since 3.2
  */
-public abstract class AbstractRequestParameterAllowFromStrategy implements AllowFromStrategy {
+abstract class AbstractRequestParameterAllowFromStrategy implements AllowFromStrategy {
 
     private static final String DEFAULT_ORIGIN_REQUEST_PARAMETER = "x-frames-allow-from";
 

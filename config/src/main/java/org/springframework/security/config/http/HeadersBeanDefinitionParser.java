@@ -18,7 +18,6 @@ package org.springframework.security.config.http;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.regex.PatternSyntaxException;
 
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -33,7 +32,6 @@ import org.springframework.security.web.header.writers.HstsHeaderWriter;
 import org.springframework.security.web.header.writers.StaticHeadersWriter;
 import org.springframework.security.web.header.writers.XContentTypeOptionsHeaderWriter;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
-import org.springframework.security.web.header.writers.frameoptions.AbstractRequestParameterAllowFromStrategy;
 import org.springframework.security.web.header.writers.frameoptions.RegExpAllowFromStrategy;
 import org.springframework.security.web.header.writers.frameoptions.StaticAllowFromStrategy;
 import org.springframework.security.web.header.writers.frameoptions.WhiteListedAllowFromStrategy;
@@ -200,20 +198,16 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
                                     "'value' attribute doesn't represent a valid URI.", frameElt, e);
                         }
                     } else {
-                        AbstractRequestParameterAllowFromStrategy allowFromStrategy = null;
+                        BeanDefinitionBuilder allowFromStrategy;
                         if ("whitelist".equals(strategy)) {
-                            allowFromStrategy = new WhiteListedAllowFromStrategy(
-                                    StringUtils.commaDelimitedListToSet(value));
+                            allowFromStrategy =  BeanDefinitionBuilder.rootBeanDefinition(WhiteListedAllowFromStrategy.class);
+                            allowFromStrategy.addConstructorArgValue(StringUtils.commaDelimitedListToSet(value));
                         } else {
-                            try {
-                                allowFromStrategy = new RegExpAllowFromStrategy(value);
-                            } catch (PatternSyntaxException e) {
-                                parserContext.getReaderContext().error(
-                                        "'value' attribute doesn't represent a valid regular expression.", frameElt, e);
-                            }
+                            allowFromStrategy =  BeanDefinitionBuilder.rootBeanDefinition(RegExpAllowFromStrategy.class);
+                            allowFromStrategy.addConstructorArgValue(value);
                         }
                         String fromParameter = getAttribute(frameElt, ATT_FROM_PARAMETER, "from");
-                        allowFromStrategy.setAllowFromParameterName(fromParameter);
+                        allowFromStrategy.addPropertyValue("allowFromParameterName", fromParameter);
                         builder.addConstructorArgValue(allowFromStrategy);
                     }
                 } else {

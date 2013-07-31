@@ -10,7 +10,7 @@ import org.springframework.util.Assert;
  * @author Marten Deinum
  * @since 3.2
  */
-public class WhiteListedAllowFromStrategy extends AbstractRequestParameterAllowFromStrategy {
+public final class WhiteListedAllowFromStrategy extends AbstractRequestParameterAllowFromStrategy {
 
     private final Collection<String> allowed;
 

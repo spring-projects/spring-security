@@ -6,12 +6,12 @@ import java.net.URI;
 /**
  * Simple implementation of the {@code AllowFromStrategy}
  */
-public class StaticAllowFromStrategy implements AllowFromStrategy {
+public final class StaticAllowFromStrategy implements AllowFromStrategy {
 
     private final URI uri;
 
     public StaticAllowFromStrategy(URI uri) {
-        this.uri=uri;
+        this.uri = uri;
     }
 
     public String getAllowFromValue(HttpServletRequest request) {

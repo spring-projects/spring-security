@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @see AllowFromStrategy
  */
-public class XFrameOptionsHeaderWriter implements HeaderWriter {
+public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 
     public static final String XFRAME_OPTIONS_HEADER = "X-Frame-Options";
 
@@ -110,7 +110,7 @@ public class XFrameOptionsHeaderWriter implements HeaderWriter {
          *
          * @return the mode for the X-Frame-Options header value.
          */
-        public String getMode() {
+        private String getMode() {
             return mode;
         }
     }

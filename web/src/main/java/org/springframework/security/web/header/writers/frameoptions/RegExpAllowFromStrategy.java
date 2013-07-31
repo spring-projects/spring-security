@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  * @author Marten Deinum
  * @since 3.2
  */
-public class RegExpAllowFromStrategy extends AbstractRequestParameterAllowFromStrategy {
+public final class RegExpAllowFromStrategy extends AbstractRequestParameterAllowFromStrategy {
 
     private final Pattern pattern;
 

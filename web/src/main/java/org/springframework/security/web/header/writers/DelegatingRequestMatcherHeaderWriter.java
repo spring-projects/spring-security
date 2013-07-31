@@ -29,7 +29,7 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @since 3.2
  */
-public class DelegatingRequestMatcherHeaderWriter implements HeaderWriter {
+public final class DelegatingRequestMatcherHeaderWriter implements HeaderWriter {
     private final RequestMatcher requestMatcher;
 
     private final HeaderWriter delegateHeaderWriter;
