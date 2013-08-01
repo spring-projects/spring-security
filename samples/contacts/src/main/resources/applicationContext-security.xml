@@ -30,12 +30,7 @@
         <http-basic/>
         <logout logout-success-url="/index.jsp"/>
         <remember-me />
-        <headers>
-            <xss-protection />
-            <frame-options policy="DENY" />
-            <content-type-options/>
-            <header name="foo" value="bar"/>
-        </headers>
+        <headers/>
         <custom-filter ref="switchUserProcessingFilter" position="SWITCH_USER_FILTER"/>
     </http>
 
