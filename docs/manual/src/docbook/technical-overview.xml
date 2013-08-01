@@ -186,7 +186,7 @@ if (principal instanceof UserDetails) {
                 <listitem>
                     <para><interfacename>UserDetails</interfacename>, to provide the necessary
                         information to build an Authentication object from your application's DAOs
-                        or other source source of security data.</para>
+                        or other source of security data.</para>
                 </listitem>
                 <listitem>
                     <para><interfacename>UserDetailsService</interfacename>, to create a
