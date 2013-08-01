@@ -47,5 +47,6 @@ here's a random <code>Contact</code>:
 <p>Get started by clicking "Manage"...
 <p><A HREF="<c:url value="secure/index.htm"/>">Manage</a>
 <a href="<c:url value="secure/debug.jsp"/>">Debug</a>
+<a href="<c:url value="./frames.htm"/>">Frames</a>
 </body>
 </html>

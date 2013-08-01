@@ -348,8 +348,8 @@
         </section>
         <section xml:id="nsa-frame-options">
             <title><literal>&lt;frame-options&gt;</literal></title>
-            <para>When enabled adds the <link xlink:href="http://tools.ietf.org/html/draft-ietf-websec-x-frame-options-01">X-Frame-Options header</link> to the response, this allows newer browsers to do some security
-                 checks and prevent clickjacking attacks.</para>
+            <para>When enabled adds the <link xlink:href="http://tools.ietf.org/html/draft-ietf-websec-x-frame-options">X-Frame-Options header</link> to the response, this allows newer browsers to do some security
+                 checks and prevent <link xlink:href="http://en.wikipedia.org/wiki/Clickjacking">clickjacking</link> attacks.</para>
             <section xml:id="nsa-frame-options-attributes">
                 <title><literal>&lt;frame-options&gt;</literal> Attributes</title>
                 <section xml:id="nsa-frame-options-policy">
