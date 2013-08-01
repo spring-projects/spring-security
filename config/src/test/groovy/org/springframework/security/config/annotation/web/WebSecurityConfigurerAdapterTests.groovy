@@ -41,6 +41,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.web.accept.ContentNegotiationStrategy
 import org.springframework.web.accept.HeaderContentNegotiationStrategy
 import org.springframework.web.filter.OncePerRequestFilter
@@ -84,6 +85,31 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
     @EnableWebSecurity
     @Configuration
     static class HeadersArePopulatedByDefaultConfig extends WebSecurityConfigurerAdapter {
+
+        @Override
+        protected void registerAuthentication(AuthenticationManagerBuilder auth)
+                throws Exception {
+            auth
+                .inMemoryAuthentication()
+                    .withUser("user").password("password").roles("USER")
+        }
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+
+        }
+    }
+
+    def "webasync populated by default"() {
+        when: "load config that overrides http and accepts defaults"
+            loadConfig(WebAsyncPopulatedByDefaultConfig)
+        then: "WebAsyncManagerIntegrationFilter is populated"
+            findFilter(WebAsyncManagerIntegrationFilter)
+    }
+
+    @EnableWebSecurity
+    @Configuration
+    static class WebAsyncPopulatedByDefaultConfig extends WebSecurityConfigurerAdapter {
 
         @Override
         protected void registerAuthentication(AuthenticationManagerBuilder auth)

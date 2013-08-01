@@ -39,6 +39,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 
@@ -154,6 +155,7 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
         http.setSharedObject(ContentNegotiationStrategy.class, contentNegotiationStrategy);
         if(!disableDefaults) {
             http
+                .addFilter(new WebAsyncManagerIntegrationFilter())
                 .exceptionHandling().and()
                 .headers().and()
                 .sessionManagement().and()
