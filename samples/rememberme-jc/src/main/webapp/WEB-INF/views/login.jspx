@@ -1,0 +1,41 @@
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:spring="http://www.springframework.org/tags"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:form="http://www.springframework.org/tags/form" version="2.0">
+    <jsp:directive.page language="java" contentType="text/html" />
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>Please Login</title>
+</head>
+<body>
+    <c:url value="/login" var="loginUrl"/>
+    <form name="f" action="${loginUrl}" method="post">
+        <fieldset>
+            <legend>Please Login</legend>
+            <c:if test="${param.error != null}">
+                <div class="alert alert-error">
+                    Failed to login.
+                    <c:if test="${SPRING_SECURITY_LAST_EXCEPTION != null}">
+                      Reason: <c:out value="${SPRING_SECURITY_LAST_EXCEPTION.message}" />
+                    </c:if>
+                </div>
+            </c:if>
+            <c:if test="${param.logout != null}">
+                <div class="alert alert-success">
+                    You have been logged out.
+                </div>
+            </c:if>
+            <label for="j_username">Username</label>
+            <input type="text" id="j_username" name="username" value="${username}"/>
+            <label for="j_password">Password</label>
+            <input type="password" id="j_password" name="password"/>
+            <label for="remember-me">Remember Me?</label>
+            <input type="checkbox" id="remember-me" name="remember-me"/>
+            <div class="form-actions">
+                <button type="submit" class="btn">Log in</button>
+            </div>
+        </fieldset>
+    </form>
+</body>
+</html>
+</jsp:root>

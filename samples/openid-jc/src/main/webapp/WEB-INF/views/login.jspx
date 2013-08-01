@@ -1,0 +1,68 @@
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:spring="http://www.springframework.org/tags"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:form="http://www.springframework.org/tags/form" version="2.0">
+    <jsp:directive.page language="java" contentType="text/html" />
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>Please Login</title>
+    <c:url value='/resources/css/openid.css' var="openidCss"/>
+    <link rel="stylesheet" href="${openidCss}" />
+    <c:url value='/resources/js/jquery-1.2.6.min.js' var="jquery"/>
+    <script type="text/javascript" src="${jquery}"><!-- --></script>
+    <c:url value='/resources/js/openid-jquery.js' var="jqueryOpenid"/>
+    <script type="text/javascript" src="${jqueryOpenid}"><!-- --></script>
+    <script type="text/javascript">
+    $(document).ready(function() {
+        openid.init('openid_identifier');
+     //   openid.setDemoMode(true); Stops form submission for client javascript-only test purposes
+    });
+    </script>
+    <!-- /Simple OpenID Selector -->
+
+    <style type="text/css">
+        /* Basic page formatting. */
+        body {
+            font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <c:url value='/login/openid' var="loginUrl"/>
+    <form action="${loginUrl}" method="post" id="openid_form">
+        <input type="hidden" name="action" value="verify" />
+
+        <fieldset>
+                <legend>Sign-in or Create New Account</legend>
+                 <c:if test="${param.error != null}">
+                    <div class="alert alert-error">
+                        Failed to login.
+                        <c:if test="${SPRING_SECURITY_LAST_EXCEPTION != null}">
+                          Reason: <c:out value="${SPRING_SECURITY_LAST_EXCEPTION.message}" />
+                        </c:if>
+                    </div>
+                </c:if>
+                <c:if test="${param.logout != null}">
+                    <div class="alert alert-success">
+                        You have been logged out.
+                    </div>
+                </c:if>
+                <div id="openid_choice">
+                    <p>Please click your account provider:</p>
+                    <div id="openid_btns"></div>
+
+                </div>
+
+                <div id="openid_input_area">
+                    <input id="openid_identifier" name="openid_identifier" type="text" value="http://" />
+                    <input id="openid_submit" type="submit" value="Sign-In"/>
+                </div>
+                <noscript>
+                <p>OpenID is a service that allows you to log-on to many different websites using a single identity.
+                Find out <a href="http://openid.net/what/">more about OpenID</a> and <a href="http://openid.net/get/">how to get an OpenID enabled account</a>.</p>
+                </noscript>
+        </fieldset>
+    </form>
+</body>
+</html>
+</jsp:root>

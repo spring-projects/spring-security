@@ -1,4 +1,3 @@
-import sun.awt.geom.AreaOp.IntOp;
 import groovy.text.SimpleTemplateEngine
 
 buildscript {
@@ -48,7 +47,7 @@ ext.javaProjects = subprojects.findAll { project -> project.name != 'docs' && pr
 ext.sampleProjects = subprojects.findAll { project -> project.name.startsWith('spring-security-samples') }
 ext.itestProjects = subprojects.findAll { project -> project.name.startsWith('itest') }
 ext.coreModuleProjects = javaProjects - sampleProjects - itestProjects
-ext.aspectjProjects = [project(':spring-security-aspects'), project(':spring-security-samples-aspectj')]
+ext.aspectjProjects = [project(':spring-security-aspects'), project(':spring-security-samples-aspectj-xml')]
 
 configure(subprojects - coreModuleProjects) {
     tasks.findByPath("artifactoryPublish")?.enabled = false

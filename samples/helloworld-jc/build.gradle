@@ -1,0 +1,25 @@
+apply plugin: 'war'
+
+sonarRunner {
+    skipProject = true
+}
+
+eclipse {
+    wtp {
+        component {
+            contextPath = 'helloworld'
+        }
+    }
+}
+
+dependencies {
+
+    providedCompile "javax.servlet:javax.servlet-api:3.0.1"
+
+    compile project(":spring-security-config"),
+            project(":spring-security-web"),
+            "javax.servlet:jstl:1.2",
+            "org.slf4j:jcl-over-slf4j:$slf4jVersion"
+
+    runtime "ch.qos.logback:logback-classic:$logbackVersion"
+}

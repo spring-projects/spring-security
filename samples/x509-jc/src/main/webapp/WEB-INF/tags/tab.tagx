@@ -1,0 +1,21 @@
+<jsp:root xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:sec="http://www.springframework.org/security/tags"
+    xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0">
+    <jsp:output omit-xml-declaration="yes" />
+    <jsp:directive.attribute name="url" type="java.lang.String" required="true" description="The url to go to"/>
+    <jsp:directive.attribute name="text" type="java.lang.String" required="true" description="The text for the tab"/>
+    <jsp:directive.attribute name="id" type="java.lang.String" required="true" description="The id for the tab"/>
+
+    <sec:authorize url="${url}">
+        <c:url var="url" value="${url}"/>
+        <c:choose>
+            <c:when test="${id == tab}">
+                <c:set var="css" value=" selected"/>
+            </c:when>
+            <c:otherwise>
+                <c:set var="css" value=""/>
+            </c:otherwise>
+        </c:choose>
+        <li class="tab${css}"><a href="${url}">${text}</a></li>
+    </sec:authorize>
+</jsp:root>

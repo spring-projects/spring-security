@@ -1,0 +1,42 @@
+<jsp:root
+   xmlns:jsp="http://java.sun.com/JSP/Page"
+   xmlns:spring="http://www.springframework.org/tags"
+   xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:form="http://www.springframework.org/tags/form"
+   xmlns:fmt="http://java.sun.com/jsp/jstl/fmt"
+   version="2.0">
+   <jsp:directive.page language="java" contentType="text/html"/>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+    <head>
+        <title>User</title>
+    </head>
+    <body>
+        <h1>User Attributes</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Attribute Name</th>
+                    <th>Attribute Value</th>
+                </tr>
+            </thead>
+            <tbody>
+               <tr>
+                    <td>ID</td>
+                    <td><c:out value="${authentication.identityUrl}"/></td>
+               </tr>
+                <c:forEach items="${authentication.attributes}" var="attribute">
+                    <tr>
+                        <td><c:out value="${attribute.name}"/></td>
+                        <td>
+                            <dl>
+                            <c:forEach items="${attribute.values}" var="value">
+                                <dd><c:out value="${value}"/></dd>
+                            </c:forEach>
+                            </dl>
+                        </td>
+                   </tr>
+               </c:forEach>
+           </tbody>
+        </table>
+    </body>
+</html>
+</jsp:root>

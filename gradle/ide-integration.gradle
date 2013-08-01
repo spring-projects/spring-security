@@ -62,7 +62,7 @@ configure(allprojects) {
 }
 
 // STS-2723
-project(':spring-security-samples-aspectj') {
+project(':spring-security-samples-xmlaspectj') {
     task afterEclipseImportAjdtFix {
         ext.srcFile = afterEclipseImport.srcFile
         inputs.file srcFile

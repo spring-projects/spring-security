@@ -1,0 +1,36 @@
+apply plugin: 'war'
+
+sonarRunner {
+    skipProject = true
+}
+
+eclipse {
+    wtp {
+        component {
+            contextPath = 'preauth'
+        }
+    }
+}
+
+dependencies {
+
+    providedCompile "javax.servlet:javax.servlet-api:3.0.1"
+
+    compile project(":spring-security-config"),
+            project(":spring-security-samples-messages-jc"),
+            project(":spring-security-core"),
+            project(":spring-security-web"),
+            "org.springframework:spring-webmvc:$springVersion",
+            "org.springframework:spring-jdbc:$springVersion",
+            "org.slf4j:slf4j-api:$slf4jVersion",
+            "org.slf4j:log4j-over-slf4j:$slf4jVersion",
+            "org.slf4j:jul-to-slf4j:$slf4jVersion",
+            "org.slf4j:jcl-over-slf4j:$slf4jVersion",
+            "javax.servlet:jstl:1.2",
+            "javax.validation:validation-api:1.0.0.GA",
+            "org.hibernate:hibernate-validator:4.2.0.Final"
+
+    runtime "opensymphony:sitemesh:2.4.2",
+            'cglib:cglib-nodep:2.2.2',
+            'ch.qos.logback:logback-classic:0.9.30'
+}

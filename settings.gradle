@@ -13,18 +13,28 @@ def String[] modules = [
 ]
 
 def String[] samples = [
-    'tutorial',
-    'contacts',
-    'openid',
-    'aspectj',
-    'gae',
-    'dms',
-    'preauth',
+    'tutorial-xml',
+    'contacts-xml',
+    'openid-xml',
+    'aspectj-xml',
+    'gae-xml',
+    'dms-xml',
+    'preauth-xml',
     'cas/server',
-    'cas/sample',
-    'ldap',
-    'jaas',
-    'servletapi'
+    'cas/sample-xml',
+    'ldap-xml',
+    'jaas-xml',
+    'servletapi-xml',
+    'concurrency-jc',
+    'helloworld-jc',
+    'inmemory-jc',
+    'jdbc-jc',
+    'ldap-jc',
+    'messages-jc',
+    'openid-jc',
+    'preauth-jc',
+    'rememberme-jc',
+    'x509-jc'
 ]
 
 def String[] itest = [
@@ -46,7 +56,10 @@ samples.each {name ->
     def p = findProject(":${name}")
     def fullName = name.replaceAll('/','')
     p.name = "spring-security-samples-${fullName}"
-    p.buildFileName = "${fullName}.gradle"
+    if(!fullName.endsWith("-jc")) {
+        def buildFile = fullName.replaceFirst("-xml","")
+        p.buildFileName = "${buildFile}.gradle"
+    }
     p.projectDir = new File(settingsDir, "samples/${name}");
 }
 
@@ -67,6 +80,6 @@ docs.buildFileName = 'docs.gradle'
 rootProject.name = 'spring-security'
 
 rootProject.children.each {project ->
-    assert project.projectDir.isDirectory()
-    assert project.buildFile.isFile()
+    //assert project.projectDir.isDirectory()
+    //assert project.buildFile.isFile()
 }
