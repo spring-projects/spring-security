@@ -121,7 +121,6 @@ public final class HstsHeaderWriter implements HeaderWriter {
      * org.springframework.security.web.headers.HeaderWriter#writeHeaders(javax
      * .servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
      */
-    @Override
     public void writeHeaders(HttpServletRequest request,
             HttpServletResponse response) {
         if (requestMatcher.matches(request)) {
@@ -205,7 +204,6 @@ public final class HstsHeaderWriter implements HeaderWriter {
     }
 
     private static final class SecureRequestMatcher implements RequestMatcher {
-        @Override
         public boolean matches(HttpServletRequest request) {
             return request.isSecure();
         }

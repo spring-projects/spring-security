@@ -166,7 +166,6 @@ public final class MediaTypeRequestMatcher implements RequestMatcher {
         this.matchingMediaTypes = matchingMediaTypes;
     }
 
-    @Override
     public boolean matches(HttpServletRequest request) {
         List<MediaType> httpRequestMediaTypes;
         try {

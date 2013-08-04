@@ -469,7 +469,6 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
             this.filterProcessesUrl = filterProcessesUrl;
         }
 
-        @Override
         public boolean matches(HttpServletRequest request) {
             String uri = request.getRequestURI();
             int pathParamIndex = uri.indexOf(';');

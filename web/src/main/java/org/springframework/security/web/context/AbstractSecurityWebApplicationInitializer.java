@@ -80,7 +80,6 @@ public abstract class AbstractSecurityWebApplicationInitializer implements WebAp
     /* (non-Javadoc)
      * @see org.springframework.web.WebApplicationInitializer#onStartup(javax.servlet.ServletContext)
      */
-    @Override
     public final void onStartup(ServletContext servletContext)
             throws ServletException {
         if(enableHttpSessionEventPublisher()) {
