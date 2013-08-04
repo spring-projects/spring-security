@@ -51,7 +51,6 @@ final class AutowireBeanFactoryObjectPostProcessor implements ObjectPostProcesso
      * @see org.springframework.security.config.annotation.web.Initializer#initialize(java.lang.Object)
      */
     @SuppressWarnings("unchecked")
-    @Override
     public <T> T postProcess(T object) {
         T result = (T) autowireBeanFactory.initializeBean(object, null);
         if(result instanceof DisposableBean) {
@@ -63,7 +62,6 @@ final class AutowireBeanFactoryObjectPostProcessor implements ObjectPostProcesso
     /* (non-Javadoc)
      * @see org.springframework.beans.factory.DisposableBean#destroy()
      */
-    @Override
     public void destroy() throws Exception {
         for(DisposableBean disposable : disposableBeans) {
             try {

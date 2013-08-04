@@ -46,7 +46,6 @@ class GlobalMethodSecurityAspectJAutoProxyRegistrar implements
      * the value of the @{@link EnableGlobalMethodSecurity#proxyTargetClass()}
      * attribute on the importing {@code @Configuration} class.
      */
-    @Override
     public void registerBeanDefinitions(
             AnnotationMetadata importingClassMetadata,
             BeanDefinitionRegistry registry) {

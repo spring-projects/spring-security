@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * A base {@link SecurityBuilder} that ensures the object being built is only
  * built one time.
- * 
+ *
  * @param <O> the type of Object that is being built
  *
  * @author Rob Winch
@@ -34,7 +34,6 @@ public abstract class AbstractSecurityBuilder<O> implements SecurityBuilder<O> {
     /* (non-Javadoc)
      * @see org.springframework.security.config.annotation.SecurityBuilder#build()
      */
-    @Override
     public final O build() throws Exception {
         if(building.compareAndSet(false, true)) {
             object = doBuild();

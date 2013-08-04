@@ -38,10 +38,8 @@ public abstract class SecurityConfigurerAdapter<O,B extends SecurityBuilder<O>> 
 
     private CompositeObjectPostProcessor objectPostProcessor = new CompositeObjectPostProcessor();
 
-    @Override
     public void init(B builder) throws Exception {}
 
-    @Override
     public void configure(B builder) throws Exception {}
 
     /**
@@ -110,7 +108,6 @@ public abstract class SecurityConfigurerAdapter<O,B extends SecurityBuilder<O>> 
     private static final class CompositeObjectPostProcessor implements ObjectPostProcessor<Object> {
         private List<ObjectPostProcessor<? extends Object>> postProcessors = new ArrayList<ObjectPostProcessor<?>>();
 
-        @Override
         @SuppressWarnings({ "rawtypes", "unchecked" })
         public Object postProcess(Object object) {
             for(ObjectPostProcessor opp : postProcessors) {

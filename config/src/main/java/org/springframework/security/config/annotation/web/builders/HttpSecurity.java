@@ -984,7 +984,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
     /* (non-Javadoc)
      * @see org.springframework.security.config.annotation.web.HttpBuilder#authenticationProvider(org.springframework.security.authentication.AuthenticationProvider)
      */
-    @Override
     public HttpSecurity authenticationProvider(AuthenticationProvider authenticationProvider) {
         getAuthenticationRegistry().authenticationProvider(authenticationProvider);
         return this;
@@ -993,7 +992,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
     /* (non-Javadoc)
      * @see org.springframework.security.config.annotation.web.HttpBuilder#userDetailsService(org.springframework.security.core.userdetails.UserDetailsService)
      */
-    @Override
     public HttpSecurity userDetailsService(UserDetailsService userDetailsService) throws Exception {
         getAuthenticationRegistry().userDetailsService(userDetailsService);
         return this;
@@ -1006,7 +1004,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
     /* (non-Javadoc)
      * @see org.springframework.security.config.annotation.web.HttpBuilder#addFilterAfter(javax.servlet.Filter, java.lang.Class)
      */
-    @Override
     public HttpSecurity addFilterAfter(Filter filter, Class<? extends Filter> afterFilter) {
         comparitor.registerAfter(filter.getClass(), afterFilter);
         return addFilter(filter);
@@ -1015,7 +1012,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
     /* (non-Javadoc)
      * @see org.springframework.security.config.annotation.web.HttpBuilder#addFilterBefore(javax.servlet.Filter, java.lang.Class)
      */
-    @Override
     public HttpSecurity addFilterBefore(Filter filter, Class<? extends Filter> beforeFilter) {
         comparitor.registerBefore(filter.getClass(), beforeFilter);
         return addFilter(filter);
@@ -1024,7 +1020,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
     /* (non-Javadoc)
      * @see org.springframework.security.config.annotation.web.HttpBuilder#addFilter(javax.servlet.Filter)
      */
-    @Override
     public HttpSecurity addFilter(Filter filter) {
         Class<? extends Filter> filterClass = filter.getClass();
         if(!comparitor.isRegistered(filterClass)) {
@@ -1219,7 +1214,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * (non-Javadoc)
      * @see org.springframework.security.config.annotation.web.HttpBuilder#getAuthenticationManager()
      */
-    @Override
     public AuthenticationManager getAuthenticationManager() {
         return authenticationManager;
     }
@@ -1281,7 +1275,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
             this.requestMatchers = requestMatchers;
         }
 
-        @Override
         public boolean matches(HttpServletRequest request) {
             for(RequestMatcher matcher : requestMatchers) {
                 if(matcher.matches(request)) {

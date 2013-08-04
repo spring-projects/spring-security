@@ -59,7 +59,6 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
     private ContentNegotiationStrategy contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
 
     private ObjectPostProcessor<Object> objectPostProcessor = new ObjectPostProcessor<Object>() {
-        @Override
         public <T> T postProcess(T object) {
             throw new IllegalStateException(ObjectPostProcessor.class.getName()+ " is a required bean. Ensure you have used @EnableWebSecurity and @Configuration");
         }
@@ -258,13 +257,11 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
         return parentAuthenticationBuilder.getDefaultUserDetailsService();
     }
 
-    @Override
     public void init(final WebSecurity web) throws Exception {
         final HttpSecurity http = getHttp();
         web
             .addSecurityFilterChainBuilder(http)
             .postBuildAction(new Runnable() {
-                @Override
                 public void run() {
                     FilterSecurityInterceptor securityInterceptor = http.getSharedObject(FilterSecurityInterceptor.class);
                     web.securityInterceptor(securityInterceptor);
@@ -276,7 +273,6 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
      * Override this method to configure {@link WebSecurity}. For
      * example, if you wish to ignore certain requests.
      */
-    @Override
     public void configure(WebSecurity web) throws Exception {
     }
 
@@ -342,7 +338,6 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
             this.delegateBuilder = authentication;
         }
 
-        @Override
         public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
             if(delegate != null) {
                 return delegate.loadUserByUsername(username);
@@ -377,7 +372,6 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
             this.delegateBuilder = authentication;
         }
 
-        @Override
         public Authentication authenticate(Authentication authentication) throws AuthenticationException {
             if(delegate != null) {
                 return delegate.authenticate(authentication);

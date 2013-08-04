@@ -44,7 +44,6 @@ public interface ObjectPostProcessor<T> {
      * A do nothing implementation of the {@link ObjectPostProcessor}
      */
     ObjectPostProcessor<Object> QUIESCENT_POSTPROCESSOR =  new ObjectPostProcessor<Object>() {
-        @Override
         public <T> T postProcess(T object) {
             return object;
         }

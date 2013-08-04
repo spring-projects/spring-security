@@ -158,7 +158,6 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
     /* (non-Javadoc)
      * @see org.springframework.context.annotation.ImportAware#setImportMetadata(org.springframework.core.type.AnnotationMetadata)
      */
-    @Override
     public void setImportMetadata(AnnotationMetadata importMetadata) {
         Map<String, Object> enableWebSecurityAttrMap = importMetadata.getAnnotationAttributes(EnableWebSecurity.class.getName());
         AnnotationAttributes enableWebSecurityAttrs = AnnotationAttributes.fromMap(enableWebSecurityAttrMap);
@@ -182,7 +181,6 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
     /* (non-Javadoc)
      * @see org.springframework.beans.factory.BeanClassLoaderAware#setBeanClassLoader(java.lang.ClassLoader)
      */
-    @Override
     public void setBeanClassLoader(ClassLoader classLoader) {
         this.beanClassLoader = classLoader;
     }
