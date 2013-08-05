@@ -49,6 +49,25 @@ ext.itestProjects = subprojects.findAll { project -> project.name.startsWith('it
 ext.coreModuleProjects = javaProjects - sampleProjects - itestProjects
 ext.aspectjProjects = [project(':spring-security-aspects'), project(':spring-security-samples-aspectj-xml')]
 
+configure(allprojects - javaProjects) {
+    task afterEclipseImport {
+        ext.srcFile = file('.classpath')
+        inputs.file srcFile
+        outputs.dir srcFile
+
+        onlyIf { !srcFile.exists() }
+
+        doLast {
+            srcFile << """<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+    <classpathentry kind="output" path="bin"/>
+</classpath>
+"""
+        }
+    }
+}
+
 configure(subprojects - coreModuleProjects) {
     tasks.findByPath("artifactoryPublish")?.enabled = false
     sonarRunner {
