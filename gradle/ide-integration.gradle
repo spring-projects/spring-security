@@ -2,13 +2,13 @@
 
 configure(allprojects) {
     apply plugin: 'idea'
-    apply plugin: 'eclipse-wtp'
+    apply plugin: 'eclipse'
 
     eclipse.project.name = "${project.name}-3.2.x"
 }
 
 configure(javaProjects) {
-     eclipse.classpath.downloadSources = true
+    eclipse.classpath.downloadSources = true
 
     // http://forums.gradle.org/gradle/topics/eclipse_wtp_deploys_testcode_to_server_example_provided
     eclipse.classpath {
@@ -38,55 +38,11 @@ configure(javaProjects) {
     tasks.withType(org.gradle.plugins.ide.eclipse.GenerateEclipseWtpComponent) {
         project.eclipse.classpath.file.whenMerged { classpath->
             project.eclipse.wtp.component.file.whenMerged { wtpComponent ->
-                wtpComponent.contextPath = project.tasks.findByName('jettyRun')?.contextPath?.replaceFirst('/','')
-            }
-        }
-    }
-}
-
-// STS-3057
-configure(allprojects) {
-    task afterEclipseImport {
-        ext.srcFile = file('.classpath')
-        inputs.file srcFile
-        outputs.dir srcFile
-
-        onlyIf { srcFile.exists() }
-
-        doLast {
-            def classpath = new XmlParser().parse(srcFile)
-            classpath.classpathentry.findAll{ it.@path == 'GROOVY_SUPPORT' }.each { classpath.remove(it) }
-
-            def writer = new FileWriter(srcFile)
-            new XmlNodePrinter(new PrintWriter(writer)).print(classpath)
-        }
-    }
-}
-
-// STS-2723
-project(':spring-security-samples-xmlaspectj') {
-    task afterEclipseImportAjdtFix {
-        ext.srcFile = afterEclipseImport.srcFile
-        inputs.file srcFile
-        outputs.dir srcFile
-
-        onlyIf { srcFile.exists() }
-
-        doLast {
-            def classpath = new XmlParser().parse(srcFile)
-
-            classpath.classpathentry.findAll{ it.@path.startsWith('/spring-security-aspects') }.each { node ->
-                if(node.children().size() == 0) {
-                    def attrs = new Node(node,'attributes')
-                    def adjtAttr = new Node(attrs,'attributes',[name: 'org.eclipse.ajdt.aspectpath', value: 'org.eclipse.ajdt.aspectpath'])
-                    node.appendNode(adjtAttr)
+                def context = project.tasks.findByName('jettyRun')?.contextPath?.replaceFirst('/','')
+                if(context) {
+                    wtpComponent.contextPath = context
                 }
             }
-
-            def writer = new FileWriter(srcFile)
-            new XmlNodePrinter(new PrintWriter(writer)).print(classpath)
         }
     }
-    afterEclipseImport.dependsOn afterEclipseImportAjdtFix
 }
-
