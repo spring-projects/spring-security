@@ -1,3 +1,5 @@
+    import org.gradle.plugins.ide.eclipse.model.SourceFolder
+
 configure(allprojects) {
     apply plugin: 'idea'
     apply plugin: 'eclipse-wtp'
@@ -8,6 +10,12 @@ configure(allprojects) {
 configure(javaProjects) {
      eclipse.classpath.downloadSources = true
 
+    // http://forums.gradle.org/gradle/topics/eclipse_wtp_deploys_testcode_to_server_example_provided
+    eclipse.classpath {
+        defaultOutputDir = file('bin/main')
+        file.whenMerged { cp ->
+            cp.entries.findAll { it instanceof SourceFolder && (it.path.contains("test") || it.path.contains("Test")) }*.output = "bin/test"
+        }
     }
 
     // GRADLE-1422
