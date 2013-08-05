@@ -4,9 +4,14 @@
 def cryptoProject = project(':spring-security-crypto')
 def cryptoClasses = cryptoProject.sourceSets.main.output
 
+configurations {
+    included
+
+    compile.extendsFrom included
+}
+
 dependencies {
-    compile cryptoProject.sourceSets.main.output,
-            'aopalliance:aopalliance:1.0',
+    compile 'aopalliance:aopalliance:1.0',
             "org.springframework:spring-aop:$springVersion",
             "org.springframework:spring-beans:$springVersion",
             "org.springframework:spring-context:$springVersion",
@@ -18,8 +23,9 @@ dependencies {
              "org.springframework:spring-jdbc:$springVersion",
              "org.springframework:spring-tx:$springVersion"
 
-    testCompile cryptoProject,
-                'commons-collections:commons-collections:3.2',
+    included cryptoProject
+
+    testCompile 'commons-collections:commons-collections:3.2',
                 "org.springframework:spring-test:$springVersion",
                 "org.slf4j:jcl-over-slf4j:$slf4jVersion",
                 powerMockDependencies
@@ -27,9 +33,6 @@ dependencies {
     testRuntime "hsqldb:hsqldb:$hsqlVersion",
                 "cglib:cglib-nodep:$cglibVersion"
 }
-
-compileJava.dependsOn cryptoProject.compileJava
-classes.dependsOn cryptoProject.classes
 
 classes.doLast {
     copy {
