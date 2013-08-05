@@ -1,16 +1,9 @@
-apply plugin: 'war'
+apply from: WAR_SAMPLE_GRADLE
 
-sonarRunner {
-    skipProject = true
+war {
+    baseName = "x509"
 }
 
-eclipse {
-    wtp {
-        component {
-            contextPath = 'x509'
-        }
-    }
-}
 
 dependencies {
 

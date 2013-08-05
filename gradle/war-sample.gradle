@@ -1,0 +1,6 @@
+apply plugin: 'war'
+apply from: TOMCAT_GRADLE
+
+sonarRunner {
+    skipProject = true
+}

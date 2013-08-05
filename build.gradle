@@ -8,6 +8,7 @@ buildscript {
         classpath("org.springframework.build.gradle:propdeps-plugin:0.0.3")
         classpath("org.springframework.build.gradle:docbook-reference-plugin:0.2.7")
         classpath("org.springframework.build.gradle:bundlor-plugin:0.1.2")
+        classpath("org.gradle.api.plugins:gradle-tomcat-plugin:0.9.8")
     }
 }
 
@@ -76,6 +77,8 @@ configure(subprojects - coreModuleProjects) {
 }
 
 configure(javaProjects) {
+    ext.TOMCAT_GRADLE = "$rootDir/gradle/tomcat.gradle"
+    ext.WAR_SAMPLE_GRADLE = "$rootDir/gradle/war-sample.gradle"
     apply from: "$rootDir/gradle/javaprojects.gradle"
     apply from: "$rootDir/gradle/release-checks.gradle"
     apply from: "$rootDir/gradle/maven-deployment.gradle"

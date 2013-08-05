@@ -1,15 +1,7 @@
-apply plugin: 'war'
+apply from: WAR_SAMPLE_GRADLE
 
-sonarRunner {
-    skipProject = true
-}
-
-eclipse {
-    wtp {
-        component {
-            contextPath = 'ldap'
-        }
-    }
+war {
+    baseName = "ldap"
 }
 
 dependencies {
