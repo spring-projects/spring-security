@@ -35,14 +35,18 @@ import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.util.Assert;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.AbstractContextLoaderInitializer;
+import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
 /**
  * Registers the {@link DelegatingFilterProxy} to use the
- * springSecurityFilterChain before any other registered {@link Filter}. This
- * class is typically used in addition to a subclass of
- * {@link AbstractContextLoaderInitializer}.
+ * springSecurityFilterChain before any other registered {@link Filter}. When
+ * used with {@link #AbstractSecurityWebApplicationInitializer(Class...)}, it
+ * will also register a {@link ContextLoaderListener}. When used with
+ * {@link #AbstractSecurityWebApplicationInitializer()}, this class is typically
+ * used in addition to a subclass of {@link AbstractContextLoaderInitializer}.
  *
  * <p>
  * By default the {@link DelegatingFilterProxy} is registered without support,
@@ -53,7 +57,6 @@ import org.springframework.web.filter.DelegatingFilterProxy;
  * <p>
  * Additional configuration before and after the springSecurityFilterChain can
  * be added by overriding
- * {@link #beforeSpringSecurityFilterChain(ServletContext)} and
  * {@link #afterSpringSecurityFilterChain(ServletContext)}.
  * </p>
  *
@@ -77,11 +80,37 @@ public abstract class AbstractSecurityWebApplicationInitializer implements WebAp
 
     public static final String DEFAULT_FILTER_NAME = "springSecurityFilterChain";
 
+    private WebApplicationInitializer contextLoaderListenerInitializer;
+
+    /**
+     * Creates a new instance that assumes the Spring Security configuration is
+     * loaded by some other means than this class. For example, a user might
+     * create a {@link ContextLoaderListener} using a subclass of
+     * {@link AbstractContextLoaderInitializer}.
+     *
+     * @see ContextLoaderListener
+     */
+    protected AbstractSecurityWebApplicationInitializer() {
+    }
+
+    /**
+     * Creates a new instance that will instantiate the
+     * {@link ContextLoaderListener} with the specified classes.
+     *
+     * @param configurationClasses
+     */
+    protected AbstractSecurityWebApplicationInitializer(Class<?>... configurationClasses) {
+        contextLoaderListenerInitializer = new RootContextApplicationInitializer(configurationClasses){};
+    }
+
     /* (non-Javadoc)
      * @see org.springframework.web.WebApplicationInitializer#onStartup(javax.servlet.ServletContext)
      */
     public final void onStartup(ServletContext servletContext)
             throws ServletException {
+        if(contextLoaderListenerInitializer != null) {
+            contextLoaderListenerInitializer.onStartup(servletContext);
+        }
         if(enableHttpSessionEventPublisher()) {
             servletContext.addListener("org.springframework.security.web.session.HttpSessionEventPublisher");
         }
@@ -281,4 +310,21 @@ public abstract class AbstractSecurityWebApplicationInitializer implements WebAp
         return true;
     }
 
+    private static abstract class RootContextApplicationInitializer extends AbstractContextLoaderInitializer {
+        private Class<?>[] configurationClasses;
+
+        private RootContextApplicationInitializer(Class<?>... configurationClasses) {
+            this.configurationClasses = configurationClasses;
+        }
+
+        /* (non-Javadoc)
+         * @see org.springframework.web.context.AbstractContextLoaderInitializer#createRootApplicationContext()
+         */
+        @Override
+        protected WebApplicationContext createRootApplicationContext() {
+            AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+            context.register(configurationClasses);
+            return context;
+        }
+    }
 }

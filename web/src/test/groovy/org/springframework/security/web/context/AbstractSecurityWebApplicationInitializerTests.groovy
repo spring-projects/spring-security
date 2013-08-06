@@ -15,16 +15,16 @@
  */
 package org.springframework.security.web.context;
 
-import java.util.EnumSet;
+import javax.servlet.DispatcherType
+import javax.servlet.Filter
+import javax.servlet.FilterRegistration
+import javax.servlet.ServletContext
+import javax.servlet.SessionTrackingMode
 
-import javax.servlet.DispatcherType;
-import javax.servlet.Filter;
-import javax.servlet.FilterRegistration;
-import javax.servlet.ServletContext;
-import javax.servlet.SessionTrackingMode;
-
-import org.springframework.security.web.session.HttpSessionEventPublisher;
-import org.springframework.web.filter.DelegatingFilterProxy;
+import org.springframework.context.annotation.Configuration
+import org.springframework.security.web.session.HttpSessionEventPublisher
+import org.springframework.web.context.ContextLoaderListener
+import org.springframework.web.filter.DelegatingFilterProxy
 
 import spock.lang.Specification
 
@@ -46,6 +46,22 @@ class AbstractSecurityWebApplicationInitializerTests extends Specification {
             1 * registration.setAsyncSupported(true)
             0 * context.addListener(_)
     }
+
+    def "defaults with ContextLoaderListener"() {
+        setup:
+            ServletContext context = Mock()
+            FilterRegistration.Dynamic registration = Mock()
+        when:
+            new AbstractSecurityWebApplicationInitializer(MyRootConfiguration){}.onStartup(context)
+        then:
+            1 * context.addFilter("springSecurityFilterChain", {DelegatingFilterProxy f -> f.targetBeanName == "springSecurityFilterChain" && f.contextAttribute == null}) >> registration
+            1 * registration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR), false, "/*");
+            1 * registration.setAsyncSupported(true)
+            1 * context.addListener(_ as ContextLoaderListener)
+    }
+
+    @Configuration
+    static class MyRootConfiguration {}
 
     def "enableHttpSessionEventPublisher() = true"() {
         setup:
