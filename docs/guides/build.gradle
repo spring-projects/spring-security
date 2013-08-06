@@ -1,0 +1,34 @@
+import org.asciidoctor.gradle.*
+
+file("src/asciidoc").eachFileMatch(~/.*\.asc/) { file->
+    task "asciidoctor-${file.name}"(type: AsciidoctorTask) {
+        outputDir = project.file("$buildDir/docs")
+        sourceDocumentName = file
+        options = [
+          eruby: 'erubis',
+          attributes: [
+              copycss : '',
+              icons : 'font',
+              'source-highlighter': 'prettify',
+              sectanchors : '',
+              'toc-placement' : 'preamble',
+              toc: '',
+              idprefix: '',
+              idseparator: '-',
+              'spring-security-version' : project.version
+          ]
+        ]
+    }
+}
+
+task asciidoctor {
+    group = 'Documentation'
+    description = "Generates the asciidoc for $project.name"
+    dependsOn tasks.matching { t -> t.name.startsWith('asciidoctor-') }
+}
+
+ext.spec = copySpec {
+    into ('guides') {
+        from("$buildDir/docs/")
+    }
+}

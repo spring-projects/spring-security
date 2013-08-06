@@ -3,12 +3,15 @@ import groovy.text.SimpleTemplateEngine
 buildscript {
     repositories {
         maven { url "http://repo.springsource.org/plugins-release" }
+        maven { url "http://dl.bintray.com/content/aalmiray/asciidoctor" }
+        maven { url "http://jcenter.bintray.com"}
     }
     dependencies {
         classpath("org.springframework.build.gradle:propdeps-plugin:0.0.3")
         classpath("org.springframework.build.gradle:docbook-reference-plugin:0.2.7")
         classpath("org.springframework.build.gradle:bundlor-plugin:0.1.2")
         classpath("org.gradle.api.plugins:gradle-tomcat-plugin:0.9.8")
+        classpath("org.asciidoctor:asciidoctor-gradle-plugin:0.4.1")
     }
 }
 
@@ -44,7 +47,7 @@ sonarRunner {
 }
 
 // Set up different subproject lists for individual configuration
-ext.javaProjects = subprojects.findAll { project -> project.name != 'docs' && project.name != 'faq' && project.name != 'manual' }
+ext.javaProjects = subprojects.findAll { project -> project.name != 'docs' && project.name != 'faq' && project.name != 'manual' && project.name != 'guides' }
 ext.sampleProjects = subprojects.findAll { project -> project.name.startsWith('spring-security-samples') }
 ext.itestProjects = subprojects.findAll { project -> project.name.startsWith('itest') }
 ext.coreModuleProjects = javaProjects - sampleProjects - itestProjects
@@ -122,6 +125,7 @@ task dist(type: Zip) {
     classifier = 'dist'
 
     evaluationDependsOn(':docs')
+    evaluationDependsOn(':docs:manual')
 
     def zipRootDir = "${project.name}-$version"
     into(zipRootDir) {
@@ -131,6 +135,7 @@ task dist(type: Zip) {
         into('docs') {
             with(project(':docs').apiSpec)
             with(project(':docs:manual').spec)
+            with(project(':docs:guides').spec)
         }
         into('dist') {
             from coreModuleProjects.collect {project -> project.libsDir }

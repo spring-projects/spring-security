@@ -2,7 +2,7 @@
 apply plugin: 'base'
 
 task docs {
-    dependsOn 'manual:reference', 'faq:referenceHtmlSingle', 'apidocs'
+    dependsOn 'manual:reference', 'faq:referenceHtmlSingle', 'apidocs', 'guides:asciidoctor'
 }
 
 subprojects {
@@ -92,6 +92,7 @@ assemble.dependsOn = [apidocs, 'manual:reference']
 
 task docsZip(type: Zip) {
     dependsOn docs
+    evaluationDependsOn('guides')
     group = 'Distribution'
     baseName = rootProject.name
     classifier = 'docs'
@@ -101,6 +102,7 @@ task docsZip(type: Zip) {
     with(project(':docs').apiSpec)
     with(project(':docs:manual').spec)
     with(project(':docs:faq').spec)
+    with(project(':docs:guides').spec)
 }
 
 task schemaZip(type: Zip) {
