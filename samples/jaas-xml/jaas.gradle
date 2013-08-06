@@ -1,7 +1,5 @@
 // JAAS sample build file
-
-apply plugin: 'war'
-apply plugin: 'jetty'
+apply from: WAR_SAMPLE_GRADLE
 
 def excludeModules = ['spring-security-acl', 'jsr250-api', 'ehcache', 'spring-jdbc', 'spring-tx']
 
@@ -28,8 +26,4 @@ dependencies {
             "javax.servlet:jstl:$jstlVersion",
             "org.slf4j:jcl-over-slf4j:$slf4jVersion",
             "ch.qos.logback:logback-classic:$logbackVersion"
-}
-
-jettyRun {
-    contextPath = "/jaas"
 }

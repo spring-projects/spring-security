@@ -34,15 +34,4 @@ configure(javaProjects) {
            }
        }
     }
-
-    tasks.withType(org.gradle.plugins.ide.eclipse.GenerateEclipseWtpComponent) {
-        project.eclipse.classpath.file.whenMerged { classpath->
-            project.eclipse.wtp.component.file.whenMerged { wtpComponent ->
-                def context = project.tasks.findByName('jettyRun')?.contextPath?.replaceFirst('/','')
-                if(context) {
-                    wtpComponent.contextPath = context
-                }
-            }
-        }
-    }
 }

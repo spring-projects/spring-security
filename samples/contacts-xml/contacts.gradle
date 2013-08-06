@@ -1,8 +1,6 @@
 // Contacts sample build file
 
-apply plugin: 'war'
-apply plugin: 'jetty'
-
+apply from: WAR_SAMPLE_GRADLE
 
 dependencies {
     providedCompile "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion"
@@ -28,8 +26,4 @@ dependencies {
 
     optional "net.sf.ehcache:ehcache:$ehcacheVersion"
 
-}
-
-jettyRun {
-    contextPath = "/contacts"
 }

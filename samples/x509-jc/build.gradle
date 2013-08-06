@@ -1,9 +1,5 @@
 apply from: WAR_SAMPLE_GRADLE
 
-war {
-    baseName = "x509"
-}
-
 
 dependencies {
 

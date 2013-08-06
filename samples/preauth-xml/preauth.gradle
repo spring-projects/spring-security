@@ -3,6 +3,8 @@
 apply plugin: 'war'
 apply plugin: 'jetty'
 
+war.baseName = "sample"
+
 def excludeModules = ['jsr250-api', 'ehcache', 'spring-jdbc', 'spring-tx']
 
 configurations {
@@ -22,6 +24,5 @@ dependencies {
 }
 
 jettyRun {
-    contextPath = "/preauth"
     userRealms = [jettyRun.class.classLoader.loadClass('org.mortbay.jetty.security.HashUserRealm').newInstance('Preauth Realm', "$projectDir/realm.properties")]
 }

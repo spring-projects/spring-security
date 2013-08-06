@@ -5,6 +5,7 @@
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-openid-xml</artifactId>
   <version>3.2.0.CI-SNAPSHOT</version>
+  <packaging>war</packaging>
   <name>spring-security-samples-openid-xml</name>
   <description>spring-security-samples-openid-xml</description>
   <url>http://springsource.org/spring-security</url>
@@ -31,6 +32,23 @@
     <developerConnection>scm:git:git://github.com/SpringSource/spring-security</developerConnection>
     <url>https://github.com/SpringSource/spring-security</url>
   </scm>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.7</source>
+          <target>1.7</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <repositories>
+    <repository>
+      <id>spring-snasphot</id>
+      <url>http://repo.springsource.org/libs-snapshot</url>
+    </repository>
+  </repositories>
   <dependencies>
     <dependency>
       <groupId>org.springframework.security</groupId>
@@ -124,4 +142,7 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <properties>
+    <m2eclipse.wtp.contextRoot>/spring-security-samples-openid-xml</m2eclipse.wtp.contextRoot>
+  </properties>
 </project>

@@ -1,9 +1,5 @@
 apply from: WAR_SAMPLE_GRADLE
 
-war {
-    baseName = "jdbc"
-}
-
 dependencies {
 
     providedCompile "javax.servlet:javax.servlet-api:3.0.1"

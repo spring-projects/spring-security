@@ -1,7 +1,5 @@
 // LDAP sample build file
-
-apply plugin: 'war'
-apply plugin: 'jetty'
+apply from: WAR_SAMPLE_GRADLE
 
 def excludeModules = ['spring-security-acl', 'jsr250-api', 'ehcache', 'spring-jdbc', 'ldapsdk']
 
@@ -20,8 +18,4 @@ dependencies {
             project(':spring-security-ldap'),
             "org.slf4j:jcl-over-slf4j:$slf4jVersion",
             "ch.qos.logback:logback-classic:$logbackVersion"
-}
-
-jettyRun {
-    contextPath = "/ldap"
 }

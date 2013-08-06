@@ -3,6 +3,8 @@
 apply plugin: 'war'
 apply plugin: 'jetty'
 
+war.baseName = "sample"
+
 def excludeModules = ['spring-security-acl', 'jsr250-api', 'ehcache', 'spring-jdbc', 'spring-tx']
 
 configurations {
@@ -32,8 +34,6 @@ dependencies {
 }
 
 jettyRun {
-    contextPath = "/tutorial"
-
     def httpConnector = jettyRunWar.class.classLoader.loadClass('org.mortbay.jetty.nio.SelectChannelConnector').newInstance()
     httpConnector.port = 8080
     httpConnector.confidentialPort = 8443

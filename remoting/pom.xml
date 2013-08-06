@@ -31,6 +31,23 @@
     <developerConnection>scm:git:git://github.com/SpringSource/spring-security</developerConnection>
     <url>https://github.com/SpringSource/spring-security</url>
   </scm>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.7</source>
+          <target>1.7</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <repositories>
+    <repository>
+      <id>spring-snasphot</id>
+      <url>http://repo.springsource.org/libs-snapshot</url>
+    </repository>
+  </repositories>
   <dependencies>
     <dependency>
       <groupId>aopalliance</groupId>

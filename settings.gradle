@@ -27,6 +27,9 @@ def String[] samples = [
     'servletapi-xml',
     'concurrency-jc',
     'helloworld-jc',
+    'hellomvc-jc',
+    'insecure',
+    'insecuremvc',
     'inmemory-jc',
     'jdbc-jc',
     'ldap-jc',
@@ -56,11 +59,11 @@ samples.each {name ->
     def p = findProject(":${name}")
     def fullName = name.replaceAll('/','')
     p.name = "spring-security-samples-${fullName}"
-    if(!fullName.endsWith("-jc")) {
+    p.projectDir = new File(settingsDir, "samples/${name}");
+    if(!p.buildFile.exists()) {
         def buildFile = fullName.replaceFirst("-xml","")
         p.buildFileName = "${buildFile}.gradle"
     }
-    p.projectDir = new File(settingsDir, "samples/${name}");
 }
 
 include itest

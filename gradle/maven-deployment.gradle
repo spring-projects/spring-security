@@ -35,8 +35,12 @@ def customizePom(pom, gradleProject) {
             "$dep.scope:$dep.optional:$dep.groupId:$dep.artifactId"
         }
     }
+    def isWar = project.hasProperty('war')
     pom.project {
         name = gradleProject.name
+        if(isWar) {
+            packaging = "war"
+        }
         description = gradleProject.name
         url = 'http://springsource.org/spring-security'
         organization {
@@ -60,6 +64,31 @@ def customizePom(pom, gradleProject) {
                 id = 'rwinch'
                 name = 'Rob Winch'
                 email = 'rwinch@vmware.com'
+            }
+        }
+        if(isWar) {
+            properties {
+                'm2eclipse.wtp.contextRoot' '/' + project.war.baseName
+            }
+        }
+        if(!project.releaseBuild) {
+            repositories {
+                repository {
+                    id 'spring-snasphot'
+                    url 'http://repo.springsource.org/libs-snapshot'
+                }
+            }
+        }
+        build {
+            plugins {
+                plugin {
+                    groupId = 'org.apache.maven.plugins'
+                    artifactId = 'maven-compiler-plugin'
+                    configuration {
+                        source = '1.7'
+                        target = '1.7'
+                    }
+                }
             }
         }
     }
