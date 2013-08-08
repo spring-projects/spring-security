@@ -525,27 +525,42 @@
                     malicious attacker to create a session by accessing a site, then persuade
                     another user to log in with the same session (by sending them a link containing
                     the session identifier as a parameter, for example). Spring Security protects
-                    against this automatically by creating a new session when a user logs in. If you
-                    don't require this protection, or it conflicts with some other requirement, you
-                    can control the behaviour using the
+                    against this automatically by creating a new session or otherwise changing the
+                    session ID when a user logs in. If you don't require this protection, or it
+                    conflicts with some other requirement, you can control the behavior using the
                     <literal>session-fixation-protection</literal> attribute on
-                    <literal>&lt;session-management&gt;</literal>, which has three options <itemizedlist>
-                    <listitem>
-                        <para><literal>migrateSession</literal> - creates a new session and copies
-                            the existing session attributes to the new session. This is the
-                            default.</para>
-                    </listitem>
+                    <literal>&lt;session-management&gt;</literal>, which has four options <itemizedlist>
                     <listitem>
                         <para><literal>none</literal> - Don't do anything. The original session will
                             be retained.</para>
                     </listitem>
                     <listitem>
                         <para><literal>newSession</literal> - Create a new "clean" session, without
-                            copying the existing session data.</para>
+                            copying the existing session data (Spring Security-related attributes will
+                            still be copied).</para>
+                    </listitem>
+                    <listitem>
+                        <para><literal>migrateSession</literal> - Create a new session and copy
+                            all existing session attributes to the new session. This is the
+                            default in Servlet 3.0 or older containers.</para>
+                    </listitem>
+                    <listitem>
+                        <para><literal>changeSessionId</literal> - Do not create a new session.
+                            Instead, use the session fixation protection provided by the Servlet container
+                            (<literal>HttpServletRequest#changeSessionId()</literal>). This option is only
+                            available in Servlet 3.1 (Java EE 7) and newer containers. Specifying it in
+                            older containers will result in an exception. This is the default in Servlet
+                            3.1 and newer containers.</para>
                     </listitem>
                     </itemizedlist>
-                    See the <link xlink:href="#session-mgmt">Session Management</link> chapter for
-                    additional information.
+                    When session fixation protection occurs, it results in a
+                    <classname>SessionFixationProtectionEvent</classname> being published in the
+                    application context. If you use <literal>changeSessionId</literal>, this protection
+                    will <emphasis>also</emphasis> result in any
+                    <classname>javax.servlet.http.HttpSessionIdListener</classname>s being notified, so
+                    use caution if your code listens for both events. See the
+                    <link xlink:href="#session-mgmt">Session Management</link> chapter for additional
+                    information.
                 </para>
             </section>
         </section>

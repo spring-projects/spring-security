@@ -32,7 +32,7 @@
         <beans:property name="expiredUrl" value="/session-expired.htm" />
     </beans:bean>
 
-    <beans:bean id="sas" class="org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy">
+    <beans:bean id="sas" class="org.springframework.security.web.authentication.session.ConcurrentSessionFixationProtectionSchemeStrategy">
         <beans:constructor-arg name="sessionRegistry" ref="sessionRegistry" />
         <beans:property name="maximumSessions" value="1" />
         <beans:property name="exceptionIfMaximumExceeded" value="true" />

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 the original author or authors.
+ * Copyright 2002-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,8 +51,9 @@ import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-import org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy;
-import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
+import org.springframework.security.web.authentication.session.ConcurrentSessionFixationProtectionSchemeStrategy;
+import org.springframework.security.web.authentication.session.SessionFixationProtectionScheme;
+import org.springframework.security.web.authentication.session.SessionFixationProtectionSchemeStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.NullSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
@@ -81,8 +82,6 @@ class HttpConfigurationBuilder {
     private static final String ATT_CREATE_SESSION = "create-session";
 
     private static final String ATT_SESSION_FIXATION_PROTECTION = "session-fixation-protection";
-    private static final String OPT_SESSION_FIXATION_NO_PROTECTION = "none";
-    private static final String OPT_SESSION_FIXATION_MIGRATE_SESSION = "migrateSession";
 
     private static final String ATT_INVALID_SESSION_URL = "invalid-session-url";
     private static final String ATT_SESSION_AUTH_STRATEGY_REF = "session-authentication-strategy-ref";
@@ -268,9 +267,21 @@ class HttpConfigurationBuilder {
             }
         }
 
+        SessionFixationProtectionScheme sessionFixationProtectionScheme;
         if (!StringUtils.hasText(sessionFixationAttribute)) {
-            sessionFixationAttribute = OPT_SESSION_FIXATION_MIGRATE_SESSION;
-        } else if (StringUtils.hasText(sessionAuthStratRef)) {
+            sessionFixationProtectionScheme = SessionFixationProtectionScheme.getDefault();
+        } else {
+            sessionFixationProtectionScheme =
+                    SessionFixationProtectionScheme.getFromNamespaceAttribute(sessionFixationAttribute);
+            if (sessionFixationProtectionScheme == null) {
+                pc.getReaderContext().error(ATT_SESSION_FIXATION_PROTECTION + " attribute value [" +
+                        sessionFixationAttribute + "] is not valid.", pc.extractSource(sessionMgmtElt));
+                return; // previous statement throws exception; this return prevents FindBugs warning about possible NPE
+            }
+        }
+        sessionFixationProtectionScheme.checkSchemeValidForContext();
+
+        if (StringUtils.hasText(sessionFixationAttribute) && StringUtils.hasText(sessionAuthStratRef)) {
             pc.getReaderContext().error(ATT_SESSION_FIXATION_PROTECTION + " attribute cannot be used" +
                     " in combination with " + ATT_SESSION_AUTH_STRATEGY_REF, pc.extractSource(sessionMgmtElt));
         }
@@ -280,13 +291,11 @@ class HttpConfigurationBuilder {
             return;
         }
 
-        boolean sessionFixationProtectionRequired = !sessionFixationAttribute.equals(OPT_SESSION_FIXATION_NO_PROTECTION);
-
         BeanDefinitionBuilder sessionStrategy;
 
         if (sessionCtrlElt != null) {
             assert sessionRegistryRef != null;
-            sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(ConcurrentSessionControlStrategy.class);
+            sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(ConcurrentSessionFixationProtectionSchemeStrategy.class);
             sessionStrategy.addConstructorArgValue(sessionRegistryRef);
 
             String maxSessions = sessionCtrlElt.getAttribute("max-sessions");
@@ -300,9 +309,9 @@ class HttpConfigurationBuilder {
             if (StringUtils.hasText(exceptionIfMaximumExceeded)) {
                 sessionStrategy.addPropertyValue("exceptionIfMaximumExceeded", exceptionIfMaximumExceeded);
             }
-        } else if (sessionFixationProtectionRequired || StringUtils.hasText(invalidSessionUrl)
-                || StringUtils.hasText(sessionAuthStratRef)) {
-            sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(SessionFixationProtectionStrategy.class);
+        } else if (sessionFixationProtectionScheme != SessionFixationProtectionScheme.NONE ||
+                StringUtils.hasText(invalidSessionUrl) || StringUtils.hasText(sessionAuthStratRef)) {
+            sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(SessionFixationProtectionSchemeStrategy.class);
         } else {
             sfpf = null;
             return;
@@ -319,10 +328,7 @@ class HttpConfigurationBuilder {
         if (!StringUtils.hasText(sessionAuthStratRef)) {
             BeanDefinition strategyBean = sessionStrategy.getBeanDefinition();
 
-            if (sessionFixationProtectionRequired) {
-                sessionStrategy.addPropertyValue("migrateSessionAttributes",
-                        Boolean.valueOf(sessionFixationAttribute.equals(OPT_SESSION_FIXATION_MIGRATE_SESSION)));
-            }
+            sessionStrategy.addPropertyValue("sessionFixationProtectionScheme", sessionFixationProtectionScheme);
             sessionAuthStratRef = pc.getReaderContext().generateBeanName(strategyBean);
             pc.registerBeanComponent(new BeanComponentDefinition(strategyBean, sessionAuthStratRef));
         }

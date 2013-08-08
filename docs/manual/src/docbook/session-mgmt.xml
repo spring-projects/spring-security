@@ -55,9 +55,9 @@
 </beans:bean>
 
 <beans:bean id="sas" class=
-  "org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy" />
+  "org.springframework.security.web.authentication.session.SessionFixationProtectionSchemeStrategy" />
 ]]></programlisting>
-            Note that the use of the default, <classname>SessionFixationProtectionStrategy</classname>
+            Note that the use of the default, <classname>SessionFixationProtectionSchemeStrategy</classname>
             may cause issues if you are storing beans in the session which implement
             <interfacename>HttpSessionBindingListener</interfacename>, including Spring session-scoped
             beans. See the Javadoc for this class for more information.
@@ -80,7 +80,7 @@
             though. </para>
         <para>The implementation uses a specialized version of
             <interfacename>SessionAuthenticationStrategy</interfacename>, called
-            <classname>ConcurrentSessionControlStrategy</classname>. <note>
+            <classname>ConcurrentSessionFixationProtectionSchemeStrategy</classname>. <note>
             <para>Previously the concurrent authentication check was made by the
                 <classname>ProviderManager</classname>, which could be injected with a
                 <literal>ConcurrentSessionController</literal>. The latter would check if the user
@@ -127,7 +127,7 @@
 </beans:bean>
 
 <beans:bean id="sas" class=
- "org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy">
+ "org.springframework.security.web.authentication.session.ConcurrentSessionFixationProtectionSchemeStrategy">
   <beans:constructor-arg name="sessionRegistry" ref="sessionRegistry" />
   <beans:property name="maximumSessions" value="1" />
 </beans:bean>

@@ -37,11 +37,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.session.SessionRegistry;
 
 /**
+ * This test class will go away when {@link ConcurrentSessionControlStrategy} is removed in a later version.
  *
  * @author Rob Winch
- *
  */
 @RunWith(MockitoJUnitRunner.class)
+@SuppressWarnings("deprecation")
 public class ConcurrentSessionControlStrategyTests {
     @Mock
     private SessionRegistry sessionRegistry;
