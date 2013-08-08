@@ -58,12 +58,13 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
             CustomSessionManagementConfig.SR = Mock(SessionRegistry)
         when:
             loadConfig(CustomSessionManagementConfig)
+            def concurrentStrategy = findFilter(SessionManagementFilter).sessionAuthenticationStrategy.delegateStrategies[0]
         then:
             findFilter(SessionManagementFilter).invalidSessionStrategy.destinationUrl == "/invalid-session"
             findFilter(SessionManagementFilter).failureHandler.defaultFailureUrl == "/session-auth-error"
-            findFilter(SessionManagementFilter).sessionAuthenticationStrategy.maximumSessions == 1
-            findFilter(SessionManagementFilter).sessionAuthenticationStrategy.exceptionIfMaximumExceeded
-            findFilter(SessionManagementFilter).sessionAuthenticationStrategy.sessionRegistry == CustomSessionManagementConfig.SR
+            concurrentStrategy.maximumSessions == 1
+            concurrentStrategy.exceptionIfMaximumExceeded
+            concurrentStrategy.sessionRegistry == CustomSessionManagementConfig.SR
             findFilter(ConcurrentSessionFilter).expiredUrl == "/expired-session"
     }
 
@@ -154,7 +155,8 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
         protected void configure(HttpSecurity http) throws Exception {
             http
                 .sessionManagement()
-                    .sessionAuthenticationStrategy(new SessionFixationProtectionStrategy(migrateSessionAttributes : false))
+                    .sessionFixation()
+                        .newSession()
         }
     }
 }

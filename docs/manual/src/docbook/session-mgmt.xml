@@ -80,7 +80,7 @@
             though. </para>
         <para>The implementation uses a specialized version of
             <interfacename>SessionAuthenticationStrategy</interfacename>, called
-            <classname>ConcurrentSessionControlStrategy</classname>. <note>
+            <classname>ConcurrentSessionControlAuthenticationStrategy</classname>. <note>
             <para>Previously the concurrent authentication check was made by the
                 <classname>ProviderManager</classname>, which could be injected with a
                 <literal>ConcurrentSessionController</literal>. The latter would check if the user
@@ -126,10 +126,21 @@
   <beans:property name="authenticationManager" ref="authenticationManager" />
 </beans:bean>
 
-<beans:bean id="sas" class=
- "org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy">
-  <beans:constructor-arg name="sessionRegistry" ref="sessionRegistry" />
-  <beans:property name="maximumSessions" value="1" />
+<beans:bean id="sas" class="org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy">
+  <beans:constructor-arg>
+    <beans:list>
+      <beans:bean class="org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy">
+        <beans:constructor-arg ref="sessionRegistry"/>
+        <beans:property name="maximumSessions" value="1" />
+        <beans:property name="exceptionIfMaximumExceeded" value="true" />
+      </beans:bean>
+      <beans:bean class="org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy">
+      </beans:bean>
+      <beans:bean class="org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy">
+        <beans:constructor-arg ref="sessionRegistry"/>
+      </beans:bean>
+    </beans:list>
+  </beans:constructor-arg>
 </beans:bean>
 
 <beans:bean id="sessionRegistry"

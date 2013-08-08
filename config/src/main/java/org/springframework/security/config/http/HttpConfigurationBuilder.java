@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 the original author or authors.
+ * Copyright 2002-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,17 @@ package org.springframework.security.config.http;
 import static org.springframework.security.config.http.HttpSecurityBeanDefinitionParser.*;
 import static org.springframework.security.config.http.SecurityFilters.*;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
+import org.springframework.beans.factory.config.BeanReferenceFactoryBean;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.parsing.CompositeComponentDefinition;
@@ -51,7 +54,10 @@ import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-import org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy;
+import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.NullSecurityContextRepository;
@@ -66,6 +72,7 @@ import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -83,6 +90,7 @@ class HttpConfigurationBuilder {
     private static final String ATT_SESSION_FIXATION_PROTECTION = "session-fixation-protection";
     private static final String OPT_SESSION_FIXATION_NO_PROTECTION = "none";
     private static final String OPT_SESSION_FIXATION_MIGRATE_SESSION = "migrateSession";
+    private static final String OPT_CHANGE_SESSION_ID = "changeSessionId";
 
     private static final String ATT_INVALID_SESSION_URL = "invalid-session-url";
     private static final String ATT_SESSION_AUTH_STRATEGY_REF = "session-authentication-strategy-ref";
@@ -247,6 +255,7 @@ class HttpConfigurationBuilder {
         String sessionAuthStratRef = null;
         String errorUrl = null;
 
+        boolean sessionControlEnabled = false;
         if (sessionMgmtElt != null) {
             if (sessionPolicy == SessionCreationPolicy.STATELESS) {
                 pc.getReaderContext().error(Elements.SESSION_MANAGEMENT + "  cannot be used" +
@@ -258,8 +267,9 @@ class HttpConfigurationBuilder {
             sessionAuthStratRef = sessionMgmtElt.getAttribute(ATT_SESSION_AUTH_STRATEGY_REF);
             errorUrl = sessionMgmtElt.getAttribute(ATT_SESSION_AUTH_ERROR_URL);
             sessionCtrlElt = DomUtils.getChildElementByTagName(sessionMgmtElt, Elements.CONCURRENT_SESSIONS);
+            sessionControlEnabled =  sessionCtrlElt != null;
 
-            if (sessionCtrlElt != null) {
+            if (sessionControlEnabled) {
                 if (StringUtils.hasText(sessionAuthStratRef)) {
                     pc.getReaderContext().error(ATT_SESSION_AUTH_STRATEGY_REF + " attribute cannot be used" +
                             " in combination with <" + Elements.CONCURRENT_SESSIONS + ">", pc.extractSource(sessionCtrlElt));
@@ -269,7 +279,8 @@ class HttpConfigurationBuilder {
         }
 
         if (!StringUtils.hasText(sessionFixationAttribute)) {
-            sessionFixationAttribute = OPT_SESSION_FIXATION_MIGRATE_SESSION;
+             Method changeSessionIdMethod = ReflectionUtils.findMethod(HttpServletRequest.class, "changeSessionId");
+            sessionFixationAttribute = changeSessionIdMethod == null ? OPT_SESSION_FIXATION_MIGRATE_SESSION : OPT_CHANGE_SESSION_ID;
         } else if (StringUtils.hasText(sessionAuthStratRef)) {
             pc.getReaderContext().error(ATT_SESSION_FIXATION_PROTECTION + " attribute cannot be used" +
                     " in combination with " + ATT_SESSION_AUTH_STRATEGY_REF, pc.extractSource(sessionMgmtElt));
@@ -282,28 +293,50 @@ class HttpConfigurationBuilder {
 
         boolean sessionFixationProtectionRequired = !sessionFixationAttribute.equals(OPT_SESSION_FIXATION_NO_PROTECTION);
 
-        BeanDefinitionBuilder sessionStrategy;
+        ManagedList<BeanMetadataElement> delegateSessionStrategies = new ManagedList<BeanMetadataElement>();
+        BeanDefinitionBuilder concurrentSessionStrategy;
+        BeanDefinitionBuilder sessionFixationStrategy = null;
+        BeanDefinitionBuilder registerSessionStrategy;
 
-        if (sessionCtrlElt != null) {
+        if (sessionControlEnabled) {
             assert sessionRegistryRef != null;
-            sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(ConcurrentSessionControlStrategy.class);
-            sessionStrategy.addConstructorArgValue(sessionRegistryRef);
+            concurrentSessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(ConcurrentSessionControlAuthenticationStrategy.class);
+            concurrentSessionStrategy.addConstructorArgValue(sessionRegistryRef);
 
             String maxSessions = sessionCtrlElt.getAttribute("max-sessions");
 
             if (StringUtils.hasText(maxSessions)) {
-                sessionStrategy.addPropertyValue("maximumSessions", maxSessions);
+                concurrentSessionStrategy.addPropertyValue("maximumSessions", maxSessions);
             }
 
             String exceptionIfMaximumExceeded = sessionCtrlElt.getAttribute("error-if-maximum-exceeded");
 
             if (StringUtils.hasText(exceptionIfMaximumExceeded)) {
-                sessionStrategy.addPropertyValue("exceptionIfMaximumExceeded", exceptionIfMaximumExceeded);
+                concurrentSessionStrategy.addPropertyValue("exceptionIfMaximumExceeded", exceptionIfMaximumExceeded);
             }
-        } else if (sessionFixationProtectionRequired || StringUtils.hasText(invalidSessionUrl)
-                || StringUtils.hasText(sessionAuthStratRef)) {
-            sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(SessionFixationProtectionStrategy.class);
-        } else {
+            delegateSessionStrategies.add(concurrentSessionStrategy.getBeanDefinition());
+        }
+        boolean useChangeSessionId = OPT_CHANGE_SESSION_ID.equals(sessionFixationAttribute);
+        if (sessionFixationProtectionRequired || StringUtils.hasText(invalidSessionUrl)) {
+            if(useChangeSessionId) {
+                sessionFixationStrategy = BeanDefinitionBuilder.rootBeanDefinition(ChangeSessionIdAuthenticationStrategy.class);
+            } else {
+                sessionFixationStrategy = BeanDefinitionBuilder.rootBeanDefinition(SessionFixationProtectionStrategy.class);
+            }
+            delegateSessionStrategies.add(sessionFixationStrategy.getBeanDefinition());
+        }
+
+        if(StringUtils.hasText(sessionAuthStratRef)) {
+            delegateSessionStrategies.add(new RuntimeBeanReference(sessionAuthStratRef));
+        }
+
+        if(sessionControlEnabled) {
+            registerSessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(RegisterSessionAuthenticationStrategy.class);
+            registerSessionStrategy.addConstructorArgValue(sessionRegistryRef);
+            delegateSessionStrategies.add(registerSessionStrategy.getBeanDefinition());
+        }
+
+        if(delegateSessionStrategies.isEmpty()) {
             sfpf = null;
             return;
         }
@@ -316,15 +349,21 @@ class HttpConfigurationBuilder {
         sessionMgmtFilter.addPropertyValue("authenticationFailureHandler", failureHandler);
         sessionMgmtFilter.addConstructorArgValue(contextRepoRef);
 
-        if (!StringUtils.hasText(sessionAuthStratRef)) {
-            BeanDefinition strategyBean = sessionStrategy.getBeanDefinition();
+        if (!StringUtils.hasText(sessionAuthStratRef) && sessionFixationStrategy != null && !useChangeSessionId ) {
 
             if (sessionFixationProtectionRequired) {
-                sessionStrategy.addPropertyValue("migrateSessionAttributes",
+                sessionFixationStrategy.addPropertyValue("migrateSessionAttributes",
                         Boolean.valueOf(sessionFixationAttribute.equals(OPT_SESSION_FIXATION_MIGRATE_SESSION)));
             }
+        }
+
+        if(!delegateSessionStrategies.isEmpty()) {
+            BeanDefinitionBuilder sessionStrategy = BeanDefinitionBuilder.rootBeanDefinition(CompositeSessionAuthenticationStrategy.class);
+            BeanDefinition strategyBean = sessionStrategy.getBeanDefinition();
+            sessionStrategy.addConstructorArgValue(delegateSessionStrategies);
             sessionAuthStratRef = pc.getReaderContext().generateBeanName(strategyBean);
             pc.registerBeanComponent(new BeanComponentDefinition(strategyBean, sessionAuthStratRef));
+
         }
 
         if (StringUtils.hasText(invalidSessionUrl)) {

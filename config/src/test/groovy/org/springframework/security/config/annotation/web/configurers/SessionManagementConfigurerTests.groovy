@@ -15,16 +15,24 @@
  */
 package org.springframework.security.config.annotation.web.configurers
 
+import javax.servlet.http.HttpServletResponse
+
 import org.springframework.context.annotation.Configuration
+import org.springframework.mock.web.MockFilterChain
+import org.springframework.mock.web.MockHttpServletRequest
+import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.security.config.annotation.AnyObjectPostProcessor
 import org.springframework.security.config.annotation.BaseSpringSpec
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.access.ExceptionTranslationFilter
-import org.springframework.security.web.context.NullSecurityContextRepository;
+import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy
+import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy
+import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy
+import org.springframework.security.web.context.NullSecurityContextRepository
 import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.context.SecurityContextRepository
 import org.springframework.security.web.savedrequest.RequestCache
@@ -110,6 +118,82 @@ class SessionManagementConfigurerTests extends BaseSpringSpec {
 
     }
 
+    def 'SEC-2137: disable session fixation and enable concurrency control'() {
+        setup: "context where session fixation is disabled and concurrency control is enabled"
+            loadConfig(DisableSessionFixationEnableConcurrencyControlConfig)
+            String originalSessionId = request.session.id
+            String credentials = "user:password"
+            request.addHeader("Authorization", "Basic " + credentials.bytes.encodeBase64())
+        when: "authenticate"
+            springSecurityFilterChain.doFilter(request, response, new MockFilterChain())
+        then: "session invalidate is not called"
+            request.session.id == originalSessionId
+    }
+
+    @EnableWebSecurity
+    @Configuration
+    static class DisableSessionFixationEnableConcurrencyControlConfig extends WebSecurityConfigurerAdapter {
+        @Override
+        public void configure(HttpSecurity http) {
+            http
+                .httpBasic()
+                    .and()
+                .sessionManagement()
+                    .sessionFixation().none()
+                    .maximumSessions(1)
+        }
+        @Override
+        public void registerAuthentication(AuthenticationManagerBuilder auth) {
+            auth
+                .inMemoryAuthentication()
+                    .withUser("user").password("password").roles("USER")
+        }
+    }
+
+    def 'session fixation and enable concurrency control'() {
+        setup: "context where session fixation is disabled and concurrency control is enabled"
+            loadConfig(ConcurrencyControlConfig)
+        when: "authenticate successfully"
+            request.servletPath = "/login"
+            request.method = "POST"
+            request.setParameter("username", "user");
+            request.setParameter("password","password")
+            springSecurityFilterChain.doFilter(request, response, chain)
+        then: "authentication is sucessful"
+            response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
+            response.redirectedUrl == "/"
+        when: "authenticate with the same user"
+            super.setup()
+            request.servletPath = "/login"
+            request.method = "POST"
+            request.setParameter("username", "user");
+            request.setParameter("password","password")
+            springSecurityFilterChain.doFilter(request, response, chain)
+        then:
+            response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
+            response.redirectedUrl == '/login?error'
+    }
+
+    @EnableWebSecurity
+    @Configuration
+    static class ConcurrencyControlConfig extends WebSecurityConfigurerAdapter {
+        @Override
+        public void configure(HttpSecurity http) {
+            http
+                .formLogin()
+                    .and()
+                .sessionManagement()
+                    .maximumSessions(1)
+                        .maxSessionsPreventsLogin(true)
+        }
+        @Override
+        public void registerAuthentication(AuthenticationManagerBuilder auth) {
+            auth
+                .inMemoryAuthentication()
+                    .withUser("user").password("password").roles("USER")
+        }
+    }
+
     def "sessionManagement ObjectPostProcessor"() {
         setup:
             AnyObjectPostProcessor opp = Mock()
@@ -122,9 +206,15 @@ class SessionManagementConfigurerTests extends BaseSpringSpec {
                     .and()
                 .build()
 
-        then: "SessionManagementFilter is registered with LifecycleManager"
+        then: "SessionManagementFilter is registered with ObjectPostProcessor"
             1 * opp.postProcess(_ as SessionManagementFilter) >> {SessionManagementFilter o -> o}
-        and: "ConcurrentSessionFilter is registered with LifecycleManager"
+        and: "ConcurrentSessionFilter is registered with ObjectPostProcessor"
             1 * opp.postProcess(_ as ConcurrentSessionFilter) >> {ConcurrentSessionFilter o -> o}
+        and: "ConcurrentSessionControlAuthenticationStrategy is registered with ObjectPostProcessor"
+            1 * opp.postProcess(_ as ConcurrentSessionControlAuthenticationStrategy) >> {ConcurrentSessionControlAuthenticationStrategy o -> o}
+        and: "CompositeSessionAuthenticationStrategy is registered with ObjectPostProcessor"
+            1 * opp.postProcess(_ as CompositeSessionAuthenticationStrategy) >> {CompositeSessionAuthenticationStrategy o -> o}
+        and: "RegisterSessionAuthenticationStrategy is registered with ObjectPostProcessor"
+            1 * opp.postProcess(_ as RegisterSessionAuthenticationStrategy) >> {RegisterSessionAuthenticationStrategy o -> o}
     }
 }

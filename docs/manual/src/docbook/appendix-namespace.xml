@@ -1208,7 +1208,7 @@
             <para> Adds support for concurrent session control, allowing limits to be placed on the
                 number of active sessions a user can have. A
                 <classname>ConcurrentSessionFilter</classname> will be created, and a
-                <classname>ConcurrentSessionControlStrategy</classname> will be used with the
+                <classname>ConcurrentSessionControlAuthenticationStrategy</classname> will be used with the
                 <classname>SessionManagementFilter</classname>. If a <literal>form-login</literal>
                 element has been declared, the strategy object will also be injected into the
                 created authentication filter. An instance of
@@ -1242,7 +1242,7 @@
                 <section xml:id="nsa-concurrency-control-max-sessions">
                     <title><literal>max-sessions</literal></title>
                     <para>Maps to the <literal>maximumSessions</literal> property of
-                        <classname>ConcurrentSessionControlStrategy</classname>.</para>
+                        <classname>ConcurrentSessionControlAuthenticationStrategy</classname>.</para>
                 </section>
                 <section xml:id="nsa-concurrency-control-session-registry-alias">
                     <title><literal>session-registry-alias</literal></title>

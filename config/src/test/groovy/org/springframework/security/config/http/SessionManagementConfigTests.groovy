@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 the original author or authors.
+ * Copyright 2002-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,28 +15,40 @@
  */
 package org.springframework.security.config.http
 
+import static org.junit.Assert.assertSame
+import static org.mockito.Mockito.*
+
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
+
+import org.mockito.Mockito
 import org.springframework.mock.web.MockFilterChain
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.session.SessionRegistry
 import org.springframework.security.core.session.SessionRegistryImpl
+import org.springframework.security.core.userdetails.User
 import org.springframework.security.util.FieldUtils
+import org.springframework.security.web.FilterChainProxy
 import org.springframework.security.web.authentication.RememberMeServices
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler
 import org.springframework.security.web.authentication.logout.LogoutFilter
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter
-import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy
+import org.springframework.security.web.authentication.session.SessionAuthenticationException
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy
 import org.springframework.security.web.context.NullSecurityContextRepository
 import org.springframework.security.web.context.SaveContextOnUpdateOrErrorResponseWrapper
 import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter
 import org.springframework.security.web.session.ConcurrentSessionFilter
 import org.springframework.security.web.session.SessionManagementFilter
-import static org.junit.Assert.assertSame
 
 /**
  * Tests session-related functionality for the &lt;http&gt; namespace element and &lt;session-management&gt;
@@ -91,6 +103,46 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
         expect:
         !filter.forceEagerSessionCreation
         filter.repo.allowSessionCreation
+    }
+
+    def 'SEC-1208: Session is not created when rejecting user due to max sessions exceeded'() {
+        setup:
+            httpCreateSession('never') {
+                'session-management'() {
+                    'concurrency-control'('max-sessions':1,'error-if-maximum-exceeded':'true')
+                }
+            }
+            createAppContext()
+            SessionRegistry registry = appContext.getBean(SessionRegistry)
+            registry.registerNewSession("1", new User("user","password",AuthorityUtils.createAuthorityList("ROLE_USER")))
+            MockHttpServletRequest request = new MockHttpServletRequest()
+            MockHttpServletResponse response = new MockHttpServletResponse()
+            String credentials = "user:password"
+            request.addHeader("Authorization", "Basic " + credentials.bytes.encodeBase64())
+        when: "exceed max authentication attempts"
+            appContext.getBean(FilterChainProxy).doFilter(request, response, new MockFilterChain())
+        then: "no new session is created"
+            request.getSession(false) == null
+            response.status == HttpServletResponse.SC_UNAUTHORIZED
+    }
+
+    def 'SEC-2137: disable session fixation and enable concurrency control'() {
+        setup: "context where session fixation is disabled and concurrency control is enabled"
+            httpAutoConfig {
+                'session-management'('session-fixation-protection':'none') {
+                    'concurrency-control'('max-sessions':'1','error-if-maximum-exceeded':'true')
+                }
+            }
+            createAppContext()
+            MockHttpServletRequest request = new MockHttpServletRequest()
+            MockHttpServletResponse response = new MockHttpServletResponse()
+            String originalSessionId = request.session.id
+            String credentials = "user:password"
+            request.addHeader("Authorization", "Basic " + credentials.bytes.encodeBase64())
+        when: "authenticate"
+            appContext.getBean(FilterChainProxy).doFilter(request, response, new MockFilterChain())
+        then: "session invalidate is not called"
+            request.session.id == originalSessionId
     }
 
     def httpCreateSession(String create, Closure c) {
@@ -219,15 +271,28 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
     }
 
     def externalSessionStrategyIsSupported() {
-        when:
-        httpAutoConfig {
-            'session-management'('session-authentication-strategy-ref':'ss')
-        }
-        bean('ss', SessionFixationProtectionStrategy.class.name)
-        createAppContext();
+        setup:
+            httpAutoConfig {
+                'session-management'('session-authentication-strategy-ref':'ss')
+            }
+            xml.'b:bean'(id: 'ss', 'class': Mockito.class.name, 'factory-method':'mock') {
+                'b:constructor-arg'(value : SessionAuthenticationStrategy.class.name)
+            }
+            createAppContext()
 
-        then:
-        notThrown(Exception.class)
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            request.getSession();
+            request.setRequestURI("/j_spring_security_check");
+            request.setMethod("POST");
+            request.setParameter("j_username", "user");
+            request.setParameter("j_password", "password");
+
+            SessionAuthenticationStrategy sessionAuthStrategy = appContext.getBean('ss',SessionAuthenticationStrategy)
+            FilterChainProxy springSecurityFilterChain = appContext.getBean(FilterChainProxy)
+        when:
+            springSecurityFilterChain.doFilter(request,new MockHttpServletResponse(), new MockFilterChain())
+        then: "CustomSessionAuthenticationStrategy has seen the request (although REQUEST is a wrapped request)"
+            verify(sessionAuthStrategy).onAuthentication(any(Authentication), any(HttpServletRequest), any(HttpServletResponse))
     }
 
     def externalSessionRegistryBeanIsConfiguredCorrectly() {
@@ -247,10 +312,8 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
         Object sessionRegistry = appContext.getBean("sr");
         Object sessionRegistryFromConcurrencyFilter = FieldUtils.getFieldValue(
                 getFilter(ConcurrentSessionFilter.class), "sessionRegistry");
-        Object sessionRegistryFromFormLoginFilter = FieldUtils.getFieldValue(
-                getFilter(UsernamePasswordAuthenticationFilter.class),"sessionStrategy.sessionRegistry");
-        Object sessionRegistryFromMgmtFilter = FieldUtils.getFieldValue(
-                getFilter(SessionManagementFilter.class),"sessionAuthenticationStrategy.sessionRegistry");
+        Object sessionRegistryFromFormLoginFilter = FieldUtils.getFieldValue(getFilter(UsernamePasswordAuthenticationFilter),"sessionStrategy").delegateStrategies[0].sessionRegistry
+        Object sessionRegistryFromMgmtFilter = FieldUtils.getFieldValue(getFilter(SessionManagementFilter),"sessionAuthenticationStrategy").delegateStrategies[0].sessionRegistry
 
         assertSame(sessionRegistry, sessionRegistryFromConcurrencyFilter);
         assertSame(sessionRegistry, sessionRegistryFromMgmtFilter);
@@ -297,7 +360,7 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         expect:
-        !(getFilters("/someurl")[8] instanceof SessionManagementFilter)
+        !(getFilters("/someurl").find { it instanceof SessionManagementFilter})
     }
 
     def disablingSessionProtectionRetainsSessionManagementFilterInvalidSessionUrlSet() {

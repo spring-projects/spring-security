@@ -15,7 +15,11 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.Arrays;
+import java.util.List;
+
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,7 +27,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-import org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy;
+import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
+import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
@@ -70,7 +77,8 @@ import org.springframework.util.Assert;
  * @see ConcurrentSessionFilter
  */
 public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<H> {
-    private SessionAuthenticationStrategy sessionAuthenticationStrategy = new SessionFixationProtectionStrategy();
+    private SessionAuthenticationStrategy sessionFixationAuthenticationStrategy = new SessionFixationProtectionStrategy();
+    private SessionAuthenticationStrategy sessionAuthenticationStrategy;
     private SessionRegistry sessionRegistry = new SessionRegistryImpl();
     private Integer maximumSessions;
     private String expiredUrl;
@@ -149,15 +157,23 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
     /**
      * Allows explicitly specifying the {@link SessionAuthenticationStrategy}.
      * The default is to use {@link SessionFixationProtectionStrategy}. If
-     * restricting the maximum number of sessions is configured,
-     * {@link ConcurrentSessionControlStrategy} will be used.
+     * restricting the maximum number of sessions is configured, then
+     * {@link CompositeSessionAuthenticationStrategy} delegating to
+     * {@link ConcurrentSessionControlAuthenticationStrategy},
+     * {@link SessionFixationProtectionStrategy} (optional), and
+     * {@link RegisterSessionAuthenticationStrategy} will be used.
      *
      * @param sessionAuthenticationStrategy
-     * @return the {@link SessionManagementConfigurer} for further customizations
+     * @return the {@link SessionManagementConfigurer} for further
+     *         customizations
      */
     public SessionManagementConfigurer<H> sessionAuthenticationStrategy(SessionAuthenticationStrategy sessionAuthenticationStrategy) {
-        this.sessionAuthenticationStrategy = sessionAuthenticationStrategy;
+        this.sessionFixationAuthenticationStrategy = sessionAuthenticationStrategy;
         return this;
+    }
+
+    public SessionFixationConfigurer sessionFixation() {
+        return new SessionFixationConfigurer();
     }
 
     /**
@@ -167,8 +183,55 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
      */
     public ConcurrencyControlConfigurer maximumSessions(int maximumSessions) {
         this.maximumSessions = maximumSessions;
-        this.sessionAuthenticationStrategy = null;
         return new ConcurrencyControlConfigurer();
+    }
+
+    /**
+     * Allows configuring SessionFixation protection
+     *
+     * @author Rob Winch
+     */
+    public final class SessionFixationConfigurer {
+        /**
+         * Specifies that a new session should be created, but the session
+         * attributes from the original {@link HttpSession} should not be
+         * retained.
+         *
+         * @return the {@link SessionManagementConfigurer} for further customizations
+         */
+        public SessionManagementConfigurer<H> newSession() {
+            SessionFixationProtectionStrategy sessionFixationProtectionStrategy = new SessionFixationProtectionStrategy();
+            sessionFixationProtectionStrategy.setMigrateSessionAttributes(false);
+            SessionManagementConfigurer.this.sessionFixationAuthenticationStrategy = sessionFixationProtectionStrategy;
+            return SessionManagementConfigurer.this;
+        }
+
+        /**
+         * Specifies that a new session should be created and the session
+         * attributes from the original {@link HttpSession} should be
+         * retained.
+         *
+         * @return the {@link SessionManagementConfigurer} for further customizations
+         */
+        public SessionManagementConfigurer<H> migrateSession() {
+            SessionManagementConfigurer.this.sessionFixationAuthenticationStrategy = new SessionFixationProtectionStrategy();
+            return SessionManagementConfigurer.this;
+        }
+
+        /**
+         * Specifies that no session fixation protection should be enabled. This
+         * may be useful when utilizing other mechanisms for protecting against
+         * session fixation. For example, if application container session
+         * fixation protection is already in use. Otherwise, this option is not
+         * recommended.
+         *
+         * @return the {@link SessionManagementConfigurer} for further
+         *         customizations
+         */
+        public SessionManagementConfigurer<H> none() {
+            SessionManagementConfigurer.this.sessionFixationAuthenticationStrategy = new NullAuthenticatedSessionStrategy();
+            return SessionManagementConfigurer.this;
+        }
     }
 
     /**
@@ -314,10 +377,18 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
             return sessionAuthenticationStrategy;
         }
         if(isConcurrentSessionControlEnabled()) {
-            ConcurrentSessionControlStrategy concurrentSessionControlStrategy = new ConcurrentSessionControlStrategy(sessionRegistry);
+            ConcurrentSessionControlAuthenticationStrategy concurrentSessionControlStrategy = new ConcurrentSessionControlAuthenticationStrategy(sessionRegistry);
             concurrentSessionControlStrategy.setMaximumSessions(maximumSessions);
             concurrentSessionControlStrategy.setExceptionIfMaximumExceeded(maxSessionsPreventsLogin);
-            sessionAuthenticationStrategy = concurrentSessionControlStrategy;
+            concurrentSessionControlStrategy = postProcess(concurrentSessionControlStrategy);
+
+            RegisterSessionAuthenticationStrategy registerSessionStrategy = new RegisterSessionAuthenticationStrategy(sessionRegistry);
+            registerSessionStrategy = postProcess(registerSessionStrategy);
+
+            List<SessionAuthenticationStrategy> delegateStrategies = Arrays.asList(concurrentSessionControlStrategy, sessionFixationAuthenticationStrategy, registerSessionStrategy);
+            sessionAuthenticationStrategy = postProcess(new CompositeSessionAuthenticationStrategy(delegateStrategies));
+        } else {
+            sessionAuthenticationStrategy = sessionFixationAuthenticationStrategy;
         }
         return sessionAuthenticationStrategy;
     }
