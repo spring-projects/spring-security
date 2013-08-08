@@ -1,3 +1,5 @@
+import org.gradle.plugins.ide.eclipse.model.SourceFolder
+
 apply plugin: 'java'
 apply plugin: 'eclipse-wtp'
 apply plugin: 'propdeps'
@@ -152,6 +154,33 @@ javadoc {
             'Spring Security Taglibs':['org.springframework.security.taglibs*'],
         ]
     }
+}
+
+eclipse.classpath.downloadSources = true
+
+// http://forums.gradle.org/gradle/topics/eclipse_wtp_deploys_testcode_to_server_example_provided
+eclipse.classpath {
+    defaultOutputDir = file('bin/main')
+    file.whenMerged { cp ->
+        cp.entries.findAll { it instanceof SourceFolder && (it.path.contains("test") || it.path.contains("Test")) }*.output = "bin/test"
+    }
+}
+
+// GRADLE-1422
+project.eclipseClasspath.doFirst {
+   // delay adding whenMerged till the entryAttributes are added (must be the last whenMerged)
+   project.eclipse.classpath.file.whenMerged { classpath ->
+       def includeDeps = project.configurations.getByName('runtime').collect {f -> f.absolutePath } as Set
+       classpath.entries.each { cp ->
+           if(cp instanceof org.gradle.plugins.ide.eclipse.model.Library) {
+               def include = includeDeps.contains(cp.path)
+               def attr = 'org.eclipse.jst.component.dependency'
+               if(!include) {
+                   cp.entryAttributes.remove(attr)
+               }
+           }
+       }
+   }
 }
 
 task javadocJar(type: Jar) {
