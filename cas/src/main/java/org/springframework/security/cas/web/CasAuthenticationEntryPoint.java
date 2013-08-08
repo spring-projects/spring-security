@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006, 2013 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jasig.cas.client.util.CommonUtils;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.cas.ServiceProperties;
+import org.springframework.security.cas.authentication.TriggerCasGatewayException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
 
@@ -38,6 +39,9 @@ import org.springframework.util.Assert;
  * redirect to the page indicated by the <code>service</code> property. The <code>service</code> is a HTTP URL
  * belonging to the current application. The <code>service</code> URL is monitored by the {@link CasAuthenticationFilter},
  * which will validate the CAS login was successful.
+ * <p>
+ * If the raised exception is {@link TriggerCasGatewayException}, the parameter <code>gateway</code> is set
+ * to true on the redirect url.
  *
  * @author Ben Alex
  * @author Scott Battaglia
@@ -72,7 +76,7 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
             final AuthenticationException authenticationException) throws IOException, ServletException {
 
         final String urlEncodedService = createServiceUrl(servletRequest, response);
-        final String redirectUrl = createRedirectUrl(urlEncodedService);
+        final String redirectUrl = createRedirectUrl(servletRequest, response, authenticationException, urlEncodedService);
 
         preCommence(servletRequest, response);
 
@@ -95,8 +99,24 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
      * @param serviceUrl the service url that should be included.
      * @return the redirect url.  CANNOT be NULL.
      */
+    @Deprecated
     protected String createRedirectUrl(final String serviceUrl) {
-        return CommonUtils.constructRedirectUrl(this.loginUrl, this.serviceProperties.getServiceParameter(), serviceUrl, this.serviceProperties.isSendRenew(), false);
+        return createRedirectUrl(null, null, null, serviceUrl);
+    }
+
+    /**
+     * Constructs the Url for Redirection to the CAS server.  Default implementation relies on the CAS client to do the bulk of the work.
+     * Parameter gateway is infered from authenticationException class.
+     *
+     * @param request the HttpServletRequest
+     * @param response the HttpServletResponse
+     * @param authenticationException the authentication Exception that triggers CasAuthenticationEntryPoint
+     * @param serviceUrl the service url that should be included.
+     * @return the redirect url. CANNOT be NULL.
+     */
+    protected String createRedirectUrl(HttpServletRequest request, HttpServletResponse response, final AuthenticationException authenticationException, final String serviceUrl) {
+        boolean gateway = authenticationException instanceof TriggerCasGatewayException;
+        return CommonUtils.constructRedirectUrl(this.loginUrl, this.serviceProperties.getServiceParameter(), serviceUrl, this.serviceProperties.isSendRenew(), gateway);
     }
 
     /**

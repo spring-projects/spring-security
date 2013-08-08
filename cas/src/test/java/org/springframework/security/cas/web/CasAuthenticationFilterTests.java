@@ -19,9 +19,11 @@ import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -43,6 +45,7 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.NullRememberMeServices;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.util.ReflectionUtils;
 
 
@@ -210,5 +213,31 @@ public class CasAuthenticationFilterTests {
 
         filter.doFilter(request,response,chain);
         verifyZeroInteractions(chain);
+    }
+
+    // SEC-977
+    @Test
+    public void testCasGatewayWithNoSSOSession() throws IOException, ServletException {
+        HttpSessionRequestCache requestCache = new HttpSessionRequestCache();
+        MockHttpServletRequest initialRequest = new MockHttpServletRequest("GET", "/some_path");
+        requestCache.saveRequest(initialRequest, null);
+
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/j_spring_cas_security_check");
+        request.setSession(initialRequest.getSession());
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        FilterChain chain = mock(FilterChain.class);
+
+        CasAuthenticationFilter filter = new CasAuthenticationFilter();
+        filter.setProxyGrantingTicketStorage(mock(ProxyGrantingTicketStorage.class));
+        filter.setAuthenticationManager(new AuthenticationManager() {
+            public Authentication authenticate(Authentication a) {
+                throw new BadCredentialsException("No ticket found");
+            }
+        });
+
+        filter.doFilter(request,response,chain);
+        verify(chain, never()).doFilter(request, response);
+        assertEquals("Should redirect to saved url", "http://localhost/some_path", response.getRedirectedUrl());
+
     }
 }
