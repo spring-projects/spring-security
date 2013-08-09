@@ -2,7 +2,8 @@ apply from: WAR_SAMPLE_GRADLE
 
 dependencies {
 
-    providedCompile "javax.servlet:javax.servlet-api:3.0.1"
+    providedCompile "javax.servlet:javax.servlet-api:3.0.1",
+                    'javax.servlet.jsp:jsp-api:2.1'
 
     compile project(":spring-security-config"),
             project(":spring-security-samples-messages-jc"),
