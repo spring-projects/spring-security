@@ -80,7 +80,7 @@ public abstract class AbstractSecurityWebApplicationInitializer implements WebAp
 
     public static final String DEFAULT_FILTER_NAME = "springSecurityFilterChain";
 
-    private WebApplicationInitializer contextLoaderListenerInitializer;
+    private final Class<?>[] configurationClasses;
 
     /**
      * Creates a new instance that assumes the Spring Security configuration is
@@ -91,6 +91,7 @@ public abstract class AbstractSecurityWebApplicationInitializer implements WebAp
      * @see ContextLoaderListener
      */
     protected AbstractSecurityWebApplicationInitializer() {
+        this.configurationClasses = null;
     }
 
     /**
@@ -100,7 +101,7 @@ public abstract class AbstractSecurityWebApplicationInitializer implements WebAp
      * @param configurationClasses
      */
     protected AbstractSecurityWebApplicationInitializer(Class<?>... configurationClasses) {
-        contextLoaderListenerInitializer = new RootContextApplicationInitializer(configurationClasses){};
+        this.configurationClasses = configurationClasses;
     }
 
     /* (non-Javadoc)
@@ -108,8 +109,10 @@ public abstract class AbstractSecurityWebApplicationInitializer implements WebAp
      */
     public final void onStartup(ServletContext servletContext)
             throws ServletException {
-        if(contextLoaderListenerInitializer != null) {
-            contextLoaderListenerInitializer.onStartup(servletContext);
+        if(configurationClasses != null) {
+            AnnotationConfigWebApplicationContext rootAppContext = new AnnotationConfigWebApplicationContext();
+            rootAppContext.register(configurationClasses);
+            servletContext.addListener(new ContextLoaderListener(rootAppContext));
         }
         if(enableHttpSessionEventPublisher()) {
             servletContext.addListener("org.springframework.security.web.session.HttpSessionEventPublisher");
@@ -308,23 +311,5 @@ public abstract class AbstractSecurityWebApplicationInitializer implements WebAp
      */
     protected boolean isAsyncSecuritySupported() {
         return true;
-    }
-
-    private static abstract class RootContextApplicationInitializer extends AbstractContextLoaderInitializer {
-        private Class<?>[] configurationClasses;
-
-        private RootContextApplicationInitializer(Class<?>... configurationClasses) {
-            this.configurationClasses = configurationClasses;
-        }
-
-        /* (non-Javadoc)
-         * @see org.springframework.web.context.AbstractContextLoaderInitializer#createRootApplicationContext()
-         */
-        @Override
-        protected WebApplicationContext createRootApplicationContext() {
-            AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-            context.register(configurationClasses);
-            return context;
-        }
     }
 }
