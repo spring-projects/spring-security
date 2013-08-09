@@ -15,7 +15,8 @@ file("src/asciidoc").eachFileMatch(~/.*\.asc/) { file->
               toc: '',
               idprefix: '',
               idseparator: '-',
-              'spring-security-version' : project.version
+              'spring-security-version' : project.version,
+              revnumber : project.version
           ]
         ]
     }
