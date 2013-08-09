@@ -103,13 +103,16 @@
             <c:url var="logoUrl" value="/resources/img/logo.png"/>
             <a class="brand" href="${homeUrl}"><img src="${logoUrl}" alt="Spring Security Sample"/></a>
             <div class="nav-collapse collapse">
+              <p class="navbar-text pull-right">
+                <c:out value="${pageContext.request.remoteUser}"/>
+                <c:url var="logoutUrl" value="/logout"/>
+                <a href="${logoutUrl}">Log out</a>
+              </p>
               <ul class="nav">
                 <c:url var="inboxUrl" value="/"/>
                 <li><a href="${inboxUrl}">Inbox</a></li>
                 <c:url var="composeUrl" value="/?form"/>
                 <li><a href="${composeUrl}">Compose</a></li>
-                <c:url var="logoutUrl" value="/logout"/>
-                <li><a href="${logoutUrl}">Log out</a></li>
               </ul>
             </div>
           </div>

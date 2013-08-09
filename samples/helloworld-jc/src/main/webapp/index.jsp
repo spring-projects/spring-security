@@ -22,9 +22,16 @@
   </head>
 
   <body>
-    <h1>This page is secured!</h1>
-    <c:url value="/logout" var="logoutUrl"/>
-    <p>You can also <a href="${logoutUrl}">logout</a>.</p>
-</body>
+    <div class="container">
+      <h1>This is secured!</h1>
+      <c:url var="logoutUrl" value="/logout"/>
+      <p>
+        Hello <b><c:out value="${pageContext.request.remoteUser}"/></b>
+      </p>
+      <p>
+        <a href="${logoutUrl}">Click here</a> to log out.
+      </p>
+    </div>
+  </body>
 </html>
 </jsp:root>
