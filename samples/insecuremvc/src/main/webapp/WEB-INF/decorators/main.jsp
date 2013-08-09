@@ -75,6 +75,9 @@
       a {
           color: green;
       }
+      .navbar-text a {
+        margin-left: 1em;
+      }
     </style>
     <c:url var="bootstrapResponsiveUrl" value="/resources/css/bootstrap-responsive.css"/>
     <link href="${bootstrapResponsiveUrl}" rel="stylesheet"></link>
@@ -105,8 +108,6 @@
                 <li><a href="${inboxUrl}">Inbox</a></li>
                 <c:url var="composeUrl" value="/?form"/>
                 <li><a href="${composeUrl}">Compose</a></li>
-                <c:url var="logoutUrl" value="/logout"/>
-                <li><a href="${logoutUrl}">Log out</a></li>
               </ul>
             </div>
           </div>

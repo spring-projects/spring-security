@@ -75,6 +75,9 @@
       a {
           color: green;
       }
+      .navbar-text a {
+        margin-left: 1em;
+      }
     </style>
     <c:url var="bootstrapResponsiveUrl" value="/resources/css/bootstrap-responsive.css"/>
     <link href="${bootstrapResponsiveUrl}" rel="stylesheet"></link>
