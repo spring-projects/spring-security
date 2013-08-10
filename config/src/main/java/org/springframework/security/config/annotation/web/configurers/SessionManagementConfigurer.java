@@ -27,6 +27,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
@@ -77,7 +78,7 @@ import org.springframework.util.Assert;
  * @see ConcurrentSessionFilter
  */
 public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<H> {
-    private SessionAuthenticationStrategy sessionFixationAuthenticationStrategy = new SessionFixationProtectionStrategy();
+    private SessionAuthenticationStrategy sessionFixationAuthenticationStrategy = createDefaultSessionFixationProtectionStrategy();
     private SessionAuthenticationStrategy sessionAuthenticationStrategy;
     private SessionRegistry sessionRegistry = new SessionRegistryImpl();
     private Integer maximumSessions;
@@ -187,6 +188,14 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
     }
 
     /**
+     * Invokes {@link #postProcess(Object)} and sets the {@link SessionAuthenticationStrategy} for session fixation.
+     * @param sessionFixationAuthenticationStrategy
+     */
+    private void setSessionFixationAuthenticationStrategy(SessionAuthenticationStrategy sessionFixationAuthenticationStrategy) {
+        this.sessionFixationAuthenticationStrategy = postProcess(sessionFixationAuthenticationStrategy);
+    }
+
+    /**
      * Allows configuring SessionFixation protection
      *
      * @author Rob Winch
@@ -202,7 +211,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
         public SessionManagementConfigurer<H> newSession() {
             SessionFixationProtectionStrategy sessionFixationProtectionStrategy = new SessionFixationProtectionStrategy();
             sessionFixationProtectionStrategy.setMigrateSessionAttributes(false);
-            SessionManagementConfigurer.this.sessionFixationAuthenticationStrategy = sessionFixationProtectionStrategy;
+            setSessionFixationAuthenticationStrategy(sessionFixationProtectionStrategy);
             return SessionManagementConfigurer.this;
         }
 
@@ -214,7 +223,22 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
          * @return the {@link SessionManagementConfigurer} for further customizations
          */
         public SessionManagementConfigurer<H> migrateSession() {
-            SessionManagementConfigurer.this.sessionFixationAuthenticationStrategy = new SessionFixationProtectionStrategy();
+            setSessionFixationAuthenticationStrategy(new SessionFixationProtectionStrategy());
+            return SessionManagementConfigurer.this;
+        }
+
+        /**
+         * Specifies that no session fixation protection should be enabled. This
+         * may be useful when utilizing other mechanisms for protecting against
+         * session fixation. For example, if application container session
+         * fixation protection is already in use. Otherwise, this option is not
+         * recommended.
+         *
+         * @return the {@link SessionManagementConfigurer} for further
+         *         customizations
+         */
+        public SessionManagementConfigurer<H> changeSessionId() {
+            setSessionFixationAuthenticationStrategy(new ChangeSessionIdAuthenticationStrategy());
             return SessionManagementConfigurer.this;
         }
 
@@ -229,7 +253,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
          *         customizations
          */
         public SessionManagementConfigurer<H> none() {
-            SessionManagementConfigurer.this.sessionFixationAuthenticationStrategy = new NullAuthenticatedSessionStrategy();
+            setSessionFixationAuthenticationStrategy(new NullAuthenticatedSessionStrategy());
             return SessionManagementConfigurer.this;
         }
     }
@@ -399,5 +423,17 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
      */
     private boolean isConcurrentSessionControlEnabled() {
         return maximumSessions != null;
+    }
+
+    /**
+     * Creates the default {@link SessionAuthenticationStrategy} for session fixation
+     * @return the default {@link SessionAuthenticationStrategy} for session fixation
+     */
+    private static SessionAuthenticationStrategy createDefaultSessionFixationProtectionStrategy() {
+        try {
+            return new ChangeSessionIdAuthenticationStrategy();
+        } catch(IllegalStateException e) {
+            return new SessionFixationProtectionStrategy();
+        }
     }
 }

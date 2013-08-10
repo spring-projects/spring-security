@@ -1664,10 +1664,15 @@
   <xs:attributeGroup name="session-management.attlist">
       <xs:attribute name="session-fixation-protection">
          <xs:annotation>
-            <xs:documentation>Indicates whether an existing session should be invalidated when a user authenticates and
-                a new session started. If set to "none" no change will be made. "newSession" will create a
-                new empty session. "migrateSession" will create a new session and copy the session
-                attributes to the new session. Defaults to "migrateSession".
+            <xs:documentation>Indicates how session fixation protection will be applied when a user authenticates. If
+                set to "none", no protection will be applied. "newSession" will create a new empty
+                session, with only Spring Security-related attributes migrated. "migrateSession" will
+                create a new session and copy all session attributes to the new session. In Servlet 3.1
+                (Java EE 7) and newer containers, specifying "changeSessionId" will keep the existing
+                session and use the container-supplied session fixation protection
+                (HttpServletRequest#changeSessionId()). Defaults to "changeSessionId" in Servlet 3.1 and
+                newer containers, "migrateSession" in older containers. Throws an exception if
+                "changeSessionId" is used in older containers.
                 </xs:documentation>
          </xs:annotation>
          <xs:simpleType>
@@ -1675,6 +1680,7 @@
                <xs:enumeration value="none"/>
                <xs:enumeration value="newSession"/>
                <xs:enumeration value="migrateSession"/>
+               <xs:enumeration value="changeSessionId"/>
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>

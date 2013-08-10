@@ -515,8 +515,8 @@ session-management =
     element session-management {session-management.attlist, concurrency-control?}
 
 session-management.attlist &=
-    ## Indicates whether an existing session should be invalidated when a user authenticates and a new session started. If set to "none" no change will be made. "newSession" will create a new empty session. "migrateSession" will create a new session and copy the session attributes to the new session. Defaults to "migrateSession".
-    attribute session-fixation-protection {"none" | "newSession" | "migrateSession" }?
+    ## Indicates how session fixation protection will be applied when a user authenticates. If set to "none", no protection will be applied. "newSession" will create a new empty session, with only Spring Security-related attributes migrated. "migrateSession" will create a new session and copy all session attributes to the new session. In Servlet 3.1 (Java EE 7) and newer containers, specifying "changeSessionId" will keep the existing session and use the container-supplied session fixation protection (HttpServletRequest#changeSessionId()). Defaults to "changeSessionId" in Servlet 3.1 and newer containers, "migrateSession" in older containers. Throws an exception if "changeSessionId" is used in older containers.
+    attribute session-fixation-protection {"none" | "newSession" | "migrateSession" | "changeSessionId" }?
 session-management.attlist &=
     ## The URL to which a user will be redirected if they submit an invalid session indentifier. Typically used to detect session timeouts.
     attribute invalid-session-url {xsd:token}?

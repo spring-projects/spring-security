@@ -22,19 +22,12 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
 /**
- * The default implementation of {@link SessionAuthenticationStrategy}.
+ * The default implementation of {@link SessionAuthenticationStrategy} when using < Servlet 3.1.
  * <p>
  * Creates a new session for the newly authenticated user if they already have a session (as a defence against
  * session-fixation protection attacks), and copies their session attributes across to the new session.
@@ -59,101 +52,18 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @since 3.0
  */
-public class SessionFixationProtectionStrategy implements SessionAuthenticationStrategy, ApplicationEventPublisherAware {
-    protected final Log logger = LogFactory.getLog(this.getClass());
-
-    /**
-     * Used for publishing events related to session fixation protection, such as {@link SessionFixationProtectionEvent}.
-     */
-    private ApplicationEventPublisher applicationEventPublisher = new NullEventPublisher();
-
+public class SessionFixationProtectionStrategy extends AbstractSessionFixationProtectionStrategy {
     /**
      * Indicates that the session attributes of an existing session
      * should be migrated to the new session. Defaults to <code>true</code>.
      */
-    private boolean migrateSessionAttributes = true;
+    boolean migrateSessionAttributes = true;
 
     /**
      * In the case where the attributes will not be migrated, this field allows a list of named attributes
      * which should <em>not</em> be discarded.
      */
     private List<String> retainedAttributes = null;
-
-    /**
-     * If set to {@code true}, a session will always be created, even if one didn't exist at the start of the request.
-     * Defaults to {@code false}.
-     */
-    private boolean alwaysCreateSession;
-
-    /**
-     * Called when a user is newly authenticated.
-     * <p>
-     * If a session already exists, and matches the session Id from the client, a new session will be created, and the
-     * session attributes copied to it (if {@code migrateSessionAttributes} is set).
-     * If the client's requested session Id is invalid, nothing will be done, since there is no need to change the
-     * session Id if it doesn't match the current session.
-     * <p>
-     * If there is no session, no action is taken unless the {@code alwaysCreateSession} property is set, in which
-     * case a session will be created if one doesn't already exist.
-     */
-    public void onAuthentication(Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
-        boolean hadSessionAlready = request.getSession(false) != null;
-
-        if (!hadSessionAlready && !alwaysCreateSession) {
-            // Session fixation isn't a problem if there's no session
-
-            return;
-        }
-
-        // Create new session if necessary
-        HttpSession session = request.getSession();
-
-        if (hadSessionAlready && request.isRequestedSessionIdValid()) {
-            // We need to migrate to a new session
-            String originalSessionId = session.getId();
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("Invalidating session with Id '" + originalSessionId +"' " + (migrateSessionAttributes ?
-                        "and" : "without") +  " migrating attributes.");
-            }
-
-            Map<String, Object> attributesToMigrate = extractAttributes(session);
-
-            session.invalidate();
-            session = request.getSession(true); // we now have a new session
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("Started new session: " + session.getId());
-            }
-
-            if (originalSessionId.equals(session.getId())) {
-                logger.warn("Your servlet container did not change the session ID when a new session was created. You will" +
-                        " not be adequately protected against session-fixation attacks");
-            }
-
-            transferAttributes(attributesToMigrate, session);
-
-            onSessionChange(originalSessionId, session, authentication);
-        }
-    }
-
-    /**
-     * Called when the session has been changed and the old attributes have been migrated to the new session.
-     * Only called if a session existed to start with. Allows subclasses to plug in additional behaviour.
-     * * <p>
-     * The default implementation of this method publishes a {@link SessionFixationProtectionEvent} to notify
-     * the application that the session ID has changed. If you override this method and still wish these events to be
-     * published, you should call {@code super.onSessionChange()} within your overriding method.
-     *
-     * @param originalSessionId the original session identifier
-     * @param newSession the newly created session
-     * @param auth the token for the newly authenticated principal
-     */
-    protected void onSessionChange(String originalSessionId, HttpSession newSession, Authentication auth) {
-        applicationEventPublisher.publishEvent(new SessionFixationProtectionEvent(
-                auth, originalSessionId, newSession.getId()
-        ));
-    }
 
     /**
      * Called to extract the existing attributes from the session, prior to invalidating it. If
@@ -169,11 +79,33 @@ public class SessionFixationProtectionStrategy implements SessionAuthenticationS
         return createMigratedAttributeMap(session);
     }
 
+    @Override
+    final HttpSession applySessionFixation(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        String originalSessionId = session.getId();
+        if (logger.isDebugEnabled()) {
+            logger.debug("Invalidating session with Id '" + originalSessionId +"' " + (migrateSessionAttributes ?
+                    "and" : "without") +  " migrating attributes.");
+        }
+
+        Map<String, Object> attributesToMigrate = extractAttributes(session);
+
+        session.invalidate();
+        session = request.getSession(true); // we now have a new session
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Started new session: " + session.getId());
+        }
+
+        transferAttributes(attributesToMigrate, session);
+        return session;
+    }
+
     /**
      * @param attributes the attributes which were extracted from the original session by {@code extractAttributes}
      * @param newSession the newly created session
      */
-    private void transferAttributes(Map<String, Object> attributes, HttpSession newSession) {
+    void transferAttributes(Map<String, Object> attributes, HttpSession newSession) {
         if (attributes != null) {
             for (Map.Entry<String, Object> entry : attributes.entrySet()) {
                 newSession.setAttribute(entry.getKey(), entry.getValue());
@@ -215,19 +147,6 @@ public class SessionFixationProtectionStrategy implements SessionAuthenticationS
     }
 
     /**
-     * Sets the {@link ApplicationEventPublisher} to use for submitting
-     * {@link SessionFixationProtectionEvent}. The default is to not submit the
-     * {@link SessionFixationProtectionEvent}.
-     *
-     * @param applicationEventPublisher
-     *            the {@link ApplicationEventPublisher}. Cannot be null.
-     */
-    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
-        Assert.notNull(applicationEventPublisher, "applicationEventPublisher cannot be null");
-        this.applicationEventPublisher = applicationEventPublisher;
-    }
-
-    /**
      * Defines whether attributes should be migrated to a new session or not. Has no effect if you
      * override the {@code extractAttributes} method.
      * <p>
@@ -249,13 +168,5 @@ public class SessionFixationProtectionStrategy implements SessionAuthenticationS
         logger.warn("Retained attributes is deprecated. Override the extractAttributes() method instead.");
         Assert.notNull(retainedAttributes);
         this.retainedAttributes = retainedAttributes;
-    }
-
-    public void setAlwaysCreateSession(boolean alwaysCreateSession) {
-        this.alwaysCreateSession = alwaysCreateSession;
-    }
-
-    private static final class NullEventPublisher implements ApplicationEventPublisher {
-        public void publishEvent(ApplicationEvent event) { }
     }
 }
