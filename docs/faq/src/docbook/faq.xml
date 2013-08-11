@@ -357,11 +357,14 @@
                             Security?</para>
                     </question>
                     <answer>
-                        <para>With the default configuration, Spring Security invalidates the
-                            existing session when the user authenticates and creates a new one,
-                            transferring the session data to it. The intention is to change the
-                            session identifier to prevent <quote>session-fixation</quote> attacks.
-                            You can find more about this online and in the reference manual. </para>
+                        <para>With the default configuration, Spring Security changes the session ID
+                            when the user authenticates. If you're using a Servlet 3.1 or newer
+                            container, the session ID is simply changed. If you're using an older
+                            container, Spring Security invalidates the existing session, creates a
+                            new session, and transfers the session data to the new session. Changing
+                            the session identifier in this manner prevents
+                            <quote>session-fixation</quote> attacks. You can find more about this
+                            online and in the reference manual. </para>
                     </answer>
                 </qandaentry>
 
@@ -378,12 +381,15 @@
                             be used under HTTP. The browser will not send the cookie back to the
                             server and any session state will be lost (including the security
                             context information). Starting a session in HTTP first should work as
-                            the session cookie won't be marked as secure (you will also have to
-                            disable Spring Security's <link
+                            the session cookie won't be marked as secure. However, Spring
+                            Security's <link
                             xlink:href="http://static.springsource.org/spring-security/site/docs/3.1.x/reference/springsecurity-single.html#ns-session-fixation"
-                            > Session Fixation Protection</link> support to prevent it from creating
-                            a new secure session on login (you can always create a new session
-                            yourself at a later stage). Note that switching between HTTP and HTTPS
+                            >Session Fixation Protection</link> can interfere with this because
+                            it results in a new session ID cookie being sent back to the user's
+                            browser, usually with the secure flag. To get around this, you can
+                            disable session fixation protection, but in newer Servlet containers
+                            you can also configure session cookies to never use the secure flag.
+                            Note that switching between HTTP and HTTPS
                             is not a good idea in general, as any application which uses HTTP at all
                             is vulnerable to man-in-the-middle attacks. To be truly secure, the user
                             should begin accessing your site in HTTPS and continue using it until
