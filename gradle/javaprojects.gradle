@@ -166,6 +166,14 @@ eclipse.classpath {
     }
 }
 
+// GRADLE-1116
+project.eclipse.classpath.file.whenMerged { classpath ->
+    classpath.entries.removeAll { entry -> entry.path.endsWith('/build/resources/test') }
+    classpath.entries.removeAll { entry -> entry.path.endsWith('/build/classes/test') }
+    classpath.entries.removeAll { entry -> entry.path.endsWith('/build/resources/main') }
+    classpath.entries.removeAll { entry -> entry.path.endsWith('/build/classes/main') }
+}
+
 // GRADLE-1422
 project.eclipseClasspath.doFirst {
    // delay adding whenMerged till the entryAttributes are added (must be the last whenMerged)
