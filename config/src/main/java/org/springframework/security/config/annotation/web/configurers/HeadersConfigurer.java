@@ -71,7 +71,7 @@ public final class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends A
      * @return the {@link HeadersConfigurer} for additional customizations
      */
     public HeadersConfigurer<H> xssProtection() {
-        return addHeaderWriter(new XContentTypeOptionsHeaderWriter());
+        return addHeaderWriter(new XXssProtectionHeaderWriter());
     }
 
     /**
