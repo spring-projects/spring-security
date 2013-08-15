@@ -44,21 +44,9 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
  *
  */
 public class NamespaceHttpOpenIDLoginTests extends BaseSpringSpec {
-    FilterChainProxy springSecurityFilterChain
-    MockHttpServletRequest request
-    MockHttpServletResponse response
-    MockFilterChain chain
-
-    def setup() {
-        request = new MockHttpServletRequest()
-        response = new MockHttpServletResponse()
-        chain = new MockFilterChain()
-    }
-
     def "http/openid-login"() {
         when:
             loadConfig(OpenIDLoginConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
         then:
             findFilter(OpenIDAuthenticationFilter).consumer.class == OpenID4JavaConsumer
         when:
@@ -66,7 +54,7 @@ public class NamespaceHttpOpenIDLoginTests extends BaseSpringSpec {
         then:
             response.getRedirectedUrl() == "http://localhost/login"
         when: "fail to log in"
-            setup()
+            super.setup()
             request.servletPath = "/login/openid"
             request.method = "POST"
             springSecurityFilterChain.doFilter(request,response,chain)
@@ -89,7 +77,6 @@ public class NamespaceHttpOpenIDLoginTests extends BaseSpringSpec {
     def "http/openid-login/attribute-exchange"() {
         when:
             loadConfig(OpenIDLoginAttributeExchangeConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
             OpenID4JavaConsumer consumer = findFilter(OpenIDAuthenticationFilter).consumer
         then:
             consumer.class == OpenID4JavaConsumer
@@ -117,7 +104,7 @@ public class NamespaceHttpOpenIDLoginTests extends BaseSpringSpec {
         then:
             response.getRedirectedUrl() == "http://localhost/login"
         when: "fail to log in"
-            setup()
+            super.setup()
             request.servletPath = "/login/openid"
             request.method = "POST"
             springSecurityFilterChain.doFilter(request,response,chain)
@@ -165,13 +152,12 @@ public class NamespaceHttpOpenIDLoginTests extends BaseSpringSpec {
     def "http/openid-login custom"() {
         setup:
             loadConfig(OpenIDLoginCustomConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
             response.getRedirectedUrl() == "http://localhost/authentication/login"
         when: "fail to log in"
-            setup()
+            super.setup()
             request.servletPath = "/authentication/login/process"
             request.method = "POST"
             springSecurityFilterChain.doFilter(request,response,chain)
@@ -200,7 +186,6 @@ public class NamespaceHttpOpenIDLoginTests extends BaseSpringSpec {
         when:
             OpenIDLoginCustomRefsConfig.AUDS = Mock(AuthenticationUserDetailsService)
             loadConfig(OpenIDLoginCustomRefsConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
         then: "CustomWebAuthenticationDetailsSource is used"
             findFilter(OpenIDAuthenticationFilter).authenticationDetailsSource.class == CustomWebAuthenticationDetailsSource
             findAuthenticationProvider(OpenIDAuthenticationProvider).userDetailsService == OpenIDLoginCustomRefsConfig.AUDS

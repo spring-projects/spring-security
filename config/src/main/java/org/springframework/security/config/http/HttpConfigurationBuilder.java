@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
-import org.springframework.beans.factory.config.BeanReferenceFactoryBean;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.parsing.CompositeComponentDefinition;
@@ -71,6 +70,7 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
 import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy;
+import org.springframework.security.web.util.AntPathRequestMatcher;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
@@ -126,6 +126,9 @@ class HttpConfigurationBuilder {
     private BeanReference fsi;
     private BeanReference requestCache;
     private BeanDefinition addHeadersFilter;
+    private BeanDefinition csrfFilter;
+    private BeanMetadataElement csrfLogoutHandler;
+    private BeanMetadataElement csrfAuthStrategy;
 
     public HttpConfigurationBuilder(Element element, ParserContext pc,
             BeanReference portMapper, BeanReference portResolver, BeanReference authenticationManager) {
@@ -152,6 +155,7 @@ class HttpConfigurationBuilder {
             sessionPolicy = SessionCreationPolicy.IF_REQUIRED;
         }
 
+        createCsrfFilter();
         createSecurityContextPersistenceFilter();
         createSessionManagementFilters();
         createWebAsyncManagerFilter();
@@ -192,6 +196,12 @@ class HttpConfigurationBuilder {
     void setEntryPoint(BeanMetadataElement entryPoint) {
         if(servApiFilter != null) {
             servApiFilter.getPropertyValues().add("authenticationEntryPoint", entryPoint);
+        }
+    }
+
+    void setAccessDeniedHandler(BeanMetadataElement accessDeniedHandler) {
+        if(csrfFilter != null) {
+            csrfFilter.getPropertyValues().add("accessDeniedHandler", accessDeniedHandler);
         }
     }
 
@@ -297,6 +307,10 @@ class HttpConfigurationBuilder {
         BeanDefinitionBuilder concurrentSessionStrategy;
         BeanDefinitionBuilder sessionFixationStrategy = null;
         BeanDefinitionBuilder registerSessionStrategy;
+
+        if(csrfAuthStrategy != null) {
+            delegateSessionStrategies.add(csrfAuthStrategy);
+        }
 
         if (sessionControlEnabled) {
             assert sessionRegistryRef != null;
@@ -541,6 +555,12 @@ class HttpConfigurationBuilder {
                 requestCacheBldr = BeanDefinitionBuilder.rootBeanDefinition(HttpSessionRequestCache.class);
                 requestCacheBldr.addPropertyValue("createSessionAllowed", sessionPolicy == SessionCreationPolicy.IF_REQUIRED);
                 requestCacheBldr.addPropertyValue("portResolver", portResolver);
+                if(csrfFilter != null) {
+                    BeanDefinitionBuilder requestCacheMatcherBldr = BeanDefinitionBuilder.rootBeanDefinition(AntPathRequestMatcher.class);
+                    requestCacheMatcherBldr.addConstructorArgValue("/**");
+                    requestCacheMatcherBldr.addConstructorArgValue("GET");
+                    requestCacheBldr.addPropertyValue("requestMatcher", requestCacheMatcherBldr.getBeanDefinition());
+                }
             }
 
             BeanDefinition bean = requestCacheBldr.getBeanDefinition();
@@ -617,6 +637,20 @@ class HttpConfigurationBuilder {
 
     }
 
+    private void createCsrfFilter() {
+        Element elmt = DomUtils.getChildElementByTagName(httpElt, Elements.CSRF);
+        if (elmt != null) {
+            CsrfBeanDefinitionParser csrfParser = new CsrfBeanDefinitionParser();
+            this.csrfFilter = csrfParser.parse(elmt, pc);
+            this.csrfAuthStrategy = csrfParser.getCsrfAuthenticationStrategy();
+            this.csrfLogoutHandler = csrfParser.getCsrfLogoutHandler();
+        }
+    }
+
+    BeanMetadataElement getCsrfLogoutHandler() {
+        return this.csrfLogoutHandler;
+    }
+
     BeanReference getSessionStrategy() {
         return sessionStrategyRef;
     }
@@ -666,6 +700,10 @@ class HttpConfigurationBuilder {
 
         if (addHeadersFilter != null) {
             filters.add(new OrderDecorator(addHeadersFilter, HEADERS_FILTER));
+        }
+
+        if (csrfFilter != null) {
+            filters.add(new OrderDecorator(csrfFilter, CSRF_FILTER));
         }
 
         return filters;

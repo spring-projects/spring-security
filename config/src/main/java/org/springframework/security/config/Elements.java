@@ -55,4 +55,5 @@ public abstract class Elements {
     public static final String DEBUG = "debug";
     public static final String HTTP_FIREWALL = "http-firewall";
     public static final String HEADERS = "headers";
+    public static final String CSRF = "csrf";
 }

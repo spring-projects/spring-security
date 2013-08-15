@@ -30,6 +30,7 @@ enum SecurityFilters {
     /** {@link WebAsyncManagerIntegrationFilter} */
     WEB_ASYNC_MANAGER_FILTER,
     HEADERS_FILTER,
+    CSRF_FILTER,
     LOGOUT_FILTER,
     X509_FILTER,
     PRE_AUTH_FILTER,

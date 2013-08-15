@@ -64,12 +64,6 @@ public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>> extend
         return this;
     }
 
-    @SuppressWarnings("unchecked")
-    public H disable() {
-        getBuilder().removeConfigurer(getClass());
-        return getBuilder();
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     public void configure(H http) throws Exception {

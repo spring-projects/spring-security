@@ -154,6 +154,7 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
         http.setSharedObject(ContentNegotiationStrategy.class, contentNegotiationStrategy);
         if(!disableDefaults) {
             http
+                .csrf().and()
                 .addFilter(new WebAsyncManagerIntegrationFilter())
                 .exceptionHandling().and()
                 .headers().and()

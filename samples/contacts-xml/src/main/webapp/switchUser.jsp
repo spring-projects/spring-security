@@ -36,7 +36,7 @@
         <tr><td>User:</td><td><input type='text' name='j_username'></td></tr>
         <tr><td colspan='2'><input name="switch" type="submit" value="Switch to User"></td></tr>
       </table>
-
+      <input type="hidden" name="<c:out value="${_csrf.parameterName}"/>" value="<c:out value="${_csrf.token}"/>"/>
     </form>
 
   </body>

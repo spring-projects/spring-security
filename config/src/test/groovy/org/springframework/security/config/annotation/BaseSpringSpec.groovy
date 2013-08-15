@@ -25,16 +25,18 @@ import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationProvider
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.context.SecurityContextImpl
 import org.springframework.security.web.FilterChainProxy
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor
 import org.springframework.security.web.context.HttpRequestResponseHolder
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository
+import org.springframework.security.web.csrf.CsrfToken
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository
 
 import spock.lang.AutoCleanup
 import spock.lang.Specification
@@ -50,11 +52,26 @@ abstract class BaseSpringSpec extends Specification {
     MockHttpServletRequest request
     MockHttpServletResponse response
     MockFilterChain chain
+    CsrfToken csrfToken
 
     def setup() {
+        setupWeb(null)
+    }
+
+    def setupWeb(httpSession = null) {
         request = new MockHttpServletRequest(method:"GET")
+        if(httpSession) {
+            request.session = httpSession
+        }
         response = new MockHttpServletResponse()
         chain = new MockFilterChain()
+        setupCsrf()
+    }
+
+    def setupCsrf(csrfTokenValue="BaseSpringSpec_CSRFTOKEN") {
+        csrfToken = new CsrfToken("X-CSRF-TOKEN","_csrf",csrfTokenValue)
+        new HttpSessionCsrfTokenRepository().saveToken(csrfToken, request,response)
+        request.setParameter(csrfToken.parameterName, csrfToken.token)
     }
 
     AuthenticationManagerBuilder authenticationBldr = new AuthenticationManagerBuilder(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR).inMemoryAuthentication().and()
@@ -115,6 +132,10 @@ abstract class BaseSpringSpec extends Specification {
 
     AuthenticationProvider findAuthenticationProvider(Class<?> provider) {
         authenticationProviders().find { provider.isAssignableFrom(it.class) }
+    }
+
+    def getCurrentAuthentication() {
+        new HttpSessionSecurityContextRepository().loadContext(new HttpRequestResponseHolder(request, response)).authentication
     }
 
     def login(String username="user", String role="ROLE_USER") {

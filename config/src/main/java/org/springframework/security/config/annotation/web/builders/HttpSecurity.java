@@ -38,6 +38,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.AnonymousConfigurer;
 import org.springframework.security.config.annotation.web.configurers.ChannelSecurityConfigurer;
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
@@ -661,6 +662,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      */
     public ServletApiConfigurer<HttpSecurity> servletApi() throws Exception {
         return getOrApply(new ServletApiConfigurer<HttpSecurity>());
+    }
+
+
+    /**
+     * Adds CSRF support
+     *
+     * @return the {@link ServletApiConfigurer} for further customizations
+     * @throws Exception
+     */
+    public CsrfConfigurer<HttpSecurity> csrf() throws Exception {
+        return getOrApply(new CsrfConfigurer<HttpSecurity>());
     }
 
     /**

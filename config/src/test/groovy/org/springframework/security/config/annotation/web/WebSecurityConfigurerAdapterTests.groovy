@@ -79,7 +79,8 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
                          'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
                          'Cache-Control': 'no-cache,no-store,max-age=0,must-revalidate',
                          'Pragma':'no-cache',
-                         'X-XSS-Protection' : '1; mode=block']
+                         'X-XSS-Protection' : '1; mode=block',
+                         'X-CSRF-TOKEN' : csrfToken.token]
     }
 
     @EnableWebSecurity

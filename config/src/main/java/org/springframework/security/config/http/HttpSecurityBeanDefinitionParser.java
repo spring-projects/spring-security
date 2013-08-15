@@ -137,10 +137,11 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         AuthenticationConfigBuilder authBldr = new AuthenticationConfigBuilder(element, pc,
                 httpBldr.getSessionCreationPolicy(), httpBldr.getRequestCache(), authenticationManager,
-                httpBldr.getSessionStrategy(), portMapper, portResolver);
+                httpBldr.getSessionStrategy(), portMapper, portResolver, httpBldr.getCsrfLogoutHandler());
 
         httpBldr.setLogoutHandlers(authBldr.getLogoutHandlers());
         httpBldr.setEntryPoint(authBldr.getEntryPointBean());
+        httpBldr.setAccessDeniedHandler(authBldr.getAccessDeniedHandlerBean());
 
         authenticationProviders.addAll(authBldr.getProviders());
 

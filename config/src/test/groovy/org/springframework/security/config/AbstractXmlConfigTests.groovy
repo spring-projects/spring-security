@@ -1,6 +1,8 @@
 package org.springframework.security.config
 
 import groovy.xml.MarkupBuilder
+
+import org.mockito.Mockito;
 import org.springframework.context.support.AbstractXmlApplicationContext
 import org.springframework.security.config.util.InMemoryXmlApplicationContext
 import org.springframework.security.core.context.SecurityContextHolder
@@ -35,6 +37,12 @@ abstract class AbstractXmlConfigTests extends Specification {
             appContext = null;
         }
         SecurityContextHolder.clearContext();
+    }
+
+    def mockBean(Class clazz, String id = clazz.simpleName) {
+        xml.'b:bean'(id: id, 'class': Mockito.class.name, 'factory-method':'mock') {
+            'b:constructor-arg'(value : clazz.name)
+        }
     }
 
     def bean(String name, Class clazz) {

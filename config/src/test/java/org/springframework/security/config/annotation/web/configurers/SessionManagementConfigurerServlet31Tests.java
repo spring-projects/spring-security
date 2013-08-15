@@ -49,6 +49,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.util.ReflectionUtils;
 
 
@@ -94,6 +96,8 @@ public class SessionManagementConfigurerServlet31Tests {
         request.setMethod("POST");
         request.setParameter("username", "user");
         request.setParameter("password", "password");
+        CsrfToken token = new HttpSessionCsrfTokenRepository().generateAndSaveToken(request, response);
+        request.setParameter(token.getParameterName(),token.getToken());
         when(ReflectionUtils.findMethod(HttpServletRequest.class, "changeSessionId")).thenReturn(method);
 
         loadConfig(SessionManagementDefaultSessionFixationServlet31Config.class);

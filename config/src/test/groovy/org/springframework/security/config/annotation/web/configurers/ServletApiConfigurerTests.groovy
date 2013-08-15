@@ -26,6 +26,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.security.web.csrf.CsrfLogoutHandler;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
 
 /**
@@ -59,7 +60,7 @@ class ServletApiConfigurerTests extends BaseSpringSpec {
         and: "requestFactory != null"
             filter.requestFactory != null
         and: "logoutHandlers populated"
-            filter.logoutHandlers.collect { it.class } == [SecurityContextLogoutHandler]
+            filter.logoutHandlers.collect { it.class } == [CsrfLogoutHandler, SecurityContextLogoutHandler]
     }
 
     @CompileStatic

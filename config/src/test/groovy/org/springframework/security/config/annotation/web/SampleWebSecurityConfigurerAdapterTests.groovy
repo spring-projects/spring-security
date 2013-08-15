@@ -20,8 +20,7 @@ import javax.servlet.http.HttpServletResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
-import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.config.annotation.BaseWebSpecuritySpec
+import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.builders.WebSecurity
@@ -34,7 +33,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
  * @author Rob Winch
  *
  */
-public class SampleWebSecurityConfigurerAdapterTests extends BaseWebSpecuritySpec {
+public class SampleWebSecurityConfigurerAdapterTests extends BaseSpringSpec {
     def "README HelloWorld Sample works"() {
         setup: "Sample Config is loaded"
             loadConfig(HelloWorldWebSecurityConfigurerAdapter)

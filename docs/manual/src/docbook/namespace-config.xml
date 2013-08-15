@@ -716,8 +716,13 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                         </row>
                         <row>
                             <entry>HEADERS_FILTER</entry>
-                            <entry><literal>HeadersFilter</literal> </entry>
+                            <entry><literal>HeaderWriterFilter</literal> </entry>
                             <entry><literal>http/headers</literal></entry>
+                        </row>
+                        <row>
+                            <entry>CSRF_FILTER</entry>
+                            <entry><literal>CsrfFilter</literal> </entry>
+                            <entry><literal>http/csrf</literal></entry>
                         </row>
                         <row>
                             <entry> LOGOUT_FILTER </entry>

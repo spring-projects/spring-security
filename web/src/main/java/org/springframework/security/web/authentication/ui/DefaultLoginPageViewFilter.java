@@ -27,6 +27,7 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.WebAttributes;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.filter.GenericFilterBean;
 
 /**
@@ -164,6 +165,7 @@ public class DefaultLoginPageViewFilter extends GenericFilterBean {
             }
 
             sb.append("    <tr><td colspan='2'><input name=\"submit\" type=\"submit\" value=\"Login\"/></td></tr>\n");
+            renderHiddenInputs(sb, request);
             sb.append("  </table>\n");
             sb.append("</form>");
         }
@@ -181,12 +183,21 @@ public class DefaultLoginPageViewFilter extends GenericFilterBean {
 
             sb.append("    <tr><td colspan='2'><input name=\"submit\" type=\"submit\" value=\"Login\"/></td></tr>\n");
             sb.append("  </table>\n");
+            renderHiddenInputs(sb, request);
             sb.append("</form>");
         }
 
         sb.append("</body></html>");
 
         return sb.toString();
+    }
+
+    private void renderHiddenInputs(StringBuilder sb, HttpServletRequest request) {
+        CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+
+        if(token != null) {
+            sb.append("    <input name=\""+ token.getParameterName() +"\" type=\"hidden\" value=\""+ token.getToken() +"\" />\n");
+        }
     }
 
     private boolean isLogoutSuccess(HttpServletRequest request) {

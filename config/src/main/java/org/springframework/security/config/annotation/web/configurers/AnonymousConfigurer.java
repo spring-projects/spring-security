@@ -39,7 +39,7 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
  * @author  Rob Winch
  * @since  3.2
  */
-public final class AnonymousConfigurer<H extends HttpSecurityBuilder<H>> extends SecurityConfigurerAdapter<DefaultSecurityFilterChain,H> {
+public final class AnonymousConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<H> {
     private String key;
     private AuthenticationProvider authenticationProvider;
     private AnonymousAuthenticationFilter authenticationFilter;
@@ -51,18 +51,6 @@ public final class AnonymousConfigurer<H extends HttpSecurityBuilder<H>> extends
      * @see HttpSecurity#anonymous()
      */
     public AnonymousConfigurer() {
-    }
-
-    /**
-     * Disables anonymous authentication.
-     *
-     * @return the {@link HttpSecurity} since no further customization of anonymous authentication would be
-     *         meaningful.
-     */
-    @SuppressWarnings("unchecked")
-    public H disable() {
-        getBuilder().removeConfigurer(getClass());
-        return getBuilder();
     }
 
     /**

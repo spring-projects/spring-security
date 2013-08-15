@@ -33,6 +33,7 @@
          </td></tr>
         <tr><td colspan='2'><input name="exit" type="submit" value="Exit"></td></tr>
       </table>
+      <input type="hidden" name="<c:out value="${_csrf.parameterName}"/>" value="<c:out value="${_csrf.token}"/>"/>
     </form>
   </body>
 </html>

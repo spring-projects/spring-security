@@ -15,6 +15,7 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -80,6 +81,7 @@ import org.springframework.util.Assert;
 public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<H> {
     private SessionAuthenticationStrategy sessionFixationAuthenticationStrategy = createDefaultSessionFixationProtectionStrategy();
     private SessionAuthenticationStrategy sessionAuthenticationStrategy;
+    private List<SessionAuthenticationStrategy> sessionAuthenticationStrategies = new ArrayList<SessionAuthenticationStrategy>();
     private SessionRegistry sessionRegistry = new SessionRegistryImpl();
     private Integer maximumSessions;
     private String expiredUrl;
@@ -170,6 +172,18 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
      */
     public SessionManagementConfigurer<H> sessionAuthenticationStrategy(SessionAuthenticationStrategy sessionAuthenticationStrategy) {
         this.sessionFixationAuthenticationStrategy = sessionAuthenticationStrategy;
+        return this;
+    }
+
+    /**
+     * Adds an additional {@link SessionAuthenticationStrategy} to be used within the {@link CompositeSessionAuthenticationStrategy}.
+     *
+     * @param sessionAuthenticationStrategy
+     * @return the {@link SessionManagementConfigurer} for further
+     *         customizations
+     */
+    SessionManagementConfigurer<H> addSessionAuthenticationStrategy(SessionAuthenticationStrategy sessionAuthenticationStrategy) {
+        this.sessionAuthenticationStrategies.add(sessionAuthenticationStrategy);
         return this;
     }
 
@@ -400,6 +414,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
         if(sessionAuthenticationStrategy != null) {
             return sessionAuthenticationStrategy;
         }
+        List<SessionAuthenticationStrategy> delegateStrategies = sessionAuthenticationStrategies;
         if(isConcurrentSessionControlEnabled()) {
             ConcurrentSessionControlAuthenticationStrategy concurrentSessionControlStrategy = new ConcurrentSessionControlAuthenticationStrategy(sessionRegistry);
             concurrentSessionControlStrategy.setMaximumSessions(maximumSessions);
@@ -409,11 +424,11 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
             RegisterSessionAuthenticationStrategy registerSessionStrategy = new RegisterSessionAuthenticationStrategy(sessionRegistry);
             registerSessionStrategy = postProcess(registerSessionStrategy);
 
-            List<SessionAuthenticationStrategy> delegateStrategies = Arrays.asList(concurrentSessionControlStrategy, sessionFixationAuthenticationStrategy, registerSessionStrategy);
-            sessionAuthenticationStrategy = postProcess(new CompositeSessionAuthenticationStrategy(delegateStrategies));
+            delegateStrategies.addAll(Arrays.asList(concurrentSessionControlStrategy, sessionFixationAuthenticationStrategy, registerSessionStrategy));
         } else {
-            sessionAuthenticationStrategy = sessionFixationAuthenticationStrategy;
+            delegateStrategies.add(sessionFixationAuthenticationStrategy);
         }
+        sessionAuthenticationStrategy = postProcess(new CompositeSessionAuthenticationStrategy(delegateStrategies));
         return sessionAuthenticationStrategy;
     }
 

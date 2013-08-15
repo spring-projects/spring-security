@@ -42,28 +42,16 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageViewFi
  *
  */
 public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
-    FilterChainProxy springSecurityFilterChain
-    MockHttpServletRequest request
-    MockHttpServletResponse response
-    MockFilterChain chain
-
-    def setup() {
-        request = new MockHttpServletRequest(method:"GET")
-        response = new MockHttpServletResponse()
-        chain = new MockFilterChain()
-    }
-
     def "http/form-login default login generating page"() {
         setup:
             loadConfig(DefaultLoginPageConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
             findFilter(DefaultLoginPageViewFilter)
             response.getRedirectedUrl() == "http://localhost/login"
         when: "request the login page"
-            setup()
+            super.setup()
             request.requestURI = "/login"
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
@@ -73,10 +61,11 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
     <tr><td>User:</td><td><input type='text' name='username' value=''></td></tr>
     <tr><td>Password:</td><td><input type='password' name='password'/></td></tr>
     <tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
+    <input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
   </table>
 </form></body></html>"""
         when: "fail to log in"
-            setup()
+            super.setup()
             request.servletPath = "/login"
             request.method = "POST"
             springSecurityFilterChain.doFilter(request,response,chain)
@@ -84,7 +73,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
             response.getRedirectedUrl() == "/login?error"
         when: "request the error page"
             HttpSession session = request.session
-            setup()
+            super.setup()
             request.session = session
             request.requestURI = "/login"
             request.queryString = "error"
@@ -96,10 +85,11 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
     <tr><td>User:</td><td><input type='text' name='username' value=''></td></tr>
     <tr><td>Password:</td><td><input type='password' name='password'/></td></tr>
     <tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
+    <input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
   </table>
 </form></body></html>"""
         when: "login success"
-            setup()
+            super.setup()
             request.servletPath = "/login"
             request.method = "POST"
             request.parameters.username = ["user"] as String[]
@@ -112,7 +102,6 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
     def "logout success renders"() {
         setup:
             loadConfig(DefaultLoginPageConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
         when: "logout success"
             request.requestURI = "/login"
             request.queryString = "logout"
@@ -125,6 +114,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
     <tr><td>User:</td><td><input type='text' name='username' value=''></td></tr>
     <tr><td>Password:</td><td><input type='password' name='password'/></td></tr>
     <tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
+    <input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
   </table>
 </form></body></html>"""
     }
@@ -144,7 +134,6 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
     def "custom logout success handler prevents rendering"() {
         setup:
             loadConfig(DefaultLoginPageCustomLogoutSuccessHandlerConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
         when: "logout success"
             request.requestURI = "/login"
             request.queryString = "logout"
@@ -172,7 +161,6 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
     def "custom logout success url prevents rendering"() {
         setup:
             loadConfig(DefaultLoginPageCustomLogoutConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
         when: "logout success"
             request.requestURI = "/login"
             request.queryString = "logout"
@@ -200,9 +188,8 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
     def "http/form-login default login with remember me"() {
         setup:
             loadConfig(DefaultLoginPageWithRememberMeConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
         when: "request the login page"
-            setup()
+            super.setup()
             request.requestURI = "/login"
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
@@ -213,6 +200,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
     <tr><td>Password:</td><td><input type='password' name='password'/></td></tr>
     <tr><td><input type='checkbox' name='remember-me'/></td><td>Remember me on this computer.</td></tr>
     <tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
+    <input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
   </table>
 </form></body></html>"""
     }
@@ -234,7 +222,6 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
     def "http/form-login default login with openid"() {
         setup:
             loadConfig(DefaultLoginPageWithOpenIDConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
         when: "request the login page"
             request.requestURI = "/login"
             springSecurityFilterChain.doFilter(request,response,chain)
@@ -244,6 +231,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
     <tr><td>Identity:</td><td><input type='text' size='30' name='openid_identifier'/></td></tr>
     <tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
   </table>
+    <input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
 </form></body></html>"""
     }
 
@@ -262,7 +250,6 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
     def "http/form-login default login with openid, form login, and rememberme"() {
         setup:
             loadConfig(DefaultLoginPageWithFormLoginOpenIDRememberMeConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
         when: "request the login page"
             request.requestURI = "/login"
             springSecurityFilterChain.doFilter(request,response,chain)
@@ -274,6 +261,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
     <tr><td>Password:</td><td><input type='password' name='password'/></td></tr>
     <tr><td><input type='checkbox' name='remember-me'/></td><td>Remember me on this computer.</td></tr>
     <tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
+    <input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
   </table>
 </form><h3>Login with OpenID Identity</h3><form name='oidf' action='/login/openid' method='POST'>
  <table>
@@ -281,6 +269,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
     <tr><td><input type='checkbox' name='remember-me'></td><td>Remember me on this computer.</td></tr>
     <tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
   </table>
+    <input name="${csrfToken.parameterName}" type="hidden" value="${csrfToken.token}" />
 </form></body></html>"""
     }
 

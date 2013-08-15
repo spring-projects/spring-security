@@ -211,6 +211,7 @@
                 <itemizedlist>
                     <listitem><link xlink:href="#nsa-access-denied-handler">access-denied-handler</link></listitem>
                     <listitem><link xlink:href="#nsa-anonymous">anonymous</link></listitem>
+                    <listitem><link xlink:href="#nsa-csrf">csrf</link></listitem>
                     <listitem><link xlink:href="#nsa-custom-filter">custom-filter</link></listitem>
                     <listitem><link xlink:href="#nsa-expression-handler">expression-handler</link></listitem>
                     <listitem><link xlink:href="#nsa-form-login">form-login</link></listitem>
@@ -515,6 +516,30 @@
                     <para>The username that should be assigned to the anonymous request. This allows the principal to
                         be identified, which may be important for logging and auditing. if unset, defaults to
                         <literal>anonymousUser</literal>.</para>
+                </section>
+            </section>
+        </section>
+        <section xml:id="nsa-csrf">
+            <title><literal>&lt;csrf&gt;</literal></title>
+            <para>This element will add <a href="">CSRF</a> to the application. It also updates the default RequestCache
+                to only replay "GET" requests upon successful authentication.</para>
+            <section xml:id="nsa-csrf-parents">
+                <title>Parent Elements of <literal>&lt;csrf&gt;</literal></title>
+                <itemizedlist>
+                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                </itemizedlist>
+            </section>
+            <section xml:id="nsa-csrf-attributes">
+                <title><literal>&lt;csrf&gt;</literal> Attributes</title>
+                <section xml:id="nsa-csrf-token-repository-ref">
+                    <title><literal>token-repository-ref</literal></title>
+                    <para>The CsrfTokenRepository to use. The default is
+                        <classname>HttpSessionCsrfTokenRepository</classname>.</para>
+                </section>
+                <section xml:id="nsa-csrf-request-matcher-ref">
+                    <title><literal>request-matcher-ref</literal></title>
+                    <para>The RequestMatcher instance to be used to determine if CSRF should be applied. Default is any
+                        HTTP method except "GET", "TRACE", "HEAD", "OPTIONS".</para>
                 </section>
             </section>
         </section>

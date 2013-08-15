@@ -81,8 +81,10 @@ public class NamespaceRememberMeTests extends BaseSpringSpec {
         when: "logout"
             super.setup()
             request.setSession(session)
+            super.setupCsrf()
             request.setCookies(rememberMeCookie)
-            request.requestURI = "/logout"
+            request.servletPath = "/logout"
+            request.method = "POST"
             springSecurityFilterChain.doFilter(request,response,chain)
             rememberMeCookie = getRememberMeCookie()
         then: "logout cookie expired"

@@ -16,7 +16,6 @@
 package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -31,6 +30,8 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageViewFilter;
+import org.springframework.security.web.util.AntPathRequestMatcher;
+import org.springframework.security.web.util.RequestMatcher;
 
 /**
  * Adds logout support. Other {@link SecurityConfigurer} instances may invoke
@@ -63,7 +64,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends Ab
     private SecurityContextLogoutHandler contextLogoutHandler = new SecurityContextLogoutHandler();
     private String logoutSuccessUrl = "/login?logout";
     private LogoutSuccessHandler logoutSuccessHandler;
-    private String logoutUrl = "/logout";
+    private RequestMatcher logoutRequestMatcher = new AntPathRequestMatcher("/logout", "POST");
     private boolean permitAll;
     private boolean customLogoutSuccess;
 
@@ -97,12 +98,22 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends Ab
     }
 
     /**
-     * The URL that triggers logout to occur. The default is "/logout"
+     * The URL that triggers logout to occur on HTTP POST. The default is "/logout"
      * @param logoutUrl the URL that will invoke logout.
      * @return the {@link LogoutConfigurer} for further customization
      */
     public LogoutConfigurer<H> logoutUrl(String logoutUrl) {
-        this.logoutUrl = logoutUrl;
+        return logoutRequestMatcher(new AntPathRequestMatcher(logoutUrl, "POST"));
+    }
+
+
+    /**
+     * The RequestMatcher that triggers logout to occur on HTTP POST. The default is "/logout"
+     * @param logoutRequestMatcher the RequestMatcher used to determine if logout should occur.
+     * @return the {@link LogoutConfigurer} for further customization
+     */
+    public LogoutConfigurer<H> logoutRequestMatcher(RequestMatcher logoutRequestMatcher) {
+        this.logoutRequestMatcher = logoutRequestMatcher;
         return this;
     }
 
@@ -189,7 +200,8 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends Ab
     @Override
     public void init(H http) throws Exception {
         if(permitAll) {
-            PermitAllSupport.permitAll(http, this.logoutUrl, this.logoutSuccessUrl);
+            PermitAllSupport.permitAll(http, this.logoutSuccessUrl);
+            PermitAllSupport.permitAll(http, this.logoutRequestMatcher);
         }
 
         DefaultLoginPageViewFilter loginPageGeneratingFilter = http.getSharedObject(DefaultLoginPageViewFilter.class);
@@ -245,7 +257,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends Ab
         logoutHandlers.add(contextLogoutHandler);
         LogoutHandler[] handlers = logoutHandlers.toArray(new LogoutHandler[logoutHandlers.size()]);
         LogoutFilter result = new LogoutFilter(getLogoutSuccessHandler(), handlers);
-        result.setFilterProcessesUrl(logoutUrl);
+        result.setLogoutRequestMatcher(logoutRequestMatcher);
         result = postProcess(result);
         return result;
     }

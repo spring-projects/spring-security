@@ -20,6 +20,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
+import org.springframework.security.web.util.AntPathRequestMatcher;
 
 /**
  * Adds request cache for Spring Security. Specifically this ensures that
@@ -72,6 +73,11 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> exte
     }
 
     @Override
+    public void init(H http) throws Exception {
+        http.setSharedObject(RequestCache.class, getRequestCache(http));
+    }
+
+    @Override
     public void configure(H http) throws Exception {
         RequestCache requestCache = getRequestCache(http);
         RequestCacheAwareFilter requestCacheFilter = new RequestCacheAwareFilter(requestCache);
@@ -93,6 +99,8 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> exte
         if(result != null) {
             return result;
         }
-        return new HttpSessionRequestCache();
+        HttpSessionRequestCache defaultCache = new HttpSessionRequestCache();
+        defaultCache.setRequestMatcher(new AntPathRequestMatcher("/**", "GET"));
+        return defaultCache;
     }
 }

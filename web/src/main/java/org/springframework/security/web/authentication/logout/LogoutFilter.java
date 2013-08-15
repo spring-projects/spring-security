@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.util.RequestMatcher;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -49,7 +50,9 @@ public class LogoutFilter extends GenericFilterBean {
 
     //~ Instance fields ================================================================================================
 
-    private String filterProcessesUrl = "/j_spring_security_logout";
+    private String filterProcessesUrl;
+    private RequestMatcher logoutRequestMatcher;
+
     private final List<LogoutHandler> handlers;
     private final LogoutSuccessHandler logoutSuccessHandler;
 
@@ -65,6 +68,7 @@ public class LogoutFilter extends GenericFilterBean {
         this.handlers = Arrays.asList(handlers);
         Assert.notNull(logoutSuccessHandler, "logoutSuccessHandler cannot be null");
         this.logoutSuccessHandler = logoutSuccessHandler;
+        setFilterProcessesUrl("/j_spring_security_logout");
     }
 
     public LogoutFilter(String logoutSuccessUrl, LogoutHandler... handlers) {
@@ -77,6 +81,7 @@ public class LogoutFilter extends GenericFilterBean {
             urlLogoutSuccessHandler.setDefaultTargetUrl(logoutSuccessUrl);
         }
         logoutSuccessHandler = urlLogoutSuccessHandler;
+        setFilterProcessesUrl("/j_spring_security_logout");
     }
 
     //~ Methods ========================================================================================================
@@ -114,35 +119,55 @@ public class LogoutFilter extends GenericFilterBean {
      * @return <code>true</code> if logout should occur, <code>false</code> otherwise
      */
     protected boolean requiresLogout(HttpServletRequest request, HttpServletResponse response) {
-        String uri = request.getRequestURI();
-        int pathParamIndex = uri.indexOf(';');
-
-        if (pathParamIndex > 0) {
-            // strip everything from the first semi-colon
-            uri = uri.substring(0, pathParamIndex);
-        }
-
-        int queryParamIndex = uri.indexOf('?');
-
-        if (queryParamIndex > 0) {
-            // strip everything from the first question mark
-            uri = uri.substring(0, queryParamIndex);
-        }
-
-        if ("".equals(request.getContextPath())) {
-            return uri.endsWith(filterProcessesUrl);
-        }
-
-        return uri.endsWith(request.getContextPath() + filterProcessesUrl);
+        return logoutRequestMatcher.matches(request);
     }
 
+    public void setLogoutRequestMatcher(RequestMatcher logoutRequestMatcher) {
+        Assert.notNull(logoutRequestMatcher, "logoutRequestMatcher cannot be null");
+        this.logoutRequestMatcher = logoutRequestMatcher;
+    }
+
+    @Deprecated
     public void setFilterProcessesUrl(String filterProcessesUrl) {
-        Assert.isTrue(UrlUtils.isValidRedirectUrl(filterProcessesUrl), filterProcessesUrl + " isn't a valid value for" +
-                " 'filterProcessesUrl'");
+        this.logoutRequestMatcher = new FilterProcessUrlRequestMatcher(filterProcessesUrl);
         this.filterProcessesUrl = filterProcessesUrl;
     }
 
+    @Deprecated
     protected String getFilterProcessesUrl() {
         return filterProcessesUrl;
+    }
+
+    private static final class FilterProcessUrlRequestMatcher implements RequestMatcher {
+        private final String filterProcessesUrl;
+
+        private FilterProcessUrlRequestMatcher(String filterProcessesUrl) {
+            Assert.hasLength(filterProcessesUrl, "filterProcessesUrl must be specified");
+            Assert.isTrue(UrlUtils.isValidRedirectUrl(filterProcessesUrl), filterProcessesUrl + " isn't a valid redirect URL");
+            this.filterProcessesUrl = filterProcessesUrl;
+        }
+
+        public boolean matches(HttpServletRequest request) {
+            String uri = request.getRequestURI();
+            int pathParamIndex = uri.indexOf(';');
+
+            if (pathParamIndex > 0) {
+                // strip everything from the first semi-colon
+                uri = uri.substring(0, pathParamIndex);
+            }
+
+            int queryParamIndex = uri.indexOf('?');
+
+            if (queryParamIndex > 0) {
+                // strip everything from the first question mark
+                uri = uri.substring(0, queryParamIndex);
+            }
+
+            if ("".equals(request.getContextPath())) {
+                return uri.endsWith(filterProcessesUrl);
+            }
+
+            return uri.endsWith(request.getContextPath() + filterProcessesUrl);
+        }
     }
 }

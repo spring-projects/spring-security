@@ -281,7 +281,7 @@ http-firewall =
 
 http =
     ## Container element for HTTP security configuration. Multiple elements can now be defined, each with a specific pattern to which the enclosed security configuration applies. A pattern can also be configured to bypass Spring Security's filters completely by setting the "secured" attribute to "false".
-    element http {http.attlist, (intercept-url* & access-denied-handler? & form-login? & openid-login? & x509? & jee? & http-basic? & logout? & session-management & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache? & expression-handler? & headers?) }
+    element http {http.attlist, (intercept-url* & access-denied-handler? & form-login? & openid-login? & x509? & jee? & http-basic? & logout? & session-management & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache? & expression-handler? & headers? & csrf?) }
 http.attlist &=
     ## The request URL pattern which will be mapped to the filter chain created by this <http> element. If omitted, the filter chain will match all requests.
     attribute pattern {xsd:token}?
@@ -718,8 +718,18 @@ jdbc-user-service.attlist &=
 jdbc-user-service.attlist &=
     role-prefix?
 
+csrf =
+ ## Element for configuration of the CsrfFilter for protection against CSRF. It also updates the default RequestCache to only replay "GET" requests.
+    element csrf {csrf-options.attlist}
+csrf-options.attlist &=
+    ## The RequestMatcher instance to be used to determine if CSRF should be applied. Default is any HTTP method except "GET", "TRACE", "HEAD", "OPTIONS"
+    attribute request-matcher-ref { xsd:token }?
+csrf-options.attlist &=
+    ## The CsrfTokenRepository to use. The default is HttpSessionCsrfTokenRepository
+    attribute token-repository-ref { xsd:token }?
+
 headers =
- ## Element for configuration of the AddHeadersFilter. Enables easy setting for the X-Frame-Options, X-XSS-Protection and X-Content-Type-Options headers.
+ ## Element for configuration of the HeaderWritersFilter. Enables easy setting for the X-Frame-Options, X-XSS-Protection and X-Content-Type-Options headers.
  element headers {cache-control? & xss-protection? & hsts? & frame-options? & content-type-options? & header*}
 
 hsts =
@@ -783,7 +793,7 @@ header.attlist &=
     ## The value for the header.
     attribute value {xsd:token}?
 header.attlist &=
-    ## Reference to a custom HeaderFactory implementation.
+    ## Reference to a custom HeaderWriter implementation.
     ref?
 
 any-user-service = user-service | jdbc-user-service | ldap-user-service
@@ -808,4 +818,4 @@ position =
     ## The explicit position at which the custom-filter should be placed in the chain. Use if you are replacing a standard filter.
     attribute position {named-security-filter}
 
-named-security-filter = "FIRST" | "CHANNEL_FILTER" | "CONCURRENT_SESSION_FILTER" | "SECURITY_CONTEXT_FILTER" | "LOGOUT_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_FILTER" | "FORM_LOGIN_FILTER" | "OPENID_FILTER" |"BASIC_AUTH_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "SESSION_MANAGEMENT_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"
+named-security-filter = "FIRST" | "CHANNEL_FILTER" | "CONCURRENT_SESSION_FILTER" | "HEADERS_FILTER" | "CSRF_FILTER" | "SECURITY_CONTEXT_FILTER" | "LOGOUT_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_FILTER" | "FORM_LOGIN_FILTER" | "OPENID_FILTER" |"BASIC_AUTH_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "SESSION_MANAGEMENT_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"

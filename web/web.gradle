@@ -11,6 +11,8 @@ dependencies {
             "org.springframework:spring-tx:$springVersion",
             "org.springframework:spring-web:$springVersion"
 
+    optional "org.springframework:spring-webmvc:$springVersion"
+
     provided "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion"
 
     testCompile project(':spring-security-core').sourceSets.test.output,

@@ -1025,6 +1025,7 @@
                </xs:complexType>
             </xs:element>
             <xs:element ref="security:headers"/>
+            <xs:element ref="security:csrf"/>
          </xs:choice>
          <xs:attributeGroup ref="security:http.attlist"/>
       </xs:complexType>
@@ -2238,9 +2239,34 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
+  <xs:element name="csrf">
+      <xs:annotation>
+         <xs:documentation>Element for configuration of the CsrfFilter for protection against CSRF. It also updates
+                the default RequestCache to only replay "GET" requests.
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:csrf-options.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="csrf-options.attlist">
+      <xs:attribute name="request-matcher-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The RequestMatcher instance to be used to determine if CSRF should be applied. Default is
+                any HTTP method except "GET", "TRACE", "HEAD", "OPTIONS"
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="token-repository-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The CsrfTokenRepository to use. The default is HttpSessionCsrfTokenRepository
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
   <xs:element name="headers">
       <xs:annotation>
-         <xs:documentation>Element for configuration of the AddHeadersFilter. Enables easy setting for the
+         <xs:documentation>Element for configuration of the HeaderWritersFilter. Enables easy setting for the
                 X-Frame-Options, X-XSS-Protection and X-Content-Type-Options headers.
                 </xs:documentation>
       </xs:annotation>
@@ -2479,6 +2505,8 @@
          <xs:enumeration value="FIRST"/>
          <xs:enumeration value="CHANNEL_FILTER"/>
          <xs:enumeration value="CONCURRENT_SESSION_FILTER"/>
+         <xs:enumeration value="HEADERS_FILTER"/>
+         <xs:enumeration value="CSRF_FILTER"/>
          <xs:enumeration value="SECURITY_CONTEXT_FILTER"/>
          <xs:enumeration value="LOGOUT_FILTER"/>
          <xs:enumeration value="X509_FILTER"/>

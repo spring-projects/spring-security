@@ -41,6 +41,7 @@ import org.springframework.security.web.authentication.logout.LogoutFilter
 import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy
 import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter
+import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.header.HeaderWriterFilter
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
@@ -64,7 +65,7 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
             filterChains[0].filters.empty
             filterChains[1].requestMatcher instanceof AnyRequestMatcher
             filterChains[1].filters.collect { it.class.name.contains('$') ? it.class.superclass : it.class } ==
-                    [WebAsyncManagerIntegrationFilter, SecurityContextPersistenceFilter, HeaderWriterFilter, LogoutFilter, UsernamePasswordAuthenticationFilter,
+                    [WebAsyncManagerIntegrationFilter, SecurityContextPersistenceFilter, HeaderWriterFilter, CsrfFilter, LogoutFilter, UsernamePasswordAuthenticationFilter,
                      RequestCacheAwareFilter, SecurityContextHolderAwareRequestFilter,
                      AnonymousAuthenticationFilter, SessionManagementFilter, ExceptionTranslationFilter, FilterSecurityInterceptor ]
 
@@ -78,7 +79,7 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
             !authFilter.requiresAuthentication(new MockHttpServletRequest(servletPath : "/login", method: "GET"), new MockHttpServletResponse())
 
         and: "SessionFixationProtectionStrategy is configured correctly"
-            SessionFixationProtectionStrategy sessionStrategy = ReflectionTestUtils.getField(authFilter,"sessionStrategy")
+            SessionFixationProtectionStrategy sessionStrategy = ReflectionTestUtils.getField(authFilter,"sessionStrategy").delegateStrategies.find { SessionFixationProtectionStrategy }
             sessionStrategy.migrateSessionAttributes
 
         and: "Exception handling is configured correctly"
@@ -112,11 +113,13 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
     def "FormLogin.permitAll()"() {
         when: "load formLogin() with permitAll"
             context = new AnnotationConfigApplicationContext(FormLoginConfigPermitAll)
-
-        then: "the formLogin URLs are granted access"
             FilterChainProxy filterChain = context.getBean(FilterChainProxy)
             MockHttpServletResponse response = new MockHttpServletResponse()
-            filterChain.doFilter(new MockHttpServletRequest(servletPath : servletPath, requestURI: servletPath, queryString: query, method: method), response, new MockFilterChain())
+            request = new MockHttpServletRequest(servletPath : servletPath, requestURI: servletPath, queryString: query, method: method)
+            setupCsrf()
+
+        then: "the formLogin URLs are granted access"
+            filterChain.doFilter(request, response, new MockFilterChain())
             response.redirectedUrl == redirectUrl
 
         where:

@@ -71,23 +71,13 @@ import org.springframework.security.web.util.RequestMatcher
  *
  */
 public class NamespaceHttpLogoutTests extends BaseSpringSpec {
-    FilterChainProxy springSecurityFilterChain
-    MockHttpServletRequest request
-    MockHttpServletResponse response
-    MockFilterChain chain
-
-    def setup() {
-        request = new MockHttpServletRequest()
-        response = new MockHttpServletResponse()
-        chain = new MockFilterChain()
-    }
 
     def "http/logout"() {
         setup:
             loadConfig(HttpLogoutConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
             login()
-            request.setRequestURI("/logout")
+            request.servletPath = "/logout"
+            request.method = "POST"
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
@@ -106,9 +96,9 @@ public class NamespaceHttpLogoutTests extends BaseSpringSpec {
     def "http/logout custom"() {
         setup:
             loadConfig(CustomHttpLogoutConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
             login()
-            request.setRequestURI("/custom-logout")
+            request.servletPath = "/custom-logout"
+            request.method = "POST"
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
@@ -135,9 +125,9 @@ public class NamespaceHttpLogoutTests extends BaseSpringSpec {
     def "http/logout@success-handler-ref"() {
         setup:
             loadConfig(SuccessHandlerRefHttpLogoutConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
             login()
-            request.setRequestURI("/logout")
+            request.servletPath = "/logout"
+            request.method = "POST"
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:

@@ -37,7 +37,8 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.authentication.logout.LogoutFilter
 import org.springframework.security.web.context.SecurityContextPersistenceFilter
-import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
+import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter
+import org.springframework.security.web.csrf.CsrfFilter
 import org.springframework.security.web.header.HeaderWriterFilter
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
@@ -107,17 +108,17 @@ class DefaultFiltersTests extends BaseSpringSpec {
 
     def "FilterChainProxyBuilder ignoring resources"() {
         when:
-        context = new AnnotationConfigApplicationContext(FilterChainProxyBuilderIgnoringConfig)
+            loadConfig(FilterChainProxyBuilderIgnoringConfig)
         then:
-        List<DefaultSecurityFilterChain> filterChains = context.getBean(FilterChainProxy).filterChains
-        filterChains.size() == 2
-        filterChains[0].requestMatcher.pattern == '/resources/**'
-        filterChains[0].filters.empty
-        filterChains[1].requestMatcher instanceof AnyRequestMatcher
-        filterChains[1].filters.collect { it.class } ==
-                [WebAsyncManagerIntegrationFilter, SecurityContextPersistenceFilter, HeaderWriterFilter, LogoutFilter, RequestCacheAwareFilter,
-                 SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter,
-                 ExceptionTranslationFilter, FilterSecurityInterceptor ]
+            List<DefaultSecurityFilterChain> filterChains = context.getBean(FilterChainProxy).filterChains
+            filterChains.size() == 2
+            filterChains[0].requestMatcher.pattern == '/resources/**'
+            filterChains[0].filters.empty
+            filterChains[1].requestMatcher instanceof AnyRequestMatcher
+            filterChains[1].filters.collect { it.class } ==
+                    [WebAsyncManagerIntegrationFilter, SecurityContextPersistenceFilter, HeaderWriterFilter, CsrfFilter, LogoutFilter, RequestCacheAwareFilter,
+                     SecurityContextHolderAwareRequestFilter, AnonymousAuthenticationFilter, SessionManagementFilter,
+                     ExceptionTranslationFilter, FilterSecurityInterceptor ]
     }
 
     @Configuration
@@ -139,17 +140,16 @@ class DefaultFiltersTests extends BaseSpringSpec {
 
    def "DefaultFilters.permitAll()"() {
         when:
-        context = new AnnotationConfigApplicationContext(DefaultFiltersConfigPermitAll)
+            loadConfig(DefaultFiltersConfigPermitAll)
+            MockHttpServletResponse response = new MockHttpServletResponse()
+            request = new MockHttpServletRequest(servletPath : uri, queryString: query, method:"POST")
+            setupCsrf()
+            springSecurityFilterChain.doFilter(request, response, new MockFilterChain())
         then:
-        FilterChainProxy filterChain = context.getBean(FilterChainProxy)
-
-        expect:
-        MockHttpServletResponse response = new MockHttpServletResponse()
-        filterChain.doFilter(new MockHttpServletRequest(servletPath : uri, queryString: query), response, new MockFilterChain())
-        response.redirectedUrl == null
+            response.redirectedUrl == "/login?logout"
         where:
-        uri | query
-        "/logout" | null
+            uri | query
+            "/logout" | null
     }
 
     @Configuration

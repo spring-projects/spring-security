@@ -31,6 +31,7 @@
         <logout logout-success-url="/index.jsp"/>
         <remember-me />
         <headers/>
+        <csrf/>
         <custom-filter ref="switchUserProcessingFilter" position="SWITCH_USER_FILTER"/>
     </http>
 

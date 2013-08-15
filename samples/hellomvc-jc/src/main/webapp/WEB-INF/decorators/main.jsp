@@ -75,7 +75,7 @@
       a {
           color: green;
       }
-      .navbar-text a {
+      .navbar-form {
         margin-left: 1em;
       }
     </style>
@@ -103,10 +103,10 @@
             <c:url var="logoUrl" value="/resources/img/logo.png"/>
             <a class="brand" href="${homeUrl}"><img src="${logoUrl}" alt="Spring Security Sample"/></a>
             <div class="nav-collapse collapse">
+              <c:url var="logoutUrl" value="/logout"/>
+              <form:form class="navbar-form pull-right" action="${logoutUrl}" method="post"><input type="submit" value="Log out" /></form:form>
               <p class="navbar-text pull-right">
                 <c:out value="${pageContext.request.remoteUser}"/>
-                <c:url var="logoutUrl" value="/logout"/>
-                <a href="${logoutUrl}">Log out</a>
               </p>
               <ul class="nav">
                 <c:url var="inboxUrl" value="/"/>

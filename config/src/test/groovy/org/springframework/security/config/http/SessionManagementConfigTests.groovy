@@ -275,9 +275,7 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
             httpAutoConfig {
                 'session-management'('session-authentication-strategy-ref':'ss')
             }
-            xml.'b:bean'(id: 'ss', 'class': Mockito.class.name, 'factory-method':'mock') {
-                'b:constructor-arg'(value : SessionAuthenticationStrategy.class.name)
-            }
+            mockBean(SessionAuthenticationStrategy,'ss')
             createAppContext()
 
             MockHttpServletRequest request = new MockHttpServletRequest();

@@ -67,7 +67,7 @@ public class CompositeSessionAuthenticationStrategy implements SessionAuthentica
                 throw new IllegalArgumentException("delegateStrategies cannot contain null entires. Got " + delegateStrategies);
             }
         }
-        this.delegateStrategies = new ArrayList<SessionAuthenticationStrategy>(delegateStrategies);
+        this.delegateStrategies = delegateStrategies;
     }
 
     /* (non-Javadoc)

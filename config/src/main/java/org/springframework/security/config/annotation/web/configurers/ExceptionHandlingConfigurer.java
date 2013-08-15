@@ -153,6 +153,15 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
         return this.authenticationEntryPoint;
     }
 
+    /**
+     * Gets the {@link AccessDeniedHandler} that is configured.
+     *
+     * @return the {@link AccessDeniedHandler}
+     */
+    AccessDeniedHandler getAccessDeniedHandler() {
+        return this.accessDeniedHandler;
+    }
+
     @Override
     public void configure(H http) throws Exception {
         AuthenticationEntryPoint entryPoint = getAuthenticationEntryPoint(http);

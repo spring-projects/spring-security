@@ -36,6 +36,7 @@ import org.springframework.security.web.util.AnyRequestMatcher
  *
  */
 public class NamespaceHttpHeadersTests extends BaseSpringSpec {
+
     def "http/headers"() {
         setup:
             loadConfig(HeadersDefaultConfig)
@@ -48,7 +49,8 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
                 'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
                 'Cache-Control': 'no-cache,no-store,max-age=0,must-revalidate',
                 'Pragma':'no-cache',
-                'X-XSS-Protection' : '1; mode=block']
+                'X-XSS-Protection' : '1; mode=block',
+                'X-CSRF-TOKEN' : csrfToken.token]
     }
 
     @Configuration
@@ -68,7 +70,8 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
             responseHeaders == ['Cache-Control': 'no-cache,no-store,max-age=0,must-revalidate',
-                'Pragma':'no-cache']
+                'Pragma':'no-cache',
+                'X-CSRF-TOKEN' : csrfToken.token]
     }
 
     @Configuration
@@ -88,7 +91,8 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            responseHeaders == ['Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains']
+            responseHeaders == ['Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
+                'X-CSRF-TOKEN' : csrfToken.token]
     }
 
     @Configuration
@@ -107,7 +111,8 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            responseHeaders == ['Strict-Transport-Security': 'max-age=15768000']
+            responseHeaders == ['Strict-Transport-Security': 'max-age=15768000',
+                'X-CSRF-TOKEN' : csrfToken.token]
     }
 
     @Configuration
@@ -128,7 +133,8 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            responseHeaders == ['X-Frame-Options': 'SAMEORIGIN']
+            responseHeaders == ['X-Frame-Options': 'SAMEORIGIN',
+                'X-CSRF-TOKEN' : csrfToken.token]
     }
 
     @Configuration
@@ -150,7 +156,8 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            responseHeaders == ['X-Frame-Options': 'ALLOW-FROM https://example.com']
+            responseHeaders == ['X-Frame-Options': 'ALLOW-FROM https://example.com',
+                'X-CSRF-TOKEN' : csrfToken.token]
     }
 
 
@@ -171,7 +178,8 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            responseHeaders == ['X-XSS-Protection': '1; mode=block']
+            responseHeaders == ['X-XSS-Protection': '1; mode=block',
+                'X-CSRF-TOKEN' : csrfToken.token]
     }
 
     @Configuration
@@ -191,7 +199,8 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            responseHeaders == ['X-XSS-Protection': '1']
+            responseHeaders == ['X-XSS-Protection': '1',
+                'X-CSRF-TOKEN' : csrfToken.token]
     }
 
     @Configuration
@@ -211,7 +220,8 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            responseHeaders == ['X-Content-Type-Options': 'nosniff']
+            responseHeaders == ['X-Content-Type-Options': 'nosniff',
+                'X-CSRF-TOKEN' : csrfToken.token]
     }
 
     @Configuration
@@ -233,7 +243,8 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            responseHeaders == ['customHeaderName': 'customHeaderValue']
+            responseHeaders == ['customHeaderName': 'customHeaderValue',
+                'X-CSRF-TOKEN' : csrfToken.token]
     }
 
     @Configuration
@@ -245,4 +256,5 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
                     .addHeaderWriter(new StaticHeadersWriter("customHeaderName", "customHeaderValue"))
         }
     }
+
 }

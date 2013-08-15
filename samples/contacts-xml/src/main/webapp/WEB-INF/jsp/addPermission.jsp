@@ -13,12 +13,12 @@
       <td alignment="right" width="20%">Recipient:</td>
       <spring:bind path="addPermission.recipient">
         <td width="20%">
-		    <select name="<c:out value="${status.expression}"/>">
-		      <c:forEach var="thisRecipient" items="${recipients}">
-		        <option <c:if test="${thisRecipient.key == status.value}">selected</c:if> value="<c:out value="${thisRecipient.key}"/>">
-		        <c:out value="${thisRecipient.value}"/></option>
-			    </c:forEach>
-		    </select>
+            <select name="<c:out value="${status.expression}"/>">
+              <c:forEach var="thisRecipient" items="${recipients}">
+                <option <c:if test="${thisRecipient.key == status.value}">selected</c:if> value="<c:out value="${thisRecipient.key}"/>">
+                <c:out value="${thisRecipient.value}"/></option>
+                </c:forEach>
+            </select>
         </td>
         <td width="60%">
           <font color="red"><c:out value="${status.errorMessage}"/></font>
@@ -29,12 +29,12 @@
       <td alignment="right" width="20%">Permission:</td>
       <spring:bind path="addPermission.permission">
         <td width="20%">
-		    <select name="<c:out value="${status.expression}"/>">
-		      <c:forEach var="thisPermission" items="${permissions}">
-		        <option <c:if test="${thisPermission.key == status.value}">selected</c:if> value="<c:out value="${thisPermission.key}"/>">
-		        <c:out value="${thisPermission.value}"/></option>
-			    </c:forEach>
-		    </select>
+            <select name="<c:out value="${status.expression}"/>">
+              <c:forEach var="thisPermission" items="${permissions}">
+                <option <c:if test="${thisPermission.key == status.value}">selected</c:if> value="<c:out value="${thisPermission.key}"/>">
+                <c:out value="${thisPermission.value}"/></option>
+                </c:forEach>
+            </select>
         </td>
         <td width="60%">
           <font color="red"><c:out value="${status.errorMessage}"/></font>
@@ -47,6 +47,7 @@
     <b>Please fix all errors!</b>
   </spring:hasBindErrors>
   <br><br>
+  <input type="hidden" name="<c:out value="${_csrf.parameterName}"/>" value="<c:out value="${_csrf.token}"/>"/>
   <input name="execute" type="submit" alignment="center" value="Execute">
 </form>
 <p>

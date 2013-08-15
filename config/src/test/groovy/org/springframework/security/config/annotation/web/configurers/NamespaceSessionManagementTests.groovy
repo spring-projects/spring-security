@@ -41,7 +41,7 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
         when:
             loadConfig(SessionManagementConfig)
         then:
-            findFilter(SessionManagementFilter).sessionAuthenticationStrategy instanceof SessionFixationProtectionStrategy
+            findSessionAuthenticationStrategy(SessionFixationProtectionStrategy)
     }
 
     @EnableWebSecurity
@@ -91,7 +91,7 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
         when:
             loadConfig(RefsSessionManagementConfig)
         then:
-            findFilter(SessionManagementFilter).sessionAuthenticationStrategy ==  RefsSessionManagementConfig.SAS
+            findFilter(SessionManagementFilter).sessionAuthenticationStrategy.delegateStrategies.find { it ==  RefsSessionManagementConfig.SAS }
     }
 
     @EnableWebSecurity
@@ -110,7 +110,7 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
         when:
             loadConfig(SFPNoneSessionManagementConfig)
         then:
-            findFilter(SessionManagementFilter).sessionAuthenticationStrategy.class ==  NullAuthenticatedSessionStrategy
+            findFilter(SessionManagementFilter).sessionAuthenticationStrategy.delegateStrategies.find { it instanceof  NullAuthenticatedSessionStrategy }
     }
 
     @EnableWebSecurity
@@ -128,7 +128,7 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
         when:
             loadConfig(SFPMigrateSessionManagementConfig)
         then:
-            findFilter(SessionManagementFilter).sessionAuthenticationStrategy.migrateSessionAttributes
+            findSessionAuthenticationStrategy(SessionFixationProtectionStrategy).migrateSessionAttributes
     }
 
     @EnableWebSecurity
@@ -145,7 +145,11 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
         when:
             loadConfig(SFPNewSessionSessionManagementConfig)
         then:
-            !findFilter(SessionManagementFilter).sessionAuthenticationStrategy.migrateSessionAttributes
+            !findSessionAuthenticationStrategy(SessionFixationProtectionStrategy).migrateSessionAttributes
+    }
+
+    def findSessionAuthenticationStrategy(def c) {
+        findFilter(SessionManagementFilter).sessionAuthenticationStrategy.delegateStrategies.find { it.class.isAssignableFrom(c) }
     }
 
     @EnableWebSecurity

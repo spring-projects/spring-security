@@ -31,17 +31,25 @@ import org.springframework.security.web.util.RequestMatcher;
  */
 final class PermitAllSupport {
 
-    @SuppressWarnings("unchecked")
     public static void permitAll(HttpSecurityBuilder<? extends HttpSecurityBuilder<?>> http, String... urls) {
+        for(String url : urls) {
+            if(url != null) {
+                permitAll(http, new ExactUrlRequestMatcher(url));
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void permitAll(HttpSecurityBuilder<? extends HttpSecurityBuilder<?>> http, RequestMatcher... requestMatchers) {
         ExpressionUrlAuthorizationConfigurer<?> configurer = http.getConfigurer(ExpressionUrlAuthorizationConfigurer.class);
 
         if(configurer == null) {
             throw new IllegalStateException("permitAll only works with HttpSecurity.authorizeRequests()");
         }
 
-        for(String url : urls) {
-            if(url != null) {
-                configurer.addMapping(0, new UrlMapping(new ExactUrlRequestMatcher(url), SecurityConfig.createList(ExpressionUrlAuthorizationConfigurer.permitAll)));
+        for(RequestMatcher matcher : requestMatchers) {
+            if(matcher != null) {
+                configurer.addMapping(0, new UrlMapping(matcher, SecurityConfig.createList(ExpressionUrlAuthorizationConfigurer.permitAll)));
             }
         }
     }

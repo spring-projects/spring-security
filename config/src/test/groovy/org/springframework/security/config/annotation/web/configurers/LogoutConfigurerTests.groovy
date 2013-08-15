@@ -47,8 +47,11 @@ class LogoutConfigurerTests extends BaseSpringSpec {
     def "invoke logout twice does not override"() {
         when:
             loadConfig(InvokeTwiceDoesNotOverride)
+            request.method = "POST"
+            request.servletPath = "/custom/logout"
+            findFilter(LogoutFilter).doFilter(request,response,chain)
         then:
-            findFilter(LogoutFilter).filterProcessesUrl == "/custom/logout"
+            response.redirectedUrl == "/login?logout"
     }
 
     @Configuration

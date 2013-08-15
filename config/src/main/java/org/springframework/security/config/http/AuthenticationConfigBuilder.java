@@ -116,6 +116,7 @@ final class AuthenticationConfigBuilder {
     private BeanReference jeeProviderRef;
     private RootBeanDefinition preAuthEntryPoint;
     private BeanMetadataElement mainEntryPoint;
+    private BeanMetadataElement accessDeniedHandler;
 
     private BeanDefinition logoutFilter;
     @SuppressWarnings("rawtypes")
@@ -125,9 +126,10 @@ final class AuthenticationConfigBuilder {
     private final BeanReference requestCache;
     private final BeanReference portMapper;
     private final BeanReference portResolver;
+    private final BeanMetadataElement csrfLogoutHandler;
 
     public AuthenticationConfigBuilder(Element element, ParserContext pc, SessionCreationPolicy sessionPolicy,
-            BeanReference requestCache, BeanReference authenticationManager, BeanReference sessionStrategy, BeanReference portMapper, BeanReference portResolver) {
+            BeanReference requestCache, BeanReference authenticationManager, BeanReference sessionStrategy, BeanReference portMapper, BeanReference portResolver, BeanMetadataElement csrfLogoutHandler) {
         this.httpElt = element;
         this.pc = pc;
         this.requestCache = requestCache;
@@ -136,6 +138,7 @@ final class AuthenticationConfigBuilder {
                 && sessionPolicy != SessionCreationPolicy.STATELESS;
         this.portMapper = portMapper;
         this.portResolver = portResolver;
+        this.csrfLogoutHandler = csrfLogoutHandler;
 
         createAnonymousFilter();
         createRememberMeFilter(authenticationManager);
@@ -483,7 +486,7 @@ final class AuthenticationConfigBuilder {
     void createLogoutFilter() {
         Element logoutElt = DomUtils.getChildElementByTagName(httpElt, Elements.LOGOUT);
         if (logoutElt != null || autoConfig) {
-            LogoutBeanDefinitionParser logoutParser = new LogoutBeanDefinitionParser(rememberMeServicesId);
+            LogoutBeanDefinitionParser logoutParser = new LogoutBeanDefinitionParser(rememberMeServicesId, csrfLogoutHandler);
             logoutFilter = logoutParser.parse(logoutElt, pc);
             logoutHandlers = logoutParser.getLogoutHandlers();
         }
@@ -493,6 +496,9 @@ final class AuthenticationConfigBuilder {
     ManagedList getLogoutHandlers() {
         if(logoutHandlers == null && rememberMeProviderRef != null) {
             logoutHandlers = new ManagedList();
+            if(csrfLogoutHandler != null) {
+                logoutHandlers.add(csrfLogoutHandler);
+            }
             logoutHandlers.add(new RuntimeBeanReference(rememberMeServicesId));
             logoutHandlers.add(new RootBeanDefinition(SecurityContextLogoutHandler.class));
         }
@@ -502,6 +508,10 @@ final class AuthenticationConfigBuilder {
 
     BeanMetadataElement getEntryPointBean() {
         return mainEntryPoint;
+    }
+
+    BeanMetadataElement getAccessDeniedHandlerBean() {
+        return accessDeniedHandler;
     }
 
     void createAnonymousFilter() {
@@ -559,7 +569,8 @@ final class AuthenticationConfigBuilder {
 
     void createExceptionTranslationFilter() {
         BeanDefinitionBuilder etfBuilder = BeanDefinitionBuilder.rootBeanDefinition(ExceptionTranslationFilter.class);
-        etfBuilder.addPropertyValue("accessDeniedHandler", createAccessDeniedHandler(httpElt, pc));
+        accessDeniedHandler = createAccessDeniedHandler(httpElt, pc);
+        etfBuilder.addPropertyValue("accessDeniedHandler", accessDeniedHandler);
         assert requestCache != null;
         mainEntryPoint = selectEntryPoint();
         etfBuilder.addConstructorArgValue(mainEntryPoint);

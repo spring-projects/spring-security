@@ -19,6 +19,7 @@ dependencies {
              project(':spring-security-ldap'),
              project(':spring-security-openid'),
              "org.springframework:spring-web:$springVersion",
+             "org.springframework:spring-webmvc:$springVersion",
              "org.aspectj:aspectjweaver:$aspectjVersion"
 
     provided "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion"

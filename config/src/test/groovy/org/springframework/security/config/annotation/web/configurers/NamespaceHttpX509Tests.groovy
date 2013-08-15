@@ -55,22 +55,10 @@ import org.springframework.test.util.ReflectionTestUtils
  *
  */
 public class NamespaceHttpX509Tests extends BaseSpringSpec {
-    FilterChainProxy springSecurityFilterChain
-    MockHttpServletRequest request
-    MockHttpServletResponse response
-    MockFilterChain chain
-
-    def setup() {
-        request = new MockHttpServletRequest()
-        response = new MockHttpServletResponse()
-        chain = new MockFilterChain()
-    }
-
     def "http/x509 can authenticate"() {
         setup:
             X509Certificate certificate = loadCert("rod.cer")
             loadConfig(X509Config)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
         when:
             request.setAttribute("javax.servlet.request.X509Certificate", [certificate] as X509Certificate[] )
             springSecurityFilterChain.doFilter(request, response, chain);
@@ -148,7 +136,6 @@ public class NamespaceHttpX509Tests extends BaseSpringSpec {
         setup:
             X509Certificate certificate = loadCert("rodatexampledotcom.cer")
             loadConfig(SubjectPrincipalRegexConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
         when:
             request.setAttribute("javax.servlet.request.X509Certificate", [certificate] as X509Certificate[] )
             springSecurityFilterChain.doFilter(request, response, chain);
@@ -182,7 +169,6 @@ public class NamespaceHttpX509Tests extends BaseSpringSpec {
         setup:
             X509Certificate certificate = loadCert("rodatexampledotcom.cer")
             loadConfig(UserDetailsServiceRefConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
         when:
             request.setAttribute("javax.servlet.request.X509Certificate", [certificate] as X509Certificate[] )
             springSecurityFilterChain.doFilter(request, response, chain);
@@ -216,7 +202,6 @@ public class NamespaceHttpX509Tests extends BaseSpringSpec {
         setup:
             X509Certificate certificate = loadCert("rodatexampledotcom.cer")
             loadConfig(AuthenticationUserDetailsServiceConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
         when:
             request.setAttribute("javax.servlet.request.X509Certificate", [certificate] as X509Certificate[] )
             springSecurityFilterChain.doFilter(request, response, chain);

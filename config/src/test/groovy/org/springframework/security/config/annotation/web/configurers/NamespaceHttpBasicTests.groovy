@@ -39,35 +39,24 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
  *
  */
 public class NamespaceHttpBasicTests extends BaseSpringSpec {
-    FilterChainProxy springSecurityFilterChain
-    MockHttpServletRequest request
-    MockHttpServletResponse response
-    MockFilterChain chain
-
-    def setup() {
-        request = new MockHttpServletRequest()
-        response = new MockHttpServletResponse()
-        chain = new MockFilterChain()
-    }
 
     def "http/http-basic"() {
         setup:
             loadConfig(HttpBasicConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
             response.status == HttpServletResponse.SC_UNAUTHORIZED
         when: "fail to log in"
-            setup()
-            login("user","invalid")
+            super.setup()
+            basicLogin("user","invalid")
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "unauthorized"
             response.status == HttpServletResponse.SC_UNAUTHORIZED
             response.getHeader("WWW-Authenticate") == 'Basic realm="Spring Security Application"'
         when: "login success"
-            setup()
-            login()
+            super.setup()
+            basicLogin()
         then: "sent to default succes page"
             !response.committed
     }
@@ -86,9 +75,8 @@ public class NamespaceHttpBasicTests extends BaseSpringSpec {
     def "http@realm"() {
         setup:
             loadConfig(CustomHttpBasicConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
         when:
-            login("user","invalid")
+            basicLogin("user","invalid")
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "unauthorized"
             response.status == HttpServletResponse.SC_UNAUTHORIZED
@@ -109,7 +97,6 @@ public class NamespaceHttpBasicTests extends BaseSpringSpec {
     def "http-basic@authentication-details-source-ref"() {
         when:
             loadConfig(AuthenticationDetailsSourceHttpBasicConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
         then:
             findFilter(BasicAuthenticationFilter).authenticationDetailsSource.class == CustomAuthenticationDetailsSource
     }
@@ -128,20 +115,20 @@ public class NamespaceHttpBasicTests extends BaseSpringSpec {
     def "http-basic@entry-point-ref"() {
         setup:
             loadConfig(EntryPointRefHttpBasicConfig)
-            springSecurityFilterChain = context.getBean(FilterChainProxy)
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
             response.status == HttpServletResponse.SC_INTERNAL_SERVER_ERROR
         when: "fail to log in"
-            setup()
-            login("user","invalid")
+            super.setup()
+            basicLogin("user","invalid")
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "custom"
             response.status == HttpServletResponse.SC_INTERNAL_SERVER_ERROR
         when: "login success"
-            setup()
-            login()
+            super.setup()
+            basicLogin()
+            springSecurityFilterChain.doFilter(request,response,chain)
         then: "sent to default succes page"
             !response.committed
     }
@@ -162,7 +149,7 @@ public class NamespaceHttpBasicTests extends BaseSpringSpec {
         }
     }
 
-    def login(String username="user",String password="password") {
+    def basicLogin(String username="user",String password="password") {
         def credentials = username + ":" + password
         request.addHeader("Authorization", "Basic " + credentials.bytes.encodeBase64())
     }
