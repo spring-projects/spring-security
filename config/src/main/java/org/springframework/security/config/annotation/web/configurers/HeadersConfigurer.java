@@ -29,6 +29,8 @@ import org.springframework.security.web.header.writers.XXssProtectionHeaderWrite
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.util.Assert;
 
+import com.sun.xml.internal.ws.api.ha.StickyFeature;
+
 /**
  * @author Rob Winch
  * @since 3.2
@@ -53,6 +55,52 @@ public final class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends A
         Assert.notNull(headerWriter, "headerWriter cannot be null");
         this.headerWriters.add(headerWriter);
         return this;
+    }
+
+    /**
+     * Adds {@link XContentTypeOptionsHeaderWriter}
+     *
+     * @return the {@link HeadersConfigurer} for additional customizations
+     */
+    public HeadersConfigurer<H> contentTypeOptions() {
+        return addHeaderWriter(new XContentTypeOptionsHeaderWriter());
+    }
+
+    /**
+     * Adds {@link XXssProtectionHeaderWriter}. Note this is not comprehensive
+     * XSS protection!
+     *
+     * @return the {@link HeadersConfigurer} for additional customizations
+     */
+    public HeadersConfigurer<H> xssProtection() {
+        return addHeaderWriter(new XContentTypeOptionsHeaderWriter());
+    }
+
+    /**
+     * Adds {@link CacheControlHeadersWriter}.
+     *
+     * @return the {@link HeadersConfigurer} for additional customizations
+     */
+    public HeadersConfigurer<H> cacheControl() {
+        return addHeaderWriter(new CacheControlHeadersWriter());
+    }
+
+    /**
+     * Adds {@link HstsHeaderWriter}.
+     *
+     * @return the {@link HeadersConfigurer} for additional customizations
+     */
+    public HeadersConfigurer<H> httpStrictTransportSecurity() {
+        return addHeaderWriter(new HstsHeaderWriter());
+    }
+
+    /**
+     * Adds {@link XFrameOptionsHeaderWriter} with all the default settings.
+     *
+     * @return the {@link HeadersConfigurer} for additional customizations
+     */
+    public HeadersConfigurer<H> frameOptions() {
+        return addHeaderWriter(new XFrameOptionsHeaderWriter());
     }
 
     @Override
@@ -89,10 +137,10 @@ public final class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends A
      *
      */
     private void addDefaultHeaderWriters() {
-        headerWriters.add(new XContentTypeOptionsHeaderWriter());
-        headerWriters.add(new XXssProtectionHeaderWriter());
-        headerWriters.add(new CacheControlHeadersWriter());
-        headerWriters.add(new HstsHeaderWriter());
-        headerWriters.add(new XFrameOptionsHeaderWriter());
+        contentTypeOptions();
+        xssProtection();
+        cacheControl();
+        httpStrictTransportSecurity();
+        frameOptions();
     }
 }
