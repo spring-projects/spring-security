@@ -29,8 +29,6 @@ import org.springframework.security.web.header.writers.XXssProtectionHeaderWrite
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.util.Assert;
 
-import com.sun.xml.internal.ws.api.ha.StickyFeature;
-
 /**
  * @author Rob Winch
  * @since 3.2
