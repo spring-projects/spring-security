@@ -183,4 +183,13 @@ public class MediaTypeRequestMatcherTests {
 
         assertThat(matcher.matches(request)).isTrue();
     }
+
+    @Test
+    public void mediaAllQ08AndTextPlainIgnoreMediaTypeAll() throws HttpMediaTypeNotAcceptableException {
+        when(negotiationStrategy.resolveMediaTypes(any(NativeWebRequest.class))).thenReturn(Arrays.asList(MediaType.TEXT_PLAIN,MediaType.parseMediaType("*/*;q=0.8")));
+        matcher = new MediaTypeRequestMatcher(negotiationStrategy, MediaType.TEXT_HTML);
+        matcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
+
+        assertThat(matcher.matches(request)).isFalse();
+    }
 }

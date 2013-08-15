@@ -176,7 +176,7 @@ public final class MediaTypeRequestMatcher implements RequestMatcher {
             return false;
         }
         for(MediaType httpRequestMediaType : httpRequestMediaTypes) {
-            if(ignoredMediaTypes.contains(httpRequestMediaType)) {
+            if(shouldIgnore(httpRequestMediaType)) {
                 continue;
             }
             if(useEquals) {
@@ -186,6 +186,15 @@ public final class MediaTypeRequestMatcher implements RequestMatcher {
                 if(matchingMediaType.isCompatibleWith(httpRequestMediaType)) {
                     return true;
                 }
+            }
+        }
+        return false;
+    }
+
+    private boolean shouldIgnore(MediaType httpRequestMediaType) {
+        for(MediaType ignoredMediaType : ignoredMediaTypes) {
+            if(httpRequestMediaType.includes(ignoredMediaType)) {
+                return true;
             }
         }
         return false;
