@@ -21,13 +21,11 @@ import java.util.UUID;
 import org.springframework.security.authentication.AnonymousAuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.SecurityConfigurer;
-import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 
 /**
@@ -39,7 +37,7 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
  * @author  Rob Winch
  * @since  3.2
  */
-public final class AnonymousConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<H> {
+public final class AnonymousConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<AnonymousConfigurer<H>,H> {
     private String key;
     private AuthenticationProvider authenticationProvider;
     private AnonymousAuthenticationFilter authenticationFilter;

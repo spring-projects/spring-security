@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.DefaultSecurityFilterChain;
@@ -97,6 +98,17 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>> e
 
         channelFilter = postProcess(channelFilter);
         http.addFilter(channelFilter);
+    }
+
+    /**
+     * Adds an {@link ObjectPostProcessor} for this class.
+     *
+     * @param objectPostProcessor
+     * @return the {@link ChannelSecurityConfigurer} for further customizations
+     */
+    public ChannelSecurityConfigurer<H> withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
+        addObjectPostProcessor(objectPostProcessor);
+        return this;
     }
 
     /**

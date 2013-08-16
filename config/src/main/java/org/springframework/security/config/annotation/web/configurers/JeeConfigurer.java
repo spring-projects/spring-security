@@ -68,7 +68,7 @@ import org.springframework.security.web.authentication.preauth.j2ee.J2eePreAuthe
  * @author Rob Winch
  * @since 3.2
  */
-public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<H> {
+public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<JeeConfigurer<H>,H> {
     private J2eePreAuthenticatedProcessingFilter j2eePreAuthenticatedProcessingFilter;
     private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> authenticationUserDetailsService;
     private Set<String> mappableRoles = new HashSet<String>();

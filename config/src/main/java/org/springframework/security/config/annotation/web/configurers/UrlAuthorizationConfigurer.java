@@ -25,6 +25,7 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
+import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
@@ -67,6 +68,17 @@ import org.springframework.util.Assert;
  * @see ExpressionUrlAuthorizationConfigurer
  */
 public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>, C> extends AbstractInterceptUrlConfigurer<H,C,UrlAuthorizationConfigurer<H,C>.AuthorizedUrl> {
+
+    /**
+     * Adds an {@link ObjectPostProcessor} for this class.
+     *
+     * @param objectPostProcessor
+     * @return the {@link UrlAuthorizationConfigurer} for further customizations
+     */
+    public UrlAuthorizationConfigurer<H,C> withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
+        addObjectPostProcessor(objectPostProcessor);
+        return this;
+    }
 
     /**
      * Creates the default {@link AccessDecisionVoter} instances used if an

@@ -54,7 +54,7 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageViewFi
  * @since 3.2
  */
 public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>> extends
-        AbstractHttpConfigurer<H> {
+        AbstractHttpConfigurer<DefaultLoginPageConfigurer<H>,H> {
 
     private DefaultLoginPageViewFilter loginPageGeneratingFilter = new DefaultLoginPageViewFilter();
 

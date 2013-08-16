@@ -78,7 +78,7 @@ import org.springframework.util.Assert;
  * @see SessionManagementFilter
  * @see ConcurrentSessionFilter
  */
-public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<H> {
+public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<SessionManagementConfigurer<H>,H> {
     private SessionAuthenticationStrategy sessionFixationAuthenticationStrategy = createDefaultSessionFixationProtectionStrategy();
     private SessionAuthenticationStrategy sessionAuthenticationStrategy;
     private List<SessionAuthenticationStrategy> sessionAuthenticationStrategies = new ArrayList<SessionAuthenticationStrategy>();

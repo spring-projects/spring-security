@@ -65,7 +65,7 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  * @author Rob Winch
  * @since 3.2
  */
-public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends AbstractHttpConfigurer<B> {
+public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends AbstractHttpConfigurer<HttpBasicConfigurer<B>,B> {
     private static final String DEFAULT_REALM = "Spring Security Application";
 
     private AuthenticationEntryPoint authenticationEntryPoint = new BasicAuthenticationEntryPoint();

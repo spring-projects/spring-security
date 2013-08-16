@@ -55,7 +55,7 @@ import org.springframework.security.web.util.AntPathRequestMatcher;
  * @since 3.2
  * @see RequestCache
  */
-public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<H> {
+public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<RequestCacheConfigurer<H>,H> {
 
     public RequestCacheConfigurer() {
     }

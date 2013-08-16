@@ -34,7 +34,7 @@ import org.springframework.util.Assert;
  * @since 3.2
  * @see RememberMeConfigurer
  */
-public final class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<H> {
+public final class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<HeadersConfigurer<H>,H> {
     private List<HeaderWriter> headerWriters = new ArrayList<HeaderWriter>();
 
     /**

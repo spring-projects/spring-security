@@ -72,7 +72,7 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageViewFi
  * @author Rob Winch
  * @since 3.2
  */
-public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<H> {
+public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<RememberMeConfigurer<H>,H> {
     private AuthenticationSuccessHandler authenticationSuccessHandler;
     private String key;
     private RememberMeServices rememberMeServices;

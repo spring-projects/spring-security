@@ -55,7 +55,7 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @since 3.2
  */
-public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<H> {
+public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<CsrfConfigurer<H>,H> {
     private CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
     private RequestMatcher requireCsrfProtectionMatcher;
 

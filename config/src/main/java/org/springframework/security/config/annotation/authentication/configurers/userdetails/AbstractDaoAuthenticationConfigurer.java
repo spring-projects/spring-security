@@ -16,6 +16,7 @@
 package org.springframework.security.config.annotation.authentication.configurers.userdetails;
 
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityBuilder;
 import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.authentication.ProviderManagerBuilder;
@@ -45,6 +46,18 @@ abstract class AbstractDaoAuthenticationConfigurer<B extends ProviderManagerBuil
     protected AbstractDaoAuthenticationConfigurer(U userDetailsService) {
         this.userDetailsService = userDetailsService;
         provider.setUserDetailsService(userDetailsService);
+    }
+
+    /**
+     * Adds an {@link ObjectPostProcessor} for this class.
+     *
+     * @param objectPostProcessor
+     * @return the {@link AbstractDaoAuthenticationConfigurer} for further customizations
+     */
+    @SuppressWarnings("unchecked")
+    public C withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
+        addObjectPostProcessor(objectPostProcessor);
+        return (C) this;
     }
 
     /**

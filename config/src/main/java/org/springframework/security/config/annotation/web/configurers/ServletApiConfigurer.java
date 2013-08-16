@@ -49,7 +49,7 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
  * @author Rob Winch
  * @since 3.2
  */
-public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<H> {
+public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<ServletApiConfigurer<H>,H> {
     private SecurityContextHolderAwareRequestFilter securityContextRequestFilter = new SecurityContextHolderAwareRequestFilter();
 
     /**

@@ -20,8 +20,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.authentication.encoding.PlaintextPasswordEncoder;
+import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.authentication.ProviderManagerBuilder;
+import org.springframework.security.config.annotation.web.configurers.ChannelSecurityConfigurer;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.ldap.authentication.AbstractLdapAuthenticator;
@@ -79,6 +81,17 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
             ldapAuthenticationProvider.setUserDetailsContextMapper(userDetailsContextMapper);
         }
         return ldapAuthenticationProvider;
+    }
+
+    /**
+     * Adds an {@link ObjectPostProcessor} for this class.
+     *
+     * @param objectPostProcessor
+     * @return the {@link ChannelSecurityConfigurer} for further customizations
+     */
+    public LdapAuthenticationProviderConfigurer<B> withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
+        addObjectPostProcessor(objectPostProcessor);
+        return this;
     }
 
     /**

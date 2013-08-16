@@ -24,6 +24,7 @@ import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
+import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.FilterInvocation;
@@ -92,6 +93,17 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
      */
     public ExpressionUrlAuthorizationConfigurer<H> expressionHandler(SecurityExpressionHandler<FilterInvocation> expressionHandler) {
         this.expressionHandler = expressionHandler;
+        return this;
+    }
+
+    /**
+     * Adds an {@link ObjectPostProcessor} for this class.
+     *
+     * @param objectPostProcessor
+     * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customizations
+     */
+    public ExpressionUrlAuthorizationConfigurer<H> withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
+        addObjectPostProcessor(objectPostProcessor);
         return this;
     }
 

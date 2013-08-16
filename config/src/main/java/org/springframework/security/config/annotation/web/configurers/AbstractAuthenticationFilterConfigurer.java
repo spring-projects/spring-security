@@ -50,7 +50,7 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  * @author Rob Winch
  * @since 3.2
  */
-public abstract class AbstractAuthenticationFilterConfigurer<B  extends HttpSecurityBuilder<B>,T extends AbstractAuthenticationFilterConfigurer<B,T, F>, F extends AbstractAuthenticationProcessingFilter> extends AbstractHttpConfigurer<B> {
+public abstract class AbstractAuthenticationFilterConfigurer<B  extends HttpSecurityBuilder<B>,T extends AbstractAuthenticationFilterConfigurer<B,T, F>, F extends AbstractAuthenticationProcessingFilter> extends AbstractHttpConfigurer<T,B> {
 
     private final F authFilter;
 
