@@ -41,13 +41,15 @@ import org.springframework.security.web.authentication.logout.LogoutFilter
 import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy
 import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter
-import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.csrf.CsrfFilter
 import org.springframework.security.web.header.HeaderWriterFilter
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
 import org.springframework.security.web.session.SessionManagementFilter
 import org.springframework.security.web.util.AnyRequestMatcher
 import org.springframework.test.util.ReflectionTestUtils
+
+import spock.lang.Unroll
 
 /**
  *
@@ -106,7 +108,7 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
                     .anyRequest().hasRole("USER")
                     .and()
                 .formLogin()
-                    .loginUrl("/login")
+                    .loginPage("/login")
         }
     }
 
@@ -140,6 +142,46 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
                     .anyRequest().hasRole("USER")
                     .and()
                 .formLogin()
+                    .permitAll()
+        }
+    }
+
+    @Unroll
+    def "FormLogin loginConventions changes defaults"() {
+        when: "load formLogin() with permitAll"
+            loadConfig(FormLoginDefaultsConfig)
+            MockHttpServletResponse response = new MockHttpServletResponse()
+            request = new MockHttpServletRequest(servletPath : servletPath, requestURI: servletPath, queryString: query, method: method)
+            setupCsrf()
+
+        then: "the other default login/logout URLs are updated and granted access"
+            springSecurityFilterChain.doFilter(request, response, new MockFilterChain())
+            response.redirectedUrl == redirectUrl
+
+        where:
+            servletPath     | method | query | redirectUrl
+            "/authenticate" | "GET"  | null    | null
+            "/authenticate" | "POST" | null    | "/authenticate?error"
+            "/authenticate" | "GET"  | "error" | null
+            "/logout"       | "POST" | null    | "/authenticate?logout"
+            "/authenticate" | "GET"  | "logout"| null
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    static class FormLoginDefaultsConfig extends BaseWebConfig {
+
+        @Override
+        protected void configure(HttpSecurity http) {
+            http
+                .authorizeRequests()
+                    .anyRequest().hasRole("USER")
+                    .and()
+                .formLogin()
+                    .loginPage("/authenticate")
+                    .permitAll()
+                    .and()
+                .logout()
                     .permitAll()
         }
     }

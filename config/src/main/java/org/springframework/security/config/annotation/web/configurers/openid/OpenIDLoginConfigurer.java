@@ -225,6 +225,31 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
      * {@link OpenIDAuthenticationFilter#DEFAULT_CLAIMED_IDENTITY_FIELD}</li>
      * </ul>
      *
+     *
+     * <h2>Impact on other defaults</h2>
+     *
+     * Updating this value, also impacts a number of other default values. For example,
+     * the following are the default values when only formLogin() was specified.
+     *
+     * <ul>
+     * <li>/login GET - the login form</li>
+     * <li>/login POST - process the credentials and if valid authenticate the
+     * user</li>
+     * <li>/login?error GET - redirect here for failed authentication attempts</li>
+     * <li>/login?logout GET - redirect here after successfully logging out</li>
+     * </ul>
+     *
+     * If "/authenticate" was passed to this method it update the defaults as shown
+     * below:
+     *
+     * <ul>
+     * <li>/authenticate GET - the login form</li>
+     * <li>/authenticate POST - process the credentials and if valid authenticate the
+     * user</li>
+     * <li>/authenticate?error GET - redirect here for failed authentication attempts</li>
+     * <li>/authenticate?logout GET - redirect here after successfully logging out</li>
+     * </ul>
+     *
      * @param loginPage the login page to redirect to if authentication is required (i.e. "/login")
      * @return the {@link FormLoginConfigurer} for additional customization
      */

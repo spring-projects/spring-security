@@ -223,7 +223,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends Ab
      *
      * @return true if logout success handling has been customized, else false
      */
-    private boolean isCustomLogoutSuccess() {
+    boolean isCustomLogoutSuccess() {
         return customLogoutSuccess;
     }
 

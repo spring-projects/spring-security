@@ -22,6 +22,7 @@ import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.openid.OpenIDLoginConfigurer;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -30,10 +31,8 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
-import org.springframework.security.web.util.AntPathRequestMatcher;
 import org.springframework.security.web.util.MediaTypeRequestMatcher;
 import org.springframework.security.web.util.RequestMatcher;
 import org.springframework.web.accept.ContentNegotiationStrategy;
@@ -78,10 +77,10 @@ public abstract class AbstractAuthenticationFilterConfigurer<B  extends HttpSecu
      */
     protected AbstractAuthenticationFilterConfigurer(F authenticationFilter, String defaultLoginProcessingUrl) {
         this.authFilter = authenticationFilter;
-        loginUrl("/login");
-        failureUrl("/login?error");
-        loginProcessingUrl(defaultLoginProcessingUrl);
-        this.customLoginPage = false;
+        setLoginPage("/login");
+        if(defaultLoginProcessingUrl != null) {
+            loginProcessingUrl(defaultLoginProcessingUrl);
+        }
     }
 
     /**
@@ -116,19 +115,6 @@ public abstract class AbstractAuthenticationFilterConfigurer<B  extends HttpSecu
         handler.setDefaultTargetUrl(defaultSuccessUrl);
         handler.setAlwaysUseDefaultTargetUrl(alwaysUse);
         return successHandler(handler);
-    }
-
-    /**
-     * Specifies the URL used to log in. If the request matches the URL and is an HTTP POST, the
-     * {@link UsernamePasswordAuthenticationFilter} will attempt to authenticate
-     * the request. Otherwise, if the request matches the URL the user will be sent to the login form.
-     *
-     * @param loginUrl the URL used to perform authentication
-     * @return the {@link FormLoginConfigurer} for additional customization
-     */
-    public final T loginUrl(String loginUrl) {
-        loginProcessingUrl(loginUrl);
-        return loginPage(loginUrl);
     }
 
     /**
@@ -186,7 +172,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B  extends HttpSecu
 
     /**
      * Ensures the urls for {@link #failureUrl(String)} and
-     * {@link #loginUrl(String)} are granted access to any user.
+     * {@link #authenticationUrls(String)} are granted access to any user.
      *
      * @param permitAll true to grant access to the URLs false to skip this step
      * @return the {@link FormLoginConfigurer} for additional customization
@@ -230,9 +216,11 @@ public abstract class AbstractAuthenticationFilterConfigurer<B  extends HttpSecu
 
     @Override
     public void init(B http) throws Exception {
+        updateAuthenticationDefaults();
         if(permitAll) {
             PermitAllSupport.permitAll(http, loginPage, loginProcessingUrl, failureUrl);
         }
+
         registerDefaultAuthenticationEntryPoint(http);
     }
 
@@ -289,54 +277,87 @@ public abstract class AbstractAuthenticationFilterConfigurer<B  extends HttpSecu
      * </p>
      */
     protected T loginPage(String loginPage) {
-        this.loginPage = loginPage;
-        this.authenticationEntryPoint = new LoginUrlAuthenticationEntryPoint(loginPage);
+        setLoginPage(loginPage);
+        updateAuthenticationDefaults();
         this.customLoginPage = true;
         return getSelf();
     }
 
     /**
-    *
-    * @return true if a custom login page has been specified, else false
-    */
-   public final boolean isCustomLoginPage() {
-       return customLoginPage;
-   }
+     *
+     * @return true if a custom login page has been specified, else false
+     */
+    public final boolean isCustomLoginPage() {
+        return customLoginPage;
+    }
 
-   /**
-    * Gets the Authentication Filter
-    * @return
-    */
-   protected final F getAuthenticationFilter() {
-       return authFilter;
-   }
+    /**
+     * Gets the Authentication Filter
+     *
+     * @return
+     */
+    protected final F getAuthenticationFilter() {
+        return authFilter;
+    }
 
-   /**
-    * Gets the login page
-    * @return the login page
-    */
-   protected final String getLoginPage() {
-       return loginPage;
-   }
+    /**
+     * Gets the login page
+     *
+     * @return the login page
+     */
+    protected final String getLoginPage() {
+        return loginPage;
+    }
 
-   /**
-    * Gets the URL to submit an authentication request to (i.e. where
-    * username/password must be submitted)
-    *
-    * @return the URL to submit an authentication request to
-    */
-   protected final String getLoginProcessingUrl() {
-       return loginProcessingUrl;
-   }
+    /**
+     * Gets the URL to submit an authentication request to (i.e. where
+     * username/password must be submitted)
+     *
+     * @return the URL to submit an authentication request to
+     */
+    protected final String getLoginProcessingUrl() {
+        return loginProcessingUrl;
+    }
 
-   /**
-    * Gets the URL to send users to if authentication fails
-    * @return
-    */
-   protected final String getFailureUrl() {
-       return failureUrl;
-   }
+    /**
+     * Gets the URL to send users to if authentication fails
+     *
+     * @return
+     */
+    protected final String getFailureUrl() {
+        return failureUrl;
+    }
 
+    /**
+     * Updates the default values for authentication.
+     *
+     * @throws Exception
+     */
+    private void updateAuthenticationDefaults() {
+        if (loginProcessingUrl == null) {
+            loginProcessingUrl(loginPage);
+        }
+        if (failureHandler == null) {
+            failureUrl(loginPage + "?error");
+        }
+
+        final LogoutConfigurer<B> logoutConfigurer = getBuilder()
+                .getConfigurer(LogoutConfigurer.class);
+        if (logoutConfigurer != null
+                && !logoutConfigurer.isCustomLogoutSuccess()) {
+            logoutConfigurer.logoutSuccessUrl(loginPage + "?logout");
+        }
+    }
+
+    /**
+     * Sets the loginPage and updates the {@link AuthenticationEntryPoint}.
+     * @param loginPage
+     */
+    private void setLoginPage(String loginPage) {
+        this.loginPage = loginPage;
+        this.authenticationEntryPoint = new LoginUrlAuthenticationEntryPoint(
+                loginPage);
+    }
 
     @SuppressWarnings("unchecked")
     private T getSelf() {

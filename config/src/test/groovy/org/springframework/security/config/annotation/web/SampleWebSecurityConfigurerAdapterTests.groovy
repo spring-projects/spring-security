@@ -173,7 +173,7 @@ public class SampleWebSecurityConfigurerAdapterTests extends BaseSpringSpec {
                     .anyRequest().hasRole("USER")
                     .and()
                 .formLogin()
-                    .loginUrl("/login")
+                    .loginPage("/login")
                     // set permitAll for all URLs associated with Form Login
                     .permitAll();
         }
@@ -314,7 +314,7 @@ public class SampleWebSecurityConfigurerAdapterTests extends BaseSpringSpec {
                         .anyRequest().hasRole("USER")
                         .and()
                     .formLogin()
-                        .loginUrl("/login")
+                        .loginPage("/login")
                         .permitAll();
             }
         }
