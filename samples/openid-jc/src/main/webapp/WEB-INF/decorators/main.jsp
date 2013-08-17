@@ -86,7 +86,6 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <decorator:head/>
   </head>
 
 
@@ -104,18 +103,18 @@
             <c:url var="logoUrl" value="/resources/img/logo.png"/>
             <a class="brand" href="${homeUrl}"><img src="${logoUrl}" alt="Spring Security Sample"/></a>
             <div class="nav-collapse collapse">
-              <c:url var="logoutUrl" value="/logout"/>
-              <form:form class="navbar-form pull-right" action="${logoutUrl}" method="post"><input type="submit" value="Log out" /></form:form>
-              <p class="navbar-text pull-right">
-                <c:out value="${pageContext.request.remoteUser}"/>
-              </p>
+              <c:if test="${pageContext.request.remoteUser != null}">
+                  <c:url var="logoutUrl" value="/logout"/>
+                  <form:form class="navbar-form pull-right" action="${logoutUrl}" method="post"><input type="submit" value="Log out" /></form:form>
+                  <p class="navbar-text pull-right">
+                    <c:out value="${pageContext.request.remoteUser}"/>
+                  </p>
+              </c:if>
               <ul class="nav">
                 <c:url var="inboxUrl" value="/"/>
                 <li><a href="${inboxUrl}">Inbox</a></li>
                 <c:url var="composeUrl" value="/?form"/>
                 <li><a href="${composeUrl}">Compose</a></li>
-                <c:url var="userUrl" value="/user/"/>
-                <li><a href="${userUrl}">User</a></li>
               </ul>
             </div>
           </div>
