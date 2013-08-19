@@ -26,6 +26,7 @@ def String[] samples = [
     'jaas-xml',
     'servletapi-xml',
     'concurrency-jc',
+    'form-jc',
     'helloworld-jc',
     'hellomvc-jc',
     'insecure',

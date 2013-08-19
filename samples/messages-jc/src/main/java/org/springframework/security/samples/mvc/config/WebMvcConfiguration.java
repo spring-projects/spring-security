@@ -21,17 +21,14 @@ public class WebMvcConfiguration extends WebMvcConfigurerAdapter {
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        super.addViewControllers(registry);
         registry.addViewController("/login").setViewName("login");
-        registry.addViewController("/errors/404").setViewName("errors/404");
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
     }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        super.addResourceHandlers(registry);
-        registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
         registry.addResourceHandler("/resources/**").addResourceLocations("/resources/").setCachePeriod(31556926);
+        registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
     }
 
     @Bean
