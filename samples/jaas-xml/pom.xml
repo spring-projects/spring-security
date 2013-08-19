@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-jaas-xml</artifactId>
-  <version>3.2.0.CI-SNAPSHOT</version>
+  <version>3.2.0.RC1</version>
   <packaging>war</packaging>
   <name>spring-security-samples-jaas-xml</name>
   <description>spring-security-samples-jaas-xml</description>
@@ -53,7 +53,7 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>3.2.0.CI-SNAPSHOT</version>
+      <version>3.2.0.RC1</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -120,19 +120,19 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>3.2.0.CI-SNAPSHOT</version>
+      <version>3.2.0.RC1</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-taglibs</artifactId>
-      <version>3.2.0.CI-SNAPSHOT</version>
+      <version>3.2.0.RC1</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>3.2.0.CI-SNAPSHOT</version>
+      <version>3.2.0.RC1</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
