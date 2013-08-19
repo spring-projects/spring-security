@@ -17,6 +17,7 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.UUID;
 
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.RememberMeAuthenticationProvider;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -64,7 +65,7 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageViewFi
  * The following shared objects are used:
  *
  * <ul>
- * <li>{@link HttpSecurity#getAuthenticationManager()}</li>
+ * <li>{@link AuthenticationManager}</li>
  * <li>{@link UserDetailsService} if no {@link #userDetailsService(UserDetailsService)} was specified.</li>
  * <li> {@link DefaultLoginPageViewFilter} - if present will be populated with information from the configuration</li>
  * </ul>
@@ -210,7 +211,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extend
     @Override
     public void configure(H http) throws Exception {
         RememberMeAuthenticationFilter rememberMeFilter = new RememberMeAuthenticationFilter(
-                http.getAuthenticationManager(), rememberMeServices);
+                http.getSharedObject(AuthenticationManager.class), rememberMeServices);
         if (authenticationSuccessHandler != null) {
             rememberMeFilter
                     .setAuthenticationSuccessHandler(authenticationSuccessHandler);

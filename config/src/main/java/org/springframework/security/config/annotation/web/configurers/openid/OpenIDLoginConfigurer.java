@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.openid4java.consumer.ConsumerException;
 import org.openid4java.consumer.ConsumerManager;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -110,7 +111,7 @@ import org.springframework.security.web.util.RequestMatcher;
  * The following shared objects are used:
  *
  * <ul>
- * <li>{@link HttpSecurity#getAuthenticationManager()}</li>
+ * <li>{@link AuthenticationManager}</li>
  * <li>{@link RememberMeServices} - is optionally used. See
  * {@link RememberMeConfigurer}</li>
  * <li>{@link SessionAuthenticationStrategy} - is optionally used. See

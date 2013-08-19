@@ -59,7 +59,7 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  * The following shared objects are used:
  *
  * <ul>
- * <li>{@link HttpSecurity#getAuthenticationManager()}</li>
+ * <li>{@link AuthenticationManager}</li>
  * </ul>
  *
  * @author Rob Winch
@@ -145,7 +145,7 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
 
     @Override
     public void configure(B http) throws Exception {
-        AuthenticationManager authenticationManager = http.getAuthenticationManager();
+        AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
         BasicAuthenticationFilter basicAuthenticationFilter = new BasicAuthenticationFilter(authenticationManager, authenticationEntryPoint);
         if(authenticationDetailsSource != null) {
             basicAuthenticationFilter.setAuthenticationDetailsSource(authenticationDetailsSource);

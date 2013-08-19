@@ -102,7 +102,7 @@ abstract class AbstractInterceptUrlConfigurer<H extends HttpSecurityBuilder<H>,C
         if(metadataSource == null) {
             return;
         }
-        FilterSecurityInterceptor securityInterceptor = createFilterSecurityInterceptor(metadataSource, http.getAuthenticationManager());
+        FilterSecurityInterceptor securityInterceptor = createFilterSecurityInterceptor(metadataSource, http.getSharedObject(AuthenticationManager.class));
         if(filterSecurityInterceptorOncePerRequest != null) {
             securityInterceptor.setObserveOncePerRequest(filterSecurityInterceptorOncePerRequest);
         }

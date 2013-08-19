@@ -56,11 +56,7 @@ import org.springframework.util.StringUtils;
  *
  * <h2>Shared Objects Used</h2>
  *
- * The following shared objects are used:
- *
- * <ul>
- *     <li>{@link org.springframework.security.config.annotation.web.builders.HttpSecurity#getAuthenticationManager()}</li>
- * </ul>
+ * No shared objects are used.
  *
  * @param <H> the type of {@link HttpSecurityBuilder} that is being configured
  *

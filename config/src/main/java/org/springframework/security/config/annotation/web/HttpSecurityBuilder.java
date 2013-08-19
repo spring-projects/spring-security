@@ -171,7 +171,4 @@ public interface HttpSecurityBuilder<H extends HttpSecurityBuilder<H>> extends S
      * @return the {@link HttpSecurity} for further customizations
      */
     H addFilter(Filter filter);
-
-    // FIXME shared object or explicit?
-    AuthenticationManager getAuthenticationManager();
 }

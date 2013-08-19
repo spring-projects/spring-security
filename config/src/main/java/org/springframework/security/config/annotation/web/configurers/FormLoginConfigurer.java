@@ -54,7 +54,7 @@ import org.springframework.security.web.util.RequestMatcher;
  * The following shared objects are used:
  *
  * <ul>
- * <li>{@link HttpSecurity#getAuthenticationManager()}</li>
+ * <li>{@link AuthenticationManager}</li>
  * <li>{@link RememberMeServices} - is optionally used. See {@link RememberMeConfigurer}</li>
  * <li>{@link SessionAuthenticationStrategy} - is optionally used. See {@link SessionManagementConfigurer}</li>
  * <li>{@link DefaultLoginPageViewFilter} - if present will be populated with information from the configuration</li>

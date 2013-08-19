@@ -19,6 +19,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.context.SecurityContext;
@@ -67,7 +68,7 @@ public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>> extend
     @Override
     @SuppressWarnings("unchecked")
     public void configure(H http) throws Exception {
-        securityContextRequestFilter.setAuthenticationManager(http.getAuthenticationManager());
+        securityContextRequestFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
         ExceptionHandlingConfigurer<H> exceptionConf = http.getConfigurer(ExceptionHandlingConfigurer.class);
         AuthenticationEntryPoint authenticationEntryPoint = exceptionConf == null ? null : exceptionConf.getAuthenticationEntryPoint(http);
         securityContextRequestFilter.setAuthenticationEntryPoint(authenticationEntryPoint);

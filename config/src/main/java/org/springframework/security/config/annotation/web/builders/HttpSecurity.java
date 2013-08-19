@@ -112,8 +112,6 @@ import org.springframework.util.Assert;
  * @see EnableWebSecurity
  */
 public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<DefaultSecurityFilterChain,HttpSecurity> implements SecurityBuilder<DefaultSecurityFilterChain>, HttpSecurityBuilder<HttpSecurity> {
-    private AuthenticationManager authenticationManager;
-
     private final RequestMatcherConfigurer requestMatcherConfigurer = new RequestMatcherConfigurer();
     private List<Filter> filters =  new ArrayList<Filter>();
     private RequestMatcher requestMatcher = new AnyRequestMatcher();
@@ -984,7 +982,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
     @Override
     protected void beforeConfigure() throws Exception {
-        this.authenticationManager = getAuthenticationRegistry().build();
+        setSharedObject(AuthenticationManager.class,getAuthenticationRegistry().build());
     }
 
     @Override
@@ -1220,14 +1218,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      */
     public HttpSecurity regexMatcher(String pattern) {
         return requestMatcher(new RegexRequestMatcher(pattern, null));
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.springframework.security.config.annotation.web.HttpBuilder#getAuthenticationManager()
-     */
-    public AuthenticationManager getAuthenticationManager() {
-        return authenticationManager;
     }
 
     /**
