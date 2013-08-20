@@ -629,16 +629,16 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
             <para>A lot of different attacks to hijack content, sessions or connections are available and lately
                 browsers (optionally) can help to prevent those attacks. To enable these features we need to send some
                 additional headers to the client. Spring Security allows for easy configuration for several headers.
-                <progamlisting language="xml">
+                <programlisting language="xml">
                     <![CDATA[
                             <headers/>
                     ]]>
-                </progamlisting>
+                </programlisting>
             </para>
             <para>Specifying the single headers element adds all the explicitly supported headers
                 with their default settings. If you only want select headers to be added,
                 you can add one or more of the child elements as shown below.
-                <progamlisting language="xml">
+                <programlisting language="xml">
                     <![CDATA[
                             <headers>
                                 <!-- Add Cache-Control and Pragma headers -->
@@ -655,7 +655,7 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                                 <xss-protection/>
                             </headers>
                     ]]>
-                </progamlisting>
+                </programlisting>
             </para>
             <para>For additional information on how to customize the headers element refer to the <link xlink:href="nsa-headers">headers</link>
                 section of the Security Namespace appendix.</para>
