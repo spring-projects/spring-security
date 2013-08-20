@@ -657,7 +657,7 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                     ]]>
                 </programlisting>
             </para>
-            <para>For additional information on how to customize the headers element refer to the <link xlink:href="nsa-headers">headers</link>
+            <para>For additional information on how to customize the headers element refer to the <link xlink:href="#nsa-headers">headers</link>
                 section of the Security Namespace appendix.</para>
         </section>
         <section xml:id="ns-custom-filters">
