@@ -420,13 +420,13 @@
         </section>
         <section xml:id="nsa-xss-protection">
             <title><literal>&lt;xss-protection&gt;</literal></title>
-            <para>Adds the <a href="http://blogs.msdn.com/b/ie/archive/2008/07/02/ie8-security-part-iv-the-xss-filter.aspx">X-XSS-Protection header</a>
-                to the response to assist in protecting against <a href="http://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent">reflected / “Type-1” Cross-Site Scripting (XSS)</a>
+            <para>Adds the <link xlink:href="http://blogs.msdn.com/b/ie/archive/2008/07/02/ie8-security-part-iv-the-xss-filter.aspx">X-XSS-Protection header</link>
+                to the response to assist in protecting against <link xlink:href="http://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent">reflected / “Type-1” Cross-Site Scripting (XSS)</link>
                 attacks. This is in no-way a full protection to XSS attacks!</para>
             <section xml:id="nsa-xss-protection-attributes">
                 <section xml:id="nsa-xss-protection-enabled">
                     <title><literal>xss-protection-enabled</literal></title>
-                    <para>Enable or Disable <a href="http://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent">reflected / “Type-1” Cross-Site Scripting (XSS)</a> protection.</para>
+                    <para>Enable or Disable <link xlink:href="http://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent">reflected / “Type-1” Cross-Site Scripting (XSS)</link> protection.</para>
                 </section>
                 <section xml:id="nsa-xss-protection-block">
                     <title><literal>xss-protection-block</literal></title>
@@ -446,7 +446,7 @@
         <section xml:id="nsa-content-type-options">
             <title><literal>&lt;content-type-options&gt;</literal></title>
             <para>Add the X-Content-Type-Options header with the value of nosniff to the response. This
-                <a href="http://blogs.msdn.com/b/ie/archive/2008/09/02/ie8-security-part-vi-beta-2-update.aspx">disables MIME-sniffing</a>
+                <link xlink:href="http://blogs.msdn.com/b/ie/archive/2008/09/02/ie8-security-part-vi-beta-2-update.aspx">disables MIME-sniffing</link>
                 for IE8+ and Chrome extensions.</para>
             <section xml:id="nsa-content-type-options-parents">
                 <title>Parent Elements of <literal>&lt;content-type-options&gt;</literal></title>
