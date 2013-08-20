@@ -5,17 +5,15 @@ task docs {
     dependsOn 'manual:reference', 'faq:referenceHtmlSingle', 'apidocs', 'guides:asciidoctor'
 }
 
-subprojects {
+project('faq') {
     apply plugin: 'base'
     apply plugin: 'docbook-reference'
 
     [referenceHtmlMulti, referencePdf, referenceHtmlSingle]*.sourceDir = file('src/docbook')
-}
-
-project('faq') {
-    defaultTasks 'referenceHtmlSingle'
-    referenceHtmlSingle.stylesheet = 'html-single-custom.xsl'
     [referenceHtmlMulti, referencePdf, referenceHtmlSingle]*.sourceFileName = 'faq.xml'
+    referenceHtmlSingle.stylesheet = 'html-single-custom.xsl'
+
+    defaultTasks 'referenceHtmlSingle'
 
     ext.spec = copySpec {
         into ('faq') {
@@ -26,6 +24,11 @@ project('faq') {
 }
 
 project('manual') {
+    apply plugin: 'base'
+    apply plugin: 'docbook-reference'
+
+    [referenceHtmlMulti, referencePdf, referenceHtmlSingle]*.sourceDir = file('src/docbook')
+
     defaultTasks 'referenceHtmlMulti', 'referenceHtmlSingle', 'referencePdf'
     def imagesDir = new File(projectDir, 'src/docbook/images');
 
