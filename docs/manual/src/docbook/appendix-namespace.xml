@@ -521,7 +521,7 @@
         </section>
         <section xml:id="nsa-csrf">
             <title><literal>&lt;csrf&gt;</literal></title>
-            <para>This element will add <link xlink:href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">Cross Site Request Forger (CSRF)</a>
+            <para>This element will add <link xlink:href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">Cross Site Request Forger (CSRF)</link>
                 protection to the application. It also updates the default RequestCache
                 to only replay "GET" requests upon successful authentication.</para>
             <section xml:id="nsa-csrf-parents">
