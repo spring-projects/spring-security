@@ -243,6 +243,19 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
         }
     }
 
+    def "SEC-2274: WebSecurityConfigurer adds ApplicationContext as a shared object"() {
+        when:
+            loadConfig(ApplicationContextSharedObjectConfig)
+        then:
+            context.getBean(ApplicationContextSharedObjectConfig).http.getSharedObject(ApplicationContext) == context
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    static class ApplicationContextSharedObjectConfig extends WebSecurityConfigurerAdapter {
+
+    }
+
     static class MyFilter extends OncePerRequestFilter {
         private UserDetailsService userDetailsService
         public MyFilter(UserDetailsService uds) {

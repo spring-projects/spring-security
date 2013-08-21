@@ -151,6 +151,7 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
         authenticationBuilder.parentAuthenticationManager(authenticationManager);
         http = new HttpSecurity(objectPostProcessor,authenticationBuilder, parentAuthenticationBuilder.getSharedObjects());
         http.setSharedObject(UserDetailsService.class, userDetailsService());
+        http.setSharedObject(ApplicationContext.class, context);
         http.setSharedObject(ContentNegotiationStrategy.class, contentNegotiationStrategy);
         if(!disableDefaults) {
             http
