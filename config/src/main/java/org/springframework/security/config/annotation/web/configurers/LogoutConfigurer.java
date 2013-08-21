@@ -98,18 +98,36 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends Ab
     }
 
     /**
-     * The URL that triggers logout to occur on HTTP POST. The default is "/logout"
-     * @param logoutUrl the URL that will invoke logout.
+     * The URL that triggers log out to occur on HTTP POST. The default is
+     * "/logout".
+     *
+     * <p>
+     * It is considered best practice to use an HTTP POST on any action that
+     * changes state (i.e. log out) to protect against <a
+     * href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">CSRF
+     * attacks</a>. If you really want to use an HTTP GET, you can use
+     * <code>logoutRequestMatcher(new AntPathRequestMatcher(logoutUrl, "GET"));</code>
+     * </p>
+     *
+     * @see #logoutRequestMatcher(RequestMatcher)
+     *
+     * @param logoutUrl
+     *            the URL that will invoke logout.
      * @return the {@link LogoutConfigurer} for further customization
      */
     public LogoutConfigurer<H> logoutUrl(String logoutUrl) {
         return logoutRequestMatcher(new AntPathRequestMatcher(logoutUrl, "POST"));
     }
 
-
     /**
-     * The RequestMatcher that triggers logout to occur on HTTP POST. The default is "/logout"
-     * @param logoutRequestMatcher the RequestMatcher used to determine if logout should occur.
+     * The RequestMatcher that triggers log out to occur. In most circumstances
+     * users will use {@link #logoutUrl(String)} which helps enforce good
+     * practices.
+     *
+     * @see #logoutUrl(String)
+     *
+     * @param logoutRequestMatcher
+     *            the RequestMatcher used to determine if logout should occur.
      * @return the {@link LogoutConfigurer} for further customization
      */
     public LogoutConfigurer<H> logoutRequestMatcher(RequestMatcher logoutRequestMatcher) {
