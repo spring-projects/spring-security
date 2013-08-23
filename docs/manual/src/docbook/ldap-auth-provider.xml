@@ -410,7 +410,7 @@ public interface UserDetailsContextMapper {
             <para>By default, the user authorities are obtained from the <literal>memberOf</literal>
                 attribute values of the user entry. The authorities allocated to the user can again
                 be customized using a <interfacename>UserDetailsContextMapper</interfacename>. You
-                can also inject a <interfacename>GrantedAuthoritiesMaper</interfacename> into the
+                can also inject a <interfacename>GrantedAuthoritiesMapper</interfacename> into the
                 provider instance to control the authorities which end up in the
                 <interfacename>Authentication</interfacename> object.</para>
             <section>
