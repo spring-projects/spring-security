@@ -15,7 +15,11 @@
  */
 package org.springframework.security.config.doc
 
-import groovy.util.slurpersupport.NodeChild;
+import groovy.util.slurpersupport.GPathResult;
+import groovy.util.slurpersupport.NodeChild
+
+import org.springframework.security.config.http.SecurityFilters
+
 import spock.lang.*
 
 /**
@@ -29,12 +33,14 @@ class XsdDocumentedTests extends Specification {
     @Shared def appendix = new File('../docs/manual/src/docbook/appendix-namespace.xml')
     @Shared def appendixRoot = new XmlSlurper().parse(appendix)
 
+    @Shared File schema31xDocument = new File('src/main/resources/org/springframework/security/config/spring-security-3.1.xsd')
     @Shared File schemaDocument = new File('src/main/resources/org/springframework/security/config/spring-security-3.2.xsd')
     @Shared Map<String,Element> elementNameToElement
+    @Shared GPathResult schemaRootElement
 
     def setupSpec() {
-        def rootElement = new XmlSlurper().parse(schemaDocument)
-        elementNameToElement = new SpringSecurityXsdParser(rootElement: rootElement).parse()
+        schemaRootElement = new XmlSlurper().parse(schemaDocument)
+        elementNameToElement = new SpringSecurityXsdParser(rootElement: schemaRootElement).parse()
         appendixRoot.getMetaClass().sections = {
             delegate.breadthFirst().inject([]) {result, c->
                 if(c.name() == 'section' && c.@id) {
@@ -53,6 +59,36 @@ class XsdDocumentedTests extends Specification {
                 }
             }
         }
+    }
+
+    def 'SEC-2139: named-security-filter are all defined and ordered properly'() {
+        setup:
+            def expectedFilters = (EnumSet.allOf(SecurityFilters) as List).sort { it.order }
+        when:
+            def nsf = schemaRootElement.simpleType.find { it.@name == 'named-security-filter' }
+            def nsfValues = nsf.children().children().collect { c ->
+                Enum.valueOf(SecurityFilters, c.@value.toString())
+            }
+        then:
+            expectedFilters == nsfValues
+    }
+
+    def 'SEC-2139: 3.1.x named-security-filter are all defined and ordered properly'() {
+        setup:
+            def expectedFilters = ["FIRST", "CHANNEL_FILTER", "SECURITY_CONTEXT_FILTER", "CONCURRENT_SESSION_FILTER", "LOGOUT_FILTER", "X509_FILTER",
+                "PRE_AUTH_FILTER", "CAS_FILTER", "FORM_LOGIN_FILTER", "OPENID_FILTER", "LOGIN_PAGE_FILTER", "DIGEST_AUTH_FILTER","BASIC_AUTH_FILTER",
+                "REQUEST_CACHE_FILTER", "SERVLET_API_SUPPORT_FILTER", "JAAS_API_SUPPORT_FILTER", "REMEMBER_ME_FILTER", "ANONYMOUS_FILTER",
+                "SESSION_MANAGEMENT_FILTER", "EXCEPTION_TRANSLATION_FILTER", "FILTER_SECURITY_INTERCEPTOR", "SWITCH_USER_FILTER", "LAST"].collect {
+                Enum.valueOf(SecurityFilters, it)
+            }
+            def schema31xRootElement = new XmlSlurper().parse(schema31xDocument)
+        when:
+            def nsf = schema31xRootElement.simpleType.find { it.@name == 'named-security-filter' }
+            def nsfValues = nsf.children().children().collect { c ->
+                Enum.valueOf(SecurityFilters, c.@value.toString())
+            }
+        then:
+            expectedFilters == nsfValues
     }
 
     /**
