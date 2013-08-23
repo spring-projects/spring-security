@@ -15,7 +15,10 @@
  */
 package org.springframework.security.config.doc
 
-import groovy.util.slurpersupport.NodeChild;
+import groovy.util.slurpersupport.NodeChild
+
+import org.springframework.security.config.http.SecurityFilters
+
 import spock.lang.*
 
 /**
@@ -31,10 +34,11 @@ class XsdDocumentedTests extends Specification {
 
     @Shared File schemaDocument = new File('src/main/resources/org/springframework/security/config/spring-security-3.1.xsd')
     @Shared Map<String,Element> elementNameToElement
+    @Shared schemaRootElement
 
     def setupSpec() {
-        def rootElement = new XmlSlurper().parse(schemaDocument)
-        elementNameToElement = new SpringSecurityXsdParser(rootElement: rootElement).parse()
+        schemaRootElement = new XmlSlurper().parse(schemaDocument)
+        elementNameToElement = new SpringSecurityXsdParser(rootElement: schemaRootElement).parse()
         appendixRoot.getMetaClass().sections = {
             delegate.breadthFirst().inject([]) {result, c->
                 if(c.name() == 'section' && c.@id) {
@@ -53,6 +57,18 @@ class XsdDocumentedTests extends Specification {
                 }
             }
         }
+    }
+
+    def 'SEC-2139: named-security-filter are all defined and ordered properly'() {
+        setup:
+            def expectedFilters = (EnumSet.allOf(SecurityFilters) as List).sort { it.order }
+        when:
+            def nsf = schemaRootElement.simpleType.find { it.@name == 'named-security-filter' }
+            def nsfValues = nsf.children().children().collect { c ->
+                Enum.valueOf(SecurityFilters, c.@value.toString())
+            }
+        then:
+            expectedFilters == nsfValues
     }
 
     /**
