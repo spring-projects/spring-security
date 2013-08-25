@@ -1787,6 +1787,10 @@ where
                         should be used instead of the default Spring AOP. Secured methods must be woven
                         with the <classname>AnnotationSecurityAspect</classname> from the
                         <literal>spring-security-aspects</literal> module. </para>
+                    <para>It is important to note that AspectJ follows Java's rule that annotations on
+                        interfaces are not inherited. This means that methods that define the Security annotaitons
+                        on the interface will not be secured. Instead, you must place the Security annotation
+                        on the class when using AspectJ.</para>
                 </section>
                 <section xml:id="nsa-global-method-security-order">
                     <title><literal>order</literal></title>
