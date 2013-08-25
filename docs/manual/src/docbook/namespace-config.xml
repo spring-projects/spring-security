@@ -509,7 +509,7 @@
                     <literal>authentication-failure-url</literal> if form-based login is being used.
                     If the second authentication takes place through another non-interactive
                     mechanism, such as <quote>remember-me</quote>, an <quote>unauthorized</quote>
-                    (402) error will be sent to the client. If instead you want to use an error
+                    (401) error will be sent to the client. If instead you want to use an error
                     page, you can add the attribute
                     <literal>session-authentication-error-url</literal> to the
                     <literal>session-management</literal> element. </para>

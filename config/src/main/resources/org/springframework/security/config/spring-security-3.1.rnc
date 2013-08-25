@@ -524,7 +524,7 @@ session-management.attlist &=
     ## Allows injection of the SessionAuthenticationStrategy instance used by the SessionManagementFilter
     attribute session-authentication-strategy-ref {xsd:token}?
 session-management.attlist &=
-    ## Defines the URL of the error page which should be shown when the SessionAuthenticationStrategy raises an exception. If not set, an unauthorized (402) error code will be returned to the client. Note that this attribute doesn't apply if the error occurs during a form-based login, where the URL for authentication failure will take precedence.
+    ## Defines the URL of the error page which should be shown when the SessionAuthenticationStrategy raises an exception. If not set, an unauthorized (401) error code will be returned to the client. Note that this attribute doesn't apply if the error occurs during a form-based login, where the URL for authentication failure will take precedence.
     attribute session-authentication-error-url {xsd:token}?
 
 

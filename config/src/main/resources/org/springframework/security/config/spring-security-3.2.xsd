@@ -1702,7 +1702,7 @@
       <xs:attribute name="session-authentication-error-url" type="xs:token">
          <xs:annotation>
             <xs:documentation>Defines the URL of the error page which should be shown when the
-                SessionAuthenticationStrategy raises an exception. If not set, an unauthorized (402) error
+                SessionAuthenticationStrategy raises an exception. If not set, an unauthorized (401) error
                 code will be returned to the client. Note that this attribute doesn't apply if the error
                 occurs during a form-based login, where the URL for authentication failure will take
                 precedence.
