@@ -242,14 +242,17 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
         }
 
         /**
-         * Specifies that no session fixation protection should be enabled. This
-         * may be useful when utilizing other mechanisms for protecting against
-         * session fixation. For example, if application container session
-         * fixation protection is already in use. Otherwise, this option is not
-         * recommended.
+         * Specifies that the Servlet container-provided session fixation
+         * protection should be used. When a session authenticates, the
+         * Servlet 3.1 method {@code HttpServletRequest#changeSessionId()} is
+         * called to change the session ID and retain all session attributes.
+         * Using this option in a Servlet 3.0 or older container results in an
+         * {@link IllegalStateException}.
          *
          * @return the {@link SessionManagementConfigurer} for further
          *         customizations
+         * @throws IllegalStateException if the container is not Servlet 3.1 or
+         *         newer.
          */
         public SessionManagementConfigurer<H> changeSessionId() {
             setSessionFixationAuthenticationStrategy(new ChangeSessionIdAuthenticationStrategy());
