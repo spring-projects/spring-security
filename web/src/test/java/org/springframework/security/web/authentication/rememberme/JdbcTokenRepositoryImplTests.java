@@ -123,12 +123,12 @@ public class JdbcTokenRepositoryImplTests {
     // SEC-1964
     @Test
     public void retrievingTokenWithNoSeriesReturnsNull() {
-        when(logger.isInfoEnabled()).thenReturn(true);
+        when(logger.isDebugEnabled()).thenReturn(true);
 
         assertNull(repo.getTokenForSeries("missingSeries"));
 
-        verify(logger).isInfoEnabled();
-        verify(logger).info(eq("Querying token for series 'missingSeries' returned no results."),
+        verify(logger).isDebugEnabled();
+        verify(logger).debug(eq("Querying token for series 'missingSeries' returned no results."),
                 any(EmptyResultDataAccessException.class));
         verifyNoMoreInteractions(logger);
     }
