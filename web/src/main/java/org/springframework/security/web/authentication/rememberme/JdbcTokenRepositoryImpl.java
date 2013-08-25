@@ -91,8 +91,8 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
                 }
             }, seriesId);
         } catch(EmptyResultDataAccessException zeroResults) {
-            if(logger.isInfoEnabled()) {
-                logger.info("Querying token for series '" + seriesId + "' returned no results.", zeroResults);
+            if(logger.isDebugEnabled()) {
+                logger.debug("Querying token for series '" + seriesId + "' returned no results.", zeroResults);
             }
         }catch(IncorrectResultSizeDataAccessException moreThanOne) {
             logger.error("Querying token for series '" + seriesId + "' returned more than one value. Series" +
