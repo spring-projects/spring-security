@@ -33,17 +33,14 @@ import javax.servlet.http.HttpSession;
 public interface CsrfTokenRepository {
 
     /**
-     * Generates and saves the expected {@link CsrfToken}
+     * Generates a {@link CsrfToken}
      *
      * @param request
      *            the {@link HttpServletRequest} to use
-     * @param response
-     *            the {@link HttpServletResponse} to use
-     * @return the {@link CsrfToken} that was generated and saved. Cannot be
+     * @return the {@link CsrfToken} that was generated. Cannot be
      *         null.
      */
-    CsrfToken generateAndSaveToken(HttpServletRequest request,
-            HttpServletResponse response);
+    CsrfToken generateToken(HttpServletRequest request);
 
     /**
      * Saves the {@link CsrfToken} using the {@link HttpServletRequest} and

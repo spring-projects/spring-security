@@ -42,23 +42,23 @@ public class HttpSessionCsrfTokenRepositoryTests {
     }
 
     @Test
-    public void generateAndSaveToken() {
-        token = repo.generateAndSaveToken(request, response);
+    public void generateToken() {
+        token = repo.generateToken(request);
 
         assertThat(token.getParameterName()).isEqualTo("_csrf");
         assertThat(token.getToken()).isNotEmpty();
 
         CsrfToken loadedToken = repo.loadToken(request);
 
-        assertThat(loadedToken).isEqualTo(token);
+        assertThat(loadedToken).isNull();
     }
 
     @Test
-    public void generateAndSaveTokenCustomParameter() {
+    public void generateCustomParameter() {
         String paramName = "_csrf";
         repo.setParameterName(paramName);
 
-        token = repo.generateAndSaveToken(request, response);
+        token = repo.generateToken(request);
 
         assertThat(token.getParameterName()).isEqualTo(paramName);
         assertThat(token.getToken()).isNotEmpty();
@@ -71,7 +71,7 @@ public class HttpSessionCsrfTokenRepositoryTests {
 
     @Test
     public void saveToken() {
-        CsrfToken tokenToSave = new CsrfToken("123", "abc", "def");
+        CsrfToken tokenToSave = new DefaultCsrfToken("123", "abc", "def");
         repo.saveToken(tokenToSave, request, response);
 
         String attrName = request.getSession().getAttributeNames()
@@ -84,7 +84,7 @@ public class HttpSessionCsrfTokenRepositoryTests {
 
     @Test
     public void saveTokenCustomSessionAttribute() {
-        CsrfToken tokenToSave = new CsrfToken("123", "abc", "def");
+        CsrfToken tokenToSave = new DefaultCsrfToken("123", "abc", "def");
         String sessionAttributeName = "custom";
         repo.setSessionAttributeName(sessionAttributeName);
         repo.saveToken(tokenToSave, request, response);

@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.DefaultCsrfToken;
 
 /**
  * @author Rob Winch
@@ -51,7 +52,7 @@ public class CsrfRequestDataValueProcessorTests {
 
     @Test
     public void getExtraHiddenFieldsHasCsrfToken() {
-        CsrfToken token = new CsrfToken("1", "a", "b");
+        CsrfToken token = new DefaultCsrfToken("1", "a", "b");
         request.setAttribute(CsrfToken.class.getName(), token);
         Map<String,String> expected = new HashMap<String,String>();
         expected.put(token.getParameterName(),token.getToken());

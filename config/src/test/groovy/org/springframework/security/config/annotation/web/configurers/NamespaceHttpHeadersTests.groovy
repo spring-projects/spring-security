@@ -49,8 +49,7 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
                 'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
                 'Cache-Control': 'no-cache,no-store,max-age=0,must-revalidate',
                 'Pragma':'no-cache',
-                'X-XSS-Protection' : '1; mode=block',
-                'X-CSRF-TOKEN' : csrfToken.token]
+                'X-XSS-Protection' : '1; mode=block']
     }
 
     @Configuration
@@ -70,8 +69,7 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
             responseHeaders == ['Cache-Control': 'no-cache,no-store,max-age=0,must-revalidate',
-                'Pragma':'no-cache',
-                'X-CSRF-TOKEN' : csrfToken.token]
+                'Pragma':'no-cache']
     }
 
     @Configuration
@@ -91,8 +89,7 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            responseHeaders == ['Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
-                'X-CSRF-TOKEN' : csrfToken.token]
+            responseHeaders == ['Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains']
     }
 
     @Configuration
@@ -111,8 +108,7 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            responseHeaders == ['Strict-Transport-Security': 'max-age=15768000',
-                'X-CSRF-TOKEN' : csrfToken.token]
+            responseHeaders == ['Strict-Transport-Security': 'max-age=15768000']
     }
 
     @Configuration
@@ -133,8 +129,7 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            responseHeaders == ['X-Frame-Options': 'SAMEORIGIN',
-                'X-CSRF-TOKEN' : csrfToken.token]
+            responseHeaders == ['X-Frame-Options': 'SAMEORIGIN']
     }
 
     @Configuration
@@ -156,8 +151,7 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            responseHeaders == ['X-Frame-Options': 'ALLOW-FROM https://example.com',
-                'X-CSRF-TOKEN' : csrfToken.token]
+            responseHeaders == ['X-Frame-Options': 'ALLOW-FROM https://example.com']
     }
 
 
@@ -178,8 +172,7 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            responseHeaders == ['X-XSS-Protection': '1; mode=block',
-                'X-CSRF-TOKEN' : csrfToken.token]
+            responseHeaders == ['X-XSS-Protection': '1; mode=block']
     }
 
     @Configuration
@@ -199,8 +192,7 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            responseHeaders == ['X-XSS-Protection': '1',
-                'X-CSRF-TOKEN' : csrfToken.token]
+            responseHeaders == ['X-XSS-Protection': '1']
     }
 
     @Configuration
@@ -220,8 +212,7 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            responseHeaders == ['X-Content-Type-Options': 'nosniff',
-                'X-CSRF-TOKEN' : csrfToken.token]
+            responseHeaders == ['X-Content-Type-Options': 'nosniff']
     }
 
     @Configuration
@@ -243,8 +234,7 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            responseHeaders == ['customHeaderName': 'customHeaderValue',
-                'X-CSRF-TOKEN' : csrfToken.token]
+            responseHeaders == ['customHeaderName': 'customHeaderValue']
     }
 
     @Configuration

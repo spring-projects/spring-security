@@ -36,6 +36,7 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
 import org.springframework.security.web.context.HttpRequestResponseHolder
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository
 import org.springframework.security.web.csrf.CsrfToken
+import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository
 
 import spock.lang.AutoCleanup
@@ -69,7 +70,7 @@ abstract class BaseSpringSpec extends Specification {
     }
 
     def setupCsrf(csrfTokenValue="BaseSpringSpec_CSRFTOKEN") {
-        csrfToken = new CsrfToken("X-CSRF-TOKEN","_csrf",csrfTokenValue)
+        csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN","_csrf",csrfTokenValue)
         new HttpSessionCsrfTokenRepository().saveToken(csrfToken, request,response)
         request.setParameter(csrfToken.parameterName, csrfToken.token)
     }

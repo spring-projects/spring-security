@@ -29,6 +29,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.csrf.CsrfFilter
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor
 import org.springframework.security.web.util.RequestMatcher
 
@@ -113,7 +114,7 @@ class CsrfConfigTests extends AbstractHttpConfigTests {
             mockBean(CsrfTokenRepository,'repo')
             createAppContext()
             CsrfTokenRepository repo = appContext.getBean("repo",CsrfTokenRepository)
-            CsrfToken token = new CsrfToken("X-CSRF-TOKEN","_csrf", "abc")
+            CsrfToken token = new DefaultCsrfToken("X-CSRF-TOKEN","_csrf", "abc")
             when(repo.loadToken(any(HttpServletRequest))).thenReturn(token)
             request.setParameter(token.parameterName,token.token)
             request.servletPath = "/some-url"
@@ -147,7 +148,7 @@ class CsrfConfigTests extends AbstractHttpConfigTests {
             mockBean(CsrfTokenRepository,'repo')
             createAppContext()
             CsrfTokenRepository repo = appContext.getBean("repo",CsrfTokenRepository)
-            CsrfToken token = new CsrfToken("X-CSRF-TOKEN","_csrf", "abc")
+            CsrfToken token = new DefaultCsrfToken("X-CSRF-TOKEN","_csrf", "abc")
             when(repo.loadToken(any(HttpServletRequest))).thenReturn(token)
             request.setParameter(token.parameterName,token.token)
             request.servletPath = "/some-url"
@@ -200,7 +201,7 @@ class CsrfConfigTests extends AbstractHttpConfigTests {
             mockBean(CsrfTokenRepository,'repo')
             createAppContext()
             CsrfTokenRepository repo = appContext.getBean("repo",CsrfTokenRepository)
-            CsrfToken token = new CsrfToken("X-CSRF-TOKEN","_csrf", "abc")
+            CsrfToken token = new DefaultCsrfToken("X-CSRF-TOKEN","_csrf", "abc")
             when(repo.loadToken(any(HttpServletRequest))).thenReturn(token)
             request.setParameter(token.parameterName,token.token)
             request.method = "POST"
@@ -223,7 +224,7 @@ class CsrfConfigTests extends AbstractHttpConfigTests {
             mockBean(CsrfTokenRepository,'repo')
             createAppContext()
             CsrfTokenRepository repo = appContext.getBean("repo",CsrfTokenRepository)
-            CsrfToken token = new CsrfToken("X-CSRF-TOKEN","_csrf", "abc")
+            CsrfToken token = new DefaultCsrfToken("X-CSRF-TOKEN","_csrf", "abc")
             when(repo.loadToken(any(HttpServletRequest))).thenReturn(token)
             request.setParameter(token.parameterName,token.token)
             request.method = "POST"
@@ -244,7 +245,7 @@ class CsrfConfigTests extends AbstractHttpConfigTests {
             mockBean(CsrfTokenRepository,'repo')
             createAppContext()
             CsrfTokenRepository repo = appContext.getBean("repo",CsrfTokenRepository)
-            CsrfToken token = new CsrfToken("X-CSRF-TOKEN","_csrf", "abc")
+            CsrfToken token = new DefaultCsrfToken("X-CSRF-TOKEN","_csrf", "abc")
             when(repo.loadToken(any(HttpServletRequest))).thenReturn(token)
             request.setParameter(token.parameterName,token.token)
             request.method = "POST"

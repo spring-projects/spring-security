@@ -17,37 +17,16 @@ package org.springframework.security.web.csrf;
 
 import java.io.Serializable;
 
-import org.springframework.util.Assert;
-
 /**
- * A CSRF token that is used to protect against CSRF attacks.
+ * Provides the information about an expected CSRF token.
+ *
+ * @see DefaultCsrfToken
  *
  * @author Rob Winch
  * @since 3.2
+ *
  */
-@SuppressWarnings("serial")
-public final class CsrfToken implements Serializable {
-
-    private final String token;
-
-    private final String parameterName;
-
-    private final String headerName;
-
-    /**
-     * Creates a new instance
-     * @param headerName the HTTP header name to use
-     * @param parameterName the HTTP parameter name to use
-     * @param token the value of the token (i.e. expected value of the HTTP parameter of parametername).
-     */
-    public CsrfToken(String headerName, String parameterName, String token) {
-        Assert.hasLength(headerName, "headerName cannot be null or empty");
-        Assert.hasLength(parameterName, "parameterName cannot be null or empty");
-        Assert.hasLength(token, "token cannot be null or empty");
-        this.headerName = headerName;
-        this.parameterName = parameterName;
-        this.token = token;
-    }
+public interface CsrfToken extends Serializable {
 
     /**
      * Gets the HTTP header that the CSRF is populated on the response and can
@@ -56,23 +35,18 @@ public final class CsrfToken implements Serializable {
      * @return the HTTP header that the CSRF is populated on the response and
      *         can be placed on requests instead of the parameter
      */
-    public String getHeaderName() {
-        return headerName;
-    }
+    String getHeaderName();
 
     /**
      * Gets the HTTP parameter name that should contain the token. Cannot be null.
      * @return the HTTP parameter name that should contain the token.
      */
-    public String getParameterName() {
-        return parameterName;
-    }
+    String getParameterName();
 
     /**
      * Gets the token value. Cannot be null.
      * @return the token value
      */
-    public String getToken() {
-        return token;
-    }
+    String getToken();
+
 }

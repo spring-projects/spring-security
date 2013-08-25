@@ -63,14 +63,12 @@ public final class HttpSessionCsrfTokenRepository implements CsrfTokenRepository
         return (CsrfToken) request.getSession().getAttribute(sessionAttributeName);
     }
 
-    /* (non-Javadoc)
-     * @see org.springframework.security.web.csrf.CsrfTokenRepository#generateNewToken(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+    /*
+     * (non-Javadoc)
+     * @see org.springframework.security.web.csrf.CsrfTokenRepository#generateToken(javax.servlet.http.HttpServletRequest)
      */
-    public CsrfToken generateAndSaveToken(HttpServletRequest request,
-            HttpServletResponse response) {
-        CsrfToken token = new CsrfToken(headerName, parameterName, createNewToken());
-        saveToken(token, request, response);
-        return token;
+    public CsrfToken generateToken(HttpServletRequest request) {
+        return new DefaultCsrfToken(headerName, parameterName, createNewToken());
     }
 
     /**

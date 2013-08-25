@@ -40,7 +40,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -96,7 +95,9 @@ public class SessionManagementConfigurerServlet31Tests {
         request.setMethod("POST");
         request.setParameter("username", "user");
         request.setParameter("password", "password");
-        CsrfToken token = new HttpSessionCsrfTokenRepository().generateAndSaveToken(request, response);
+        HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
+        CsrfToken token = repository.generateToken(request);
+        repository.saveToken(token, request, response);
         request.setParameter(token.getParameterName(),token.getToken());
         when(ReflectionUtils.findMethod(HttpServletRequest.class, "changeSessionId")).thenReturn(method);
 
