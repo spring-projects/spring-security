@@ -12,6 +12,7 @@
  */
 package org.springframework.security.web.util;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -113,6 +114,17 @@ public class AntPathRequestMatcherTests {
     }
 
     @Test
+    public void caseSensitive() throws Exception {
+        MockHttpServletRequest request = createRequest("/UPPER");
+        assertThat(new AntPathRequestMatcher("/upper",null,true).matches(request)).isFalse();
+        assertThat(new AntPathRequestMatcher("/upper","POST",true).matches(request)).isFalse();
+        assertThat(new AntPathRequestMatcher("/upper","GET",true).matches(request)).isFalse();
+
+        assertThat(new AntPathRequestMatcher("/upper",null,false).matches(request)).isTrue();
+        assertThat(new AntPathRequestMatcher("/upper","POST",false).matches(request)).isTrue();
+    }
+
+    @Test
     public void equalsBehavesCorrectly() throws Exception {
         // Both universal wildcard options should be equal
         assertEquals(new AntPathRequestMatcher("/**"), new AntPathRequestMatcher("**"));
@@ -121,6 +133,7 @@ public class AntPathRequestMatcherTests {
         assertFalse(new AntPathRequestMatcher("/xyz", "POST").equals(new AntPathRequestMatcher("/xyz", "GET")));
         assertFalse(new AntPathRequestMatcher("/xyz").equals(new AntPathRequestMatcher("/xxx")));
         assertFalse(new AntPathRequestMatcher("/xyz").equals(new AnyRequestMatcher()));
+        assertFalse(new AntPathRequestMatcher("/xyz","GET", false).equals(new AntPathRequestMatcher("/xyz","GET", true)));
     }
 
     @Test

@@ -24,15 +24,18 @@ import org.springframework.util.StringUtils;
 /**
  * Matcher which compares a pre-defined ant-style pattern against the URL
  * ({@code servletPath + pathInfo}) of an {@code HttpServletRequest}.
- * The query string of the URL is ignored and matching is case-insensitive.
+ * The query string of the URL is ignored and matching is case-insensitive or case-sensitive depending on
+ * the arguments passed into the constructor.
  * <p>
  * Using a pattern value of {@code /**} or {@code **} is treated as a universal
  * match, which will match any request. Patterns which end with {@code /**} (and have no other wildcards)
  * are optimized by using a substring match &mdash; a pattern of {@code /aaa/**} will match {@code /aaa},
  * {@code /aaa/} and any sub-directories, such as {@code /aaa/bbb/ccc}.
+ * </p>
  * <p>
  * For all other cases, Spring's {@link AntPathMatcher} is used to perform the match. See the Spring documentation
  * for this class for comprehensive information on the syntax used.
+ * </p>
  *
  * @author Luke Taylor
  * @author Rob Winch
@@ -47,31 +50,56 @@ public final class AntPathRequestMatcher implements RequestMatcher {
     private final Matcher matcher;
     private final String pattern;
     private final HttpMethod httpMethod;
+    private final boolean caseSensitive;
 
     /**
-     * Creates a matcher with the specific pattern which will match all HTTP methods.
+     * Creates a matcher with the specific pattern which will match all HTTP
+     * methods in a case insensitive manner.
      *
-     * @param pattern the ant pattern to use for matching
+     * @param pattern
+     *            the ant pattern to use for matching
      */
     public AntPathRequestMatcher(String pattern) {
         this(pattern, null);
     }
 
     /**
-     * Creates a matcher with the supplied pattern which will match all HTTP methods.
+     * Creates a matcher with the supplied pattern and HTTP method in a case
+     * insensitive manner.
      *
-     * @param pattern the ant pattern to use for matching
-     * @param httpMethod the HTTP method. The {@code matches} method will return false if the incoming request doesn't
-     * have the same method.
+     * @param pattern
+     *            the ant pattern to use for matching
+     * @param httpMethod
+     *            the HTTP method. The {@code matches} method will return false
+     *            if the incoming request doesn't have the same method.
      */
     public AntPathRequestMatcher(String pattern, String httpMethod) {
+        this(pattern,httpMethod,false);
+    }
+
+    /**
+     * Creates a matcher with the supplied pattern which will match the
+     * specified Http method
+     *
+     * @param pattern
+     *            the ant pattern to use for matching
+     * @param httpMethod
+     *            the HTTP method. The {@code matches} method will return false
+     *            if the incoming request doesn't doesn't have the same method.
+     * @param caseSensitive
+     *            true if the matcher should consider case, else false
+     */
+    public AntPathRequestMatcher(String pattern, String httpMethod, boolean caseSensitive) {
         Assert.hasText(pattern, "Pattern cannot be null or empty");
+        this.caseSensitive = caseSensitive;
 
         if (pattern.equals(MATCH_ALL) || pattern.equals("**")) {
             pattern = MATCH_ALL;
             matcher = null;
         } else {
-            pattern = pattern.toLowerCase();
+            if(!caseSensitive) {
+                pattern = pattern.toLowerCase();
+            }
 
             // If the pattern ends with {@code /**} and has no other wildcards, then optimize to a sub-path match
             if (pattern.endsWith(MATCH_ALL) && pattern.indexOf('?') == -1 &&
@@ -126,7 +154,9 @@ public final class AntPathRequestMatcher implements RequestMatcher {
             url += request.getPathInfo();
         }
 
-        url = url.toLowerCase();
+        if(!caseSensitive) {
+            url = url.toLowerCase();
+        }
 
         return url;
     }
@@ -142,7 +172,8 @@ public final class AntPathRequestMatcher implements RequestMatcher {
         }
         AntPathRequestMatcher other = (AntPathRequestMatcher)obj;
         return this.pattern.equals(other.pattern) &&
-            this.httpMethod == other.httpMethod;
+            this.httpMethod == other.httpMethod &&
+            this.caseSensitive == other.caseSensitive;
     }
 
     @Override
