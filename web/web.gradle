@@ -3,15 +3,14 @@ apply plugin: 'groovy'
 dependencies {
     compile project(':spring-security-core'),
             'aopalliance:aopalliance:1.0',
-            "org.springframework:spring-aop:$springVersion",
             "org.springframework:spring-beans:$springVersion",
             "org.springframework:spring-context:$springVersion",
-            "org.springframework:spring-expression:$springVersion",
-            "org.springframework:spring-jdbc:$springVersion",
-            "org.springframework:spring-tx:$springVersion",
+            "org.springframework:spring-expression:$springVersion"
             "org.springframework:spring-web:$springVersion"
 
-    optional "org.springframework:spring-webmvc:$springVersion"
+    optional "org.springframework:spring-webmvc:$springVersion",
+            "org.springframework:spring-jdbc:$springVersion",
+            "org.springframework:spring-tx:$springVersion"
 
     provided "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion"
 
