@@ -22,6 +22,11 @@
             don't use any third-party LDAP libraries (Mozilla, JLDAP etc.) in the LDAP provider, but
             extensive use is made of Spring LDAP, so some familiarity with that project may be
             useful if you plan on adding your own customizations.</para>
+        <para>When using LDAP authentication, it is important to ensure that you configure LDAP connection
+            pooling properly. If you are unfamiliar with how to do this, you can refer to the
+            <uri xmlns:xlink="http://www.w3.org/1999/xlink"
+            xlink:href="http://docs.oracle.com/javase/jndi/tutorial/ldap/connect/config.html">Java LDAP
+            documentation</uri>.</para>
     </section>
     <section>
         <info>
