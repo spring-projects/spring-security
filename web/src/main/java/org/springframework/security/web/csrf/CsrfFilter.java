@@ -24,9 +24,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -52,6 +55,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @since 3.2
  */
 public final class CsrfFilter extends OncePerRequestFilter {
+    private final Log logger = LogFactory.getLog(getClass());
     private final CsrfTokenRepository tokenRepository;
     private RequestMatcher requireCsrfProtectionMatcher = new DefaultRequiresCsrfMatcher();
     private AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
@@ -86,6 +90,9 @@ public final class CsrfFilter extends OncePerRequestFilter {
             actualToken = request.getParameter(csrfToken.getParameterName());
         }
         if(!csrfToken.getToken().equals(actualToken)) {
+            if(logger.isDebugEnabled()) {
+                logger.debug("Invalid CSRF token found for " + UrlUtils.buildFullRequestUrl(request));
+            }
             accessDeniedHandler.handle(request, response, new InvalidCsrfTokenException(csrfToken, actualToken));
             return;
         }
