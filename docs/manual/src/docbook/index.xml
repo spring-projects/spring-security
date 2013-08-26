@@ -130,6 +130,7 @@
         <xi:include href="core-filters.xml"/>
         <xi:include href="basic-and-digest-auth.xml"/>
         <xi:include href="remember-me-authentication.xml"/>
+        <xi:include href="csrf.xml"/>
         <xi:include href="session-mgmt.xml"/>
         <xi:include href="anon-auth-provider.xml"/>
     </part>
