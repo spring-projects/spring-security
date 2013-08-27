@@ -31,7 +31,7 @@ amount=100.00&routingNumber=1234&account=9876
       name="account"
       value="evilsAccountNumber"/>
   <input type="submit"
-      value="Win Money!'/>
+      value="Win Money!"/>
 </form>]]></programlisting>
         <para>You like to win money, so you click on the submit button. In the process, you have unintentionally transferred $100 to
              a malicious user. This happens because, while the evil website cannot see your cookies, the cookies associated with your
