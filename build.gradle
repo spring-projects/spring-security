@@ -30,8 +30,9 @@ allprojects {
     group = 'org.springframework.security'
 
     repositories {
-       maven { url "http://repo.springsource.org/libs-release" }
+       maven { url "http://repo.springsource.org/libs-snapshot" }
        maven { url "http://repo.springsource.org/plugins-release" }
+       maven { url "http://repo.terracotta.org/maven2/" }
     }
 
     eclipse.project.name = "${project.name}-3.2.x"
@@ -102,7 +103,22 @@ configure(coreModuleProjects) {
     }
     configurations {
         jacoco //Configuration Group used by Sonar to provide Code Coverage using JaCoCo
+        spring4TestRuntime.extendsFrom testRuntime
     }
+    configurations.spring4TestRuntime {
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'org.springframework') {
+                details.useVersion '4.0.0.BUILD-SNAPSHOT'
+            }
+            if (details.requested.name == 'ehcache') {
+                details.useVersion '2.6.5'
+            }
+            if (details.requested.name == 'ehcache-terracotta') {
+                details.useVersion '2.1.1'
+            }
+        }
+    }
+
     dependencies {
         jacoco "org.jacoco:org.jacoco.agent:0.6.2.201302030002:runtime"
     }
@@ -112,6 +128,14 @@ configure(coreModuleProjects) {
     integrationTest {
         jvmArgs "-javaagent:${configurations.jacoco.asPath}=destfile=${buildDir}/jacoco.exec,includes=${project.group}.*"
     }
+    task spring4Test(type: Test) {
+        jvmArgs = ['-ea', '-Xmx500m', '-XX:MaxPermSize=128M']
+        exclude "**/EhCacheBasedAclCacheTests.class", "**/Issue55Tests.class"
+        classpath = sourceSets.test.output + sourceSets.main.output + configurations.spring4TestRuntime
+        testResultsDir = file("$buildDir/spring4-test-results/")
+        testReportDir = file("$buildDir/reports/spring4-tests/")
+    }
+    check.dependsOn spring4Test
 }
 
 configure (aspectjProjects) {

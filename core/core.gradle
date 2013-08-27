@@ -43,7 +43,7 @@ classes.doLast {
 
 sourceJar.from cryptoProject.sourceSets.main.java
 
-test {
+configure([test,spring4Test]) {
     systemProperties['springSecurityVersion'] = version
     systemProperties['springVersion'] = springVersion
 }
