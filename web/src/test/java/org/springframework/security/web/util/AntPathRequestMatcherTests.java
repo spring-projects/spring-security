@@ -16,15 +16,24 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 /**
  * @author Luke Taylor
  * @author Rob Winch
  */
+@RunWith(MockitoJUnitRunner.class)
 public class AntPathRequestMatcherTests {
+    @Mock
+    private HttpServletRequest request;
 
     @Test
     public void singleWildcardMatchesAnyPath() {
@@ -65,8 +74,7 @@ public class AntPathRequestMatcherTests {
     @Test
     public void requestHasNullMethodMatches() {
         AntPathRequestMatcher matcher = new AntPathRequestMatcher("/something/*", "GET");
-        MockHttpServletRequest request = createRequest("/something/here");
-        request.setMethod(null);
+        HttpServletRequest request = createRequestWithNullMethod("/something/here");
         assertTrue(matcher.matches(request));
     }
 
@@ -74,8 +82,7 @@ public class AntPathRequestMatcherTests {
     @Test
     public void requestHasNullMethodNoMatch() {
         AntPathRequestMatcher matcher = new AntPathRequestMatcher("/something/*", "GET");
-        MockHttpServletRequest request = createRequest("/nomatch");
-        request.setMethod(null);
+        HttpServletRequest request = createRequestWithNullMethod("/nomatch");
         assertFalse(matcher.matches(request));
     }
 
@@ -140,6 +147,12 @@ public class AntPathRequestMatcherTests {
     public void toStringIsOk() throws Exception {
         new AntPathRequestMatcher("/blah").toString();
         new AntPathRequestMatcher("/blah", "GET").toString();
+    }
+
+    private HttpServletRequest createRequestWithNullMethod(String path) {
+        when(request.getQueryString()).thenReturn("doesntMatter");
+        when(request.getServletPath()).thenReturn(path);
+        return request;
     }
 
     private MockHttpServletRequest createRequest(String path) {

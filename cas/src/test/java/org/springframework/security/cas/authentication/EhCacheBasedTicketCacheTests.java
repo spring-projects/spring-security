@@ -39,7 +39,7 @@ public class EhCacheBasedTicketCacheTests extends AbstractStatelessTicketCacheTe
     //~ Methods ========================================================================================================
     @BeforeClass
     public static void initCacheManaer() {
-        cacheManager = new CacheManager();
+        cacheManager = CacheManager.create();
         cacheManager.addCache(new Cache("castickets", 500, false, false, 30, 30));
     }
 
