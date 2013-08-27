@@ -35,6 +35,6 @@ class CsrfWebMvcConfiguration {
 
     @Bean
     public RequestDataValueProcessor requestDataValueProcessor() {
-        return new CsrfRequestDataValueProcessor();
+        return CsrfRequestDataValueProcessor.create();
     }
 }

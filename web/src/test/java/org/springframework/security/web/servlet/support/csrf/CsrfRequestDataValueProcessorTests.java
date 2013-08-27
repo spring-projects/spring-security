@@ -17,15 +17,17 @@ package org.springframework.security.web.servlet.support.csrf;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
+import org.springframework.util.ReflectionUtils;
+import org.springframework.web.servlet.support.RequestDataValueProcessor;
 
 /**
  * @author Rob Winch
@@ -34,29 +36,62 @@ import org.springframework.security.web.csrf.DefaultCsrfToken;
 public class CsrfRequestDataValueProcessorTests {
     private MockHttpServletRequest request;
 
-    private MockHttpServletResponse response;
-
     private CsrfRequestDataValueProcessor processor;
+
+    private CsrfToken token;
+    private Map<String,String> expected = new HashMap<String,String>();
 
     @Before
     public void setup() {
         request = new MockHttpServletRequest();
-        response = new MockHttpServletResponse();
         processor = new CsrfRequestDataValueProcessor();
+
+        token = new DefaultCsrfToken("1", "a", "b");
+        request.setAttribute(CsrfToken.class.getName(), token);
+
+        expected.put(token.getParameterName(),token.getToken());
+    }
+
+    @Test
+    public void assertAllMethodsDeclared() {
+        Method[] expectedMethods = ReflectionUtils.getAllDeclaredMethods(RequestDataValueProcessor.class);
+        for(Method expected : expectedMethods) {
+            assertThat(ReflectionUtils.findMethod(CsrfRequestDataValueProcessor.class, expected.getName(), expected.getParameterTypes())).as("Expected to find "+ expected+ " defined on "+CsrfRequestDataValueProcessor.class).isNotNull();
+        }
     }
 
     @Test
     public void getExtraHiddenFieldsNoCsrfToken() {
+        request = new MockHttpServletRequest();
         assertThat(processor.getExtraHiddenFields(request)).isEmpty();
     }
 
     @Test
-    public void getExtraHiddenFieldsHasCsrfToken() {
-        CsrfToken token = new DefaultCsrfToken("1", "a", "b");
-        request.setAttribute(CsrfToken.class.getName(), token);
-        Map<String,String> expected = new HashMap<String,String>();
-        expected.put(token.getParameterName(),token.getToken());
+    public void getExtraHiddenFieldsHasCsrfTokenNoMethodSet() {
+        assertThat(processor.getExtraHiddenFields(request)).isEqualTo(expected);
+    }
 
+    @Test
+    public void getExtraHiddenFieldsHasCsrfToken_GET() {
+        processor.processAction(request, "action", "GET");
+        assertThat(processor.getExtraHiddenFields(request)).isEmpty();
+    }
+
+    @Test
+    public void getExtraHiddenFieldsHasCsrfToken_get() {
+        processor.processAction(request, "action", "get");
+        assertThat(processor.getExtraHiddenFields(request)).isEmpty();
+    }
+
+    @Test
+    public void getExtraHiddenFieldsHasCsrfToken_POST() {
+        processor.processAction(request, "action", "POST");
+        assertThat(processor.getExtraHiddenFields(request)).isEqualTo(expected);
+    }
+
+    @Test
+    public void getExtraHiddenFieldsHasCsrfToken_post() {
+        processor.processAction(request, "action", "post");
         assertThat(processor.getExtraHiddenFields(request)).isEqualTo(expected);
     }
 
@@ -64,6 +99,12 @@ public class CsrfRequestDataValueProcessorTests {
     public void processAction() {
         String action = "action";
         assertThat(processor.processAction(request, action)).isEqualTo(action);
+    }
+
+    @Test
+    public void processActionWithMethodArg() {
+        String action = "action";
+        assertThat(processor.processAction(request, action, null)).isEqualTo(action);
     }
 
     @Test
@@ -76,5 +117,16 @@ public class CsrfRequestDataValueProcessorTests {
     public void processUrl() {
         String url = "url";
         assertThat(processor.processUrl(request, url)).isEqualTo(url);
+    }
+
+    @Test
+    public void createGetExtraHiddenFieldsHasCsrfToken() {
+        CsrfToken token = new DefaultCsrfToken("1", "a", "b");
+        request.setAttribute(CsrfToken.class.getName(), token);
+        Map<String,String> expected = new HashMap<String,String>();
+        expected.put(token.getParameterName(),token.getToken());
+
+        RequestDataValueProcessor processor = CsrfRequestDataValueProcessor.create();
+        assertThat(processor.getExtraHiddenFields(request)).isEqualTo(expected);
     }
 }

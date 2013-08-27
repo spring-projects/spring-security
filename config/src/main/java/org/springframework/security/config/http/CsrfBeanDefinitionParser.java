@@ -49,6 +49,7 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
         boolean webmvcPresent = ClassUtils.isPresent(DISPATCHER_SERVLET_CLASS_NAME, getClass().getClassLoader());
         if(webmvcPresent) {
             RootBeanDefinition beanDefinition = new RootBeanDefinition(CsrfRequestDataValueProcessor.class);
+            beanDefinition.setFactoryMethodName("create");
             BeanComponentDefinition componentDefinition =
                     new BeanComponentDefinition(beanDefinition, REQUEST_DATA_VALUE_PROCESSOR);
             pc.registerBeanComponent(componentDefinition);
