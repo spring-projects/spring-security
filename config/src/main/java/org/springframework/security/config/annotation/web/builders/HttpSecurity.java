@@ -239,6 +239,75 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
         return getOrApply(new OpenIDLoginConfigurer<HttpSecurity>());
     }
 
+    /**
+     * Adds the Security headers to the response. This is activated by default
+     * when using {@link WebSecurityConfigurerAdapter}'s default constructor.
+     * Only invoking the {@link #headers()} without invoking additional methods
+     * on it, or accepting the default provided by
+     * {@link WebSecurityConfigurerAdapter}, is the equivalent of:
+     *
+     * <pre>
+     * &#064;Configuration
+     * &#064;EnableWebSecurity
+     * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
+     *
+     * 	&#064;Override
+     *     protected void configure(HttpSecurity http) throws Exception {
+     *         http
+     *             .headers()
+     *                 .contentTypeOptions();
+     *                 .xssProtection()
+     *                 .cacheControl()
+     *                 .httpStrictTransportSecurity()
+     *                 .frameOptions()
+     *                 .and()
+     *             ...;
+     *     }
+     * }
+     * </pre>
+     *
+     * You can disable the headers using the following:
+     *
+     * <pre>
+     * &#064;Configuration
+     * &#064;EnableWebSecurity
+     * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
+     *
+     * 	&#064;Override
+     *     protected void configure(HttpSecurity http) throws Exception {
+     *         http
+     *             .headers().disable()
+     *             ...;
+     *     }
+     * }
+     * </pre>
+     *
+     * You can enable only a few of the headers by invoking the appropriate
+     * methods on {@link #headers()} result. For example, the following will
+     * enable {@link HeadersConfigurer#cacheControl()} and
+     * {@link HeadersConfigurer#frameOptions()} only.
+     *
+     * <pre>
+     * &#064;Configuration
+     * &#064;EnableWebSecurity
+     * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
+     *
+     * 	&#064;Override
+     *     protected void configure(HttpSecurity http) throws Exception {
+     *         http
+     *             .headers()
+     *                 .cacheControl()
+     *                 .frameOptions()
+     *                 .and()
+     *             ...;
+     *     }
+     * }
+     * </pre>
+     *
+     * @return
+     * @throws Exception
+     * @see {@link HeadersConfigurer}
+     */
     public HeadersConfigurer<HttpSecurity> headers() throws Exception {
         return getOrApply(new HeadersConfigurer<HttpSecurity>());
     }
@@ -664,7 +733,23 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 
     /**
-     * Adds CSRF support
+     * Adds CSRF support. This is activated by default when using
+     * {@link WebSecurityConfigurerAdapter}'s default constructor. You can
+     * disable it using:
+     *
+     * <pre>
+     * &#064;Configuration
+     * &#064;EnableWebSecurity
+     * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
+     *
+     *     &#064;Override
+     *     protected void configure(HttpSecurity http) throws Exception {
+     *         http
+     *             .csrf().disable()
+     *             ...;
+     *     }
+     * }
+     * </pre>
      *
      * @return the {@link ServletApiConfigurer} for further customizations
      * @throws Exception

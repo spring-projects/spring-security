@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.header.writers.CacheControlHeadersWriter;
@@ -30,15 +31,80 @@ import org.springframework.security.web.header.writers.frameoptions.XFrameOption
 import org.springframework.util.Assert;
 
 /**
+ * Adds the Security headers to the response. This is activated by default when
+ * using {@link WebSecurityConfigurerAdapter}'s default constructor. Only
+ * invoking the {@link #headers()} without invoking additional methods on it, or
+ * accepting the default provided by {@link WebSecurityConfigurerAdapter}, is
+ * the equivalent of:
+ *
+ * <pre>
+ * &#064;Configuration
+ * &#064;EnableWebSecurity
+ * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
+ *
+ * 	&#064;Override
+ *     protected void configure(HttpSecurity http) throws Exception {
+ *         http
+ *             .headers()
+ *                 .contentTypeOptions();
+ *                 .xssProtection()
+ *                 .cacheControl()
+ *                 .httpStrictTransportSecurity()
+ *                 .frameOptions()
+ *                 .and()
+ *             ...;
+ *     }
+ * }
+ * </pre>
+ *
+ * You can disable the headers using the following:
+ *
+ * <pre>
+ * &#064;Configuration
+ * &#064;EnableWebSecurity
+ * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
+ *
+ * 	&#064;Override
+ *     protected void configure(HttpSecurity http) throws Exception {
+ *         http
+ *             .headers().disable()
+ *             ...;
+ *     }
+ * }
+ * </pre>
+ *
+ * You can enable only a few of the headers by invoking the appropriate methods
+ * on {@link #headers()} result. For example, the following will enable
+ * {@link HeadersConfigurer#cacheControl()} and
+ * {@link HeadersConfigurer#frameOptions()} only.
+ *
+ * <pre>
+ * &#064;Configuration
+ * &#064;EnableWebSecurity
+ * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
+ *
+ * 	&#064;Override
+ *     protected void configure(HttpSecurity http) throws Exception {
+ *         http
+ *             .headers()
+ *                 .cacheControl()
+ *                 .frameOptions()
+ *                 .and()
+ *             ...;
+ *     }
+ * }
+ * </pre>
+ *
  * @author Rob Winch
  * @since 3.2
- * @see RememberMeConfigurer
  */
-public final class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<HeadersConfigurer<H>,H> {
+public final class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
+        AbstractHttpConfigurer<HeadersConfigurer<H>, H> {
     private List<HeaderWriter> headerWriters = new ArrayList<HeaderWriter>();
 
     /**
      * Creates a new instance
+     *
      * @see HttpSecurity#headers()
      */
     public HeadersConfigurer() {
@@ -46,7 +112,9 @@ public final class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends A
 
     /**
      * Adds a {@link HeaderWriter} instance
-     * @param headerWriter the {@link HeaderWriter} instance to add
+     *
+     * @param headerWriter
+     *            the {@link HeaderWriter} instance to add
      * @return the {@link HeadersConfigurer} for additional customizations
      */
     public HeadersConfigurer<H> addHeaderWriter(HeaderWriter headerWriter) {
@@ -56,7 +124,13 @@ public final class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends A
     }
 
     /**
-     * Adds {@link XContentTypeOptionsHeaderWriter}
+     * Adds {@link XContentTypeOptionsHeaderWriter} which inserts the <a href=
+     * "http://msdn.microsoft.com/en-us/library/ie/gg622941(v=vs.85).aspx"
+     * >X-Content-Type-Options</a>:
+     *
+     * <pre>
+     * X-Content-Type-Options: nosniff
+     * </pre>
      *
      * @return the {@link HeadersConfigurer} for additional customizations
      */
@@ -65,8 +139,11 @@ public final class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends A
     }
 
     /**
-     * Adds {@link XXssProtectionHeaderWriter}. Note this is not comprehensive
-     * XSS protection!
+     * <strong>Note this is not comprehensive XSS protection!</strong>
+     *
+     * <para>Adds {@link XXssProtectionHeaderWriter} which adds the <a href=
+     * "http://blogs.msdn.com/b/ieinternals/archive/2011/01/31/controlling-the-internet-explorer-xss-filter-with-the-x-xss-protection-http-header.aspx"
+     * >X-XSS-Protection header</a>
      *
      * @return the {@link HeadersConfigurer} for additional customizations
      */
@@ -75,7 +152,12 @@ public final class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends A
     }
 
     /**
-     * Adds {@link CacheControlHeadersWriter}.
+     * Adds {@link CacheControlHeadersWriter}. Specifically it adds the
+     * following headers:
+     * <ul>
+     * <li>Cache-Control: no-cache, no-store, max-age=0, must-revalidate</li>
+     * <li>Pragma: no-cache</li>
+     * </ul>
      *
      * @return the {@link HeadersConfigurer} for additional customizations
      */
@@ -84,7 +166,15 @@ public final class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends A
     }
 
     /**
-     * Adds {@link HstsHeaderWriter}.
+     * Adds {@link HstsHeaderWriter} which provides support for <a
+     * href="http://tools.ietf.org/html/rfc6797">HTTP Strict Transport Security
+     * (HSTS)</a>.
+     *
+     * <p>
+     * For additional configuration options, use
+     * {@link #addHeaderWriter(HeaderWriter)} and {@link HstsHeaderWriter}
+     * directly.
+     * </p>
      *
      * @return the {@link HeadersConfigurer} for additional customizations
      */
@@ -93,7 +183,10 @@ public final class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends A
     }
 
     /**
-     * Adds {@link XFrameOptionsHeaderWriter} with all the default settings.
+     * Adds {@link XFrameOptionsHeaderWriter} with all the default settings. For
+     * additional configuration options, use
+     * {@link #addHeaderWriter(HeaderWriter)} and
+     * {@link XFrameOptionsHeaderWriter} directly.
      *
      * @return the {@link HeadersConfigurer} for additional customizations
      */
@@ -109,20 +202,24 @@ public final class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends A
 
     /**
      * Creates the {@link HeaderWriter}
+     *
      * @return the {@link HeaderWriter}
      */
     private HeaderWriterFilter createHeaderWriterFilter() {
-        HeaderWriterFilter headersFilter = new HeaderWriterFilter(getHeaderWriters());
+        HeaderWriterFilter headersFilter = new HeaderWriterFilter(
+                getHeaderWriters());
         headersFilter = postProcess(headersFilter);
         return headersFilter;
     }
 
     /**
-     * Gets the {@link HeaderWriter} instances and possibly initializes with the defaults.
+     * Gets the {@link HeaderWriter} instances and possibly initializes with the
+     * defaults.
+     *
      * @return
      */
     private List<HeaderWriter> getHeaderWriters() {
-        if(headerWriters.isEmpty()) {
+        if (headerWriters.isEmpty()) {
             addDefaultHeaderWriters();
         }
         return headerWriters;

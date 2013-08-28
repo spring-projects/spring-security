@@ -354,7 +354,7 @@
             <section xml:id="nsa-frame-options-attributes">
                 <title><literal>&lt;frame-options&gt;</literal> Attributes</title>
                 <section xml:id="nsa-frame-options-policy">
-                    <title><literal>frame-options-policy</literal></title>
+                    <title><literal>policy</literal></title>
                     <para>
                         <itemizedlist>
                             <listitem><literal>DENY</literal> The page cannot be displayed in a frame, regardless of
@@ -372,7 +372,7 @@
                     </para>
                 </section>
                 <section xml:id="nsa-frame-options-strategy">
-                    <title><literal>frame-options-strategy</literal></title>
+                    <title><literal>strategy</literal></title>
                     <para>
                         Select the <classname>AllowFromStrategy</classname> to use when using the ALLOW-FROM policy.
                         <itemizedlist>
@@ -393,18 +393,18 @@
                     </para>
                 </section>
                 <section xml:id="nsa-frame-options-ref">
-                    <title><literal>frame-options-ref</literal></title>
+                    <title><literal>ref</literal></title>
                     <para>
                         Instead of using one of the predefined strategies it is also possible to use a custom <classname>AllowFromStrategy</classname>.
                         The reference to this bean can be specified through this ref attribute.
                     </para>
                 </section>
                 <section xml:id="nsa-frame-options-value">
-                    <title><literal>frame-options-value</literal></title>
+                    <title><literal>value</literal></title>
                     <para>The value to use when ALLOW-FROM is used a <link linkend="nsa-frame-options-strategy">strategy</link>.</para>
                 </section>
                 <section xml:id="nsa-frame-options-from-parameter">
-                    <title><literal>frame-options-from-parameter</literal></title>
+                    <title><literal>from-parameter</literal></title>
                     <para>
                         Specify the name of the request parameter to use when using regexp or whitelist for the ALLOW-FROM
                         strategy.

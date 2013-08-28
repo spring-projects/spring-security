@@ -205,7 +205,8 @@ public class WebSecurityConfig extends
         <note>
             <para>Another modern approach to dealing with clickjacking is using a <link xlink:href="http://www.w3.org/TR/CSP/">Content
                 Security Policy</link>. Spring Security does not provide
-                support for this as the specification is not released and it is quite a bit more complicated. To stay up to date with this
+                support for this as the specification is not released and it is quite a bit more complicated. However, you could use the
+                <link linkend="headers-static">static headers</link> feature to implement this. To stay up to date with this
                 issue and to see how you can implement it with Spring Security refer to
                 <link xlink:href="https://jira.springsource.org/browse/SEC-2117">SEC-2117</link> </para>
         </note>
@@ -242,7 +243,7 @@ public class WebSecurityConfig extends
   }
 }]]></programlisting>
     </section>
-    <section xml:id="xss-protection">
+    <section xml:id="headers-xss-protection">
         <title>X-XSS-Protection</title>
         <para>Some browsers have built in support for filtering out
             <link xlink:href="https://www.owasp.org/index.php/Testing_for_Reflected_Cross_site_scripting_(OWASP-DV-001)">reflected
@@ -273,6 +274,75 @@ public class WebSecurityConfig extends
     http
       .headers()
         .xssProtection()
+        .and()
+      ...;
+  }
+}]]></programlisting>
+    </section>
+    <section xml:id="headers-static">
+        <title>Static Headers</title>
+        <para>There may be times you wish to inject custom security headers into your application that are not supported out of the box. For example, perhaps
+            you wish to have early support for <link xlink:href="http://www.w3.org/TR/CSP/">Content Security Policy</link> in order to ensure that resources
+            are only loaded from the same origin. Since support for Content Security Policy has not been finalized, browsers use one of two common extension headers
+            to implement the feature. This means we will need to inject the policy twice. An example of the headers can be seen below:</para>
+            <programlisting><![CDATA[X-Content-Security-Policy: default-src 'self'
+X-WebKit-CSP: default-src 'self']]></programlisting>
+            <para>When using the XML namespace, these headers can be added to the response using the <link linkend="nsa-header">&lt;header&gt;</link> element as
+            shown below:</para>
+        <programlisting language="xml"><![CDATA[<http ...>
+    ...
+    <headers>
+        <header name="X-Content-Security-Policy" value="default-src 'self'"/>
+        <header name="X-WebKit-CSP" value="default-src 'self'"/>
+    </headers>
+</http>]]></programlisting>
+        <para>Similarly, the headers could be added to the response using Java Configuration as shown in the following:</para>
+        <programlisting language="java"><![CDATA[@EnableWebSecurity
+@Configuration
+public class WebSecurityConfig extends
+   WebSecurityConfigurerAdapter {
+
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    http
+      .headers()
+        .addHeaderWriter(new StaticHeaderWriter("X-Content-Security-Policy","default-src 'self'"))
+        .addHeaderWriter(new StaticHeaderWriter("X-WebKit-CSP","default-src 'self'"))
+        .and()
+      ...;
+  }
+}]]></programlisting>
+    </section>
+    <section xml:id="headers-writer">
+        <title>Headers Writer</title>
+        <para>When the namespace or Java configuration does not support the headers you want, you can create a custom <interfacename>HeadersWriter</interfacename> instance
+            or even provide a custom implementation of the <interfacename>HeadersWriter</interfacename>.</para>
+        <para>Let's take a look at an example of using an custom instance of <classname>XFrameOptionsHeaderWriter</classname>. Perhaps you want to allow framing of content
+            for the same origin. This is easily supported by setting the <link linkend="nsa-frame-options-policy">policy</link>
+            attribute to "SAMEORIGIN", but let's take a look at a more explicit example.</para>
+            <programlisting language="xml"><![CDATA[<http ...>
+    ...
+    <headers>
+        <header header-ref="frameOptionsWriter"/>
+    </headers>
+</http>
+<!-- Requires the c-namespace.
+  See http://static.springsource.org/spring/docs/3.2.x/spring-framework-reference/html/beans.html#beans-c-namespace
+-->
+<bean:bean id="frameOptionsWriter"
+    class="org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter"
+    c:frameOptionsMode="SAMEORIGIN"/>]]></programlisting>
+    <para>We could also restrict framing of content to the same origin with Java configuration:</para>
+        <programlisting language="java"><![CDATA[@EnableWebSecurity
+@Configuration
+public class WebSecurityConfig extends
+   WebSecurityConfigurerAdapter {
+
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    http
+      .headers()
+        .addHeaderWriter(new XFrameOptionsHeaderWriter(XFrameOptionsMode.SAMEORIGIN))
         .and()
       ...;
   }
