@@ -61,6 +61,15 @@ class XsdDocumentedTests extends Specification {
         }
     }
 
+    def cleanupSpec() {
+        appendix = null
+        appendixRoot = null
+        schema31xDocument = null
+        schemaDocument = null
+        elementNameToElement = null
+        schemaRootElement = null
+    }
+
     def 'SEC-2139: named-security-filter are all defined and ordered properly'() {
         setup:
             def expectedFilters = (EnumSet.allOf(SecurityFilters) as List).sort { it.order }

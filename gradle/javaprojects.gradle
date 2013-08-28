@@ -113,7 +113,7 @@ dependencies {
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 test {
-    jvmArgs = ['-ea', '-Xmx500m']
+    jvmArgs = ['-ea', '-Xmx500m', '-XX:MaxPermSize=128M']
     maxParallelForks = guessMaxForks()
     logging.captureStandardOutput(LogLevel.INFO)
 }
