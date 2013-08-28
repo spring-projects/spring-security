@@ -32,36 +32,36 @@
         <title>Spring Security 3.1 namespace updates</title>
         <para>Below you can find a summary of updates to the Spring Security 3.1 namespace.</para>
         <itemizedlist>
-            <listitem>Added support for multiple <link xlink:href="#nsa-http">&lt;http&gt;</link> elements and support for determining which one to use with
-                <link xlink:href="#nsa-http-pattern">http@pattern</link>, <link xlink:href="#nsa-http-request-matcher">http@request-matcher</link>, and
-                <link xlink:href="#nsa-http-security">http@security</link>.
-                Further information can be found in <link xlink:href="#ns-config">Namespace Configuration</link> section of the reference.</listitem>
-            <listitem>Added stateless option for <link xlink:href="#nsa-http-create-session">http@create-session</link></listitem>
-            <listitem>Added support for <link xlink:href="#nsa-http-authentication-manager-ref">http@authentication-manager-ref</link>
-                and <link xlink:href="#nsa-global-method-security-authentication-manager-ref">global-method-security@authentication-manager-ref</link>.</listitem>
-            <listitem>Added <link xlink:href="#nsa-http-name">http@name</link></listitem>
-            <listitem>Added <link xlink:href="#nsa-http-request-matcher-ref">http@request-matcher-ref</link> and
-                <link xlink:href="#nsa-filter-chain-request-matcher-ref">filter-chain@request-matcher-ref</link></listitem>
-            <listitem>Added <link xlink:href="#nsa-debug">&lt;debug&gt;</link></listitem>
+            <listitem>Added support for multiple <link linkend="nsa-http">&lt;http&gt;</link> elements and support for determining which one to use with
+                <link linkend="nsa-http-pattern">http@pattern</link>, <link linkend="nsa-http-request-matcher">http@request-matcher</link>, and
+                <link linkend="nsa-http-security">http@security</link>.
+                Further information can be found in <link linkend="ns-config">Namespace Configuration</link> section of the reference.</listitem>
+            <listitem>Added stateless option for <link linkend="nsa-http-create-session">http@create-session</link></listitem>
+            <listitem>Added support for <link linkend="nsa-http-authentication-manager-ref">http@authentication-manager-ref</link>
+                and <link linkend="nsa-global-method-security-authentication-manager-ref">global-method-security@authentication-manager-ref</link>.</listitem>
+            <listitem>Added <link linkend="nsa-http-name">http@name</link></listitem>
+            <listitem>Added <link linkend="nsa-http-request-matcher-ref">http@request-matcher-ref</link> and
+                <link linkend="nsa-filter-chain-request-matcher-ref">filter-chain@request-matcher-ref</link></listitem>
+            <listitem>Added <link linkend="nsa-debug">&lt;debug&gt;</link></listitem>
             <listitem>Added Support for setting the AuthenticationDetailsSource using the namespace. See
-                <link xlink:href="#nsa-form-login-authentication-details-source-ref">form-login@authentication-details-source-ref</link>,
-                <link xlink:href="#nsa-openid-login-authentication-details-source-ref">openid-login@authentication-details-source-ref</link>,
-                <link xlink:href="#nsa-http-basic-authentication-details-source-ref">http-basic@authentication-details-source-ref</link>, and
-                <link xlink:href="#nsa-x509-authentication-details-source-ref">x509@authentication-details-source-ref</link>.</listitem>
+                <link linkend="nsa-form-login-authentication-details-source-ref">form-login@authentication-details-source-ref</link>,
+                <link linkend="nsa-openid-login-authentication-details-source-ref">openid-login@authentication-details-source-ref</link>,
+                <link linkend="nsa-http-basic-authentication-details-source-ref">http-basic@authentication-details-source-ref</link>, and
+                <link linkend="nsa-x509-authentication-details-source-ref">x509@authentication-details-source-ref</link>.</listitem>
             <listitem>Added support for http/expression-handler. This allows
-                <link xlink:href="#nsa-expression-handler">&lt;expression-handler&gt;</link> to be used for web access expressions.</listitem>
-            <listitem>Added <link xlink:href="#nsa-authentication-manager-erase-credentials">authentication-manager@erase-credentials</link></listitem>
-            <listitem>Added <link xlink:href="#nsa-http-basic-entry-point-ref">http-basic@entry-point-ref</link></listitem>
-            <listitem>Added <link xlink:href="#nsa-logout-delete-cookies">logout@delete-cookies</link></listitem>
-            <listitem>Added <link xlink:href="#nsa-remember-me-authentication-success-handler-ref">remember-me@authentication-success-handler-ref</link></listitem>
-            <listitem>Added <link xlink:href="#nsa-method-security-metadata-source">&lt;metadata-source-ref&gt;</link></listitem>
-            <listitem>Added <link xlink:href="#nsa-global-method-security-metadata-source-ref">global-method-security@metadata-source-ref</link></listitem>
-            <listitem>Added <link xlink:href="#nsa-global-method-security-mode">global-method-security@mode</link></listitem>
-            <listitem>Added <link xlink:href="#nsa-attribute-exchange">&lt;attribute-exchange&gt;</link></listitem>
-            <listitem>Added <link xlink:href="#nsa-remember-me-use-secure-cookie">remember-me@use-secure-cookie</link></listitem>
-            <listitem>Added <link xlink:href="#nsa-http-jaas-api-provision">http@jaas-api-provision</link></listitem>
-            <listitem>Added <link xlink:href="#nsa-form-login-username-parameter">form-login@username-parameter</link> and
-                <link xlink:href="#nsa-form-login-password-parameter">form-login@password-parameter</link></listitem>
+                <link linkend="nsa-expression-handler">&lt;expression-handler&gt;</link> to be used for web access expressions.</listitem>
+            <listitem>Added <link linkend="nsa-authentication-manager-erase-credentials">authentication-manager@erase-credentials</link></listitem>
+            <listitem>Added <link linkend="nsa-http-basic-entry-point-ref">http-basic@entry-point-ref</link></listitem>
+            <listitem>Added <link linkend="nsa-logout-delete-cookies">logout@delete-cookies</link></listitem>
+            <listitem>Added <link linkend="nsa-remember-me-authentication-success-handler-ref">remember-me@authentication-success-handler-ref</link></listitem>
+            <listitem>Added <link linkend="nsa-method-security-metadata-source">&lt;metadata-source-ref&gt;</link></listitem>
+            <listitem>Added <link linkend="nsa-global-method-security-metadata-source-ref">global-method-security@metadata-source-ref</link></listitem>
+            <listitem>Added <link linkend="nsa-global-method-security-mode">global-method-security@mode</link></listitem>
+            <listitem>Added <link linkend="nsa-attribute-exchange">&lt;attribute-exchange&gt;</link></listitem>
+            <listitem>Added <link linkend="nsa-remember-me-use-secure-cookie">remember-me@use-secure-cookie</link></listitem>
+            <listitem>Added <link linkend="nsa-http-jaas-api-provision">http@jaas-api-provision</link></listitem>
+            <listitem>Added <link linkend="nsa-form-login-username-parameter">form-login@username-parameter</link> and
+                <link linkend="nsa-form-login-password-parameter">form-login@password-parameter</link></listitem>
         </itemizedlist>
     </section>
 </chapter>

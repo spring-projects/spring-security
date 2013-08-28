@@ -23,7 +23,7 @@
             attributes on the <literal>ldap-server</literal> element and the user is isolated from
             worrying about which beans they need to create and what the bean property names are. <footnote>
             <para>You can find out more about the use of the <literal>ldap-server</literal> element
-                in the chapter on <link xlink:href="#ldap">LDAP</link>.</para>
+                in the chapter on <link linkend="ldap">LDAP</link>.</para>
             </footnote>. Use of a good XML editor while editing the application context file should
             provide information on the attributes and elements that are available. We would
             recommend that you try out the <link
@@ -147,7 +147,7 @@
                 functionality. The <literal>&lt;intercept-url></literal> element defines a
                 <literal>pattern</literal> which is matched against the URLs of incoming requests
                 using an ant path style syntax<footnote>
-                <para>See the section on <link xlink:href="#request-matching">Request
+                <para>See the section on <link linkend="request-matching">Request
                     Matching</link> in the Web Application Infrastructure chapter for more details
                     on how matches are actually performed.</para>
                 </footnote>. You can also use regular-expression matching as an alternative (see the
@@ -162,9 +162,9 @@
                 attributes). We'll see later how the interpretation can vary<footnote>
                 <para>The interpretation of the comma-separated values in the
                     <literal>access</literal> attribute depends on the implementation of the <link
-                    xlink:href="#ns-access-manager">AccessDecisionManager</link> which is used. In
+                    linkend="ns-access-manager">AccessDecisionManager</link> which is used. In
                     Spring Security 3.0, the attribute can also be populated with an <link
-                    xlink:href="#el-access">EL expression</link>.</para>
+                    linkend="el-access">EL expression</link>.</para>
                 </footnote>.</para>
             <note>
                 <para>You can use multiple <literal>&lt;intercept-url&gt;</literal> elements to
@@ -202,7 +202,7 @@
                     <literal>&lt;authentication-manager></literal> element, which creates a
                     <classname>ProviderManager</classname> and registers the authentication
                     providers with it. You can find more detailed information on the beans that are
-                    created in the <link xlink:href="#appendix-namespace">namespace appendix</link>.
+                    created in the <link linkend="appendix-namespace">namespace appendix</link>.
                     It's worth cross-checking this if you want to start understanding what the
                     important classes in the framework are and how they are used, particularly if
                     you want to customise things later.</para>
@@ -211,7 +211,7 @@
                 the application (which will be used for access control). It is also possible to load
                 user information from a standard properties file using the
                 <literal>properties</literal> attribute on <literal>user-service</literal>. See the
-                section on <link xlink:href="#core-services-in-memory-service">in-memory
+                section on <link linkend="core-services-in-memory-service">in-memory
                 authentication</link> for more details on the file format. Using the
                 <literal>&lt;authentication-provider&gt;</literal> element means that the user
                 information will be used by the authentication manager to process authentication
@@ -241,8 +241,8 @@
     </programlisting> Also note
                 that we've added an extra <literal>intercept-url</literal> element to say that any
                 requests for the login page should be available to anonymous users <footnote>
-                <para>See the chapter on <link xlink:href="#anonymous">anonymous
-                    authentication</link> and also the <link xlink:href="#authz-authenticated-voter"
+                <para>See the chapter on <link linkend="anonymous">anonymous
+                    authentication</link> and also the <link linkend="authz-authenticated-voter"
                     >AuthenticatedVoter</link> class for more details on how the value
                     <literal>IS_AUTHENTICATED_ANONYMOUSLY</literal> is processed.</para>
                 </footnote>. Otherwise the request would be matched by the pattern
@@ -273,7 +273,7 @@
                     <literal>intercept-url</literal> element is incompatible with this change and is
                     no longer supported in 3.1.</para>
                 </footnote>. We'll look at this new syntax in more detail in the chapter on the
-                <link xlink:href="#filter-chains-with-ns">Security Filter Chain</link>. </para>
+                <link linkend="filter-chains-with-ns">Security Filter Chain</link>. </para>
             <para> It's important to realise that these unsecured requests will be completely
                 oblivious to any Spring Security web-related configuration or additional attributes
                 such as <literal>requires-channel</literal>, so you will not be able to access
@@ -313,7 +313,7 @@
                     <literal>authentication-success-handler-ref</literal> attribute as an
                     alternative to <literal>default-target-url</literal>. The referenced bean should
                     be an instance of <interfacename>AuthenticationSuccessHandler</interfacename>.
-                    You'll find more on this in the <link xlink:href="#form-login-flow-handling"
+                    You'll find more on this in the <link linkend="form-login-flow-handling"
                     >Core Filters</link> chapter and also in the namespace appendix, as well as
                     information on how to customize the flow when authentication fails. </para>
             </section>
@@ -331,7 +331,7 @@
             <para> In practice you will need a more scalable source of user information than a few
                 names added to the application context file. Most likely you will want to store your
                 user information in something like a database or an LDAP server. LDAP namespace
-                configuration is dealt with in the <link xlink:href="#ldap">LDAP chapter</link>, so
+                configuration is dealt with in the <link linkend="ldap">LDAP chapter</link>, so
                 we won't cover it here. If you have a custom implementation of Spring Security's
                 <classname>UserDetailsService</classname>, called "myUserDetailsService" in your
                 application context, then you can authenticate against this using <programlisting language="xml"><![CDATA[
@@ -349,7 +349,7 @@
         </programlisting> Where <quote>securityDataSource</quote> is the name of a
                 <classname>DataSource</classname> bean in the application context, pointing at a
                 database containing the standard Spring Security <link
-                xlink:href="#db_schema_users_authorities">user data tables</link>. Alternatively,
+                linkend="db_schema_users_authorities">user data tables</link>. Alternatively,
                 you could configure a Spring Security <classname>JdbcDaoImpl</classname> bean and
                 point at that using the <literal>user-service-ref</literal> attribute: <programlisting language="xml"><![CDATA[
   <authentication-manager>
@@ -408,7 +408,7 @@
         <title>Advanced Web Features</title>
         <section xml:id="ns-remember-me">
             <title>Remember-Me Authentication</title>
-            <para>See the separate <link xlink:href="#remember-me">Remember-Me chapter</link> for
+            <para>See the separate <link linkend="remember-me">Remember-Me chapter</link> for
                 information on remember-me namespace configuration.</para>
         </section>
         <section xml:id="ns-requires-channel">
@@ -515,7 +515,7 @@
                     <literal>session-management</literal> element. </para>
                 <para>If you are using a customized authentication filter for form-based login, then
                     you have to configure concurrent session control support explicitly. More
-                    details can be found in the <link xlink:href="#session-mgmt">Session Management
+                    details can be found in the <link linkend="session-mgmt">Session Management
                     chapter</link>. </para>
             </section>
             <section xml:id="ns-session-fixation">
@@ -559,7 +559,7 @@
                     will <emphasis>also</emphasis> result in any
                     <classname>javax.servlet.http.HttpSessionIdListener</classname>s being notified, so
                     use caution if your code listens for both events. See the
-                    <link xlink:href="#session-mgmt">Session Management</link> chapter for additional
+                    <link linkend="session-mgmt">Session Management</link> chapter for additional
                     information.
                 </para>
             </section>
@@ -580,7 +580,7 @@
                 authenticate. It is also possible to select a specific
                 <interfacename>UserDetailsService</interfacename> bean for use OpenID by setting the
                 <literal>user-service-ref</literal> attribute on the <literal>openid-login</literal>
-                element. See the previous section on <link xlink:href="#ns-auth-providers"
+                element. See the previous section on <link linkend="ns-auth-providers"
                 >authentication providers</link> for more information. Note that we have omitted the
                 password attribute from the above user configuration, since this set of user data is
                 only being used to load the authorities for the user. A random password will be
@@ -613,7 +613,7 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                     retrieved value (or values in the case of multi-valued attributes). We'll see
                     more about how the <classname>SecurityContextHolder</classname> class is used
                     when we look at core Spring Security components in the <link
-                    xlink:href="#core-components">technical overview</link> chapter. Multiple
+                    linkend="core-components">technical overview</link> chapter. Multiple
                     attribute exchange configurations are also be supported, if you wish to use
                     multiple identity providers. You can supply multiple
                     <literal>attribute-exchange</literal> elements, using an
@@ -659,7 +659,7 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
 </http>]]>
                 </programlisting>
             </para>
-            <para>For additional information on how to customize the headers element refer to the <link xlink:href="#nsa-headers">headers</link>
+            <para>For additional information on how to customize the headers element refer to the <link linkend="nsa-headers">headers</link>
                 section of the Security Namespace appendix.</para>
         </section>
         <section xml:id="ns-custom-filters">
@@ -826,7 +826,7 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                     <classname>FilterSecurityInterceptor</classname>. Some other filters are added
                     by default, but you can disable them. An <classname>AnonymousAuthenticationFilter</classname>
                     is added by default and unless you have
-                    <link xlink:href="#ns-session-fixation">session-fixation protection</link>
+                    <link linkend="ns-session-fixation">session-fixation protection</link>
                     disabled, a <classname>SessionManagementFilter</classname> will also be added
                     to the filter chain.
                 </para>
@@ -847,7 +847,7 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
                 <para> The CAS sample application is a good example of the use of custom beans with
                     the namespace, including this syntax. If you aren't familiar with authentication
                     entry points, they are discussed in the <link
-                    xlink:href="#tech-intro-auth-entry-point">technical overview</link> chapter.
+                    linkend="tech-intro-auth-entry-point">technical overview</link> chapter.
                 </para>
             </section>
         </section>
@@ -857,7 +857,7 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
         <para>From version 2.0 onwards Spring Security has improved support substantially for adding
             security to your service layer methods. It provides support for JSR-250 annotation
             security as well as the framework's original <literal>@Secured</literal> annotation.
-            From 3.0 you can also make use of new <link xlink:href="#el-access">expression-based
+            From 3.0 you can also make use of new <link linkend="el-access">expression-based
             annotations</link>. You can apply security to a single bean, using the
             <literal>intercept-methods</literal> element to decorate the bean declaration, or you
             can secure multiple beans across the entire service layer using the AspectJ style
@@ -963,7 +963,7 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
         <para> The default strategy is to use an <classname>AffirmativeBased</classname>
             <interfacename>AccessDecisionManager</interfacename> with a
             <classname>RoleVoter</classname> and an <classname>AuthenticatedVoter</classname>. You
-            can find out more about these in the chapter on <link xlink:href="#authz-arch"
+            can find out more about these in the chapter on <link linkend="authz-arch"
             >authorization</link>.</para>
         <section xml:id="ns-custom-access-mgr">
             <title>Customizing the AccessDecisionManager</title>
@@ -992,7 +992,7 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
             <interfacename>AuthenticationManager</interfacename>. This is usually an instance of
             Spring Security's <classname>ProviderManager</classname> class, which you may already be
             familiar with if you've used the framework before. If not, it will be covered later, in
-            the <link xlink:href="#tech-intro-authentication">technical overview chapter</link>. The
+            the <link linkend="tech-intro-authentication">technical overview chapter</link>. The
             bean instance is registered using the <literal>authentication-manager</literal>
             namespace element. You can't use a custom <classname>AuthenticationManager</classname>
             if you are using either HTTP or method security through the namespace, but this should

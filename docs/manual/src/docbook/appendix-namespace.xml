@@ -8,7 +8,7 @@
         and information on the underlying beans they create (a knowledge of the individual classes
         and how they work together is assumed - you can find more information in the project Javadoc
         and elsewhere in this document). If you haven't used the namespace before, please read the
-        <link xlink:href="#ns-config">introductory chapter</link> on namespace configuration, as
+        <link linkend="ns-config">introductory chapter</link> on namespace configuration, as
         this is intended as a supplement to the information there. Using a good quality XML editor
         while editing a configuration based on the schema is recommended as this will provide
         contextual information on which elements and attributes are available as well as comments
@@ -33,11 +33,11 @@
                 created and the configuration within the element is used to build a filter chain within
                 <classname>FilterChainProxy</classname>. As of Spring Security 3.1, additional
                 <literal>http</literal> elements can be used to add extra filter chains <footnote>
-                <para>See the <link xlink:href="#ns-web-xml">introductory chapter</link> for how to set
+                <para>See the <link linkend="ns-web-xml">introductory chapter</link> for how to set
                     up the mapping from your <literal>web.xml</literal></para>
                 </footnote>. Some core filters are always created in a filter chain and others will be
                 added to the stack depending on the attributes and child elements which are present. The
-                positions of the standard filters are fixed (see <link xlink:href="#filter-stack">the
+                positions of the standard filters are fixed (see <link linkend="filter-stack">the
                 filter order table</link> in the namespace introduction), removing a common source of
                 errors with previous versions of the framework when users had to configure the filter
                 chain explicitly in the <classname>FilterChainProxy</classname> bean. You can, of course,
@@ -45,7 +45,7 @@
             <para> All filters which require a reference to the
                 <interfacename>AuthenticationManager</interfacename> will be automatically injected with
                 the internal instance created by the namespace configuration (see the <link
-                xlink:href="#ns-auth-manager">introductory chapter</link> for more on the
+                linkend="ns-auth-manager">introductory chapter</link> for more on the
                 <interfacename>AuthenticationManager</interfacename>). </para>
             <para> Each <literal>&lt;http&gt;</literal> namespace block always creates an
                 <classname>SecurityContextPersistenceFilter</classname>, an
@@ -67,7 +67,7 @@
                 </section>
                 <section xml:id="nsa-http-access-denied-page">
                     <title><literal>access-denied-page</literal></title>
-                    <para> Deprecated in favour of the <link xlink:href="#nsa-access-denied-handler">access-denied-handler</link>
+                    <para> Deprecated in favour of the <link linkend="nsa-access-denied-handler">access-denied-handler</link>
                         child element.</para>
                 </section>
                 <section xml:id="nsa-http-authentication-manager-ref">
@@ -139,15 +139,15 @@
                 </section>
                 <section xml:id="nsa-http-path-type">
                     <title><literal>path-type</literal></title>
-                    <para>Deprecated in favor of <link xlink:href="#nsa-http-request-matcher">request-matcher</link>.
+                    <para>Deprecated in favor of <link linkend="nsa-http-request-matcher">request-matcher</link>.
                         </para>
                 </section>
                 <section xml:id="nsa-http-pattern">
                     <title><literal>pattern</literal></title>
-                    <para>Defining a pattern for the <link xlink:href="#nsa-http">http</link> element controls the
+                    <para>Defining a pattern for the <link linkend="nsa-http">http</link> element controls the
                         requests which will be filtered through the list of filters which it defines.
                         The interpretation is dependent on the configured <link
-                        xlink:href="#nsa-http-request-matcher">request-matcher</link>. If no pattern is defined,
+                        linkend="nsa-http-request-matcher">request-matcher</link>. If no pattern is defined,
                         all requests will be matched, so the most specific patterns should be declared
                         first.</para>
                 </section>
@@ -165,9 +165,9 @@
                         currently <literal>ant</literal>, <literal>regex</literal> and
                         <literal>ciRegex</literal>, for ant, regular-expression and case-insensitive
                         regular-expression repsectively. A separate instance is created for each
-                        <link xlink:href="#nsa-intercept-url">intercept-url</link> element using its
-                        <link xlink:href="#nsa-intercept-url-pattern">pattern</link> and
-                        <link xlink:href="#nsa-intercept-url-method">method</link> attributes. Ant paths
+                        <link linkend="nsa-intercept-url">intercept-url</link> element using its
+                        <link linkend="nsa-intercept-url-pattern">pattern</link> and
+                        <link linkend="nsa-intercept-url-method">method</link> attributes. Ant paths
                         are matched using an <classname>AntPathRequestMatcher</classname> and regular expressions
                         are matched using a <classname>RegexRequestMatcher</classname>. See the Javadoc
                         for these classes for more details on exactly how the matching is preformed. Ant
@@ -177,7 +177,7 @@
                     <title><literal>request-matcher-ref</literal></title>
                     <para>A referenece to a bean that implements <interfacename>RequestMatcher</interfacename> that
                         will determine if this <classname>FilterChain</classname> should be used. This is a more
-                        powerful alternative to <link xlink:href="#nsa-http-pattern">pattern</link>.</para>
+                        powerful alternative to <link linkend="nsa-http-pattern">pattern</link>.</para>
                 </section>
                 <section xml:id="nsa-http-security">
                     <title><literal>security</literal></title>
@@ -202,30 +202,30 @@
                 <section xml:id="nsa-http-use-expressions">
                     <title><literal>use-expressions</literal></title>
                     <para>Enables EL-expressions in the <literal>access</literal> attribute, as
-                        described in the chapter on <link xlink:href="#el-access-web">expression-based
+                        described in the chapter on <link linkend="el-access-web">expression-based
                         access-control</link>.</para>
                 </section>
             </section>
             <section xml:id="nsa-http-children">
                 <title>Child Elements of &lt;http&gt;</title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-access-denied-handler">access-denied-handler</link></listitem>
-                    <listitem><link xlink:href="#nsa-anonymous">anonymous</link></listitem>
-                    <listitem><link xlink:href="#nsa-csrf">csrf</link></listitem>
-                    <listitem><link xlink:href="#nsa-custom-filter">custom-filter</link></listitem>
-                    <listitem><link xlink:href="#nsa-expression-handler">expression-handler</link></listitem>
-                    <listitem><link xlink:href="#nsa-form-login">form-login</link></listitem>
-                    <listitem><link xlink:href="#nsa-headers">headers</link></listitem>
-                    <listitem><link xlink:href="#nsa-http-basic">http-basic</link></listitem>
-                    <listitem><link xlink:href="#nsa-intercept-url">intercept-url</link></listitem>
-                    <listitem><link xlink:href="#nsa-jee">jee</link></listitem>
-                    <listitem><link xlink:href="#nsa-logout">logout</link></listitem>
-                    <listitem><link xlink:href="#nsa-openid-login">openid-login</link></listitem>
-                    <listitem><link xlink:href="#nsa-port-mappings">port-mappings</link></listitem>
-                    <listitem><link xlink:href="#nsa-remember-me">remember-me</link></listitem>
-                    <listitem><link xlink:href="#nsa-request-cache">request-cache</link></listitem>
-                    <listitem><link xlink:href="#nsa-session-management">session-management</link></listitem>
-                    <listitem><link xlink:href="#nsa-x509">x509</link></listitem>
+                    <listitem><link linkend="nsa-access-denied-handler">access-denied-handler</link></listitem>
+                    <listitem><link linkend="nsa-anonymous">anonymous</link></listitem>
+                    <listitem><link linkend="nsa-csrf">csrf</link></listitem>
+                    <listitem><link linkend="nsa-custom-filter">custom-filter</link></listitem>
+                    <listitem><link linkend="nsa-expression-handler">expression-handler</link></listitem>
+                    <listitem><link linkend="nsa-form-login">form-login</link></listitem>
+                    <listitem><link linkend="nsa-headers">headers</link></listitem>
+                    <listitem><link linkend="nsa-http-basic">http-basic</link></listitem>
+                    <listitem><link linkend="nsa-intercept-url">intercept-url</link></listitem>
+                    <listitem><link linkend="nsa-jee">jee</link></listitem>
+                    <listitem><link linkend="nsa-logout">logout</link></listitem>
+                    <listitem><link linkend="nsa-openid-login">openid-login</link></listitem>
+                    <listitem><link linkend="nsa-port-mappings">port-mappings</link></listitem>
+                    <listitem><link linkend="nsa-remember-me">remember-me</link></listitem>
+                    <listitem><link linkend="nsa-request-cache">request-cache</link></listitem>
+                    <listitem><link linkend="nsa-session-management">session-management</link></listitem>
+                    <listitem><link linkend="nsa-x509">x509</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -234,15 +234,15 @@
             <para>This element allows you to set the <literal>errorPage</literal> property for the
                 default <interfacename>AccessDeniedHandler</interfacename> used by the
                 <classname>ExceptionTranslationFilter</classname>, using the
-                <link xlink:href="#nsa-access-denied-handler-error-page">error-page</link> attribute, or
+                <link linkend="nsa-access-denied-handler-error-page">error-page</link> attribute, or
                 to supply your own implementation using the
-                <link xlink:href="#nsa-access-denied-handler-ref">ref</link> attribute. This is discussed
-                in more detail in the section on the <link xlink:href="#access-denied-handler">
+                <link linkend="nsa-access-denied-handler-ref">ref</link> attribute. This is discussed
+                in more detail in the section on the <link linkend="access-denied-handler">
                 <classname>ExceptionTranslationFilter</classname></link>.</para>
             <section xml:id="nsa-access-denied-handler-parents">
                 <title>Parent Elements of <literal>&lt;access-denied-handler&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                    <listitem><link linkend="nsa-http">http</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-access-denied-handler-attributes">
@@ -263,24 +263,24 @@
             <title><literal>&lt;headers&gt;</literal></title>
             <para>This element allows for configuring additional (security) headers to be send with the response.
                 It enables easy configuration for several headers and also allows for setting custom headers through
-                the <link xlink:href="#nsa-header">header</link> element.
+                the <link linkend="nsa-header">header</link> element.
                 <itemizedlist>
                     <listitem><literal>Cache-Control</literal> and <literal>Pragma</literal> - Can be set using the
-                        <link xlink:href="#nsa-cache-control">cache-control</link> element. This ensures that the
+                        <link linkend="nsa-cache-control">cache-control</link> element. This ensures that the
                         browser does not cache your secured pages.</listitem>
                     <listitem><literal>Strict-Transport-Security</literal> - Can be set using the
-                        <link xlink:href="#nsa-hsts">hsts</link> element. This ensures that the
+                        <link linkend="nsa-hsts">hsts</link> element. This ensures that the
                         browser automatically requests HTTPS for future requests.</listitem>
                     <listitem><literal>X-Frame-Options</literal> - Can be set using the
-                        <link xlink:href="#nsa-frame-options">frame-options</link> element. The
+                        <link linkend="nsa-frame-options">frame-options</link> element. The
                         <link xlink:href="http://en.wikipedia.org/wiki/Clickjacking#X-Frame-Options">X-Frame-Options
                         </link> header can be used to prevent clickjacking attacks.</listitem>
                     <listitem><literal>X-XSS-Protection</literal> - Can be set using the
-                        <link xlink:href="#nsa-xss-protection">xss-protection</link> element.
+                        <link linkend="nsa-xss-protection">xss-protection</link> element.
                         The <link xlink:href="http://en.wikipedia.org/wiki/Cross-site_scripting">X-XSS-Protection
                         </link> header can be used by browser to do basic control.</listitem>
                     <listitem><literal>X-Content-Type-Options</literal> - Can be set using the
-                        <link xlink:href="#nsa-content-type-options">content-type-options</link> element. The
+                        <link linkend="nsa-content-type-options">content-type-options</link> element. The
                         <link xlink:href="http://blogs.msdn.com/b/ie/archive/2008/09/02/ie8-security-part-vi-beta-2-update.aspx">X-Content-Type-Options</link>
                         header prevents Internet Explorer from MIME-sniffing a response away from the declared
                         content-type. This also applies to Google Chrome, when downloading extensions. </listitem>
@@ -289,18 +289,18 @@
             <section xml:id="nsa-headers-parents">
                 <title>Parent Elements of <literal>&lt;headers&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                    <listitem><link linkend="nsa-http">http</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-headers-children">
                 <title>Child Elements of <literal>&lt;headers&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-cache-control">cache-control</link></listitem>
-                    <listitem><link xlink:href="#nsa-content-type-options">content-type-options</link></listitem>
-                    <listitem><link xlink:href="#nsa-frame-options">frame-options</link></listitem>
-                    <listitem><link xlink:href="#nsa-header">header</link></listitem>
-                    <listitem><link xlink:href="#nsa-hsts">hsts</link></listitem>
-                    <listitem><link xlink:href="#nsa-xss-protection">xss-protection</link></listitem>
+                    <listitem><link linkend="nsa-cache-control">cache-control</link></listitem>
+                    <listitem><link linkend="nsa-content-type-options">content-type-options</link></listitem>
+                    <listitem><link linkend="nsa-frame-options">frame-options</link></listitem>
+                    <listitem><link linkend="nsa-header">header</link></listitem>
+                    <listitem><link linkend="nsa-hsts">hsts</link></listitem>
+                    <listitem><link linkend="nsa-xss-protection">xss-protection</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -311,7 +311,7 @@
             <section xml:id="nsa-cache-control-parents">
                 <title>Parent Elements of <literal>&lt;cache-control&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-headers">headers</link></listitem>
+                    <listitem><link linkend="nsa-headers">headers</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -343,7 +343,7 @@
              <section xml:id="nsa-hsts-parents">
                 <title>Parent Elements of <literal>&lt;hsts&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-headers">headers</link></listitem>
+                    <listitem><link linkend="nsa-headers">headers</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -361,7 +361,7 @@
                                 the site attempting to do so. This is the default when frame-options-policy is specified.</listitem>
                             <listitem><literal>SAMEORIGIN</literal> The page can only be displayed in a frame on the
                                 same origin as the page itself</listitem>
-                            <listitem><literal>ALLOW-FROM <link xlink:href="#nsa-frame-options-origin">origin</link></literal>
+                            <listitem><literal>ALLOW-FROM <link linkend="nsa-frame-options-origin">origin</link></literal>
                                 The page can only be displayed in a frame on the specified origin.
                             </listitem>
                         </itemizedlist>
@@ -377,17 +377,17 @@
                         Select the <classname>AllowFromStrategy</classname> to use when using the ALLOW-FROM policy.
                         <itemizedlist>
                             <listitem><literal>static</literal> Use a single static ALLOW-FROM value. The value can be set
-                            through the <link xlink:href="#nsa-frame-options-value">value</link> attribute.
+                            through the <link linkend="nsa-frame-options-value">value</link> attribute.
                             </listitem>
                             <listitem><literal>regexp</literal> Use a regelur expression to validate incoming requests and
-                            if they are allowed. The regular expression can be set through the <link xlink:href="#nsa-frame-options-value">value</link>
+                            if they are allowed. The regular expression can be set through the <link linkend="nsa-frame-options-value">value</link>
                             attribute. The request parameter used to retrieve the value to validate can be specified
-                            using the <link xlink:href="#nsa-frame-options-from-parameter">from-parameter</link>.
+                            using the <link linkend="nsa-frame-options-from-parameter">from-parameter</link>.
                             </listitem>
                             <listitem><literal>whitelist</literal>A comma-seperated list containing the allowed domains.
-                                The comma-seperated list can be set through the <link xlink:href="#nsa-frame-options-value">value</link>
+                                The comma-seperated list can be set through the <link linkend="nsa-frame-options-value">value</link>
                                 attribute. The request parameter used to retrieve the value to validate can be specified
-                                using the <link xlink:href="#nsa-frame-options-from-parameter">from-parameter</link>.
+                                using the <link linkend="nsa-frame-options-from-parameter">from-parameter</link>.
                             </listitem>
                         </itemizedlist>
                     </para>
@@ -401,7 +401,7 @@
                 </section>
                 <section xml:id="nsa-frame-options-value">
                     <title><literal>frame-options-value</literal></title>
-                    <para>The value to use when ALLOW-FROM is used a <link xlink:href="#nsa-frame-options-strategy">strategy</link>.</para>
+                    <para>The value to use when ALLOW-FROM is used a <link linkend="nsa-frame-options-strategy">strategy</link>.</para>
                 </section>
                 <section xml:id="nsa-frame-options-from-parameter">
                     <title><literal>frame-options-from-parameter</literal></title>
@@ -414,7 +414,7 @@
              <section xml:id="nsa-frame-options-parents">
                 <title>Parent Elements of <literal>&lt;frame-options&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-headers">headers</link></listitem>
+                    <listitem><link linkend="nsa-headers">headers</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -439,7 +439,7 @@
             <section xml:id="nsa-xss-protection-parents">
                 <title>Parent Elements of <literal>&lt;xss-protection&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-headers">headers</link></listitem>
+                    <listitem><link linkend="nsa-headers">headers</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -451,7 +451,7 @@
             <section xml:id="nsa-content-type-options-parents">
                 <title>Parent Elements of <literal>&lt;content-type-options&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-headers">headers</link></listitem>
+                    <listitem><link linkend="nsa-headers">headers</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -476,7 +476,7 @@
             <section xml:id="nsa-header-parents">
                 <title>Parent Elements of <literal>&lt;header&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-headers">headers</link></listitem>
+                    <listitem><link linkend="nsa-headers">headers</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -488,7 +488,7 @@
             <section xml:id="nsa-anonymous-parents">
                 <title>Parent Elements of <literal>&lt;anonymous&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                    <listitem><link linkend="nsa-http">http</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-anonymous-attributes">
@@ -527,7 +527,7 @@
             <section xml:id="nsa-csrf-parents">
                 <title>Parent Elements of <literal>&lt;csrf&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                    <listitem><link linkend="nsa-http">http</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-csrf-attributes">
@@ -550,12 +550,12 @@
                 additional beans but is used to select a bean of type
                 <interfacename>javax.servlet.Filter</interfacename> which is already defined in the
                 application context and add that at a particular position in the filter chain
-                maintained by Spring Security. Full details can be found in the <link xlink:href="#ns-custom-filters">
+                maintained by Spring Security. Full details can be found in the <link linkend="ns-custom-filters">
                 namespace chapter</link>.</para>
             <section xml:id="nsa-custom-filter-parents">
                 <title>Parent Elements of <literal>&lt;custom-filter&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                    <listitem><link linkend="nsa-http">http</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-custom-filter-attributes">
@@ -590,8 +590,8 @@
             <section xml:id="nsa-expression-handler-parents">
                 <title>Parent Elements of <literal>&lt;expression-handler&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-global-method-security">global-method-security</link></listitem>
-                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                    <listitem><link linkend="nsa-global-method-security">global-method-security</link></listitem>
+                    <listitem><link linkend="nsa-http">http</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-expression-handler-attributes">
@@ -615,12 +615,12 @@
                     <classname>DefaultLoginPageGeneratingFilter</classname> is responsible for
                     rendering the login page and will provide login forms for both normal form login
                     and/or OpenID if required.</para>
-                </footnote> The behaviour can be customized using the <link xlink:href="#nsa-form-login-attributes">
+                </footnote> The behaviour can be customized using the <link linkend="nsa-form-login-attributes">
                     <literal>&lt;form-login&gt;</literal> Attributes</link>.</para>
             <section xml:id="nsa-form-login-parents">
                 <title>Parent Elements of <literal>&lt;form-login&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                    <listitem><link linkend="nsa-http">http</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-form-login-attributes">
@@ -628,7 +628,7 @@
                 <section xml:id="nsa-form-login-always-use-default-target">
                     <title><literal>always-use-default-target</literal></title>
                     <para>If set to <literal>true</literal>, the user will always start at the value given by
-                        <link xlink:href="#nsa-form-login-default-target-url">default-target-url</link>, regardless
+                        <link linkend="nsa-form-login-default-target-url">default-target-url</link>, regardless
                         of how they arrived at the login page. Maps to the <literal>alwaysUseDefaultTargetUrl</literal>
                         property of <classname>UsernamePasswordAuthenticationFilter</classname>. Default value is
                         <literal>false</literal>.</para>
@@ -641,7 +641,7 @@
                 <section xml:id="nsa-form-login-authentication-failure-handler-ref">
                     <title><literal>authentication-failure-handler-ref</literal></title>
                     <para>Can be used as an alternative to
-                        <link xlink:href="#nsa-form-login-authentication-failure-url">authentication-failure-url</link>,
+                        <link linkend="nsa-form-login-authentication-failure-url">authentication-failure-url</link>,
                         giving you full control over the navigation flow after an authentication failure. The value
                         should be he name of an <interfacename>AuthenticationFailureHandler</interfacename> bean in the
                         application context.</para>
@@ -657,13 +657,13 @@
                 <section xml:id="nsa-form-login-authentication-success-handler-ref">
                     <title><literal>authentication-success-handler-ref</literal></title>
                     <para>This can be used as an alternative to
-                        <link xlink:href="#nsa-form-login-default-target-url">default-target-url</link>
-                        and <link xlink:href="#nsa-form-login-always-use-default-target">always-use-default-target</link>,
+                        <link linkend="nsa-form-login-default-target-url">default-target-url</link>
+                        and <link linkend="nsa-form-login-always-use-default-target">always-use-default-target</link>,
                         giving you full control over the navigation flow after a successful authentication. The value
                         should be the name of an <interfacename>AuthenticationSuccessHandler</interfacename> bean in
                         the application context. By default, an implementation of
                         <classname>SavedRequestAwareAuthenticationSuccessHandler</classname> is used and
-                        injected with the <link xlink:href="#nsa-form-login-default-target-url">default-target-url
+                        injected with the <link linkend="nsa-form-login-default-target-url">default-target-url
                         </link>.</para>
                 </section>
                 <section xml:id="nsa-form-login-default-target-url">
@@ -707,7 +707,7 @@
             <section xml:id="nsa-http-basic-parents">
                 <title>Parent Elements of <literal>&lt;http-basic&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                    <listitem><link linkend="nsa-http">http</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-http-basic-attributes">
@@ -752,9 +752,9 @@
             <section xml:id="nsa-intercept-url-parents">
                 <title>Parent Elements of <literal>&lt;intercept-url&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-filter-invocation-definition-source">filter-invocation-definition-source</link></listitem>
-                    <listitem><link xlink:href="#nsa-filter-security-metadata-source">filter-security-metadata-source</link></listitem>
-                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                    <listitem><link linkend="nsa-filter-invocation-definition-source">filter-invocation-definition-source</link></listitem>
+                    <listitem><link linkend="nsa-filter-security-metadata-source">filter-security-metadata-source</link></listitem>
+                    <listitem><link linkend="nsa-http">http</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-intercept-url-attributes">
@@ -797,7 +797,7 @@
                         <classname>ChannelProcessingFilter</classname> will be added to the filter
                         stack and its additional dependencies added to the application
                         context.<!--See the chapter on <link
-                xlink:href="#channel-security-config">channel security</link> for an example
+                linkend="channel-security-config">channel security</link> for an example
               configuration using traditional beans. --></para>
                     <para>If a <literal>&lt;port-mappings&gt;</literal> configuration is added, this
                         will be used to by the <classname>SecureChannelProcessor</classname> and
@@ -813,7 +813,7 @@
             <section xml:id="nsa-jee-parents">
                 <title>Parent Elements of <literal>&lt;jee&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                    <listitem><link linkend="nsa-http">http</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-jee-attributes">
@@ -835,7 +835,7 @@
             <section xml:id="nsa-logout-parents">
                 <title>Parent Elements of <literal>&lt;logout&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                    <listitem><link linkend="nsa-http">http</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-logout-attributes">
@@ -886,7 +886,7 @@
             <section xml:id="nsa-openid-login-parents">
                 <title>Parent Elements of <literal>&lt;openid-login&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                    <listitem><link linkend="nsa-http">http</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-openid-login-attributes">
@@ -915,8 +915,8 @@
                     <title><literal>authentication-success-handler-ref</literal></title>
                     <para>Reference to an AuthenticationSuccessHandler bean which should be used to handle a successful
                         authentication request. Should not be used in combination with
-                        <link xlink:href="#nsa-openid-login-default-target-url">default-target-url</link> (or
-                        <link xlink:href="#nsa-openid-login-always-use-default-target">
+                        <link linkend="nsa-openid-login-default-target-url">default-target-url</link> (or
+                        <link linkend="nsa-openid-login-always-use-default-target">
                         always-use-default-target</link>) as the implementation should always deal with navigation
                         to the subsequent destination</para>
                 </section>
@@ -952,7 +952,7 @@
             <section xml:id="nsa-openid-login-children">
                 <title>Child Elements of &lt;openid-login&gt;</title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-attribute-exchange">attribute-exchange</link></listitem>
+                    <listitem><link linkend="nsa-attribute-exchange">attribute-exchange</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -960,7 +960,7 @@
             <title><literal>&lt;attribute-exchange&gt;</literal></title>
             <para>The <literal>attribute-exchange</literal> element defines the list of
                 attributes which should be requested from the identity provider. An example can be found
-                in the <link xlink:href="#ns-openid">OpenID Support</link> section of the namespace configuration
+                in the <link linkend="ns-openid">OpenID Support</link> section of the namespace configuration
                 chapter. More than one can be used, in which case each must have an <literal>identifier-match</literal>
                 attribute, containing a regular expression which is matched against the supplied
                 OpenID identifier. This allows different attribute lists to be fetched from
@@ -968,7 +968,7 @@
             <section xml:id="nsa-attribute-exchange-parents">
                 <title>Parent Elements of <literal>&lt;attribute-exchange&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-openid-login">openid-login</link></listitem>
+                    <listitem><link linkend="nsa-openid-login">openid-login</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-attribute-exchange-attributes">
@@ -982,7 +982,7 @@
             <section xml:id="nsa-attribute-exchange-children">
                 <title>Child Elements of <literal>&lt;attribute-exchange&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-openid-attribute">openid-attribute</link></listitem>
+                    <listitem><link linkend="nsa-openid-attribute">openid-attribute</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -994,7 +994,7 @@
             <section xml:id="nsa-openid-attribute-parents">
                 <title>Parent Elements of <literal>&lt;openid-attribute&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-attribute-exchange">attribute-exchange</link></listitem>
+                    <listitem><link linkend="nsa-attribute-exchange">attribute-exchange</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-openid-attribute-attributes">
@@ -1027,18 +1027,18 @@
                 can optionally be used to override the default mappings which that class defines.
                 Each child <literal>&lt;port-mapping&gt;</literal> element defines a pair of
                 HTTP:HTTPS ports. The default mappings are 80:443 and 8080:8443. An example of
-                overriding these can be found in the <link xlink:href="#ns-requires-channel"
+                overriding these can be found in the <link linkend="ns-requires-channel"
                 >namespace introduction</link>. </para>
             <section xml:id="nsa-port-mappings-parents">
                 <title>Parent Elements of <literal>&lt;port-mappings&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                    <listitem><link linkend="nsa-http">http</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-port-mappings-children">
                 <title>Child Elements of <literal>&lt;port-mappings&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-port-mapping">port-mapping</link></listitem>
+                    <listitem><link linkend="nsa-port-mapping">port-mapping</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -1048,7 +1048,7 @@
             <section xml:id="nsa-port-mapping-parents">
                 <title>Parent Elements of <literal>&lt;port-mapping&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-port-mappings">port-mappings</link></listitem>
+                    <listitem><link linkend="nsa-port-mappings">port-mappings</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-port-mapping-attributes">
@@ -1074,7 +1074,7 @@
             <section xml:id="nsa-remember-me-parents">
                 <title>Parent Elements of <literal>&lt;remember-me&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                    <listitem><link linkend="nsa-http">http</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-remember-me-attributes">
@@ -1166,7 +1166,7 @@
             <section xml:id="nsa-request-cache-parents">
                 <title>Parent Elements of <literal>&lt;request-cache&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                    <listitem><link linkend="nsa-http">http</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-request-cache-attributes">
@@ -1184,7 +1184,7 @@
             <section xml:id="nsa-session-management-parents">
                 <title>Parent Elements of <literal>&lt;session-management&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                    <listitem><link linkend="nsa-http">http</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-session-management-attributes">
@@ -1228,7 +1228,7 @@
             <section xml:id="nsa-session-management-children">
                 <title>Child elements of <literal>&lt;session-management&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-concurrency-control">concurrency-control</link></listitem>
+                    <listitem><link linkend="nsa-concurrency-control">concurrency-control</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -1247,7 +1247,7 @@
             <section xml:id="nsa-concurrency-control-parents">
                 <title>Parent Elements of <literal>&lt;concurrency-control&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-session-management">session-management</link></listitem>
+                    <listitem><link linkend="nsa-session-management">session-management</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-concurrency-control-attributes">
@@ -1301,7 +1301,7 @@
             <section xml:id="nsa-x509-parents">
                 <title>Parent Elements of <literal>&lt;x509&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-http">http</link></listitem>
+                    <listitem><link linkend="nsa-http">http</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-x509-attributes">
@@ -1333,7 +1333,7 @@
                 <section xml:id="nsa-filter-chain-map-path-type">
                     <title><literal>path-type</literal></title>
                     <para>Superseded by the
-                        <link xlink:href="#nsa-filter-chain-map-request-matcher">request-matcher</link> attribute</para>
+                        <link linkend="nsa-filter-chain-map-request-matcher">request-matcher</link> attribute</para>
                 </section>
                 <section xml:id="nsa-filter-chain-map-request-matcher">
                     <title><literal>request-matcher</literal></title>
@@ -1345,7 +1345,7 @@
             <section xml:id="nsa-filter-chain-map-children">
                 <title>Child Elements of <literal>&lt;filter-chain-map&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-filter-chain">filter-chain</link></listitem>
+                    <listitem><link linkend="nsa-filter-chain">filter-chain</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -1357,7 +1357,7 @@
             <section xml:id="nsa-filter-chain-parents">
                 <title>Parent Elements of <literal>&lt;filter-chain&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-filter-chain-map">filter-chain-map</link></listitem>
+                    <listitem><link linkend="nsa-filter-chain-map">filter-chain-map</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-filter-chain-attributes">
@@ -1372,7 +1372,7 @@
                 <section xml:id="nsa-filter-chain-pattern">
                     <title><literal>pattern</literal></title>
                     <para>A-pattern that creates RequestMatcher in combination with the
-                        <link xlink:href="#nsa-filter-chain-map-request-matcher">request-matcher</link></para>
+                        <link linkend="nsa-filter-chain-map-request-matcher">request-matcher</link></para>
                 </section>
                 <section xml:id="nsa-filter-chain-request-matcher-ref">
                     <title><literal>request-matcher-ref</literal></title>
@@ -1397,7 +1397,7 @@
                 <section xml:id="nsa-filter-invocation-definition-source-path-type">
                     <title><literal>path-type</literal></title>
                     <para>Superseded by
-                        <link xlink:href="#nsa-filter-invocation-definition-source-request-matcher">request-matcher</link></para>
+                        <link linkend="nsa-filter-invocation-definition-source-request-matcher">request-matcher</link></para>
                 </section>
                 <section xml:id="nsa-filter-invocation-definition-source-request-matcher">
                     <title><literal>request-matcher</literal></title>
@@ -1416,7 +1416,7 @@
             <section xml:id="nsa-filter-invocation-definition-source-children">
                 <title>Child Elements of <literal>&lt;filter-invocation-definition-source&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-intercept-url">intercept-url</link></listitem>
+                    <listitem><link linkend="nsa-intercept-url">intercept-url</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -1439,7 +1439,7 @@
                 <section xml:id="nsa-filter-security-metadata-source-path-type">
                     <title><literal>path-type</literal></title>
                     <para>Superseded by
-                        <link xlink:href="#nsa-filter-security-metadata-source-request-matcher">request-matcher</link>
+                        <link linkend="nsa-filter-security-metadata-source-request-matcher">request-matcher</link>
                         </para>
                 </section>
                 <section xml:id="nsa-filter-security-metadata-source-request-matcher">
@@ -1459,7 +1459,7 @@
             <section xml:id="nsa-filter-security-metadata-source-children">
                 <title>Child Elements of <literal>&lt;filter-security-metadata-source&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-intercept-url">intercept-url</link></listitem>
+                    <listitem><link linkend="nsa-intercept-url">intercept-url</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -1489,7 +1489,7 @@
                     <title><literal>alias</literal></title>
                     <para>This attribute allows you to define an alias name for the
                         internal instance for use in your own configuration. Its use is described in the
-                        <link xlink:href="#ns-auth-manager">namespace introduction</link>.</para>
+                        <link linkend="ns-auth-manager">namespace introduction</link>.</para>
                 </section>
                 <section xml:id="nsa-authentication-manager-erase-credentials">
                     <title><literal>erase-credentials</literal></title>
@@ -1497,7 +1497,7 @@
                         returned Authentication object, once the user has been authenticated. Literally it maps to
                         the <literal>eraseCredentialsAfterAuthentication</literal> property of the
                         <classname>ProviderManager</classname>. This is discussed in the <link
-                        xlink:href="#core-services-erasing-credentials">Core Services</link> chapter.</para>
+                        linkend="core-services-erasing-credentials">Core Services</link> chapter.</para>
                 </section>
                 <section xml:id="nsa-authentication-manager-id">
                     <title><literal>id</literal></title>
@@ -1509,15 +1509,15 @@
             <section xml:id="nsa-authentication-manager-children">
                 <title>Child Elements of <literal>&lt;authentication-manager&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-authentication-provider">authentication-provider</link></listitem>
-                    <listitem><link xlink:href="#nsa-ldap-authentication-provider">ldap-authentication-provider</link></listitem>
+                    <listitem><link linkend="nsa-authentication-provider">authentication-provider</link></listitem>
+                    <listitem><link linkend="nsa-ldap-authentication-provider">ldap-authentication-provider</link></listitem>
                 </itemizedlist>
             </section>
         </section>
         <section xml:id="nsa-authentication-provider">
             <title><literal>&lt;authentication-provider&gt;</literal></title>
             <para> Unless used with a <literal>ref</literal> attribute, this element is
-                shorthand for configuring a <link xlink:href="#core-services-dao-provider"
+                shorthand for configuring a <link linkend="core-services-dao-provider"
                 ><classname>DaoAuthenticationProvider</classname></link>.
                 <classname>DaoAuthenticationProvider</classname> loads user information from a
                 <interfacename>UserDetailsService</interfacename> and compares the
@@ -1526,12 +1526,12 @@
                 by using an available namespace element (<literal>jdbc-user-service</literal> or
                 by using the <literal>user-service-ref</literal> attribute to point to a bean
                 defined elsewhere in the application context). You can find examples of these
-                variations in the <link xlink:href="#ns-auth-providers">namespace
+                variations in the <link linkend="ns-auth-providers">namespace
                 introduction</link>. </para>
             <section xml:id="nsa-authentication-provider-parents">
                 <title>Parent Elements of <literal>&lt;authentication-provider&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-authentication-manager">authentication-manager</link></listitem>
+                    <listitem><link linkend="nsa-authentication-manager">authentication-manager</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-authentication-provider-attributes">
@@ -1560,10 +1560,10 @@
             <section xml:id="nsa-authentication-provider-children">
                 <title>Child Elements of <literal>&lt;authentication-provider&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-jdbc-user-service">jdbc-user-service</link></listitem>
-                    <listitem><link xlink:href="#nsa-ldap-user-service">ldap-user-service</link></listitem>
-                    <listitem><link xlink:href="#nsa-password-encoder">password-encoder</link></listitem>
-                    <listitem><link xlink:href="#nsa-user-service">user-service</link></listitem>
+                    <listitem><link linkend="nsa-jdbc-user-service">jdbc-user-service</link></listitem>
+                    <listitem><link linkend="nsa-ldap-user-service">ldap-user-service</link></listitem>
+                    <listitem><link linkend="nsa-password-encoder">password-encoder</link></listitem>
+                    <listitem><link linkend="nsa-user-service">user-service</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -1617,7 +1617,7 @@ where
         <section xml:id="nsa-password-encoder">
             <title><literal>&lt;password-encoder&gt;</literal></title>
             <para>Authentication providers can optionally be configured to use a password
-                encoder as described in the <link xlink:href="#ns-password-encoder"
+                encoder as described in the <link linkend="ns-password-encoder"
                 >namespace introduction</link>. This will result in the bean being injected
                 with the appropriate <interfacename>PasswordEncoder</interfacename>
                 instance, potentially with an accompanying
@@ -1626,8 +1626,8 @@ where
             <section xml:id="nsa-password-encoder-parents">
                 <title>Parent Elements of <literal>&lt;password-encoder&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-authentication-provider">authentication-provider</link></listitem>
-                    <listitem><link xlink:href="#nsa-password-compare">password-compare</link></listitem>
+                    <listitem><link linkend="nsa-authentication-provider">authentication-provider</link></listitem>
+                    <listitem><link linkend="nsa-password-compare">password-compare</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-password-encoder-attributes">
@@ -1650,7 +1650,7 @@ where
             <section xml:id="nsa-password-encoder-children">
                 <title>Child Elements of <literal>&lt;password-encoder&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-salt-source">salt-source</link></listitem>
+                    <listitem><link linkend="nsa-salt-source">salt-source</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -1661,7 +1661,7 @@ where
             <section xml:id="nsa-salt-source-parents">
                 <title>Parent Elements of <literal>&lt;salt-source&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-password-encoder">password-encoder</link></listitem>
+                    <listitem><link linkend="nsa-password-encoder">password-encoder</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-salt-source-attributes">
@@ -1701,7 +1701,7 @@ where
             <section xml:id="nsa-user-service-children">
                 <title>Child Elements of <literal>&lt;user-service&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-user">user</link></listitem>
+                    <listitem><link linkend="nsa-user">user</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -1711,7 +1711,7 @@ where
             <section xml:id="nsa-user-parents">
                 <title>Parent Elements of <literal>&lt;user&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-user-service">user-service</link></listitem>
+                    <listitem><link linkend="nsa-user-service">user-service</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-user-attributes">
@@ -1820,10 +1820,10 @@ where
             <section xml:id="nsa-global-method-security-children">
                 <title>Child Elements of <literal>&lt;global-method-security&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-after-invocation-provider">after-invocation-provider</link></listitem>
-                    <listitem><link xlink:href="#nsa-expression-handler">expression-handler</link></listitem>
-                    <listitem><link xlink:href="#nsa-pre-post-annotation-handling">pre-post-annotation-handling</link></listitem>
-                    <listitem><link xlink:href="#nsa-protect-pointcut">protect-pointcut</link></listitem>
+                    <listitem><link linkend="nsa-after-invocation-provider">after-invocation-provider</link></listitem>
+                    <listitem><link linkend="nsa-expression-handler">expression-handler</link></listitem>
+                    <listitem><link linkend="nsa-pre-post-annotation-handling">pre-post-annotation-handling</link></listitem>
+                    <listitem><link linkend="nsa-protect-pointcut">protect-pointcut</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -1840,7 +1840,7 @@ where
                 <section xml:id="nsa-after-invocation-provider-parents">
                     <title>Parent Elements of <literal>&lt;after-invocation-provider&gt;</literal></title>
                     <itemizedlist>
-                        <listitem><link xlink:href="#nsa-global-method-security">global-method-security</link></listitem>
+                        <listitem><link linkend="nsa-global-method-security">global-method-security</link></listitem>
                     </itemizedlist>
                 </section>
                 <section xml:id="nsa-after-invocation-provider-attributes">
@@ -1860,15 +1860,15 @@ where
             <section xml:id="nsa-pre-post-annotation-handling-parents">
                 <title>Parent Elements of <literal>&lt;pre-post-annotation-handling&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-global-method-security">global-method-security</link></listitem>
+                    <listitem><link linkend="nsa-global-method-security">global-method-security</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-pre-post-annotation-handling-children">
                 <title>Child Elements of <literal>&lt;pre-post-annotation-handling&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-invocation-attribute-factory">invocation-attribute-factory</link></listitem>
-                    <listitem><link xlink:href="#nsa-post-invocation-advice">post-invocation-advice</link></listitem>
-                    <listitem><link xlink:href="#nsa-pre-invocation-advice">pre-invocation-advice</link></listitem>
+                    <listitem><link linkend="nsa-invocation-attribute-factory">invocation-attribute-factory</link></listitem>
+                    <listitem><link linkend="nsa-post-invocation-advice">post-invocation-advice</link></listitem>
+                    <listitem><link linkend="nsa-pre-invocation-advice">pre-invocation-advice</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -1879,7 +1879,7 @@ where
             <section xml:id="nsa-invocation-attribute-factory-parents">
                 <title>Parent Elements of <literal>&lt;invocation-attribute-factory&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-pre-post-annotation-handling">pre-post-annotation-handling</link></listitem>
+                    <listitem><link linkend="nsa-pre-post-annotation-handling">pre-post-annotation-handling</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-invocation-attribute-factory-attributes">
@@ -1898,7 +1898,7 @@ where
             <section xml:id="nsa-post-invocation-advice-parents">
                 <title>Parent Elements of <literal>&lt;post-invocation-advice&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-pre-post-annotation-handling">pre-post-annotation-handling</link></listitem>
+                    <listitem><link linkend="nsa-pre-post-annotation-handling">pre-post-annotation-handling</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-post-invocation-advice-attributes">
@@ -1917,7 +1917,7 @@ where
             <section xml:id="nsa-pre-invocation-advice-parents">
                 <title>Parent Elements of <literal>&lt;pre-invocation-advice&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-pre-post-annotation-handling">pre-post-annotation-handling</link></listitem>
+                    <listitem><link linkend="nsa-pre-post-annotation-handling">pre-post-annotation-handling</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-pre-invocation-advice-attributes">
@@ -1935,11 +1935,11 @@ where
                 cross-cutting security constraints across whole sets of methods and interfaces
                 in your service layer using the <literal>&lt;protect-pointcut&gt;</literal>
                 element. You can find an example in the <link
-                xlink:href="#ns-protect-pointcut">namespace introduction</link>.</para>
+                linkend="ns-protect-pointcut">namespace introduction</link>.</para>
             <section xml:id="nsa-protect-pointcut-parents">
                 <title>Parent Elements of <literal>&lt;protect-pointcut&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-global-method-security">global-method-security</link></listitem>
+                    <listitem><link linkend="nsa-global-method-security">global-method-security</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-protect-pointcut-attributes">
@@ -1970,7 +1970,7 @@ where
             <section xml:id="nsa-intercept-methods-children">
                 <title>Child Elements of <literal>&lt;intercept-methods&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-protect">protect</link></listitem>
+                    <listitem><link linkend="nsa-protect">protect</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -1994,7 +1994,7 @@ where
             <section xml:id="nsa-method-security-metadata-source-children">
                 <title>Child Elements of <literal>&lt;method-security-metadata-source&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-protect">protect</link></listitem>
+                    <listitem><link linkend="nsa-protect">protect</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -2005,8 +2005,8 @@ where
             <section xml:id="nsa-protect-parents">
                 <title>Parent Elements of <literal>&lt;protect&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-intercept-methods">intercept-methods</link></listitem>
-                    <listitem><link xlink:href="#nsa-method-security-metadata-source">method-security-metadata-source</link></listitem>
+                    <listitem><link linkend="nsa-intercept-methods">intercept-methods</link></listitem>
+                    <listitem><link linkend="nsa-method-security-metadata-source">method-security-metadata-source</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-protect-attributes">
@@ -2024,7 +2024,7 @@ where
     </section>
     <section xml:id="nsa-ldap">
         <title>LDAP Namespace Options</title>
-        <para> LDAP is covered in some details in <link xlink:href="#ldap">its own
+        <para> LDAP is covered in some details in <link linkend="ldap">its own
             chapter</link>. We will expand on that here with some explanation of how the
             namespace options map to Spring beans. The LDAP implementation uses Spring LDAP
             extensively, so some familiarity with that project's API may be useful. </para>
@@ -2036,7 +2036,7 @@ where
                 defining the location of the LDAP server and other information (such as a
                 username and password, if it doesn't allow anonymous access) for connecting to
                 it. It can also be used to create an embedded server for testing. Details of the
-                syntax for both options are covered in the <link xlink:href="#ldap-server">LDAP
+                syntax for both options are covered in the <link linkend="ldap-server">LDAP
                 chapter</link>. The actual <interfacename>ContextSource</interfacename>
                 implementation is <classname>DefaultSpringSecurityContextSource</classname>
                 which extends Spring LDAP's <classname>LdapContextSource</classname> class. The
@@ -2097,7 +2097,7 @@ where
             <section xml:id="nsa-ldap-authentication-provider-parents">
                 <title>Parent Elements of <literal>&lt;ldap-authentication-provider&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-authentication-manager">authentication-manager</link></listitem>
+                    <listitem><link linkend="nsa-authentication-manager">authentication-manager</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-ldap-authentication-provider-attributes">
@@ -2185,7 +2185,7 @@ where
             <section xml:id="nsa-ldap-authentication-provider-children">
                 <title>Child Elements of <literal>&lt;ldap-authentication-provider&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-password-compare">password-compare</link></listitem>
+                    <listitem><link linkend="nsa-password-compare">password-compare</link></listitem>
                 </itemizedlist>
             </section>
         </section>
@@ -2198,7 +2198,7 @@ where
             <section xml:id="nsa-password-compare-parents">
                 <title>Parent Elements of <literal>&lt;password-compare&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-ldap-authentication-provider">ldap-authentication-provider</link></listitem>
+                    <listitem><link linkend="nsa-ldap-authentication-provider">ldap-authentication-provider</link></listitem>
                 </itemizedlist>
             </section>
             <section xml:id="nsa-password-compare-attributes">
@@ -2217,7 +2217,7 @@ where
             <section xml:id="nsa-password-compare-children">
                 <title>Child Elements of <literal>&lt;password-compare&gt;</literal></title>
                 <itemizedlist>
-                    <listitem><link xlink:href="#nsa-password-encoder">password-encoder</link></listitem>
+                    <listitem><link linkend="nsa-password-encoder">password-encoder</link></listitem>
                 </itemizedlist>
             </section>
         </section>

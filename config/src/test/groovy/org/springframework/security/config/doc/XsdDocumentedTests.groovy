@@ -53,9 +53,9 @@ class XsdDocumentedTests extends Specification {
             def id = delegate.@id.text().replace('-parents', '').replace('-children', '')
             result.put(id,[])
             delegate.children().breadthFirst().each { sectionChild ->
-                def href = sectionChild.@href.text()
+                def href = sectionChild.@linkend.text()
                 if(href) {
-                    result.get(id).add(href[1..-1])
+                    result.get(id).add(href)
                 }
             }
         }

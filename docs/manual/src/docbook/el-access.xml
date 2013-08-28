@@ -150,7 +150,7 @@
                     whether the current user has the <quote>admin</quote>permission for the given
                     contact. The built-in <literal>hasPermission()</literal> expression is linked
                     into the Spring Security ACL module through the application context, as we'll
-                    <link xlink:href="#el-permission-evaluator">see below</link>. You can access any
+                    <link linkend="el-permission-evaluator">see below</link>. You can access any
                     of the method arguments by name as expression variables, provided your code has
                     debug information compiled in. Any Spring-EL functionality is available within
                     the expression, so you can also access properties on the arguments. For example,

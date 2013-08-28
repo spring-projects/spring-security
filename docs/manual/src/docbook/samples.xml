@@ -6,7 +6,7 @@
     <para> There are several sample web applications that are available with the project. To avoid
         an overly large download, only the "tutorial" and "contacts" samples are included in the
         distribution zip file. The others can be built directly from the source which you can obtain
-        as described in <link xlink:href="#get-source">the introduction</link>. It's easy to build
+        as described in <link linkend="get-source">the introduction</link>. It's easy to build
         the project yourself and there's more information on the project web site at <link
             xlink:href="http://www.springsource.org/security/">
             http://www.springsource.org/security/ </link>. All paths referred to in this chapter are
@@ -17,8 +17,8 @@
             namespace configuration throughout. The compiled application is included in the
             distribution zip file, ready to be deployed into your web container
             (<filename>spring-security-samples-tutorial-3.1.x.war</filename>). The <link
-            xlink:href="#ns-form-and-basic">form-based</link> authentication mechanism is used in
-            combination with the commonly-used <link xlink:href="#remember-me">remember-me</link>
+            linkend="ns-form-and-basic">form-based</link> authentication mechanism is used in
+            combination with the commonly-used <link linkend="remember-me">remember-me</link>
             authentication provider to automatically remember the login using cookies.</para>
         <para>We recommend you start with the tutorial sample, as the XML is minimal and easy to
             follow. Most importantly, you can easily add this one XML file (and its corresponding
@@ -122,7 +122,7 @@ Success! Your web filters appear to be properly configured!
         <title>CAS Sample</title>
         <para> The CAS sample requires that you run both a CAS server and CAS client. It isn't
             included in the distribution so you should check out the project code as described in
-            <link xlink:href="#get-source">the introduction</link>. You'll find the relevant files
+            <link linkend="get-source">the introduction</link>. You'll find the relevant files
             under the <filename>sample/cas</filename> directory. There's also a
             <filename>Readme.txt</filename> file in there which explains how to run both the server
             and the client directly from the source tree, complete with SSL support.</para>
@@ -132,12 +132,12 @@ Success! Your web filters appear to be properly configured!
         <para>The JAAS sample is very simple example of how to use a JAAS LoginModule with Spring Security. The provided LoginModule will
             successfully authenticate a user if the username equals the password otherwise a LoginException is thrown. The AuthorityGranter
             used in this example always grants the role ROLE_USER. The sample application also demonstrates how to run as the JAAS Subject
-            returned by the LoginModule by setting <link xlink:href="#nsa-http-jaas-api-provision">jaas-api-provision</link> equal to "true".</para>
+            returned by the LoginModule by setting <link linkend="nsa-http-jaas-api-provision">jaas-api-provision</link> equal to "true".</para>
     </section>
     <section xml:id="preauth-sample">
         <title>Pre-Authentication Sample</title>
         <para> This sample application demonstrates how to wire up beans from the <link
-            xlink:href="#preauth">pre-authentication</link> framework to make use of login
+            linkend="preauth">pre-authentication</link> framework to make use of login
             information from a J2EE container. The user name and roles are those setup by the
             container. </para>
         <para> The code is in <filename>samples/preauth</filename>. </para>

@@ -34,7 +34,7 @@
             successful authentication and stored in the <classname>SecurityContext</classname>. </para>
         <para> If you are using the namespace, an instance of <classname>ProviderManager</classname>
             is created and maintained internally, and you add providers to it by using the namespace
-            authentication provider elements (see <link xlink:href="#ns-auth-manager">the namespace
+            authentication provider elements (see <link linkend="ns-auth-manager">the namespace
             chapter</link>). In this case, you should not declare a
             <classname>ProviderManager</classname> bean in your application context. However, if you
             are not using the namespace then you would declare it like so: <programlisting language="xml"><![CDATA[
@@ -111,7 +111,7 @@
                 <interfacename>PasswordEncoder</interfacename> provides encoding and decoding of
                 passwords presented in the <interfacename>UserDetails</interfacename> object that is
                 returned from the configured <interfacename>UserDetailsService</interfacename>. This
-                will be discussed in more detail <link xlink:href="#core-services-password-encoding"
+                will be discussed in more detail <link linkend="core-services-password-encoding"
                 >below</link>. </para>
         </section>
     </section>
@@ -149,7 +149,7 @@
                 Security, when you don't really want to spend time configuring databases or writing
                 <interfacename>UserDetailsService</interfacename> implementations. For this sort of
                 situation, a simple option is to use the <literal>user-service</literal> element
-                from the security <link xlink:href="#ns-minimal">namespace</link>: <programlisting language="xml"><![CDATA[
+                from the security <link linkend="ns-minimal">namespace</link>: <programlisting language="xml"><![CDATA[
   <user-service id="userDetailsService">
     <user name="jimi" password="jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />
     <user name="bob" password="bobspassword" authorities="ROLE_USER" />
@@ -196,7 +196,7 @@
                 <title>Authority Groups</title>
                 <para>By default, <classname>JdbcDaoImpl</classname> loads the authorities for a
                     single user with the assumption that the authorities are mapped directly to
-                    users (see the <link xlink:href="#appendix-schema">database schema
+                    users (see the <link linkend="appendix-schema">database schema
                     appendix</link>). An alternative approach is to partition the authorities into
                     groups and assign groups to the user. Some people prefer this approach as a
                     means of administering user rights. See the <classname>JdbcDaoImpl</classname>
@@ -217,7 +217,7 @@
     </section>
     <section xml:id="core-services-password-encoding">
         <title>Password Encoding</title>
-        <para xlink:href="#spring-security-crypto-passwordencoders">Spring Security's
+        <para linkend="spring-security-crypto-passwordencoders">Spring Security's
             <interfacename>PasswordEncoder</interfacename> interface is used to support the use of
             passwords which are encoded in some way in persistent storage. You should never store
             passwords in plain text. Always use a one-way password hashing algorithm such as bcrypt

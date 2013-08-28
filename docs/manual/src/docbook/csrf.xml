@@ -71,13 +71,13 @@ amount=100.00&routingNumber=1234&account=9876&_csrf=<secure-random>
             Security's CSRF protection are outlined below:</para>
             <orderedlist inheritnum="ignore" continuation="restarts">
               <listitem>
-                <para><link xlink:href="#csrf-use-proper-verbs">Use proper HTTP verbs</link></para>
+                <para><link linkend="csrf-use-proper-verbs">Use proper HTTP verbs</link></para>
               </listitem>
               <listitem>
-                <para><link xlink:href="#csrf-configure">Configure CSRF Protection</link></para>
+                <para><link linkend="csrf-configure">Configure CSRF Protection</link></para>
               </listitem>
               <listitem>
-                <para><link xlink:href="#csrf-include-csrf-token">Include the CSRF Token</link></para>
+                <para><link linkend="csrf-include-csrf-token">Include the CSRF Token</link></para>
               </listitem>
             </orderedlist>
             <section xml:id="csrf-use-proper-verbs">
@@ -89,7 +89,7 @@ amount=100.00&routingNumber=1234&account=9876&_csrf=<secure-random>
             <section xml:id="csrf-configure">
                 <title>Configure CSRF Protection</title>
                 <para>The next step is to include Spring Security's CSRF protection within your application. If you are using the XML configuration, this can be done
-                    using the <link xlink:href="#nsa-csrf">&lt;csrf /&gt;</link> element:</para>
+                    using the <link linkend="nsa-csrf">&lt;csrf /&gt;</link> element:</para>
                 <programlisting language="xml"><![CDATA[<http ...>
     ...
     <csrf />
@@ -196,7 +196,7 @@ public class WebSecurityConfig extends
         <para>Spring Security's goal is to provide defaults that protect your users from exploits. This does not mean that you are forced to accept all of its defaults.</para>
         <para>For example, you can provide a custom CsrfTokenRepository to override the way in which the <interfacename>CsrfToken</interfacename> is stored.</para>
         <para>You can also specify a custom RequestMatcher to determine which requests are protected by CSRF (i.e. perhaps you don't care if log out is exploited). In short, if
-            Spring Security's CSRF protection doesn't behave exactly as you want it, you are able to customize the behavior. Refer to the <link xlink:href="#nsa-csrf">&lt;csrf /&gt;</link>
+            Spring Security's CSRF protection doesn't behave exactly as you want it, you are able to customize the behavior. Refer to the <link linkend="nsa-csrf">&lt;csrf /&gt;</link>
             documentation for details on how to make these customizations with XML and the <classname>CsrfConfigurer</classname> javadoc for details on how to make these
             customizations when using Java configuration.</para>
     </section>

@@ -196,7 +196,7 @@
       <listitem>
         <para>The user's browser is redirected to the original page that
         caused the <classname>AuthenticationException</classname> (or a
-          <link xlink:href="#form-login-flow-handling">custom destination</link> depending on
+          <link linkend="form-login-flow-handling">custom destination</link> depending on
           the configuration).</para>
       </listitem>
     </orderedlist>
@@ -213,7 +213,7 @@
             already know the basics of using Spring Security, so these are not covered again below.
             We'll assume a namespace based configuration is being used and add in the CAS beans as
             required. Each section builds upon the previous section. A full
-            <link xlink:href="#cas-sample">CAS sample application</link> can be found in the Spring
+            <link linkend="cas-sample">CAS sample application</link> can be found in the Spring
             Security Samples.</para>
         <section xml:id="cas-st">
             <info>
@@ -259,7 +259,7 @@
         <para>For CAS to operate, the <classname>ExceptionTranslationFilter</classname> must have
             its <literal>authenticationEntryPoint</literal> property set to the
             <classname>CasAuthenticationEntryPoint</classname> bean. This can easily be done using
-            <link xlink:href="#ns-entry-point-ref"><literal>entry-point-ref</literal></link> as is
+            <link linkend="ns-entry-point-ref"><literal>entry-point-ref</literal></link> as is
             done in the example above. The <classname>CasAuthenticationEntryPoint</classname> must refer to the
             <classname>ServiceProperties</classname> bean (discussed above), which provides the URL
             to the enterprise's CAS login server. This is where the user's browser will be
@@ -300,7 +300,7 @@
             here. Note that the <classname>CasAuthenticationProvider</classname> does not actually use
             the password for authentication, but it does use the authorities.</para>
          <para>The beans are all reasonably self-explanatory if you refer back to the
-              <link xlink:href="#cas-how-it-works">How CAS Works</link> section.</para>
+              <link linkend="cas-how-it-works">How CAS Works</link> section.</para>
          <para>This completes the most basic configuration for CAS. If you haven't made any
             mistakes, your web application should happily work within the
             framework of CAS single sign on. No other parts of Spring Security
@@ -448,7 +448,7 @@
                         <title>Calling a Stateless Service Using a Proxy Ticket</title>
                     </info>
                     <para>Now that Spring Security obtains PGTs, you can use them to create proxy tickets which can be used to authenticate
-                        to a stateless service. The <link xlink:href="#cas-sample">CAS sample application</link> contains a working example in
+                        to a stateless service. The <link linkend="cas-sample">CAS sample application</link> contains a working example in
                         the <classname>ProxyTicketSampleServlet</classname>. Example code can be found below:
 <programlisting language="xml"><![CDATA[
   protected void doGet(HttpServletRequest request, HttpServletResponse response)

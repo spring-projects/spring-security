@@ -45,7 +45,7 @@
             more significant security is needed you should use the approach described in the next
             section. Alternatively remember-me services should simply not be used at all.</para>
         <para>If you are familiar with the topics discussed in the chapter on <link
-            xlink:href="#ns-config">namespace configuration</link>, you can enable remember-me
+            linkend="ns-config">namespace configuration</link>, you can enable remember-me
             authentication just by adding the <literal>&lt;remember-me&gt;</literal> element: <programlisting language="xml"><![CDATA[
   <http>
     ...

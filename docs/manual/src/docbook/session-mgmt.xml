@@ -33,7 +33,7 @@
             is just to redirect to a fixed URL and this is encapsulated in the standard implementation
             <classname>SimpleRedirectInvalidSessionStrategy</classname>. The latter is also used
             when configuring an invalid session URL through the namespace,
-            <link xlink:href="#ns-session-mgmt">as described earlier</link>.</para>
+            <link linkend="ns-session-mgmt">as described earlier</link>.</para>
     </section>
     <section>
         <title><interfacename>SessionAuthenticationStrategy</interfacename></title>

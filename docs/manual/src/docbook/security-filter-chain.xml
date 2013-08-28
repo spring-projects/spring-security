@@ -12,7 +12,7 @@
     <para> Spring Security maintains a filter chain internally where each of the filters has a
         particular responsibility and filters are added or removed from the configuration depending
         on which services are required. The ordering of the filters is important as there are
-        dependencies between them. If you have been using <link xlink:href="#ns-config">namespace
+        dependencies between them. If you have been using <link linkend="ns-config">namespace
         configuration</link>, then the filters are automatically configured for you and you don't
         have to define any Spring beans explicitly but here may be times when you want full control
         over the security filter chain, either because you are using features which aren't supported
@@ -111,7 +111,7 @@
             lifecycle methods on the filters it is configured with. We recommend you use
             Spring's application context lifecycle interfaces as an alternative, just as you
             would for any other Spring bean.</para>
-        <para> When we looked at how to set up web security using <link xlink:href="#ns-web-xml"
+        <para> When we looked at how to set up web security using <link linkend="ns-web-xml"
             >namespace configuration</link>, we used a <literal>DelegatingFilterProxy</literal> with
             the name <quote>springSecurityFilterChain</quote>. You should now be able to see that
             this is the name of the <classname>FilterChainProxy</classname> which is created by the

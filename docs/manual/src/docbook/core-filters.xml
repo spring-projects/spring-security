@@ -8,7 +8,7 @@
     <section xml:id="filter-security-interceptor">
         <title><classname>FilterSecurityInterceptor</classname></title>
         <para>We've already seen <classname>FilterSecurityInterceptor</classname> briefly when
-            discussing <link xlink:href="#tech-intro-access-control">access-control in
+            discussing <link linkend="tech-intro-access-control">access-control in
             general</link>, and we've already used it with the namespace where the
             <literal>&lt;intercept-url></literal> elements are combined to configure it internally.
             Now we'll see how to explicitly configure it for use with a
@@ -31,7 +31,7 @@
             <interfacename>AuthenticationManager</interfacename> and an
             <interfacename>AccessDecisionManager</interfacename>. It is also supplied with
             configuration attributes that apply to different HTTP URL requests. Refer back to <link
-            xlink:href="#tech-intro-config-attributes">the original discussion on these</link> in
+            linkend="tech-intro-config-attributes">the original discussion on these</link> in
             the technical introduction.</para>
         <para>The <classname>FilterSecurityInterceptor</classname> can be configured with
             configuration attributes in two ways. The first, which is shown above, is using the
@@ -165,7 +165,7 @@
                 can implement the interface yourself and use your own implementation. </para>
             <para>It's also possible to supply a custom
                 <interfacename>AccessDeniedHandler</interfacename> when you're using the namespace
-                to configure your application. See <link xlink:href="#nsa-access-denied-handler">the
+                to configure your application. See <link linkend="nsa-access-denied-handler">the
                 namespace appendix</link> for more details.</para>
         </section>
         <section xml:id="request-caching">
@@ -173,10 +173,10 @@
             <para>Another of <classname>ExceptionTranslationFilter</classname>'s responsibilities is
                 to save the current request before invoking the <interfacename>AuthenticationEntryPoint</interfacename>.
                 This allows the request to be restored after the use has authenticated (see previous overview
-                of <link xlink:href="#tech-intro-web-authentication">web authentication</link>).
+                of <link linkend="tech-intro-web-authentication">web authentication</link>).
                 A typical example would be where the user logs in with a form, and is then redirected to the
                 original URL by the default <classname>SavedRequestAwareAuthenticationSuccessHandler</classname>
-                (see <link xlink:href="#form-login-flow-handling">below</link>).
+                (see <link linkend="form-login-flow-handling">below</link>).
             </para>
             <para>The <interfacename>RequestCache</interfacename> encapsulates the functionality required for storing
                 and retrieving <interfacename>HttpServletRequest</interfacename> instances. By default
@@ -196,7 +196,7 @@
     <section xml:id="security-context-persistence-filter">
         <title><classname>SecurityContextPersistenceFilter</classname></title>
         <para> We covered the purpose of this all-important filter in the <link
-            xlink:href="#tech-intro-sec-context-persistence">Technical Overview</link> chapter so
+            linkend="tech-intro-sec-context-persistence">Technical Overview</link> chapter so
             you might want to re-read that section at this point. Let's first take a look at how you
             would configure it for use with a <classname>FilterChainProxy</classname>. A basic
             configuration only requires the bean itself <programlisting language="xml"><![CDATA[

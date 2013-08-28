@@ -58,7 +58,7 @@ create table group_members (
     <section>
         <title>Persistent Login (Remember-Me) Schema</title>
         <para> This table is used to store data used by the more secure <link
-            xlink:href="#remember-me-persistent-token">persistent token</link> remember-me
+            linkend="remember-me-persistent-token">persistent token</link> remember-me
             implementation. If you are using <classname>JdbcTokenRepositoryImpl</classname> either
             directly or through the namespace, then you will need this table.
             <programlisting xml:id="db-schema-remeber-me">
@@ -71,7 +71,7 @@ create table persistent_logins (
     </section>
     <section xml:id="dbschema-acl">
         <title>ACL Schema</title>
-        <para>There are four tables used by the Spring Security <link xlink:href="#domain-acls"
+        <para>There are four tables used by the Spring Security <link linkend="domain-acls"
             >ACL</link> implementation. <orderedlist>
             <listitem>
                 <para><literal>acl_sid</literal> stores the security identities recognised by the

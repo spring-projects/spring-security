@@ -29,7 +29,7 @@
             pre-authenticated authentication providers. This removes duplication and allows new
             implementations to be added in a structured fashion, without having to write everything
             from scratch. You don't need to know about these classes if you want to use something
-            like <link xlink:href="#x509">X.509 authentication</link>, as it already has a namespace
+            like <link linkend="x509">X.509 authentication</link>, as it already has a namespace
             configuration option which is simpler to use and get started with. If you need to use
             explicit bean configuration or are planning on writing your own implementation then an
             understanding of how the provided implementations work will be useful. You will find
@@ -107,7 +107,7 @@
         <section>
             <title>Http403ForbiddenEntryPoint</title>
             <para> The <interfacename>AuthenticationEntryPoint</interfacename> was discussed in the
-                <link xlink:href="#tech-intro-auth-entry-point">technical overview</link> chapter.
+                <link linkend="tech-intro-auth-entry-point">technical overview</link> chapter.
                 Normally it is responsible for kick-starting the authentication process for an
                 unauthenticated user (when they try to access a protected resource), but in the
                 pre-authenticated case this doesn't apply. You would only configure the
@@ -121,7 +121,7 @@
     </section>
     <section>
         <title>Concrete Implementations</title>
-        <para> X.509 authentication is covered in its <link xlink:href="#x509">own chapter</link>.
+        <para> X.509 authentication is covered in its <link linkend="x509">own chapter</link>.
             Here we'll look at some classes which provide support for other pre-authenticated
             scenarios. </para>
         <section>
@@ -169,7 +169,7 @@ class="org.springframework.security.web.authentication.preauth.PreAuthenticatedA
       <security:authentication-provider ref="preauthAuthProvider" />
     </security:authentication-manager>
 ]]>
-</programlisting> We've assumed here that the <link xlink:href="#ns-config">security namespace</link>
+</programlisting> We've assumed here that the <link linkend="ns-config">security namespace</link>
                     is being used for configuration. It's also assumed that you have added a
                     <interfacename>UserDetailsService</interfacename> (called
                     <quote>userDetailsService</quote>) to your configuration to load the user's

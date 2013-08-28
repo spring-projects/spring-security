@@ -115,7 +115,7 @@ if (principal instanceof UserDetails) {
             <para> On successful authentication, <interfacename>UserDetails</interfacename> is used
                 to build the <interfacename>Authentication</interfacename> object that is stored in
                 the <classname>SecurityContextHolder</classname> (more on this <link
-                xlink:href="#tech-intro-authentication">below</link>). The good news is that we
+                linkend="tech-intro-authentication">below</link>). The good news is that we
                 provide a number of <interfacename>UserDetailsService</interfacename>
                 implementations, including one that uses an in-memory map
                 (<classname>InMemoryDaoImpl</classname>) and another that uses JDBC
@@ -132,7 +132,7 @@ if (principal instanceof UserDetails) {
                     to other components within the framework. In particular, it <emphasis>does not</emphasis>
                     authenticate the user, which is done by the <interfacename>AuthenticationManager</interfacename>.
                     In many cases it makes more sense to
-                    <link xlink:href="#core-services-authentication-manager">implement <interfacename>AuthenticationProvider</interfacename></link>
+                    <link linkend="core-services-authentication-manager">implement <interfacename>AuthenticationProvider</interfacename></link>
                     directly if you require a custom authentication process.
                 </para>
             </note>
@@ -355,7 +355,7 @@ Successfully authenticated. Security context contains: \
             </para>
             <para> If you're wondering how the <interfacename>AuthenticationManager</interfacename>
                  is implemented in a real world example, we'll look at that in the <link
-                xlink:href="#core-services-authentication-manager">core services
+                linkend="core-services-authentication-manager">core services
                 chapter</link>.</para>
         </section>
     </section>
@@ -600,7 +600,7 @@ Successfully authenticated. Security context contains: \
                     <classname>RoleVoter</classname>. This is only relevant when a voter-based
                     <interfacename>AccessDecisionManager</interfacename> is in use. We'll see how
                     the <interfacename>AccessDecisionManager</interfacename> is implemented in the
-                    <link xlink:href="#authz-arch">authorization chapter</link>.</para>
+                    <link linkend="authz-arch">authorization chapter</link>.</para>
             </section>
             <section>
                 <title>RunAsManager</title>

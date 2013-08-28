@@ -32,7 +32,7 @@
         <info>
             <title>Configuration</title>
         </info>
-        <para>Channel security is supported by the <link xlink:href="#ns-requires-channel">security
+        <para>Channel security is supported by the <link linkend="ns-requires-channel">security
             namespace</link> by means of the <literal>requires-channel</literal> attribute on the
             <literal>&lt;intercept-url&gt;</literal> element and this is the simplest (and
             recommended approach).</para>

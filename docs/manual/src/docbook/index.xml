@@ -70,8 +70,8 @@
                 ten list of web application vulnerabilities as well as a lot of useful reference
                 information. </para>
             <para>We hope that you find this reference guide useful, and we welcome your feedback and
-                    <link xlink:href="#jira">suggestions</link>. </para>
-            <para>Finally, welcome to the Spring Security <link xlink:href="#community"
+                    <link linkend="jira">suggestions</link>. </para>
+            <para>Finally, welcome to the Spring Security <link linkend="community"
                 >community</link>. </para>
         </partintro>
     </preface>

@@ -7,7 +7,7 @@
         <info>
             <title>Authorities</title>
         </info>
-        <para>As we saw in the <link xlink:href="#tech-granted-authority">technical overview</link>,
+        <para>As we saw in the <link linkend="tech-granted-authority">technical overview</link>,
             all <interfacename>Authentication</interfacename> implementations store a list of
             <interfacename>GrantedAuthority</interfacename> objects. These represent the authorities
             that have been granted to the principal. The
@@ -51,7 +51,7 @@
         <info>
             <title>Pre-Invocation Handling</title>
         </info>
-        <para> As we've also seen in the <link xlink:href="#secure-objects">Technical
+        <para> As we've also seen in the <link linkend="secure-objects">Technical
             Overview</link> chapter, Spring Security provides interceptors which control access to
             secure objects such as method invocations or web requests. A pre-invocation decision on
             whether the invocation is allowed to proceed is made by the
@@ -307,7 +307,7 @@ boolean supports(Class clazz);
         </para>
         <para>
             The use of a role-hierarchy allows you to configure which roles (or authorities) should include others.
-            An extended version of Spring Security's <link xlink:href="#authz-role-voter"><classname>RoleVoter</classname></link>,
+            An extended version of Spring Security's <link linkend="authz-role-voter"><classname>RoleVoter</classname></link>,
             <classname>RoleHierarchyVoter</classname>, is configured with a <interfacename>RoleHierarchy</interfacename>,
             from which it obtains all the <quote>reachable authorities</quote> which the user is assigned.
             A typical configuration might look like this:
