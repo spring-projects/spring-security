@@ -128,6 +128,7 @@
         </partintro>
         <xi:include href="security-filter-chain.xml"/>
         <xi:include href="core-filters.xml"/>
+        <xi:include href="servlet-api.xml"/>
         <xi:include href="basic-and-digest-auth.xml"/>
         <xi:include href="remember-me-authentication.xml"/>
         <xi:include href="csrf.xml"/>
