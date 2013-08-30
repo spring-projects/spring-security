@@ -158,7 +158,7 @@ new Thread("AsyncThread") {
     <section xml:id="servletapi-31">
         <title>Servlet 3.1+ Integration</title>
         <para>The following section describes the Servlet 3.1 methods that Spring Security integrates with.</para>
-        <section xml:id="servletapi-authenticate">
+        <section xml:id="servletapi-change-session-id">
             <title>HttpServletRequest#changeSessionId()</title>
             <para>The <link xlink:href="http://docs.oracle.com/javaee/7/api/javax/servlet/http/HttpServletRequest.html#changeSessionId()">HttpServletRequest.changeSessionId()</link>
                 is the default method for protecting against <link linkend="ns-session-fixation">Session Fixation</link> attacks in Servlet 3.1 and higher.</para>
