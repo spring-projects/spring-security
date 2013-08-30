@@ -35,6 +35,7 @@ Import-Template:
  org.springframework.jdbc.*;version="${springRange}";resolution:=optional,
  org.springframework.mock.web;version="${springRange}";resolution:=optional,
  org.springframework.web.*;version="${springRange}";resolution:=optional,
+ org.springframework.core.annotation.*;version="${springRange}";resolution:=optional,,
  org.springframework.web.context.*;version="${springRange}";resolution:=optional,
  org.springframework.web.filter.*;version="${springRange}",
  org.springframework.web.*;version="${springRange}",

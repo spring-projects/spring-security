@@ -21,7 +21,7 @@ import org.springframework.util.ClassUtils;
 
 /**
  * Used by {@link EnableWebSecurity} to conditionaly import
- * {@link CsrfWebMvcConfiguration} when the DispatcherServlet is present on the
+ * {@link WebMvcSecurityConfiguration} when the DispatcherServlet is present on the
  * classpath.
  *
  * @author Rob Winch
@@ -34,6 +34,6 @@ class SpringWebMvcImportSelector implements ImportSelector {
      */
     public String[] selectImports(AnnotationMetadata importingClassMetadata) {
         boolean webmvcPresent = ClassUtils.isPresent("org.springframework.web.servlet.DispatcherServlet", getClass().getClassLoader());
-        return webmvcPresent ? new String[] {"org.springframework.security.config.annotation.web.configuration.CsrfWebMvcConfiguration"} : new String[] {};
+        return webmvcPresent ? new String[] {"org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration"} : new String[] {};
     }
 }
