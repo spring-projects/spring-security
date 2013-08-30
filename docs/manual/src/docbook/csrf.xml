@@ -141,12 +141,20 @@ public class WebSecurityConfig extends
     ...
   </head>
   ...]]></programlisting>
-                    <para>You can then include the token within all your AJAX requests. If you were using JQuery, this could be done with the following:</para>
-                    <programlisting language="javascript"><![CDATA[$(document).ajaxSend(function(e, xhr, options) {
+                    <para>You can then include the token within all your Ajax requests. If you were using jQuery, this could be done with the following:</para>
+                    <programlisting language="javascript"><![CDATA[$(function () {
   var token = $("meta[name='_csrf']").attr("content");
   var header = $("meta[name='_csrf_header']").attr("content");
-  xhr.setRequestHeader(header, token);
+  $(document).ajaxSend(function(e, xhr, options) {
+    xhr.setRequestHeader(header, token);
+  });
 });]]></programlisting>
+                  <para>As a alternative to jQuery, we recommend using <ulink url="http://cujojs.com/">cujoJS’s</ulink> rest.js. <ulink url="https://github.com/cujojs/rest">rest.js</ulink> provides advanced support for working with HTTP request and responses in RESTful ways. A core capability is the ability to contextualize the HTTP client adding behavior as needed by chaining interceptors on to the client.</para>
+                  <programlisting language="javascript"><![CDATA[var client = rest.chain(csrf, {
+  token: $("meta[name='_csrf']").attr("content"),
+  name: $("meta[name='_csrf_header']").attr("content")
+});]]></programlisting>
+                  <para>The configured client can be shared with any component of the application that needs to make a request to the CSRF protected resource. One significant different between rest.js and jQuery is that only requests made with the configured client will contain the CSRF token, vs jQuery where <emphasis>all</emphasis> requests will include the token. The ability to scope which requests receive the token helps guard against leaking the CSRF token to a third party. Please refer to the <ulink url="https://github.com/cujojs/rest/tree/master/docs">rest.js reference documentation</ulink> for more information on rest.js.</para>
                 </section>
             </section>
     </section>
