@@ -162,8 +162,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
                 logger.debug("authenticationEntryPoint is null, so allowing original HttpServletRequest to handle authenticate");
                 return super.authenticate(response);
             }
-            Principal userPrincipal = getUserPrincipal();
-            if(userPrincipal != null) {
+            if(isAuthenticated()) {
                 return true;
             }
             entryPoint.commence(this, response, new AuthenticationCredentialsNotFoundException("User is not Authenticated"));
@@ -171,6 +170,11 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
         }
 
         public void login(String username, String password) throws ServletException {
+            if(isAuthenticated()) {
+                throw new ServletException("Cannot perform login for '"
+                        + username + "' already authenticated as '"
+                        + getRemoteUser() + "'");
+            }
             AuthenticationManager authManager = authenticationManager;
             if(authManager == null) {
                 logger.debug("authenticationManager is null, so allowing original HttpServletRequest to handle login");
@@ -198,6 +202,11 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
             for(LogoutHandler logoutHandler : handlers) {
                 logoutHandler.logout(this, response, authentication);
             }
+        }
+
+        private boolean isAuthenticated() {
+            Principal userPrincipal = getUserPrincipal();
+            return userPrincipal != null;
         }
     }
 

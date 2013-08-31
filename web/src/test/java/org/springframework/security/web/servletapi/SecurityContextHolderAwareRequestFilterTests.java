@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.servletapi;
 
+import static junit.framework.Assert.fail;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -172,11 +173,27 @@ public class SecurityContextHolderAwareRequestFilterTests {
         verify(request, times(0)).login(anyString(),anyString());
     }
 
+    // SEC-2296
+    @Test
+    public void loginWithExstingUser() throws Exception {
+        TestingAuthenticationToken expectedAuth = new TestingAuthenticationToken("user", "password","ROLE_USER");
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(new TestingAuthenticationToken("newuser","not be found","ROLE_USER"));
+        SecurityContextHolder.getContext().setAuthentication(expectedAuth);
+
+        try {
+            wrappedRequest().login(expectedAuth.getName(),String.valueOf(expectedAuth.getCredentials()));
+            fail("Expected Exception");
+        } catch(ServletException success) {
+            assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(expectedAuth);
+            verifyZeroInteractions(authenticationEntryPoint, logoutHandler);
+            verify(request, times(0)).login(anyString(),anyString());
+        }
+    }
+
     @Test
     public void loginFail() throws Exception {
         AuthenticationException authException = new BadCredentialsException("Invalid");
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenThrow(authException);
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("should","be cleared","ROLE_USER"));
 
         try {
             wrappedRequest().login("invalid","credentials");
