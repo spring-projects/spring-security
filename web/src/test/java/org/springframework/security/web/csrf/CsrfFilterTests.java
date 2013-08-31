@@ -311,6 +311,33 @@ public class CsrfFilterTests {
         }
     }
 
+    /**
+     * SEC-2292 Should not allow other cases through since spec states HTTP
+     * method is case sensitive
+     * http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.1.1
+     *
+     * @throws ServletException
+     * @throws IOException
+     */
+    @Test
+    public void doFilterDefaultRequireCsrfProtectionMatcherAllowedMethodsCaseSensitive()
+            throws ServletException, IOException {
+        filter = new CsrfFilter(tokenRepository);
+        filter.setAccessDeniedHandler(deniedHandler);
+
+        for (String method : Arrays.asList("get", "TrAcE", "oPTIOnS", "hEaD")) {
+            resetRequestResponse();
+            when(tokenRepository.loadToken(request)).thenReturn(token);
+            request.setMethod(method);
+
+            filter.doFilter(request, response, filterChain);
+
+            verify(deniedHandler).handle(eq(request), eq(response),
+                    any(InvalidCsrfTokenException.class));
+            verifyZeroInteractions(filterChain);
+        }
+    }
+
     @Test
     public void doFilterDefaultRequireCsrfProtectionMatcherDeniedMethods()
             throws ServletException, IOException {
