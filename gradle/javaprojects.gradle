@@ -11,7 +11,7 @@ sourceCompatibility = 1.5
 targetCompatibility = 1.5
 
 ext.springVersion = '3.2.4.RELEASE'
-ext.springLdapVersion = '1.3.1.RELEASE'
+ext.springLdapVersion = '1.3.2.RELEASE'
 ext.ehcacheVersion = '1.6.2'
 ext.aspectjVersion = '1.6.10'
 ext.apacheDsVersion = '1.5.5'
