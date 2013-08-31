@@ -299,7 +299,7 @@ public abstract class AbstractSecurityWebApplicationInitializer implements WebAp
      * @return
      */
     protected EnumSet<DispatcherType> getSecurityDispatcherTypes() {
-        return EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR);
+        return EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR, DispatcherType.ASYNC);
     }
 
     /**

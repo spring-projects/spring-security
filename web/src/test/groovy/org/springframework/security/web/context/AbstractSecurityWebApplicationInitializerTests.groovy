@@ -33,6 +33,7 @@ import spock.lang.Specification
  *
  */
 class AbstractSecurityWebApplicationInitializerTests extends Specification {
+    def DEFAULT_DISPATCH = EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR, DispatcherType.ASYNC)
 
     def defaults() {
         setup:
@@ -42,7 +43,7 @@ class AbstractSecurityWebApplicationInitializerTests extends Specification {
             new AbstractSecurityWebApplicationInitializer(){}.onStartup(context)
         then:
             1 * context.addFilter("springSecurityFilterChain", {DelegatingFilterProxy f -> f.targetBeanName == "springSecurityFilterChain" && f.contextAttribute == null}) >> registration
-            1 * registration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR), false, "/*");
+            1 * registration.addMappingForUrlPatterns(DEFAULT_DISPATCH, false, "/*");
             1 * registration.setAsyncSupported(true)
             0 * context.addListener(_)
     }
@@ -55,7 +56,7 @@ class AbstractSecurityWebApplicationInitializerTests extends Specification {
             new AbstractSecurityWebApplicationInitializer(MyRootConfiguration){}.onStartup(context)
         then:
             1 * context.addFilter("springSecurityFilterChain", {DelegatingFilterProxy f -> f.targetBeanName == "springSecurityFilterChain" && f.contextAttribute == null}) >> registration
-            1 * registration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR), false, "/*");
+            1 * registration.addMappingForUrlPatterns(DEFAULT_DISPATCH, false, "/*");
             1 * registration.setAsyncSupported(true)
             1 * context.addListener(_ as ContextLoaderListener)
     }
@@ -75,7 +76,7 @@ class AbstractSecurityWebApplicationInitializerTests extends Specification {
             }.onStartup(context)
         then:
             1 * context.addFilter("springSecurityFilterChain", {DelegatingFilterProxy f -> f.targetBeanName == "springSecurityFilterChain" && f.contextAttribute == null}) >> registration
-            1 * registration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR), false, "/*");
+            1 * registration.addMappingForUrlPatterns(DEFAULT_DISPATCH, false, "/*");
             1 * registration.setAsyncSupported(true)
             1 * context.addListener(HttpSessionEventPublisher.class.name)
     }
@@ -109,7 +110,7 @@ class AbstractSecurityWebApplicationInitializerTests extends Specification {
             }.onStartup(context)
         then:
             1 * context.addFilter("springSecurityFilterChain", {DelegatingFilterProxy f -> f.targetBeanName == "springSecurityFilterChain" && f.contextAttribute == "org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher"}) >> registration
-            1 * registration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR), false, "/*");
+            1 * registration.addMappingForUrlPatterns(DEFAULT_DISPATCH, false, "/*");
             1 * registration.setAsyncSupported(true)
             0 * context.addListener(_)
     }
@@ -140,7 +141,7 @@ class AbstractSecurityWebApplicationInitializerTests extends Specification {
             }.onStartup(context)
         then:
             1 * context.addFilter("springSecurityFilterChain", {DelegatingFilterProxy f -> f.targetBeanName == "springSecurityFilterChain" && f.contextAttribute == null}) >> registration
-            3 * registration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR), false, "/*");
+            3 * registration.addMappingForUrlPatterns(DEFAULT_DISPATCH, false, "/*");
             3 * registration.setAsyncSupported(true)
             0 * context.addListener(_)
             1 * context.addFilter(_, filter1) >> registration
@@ -160,7 +161,7 @@ class AbstractSecurityWebApplicationInitializerTests extends Specification {
             }.onStartup(context)
         then:
             1 * context.addFilter("springSecurityFilterChain", {DelegatingFilterProxy f -> f.targetBeanName == "springSecurityFilterChain" && f.contextAttribute == null}) >> registration
-            1 * registration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR), false, "/*");
+            1 * registration.addMappingForUrlPatterns(DEFAULT_DISPATCH, false, "/*");
             1 * context.addFilter(_, filter1) >> null
             IllegalStateException success = thrown()
             success.message == "Duplicate Filter registration for 'filter'. Check to ensure the Filter is only configured once."
@@ -213,8 +214,8 @@ class AbstractSecurityWebApplicationInitializerTests extends Specification {
             }.onStartup(context)
         then:
             1 * context.addFilter("springSecurityFilterChain", {DelegatingFilterProxy f -> f.targetBeanName == "springSecurityFilterChain" && f.contextAttribute == null}) >> registration
-            1 * registration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR), false, "/*");
-            2 * registration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR), true, "/*");
+            1 * registration.addMappingForUrlPatterns(DEFAULT_DISPATCH, false, "/*");
+            2 * registration.addMappingForUrlPatterns(DEFAULT_DISPATCH, true, "/*");
             3 * registration.setAsyncSupported(true)
             0 * context.addListener(_)
             1 * context.addFilter(_, filter1) >> registration
@@ -234,7 +235,7 @@ class AbstractSecurityWebApplicationInitializerTests extends Specification {
             }.onStartup(context)
         then:
             1 * context.addFilter("springSecurityFilterChain", {DelegatingFilterProxy f -> f.targetBeanName == "springSecurityFilterChain" && f.contextAttribute == null}) >> registration
-            1 * registration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR), false, "/*");
+            1 * registration.addMappingForUrlPatterns(DEFAULT_DISPATCH, false, "/*");
             1 * context.addFilter(_, filter1) >> null
             IllegalStateException success = thrown()
             success.message == "Duplicate Filter registration for 'filter'. Check to ensure the Filter is only configured once."
