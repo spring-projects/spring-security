@@ -144,7 +144,7 @@ public abstract class AbstractSecurityWebApplicationInitializer implements WebAp
         if(contextAttribute != null) {
             springSecurityFilterChain.setContextAttribute(contextAttribute);
         }
-        registerFilter(servletContext, true, filterName, springSecurityFilterChain);
+        registerFilter(servletContext, false, filterName, springSecurityFilterChain);
     }
 
     /**
