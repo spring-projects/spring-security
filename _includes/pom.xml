@@ -1,0 +1,24 @@
+<dependencies>
+    <dependency>
+        <groupId>{@= groupId @}</groupId>
+        <artifactId>spring-security-web</artifactId>
+        <version>{@= version @}</version>
+    </dependency>
+    <dependency>
+        <groupId>{@= groupId @}</groupId>
+        <artifactId>spring-security-config</artifactId>
+        <version>{@= version @}</version>
+    </dependency>
+</dependencies>
+{@ if (repository) { @}
+<repositories>
+    <repository>
+        <id>{@= repository.id @}</id>
+        <name>{@= repository.name @}</name>
+        <url>{@= repository.url @}</url>
+        <snapshots>
+            <enabled>{@= repository.snapshotsEnabled @}</enabled>
+        </snapshots>
+    </repository>
+</repositories>{@ } @}
+

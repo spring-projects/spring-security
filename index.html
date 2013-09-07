@@ -1,0 +1,86 @@
+---
+# The name of your project
+title: Spring Security
+
+badges:
+
+  # Specify your project's twitter handle, if any. Delete if none.
+  twitter: SpringSecurity
+
+  # Customize your project's badges. Delete any entries that do not apply.
+  custom:
+    - name: Source (GitHub)
+      url:  https://github.com/spring-projects/spring-security
+      icon: github
+
+    - name: Issues (JIRA)
+      url:  http://jira.springsource.org/browse/SEC
+      icon: tracking
+
+    - name: CI (Bamboo)
+      url:  https://build.springsource.org/browse/SEC
+      icon: ci
+
+    - name: Forum
+      url:  http://forum.spring.io/forum/spring-projects/security
+      icon: forum
+
+    - name: StackOverflow
+      url:  http://stackoverflow.com/questions/tagged/spring-security
+      icon: stackoverflow
+
+    - name: Metrics (SonarQube)
+      url:  https://sonar.springsource.org/dashboard/index/org.springframework.security:spring-security
+      icon: metrics
+
+---
+<!DOCTYPE HTML>
+<html lang="en-US">
+
+{% capture billboard_description %}
+
+Spring Security is a powerful and highly customizable authentication and access-control framework. It is the de-facto standard for securing Spring-based applications.
+
+{% endcapture %}
+
+{% capture main_content %}
+
+Spring Security is a framework that focuses on providing both authentication and authorization to Java
+applications. Like all Spring projects, the real power of Spring Security is found in how easily it can
+be extended to meet custom requirements
+
+## Features
+
+* Comprehensive and extensible support for both Authentication and Authorization
+* Protection against attacks like session fixation, clickjacking, cross site request forgery, etc
+* Servlet API integration
+* Optional integration with Spring Web MVC
+* Much more...
+
+<span id="quick-start"></span>
+## Quick Start
+
+{% include download_widget.md %}
+
+{% endcapture %}
+
+{% capture related_resources %}
+
+### Getting Started Guides
+
+* [Hello Security]({{site.guides_base_url}}/helloworld.html)
+* [Hello MVC Security]({{site.guides_base_url}}/hellomvc.html)
+* [More...]({{site.guides_base_url}}/)
+
+### Related Projects
+
+* [Spring Security OAuth]({{site.projects_site_url}}/spring-security-oauth)
+* [Spring Security Grails](http://grails.org/plugin/spring-security-core)
+* [Spring Security SAML]({{site.projects_site_url}}/spring-security-saml)
+* [Spring Security Kerberos]({{site.projects_site_url}}/spring-security-kerberos)
+
+{% endcapture %}
+
+
+{% include project_page.html %}
+</html>

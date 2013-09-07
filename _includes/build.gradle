@@ -1,0 +1,4 @@
+dependencies {
+    compile '{@= groupId @}:spring-security-web:{@= version @}'
+    compile '{@= groupId @}:spring-security-config:{@= version @}'
+}

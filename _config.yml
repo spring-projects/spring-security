@@ -10,21 +10,23 @@ redcarpet:
 ### The following properties will change on a project-by-project basis
 
 # Context path in the remote website (usually /<project>), will be prepended to absolute URLs for static resources
-baseurl: /gh-pages
+baseurl: /spring-security
 
 # Name of the project for display in places like page titles
-name: Spring Framework
+name: Spring Security
 
 # ID of the project in the metadata API at spring.io (if this is not a
 # valid project ID the javascript widgets in the home page will not work)
-project: spring-framework
+project: spring-security
 
 # Project github URL
-github_repo_url: http://github.com/spring-projects/spring-framework
+github_repo_url: http://github.com/spring-projects/spring-security
 
 # Project forum URL
-forum: http://forum.spring.io/forum/spring-projects/container
+forum: http://forum.spring.io/spring-projects/security
 
+# Custom properties
+guides_base_url: http://docs.spring.io/spring-security/site/docs/3.2.x/guides
 
 ### The following properties are constant for most projects
 
