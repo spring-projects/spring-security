@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'javadocHotfix'
 apply plugin: 'eclipse'
 
 sourceCompatibility = 1.5
