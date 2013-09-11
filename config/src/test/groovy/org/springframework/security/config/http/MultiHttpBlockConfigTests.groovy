@@ -45,19 +45,20 @@ class MultiHttpBlockConfigTests extends AbstractHttpConfigTests {
         e.cause instanceof IllegalArgumentException
     }
 
-  def duplicatePatternsAreRejected () {
-      when: "Two <http> elements with the same pattern are used"
-      xml.http(pattern: '/stateless/**', 'create-session': 'stateless') {
-          'http-basic'()
-      }
-      xml.http(pattern: '/stateless/**') {
-          'form-login'()
-      }
-      createAppContext()
-      then:
-      BeanCreationException e = thrown()
-      e.cause instanceof IllegalArgumentException
-  }
+    def duplicatePatternsAreRejected () {
+        when: "Two <http> elements with the same pattern are used"
+        xml.http(pattern: '/stateless/**', 'create-session': 'stateless') {
+            'http-basic'()
+        }
+        xml.http(pattern: '/stateless/**') {
+            'form-login'()
+        }
+        createAppContext()
+        then:
+        BeanCreationException e = thrown()
+        e.cause instanceof IllegalArgumentException
+    }
+
 
 
     def namedFilterChainIsExposedAsABean () {
