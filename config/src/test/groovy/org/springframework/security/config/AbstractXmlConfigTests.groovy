@@ -42,6 +42,7 @@ abstract class AbstractXmlConfigTests extends Specification {
     def mockBean(Class clazz, String id = clazz.simpleName) {
         xml.'b:bean'(id: id, 'class': Mockito.class.name, 'factory-method':'mock') {
             'b:constructor-arg'(value : clazz.name)
+            'b:constructor-arg'(value : id)
         }
     }
 
