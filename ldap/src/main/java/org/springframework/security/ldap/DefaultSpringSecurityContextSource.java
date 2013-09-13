@@ -68,7 +68,7 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
         setPooled(true);
         setAuthenticationStrategy(new SimpleDirContextAuthenticationStrategy() {
             @Override
-            @SuppressWarnings("unchecked")
+            @SuppressWarnings("rawtypes")
             public void setupEnvironment(Hashtable env, String dn, String password) {
                 super.setupEnvironment(env, dn, password);
                 // Remove the pooling flag unless we are authenticating as the 'manager' user.
@@ -83,7 +83,7 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
     /**
      * Create and initialize an instance which will connect of the LDAP Spring Security
      * Context Source. It will connect to any of the provided LDAP server URLs.
-     * 
+     *
      * @param urls
      *          A list of string values which are LDAP server URLs. An example would be
      *          <code>ldap://ldap.company.com:389</code>. LDAPS URLs (SSL-secured) may be used as well,
@@ -101,7 +101,7 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
      * Builds a Spring LDAP-compliant Provider URL string, i.e. a space-separated list of LDAP servers
      * with their base DNs. As the base DN must be identical for all servers, it needs to be supplied
      * only once.
-     * 
+     *
      * @param urls
      *          A list of string values which are LDAP server URLs. An example would be
      *          <pre>ldap://ldap.company.com:389</pre>. LDAPS URLs may be used as well,
