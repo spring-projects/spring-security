@@ -61,7 +61,7 @@ task apidocs(type: Javadoc) {
 apidocs.options.outputLevel = org.gradle.external.javadoc.JavadocOutputLevel.QUIET
 
 apidocs.options.links = [
-    "http://static.springframework.org/spring/docs/3.0.x/javadoc-api",
+    "http://static.springframework.org/spring/docs/3.2.x/javadoc-api",
     "http://static.springsource.org/spring-ldap/docs/1.3.x/apidocs/",
     "http://download.oracle.com/javase/6/docs/api/"
 ]
