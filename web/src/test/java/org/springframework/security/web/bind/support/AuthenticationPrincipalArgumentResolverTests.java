@@ -55,6 +55,21 @@ public class AuthenticationPrincipalArgumentResolverTests {
     }
 
     @Test
+    public void supportsParameterNoAnnotation() throws Exception {
+        assertThat(resolver.supportsParameter(showUserNoAnnotation())).isFalse();
+    }
+
+    @Test
+    public void supportsParameterAnnotation() throws Exception {
+        assertThat(resolver.supportsParameter(showUserAnnotationObject())).isTrue();
+    }
+
+    @Test
+    public void supportsParameterCustomAnnotation() throws Exception {
+        assertThat(resolver.supportsParameter(showUserCustomAnnotation())).isTrue();
+    }
+
+    @Test
     public void resolveArgumentNullAuthentication() throws Exception {
         assertThat(resolver.resolveArgument(showUserAnnotationString(), null, null, null)).isNull();
     }
@@ -63,12 +78,6 @@ public class AuthenticationPrincipalArgumentResolverTests {
     public void resolveArgumentNullPrincipal() throws Exception {
         setAuthenticationPrincipal(null);
         assertThat(resolver.resolveArgument(showUserAnnotationString(), null, null, null)).isNull();
-    }
-
-    @Test
-    public void resolveArgumentNoAnnotation() throws Exception {
-        setAuthenticationPrincipal("john");
-        assertThat(resolver.resolveArgument(showUserNoAnnotation(), null, null, null)).isNull();
     }
 
     @Test
@@ -101,10 +110,23 @@ public class AuthenticationPrincipalArgumentResolverTests {
         assertThat(resolver.resolveArgument(showUserCustomAnnotation(), null, null, null)).isEqualTo(expectedPrincipal);
     }
 
-    @Test(expected = ClassCastException.class)
-    public void resolveArgumentClassCastException() throws Exception {
+    @Test
+    public void resolveArgumentNullOnInvalidType() throws Exception {
         setAuthenticationPrincipal(new CustomUserPrincipal());
-        resolver.resolveArgument(showUserAnnotationString(), null, null, null);
+        assertThat(resolver.resolveArgument(showUserAnnotationString(), null, null, null)).isNull();
+    }
+
+    @Test(expected = ClassCastException.class)
+    public void resolveArgumentErrorOnInvalidType() throws Exception {
+        setAuthenticationPrincipal(new CustomUserPrincipal());
+        resolver.resolveArgument(showUserAnnotationErrorOnInvalidType(), null, null, null);
+    }
+
+
+    @Test(expected = ClassCastException.class)
+    public void resolveArgumentCustomserErrorOnInvalidType() throws Exception {
+        setAuthenticationPrincipal(new CustomUserPrincipal());
+        resolver.resolveArgument(showUserAnnotationCurrentUserErrorOnInvalidType(), null, null, null);
     }
 
     @Test
@@ -119,6 +141,14 @@ public class AuthenticationPrincipalArgumentResolverTests {
 
     private MethodParameter showUserAnnotationString() {
         return getMethodParameter("showUserAnnotation", String.class);
+    }
+
+    private MethodParameter showUserAnnotationErrorOnInvalidType() {
+        return getMethodParameter("showUserAnnotationErrorOnInvalidType", String.class);
+    }
+
+    private MethodParameter showUserAnnotationCurrentUserErrorOnInvalidType() {
+        return getMethodParameter("showUserAnnotationCurrentUserErrorOnInvalidType", String.class);
     }
 
     private MethodParameter showUserAnnotationUserDetails() {
@@ -147,9 +177,16 @@ public class AuthenticationPrincipalArgumentResolverTests {
     @AuthenticationPrincipal
     static @interface CurrentUser { }
 
+    @Target({ ElementType.PARAMETER})
+    @Retention(RetentionPolicy.RUNTIME)
+    @AuthenticationPrincipal(errorOnInvalidType = true)
+    static @interface CurrentUserErrorOnInvalidType { }
+
     public static class TestController {
         public void showUserNoAnnotation(String user) {}
         public void showUserAnnotation(@AuthenticationPrincipal String user) {}
+        public void showUserAnnotationErrorOnInvalidType(@AuthenticationPrincipal(errorOnInvalidType=true) String user) {}
+        public void showUserAnnotationCurrentUserErrorOnInvalidType(@CurrentUserErrorOnInvalidType String user) {}
         public void showUserAnnotation(@AuthenticationPrincipal UserDetails user) {}
         public void showUserAnnotation(@AuthenticationPrincipal CustomUserPrincipal user) {}
         public void showUserCustomAnnotation(@CurrentUser CustomUserPrincipal user) {}

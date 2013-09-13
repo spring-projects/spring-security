@@ -44,21 +44,30 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  *     }
  * </pre>
  *
- * <p>Will resolve the CustomUser argument using
+ * <p>
+ * Will resolve the CustomUser argument using
  * {@link Authentication#getPrincipal()} from the {@link SecurityContextHolder}.
  * If the {@link Authentication} or {@link Authentication#getPrincipal()} is
- * null, it will return null. If the types do not match, a
- * {@link ClassCastException} will be thrown.</p>
+ * null, it will return null. If the types do not match, null will be returned
+ * unless {@link AuthenticationPrincipal#errorOnInvalidType()} is true in which
+ * case a {@link ClassCastException} will be thrown.
+ * </p>
  *
- * <p>Alternatively, users can create a custom meta annotation as shown below:</p>
+ * <p>
+ * Alternatively, users can create a custom meta annotation as shown below:
+ * </p>
+ *
  * <pre>
- *   @Target({ ElementType.PARAMETER})
- *   @Retention(RetentionPolicy.RUNTIME)
- *   @AuthenticationPrincipal
- *   public @interface CurrentUser { }
+ * &#064;Target({ ElementType.PARAMETER })
+ * &#064;Retention(RetentionPolicy.RUNTIME)
+ * &#064;AuthenticationPrincipal
+ * public @interface CurrentUser {
+ * }
  * </pre>
  *
- * <p>The custom annotation can then be used instead. For example:</p>
+ * <p>
+ * The custom annotation can then be used instead. For example:
+ * </p>
  *
  * <pre>
  * @Controller
@@ -80,16 +89,7 @@ public final class AuthenticationPrincipalArgumentResolver implements
      * @see org.springframework.web.method.support.HandlerMethodArgumentResolver#supportsParameter(org.springframework.core.MethodParameter)
      */
     public boolean supportsParameter(MethodParameter parameter) {
-        if(parameter.getParameterAnnotation(AuthenticationPrincipal.class) != null) {
-            return true;
-        }
-        Annotation[] annotationsToSearch = parameter.getParameterAnnotations();
-        for(Annotation toSearch : annotationsToSearch) {
-            if(AnnotationUtils.findAnnotation(toSearch.annotationType(), AuthenticationPrincipal.class) != null) {
-                return true;
-            }
-        }
-        return false;
+        return findMethodAnnotation(AuthenticationPrincipal.class, parameter) != null;
     }
 
     /* (non-Javadoc)
@@ -98,17 +98,41 @@ public final class AuthenticationPrincipalArgumentResolver implements
     public Object resolveArgument(MethodParameter parameter,
             ModelAndViewContainer mavContainer, NativeWebRequest webRequest,
             WebDataBinderFactory binderFactory) throws Exception {
-        if(!supportsParameter(parameter)) {
-            return null;
-        }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication == null) {
             return null;
         }
         Object principal = authentication.getPrincipal();
         if(principal != null && !parameter.getParameterType().isAssignableFrom(principal.getClass())) {
-            throw new ClassCastException(principal + " is not assiable to " + parameter.getParameterType());
+            AuthenticationPrincipal authPrincipal = findMethodAnnotation(AuthenticationPrincipal.class, parameter);
+            if(authPrincipal.errorOnInvalidType()) {
+                throw new ClassCastException(principal + " is not assiable to " + parameter.getParameterType());
+            } else {
+                return null;
+            }
         }
         return principal;
+    }
+
+    /**
+     * Obtains the specified {@link Annotation} on the specified {@link MethodParameter}.
+     *
+     * @param annotationClass the class of the {@link Annotation} to find on the {@link MethodParameter}
+     * @param parameter the {@link MethodParameter} to search for an {@link Annotation}
+     * @return the {@link Annotation} that was found or null.
+     */
+    private <T extends Annotation> T findMethodAnnotation(Class<T> annotationClass, MethodParameter parameter) {
+        T annotation = parameter.getParameterAnnotation(annotationClass);
+        if(annotation != null) {
+            return annotation;
+        }
+        Annotation[] annotationsToSearch = parameter.getParameterAnnotations();
+        for(Annotation toSearch : annotationsToSearch) {
+            annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(), annotationClass);
+            if(annotation != null) {
+                return annotation;
+            }
+        }
+        return null;
     }
 }
