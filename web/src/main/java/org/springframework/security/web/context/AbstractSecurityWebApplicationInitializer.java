@@ -17,7 +17,6 @@ package org.springframework.security.web.context;
 
 import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.servlet.DispatcherType;
@@ -261,9 +260,7 @@ public abstract class AbstractSecurityWebApplicationInitializer implements WebAp
      * @return
      */
     protected Set<SessionTrackingMode> getSessionTrackingModes() {
-        Set<SessionTrackingMode> modes = new HashSet<SessionTrackingMode>();
-        modes.add(SessionTrackingMode.COOKIE);
-        return modes;
+        return EnumSet.of(SessionTrackingMode.COOKIE);
     }
 
     /**
