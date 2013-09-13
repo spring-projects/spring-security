@@ -95,6 +95,20 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
         assertTrue(ctxSrc.isPooled());
     }
 
+    // SEC-2308
+    @Test
+    public void instantiationSuceedsWithEmtpyBaseDn() throws Exception {
+        String baseDn = "";
+        List<String> serverUrls = new ArrayList<String>();
+        serverUrls.add("ldap://foo:789");
+        serverUrls.add("ldap://bar:389");
+        serverUrls.add("ldaps://blah:636");
+        DefaultSpringSecurityContextSource ctxSrc = new DefaultSpringSecurityContextSource(serverUrls, baseDn);
+
+        assertFalse(ctxSrc.isAnonymousReadOnly());
+        assertTrue(ctxSrc.isPooled());
+    }
+
     @Test(expected=IllegalArgumentException.class)
     public void instantiationFailsWithIncorrectServerUrl() throws Exception {
         List<String> serverUrls = new ArrayList<String>();

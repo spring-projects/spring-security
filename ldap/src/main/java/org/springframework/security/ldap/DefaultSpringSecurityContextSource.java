@@ -123,9 +123,6 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
             if ("".equals(trimmedUrl)) {
                 continue;
             }
-            if (trimmedUrl.contains(trimmedBaseDn)) {
-                throw new IllegalArgumentException("LDAP URL string must not include the base DN! '" + trimmedUrl + "'");
-            }
 
             providerUrl.append(trimmedUrl);
             if (! trimmedUrl.endsWith("/")) {
