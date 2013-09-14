@@ -13,7 +13,7 @@ Import-Template:
  org.apache.commons.logging.*;version="${cloggingRange}",
  org.aopalliance.*;version="${aopAllianceRange}";resolution:=optional,
  org.aspectj.*;version="${aspectjRange}";resolution:=optional,
- org.openid4java.*;version="${openid4javaRange}",
+ org.openid4java.*;version="${openid4javaRange}";resolution:=optional,
  org.springframework.security.access.*;version="${secRange}",
  org.springframework.security.authentication.*;version="${secRange}",
  org.springframework.security.core.*;version="${secRange}",
