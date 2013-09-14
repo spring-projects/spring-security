@@ -173,8 +173,7 @@
                     put the most specific matches at the top. You can also add a
                     <literal>method</literal> attribute to limit the match to a particular HTTP
                     method (<literal>GET</literal>, <literal>POST</literal>, <literal>PUT</literal>
-                    etc.). If a request matches multiple patterns, the method-specific match will
-                    take precedence regardless of ordering.</para>
+                    etc.).</para>
             </note>
             <para> To add some users, you can define a set of test data directly in the namespace: <programlisting language="xml"><![CDATA[
   <authentication-manager>
