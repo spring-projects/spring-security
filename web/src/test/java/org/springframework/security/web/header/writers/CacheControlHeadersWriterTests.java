@@ -48,7 +48,7 @@ public class CacheControlHeadersWriterTests {
         writer.writeHeaders(request, response);
 
         assertThat(response.getHeaderNames().size()).isEqualTo(2);
-        assertThat(response.getHeaderValues("Cache-Control")).isEqualTo(Arrays.asList("no-cache","no-store","max-age=0","must-revalidate"));
+        assertThat(response.getHeaderValues("Cache-Control")).isEqualTo(Arrays.asList("no-cache, no-store, max-age=0, must-revalidate"));
         assertThat(response.getHeaderValues("Pragma")).isEqualTo(Arrays.asList("no-cache"));
     }
 }

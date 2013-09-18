@@ -53,7 +53,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
             assertHeaders(response, ['X-Content-Type-Options':'nosniff',
                                      'X-Frame-Options':'DENY',
                                      'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
-                                     'Cache-Control': 'no-cache,no-store,max-age=0,must-revalidate',
+                                     'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
                                      'Pragma':'no-cache',
                                      'X-XSS-Protection' : '1; mode=block'])
     }
@@ -332,7 +332,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         when:
             springSecurityFilterChain.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
         then:
-            assertHeaders(response, ['Cache-Control': 'no-cache,no-store,max-age=0,must-revalidate','Pragma':'no-cache'])
+            assertHeaders(response, ['Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate','Pragma':'no-cache'])
     }
 
     def 'http headers hsts'() {
@@ -388,7 +388,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
     def assertHeaders(MockHttpServletResponse response, Map<String,String> expected) {
         assert response.headerNames == expected.keySet()
         expected.each { headerName, value ->
-            assert response.getHeaderValues(headerName) == value.split(',')
+            assert response.getHeaderValues(headerName) == [value]
         }
     }
 }

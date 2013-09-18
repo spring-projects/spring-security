@@ -47,7 +47,7 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
             responseHeaders == ['X-Content-Type-Options':'nosniff',
                 'X-Frame-Options':'DENY',
                 'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
-                'Cache-Control': 'no-cache,no-store,max-age=0,must-revalidate',
+                'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
                 'Pragma':'no-cache',
                 'X-XSS-Protection' : '1; mode=block']
     }
@@ -68,7 +68,7 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            responseHeaders == ['Cache-Control': 'no-cache,no-store,max-age=0,must-revalidate',
+            responseHeaders == ['Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
                 'Pragma':'no-cache']
     }
 
