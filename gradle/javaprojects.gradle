@@ -111,6 +111,14 @@ dependencies {
 
 [configurations.runtime, configurations.default]*.exclude(module: 'commons-logging')
 
+configurations.all {
+	resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+			if (details.requested.group == 'org.slf4j') {
+				details.useVersion slf4jVersion
+			}
+	}
+}
+
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 test {
