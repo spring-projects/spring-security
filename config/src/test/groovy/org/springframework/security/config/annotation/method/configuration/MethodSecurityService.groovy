@@ -16,6 +16,7 @@
 package org.springframework.security.config.annotation.method.configuration;
 
 import javax.annotation.security.DenyAll
+import javax.annotation.security.PermitAll;
 
 import org.springframework.security.access.annotation.Secured
 import org.springframework.security.access.prepost.PostAuthorize;
@@ -34,8 +35,14 @@ public interface MethodSecurityService {
     @Secured("ROLE_ADMIN")
     public String secured();
 
+    @Secured("ROLE_USER")
+    public String securedUser();
+
     @DenyAll
     public String jsr250();
+
+    @PermitAll
+    public String jsr250PermitAll();
 
     @Secured(["ROLE_USER","RUN_AS_SUPER"])
     public Authentication runAs();

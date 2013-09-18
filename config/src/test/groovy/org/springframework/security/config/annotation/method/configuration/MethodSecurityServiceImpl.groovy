@@ -36,7 +36,17 @@ public class MethodSecurityServiceImpl implements MethodSecurityService {
     }
 
     @Override
+    public String securedUser() {
+        return null;
+    }
+
+    @Override
     public String jsr250() {
+        return null;
+    }
+
+    @Override
+    public String jsr250PermitAll() {
         return null;
     }
 

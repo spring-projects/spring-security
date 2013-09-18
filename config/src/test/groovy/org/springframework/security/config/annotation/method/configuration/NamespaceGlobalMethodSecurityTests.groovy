@@ -134,6 +134,10 @@ public class NamespaceGlobalMethodSecurityTests extends BaseSpringSpec {
             service.jsr250()
         then: "access is denied"
             thrown(AccessDeniedException)
+        when: "@PermitAll method invoked"
+            String jsr250PermitAll = service.jsr250PermitAll()
+        then: "access is allowed"
+            jsr250PermitAll == null
     }
 
     @EnableGlobalMethodSecurity(jsr250Enabled = true)
@@ -345,6 +349,9 @@ public class NamespaceGlobalMethodSecurityTests extends BaseSpringSpec {
             service.secured()
         then:
             thrown(AccessDeniedException)
+        and: "service with ROLE_USER allowed"
+            service.securedUser() == null
+        and:
             service.preAuthorize() == null
             service.jsr250() == null
     }

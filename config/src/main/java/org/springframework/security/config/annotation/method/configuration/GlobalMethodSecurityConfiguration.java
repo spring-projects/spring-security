@@ -40,6 +40,7 @@ import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.AfterInvocationProvider;
 import org.springframework.security.access.annotation.Jsr250MethodSecurityMetadataSource;
+import org.springframework.security.access.annotation.Jsr250Voter;
 import org.springframework.security.access.annotation.SecuredAnnotationSecurityMetadataSource;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.ExpressionBasedAnnotationAttributeFactory;
@@ -178,9 +179,13 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
         List<AccessDecisionVoter> decisionVoters = new ArrayList<AccessDecisionVoter>();
         ExpressionBasedPreInvocationAdvice expressionAdvice = new ExpressionBasedPreInvocationAdvice();
         expressionAdvice.setExpressionHandler(getExpressionHandler());
-
-        decisionVoters.add(new PreInvocationAuthorizationAdviceVoter(
+        if(prePostEnabled()) {
+            decisionVoters.add(new PreInvocationAuthorizationAdviceVoter(
                 expressionAdvice));
+        }
+        if(jsr250Enabled()) {
+            decisionVoters.add(new Jsr250Voter());
+        }
         decisionVoters.add(new RoleVoter());
         decisionVoters.add(new AuthenticatedVoter());
         return new AffirmativeBased(decisionVoters);
