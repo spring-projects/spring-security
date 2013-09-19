@@ -64,7 +64,8 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends Ab
     private SecurityContextLogoutHandler contextLogoutHandler = new SecurityContextLogoutHandler();
     private String logoutSuccessUrl = "/login?logout";
     private LogoutSuccessHandler logoutSuccessHandler;
-    private RequestMatcher logoutRequestMatcher = new AntPathRequestMatcher("/logout", "POST");
+    private String logoutUrl = "/logout";
+    private RequestMatcher logoutRequestMatcher;
     private boolean permitAll;
     private boolean customLogoutSuccess;
 
@@ -98,8 +99,10 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends Ab
     }
 
     /**
-     * The URL that triggers log out to occur on HTTP POST. The default is
-     * "/logout".
+     * The URL that triggers log out to occur (default is "/logout"). If CSRF
+     * protection is enabled (default), then the request must also be a POST.
+     * This means that by default POST "/logout" is required to trigger a log
+     * out. If CSRF protection is disabled, then any HTTP method is allowed.
      *
      * <p>
      * It is considered best practice to use an HTTP POST on any action that
@@ -110,13 +113,16 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends Ab
      * </p>
      *
      * @see #logoutRequestMatcher(RequestMatcher)
+     * @see HttpSecurity#csrf()
      *
      * @param logoutUrl
      *            the URL that will invoke logout.
      * @return the {@link LogoutConfigurer} for further customization
      */
     public LogoutConfigurer<H> logoutUrl(String logoutUrl) {
-        return logoutRequestMatcher(new AntPathRequestMatcher(logoutUrl, "POST"));
+        this.logoutRequestMatcher = null;
+        this.logoutUrl = logoutUrl;
+        return this;
     }
 
     /**
@@ -219,7 +225,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends Ab
     public void init(H http) throws Exception {
         if(permitAll) {
             PermitAllSupport.permitAll(http, this.logoutSuccessUrl);
-            PermitAllSupport.permitAll(http, this.logoutRequestMatcher);
+            PermitAllSupport.permitAll(http, this.getLogoutRequestMatcher(http));
         }
 
         DefaultLoginPageViewFilter loginPageGeneratingFilter = http.getSharedObject(DefaultLoginPageViewFilter.class);
@@ -230,7 +236,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends Ab
 
     @Override
     public void configure(H http) throws Exception {
-        LogoutFilter logoutFilter = createLogoutFilter();
+        LogoutFilter logoutFilter = createLogoutFilter(http);
         http.addFilter(logoutFilter);
     }
 
@@ -268,15 +274,27 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends Ab
      * instances, the {@link #logoutSuccessHandler(LogoutSuccessHandler)} and
      * the {@link #logoutUrl(String)}.
      *
+     * @param http the builder to use
      * @return the {@link LogoutFilter} to use.
      * @throws Exception
      */
-    private LogoutFilter createLogoutFilter() throws Exception {
+    private LogoutFilter createLogoutFilter(H http) throws Exception {
         logoutHandlers.add(contextLogoutHandler);
         LogoutHandler[] handlers = logoutHandlers.toArray(new LogoutHandler[logoutHandlers.size()]);
         LogoutFilter result = new LogoutFilter(getLogoutSuccessHandler(), handlers);
-        result.setLogoutRequestMatcher(logoutRequestMatcher);
+        result.setLogoutRequestMatcher(getLogoutRequestMatcher(http));
         result = postProcess(result);
         return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    private RequestMatcher getLogoutRequestMatcher(H http) {
+        if(logoutRequestMatcher != null) {
+            return logoutRequestMatcher;
+        }
+        if(http.getConfigurer(CsrfConfigurer.class) != null) {
+            this.logoutRequestMatcher = new AntPathRequestMatcher(this.logoutUrl, "POST");
+        }
+        return new AntPathRequestMatcher(this.logoutUrl);
     }
 }

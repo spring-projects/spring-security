@@ -67,4 +67,51 @@ class LogoutConfigurerTests extends BaseSpringSpec {
                 .logout()
         }
     }
+
+    def "SEC-2311: Logout allows other methods if CSRF is disabled"() {
+        when:
+            loadConfig(CsrfDisabledConfig)
+            request.method = "GET"
+            request.servletPath = "/logout"
+            findFilter(LogoutFilter).doFilter(request,response,chain)
+        then:
+            response.redirectedUrl == "/login?logout"
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    static class CsrfDisabledConfig extends WebSecurityConfigurerAdapter {
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .csrf().disable()
+                .logout()
+        }
+    }
+
+
+    def "SEC-2311: Logout allows other methods if CSRF is disabled with custom logout URL"() {
+        when:
+            loadConfig(CsrfDisabledCustomLogoutUrlConfig)
+            request.method = "GET"
+            request.servletPath = "/custom/logout"
+            findFilter(LogoutFilter).doFilter(request,response,chain)
+        then:
+            response.redirectedUrl == "/login?logout"
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    static class CsrfDisabledCustomLogoutUrlConfig extends WebSecurityConfigurerAdapter {
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .logout()
+                    .logoutUrl("/custom/logout")
+                    .and()
+                .csrf().disable()
+        }
+    }
 }
