@@ -49,6 +49,7 @@ class HeadersConfigurerTests extends BaseSpringSpec {
                          'X-Frame-Options':'DENY',
                          'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
                          'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
+                         'Expires' : '0',
                          'Pragma':'no-cache',
                          'X-XSS-Protection' : '1; mode=block']
     }
@@ -128,6 +129,7 @@ class HeadersConfigurerTests extends BaseSpringSpec {
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
             responseHeaders == ['Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
+                         'Expires' : '0',
                          'Pragma':'no-cache']
     }
 

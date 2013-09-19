@@ -44,6 +44,7 @@ public final class CacheControlHeadersWriter extends StaticHeadersWriter {
         List<Header> headers = new ArrayList<Header>(2);
         headers.add(new Header("Cache-Control","no-cache, no-store, max-age=0, must-revalidate"));
         headers.add(new Header("Pragma","no-cache"));
+        headers.add(new Header("Expires","0"));
         return headers;
     }
 }

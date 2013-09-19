@@ -54,6 +54,7 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
                                      'X-Frame-Options':'DENY',
                                      'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
                                      'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
+                                     'Expires' : '0',
                                      'Pragma':'no-cache',
                                      'X-XSS-Protection' : '1; mode=block'])
     }
@@ -332,7 +333,9 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         when:
             springSecurityFilterChain.doFilter(new MockHttpServletRequest(), response, new MockFilterChain())
         then:
-            assertHeaders(response, ['Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate','Pragma':'no-cache'])
+            assertHeaders(response, ['Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
+                                     'Expires' : '0',
+                                     'Pragma':'no-cache'])
     }
 
     def 'http headers hsts'() {
