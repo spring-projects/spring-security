@@ -49,7 +49,7 @@ public class HttpSessionRequestCache implements RequestCache {
         HttpSession session = currentRequest.getSession(false);
 
         if (session != null) {
-            return (DefaultSavedRequest) session.getAttribute(SAVED_REQUEST);
+            return (SavedRequest) session.getAttribute(SAVED_REQUEST);
         }
 
         return null;
