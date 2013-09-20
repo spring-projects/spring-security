@@ -20,6 +20,7 @@ import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.Assert;
 
 /**
  * The standard implementation of {@code MethodSecurityExpressionHandler}.
@@ -33,7 +34,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 
     protected final Log logger = LogFactory.getLog(getClass());
 
-    private final AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+    private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
     private ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
     private PermissionCacheOptimizer permissionCacheOptimizer = null;
 
@@ -141,6 +142,19 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
         }
 
         throw new IllegalArgumentException("Filter target must be a collection or array type, but was " + filterTarget);
+    }
+
+    /**
+     * Sets the {@link AuthenticationTrustResolver} to be used. The default is
+     * {@link AuthenticationTrustResolverImpl}.
+     *
+     * @param trustResolver
+     *            the {@link AuthenticationTrustResolver} to use. Cannot be
+     *            null.
+     */
+    public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
+        Assert.notNull(trustResolver, "trustResolver cannot be null");
+        this.trustResolver = trustResolver;
     }
 
     public void setParameterNameDiscoverer(ParameterNameDiscoverer parameterNameDiscoverer) {

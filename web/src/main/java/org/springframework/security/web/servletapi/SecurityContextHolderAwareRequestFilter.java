@@ -28,6 +28,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -77,6 +79,8 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
     private AuthenticationManager authenticationManager;
 
     private List<LogoutHandler> logoutHandlers;
+
+    private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
     //~ Methods ========================================================================================================
 
@@ -153,11 +157,26 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
     @Override
     public void afterPropertiesSet() throws ServletException {
         super.afterPropertiesSet();
-        requestFactory = isServlet3() ? createServlet3Factory(rolePrefix) : new HttpServlet25RequestFactory(rolePrefix);
+        requestFactory = isServlet3() ? createServlet3Factory(rolePrefix) : new HttpServlet25RequestFactory(trustResolver, rolePrefix);
     }
 
-    private HttpServlet3RequestFactory createServlet3Factory(String rolePrefix) {
+    /**
+     * Sets the {@link AuthenticationTrustResolver} to be used. The default is
+     * {@link AuthenticationTrustResolverImpl}.
+     *
+     * @param trustResolver
+     *            the {@link AuthenticationTrustResolver} to use. Cannot be
+     *            null.
+     */
+    public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
+        Assert.notNull(trustResolver, "trustResolver cannot be null");
+        this.trustResolver = trustResolver;
+    }
+
+
+    private HttpServletRequestFactory createServlet3Factory(String rolePrefix) {
         HttpServlet3RequestFactory factory = new HttpServlet3RequestFactory(rolePrefix);
+        factory.setTrustResolver(trustResolver);
         factory.setAuthenticationEntryPoint(authenticationEntryPoint);
         factory.setAuthenticationManager(authenticationManager);
         factory.setLogoutHandlers(logoutHandlers);

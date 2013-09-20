@@ -40,7 +40,7 @@ public class SessionManagementFilter extends GenericFilterBean {
 
     private final SecurityContextRepository securityContextRepository;
     private SessionAuthenticationStrategy sessionAuthenticationStrategy;
-    private final AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
+    private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
     private InvalidSessionStrategy invalidSessionStrategy = null;
     private AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
 
@@ -70,7 +70,7 @@ public class SessionManagementFilter extends GenericFilterBean {
         if (!securityContextRepository.containsContext(request)) {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-            if (authentication != null && !authenticationTrustResolver.isAnonymous(authentication)) {
+            if (authentication != null && !trustResolver.isAnonymous(authentication)) {
              // The user has been authenticated during the current request, so call the session strategy
                 try {
                     sessionAuthenticationStrategy.onAuthentication(authentication, request, response);
@@ -135,5 +135,19 @@ public class SessionManagementFilter extends GenericFilterBean {
     public void setAuthenticationFailureHandler(AuthenticationFailureHandler failureHandler) {
         Assert.notNull(failureHandler, "failureHandler cannot be null");
         this.failureHandler = failureHandler;
+    }
+
+
+    /**
+     * Sets the {@link AuthenticationTrustResolver} to be used. The default is
+     * {@link AuthenticationTrustResolverImpl}.
+     *
+     * @param trustResolver
+     *            the {@link AuthenticationTrustResolver} to use. Cannot be
+     *            null.
+     */
+    public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
+        Assert.notNull(trustResolver, "trustResolver cannot be null");
+        this.trustResolver = trustResolver;
     }
 }

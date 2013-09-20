@@ -6,6 +6,7 @@ import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.util.Assert;
 
 /**
  *
@@ -15,7 +16,7 @@ import org.springframework.security.web.FilterInvocation;
 @SuppressWarnings("deprecation")
 public class DefaultWebSecurityExpressionHandler extends AbstractSecurityExpressionHandler<FilterInvocation> implements WebSecurityExpressionHandler {
 
-    private final AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+    private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
     @Override
     protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication, FilterInvocation fi) {
@@ -24,5 +25,18 @@ public class DefaultWebSecurityExpressionHandler extends AbstractSecurityExpress
         root.setTrustResolver(trustResolver);
         root.setRoleHierarchy(getRoleHierarchy());
         return root;
+    }
+
+    /**
+     * Sets the {@link AuthenticationTrustResolver} to be used. The default is
+     * {@link AuthenticationTrustResolverImpl}.
+     *
+     * @param trustResolver
+     *            the {@link AuthenticationTrustResolver} to use. Cannot be
+     *            null.
+     */
+    public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
+        Assert.notNull(trustResolver, "trustResolver cannot be null");
+        this.trustResolver = trustResolver;
     }
 }

@@ -29,6 +29,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.concurrent.DelegatingSecurityContextRunnable;
 import org.springframework.security.core.Authentication;
@@ -37,6 +39,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.util.Assert;
 
 /**
  * Provides integration with the Servlet 3 APIs in addition to the ones found in {@link HttpServlet25RequestFactory}.
@@ -66,6 +69,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
     private Log logger = LogFactory.getLog(getClass());
 
     private final String rolePrefix;
+    private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
     private AuthenticationEntryPoint authenticationEntryPoint;
     private AuthenticationManager authenticationManager;
     private List<LogoutHandler> logoutHandlers;
@@ -128,6 +132,20 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
         this.logoutHandlers = logoutHandlers;
     }
 
+    /**
+     * Sets the {@link AuthenticationTrustResolver} to be used. The default is
+     * {@link AuthenticationTrustResolverImpl}.
+     *
+     * @param trustResolver
+     *            the {@link AuthenticationTrustResolver} to use. Cannot be
+     *            null.
+     */
+    public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
+        Assert.notNull(trustResolver, "trustResolver cannot be null");
+        this.trustResolver = trustResolver;
+    }
+
+
     public HttpServletRequest create(HttpServletRequest request, HttpServletResponse response) {
          return new Servlet3SecurityContextHolderAwareRequestWrapper(request, rolePrefix, response);
     }
@@ -136,7 +154,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
         private final HttpServletResponse response;
 
         public Servlet3SecurityContextHolderAwareRequestWrapper(HttpServletRequest request, String rolePrefix, HttpServletResponse response) {
-            super(request, rolePrefix);
+            super(request, trustResolver, rolePrefix);
             this.response = response;
         }
 
