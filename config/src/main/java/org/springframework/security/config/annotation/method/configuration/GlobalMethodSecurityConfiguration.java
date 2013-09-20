@@ -64,6 +64,7 @@ import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
+import org.springframework.security.config.PostProcessedMockUserDetailsService;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.util.Assert;
@@ -206,7 +207,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
      *
      * @return
      */
-    protected MethodSecurityExpressionHandler expressionHandler() {
+    protected MethodSecurityExpressionHandler createExpressionHandler() {
         return defaultMethodExpressionHandler;
     }
 
@@ -217,7 +218,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
      */
     protected final MethodSecurityExpressionHandler getExpressionHandler() {
         if(expressionHandler == null) {
-            expressionHandler = expressionHandler();
+            expressionHandler = createExpressionHandler();
         }
         return expressionHandler;
     }
@@ -358,6 +359,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
     @Autowired(required=false)
     public void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
         this.objectPostProcessor = objectPostProcessor;
+        this.defaultMethodExpressionHandler = objectPostProcessor.postProcess(defaultMethodExpressionHandler);
     }
 
     @SuppressWarnings("unchecked")

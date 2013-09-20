@@ -77,7 +77,7 @@ public class NamespaceGlobalMethodSecurityExpressionHandlerTests extends BaseSpr
     @EnableGlobalMethodSecurity(prePostEnabled = true)
     public static class CustomAccessDecisionManagerConfig extends GlobalMethodSecurityConfiguration {
         @Override
-        protected MethodSecurityExpressionHandler expressionHandler() {
+        protected MethodSecurityExpressionHandler createExpressionHandler() {
             DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler()
             expressionHandler.permissionEvaluator = new PermissionEvaluator() {
                 boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {

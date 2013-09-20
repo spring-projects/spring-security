@@ -23,18 +23,21 @@ import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationListener
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.access.AccessDecisionManager
-import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler
+import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.access.prepost.PreInvocationAuthorizationAdviceVoter
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationTrustResolver
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher
+import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent
+import org.springframework.security.config.MockAfterInvocationProvider;
 import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.AuthorityUtils
+import org.springframework.security.core.context.SecurityContextHolder
 
 /**
  *
@@ -107,6 +110,60 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
         @Bean
         public AuthenticationTrustResolver tr() {
             return TR
+        }
+    }
+
+    def "SEC-2301: DefaultWebSecurityExpressionHandler has BeanResolver set"() {
+        setup:
+            SecurityContextHolder.getContext().setAuthentication(
+                new TestingAuthenticationToken("user", "password","ROLE_USER"))
+            loadConfig(ExpressionHandlerHasBeanResolverSetConfig)
+            def service = context.getBean(ServiceImpl)
+        when: "service with bean reference on PreAuthorize invoked"
+            service.message()
+        then: "properly throws AccessDeniedException"
+            thrown(AccessDeniedException)
+        when: "service with bean reference on PreAuthorize invoked"
+            context.getBean(CustomAuthzService).grantAccess = true
+            service.message()
+        then: "grants access too"
+            noExceptionThrown()
+    }
+
+    @Configuration
+    @EnableGlobalMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
+    static class ExpressionHandlerHasBeanResolverSetConfig extends GlobalMethodSecurityConfiguration {
+
+        @Override
+        protected void registerAuthentication(AuthenticationManagerBuilder auth)
+                throws Exception {
+            auth
+                .inMemoryAuthentication()
+        }
+
+        @Bean
+        public ServiceImpl service() {
+            return new ServiceImpl()
+        }
+
+        @Bean
+        public CustomAuthzService authz() {
+            return new CustomAuthzService()
+        }
+    }
+
+    static class ServiceImpl {
+        @PreAuthorize("@authz.authorize()")
+        public String message() {
+            null
+        }
+    }
+
+    static class CustomAuthzService {
+        boolean grantAccess
+
+        public boolean authorize() {
+            grantAccess
         }
     }
 }

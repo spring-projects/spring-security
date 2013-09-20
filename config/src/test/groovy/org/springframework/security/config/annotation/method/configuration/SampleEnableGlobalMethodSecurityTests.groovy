@@ -97,7 +97,7 @@ public class SampleEnableGlobalMethodSecurityTests extends BaseSpringSpec {
         }
 
         @Override
-        protected MethodSecurityExpressionHandler expressionHandler() {
+        protected MethodSecurityExpressionHandler createExpressionHandler() {
             DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
             expressionHandler.setPermissionEvaluator(new CustomPermissionEvaluator());
             return expressionHandler;
