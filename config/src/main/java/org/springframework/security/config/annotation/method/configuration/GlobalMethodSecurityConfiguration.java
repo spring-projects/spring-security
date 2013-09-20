@@ -282,7 +282,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
     public MethodSecurityMetadataSource methodSecurityMetadataSource() {
         List<MethodSecurityMetadataSource> sources = new ArrayList<MethodSecurityMetadataSource>();
         ExpressionBasedAnnotationAttributeFactory attributeFactory = new ExpressionBasedAnnotationAttributeFactory(
-                methodExpressionHandler());
+                getExpressionHandler());
         MethodSecurityMetadataSource customMethodSecurityMetadataSource = customMethodSecurityMetadataSource();
         if (customMethodSecurityMetadataSource != null) {
             sources.add(customMethodSecurityMetadataSource);
@@ -301,16 +301,6 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
     }
 
     /**
-     * Creates the {@link MethodSecurityExpressionHandler} to be used.
-     *
-     * @return
-     */
-    @Bean
-    public MethodSecurityExpressionHandler methodExpressionHandler() {
-        return new DefaultMethodSecurityExpressionHandler();
-    }
-
-    /**
      * Creates the {@link PreInvocationAuthorizationAdvice} to be used. The
      * default is {@link ExpressionBasedPreInvocationAdvice}.
      *
@@ -319,7 +309,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
     @Bean
     public PreInvocationAuthorizationAdvice preInvocationAuthorizationAdvice() {
         ExpressionBasedPreInvocationAdvice preInvocationAdvice = new ExpressionBasedPreInvocationAdvice();
-        preInvocationAdvice.setExpressionHandler(methodExpressionHandler());
+        preInvocationAdvice.setExpressionHandler(getExpressionHandler());
         return preInvocationAdvice;
     }
 
