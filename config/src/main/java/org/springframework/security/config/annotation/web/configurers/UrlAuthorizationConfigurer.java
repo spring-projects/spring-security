@@ -84,10 +84,12 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>, 
      * Creates the default {@link AccessDecisionVoter} instances used if an
      * {@link AccessDecisionManager} was not specified using
      * {@link #accessDecisionManager(AccessDecisionManager)}.
+     *
+     * @param http the builder to use
      */
     @Override
     @SuppressWarnings("rawtypes")
-    final List<AccessDecisionVoter> getDecisionVoters() {
+    final List<AccessDecisionVoter> getDecisionVoters(H http) {
         List<AccessDecisionVoter> decisionVoters = new ArrayList<AccessDecisionVoter>();
         decisionVoters.add(new RoleVoter());
         decisionVoters.add(new AuthenticatedVoter());
@@ -96,11 +98,12 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>, 
 
     /**
      * Creates the {@link FilterInvocationSecurityMetadataSource} to use. The
-     * implementation is a {@link DefaultFilterInvocationSecurityMetadataSource}
-     * .
+     * implementation is a {@link DefaultFilterInvocationSecurityMetadataSource}.
+     *
+     * @param http the builder to use
      */
     @Override
-    FilterInvocationSecurityMetadataSource createMetadataSource() {
+    FilterInvocationSecurityMetadataSource createMetadataSource(H http) {
         return new DefaultFilterInvocationSecurityMetadataSource(createRequestMap());
     }
 

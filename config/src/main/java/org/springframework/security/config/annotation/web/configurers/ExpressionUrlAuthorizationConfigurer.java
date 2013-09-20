@@ -24,6 +24,7 @@ import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -56,7 +57,9 @@ import org.springframework.util.StringUtils;
  *
  * <h2>Shared Objects Used</h2>
  *
- * No shared objects are used.
+ * <ul>
+ * <li>{@link AuthenticationTrustResolver} is optionally used to populate the {@link DefaultWebSecurityExpressionHandler}</li>
+ * </ul>
  *
  * @param <H> the type of {@link HttpSecurityBuilder} that is being configured
  *
@@ -72,7 +75,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
     private static final String fullyAuthenticated = "fullyAuthenticated";
     private static final String rememberMe = "rememberMe";
 
-    private SecurityExpressionHandler<FilterInvocation> expressionHandler = new DefaultWebSecurityExpressionHandler();
+    private SecurityExpressionHandler<FilterInvocation> expressionHandler;
 
     /**
      * Creates a new instance
@@ -110,21 +113,21 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 
     @Override
     @SuppressWarnings("rawtypes")
-    final List<AccessDecisionVoter> getDecisionVoters() {
+    final List<AccessDecisionVoter> getDecisionVoters(H http) {
         List<AccessDecisionVoter> decisionVoters = new ArrayList<AccessDecisionVoter>();
         WebExpressionVoter expressionVoter = new WebExpressionVoter();
-        expressionVoter.setExpressionHandler(expressionHandler);
+        expressionVoter.setExpressionHandler(getExpressionHandler(http));
         decisionVoters.add(expressionVoter);
         return decisionVoters;
     }
 
     @Override
-    final ExpressionBasedFilterInvocationSecurityMetadataSource createMetadataSource() {
+    final ExpressionBasedFilterInvocationSecurityMetadataSource createMetadataSource(H http) {
         LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = createRequestMap();
         if(requestMap.isEmpty()) {
             throw new IllegalStateException("At least one mapping is required (i.e. authorizeRequests().anyRequest.authenticated())");
         }
-        return new ExpressionBasedFilterInvocationSecurityMetadataSource(requestMap, expressionHandler);
+        return new ExpressionBasedFilterInvocationSecurityMetadataSource(requestMap, getExpressionHandler(http));
     }
 
     /**
@@ -139,6 +142,19 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
             addMapping(new UrlMapping(requestMatcher, configAttributes));
         }
         return this;
+    }
+
+    private SecurityExpressionHandler<FilterInvocation> getExpressionHandler(H http) {
+        if(expressionHandler == null) {
+            DefaultWebSecurityExpressionHandler defaultHandler = new DefaultWebSecurityExpressionHandler();
+            AuthenticationTrustResolver trustResolver = http.getSharedObject(AuthenticationTrustResolver.class);
+            if(trustResolver != null) {
+                defaultHandler.setTrustResolver(trustResolver);
+            }
+            expressionHandler = defaultHandler;
+        }
+
+        return expressionHandler;
     }
 
     private static String hasRole(String role) {

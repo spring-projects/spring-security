@@ -22,6 +22,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -71,6 +72,7 @@ import org.springframework.util.Assert;
  *
  * <ul>
  * <li>{@link SecurityContextRepository}</li>
+ * <li>{@link AuthenticationTrustResolver} is optionally used to populate the {@link HttpSessionSecurityContextRepository} and {@link SessionManagementFilter}</li>
  * </ul>
  *
  * @author Rob Winch
@@ -337,28 +339,32 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
     }
 
     @Override
-    public void init(H builder) throws Exception {
-        SecurityContextRepository securityContextRepository = builder.getSharedObject(SecurityContextRepository.class);
+    public void init(H http) throws Exception {
+        SecurityContextRepository securityContextRepository = http.getSharedObject(SecurityContextRepository.class);
         boolean stateless = isStateless();
 
         if(securityContextRepository == null) {
             if(stateless) {
-                builder.setSharedObject(SecurityContextRepository.class, new NullSecurityContextRepository());
+                http.setSharedObject(SecurityContextRepository.class, new NullSecurityContextRepository());
             } else {
                 HttpSessionSecurityContextRepository httpSecurityRepository = new HttpSessionSecurityContextRepository();
                 httpSecurityRepository.setDisableUrlRewriting(!enableSessionUrlRewriting);
                 httpSecurityRepository.setAllowSessionCreation(isAllowSessionCreation());
-                builder.setSharedObject(SecurityContextRepository.class, httpSecurityRepository);
+                AuthenticationTrustResolver trustResolver = http.getSharedObject(AuthenticationTrustResolver.class);
+                if(trustResolver != null) {
+                    httpSecurityRepository.setTrustResolver(trustResolver);
+                }
+                http.setSharedObject(SecurityContextRepository.class, httpSecurityRepository);
             }
         }
 
-        RequestCache requestCache = builder.getSharedObject(RequestCache.class);
+        RequestCache requestCache = http.getSharedObject(RequestCache.class);
         if(requestCache == null) {
             if(stateless) {
-                builder.setSharedObject(RequestCache.class, new NullRequestCache());
+                http.setSharedObject(RequestCache.class, new NullRequestCache());
             }
         }
-        builder.setSharedObject(SessionAuthenticationStrategy.class, getSessionAuthenticationStrategy());
+        http.setSharedObject(SessionAuthenticationStrategy.class, getSessionAuthenticationStrategy());
     }
 
     @Override
@@ -370,6 +376,10 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
         }
         if(invalidSessionUrl != null) {
             sessionManagementFilter.setInvalidSessionStrategy(new SimpleRedirectInvalidSessionStrategy(invalidSessionUrl));
+        }
+        AuthenticationTrustResolver trustResolver = http.getSharedObject(AuthenticationTrustResolver.class);
+        if(trustResolver != null) {
+            sessionManagementFilter.setTrustResolver(trustResolver);
         }
         sessionManagementFilter = postProcess(sessionManagementFilter);
 

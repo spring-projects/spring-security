@@ -20,6 +20,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.context.SecurityContext;
@@ -45,7 +46,9 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
  *
  * <h2>Shared Objects Used</h2>
  *
- * No shared Objects are used.
+ * <ul>
+ * <li>{@link AuthenticationTrustResolver} is optionally used to populate the {@link SecurityContextHolderAwareRequestFilter}</li>
+ * </ul>
  *
  * @author Rob Winch
  * @since 3.2
@@ -75,6 +78,10 @@ public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>> extend
         LogoutConfigurer<H> logoutConf = http.getConfigurer(LogoutConfigurer.class);
         List<LogoutHandler> logoutHandlers = logoutConf == null ? null : logoutConf.getLogoutHandlers();
         securityContextRequestFilter.setLogoutHandlers(logoutHandlers);
+        AuthenticationTrustResolver trustResolver = http.getSharedObject(AuthenticationTrustResolver.class);
+        if(trustResolver != null) {
+            securityContextRequestFilter.setTrustResolver(trustResolver);
+        }
         securityContextRequestFilter = postProcess(securityContextRequestFilter);
         http.addFilter(securityContextRequestFilter);
     }

@@ -98,11 +98,11 @@ abstract class AbstractInterceptUrlConfigurer<H extends HttpSecurityBuilder<H>,C
 
     @Override
     public void configure(H http) throws Exception {
-        FilterInvocationSecurityMetadataSource metadataSource = createMetadataSource();
+        FilterInvocationSecurityMetadataSource metadataSource = createMetadataSource(http);
         if(metadataSource == null) {
             return;
         }
-        FilterSecurityInterceptor securityInterceptor = createFilterSecurityInterceptor(metadataSource, http.getSharedObject(AuthenticationManager.class));
+        FilterSecurityInterceptor securityInterceptor = createFilterSecurityInterceptor(http, metadataSource, http.getSharedObject(AuthenticationManager.class));
         if(filterSecurityInterceptorOncePerRequest != null) {
             securityInterceptor.setObserveOncePerRequest(filterSecurityInterceptorOncePerRequest);
         }
@@ -115,38 +115,44 @@ abstract class AbstractInterceptUrlConfigurer<H extends HttpSecurityBuilder<H>,C
      * Subclasses should implement this method to provide a {@link FilterInvocationSecurityMetadataSource} for the
      * {@link FilterSecurityInterceptor}.
      *
+     * @param http the builder to use
+     *
      * @return the {@link FilterInvocationSecurityMetadataSource} to set on the {@link FilterSecurityInterceptor}.
      *         Cannot be null.
      */
-    abstract FilterInvocationSecurityMetadataSource createMetadataSource();
+    abstract FilterInvocationSecurityMetadataSource createMetadataSource(H http);
 
     /**
      * Subclasses should implement this method to provide the {@link AccessDecisionVoter} instances used to create the
      * default {@link AccessDecisionManager}
      *
+     * @param http the builder to use
+     *
      * @return the {@link AccessDecisionVoter} instances used to create the
      *         default {@link AccessDecisionManager}
      */
     @SuppressWarnings("rawtypes")
-    abstract List<AccessDecisionVoter> getDecisionVoters();
+    abstract List<AccessDecisionVoter> getDecisionVoters(H http);
 
     /**
      * Creates the default {@code AccessDecisionManager}
      * @return the default {@code AccessDecisionManager}
      */
-    private AccessDecisionManager createDefaultAccessDecisionManager() {
-        return new AffirmativeBased(getDecisionVoters());
+    private AccessDecisionManager createDefaultAccessDecisionManager(H http) {
+        return new AffirmativeBased(getDecisionVoters(http));
     }
 
     /**
      * If currently null, creates a default {@link AccessDecisionManager} using
      * {@link #createDefaultAccessDecisionManager()}. Otherwise returns the {@link AccessDecisionManager}.
      *
+     * @param http the builder to use
+     *
      * @return the {@link AccessDecisionManager} to use
      */
-    private AccessDecisionManager getAccessDecisionManager() {
+    private AccessDecisionManager getAccessDecisionManager(H http) {
         if (accessDecisionManager == null) {
-            accessDecisionManager = createDefaultAccessDecisionManager();
+            accessDecisionManager = createDefaultAccessDecisionManager(http);
         }
         return accessDecisionManager;
     }
@@ -154,16 +160,17 @@ abstract class AbstractInterceptUrlConfigurer<H extends HttpSecurityBuilder<H>,C
     /**
      * Creates the {@link FilterSecurityInterceptor}
      *
+     * @param http the builder to use
      * @param metadataSource the {@link FilterInvocationSecurityMetadataSource} to use
      * @param authenticationManager the {@link AuthenticationManager} to use
      * @return the {@link FilterSecurityInterceptor}
      * @throws Exception
      */
-    private FilterSecurityInterceptor createFilterSecurityInterceptor(FilterInvocationSecurityMetadataSource metadataSource,
+    private FilterSecurityInterceptor createFilterSecurityInterceptor(H http, FilterInvocationSecurityMetadataSource metadataSource,
                                                                       AuthenticationManager authenticationManager) throws Exception {
         FilterSecurityInterceptor securityInterceptor = new FilterSecurityInterceptor();
         securityInterceptor.setSecurityMetadataSource(metadataSource);
-        securityInterceptor.setAccessDecisionManager(getAccessDecisionManager());
+        securityInterceptor.setAccessDecisionManager(getAccessDecisionManager(http));
         securityInterceptor.setAuthenticationManager(authenticationManager);
         securityInterceptor.afterPropertiesSet();
         return securityInterceptor;

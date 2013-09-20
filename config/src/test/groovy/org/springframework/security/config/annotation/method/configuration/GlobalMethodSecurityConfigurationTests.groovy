@@ -18,22 +18,21 @@ package org.springframework.security.config.annotation.method.configuration
 import static org.fest.assertions.Assertions.assertThat
 import static org.junit.Assert.fail
 
-import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInterceptor
 import org.springframework.context.ApplicationContext
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.ApplicationListener
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.access.AccessDecisionManager
-import org.springframework.security.access.AccessDeniedException
-import org.springframework.security.access.ConfigAttribute
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler
+import org.springframework.security.access.prepost.PreInvocationAuthorizationAdviceVoter
 import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.AuthenticationTrustResolver
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
+import org.springframework.security.authentication.event.AuthenticationSuccessEvent
 import org.springframework.security.config.annotation.BaseSpringSpec
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
-import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
-import org.springframework.security.config.annotation.web.WebSecurityConfigurerAdapterTests.InMemoryAuthWithWebSecurityConfigurerAdapter
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.AuthorityUtils
 
@@ -81,5 +80,33 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
 
     AuthenticationManager getAuthenticationManager() {
         context.getBean(MethodInterceptor).authenticationManager
+    }
+
+    def "AuthenticationTrustResolver autowires"() {
+        setup:
+            CustomTrustResolverConfig.TR = Mock(AuthenticationTrustResolver)
+        when:
+            loadConfig(CustomTrustResolverConfig)
+            def preAdviceVoter = context.getBean(MethodInterceptor).accessDecisionManager.decisionVoters.find { it instanceof PreInvocationAuthorizationAdviceVoter}
+        then:
+            preAdviceVoter.preAdvice.expressionHandler.trustResolver == CustomTrustResolverConfig.TR
+    }
+
+    @Configuration
+    @EnableGlobalMethodSecurity(prePostEnabled = true)
+    static class CustomTrustResolverConfig extends GlobalMethodSecurityConfiguration {
+        static AuthenticationTrustResolver TR
+
+        @Override
+        protected void registerAuthentication(AuthenticationManagerBuilder auth)
+                throws Exception {
+            auth
+                .inMemoryAuthentication()
+        }
+
+        @Bean
+        public AuthenticationTrustResolver tr() {
+            return TR
+        }
     }
 }

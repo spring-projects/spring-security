@@ -24,6 +24,8 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityConfigurer;
@@ -76,6 +78,7 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
     private boolean disableAuthenticationRegistration;
     private boolean authenticationManagerInitialized;
     private AuthenticationManager authenticationManager;
+    private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
     private HttpSecurity http;
     private boolean disableDefaults;
 
@@ -153,6 +156,7 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
         http.setSharedObject(UserDetailsService.class, userDetailsService());
         http.setSharedObject(ApplicationContext.class, context);
         http.setSharedObject(ContentNegotiationStrategy.class, contentNegotiationStrategy);
+        http.setSharedObject(AuthenticationTrustResolver.class, trustResolver);
         if(!disableDefaults) {
             http
                 .csrf().and()
@@ -310,6 +314,11 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
     @Autowired
     public void setApplicationContext(ApplicationContext context) {
         this.context = context;
+    }
+
+    @Autowired(required=false)
+    public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
+        this.trustResolver = trustResolver;
     }
 
     @Autowired(required=false)

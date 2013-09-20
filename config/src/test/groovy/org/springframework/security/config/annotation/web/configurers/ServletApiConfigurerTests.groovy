@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.web.configurers
 import groovy.transform.CompileStatic
 
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.config.annotation.AnyObjectPostProcessor
 import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
@@ -130,6 +131,27 @@ class ServletApiConfigurerTests extends BaseSpringSpec {
                     .authenticationEntryPoint(ENTRYPOINT)
                     .and()
                 .exceptionHandling()
+        }
+    }
+
+    def "use sharedObject trustResolver"() {
+        setup:
+            SharedTrustResolverConfig.TR = Mock(AuthenticationTrustResolver)
+        when:
+            loadConfig(SharedTrustResolverConfig)
+        then:
+            findFilter(SecurityContextHolderAwareRequestFilter).trustResolver == SharedTrustResolverConfig.TR
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    static class SharedTrustResolverConfig extends WebSecurityConfigurerAdapter {
+        static AuthenticationTrustResolver TR
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .setSharedObject(AuthenticationTrustResolver, TR)
         }
     }
 }

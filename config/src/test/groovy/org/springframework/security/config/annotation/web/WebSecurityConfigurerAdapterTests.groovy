@@ -29,6 +29,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationProvider
+import org.springframework.security.authentication.AuthenticationTrustResolver
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent
@@ -41,7 +42,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
+import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter
 import org.springframework.web.accept.ContentNegotiationStrategy
 import org.springframework.web.accept.HeaderContentNegotiationStrategy
 import org.springframework.web.filter.OncePerRequestFilter
@@ -264,6 +265,26 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
         }
         public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
             chain.doFilter(request,response)
+        }
+    }
+
+    def "AuthenticationTrustResolver populated as defaultObject"() {
+        setup:
+            CustomTrustResolverConfig.TR = Mock(AuthenticationTrustResolver)
+        when:
+            loadConfig(CustomTrustResolverConfig)
+        then:
+            context.getBean(CustomTrustResolverConfig).http.getSharedObject(AuthenticationTrustResolver) == CustomTrustResolverConfig.TR
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    static class CustomTrustResolverConfig extends WebSecurityConfigurerAdapter {
+        static AuthenticationTrustResolver TR
+
+        @Bean
+        public AuthenticationTrustResolver tr() {
+            return TR
         }
     }
 }

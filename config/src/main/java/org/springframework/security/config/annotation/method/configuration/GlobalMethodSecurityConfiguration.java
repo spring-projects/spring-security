@@ -62,6 +62,7 @@ import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -85,6 +86,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
             throw new IllegalStateException(ObjectPostProcessor.class.getName()+ " is a required bean. Ensure you have used @"+EnableGlobalMethodSecurity.class.getName());
         }
     };
+    private DefaultMethodSecurityExpressionHandler defaultMethodExpressionHandler = new DefaultMethodSecurityExpressionHandler();
     private AuthenticationManager authenticationManager;
     private AuthenticationManagerBuilder auth = new AuthenticationManagerBuilder(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR);
     private boolean disableAuthenticationRegistry;
@@ -192,16 +194,20 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
     }
 
     /**
-     * Provide a {@link MethodSecurityExpressionHandler} that is
-     * registered with the {@link ExpressionBasedPreInvocationAdvice}. The default is
-     * {@link DefaultMethodSecurityExpressionHandler}
+     * Provide a {@link MethodSecurityExpressionHandler} that is registered with
+     * the {@link ExpressionBasedPreInvocationAdvice}. The default is
+     * {@link DefaultMethodSecurityExpressionHandler} which optionally will
+     * Autowire an {@link AuthenticationTrustResolver}.
      *
-     * <p>Subclasses may override this method to provide a custom {@link MethodSecurityExpressionHandler}</p>
+     * <p>
+     * Subclasses may override this method to provide a custom
+     * {@link MethodSecurityExpressionHandler}
+     * </p>
      *
      * @return
      */
     protected MethodSecurityExpressionHandler expressionHandler() {
-        return new DefaultMethodSecurityExpressionHandler();
+        return defaultMethodExpressionHandler;
     }
 
     /**
@@ -337,6 +343,11 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
                         .getName());
         enableMethodSecurity = AnnotationAttributes
                 .fromMap(annotationAttributes);
+    }
+
+    @Autowired(required = false)
+    public void setAuthenticationTrustResolver(AuthenticationTrustResolver trustResolver) {
+        this.defaultMethodExpressionHandler.setTrustResolver(trustResolver);
     }
 
     @Autowired
