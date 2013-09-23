@@ -46,6 +46,20 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
             expression == "hasAnyAuthority('ROLE_USER','ROLE_ADMIN')"
     }
 
+    def "hasAnyRole('USER')"() {
+        when:
+            def expression = ExpressionUrlAuthorizationConfigurer.hasAnyRole("USER")
+        then:
+            expression == "hasAnyRole('ROLE_USER')"
+    }
+
+    def "hasAnyRole('USER','ADMIN')"() {
+        when:
+            def expression = ExpressionUrlAuthorizationConfigurer.hasAnyRole("USER","ADMIN")
+        then:
+            expression == "hasAnyRole('ROLE_USER','ROLE_ADMIN')"
+    }
+
     def "hasRole('ROLE_USER') is rejected due to starting with ROLE_"() {
         when:
             def expression = ExpressionUrlAuthorizationConfigurer.hasRole("ROLE_USER")

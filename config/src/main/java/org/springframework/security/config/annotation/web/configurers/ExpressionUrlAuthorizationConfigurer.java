@@ -157,6 +157,11 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
         return expressionHandler;
     }
 
+    private static String hasAnyRole(String... authorities) {
+        String anyAuthorities = StringUtils.arrayToDelimitedString(authorities, "','ROLE_");
+        return "hasAnyRole('ROLE_" + anyAuthorities + "')";
+    }
+
     private static String hasRole(String role) {
         Assert.notNull(role, "role cannot be null");
         if (role.startsWith("ROLE_")) {
@@ -213,6 +218,22 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
          */
         public ExpressionUrlAuthorizationConfigurer<H> hasRole(String role) {
             return access(ExpressionUrlAuthorizationConfigurer.hasRole(role));
+        }
+
+        /**
+         * Shortcut for specifying URLs require any of a number of roles. If you
+         * do not want to have "ROLE_" automatically inserted see
+         * {@link #hasAnyAuthority(String...)}
+         *
+         * @param roles
+         *            the roles to require (i.e. USER, ADMIN, etc). Note, it
+         *            should not start with "ROLE_" as this is automatically
+         *            inserted.
+         * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
+         *         customization
+         */
+        public ExpressionUrlAuthorizationConfigurer<H> hasAnyRole(String... roles) {
+            return access(ExpressionUrlAuthorizationConfigurer.hasAnyRole(roles));
         }
 
         /**
