@@ -15,10 +15,16 @@
  */
 package org.springframework.security.config.annotation.web.configurers
 
+import javax.servlet.http.HttpServletResponse
+
+import org.springframework.context.annotation.Configuration
+import org.springframework.http.MediaType
 import org.springframework.security.config.annotation.AnyObjectPostProcessor
 import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.web.savedrequest.RequestCache
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter
 
@@ -56,5 +62,50 @@ class RequestCacheConfigurerTests extends BaseSpringSpec {
 
         then:
             http.getSharedObject(RequestCache) == RC
+    }
+
+    def "RequestCache disables faviocon.ico"() {
+        setup:
+            loadConfig(RequestCacheDefautlsConfig)
+            request.servletPath = "/favicon.ico"
+            request.requestURI = "/favicon.ico"
+            request.method = "GET"
+        when: "request favicon.ico"
+            springSecurityFilterChain.doFilter(request,response,chain)
+        then: "sent to the login page"
+            response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
+            response.redirectedUrl == "http://localhost/login"
+        when: "authenticate successfully"
+            super.setupWeb(request.session)
+            request.servletPath = "/login"
+            request.setParameter("username","user")
+            request.setParameter("password","password")
+            request.method = "POST"
+            springSecurityFilterChain.doFilter(request,response,chain)
+        then: "sent to default URL since it was favicon.ico"
+            response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
+            response.redirectedUrl == "/"
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    static class RequestCacheDefautlsConfig extends WebSecurityConfigurerAdapter {
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .authorizeRequests()
+                    .anyRequest().authenticated()
+                    .and()
+                .formLogin()
+        }
+
+        @Override
+        protected void registerAuthentication(AuthenticationManagerBuilder auth)
+                throws Exception {
+            auth
+                .inMemoryAuthentication()
+                    .withUser("user").password("password").roles("USER")
+        }
     }
 }

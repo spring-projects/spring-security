@@ -20,7 +20,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
+import org.springframework.security.web.util.AndRequestMatcher;
 import org.springframework.security.web.util.AntPathRequestMatcher;
+import org.springframework.security.web.util.NegatedRequestMatcher;
+import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.web.accept.ContentNegotiationStrategy;
+import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 
 /**
  * Adds request cache for Spring Security. Specifically this ensures that
@@ -100,7 +105,17 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> exte
             return result;
         }
         HttpSessionRequestCache defaultCache = new HttpSessionRequestCache();
-        defaultCache.setRequestMatcher(new AntPathRequestMatcher("/**", "GET"));
+        defaultCache.setRequestMatcher(createDefaultSavedRequestMatcher(http));
         return defaultCache;
+    }
+
+    private RequestMatcher createDefaultSavedRequestMatcher(H http) {
+        ContentNegotiationStrategy contentNegotiationStrategy = http.getSharedObject(ContentNegotiationStrategy.class);
+        if(contentNegotiationStrategy == null) {
+            contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
+        }
+        RequestMatcher getRequests = new AntPathRequestMatcher("/**", "GET");
+        RequestMatcher notFavIcon = new NegatedRequestMatcher(new AntPathRequestMatcher("/**/favicon.ico"));
+        return new AndRequestMatcher(getRequests,notFavIcon);
     }
 }
