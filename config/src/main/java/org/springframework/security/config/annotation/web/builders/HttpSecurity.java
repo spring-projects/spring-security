@@ -65,6 +65,7 @@ import org.springframework.security.web.context.AbstractSecurityWebApplicationIn
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.AntPathRequestMatcher;
 import org.springframework.security.web.util.AnyRequestMatcher;
+import org.springframework.security.web.util.OrRequestMatcher;
 import org.springframework.security.web.util.RegexRequestMatcher;
 import org.springframework.security.web.util.RequestMatcher;
 import org.springframework.util.Assert;
@@ -1345,30 +1346,5 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
             return existingConfig;
         }
         return apply(configurer);
-    }
-
-    /**
-     * Internal {@link RequestMatcher} instance used by {@link RequestMatcher}
-     * that will match if any of the passed in {@link RequestMatcher} instances
-     * match.
-     *
-     * @author Rob Winch
-     * @since 3.2
-     */
-    private static final class OrRequestMatcher implements RequestMatcher {
-        private final List<RequestMatcher> requestMatchers;
-
-        private OrRequestMatcher(List<RequestMatcher> requestMatchers) {
-            this.requestMatchers = requestMatchers;
-        }
-
-        public boolean matches(HttpServletRequest request) {
-            for(RequestMatcher matcher : requestMatchers) {
-                if(matcher.matches(request)) {
-                    return true;
-                }
-            }
-            return false;
-        }
     }
 }
