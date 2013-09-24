@@ -22,7 +22,7 @@ ext.hsqlVersion = '1.8.0.10'
 ext.slf4jVersion = '1.7.5'
 ext.logbackVersion = '0.9.29'
 ext.cglibVersion = '2.2'
-ext.powerMockVersion = '1.4.12'
+ext.powerMockVersion = '1.5.1'
 ext.servletApiVersion = '7.0.33'
 ext.seleniumVersion = '2.33.0'
 ext.groovyVersion = '2.0.5'
@@ -99,8 +99,8 @@ dependencies {
         exclude(group: 'commons-logging', module: 'commons-logging')
     }
 
-    testCompile 'junit:junit:4.7',
-            'org.mockito:mockito-core:1.8.5',
+    testCompile 'junit:junit:4.10',
+            'org.mockito:mockito-core:1.9.5',
             "org.springframework:spring-test:$springVersion",
             'org.easytesting:fest-assert:1.4'
 
@@ -112,11 +112,11 @@ dependencies {
 [configurations.runtime, configurations.default]*.exclude(module: 'commons-logging')
 
 configurations.all {
-	resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-			if (details.requested.group == 'org.slf4j') {
-				details.useVersion slf4jVersion
-			}
-	}
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'org.slf4j') {
+                details.useVersion slf4jVersion
+            }
+    }
 }
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'

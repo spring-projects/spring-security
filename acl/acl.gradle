@@ -14,5 +14,5 @@ dependencies {
                 "org.springframework:spring-context-support:$springVersion",
                 "org.springframework:spring-test:$springVersion"
 
-    testRuntime "hsqldb:hsqldb:$hsqlVersion"
+    testRuntime "org.hsqldb:hsqldb:$hsqlVersion"
 }
