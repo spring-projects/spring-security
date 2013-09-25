@@ -108,6 +108,7 @@ public abstract class AbstractSecurityWebApplicationInitializer implements WebAp
      */
     public final void onStartup(ServletContext servletContext)
             throws ServletException {
+        beforeSpringSecurityFilterChain(servletContext);
         if(configurationClasses != null) {
             AnnotationConfigWebApplicationContext rootAppContext = new AnnotationConfigWebApplicationContext();
             rootAppContext.register(configurationClasses);
@@ -281,6 +282,14 @@ public abstract class AbstractSecurityWebApplicationInitializer implements WebAp
      */
     protected String getDispatcherWebApplicationContextSuffix() {
         return null;
+    }
+
+    /**
+     * Invoked before the springSecurityFilterChain is added.
+     * @param servletContext the {@link ServletContext}
+     */
+    protected void beforeSpringSecurityFilterChain(ServletContext servletContext) {
+
     }
 
     /**
