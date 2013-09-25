@@ -66,7 +66,45 @@ amount=100.00&routingNumber=1234&account=9876&_csrf=<secure-random>
             server compares the actual token to the expected token.</para>
     </section>
     <section>
-        <title>Using Spring Security CSRF Support</title>
+        <title>When to use CSRF protection</title>
+        <para>When you use CSRF protection? Our recommendation is to use CSRF protection for any request that could be processed by a browser by normal users. If you are only creating
+            a service that is used by non-browser clients, you will likely want to disable CSRF protection.</para>
+        <section>
+            <title>CSRF protection and JSON</title>
+            <para>A common question is, but do I need to protect JSON requests made by javascript? The short answer is, it depends. However, you must be very careful as there
+                are CSRF exploits that can impact JSON requests. For example, a malicious user can create a
+                <link xlink:href="http://blog.opensecurityresearch.com/2012/02/json-csrf-with-parameter-padding.html" >CSRF with JSON using the following form</link>:</para>
+            <programlisting language="xml"><![CDATA[<form action="https://bank.example.com/transfer" method="post" enctype="text/plain">
+            <input name='{"amount":100,"routingNumber":"evilsRoutingNumber","account":"evilsAccountNumber", "ignore_me":"' value='test"}' type='hidden'>
+  <input type="submit"
+      value="Win Money!"/>
+</form>]]></programlisting>
+            <para>This will produce the following JSON structure</para>
+            <programlisting language="javascript"><![CDATA[{ "amount":100,
+  "routingNumber": "evilsRoutingNumber",
+  "account": "evilsAccountNumber",
+  "ignore_me": "=test"
+}]]></programlisting>
+            <para>If an application were not validating the Content-Type, then it would be exposed to this exploit. Depending on the setup, a Spring MVC application that validates the
+                Content-Type could still be exploited by updating the URL suffix to end with ".json" as shown below:</para>
+            <programlisting language="xml"><![CDATA[<form action="https://bank.example.com/transfer.json" method="post" enctype="text/plain">
+            <input name='{"amount":100,"routingNumber":"evilsRoutingNumber","account":"evilsAccountNumber", "ignore_me":"' value='test"}' type='hidden'>
+  <input type="submit"
+      value="Win Money!"/>
+</form>]]></programlisting>
+        </section>
+        <section>
+            <title>CSRF and Stateless Browser Applications</title>
+            <para>What if my application is stateless? That doesn't necessarily mean you are protected. In fact, if a user does not need to perform any actions in the web browser for a given
+                request, they are likely still vulnerable to CSRF attacks.</para>
+            <para>For example, consider an application uses a custom cookie that contains all the state within it for authentication instead of the JSESSIONID. When the CSRF attack is made
+                the custom cookie will be sent with the request in the same manner that the JSESSIONID cookie was sent in our previous example.</para>
+            <para>User's using basic authentication are also vulnerable to CSRF attacks since the browser will automatically include the username password in any requests in the same manner that
+                the JSESSIONID cookie was sent in our previous example.</para>
+        </section>
+    </section>
+    <section xml:id="csrf-using">
+        <title>Using Spring Security CSRF Protection</title>
         <para>So what are the steps necessary to use Spring Security's to protect our site against CSRF attacks? The steps to using Spring
             Security's CSRF protection are outlined below:</para>
             <orderedlist inheritnum="ignore" continuation="restarts">
@@ -84,19 +122,27 @@ amount=100.00&routingNumber=1234&account=9876&_csrf=<secure-random>
                 <title>Use proper HTTP verbs</title>
                 <para>The first step to protecting against CSRF attacks is to ensure your website uses proper HTTP verbs. Specifically, before Spring
                     Security's CSRF support can be of use, you need to be certain that your application is using PATCH, POST, PUT, and/or DELETE for anything
-                    that modifies state. This is not a limitation of Spring Security's support, but instead a general requirement for proper CSRF prevention.</para>
+                    that modifies state.</para>
+                <para>This is not a limitation of Spring Security's support, but instead a general requirement for proper CSRF prevention. The reason is that
+                    including private information in an HTTP GET can cause the information to be leaked. See
+                    <link xlink:href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec15.html#sec15.1.3">RFC 2616 Section 15.1.3 Encoding Sensitive Information in URI's</link> for
+                    general guidance on using POST instead of GET for sensitive information.</para>
             </section>
             <section xml:id="csrf-configure">
                 <title>Configure CSRF Protection</title>
-                <para>The next step is to include Spring Security's CSRF protection within your application. If you are using the XML configuration, this can be done
-                    using the <link linkend="nsa-csrf">&lt;csrf /&gt;</link> element:</para>
-                <programlisting language="xml"><![CDATA[<http ...>
-    ...
+                <para>The next step is to include Spring Security's CSRF protection within your application. Some frameworks handle invalid CSRF tokens by invaliding the user's
+                    session, but this causes <link linkend="csrf-logout">its own problems</link>. Instead by default Spring Security's CSRF protection will produce an HTTP 403 access denied.
+                    This can be customized by configuring the <link linkend="access-denied-handler">AccessDeniedHandler</link> to process <classname>InvalidCsrfTokenException</classname>
+                    differently.</para>
+                <para>For passivity reasons, if you are using the XML configuration, CSRF protection must be explicitly enabled using the <link linkend="nsa-csrf">&lt;csrf&gt;</link> element. Refer to the
+                    <link linkend="nsa-csrf">&lt;csrf&gt;</link> element's documentation for additional customizations.</para>
+                <programlisting language="xml"><![CDATA[<http>
+    <!-- ... -->
     <csrf />
 </http>
 ]]></programlisting>
                 <para>CSRF protection is enabled by default with Java configuration. If you would like to disable CSRF, the corresponding Java configuration can be
-                    seen below:</para>
+                    seen below. Refer to the Javadoc of csrf() for additional customizations in how CSRF protection is configured.</para>
                 <programlisting language="java"><![CDATA[@EnableWebSecurity
 @Configuration
 public class WebSecurityConfig extends
@@ -105,8 +151,7 @@ public class WebSecurityConfig extends
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http
-      .csrf().disable()
-      ...;
+      .csrf().disable();
   }
 }]]></programlisting>
             </section>
@@ -130,7 +175,7 @@ public class WebSecurityConfig extends
                     </note>
                 </section>
                 <section xml:id="csrf-include-csrf-token-ajax">
-                    <title>Ajax Requests</title>
+                    <title>Ajax and JSON Requests</title>
                     <para>If you using JSON, then it is not possible to submit the CSRF token within an HTTP parameter. Instead you can submit the token within a HTTP header.
                         A typical pattern would be to include the CSRF token within your meta tags. An example with a JSP is shown below:</para>
                         <programlisting language="xml"><![CDATA[<html>
@@ -138,9 +183,9 @@ public class WebSecurityConfig extends
     <meta name="_csrf" content="${_csrf.token}"/>
     <!-- default header name is X-CSRF-TOKEN -->
     <meta name="_csrf_header" content="${_csrf.headerName}"/>
-    ...
+    <!-- ... -->
   </head>
-  ...]]></programlisting>
+  <!-- ... -->]]></programlisting>
                     <para>You can then include the token within all your Ajax requests. If you were using jQuery, this could be done with the following:</para>
                     <programlisting language="javascript"><![CDATA[$(function () {
   var token = $("meta[name='_csrf']").attr("content");
@@ -149,27 +194,35 @@ public class WebSecurityConfig extends
     xhr.setRequestHeader(header, token);
   });
 });]]></programlisting>
-                  <para>As a alternative to jQuery, we recommend using <ulink url="http://cujojs.com/">cujoJS’s</ulink> rest.js. <ulink url="https://github.com/cujojs/rest">rest.js</ulink> provides advanced support for working with HTTP request and responses in RESTful ways. A core capability is the ability to contextualize the HTTP client adding behavior as needed by chaining interceptors on to the client.</para>
+                  <para>As a alternative to jQuery, we recommend using <ulink url="http://cujojs.com/">cujoJS’s</ulink> rest.js. <ulink url="https://github.com/cujojs/rest">rest.js</ulink> provides
+                      advanced support for working with HTTP request and responses in RESTful ways. A core capability is the ability to contextualize the HTTP client adding behavior as needed by
+                      chaining interceptors on to the client.</para>
                   <programlisting language="javascript"><![CDATA[var client = rest.chain(csrf, {
   token: $("meta[name='_csrf']").attr("content"),
   name: $("meta[name='_csrf_header']").attr("content")
 });]]></programlisting>
-                  <para>The configured client can be shared with any component of the application that needs to make a request to the CSRF protected resource. One significant different between rest.js and jQuery is that only requests made with the configured client will contain the CSRF token, vs jQuery where <emphasis>all</emphasis> requests will include the token. The ability to scope which requests receive the token helps guard against leaking the CSRF token to a third party. Please refer to the <ulink url="https://github.com/cujojs/rest/tree/master/docs">rest.js reference documentation</ulink> for more information on rest.js.</para>
+                  <para>The configured client can be shared with any component of the application that needs to make a request to the CSRF protected resource. One significant different between rest.js
+                      and jQuery is that only requests made with the configured client will contain the CSRF token, vs jQuery where <emphasis>all</emphasis> requests will include the token. The ability
+                      to scope which requests receive the token helps guard against leaking the CSRF token to a third party. Please refer to the
+                      <ulink url="https://github.com/cujojs/rest/tree/master/docs">rest.js reference documentation</ulink> for more information on rest.js.</para>
                 </section>
             </section>
     </section>
-    <section>
+    <section xml:id="csrf-caveats">
         <title>CSRF Caveats</title>
         <para>There are a few caveats when implementing CSRF.</para>
-        <section>
+        <section xml:id="csrf-timeouts">
             <title>Timeouts</title>
             <para>One issue is that the expected CSRF token is stored in the HttpSession, so as soon as the HttpSession expires your configured
                 <interfacename>AccessDeniedHandler</interfacename> will receive a InvalidCsrfTokenException. If you are using the default
                 <interfacename>AccessDeniedHandler</interfacename>, the browser will get an HTTP 403 and display a poor error message.</para>
             <note>
-                <para>One might ask why the <interfacename>CsrfToken</interfacename> isn't stored in a cookie. This is because there are known exploits in which headers
+                <para>One might ask why the expected <interfacename>CsrfToken</interfacename> isn't stored in a cookie. This is because there are known exploits in which headers
                     (i.e. specify the cookies) can be set by another domain. Another disadvantage is that by removing the state (i.e. the timeout) you lose the ability
-                    to forcibly terminate the token if something got compromised.</para>
+                    to forcibly terminate the token if something got compromised. This is the same reason Ruby on Rails
+                    <link xlink:href="http://weblog.rubyonrails.org/2011/2/8/csrf-protection-bypass-in-ruby-on-rails/">no longer skips CSRF checks when the header X-Requested-With
+                    is present</link>. See <link xlink:href="http://lists.webappsec.org/pipermail/websecurity_lists.webappsec.org/2011-February/007533.html">this webappsec.org thread</link>
+                    for details on how to perform the exploit.</para>
             </note>
             <para>A simple way to mitigate an active user experiencing a timeout is to have some JavaScript that lets the user know their session is about to expire.
                 The user can click a button to continue and refresh the session.</para>
@@ -177,27 +230,37 @@ public class WebSecurityConfig extends
                 anyway you like. For an example of how to customize the <interfacename>AccessDeniedHandler</interfacename> refer to the provided links for both xml and Java
                 configuration.</para>
         </section>
-        <section>
+        <section xml:id="csrf-login">
             <title>Logging In</title>
             <para>In order to protect against forging log in requests the log in form should be protected against CSRF attacks too. Since the <interfacename>CsrfToken</interfacename> is stored in
                 HttpSession, this means an HttpSession will be created as soon as <interfacename>CsrfToken</interfacename> token attribute is accessed. While this sounds bad in
                 a RESTful / stateless architecture the reality is that state is necessary to implement practical security. Without state, we have nothing we can do if a token is
                 compromised. Practically speaking, the CSRF token is quite small in size and should have a negligible impact on our architecture.</para>
         </section>
-        <section>
+        <section xml:id="csrf-logout">
             <title>Logging Out</title>
             <para>Adding CSRF will update the LogoutFilter to only use HTTP POST. This ensures that log out requires a CSRF token and that a malicious user cannot forcibly
                 log out your users.</para>
             <para>One approach is to use a form for log out. If you really want a link, you can use JavaScript to have the link perform a POST (i.e. maybe on a hidden form). For
                 browsers with JavaScript that is disabled, you can optionally have the link take the user to a log out confirmation page that will perform the POST.</para>
         </section>
-        <section>
+        <section xml:id="csrf-multipart">
             <title>Multipart (file upload)</title>
-            <para>There are two options to using CSRF protection with multipart/form-data. Each option has its tradeoffs. More information about using multipart forms with Spring can be
-                found within the
-                <link xlink:href="http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-multipart">17.10 Spring's multipart (file upload) support</link>
-                section of the Spring reference.</para>
-            <section>
+            <para>There are two options to using CSRF protection with multipart/form-data. Each option has its tradeoffs.
+                <orderedlist inheritnum="ignore" continuation="restarts">
+                    <listitem>
+                      <para><link linkend="csrf-multipartfilter">Placing MultipartFilter before Spring Security</link></para>
+                    </listitem>
+                    <listitem>
+                      <para><link linkend="csrf-include-csrf-token-in-action">Include CSRF token in action</link></para>
+                    </listitem>
+                </orderedlist>
+                <note>
+                    <para>More information about using multipart forms with Spring can be found within the
+                        <link xlink:href="http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-multipart">17.10 Spring's multipart (file upload)
+                        support</link> section of the Spring reference.</para>
+                </note></para>
+            <section xml:id="csrf-multipartfilter">
                 <title>Placing MultipartFilter before Spring Security</title>
                 <para>The first option is to ensure that the <classname>MultipartFilter</classname> is specified before the Spring
                     Security filter. Specifying the <classname>MultipartFilter</classname> after the Spring Security filter means that there is no authorization for invoking the
@@ -232,8 +295,8 @@ public class WebSecurityConfig extends
 </filter-mapping>
 ]]></programlisting>
             </section>
-            <section>
-                <title>CSRF token as query parameter</title>
+            <section xml:id="csrf-include-csrf-token-in-action">
+                <title>Include CSRF token in action</title>
                 <para>If allowing unauthorized users to upload temporariy files is not acceptable, an alternative is to place the <classname>MultipartFilter</classname> after the Spring Security
                     filter and include the CSRF as a query parameter in the action attribute of the form. An example with a jsp is shown below</para>
                     <programlisting language="xml"><![CDATA[<form action="./upload?${_csrf.parameterName}=${_csrf.token}" method="post" enctype="multipart/form-data">]]></programlisting>
@@ -255,7 +318,7 @@ public class WebSecurityConfig extends
         <para>Spring Security's goal is to provide defaults that protect your users from exploits. This does not mean that you are forced to accept all of its defaults.</para>
         <para>For example, you can provide a custom CsrfTokenRepository to override the way in which the <interfacename>CsrfToken</interfacename> is stored.</para>
         <para>You can also specify a custom RequestMatcher to determine which requests are protected by CSRF (i.e. perhaps you don't care if log out is exploited). In short, if
-            Spring Security's CSRF protection doesn't behave exactly as you want it, you are able to customize the behavior. Refer to the <link linkend="nsa-csrf">&lt;csrf /&gt;</link>
+            Spring Security's CSRF protection doesn't behave exactly as you want it, you are able to customize the behavior. Refer to the <link linkend="nsa-csrf">&lt;csrf&gt;</link>
             documentation for details on how to make these customizations with XML and the <classname>CsrfConfigurer</classname> javadoc for details on how to make these
             customizations when using Java configuration.</para>
     </section>
