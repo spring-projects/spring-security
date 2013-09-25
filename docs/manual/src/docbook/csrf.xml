@@ -192,13 +192,64 @@ public class WebSecurityConfig extends
                 browsers with JavaScript that is disabled, you can optionally have the link take the user to a log out confirmation page that will perform the POST.</para>
         </section>
         <section>
+            <title>Multipart (file upload)</title>
+            <para>There are two options to using CSRF protection with multipart/form-data. Each option has its tradeoffs. More information about using multipart forms with Spring can be
+                found within the
+                <link xlink:href="http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-multipart">17.10 Spring's multipart (file upload) support</link>
+                section of the Spring reference.</para>
+            <section>
+                <title>Placing MultipartFilter before Spring Security</title>
+                <para>The first option is to ensure that the <classname>MultipartFilter</classname> is specified before the Spring
+                    Security filter. Specifying the <classname>MultipartFilter</classname> after the Spring Security filter means that there is no authorization for invoking the
+                    <classname>MultipartFilter</classname> which means anyone can place temporary files on your server. However, only authorized users will be able to submit a File that is processed
+                    by your application. In general, this is the recommended approach because the temporary file upload should have a negligble impact on most servers.</para>
+                <para>To ensure <classname>MultipartFilter</classname> is specified before the Spring Security filter with java configuration, users can override beforeSpringSecurityFilterChain as
+                    shown below:</para>
+                    <programlisting language="java"><![CDATA[public class SecurityApplicationInitializer extends AbstractSecurityWebApplicationInitializer {
+
+    @Override
+    protected void beforeSpringSecurityFilterChain(ServletContext servletContext) {
+        insertFilters(servletContext, new MultipartFilter());
+    }
+}]]></programlisting>
+            <para>To ensure <classname>MultipartFilter</classname> is specified before the Spring Security filter with XML configuration, users can ensure the &lt;filter-mapping&gt; element
+                of the <classname>MultipartFilter</classname> is placed before the springSecurityFilterChain within the web.xml as shown below:</para>
+                <programlisting language="xml"><![CDATA[<filter>
+    <filter-name>MultipartFilter</filter-name>
+    <filter-class>org.springframework.web.multipart.support.MultipartFilter</filter-class>
+</filter>
+<filter>
+    <filter-name>springSecurityFilterChain</filter-name>
+    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+</filter>
+<filter-mapping>
+    <filter-name>MultipartFilter</filter-name>
+    <servlet-name>/*</servlet-name>
+</filter-mapping>
+<filter-mapping>
+    <filter-name>springSecurityFilterChain</filter-name>
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
+]]></programlisting>
+            </section>
+            <section>
+                <title>CSRF token as query parameter</title>
+                <para>If allowing unauthorized users to upload temporariy files is not acceptable, an alternative is to place the <classname>MultipartFilter</classname> after the Spring Security
+                    filter and include the CSRF as a query parameter in the action attribute of the form. An example with a jsp is shown below</para>
+                    <programlisting language="xml"><![CDATA[<form action="./upload?${_csrf.parameterName}=${_csrf.token}" method="post" enctype="multipart/form-data">]]></programlisting>
+                <para>The disadvantage to this approach is that query parameters can be leaked. More genearlly,
+                    it is considered best practice to place sensitive data within the body or headers to ensure it is not leaked. Additional information can be found in
+                    <link xlink:href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec15.html#sec15.1.3">RFC 2616 Section 15.1.3 Encoding Sensitive Information in URI's</link>.</para>
+            </section>
+        </section>
+        <section>
             <title>HiddenHttpMethodFilter</title>
             <para>The HiddenHttpMethodFilter should be placed before the Spring Security filter. In general this is true, but it could have additional implications when
                 protecting against CSRF attacks.</para>
             <para>Note that the HiddenHttpMethodFilter only overrides the HTTP method on a POST, so this is actually unlikely to cause any real problems. However, it is still
                 best practice to ensure it is placed before Spring Security's filters.</para>
         </section>
-       </section>
+    </section>
     <section>
         <title>Overriding Defaults</title>
         <para>Spring Security's goal is to provide defaults that protect your users from exploits. This does not mean that you are forced to accept all of its defaults.</para>
