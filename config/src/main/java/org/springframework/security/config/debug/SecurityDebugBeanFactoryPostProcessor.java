@@ -15,6 +15,8 @@
  */
 package org.springframework.security.config.debug;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -22,15 +24,17 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.security.config.BeanIds;
+import org.springframework.security.web.debug.DebugFilter;
 
 /**
  * @author Luke Taylor
  * @author Rob Winch
  */
 public class SecurityDebugBeanFactoryPostProcessor implements BeanDefinitionRegistryPostProcessor {
+    private final Log logger = LogFactory.getLog(getClass());
 
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-        Logger.logger.warn("\n\n" +
+        logger.warn("\n\n" +
                 "********************************************************************\n" +
                 "**********        Security debugging is enabled.       *************\n" +
                 "**********    This may include sensitive information.  *************\n" +

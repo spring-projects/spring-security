@@ -1,4 +1,4 @@
-package org.springframework.security.config.debug;
+package org.springframework.security.web.debug;
 
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -28,7 +28,7 @@ import java.util.*;
  * @author Rob Winch
  * @since 3.1
  */
-class DebugFilter implements Filter {
+public final class DebugFilter implements Filter {
     private static final String ALREADY_FILTERED_ATTR_NAME = DebugFilter.class.getName().concat(".FILTERED");
 
     private final FilterChainProxy fcp;
@@ -48,7 +48,7 @@ class DebugFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) srvltResponse;
 
         List<Filter> filters = getFilters(request);
-        logger.log("Request received for '" + UrlUtils.buildRequestUrl(request) + "':\n\n" +
+        logger.info("Request received for '" + UrlUtils.buildRequestUrl(request) + "':\n\n" +
                 request + "\n\n" +
                 "servletPath:" + request.getServletPath() + "\n" +
                 "pathInfo:" + request.getPathInfo() + "\n\n" +
@@ -121,7 +121,7 @@ class DebugRequestWrapper extends HttpServletRequestWrapper {
         HttpSession session = super.getSession();
 
         if (!sessionExists) {
-            logger.log("New HTTP session created: " + session.getId(), true);
+            logger.info("New HTTP session created: " + session.getId(), true);
         }
 
         return session;

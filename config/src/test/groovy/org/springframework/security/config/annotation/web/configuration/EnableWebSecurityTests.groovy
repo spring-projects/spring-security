@@ -23,9 +23,9 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
-import org.springframework.security.config.annotation.web.builders.DebugFilter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter
+import org.springframework.security.web.debug.DebugFilter;
 
 class EnableWebSecurityTests extends BaseSpringSpec {
 

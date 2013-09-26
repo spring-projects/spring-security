@@ -1,4 +1,4 @@
-package org.springframework.security.config.debug;
+package org.springframework.security.web.debug;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
@@ -22,6 +22,9 @@ import org.powermock.core.classloader.annotations.PrepareOnlyThisForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.debug.DebugFilter;
+import org.springframework.security.web.debug.DebugRequestWrapper;
+import org.springframework.security.web.debug.Logger;
 
 /**
  *
@@ -60,7 +63,7 @@ public class DebugFilterTest {
     public void doFilterProcessesRequests() throws Exception {
         filter.doFilter(request, response, filterChain);
 
-        verify(logger).log(anyString());
+        verify(logger).info(anyString());
         verify(request).setAttribute(requestAttr, Boolean.TRUE);
         verify(fcp).doFilter(requestCaptor.capture(), eq(response), eq(filterChain));
         assertEquals(DebugRequestWrapper.class,requestCaptor.getValue().getClass());
@@ -75,7 +78,7 @@ public class DebugFilterTest {
 
         filter.doFilter(request, response, filterChain);
 
-        verify(logger).log(anyString());
+        verify(logger).info(anyString());
         verify(fcp).doFilter(request, response, filterChain);
         verify(this.request,never()).removeAttribute(requestAttr);
     }

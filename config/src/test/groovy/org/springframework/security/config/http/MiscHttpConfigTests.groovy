@@ -55,6 +55,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository
 import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
+import org.springframework.security.web.debug.DebugFilter;
 import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter
@@ -620,7 +621,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         request.addParameter("j_username", "bob");
         request.addParameter("j_password", "bobspassword");
         then: "App context creation and login request succeed"
-        Filter debugFilter = appContext.getBean(BeanIds.SPRING_SECURITY_FILTER_CHAIN);
+        DebugFilter debugFilter = appContext.getBean(BeanIds.SPRING_SECURITY_FILTER_CHAIN);
         debugFilter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
         appListener.events.size() == 2
         appListener.authenticationEvents.size() == 2
