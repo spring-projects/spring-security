@@ -9,7 +9,6 @@ import java.util.List;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -20,6 +19,7 @@ import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.parameters.DefaultSecurityParameterNameDiscoverer;
 import org.springframework.util.Assert;
 
 /**
@@ -35,7 +35,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
     protected final Log logger = LogFactory.getLog(getClass());
 
     private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
-    private ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
+    private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultSecurityParameterNameDiscoverer();
     private PermissionCacheOptimizer permissionCacheOptimizer = null;
 
     public DefaultMethodSecurityExpressionHandler() {
@@ -157,6 +157,10 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
         this.trustResolver = trustResolver;
     }
 
+    /**
+     * Sets the {@link ParameterNameDiscoverer} to use. The default is {@link DefaultSecurityParameterNameDiscoverer}.
+     * @param parameterNameDiscoverer
+     */
     public void setParameterNameDiscoverer(ParameterNameDiscoverer parameterNameDiscoverer) {
         this.parameterNameDiscoverer = parameterNameDiscoverer;
     }

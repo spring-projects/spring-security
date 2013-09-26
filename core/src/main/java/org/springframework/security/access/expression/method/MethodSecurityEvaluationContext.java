@@ -7,10 +7,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.aop.support.AopUtils;
-import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.parameters.DefaultSecurityParameterNameDiscoverer;
 
 /**
  * Internal security-specific EvaluationContext implementation which lazily adds the
@@ -33,7 +33,7 @@ class MethodSecurityEvaluationContext extends StandardEvaluationContext {
      * allowing for caching.
      */
     public MethodSecurityEvaluationContext(Authentication user, MethodInvocation mi) {
-        this(user, mi, new LocalVariableTableParameterNameDiscoverer());
+        this(user, mi, new DefaultSecurityParameterNameDiscoverer());
     }
 
     public MethodSecurityEvaluationContext(Authentication user, MethodInvocation mi,
