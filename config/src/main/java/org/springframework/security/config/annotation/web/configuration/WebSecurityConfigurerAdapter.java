@@ -104,29 +104,50 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
     }
 
     /**
-     * Used by the default implementation of {@link #authenticationManager()} to attempt to obtain an
-     * {@link AuthenticationManager}. If overridden, the {@link AuthenticationManagerBuilder} should be used to specify
-     * the {@link AuthenticationManager}. The resulting {@link AuthenticationManager}
-     * will be exposed as a Bean as will the last populated {@link UserDetailsService} that is created with the
-     * {@link AuthenticationManagerBuilder}. The {@link UserDetailsService} will also automatically be populated on
-     * {@link HttpSecurity#getSharedObject(Class)} for use with other {@link SecurityContextConfigurer}
-     * (i.e. RememberMeConfigurer )
+     * Used by the default implementation of {@link #authenticationManager()} to
+     * attempt to obtain an {@link AuthenticationManager}. If overridden, the
+     * {@link AuthenticationManagerBuilder} should be used to specify the
+     * {@link AuthenticationManager}.
      *
-     * <p>For example, the following configuration could be used to register
-     * in memory authentication that exposes an in memory {@link UserDetailsService}:</p>
+     * <p>
+     * The {@link #authenticationManagerBean()} method can be used to expose the
+     * resulting {@link AuthenticationManager} as a Bean. The
+     * {@link #userDetailsServiceBean()} can be used to expose the last
+     * populated {@link UserDetailsService} that is created with the
+     * {@link AuthenticationManagerBuilder} as a Bean. The
+     * {@link UserDetailsService} will also automatically be populated on
+     * {@link HttpSecurity#getSharedObject(Class)} for use with other
+     * {@link SecurityContextConfigurer} (i.e. RememberMeConfigurer )
+     * </p>
+     *
+     * <p>
+     * For example, the following configuration could be used to register in
+     * memory authentication that exposes an in memory
+     * {@link UserDetailsService}:
+     * </p>
      *
      * <pre>
      * &#064;Override
      * protected void registerAuthentication(AuthenticationManagerBuilder auth) {
      *     auth
-     *         // enable in memory based authentication with a user named "user" and "admin"
+     *         // enable in memory based authentication with a user named
+     *         // &quot;user&quot; and &quot;admin&quot;
      *         .inMemoryAuthentication()
-     *             .withUser("user").password("password").roles("USER").and()
-     *             .withUser("admin").password("password").roles("USER", "ADMIN");
+     *             .withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;).and()
+     *             .withUser(&quot;admin&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;, &quot;ADMIN&quot;);
      * }
+     *
+     * // Expose the UserDetailsService as a Bean
+     * &#064;Bean
+     * &#064;Override
+     * public UserDetailsService userDetailsServiceBean() throws Exception {
+     *     return super.userDetailsServiceBean();
+     * }
+     *
      * </pre>
      *
-     * @param auth the {@link AuthenticationManagerBuilder} to use
+     * @param auth
+     *            the {@link AuthenticationManagerBuilder} to use
      * @throws Exception
      */
     protected void registerAuthentication(AuthenticationManagerBuilder auth) throws Exception {
