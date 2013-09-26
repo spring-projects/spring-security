@@ -75,7 +75,7 @@ amount=100.00&routingNumber=1234&account=9876&_csrf=<secure-random>
                 are CSRF exploits that can impact JSON requests. For example, a malicious user can create a
                 <link xlink:href="http://blog.opensecurityresearch.com/2012/02/json-csrf-with-parameter-padding.html" >CSRF with JSON using the following form</link>:</para>
             <programlisting language="xml"><![CDATA[<form action="https://bank.example.com/transfer" method="post" enctype="text/plain">
-            <input name='{"amount":100,"routingNumber":"evilsRoutingNumber","account":"evilsAccountNumber", "ignore_me":"' value='test"}' type='hidden'>
+  <input name='{"amount":100,"routingNumber":"evilsRoutingNumber","account":"evilsAccountNumber", "ignore_me":"' value='test"}' type='hidden'>
   <input type="submit"
       value="Win Money!"/>
 </form>]]></programlisting>
