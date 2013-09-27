@@ -231,8 +231,10 @@ public class WebSecurityConfig extends
             <para>A simple way to mitigate an active user experiencing a timeout is to have some JavaScript that lets the user know their session is about to expire.
                 The user can click a button to continue and refresh the session.</para>
             <para>Alternatively, specifying a custom <interfacename>AccessDeniedHandler</interfacename> allows you to process the <classname>InvalidCsrfTokenException</classname>
-                anyway you like. For an example of how to customize the <interfacename>AccessDeniedHandler</interfacename> refer to the provided links for both xml and Java
-                configuration.</para>
+                anyway you like. For an example of how to customize the <interfacename>AccessDeniedHandler</interfacename> refer to the provided links for both
+                <link linkend="#nsa-access-denied-handler">xml</link> and
+                <link xlink:href="https://github.com/spring-projects/spring-security/blob/3.2.0.RC1/config/src/test/groovy/org/springframework/security/config/annotation/web/configurers/NamespaceHttpAccessDeniedHandlerTests.groovy#L64">Java
+                    configuration</link>.</para>
         </section>
         <section xml:id="csrf-login">
             <title>Logging In</title>
