@@ -24,6 +24,7 @@ import org.springframework.context.ApplicationListener
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.access.PermissionEvaluator
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.access.prepost.PreInvocationAuthorizationAdviceVoter
 import org.springframework.security.authentication.AuthenticationManager
@@ -32,7 +33,6 @@ import org.springframework.security.authentication.DefaultAuthenticationEventPub
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent
-import org.springframework.security.config.MockAfterInvocationProvider;
 import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.core.Authentication
@@ -192,6 +192,83 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
                 throws Exception {
             auth
                 .inMemoryAuthentication()
+        }
+
+        @Bean
+        public MethodSecurityService service() {
+            new MethodSecurityServiceImpl()
+        }
+    }
+
+    def "GlobalMethodSecurityConfiguration autowires PermissionEvaluator"() {
+        setup:
+            SecurityContextHolder.getContext().setAuthentication(
+                new TestingAuthenticationToken("user", "password","ROLE_USER"))
+            PermissionEvaluator evaluator = Mock()
+            AutowirePermissionEvaluatorConfig.PE = evaluator
+            loadConfig(AutowirePermissionEvaluatorConfig)
+            MethodSecurityService service = context.getBean(MethodSecurityService)
+        when:
+            service.hasPermission("something")
+        then:
+            1 * evaluator.hasPermission(_, "something", "read") >> true
+        when:
+            service.hasPermission("something")
+        then:
+            1 * evaluator.hasPermission(_, "something", "read") >> false
+            thrown(AccessDeniedException)
+    }
+
+    @Configuration
+    @EnableGlobalMethodSecurity(prePostEnabled = true)
+    public static class AutowirePermissionEvaluatorConfig extends GlobalMethodSecurityConfiguration {
+        static PermissionEvaluator PE
+
+        @Override
+        protected void registerAuthentication(AuthenticationManagerBuilder auth)
+                throws Exception {
+            auth
+                .inMemoryAuthentication()
+        }
+
+        @Bean
+        public PermissionEvaluator pe() {
+            PE
+        }
+
+        @Bean
+        public MethodSecurityService service() {
+            new MethodSecurityServiceImpl()
+        }
+    }
+
+    def "GlobalMethodSecurityConfiguration does not failw with multiple PermissionEvaluator"() {
+        when:
+            loadConfig(MultiPermissionEvaluatorConfig)
+        then:
+            noExceptionThrown()
+    }
+
+    @Configuration
+    @EnableGlobalMethodSecurity(prePostEnabled = true)
+    public static class MultiPermissionEvaluatorConfig extends GlobalMethodSecurityConfiguration {
+        static PermissionEvaluator PE
+
+        @Override
+        protected void registerAuthentication(AuthenticationManagerBuilder auth)
+                throws Exception {
+            auth
+                .inMemoryAuthentication()
+        }
+
+        @Bean
+        public PermissionEvaluator pe() {
+            PE
+        }
+
+        @Bean
+        public PermissionEvaluator pe2() {
+            PE
         }
 
         @Bean

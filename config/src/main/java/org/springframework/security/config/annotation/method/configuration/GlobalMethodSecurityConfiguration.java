@@ -39,6 +39,7 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.AfterInvocationProvider;
+import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.annotation.Jsr250MethodSecurityMetadataSource;
 import org.springframework.security.access.annotation.Jsr250Voter;
 import org.springframework.security.access.annotation.SecuredAnnotationSecurityMetadataSource;
@@ -359,6 +360,14 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
     public void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
         this.objectPostProcessor = objectPostProcessor;
         this.defaultMethodExpressionHandler = objectPostProcessor.postProcess(defaultMethodExpressionHandler);
+    }
+
+    @Autowired(required = false)
+    public void setPermissionEvaluator(List<PermissionEvaluator> permissionEvaluators) {
+        if(permissionEvaluators.size() != 1) {
+            logger.debug("Not autwiring PermissionEvaluator since size != 1. Got " + permissionEvaluators);
+        }
+        this.defaultMethodExpressionHandler.setPermissionEvaluator(permissionEvaluators.get(0));
     }
 
     @SuppressWarnings("unchecked")
