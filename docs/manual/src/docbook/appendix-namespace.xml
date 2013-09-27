@@ -263,7 +263,8 @@
             <title><literal>&lt;headers&gt;</literal></title>
             <para>This element allows for configuring additional (security) headers to be send with the response.
                 It enables easy configuration for several headers and also allows for setting custom headers through
-                the <link linkend="nsa-header">header</link> element.
+                the <link linkend="nsa-header">header</link> element. Additional information, can be found in the
+                <link linkend="headers">Security Headers</link> section of the reference.
                 <itemizedlist>
                     <listitem><literal>Cache-Control</literal>, <literal>Pragma</literal>, and <literal>Expires</literal> - Can be set using the
                         <link linkend="nsa-cache-control">cache-control</link> element. This ensures that the
@@ -523,7 +524,8 @@
             <title><literal>&lt;csrf&gt;</literal></title>
             <para>This element will add <link xlink:href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">Cross Site Request Forger (CSRF)</link>
                 protection to the application. It also updates the default RequestCache
-                to only replay "GET" requests upon successful authentication.</para>
+                to only replay "GET" requests upon successful authentication. Additional information can be found in the <link linkend="csrf">Cross Site
+                Request Forgery (CSRF)</link> section of the reference.</para>
             <section xml:id="nsa-csrf-parents">
                 <title>Parent Elements of <literal>&lt;csrf&gt;</literal></title>
                 <itemizedlist>
