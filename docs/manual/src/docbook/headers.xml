@@ -7,7 +7,8 @@
     <section>
         <title>Default Security Headers</title>
         <para>Spring Security allows users to easily inject the default security headers to assist in protecting their
-            application.
+            application. The following is a list of the current <emphasis>Default Security Headers</emphasis> provided
+            by Spring Security:
         <itemizedlist>
             <listitem>
               <link linkend="headers-cache-control">Cache Control</link>
