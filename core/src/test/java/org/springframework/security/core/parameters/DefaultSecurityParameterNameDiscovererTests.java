@@ -123,6 +123,6 @@ public class DefaultSecurityParameterNameDiscovererTests {
         Set<String> annotationsToUse = (Set<String>)ReflectionTestUtils.getField(annotationDisc, "annotationClassesToUse");
         assertThat(annotationsToUse).containsOnly(P.class.getName());
 
-        assertThat(discoverers.get(1).getClass().getName()).isEqualTo("org.springframework.core.DefaultParameterNameDiscoverer");
+        assertThat(discoverers.get(2).getClass().getName()).isEqualTo("org.springframework.core.DefaultParameterNameDiscoverer");
     }
 }
