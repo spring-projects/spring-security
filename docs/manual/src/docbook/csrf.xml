@@ -136,6 +136,10 @@ amount=100.00&routingNumber=1234&account=9876&_csrf=<secure-random>
                     differently.</para>
                 <para>For passivity reasons, if you are using the XML configuration, CSRF protection must be explicitly enabled using the <link linkend="nsa-csrf">&lt;csrf&gt;</link> element. Refer to the
                     <link linkend="nsa-csrf">&lt;csrf&gt;</link> element's documentation for additional customizations.</para>
+                    <note>
+                        <para><link xlink:href="https://jira.springsource.org/browse/SEC-2347">SEC-2347</link> is logged to ensure Spring
+                            Security 4.x's XML namespace configuration will enable CSRF protection by default.</para>
+                    </note>
                 <programlisting language="xml"><![CDATA[<http>
     <!-- ... -->
     <csrf />
