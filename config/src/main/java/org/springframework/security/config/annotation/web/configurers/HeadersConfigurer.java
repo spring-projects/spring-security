@@ -157,6 +157,7 @@ public final class HeadersConfigurer<H extends HttpSecurityBuilder<H>> extends
      * <ul>
      * <li>Cache-Control: no-cache, no-store, max-age=0, must-revalidate</li>
      * <li>Pragma: no-cache</li>
+     * <li>Expires: 0</li>
      * </ul>
      *
      * @return the {@link HeadersConfigurer} for additional customizations

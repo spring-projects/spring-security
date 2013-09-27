@@ -26,6 +26,7 @@ import org.springframework.security.web.header.Header;
  * <ul>
  * <li>Cache-Control: no-cache, no-store, max-age=0, must-revalidate</li>
  * <li>Pragma: no-cache</li>
+ * <li>Expires: 0</li>
  * </ul>
  *
  * @author Rob Winch

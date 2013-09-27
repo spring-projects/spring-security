@@ -90,7 +90,8 @@ public class WebSecurityConfig extends
                 browser history to view the cached page. To help mitigate this Spring Security has added cache control support
                 which will insert the following headers into you response.</para>
             <programlisting><![CDATA[Cache-Control: no-cache, no-store, max-age=0, must-revalidate
-Pragma: no-cache]]></programlisting>
+Pragma: no-cache
+Expires: 0]]></programlisting>
             <para>Simply adding the <link linkend="nsa-headers">&lt;headers&gt;</link> element with no child elements will
                 automatically add Cache Control and quite a few other protections. However, if you only want cache control, you can
                 enable this feature using Spring Security's XML namespace with the
