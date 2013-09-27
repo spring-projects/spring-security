@@ -222,11 +222,11 @@ public class WebSecurityConfig extends
                 <interfacename>AccessDeniedHandler</interfacename>, the browser will get an HTTP 403 and display a poor error message.</para>
             <note>
                 <para>One might ask why the expected <interfacename>CsrfToken</interfacename> isn't stored in a cookie. This is because there are known exploits in which headers
-                    (i.e. specify the cookies) can be set by another domain. Another disadvantage is that by removing the state (i.e. the timeout) you lose the ability
-                    to forcibly terminate the token if something got compromised. This is the same reason Ruby on Rails
+                    (i.e. specify the cookies) can be set by another domain. This is the same reason Ruby on Rails
                     <link xlink:href="http://weblog.rubyonrails.org/2011/2/8/csrf-protection-bypass-in-ruby-on-rails/">no longer skips CSRF checks when the header X-Requested-With
                     is present</link>. See <link xlink:href="http://lists.webappsec.org/pipermail/websecurity_lists.webappsec.org/2011-February/007533.html">this webappsec.org thread</link>
-                    for details on how to perform the exploit.</para>
+                    for details on how to perform the exploit. Another disadvantage is that by removing the state (i.e. the timeout) you lose the ability
+                    to forcibly terminate the token if something got compromised.</para>
             </note>
             <para>A simple way to mitigate an active user experiencing a timeout is to have some JavaScript that lets the user know their session is about to expire.
                 The user can click a button to continue and refresh the session.</para>
