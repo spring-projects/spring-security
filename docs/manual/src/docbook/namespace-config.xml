@@ -642,7 +642,7 @@ List&lt;OpenIDAttribute> attributes = token.getAttributes();</programlisting>The
 <http ...>
     ...
     <headers>
-        <!-- Add Cache-Control and Pragma headers -->
+        <!-- Add Cache-Control, Pragma, and Expires headers -->
         <cache-control/>
         <!-- Add X-Content-Type-Options with value of nosniff -->
         <content-type-options/>

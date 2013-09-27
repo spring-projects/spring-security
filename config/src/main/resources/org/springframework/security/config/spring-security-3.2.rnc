@@ -746,7 +746,7 @@ hsts-options.attlist &=
     attribute request-matcher-ref { xsd:token }?
 
 cache-control =
-    ## Adds Cache-Control no-cache, no-store, must-revalidate and Pragma no-cache every URL
+    ## Adds Cache-Control no-cache, no-store, must-revalidate, Pragma no-cache, and Expires 0 for every request
     element cache-control {empty}
 
 frame-options =

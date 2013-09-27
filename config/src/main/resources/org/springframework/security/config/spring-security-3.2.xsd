@@ -2314,7 +2314,8 @@
   </xs:attributeGroup>
   <xs:element name="cache-control">
       <xs:annotation>
-         <xs:documentation>Adds Cache-Control no-cache, no-store, must-revalidate and Pragma no-cache every URL
+         <xs:documentation>Adds Cache-Control no-cache, no-store, must-revalidate, Pragma no-cache, and Expires 0 for
+                every request
                 </xs:documentation>
       </xs:annotation>
       <xs:complexType/>
