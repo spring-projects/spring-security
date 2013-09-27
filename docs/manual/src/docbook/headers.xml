@@ -26,9 +26,13 @@
             </listitem>
         </itemizedlist></para>
         <para>While each of these headers are considered best practice, it should be noted that not all clients
-            utilize the headers, so additional testing is encouraged. If you are using Spring Security's XML namespace support,
-            you can easily add all of the default headers with the
-            <link linkend="nsa-headers">&lt;headers&gt;</link> element with no child elements:</para>
+            utilize the headers, so additional testing is encouraged. For passivity reasons, if you are using Spring Security's
+            XML namespace support, you must explicitly enable the security headers. All of the default headers can be easily added
+            using the <link linkend="nsa-headers">&lt;headers&gt;</link> element with no child elements:</para>
+            <note>
+                <para><link xlink:href="https://jira.springsource.org/browse/SEC-2348">SEC-2348</link> is logged to ensure Spring
+                    Security 4.x's XML namespace configuration will enable Security headers by default.</para>
+            </note>
             <programlisting language="xml"><![CDATA[<http>
     <!-- ... -->
 
