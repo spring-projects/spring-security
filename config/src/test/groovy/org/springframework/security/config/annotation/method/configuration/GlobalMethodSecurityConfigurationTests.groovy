@@ -166,4 +166,37 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
             grantAccess
         }
     }
+
+    def "Method Security supports annotations on interface parameter names"() {
+        setup:
+            SecurityContextHolder.getContext().setAuthentication(
+                new TestingAuthenticationToken("user", "password","ROLE_USER"))
+            loadConfig(MethodSecurityServiceConfig)
+            MethodSecurityService service = context.getBean(MethodSecurityService)
+        when: "service with annotated argument"
+            service.postAnnotation('deny')
+        then: "properly throws AccessDeniedException"
+            thrown(AccessDeniedException)
+        when: "service with annotated argument"
+            service.postAnnotation('grant')
+        then: "properly throws AccessDeniedException"
+            noExceptionThrown()
+    }
+
+    @Configuration
+    @EnableGlobalMethodSecurity(prePostEnabled = true)
+    static class MethodSecurityServiceConfig extends GlobalMethodSecurityConfiguration {
+
+        @Override
+        protected void registerAuthentication(AuthenticationManagerBuilder auth)
+                throws Exception {
+            auth
+                .inMemoryAuthentication()
+        }
+
+        @Bean
+        public MethodSecurityService service() {
+            new MethodSecurityServiceImpl()
+        }
+    }
 }

@@ -19,12 +19,14 @@ import static org.fest.assertions.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
+import org.springframework.security.access.method.P;
 import org.springframework.test.util.ReflectionTestUtils;
 
 /**
@@ -45,8 +47,16 @@ public class DefaultSecurityParameterNameDiscovererTests {
     public void constructorDefault() {
         List<ParameterNameDiscoverer> discoverers = (List<ParameterNameDiscoverer>) ReflectionTestUtils
                 .getField(discoverer, "parameterNameDiscoverers");
-        assertThat(discoverers.size()).isEqualTo(1);
-        assertThat(discoverers.get(0)).isInstanceOf(
+
+        assertThat(discoverers.size()).isEqualTo(2);
+
+        ParameterNameDiscoverer annotationDisc = discoverers.get(0);
+        assertThat(annotationDisc).isInstanceOf(
+                AnnotationParameterNameDiscoverer.class);
+        Set<String> annotationsToUse = (Set<String>)ReflectionTestUtils.getField(annotationDisc, "annotationClassesToUse");
+        assertThat(annotationsToUse).containsOnly(P.class.getName());
+
+        assertThat(discoverers.get(1)).isInstanceOf(
                 DefaultParameterNameDiscoverer.class);
     }
 
@@ -57,10 +67,17 @@ public class DefaultSecurityParameterNameDiscovererTests {
         List<ParameterNameDiscoverer> discoverers = (List<ParameterNameDiscoverer>) ReflectionTestUtils
                 .getField(discoverer, "parameterNameDiscoverers");
 
-        assertThat(discoverers.size()).isEqualTo(2);
+        assertThat(discoverers.size()).isEqualTo(3);
         assertThat(discoverers.get(0)).isInstanceOf(
                 LocalVariableTableParameterNameDiscoverer.class);
-        assertThat(discoverers.get(1)).isInstanceOf(
+
+        ParameterNameDiscoverer annotationDisc = discoverers.get(1);
+        assertThat(annotationDisc).isInstanceOf(
+                AnnotationParameterNameDiscoverer.class);
+        Set<String> annotationsToUse = (Set<String>)ReflectionTestUtils.getField(annotationDisc, "annotationClassesToUse");
+        assertThat(annotationsToUse).containsOnly(P.class.getName());
+
+        assertThat(discoverers.get(2)).isInstanceOf(
                 DefaultParameterNameDiscoverer.class);
     }
 }

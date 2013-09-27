@@ -69,4 +69,9 @@ public class MethodSecurityServiceImpl implements MethodSecurityService {
     public String postHasPermission(String object) {
         return null;
     }
+
+    @Override
+    public String postAnnotation(String object) {
+        return null;
+    }
 }

@@ -19,6 +19,7 @@ import javax.annotation.security.DenyAll
 import javax.annotation.security.PermitAll;
 
 import org.springframework.security.access.annotation.Secured
+import org.springframework.security.access.method.P
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
@@ -55,4 +56,7 @@ public interface MethodSecurityService {
 
     @PostAuthorize("hasPermission(#object,'read')")
     public String postHasPermission(String object);
+
+    @PostAuthorize("#o?.contains('grant')")
+    public String postAnnotation(@P("o") String object);
 }
