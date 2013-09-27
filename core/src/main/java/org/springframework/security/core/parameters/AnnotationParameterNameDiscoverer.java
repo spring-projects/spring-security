@@ -63,8 +63,9 @@ import org.springframework.util.ReflectionUtils;
  * </p>
  *
  * <p>
- * It is important that all the parameter names have a supported annotation on
- * them. Otherwise, the result will be null. For example, consider the
+ * It is important to note that if a single parameter name has a supported
+ * annotation on it then all methods are resolved using
+ * {@link AnnotationParameterNameDiscoverer}. For example, consider the
  * following:
  * </p>
  *
@@ -76,9 +77,9 @@ import org.springframework.util.ReflectionUtils;
  * </pre>
  *
  * <p>
- * The result of finding parameters on the previous sample will be a null
- * String[] since only a single parameter contains an annotation. This is mostly
- * due to the fact that the fallbacks for
+ * The result of finding parameters on the previous sample will be
+ * <code>new String[] { "to", null}</code> since only a single parameter
+ * contains an annotation. This is mostly due to the fact that the fallbacks for
  * {@link PrioritizedParameterNameDiscoverer} are an all or nothing operation.
  * </p>
  *
@@ -149,16 +150,16 @@ public class AnnotationParameterNameDiscoverer implements
             ParameterNameFactory<T> parameterNameFactory, T t) {
         int parameterCount = parameterNameFactory.getParamCount(t);
         String[] paramNames = new String[parameterCount];
+        boolean found = false;
         for (int i = 0; i < parameterCount; i++) {
             Annotation[] annotations = parameterNameFactory.findAnnotationsAt(t, i);
             String parameterName = findParameterName(annotations);
-            if (parameterName == null) {
-                return null;
-            } else {
+            if (parameterName != null) {
+                found = true;
                 paramNames[i] = parameterName;
             }
         }
-        return paramNames;
+        return found ? paramNames : null;
     }
 
     /**

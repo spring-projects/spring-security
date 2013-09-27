@@ -22,7 +22,7 @@ public class AnnotationParameterNameDiscovererTests {
 
     @Test
     public void getParameterNamesInterfaceSingleParamAnnotatedWithMultiParams() {
-        assertThat(discoverer.getParameterNames(ReflectionUtils.findMethod(Dao.class, "findMessageByToAndFrom", String.class, String.class))).isNull();
+        assertThat(discoverer.getParameterNames(ReflectionUtils.findMethod(Dao.class, "findMessageByToAndFrom", String.class, String.class))).isEqualTo(new String [] { "to", null});
     }
 
     @Test
@@ -37,7 +37,7 @@ public class AnnotationParameterNameDiscovererTests {
 
     @Test
     public void getParameterNamesClassSingleParamAnnotatedWithMultiParams() {
-        assertThat(discoverer.getParameterNames(ReflectionUtils.findMethod(Dao.class, "findMessageByToAndFrom", String.class, String.class))).isNull();
+        assertThat(discoverer.getParameterNames(ReflectionUtils.findMethod(Dao.class, "findMessageByToAndFrom", String.class, String.class))).isEqualTo(new String [] { "to", null});
     }
 
     @Test
@@ -64,7 +64,7 @@ public class AnnotationParameterNameDiscovererTests {
 
     @Test
     public void getParameterNamesClassAnnotationOnImpl() throws Exception {
-        assertThat(discoverer.getParameterNames(ReflectionUtils.findMethod(Dao.class, "findMessageByToAndFrom", String.class, String.class))).isNull();
+        assertThat(discoverer.getParameterNames(ReflectionUtils.findMethod(Dao.class, "findMessageByToAndFrom", String.class, String.class))).isEqualTo(new String [] { "to", null});
         assertThat(discoverer.getParameterNames(ReflectionUtils.findMethod(DaoImpl.class, "findMessageByToAndFrom", String.class, String.class))).isEqualTo(new String[] {"to", "from"});
     }
 
