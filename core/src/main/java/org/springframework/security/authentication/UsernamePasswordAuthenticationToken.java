@@ -84,9 +84,10 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
     public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
         if (isAuthenticated && super.getAuthorities() == null) {
             super.setAuthenticated(false);
-
             throw new IllegalArgumentException(
                     "Cannot set this token to trusted - use constructor which takes a GrantedAuthority list instead");
+        } else if (!isAuthenticated) {
+            super.setAuthenticated(false);
         }
     }
 
