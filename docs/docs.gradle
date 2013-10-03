@@ -2,7 +2,7 @@
 apply plugin: 'base'
 
 task docs {
-    dependsOn 'manual:reference', 'faq:referenceHtmlSingle', 'apidocs', 'guides:asciidoctor'
+    dependsOn 'manual:asciidoctor', 'faq:referenceHtmlSingle', 'apidocs', 'guides:asciidoctor'
 }
 
 project('faq') {
@@ -25,24 +25,35 @@ project('faq') {
 
 project('manual') {
     apply plugin: 'base'
-    apply plugin: 'docbook-reference'
+    apply plugin: 'asciidoctor'
 
-    [referenceHtmlMulti, referencePdf, referenceHtmlSingle]*.sourceDir = file('src/docbook')
+    ext.expandPlaceholders = ""
 
-    defaultTasks 'referenceHtmlMulti', 'referenceHtmlSingle', 'referencePdf'
-    def imagesDir = new File(projectDir, 'src/docbook/images');
+    asciidoctor {
+        backends = ["html5", "pdf"]
+        options = [
+          eruby: 'erubis',
+          attributes: [
+              copycss : '',
+              icons : 'font',
+              'source-highlighter': 'prettify',
+              sectanchors : '',
+              toc2: '',
+              idprefix: '',
+              idseparator: '-',
+              doctype: 'book',
+              'spring-security-version' : project.version,
+              revnumber : project.version
+          ]
+        ]
+    }
+
 
     ext.spec = copySpec {
         into ('reference') {
-            from("$buildDir/reference")
+            from("${asciidoctor.outputDir}/dist/")
         }
     }
-}
-
-task reference (type: Copy) {
-    dependsOn 'manual:reference'
-    destinationDir = buildDir
-    with(project('manual').spec)
 }
 
 task apidocs(type: Javadoc) {
@@ -91,7 +102,7 @@ ext.apiSpec = copySpec {
     }
 }
 
-assemble.dependsOn = [apidocs, 'manual:reference']
+assemble.dependsOn = [apidocs, 'manual:asciidoctor']
 
 task docsZip(type: Zip) {
     dependsOn docs

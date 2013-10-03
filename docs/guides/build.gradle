@@ -1,20 +1,21 @@
+
 import org.asciidoctor.gradle.*
 
 file("src/asciidoc").eachFileMatch(~/.*\.asc/) { file->
     task "asciidoctor-${file.name}"(type: AsciidoctorTask) {
-        outputDir = project.file("$buildDir/docs")
-        sourceDocumentName = file
+        sourceDocument = file
         options = [
+          eruby: 'erubis',
           eruby: 'erubis',
           attributes: [
               copycss : '',
               icons : 'font',
               'source-highlighter': 'prettify',
               sectanchors : '',
-              'toc-placement' : 'preamble',
-              toc: '',
+              toc2: '',
               idprefix: '',
               idseparator: '-',
+              doctype: 'book',
               'spring-security-version' : project.version,
               revnumber : project.version
           ]
@@ -30,6 +31,6 @@ task asciidoctor {
 
 ext.spec = copySpec {
     into ('guides') {
-        from("$buildDir/docs/")
+        from("$buildDir/asciidoctor/dist/html5/")
     }
 }
