@@ -76,7 +76,7 @@ itest.each { name ->
     p.projectDir = new File(settingsDir, "itest/${name}");
 }
 
-include 'docs', 'docs:faq', 'docs:manual', 'docs:guides'
+include 'docs', 'docs:manual', 'docs:guides'
 
 def docs = findProject(':docs')
 docs.buildFileName = 'docs.gradle'

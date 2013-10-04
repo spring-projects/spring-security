@@ -2,25 +2,7 @@
 apply plugin: 'base'
 
 task docs {
-    dependsOn 'manual:asciidoctor', 'faq:referenceHtmlSingle', 'apidocs', 'guides:asciidoctor'
-}
-
-project('faq') {
-    apply plugin: 'base'
-    apply plugin: 'docbook-reference'
-
-    [referenceHtmlMulti, referencePdf, referenceHtmlSingle]*.sourceDir = file('src/docbook')
-    [referenceHtmlMulti, referencePdf, referenceHtmlSingle]*.sourceFileName = 'faq.xml'
-    referenceHtmlSingle.stylesheet = 'html-single-custom.xsl'
-
-    defaultTasks 'referenceHtmlSingle'
-
-    ext.spec = copySpec {
-        into ('faq') {
-            from("$buildDir/reference/htmlsingle")
-            from("$projectDir/src/resources")
-        }
-    }
+    dependsOn 'manual:asciidoctor', 'apidocs', 'guides:asciidoctor'
 }
 
 project('manual') {
@@ -115,7 +97,6 @@ task docsZip(type: Zip) {
 
     with(project(':docs').apiSpec)
     with(project(':docs:manual').spec)
-    with(project(':docs:faq').spec)
     with(project(':docs:guides').spec)
 }
 

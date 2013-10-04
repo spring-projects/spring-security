@@ -7,7 +7,6 @@ buildscript {
     }
     dependencies {
         classpath("org.springframework.build.gradle:propdeps-plugin:0.0.3")
-        classpath("org.springframework.build.gradle:docbook-reference-plugin:0.2.7")
         classpath("org.springframework.build.gradle:bundlor-plugin:0.1.2")
         classpath("org.gradle.api.plugins:gradle-tomcat-plugin:0.9.8")
         classpath('me.champeau.gradle:gradle-javadoc-hotfix-plugin:0.1')
@@ -52,7 +51,7 @@ sonarRunner {
 }
 
 // Set up different subproject lists for individual configuration
-ext.javaProjects = subprojects.findAll { project -> project.name != 'docs' && project.name != 'faq' && project.name != 'manual' && project.name != 'guides' }
+ext.javaProjects = subprojects.findAll { project -> project.name != 'docs' && project.name != 'manual' && project.name != 'guides' }
 ext.sampleProjects = subprojects.findAll { project -> project.name.startsWith('spring-security-samples') }
 ext.itestProjects = subprojects.findAll { project -> project.name.startsWith('itest') }
 ext.coreModuleProjects = javaProjects - sampleProjects - itestProjects
