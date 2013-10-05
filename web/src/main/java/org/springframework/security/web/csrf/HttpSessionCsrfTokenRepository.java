@@ -48,10 +48,13 @@ public final class HttpSessionCsrfTokenRepository implements CsrfTokenRepository
      */
     public void saveToken(CsrfToken token, HttpServletRequest request,
             HttpServletResponse response) {
-        HttpSession session = request.getSession();
-        if(token == null) {
-            session.removeAttribute(sessionAttributeName);
+        if (token == null) {
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.removeAttribute(sessionAttributeName);
+            }
         } else {
+            HttpSession session = request.getSession();
             session.setAttribute(sessionAttributeName, token);
         }
     }
@@ -60,7 +63,11 @@ public final class HttpSessionCsrfTokenRepository implements CsrfTokenRepository
      * @see org.springframework.security.web.csrf.CsrfTokenRepository#loadToken(javax.servlet.http.HttpServletRequest)
      */
     public CsrfToken loadToken(HttpServletRequest request) {
-        return (CsrfToken) request.getSession().getAttribute(sessionAttributeName);
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            return null;
+        }
+        return (CsrfToken) session.getAttribute(sessionAttributeName);
     }
 
     /*
