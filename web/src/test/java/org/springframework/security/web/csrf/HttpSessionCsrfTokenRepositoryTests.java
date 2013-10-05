@@ -67,6 +67,13 @@ public class HttpSessionCsrfTokenRepositoryTests {
     @Test
     public void loadTokenNull() {
         assertThat(repo.loadToken(request)).isNull();
+        assertThat(request.getSession(false)).isNull();
+    }
+
+    @Test
+    public void loadTokenNullWhenSessionExists() {
+        request.getSession();
+        assertThat(repo.loadToken(request)).isNull();
     }
 
     @Test
@@ -103,6 +110,14 @@ public class HttpSessionCsrfTokenRepositoryTests {
 
         assertThat(request.getSession().getAttributeNames().hasMoreElements())
                 .isFalse();
+    }
+
+    @Test
+    public void saveTokenNullTokenWhenSessionNotExists() {
+
+        repo.saveToken(null, request, response);
+        
+        assertThat(request.getSession(false)).isNull();
     }
 
     @Test(expected = IllegalArgumentException.class)
