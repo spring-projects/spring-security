@@ -26,6 +26,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
+import org.springframework.web.util.WebUtils;
 
 /**
  * A base class for performing session fixation protection.
@@ -70,12 +71,19 @@ abstract class AbstractSessionFixationProtectionStrategy implements SessionAuthe
         HttpSession session = request.getSession();
 
         if (hadSessionAlready && request.isRequestedSessionIdValid()) {
-            // We need to migrate to a new session
-            String originalSessionId = session.getId();
 
-            session = applySessionFixation(request);
+            String originalSessionId;
+            String newSessionId;
+            Object mutex = WebUtils.getSessionMutex(session);
+            synchronized(mutex) {
+                // We need to migrate to a new session
+                originalSessionId = session.getId();
 
-            if (originalSessionId.equals(session.getId())) {
+                session = applySessionFixation(request);
+                newSessionId = session.getId();
+            }
+
+            if (originalSessionId.equals(newSessionId)) {
                 logger.warn("Your servlet container did not change the session ID when a new session was created. You will" +
                         " not be adequately protected against session-fixation attacks");
             }
