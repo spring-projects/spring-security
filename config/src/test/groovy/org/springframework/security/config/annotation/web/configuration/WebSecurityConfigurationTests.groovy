@@ -24,6 +24,9 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
+import org.springframework.expression.ExpressionParser;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.config.annotation.BaseSpringSpec
@@ -36,7 +39,9 @@ import org.springframework.security.web.access.DefaultWebInvocationPrivilegeEval
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.expression.WebSecurityExpressionHandler;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.util.AnyRequestMatcher
+import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  * @author Rob Winch
@@ -197,11 +202,13 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
     def "Override webSecurityExpressionHandler"() {
         setup:
             WebSecurityExpressionHandler expressionHandler = Mock()
+            ExpressionParser parser = Mock()
             WebSecurityExpressionHandlerConfig.EH = expressionHandler
         when:
             loadConfig(WebSecurityExpressionHandlerConfig)
         then:
             context.getBean(WebSecurityExpressionHandler) == expressionHandler
+            1 * expressionHandler.getExpressionParser() >> parser
     }
 
     @EnableWebSecurity
@@ -214,6 +221,13 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
         public void configure(WebSecurity web) throws Exception {
             web
                 .expressionHandler(EH)
+        }
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .authorizeRequests()
+                    .expressionHandler(EH)
+                    .anyRequest().authenticated()
         }
     }
 
@@ -255,6 +269,48 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
             http
                 .authorizeRequests()
                     .anyRequest().authenticated()
+        }
+    }
+
+    def "SEC-2303: DefaultExpressionHandler has bean resolver set"() {
+        when:
+            loadConfig(DefaultExpressionHandlerSetsBeanResolverConfig)
+        then: "the exposed bean has a BeanResolver set"
+            ReflectionTestUtils.getField(context.getBean(SecurityExpressionHandler),"br")
+        when:
+            springSecurityFilterChain.doFilter(request, response, chain)
+        then: "we can use the BeanResolver with a grant"
+            noExceptionThrown()
+        when: "we can use the Beanresolver with a deny"
+            springSecurityFilterChain.doFilter(new MockHttpServletRequest(method:'POST'), response, chain)
+        then:
+            noExceptionThrown()
+    }
+
+    @EnableWebSecurity
+    @Configuration
+    static class DefaultExpressionHandlerSetsBeanResolverConfig extends WebSecurityConfigurerAdapter {
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .authorizeRequests()
+                    .anyRequest().access("request.method == 'GET' ? @b.grant() : @b.deny()")
+        }
+
+        @Bean
+        public MyBean b() {
+            new MyBean()
+        }
+
+        static class MyBean {
+            boolean deny() {
+                false
+            }
+
+            boolean grant() {
+                true
+            }
         }
     }
 }

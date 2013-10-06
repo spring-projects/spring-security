@@ -151,7 +151,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
             if(trustResolver != null) {
                 defaultHandler.setTrustResolver(trustResolver);
             }
-            expressionHandler = defaultHandler;
+            expressionHandler = postProcess(defaultHandler);
         }
 
         return expressionHandler;

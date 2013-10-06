@@ -23,6 +23,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.config.annotation.AbstractConfiguredSecurityBuilder;
 import org.springframework.security.config.annotation.SecurityBuilder;
@@ -68,7 +71,7 @@ import org.springframework.web.filter.DelegatingFilterProxy;
  * @since 3.2
  */
 public final class WebSecurity extends
-        AbstractConfiguredSecurityBuilder<Filter, WebSecurity> implements SecurityBuilder<Filter> {
+        AbstractConfiguredSecurityBuilder<Filter, WebSecurity> implements SecurityBuilder<Filter>, ApplicationContextAware {
     private final Log logger = LogFactory.getLog(getClass());
 
     private final List<RequestMatcher> ignoredRequests = new ArrayList<RequestMatcher>();
@@ -87,7 +90,10 @@ public final class WebSecurity extends
 
     private WebInvocationPrivilegeEvaluator privilegeEvaluator;
 
-    private SecurityExpressionHandler<FilterInvocation> expressionHandler = new DefaultWebSecurityExpressionHandler();
+    private DefaultWebSecurityExpressionHandler defaultWebSecurityExpressionHandler = new DefaultWebSecurityExpressionHandler();
+
+    private SecurityExpressionHandler<FilterInvocation> expressionHandler = defaultWebSecurityExpressionHandler;
+
 
     private Runnable postBuildAction = new Runnable() {
         public void run() {}
@@ -324,5 +330,10 @@ public final class WebSecurity extends
         }
 
         private IgnoredRequestConfigurer(){}
+    }
+
+    public void setApplicationContext(ApplicationContext applicationContext)
+            throws BeansException {
+        defaultWebSecurityExpressionHandler.setApplicationContext(applicationContext);
     }
 }

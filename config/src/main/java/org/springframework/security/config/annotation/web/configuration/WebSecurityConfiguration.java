@@ -34,6 +34,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
+import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -183,5 +184,10 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
      */
     public void setBeanClassLoader(ClassLoader classLoader) {
         this.beanClassLoader = classLoader;
+    }
+
+    @Autowired
+    public void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
+        objectPostProcessor.postProcess(webSecurity);
     }
 }
