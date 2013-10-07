@@ -89,6 +89,16 @@ def customizePom(pom, gradleProject) {
                         target = '1.7'
                     }
                 }
+                if(isWar) {
+                    plugin {
+                        groupId = 'org.apache.maven.plugins'
+                        artifactId = 'maven-war-plugin'
+                        version = '2.3'
+                        configuration {
+                            failOnMissingWebXml = 'false'
+                        }
+                    }
+                }
             }
         }
     }
