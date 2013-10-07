@@ -175,19 +175,33 @@ public final class MediaTypeRequestMatcher implements RequestMatcher {
             logger.debug("Failed to parse MediaTypes, returning false", e);
             return false;
         }
+        if(logger.isDebugEnabled()) {
+            logger.debug("httpRequestMediaTypes=" + httpRequestMediaTypes);
+        }
         for(MediaType httpRequestMediaType : httpRequestMediaTypes) {
+            if(logger.isDebugEnabled()) {
+                logger.debug("Processing " + httpRequestMediaType);
+            }
             if(shouldIgnore(httpRequestMediaType)) {
+                logger.debug("Ignoring");
                 continue;
             }
             if(useEquals) {
-                return matchingMediaTypes.contains(httpRequestMediaType);
+                boolean isEqualTo = matchingMediaTypes.contains(httpRequestMediaType);
+                logger.debug("isEqualTo " + isEqualTo);
+                return isEqualTo;
             }
             for(MediaType matchingMediaType : matchingMediaTypes) {
-                if(matchingMediaType.isCompatibleWith(httpRequestMediaType)) {
+                boolean isCompatibleWith = matchingMediaType.isCompatibleWith(httpRequestMediaType);
+                if(logger.isDebugEnabled()) {
+                    logger.debug(matchingMediaType + " .isCompatibleWith " + httpRequestMediaType + " = " + isCompatibleWith);
+                }
+                if(isCompatibleWith) {
                     return true;
                 }
             }
         }
+        logger.debug("Did not match any media types");
         return false;
     }
 
@@ -223,5 +237,13 @@ public final class MediaTypeRequestMatcher implements RequestMatcher {
      */
     public void setIgnoredMediaTypes(Set<MediaType> ignoredMediaTypes) {
         this.ignoredMediaTypes = ignoredMediaTypes;
+    }
+
+    @Override
+    public String toString() {
+        return "MediaTypeRequestMatcher [contentNegotiationStrategy="
+                + contentNegotiationStrategy + ", matchingMediaTypes="
+                + matchingMediaTypes + ", useEquals=" + useEquals
+                + ", ignoredMediaTypes=" + ignoredMediaTypes + "]";
     }
 }
