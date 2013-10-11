@@ -331,16 +331,21 @@ public class NamespaceHttpTests extends BaseSpringSpec {
     // http@pattern is not available (instead see the tests http@request-matcher-ref ant or http@request-matcher-ref regex)
 
     def "http@realm"() {
-        when:
+        setup:
             loadConfig(RealmConfig)
+        when:
+            springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            findFilter(BasicAuthenticationFilter).authenticationEntryPoint.realmName == "RealmConfig"
+            response.getHeader("WWW-Authenticate") == 'Basic realm="RealmConfig"'
     }
 
     @Configuration
     static class RealmConfig extends BaseWebConfig {
         protected void configure(HttpSecurity http) throws Exception {
             http
+                .authorizeRequests()
+                    .anyRequest().authenticated()
+                    .and()
                 .httpBasic().realmName("RealmConfig")
         }
     }

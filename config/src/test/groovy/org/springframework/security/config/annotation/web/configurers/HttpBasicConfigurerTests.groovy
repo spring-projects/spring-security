@@ -48,10 +48,13 @@ class HttpBasicConfigurerTests extends BaseSpringSpec {
     }
 
     def "SEC-2198: http.httpBasic() defaults AuthenticationEntryPoint"() {
-        when:
+        setup:
             loadConfig(DefaultsEntryPointConfig)
+        when:
+            springSecurityFilterChain.doFilter(request, response, chain)
         then:
-            findFilter(ExceptionTranslationFilter).authenticationEntryPoint.class == BasicAuthenticationEntryPoint
+            response.status == 401
+            response.getHeader("WWW-Authenticate") == 'Basic realm="Realm"'
     }
 
     @EnableWebSecurity
@@ -60,6 +63,9 @@ class HttpBasicConfigurerTests extends BaseSpringSpec {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
+                .authorizeRequests()
+                    .anyRequest().authenticated()
+                    .and()
                 .httpBasic()
         }
 

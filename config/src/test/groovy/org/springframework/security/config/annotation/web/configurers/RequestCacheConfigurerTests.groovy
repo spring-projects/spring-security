@@ -28,6 +28,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.savedrequest.RequestCache
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter
 
+import spock.lang.Unroll;
+
 /**
  *
  * @author Rob Winch
@@ -85,6 +87,77 @@ class RequestCacheConfigurerTests extends BaseSpringSpec {
         then: "sent to default URL since it was favicon.ico"
             response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
             response.redirectedUrl == "/"
+    }
+
+    def "SEC-2321: RequestCache disables application/json"() {
+        setup:
+            loadConfig(RequestCacheDefautlsConfig)
+            request.addHeader("Accept", MediaType.APPLICATION_JSON_VALUE)
+            request.method = "GET"
+            request.servletPath = "/messages"
+            request.requestURI = "/messages"
+        when: "request application/json"
+            springSecurityFilterChain.doFilter(request,response,chain)
+        then: "sent to the login page"
+            response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
+            response.redirectedUrl == "http://localhost/login"
+        when: "authenticate successfully"
+            super.setupWeb(request.session)
+            request.servletPath = "/login"
+            request.setParameter("username","user")
+            request.setParameter("password","password")
+            request.method = "POST"
+            springSecurityFilterChain.doFilter(request,response,chain)
+        then: "sent to default URL since it was application/json. This is desirable since JSON requests are typically not invoked directly from the browser and we don't want the browser to replay them"
+            response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
+            response.redirectedUrl == "/"
+    }
+
+    def "SEC-2321: RequestCache disables X-Requested-With"() {
+        setup:
+            loadConfig(RequestCacheDefautlsConfig)
+            request.addHeader("X-Requested-With", "XMLHttpRequest")
+            request.method = "GET"
+            request.servletPath = "/messages"
+            request.requestURI = "/messages"
+        when: "request X-Requested-With"
+            springSecurityFilterChain.doFilter(request,response,chain)
+        then: "sent to the login page"
+            response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
+            response.redirectedUrl == "http://localhost/login"
+        when: "authenticate successfully"
+            super.setupWeb(request.session)
+            request.servletPath = "/login"
+            request.setParameter("username","user")
+            request.setParameter("password","password")
+            request.method = "POST"
+            springSecurityFilterChain.doFilter(request,response,chain)
+        then: "sent to default URL since it was X-Requested-With"
+            response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
+            response.redirectedUrl == "/"
+    }
+
+    @Unroll
+    def "RequestCache saves Accept: #accept"() {
+        setup:
+            loadConfig(RequestCacheDefautlsConfig)
+            request.addHeader("Accept", accept)
+            request.method = "GET"
+            request.servletPath = "/messages"
+            request.requestURI = "/messages"
+        when: "request content type"
+            springSecurityFilterChain.doFilter(request,response,chain)
+            super.setupWeb(request.session)
+            request.servletPath = "/login"
+            request.setParameter("username","user")
+            request.setParameter("password","password")
+            request.method = "POST"
+            springSecurityFilterChain.doFilter(request,response,chain)
+        then: "sent to saved URL"
+            response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
+            response.redirectedUrl == "http://localhost/messages"
+        where:
+            accept << [MediaType.ALL_VALUE, MediaType.TEXT_HTML, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"]
     }
 
     @Configuration

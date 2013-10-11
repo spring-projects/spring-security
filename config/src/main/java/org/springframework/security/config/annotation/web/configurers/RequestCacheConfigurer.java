@@ -15,6 +15,9 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.Collections;
+
+import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -22,7 +25,9 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.util.AndRequestMatcher;
 import org.springframework.security.web.util.AntPathRequestMatcher;
+import org.springframework.security.web.util.MediaTypeRequestMatcher;
 import org.springframework.security.web.util.NegatedRequestMatcher;
+import org.springframework.security.web.util.RequestHeaderRequestMatcher;
 import org.springframework.security.web.util.RequestMatcher;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
@@ -116,6 +121,12 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> exte
         }
         RequestMatcher getRequests = new AntPathRequestMatcher("/**", "GET");
         RequestMatcher notFavIcon = new NegatedRequestMatcher(new AntPathRequestMatcher("/**/favicon.ico"));
-        return new AndRequestMatcher(getRequests,notFavIcon);
+
+        MediaTypeRequestMatcher jsonRequest = new MediaTypeRequestMatcher(contentNegotiationStrategy, MediaType.APPLICATION_JSON);
+        jsonRequest.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
+        RequestMatcher notJson = new NegatedRequestMatcher(jsonRequest);
+
+        RequestMatcher notXRequestedWith = new NegatedRequestMatcher(new RequestHeaderRequestMatcher("X-Requested-With"));
+        return new AndRequestMatcher(getRequests, notFavIcon, notJson, notXRequestedWith);
     }
 }

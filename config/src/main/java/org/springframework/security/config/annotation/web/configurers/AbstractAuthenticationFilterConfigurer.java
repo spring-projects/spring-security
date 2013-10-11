@@ -15,6 +15,8 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.Collections;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.MediaType;
@@ -235,7 +237,8 @@ public abstract class AbstractAuthenticationFilterConfigurer<B  extends HttpSecu
         if(contentNegotiationStrategy == null) {
             contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
         }
-        RequestMatcher preferredMatcher = new MediaTypeRequestMatcher(contentNegotiationStrategy, MediaType.APPLICATION_XHTML_XML, new MediaType("image","*"), MediaType.TEXT_HTML, MediaType.TEXT_PLAIN);
+        MediaTypeRequestMatcher preferredMatcher = new MediaTypeRequestMatcher(contentNegotiationStrategy, MediaType.APPLICATION_XHTML_XML, new MediaType("image","*"), MediaType.TEXT_HTML, MediaType.TEXT_PLAIN);
+        preferredMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
         exceptionHandling.defaultAuthenticationEntryPointFor(postProcess(authenticationEntryPoint), preferredMatcher);
     }
 

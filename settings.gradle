@@ -29,6 +29,7 @@ def String[] samples = [
     'form-jc',
     'helloworld-jc',
     'hellomvc-jc',
+    'hellojs-jc',
     'insecure',
     'insecuremvc',
     'inmemory-jc',

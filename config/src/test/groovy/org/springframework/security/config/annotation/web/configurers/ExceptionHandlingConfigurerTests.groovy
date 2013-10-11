@@ -71,7 +71,6 @@ class ExceptionHandlingConfigurerTests extends BaseSpringSpec {
             response.status == httpStatus
         where:
             acceptHeader                                 | httpStatus
-            MediaType.ALL_VALUE                          | HttpServletResponse.SC_MOVED_TEMPORARILY
             MediaType.APPLICATION_XHTML_XML_VALUE        | HttpServletResponse.SC_MOVED_TEMPORARILY
             MediaType.IMAGE_GIF_VALUE                    | HttpServletResponse.SC_MOVED_TEMPORARILY
             MediaType.IMAGE_JPEG_VALUE                   | HttpServletResponse.SC_MOVED_TEMPORARILY
@@ -165,7 +164,7 @@ class ExceptionHandlingConfigurerTests extends BaseSpringSpec {
         when:
             loadConfig(BasicAuthenticationEntryPointBeforeFormLoginConf)
         then:
-            findFilter(ExceptionTranslationFilter).authenticationEntryPoint.defaultEntryPoint.class == BasicAuthenticationEntryPoint
+            findFilter(ExceptionTranslationFilter).authenticationEntryPoint.defaultEntryPoint.defaultEntryPoint.class == BasicAuthenticationEntryPoint
     }
 
     @EnableWebSecurity

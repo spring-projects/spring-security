@@ -53,7 +53,7 @@ public class NamespaceHttpBasicTests extends BaseSpringSpec {
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "unauthorized"
             response.status == HttpServletResponse.SC_UNAUTHORIZED
-            response.getHeader("WWW-Authenticate") == 'Basic realm="Spring Security Application"'
+            response.getHeader("WWW-Authenticate") == 'Basic realm="Realm"'
         when: "login success"
             super.setup()
             basicLogin()
