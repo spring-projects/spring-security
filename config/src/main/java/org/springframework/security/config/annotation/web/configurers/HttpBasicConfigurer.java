@@ -113,7 +113,7 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
     }
 
     /**
-     * The {@link AuthenticationEntryPoint} to be po	pulated on
+     * The {@link AuthenticationEntryPoint} to be populated on
      * {@link BasicAuthenticationFilter} in the event that authentication fails.
      * The default to use {@link BasicAuthenticationEntryPoint} with the realm
      * "Spring Security Application".
