@@ -169,17 +169,19 @@ public final class AntPathRequestMatcher implements RequestMatcher {
     @SuppressWarnings("deprecation")
     @Override
     public boolean equals(Object obj) {
-        org.springframework.security.web.util.matchers.AntPathRequestMatcher other;
+
         if (obj instanceof org.springframework.security.web.util.AntPathRequestMatcher) {
-            other = ((org.springframework.security.web.util.AntPathRequestMatcher) obj).getDelegate();
+            org.springframework.security.web.util.AntPathRequestMatcher other = (org.springframework.security.web.util.AntPathRequestMatcher) obj;
+            return this.pattern.equals(other.getPattern()) &&
+                    this.httpMethod == other.getHttpMethod() &&
+                    this.caseSensitive == other.isCaseSensitive();
         } else if(obj instanceof AntPathRequestMatcher) {
-            other = (AntPathRequestMatcher) obj;
-        } else {
-            return false;
+            org.springframework.security.web.util.matchers.AntPathRequestMatcher other = (AntPathRequestMatcher) obj;
+            return this.pattern.equals(other.pattern) &&
+                    this.httpMethod == other.httpMethod &&
+                    this.caseSensitive == other.caseSensitive;
         }
-        return this.pattern.equals(other.pattern) &&
-            this.httpMethod == other.httpMethod &&
-            this.caseSensitive == other.caseSensitive;
+        return false;
     }
 
     @Override

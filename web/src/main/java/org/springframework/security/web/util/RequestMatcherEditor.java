@@ -18,7 +18,6 @@ package org.springframework.security.web.util;
 
 import java.beans.PropertyEditorSupport;
 
-import org.springframework.security.web.util.matchers.ELRequestMatcher;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 
 /**
@@ -34,7 +33,7 @@ public class RequestMatcherEditor extends PropertyEditorSupport {
 
     @Override
     public void setAsText(String text) throws IllegalArgumentException {
-        setValue(new ELRequestMatcher(text));
+        setValue(new org.springframework.security.web.util.matchers.ELRequestMatcher(text));
     }
 
 }

@@ -14,7 +14,12 @@ package org.springframework.security.web.util;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.http.HttpMethod;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Matcher which compares a pre-defined ant-style pattern against the URL
@@ -39,7 +44,13 @@ import org.springframework.util.AntPathMatcher;
  * @see org.springframework.util.AntPathMatcher
  */
 public final class AntPathRequestMatcher implements RequestMatcher {
-    private final org.springframework.security.web.util.matchers.AntPathRequestMatcher delegate;
+    private static final Log logger = LogFactory.getLog(AntPathRequestMatcher.class);
+    private static final String MATCH_ALL = "/**";
+
+    private final Matcher matcher;
+    private final String pattern;
+    private final HttpMethod httpMethod;
+    private final boolean caseSensitive;
 
     /**
      * Creates a matcher with the specific pattern which will match all HTTP
@@ -79,7 +90,28 @@ public final class AntPathRequestMatcher implements RequestMatcher {
      *            true if the matcher should consider case, else false
      */
     public AntPathRequestMatcher(String pattern, String httpMethod, boolean caseSensitive) {
-        this.delegate = new org.springframework.security.web.util.matchers.AntPathRequestMatcher(pattern, httpMethod, caseSensitive);
+        Assert.hasText(pattern, "Pattern cannot be null or empty");
+        this.caseSensitive = caseSensitive;
+
+        if (pattern.equals(MATCH_ALL) || pattern.equals("**")) {
+            pattern = MATCH_ALL;
+            matcher = null;
+        } else {
+            if(!caseSensitive) {
+                pattern = pattern.toLowerCase();
+            }
+
+            // If the pattern ends with {@code /**} and has no other wildcards, then optimize to a sub-path match
+            if (pattern.endsWith(MATCH_ALL) && pattern.indexOf('?') == -1 &&
+                    pattern.indexOf("*") == pattern.length() - 2) {
+                matcher = new SubpathMatcher(pattern.substring(0, pattern.length() - 3));
+            } else {
+                matcher = new SpringAntMatcher(pattern);
+            }
+        }
+
+        this.pattern = pattern;
+        this.httpMethod = StringUtils.hasText(httpMethod) ? HttpMethod.valueOf(httpMethod) : null;
     }
 
     /**
@@ -89,29 +121,125 @@ public final class AntPathRequestMatcher implements RequestMatcher {
      *    {@code servletPath} + {@code pathInfo} of the request.
      */
     public boolean matches(HttpServletRequest request) {
-        return this.delegate.matches(request);
+        if (httpMethod != null && request.getMethod() != null && httpMethod != HttpMethod.valueOf(request.getMethod())) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Request '" + request.getMethod() + " " + getRequestPath(request) + "'"
+                        + " doesn't match '" + httpMethod  + " " + pattern);
+            }
+
+            return false;
+        }
+
+        if (pattern.equals(MATCH_ALL)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Request '" + getRequestPath(request) + "' matched by universal pattern '/**'");
+            }
+
+            return true;
+        }
+
+        String url = getRequestPath(request);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Checking match of request : '" + url + "'; against '" + pattern + "'");
+        }
+
+        return matcher.matches(url);
     }
 
-    public org.springframework.security.web.util.matchers.AntPathRequestMatcher getDelegate() {
-        return delegate;
+    private String getRequestPath(HttpServletRequest request) {
+        String url = request.getServletPath();
+
+        if (request.getPathInfo() != null) {
+            url += request.getPathInfo();
+        }
+
+        if(!caseSensitive) {
+            url = url.toLowerCase();
+        }
+
+        return url;
     }
 
     public String getPattern() {
-        return delegate.getPattern();
+        return pattern;
+    }
+
+    public HttpMethod getHttpMethod() {
+        return httpMethod;
+    }
+
+    public boolean isCaseSensitive() {
+        return caseSensitive;
     }
 
     @Override
     public boolean equals(Object obj) {
-        return delegate.equals(obj);
+        if (!(obj instanceof AntPathRequestMatcher)) {
+            return false;
+        }
+        AntPathRequestMatcher other = (AntPathRequestMatcher)obj;
+        return this.pattern.equals(other.pattern) &&
+            this.httpMethod == other.httpMethod &&
+            this.caseSensitive == other.caseSensitive;
     }
 
     @Override
     public int hashCode() {
-        return delegate.hashCode();
+        int code = 31 ^ pattern.hashCode();
+        if (httpMethod != null) {
+            code ^= httpMethod.hashCode();
+        }
+        return code;
     }
 
     @Override
     public String toString() {
-        return delegate.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append("Ant [pattern='").append(pattern).append("'");
+
+        if (httpMethod != null) {
+            sb.append(", ").append(httpMethod);
+        }
+
+        sb.append("]");
+
+        return sb.toString();
+    }
+
+    private static interface Matcher {
+        boolean matches(String path);
+    }
+
+    private static class SpringAntMatcher implements Matcher {
+        private static final AntPathMatcher antMatcher = new AntPathMatcher();
+
+        private final String pattern;
+
+        private SpringAntMatcher(String pattern) {
+            this.pattern = pattern;
+        }
+
+        public boolean matches(String path) {
+            return antMatcher.match(pattern, path);
+        }
+    }
+
+    /**
+     * Optimized matcher for trailing wildcards
+     */
+    private static class SubpathMatcher implements Matcher {
+        private final String subpath;
+        private final int length;
+
+        private SubpathMatcher(String subpath) {
+            assert !subpath.contains("*");
+            this.subpath = subpath;
+            this.length = subpath.length();
+        }
+
+        public boolean matches(String path) {
+            return path.startsWith(subpath) && (path.length() == length || path.charAt(length) == '/');
+        }
     }
 }
