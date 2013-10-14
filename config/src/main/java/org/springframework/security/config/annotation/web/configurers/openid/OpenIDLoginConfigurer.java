@@ -49,7 +49,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
-import org.springframework.security.web.authentication.ui.DefaultLoginPageViewFilter;
+import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -340,12 +340,12 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>> exten
     }
 
     /**
-     * If available, initializes the {@link DefaultLoginPageViewFilter} shared object.
+     * If available, initializes the {@link DefaultLoginPageGeneratingFilter} shared object.
      *
      * @param http the {@link HttpSecurityBuilder} to use
      */
     private void initDefaultLoginFilter(H http) {
-        DefaultLoginPageViewFilter loginPageGeneratingFilter = http.getSharedObject(DefaultLoginPageViewFilter.class);
+        DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = http.getSharedObject(DefaultLoginPageGeneratingFilter.class);
         if(loginPageGeneratingFilter != null && !isCustomLoginPage()) {
             loginPageGeneratingFilter.setOpenIdEnabled(true);
             loginPageGeneratingFilter.setOpenIDauthenticationUrl(getLoginProcessingUrl());

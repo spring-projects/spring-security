@@ -152,7 +152,7 @@ public interface HttpSecurityBuilder<H extends HttpSecurityBuilder<H>> extends S
      * <li>{@link UsernamePasswordAuthenticationFilter}</li>
      * <li>{@link ConcurrentSessionFilter}</li>
      * <li>{@link OpenIDAuthenticationFilter}</li>
-     * <li>{@link DefaultLoginPageViewFilter}</li>
+     * <li>{@link DefaultLoginPageGeneratingFilter}</li>
      * <li>{@link ConcurrentSessionFilter}</li>
      * <li>{@link DigestAuthenticationFilter}</li>
      * <li>{@link BasicAuthenticationFilter}</li>

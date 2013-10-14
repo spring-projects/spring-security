@@ -29,7 +29,7 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
-import org.springframework.security.web.authentication.ui.DefaultLoginPageViewFilter;
+import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -228,7 +228,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends Ab
             PermitAllSupport.permitAll(http, this.getLogoutRequestMatcher(http));
         }
 
-        DefaultLoginPageViewFilter loginPageGeneratingFilter = http.getSharedObject(DefaultLoginPageViewFilter.class);
+        DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = http.getSharedObject(DefaultLoginPageGeneratingFilter.class);
         if(loginPageGeneratingFilter != null && !isCustomLogoutSuccess()) {
             loginPageGeneratingFilter.setLogoutSuccessUrl(getLogoutSuccessUrl());
         }

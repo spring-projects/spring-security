@@ -15,6 +15,7 @@ import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.filter.GenericFilterBean;
 
 /**
@@ -29,8 +30,11 @@ import org.springframework.web.filter.GenericFilterBean;
 public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
     public static final String DEFAULT_LOGIN_PAGE_URL = "/spring_security_login";
     public static final String ERROR_PARAMETER_NAME = "login_error";
-    boolean formLoginEnabled;
-    boolean openIdEnabled;
+    private String loginPageUrl;
+    private String logoutSuccessUrl;
+    private String failureUrl;
+    private boolean formLoginEnabled;
+    private boolean openIdEnabled;
     private String authenticationUrl;
     private String usernameParameter;
     private String passwordParameter;
@@ -38,6 +42,8 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
     private String openIDauthenticationUrl;
     private String openIDusernameParameter;
     private String openIDrememberMeParameter;
+
+    public DefaultLoginPageGeneratingFilter() {}
 
     public DefaultLoginPageGeneratingFilter(AbstractAuthenticationProcessingFilter filter) {
         if (filter instanceof UsernamePasswordAuthenticationFilter) {
@@ -52,6 +58,9 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
     }
 
     private void init(UsernamePasswordAuthenticationFilter authFilter, AbstractAuthenticationProcessingFilter openIDFilter) {
+        this.loginPageUrl = DEFAULT_LOGIN_PAGE_URL;
+        this.logoutSuccessUrl = DEFAULT_LOGIN_PAGE_URL + "?logout";
+        this.failureUrl = DEFAULT_LOGIN_PAGE_URL + "?" + ERROR_PARAMETER_NAME;
         if (authFilter != null) {
             formLoginEnabled = true;
             authenticationUrl = authFilter.getFilterProcessesUrl();
@@ -74,13 +83,68 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
         }
     }
 
+    public boolean isEnabled() {
+        return formLoginEnabled || openIdEnabled;
+    }
+
+    public void setLogoutSuccessUrl(String logoutSuccessUrl) {
+        this.logoutSuccessUrl = logoutSuccessUrl;
+    }
+
+    public String getLoginPageUrl() {
+        return loginPageUrl;
+    }
+
+    public void setLoginPageUrl(String loginPageUrl) {
+        this.loginPageUrl = loginPageUrl;
+    }
+
+    public void setFailureUrl(String failureUrl) {
+        this.failureUrl = failureUrl;
+    }
+
+    public void setFormLoginEnabled(boolean formLoginEnabled) {
+        this.formLoginEnabled = formLoginEnabled;
+    }
+
+    public void setOpenIdEnabled(boolean openIdEnabled) {
+        this.openIdEnabled = openIdEnabled;
+    }
+
+    public void setAuthenticationUrl(String authenticationUrl) {
+        this.authenticationUrl = authenticationUrl;
+    }
+
+    public void setUsernameParameter(String usernameParameter) {
+        this.usernameParameter = usernameParameter;
+    }
+
+    public void setPasswordParameter(String passwordParameter) {
+        this.passwordParameter = passwordParameter;
+    }
+
+    public void setRememberMeParameter(String rememberMeParameter) {
+        this.rememberMeParameter = rememberMeParameter;
+        this.openIDrememberMeParameter = rememberMeParameter;
+    }
+
+    public void setOpenIDauthenticationUrl(String openIDauthenticationUrl) {
+        this.openIDauthenticationUrl = openIDauthenticationUrl;
+    }
+
+    public void setOpenIDusernameParameter(String openIDusernameParameter) {
+        this.openIDusernameParameter = openIDusernameParameter;
+    }
+
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
 
-        if (isLoginUrlRequest(request)) {
-            String loginPageHtml = generateLoginPageHtml(request);
+        boolean loginError = isErrorPage(request);
+        boolean logoutSuccess = isLogoutSuccess(request);
+        if (isLoginUrlRequest(request) || loginError || logoutSuccess) {
+            String loginPageHtml = generateLoginPageHtml(request, loginError, logoutSuccess);
             response.setContentType("text/html;charset=UTF-8");
             response.setContentLength(loginPageHtml.length());
             response.getWriter().write(loginPageHtml);
@@ -91,8 +155,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
         chain.doFilter(request, response);
     }
 
-    private String generateLoginPageHtml(HttpServletRequest request) {
-        boolean loginError = request.getParameter(ERROR_PARAMETER_NAME) != null;
+    private String generateLoginPageHtml(HttpServletRequest request, boolean loginError, boolean logoutSuccess) {
         String errorMsg = "none";
 
         if (loginError) {
@@ -118,6 +181,10 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
             sb.append("</font></p>");
         }
 
+        if (logoutSuccess) {
+            sb.append("<p><font color='green'>You have been logged out</font></p>");
+        }
+
         if (formLoginEnabled) {
             sb.append("<h3>Login with Username and Password</h3>");
             sb.append("<form name='f' action='").append(request.getContextPath()).append(authenticationUrl).append("' method='POST'>\n");
@@ -131,6 +198,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
             }
 
             sb.append("    <tr><td colspan='2'><input name=\"submit\" type=\"submit\" value=\"Login\"/></td></tr>\n");
+            renderHiddenInputs(sb, request);
             sb.append("  </table>\n");
             sb.append("</form>");
         }
@@ -148,6 +216,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 
             sb.append("    <tr><td colspan='2'><input name=\"submit\" type=\"submit\" value=\"Login\"/></td></tr>\n");
             sb.append("  </table>\n");
+            renderHiddenInputs(sb, request);
             sb.append("</form>");
         }
 
@@ -156,7 +225,30 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
         return sb.toString();
     }
 
+    private void renderHiddenInputs(StringBuilder sb, HttpServletRequest request) {
+        CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+
+        if(token != null) {
+            sb.append("    <input name=\""+ token.getParameterName() +"\" type=\"hidden\" value=\""+ token.getToken() +"\" />\n");
+        }
+    }
+
+    private boolean isLogoutSuccess(HttpServletRequest request) {
+        return logoutSuccessUrl != null && matches(request, logoutSuccessUrl);
+    }
+
     private boolean isLoginUrlRequest(HttpServletRequest request) {
+        return matches(request, loginPageUrl);
+    }
+
+    private boolean isErrorPage(HttpServletRequest request) {
+        return matches(request, failureUrl);
+    }
+
+    private boolean matches(HttpServletRequest request, String url) {
+        if(!"GET".equals(request.getMethod()) || url == null) {
+            return false;
+        }
         String uri = request.getRequestURI();
         int pathParamIndex = uri.indexOf(';');
 
@@ -165,10 +257,14 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
             uri = uri.substring(0, pathParamIndex);
         }
 
-        if ("".equals(request.getContextPath())) {
-            return uri.endsWith(DEFAULT_LOGIN_PAGE_URL);
+        if(request.getQueryString() != null) {
+            uri += "?" + request.getQueryString();
         }
 
-        return uri.endsWith(request.getContextPath() + DEFAULT_LOGIN_PAGE_URL);
+        if ("".equals(request.getContextPath())) {
+            return uri.endsWith(url);
+        }
+
+        return uri.endsWith(request.getContextPath() + url);
     }
 }

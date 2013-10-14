@@ -33,7 +33,7 @@ import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler
-import org.springframework.security.web.authentication.ui.DefaultLoginPageViewFilter;
+import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter
 
 /**
  * Tests to verify that {@link DefaultLoginPageConfigurer} works
@@ -48,7 +48,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            findFilter(DefaultLoginPageViewFilter)
+            findFilter(DefaultLoginPageGeneratingFilter)
             response.getRedirectedUrl() == "http://localhost/login"
         when: "request the login page"
             super.setup()
@@ -293,7 +293,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
         when:
             loadConfig(DefaultLoginWithCustomAuthenticationEntryPointConfig)
         then:
-            !findFilter(DefaultLoginPageViewFilter)
+            !findFilter(DefaultLoginPageGeneratingFilter)
     }
 
     @Configuration
@@ -328,7 +328,7 @@ public class DefaultLoginPageConfigurerTests extends BaseSpringSpec {
                 .build()
 
         then: "DefaultLoginPageGeneratingFilter is registered with LifecycleManager"
-            1 * objectPostProcessor.postProcess(_ as DefaultLoginPageViewFilter) >> {DefaultLoginPageViewFilter o -> o}
+            1 * objectPostProcessor.postProcess(_ as DefaultLoginPageGeneratingFilter) >> {DefaultLoginPageGeneratingFilter o -> o}
             1 * objectPostProcessor.postProcess(_ as UsernamePasswordAuthenticationFilter) >> {UsernamePasswordAuthenticationFilter o -> o}
             1 * objectPostProcessor.postProcess(_ as LoginUrlAuthenticationEntryPoint) >> {LoginUrlAuthenticationEntryPoint o -> o}
             1 * objectPostProcessor.postProcess(_ as ExceptionTranslationFilter) >> {ExceptionTranslationFilter o -> o}

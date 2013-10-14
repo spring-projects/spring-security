@@ -22,7 +22,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
-import org.springframework.security.web.authentication.ui.DefaultLoginPageViewFilter;
+import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -57,7 +57,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * <li>{@link AuthenticationManager}</li>
  * <li>{@link RememberMeServices} - is optionally used. See {@link RememberMeConfigurer}</li>
  * <li>{@link SessionAuthenticationStrategy} - is optionally used. See {@link SessionManagementConfigurer}</li>
- * <li>{@link DefaultLoginPageViewFilter} - if present will be populated with information from the configuration</li>
+ * <li>{@link DefaultLoginPageGeneratingFilter} - if present will be populated with information from the configuration</li>
  * </ul>
  *
  * @author Rob Winch
@@ -245,12 +245,12 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
     }
 
     /**
-     * If available, initializes the {@link DefaultLoginPageViewFilter} shared object.
+     * If available, initializes the {@link DefaultLoginPageGeneratingFilter} shared object.
      *
      * @param http the {@link HttpSecurityBuilder} to use
      */
     private void initDefaultLoginFilter(H http) {
-        DefaultLoginPageViewFilter loginPageGeneratingFilter = http.getSharedObject(DefaultLoginPageViewFilter.class);
+        DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = http.getSharedObject(DefaultLoginPageGeneratingFilter.class);
         if(loginPageGeneratingFilter != null && !isCustomLoginPage()) {
             loginPageGeneratingFilter.setFormLoginEnabled(true);
             loginPageGeneratingFilter.setUsernameParameter(getUsernameParameter());

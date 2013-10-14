@@ -18,7 +18,7 @@ package org.springframework.security.config.annotation.web.configurers;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.authentication.ui.DefaultLoginPageViewFilter;
+import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 
 /**
  * Adds a Filter that will generate a login page if one is not specified otherwise when using {@link WebSecurityConfigurerAdapter}.
@@ -32,7 +32,7 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageViewFi
  * The following Filters are conditionally populated
  *
  * <ul>
- *     <li>{@link DefaultLoginPageViewFilter} if the {@link FormLoginConfigurer} did not have a login page specified</li>
+ *     <li>{@link DefaultLoginPageGeneratingFilter} if the {@link FormLoginConfigurer} did not have a login page specified</li>
  * </ul>
  *
  * <h2>Shared Objects Created</h2>
@@ -56,11 +56,11 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageViewFi
 public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>> extends
         AbstractHttpConfigurer<DefaultLoginPageConfigurer<H>,H> {
 
-    private DefaultLoginPageViewFilter loginPageGeneratingFilter = new DefaultLoginPageViewFilter();
+    private DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = new DefaultLoginPageGeneratingFilter();
 
     @Override
     public void init(H http) throws Exception {
-        http.setSharedObject(DefaultLoginPageViewFilter.class, loginPageGeneratingFilter);
+        http.setSharedObject(DefaultLoginPageGeneratingFilter.class, loginPageGeneratingFilter);
     }
 
     @Override

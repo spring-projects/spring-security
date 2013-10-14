@@ -32,7 +32,7 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
-import org.springframework.security.web.authentication.ui.DefaultLoginPageViewFilter;
+import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 
 /**
  * Configures Remember Me authentication. This typically involves the user
@@ -67,7 +67,7 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageViewFi
  * <ul>
  * <li>{@link AuthenticationManager}</li>
  * <li>{@link UserDetailsService} if no {@link #userDetailsService(UserDetailsService)} was specified.</li>
- * <li> {@link DefaultLoginPageViewFilter} - if present will be populated with information from the configuration</li>
+ * <li> {@link DefaultLoginPageGeneratingFilter} - if present will be populated with information from the configuration</li>
  * </ul>
  *
  * @author Rob Winch
@@ -229,12 +229,12 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extend
     }
 
     /**
-     * If available, initializes the {@link DefaultLoginPageViewFilter} shared object.
+     * If available, initializes the {@link DefaultLoginPageGeneratingFilter} shared object.
      *
      * @param http the {@link HttpSecurityBuilder} to use
      */
     private void initDefaultLoginFilter(H http) {
-        DefaultLoginPageViewFilter loginPageGeneratingFilter = http.getSharedObject(DefaultLoginPageViewFilter.class);
+        DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = http.getSharedObject(DefaultLoginPageGeneratingFilter.class);
         if(loginPageGeneratingFilter != null) {
             loginPageGeneratingFilter.setRememberMeParameter(getRememberMeParameter());
         }
