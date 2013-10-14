@@ -45,9 +45,9 @@
         </sec:authentication-provider>
     </sec:authentication-manager>
 
-    <bean id="mockNotAFilter" class="org.springframework.security.web.util.matchers.AnyRequestMatcher"/>
+    <bean id="mockNotAFilter" class="org.springframework.security.web.util.matcher.AnyRequestMatcher"/>
 
-    <bean id="fooMatcher" class="org.springframework.security.web.util.matchers.AntPathRequestMatcher">
+    <bean id="fooMatcher" class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
         <constructor-arg value="/foo/**"/>
     </bean>
 
@@ -137,7 +137,7 @@
                 </bean>
                 <bean class="org.springframework.security.web.DefaultSecurityFilterChain">
                     <constructor-arg>
-                        <bean class="org.springframework.security.web.util.matchers.AntPathRequestMatcher">
+                        <bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
                             <constructor-arg value="/some/other/path/**"/>
                         </bean>
                     </constructor-arg>
@@ -151,7 +151,7 @@
                 </bean>
                 <bean class="org.springframework.security.web.DefaultSecurityFilterChain">
                     <constructor-arg>
-                        <bean class="org.springframework.security.web.util.matchers.AntPathRequestMatcher">
+                        <bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
                             <constructor-arg value="/do/not/filter*"/>
                         </bean>
                     </constructor-arg>
@@ -161,7 +161,7 @@
                 </bean>
                 <bean class="org.springframework.security.web.DefaultSecurityFilterChain">
                     <constructor-arg>
-                        <bean class="org.springframework.security.web.util.matchers.AntPathRequestMatcher">
+                        <bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
                             <constructor-arg value="/**"/>
                         </bean>
                     </constructor-arg>

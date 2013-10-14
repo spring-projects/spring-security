@@ -40,7 +40,7 @@ import org.springframework.security.config.authentication.AuthenticationManagerF
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.PortResolverImpl;
-import org.springframework.security.web.util.matchers.AnyRequestMatcher;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;

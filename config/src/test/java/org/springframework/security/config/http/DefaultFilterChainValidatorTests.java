@@ -38,7 +38,7 @@ import org.springframework.security.web.access.intercept.FilterInvocationSecurit
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.util.matchers.AnyRequestMatcher;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 /**
  *

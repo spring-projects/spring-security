@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.util;
+package org.springframework.security.web.util.matcher;
 
 import java.beans.PropertyEditorSupport;
 
@@ -28,7 +28,6 @@ import org.springframework.security.web.authentication.DelegatingAuthenticationE
  *
  * @author Mike Wiesner
  * @since 3.0.2
- * @deprecated use {@link org.springframework.security.web.util.matcher.RequestMatcherEditor}
  */
 public class RequestMatcherEditor extends PropertyEditorSupport {
 

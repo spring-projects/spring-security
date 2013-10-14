@@ -5,10 +5,10 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.security.web.util.matchers.AntPathRequestMatcher;
-import org.springframework.security.web.util.matchers.AnyRequestMatcher;
-import org.springframework.security.web.util.matchers.RegexRequestMatcher;
-import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 

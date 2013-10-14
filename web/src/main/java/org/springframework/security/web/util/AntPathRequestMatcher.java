@@ -40,7 +40,7 @@ import org.springframework.util.StringUtils;
  * @author Luke Taylor
  * @author Rob Winch
  * @since 3.1
- * @deprecated use {@link org.springframework.security.web.util.matchers.AntPathRequestMatcher}
+ * @deprecated use {@link org.springframework.security.web.util.matcher.AntPathRequestMatcher}
  * @see org.springframework.util.AntPathMatcher
  */
 public final class AntPathRequestMatcher implements RequestMatcher {

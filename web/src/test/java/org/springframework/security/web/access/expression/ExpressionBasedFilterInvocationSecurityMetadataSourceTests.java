@@ -7,8 +7,8 @@ import org.junit.Test;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.util.matchers.AnyRequestMatcher;
-import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;

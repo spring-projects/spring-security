@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractRequestMatcherMappingConfigurer.UrlMapping;
-import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 
 /**

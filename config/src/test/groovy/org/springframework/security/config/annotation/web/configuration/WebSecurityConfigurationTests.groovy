@@ -40,7 +40,7 @@ import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.expression.WebSecurityExpressionHandler;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
-import org.springframework.security.web.util.matchers.AnyRequestMatcher
+import org.springframework.security.web.util.matcher.AnyRequestMatcher
 import org.springframework.test.util.ReflectionTestUtils;
 
 /**

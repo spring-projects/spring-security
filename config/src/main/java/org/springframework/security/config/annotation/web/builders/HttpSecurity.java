@@ -63,11 +63,11 @@ import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.PortMapperImpl;
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
-import org.springframework.security.web.util.matchers.AntPathRequestMatcher;
-import org.springframework.security.web.util.matchers.AnyRequestMatcher;
-import org.springframework.security.web.util.matchers.RegexRequestMatcher;
-import org.springframework.security.web.util.RequestMatcher;
-import org.springframework.security.web.util.matchers.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
 /**

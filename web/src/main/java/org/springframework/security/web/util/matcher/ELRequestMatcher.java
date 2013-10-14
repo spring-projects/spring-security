@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.util.matchers;
+package org.springframework.security.web.util.matcher;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -23,7 +23,7 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
-import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * A RequestMatcher implementation which uses a SpEL expression

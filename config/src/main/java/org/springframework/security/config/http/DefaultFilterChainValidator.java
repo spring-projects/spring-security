@@ -25,8 +25,8 @@ import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
-import org.springframework.security.web.util.RequestMatcher;
-import org.springframework.security.web.util.matchers.AnyRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 public class DefaultFilterChainValidator implements FilterChainProxy.FilterChainValidator {
     private final Log logger = LogFactory.getLog(getClass());

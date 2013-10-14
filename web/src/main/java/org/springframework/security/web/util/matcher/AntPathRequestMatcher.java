@@ -10,14 +10,14 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package org.springframework.security.web.util.matchers;
+package org.springframework.security.web.util.matcher;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -166,22 +166,16 @@ public final class AntPathRequestMatcher implements RequestMatcher {
         return pattern;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public boolean equals(Object obj) {
-
-        if (obj instanceof org.springframework.security.web.util.AntPathRequestMatcher) {
-            org.springframework.security.web.util.AntPathRequestMatcher other = (org.springframework.security.web.util.AntPathRequestMatcher) obj;
-            return this.pattern.equals(other.getPattern()) &&
-                    this.httpMethod == other.getHttpMethod() &&
-                    this.caseSensitive == other.isCaseSensitive();
-        } else if(obj instanceof AntPathRequestMatcher) {
-            org.springframework.security.web.util.matchers.AntPathRequestMatcher other = (AntPathRequestMatcher) obj;
-            return this.pattern.equals(other.pattern) &&
-                    this.httpMethod == other.httpMethod &&
-                    this.caseSensitive == other.caseSensitive;
+        if (!(obj instanceof AntPathRequestMatcher)) {
+            return false;
         }
-        return false;
+
+        AntPathRequestMatcher other = (AntPathRequestMatcher) obj;
+        return this.pattern.equals(other.pattern) &&
+                this.httpMethod == other.httpMethod &&
+                this.caseSensitive == other.caseSensitive;
     }
 
     @Override

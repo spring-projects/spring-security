@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.util.matchers;
+package org.springframework.security.web.util.matcher;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.web.util.matchers.ELRequestMatcher;
+import org.springframework.security.web.util.matcher.ELRequestMatcher;
 
 /**
  * @author Mike Wiesner

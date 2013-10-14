@@ -29,8 +29,8 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.util.matchers.AntPathRequestMatcher;
-import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * Tests {@link DefaultFilterInvocationSecurityMetadataSource}.

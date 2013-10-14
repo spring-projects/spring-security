@@ -35,7 +35,7 @@ import org.springframework.security.web.access.channel.RetryWithHttpEntryPoint;
 import org.springframework.security.web.access.channel.RetryWithHttpsEntryPoint;
 import org.springframework.security.web.access.channel.SecureChannelProcessor;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
-import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * Adds channel security (i.e. requires HTTPS or HTTP) to an application. In order for

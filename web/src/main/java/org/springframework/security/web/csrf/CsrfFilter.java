@@ -28,7 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
-import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -218,7 +218,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
         private Pattern allowedMethods = Pattern.compile("^(GET|HEAD|TRACE|OPTIONS)$");
 
         /* (non-Javadoc)
-         * @see org.springframework.security.web.util.RequestMatcher#matches(javax.servlet.http.HttpServletRequest)
+         * @see org.springframework.security.web.util.matcher.RequestMatcher#matches(javax.servlet.http.HttpServletRequest)
          */
         public boolean matches(HttpServletRequest request) {
             return !allowedMethods.matcher(request.getMethod()).matches();

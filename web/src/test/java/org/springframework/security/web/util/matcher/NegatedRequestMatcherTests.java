@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.springframework.security.web.util.matchers;
+package org.springframework.security.web.util.matcher;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -24,8 +24,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.security.web.util.RequestMatcher;
-import org.springframework.security.web.util.matchers.NegatedRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 
 /**
  *

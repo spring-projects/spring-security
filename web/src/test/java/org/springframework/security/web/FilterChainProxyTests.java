@@ -14,7 +14,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.firewall.FirewalledRequest;
 import org.springframework.security.web.firewall.HttpFirewall;
-import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;

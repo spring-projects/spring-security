@@ -27,7 +27,7 @@ import org.springframework.security.web.access.AccessDeniedHandler
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor;
-import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.support.RequestDataValueProcessor;
 
 import spock.lang.Unroll;

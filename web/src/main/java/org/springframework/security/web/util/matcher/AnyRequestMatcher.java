@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.util.matchers;
+package org.springframework.security.web.util.matcher;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * Matches any supplied request.
@@ -35,7 +35,7 @@ public final class AnyRequestMatcher implements RequestMatcher {
     @Override
     @SuppressWarnings("deprecation")
     public boolean equals(Object obj) {
-        return obj instanceof AnyRequestMatcher || obj instanceof org.springframework.security.web.util.AnyRequestMatcher;
+        return obj instanceof AnyRequestMatcher || obj instanceof org.springframework.security.web.util.matcher.AnyRequestMatcher;
     }
 
     @Override

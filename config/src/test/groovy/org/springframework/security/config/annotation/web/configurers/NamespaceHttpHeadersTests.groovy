@@ -27,7 +27,7 @@ import org.springframework.security.web.header.writers.XXssProtectionHeaderWrite
 import org.springframework.security.web.header.writers.frameoptions.StaticAllowFromStrategy
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter.XFrameOptionsMode
-import org.springframework.security.web.util.matchers.AnyRequestMatcher
+import org.springframework.security.web.util.matcher.AnyRequestMatcher
 
 /**
  * Tests to verify that all the functionality of <headers> attributes is present

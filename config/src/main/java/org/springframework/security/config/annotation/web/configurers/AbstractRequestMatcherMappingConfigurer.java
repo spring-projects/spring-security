@@ -23,7 +23,7 @@ import java.util.List;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.config.annotation.SecurityBuilder;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherConfigurer;
-import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * A base class for registering {@link RequestMatcher}'s. For example, it might allow for specifying which

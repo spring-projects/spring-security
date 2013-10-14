@@ -40,6 +40,7 @@ dependencies {
         exclude group: 'rubygems', module :'erubis'
         exclude group: 'rubygems', module :'slim'
     }
+    compile 'net.alchim31:livereload-jvm:0.1.0'
     compile 'org.apache.avalon.framework:avalon-framework-api:4.3.1'
     compile 'org.apache.avalon.framework:avalon-framework-impl:4.3.1'
     compile 'org.apache.xmlgraphics:fop:1.1'

@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.springframework.security.web.util.matchers;
+package org.springframework.security.web.util.matcher;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,20 +22,19 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
 
 /**
- * {@link RequestMatcher} that will return true if all of the passed in
+ * {@link RequestMatcher} that will return true if any of the passed in
  * {@link RequestMatcher} instances match.
  *
  * @author Rob Winch
  * @since 3.2
  */
-public final class AndRequestMatcher implements RequestMatcher {
+public final class OrRequestMatcher implements RequestMatcher {
     private final Log logger = LogFactory.getLog(getClass());
-
     private final List<RequestMatcher> requestMatchers;
 
     /**
@@ -43,7 +42,7 @@ public final class AndRequestMatcher implements RequestMatcher {
      *
      * @param requestMatchers the {@link RequestMatcher} instances to try
      */
-    public AndRequestMatcher(List<RequestMatcher> requestMatchers) {
+    public OrRequestMatcher(List<RequestMatcher> requestMatchers) {
         Assert.notEmpty(requestMatchers, "requestMatchers must contain a value");
         if(requestMatchers.contains(null)) {
             throw new IllegalArgumentException("requestMatchers cannot contain null values");
@@ -56,7 +55,7 @@ public final class AndRequestMatcher implements RequestMatcher {
      *
      * @param requestMatchers the {@link RequestMatcher} instances to try
      */
-    public AndRequestMatcher(RequestMatcher... requestMatchers) {
+    public OrRequestMatcher(RequestMatcher... requestMatchers) {
         this(Arrays.asList(requestMatchers));
     }
 
@@ -65,17 +64,17 @@ public final class AndRequestMatcher implements RequestMatcher {
             if(logger.isDebugEnabled()) {
                 logger.debug("Trying to match using " + matcher);
             }
-            if(!matcher.matches(request)) {
-                logger.debug("Did not match");
-                return false;
+            if(matcher.matches(request)) {
+                logger.debug("matched");
+                return true;
             }
         }
-        logger.debug("All requestMatchers returned true");
-        return true;
+        logger.debug("No matches found");
+        return false;
     }
 
     @Override
     public String toString() {
-        return "AndRequestMatcher [requestMatchers=" + requestMatchers + "]";
+        return "OrRequestMatcher [requestMatchers=" + requestMatchers + "]";
     }
 }

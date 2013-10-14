@@ -60,9 +60,9 @@ import org.springframework.security.web.context.NullSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
-import org.springframework.security.web.util.matchers.AntPathRequestMatcher
-import org.springframework.security.web.util.matchers.AnyRequestMatcher;
-import org.springframework.security.web.util.RequestMatcher
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher
 
 /**
  * Tests to verify that all the functionality of <logout> attributes is present

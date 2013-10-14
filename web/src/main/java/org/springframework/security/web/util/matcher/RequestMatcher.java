@@ -1,4 +1,4 @@
-package org.springframework.security.web.util;
+package org.springframework.security.web.util.matcher;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletRequest;
  *
  * @author Luke Taylor
  * @since 3.0.2
- * @deprecated use {@link org.springframework.security.web.util.matcher.RequestMatcher}
  */
 public interface RequestMatcher {
 

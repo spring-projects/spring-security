@@ -14,7 +14,7 @@ import org.springframework.util.StringUtils;
  * Both IPv6 and IPv4 addresses are supported, but a matcher which is configured with an IPv4 address will
  * never match a request which returns an IPv6 address, and vice-versa.
  *
- * @deprecated use {@link org.springframework.security.web.util.matchers.IpAddressMatcher}
+ * @deprecated use {@link org.springframework.security.web.util.matcher.IpAddressMatcher}
  * @author Luke Taylor
  * @since 3.0.2
  */

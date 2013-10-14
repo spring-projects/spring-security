@@ -35,7 +35,7 @@ import org.springframework.security.web.authentication.DelegatingAuthenticationE
  *
  * @author Mike Wiesner
  * @since 3.0.2
- * @deprecated Use org.springframework.security.web.util.matchers.ELRequestMatcher
+ * @deprecated Use org.springframework.security.web.util.matcher.ELRequestMatcher
  */
 public class ELRequestMatcher implements RequestMatcher {
 

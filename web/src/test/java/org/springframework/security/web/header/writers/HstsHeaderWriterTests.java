@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.header.writers.HstsHeaderWriter;
-import org.springframework.security.web.util.matchers.AnyRequestMatcher;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 /**
  * @author Rob Winch

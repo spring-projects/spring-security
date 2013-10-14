@@ -23,10 +23,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.SecurityBuilder;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.AbstractRequestMatcherMappingConfigurer;
-import org.springframework.security.web.util.matchers.AntPathRequestMatcher;
-import org.springframework.security.web.util.matchers.AnyRequestMatcher;
-import org.springframework.security.web.util.matchers.RegexRequestMatcher;
-import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * A base class for registering {@link RequestMatcher}'s. For example, it might allow for specifying which
@@ -46,7 +46,7 @@ public abstract class AbstractRequestMatcherConfigurer<B extends SecurityBuilder
      * Maps any request.
      *
      * @param method the {@link HttpMethod} to use or {@code null} for any {@link HttpMethod}.
-     * @param antPatterns the ant patterns to create {@link org.springframework.security.web.util.matchers.AntPathRequestMatcher}
+     * @param antPatterns the ant patterns to create {@link org.springframework.security.web.util.matcher.AntPathRequestMatcher}
      *                    from
      *
      * @return the object that is chained after creating the {@link RequestMatcher}
@@ -56,10 +56,10 @@ public abstract class AbstractRequestMatcherConfigurer<B extends SecurityBuilder
     }
 
     /**
-     * Maps a {@link List} of {@link org.springframework.security.web.util.matchers.AntPathRequestMatcher} instances.
+     * Maps a {@link List} of {@link org.springframework.security.web.util.matcher.AntPathRequestMatcher} instances.
      *
      * @param method the {@link HttpMethod} to use or {@code null} for any {@link HttpMethod}.
-     * @param antPatterns the ant patterns to create {@link org.springframework.security.web.util.matchers.AntPathRequestMatcher}
+     * @param antPatterns the ant patterns to create {@link org.springframework.security.web.util.matcher.AntPathRequestMatcher}
      *                    from
      *
      * @return the object that is chained after creating the {@link RequestMatcher}
@@ -69,10 +69,10 @@ public abstract class AbstractRequestMatcherConfigurer<B extends SecurityBuilder
     }
 
     /**
-     * Maps a {@link List} of {@link org.springframework.security.web.util.matchers.AntPathRequestMatcher} instances that do
+     * Maps a {@link List} of {@link org.springframework.security.web.util.matcher.AntPathRequestMatcher} instances that do
      * not care which {@link HttpMethod} is used.
      *
-     * @param antPatterns the ant patterns to create {@link org.springframework.security.web.util.matchers.AntPathRequestMatcher}
+     * @param antPatterns the ant patterns to create {@link org.springframework.security.web.util.matcher.AntPathRequestMatcher}
      *                    from
      *
      * @return the object that is chained after creating the {@link RequestMatcher}
@@ -82,11 +82,11 @@ public abstract class AbstractRequestMatcherConfigurer<B extends SecurityBuilder
     }
 
     /**
-     * Maps a {@link List} of {@link org.springframework.security.web.util.matchers.RegexRequestMatcher} instances.
+     * Maps a {@link List} of {@link org.springframework.security.web.util.matcher.RegexRequestMatcher} instances.
      *
      * @param method the {@link HttpMethod} to use or {@code null} for any {@link HttpMethod}.
      * @param regexPatterns the regular expressions to create
-     *                      {@link org.springframework.security.web.util.matchers.RegexRequestMatcher} from
+     *                      {@link org.springframework.security.web.util.matcher.RegexRequestMatcher} from
      *
      * @return the object that is chained after creating the {@link RequestMatcher}
      */
@@ -96,11 +96,11 @@ public abstract class AbstractRequestMatcherConfigurer<B extends SecurityBuilder
     }
 
     /**
-     * Create a {@link List} of {@link org.springframework.security.web.util.matchers.RegexRequestMatcher} instances that do not
+     * Create a {@link List} of {@link org.springframework.security.web.util.matcher.RegexRequestMatcher} instances that do not
      * specify an {@link HttpMethod}.
      *
      * @param regexPatterns the regular expressions to create
-     *                      {@link org.springframework.security.web.util.matchers.RegexRequestMatcher} from
+     *                      {@link org.springframework.security.web.util.matcher.RegexRequestMatcher} from
      *
      * @return the object that is chained after creating the {@link RequestMatcher}
      */

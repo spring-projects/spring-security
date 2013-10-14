@@ -50,8 +50,8 @@ import org.springframework.security.web.savedrequest.NullRequestCache
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
 import org.springframework.security.web.session.SessionManagementFilter
-import org.springframework.security.web.util.matchers.RegexRequestMatcher
-import org.springframework.security.web.util.RequestMatcher
+import org.springframework.security.web.util.matcher.RegexRequestMatcher
+import org.springframework.security.web.util.matcher.RequestMatcher
 
 /**
  * Tests to verify that all the functionality of <http> attributes is present

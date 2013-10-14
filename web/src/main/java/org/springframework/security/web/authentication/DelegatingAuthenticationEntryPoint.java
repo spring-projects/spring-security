@@ -27,9 +27,9 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.util.matchers.ELRequestMatcher;
-import org.springframework.security.web.util.RequestMatcher;
-import org.springframework.security.web.util.RequestMatcherEditor;
+import org.springframework.security.web.util.matcher.ELRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcherEditor;
 import org.springframework.util.Assert;
 
 /**

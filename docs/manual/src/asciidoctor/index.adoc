@@ -3086,7 +3086,7 @@ At times you may want to only write a header for certain requests. For example, 
 <beans:bean id="headerWriter"
     class="org.springframework.security.web.header.writers.DelegatingRequestMatcherHeaderWriter">
     <beans:constructor-arg>
-        <bean class="org.springframework.security.web.util.matchers.AntPathRequestMatcher"
+        <bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher"
             c:pattern="/login"/>
     </beans:constructor-arg>
     <beans:constructor-arg>

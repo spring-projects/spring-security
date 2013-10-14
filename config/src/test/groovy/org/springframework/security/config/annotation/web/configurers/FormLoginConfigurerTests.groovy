@@ -46,7 +46,7 @@ import org.springframework.security.web.header.HeaderWriterFilter
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
 import org.springframework.security.web.session.SessionManagementFilter
-import org.springframework.security.web.util.matchers.AnyRequestMatcher
+import org.springframework.security.web.util.matcher.AnyRequestMatcher
 import org.springframework.test.util.ReflectionTestUtils
 
 import spock.lang.Unroll
