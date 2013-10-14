@@ -7,20 +7,22 @@ import javax.servlet.http.HttpServletRequest;
  *
  * @author Luke Taylor
  * @since 3.1
+ * @deprecated use org.springframework.security.web.util.matchers.AnyRequestMatcher.INSTANCE instead
  */
 public final class AnyRequestMatcher implements RequestMatcher {
+    private final RequestMatcher delegate = org.springframework.security.web.util.matchers.AnyRequestMatcher.INSTANCE;
 
     public boolean matches(HttpServletRequest request) {
-        return true;
+        return delegate.matches(request);
     }
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof AnyRequestMatcher;
+        return delegate.equals(obj);
     }
 
     @Override
     public int hashCode() {
-        return 1;
+        return delegate.hashCode();
     }
 }

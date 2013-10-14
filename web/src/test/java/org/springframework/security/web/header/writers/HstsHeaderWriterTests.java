@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.header.writers.HstsHeaderWriter;
-import org.springframework.security.web.util.AnyRequestMatcher;
+import org.springframework.security.web.util.matchers.AnyRequestMatcher;
 
 /**
  * @author Rob Winch
@@ -46,7 +46,7 @@ public class HstsHeaderWriterTests {
     @Test
     public void allArgsCustomConstructorWriteHeaders() {
         request.setSecure(false);
-        writer = new HstsHeaderWriter(new AnyRequestMatcher(), 15768000, false);
+        writer = new HstsHeaderWriter(AnyRequestMatcher.INSTANCE, 15768000, false);
 
         writer.writeHeaders(request, response);
 
@@ -57,7 +57,7 @@ public class HstsHeaderWriterTests {
     @Test
     public void maxAgeAndIncludeSubdomainsCustomConstructorWriteHeaders() {
         request.setSecure(false);
-        writer = new HstsHeaderWriter(new AnyRequestMatcher(), 15768000, false);
+        writer = new HstsHeaderWriter(AnyRequestMatcher.INSTANCE, 15768000, false);
 
         writer.writeHeaders(request, response);
 
@@ -124,7 +124,7 @@ public class HstsHeaderWriterTests {
 
     @Test
     public void writeHeadersAnyRequestMatcher() {
-        writer.setRequestMatcher(new AnyRequestMatcher());
+        writer.setRequestMatcher(AnyRequestMatcher.INSTANCE);
         request.setSecure(false);
 
         writer.writeHeaders(request, response);

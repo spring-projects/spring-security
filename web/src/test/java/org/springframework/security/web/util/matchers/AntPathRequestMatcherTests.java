@@ -10,7 +10,7 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package org.springframework.security.web.util;
+package org.springframework.security.web.util.matchers;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -25,6 +25,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.web.util.matchers.AntPathRequestMatcher;
+import org.springframework.security.web.util.matchers.AnyRequestMatcher;
 
 /**
  * @author Luke Taylor
@@ -139,7 +141,7 @@ public class AntPathRequestMatcherTests {
         assertEquals(new AntPathRequestMatcher("/xyz", "POST"), new AntPathRequestMatcher("/xyz", "POST"));
         assertFalse(new AntPathRequestMatcher("/xyz", "POST").equals(new AntPathRequestMatcher("/xyz", "GET")));
         assertFalse(new AntPathRequestMatcher("/xyz").equals(new AntPathRequestMatcher("/xxx")));
-        assertFalse(new AntPathRequestMatcher("/xyz").equals(new AnyRequestMatcher()));
+        assertFalse(new AntPathRequestMatcher("/xyz").equals(AnyRequestMatcher.INSTANCE));
         assertFalse(new AntPathRequestMatcher("/xyz","GET", false).equals(new AntPathRequestMatcher("/xyz","GET", true)));
     }
 

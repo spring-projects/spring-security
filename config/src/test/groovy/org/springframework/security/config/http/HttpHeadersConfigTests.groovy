@@ -20,7 +20,7 @@ import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.security.web.FilterChainProxy
 import org.springframework.security.web.header.HeaderWriterFilter
 import org.springframework.security.web.header.writers.StaticHeadersWriter
-import org.springframework.security.web.util.AnyRequestMatcher
+import org.springframework.security.web.util.matchers.AnyRequestMatcher
 
 /**
  *

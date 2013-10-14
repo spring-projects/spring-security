@@ -23,12 +23,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
-import org.springframework.security.web.util.AndRequestMatcher;
-import org.springframework.security.web.util.AntPathRequestMatcher;
-import org.springframework.security.web.util.MediaTypeRequestMatcher;
-import org.springframework.security.web.util.NegatedRequestMatcher;
-import org.springframework.security.web.util.RequestHeaderRequestMatcher;
+import org.springframework.security.web.util.matchers.AntPathRequestMatcher;
 import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.matchers.AndRequestMatcher;
+import org.springframework.security.web.util.matchers.MediaTypeRequestMatcher;
+import org.springframework.security.web.util.matchers.NegatedRequestMatcher;
+import org.springframework.security.web.util.matchers.RequestHeaderRequestMatcher;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 

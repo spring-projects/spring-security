@@ -50,7 +50,7 @@ import org.springframework.security.web.savedrequest.NullRequestCache
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter
 import org.springframework.security.web.session.SessionManagementFilter
-import org.springframework.security.web.util.RegexRequestMatcher
+import org.springframework.security.web.util.matchers.RegexRequestMatcher
 import org.springframework.security.web.util.RequestMatcher
 
 /**

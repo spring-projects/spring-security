@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.util;
+package org.springframework.security.web.util.matchers;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.Expression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
+import org.springframework.security.web.util.RequestMatcher;
 
 /**
  * A RequestMatcher implementation which uses a SpEL expression
@@ -32,18 +36,19 @@ import org.springframework.security.web.authentication.DelegatingAuthenticationE
  *
  * @author Mike Wiesner
  * @since 3.0.2
- * @deprecated Use org.springframework.security.web.util.matchers.ELRequestMatcher
  */
 public class ELRequestMatcher implements RequestMatcher {
 
-    private final org.springframework.security.web.util.matchers.ELRequestMatcher delegate;
+    private final Expression expression;
 
     public ELRequestMatcher(String el) {
-        delegate = new org.springframework.security.web.util.matchers.ELRequestMatcher(el);
+        SpelExpressionParser parser = new SpelExpressionParser();
+        expression = parser.parseExpression(el);
     }
 
     public boolean matches(HttpServletRequest request) {
-        return delegate.matches(request);
+        EvaluationContext context = createELContext(request);
+        return expression.getValue(context, Boolean.class).booleanValue();
     }
 
     /**
@@ -52,7 +57,7 @@ public class ELRequestMatcher implements RequestMatcher {
      * @return EL root context which is used to evaluate the expression
      */
     public EvaluationContext createELContext(HttpServletRequest request) {
-        return delegate.createELContext(request);
+        return new StandardEvaluationContext(new ELRequestMatcherContext(request));
     }
 
 }

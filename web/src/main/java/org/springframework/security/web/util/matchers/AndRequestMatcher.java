@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.springframework.security.web.util;
+package org.springframework.security.web.util.matchers;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.security.web.util.RequestMatcher;
 import org.springframework.util.Assert;
 
 

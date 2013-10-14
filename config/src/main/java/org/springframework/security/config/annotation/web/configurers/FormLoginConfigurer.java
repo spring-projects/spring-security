@@ -23,7 +23,7 @@ import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageViewFilter;
-import org.springframework.security.web.util.AntPathRequestMatcher;
+import org.springframework.security.web.util.matchers.AntPathRequestMatcher;
 import org.springframework.security.web.util.RequestMatcher;
 
 /**

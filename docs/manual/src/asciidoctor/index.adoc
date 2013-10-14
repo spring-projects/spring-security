@@ -1034,7 +1034,7 @@ We recommend you start with the tutorial sample, as the XML is minimal and easy 
 ==== Contacts
 The Contacts Sample is an advanced example in that it illustrates the more powerful features of domain object access control lists (ACLs) in addition to basic application security. The application provides an interface with which the users are able to administer a simple database of contacts (the domain objects).
 
-To deploy, simply copy the WAR file from Spring Security distribution into your container’s `webapps` directory. The war should be called `spring-security-samples-contacts-3.1.x.war` (the appended version number will vary depending on what release you are using).
+To deploy, simply copy the WAR file from Spring Security distribution into your container���s `webapps` directory. The war should be called `spring-security-samples-contacts-3.1.x.war` (the appended version number will vary depending on what release you are using).
 
 After starting your container, check the application can load. Visit http://localhost:8080/contacts (or whichever URL is appropriate for your web container and the WAR you deployed).
 
@@ -1424,7 +1424,7 @@ Following the secure object invocation proceeding and then returning - which may
 `AbstractSecurityInterceptor` and its related objects are shown in <<abstract-security-interceptor>>
 
 [[abstract-security-interceptor]]
-.Security interceptors and the “secure object” model
+.Security interceptors and the ���secure object��� model
 image::images/security-interception.png[Abstract Security Interceptor]
 
 ====== Extending the Secure Object Model
@@ -2509,7 +2509,7 @@ $(function () {
 });
 ----
 
-As a alternative to jQuery, we recommend using http://cujojs.com/[cujoJS’s] rest.js. https://github.com/cujojs/rest[rest.js] provides advanced support for working with HTTP request and responses in RESTful ways. A core capability is the ability to contextualize the HTTP client adding behavior as needed by chaining interceptors on to the client.
+As a alternative to jQuery, we recommend using http://cujojs.com/[cujoJS���s] rest.js. https://github.com/cujojs/rest[rest.js] provides advanced support for working with HTTP request and responses in RESTful ways. A core capability is the ability to contextualize the HTTP client adding behavior as needed by chaining interceptors on to the client.
 
 [source,javascript]
 ----
@@ -3086,7 +3086,7 @@ At times you may want to only write a header for certain requests. For example, 
 <beans:bean id="headerWriter"
     class="org.springframework.security.web.header.writers.DelegatingRequestMatcherHeaderWriter">
     <beans:constructor-arg>
-        <bean class="org.springframework.security.web.util.AntPathRequestMatcher"
+        <bean class="org.springframework.security.web.util.matchers.AntPathRequestMatcher"
             c:pattern="/login"/>
     </beans:constructor-arg>
     <beans:constructor-arg>
@@ -3757,11 +3757,11 @@ Any Spring-EL functionality is available within the expression, so you can also 
 public void doSomething(Contact contact);
 ----
 
-Here we are accessing another built–in expression, `authentication`, which is the `Authentication` stored in the security context. You can also access its "principal" property directly, using the expression `principal`. The value will often be a `UserDetails` instance, so you might use an expression like `principal.username` or `principal.enabled`.
+Here we are accessing another built���in expression, `authentication`, which is the `Authentication` stored in the security context. You can also access its "principal" property directly, using the expression `principal`. The value will often be a `UserDetails` instance, so you might use an expression like `principal.username` or `principal.enabled`.
 
 [[el-pre-post-annotations-post]]
 * **Accessing the return value**
-Less commonly, you may wish to perform an access-control check after the method has been invoked. This can be achieved using the `@PostAuthorize` annotation. To access the return value from a method, use the built–in name `returnObject` in the expression.
+Less commonly, you may wish to perform an access-control check after the method has been invoked. This can be achieved using the `@PostAuthorize` annotation. To access the return value from a method, use the built���in name `returnObject` in the expression.
 
 
 ====== Filtering using
@@ -4369,14 +4369,14 @@ In a Spring Security deployment, Spring Security is responsible for this user in
 
 Therefore, the JAAS package for Spring Security provides two default callback handlers, `JaasNameCallbackHandler` and `JaasPasswordCallbackHandler`. Each of these callback handlers implement `JaasAuthenticationCallbackHandler`. In most cases these callback handlers can simply be used without understanding the internal mechanics.
 
-For those needing full control over the callback behavior, internally `AbstractJaasAuthenticationProvider` wraps these `JaasAuthenticationCallbackHandler` s with an `InternalCallbackHandler`. The `InternalCallbackHandler` is the class that actually implements JAAS’ normal `CallbackHandler` interface. Any time that the JAAS `LoginModule` is used, it is passed a list of application context configured `InternalCallbackHandler` s. If the `LoginModule` requests a callback against the `InternalCallbackHandler` s, the callback is in-turn passed to the `JaasAuthenticationCallbackHandler` s being wrapped.
+For those needing full control over the callback behavior, internally `AbstractJaasAuthenticationProvider` wraps these `JaasAuthenticationCallbackHandler` s with an `InternalCallbackHandler`. The `InternalCallbackHandler` is the class that actually implements JAAS��� normal `CallbackHandler` interface. Any time that the JAAS `LoginModule` is used, it is passed a list of application context configured `InternalCallbackHandler` s. If the `LoginModule` requests a callback against the `InternalCallbackHandler` s, the callback is in-turn passed to the `JaasAuthenticationCallbackHandler` s being wrapped.
 
 
 [[jaas-authoritygranter]]
 ===== JAAS AuthorityGranter
 JAAS works with principals. Even "roles" are represented as principals in JAAS. Spring Security, on the other hand, works with `Authentication` objects. Each `Authentication` object contains a single principal, and multiple `GrantedAuthority` s. To facilitate mapping between these different concepts, Spring Security's JAAS package includes an `AuthorityGranter` interface.
 
-An `AuthorityGranter` is responsible for inspecting a JAAS principal and returning a set of `String` s, representing the authorities assigned to the principal. For each returned authority string, the `AbstractJaasAuthenticationProvider` creates a `JaasGrantedAuthority` (which implements Spring Security’s `GrantedAuthority` interface) containing the authority string and the JAAS principal that the `AuthorityGranter` was passed. The `AbstractJaasAuthenticationProvider` obtains the JAAS principals by firstly successfully authenticating the user’s credentials using the JAAS `LoginModule`, and then accessing the `LoginContext` it returns. A call to `LoginContext.getSubject().getPrincipals()` is made, with each resulting principal passed to each `AuthorityGranter` defined against the `AbstractJaasAuthenticationProvider.setAuthorityGranters(List)` property.
+An `AuthorityGranter` is responsible for inspecting a JAAS principal and returning a set of `String` s, representing the authorities assigned to the principal. For each returned authority string, the `AbstractJaasAuthenticationProvider` creates a `JaasGrantedAuthority` (which implements Spring Security���s `GrantedAuthority` interface) containing the authority string and the JAAS principal that the `AuthorityGranter` was passed. The `AbstractJaasAuthenticationProvider` obtains the JAAS principals by firstly successfully authenticating the user���s credentials using the JAAS `LoginModule`, and then accessing the `LoginContext` it returns. A call to `LoginContext.getSubject().getPrincipals()` is made, with each resulting principal passed to each `AuthorityGranter` defined against the `AbstractJaasAuthenticationProvider.setAuthorityGranters(List)` property.
 
 Spring Security does not include any production `AuthorityGranter` s given that every JAAS principal has an implementation-specific meaning. However, there is a `TestAuthorityGranter` in the unit tests that demonstrates a simple `AuthorityGranter` implementation.
 
@@ -4445,7 +4445,7 @@ An example configuration of `DefaultJaasAuthenticationProvider` using `InMemoryC
 ==== JaasAuthenticationProvider
 The `JaasAuthenticationProvider` assumes the default `Configuration` is an instance of http://download.oracle.com/javase/1.4.2/docs/guide/security/jaas/spec/com/sun/security/auth/login/ConfigFile.html[ ConfigFile]. This assumption is made in order to attempt to update the `Configuration`. The `JaasAuthenticationProvider` then uses the default `Configuration` to create the `LoginContext`.
 
-Let’s assume we have a JAAS login configuration file, `/WEB-INF/login.conf`, with the following contents:
+Let���s assume we have a JAAS login configuration file, `/WEB-INF/login.conf`, with the following contents:
 
 [source,txt]
 ----
@@ -5509,7 +5509,7 @@ Specify the name of the request parameter to use when using regexp or whitelist 
 
 [[nsa-xss-protection]]
 ===== <xss-protection>
-Adds the http://blogs.msdn.com/b/ie/archive/2008/07/02/ie8-security-part-iv-the-xss-filter.aspx[X-XSS-Protection header] to the response to assist in protecting against http://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[reflected / “Type-1” Cross-Site Scripting (XSS)] attacks. This is in no-way a full protection to XSS attacks!
+Adds the http://blogs.msdn.com/b/ie/archive/2008/07/02/ie8-security-part-iv-the-xss-filter.aspx[X-XSS-Protection header] to the response to assist in protecting against http://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[reflected / ���Type-1��� Cross-Site Scripting (XSS)] attacks. This is in no-way a full protection to XSS attacks!
 
 
 [[nsa-xss-protection-attributes]]
@@ -5518,7 +5518,7 @@ Adds the http://blogs.msdn.com/b/ie/archive/2008/07/02/ie8-security-part-iv-the-
 
 [[nsa-xss-protection-enabled]]
 * **xss-protection-enabled**
-Enable or Disable http://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[reflected / “Type-1” Cross-Site Scripting (XSS)] protection.
+Enable or Disable http://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[reflected / ���Type-1��� Cross-Site Scripting (XSS)] protection.
 
 
 [[nsa-xss-protection-block]]

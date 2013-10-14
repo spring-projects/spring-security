@@ -71,7 +71,7 @@ import org.springframework.security.access.vote.AffirmativeBased
 import org.springframework.security.access.PermissionEvaluator
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler
-import org.springframework.security.web.util.AntPathRequestMatcher
+import org.springframework.security.web.util.matchers.AntPathRequestMatcher
 import org.springframework.security.authentication.AuthenticationManager
 
 

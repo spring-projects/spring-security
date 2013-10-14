@@ -25,7 +25,8 @@ import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
-import org.springframework.security.web.util.AnyRequestMatcher;
+import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.matchers.AnyRequestMatcher;
 
 public class DefaultFilterChainValidator implements FilterChainProxy.FilterChainValidator {
     private final Log logger = LogFactory.getLog(getClass());
@@ -45,7 +46,8 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
         Iterator<SecurityFilterChain> chains = filterChains.iterator();
 
         while (chains.hasNext()) {
-            if (((DefaultSecurityFilterChain)chains.next()).getRequestMatcher() instanceof AnyRequestMatcher && chains.hasNext()) {
+            RequestMatcher matcher = ((DefaultSecurityFilterChain)chains.next()).getRequestMatcher();
+            if (AnyRequestMatcher.INSTANCE.equals(matcher) && chains.hasNext()) {
                 throw new IllegalArgumentException("A universal match pattern ('/**') is defined " +
                         " before other patterns in the filter chain, causing them to be ignored. Please check the " +
                         "ordering in your <security:http> namespace or FilterChainProxy bean configuration");

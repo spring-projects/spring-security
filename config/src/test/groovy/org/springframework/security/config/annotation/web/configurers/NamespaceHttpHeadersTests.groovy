@@ -27,7 +27,7 @@ import org.springframework.security.web.header.writers.XXssProtectionHeaderWrite
 import org.springframework.security.web.header.writers.frameoptions.StaticAllowFromStrategy
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter.XFrameOptionsMode
-import org.springframework.security.web.util.AnyRequestMatcher
+import org.springframework.security.web.util.matchers.AnyRequestMatcher
 
 /**
  * Tests to verify that all the functionality of <headers> attributes is present
@@ -121,7 +121,7 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
                 .headers()
                     // hsts@request-matcher-ref, hsts@max-age-seconds, hsts@include-subdomains
                     // Additional Constructors are provided to leverage default values
-                    .addHeaderWriter(new HstsHeaderWriter(new AnyRequestMatcher(), 15768000, false))
+                    .addHeaderWriter(new HstsHeaderWriter(AnyRequestMatcher.INSTANCE, 15768000, false))
         }
     }
 

@@ -1,4 +1,4 @@
-package org.springframework.security.web.util;
+package org.springframework.security.web.util.matchers;
 
 
 import static org.junit.Assert.*;
@@ -6,6 +6,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.web.util.matchers.IpAddressMatcher;
 
 
 /**

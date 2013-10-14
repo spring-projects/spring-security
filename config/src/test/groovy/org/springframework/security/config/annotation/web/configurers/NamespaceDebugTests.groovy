@@ -51,8 +51,8 @@ import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.debug.DebugFilter;
 import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
-import org.springframework.security.web.util.AntPathRequestMatcher
-import org.springframework.security.web.util.AnyRequestMatcher;
+import org.springframework.security.web.util.matchers.AntPathRequestMatcher
+import org.springframework.security.web.util.matchers.AnyRequestMatcher;
 import org.springframework.security.web.util.RequestMatcher
 
 import spock.lang.Ignore;

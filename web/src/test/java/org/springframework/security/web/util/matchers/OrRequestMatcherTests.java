@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.springframework.security.web.util;
+package org.springframework.security.web.util.matchers;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -28,6 +28,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.matchers.OrRequestMatcher;
 
 /**
  *
@@ -35,7 +37,7 @@ import org.mockito.runners.MockitoJUnitRunner;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
-public class AndRequestMatcherTests {
+public class OrRequestMatcherTests {
     @Mock
     private RequestMatcher delegate;
 
@@ -49,38 +51,38 @@ public class AndRequestMatcherTests {
 
     @Test(expected = NullPointerException.class)
     public void constructorNullArray() {
-        new AndRequestMatcher((RequestMatcher[]) null);
+        new OrRequestMatcher((RequestMatcher[]) null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorArrayContainsNull() {
-        new AndRequestMatcher((RequestMatcher)null);
+        new OrRequestMatcher((RequestMatcher)null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorEmptyArray() {
-        new AndRequestMatcher(new RequestMatcher[0]);
+        new OrRequestMatcher(new RequestMatcher[0]);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorNullList() {
-        new AndRequestMatcher((List<RequestMatcher>) null);
+        new OrRequestMatcher((List<RequestMatcher>) null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorListContainsNull() {
-        new AndRequestMatcher(Arrays.asList((RequestMatcher)null));
+        new OrRequestMatcher(Arrays.asList((RequestMatcher)null));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorEmptyList() {
-        new AndRequestMatcher(Collections.<RequestMatcher>emptyList());
+        new OrRequestMatcher(Collections.<RequestMatcher>emptyList());
     }
 
     @Test
     public void matchesSingleTrue() {
         when(delegate.matches(request)).thenReturn(true);
-        matcher = new AndRequestMatcher(delegate);
+        matcher = new OrRequestMatcher(delegate);
 
         assertThat(matcher.matches(request)).isTrue();
     }
@@ -89,7 +91,7 @@ public class AndRequestMatcherTests {
     public void matchesMultiTrue() {
         when(delegate.matches(request)).thenReturn(true);
         when(delegate2.matches(request)).thenReturn(true);
-        matcher = new AndRequestMatcher(delegate, delegate2);
+        matcher = new OrRequestMatcher(delegate, delegate2);
 
         assertThat(matcher.matches(request)).isTrue();
     }
@@ -98,7 +100,7 @@ public class AndRequestMatcherTests {
     @Test
     public void matchesSingleFalse() {
         when(delegate.matches(request)).thenReturn(false);
-        matcher = new AndRequestMatcher(delegate);
+        matcher = new OrRequestMatcher(delegate);
 
         assertThat(matcher.matches(request)).isFalse();
     }
@@ -107,7 +109,7 @@ public class AndRequestMatcherTests {
     public void matchesMultiBothFalse() {
         when(delegate.matches(request)).thenReturn(false);
         when(delegate2.matches(request)).thenReturn(false);
-        matcher = new AndRequestMatcher(delegate, delegate2);
+        matcher = new OrRequestMatcher(delegate, delegate2);
 
         assertThat(matcher.matches(request)).isFalse();
     }
@@ -116,8 +118,8 @@ public class AndRequestMatcherTests {
     public void matchesMultiSingleFalse() {
         when(delegate.matches(request)).thenReturn(true);
         when(delegate2.matches(request)).thenReturn(false);
-        matcher = new AndRequestMatcher(delegate, delegate2);
+        matcher = new OrRequestMatcher(delegate, delegate2);
 
-        assertThat(matcher.matches(request)).isFalse();
+        assertThat(matcher.matches(request)).isTrue();
     }
 }

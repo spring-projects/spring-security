@@ -35,9 +35,9 @@ import org.springframework.security.web.authentication.DelegatingAuthenticationE
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.security.web.util.MediaTypeRequestMatcher;
-import org.springframework.security.web.util.RequestHeaderRequestMatcher;
 import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.matchers.MediaTypeRequestMatcher;
+import org.springframework.security.web.util.matchers.RequestHeaderRequestMatcher;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 

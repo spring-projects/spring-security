@@ -10,11 +10,17 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package org.springframework.security.web.util;
+package org.springframework.security.web.util.matchers;
 
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.util.StringUtils;
 
 /**
  * Uses a regular expression to decide whether a supplied the URL of a supplied {@code HttpServletRequest}.
@@ -28,10 +34,12 @@ import javax.servlet.http.HttpServletRequest;
  * @author Luke Taylor
  * @author Rob Winch
  * @since 3.1
- * @deprecated use org.springframework.security.web.util.matchers.RegexRequestMatcher
  */
 public final class RegexRequestMatcher implements RequestMatcher {
-    private final org.springframework.security.web.util.matchers.RegexRequestMatcher delegate;
+    private final static Log logger = LogFactory.getLog(RegexRequestMatcher.class);
+
+    private final Pattern pattern;
+    private final HttpMethod httpMethod;
 
     /**
      * Creates a case-sensitive {@code Pattern} instance to match against the request.
@@ -51,7 +59,12 @@ public final class RegexRequestMatcher implements RequestMatcher {
      * @param caseInsensitive if true, the pattern will be compiled with the {@link Pattern#CASE_INSENSITIVE} flag set.
      */
     public RegexRequestMatcher(String pattern, String httpMethod, boolean caseInsensitive) {
-        this.delegate = new org.springframework.security.web.util.matchers.RegexRequestMatcher(pattern, httpMethod, caseInsensitive);
+        if (caseInsensitive) {
+            this.pattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+        } else {
+            this.pattern = Pattern.compile(pattern);
+        }
+        this.httpMethod = StringUtils.hasText(httpMethod) ? HttpMethod.valueOf(httpMethod) : null;
     }
 
     /**
@@ -62,6 +75,31 @@ public final class RegexRequestMatcher implements RequestMatcher {
      * @return true if the pattern matches the URL, false otherwise.
      */
     public boolean matches(HttpServletRequest request) {
-        return delegate.matches(request);
+        if (httpMethod != null && request.getMethod() != null && httpMethod != HttpMethod.valueOf(request.getMethod())) {
+            return false;
+        }
+
+        String url = request.getServletPath();
+        String pathInfo = request.getPathInfo();
+        String query = request.getQueryString();
+
+        if (pathInfo != null || query != null) {
+            StringBuilder sb = new StringBuilder(url);
+
+            if (pathInfo != null) {
+                sb.append(pathInfo);
+            }
+
+            if (query != null) {
+                sb.append('?').append(query);
+            }
+            url = sb.toString();
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Checking match of request : '" + url + "'; against '" + pattern + "'");
+        }
+
+        return pattern.matcher(url).matches();
     }
 }

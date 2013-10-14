@@ -63,11 +63,11 @@ import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.PortMapperImpl;
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
-import org.springframework.security.web.util.AntPathRequestMatcher;
-import org.springframework.security.web.util.AnyRequestMatcher;
-import org.springframework.security.web.util.OrRequestMatcher;
-import org.springframework.security.web.util.RegexRequestMatcher;
+import org.springframework.security.web.util.matchers.AntPathRequestMatcher;
+import org.springframework.security.web.util.matchers.AnyRequestMatcher;
+import org.springframework.security.web.util.matchers.RegexRequestMatcher;
 import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.matchers.OrRequestMatcher;
 import org.springframework.util.Assert;
 
 /**
@@ -115,7 +115,7 @@ import org.springframework.util.Assert;
 public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<DefaultSecurityFilterChain,HttpSecurity> implements SecurityBuilder<DefaultSecurityFilterChain>, HttpSecurityBuilder<HttpSecurity> {
     private final RequestMatcherConfigurer requestMatcherConfigurer = new RequestMatcherConfigurer();
     private List<Filter> filters =  new ArrayList<Filter>();
-    private RequestMatcher requestMatcher = new AnyRequestMatcher();
+    private RequestMatcher requestMatcher = AnyRequestMatcher.INSTANCE;
     private FilterComparator comparitor = new FilterComparator();
 
     /**

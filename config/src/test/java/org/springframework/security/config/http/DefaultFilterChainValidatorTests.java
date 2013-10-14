@@ -38,7 +38,7 @@ import org.springframework.security.web.access.intercept.FilterInvocationSecurit
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.util.AnyRequestMatcher;
+import org.springframework.security.web.util.matchers.AnyRequestMatcher;
 
 /**
  *
@@ -65,7 +65,7 @@ public class DefaultFilterChainValidatorTests {
         fsi.setSecurityMetadataSource(metadataSource);
         AuthenticationEntryPoint authenticationEntryPoint = new LoginUrlAuthenticationEntryPoint("/login");
         ExceptionTranslationFilter etf = new ExceptionTranslationFilter(authenticationEntryPoint);
-        DefaultSecurityFilterChain securityChain = new DefaultSecurityFilterChain(new AnyRequestMatcher(), aaf, etf, fsi);
+        DefaultSecurityFilterChain securityChain = new DefaultSecurityFilterChain(AnyRequestMatcher.INSTANCE, aaf, etf, fsi);
         fcp = new FilterChainProxy(securityChain);
         validator = new DefaultFilterChainValidator();
         Whitebox.setInternalState(validator, "logger", logger);

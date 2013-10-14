@@ -29,7 +29,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.util.AntPathRequestMatcher;
+import org.springframework.security.web.util.matchers.AntPathRequestMatcher;
 import org.springframework.security.web.util.RequestMatcher;
 
 /**
