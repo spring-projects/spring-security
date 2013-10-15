@@ -2767,7 +2767,7 @@ public class WebSecurityConfig extends
 }
 ----
 
-If you actually want to cache specific responses, your application can selectively invoke http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletResponse.html#setHeader(java.lang.String, java.lang.String)[HttpServletResponse.setHeader(String,String)] to override the header set by Spring Security. This is useful to ensure things like CSS, JavaScript, and images are properly cached.
+If you actually want to cache specific responses, your application can selectively invoke http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletResponse.html#setHeader(java.lang.String,java.lang.String)[HttpServletResponse.setHeader(String,String)] to override the header set by Spring Security. This is useful to ensure things like CSS, JavaScript, and images are properly cached.
 
 When using Spring Web MVC, this is typically done within your configuration. For example, the following configuration will ensure that the cache headers are set for all of your resources:
 
