@@ -16,8 +16,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private DataSource dataSource;
 
-    @Override
-    protected void registerAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+    @Autowired
+    public void registerGlobalAuthentication(AuthenticationManagerBuilder auth) throws Exception {
         auth
             .jdbcAuthentication()
                 .dataSource(dataSource)

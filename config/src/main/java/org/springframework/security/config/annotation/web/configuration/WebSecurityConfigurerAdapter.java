@@ -16,6 +16,9 @@
 package org.springframework.security.config.annotation.web.configuration;
 
 
+import java.util.Arrays;
+import java.util.List;
+
 import javax.servlet.Filter;
 
 import org.apache.commons.logging.Log;
@@ -269,7 +272,8 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
      * @see {@link #userDetailsService()}
      */
     public UserDetailsService userDetailsServiceBean() throws Exception {
-        return new UserDetailsServiceDelegator(parentAuthenticationBuilder);
+        AuthenticationManagerBuilder globalAuthBuilder = context.getBean(AuthenticationManagerBuilder.class);
+        return new UserDetailsServiceDelegator(Arrays.asList(parentAuthenticationBuilder, globalAuthBuilder));
     }
 
     /**
@@ -281,7 +285,8 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
      * @return
      */
     protected UserDetailsService userDetailsService() {
-        return parentAuthenticationBuilder.getDefaultUserDetailsService();
+        AuthenticationManagerBuilder globalAuthBuilder = context.getBean(AuthenticationManagerBuilder.class);
+        return new UserDetailsServiceDelegator(Arrays.asList(parentAuthenticationBuilder, globalAuthBuilder));
     }
 
     public void init(final WebSecurity web) throws Exception {
@@ -362,12 +367,12 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
      * @since 3.2
      */
     static final class UserDetailsServiceDelegator implements UserDetailsService {
-        private AuthenticationManagerBuilder delegateBuilder;
+        private List<AuthenticationManagerBuilder> delegateBuilders;
         private UserDetailsService delegate;
         private final Object delegateMonitor = new Object();
 
-        UserDetailsServiceDelegator(AuthenticationManagerBuilder authentication) {
-            this.delegateBuilder = authentication;
+        UserDetailsServiceDelegator(List<AuthenticationManagerBuilder> delegateBuilders) {
+            this.delegateBuilders = delegateBuilders;
         }
 
         public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -377,8 +382,17 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
 
             synchronized(delegateMonitor) {
                 if (delegate == null) {
-                    delegate = this.delegateBuilder.getDefaultUserDetailsService();
-                    this.delegateBuilder = null;
+                    for(AuthenticationManagerBuilder delegateBuilder : delegateBuilders) {
+                        delegate = delegateBuilder.getDefaultUserDetailsService();
+                        if(delegate != null) {
+                            break;
+                        }
+                    }
+
+                    if(delegate == null) {
+                        throw new IllegalStateException("UserDetailsService is required.");
+                    }
+                    this.delegateBuilders = null;
                 }
             }
 

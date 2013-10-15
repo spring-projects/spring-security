@@ -69,10 +69,10 @@ abstract class BaseSpringSpec extends Specification {
         setupCsrf()
     }
 
-    def setupCsrf(csrfTokenValue="BaseSpringSpec_CSRFTOKEN") {
+    def setupCsrf(csrfTokenValue="BaseSpringSpec_CSRFTOKEN",req=request,resp=response) {
         csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN","_csrf",csrfTokenValue)
-        new HttpSessionCsrfTokenRepository().saveToken(csrfToken, request,response)
-        request.setParameter(csrfToken.parameterName, csrfToken.token)
+        new HttpSessionCsrfTokenRepository().saveToken(csrfToken, req, resp)
+        req.setParameter(csrfToken.parameterName, csrfToken.token)
     }
 
     AuthenticationManagerBuilder authenticationBldr = new AuthenticationManagerBuilder(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR).inMemoryAuthentication().and()

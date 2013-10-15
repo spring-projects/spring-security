@@ -283,10 +283,12 @@ public class NamespaceRememberMeTests extends BaseSpringSpec {
     def "http/remember-me defaults UserDetailsService with custom UserDetailsService"() {
         setup:
             DefaultsUserDetailsServiceWithDaoConfig.USERDETAILS_SERVICE = Mock(UserDetailsService)
-        when: "use secure cookies not specified"
             loadConfig(DefaultsUserDetailsServiceWithDaoConfig)
+        when:
+            request.setCookies(createRememberMeCookie())
+            springSecurityFilterChain.doFilter(request, response, chain)
         then: "RememberMeServices defaults to the custom UserDetailsService"
-            ReflectionTestUtils.getField(findFilter(RememberMeAuthenticationFilter).rememberMeServices, "userDetailsService") == DefaultsUserDetailsServiceWithDaoConfig.USERDETAILS_SERVICE
+           1 * DefaultsUserDetailsServiceWithDaoConfig.USERDETAILS_SERVICE.loadUserByUsername("user")
     }
 
     @Configuration
@@ -329,6 +331,20 @@ public class NamespaceRememberMeTests extends BaseSpringSpec {
         }
     }
 
+    Cookie createRememberMeCookie() {
+        MockHttpServletRequest request = new MockHttpServletRequest()
+        MockHttpServletResponse response = new MockHttpServletResponse()
+        super.setupCsrf("CSRF_TOKEN", request, response)
+
+        MockFilterChain chain = new MockFilterChain()
+        request.servletPath = "/login"
+        request.method = "POST"
+        request.parameters.username = ["user"] as String[]
+        request.parameters.password = ["password"] as String[]
+        request.parameters.'remember-me' = ["true"] as String[]
+        springSecurityFilterChain.doFilter(request, response, chain)
+        response.getCookie("remember-me")
+    }
 
     Cookie getRememberMeCookie(String cookieName="remember-me") {
         response.getCookie(cookieName)
