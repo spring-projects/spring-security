@@ -270,18 +270,18 @@ Below you can find a summary of updates to the Spring Security 3.1 namespace.
 
 
 ==== Introduction
-Namespace configuration has been available since version 2.0 of the Spring framework. It allows you to supplement the traditional Spring beans application context syntax with elements from additional XML schema. You can find more information in the Spring http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/htmlsingle/spring-framework-reference.html[ Reference Documentation]. A namespace element can be used simply to allow a more concise way of configuring an individual bean or, more powerfully, to define an alternative configuration syntax which more closely matches the problem domain and hides the underlying complexity from the user. A simple element may conceal the fact that multiple beans and processing steps are being added to the application context. For example, adding the following element from the security namespace to an application context will start up an embedded LDAP server for testing use within the application:
+Namespace configuration has been available since version 2.0 of the Spring framework. It allows you to supplement the traditional Spring beans application context syntax with elements from additional XML schema. You can find more information in the Spring http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/htmlsingle/spring-framework-reference.html[Reference Documentation]. A namespace element can be used simply to allow a more concise way of configuring an individual bean or, more powerfully, to define an alternative configuration syntax which more closely matches the problem domain and hides the underlying complexity from the user. A simple element may conceal the fact that multiple beans and processing steps are being added to the application context. For example, adding the following element from the security namespace to an application context will start up an embedded LDAP server for testing use within the application:
 
 [source,xml]
 ----
 <security:ldap-server />
 ----
 
-This is much simpler than wiring up the equivalent Apache Directory Server
-            beans. The most common alternative configuration requirements are supported by
-            attributes on the `ldap-server` element and the user is isolated from worrying about which beans they need to create and what the bean property names are.  footnote:[
-You can find out more about the use of the `ldap-server` element in the chapter on <<ldap,LDAP>>.
-]. Use of a good XML editor while editing the application context file should provide information on the attributes and elements that are available. We would recommend that you try out the http://www.springsource.com/products/sts[SpringSource Tool Suite] as it has special features for working with standard Spring namespaces.
+This is much simpler than wiring up the equivalent Apache Directory Server beans. The most common alternative configuration requirements are supported by attributes on the `ldap-server` element and the user is isolated
+from worrying about which beans they need to create and what the bean property names are. footnote:[You can find out more about the use of the `ldap-server` element in the chapter on pass:specialcharacters,macros[<<ldap>>]. ]. Use of a good XML
+editor while editing the application context file should provide information on the attributes and elements that are available. We would recommend that you try out the
+http://www.springsource.com/products/sts[SpringSource Tool Suite] as it has special features for working with standard Spring namespaces.
+
 
 To start using the security namespace in your application context, you need to have the `spring-security-config` jar on your classpath. Then all you need to do is add the schema declaration to your application context file:
 
@@ -376,8 +376,15 @@ All you need to enable web security to begin with is
 </http>
 ----
 
-Which says that we want all URLs within our application to be secured,
-                requiring the role `ROLE_USER` to access them, we want to log in to the application using a form with username and password, and that we want a logout URL registered which will allow us to log out of the application. `<http>` element is the parent for all web-related namespace functionality. The `<intercept-url>` element defines a `pattern` which is matched against the URLs of incoming requests using an ant path style syntax footnote:[See the section on <<request-matching,Request Matching>> in the Web Application Infrastructure chapter for more details on how matches are actually performed.]. You can also use regular-expression matching as an alternative (see the namespace appendix for more details). The `access` attribute defines the access requirements for requests matching the given pattern. With the default configuration, this is typically a comma-separated list of roles, one of which a user must have to be allowed to make the request. The prefix"ROLE_" is a marker which indicates that a simple comparison with the user's authorities should be made. In other words, a normal role-based check should be used. Access-control in Spring Security is not limited to the use of simple roles (hence the use of the prefix to differentiate between different types of security attributes). We'll see later how the interpretation can vary footnote:[The interpretation of the comma-separated values in the `access` attribute depends on the implementation of the <<ns-access-manager,AccessDecisionManager>> which is used. In Spring Security 3.0, the attribute can also be populated with an <<el-access,EL expression>>.].
+Which says that we want all URLs within our application to be secured, requiring the role `ROLE_USER` to access them, we want to log in to the application using a form with username and password, and that we want a
+logout URL registered which will allow us to log out of the application. `<http>` element is the parent for all web-related namespace functionality. The `<intercept-url>` element defines a `pattern` which is matched
+against the URLs of incoming requests using an ant path style syntax footnote:[See the section on pass:specialcharacters,macros[<<request-matching>>] in the Web Application Infrastructure chapter for more details on how
+matches are actually performed.]. You can also use regular-expression matching as an alternative (see the namespace appendix for more details). The `access` attribute defines the access requirements for requests matching
+the given pattern. With the default configuration, this is typically a comma-separated list of roles, one of which a user must have to be allowed to make the request. The prefix"ROLE_" is a marker which indicates that a
+simple comparison with the user's authorities should be made. In other words, a normal role-based check should be used. Access-control in Spring Security is not limited to the use of simple roles (hence the use of the
+prefix to differentiate between different types of security attributes). We'll see later how the interpretation can vary footnote:[The interpretation of the comma-separated values in the `access` attribute depends on the
+implementation of the pass:specialcharacters,macros[<<ns-access-manager,AccessDecisionManager>>] which is used. In Spring Security 3.0, the attribute can also be populated with an pass:specialcharacters,macros[<<el-access,EL expression>>].].
+
 
 [NOTE]
 ====
@@ -425,7 +432,11 @@ You might be wondering where the login form came from when you were prompted to 
 </http>
 ----
 
-Also note that we've added an extra `intercept-url` element to say that any requests for the login page should be available to anonymous users footnote:[See the chapter on <<anonymous,anonymous authentication>> and also the <<authz-authenticated-voter,AuthenticatedVoter>> class for more details on how the value `IS_AUTHENTICATED_ANONYMOUSLY` is processed.]. Otherwise the request would be matched by the pattern `/**` and it wouldn't be possible to access the login page itself! This is a common configuration error and will result in an infinite loop in the application. Spring Security will emit a warning in the log if your login page appears to be secured. It is also possible to have all requests matching a particular pattern bypass the security filter chain completely, by defining a separate `http` element for the pattern like this:
+Also note that we've added an extra `intercept-url` element to say that any requests for the login page should be available to anonymous users footnote:[See the chapter on pass:specialcharacters,macros[<<anonymous>>]] and also
+the <<authz-authenticated-voter,AuthenticatedVoter>> class for more details on how the value `IS_AUTHENTICATED_ANONYMOUSLY` is processed.]. Otherwise the request would be matched by the pattern `/**` and it wouldn't be
+possible to access the login page itself! This is a common configuration error and will result in an infinite loop in the application. Spring Security will emit a warning in the log if your login page appears to be
+secured. It is also possible to have all requests matching a particular pattern bypass the security filter chain completely, by defining a separate `http` element for the pattern like this:
+
 
 [source,xml]
 ----
@@ -5220,9 +5231,12 @@ Enables Spring Security debugging infrastructure. This will provide human-readab
 
 [[nsa-http]]
 ===== <http>
-If you use an `<http>` element within your application, a `FilterChainProxy` bean named "springSecurityFilterChain" is created and the configuration within the element is used to build a filter chain within `FilterChainProxy`. As of Spring Security 3.1, additional `http` elements can be used to add extra filter chains  footnote:[
-See the <<ns-web-xml,introductory chapter>> for how to set up the mapping from your `web.xml`
-]. Some core filters are always created in a filter chain and others will be added to the stack depending on the attributes and child elements which are present. The positions of the standard filters are fixed (see <<filter-stack,the filter order table>> in the namespace introduction), removing a common source of errors with previous versions of the framework when users had to configure the filter chain explicitly in the `FilterChainProxy` bean. You can, of course, still do this if you need full control of the configuration.
+If you use an `<http>` element within your application, a `FilterChainProxy` bean named "springSecurityFilterChain" is created and the configuration within the element is used to build a filter chain within
+`FilterChainProxy`. As of Spring Security 3.1, additional `http` elements can be used to add extra filter chains footnote:[ See the pass:specialcharacters,macros[<<ns-web-xml,introductory chapter>>] for how to set up the mapping from your `web.xml` ].
+Some core filters are always created in a filter chain and others will be added to the stack depending on the attributes and child elements which are present. The positions of the standard filters are fixed (see
+<<filter-stack,the filter order table>> in the namespace introduction), removing a common source of errors with previous versions of the framework when users had to configure the filter chain explicitly in the
+`FilterChainProxy` bean. You can, of course, still do this if you need full control of the configuration.
+
 
 All filters which require a reference to the `AuthenticationManager` will be automatically injected with the internal instance created by the namespace configuration (see the <<ns-auth-manager,introductory chapter>> for more on the `AuthenticationManager`).
 
