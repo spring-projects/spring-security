@@ -98,7 +98,7 @@ import org.springframework.util.Assert;
  *     }
  *
  *     &#064;Override
- *     protected void registerAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+ *     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
  *         auth
  *              .inMemoryAuthentication()
  *                   .withUser(&quot;user&quot;)
@@ -157,7 +157,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      *     }
      *
      *     &#064;Override
-     *     protected void registerAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+     *     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
      *         auth
      *                 .inMemoryAuthentication()
      *                     // the username must match the OpenID of the user you are
@@ -345,7 +345,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      *     }
      *
      *     &#064;Override
-     *     protected void registerAuthentication(AuthenticationManagerBuilder auth)
+     *     protected void configure(AuthenticationManagerBuilder auth)
      *             throws Exception {
      *         auth.
      *             inMemoryAuthentication()
@@ -417,7 +417,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      *     }
      *
      *     &#064;Override
-     *     protected void registerAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+     *     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
      *         auth
      *             .inMemoryAuthentication()
      *                 .withUser(&quot;user&quot;)
@@ -559,7 +559,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * public class RememberMeSecurityConfig extends WebSecurityConfigurerAdapter {
      *
      *     &#064;Override
-     *     protected void registerAuthentication(AuthenticationManagerBuilder auth)
+     *     protected void configure(AuthenticationManagerBuilder auth)
      *             throws Exception {
      *         auth
      *              .inMemoryAuthentication()
@@ -615,7 +615,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      *     }
      *
      *     &#064;Override
-     *     protected void registerAuthentication(AuthenticationManagerBuilder auth)
+     *     protected void configure(AuthenticationManagerBuilder auth)
      *             throws Exception {
      *         auth
      *              .inMemoryAuthentication()
@@ -650,7 +650,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      *     }
      *
      *     &#064;Override
-     *     protected void registerAuthentication(AuthenticationManagerBuilder auth)
+     *     protected void configure(AuthenticationManagerBuilder auth)
      *             throws Exception {
      *         auth
      *              .inMemoryAuthentication()
@@ -797,7 +797,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      *     }
      *
      *     &#064;Override
-     *     protected void registerAuthentication(AuthenticationManagerBuilder auth)
+     *     protected void configure(AuthenticationManagerBuilder auth)
      *             throws Exception {
      *         auth
      *              .inMemoryAuthentication()
@@ -845,7 +845,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      *     }
      *
      *     &#064;Override
-     *     protected void registerAuthentication(AuthenticationManagerBuilder auth)
+     *     protected void configure(AuthenticationManagerBuilder auth)
      *             throws Exception {
      *         auth
      *              .inMemoryAuthentication()
@@ -878,7 +878,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      *     }
      *
      *     &#064;Override
-     *     protected void registerAuthentication(AuthenticationManagerBuilder auth)
+     *     protected void configure(AuthenticationManagerBuilder auth)
      *             throws Exception {
      *         auth
      *              .inMemoryAuthentication()
@@ -923,7 +923,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      *     }
      *
      *     &#064;Override
-     *     protected void registerAuthentication(AuthenticationManagerBuilder auth)
+     *     protected void configure(AuthenticationManagerBuilder auth)
      *             throws Exception {
      *         auth
      *              .inMemoryAuthentication()
@@ -956,7 +956,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      *     }
      *
      *     &#064;Override
-     *     protected void registerAuthentication(AuthenticationManagerBuilder auth)
+     *     protected void configure(AuthenticationManagerBuilder auth)
      *             throws Exception {
      *         auth
      *              .inMemoryAuthentication()
@@ -1005,7 +1005,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      *     }
      *
      *     &#064;Override
-     *     protected void registerAuthentication(AuthenticationManagerBuilder auth)
+     *     protected void configure(AuthenticationManagerBuilder auth)
      *             throws Exception {
      *         auth
      *              .inMemoryAuthentication()
@@ -1048,7 +1048,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      *     }
      *
      *     &#064;Override
-     *     protected void registerAuthentication(AuthenticationManagerBuilder auth)
+     *     protected void configure(AuthenticationManagerBuilder auth)
      *             throws Exception {
      *         auth
      *             .inMemoryAuthentication()
@@ -1163,7 +1163,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      *     }
      *
      *     &#064;Override
-     *     protected void registerAuthentication(AuthenticationManagerBuilder auth)
+     *     protected void configure(AuthenticationManagerBuilder auth)
      *             throws Exception {
      *         auth
      *             .inMemoryAuthentication()
@@ -1194,7 +1194,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      *     }
      *
      *     &#064;Override
-     *     protected void registerAuthentication(AuthenticationManagerBuilder auth)
+     *     protected void configure(AuthenticationManagerBuilder auth)
      *             throws Exception {
      *         auth
      *             .inMemoryAuthentication()
@@ -1227,7 +1227,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      *     }
      *
      *     &#064;Override
-     *     protected void registerAuthentication(AuthenticationManagerBuilder auth)
+     *     protected void configure(AuthenticationManagerBuilder auth)
      *             throws Exception {
      *         auth
      *             .inMemoryAuthentication()

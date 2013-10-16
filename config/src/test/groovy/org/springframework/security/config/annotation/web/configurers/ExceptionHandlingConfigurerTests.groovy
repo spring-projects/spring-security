@@ -99,8 +99,7 @@ class ExceptionHandlingConfigurerTests extends BaseSpringSpec {
     static class HttpBasicAndFormLoginEntryPointsConfig extends WebSecurityConfigurerAdapter {
 
         @Override
-        protected void registerAuthentication(AuthenticationManagerBuilder auth)
-                throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .inMemoryAuthentication()
                     .withUser("user").password("password").roles("USER")

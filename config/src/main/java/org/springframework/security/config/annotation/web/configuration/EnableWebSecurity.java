@@ -56,7 +56,7 @@ import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
  *    }
  *
  *    &#064;Override
- *    protected void registerAuthentication(AuthenticationManagerBuilder auth) {
+ *    protected void configure(AuthenticationManagerBuilder auth) {
  *        auth
  *            // enable in memory based authentication with a user named "user" and "admin"
  *            .inMemoryAuthentication()

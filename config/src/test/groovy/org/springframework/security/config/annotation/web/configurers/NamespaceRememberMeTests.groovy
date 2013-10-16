@@ -303,8 +303,7 @@ public class NamespaceRememberMeTests extends BaseSpringSpec {
                 .rememberMe()
         }
 
-        protected void registerAuthentication(
-                AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                     .userDetailsService(USERDETAILS_SERVICE);
         }

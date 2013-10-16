@@ -144,7 +144,7 @@ class SessionManagementConfigurerTests extends BaseSpringSpec {
                     .maximumSessions(1)
         }
         @Override
-        public void registerAuthentication(AuthenticationManagerBuilder auth) {
+        protected void configure(AuthenticationManagerBuilder auth) {
             auth
                 .inMemoryAuthentication()
                     .withUser("user").password("password").roles("USER")
@@ -188,7 +188,7 @@ class SessionManagementConfigurerTests extends BaseSpringSpec {
                         .maxSessionsPreventsLogin(true)
         }
         @Override
-        public void registerAuthentication(AuthenticationManagerBuilder auth) {
+        protected void configure(AuthenticationManagerBuilder auth) {
             auth
                 .inMemoryAuthentication()
                     .withUser("user").password("password").roles("USER")

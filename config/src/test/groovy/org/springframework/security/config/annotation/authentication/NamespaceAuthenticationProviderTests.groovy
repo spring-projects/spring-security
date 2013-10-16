@@ -42,7 +42,7 @@ class NamespaceAuthenticationProviderTests extends BaseSpringSpec {
     @Configuration
     static class AuthenticationProviderRefConfig extends WebSecurityConfigurerAdapter {
         static DaoAuthenticationProvider expected = new DaoAuthenticationProvider()
-        protected void registerAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .authenticationProvider(expected)
         }
@@ -67,7 +67,7 @@ class NamespaceAuthenticationProviderTests extends BaseSpringSpec {
     @Configuration
     static class UserServiceRefConfig extends WebSecurityConfigurerAdapter {
         static InMemoryUserDetailsManager expected = new InMemoryUserDetailsManager([] as Collection)
-        protected void registerAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .userDetailsService(expected)
         }

@@ -73,8 +73,7 @@ public class RememberMeConfigurerTests extends BaseSpringSpec {
         }
 
         @Override
-        protected void registerAuthentication(AuthenticationManagerBuilder auth)
-                throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             User user = new User("user", "password", AuthorityUtils.createAuthorityList("ROLE_USER"))
             DaoAuthenticationProvider provider = new DaoAuthenticationProvider()
             provider.userDetailsService = new InMemoryUserDetailsManager([user])
@@ -173,7 +172,7 @@ public class RememberMeConfigurerTests extends BaseSpringSpec {
         }
 
         @Autowired
-        public void registerGlobalAuthentication(AuthenticationManagerBuilder auth) {
+        public void configureGlobal(AuthenticationManagerBuilder auth) {
             auth
                 .inMemoryAuthentication()
                     .withUser("user").password("password").roles("USER");

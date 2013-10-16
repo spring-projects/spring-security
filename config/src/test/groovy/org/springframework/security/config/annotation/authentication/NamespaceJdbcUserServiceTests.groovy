@@ -54,7 +54,7 @@ class NamespaceJdbcUserServiceTests extends BaseSpringSpec {
         @Autowired
         private DataSource dataSource;
 
-        protected void registerAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .jdbcAuthentication()
                     .dataSource(dataSource) // jdbc-user-service@data-source-ref
@@ -84,7 +84,7 @@ class NamespaceJdbcUserServiceTests extends BaseSpringSpec {
         @Autowired
         private DataSource dataSource;
 
-        protected void registerAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .jdbcAuthentication()
                     .dataSource(dataSource)
@@ -132,7 +132,7 @@ class NamespaceJdbcUserServiceTests extends BaseSpringSpec {
         @Autowired
         private DataSource dataSource;
 
-        protected void registerAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .jdbcAuthentication()
                     // jdbc-user-service@dataSource

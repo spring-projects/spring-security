@@ -67,7 +67,7 @@ public class SampleEnableGlobalMethodSecurityTests extends BaseSpringSpec {
         }
 
         @Autowired
-        public void registerAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .inMemoryAuthentication()
                     .withUser("user").password("password").roles("USER").and()
@@ -104,8 +104,7 @@ public class SampleEnableGlobalMethodSecurityTests extends BaseSpringSpec {
         }
 
         @Override
-        protected void registerAuthentication(AuthenticationManagerBuilder auth)
-            throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .inMemoryAuthentication()
                 .withUser("user").password("password").roles("USER").and()

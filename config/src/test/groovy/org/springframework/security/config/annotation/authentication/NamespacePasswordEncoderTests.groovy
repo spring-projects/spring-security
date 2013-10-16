@@ -54,8 +54,7 @@ class NamespacePasswordEncoderTests extends BaseSpringSpec {
     @Configuration
     static class PasswordEncoderWithInMemoryConfig extends WebSecurityConfigurerAdapter {
         @Override
-        protected void registerAuthentication(AuthenticationManagerBuilder auth)
-                throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder()
             auth
@@ -76,8 +75,7 @@ class NamespacePasswordEncoderTests extends BaseSpringSpec {
     @Configuration
     static class PasswordEncoderWithJdbcConfig extends WebSecurityConfigurerAdapter {
         @Override
-        protected void registerAuthentication(AuthenticationManagerBuilder auth)
-                throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder()
             auth
@@ -106,8 +104,7 @@ class NamespacePasswordEncoderTests extends BaseSpringSpec {
     @Configuration
     static class PasswordEncoderWithUserDetailsServiceConfig extends WebSecurityConfigurerAdapter {
         @Override
-        protected void registerAuthentication(AuthenticationManagerBuilder auth)
-                throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder()
             User user = new User("user",encoder.encode("password"), AuthorityUtils.createAuthorityList("ROLE_USER"))

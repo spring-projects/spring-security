@@ -53,8 +53,7 @@ class LdapAuthenticationProviderBuilderSecurityBuilderTests extends BaseSpringSp
 
     @Configuration
     static class DefaultLdapConfig extends BaseLdapProviderConfig {
-        protected void registerAuthentication(
-                AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .ldapAuthentication()
                     .contextSource(contextSource())
@@ -71,7 +70,7 @@ class LdapAuthenticationProviderBuilderSecurityBuilderTests extends BaseSpringSp
 
     @Configuration
     static class GroupRolesConfig extends BaseLdapProviderConfig {
-        protected void registerAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .ldapAuthentication()
                     .contextSource(contextSource())
@@ -89,8 +88,7 @@ class LdapAuthenticationProviderBuilderSecurityBuilderTests extends BaseSpringSp
 
     @Configuration
     static class GroupSearchConfig extends BaseLdapProviderConfig {
-        protected void registerAuthentication(
-            AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .ldapAuthentication()
                     .contextSource(contextSource())
@@ -108,8 +106,7 @@ class LdapAuthenticationProviderBuilderSecurityBuilderTests extends BaseSpringSp
 
     @Configuration
     static class RolePrefixConfig extends BaseLdapProviderConfig {
-        protected void registerAuthentication(
-            AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .ldapAuthentication()
                     .contextSource(contextSource())
@@ -128,8 +125,7 @@ class LdapAuthenticationProviderBuilderSecurityBuilderTests extends BaseSpringSp
 
     @Configuration
     static class BindAuthenticationConfig extends BaseLdapServerConfig {
-        protected void registerAuthentication(
-            AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .ldapAuthentication()
                     .contextSource(contextSource())
@@ -154,15 +150,6 @@ class LdapAuthenticationProviderBuilderSecurityBuilderTests extends BaseSpringSp
 
     @Configuration
     static abstract class BaseLdapProviderConfig {
-        @Bean
-        public AuthenticationManager authenticationManager() {
-            AuthenticationManagerBuilder registry = new AuthenticationManagerBuilder();
-            registerAuthentication(registry);
-            return registry.build();
-        }
-
-        protected abstract void registerAuthentication(
-            AuthenticationManagerBuilder auth) throws Exception;
 
         @Bean
         public BaseLdapPathContextSource contextSource() throws Exception {

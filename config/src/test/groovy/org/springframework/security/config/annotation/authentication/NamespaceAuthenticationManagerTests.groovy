@@ -47,7 +47,7 @@ class NamespaceAuthenticationManagerTests extends BaseSpringSpec {
     @EnableWebSecurity
     @Configuration
     static class EraseCredentialsTrueDefaultConfig extends WebSecurityConfigurerAdapter {
-        protected void registerAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .inMemoryAuthentication()
                     .withUser("user").password("password").roles("USER")
@@ -74,7 +74,7 @@ class NamespaceAuthenticationManagerTests extends BaseSpringSpec {
     @EnableWebSecurity
     @Configuration
     static class EraseCredentialsFalseConfig extends WebSecurityConfigurerAdapter {
-        protected void registerAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .eraseCredentials(false)
                 .inMemoryAuthentication()

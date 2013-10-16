@@ -89,8 +89,7 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
     static class HeadersArePopulatedByDefaultConfig extends WebSecurityConfigurerAdapter {
 
         @Override
-        protected void registerAuthentication(AuthenticationManagerBuilder auth)
-                throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .inMemoryAuthentication()
                     .withUser("user").password("password").roles("USER")
@@ -114,8 +113,7 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
     static class WebAsyncPopulatedByDefaultConfig extends WebSecurityConfigurerAdapter {
 
         @Override
-        protected void registerAuthentication(AuthenticationManagerBuilder auth)
-                throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .inMemoryAuthentication()
                     .withUser("user").password("password").roles("USER")
@@ -127,7 +125,7 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
         }
     }
 
-    def "AuthenticationEventPublisher is registered for Web registerAuthentication"() {
+    def "AuthenticationEventPublisher is registered for Web configure(AuthenticationManagerBuilder auth)"() {
         when:
             loadConfig(InMemoryAuthWithWebSecurityConfigurerAdapter)
         then:
@@ -152,8 +150,7 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
         }
 
         @Override
-        protected void registerAuthentication(AuthenticationManagerBuilder auth)
-                throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .inMemoryAuthentication()
                     .withUser("user").password("password").roles("USER")
@@ -236,8 +233,7 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
         }
 
         @Override
-        protected void registerAuthentication(AuthenticationManagerBuilder auth)
-                throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .inMemoryAuthentication()
                     .withUser("user").password("password").roles("USER")

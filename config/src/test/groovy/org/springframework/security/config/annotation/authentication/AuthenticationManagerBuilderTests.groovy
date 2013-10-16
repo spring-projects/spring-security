@@ -47,7 +47,7 @@ class AuthenticationManagerBuilderTests extends BaseSpringSpec {
     }
 
     // https://github.com/SpringSource/spring-security-javaconfig/issues/132
-    def "#132 Custom AuthenticationEventPublisher with Web registerAuthentication"() {
+    def "#132 Custom AuthenticationEventPublisher with Web configure(AuthenticationManagerBuilder)"() {
         setup:
             AuthenticationEventPublisher aep = Mock()
         when:
@@ -78,7 +78,7 @@ class AuthenticationManagerBuilderTests extends BaseSpringSpec {
     @EnableWebSecurity
     @Configuration
     static class MultiAuthenticationProvidersConfig extends WebSecurityConfigurerAdapter {
-        protected void registerAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .inMemoryAuthentication()
                     .withUser("user").password("password").roles("USER").and()

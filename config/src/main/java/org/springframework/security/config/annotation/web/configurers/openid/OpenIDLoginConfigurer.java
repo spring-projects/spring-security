@@ -75,7 +75,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * 	}
  *
  * 	&#064;Override
- * 	protected void registerAuthentication(
+ * 	protected void configure(AuthenticationManagerBuilder auth)(
  * 			AuthenticationManagerBuilder auth) throws Exception {
  * 		auth
  * 			.inMemoryAuthentication()

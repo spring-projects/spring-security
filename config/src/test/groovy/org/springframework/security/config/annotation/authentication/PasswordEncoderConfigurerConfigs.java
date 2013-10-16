@@ -37,8 +37,7 @@ public class PasswordEncoderConfigurerConfigs {
     @EnableWebSecurity
     @Configuration
     static class PasswordEncoderConfig extends WebSecurityConfigurerAdapter {
-        protected void registerAuthentication(
-                AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             BCryptPasswordEncoder encoder = passwordEncoder();
             auth
                 .inMemoryAuthentication()
@@ -66,8 +65,7 @@ public class PasswordEncoderConfigurerConfigs {
     @EnableWebSecurity
     @Configuration
     static class PasswordEncoderNoAuthManagerLoadsConfig extends WebSecurityConfigurerAdapter {
-        protected void registerAuthentication(
-                AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             BCryptPasswordEncoder encoder = passwordEncoder();
             auth
                 .inMemoryAuthentication()

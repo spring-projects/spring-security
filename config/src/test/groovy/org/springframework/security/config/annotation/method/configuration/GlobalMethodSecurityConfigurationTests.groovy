@@ -69,8 +69,7 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
         static AuthenticationSuccessEvent EVENT
 
         @Override
-        protected void registerAuthentication(AuthenticationManagerBuilder auth)
-                throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .inMemoryAuthentication()
         }
@@ -101,8 +100,7 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
         static AuthenticationTrustResolver TR
 
         @Override
-        protected void registerAuthentication(AuthenticationManagerBuilder auth)
-                throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .inMemoryAuthentication()
         }
@@ -135,8 +133,7 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
     static class ExpressionHandlerHasBeanResolverSetConfig extends GlobalMethodSecurityConfiguration {
 
         @Override
-        protected void registerAuthentication(AuthenticationManagerBuilder auth)
-                throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .inMemoryAuthentication()
         }
@@ -188,8 +185,7 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
     static class MethodSecurityServiceConfig extends GlobalMethodSecurityConfiguration {
 
         @Override
-        protected void registerAuthentication(AuthenticationManagerBuilder auth)
-                throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .inMemoryAuthentication()
         }
@@ -225,8 +221,7 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
         static PermissionEvaluator PE
 
         @Override
-        protected void registerAuthentication(AuthenticationManagerBuilder auth)
-                throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .inMemoryAuthentication()
         }
@@ -255,8 +250,7 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
         static PermissionEvaluator PE
 
         @Override
-        protected void registerAuthentication(AuthenticationManagerBuilder auth)
-                throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .inMemoryAuthentication()
         }

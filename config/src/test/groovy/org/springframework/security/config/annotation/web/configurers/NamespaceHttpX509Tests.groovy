@@ -82,7 +82,7 @@ public class NamespaceHttpX509Tests extends BaseSpringSpec {
     @EnableWebSecurity
     public static class X509Config extends WebSecurityConfigurerAdapter {
         @Override
-        protected void registerAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth.
                 inMemoryAuthentication()
                     .withUser("rod").password("password").roles("USER","ADMIN");
@@ -116,7 +116,7 @@ public class NamespaceHttpX509Tests extends BaseSpringSpec {
     public static class AuthenticationDetailsSourceRefConfig extends WebSecurityConfigurerAdapter {
         static AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> AUTHENTICATION_DETAILS_SOURCE
 
-        protected void registerAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth.
                 inMemoryAuthentication()
                     .withUser("rod").password("password").roles("USER","ADMIN");
@@ -148,7 +148,7 @@ public class NamespaceHttpX509Tests extends BaseSpringSpec {
     @EnableWebSecurity
     public static class SubjectPrincipalRegexConfig extends WebSecurityConfigurerAdapter {
         @Override
-        protected void registerAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth.
                 inMemoryAuthentication()
                     .withUser("rod").password("password").roles("USER","ADMIN");
@@ -181,7 +181,7 @@ public class NamespaceHttpX509Tests extends BaseSpringSpec {
     @EnableWebSecurity
     public static class UserDetailsServiceRefConfig extends WebSecurityConfigurerAdapter {
         @Override
-        protected void registerAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth.
                 inMemoryAuthentication()
                     .withUser("rod").password("password").roles("USER","ADMIN");
@@ -215,7 +215,7 @@ public class NamespaceHttpX509Tests extends BaseSpringSpec {
     public static class AuthenticationUserDetailsServiceConfig extends WebSecurityConfigurerAdapter {
         static AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> AUTHENTICATION_DETAILS_SOURCE
 
-        protected void registerAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth.
                 inMemoryAuthentication()
                     .withUser("rod").password("password").roles("USER","ADMIN");

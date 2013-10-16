@@ -91,7 +91,7 @@ public class SampleWebSecurityConfigurerAdapterTests extends BaseSpringSpec {
     @EnableWebSecurity
     public static class HelloWorldWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
         @Override
-        protected void registerAuthentication(AuthenticationManagerBuilder auth) {
+        protected void configure(AuthenticationManagerBuilder auth) {
             auth
                 .inMemoryAuthentication()
                     .withUser("user").password("password").roles("USER");
@@ -179,7 +179,7 @@ public class SampleWebSecurityConfigurerAdapterTests extends BaseSpringSpec {
         }
 
         @Override
-        protected void registerAuthentication(AuthenticationManagerBuilder auth) {
+        protected void configure(AuthenticationManagerBuilder auth) {
             auth
                 .inMemoryAuthentication()
                     .withUser("user").password("password").roles("USER").and()
@@ -276,7 +276,7 @@ public class SampleWebSecurityConfigurerAdapterTests extends BaseSpringSpec {
     @EnableWebSecurity
     public static class SampleMultiHttpSecurityConfig {
         @Autowired
-        public void registerAuthentication(AuthenticationManagerBuilder auth) {
+        protected void configure(AuthenticationManagerBuilder auth) {
             auth
                 .inMemoryAuthentication()
                     .withUser("user").password("password").roles("USER").and()

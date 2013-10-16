@@ -31,8 +31,7 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
     @Configuration
     @EnableWebSecurity
     static class LdapAuthenticationProviderConfig extends WebSecurityConfigurerAdapter {
-        protected void registerAuthentication(
-                AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .ldapAuthentication()
                     .groupSearchBase("ou=groups")
@@ -43,8 +42,7 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
     @Configuration
     @EnableWebSecurity
     static class CustomLdapAuthenticationProviderConfig extends WebSecurityConfigurerAdapter {
-        protected void registerAuthentication(
-                AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .ldapAuthentication()
                     .groupRoleAttribute("cn") // ldap-authentication-provider@group-role-attribute
@@ -70,8 +68,7 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
     @Configuration
     @EnableWebSecurity
     static class PasswordCompareLdapConfig extends WebSecurityConfigurerAdapter {
-        protected void registerAuthentication(
-                AuthenticationManagerBuilder auth) throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .ldapAuthentication()
                     .groupSearchBase("ou=groups")

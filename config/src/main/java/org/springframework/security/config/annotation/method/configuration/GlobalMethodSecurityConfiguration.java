@@ -236,8 +236,8 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
 
     /**
      * Allows providing a custom {@link AuthenticationManager}. The default is
-     * to use any authentication mechanisms registered by {@link #registerAuthentication(AuthenticationManagerBuilder)}. If
-     * {@link #registerAuthentication(AuthenticationManagerBuilder)} was not overriden, then an {@link AuthenticationManager}
+     * to use any authentication mechanisms registered by {@link #configure(AuthenticationManagerBuilder)}. If
+     * {@link #configure(AuthenticationManagerBuilder)} was not overridden, then an {@link AuthenticationManager}
      * is attempted to be autowired by type.
      *
      * @return
@@ -247,7 +247,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
             DefaultAuthenticationEventPublisher eventPublisher = objectPostProcessor.postProcess(new DefaultAuthenticationEventPublisher());
             auth.authenticationEventPublisher(eventPublisher);
             auth.objectPostProcessor(objectPostProcessor);
-            registerAuthentication(auth);
+            configure(auth);
             if(!disableAuthenticationRegistry) {
                 authenticationManager = auth.build();
             }
@@ -267,13 +267,13 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
 
     /**
      * Sub classes can override this method to register different types of authentication. If not overridden,
-     * {@link #registerAuthentication(AuthenticationManagerBuilder)} will attempt to autowire by type.
+     * {@link #configure(AuthenticationManagerBuilder)} will attempt to autowire by type.
      *
      * @param auth the {@link AuthenticationManagerBuilder} used to register different authentication mechanisms for the
      *                 global method security.
      * @throws Exception
      */
-    protected void registerAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         this.disableAuthenticationRegistry = true;
     }
 

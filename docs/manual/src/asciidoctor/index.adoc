@@ -290,7 +290,7 @@ import org.springframework.security.config.annotation.web.configuration.*;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    public void registerGlobalAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth
             .inMemoryAuthentication()
                 .withUser("user").password("password").roles("USER");
@@ -517,7 +517,7 @@ We have already seen an example of configuring in memory authentication for a si
 [source,java]
 ----
 @Autowired
-public void registerGlobalAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
     auth
         .inMemoryAuthentication()
             .withUser("user").password("password").roles("USER").and()
@@ -535,7 +535,7 @@ You can find the updates to suppport JDBC based authentication. The example belo
 private DataSource dataSource;
 
 @Autowired
-public void registerGlobalAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
     auth
         .jdbcAuthentication()
             .dataSource(dataSource)
@@ -555,7 +555,7 @@ You can find the updates to suppport LDAP based authentication. The https://gith
 private DataSource dataSource;
 
 @Autowired
-public void registerGlobalAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
     auth
         .ldapAuthentication()
             .userDnPatterns("uid={0},ou=people")

@@ -70,8 +70,7 @@ class HttpBasicConfigurerTests extends BaseSpringSpec {
         }
 
         @Override
-        protected void registerAuthentication(AuthenticationManagerBuilder auth)
-                throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .inMemoryAuthentication()
         }
@@ -99,8 +98,7 @@ class HttpBasicConfigurerTests extends BaseSpringSpec {
         }
 
         @Override
-        protected void registerAuthentication(AuthenticationManagerBuilder auth)
-                throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .inMemoryAuthentication()
         }
@@ -130,8 +128,7 @@ class HttpBasicConfigurerTests extends BaseSpringSpec {
         }
 
         @Override
-        protected void registerAuthentication(AuthenticationManagerBuilder auth)
-                throws Exception {
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .inMemoryAuthentication()
         }
