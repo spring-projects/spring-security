@@ -263,7 +263,496 @@ Below you can find a summary of updates to the Spring Security 3.1 namespace.
 * Added <<nsa-http-jaas-api-provision,http@jaas-api-provision>>
 * Added <<nsa-form-login-username-parameter,form-login@username-parameter>> and <<nsa-form-login-password-parameter,form-login@password-parameter>>
 
+[[java-config]]
+=== Java Configuration
 
+General support for http://docs.spring.io/spring/docs/3.1.x/spring-framework-reference/html/beans.html#beans-java[Java Configuration] was added to Spring framework in Spring 3.1. Since Spring Security 3.2 there has been Spring Security Java Configuration support which enables users to easily configure Spring Security without the use of any XML.
+
+If you are familiar with the <<ns-config>> then you should find quite a few similarities between it and the Security Java Configuration support.
+
+NOTE: Spring Security provides https://github.com/spring-projects/spring-security/tree/master/samples[lots of sample applications] that end in `-jc` which demonstrate the use of Spring Security Java Configuration.
+
+==== Hello Web Security Java Configuration
+
+The first step is to create our Spring Security Java Configuration. The configuration creates a Servlet Filter known as the `springSecurityFilterChain` which is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the log in form, etc) within your application. You can find the most basic example of a Spring Security Java configuration below:
+
+[[jc-hello-wsca]]
+[source,java]
+----
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.context.annotation.*;
+import org.springframework.security.config.annotation.authentication.builders.*;
+import org.springframework.security.config.annotation.web.configuration.*;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    public void registerGlobalAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+        auth
+            .inMemoryAuthentication()
+                .withUser("user").password("password").roles("USER");
+    }
+}
+----
+
+There really isn't much to this configuration, but it does a lot. You can find a summary of the features below:
+
+* Require authentication to every URL in your application
+* Generate a login form for you
+* Allow the user with the *Username* _user_ and the *Password* _password_ to authenticate with form based authentication
+* Allow the user to logout
+* http://en.wikipedia.org/wiki/Cross-site_request_forgery[CSRF attack] prevention
+* http://en.wikipedia.org/wiki/Session_fixation[Session Fixation] protection
+* Security Header integration
+** http://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security[HTTP Strict Transport Security] for secure requests
+** http://msdn.microsoft.com/en-us/library/ie/gg622941(v=vs.85).aspx[X-Content-Type-Options] integration
+** Cache Control (can be overridden later by your application to allow caching of your static resources)
+** http://msdn.microsoft.com/en-us/library/dd565647(v=vs.85).aspx[X-XSS-Protection] integration
+** X-Frame-Options integration to help prevent http://en.wikipedia.org/wiki/Clickjacking[Clickjacking]
+* Integrate with the following Servlet API methods
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getRemoteUser()[HttpServletRequest#getRemoteUser()]
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getUserPrincipal()[HttpServletRequest.html#getUserPrincipal()]
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#isUserInRole(java.lang.String)[HttpServletRequest.html#isUserInRole(java.lang.String)]
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#login(java.lang.String,%20java.lang.String)[HttpServletRequest.html#login(java.lang.String, java.lang.String)]
+** http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#logout()[HttpServletRequest.html#logout()]
+
+===== AbstractSecurityWebApplicationInitializer
+
+The next step is to register the `springSecurityFilterChain` with the war. This can be done in Java Configuration with http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-container-config[Spring's WebApplicationInitializer support] in a Servlet 3.0+ environment. Not suprisingly, Spring Security provides a base class `AbstractSecurityWebApplicationInitializer` that will ensure the `springSecurityFilterChain` gets registered for you. The way in which we use `AbstractSecurityWebApplicationInitializer` differs depending on if we are already using Spring or if Spring Security is the only Spring component in our application.
+
+* <<abstractsecuritywebapplicationinitializer-without-existing-spring>> - Use these instructions if you are not using Spring already
+* <<abstractsecuritywebapplicationinitializer-with-spring-mvc>> - Use these instructions if you are already using Spring
+
+===== AbstractSecurityWebApplicationInitializer without Existing Spring
+
+If you are not using Spring or Spring MVC, you will need to pass in the `SecurityConfig` into the superclass to ensure the configuration is picked up. You can find an example below:
+
+[source,java]
+----
+import org.springframework.security.web.context.*;
+
+public class SecurityWebApplicationInitializer
+      extends AbstractSecurityWebApplicationInitializer {
+
+    public SecurityWebApplicationInitializer() {
+        super(SecurityConfig.class);
+    }
+}
+----
+
+The `SecurityWebApplicationInitializer` will do the following things:
+
+* Automatically register the springSecurityFilterChain Filter for every URL in your application
+* Add a ContextLoaderListener that loads the <<jc-hello-wsca,`SecurityConfig`>>.
+
+===== AbstractSecurityWebApplicationInitializer with Spring MVC
+
+If we were using Spring elsewhere in our application we probably already had a `WebApplicationInitializer` that is loading our Spring Configuration. If we use the previous configuration we would get an error. Instead, we should register Spring Security with the existing `ApplicationContext`. For example, if we were using Spring MVC our `SecurityWebApplicationInitializer` would look something like the following:
+
+[source,java]
+----
+import org.springframework.security.web.context.*;
+
+public class SecurityWebApplicationInitializer
+      extends AbstractSecurityWebApplicationInitializer {
+
+}
+----
+
+This would simply only register the springSecurityFilterChain Filter for every URL in your application. After that we would ensure that `SecurityConfig` was loaded in our existing ApplicationInitializer. For example, if we were using Spring MVC it would be added in the `getRootConfigClasses()` 
+
+[[message-web-application-inititializer-java]]
+[source,java]
+----
+public class MvcWebApplicationInitializer extends
+        AbstractAnnotationConfigDispatcherServletInitializer {
+
+    @Override
+    protected Class<?>[] getRootConfigClasses() {
+        return new Class[] { SecurityConfig.class };
+    }
+
+    // ... other overrides ...
+}
+----
+
+[[jc-httpsecurity]]
+==== HttpSecurity
+
+Thus far our <<jc-hello-wsca,SecurityConfig>> only contains information about how to authenticate our users. How does Spring Security know that we want to require all users to be authenticated? How does Spring Security know we want to support form based authentication? The reason for this is that the `WebSecurityConfigurerAdapter` provides a default configuration in the `configure(HttpSecurity http)` method that looks like:
+
+[source,java]
+----
+protected void configure(HttpSecurity http) throws Exception {
+    http
+        .authorizeRequests()
+            .anyRequest().authenticated()
+            .and()
+        .formLogin()
+            .and()
+        .httpBasic();
+}
+----
+
+The default configuration above:
+
+* Ensures that any request to our application requires the user to be authenticated
+* Allows users to authenticate with form based login
+* Allows users to authenticate with HTTP Basic authentication
+
+You will notice that this configuration is quite similar the XML Namespace configuration:
+
+[source,xml]
+----
+<http use-expressions="true">
+    <intercept-url pattern="/**" access="authenticated"/>
+    <form-login />
+    <http-basic />
+</http> 
+----
+
+The Java Configuration equivalent of closing an XML tag is expressed using the `and()` method which allows us to continue configuring the parent. If you read the code it also makes sense. I want to configure authorized requests __and__ configure form login __and__ configure HTTP Basic authentication.
+
+[[jc-form]]
+==== Java Configuration and Form Login
+You might be wondering where the login form came from when you were prompted to log in, since we made no mention of any HTML files or JSPs. Since Spring Security's default configuration does not explicitly set a URL for the login page, Spring Security generates one automatically, based on the features that are enabled and using standard values for the URL which processes the submitted login, the default target URL the user will be sent to after logging in and so on.
+
+While the automatically generated log in page is convenient to get up and running quickly, most applications will want to provide their own log in page. To do so we can update our configuration as seen below:
+
+
+[source,java]
+----
+protected void configure(HttpSecurity http) throws Exception {
+    http
+        .authorizeRequests()
+            .anyRequest().authenticated()
+            .and()
+        .formLogin()
+            .loginPage("/login") // <1>
+            .permitAll();        // <2>
+}
+----
+
+<1> The updated configuration specifies the location of the log in page.
+<2> We must grant all users (i.e. unauthenticated users) access to our log in page. The `formLogin().permitAll()` method allows granting access to all users for all URLs associated with form based log in. 
+	
+An example log in page implemented with JSPs for our current configuration can be seen below:
+
+NOTE: The login page below represents our current configuration. We could easily update our configuration if some of the defaults do not meet our needs.
+
+[source,html]
+----
+<c:url value="/login" var="loginUrl"/>
+<form action="${loginUrl}" method="post">       <1>
+    <c:if test="${param.error != null}">        <2>
+        <p>
+            Invalid username and password.
+        </p>
+    </c:if>
+    <c:if test="${param.logout != null}">       <3>
+        <p>
+            You have been logged out.
+        </p>
+    </c:if>
+    <p>
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username"/>	<4>
+    </p>
+    <p>
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password"/>	<5>
+    </p>
+    <input type="hidden"                        <6>
+		name="${_csrf.parameterName}" 
+		value="${_csrf.token}"/>
+    <button type="submit" class="btn">Log in</button>
+</form>
+----
+
+<1> A POST to the `/login` URL will attempt to authenticate the user
+<2> If the query parameter `error` exists, authentication was attempted and failed
+<3> If the query parameter `logout` exists, the user was successfully logged out
+<4> The username must be present as the HTTP parameter named __username__
+<5> The password must be present as the HTTP parameter named __password__
+<6> We must <<csrf-include-csrf-token>> To learn more read the <<csrf>> section of the reference
+	
+[jc-authorize-requests]]
+==== Authorize Requests
+Our examples have only required users to be authenticated and have done so for every URL in our application. We can specify custom requirements for our URLs by adding multiple children to our `http.authorizeRequests()` method. For example:
+
+
+[source,java]
+----
+protected void configure(HttpSecurity http) throws Exception {
+    http
+        .authorizeRequests()                                                                <1>
+            .antMatchers("/resources/**", "/signup", "/about").permitAll()                  <2>
+            .antMatchers("/admin/**").hasRole("ADMIN")                                      <3>
+            .antMatchers("/db/**").access("hasRole('ROLE_ADMIN') and hasRole('ROLE_DBA')")  <4>
+            .anyRequest().authenticated()                                                   <5>
+            .and()
+        // ...
+        .formLogin();
+}
+----
+
+<1> There are multiple children to the `http.authorizeRequests()` method each matcher is considered in the order they were declared.
+<2> We specified multiple URL patterns that any user can access. Specifically, any user can access a request if the URL starts with "/resources/", equals "/signup", or equals "/about".
+<3> Any URL that starts with "/admin/" will be resticted to users who have the role "ROLE_ADMIN". You will notice that since we are invoking the `hasRole` method we do not need to specify the "ROLE_" prefix.
+<4> Any URL that starts with "/db/" requires the user to have both "ROLE_ADMIN" and "ROLE_DBA"
+<5> Any URL that has not already been matched on only requires that the user be authenticated
+
+[[jc-authentication]]	
+==== Authentication
+
+Thus far we have only taken a look at the most basic authentication configuration. Let's take a look at a few slightly more advanced options for configuring authentication.
+
+===== In Memory Authentication
+
+We have already seen an example of configuring in memory authentication for a single user. Below is an example to configure multiple users:
+
+[source,java]
+----
+@Autowired
+public void registerGlobalAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+    auth
+        .inMemoryAuthentication()
+            .withUser("user").password("password").roles("USER").and()
+            .withUser("admin").password("password").roles("USER", "ADMIN");
+}
+----
+
+===== JDBC Authentication
+
+You can find the updates to suppport JDBC based authentication. The example below assumes that you have already defined a `DataSource` within your application. The https://github.com/spring-projects/spring-security/tree/master/samples/jdbc-jc[jdbc-jc sample] provides a complete example of using JDBC based authentication.
+
+[source,java]
+----
+@Autowired
+private DataSource dataSource;
+
+@Autowired
+public void registerGlobalAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+    auth
+        .jdbcAuthentication()
+            .dataSource(dataSource)
+            .withDefaultSchema()
+            .withUser("user").password("password").roles("USER").and()
+            .withUser("admin").password("password").roles("USER", "ADMIN");
+}
+----
+
+===== LDAP Authentication
+
+You can find the updates to suppport LDAP based authentication. The https://github.com/spring-projects/spring-security/tree/master/samples/lda-jc[ldap-jc sample] provides a complete example of using LDAP based authentication.
+
+[source,java]
+----
+@Autowired
+private DataSource dataSource;
+
+@Autowired
+public void registerGlobalAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+    auth
+        .ldapAuthentication()
+            .userDnPatterns("uid={0},ou=people")
+            .groupSearchBase("ou=groups");
+}
+----
+
+The example above uses the following LDIF and an embedded Apache DS LDAP instance.
+
+.users.ldif
+----
+dn: ou=groups,dc=springframework,dc=org
+objectclass: top
+objectclass: organizationalUnit
+ou: groups
+
+dn: ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: organizationalUnit
+ou: people
+
+dn: uid=admin,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Rod Johnson
+sn: Johnson
+uid: admin
+userPassword: password
+
+dn: uid=user,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Dianne Emu
+sn: Emu
+uid: user
+userPassword: password
+
+dn: cn=user,ou=groups,dc=springframework,dc=org
+objectclass: top
+objectclass: groupOfNames
+cn: user
+uniqueMember: uid=admin,ou=people,dc=springframework,dc=org
+uniqueMember: uid=user,ou=people,dc=springframework,dc=org
+
+dn: cn=admin,ou=groups,dc=springframework,dc=org
+objectclass: top
+objectclass: groupOfNames
+cn: admin
+uniqueMember: uid=admin,ou=people,dc=springframework,dc=org
+----
+
+==== Multiple HttpSecurity
+
+We can configure multiple HttpSecurity instances just as we can have multiple `<http>` blocks. The key is to extend the `WebSecurityConfigurationAdapter` multiple times. For example, the following is an example of having a different configuration for URL's that start with `/api/`.
+	
+[source,java]
+----
+@Configuration
+@EnableWebSecurity
+public static class MultiHttpSecurityConfig {
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth) { <1>
+        auth
+            .inMemoryAuthentication()
+                .withUser("user").password("password").roles("USER").and()
+                .withUser("admin").password("password").roles("USER", "ADMIN");
+    }
+
+    @Configuration
+    @Order(1)                                                        <2>
+    public static class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .antMatcher("/api/**")                               <3>
+                .authorizeRequests()
+                    .anyRequest().hasRole("ADMIN")
+                    .and()
+                .httpBasic();
+        }
+    }
+
+    @Configuration                                                   <4>
+    public static class FormLoginWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .authorizeRequests()
+                    .anyRequest().authenticated()
+                    .and()
+                .formLogin();
+        }
+    }
+}
+----
+
+<1> Configure Authentication as normal
+<2> Create an instance of `WebSecurityConfigurerAdapter` that contains `@Order` to specify which `WebSecurityConfigurerAdapter` should be considered first.
+<3> The `http.antMatcher` states that this `HttpSecurity` will only be applicable to URLs that start with `/api/`
+<4> Create another instance of `WebSecurityConfigurerAdapter`. If the URL does not start with `/api/` this configuration will be used. This configuration is considered after `ApiWebSecurityConfigurationAdapter` since it has an `@Order` value after `1` (no `@Order` defaults to last).
+	
+[[jc-method]]
+==== Method Security
+
+From version 2.0 onwards Spring Security has improved support substantially for adding security to your service layer methods. It provides support for JSR-250 annotation security as well as the framework’s original @Secured annotation. From 3.0 you can also make use of new <<el-access,expression-based annotations>>. You can apply security to a single bean, using the intercept-methods element to decorate the bean declaration, or you can secure multiple beans across the entire service layer using the AspectJ style pointcuts.
+
+===== EnableGlobalMethodSecurity
+
+We can enable annotation-based security using the `@EnableGlobalMethodSecurity` annotation on any `@Configuration` instance. For example, the following would enable Spring Security's `@Secured` annotation.
+
+[source,java]
+----
+@Configuration
+@EnableGlobalMethodSecurity(securedEnabled = true)
+public class MethodSecurityConfig {
+   // ...
+}
+----
+
+Adding an annotation to a method (on an class or interface) would then limit the access to that method accordingly. Spring Security’s native annotation support defines a set of attributes for the method. These will be passed to the AccessDecisionManager for it to make the actual decision:
+
+[source,java]
+----
+public interface BankService {
+
+  @Secured("IS_AUTHENTICATED_ANONYMOUSLY")
+  public Account readAccount(Long id);
+
+  @Secured("IS_AUTHENTICATED_ANONYMOUSLY")
+  public Account[] findAccounts();
+
+  @Secured("ROLE_TELLER")
+  public Account post(Account account, double amount);
+}
+----
+
+Support for JSR-250 annotations can be enabled using
+
+[source,java]
+----
+@Configuration
+@EnableGlobalMethodSecurity(jsr250Enabled = true)
+public class MethodSecurityConfig {
+   // ...
+}
+----
+
+These are standards-based and allow simple role-based constraints to be applied but do not have the power Spring Security’s native annotations. To use the new expression-based syntax, you would use
+
+[source,java]
+----
+@Configuration
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+public class MethodSecurityConfig {
+   // ...
+}
+----
+
+and the equivalent Java code would be
+
+[source,java]
+----
+public interface BankService {
+
+  @PreAuthorize("isAnonymous()")
+  public Account readAccount(Long id);
+
+  @PreAuthorize("isAnonymous()")
+  public Account[] findAccounts();
+
+  @PreAuthorize("hasAuthority('ROLE_TELLER')")
+  public Account post(Account account, double amount);
+}
+----
+
+===== GlobalMethodSecurityConfiguration
+
+Sometimes you may need to perform operations that are more complicated than are possible with the `@EnableGlobalMethodSecurity` annotation allow. For these instances, you can extend the `GlobalMethodSecurityConfiguration` ensuring that the `@EnableGlobalMethodSecurity` annotation is present on your subclass. For example, if you wanted to provide a custom `MethodSecurityExpressionHander`, you could use the following configuration:
+
+[source,java]
+----
+@Configuration
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
+    @Override
+    protected MethodSecurityExpressionHandler createExpressionHandler() {
+        // ... create and return custom MethodSecurityExpressionHandler ...
+        return expressionHander;
+    }
+}
+----
+
+For additional information about methods that can be overriden, refer to the `GlobalMethodSecurityConfiguration` Javadoc.
 
 [[ns-config]]
 === Security Namespace Configuration
@@ -359,9 +848,9 @@ The first thing you need to do is add the following filter declaration to your `
 </filter-mapping>
 ----
 
-This provides a hook into the Spring Security web
-                infrastructure. `DelegatingFilterProxy` is a Spring Framework class which delegates to a filter implementation which is defined as a Spring bean in your application context. In this case, the bean is named "springSecurityFilterChain", which is an internal infrastructure bean created by the namespace to handle web security. Note that you should not use this bean name yourself. Once you've added this to your `web.xml`, you're ready to start editing your application context file. Web security services are configured using the `<http>` element.
-
+This provides a hook into the Spring Security web infrastructure. `DelegatingFilterProxy` is a Spring Framework class which delegates to a filter implementation which is defined as a Spring bean in your application
+context. In this case, the bean is named "springSecurityFilterChain", which is an internal infrastructure bean created by the namespace to handle web security. Note that you should not use this bean name yourself. Once
+you've added this to your `web.xml`, you're ready to start editing your application context file. Web security services are configured using the `<http>` element.
 
 [[ns-minimal]]
 ===== A Minimal <http> Configuration
@@ -2840,7 +3329,7 @@ public class WebSecurityConfig extends
 
 [[headers-hsts]]
 ===== HTTP Strict Transport Security (HSTS)
-When you type in your bank's website, do you enter mybank.example.com or do you enter https://mybank.example.com[]? If you omit the https protocol, you are potentially vulnerable tohttp://en.wikipedia.org/wiki/Man-in-the-middle_attack[Man in the Middle attacks]. Even if the website performs a redirect to https://mybank.example.com a malicious user could intercept the initial HTTP request and manipulate the response (i.e. redirect to https://mibank.example.com and steal their credentials).
+When you type in your bank's website, do you enter mybank.example.com or do you enter https://mybank.example.com[]? If you omit the https protocol, you are potentially vulnerable to http://en.wikipedia.org/wiki/Man-in-the-middle_attack[Man in the Middle attacks]. Even if the website performs a redirect to https://mybank.example.com a malicious user could intercept the initial HTTP request and manipulate the response (i.e. redirect to https://mibank.example.com and steal their credentials).
 
 Many users omit the https protocol and this is why http://tools.ietf.org/html/rfc6797[HTTP Strict Transport Security (HSTS)] was created. Once mybank.example.com is added as a http://tools.ietf.org/html/rfc6797#section-5.1[HSTS host], a browser can know ahead of time that any request to mybank.example.com should be interpreted as https://mybank.example.com. This greatly reduces the possibility of a Man in the Middle attack occurring.
 
