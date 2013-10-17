@@ -48,10 +48,11 @@ public final class DebugFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) srvltResponse;
 
         List<Filter> filters = getFilters(request);
-        logger.info("Request received for '" + UrlUtils.buildRequestUrl(request) + "':\n\n" +
+        logger.info("Request received for " + request.getMethod() + " '" + UrlUtils.buildRequestUrl(request) + "':\n\n" +
                 request + "\n\n" +
                 "servletPath:" + request.getServletPath() + "\n" +
-                "pathInfo:" + request.getPathInfo() + "\n\n" +
+                "pathInfo:" + request.getPathInfo() + "\n" +
+                "headers: \n" + formatHeaders(request) + "\n\n" +
                 formatFilters(filters));
 
         if (request.getAttribute(ALREADY_FILTERED_ATTR_NAME) == null) {
@@ -71,6 +72,25 @@ public final class DebugFilter implements Filter {
         finally {
             request.removeAttribute(ALREADY_FILTERED_ATTR_NAME);
         }
+    }
+
+    String formatHeaders(HttpServletRequest request) {
+        StringBuilder sb = new StringBuilder();
+        Enumeration<String> eHeaderNames = request.getHeaderNames();
+        while(eHeaderNames.hasMoreElements()) {
+            String headerName = eHeaderNames.nextElement();
+            sb.append(headerName);
+            sb.append(": ");
+            Enumeration<String> eHeaderValues = request.getHeaders(headerName);
+            while(eHeaderValues.hasMoreElements()) {
+                sb.append(eHeaderValues.nextElement());
+                if(eHeaderValues.hasMoreElements()) {
+                    sb.append(", ");
+                }
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
     }
 
     String formatFilters(List<Filter> filters) {
