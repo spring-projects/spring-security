@@ -15,7 +15,7 @@
  */
 package org.springframework.security.config.annotation.web;
 
-import static org.springframework.security.config.annotation.web.AbstractRequestMatcherConfigurer.RequestMatchers.*
+import static org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry.RequestMatchers.*
 
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;

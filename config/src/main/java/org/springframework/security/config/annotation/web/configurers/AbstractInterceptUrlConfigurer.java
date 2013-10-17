@@ -23,7 +23,6 @@ import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
-import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 
@@ -53,48 +52,20 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
  *     <li>{@link org.springframework.security.config.annotation.web.builders.HttpSecurity#getAuthenticationManager()}</li>
  * </ul>
  *
+ *
+ * @param <C> the AbstractInterceptUrlConfigurer
  * @param <H> the type of {@link HttpSecurityBuilder} that is being configured
- * @param <C> the type of object that is changed
- * @param <R> the type of object that is changed for the {@link AbstractRequestMatcherMappingConfigurer}
  *
  * @author Rob Winch
  * @since 3.2
  * @see ExpressionUrlAuthorizationConfigurer
  * @see UrlAuthorizationConfigurer
  */
-abstract class AbstractInterceptUrlConfigurer<H extends HttpSecurityBuilder<H>,C,R> extends
-        AbstractRequestMatcherMappingConfigurer<H,R,DefaultSecurityFilterChain> implements
-        SecurityConfigurer<DefaultSecurityFilterChain,H> {
+abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConfigurer<C,H>, H extends HttpSecurityBuilder<H>> extends
+        AbstractHttpConfigurer<C, H>{
     private Boolean filterSecurityInterceptorOncePerRequest;
 
     private AccessDecisionManager accessDecisionManager;
-
-    /**
-     * Allows setting the {@link AccessDecisionManager}. If none is provided, a default {@l AccessDecisionManager} is
-     * created.
-     *
-     * @param accessDecisionManager the {@link AccessDecisionManager} to use
-     * @return  the {@link AbstractInterceptUrlConfigurer} for further customization
-     */
-    public C accessDecisionManager(
-            AccessDecisionManager accessDecisionManager) {
-        this.accessDecisionManager = accessDecisionManager;
-        return getSelf();
-    }
-
-    /**
-     * Allows setting if the {@link FilterSecurityInterceptor} should be only applied once per request (i.e. if the
-     * filter intercepts on a forward, should it be applied again).
-     *
-     * @param filterSecurityInterceptorOncePerRequest if the {@link FilterSecurityInterceptor} should be only applied
-     *                                                once per request
-     * @return  the {@link AbstractInterceptUrlConfigurer} for further customization
-     */
-    public C filterSecurityInterceptorOncePerRequest(
-            boolean filterSecurityInterceptorOncePerRequest) {
-        this.filterSecurityInterceptorOncePerRequest = filterSecurityInterceptorOncePerRequest;
-        return getSelf();
-    }
 
     @Override
     public void configure(H http) throws Exception {
@@ -133,6 +104,47 @@ abstract class AbstractInterceptUrlConfigurer<H extends HttpSecurityBuilder<H>,C
      */
     @SuppressWarnings("rawtypes")
     abstract List<AccessDecisionVoter> getDecisionVoters(H http);
+
+    abstract class AbstractInterceptUrlRegistry<R extends AbstractInterceptUrlRegistry<R,T>,T> extends AbstractConfigAttributeRequestMatcherRegistry<T> {
+
+        /**
+         * Allows setting the {@link AccessDecisionManager}. If none is provided, a default {@l AccessDecisionManager} is
+         * created.
+         *
+         * @param accessDecisionManager the {@link AccessDecisionManager} to use
+         * @return  the {@link AbstractInterceptUrlConfigurer} for further customization
+         */
+        public R accessDecisionManager(
+                AccessDecisionManager accessDecisionManager) {
+            AbstractInterceptUrlConfigurer.this.accessDecisionManager = accessDecisionManager;
+            return getSelf();
+        }
+
+        /**
+         * Allows setting if the {@link FilterSecurityInterceptor} should be only applied once per request (i.e. if the
+         * filter intercepts on a forward, should it be applied again).
+         *
+         * @param filterSecurityInterceptorOncePerRequest if the {@link FilterSecurityInterceptor} should be only applied
+         *                                                once per request
+         * @return  the {@link AbstractInterceptUrlConfigurer} for further customization
+         */
+        public R filterSecurityInterceptorOncePerRequest(
+                boolean filterSecurityInterceptorOncePerRequest) {
+            AbstractInterceptUrlConfigurer.this.filterSecurityInterceptorOncePerRequest = filterSecurityInterceptorOncePerRequest;
+            return getSelf();
+        }
+
+        /**
+         * Returns a reference to the current object with a single suppression of
+         * the type
+         *
+         * @return a reference to the current object
+         */
+        @SuppressWarnings("unchecked")
+        private R getSelf() {
+            return (R) this;
+        }
+    }
 
     /**
      * Creates the default {@code AccessDecisionManager}
@@ -174,16 +186,5 @@ abstract class AbstractInterceptUrlConfigurer<H extends HttpSecurityBuilder<H>,C
         securityInterceptor.setAuthenticationManager(authenticationManager);
         securityInterceptor.afterPropertiesSet();
         return securityInterceptor;
-    }
-
-    /**
-     * Returns a reference to the current object with a single suppression of
-     * the type
-     *
-     * @return a reference to the current object
-     */
-    @SuppressWarnings("unchecked")
-    private C getSelf() {
-        return (C) this;
     }
 }

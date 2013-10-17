@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
-import org.springframework.security.config.annotation.web.configurers.AbstractRequestMatcherMappingConfigurer.UrlMapping;
+import org.springframework.security.config.annotation.web.configurers.AbstractConfigAttributeRequestMatcherRegistry.UrlMapping;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 
@@ -49,7 +49,7 @@ final class PermitAllSupport {
 
         for(RequestMatcher matcher : requestMatchers) {
             if(matcher != null) {
-                configurer.addMapping(0, new UrlMapping(matcher, SecurityConfig.createList(ExpressionUrlAuthorizationConfigurer.permitAll)));
+                configurer.getRegistry().addMapping(0, new UrlMapping(matcher, SecurityConfig.createList(ExpressionUrlAuthorizationConfigurer.permitAll)));
             }
         }
     }

@@ -72,7 +72,8 @@ public class UrlAuthorizationsTests extends BaseSpringSpec {
     static class NoSpecificAccessDecessionManagerConfig extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .apply(new UrlAuthorizationConfigurer())
+                .apply(new UrlAuthorizationConfigurer()).getRegistry()
+                    .antMatchers("/a").hasRole("ADMIN")
                     .anyRequest().hasRole("USER")
         }
     }

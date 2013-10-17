@@ -507,7 +507,7 @@ public class NamespaceHttpTests extends BaseSpringSpec {
     static class DisableUseExpressionsConfig extends BaseWebConfig {
         protected void configure(HttpSecurity http) throws Exception {
             http
-                .apply(new UrlAuthorizationConfigurer())
+                .apply(new UrlAuthorizationConfigurer()).getRegistry()
                     .antMatchers("/users**","/sessions/**").hasRole("USER")
                     .antMatchers("/signup").hasRole("ANONYMOUS")
                     .anyRequest().hasRole("USER")

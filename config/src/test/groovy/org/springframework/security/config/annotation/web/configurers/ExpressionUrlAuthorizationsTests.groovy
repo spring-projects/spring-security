@@ -15,6 +15,8 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
+import static org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurerConfigs.*
+
 import javax.servlet.http.HttpServletResponse
 
 import org.springframework.beans.factory.BeanCreationException
@@ -452,5 +454,12 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
             auth
                 .inMemoryAuthentication()
         }
+    }
+
+    def "All Properties are accessible and chain properly"() {
+        when:
+            loadConfig(AllPropertiesWorkConfig)
+        then:
+            noExceptionThrown()
     }
 }

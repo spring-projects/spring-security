@@ -21,8 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.config.annotation.SecurityBuilder;
-import org.springframework.security.config.annotation.web.AbstractRequestMatcherConfigurer;
+import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
@@ -32,15 +31,13 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * @author Rob Winch
  * @since 3.2
  *
- * @param <B> The Builder that is building Object O and is configured by this {@link AbstractRequestMatcherMappingConfigurer}
  * @param <C> The object that is returned or Chained after creating the RequestMatcher
- * @param <O> The Object being built by Builder B
  *
  * @see ChannelSecurityConfigurer
  * @see UrlAuthorizationConfigurer
  * @see ExpressionUrlAuthorizationConfigurer
  */
-public abstract class AbstractRequestMatcherMappingConfigurer<B extends SecurityBuilder<O>,C,O> extends AbstractRequestMatcherConfigurer<B,C,O> {
+public abstract class AbstractConfigAttributeRequestMatcherRegistry<C> extends AbstractRequestMatcherRegistry<C> {
     private List<UrlMapping> urlMappings = new ArrayList<UrlMapping>();
     private List<RequestMatcher> unmappedMatchers;
 

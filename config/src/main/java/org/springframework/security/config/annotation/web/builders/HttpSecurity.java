@@ -31,7 +31,7 @@ import org.springframework.security.config.annotation.SecurityBuilder;
 import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.web.AbstractRequestMatcherConfigurer;
+import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
@@ -680,8 +680,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * @return
      * @throws Exception
      */
-    public ExpressionUrlAuthorizationConfigurer<HttpSecurity> authorizeRequests() throws Exception {
-        return getOrApply(new ExpressionUrlAuthorizationConfigurer<HttpSecurity>());
+    public ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry authorizeRequests() throws Exception {
+        return getOrApply(new ExpressionUrlAuthorizationConfigurer<HttpSecurity>()).getRegistry();
     }
 
     /**
@@ -1020,8 +1020,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * @return the {@link ChannelSecurityConfigurer} for further customizations
      * @throws Exception
      */
-    public ChannelSecurityConfigurer<HttpSecurity> requiresChannel() throws Exception {
-        return getOrApply(new ChannelSecurityConfigurer<HttpSecurity>());
+    public ChannelSecurityConfigurer<HttpSecurity>.ChannelRequestMatcherRegistry requiresChannel() throws Exception {
+        return getOrApply(new ChannelSecurityConfigurer<HttpSecurity>()).getRegistry();
     }
 
     /**
@@ -1312,7 +1312,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * @author Rob Winch
      * @since 3.2
      */
-    public final class RequestMatcherConfigurer extends AbstractRequestMatcherConfigurer<HttpSecurity,RequestMatcherConfigurer,DefaultSecurityFilterChain> {
+    public final class RequestMatcherConfigurer extends AbstractRequestMatcherRegistry<RequestMatcherConfigurer> {
 
         protected RequestMatcherConfigurer chainRequestMatchers(List<RequestMatcher> requestMatchers) {
             requestMatcher(new OrRequestMatcher(requestMatchers));

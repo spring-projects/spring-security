@@ -15,25 +15,20 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
-import java.util.List;
+import org.springframework.http.HttpMethod
+import org.springframework.security.access.AccessDecisionVoter
+import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher
+import org.springframework.security.web.util.matcher.RegexRequestMatcher
+import org.springframework.security.web.util.matcher.RequestMatcher
 
-import org.springframework.http.HttpMethod;
-import org.springframework.security.access.AccessDecisionVoter;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractRequestMatcherMappingConfigurer;
-import org.springframework.security.web.DefaultSecurityFilterChain;
-import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RegexRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-
-import spock.lang.Specification;
+import spock.lang.Specification
 
 /**
  * @author Rob Winch
  *
  */
-class AbstractRequestMatcherMappingConfigurerTests extends Specification {
+class AbstractConfigAttributeRequestMatcherRegistryTests extends Specification {
     ConcreteAbstractRequestMatcherMappingConfigurer registry = new ConcreteAbstractRequestMatcherMappingConfigurer()
 
     def "regexMatchers(GET,'/a.*') uses RegexRequestMatcher"() {
@@ -64,7 +59,7 @@ class AbstractRequestMatcherMappingConfigurerTests extends Specification {
         matchers.collect {it.class } == [AntPathRequestMatcher]
     }
 
-    static class ConcreteAbstractRequestMatcherMappingConfigurer extends AbstractRequestMatcherMappingConfigurer<HttpSecurity,List<RequestMatcher>,DefaultSecurityFilterChain> {
+    static class ConcreteAbstractRequestMatcherMappingConfigurer extends AbstractConfigAttributeRequestMatcherRegistry<List<RequestMatcher>> {
         List<AccessDecisionVoter> decisionVoters() {
             return null;
         }

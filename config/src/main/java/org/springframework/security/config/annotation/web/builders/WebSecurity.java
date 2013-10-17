@@ -29,7 +29,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.config.annotation.AbstractConfiguredSecurityBuilder;
 import org.springframework.security.config.annotation.SecurityBuilder;
-import org.springframework.security.config.annotation.web.AbstractRequestMatcherConfigurer;
+import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
@@ -313,7 +313,7 @@ public final class WebSecurity extends
      * @author Rob Winch
      * @since 3.2
      */
-    public final class IgnoredRequestConfigurer extends AbstractRequestMatcherConfigurer<WebSecurity,IgnoredRequestConfigurer,Filter> {
+    public final class IgnoredRequestConfigurer extends AbstractRequestMatcherRegistry<IgnoredRequestConfigurer> {
 
         @Override
         protected IgnoredRequestConfigurer chainRequestMatchers(List<RequestMatcher> requestMatchers) {
@@ -324,7 +324,6 @@ public final class WebSecurity extends
         /**
          * Returns the {@link WebSecurity} to be returned for chaining.
          */
-        @Override
         public WebSecurity and() {
             return WebSecurity.this;
         }
