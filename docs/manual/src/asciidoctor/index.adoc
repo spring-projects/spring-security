@@ -5687,6 +5687,65 @@ Refer to the Javadoc for additional integrations with both the Java concurrent A
 
 Spring Security provides a number of optional integrations with Spring MVC. This section covers the integration in further detail.
 
+[[mvc-authentication-principal]]
+==== @AuthenticationPrincipal
+
+Spring Security provides ability to automatically resolve the current `Authentication.getPrincipal()` for Spring MVC arguments. This means that you can be entirely decoupled from Spring Security in your Spring MVC layer.
+
+Consider a situation where a custom `UserDetailsService` that returns an `Object` that implements `UserDetails` and your own `CustomUser` `Object`. The `CustomUser` of the currently authenticated user could be accessed using the following code:
+
+[source,java]
+----
+import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
+
+// ...
+
+@RequestMapping("/messages/inbox")
+public ModelAndView findMessagesForUser() {
+    Authentication authentication =
+      SecurityContextHolder.getContext().getAuthentication();
+    CustomUser custom = (CustomUser) authentication == null ? null : authentication.getPrincipal();
+
+    // .. find messags for this user and return them ...
+}
+----
+
+As of Spring Security 3.2 we can resolve the argument more directly by adding an annotation. For example:
+
+[source,java]
+----
+@RequestMapping("/messages/inbox")
+public ModelAndView findMessagesForUser(@AuthenticationPrincipal CustomUser customUser) {
+    
+    // .. find messags for this user and return them ...
+}
+----
+
+We can further remove our dependency on Spring Security by making `@AuthenticationPrincipal` a meta annotation on our own annotation. Below we demonstrate how we could do this on an annotation named `@CurrentUser`.
+
+NOTE: It is important to realize that in order to remove the dependency on Spring Security, it is the consuming application that would create `@CurrentUser`. This step is not strictly required, but assists in isolating your dependency to Spring Security to a more central location.
+
+[source,java]
+----
+@Target({ElementType.PARAMETER, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@AuthenticationPrincipal
+public @interface CurrentUser {}
+----
+
+Now that `@CurrentUser` has been specified, we can use it to signal to resolve our `CustomUser` of the currently authenticated user. We have also isolated our dependency on Spring Security to a single file.
+
+[source,java]
+----
+@RequestMapping("/messages/inbox")
+public ModelAndView findMessagesForUser(@CurrentUser CustomUser customUser) {
+    
+    // .. find messags for this user and return them ...
+}
+----
+
+
 [[mvc-async]]
 ==== Spring MVC Async Integration
 
