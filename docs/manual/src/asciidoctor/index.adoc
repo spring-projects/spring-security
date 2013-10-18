@@ -207,14 +207,51 @@ git clone https://github.com/spring-projects/spring-security.git
 
 This will give you access to the entire project history (including all releases and branches) on your local machine.
 
+[[new]]
+=== What's new in Spring Security
+
+* <<new-3.2>>
+* <<new-3.1>>
+
+[[new-3.2]]
+==== What's new in Spring Security 3.2
+
+There are https://jira.springsource.org/issues/?jql=project%20%3D%20SEC%20AND%20fixVersion%20in%20(%223.2.0.RC2%22%2C%20%223.2.0%22%2C%20%223.2.0.RC1%22%2C%20%223.2.0.M2%22%2C%20%223.2.0.M1%22)%20ORDER%20BY%20priority%20DESC%2C%20issuetype%20ASC%2C%20key%20DESC[150+ tickets resolved] with the Spring Security 3.2 release. Below are the highlights of the new features found in Spring Security 3.2.
+
+* <<jc,Java Configuration Support>>
+* <<csrf,Cross Site Request Forgery (CSRF) Protection>>
+* <<headers-frame-options,Click Jacking Protection>>
+* <<headers>>
+* Optional <<mvc,Spring MVC>> Integration
+** Automatic Resolving `Authentication.getPrincipal()` with <<mvc-authentication-principal>>
+** Automatic <<mvc-async,Spring MVC Async integration>>
+** <<mvc-csrf>>
+* <<concurrency>>
+* <<servletapi-3>> and <<servletapi-31>>
+* Extended ability to <<el-pre-post-annotations-arguments,resolve method parameter names>> to assist with Method based security
+** Support for standard JDK 8 reflection
+** Support for annotation based resolution
+** Enables resolving parameter names on interfaces
+** Automatic integration with Spring Data's `@Param` tag
+* Additional `RequestMatcher` implementations
+** http://docs.spring.io/spring-security/site/docs/3.2.x-SNAPSHOT/apidocs/org/springframework/security/web/util/matcher/MediaTypeRequestMatcher.html[MediaTypeRequestMatcher] - allows matching requests using content negotiation.
+** `OrRequestMatcher` - allows passing in multiple RequestMatcher instances into the contructor. If a single one returns true, then the result is true.
+** `AndRequestMatcher` - allows passing in multiple RequestMatcher instances into the contructor. If a all of them return true, then the result is true.
+** `NegatedRequestMatcher` - allows padding in a RequestMatcher instance. If the result of the delegate is false, the result is true.
+* `DebugFilter` now outputs request headers
+* Documentation
+** Started creating task focussed http://docs.spring.io/spring-security/site/docs/3.2.x-SNAPSHOT/guides/[guides]
+** 10+ https://github.com/spring-projects/spring-security/tree/master/samples[Spring Security Samples] added
+** Converted all documentation to http://asciidoctor.org/[Asciidoctor]
+* Sonar integration for the build
 
 [[new-3.1]]
-=== What's new in Spring Security 3.1
+==== What's new in Spring Security 3.1
 This section contains summary of the updates found in Spring Security 3.1. A detailed list of changes can be found in the project's https://jira.springsource.org/secure/IssueNavigator!executeAdvanced.jspa?jqlQuery=project+%3D+SEC+AND+fixVersion+in+%2812315%2C+11892%2C+11634%2C+11633%2C+11632%2C+11174%29+order+by+priority%2C+type&runQuery=true&clear=true[JIRA]
 
 
 [[new-3.1-highlevel]]
-==== High level updates found Spring Security 3.1
+===== High level updates found Spring Security 3.1
 Below you can find a high level summary of updates to Spring Security 3.1.
 
 
@@ -239,7 +276,7 @@ Below you can find a high level summary of updates to Spring Security 3.1.
 
 
 [[new-3.1-ns]]
-==== Spring Security 3.1 namespace updates
+===== Spring Security 3.1 namespace updates
 Below you can find a summary of updates to the Spring Security 3.1 namespace.
 
 
@@ -263,7 +300,7 @@ Below you can find a summary of updates to the Spring Security 3.1 namespace.
 * Added <<nsa-http-jaas-api-provision,http@jaas-api-provision>>
 * Added <<nsa-form-login-username-parameter,form-login@username-parameter>> and <<nsa-form-login-password-parameter,form-login@password-parameter>>
 
-[[java-config]]
+[[jc]]
 === Java Configuration
 
 General support for http://docs.spring.io/spring/docs/3.1.x/spring-framework-reference/html/beans.html#beans-java[Java Configuration] was added to Spring framework in Spring 3.1. Since Spring Security 3.2 there has been Spring Security Java Configuration support which enables users to easily configure Spring Security without the use of any XML.
@@ -3130,7 +3167,7 @@ For example, you can provide a custom CsrfTokenRepository to override the way in
 You can also specify a custom RequestMatcher to determine which requests are protected by CSRF (i.e. perhaps you don't care if log out is exploited). In short, if Spring Security's CSRF protection doesn't behave exactly as you want it, you are able to customize the behavior. Refer to the <<nsa-csrf,<csrf>>> documentation for details on how to make these customizations with XML and the `CsrfConfigurer` javadoc for details on how to make these customizations when using Java configuration.
 
 [[headers]]
-=== Security Headers
+=== Security HTTP Response Headers
 This section discusses Spring Security's support for adding various security headers to the response.
 
 ==== Default Security Headers
@@ -5544,6 +5581,7 @@ String result = encoder.encode("myPassword");
 assertTrue(encoder.matches("myPassword", result));
 ----
 
+[[concurrency]]
 === Concurrency Support
 
 In most environments, Security is stored on a per `Thread` basis. This means that when work is done on a new `Thread`, the `SecurityContext` is lost. Spring Security provides some infrastructure to help make this much easier for users. Spring Security provides low level abstractions for working with Spring Security in multi threaded environments. In fact, this is what Spring Security builds on to integration with <<servletapi-start-runnable>> and <<mvc-async>>.
@@ -5773,6 +5811,7 @@ More technically speaking, Spring Security integrates with `WebAsyncManager`. Th
 
 There is no automatic integration with a `DeferredResult` that is returned by controllers. This is because `DeferredResult` is processed by the users and thus there is no way of automatically integrating with it. However, you can still use <<concurrency-support>> to provide transparent integration with Spring Security.
 
+[[mvc-csrf]]
 ==== Spring MVC and CSRF Integration
 
 Spring Security will automatically <<csrf-include-csrf-token,include the CSRF Token>> within forms that use the http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/view.html#view-jsp-formtaglib-formtag[Spring MVC form tag]. For example, the following JSP:
