@@ -5544,6 +5544,146 @@ String result = encoder.encode("myPassword");
 assertTrue(encoder.matches("myPassword", result));
 ----
 
+=== Concurrency Support
+
+Spring Security provides low level abstractions for working with Spring Security in multi threaded environments. In fact, this is what Spring Security builds on to provide Async Web support and automatic integration with Spring MVC's Async functionality.
+
+In most environments, Security is stored on a per `Thread` basis. This means that when work is done on a new `Thread`, the `SecurityContext` is lost. Spring Security provides some infrastructure to help make this much easier for users.
+
+==== DelegatingSecurityContextRunnable
+
+One of the most fundamental building blocks within Spring Security's concurrency support is the `DelegatingSecurityContextRunnable`. It wraps a delegate `Runnable` in order to initialize the `SecurityContextHolder` with a specified `SecurityContext` for the delegate. It then invokes the delegate Runnable ensuring to clear the `SecurityContextHolder` afterwards. The `DelegatingSecurityContextRunnable` looks something like this:
+
+[source,java]
+----
+public void run() {
+  try {
+    SecurityContextHolder.setContext(securityContext);
+    delegate.run();
+  } finally {
+    SecurityContextHolder.clearContext();
+  }
+}
+----
+
+While very simple, it makes it seamless to transfer the SecurityContext from one Thread to another. This is important since, in most cases, the SecurityContextHolder acts on a per Thread basis. For example, you might have used Spring Security's <<nsa-global-method-security>> support to secure one of your services. You can now easily transfer the `SecurityContext` of the current `Thread` to the `Thread` that invokes the secured service. An example of how you might do this can be found below:
+
+[source,java]
+----
+Runnable originalRunnable = new Runnable() {
+  public void run() {
+    // invoke secured service
+  }
+};
+
+SecurityContext context = SecurityContextHolder.getContext();
+DelegatingSecurityContextRunnable wrappedRunnable =
+    new DelegatingSecurityContextRunnable(originalRunnable, context);
+
+new Thread(wrappedRunnable).start();
+----
+
+The code above performs the following steps:
+
+* Creates a `Runnable` that will be invoking our secured service. Notice that it is not aware of Spring Security
+* Obtains the `SecurityContext` that we wish to use from the `SecurityContextHolder` and initializes the `DelegatingSecurityContextRunnable`
+* Use the `DelegatingSecurityContextRunnable` to create a Thread
+* Start the Thread we created
+
+Since it is quite common to create a `DelegatingSecurityContextRunnable` with the `SecurityContext` from the `SecurityContextHolder` there is a shortcut constructor for it. The following code is the same as the code above:
+
+
+[source,java]
+----
+Runnable originalRunnable = new Runnable() {
+  public void run() {
+    // invoke secured service
+  }
+};
+
+DelegatingSecurityContextRunnable wrappedRunnable =
+    new DelegatingSecurityContextRunnable(originalRunnable);
+
+new Thread(wrappedRunnable).start();
+----
+
+The code we have is simple to use, but it still requires knowledge that we are using Spring Security. In the next section we will take a look at how we can utilize `DelegatingSecurityContextExecutor` to hide the fact that we are using Spring Security.
+
+==== DelegatingSecurityContextExecutor
+
+In the previous section we found that it was easy to use the `DelegatingSecurityContextRunnable`, but it was not ideal since we had to be aware of Spring Security in order to use it. Let's take a look at how `DelegatingSecurityContextExecutor` can shield our code from any knowledge that we are using Spring Security.
+
+The design of `DelegatingSecurityContextExecutor` is very similar to that of `DelegatingSecurityContextRunnable` except it accepts a delegate `Executor` instead of a delegate `Runnable`. You can see an example of how it might be used below:
+
+
+[source,java]
+----
+SecurityContext context = SecurityContextHolder.createEmptyContext();
+Authentication authentication = 
+    new UsernamePasswordAuthenticationToken("user","doesnotmatter", AuthorityUtils.createAuthorityList("ROLE_USER"));
+context.setAuthentication(authentication);
+
+SimpleAsyncTaskExecutor delegateExecutor =
+    new SimpleAsyncTaskExecutor();
+DelegatingSecurityContextExecutor executor =
+    new DelegatingSecurityContextExecutor(delegateExecutor, context);
+
+Runnable originalRunnable = new Runnable() {
+  public void run() {
+    // invoke secured service
+  }
+};
+
+executor.execute(originalRunnable);
+----
+
+The code performs the following steps:
+
+* Creates the `SecurityContext` to be used for our `DelegatingSecurityContextExecutor`. Note that in this example we simply create the `SecurityContext` by hand. However, it does not matter where or how we get the `SecurityContext` (i.e. we could obtain it from the `SecurityContextHolder` if we wanted).
+* Creates a delegateExecutor that is in charge of executing submitted `Runnable`s
+* Finally we create a `DelegatingSecurityContextExecutor` which is in charge of wrapping any Runnable that is passed into the execute method with a `DelegatingSecurityContextRunnable`. It then passes the wrapped Runnable to the delegateExecutor. In this instance, the same `SecurityContext` will be used for every Runnable submitted to our `DelegatingSecurityContextExecutor`. This is nice if we are running background tasks that need to be run by a user with elevated privileges.
+* At this point you may be asking yourself "How does this shield my code of any knowledge of Spring Security?" Instead of creating the `SecurityContext` and the `DelegatingSecurityContextExecutor` in our own code, we can inject an already initialized instance of `DelegatingSecurityContextExecutor`.
+
+[source,java]
+----
+@Autowired
+private Executor executor; // becomes an instance of our DelegatingSecurityContextExecutor
+
+public void submitRunnable() {
+  Runnable originalRunnable = new Runnable() {
+    public void run() {
+      // invoke secured service
+    }
+  };
+  executor.execute(originalRunnable);    
+}
+----
+
+Now our code is unaware that the `SecurityContext` is being propagated to the `Thread`, then the `originalRunnable` is executed, and then the `SecurityContextHolder` is cleared out. In this example, the same user is being used to execute each Thread. What if we wanted to use the user from `SecurityContextHolder` at the time we invoked `executor.execute(Runnable)` (i.e. the currently logged in user) to process `originalRunnable`? This can be done by removing the `SecurityContext` argument from our `DelegatingSecurityContextExecutor` constructor. For example:
+
+
+[source,java]
+----
+SimpleAsyncTaskExecutor delegateExecutor = new SimpleAsyncTaskExecutor();
+DelegatingSecurityContextExecutor executor =
+    new DelegatingSecurityContextExecutor(delegateExecutor);
+----
+
+Now anytime `executor.execute(Runnable)` is executed the `SecurityContext` is first obtained by the `SecurityContextHolder` and then that `SecurityContext` is used to create our `DelegatingSecurityContextRunnable`. This means that we are executing our `Runnable` with the same user that was used to invoke the `executor.execute(Runnable)` code.
+
+==== Spring Security Concurrency Classes
+
+Refer to the Javadoc for additional integrations with both the Java concurrent APIs and the Spring Task abstractions. They are quite self explanatory once you understand the previous code.
+
+* DelegatingSecurityContextCallable
+* DelegatingSecurityContextExecutor
+* DelegatingSecurityContextExecutorService
+* DelegatingSecurityContextRunnable
+* DelegatingSecurityContextScheduledExecutorService
+* DelegatingSecurityContextSchedulingTaskExecutor
+* DelegatingSecurityContextAsyncTaskExecutor
+* DelegatingSecurityContextTaskExecutor
+
 == Appendix
 
 [[appendix-schema]]
