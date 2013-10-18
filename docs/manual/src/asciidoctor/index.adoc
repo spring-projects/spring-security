@@ -5546,9 +5546,7 @@ assertTrue(encoder.matches("myPassword", result));
 
 === Concurrency Support
 
-Spring Security provides low level abstractions for working with Spring Security in multi threaded environments. In fact, this is what Spring Security builds on to provide Async Web support and automatic integration with Spring MVC's Async functionality.
-
-In most environments, Security is stored on a per `Thread` basis. This means that when work is done on a new `Thread`, the `SecurityContext` is lost. Spring Security provides some infrastructure to help make this much easier for users.
+In most environments, Security is stored on a per `Thread` basis. This means that when work is done on a new `Thread`, the `SecurityContext` is lost. Spring Security provides some infrastructure to help make this much easier for users. Spring Security provides low level abstractions for working with Spring Security in multi threaded environments. In fact, this is what Spring Security builds on to integration with <<servletapi-start-runnable>> and <<mvc-async>>.
 
 ==== DelegatingSecurityContextRunnable
 
@@ -5683,6 +5681,80 @@ Refer to the Javadoc for additional integrations with both the Java concurrent A
 * DelegatingSecurityContextSchedulingTaskExecutor
 * DelegatingSecurityContextAsyncTaskExecutor
 * DelegatingSecurityContextTaskExecutor
+
+[[mvc]]
+=== Spring MVC Integration
+
+Spring Security provides a number of optional integrations with Spring MVC. This section covers the integration in further detail.
+
+[[mvc-async]]
+==== Spring MVC Async Integration
+
+Spring Web MVC 3.2+ has excellent support for http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-ann-async[Asynchronous Request Processing]. With no additional configuration, Spring Security will automatically setup the `SecurityContext` to the `Thread` that executes a `Callable` returned by your controllers. For example, the following method will automatically have its `Callable` executed with the `SecurityContext` that was available when the `Callable` was created:
+
+[source,java]
+----
+@RequestMapping(method=RequestMethod.POST)
+public Callable<String> processUpload(final MultipartFile file) {
+
+  return new Callable<String>() {
+    public Object call() throws Exception {
+      // ...
+      return "someView";
+    }
+  };
+}
+----
+
+[NOTE]
+.Associating SecurityContext to Callable's
+====
+More technically speaking, Spring Security integrates with `WebAsyncManager`. The `SecurityContext` that is used to process the `Callable` is the `SecurityContext` that exists on the `SecurityContextHolder` at the time `startCallableProcessing` is invoked.
+====
+
+There is no automatic integration with a `DeferredResult` that is returned by controllers. This is because `DeferredResult` is processed by the users and thus there is no way of automatically integrating with it. However, you can still use <<concurrency-support>> to provide transparent integration with Spring Security.
+
+==== Spring MVC and CSRF Integration
+
+Spring Security will automatically <<csrf-include-csrf-token,include the CSRF Token>> within forms that use the http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/view.html#view-jsp-formtaglib-formtag[Spring MVC form tag]. For example, the following JSP:
+
+[source,xml]
+----
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:form="http://www.springframework.org/tags/form" version="2.0">
+    <jsp:directive.page language="java" contentType="text/html" />
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+    <!-- ... -->
+
+	<c:url var="logoutUrl" value="/logout"/>
+	<form:form action="${logoutUrl}"
+	    method="post">
+	  <input type="submit"
+	    value="Log out" />
+	  <input type="hidden"
+	    name="${_csrf.parameterName}"
+	    value="${_csrf.token}"/>
+	</form:form>
+
+    <!-- ... -->
+</html>
+</jsp:root>
+----
+
+Will output HTML that is similar to the following:
+
+[source,xml]
+----
+<!-- ... -->
+
+<form action="/context/logout" method="post">
+  <input type="submit" value="Log out"/>
+  <input type="hidden" name="_csrf" value="f81d4fae-7dec-11d0-a765-00a0c91e6bf6"/>
+</form>
+
+<!-- ... -->
+----
 
 == Appendix
 
