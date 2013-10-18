@@ -16,6 +16,7 @@
 package org.springframework.security.config.annotation.web
 
 import org.springframework.security.config.annotation.AbstractConfiguredSecurityBuilder
+import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityConfigurer
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter
@@ -27,9 +28,13 @@ import spock.lang.Specification
  * @author Rob Winch
  *
  */
-class AbstractConfiguredSecurityBuilderTests extends Specification {
+class AbstractConfiguredSecurityBuilderTests extends BaseSpringSpec {
 
-    ConcreteAbstractConfiguredBuilder builder = new ConcreteAbstractConfiguredBuilder()
+    ConcreteAbstractConfiguredBuilder builder
+
+    def setup() {
+        builder = new ConcreteAbstractConfiguredBuilder(objectPostProcessor)
+    }
 
     def "Null ObjectPostProcessor rejected"() {
         when:
@@ -86,7 +91,7 @@ class AbstractConfiguredSecurityBuilderTests extends Specification {
 
     def "getConfigurer with multi fails"() {
         setup:
-            ConcreteAbstractConfiguredBuilder builder = new ConcreteAbstractConfiguredBuilder(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR, true)
+            ConcreteAbstractConfiguredBuilder builder = new ConcreteAbstractConfiguredBuilder(objectPostProcessor, true)
             builder.apply(new DelegateConfigurer())
             builder.apply(new DelegateConfigurer())
         when:
@@ -97,7 +102,7 @@ class AbstractConfiguredSecurityBuilderTests extends Specification {
 
     def "removeConfigurer with multi fails"() {
         setup:
-            ConcreteAbstractConfiguredBuilder builder = new ConcreteAbstractConfiguredBuilder(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR, true)
+            ConcreteAbstractConfiguredBuilder builder = new ConcreteAbstractConfiguredBuilder(objectPostProcessor, true)
             builder.apply(new DelegateConfigurer())
             builder.apply(new DelegateConfigurer())
         when:
@@ -110,7 +115,7 @@ class AbstractConfiguredSecurityBuilderTests extends Specification {
         setup:
             DelegateConfigurer c1 = new DelegateConfigurer()
             DelegateConfigurer c2 = new DelegateConfigurer()
-            ConcreteAbstractConfiguredBuilder builder = new ConcreteAbstractConfiguredBuilder(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR, true)
+            ConcreteAbstractConfiguredBuilder builder = new ConcreteAbstractConfiguredBuilder(objectPostProcessor, true)
             builder.apply(c1)
             builder.apply(c2)
         when:
@@ -126,7 +131,7 @@ class AbstractConfiguredSecurityBuilderTests extends Specification {
         setup:
             DelegateConfigurer c1 = new DelegateConfigurer()
             DelegateConfigurer c2 = new DelegateConfigurer()
-            ConcreteAbstractConfiguredBuilder builder = new ConcreteAbstractConfiguredBuilder(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR, true)
+            ConcreteAbstractConfiguredBuilder builder = new ConcreteAbstractConfiguredBuilder(objectPostProcessor, true)
             builder.apply(c1)
             builder.apply(c2)
         when:
@@ -150,10 +155,7 @@ class AbstractConfiguredSecurityBuilderTests extends Specification {
 
     private static class ConcreteConfigurer extends SecurityConfigurerAdapter<Object, ConcreteAbstractConfiguredBuilder> { }
 
-    private static class ConcreteAbstractConfiguredBuilder extends AbstractConfiguredSecurityBuilder<Object, ConcreteAbstractConfiguredBuilder> {
-
-        public ConcreteAbstractConfiguredBuilder() {
-        }
+    private class ConcreteAbstractConfiguredBuilder extends AbstractConfiguredSecurityBuilder<Object, ConcreteAbstractConfiguredBuilder> {
 
         public ConcreteAbstractConfiguredBuilder(ObjectPostProcessor<Object> objectPostProcessor) {
             super(objectPostProcessor);

@@ -66,13 +66,6 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 
     private ObjectPostProcessor<Object> objectPostProcessor;
 
-    /**
-     * Creates a new instance without post processing
-     */
-    protected AbstractConfiguredSecurityBuilder() {
-        this(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR);
-    }
-
     /***
      * Creates a new instance with the provided {@link ObjectPostProcessor}.
      * This post processor must support Object since there are many types of

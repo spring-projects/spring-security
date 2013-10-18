@@ -45,6 +45,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
+import org.springframework.util.Assert;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 
@@ -69,15 +70,8 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
         }
     };
 
-    private final AuthenticationManagerBuilder authenticationBuilder = new AuthenticationManagerBuilder(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR);
-    private final AuthenticationManagerBuilder parentAuthenticationBuilder = new AuthenticationManagerBuilder(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR) {
-        @Override
-        public AuthenticationManagerBuilder eraseCredentials(boolean eraseCredentials) {
-            authenticationBuilder.eraseCredentials(eraseCredentials);
-            return super.eraseCredentials(eraseCredentials);
-        }
-
-    };
+    private AuthenticationManagerBuilder authenticationBuilder;
+    private AuthenticationManagerBuilder parentAuthenticationBuilder;
     private boolean disableAuthenticationRegistration;
     private boolean authenticationManagerInitialized;
     private AuthenticationManager authenticationManager;
@@ -167,9 +161,6 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
         if(http != null) {
             return http;
         }
-
-        authenticationBuilder.objectPostProcessor(objectPostProcessor);
-        parentAuthenticationBuilder.objectPostProcessor(objectPostProcessor);
 
         DefaultAuthenticationEventPublisher eventPublisher = objectPostProcessor.postProcess(new DefaultAuthenticationEventPublisher());
         parentAuthenticationBuilder.authenticationEventPublisher(eventPublisher);
@@ -355,6 +346,16 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
     @Autowired(required=false)
     public void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
         this.objectPostProcessor = objectPostProcessor;
+
+        authenticationBuilder = new AuthenticationManagerBuilder(objectPostProcessor);
+        parentAuthenticationBuilder = new AuthenticationManagerBuilder(objectPostProcessor) {
+            @Override
+            public AuthenticationManagerBuilder eraseCredentials(boolean eraseCredentials) {
+                authenticationBuilder.eraseCredentials(eraseCredentials);
+                return super.eraseCredentials(eraseCredentials);
+            }
+
+        };
     }
 
 
@@ -372,6 +373,9 @@ public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer
         private final Object delegateMonitor = new Object();
 
         UserDetailsServiceDelegator(List<AuthenticationManagerBuilder> delegateBuilders) {
+            if(delegateBuilders.contains(null)) {
+                throw new IllegalArgumentException("delegateBuilders cannot contain null values. Got " + delegateBuilders);
+            }
             this.delegateBuilders = delegateBuilders;
         }
 

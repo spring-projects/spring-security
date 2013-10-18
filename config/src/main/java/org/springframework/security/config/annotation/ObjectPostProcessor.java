@@ -39,13 +39,4 @@ public interface ObjectPostProcessor<T> {
      * @return the initialized version of the object
      */
     <O extends T> O postProcess(O object);
-
-    /**
-     * A do nothing implementation of the {@link ObjectPostProcessor}
-     */
-    ObjectPostProcessor<Object> QUIESCENT_POSTPROCESSOR =  new ObjectPostProcessor<Object>() {
-        public <T> T postProcess(T object) {
-            return object;
-        }
-    };
 }

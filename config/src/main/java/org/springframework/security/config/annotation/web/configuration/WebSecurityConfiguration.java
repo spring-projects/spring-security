@@ -62,7 +62,9 @@ import org.springframework.util.ClassUtils;
  */
 @Configuration
 public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAware {
-    private final WebSecurity webSecurity = new WebSecurity();
+    private WebSecurity webSecurity;
+
+    private Boolean debugEnabled;
 
     private List<SecurityConfigurer<Filter, WebSecurity>> webSecurityConfigurers;
 
@@ -102,12 +104,18 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
     /**
      * Sets the {@code <SecurityConfigurer<FilterChainProxy, WebSecurityBuilder>} instances used to create the web configuration.
      *
+     * @param objectPostProcessor the {@link ObjectPostProcessor} used to create a {@link WebSecurity} instance
      * @param webSecurityConfigurers the {@code <SecurityConfigurer<FilterChainProxy, WebSecurityBuilder>} instances used to create the web configuration
      * @throws Exception
      */
     @Autowired(required = false)
-    public void setFilterChainProxySecurityConfigurer(
+    public void setFilterChainProxySecurityConfigurer(ObjectPostProcessor<Object> objectPostProcessor,
             List<SecurityConfigurer<Filter, WebSecurity>> webSecurityConfigurers) throws Exception {
+        webSecurity = objectPostProcessor.postProcess(new WebSecurity(objectPostProcessor));
+        if(debugEnabled != null) {
+            webSecurity.debug(debugEnabled);
+        }
+
         Collections.sort(webSecurityConfigurers, AnnotationAwareOrderComparator.INSTANCE);
 
         Integer previousOrder = null;
@@ -175,8 +183,10 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
                 enableWebSecurityAttrs = AnnotationAttributes.fromMap(enableWebSecurityAttrMap);
             }
         }
-        boolean debugEnabled = enableWebSecurityAttrs.getBoolean("debug");
-        this.webSecurity.debug(debugEnabled);
+        debugEnabled = enableWebSecurityAttrs.getBoolean("debug");
+        if(webSecurity != null) {
+            webSecurity.debug(debugEnabled);
+        }
     }
 
     /* (non-Javadoc)
@@ -184,10 +194,5 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
      */
     public void setBeanClassLoader(ClassLoader classLoader) {
         this.beanClassLoader = classLoader;
-    }
-
-    @Autowired
-    public void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
-        objectPostProcessor.postProcess(webSecurity);
     }
 }

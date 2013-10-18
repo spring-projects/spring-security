@@ -20,6 +20,7 @@ import javax.servlet.Filter
 import org.springframework.beans.factory.NoSuchBeanDefinitionException
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
+import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockFilterChain
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
@@ -27,6 +28,9 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.configuration.AutowireBeanFactoryObjectPostProcessor;
+import org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration;
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.context.SecurityContextHolder
@@ -49,13 +53,17 @@ import spock.lang.Specification
 abstract class BaseSpringSpec extends Specification {
     @AutoCleanup
     ConfigurableApplicationContext context
+    @AutoCleanup
+    ConfigurableApplicationContext oppContext
 
     MockHttpServletRequest request
     MockHttpServletResponse response
     MockFilterChain chain
     CsrfToken csrfToken
+    AuthenticationManagerBuilder authenticationBldr
 
     def setup() {
+        authenticationBldr = createAuthenticationManagerBuilder()
         setupWeb(null)
     }
 
@@ -74,8 +82,6 @@ abstract class BaseSpringSpec extends Specification {
         new HttpSessionCsrfTokenRepository().saveToken(csrfToken, req, resp)
         req.setParameter(csrfToken.parameterName, csrfToken.token)
     }
-
-    AuthenticationManagerBuilder authenticationBldr = new AuthenticationManagerBuilder(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR).inMemoryAuthentication().and()
 
     def cleanup() {
         SecurityContextHolder.clearContext()
@@ -148,5 +154,15 @@ abstract class BaseSpringSpec extends Specification {
         HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(request, response)
         repo.loadContext(requestResponseHolder)
         repo.saveContext(new SecurityContextImpl(authentication:auth), requestResponseHolder.request, requestResponseHolder.response)
+    }
+
+    def createAuthenticationManagerBuilder() {
+        oppContext = new AnnotationConfigApplicationContext(ObjectPostProcessorConfiguration, AuthenticationConfiguration)
+        AuthenticationManagerBuilder auth = new AuthenticationManagerBuilder(objectPostProcessor)
+        auth.inMemoryAuthentication().and()
+    }
+
+    def getObjectPostProcessor() {
+        oppContext.getBean(ObjectPostProcessor)
     }
 }

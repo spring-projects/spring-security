@@ -28,6 +28,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.config.annotation.AbstractConfiguredSecurityBuilder;
+import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityBuilder;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
@@ -101,9 +102,11 @@ public final class WebSecurity extends
 
     /**
      * Creates a new instance
+     * @param objectPostProcessor the {@link ObjectPostProcessor} to use
      * @see WebSecurityConfiguration
      */
-    public WebSecurity() {
+    public WebSecurity(ObjectPostProcessor<Object> objectPostProcessor) {
+        super(objectPostProcessor);
     }
 
     /**

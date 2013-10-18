@@ -89,7 +89,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
     };
     private DefaultMethodSecurityExpressionHandler defaultMethodExpressionHandler = new DefaultMethodSecurityExpressionHandler();
     private AuthenticationManager authenticationManager;
-    private AuthenticationManagerBuilder auth = new AuthenticationManagerBuilder(ObjectPostProcessor.QUIESCENT_POSTPROCESSOR);
+    private AuthenticationManagerBuilder auth;
     private boolean disableAuthenticationRegistry;
     private AnnotationAttributes enableMethodSecurity;
     private MethodSecurityExpressionHandler expressionHandler;
@@ -245,8 +245,8 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
     protected AuthenticationManager authenticationManager() throws Exception {
         if(authenticationManager == null) {
             DefaultAuthenticationEventPublisher eventPublisher = objectPostProcessor.postProcess(new DefaultAuthenticationEventPublisher());
+            auth = new AuthenticationManagerBuilder(objectPostProcessor);
             auth.authenticationEventPublisher(eventPublisher);
-            auth.objectPostProcessor(objectPostProcessor);
             configure(auth);
             if(!disableAuthenticationRegistry) {
                 authenticationManager = auth.build();
