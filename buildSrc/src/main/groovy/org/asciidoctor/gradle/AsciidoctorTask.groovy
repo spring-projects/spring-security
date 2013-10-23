@@ -24,6 +24,7 @@ import org.asciidoctor.Asciidoctor
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
+import org.gradle.api.file.*
 import org.gradle.api.tasks.*
 
 import javax.xml.transform.*
@@ -35,14 +36,14 @@ import org.apache.fop.apps.MimeConstants
 
 
 class AsciidoctorTask extends DefaultTask {
-    @InputFile File sourceDocument
+    @InputFiles FileCollection sourceDocuments
     @Input Map options = [:]
 
     @Optional @OutputDirectory File outputDir
     @Optional @Input List<String> backends
 
     AsciidoctorTask() {
-        sourceDocument = project.file("src/asciidoctor/index.adoc")
+        sourceDocuments = project.fileTree("src/asciidoctor/").include("*.adoc")
         outputDir = project.file("${project.buildDir}/asciidoctor")
         backends = [AsciidoctorBackend.HTML5.id]
     }
@@ -51,7 +52,12 @@ class AsciidoctorTask extends DefaultTask {
     void render() {
 
         Asciidoctor asciidoctor = Asciidoctor.Factory.create()
+        for(File sourceDocument : sourceDocuments) {
+            render(asciidoctor, sourceDocument)
+        }
+    }
 
+    void render(Asciidoctor asciidoctor, File sourceDocument) {
         for(backend in backends) {
             boolean isPdf = backend == AsciidoctorBackend.PDF.id
             String asciidoctorBackend = isPdf ? AsciidoctorBackend.DOCBOOK.id : backend
@@ -65,7 +71,7 @@ class AsciidoctorTask extends DefaultTask {
                 asciidoctor.renderFile(sourceDocument, mergedOptions(options, isPdf ? workingDir : distDir, asciidoctorBackend))
 
                 if(isPdf) {
-                    generatePdf(workingDir,distDir)
+                    generatePdf(sourceDocument, workingDir,distDir)
                 } else {
                     project.copy {
                         from "${sourceDocument.parent}/images"
@@ -73,12 +79,12 @@ class AsciidoctorTask extends DefaultTask {
                     }
                 }
             } catch (Exception e) {
-                throw new GradleException('Error running Asciidoctor on single source '+asciidoctorBackend, e)
+                throw new GradleException("Error running Asciidoctor on single source $sourceDocument for backend $asciidoctorBackend", e)
             }
         }
     }
 
-    private void generatePdf(File workingDir, File distDir) {
+    private void generatePdf(File sourceDocument, File workingDir, File distDir) {
         String docbookXmlUrl = 'http://maven-us.nuxeo.org/nexus/content/repositories/public/docbook/docbook-xml/4.5/docbook-xml-4.5.jar'
         String docbookXslUrl = 'http://downloads.sourceforge.net/project/docbook/docbook-xsl-ns/1.78.1/docbook-xsl-ns-1.78.1.zip'
 
