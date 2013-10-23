@@ -24,6 +24,7 @@ project('manual') {
               idprefix: '',
               idseparator: '-',
               doctype: 'book',
+              numbered: '',
               'spring-security-version' : project.version,
               revnumber : project.version
           ]
