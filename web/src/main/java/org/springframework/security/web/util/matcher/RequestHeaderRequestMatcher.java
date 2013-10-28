@@ -93,4 +93,11 @@ public final class RequestHeaderRequestMatcher implements RequestMatcher {
 
         return expectedHeaderValue.equals(actualHeaderValue);
     }
+
+    @Override
+    public String toString() {
+        return "RequestHeaderRequestMatcher [expectedHeaderName="
+                + expectedHeaderName + ", expectedHeaderValue="
+                + expectedHeaderValue + "]";
+    }
 }
