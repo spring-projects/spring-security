@@ -138,10 +138,10 @@ class RequestCacheConfigurerTests extends BaseSpringSpec {
     }
 
     @Unroll
-    def "RequestCache saves Accept: #accept"() {
+    def "RequestCache saves #headerName: #headerValue"() {
         setup:
             loadConfig(RequestCacheDefautlsConfig)
-            request.addHeader("Accept", accept)
+            request.addHeader(headerName, headerValue)
             request.method = "GET"
             request.servletPath = "/messages"
             request.requestURI = "/messages"
@@ -157,7 +157,9 @@ class RequestCacheConfigurerTests extends BaseSpringSpec {
             response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
             response.redirectedUrl == "http://localhost/messages"
         where:
-            accept << [MediaType.ALL_VALUE, MediaType.TEXT_HTML, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"]
+            headerName << ["Accept", "Accept", "Accept", "X-Requested-With"]
+            headerValue << [MediaType.ALL_VALUE, MediaType.TEXT_HTML, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8","com.android"]
+
     }
 
     @Configuration

@@ -89,7 +89,7 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
         realmName(DEFAULT_REALM);
 
         LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints = new LinkedHashMap<RequestMatcher, AuthenticationEntryPoint>();
-        entryPoints.put(new RequestHeaderRequestMatcher("X-Requested-With"), new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+        entryPoints.put(new RequestHeaderRequestMatcher("X-Requested-With","XMLHttpRequest"), new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
 
         DelegatingAuthenticationEntryPoint defaultEntryPoint = new DelegatingAuthenticationEntryPoint(entryPoints);
         defaultEntryPoint.setDefaultEntryPoint(basicAuthEntryPoint);

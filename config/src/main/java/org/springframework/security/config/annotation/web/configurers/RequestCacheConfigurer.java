@@ -126,7 +126,7 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> exte
         jsonRequest.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
         RequestMatcher notJson = new NegatedRequestMatcher(jsonRequest);
 
-        RequestMatcher notXRequestedWith = new NegatedRequestMatcher(new RequestHeaderRequestMatcher("X-Requested-With"));
+        RequestMatcher notXRequestedWith = new NegatedRequestMatcher(new RequestHeaderRequestMatcher("X-Requested-With","XMLHttpRequest"));
         return new AndRequestMatcher(getRequests, notFavIcon, notJson, notXRequestedWith);
     }
 }
