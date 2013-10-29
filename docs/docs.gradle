@@ -33,8 +33,11 @@ project('manual') {
 
 
     ext.spec = copySpec {
-        into ('reference') {
-            from("${asciidoctor.outputDir}/dist/")
+        into ('reference/htmlsingle') {
+            from("${asciidoctor.outputDir}/dist/html5")
+        }
+        into ('reference/pdf') {
+            from("${asciidoctor.outputDir}/dist/pdf")
         }
     }
 }
