@@ -12,7 +12,6 @@ project('manual') {
     ext.expandPlaceholders = ""
 
     asciidoctor {
-        backends = ["html5", "pdf"]
         options = [
           eruby: 'erubis',
           attributes: [
@@ -34,10 +33,8 @@ project('manual') {
 
     ext.spec = copySpec {
         into ('reference/htmlsingle') {
-            from("${asciidoctor.outputDir}/dist/html5")
-        }
-        into ('reference/pdf') {
-            from("${asciidoctor.outputDir}/dist/pdf")
+            from(asciidoctor.outputDir)
+            exclude 'build', 'Guardfile'
         }
     }
 }

@@ -3,7 +3,7 @@ import org.asciidoctor.gradle.*
 
 file("src/asciidoc").eachFileMatch(~/.*\.asc/) { file->
     task "asciidoctor-${file.name}"(type: AsciidoctorTask) {
-        sourceDocument = file
+        sourceDocumentName = file
         options = [
           eruby: 'erubis',
           eruby: 'erubis',

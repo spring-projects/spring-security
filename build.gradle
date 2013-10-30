@@ -3,13 +3,13 @@ import groovy.text.SimpleTemplateEngine
 buildscript {
     repositories {
         maven { url "http://repo.springsource.org/plugins-release" }
-        maven { url "http://jcenter.bintray.com"}
     }
     dependencies {
         classpath("org.springframework.build.gradle:propdeps-plugin:0.0.3")
         classpath("org.springframework.build.gradle:bundlor-plugin:0.1.2")
         classpath("org.gradle.api.plugins:gradle-tomcat-plugin:0.9.8")
         classpath('me.champeau.gradle:gradle-javadoc-hotfix-plugin:0.1')
+        classpath('org.asciidoctor:asciidoctor-gradle-plugin:0.7.0')
     }
 }
 

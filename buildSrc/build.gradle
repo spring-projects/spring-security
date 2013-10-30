@@ -31,22 +31,6 @@ dependencies {
             'net.sourceforge.saxon:saxon:9.1.0.8'
 }
 
-dependencies {
-    compile('org.asciidoctor:asciidoctor-java-integration:0.1.3') {
-        exclude group: 'rubygems', module :'haml'
-        exclude group: 'rubygems', module :'asciidoctor'
-        exclude group: 'rubygems', module :'coderay'
-        exclude group: 'rubygems', module :'tilt'
-        exclude group: 'rubygems', module :'erubis'
-        exclude group: 'rubygems', module :'slim'
-    }
-    compile 'net.alchim31:livereload-jvm:0.1.0'
-    compile 'org.apache.avalon.framework:avalon-framework-api:4.3.1'
-    compile 'org.apache.avalon.framework:avalon-framework-impl:4.3.1'
-    compile 'org.apache.xmlgraphics:fop:1.1'
-    runtime 'net.sf.xslthl:xslthl:2.1.0'
-}
-
 task ide(type: Copy)  {
     from configurations.runtime
     into 'ide'
