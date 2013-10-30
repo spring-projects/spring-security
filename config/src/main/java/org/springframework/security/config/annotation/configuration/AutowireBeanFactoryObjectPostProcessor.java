@@ -52,7 +52,16 @@ final class AutowireBeanFactoryObjectPostProcessor implements ObjectPostProcesso
      */
     @SuppressWarnings("unchecked")
     public <T> T postProcess(T object) {
-        T result = (T) autowireBeanFactory.initializeBean(object, null);
+        if(object == null) {
+            return null;
+        }
+        T result = null;
+        try {
+            result = (T) autowireBeanFactory.initializeBean(object, object.toString());
+        } catch (RuntimeException e) {
+            Class<?> type = object.getClass();
+            throw new RuntimeException("Could not postProcess " + object + " of type " + type, e);
+        }
         if(result instanceof DisposableBean) {
             disposableBeans.add((DisposableBean) result);
         }

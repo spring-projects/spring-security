@@ -15,25 +15,23 @@
  */
 package org.springframework.security.config.annotation.configuration
 
-import javax.servlet.ServletConfig
-import javax.servlet.ServletContext
-
 import org.springframework.beans.factory.BeanClassLoaderAware
 import org.springframework.beans.factory.BeanFactoryAware
-import org.springframework.beans.factory.BeanNameAware
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.beans.factory.DisposableBean
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory
+import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.context.ApplicationContextAware
 import org.springframework.context.ApplicationEventPublisherAware
 import org.springframework.context.EnvironmentAware
 import org.springframework.context.MessageSourceAware
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.support.ClassPathXmlApplicationContext
 import org.springframework.mock.web.MockServletConfig
 import org.springframework.mock.web.MockServletContext
 import org.springframework.security.config.annotation.BaseSpringSpec
-import org.springframework.security.config.annotation.ObjectPostProcessor;
-import org.springframework.security.config.annotation.configuration.AutowireBeanFactoryObjectPostProcessor;
+import org.springframework.security.config.annotation.ObjectPostProcessor
 import org.springframework.web.context.ServletConfigAware
 import org.springframework.web.context.ServletContextAware
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext
@@ -115,6 +113,29 @@ class AutowireBeanFactoryObjectPostProcessorTests extends BaseSpringSpec {
         @Bean
         public ObjectPostProcessor objectPostProcessor(AutowireCapableBeanFactory beanFactory) {
             return new AutowireBeanFactoryObjectPostProcessor(beanFactory);
+        }
+    }
+
+    def "SEC-2382: AutowireBeanFactoryObjectPostProcessor works with BeanNameAutoProxyCreator"() {
+        when:
+            // must load with XML for BeanPostProcessors to work
+            context = new ClassPathXmlApplicationContext("AutowireBeanFactoryObjectPostProcessorTests-aopconfig.xml", getClass());
+        then:
+            noExceptionThrown()
+        and: "make sure autoproxying was actually enabled"
+            context.getBean(MyAdvisedBean).doStuff() == "null"
+    }
+
+    @Configuration
+    static class WithBanNameAutoProxyCreatorConfig {
+        @Bean
+        public ObjectPostProcessor objectPostProcessor(AutowireCapableBeanFactory beanFactory) {
+            return new AutowireBeanFactoryObjectPostProcessor(beanFactory)
+        }
+
+        @Autowired
+        public void configure(ObjectPostProcessor<Object> p) {
+            p.postProcess(new Object())
         }
     }
 }
