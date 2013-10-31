@@ -69,6 +69,25 @@ public interface RememberMeServices {
     Authentication autoLogin(HttpServletRequest request, HttpServletResponse response);
 
     /**
+     * Called whenever an automated authentication attempt was made, but the tokens supplied were invalid. 
+     * Implementations should remove all cookies containing invalid tokens.
+     *
+     * @param cookieTokens
+     * @param request
+     * @param response
+     */
+    void autoLoginFail(String[] cookieTokens, HttpServletRequest request, HttpServletResponse response);
+    
+    /**
+     * Called whenever an automated authentication attempt is successful.
+     *
+     * @param request
+     * @param response
+     * @param successfulAuthentication representing the successfully authenticated principal
+     */
+    void autoLoginSuccess(HttpServletRequest request, HttpServletResponse response, Authentication successfulAuthentication);
+
+    /**
      * Called whenever an interactive authentication attempt was made, but the credentials supplied by the user
      * were missing or otherwise invalid. Implementations should invalidate any and all remember-me tokens indicated
      * in the <code>HttpServletRequest</code>.
