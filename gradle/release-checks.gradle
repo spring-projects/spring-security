@@ -7,7 +7,7 @@ task checkDependencies << {
 }
 
 if(!snapshotBuild) {
-    tasks.findByPath('check')?.dependsOn checkRepositories, checkDependencies
+    tasks.findByPath('check')?.dependsOn checkDependencies
 }
 
 def verifyNoDependenciesMatchingVersion(def pattern) {
