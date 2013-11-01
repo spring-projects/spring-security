@@ -1,36 +1,27 @@
+apply plugin: 'asciidoctor'
 
-import org.asciidoctor.gradle.*
-
-file("src/asciidoc").eachFileMatch(~/.*\.asc/) { file->
-    task "asciidoctor-${file.name}"(type: AsciidoctorTask) {
-        sourceDocumentName = file
-        options = [
-          eruby: 'erubis',
-          eruby: 'erubis',
-          attributes: [
-              copycss : '',
-              icons : 'font',
-              'source-highlighter': 'prettify',
-              sectanchors : '',
-              toc2: '',
-              idprefix: '',
-              idseparator: '-',
-              doctype: 'book',
-              'spring-security-version' : project.version,
-              revnumber : project.version
-          ]
-        ]
-    }
-}
-
-task asciidoctor {
-    group = 'Documentation'
-    description = "Generates the asciidoc for $project.name"
-    dependsOn tasks.matching { t -> t.name.startsWith('asciidoctor-') }
+asciidoctor {
+    options = [
+      eruby: 'erubis',
+      eruby: 'erubis',
+      attributes: [
+          copycss : '',
+          icons : 'font',
+          'source-highlighter': 'prettify',
+          sectanchors : '',
+          toc2: '',
+          idprefix: '',
+          idseparator: '-',
+          doctype: 'book',
+          'spring-security-version' : project.version,
+          revnumber : project.version
+      ]
+    ]
 }
 
 ext.spec = copySpec {
     into ('guides') {
-        from("$buildDir/asciidoctor/dist/html5/")
+        from(asciidoctor.outputDir)
+        exclude 'build', 'Guardfile'
     }
 }
