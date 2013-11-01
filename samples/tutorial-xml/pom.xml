@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-tutorial-xml</artifactId>
-  <version>3.2.0.RC2</version>
+  <version>3.2.0.CI-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>spring-security-samples-tutorial-xml</name>
   <description>spring-security-samples-tutorial-xml</description>
@@ -66,7 +66,7 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>3.2.0.RC2</version>
+      <version>3.2.0.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -139,19 +139,19 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>3.2.0.RC2</version>
+      <version>3.2.0.CI-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-taglibs</artifactId>
-      <version>3.2.0.RC2</version>
+      <version>3.2.0.CI-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>3.2.0.RC2</version>
+      <version>3.2.0.CI-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>

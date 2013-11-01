@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-config</artifactId>
-  <version>3.2.0.RC2</version>
+  <version>3.2.0.CI-SNAPSHOT</version>
   <name>spring-security-config</name>
   <description>spring-security-config</description>
   <url>http://springsource.org/spring-security</url>
@@ -58,7 +58,7 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>3.2.0.RC2</version>
+      <version>3.2.0.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -108,21 +108,21 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-ldap</artifactId>
-      <version>3.2.0.RC2</version>
+      <version>3.2.0.CI-SNAPSHOT</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-openid</artifactId>
-      <version>3.2.0.RC2</version>
+      <version>3.2.0.CI-SNAPSHOT</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>3.2.0.RC2</version>
+      <version>3.2.0.CI-SNAPSHOT</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
@@ -331,7 +331,7 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-cas</artifactId>
-      <version>3.2.0.RC2</version>
+      <version>3.2.0.CI-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>

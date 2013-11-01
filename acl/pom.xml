@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-acl</artifactId>
-  <version>3.2.0.RC2</version>
+  <version>3.2.0.CI-SNAPSHOT</version>
   <name>spring-security-acl</name>
   <description>spring-security-acl</description>
   <url>http://springsource.org/spring-security</url>
@@ -58,7 +58,7 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>3.2.0.RC2</version>
+      <version>3.2.0.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
