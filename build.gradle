@@ -106,7 +106,7 @@ configure(coreModuleProjects) {
     configurations.spring4TestRuntime {
         resolutionStrategy.eachDependency { DependencyResolveDetails details ->
             if (details.requested.group == 'org.springframework') {
-                details.useVersion '4.0.0.BUILD-SNAPSHOT'
+                details.useVersion '4.0.0.RC1'
             }
             if (details.requested.name == 'ehcache') {
                 details.useVersion '2.6.5'
