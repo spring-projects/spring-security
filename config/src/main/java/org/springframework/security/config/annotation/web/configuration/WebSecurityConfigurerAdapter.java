@@ -19,8 +19,6 @@ package org.springframework.security.config.annotation.web.configuration;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.servlet.Filter;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -31,7 +29,6 @@ import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
-import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -45,7 +42,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
-import org.springframework.util.Assert;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 
@@ -57,7 +53,7 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  *
  * @author Rob Winch
  */
-public abstract class WebSecurityConfigurerAdapter implements SecurityConfigurer<Filter,WebSecurity> {
+public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigurer<WebSecurity> {
     private final Log logger = LogFactory.getLog(WebSecurityConfigurerAdapter.class);
 
     private ApplicationContext context;
