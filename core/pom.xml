@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-core</artifactId>
-  <version>3.2.0.CI-SNAPSHOT</version>
+  <version>3.2.0.RC2</version>
   <name>spring-security-core</name>
   <description>spring-security-core</description>
   <url>http://springsource.org/spring-security</url>
