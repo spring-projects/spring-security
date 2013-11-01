@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-openid-jc</artifactId>
-  <version>3.2.0.CI-SNAPSHOT</version>
+  <version>3.2.0.RC2</version>
   <packaging>war</packaging>
   <name>spring-security-samples-openid-jc</name>
   <description>spring-security-samples-openid-jc</description>
@@ -102,31 +102,31 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>3.2.0.CI-SNAPSHOT</version>
+      <version>3.2.0.RC2</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>3.2.0.CI-SNAPSHOT</version>
+      <version>3.2.0.RC2</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-openid</artifactId>
-      <version>3.2.0.CI-SNAPSHOT</version>
+      <version>3.2.0.RC2</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-samples-messages-jc</artifactId>
-      <version>3.2.0.CI-SNAPSHOT</version>
+      <version>3.2.0.RC2</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>3.2.0.CI-SNAPSHOT</version>
+      <version>3.2.0.RC2</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
