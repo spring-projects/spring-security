@@ -30,7 +30,7 @@ import spock.lang.*
 class XsdDocumentedTests extends Specification {
 
     def ignoredIds = ['nsa-any-user-service','nsa-any-user-service-parents','nsa-authentication','nsa-ldap','nsa-method-security','nsa-web']
-    @Shared def reference = new File('../docs/manual/src/asciidoctor/index.adoc')
+    @Shared def reference = new File('../docs/manual/src/asciidoc/index.adoc')
 
     @Shared File schema31xDocument = new File('src/main/resources/org/springframework/security/config/spring-security-3.1.xsd')
     @Shared File schemaDocument = new File('src/main/resources/org/springframework/security/config/spring-security-3.2.xsd')
