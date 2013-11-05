@@ -1,0 +1,46 @@
+version: 1
+
+dn: cn=ssattributes, ou=schema
+objectclass: metaSchema
+objectclass: top
+cn: ssattributes
+
+dn: ou=attributetypes, cn=ssattributes, ou=schema
+objectclass: organizationalUnit
+objectclass: top
+ou: attributetypes
+
+dn: m-oid=1.3.6.1.4.1.18060.0.4.3.9.1, ou=attributetypes, cn=ssattributes, ou=schema
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+m-oid: 1.3.6.1.4.1.18060.0.4.3.9.1
+m-name: customAttribute
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.15
+
+dn: ou=objectclasses, cn=ssattributes, ou=schema
+objectclass: organizationalUnit
+objectclass: top
+ou: objectclasses
+
+dn: m-oid=1.3.6.1.4.1.18060.0.4.3.10.1, ou=objectclasses, cn=ssattributes, ou=schema
+objectclass: metaObjectClass
+objectclass: metaTop
+objectclass: top
+m-oid: 1.3.6.1.4.1.18060.0.4.3.10.1
+m-name: customObject
+m-must: uid
+m-may: customAttribute
+
+dn: ou=ssattributes,dc=springframework,dc=org
+objectclass: top
+objectclass: extensibleObject
+objectclass: organizationalUnit
+ou: ssattributes
+
+dn: uid=objectWithCustomAttribute1, ou=ssattributes, dc=springframework, dc=org
+objectClass: top
+objectClass: extensibleObject
+objectClass: customObject
+uid: objectWithCustomAttribute1
+customAttribute: I am custom

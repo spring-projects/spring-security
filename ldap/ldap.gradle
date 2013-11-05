@@ -28,7 +28,7 @@ dependencies {
 }
 
 integrationTest {
-	include('**/ApacheDSServerIntegrationTests.class')
+	include('**/ApacheDSServerIntegrationTests.class', '**/ApacheDSEmbeddedLdifTests.class')
 //	  exclude('**/OpenLDAPIntegrationTestSuite.class')
 	maxParallelForks = 1
 }
