@@ -1248,6 +1248,7 @@
                <xs:enumeration value="OPTIONS"/>
                <xs:enumeration value="POST"/>
                <xs:enumeration value="PUT"/>
+               <xs:enumeration value="PATCH"/>
                <xs:enumeration value="TRACE"/>
             </xs:restriction>
          </xs:simpleType>
