@@ -868,7 +868,7 @@
          <xs:documentation>Container element for HTTP security configuration. Multiple elements can now be defined,
                 each with a specific pattern to which the enclosed security configuration applies. A
                 pattern can also be configured to bypass Spring Security's filters completely by setting
-                the "secured" attribute to "false".
+                the "security" attribute to "none".
                 </xs:documentation>
       </xs:annotation>
       <xs:complexType>
