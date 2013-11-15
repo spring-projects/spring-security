@@ -23,8 +23,6 @@ public class SpringSecurityCoreVersion {
      */
     public static final long SERIAL_VERSION_UID = 320L;
 
-    static final String SPRING_MAJOR_VERSION = "3";
-
     static final String MIN_SPRING_VERSION = "3.2.4.RELEASE";
 
     static {
@@ -49,18 +47,20 @@ public class SpringSecurityCoreVersion {
         }
 
         logger.info("You are running with Spring Security Core " + version);
-        if (!springVersion.startsWith(SPRING_MAJOR_VERSION)) {
-            logger.warn("*** Spring Major version '" + SPRING_MAJOR_VERSION +
-                    "' expected, but you are running with version: " + springVersion +
-                    ". Please check your classpath for unwanted jar files.");
-        }
-
         if (springVersion.compareTo(MIN_SPRING_VERSION) < 0) {
             logger.warn("**** You are advised to use Spring " + MIN_SPRING_VERSION +
                     " or later with this version. You are running: " + springVersion);
         }
     }
 
+    /**
+     * Disable if springVersion and springSecurityVersion are the same to allow
+     * working with Uber Jars.
+     *
+     * @param springVersion
+     * @param springSecurityVersion
+     * @return
+     */
     private static boolean disableChecks(String springVersion, String springSecurityVersion) {
         if(springVersion == null || springVersion.equals(springSecurityVersion)) {
             return true;

@@ -17,6 +17,7 @@ package org.springframework.security.core;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -24,7 +25,9 @@ import static org.powermock.api.mockito.PowerMockito.spy;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import org.apache.commons.logging.Log;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -111,6 +114,18 @@ public class SpringSecurityCoreVersionTests {
         performChecks();
 
         verify(logger, times(2)).warn(any());
+    }
+
+    @Test
+    public void noWarnIfSpringVersionLarger() throws Exception {
+        spy(SpringSecurityCoreVersion.class);
+        spy(SpringVersion.class);
+        when(SpringSecurityCoreVersion.getVersion()).thenReturn("3.2.0.RELEASE");
+        when(SpringVersion.getVersion()).thenReturn("4.0.0.RELEASE");
+
+        performChecks();
+
+        verify(logger, never()).warn(any());
     }
 
     @Test
