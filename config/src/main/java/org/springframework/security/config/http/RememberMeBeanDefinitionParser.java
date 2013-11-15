@@ -132,12 +132,12 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
             }
 
             if (tokenValiditySet) {
-                int tokenValidity = Integer.parseInt(tokenValiditySeconds);
-                if (tokenValidity < 0 && isPersistent) {
+                boolean isTokenValidityNegative = tokenValiditySeconds.startsWith("-");
+                if (isTokenValidityNegative && isPersistent) {
                     pc.getReaderContext().error(ATT_TOKEN_VALIDITY + " cannot be negative if using" +
                             " a persistent remember-me token repository", source);
                 }
-                services.getPropertyValues().addPropertyValue("tokenValiditySeconds", tokenValidity);
+                services.getPropertyValues().addPropertyValue("tokenValiditySeconds", tokenValiditySeconds);
             }
 
             if (remembermeParameterSet) {

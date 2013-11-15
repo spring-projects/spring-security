@@ -572,7 +572,7 @@ remember-me.attlist &=
 
 remember-me.attlist &=
     ## The period (in seconds) for which the remember-me cookie should be valid.
-    attribute token-validity-seconds {xsd:integer}?
+    attribute token-validity-seconds {xsd:string}?
 
 remember-me.attlist &=
     ## Reference to an AuthenticationSuccessHandler bean which should be used to handle a successful remember-me authentication.

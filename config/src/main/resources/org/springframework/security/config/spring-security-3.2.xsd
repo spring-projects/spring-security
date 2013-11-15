@@ -1796,7 +1796,7 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="token-validity-seconds" type="xs:integer">
+      <xs:attribute name="token-validity-seconds" type="xs:string">
          <xs:annotation>
             <xs:documentation>The period (in seconds) for which the remember-me cookie should be valid.
                 </xs:documentation>

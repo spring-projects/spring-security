@@ -17,6 +17,10 @@ package org.springframework.security.config.http
 
 import static org.springframework.security.config.ConfigTestUtils.AUTH_PROVIDER_XML
 
+import javax.sql.DataSource
+
+import org.springframework.beans.FatalBeanException
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException
 import org.springframework.security.TestDataSource
 import org.springframework.security.authentication.ProviderManager
@@ -26,7 +30,7 @@ import org.springframework.security.util.FieldUtils
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
 import org.springframework.security.web.authentication.logout.LogoutFilter
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
-import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
+import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices
 import org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices
@@ -152,6 +156,32 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
         createAppContext(AUTH_PROVIDER_XML)
         expect:
         rememberMeServices().tokenValiditySeconds == -1
+    }
+
+    def 'remember-me@token-validity-seconds denies for persistent implementation'() {
+        setup:
+            httpAutoConfig () {
+                'remember-me'('key': 'ourkey', 'token-validity-seconds':'-1', 'dataSource' : 'dataSource')
+            }
+            mockBean(DataSource)
+        when:
+            createAppContext(AUTH_PROVIDER_XML)
+        then:
+            thrown(FatalBeanException)
+    }
+
+    def 'SEC-2165: remember-me@token-validity-seconds allows property placeholders'() {
+        when:
+            httpAutoConfig () {
+                'remember-me'('key': 'ourkey', 'token-validity-seconds':'${security.rememberme.ttl}')
+            }
+            xml.'b:bean'(class: PropertyPlaceholderConfigurer.name) {
+                'b:property'(name:'properties', value:'security.rememberme.ttl=30')
+            }
+
+            createAppContext(AUTH_PROVIDER_XML)
+        then:
+            rememberMeServices().tokenValiditySeconds == 30
     }
 
     def rememberMeSecureCookieAttributeIsSetCorrectly() {
