@@ -113,7 +113,7 @@ public class SpringSecurityCoreVersionTests {
 
         performChecks();
 
-        verify(logger, times(2)).warn(any());
+        verify(logger, times(1)).warn(any());
     }
 
     @Test
