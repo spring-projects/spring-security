@@ -17,7 +17,10 @@ package org.springframework.security.config.http;
 
 
 import java.security.Principal
+
 import javax.servlet.Filter
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.BeansException
 import org.springframework.beans.factory.BeanCreationException
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer
@@ -97,5 +100,28 @@ class InterceptUrlConfigTests extends AbstractHttpConfigTests {
            attrs.contains(new SecurityConfig("ROLE_USER"))
            attrsPost.size() == 1
            attrsPost.contains(new SecurityConfig("ROLE_USER"))
+   }
+
+   def "SEC-2355: intercept-url support patch"() {
+       setup:
+           MockHttpServletRequest request = new MockHttpServletRequest(method:'GET')
+           MockHttpServletResponse response = new MockHttpServletResponse()
+           MockFilterChain chain = new MockFilterChain()
+           xml.http() {
+               'http-basic'()
+               'intercept-url'(pattern: '/**', 'method':'PATCH',access: 'ROLE_ADMIN')
+           }
+           createAppContext()
+       when: 'Method other than PATCH is used'
+           springSecurityFilterChain.doFilter(request,response,chain)
+       then: 'The response is OK'
+           response.status == HttpServletResponse.SC_OK
+       when: 'Method of PATCH is used'
+           request = new MockHttpServletRequest(method:'PATCH')
+           response = new MockHttpServletResponse()
+           chain = new MockFilterChain()
+           springSecurityFilterChain.doFilter(request, response, chain)
+        then: 'The response is unauthorized'
+            response.status == HttpServletResponse.SC_UNAUTHORIZED
    }
 }
