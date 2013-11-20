@@ -33,7 +33,7 @@ import org.springframework.security.crypto.codec.Utf8;
 /**
  * @author Luke Taylor
  */
-public class SpringSecurityLdapTemplateTests extends AbstractLdapIntegrationTests {
+public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTests {
     //~ Instance fields ================================================================================================
 
     private SpringSecurityLdapTemplate template;
