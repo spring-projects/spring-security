@@ -4089,10 +4089,16 @@ The base class for expression root objects is `SecurityExpressionRoot`. This pro
 | Expression | Description
 
 | `hasRole([role])`
-| Returns `true` if the current principal has the specified role.
+| Returns `true` if the current principal has the specified role. This is a synonym for `hasAuthority([authority])`
 
 | `hasAnyRole([role1,role2])`
-| Returns `true` if the current principal has any of the supplied roles (given as a comma-separated list of strings)
+| Returns `true` if the current principal has any of the supplied roles (given as a comma-separated list of strings) This is a synonym for `hasAnyAuthority([authority1,authority2])`
+
+| `hasAuthority([authority])`
+| Returns `true` if the current principal has the specified authority. This is a synonym for `hasRole([role])`
+
+| `hasAnyAuthority([authority1,authority2])`
+| Returns `true` if the current principal has any of the supplied roles (given as a comma-separated list of strings) `hasAnyRole([role1,role2])``hasAnyRole([role1,role2])`
 
 | `principal`
 | Allows direct access to the principal object representing the current user
@@ -4117,6 +4123,12 @@ The base class for expression root objects is `SecurityExpressionRoot`. This pro
 
 | `isFullyAuthenticated()`
 | Returns `true` if the user is not an anonymous or a remember-me user
+
+| `hasPermission(Object target, Object permission)`
+| Returns `true` if the user has access to the provided target for the given permission. For example, `hasPermission(domainObject, 'read')`
+
+| `hasPermission(Object targetId, String targetType, Object permission)`
+| Returns `true` if the user has access to the provided target for the given permission. For example, `hasPermission(1, 'com.example.domain.Message', 'read')`
 |===
 
 
