@@ -1,10 +1,11 @@
-/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+/*
+ * Copyright 2002-2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,22 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.security.ldap;
-
-import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.naming.CompositeName;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.PartialResultException;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,6 +28,18 @@ import org.springframework.ldap.core.LdapEncoder;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.util.Assert;
 
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.PartialResultException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 
 /**
  * Extension of Spring LDAP's LdapTemplate class which adds extra functionality required by Spring Security.
@@ -55,6 +53,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
     private static final Log logger = LogFactory.getLog(SpringSecurityLdapTemplate.class);
 
     public static final String[] NO_ATTRS = new String[0];
+    private static final boolean RETURN_OBJECT = true;
 
     //~ Instance fields ================================================================================================
 
@@ -207,7 +206,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
             String base, String filter, Object[] params) throws NamingException {
         final DistinguishedName ctxBaseDn = new DistinguishedName(ctx.getNameInNamespace());
         final DistinguishedName searchBaseDn = new DistinguishedName(base);
-        final NamingEnumeration<SearchResult> resultsEnum = ctx.search(searchBaseDn, filter, params, searchControls);
+        final NamingEnumeration<SearchResult> resultsEnum = ctx.search(searchBaseDn, filter, params, buildControls(searchControls));
 
         if (logger.isDebugEnabled()) {
             logger.debug("Searching for entry under DN '" + ctxBaseDn
@@ -218,17 +217,13 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
         try {
             while (resultsEnum.hasMore()) {
                 SearchResult searchResult = resultsEnum.next();
-                // Work out the DN of the matched entry
-                DistinguishedName dn = new DistinguishedName(new CompositeName(searchResult.getName()));
-
-                if (base.length() > 0) {
-                    dn.prepend(searchBaseDn);
-                }
+                DirContextAdapter dca = (DirContextAdapter) searchResult.getObject();
+                Assert.notNull(dca, "No object returned by search, DirContext is not correctly configured");
 
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Found DN: " + dn);
+                    logger.debug("Found DN: " + dca.getDn());
                 }
-                results.add(new DirContextAdapter(searchResult.getAttributes(), dn, ctxBaseDn));
+                results.add(dca);
             }
         } catch (PartialResultException e) {
             LdapUtils.closeEnumeration(resultsEnum);
@@ -244,6 +239,21 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
         }
 
         return results.iterator().next();
+    }
+
+    /**
+     * We need to make sure the search controls has the return object flag set to true, in order for
+     * the search to return DirContextAdapter instances.
+     * @param originalControls
+     * @return
+     */
+    private static SearchControls buildControls(SearchControls originalControls) {
+        return new SearchControls(originalControls.getSearchScope(),
+                originalControls.getCountLimit(),
+                originalControls.getTimeLimit(),
+                originalControls.getReturningAttributes(),
+                RETURN_OBJECT,
+                originalControls.getDerefLinkFlag());
     }
 
     /**

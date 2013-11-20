@@ -12,16 +12,14 @@
  */
 package org.springframework.security.ldap.authentication.ad;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-import static org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider.ContextFactory;
-
 import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.core.DirContextAdapter;
@@ -33,8 +31,6 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import javax.naming.AuthenticationException;
 import javax.naming.CommunicationException;
@@ -45,7 +41,15 @@ import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import java.util.*;
+import java.util.Hashtable;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider.ContextFactory;
 
 /**
  * @author Luke Taylor
@@ -75,7 +79,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
         when(ctx.getNameInNamespace()).thenReturn("");
 
         DirContextAdapter dca = new DirContextAdapter();
-        SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", null, dca.getAttributes());
+        SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
         when(ctx.search(any(Name.class), any(String.class), any(Object[].class), any(SearchControls.class)))
                 .thenReturn(new MockNamingEnumeration(sr))
                 .thenReturn(new MockNamingEnumeration(sr));
@@ -87,8 +91,6 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
         assertEquals(0, result.getAuthorities().size());
 
         dca.addAttributeValue("memberOf","CN=Admin,CN=Users,DC=mydomain,DC=eu");
-
-        sr.setAttributes(dca.getAttributes());
 
         result = provider.authenticate(joe);
 
@@ -102,7 +104,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
         when(ctx.getNameInNamespace()).thenReturn("");
 
         DirContextAdapter dca = new DirContextAdapter();
-        SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", null, dca.getAttributes());
+        SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
         when(ctx.search(eq(new DistinguishedName("DC=mydomain,DC=eu")), any(String.class), any(Object[].class), any(SearchControls.class)))
                 .thenReturn(new MockNamingEnumeration(sr));
         provider.contextFactory = createContextFactoryReturning(ctx);
@@ -149,7 +151,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
         NamingEnumeration<SearchResult> searchResults = mock(NamingEnumeration.class);
         when(searchResults.hasMore()).thenReturn(true,true,false);
         SearchResult searchResult = mock(SearchResult.class);
-        when(searchResult.getName()).thenReturn("ou=1","ou=2");
+        when(searchResult.getObject()).thenReturn(new DirContextAdapter("ou=1"),new DirContextAdapter("ou=2"));
         when(searchResults.next()).thenReturn(searchResult);
         when(ctx.search(any(Name.class), any(String.class), any(Object[].class), any(SearchControls.class)))
                 .thenReturn(searchResults );
