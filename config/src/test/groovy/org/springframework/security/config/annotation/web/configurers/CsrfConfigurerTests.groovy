@@ -158,7 +158,7 @@ class CsrfConfigurerTests extends BaseSpringSpec {
     def "csrf clears on login"() {
         setup:
             CsrfTokenRepositoryConfig.repo = Mock(CsrfTokenRepository)
-            1 * CsrfTokenRepositoryConfig.repo.loadToken(_) >> csrfToken
+            (1.._) * CsrfTokenRepositoryConfig.repo.loadToken(_) >> csrfToken
             loadConfig(CsrfTokenRepositoryConfig)
             request.method = "POST"
             request.getSession()
@@ -169,7 +169,7 @@ class CsrfConfigurerTests extends BaseSpringSpec {
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
             response.redirectedUrl == "/"
-            1 *  CsrfTokenRepositoryConfig.repo.saveToken(null, _, _)
+            (1.._) *  CsrfTokenRepositoryConfig.repo.saveToken(null, _, _)
     }
 
     @Configuration
@@ -282,7 +282,7 @@ class CsrfConfigurerTests extends BaseSpringSpec {
         when: "CSRF passes and our session times out"
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "sent to the login page"
-            1 * CsrfDisablesPostRequestFromRequestCacheConfig.repo.loadToken(_) >> csrfToken
+            (1.._) * CsrfDisablesPostRequestFromRequestCacheConfig.repo.loadToken(_) >> csrfToken
             response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
             response.redirectedUrl == "http://localhost/login"
         when: "authenticate successfully"
@@ -293,7 +293,7 @@ class CsrfConfigurerTests extends BaseSpringSpec {
             request.method = "POST"
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "sent to default success because we don't want csrf attempts made prior to authentication to pass"
-            1 * CsrfDisablesPostRequestFromRequestCacheConfig.repo.loadToken(_) >> csrfToken
+            (1.._) * CsrfDisablesPostRequestFromRequestCacheConfig.repo.loadToken(_) >> csrfToken
             response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
             response.redirectedUrl == "/"
     }
@@ -308,7 +308,7 @@ class CsrfConfigurerTests extends BaseSpringSpec {
         when: "CSRF passes and our session times out"
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "sent to the login page"
-            1 * CsrfDisablesPostRequestFromRequestCacheConfig.repo.loadToken(_) >> csrfToken
+            (1.._) * CsrfDisablesPostRequestFromRequestCacheConfig.repo.loadToken(_) >> csrfToken
             response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
             response.redirectedUrl == "http://localhost/login"
         when: "authenticate successfully"
@@ -319,7 +319,7 @@ class CsrfConfigurerTests extends BaseSpringSpec {
             request.method = "POST"
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "sent to original URL since it was a GET"
-            1 * CsrfDisablesPostRequestFromRequestCacheConfig.repo.loadToken(_) >> csrfToken
+            (1.._) * CsrfDisablesPostRequestFromRequestCacheConfig.repo.loadToken(_) >> csrfToken
             response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
             response.redirectedUrl == "http://localhost/some-url"
     }

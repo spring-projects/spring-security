@@ -235,7 +235,7 @@ class CsrfConfigTests extends AbstractHttpConfigTests {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            verify(repo).saveToken(eq(null),any(HttpServletRequest), any(HttpServletResponse))
+            verify(repo, atLeastOnce()).saveToken(eq(null),any(HttpServletRequest), any(HttpServletResponse))
     }
 
     def "csrf clears on logout"() {
