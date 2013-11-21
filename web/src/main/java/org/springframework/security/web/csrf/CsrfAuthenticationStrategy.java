@@ -51,6 +51,11 @@ public final class CsrfAuthenticationStrategy implements
     public void onAuthentication(Authentication authentication,
             HttpServletRequest request, HttpServletResponse response)
             throws SessionAuthenticationException {
-        this.csrfTokenRepository.saveToken(null, request, response);
+        boolean containsToken = this.csrfTokenRepository.loadToken(request) != null;
+        if(containsToken) {
+            CsrfToken newToken = this.csrfTokenRepository.generateToken(request);
+            this.csrfTokenRepository.saveToken(null, request, response);
+            this.csrfTokenRepository.saveToken(newToken, request, response);
+        }
     }
 }
