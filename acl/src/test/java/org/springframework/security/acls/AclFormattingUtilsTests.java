@@ -124,4 +124,12 @@ public class AclFormattingUtilsTests extends TestCase {
 
         Assert.assertEquals("............................xxxx", AclFormattingUtils.printBinary(15, 'x'));
     }
+
+    public void testPrintBinaryNegative() {
+        Assert.assertEquals("*...............................", AclFormattingUtils.printBinary(0x80000000));
+    }
+
+    public void testPrintBinaryMinusOne() {
+        Assert.assertEquals("********************************", AclFormattingUtils.printBinary(0xffffffff));
+    }
 }
