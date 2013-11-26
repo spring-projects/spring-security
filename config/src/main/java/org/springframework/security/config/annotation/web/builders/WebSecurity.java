@@ -280,7 +280,10 @@ public final class WebSecurity extends
 
     @Override
     protected Filter performBuild() throws Exception {
-        Assert.state(!securityFilterChainBuilders.isEmpty(), "At least one SecurityFilterBuilder needs to be specified. Invoke FilterChainProxyBuilder.securityFilterChains");
+        Assert.state(!securityFilterChainBuilders.isEmpty(),
+                "At least one SecurityBuilder<? extends SecurityFilterChain> needs to be specified. Typically this done by adding a @Configuration that extends WebSecurityConfigurerAdapter. More advanced users can invoke "
+                        + WebSecurity.class.getSimpleName()
+                        + ".addSecurityFilterChainBuilder directly");
         int chainSize = ignoredRequests.size() + securityFilterChainBuilders.size();
         List<SecurityFilterChain> securityFilterChains = new ArrayList<SecurityFilterChain>(chainSize);
         for(RequestMatcher ignoredRequest : ignoredRequests) {
