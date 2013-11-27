@@ -19,6 +19,8 @@ import java.util.List;
 
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDecisionVoter;
+import org.springframework.security.access.event.AuthorizationFailureEvent;
+import org.springframework.security.access.event.AuthorizedEvent;
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.SecurityConfigurer;
@@ -64,6 +66,7 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
 abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConfigurer<C,H>, H extends HttpSecurityBuilder<H>> extends
         AbstractHttpConfigurer<C, H>{
     private Boolean filterSecurityInterceptorOncePerRequest;
+    private Boolean filterSecurityPublishAuthorizationSuccess;
 
     private AccessDecisionManager accessDecisionManager;
 
@@ -76,6 +79,9 @@ abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConf
         FilterSecurityInterceptor securityInterceptor = createFilterSecurityInterceptor(http, metadataSource, http.getSharedObject(AuthenticationManager.class));
         if(filterSecurityInterceptorOncePerRequest != null) {
             securityInterceptor.setObserveOncePerRequest(filterSecurityInterceptorOncePerRequest);
+        }
+        if(filterSecurityPublishAuthorizationSuccess != null) {
+            securityInterceptor.setPublishAuthorizationSuccess(filterSecurityPublishAuthorizationSuccess);
         }
         securityInterceptor = postProcess(securityInterceptor);
         http.addFilter(securityInterceptor);
@@ -131,6 +137,21 @@ abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConf
         public R filterSecurityInterceptorOncePerRequest(
                 boolean filterSecurityInterceptorOncePerRequest) {
             AbstractInterceptUrlConfigurer.this.filterSecurityInterceptorOncePerRequest = filterSecurityInterceptorOncePerRequest;
+            return getSelf();
+        }
+
+        /**
+         * Allows setting if the {@link FilterSecurityInterceptor} should send events when authorization is successful.
+         * By default only {@link AuthorizationFailureEvent}s  will be published. If you set this property to true,
+         * {@link AuthorizedEvent}s will also be published.
+         *
+         * @param filterSecurityPublishAuthorizationSuccess if the {@link FilterSecurityInterceptor} should send events
+         *                                                  when authorization is successful
+         * @return  the {@link AbstractInterceptUrlConfigurer} for further customization
+         */
+        public R filterSecurityPublishAuthorizationSuccess(
+                boolean filterSecurityPublishAuthorizationSuccess) {
+            AbstractInterceptUrlConfigurer.this.filterSecurityPublishAuthorizationSuccess = filterSecurityPublishAuthorizationSuccess;
             return getSelf();
         }
 
