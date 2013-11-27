@@ -133,7 +133,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
         sb.append("CredentialsNonExpired: ").append(this.credentialsNonExpired).append("; ");
         sb.append("AccountNonLocked: ").append(this.accountNonLocked).append("; ");
 
-        if (this.getAuthorities() != null) {
+        if (this.getAuthorities() != null && !this.getAuthorities().isEmpty()) {
             sb.append("Granted Authorities: ");
             boolean first = true;
 
