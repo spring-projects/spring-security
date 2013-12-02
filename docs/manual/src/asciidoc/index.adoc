@@ -392,6 +392,13 @@ You will notice that this configuration is quite similar the XML Namespace confi
 
 The Java Configuration equivalent of closing an XML tag is expressed using the `and()` method which allows us to continue configuring the parent. If you read the code it also makes sense. I want to configure authorized requests __and__ configure form login __and__ configure HTTP Basic authentication.
 
+However, Java configuration has different defaults URLs and parameters. Keep this in mind when creating custom login pages. The result is that our URLs are more RESTful. Additionally, it is not quite so obvious we are using Spring Security which helps to prevent https://www.owasp.org/index.php/Information_Leak_(information_disclosure)[information leaks]. For example:
+
+* GET /login renders the login page instead of /spring_security_login
+* POST /login authenticates the user instead of /j_spring_security_check
+* The username parameter defaults to username instead of j_username
+* The password parameter defaults to password instead of j_password
+
 [[jc-form]]
 === Java Configuration and Form Login
 You might be wondering where the login form came from when you were prompted to log in, since we made no mention of any HTML files or JSPs. Since Spring Security's default configuration does not explicitly set a URL for the login page, Spring Security generates one automatically, based on the features that are enabled and using standard values for the URL which processes the submitted login, the default target URL the user will be sent to after logging in and so on.
@@ -486,6 +493,7 @@ protected void configure(HttpSecurity http) throws Exception {
 
 Thus far we have only taken a look at the most basic authentication configuration. Let's take a look at a few slightly more advanced options for configuring authentication.
 
+[[jc-authentication-inmememory]]
 ==== In Memory Authentication
 
 We have already seen an example of configuring in memory authentication for a single user. Below is an example to configure multiple users:
@@ -501,6 +509,7 @@ public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception 
 }
 ----
 
+[[jc-authentication-jdbc]]
 ==== JDBC Authentication
 
 You can find the updates to suppport JDBC based authentication. The example below assumes that you have already defined a `DataSource` within your application. The https://github.com/spring-projects/spring-security/tree/master/samples/jdbc-jc[jdbc-jc sample] provides a complete example of using JDBC based authentication.
@@ -636,6 +645,7 @@ public class MultiHttpSecurityConfig {
 <2> Create an instance of `WebSecurityConfigurerAdapter` that contains `@Order` to specify which `WebSecurityConfigurerAdapter` should be considered first.
 <3> The `http.antMatcher` states that this `HttpSecurity` will only be applicable to URLs that start with `/api/`
 <4> Create another instance of `WebSecurityConfigurerAdapter`. If the URL does not start with `/api/` this configuration will be used. This configuration is considered after `ApiWebSecurityConfigurationAdapter` since it has an `@Order` value after `1` (no `@Order` defaults to last).
+
 
 [[jc-method]]
 === Method Security
