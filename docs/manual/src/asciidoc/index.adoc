@@ -2415,7 +2415,6 @@ The login form simply contains `j_username` and `j_password` input fields, and p
 <bean id="authenticationFilter" class=
 "org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
   <property name="authenticationManager" ref="authenticationManager"/>
-  <property name="filterProcessesUrl" value="/j_spring_security_check"/>
 </bean>
 ----
 
