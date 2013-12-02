@@ -20,7 +20,9 @@ import static org.springframework.security.config.annotation.web.configurers.Exp
 import javax.servlet.http.HttpServletResponse
 
 import org.springframework.beans.factory.BeanCreationException
+import org.springframework.context.ApplicationListener
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.access.event.AuthorizedEvent
 import org.springframework.security.access.vote.AffirmativeBased
 import org.springframework.security.authentication.RememberMeAuthenticationToken
 import org.springframework.security.config.annotation.BaseSpringSpec
@@ -461,5 +463,16 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
             loadConfig(AllPropertiesWorkConfig)
         then:
             noExceptionThrown()
+    }
+
+    def "AuthorizedRequests withPostProcessor"() {
+        setup:
+            ApplicationListener al = Mock()
+            AuthorizedRequestsWithPostProcessorConfig.AL = al
+            loadConfig(AuthorizedRequestsWithPostProcessorConfig)
+        when:
+            springSecurityFilterChain.doFilter(request, response, chain)
+        then:
+            1 * al.onApplicationEvent(_ as AuthorizedEvent)
     }
 }

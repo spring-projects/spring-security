@@ -730,6 +730,29 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 
 For additional information about methods that can be overriden, refer to the `GlobalMethodSecurityConfiguration` Javadoc.
 
+=== Post Processing Configured Objects
+
+Spring Security's Java Configuration does not expose every property of every object that it configures. This simplifies the configuration for a majority of users. Afterall, if every property was exposed, users could use standard bean configuration.
+
+While there are good reasons to not directly expose every property, users may still need more advanced configuration options. To address this Spring Security introduces the concept of an `ObjectPostProcessor` which can used to modify or replace many of the Object instances created by the Java Configuration. For example, if you wanted to configure the `filterSecurityPublishAuthorizationSuccess` property on `FilterSecurityInterceptor` you could use the following:
+
+[source,java]
+----
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+    http
+        .authorizeRequests()
+            .anyRequest().authenticated()
+            .withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
+                public <O extends FilterSecurityInterceptor> O postProcess(
+                        O fsi) {
+                    fsi.setPublishAuthorizationSuccess(true);
+                    return fsi;
+                }
+            });
+}
+----
+
 [[ns-config]]
 == Security Namespace Configuration
 
