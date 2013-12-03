@@ -3060,6 +3060,23 @@ Adding CSRF will update the LogoutFilter to only use HTTP POST. This ensures tha
 
 One approach is to use a form for log out. If you really want a link, you can use JavaScript to have the link perform a POST (i.e. maybe on a hidden form). For browsers with JavaScript that is disabled, you can optionally have the link take the user to a log out confirmation page that will perform the POST.
 
+If you really want to use HTTP GET with logout you can do so, but remember this is generally not recommended. For example, the following Java Configuration will perform logout with the URL /logout is requested with any HTTP method:
+
+[source,java]
+----
+@EnableWebSecurity
+@Configuration
+public class WebSecurityConfig extends
+   WebSecurityConfigurerAdapter {
+
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    http
+      .logout()
+          .logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
+  }
+}
+----
 
 [[csrf-multipart]]
 ==== Multipart (file upload)
