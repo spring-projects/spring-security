@@ -39,7 +39,7 @@ public abstract class AbstractSecurityBuilder<O> implements SecurityBuilder<O> {
             object = doBuild();
             return object;
         }
-        throw new IllegalStateException("This object has already been built");
+        throw new AlreadyBuiltException("This object has already been built");
     }
 
     /**

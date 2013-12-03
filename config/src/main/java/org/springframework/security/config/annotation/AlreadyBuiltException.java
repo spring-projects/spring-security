@@ -16,20 +16,16 @@
 package org.springframework.security.config.annotation;
 
 /**
- * Interface for building an Object
+ * Thrown when {@link AbstractSecurityBuilder#build()} is two or more times.
  *
  * @author Rob Winch
  * @since 3.2
- *
- * @param <O> The type of the Object being built
  */
-public interface SecurityBuilder<O> {
+public class AlreadyBuiltException extends IllegalStateException {
 
-    /**
-     * Builds the object and returns it or null.
-     *
-     * @return the Object to be built or null if the implementation allows it.
-     * @throws Exception if an error occurred when building the Object
-     */
-    O build() throws Exception;
+    public AlreadyBuiltException(String message) {
+        super(message);
+    }
+
+    private static final long serialVersionUID = -5891004752785553015L;
 }

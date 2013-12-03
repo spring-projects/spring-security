@@ -34,6 +34,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
+import org.springframework.security.config.annotation.AlreadyBuiltException;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
@@ -87,7 +88,11 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
         if(!hasConfigurers) {
             throw new IllegalStateException("At least one non-null instance of "+ WebSecurityConfigurer.class.getSimpleName()+" must be exposed as a @Bean when using @EnableWebSecurity. Hint try extending "+ WebSecurityConfigurerAdapter.class.getSimpleName());
         }
-        return webSecurity.getOrBuild();
+        try {
+            return webSecurity.build();
+        } catch (AlreadyBuiltException e) {
+            return webSecurity.getObject();
+        }
     }
 
     /**
