@@ -87,7 +87,7 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
         if(!hasConfigurers) {
             throw new IllegalStateException("At least one non-null instance of "+ WebSecurityConfigurer.class.getSimpleName()+" must be exposed as a @Bean when using @EnableWebSecurity. Hint try extending "+ WebSecurityConfigurerAdapter.class.getSimpleName());
         }
-        return webSecurity.build();
+        return webSecurity.getOrBuild();
     }
 
     /**
