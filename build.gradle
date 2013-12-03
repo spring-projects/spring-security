@@ -76,7 +76,7 @@ configure(allprojects - javaProjects) {
     }
 }
 
-configure(subprojects - coreModuleProjects) {
+configure(subprojects - coreModuleProjects - project(':spring-security-samples-messages-jc')) {
     tasks.findByPath("artifactoryPublish")?.enabled = false
     sonarRunner {
         skipProject = true
