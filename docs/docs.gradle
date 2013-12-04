@@ -25,6 +25,8 @@ project('manual') {
               doctype: 'book',
               numbered: '',
               'spring-security-version' : project.version,
+              'spring-version' : springVersion,
+              'spring4-version' : spring4Version,
               revnumber : project.version
           ]
         ]
