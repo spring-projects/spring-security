@@ -287,6 +287,20 @@ public class ProviderManagerTests {
         verify(publisher).publishAuthenticationFailure(expected, authReq);
     }
 
+    // SEC-2367
+    @Test
+    public void providerThrowsInternalAuthenticationServiceException() {
+        InternalAuthenticationServiceException expected = new InternalAuthenticationServiceException("Expected");
+        ProviderManager mgr = new ProviderManager(
+                Arrays.asList(createProviderWhichThrows(expected), createProviderWhichThrows(new BadCredentialsException("Oops"))), null);
+        final Authentication authReq = mock(Authentication.class);
+
+        try {
+            mgr.authenticate(authReq);
+            fail("Expected Exception");
+        } catch(InternalAuthenticationServiceException success) {}
+    }
+
     private AuthenticationProvider createProviderWhichThrows(final AuthenticationException e) {
         AuthenticationProvider provider = mock(AuthenticationProvider.class);
         when(provider.supports(any(Class.class))).thenReturn(true);

@@ -163,6 +163,9 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
                 prepareException(e, authentication);
                 // SEC-546: Avoid polling additional providers if auth failure is due to invalid account status
                 throw e;
+            } catch (InternalAuthenticationServiceException e) {
+                prepareException(e, authentication);
+                throw e;
             } catch (AuthenticationException e) {
                 lastException = e;
             }
