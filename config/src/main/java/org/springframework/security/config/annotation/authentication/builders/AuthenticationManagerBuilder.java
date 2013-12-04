@@ -18,6 +18,8 @@ package org.springframework.security.config.annotation.authentication.builders;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -45,6 +47,7 @@ import org.springframework.util.Assert;
  * @since 3.2
  */
 public class AuthenticationManagerBuilder extends AbstractConfiguredSecurityBuilder<AuthenticationManager, AuthenticationManagerBuilder> implements ProviderManagerBuilder<AuthenticationManagerBuilder> {
+    private final Log logger = LogFactory.getLog(getClass());
 
     private AuthenticationManager parentAuthenticationManager;
     private List<AuthenticationProvider> authenticationProviders = new ArrayList<AuthenticationProvider>();
@@ -218,6 +221,10 @@ public class AuthenticationManagerBuilder extends AbstractConfiguredSecurityBuil
 
     @Override
     protected ProviderManager performBuild() throws Exception {
+        if(authenticationProviders.isEmpty() && parentAuthenticationManager == null) {
+            logger.debug("No authenticationProviders and no parentAuthenticationManager defined. Returning null.");
+            return null;
+        }
         ProviderManager providerManager = new ProviderManager(authenticationProviders, parentAuthenticationManager);
         if(eraseCredentials != null) {
             providerManager.setEraseCredentialsAfterAuthentication(eraseCredentials);
