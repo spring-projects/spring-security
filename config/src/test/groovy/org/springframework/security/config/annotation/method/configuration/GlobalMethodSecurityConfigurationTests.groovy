@@ -19,6 +19,7 @@ import static org.fest.assertions.Assertions.assertThat
 import static org.junit.Assert.fail
 
 import org.aopalliance.intercept.MethodInterceptor
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationListener
 import org.springframework.context.annotation.Bean
@@ -263,6 +264,36 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
         @Bean
         public PermissionEvaluator pe2() {
             PE
+        }
+
+        @Bean
+        public MethodSecurityService service() {
+            new MethodSecurityServiceImpl()
+        }
+    }
+
+    def "SEC-2425: EnableGlobalMethodSecurity works on superclass"() {
+        setup:
+            SecurityContextHolder.getContext().setAuthentication(
+                new TestingAuthenticationToken("user", "password","ROLE_USER"))
+            loadConfig(ParentConfig)
+            MethodSecurityService service = context.getBean(MethodSecurityService)
+        when:
+            service.preAuthorize()
+        then:
+            thrown(AccessDeniedException)
+    }
+
+    static class ChildConfig extends ParentConfig {}
+
+    @Configuration
+    @EnableGlobalMethodSecurity(prePostEnabled = true)
+    static class ParentConfig {
+
+        @Autowired
+        protected void configurGlobal(AuthenticationManagerBuilder auth) throws Exception {
+            auth
+                .inMemoryAuthentication()
         }
 
         @Bean
