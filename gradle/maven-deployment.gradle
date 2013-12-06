@@ -21,7 +21,9 @@ dependencies {
 }
 
 install {
-    customizePom(repositories.mavenInstaller.pom, project)
+    repositories.mavenInstaller {
+        customizePom(pom, project)
+    }
 }
 
 def customizePom(pom, gradleProject) {
