@@ -65,7 +65,7 @@ def customizePom(pom, gradleProject) {
             developer {
                 id = 'rwinch'
                 name = 'Rob Winch'
-                email = 'rwinch@vmware.com'
+                email = 'rwinch@gopivotal.com'
             }
         }
         if(isWar) {
@@ -73,11 +73,18 @@ def customizePom(pom, gradleProject) {
                 'm2eclipse.wtp.contextRoot' '/' + project.war.baseName
             }
         }
-        if(!project.releaseBuild) {
+        if(project.snapshotBuild) {
             repositories {
                 repository {
                     id 'spring-snasphot'
-                    url 'http://repo.springsource.org/libs-snapshot'
+                    url 'https://repo.spring.io/snapshot'
+                }
+            }
+        } else if(!project.releaseBuild) {
+            repositories {
+                repository {
+                    id 'spring-milestone'
+                    url 'https://repo.spring.io/milestone'
                 }
             }
         }
