@@ -68,12 +68,12 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 
     public DirContextOperations authenticate(final Authentication authentication) {
         Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class, authentication,
-            "Can only process UsernamePasswordAuthenticationToken objects");
+                "Can only process UsernamePasswordAuthenticationToken objects");
         // locate the user and check the password
 
         DirContextOperations user = null;
         String username = authentication.getName();
-        String password = (String) authentication.getCredentials();
+        String password = (String)authentication.getCredentials();
 
         SpringSecurityLdapTemplate ldapTemplate = new SpringSecurityLdapTemplate(getContextSource());
 
@@ -97,7 +97,7 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 
         if (logger.isDebugEnabled()) {
             logger.debug("Performing LDAP compare of password attribute '" + passwordAttributeName + "' for user '" +
-                user.getDn() + "'");
+                    user.getDn() + "'");
         }
 
         boolean useSshaSalt = passwordEncoder instanceof LdapShaPasswordEncoder;
