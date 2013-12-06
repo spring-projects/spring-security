@@ -10,6 +10,7 @@ buildscript {
         classpath("org.gradle.api.plugins:gradle-tomcat-plugin:0.9.8")
         classpath('me.champeau.gradle:gradle-javadoc-hotfix-plugin:0.1')
         classpath('org.asciidoctor:asciidoctor-gradle-plugin:0.7.0')
+        classpath('org.asciidoctor:asciidoctor-java-integration:0.1.4.preview.1')
     }
 }
 

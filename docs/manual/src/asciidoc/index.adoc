@@ -479,7 +479,7 @@ public class SecurityWebApplicationInitializer
 The `SecurityWebApplicationInitializer` will do the following things:
 
 * Automatically register the springSecurityFilterChain Filter for every URL in your application
-* Add a ContextLoaderListener that loads the <<jc-hello-wsca,`SecurityConfig`>>.
+* Add a ContextLoaderListener that loads the <<jc-hello-wsca,SecurityConfig>>.
 
 ==== AbstractSecurityWebApplicationInitializer with Spring MVC
 
@@ -4125,7 +4125,7 @@ Please be aware that if you're using `AfterInvocationManager`, you will still ne
 === Hierarchical Roles
 It is a common requirement that a particular role in an application should automatically "include" other roles. For example, in an application which has the concept of an "admin" and a "user" role, you may want an admin to be able to do everything a normal user can. To achieve this, you can either make sure that all admin users are also assigned the "user" role. Alternatively, you can modify every access constraint which requires the "user" role to also include the "admin" role. This can get quite complicated if you have a lot of different roles in your application.
 
-The use of a role-hierarchy allows you to configure which roles (or authorities) should include others. An extended version of Spring Security's <<authz-role-voter,`RoleVoter`>>, `RoleHierarchyVoter`, is configured with a `RoleHierarchy`, from which it obtains all the "reachable authorities" which the user is assigned. A typical configuration might look like this:
+The use of a role-hierarchy allows you to configure which roles (or authorities) should include others. An extended version of Spring Security's <<authz-role-voter,RoleVoter>>, `RoleHierarchyVoter`, is configured with a `RoleHierarchy`, from which it obtains all the "reachable authorities" which the user is assigned. A typical configuration might look like this:
 
 [source,xml]
 ----
@@ -5261,7 +5261,7 @@ The following beans should be configured to commence the CAS authentication proc
 </bean>
 ----
 
-For CAS to operate, the `ExceptionTranslationFilter` must have its `authenticationEntryPoint` property set to the `CasAuthenticationEntryPoint` bean. This can easily be done using <<ns-entry-point-ref,`entry-point-ref`>> as is done in the example above. The `CasAuthenticationEntryPoint` must refer to the `ServiceProperties` bean (discussed above), which provides the URL to the enterprise's CAS login server. This is where the user's browser will be redirected.
+For CAS to operate, the `ExceptionTranslationFilter` must have its `authenticationEntryPoint` property set to the `CasAuthenticationEntryPoint` bean. This can easily be done using <<ns-entry-point-ref,entry-point-ref>> as is done in the example above. The `CasAuthenticationEntryPoint` must refer to the `ServiceProperties` bean (discussed above), which provides the URL to the enterprise's CAS login server. This is where the user's browser will be redirected.
 
 The `CasAuthenticationFilter` has very similar properties to the `UsernamePasswordAuthenticationFilter` (used for form-based logins). You can use these properties to customize things like behavior for authentication success and failure.
 
@@ -6317,7 +6317,7 @@ Enables EL-expressions in the `access` attribute, as described in the chapter on
 
 [[nsa-access-denied-handler]]
 ==== <access-denied-handler>
-This element allows you to set the `errorPage` property for the default `AccessDeniedHandler` used by the `ExceptionTranslationFilter`, using the <<nsa-access-denied-handler-error-page,error-page>> attribute, or to supply your own implementation using the<<nsa-access-denied-handler-ref,ref>> attribute. This is discussed in more detail in the section on the <<access-denied-handler,`ExceptionTranslationFilter`>>.
+This element allows you to set the `errorPage` property for the default `AccessDeniedHandler` used by the `ExceptionTranslationFilter`, using the <<nsa-access-denied-handler-error-page,error-page>> attribute, or to supply your own implementation using the<<nsa-access-denied-handler-ref,ref>> attribute. This is discussed in more detail in the section on the <<access-denied-handler,ExceptionTranslationFilter>>.
 
 
 [[nsa-access-denied-handler-parents]]
@@ -7479,7 +7479,7 @@ This attribute allows you to define an id for the internal instance for use in y
 
 [[nsa-authentication-provider]]
 ==== <authentication-provider>
-Unless used with a `ref` attribute, this element is shorthand for configuring a <<core-services-dao-provider,`DaoAuthenticationProvider`>>. `DaoAuthenticationProvider` loads user information from a `UserDetailsService` and compares the username/password combination with the values supplied at login. The `UserDetailsService` instance can be defined either by using an available namespace element ( `jdbc-user-service` or by using the `user-service-ref` attribute to point to a bean defined elsewhere in the application context). You can find examples of these variations in the <<ns-auth-providers,namespace introduction>>.
+Unless used with a `ref` attribute, this element is shorthand for configuring a <<core-services-dao-provider,DaoAuthenticationProvider>>. `DaoAuthenticationProvider` loads user information from a `UserDetailsService` and compares the username/password combination with the values supplied at login. The `UserDetailsService` instance can be defined either by using an available namespace element ( `jdbc-user-service` or by using the `user-service-ref` attribute to point to a bean defined elsewhere in the application context). You can find examples of these variations in the <<ns-auth-providers,namespace introduction>>.
 
 
 [[nsa-authentication-provider-parents]]
