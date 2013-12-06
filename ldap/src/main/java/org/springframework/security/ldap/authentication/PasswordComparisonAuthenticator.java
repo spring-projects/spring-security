@@ -136,7 +136,6 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 		// The SHA password has a length of 20 bytes. Everything beyond is the salt.
 		byte[] salt = Arrays.copyOfRange(passwordWithSalt, SHA_HASH_LENGTH, passwordWithSalt.length);
 
-		// Convert the salt's byte array to a string.
 		return salt;
 	}
 
