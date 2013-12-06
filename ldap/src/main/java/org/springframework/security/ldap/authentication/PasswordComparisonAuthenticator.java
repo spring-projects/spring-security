@@ -106,7 +106,7 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 
         if (!ldapTemplate.compare(user.getDn().toString(), passwordAttributeName, passwordBytes)) {
             throw new BadCredentialsException(messages.getMessage("PasswordComparisonAuthenticator.badCredentials",
-                "Bad credentials"));
+                    "Bad credentials"));
         }
 
         return user;
