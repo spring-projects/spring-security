@@ -43,10 +43,10 @@ def customizePom(pom, gradleProject) {
             packaging = "war"
         }
         description = gradleProject.name
-        url = 'http://springsource.org/spring-security'
+        url = 'http://spring.io/spring-security'
         organization {
-            name = 'SpringSource'
-            url = 'http://springsource.org/'
+            name = 'spring.io'
+            url = 'http://spring.io/'
         }
         licenses {
             license {
@@ -56,9 +56,9 @@ def customizePom(pom, gradleProject) {
             }
         }
         scm {
-            url = 'https://github.com/SpringSource/spring-security'
-            connection = 'scm:git:git://github.com/SpringSource/spring-security'
-            developerConnection = 'scm:git:git://github.com/SpringSource/spring-security'
+            url = 'https://github.com/spring-projects/spring-security'
+            connection = 'scm:git:git://github.com/spring-projects/spring-security'
+            developerConnection = 'scm:git:git://github.com/spring-projects/spring-security'
         }
         developers {
             developer {
