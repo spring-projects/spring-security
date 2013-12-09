@@ -2,6 +2,7 @@ apply plugin: 'maven-bom'
 apply from: "$rootDir/gradle/maven-deployment.gradle"
 
 generatePom.enabled = false
+sonarRunner.skipProject = true
 
 mavenBom {
     projects = coreModuleProjects
