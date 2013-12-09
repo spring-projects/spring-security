@@ -23,7 +23,7 @@
     <developer>
       <id>rwinch</id>
       <name>Rob Winch</name>
-      <email>rwinch@vmware.com</email>
+      <email>rwinch@gopivotal.com</email>
     </developer>
   </developers>
   <scm>
@@ -45,7 +45,7 @@
   <repositories>
     <repository>
       <id>spring-snasphot</id>
-      <url>http://repo.springsource.org/libs-snapshot</url>
+      <url>https://repo.spring.io/snapshot</url>
     </repository>
   </repositories>
   <dependencies>
@@ -132,18 +132,18 @@
       <artifactId>spring-core</artifactId>
       <version>3.2.4.RELEASE</version>
       <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-core</artifactId>
-      <version>3.2.4.RELEASE</version>
-      <scope>compile</scope>
       <exclusions>
         <exclusion>
           <artifactId>commons-logging</artifactId>
           <groupId>commons-logging</groupId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+      <version>3.2.4.RELEASE</version>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>

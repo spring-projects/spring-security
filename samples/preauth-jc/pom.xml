@@ -24,7 +24,7 @@
     <developer>
       <id>rwinch</id>
       <name>Rob Winch</name>
-      <email>rwinch@vmware.com</email>
+      <email>rwinch@gopivotal.com</email>
     </developer>
   </developers>
   <scm>
@@ -53,7 +53,7 @@
   <repositories>
     <repository>
       <id>spring-snasphot</id>
-      <url>http://repo.springsource.org/libs-snapshot</url>
+      <url>https://repo.spring.io/snapshot</url>
     </repository>
   </repositories>
   <dependencies>
