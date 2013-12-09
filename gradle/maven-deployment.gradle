@@ -9,7 +9,6 @@ task sourceJar(type: Jar) {
 
 artifacts {
     archives sourceJar
-    archives javadocJar
 }
 
 // Configuration for SpringSource s3 maven deployer

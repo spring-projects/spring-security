@@ -1,0 +1,8 @@
+apply plugin: 'maven-bom'
+apply from: "$rootDir/gradle/maven-deployment.gradle"
+
+generatePom.enabled = false
+
+mavenBom {
+    projects = coreModuleProjects
+}
