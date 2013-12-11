@@ -174,6 +174,28 @@ class CsrfConfigTests extends AbstractHttpConfigTests {
             response.redirectedUrl == "http://localhost/some-url"
     }
 
+    def "SEC-2422: csrf expire CSRF token and session-management invalid-session-url"() {
+        setup:
+            httpAutoConfig {
+                'csrf'()
+                'session-management'('invalid-session-url': '/error/sessionError')
+            }
+            createAppContext()
+            request.setParameter("_csrf","abc")
+            request.method = "POST"
+        when: "No existing expected CsrfToken (session times out) and a POST"
+            springSecurityFilterChain.doFilter(request,response,chain)
+        then: "sent to the session timeout page page"
+            response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
+            response.redirectedUrl == "/error/sessionError"
+        when: "Existing expected CsrfToken and a POST (invalid token provided)"
+            response = new MockHttpServletResponse()
+            request = new MockHttpServletRequest(session: request.session, method:'POST')
+            springSecurityFilterChain.doFilter(request,response,chain)
+        then: "Access Denied occurs"
+            response.status == HttpServletResponse.SC_FORBIDDEN
+    }
+
     def "csrf requireCsrfProtectionMatcher"() {
         setup:
             httpAutoConfig {

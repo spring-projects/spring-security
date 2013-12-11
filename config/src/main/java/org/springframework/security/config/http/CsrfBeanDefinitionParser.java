@@ -15,17 +15,26 @@
  */
 package org.springframework.security.config.http;
 
+import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.DelegatingAccessDeniedHandler;
 import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfLogoutHandler;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+import org.springframework.security.web.csrf.MissingCsrfTokenException;
 import org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor;
+import org.springframework.security.web.session.InvalidSessionAccessDeniedHandler;
+import org.springframework.security.web.session.InvalidSessionStrategy;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
@@ -44,6 +53,7 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
     private static final String ATT_REPOSITORY = "token-repository-ref";
 
     private String csrfRepositoryRef;
+    private BeanDefinition csrfFilter;
 
     public BeanDefinition parse(Element element, ParserContext pc) {
         boolean webmvcPresent = ClassUtils.isPresent(DISPATCHER_SERVLET_CLASS_NAME, getClass().getClassLoader());
@@ -58,21 +68,64 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
         csrfRepositoryRef = element.getAttribute(ATT_REPOSITORY);
         String matcherRef = element.getAttribute(ATT_MATCHER);
 
-        BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(CsrfFilter.class);
-
         if(!StringUtils.hasText(csrfRepositoryRef)) {
             RootBeanDefinition csrfTokenRepository = new RootBeanDefinition(HttpSessionCsrfTokenRepository.class);
             csrfRepositoryRef = pc.getReaderContext().generateBeanName(csrfTokenRepository);
             pc.registerBeanComponent(new BeanComponentDefinition(csrfTokenRepository, csrfRepositoryRef));
         }
 
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(CsrfFilter.class);
         builder.addConstructorArgReference(csrfRepositoryRef);
 
         if(StringUtils.hasText(matcherRef)) {
             builder.addPropertyReference("requireCsrfProtectionMatcher", matcherRef);
         }
 
-        return builder.getBeanDefinition();
+        csrfFilter = builder.getBeanDefinition();
+        return csrfFilter;
+    }
+
+    /**
+     * Populate the AccessDeniedHandler on the {@link CsrfFilter}
+     *
+     * @param invalidSessionStrategy the {@link InvalidSessionStrategy} to use
+     * @param defaultDeniedHandler the {@link AccessDeniedHandler} to use
+     */
+    void initAccessDeniedHandler(BeanDefinition invalidSessionStrategy, BeanMetadataElement defaultDeniedHandler) {
+        BeanMetadataElement accessDeniedHandler = createAccessDeniedHandler(invalidSessionStrategy, defaultDeniedHandler);
+        csrfFilter.getPropertyValues().addPropertyValue("accessDeniedHandler", accessDeniedHandler);
+    }
+
+    /**
+     * Creates the {@link AccessDeniedHandler} from the result of
+     * {@link #getDefaultAccessDeniedHandler(HttpSecurityBuilder)} and
+     * {@link #getInvalidSessionStrategy(HttpSecurityBuilder)}. If
+     * {@link #getInvalidSessionStrategy(HttpSecurityBuilder)} is non-null, then
+     * a {@link DelegatingAccessDeniedHandler} is used in combination with
+     * {@link InvalidSessionAccessDeniedHandler} and the
+     * {@link #getDefaultAccessDeniedHandler(HttpSecurityBuilder)}. Otherwise,
+     * only {@link #getDefaultAccessDeniedHandler(HttpSecurityBuilder)} is used.
+     *
+     * @param invalidSessionStrategy the {@link InvalidSessionStrategy} to use
+     * @param defaultDeniedHandler the {@link AccessDeniedHandler} to use
+     *
+     * @return the {@link BeanMetadataElement} that is the {@link AccessDeniedHandler} to populate on the {@link CsrfFilter}
+     */
+    private BeanMetadataElement createAccessDeniedHandler(BeanDefinition invalidSessionStrategy, BeanMetadataElement defaultDeniedHandler) {
+        if(invalidSessionStrategy == null) {
+            return defaultDeniedHandler;
+        }
+        ManagedMap<Class<? extends AccessDeniedException>,BeanDefinition> handlers =
+                new ManagedMap<Class<? extends AccessDeniedException>, BeanDefinition>();
+        BeanDefinitionBuilder invalidSessionHandlerBldr = BeanDefinitionBuilder.rootBeanDefinition(InvalidSessionAccessDeniedHandler.class);
+        invalidSessionHandlerBldr.addConstructorArgValue(invalidSessionStrategy);
+        handlers.put(MissingCsrfTokenException.class, invalidSessionHandlerBldr.getBeanDefinition());
+
+        BeanDefinitionBuilder deniedBldr = BeanDefinitionBuilder.rootBeanDefinition(DelegatingAccessDeniedHandler.class);
+        deniedBldr.addConstructorArgValue(handlers);
+        deniedBldr.addConstructorArgValue(defaultDeniedHandler);
+
+        return deniedBldr.getBeanDefinition();
     }
 
     BeanDefinition getCsrfAuthenticationStrategy() {

@@ -42,6 +42,7 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
+import org.springframework.security.web.session.InvalidSessionStrategy;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy;
 import org.springframework.util.Assert;
@@ -66,6 +67,7 @@ import org.springframework.util.Assert;
  * <li>{@link RequestCache}</li>
  * <li>{@link SecurityContextRepository}</li>
  * <li>{@link SessionManagementConfigurer}</li>
+ * <li>{@link InvalidSessionStrategy}</li>
  * </ul>
  *
  * <h2>Shared Objects Used</h2>
@@ -83,6 +85,7 @@ import org.springframework.util.Assert;
 public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<SessionManagementConfigurer<H>,H> {
     private SessionAuthenticationStrategy sessionFixationAuthenticationStrategy = createDefaultSessionFixationProtectionStrategy();
     private SessionAuthenticationStrategy sessionAuthenticationStrategy;
+    private InvalidSessionStrategy invalidSessionStrategy;
     private List<SessionAuthenticationStrategy> sessionAuthenticationStrategies = new ArrayList<SessionAuthenticationStrategy>();
     private SessionRegistry sessionRegistry = new SessionRegistryImpl();
     private Integer maximumSessions;
@@ -365,6 +368,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
             }
         }
         http.setSharedObject(SessionAuthenticationStrategy.class, getSessionAuthenticationStrategy());
+        http.setSharedObject(InvalidSessionStrategy.class, getInvalidSessionStrategy());
     }
 
     @Override
@@ -375,7 +379,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
             sessionManagementFilter.setAuthenticationFailureHandler(new SimpleUrlAuthenticationFailureHandler(sessionAuthenticationErrorUrl));
         }
         if(invalidSessionUrl != null) {
-            sessionManagementFilter.setInvalidSessionStrategy(new SimpleRedirectInvalidSessionStrategy(invalidSessionUrl));
+            sessionManagementFilter.setInvalidSessionStrategy(getInvalidSessionStrategy());
         }
         AuthenticationTrustResolver trustResolver = http.getSharedObject(AuthenticationTrustResolver.class);
         if(trustResolver != null) {
@@ -389,6 +393,23 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
             concurrentSessionFilter = postProcess(concurrentSessionFilter);
             http.addFilter(concurrentSessionFilter);
         }
+    }
+
+    /**
+     * Gets the {@link InvalidSessionStrategy} to use. If
+     * {@link #invalidSessionUrl} is null, returns null otherwise
+     * {@link SimpleRedirectInvalidSessionStrategy} is used.
+     *
+     * @return the {@link InvalidSessionStrategy} to use
+     */
+    InvalidSessionStrategy getInvalidSessionStrategy() {
+        if(invalidSessionUrl == null) {
+            return null;
+        }
+        if(invalidSessionStrategy == null) {
+            invalidSessionStrategy = new SimpleRedirectInvalidSessionStrategy(invalidSessionUrl);
+        }
+        return invalidSessionStrategy;
     }
 
     /**

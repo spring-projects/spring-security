@@ -15,14 +15,22 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.LinkedHashMap;
+
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.AccessDeniedHandlerImpl;
+import org.springframework.security.web.access.DelegatingAccessDeniedHandler;
 import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfLogoutHandler;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+import org.springframework.security.web.csrf.MissingCsrfTokenException;
+import org.springframework.security.web.session.InvalidSessionAccessDeniedHandler;
+import org.springframework.security.web.session.InvalidSessionStrategy;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
@@ -50,6 +58,7 @@ import org.springframework.util.Assert;
  * <li>
  * {@link ExceptionHandlingConfigurer#accessDeniedHandler(AccessDeniedHandler)}
  * is used to determine how to handle CSRF attempts</li>
+ * <li>{@link InvalidSessionStrategy}</li>
  * </ul>
  *
  * @author Rob Winch
@@ -100,12 +109,9 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>> extends Abst
         if(requireCsrfProtectionMatcher != null) {
             filter.setRequireCsrfProtectionMatcher(requireCsrfProtectionMatcher);
         }
-        ExceptionHandlingConfigurer<H> exceptionConfig = http.getConfigurer(ExceptionHandlingConfigurer.class);
-        if(exceptionConfig != null) {
-            AccessDeniedHandler accessDeniedHandler = exceptionConfig.getAccessDeniedHandler();
-            if(accessDeniedHandler != null) {
-                filter.setAccessDeniedHandler(accessDeniedHandler);
-            }
+        AccessDeniedHandler accessDeniedHandler = createAccessDeniedHandler(http);
+        if(accessDeniedHandler != null) {
+            filter.setAccessDeniedHandler(accessDeniedHandler);
         }
         LogoutConfigurer<H> logoutConfigurer = http.getConfigurer(LogoutConfigurer.class);
         if(logoutConfigurer != null) {
@@ -117,5 +123,71 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>> extends Abst
         }
         filter = postProcess(filter);
         http.addFilter(filter);
+    }
+
+    /**
+     * Gets the default {@link AccessDeniedHandler} from the
+     * {@link ExceptionHandlingConfigurer#getAccessDeniedHandler()} or create a
+     * {@link AccessDeniedHandlerImpl} if not available.
+     *
+     * @param http the {@link HttpSecurityBuilder}
+     * @return the {@link AccessDeniedHandler}
+     */
+    @SuppressWarnings("unchecked")
+    private AccessDeniedHandler getDefaultAccessDeniedHandler(H http) {
+        ExceptionHandlingConfigurer<H> exceptionConfig = http.getConfigurer(ExceptionHandlingConfigurer.class);
+        AccessDeniedHandler handler = null;
+        if(exceptionConfig != null) {
+            handler = exceptionConfig.getAccessDeniedHandler();
+        }
+        if(handler == null) {
+            handler = new AccessDeniedHandlerImpl();
+        }
+        return handler;
+    }
+
+    /**
+     * Gets the default {@link InvalidSessionStrategy} from the
+     * {@link SessionManagementConfigurer#getInvalidSessionStrategy()} or null
+     * if not available.
+     *
+     * @param http
+     *            the {@link HttpSecurityBuilder}
+     * @return the {@link InvalidSessionStrategy}
+     */
+    @SuppressWarnings("unchecked")
+    private InvalidSessionStrategy getInvalidSessionStrategy(H http) {
+        SessionManagementConfigurer<H> sessionManagement = http.getConfigurer(SessionManagementConfigurer.class);
+        if(sessionManagement == null) {
+            return null;
+        }
+        return sessionManagement.getInvalidSessionStrategy();
+    }
+
+    /**
+     * Creates the {@link AccessDeniedHandler} from the result of
+     * {@link #getDefaultAccessDeniedHandler(HttpSecurityBuilder)} and
+     * {@link #getInvalidSessionStrategy(HttpSecurityBuilder)}. If
+     * {@link #getInvalidSessionStrategy(HttpSecurityBuilder)} is non-null, then
+     * a {@link DelegatingAccessDeniedHandler} is used in combination with
+     * {@link InvalidSessionAccessDeniedHandler} and the
+     * {@link #getDefaultAccessDeniedHandler(HttpSecurityBuilder)}. Otherwise,
+     * only {@link #getDefaultAccessDeniedHandler(HttpSecurityBuilder)} is used.
+     *
+     * @param http the {@link HttpSecurityBuilder}
+     * @return the {@link AccessDeniedHandler}
+     */
+    private AccessDeniedHandler createAccessDeniedHandler(H http) {
+        InvalidSessionStrategy invalidSessionStrategy = getInvalidSessionStrategy(http);
+        AccessDeniedHandler defaultAccessDeniedHandler = getDefaultAccessDeniedHandler(http);
+        if(invalidSessionStrategy == null) {
+            return defaultAccessDeniedHandler;
+        }
+
+        InvalidSessionAccessDeniedHandler invalidSessionDeniedHandler = new InvalidSessionAccessDeniedHandler(invalidSessionStrategy);
+        LinkedHashMap<Class<? extends AccessDeniedException>, AccessDeniedHandler> handlers =
+                new LinkedHashMap<Class<? extends AccessDeniedException>, AccessDeniedHandler>();
+        handlers.put(MissingCsrfTokenException.class, invalidSessionDeniedHandler);
+        return new DelegatingAccessDeniedHandler(handlers, defaultAccessDeniedHandler);
     }
 }

@@ -15,25 +15,16 @@
  */
 package org.springframework.security.web.csrf;
 
-import javax.servlet.http.HttpServletRequest;
-
 /**
- * Thrown when an expected {@link CsrfToken} exists, but it does not match the
- * value present on the {@link HttpServletRequest}
+ * Thrown when no expected {@link CsrfToken} is found but is required.
  *
  * @author Rob Winch
  * @since 3.2
  */
 @SuppressWarnings("serial")
-public class InvalidCsrfTokenException extends CsrfException {
+public class MissingCsrfTokenException extends CsrfException {
 
-    /**
-     * @param msg
-     */
-    public InvalidCsrfTokenException(CsrfToken expectedAccessToken, String actualAccessToken) {
-        super("Invalid CSRF Token '" + actualAccessToken
-                + "' was found on the request parameter '"
-                + expectedAccessToken.getParameterName() + "' or header '"
-                + expectedAccessToken.getHeaderName() + "'.");
+    public MissingCsrfTokenException(String actualToken) {
+        super("Expected CSRF token not found. Has your session expired?");
     }
 }

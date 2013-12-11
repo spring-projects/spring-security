@@ -18,19 +18,20 @@ package org.springframework.security.config.annotation.web.configurers
 import javax.servlet.http.HttpServletResponse
 
 import org.springframework.context.annotation.Configuration
+import org.springframework.mock.web.MockHttpServletRequest
+import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.web.access.AccessDeniedHandler
-import org.springframework.security.web.csrf.CsrfFilter;
-import org.springframework.security.web.csrf.CsrfTokenRepository;
-import org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.web.servlet.support.RequestDataValueProcessor;
+import org.springframework.security.web.csrf.CsrfFilter
+import org.springframework.security.web.csrf.CsrfTokenRepository
+import org.springframework.security.web.util.matcher.RequestMatcher
+import org.springframework.web.servlet.support.RequestDataValueProcessor
 
-import spock.lang.Unroll;
+import spock.lang.Unroll
 
 /**
  *
@@ -97,6 +98,37 @@ class CsrfConfigurerTests extends BaseSpringSpec {
         protected void configure(HttpSecurity http) throws Exception {
             http
                 .csrf().disable()
+        }
+    }
+
+    def "SEC-2422: csrf expire CSRF token and session-management invalid-session-url"() {
+        setup:
+            loadConfig(InvalidSessionUrlConfig)
+            request.session.clearAttributes()
+            request.setParameter("_csrf","abc")
+            request.method = "POST"
+        when: "No existing expected CsrfToken (session times out) and a POST"
+            springSecurityFilterChain.doFilter(request,response,chain)
+        then: "sent to the session timeout page page"
+            response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
+            response.redirectedUrl == "/error/sessionError"
+        when: "Existing expected CsrfToken and a POST (invalid token provided)"
+            response = new MockHttpServletResponse()
+            request = new MockHttpServletRequest(session: request.session, method:'POST')
+            springSecurityFilterChain.doFilter(request,response,chain)
+        then: "Access Denied occurs"
+            response.status == HttpServletResponse.SC_FORBIDDEN
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    static class InvalidSessionUrlConfig extends WebSecurityConfigurerAdapter {
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .csrf().and()
+                .sessionManagement()
+                    .invalidSessionUrl("/error/sessionError")
         }
     }
 

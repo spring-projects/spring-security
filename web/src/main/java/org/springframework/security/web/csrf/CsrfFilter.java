@@ -73,7 +73,8 @@ public final class CsrfFilter extends OncePerRequestFilter {
             HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         CsrfToken csrfToken = tokenRepository.loadToken(request);
-        if(csrfToken == null) {
+        final boolean missingToken = csrfToken == null;
+        if(missingToken) {
             CsrfToken generatedToken = tokenRepository.generateToken(request);
             csrfToken = new SaveOnAccessCsrfToken(tokenRepository, request, response, generatedToken);
         }
@@ -93,7 +94,11 @@ public final class CsrfFilter extends OncePerRequestFilter {
             if(logger.isDebugEnabled()) {
                 logger.debug("Invalid CSRF token found for " + UrlUtils.buildFullRequestUrl(request));
             }
-            accessDeniedHandler.handle(request, response, new InvalidCsrfTokenException(csrfToken, actualToken));
+            if(missingToken) {
+                accessDeniedHandler.handle(request, response, new MissingCsrfTokenException(actualToken));
+            } else {
+                accessDeniedHandler.handle(request, response, new InvalidCsrfTokenException(csrfToken, actualToken));
+            }
             return;
         }
 
