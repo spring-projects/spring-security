@@ -501,16 +501,4 @@ public class NamespaceHttpTests extends BaseSpringSpec {
             findFilter(FilterSecurityInterceptor).securityMetadataSource.class == DefaultFilterInvocationSecurityMetadataSource
             findFilter(FilterSecurityInterceptor).accessDecisionManager.decisionVoters.collect { it.class } == [RoleVoter, AuthenticatedVoter]
     }
-
-    @Configuration
-    @EnableWebSecurity
-    static class DisableUseExpressionsConfig extends BaseWebConfig {
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .apply(new UrlAuthorizationConfigurer()).getRegistry()
-                    .antMatchers("/users**","/sessions/**").hasRole("USER")
-                    .antMatchers("/signup").hasRole("ANONYMOUS")
-                    .anyRequest().hasRole("USER")
-        }
-    }
 }

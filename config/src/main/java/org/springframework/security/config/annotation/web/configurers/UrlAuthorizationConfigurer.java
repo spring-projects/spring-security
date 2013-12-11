@@ -27,6 +27,7 @@ import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -48,10 +49,10 @@ import org.springframework.util.Assert;
  * <pre>
  * protected void configure(HttpSecurity http) throws Exception {
  *     http
- *         .apply(new UrlAuthorizationConfigurer()).getRegistry()
- *             .antMatchers("/users**","/sessions/**").hasRole("USER")
- *             .antMatchers("/signup").hasRole("ANONYMOUS")
- *             .anyRequest().hasRole("USER")
+ *          .apply(new UrlAuthorizationConfigurer<HttpSecurity>()).getRegistry()
+ *              .antMatchers("/users**","/sessions/**").hasRole("USER")
+ *              .antMatchers("/signup").hasRole("ANONYMOUS")
+ *              .anyRequest().hasRole("USER");
  * }
  * </pre>
  *
