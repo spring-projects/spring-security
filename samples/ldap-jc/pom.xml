@@ -8,10 +8,10 @@
   <packaging>war</packaging>
   <name>spring-security-samples-ldap-jc</name>
   <description>spring-security-samples-ldap-jc</description>
-  <url>http://springsource.org/spring-security</url>
+  <url>http://spring.io/spring-security</url>
   <organization>
-    <name>SpringSource</name>
-    <url>http://springsource.org/</url>
+    <name>spring.io</name>
+    <url>http://spring.io/</url>
   </organization>
   <licenses>
     <license>
@@ -28,9 +28,9 @@
     </developer>
   </developers>
   <scm>
-    <connection>scm:git:git://github.com/SpringSource/spring-security</connection>
-    <developerConnection>scm:git:git://github.com/SpringSource/spring-security</developerConnection>
-    <url>https://github.com/SpringSource/spring-security</url>
+    <connection>scm:git:git://github.com/spring-projects/spring-security</connection>
+    <developerConnection>scm:git:git://github.com/spring-projects/spring-security</developerConnection>
+    <url>https://github.com/spring-projects/spring-security</url>
   </scm>
   <build>
     <plugins>
@@ -168,7 +168,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
-      <version>3.2.4.RELEASE</version>
+      <version>3.2.6.RELEASE</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -180,13 +180,13 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
-      <version>3.2.4.RELEASE</version>
+      <version>3.2.6.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
-      <version>3.2.4.RELEASE</version>
+      <version>3.2.6.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -253,7 +253,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>3.2.4.RELEASE</version>
+      <version>3.2.6.RELEASE</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

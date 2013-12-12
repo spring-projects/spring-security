@@ -25,13 +25,12 @@ allprojects {
 
     ext.releaseBuild = version.endsWith('RELEASE')
     ext.snapshotBuild = version.endsWith('SNAPSHOT')
-    ext.springVersion = '3.2.4.RELEASE'
-    ext.spring4Version = '4.0.0.BUILD-SNAPSHOT'
+    ext.springVersion = '3.2.6.RELEASE'
+    ext.spring4Version = '4.0.0.RELEASE'
 
     group = 'org.springframework.security'
 
     repositories {
-       maven { url "http://repo.springsource.org/libs-snapshot" }
        maven { url "http://repo.springsource.org/plugins-release" }
        maven { url "http://repo.terracotta.org/maven2/" }
     }
