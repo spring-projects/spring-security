@@ -15,9 +15,6 @@
  */
 package org.springframework.security.web.servlet.support.csrf;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +23,6 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.web.servlet.support.RequestDataValueProcessor;
 
 /**
@@ -36,7 +32,7 @@ import org.springframework.web.servlet.support.RequestDataValueProcessor;
  * @author Rob Winch
  * @since 3.2
  */
-public final class CsrfRequestDataValueProcessor {
+public final class CsrfRequestDataValueProcessor implements RequestDataValueProcessor {
     private Pattern DISABLE_CSRF_TOKEN_PATTERN = Pattern.compile("(?i)^(GET|HEAD|TRACE|OPTIONS)$");
 
     private String DISABLE_CSRF_TOKEN_ATTR = "DISABLE_CSRF_TOKEN_ATTR";
@@ -77,55 +73,5 @@ public final class CsrfRequestDataValueProcessor {
 
     public String processUrl(HttpServletRequest request, String url) {
         return url;
-    }
-
-    CsrfRequestDataValueProcessor() {}
-
-    /**
-     * Creates an instance of {@link CsrfRequestDataValueProcessor} that
-     * implements {@link RequestDataValueProcessor}. This is necessary to ensure
-     * compatibility between Spring 3 and Spring 4.
-     *
-     * @return an instance of {@link CsrfRequestDataValueProcessor} that
-     * implements {@link RequestDataValueProcessor}
-     */
-    public static RequestDataValueProcessor create() {
-        CsrfRequestDataValueProcessor target= new CsrfRequestDataValueProcessor();
-        ClassLoader classLoader = CsrfRequestDataValueProcessor.class.getClassLoader();
-        Class<?>[] interfaces = new Class[] { RequestDataValueProcessor.class};
-        TypeConversionInterceptor interceptor = new TypeConversionInterceptor(target);
-        return (RequestDataValueProcessor) Proxy.newProxyInstance(classLoader, interfaces, interceptor);
-    }
-
-    /**
-     * An {@link InvocationHandler} that assumes the target has all the method
-     * defined on it, but the target does not implement the interface. This is
-     * necessary to deal with the fact that Spring 3 and Spring 4 have different
-     * definitions for the {@link RequestDataValueProcessor} interface.
-     *
-     * @author Rob Winch
-     */
-    private static class TypeConversionInterceptor implements InvocationHandler {
-
-        private final Object target;
-
-        public TypeConversionInterceptor(Object target) {
-            this.target = target;
-        }
-
-        /* (non-Javadoc)
-         * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])
-         */
-        public Object invoke(Object proxy, Method method, Object[] args)
-                throws Throwable {
-            Method methodToInvoke = ReflectionUtils.findMethod(target.getClass(), method.getName(), method.getParameterTypes());
-            return methodToInvoke.invoke(target, args);
-        }
-
-        @Override
-        public String toString() {
-            return "RequestDataValueProcessorInterceptor [target=" + target
-                    + "]";
-        }
     }
 }

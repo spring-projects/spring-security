@@ -48,6 +48,6 @@ class WebMvcSecurityConfiguration extends WebMvcConfigurerAdapter {
 
     @Bean
     public RequestDataValueProcessor requestDataValueProcessor() {
-        return CsrfRequestDataValueProcessor.create();
+        return new CsrfRequestDataValueProcessor();
     }
 }

@@ -126,7 +126,7 @@ public class CsrfRequestDataValueProcessorTests {
         Map<String,String> expected = new HashMap<String,String>();
         expected.put(token.getParameterName(),token.getToken());
 
-        RequestDataValueProcessor processor = CsrfRequestDataValueProcessor.create();
+        RequestDataValueProcessor processor = new CsrfRequestDataValueProcessor();
         assertThat(processor.getExtraHiddenFields(request)).isEqualTo(expected);
     }
 }
