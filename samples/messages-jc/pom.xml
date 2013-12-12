@@ -56,12 +56,6 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>opensymphony</groupId>
-      <artifactId>sitemesh</artifactId>
-      <version>2.4.2</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>org.hibernate.javax.persistence</groupId>
       <artifactId>hibernate-jpa-2.0-api</artifactId>
       <version>1.0.0.Final</version>
@@ -167,6 +161,18 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
       <version>3.2.6.RELEASE</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.thymeleaf.extras</groupId>
+      <artifactId>thymeleaf-extras-tiles2</artifactId>
+      <version>2.1.0.RELEASE</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.thymeleaf</groupId>
+      <artifactId>thymeleaf-spring3</artifactId>
+      <version>2.1.2.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>

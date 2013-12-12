@@ -13,11 +13,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
             .authorizeRequests()
-                .antMatchers("/user/**").hasRole("ADMIN")
                 .antMatchers("/resources/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
             .openidLogin()
+                .loginPage("/login")
                 .permitAll()
                 .authenticationUserDetailsService(new CustomUserDetailsService())
                 .attributeExchange("https://www.google.com/.*")

@@ -19,3 +19,4 @@ build/
 *.iws
 .gradle/
 atlassian-ide-plugin.xml
+/samples

@@ -14,8 +14,7 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
--->
-<Server port="8006" shutdown="SHUTDOWN">
+--><Server port="8006" shutdown="SHUTDOWN">
     <Listener SSLEngine="on" className="org.apache.catalina.core.AprLifecycleListener"/>
     <Listener className="org.apache.catalina.core.JasperListener"/>
     <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener"/>
@@ -29,18 +28,7 @@
     <Service name="Catalina">
         <Connector connectionTimeout="20000" port="8080" protocol="HTTP/1.1" redirectPort="8443"/>
 
-        <Connector SSLEnabled="true"
-            maxThreads="150"
-            port="8443"
-            protocol="HTTP/1.1"
-            scheme="https"
-            secure="true"
-            sslProtocol="TLS"
-            keystoreFile="${basedir}/samples/x509/src/etc/server.jks"
-            keystorePass="changeit"
-            truststoreFile="${basedir}/samples/x509/src/etc/server.jks"
-            trustStorePass="changeit"
-            clientAuth="true"/>
+        <Connector SSLEnabled="true" clientAuth="true" keystoreFile="${basedir}/samples/x509-jc/src/etc/server.jks" keystorePass="password" maxThreads="150" port="8443" protocol="HTTP/1.1" scheme="https" secure="true" sslProtocol="TLS" trustStorePass="password" truststoreFile="${basedir}/samples/x509-jc/src/etc/server.jks"/>
 
         <Connector port="8010" protocol="AJP/1.3" redirectPort="8443"/>
 
@@ -52,7 +40,7 @@
 
             <Host appBase="webapps" autoDeploy="true" name="localhost" unpackWARs="true">
                 <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs" pattern="%h %l %u %t &quot;%r&quot; %s %b" prefix="localhost_access_log." suffix=".txt"/>
-            </Host>
+            <Context docBase="spring-security-samples-x509-jc-3.2.x" path="/sample" reloadable="true" source="org.eclipse.jst.j2ee.server:spring-security-samples-x509-jc-3.2.x"/></Host>
         </Engine>
     </Service>
 </Server>

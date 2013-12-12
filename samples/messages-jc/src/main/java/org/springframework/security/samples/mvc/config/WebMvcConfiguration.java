@@ -10,7 +10,12 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-import org.springframework.web.servlet.view.InternalResourceViewResolver;
+import org.thymeleaf.extras.tiles2.dialect.TilesDialect;
+import org.thymeleaf.extras.tiles2.spring.web.configurer.ThymeleafTilesConfigurer;
+import org.thymeleaf.extras.tiles2.spring.web.view.ThymeleafTilesView;
+import org.thymeleaf.spring3.SpringTemplateEngine;
+import org.thymeleaf.spring3.view.ThymeleafViewResolver;
+import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 @EnableWebMvc
 @ComponentScan("org.springframework.security.samples.mvc")
@@ -27,16 +32,40 @@ public class WebMvcConfiguration extends WebMvcConfigurerAdapter {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/resources/**").addResourceLocations("/resources/").setCachePeriod(31556926);
+        registry.addResourceHandler("/resources/**").addResourceLocations("classpath:/resources/").setCachePeriod(31556926);
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
     }
 
     @Bean
-    public InternalResourceViewResolver jspxViewResolver() {
-        InternalResourceViewResolver result = new InternalResourceViewResolver();
-        result.setPrefix("/WEB-INF/views/");
-        result.setSuffix(".jspx");
+    public ClassLoaderTemplateResolver templateResolver() {
+        ClassLoaderTemplateResolver result = new ClassLoaderTemplateResolver();
+        result.setPrefix("views/");
+        result.setSuffix(".html");
+        result.setTemplateMode("HTML5");
         return result;
+    }
+
+    @Bean
+    public ThymeleafTilesConfigurer tilesConfigurer() {
+        ThymeleafTilesConfigurer tilesConfigurer = new ThymeleafTilesConfigurer();
+        tilesConfigurer.setDefinitions(new String[] { "classpath:tiles/tiles-def.xml"});
+        return tilesConfigurer;
+    }
+
+    @Bean
+    public SpringTemplateEngine templateEngine(ClassLoaderTemplateResolver templateResolver) {
+        SpringTemplateEngine templateEngine = new SpringTemplateEngine();
+        templateEngine.setTemplateResolver(templateResolver);
+        templateEngine.addDialect(new TilesDialect());
+        return templateEngine;
+    }
+
+    @Bean
+    public ThymeleafViewResolver viewResolver(SpringTemplateEngine templateEngine) {
+        ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
+        viewResolver.setTemplateEngine(templateEngine);
+        viewResolver.setViewClass(ThymeleafTilesView.class);
+        return viewResolver;
     }
 
     @Bean

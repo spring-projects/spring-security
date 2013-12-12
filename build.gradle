@@ -31,6 +31,7 @@ allprojects {
     group = 'org.springframework.security'
 
     repositories {
+       mavenCentral()
        maven { url "http://repo.springsource.org/plugins-release" }
        maven { url "http://repo.terracotta.org/maven2/" }
     }

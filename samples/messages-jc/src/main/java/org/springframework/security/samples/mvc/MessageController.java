@@ -35,6 +35,13 @@ public class MessageController {
         return new ModelAndView("messages/show", "message", message);
     }
 
+    @RequestMapping(value = "{id}", method=RequestMethod.DELETE)
+    public String delete(@PathVariable("id") Message message, RedirectAttributes redirect) {
+        messageRepository.delete(message);
+        redirect.addFlashAttribute("globalMessage", "Message removed successfully");
+        return "redirect:/";
+    }
+
     @RequestMapping(params="form", method=RequestMethod.GET)
     public String createForm(@ModelAttribute Message message) {
         return "messages/compose";
