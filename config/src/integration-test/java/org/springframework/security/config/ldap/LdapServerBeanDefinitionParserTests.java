@@ -12,7 +12,10 @@
  */
 package org.springframework.security.config.ldap;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
+import java.io.IOException;
+import java.net.ServerSocket;
 
 import org.junit.After;
 import org.junit.Test;
@@ -50,10 +53,11 @@ public class LdapServerBeanDefinitionParserTests {
     }
 
     @Test
-    public void useOfUrlAttributeCreatesCorrectContextSource() {
+    public void useOfUrlAttributeCreatesCorrectContextSource() throws Exception {
+        int port = getDefaultPort();
         // Create second "server" with a url pointing at embedded one
-        appCtx = new InMemoryXmlApplicationContext("<ldap-server ldif='classpath:test-server.ldif' port='33388'/>" +
-                "<ldap-server ldif='classpath:test-server.ldif' id='blah' url='ldap://127.0.0.1:33388/dc=springframework,dc=org' />");
+        appCtx = new InMemoryXmlApplicationContext("<ldap-server ldif='classpath:test-server.ldif' port='" + port + "'/>" +
+                "<ldap-server ldif='classpath:test-server.ldif' id='blah' url='ldap://127.0.0.1:" + port + "/dc=springframework,dc=org' />");
 
         // Check the default context source is still there.
         appCtx.getBean(BeanIds.CONTEXT_SOURCE);
@@ -82,5 +86,17 @@ public class LdapServerBeanDefinitionParserTests {
         ApacheDSContainer dsContainer = appCtx.getBean(ApacheDSContainer.class);
 
         assertEquals("classpath*:*.ldif", ReflectionTestUtils.getField(dsContainer, "ldifResources"));
+    }
+
+    private int getDefaultPort() throws IOException {
+        ServerSocket server = null;
+        try {
+            server = new ServerSocket(0);
+            return server.getLocalPort();
+        } finally {
+            try {
+                server.close();
+            } catch(IOException e) {}
+        }
     }
 }
