@@ -65,6 +65,17 @@ public class HttpSessionCsrfTokenRepositoryTests {
     }
 
     @Test
+    public void generateCustomHeader() {
+        String headerName = "CSRF";
+        repo.setHeaderName(headerName);
+
+        token = repo.generateToken(request);
+
+        assertThat(token.getHeaderName()).isEqualTo(headerName);
+        assertThat(token.getToken()).isNotEmpty();
+    }
+
+    @Test
     public void loadTokenNull() {
         assertThat(repo.loadToken(request)).isNull();
         assertThat(request.getSession(false)).isNull();
@@ -116,7 +127,7 @@ public class HttpSessionCsrfTokenRepositoryTests {
     public void saveTokenNullTokenWhenSessionNotExists() {
 
         repo.saveToken(null, request, response);
-        
+
         assertThat(request.getSession(false)).isNull();
     }
 

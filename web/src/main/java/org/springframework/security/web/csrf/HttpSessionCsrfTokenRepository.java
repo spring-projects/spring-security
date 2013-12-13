@@ -91,13 +91,14 @@ public final class HttpSessionCsrfTokenRepository implements CsrfTokenRepository
      * Sets the header name that the {@link CsrfToken} is expected to appear on
      * and the header that the response will contain the {@link CsrfToken}.
      *
-     * @param parameterName
-     *            the new parameter name to use
+     * @param headerName
+     *            the new header name to use
      */
-    public void setHeaderName(String parameterName) {
-        Assert.hasLength(parameterName, "parameterName cannot be null or empty");
-        this.parameterName = parameterName;
+    public void setHeaderName(String headerName) {
+        Assert.hasLength(headerName, "headerName cannot be null or empty");
+        this.headerName = headerName;
     }
+
 
     /**
      * Sets the {@link HttpSession} attribute name that the {@link CsrfToken} is stored in
