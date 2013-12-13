@@ -1,5 +1,8 @@
 package org.springframework.security.config.ldap;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -9,6 +12,7 @@ import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.config.BeanIds;
+import org.springframework.security.ldap.server.ApacheDSContainer;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
@@ -40,7 +44,8 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 
     /** Defines the port the LDAP_PROVIDER server should run on */
     public static final String ATT_PORT = "port";
-    public static final String OPT_DEFAULT_PORT = "33389";
+    private static final int DEFAULT_PORT = 33389;
+    public static final String OPT_DEFAULT_PORT = String.valueOf(DEFAULT_PORT);
 
 
     public BeanDefinition parse(Element elt, ParserContext parserContext) {
@@ -101,7 +106,10 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
         String port = element.getAttribute(ATT_PORT);
 
         if (!StringUtils.hasText(port)) {
-            port = OPT_DEFAULT_PORT;
+            port = getDefaultPort();
+            if(logger.isDebugEnabled()) {
+                logger.debug("Using default port of " + port);
+            }
         }
 
         String url = "ldap://127.0.0.1:" + port + "/" + suffix;
@@ -133,5 +141,27 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
         parserContext.getRegistry().registerBeanDefinition(BeanIds.EMBEDDED_APACHE_DS, apacheContainer);
 
         return (RootBeanDefinition) contextSource.getBeanDefinition();
+    }
+
+    private String getDefaultPort() {
+        ServerSocket serverSocket = null;
+        try {
+            try {
+                serverSocket = new ServerSocket(DEFAULT_PORT);
+            } catch (IOException e) {
+                try {
+                    serverSocket = new ServerSocket(0);
+                } catch(IOException e2) {
+                    return String.valueOf(DEFAULT_PORT);
+                }
+            }
+            return String.valueOf(serverSocket.getLocalPort());
+        } finally {
+            if(serverSocket != null) {
+                try {
+                    serverSocket.close();
+                } catch (IOException e) {}
+            }
+        }
     }
 }
