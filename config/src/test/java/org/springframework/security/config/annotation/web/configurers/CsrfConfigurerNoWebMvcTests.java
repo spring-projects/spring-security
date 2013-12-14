@@ -16,30 +16,21 @@
 package org.springframework.security.config.annotation.web.configurers;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.mockito.PowerMockito.when;
 
 import org.junit.After;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.util.ClassUtils;
+import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
 
 /**
  * @author Rob Winch
  *
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ClassUtils.class})
 public class CsrfConfigurerNoWebMvcTests {
     ConfigurableApplicationContext context;
 
@@ -52,24 +43,30 @@ public class CsrfConfigurerNoWebMvcTests {
 
     @Test
     public void missingDispatcherServletPreventsCsrfRequestDataValueProcessor() {
-        spy(ClassUtils.class);
-        when(ClassUtils.isPresent(eq("org.springframework.web.servlet.DispatcherServlet"), any(ClassLoader.class))).thenReturn(false);
-
-        loadContext(CsrfDefaultsConfig.class);
+        loadContext(EnableWebConfig.class);
 
         assertThat(context.containsBeanDefinition("requestDataValueProcessor")).isFalse();
     }
 
     @Test
     public void findDispatcherServletPreventsCsrfRequestDataValueProcessor() {
-        loadContext(CsrfDefaultsConfig.class);
+        loadContext(EnableWebMvcConfig.class);
 
         assertThat(context.containsBeanDefinition("requestDataValueProcessor")).isTrue();
     }
 
     @EnableWebSecurity
     @Configuration
-    static class CsrfDefaultsConfig extends WebSecurityConfigurerAdapter {
+    static class EnableWebConfig extends WebSecurityConfigurerAdapter {
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+        }
+    }
+
+    @EnableWebMvcSecurity
+    @Configuration
+    static class EnableWebMvcConfig extends WebSecurityConfigurerAdapter {
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
