@@ -52,7 +52,7 @@ dependencies {
     }
 
 
-    testRuntime "hsqldb:hsqldb:$hsqlVersion",
+    testRuntime "org.hsqldb:hsqldb:$hsqlVersion",
                 "cglib:cglib-nodep:2.2"
 }
 

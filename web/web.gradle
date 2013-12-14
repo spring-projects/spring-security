@@ -22,5 +22,5 @@ dependencies {
                 "org.codehaus.groovy:groovy:$groovyVersion",
                 powerMockDependencies
 
-    testRuntime "hsqldb:hsqldb:$hsqlVersion"
+    testRuntime "org.hsqldb:hsqldb:$hsqlVersion"
 }

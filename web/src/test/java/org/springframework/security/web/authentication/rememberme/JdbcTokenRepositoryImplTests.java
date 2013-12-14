@@ -56,7 +56,7 @@ public class JdbcTokenRepositoryImplTests {
     @BeforeClass
     public static void createDataSource() {
         dataSource = new SingleConnectionDataSource("jdbc:hsqldb:mem:tokenrepotest", "sa", "", true);
-        dataSource.setDriverClassName("org.hsqldb.jdbcDriver");
+        dataSource.setDriverClassName("org.hsqldb.jdbc.JDBCDriver");
     }
 
     @AfterClass
@@ -72,8 +72,8 @@ public class JdbcTokenRepositoryImplTests {
         repo.setDataSource(dataSource);
         repo.initDao();
         template = repo.getJdbcTemplate();
-        template.execute("create table persistent_logins (username varchar not null, " +
-                "series varchar not null, token varchar not null, last_used timestamp not null)");
+        template.execute("create table persistent_logins (username varchar(100) not null, " +
+                "series varchar(100) not null, token varchar(500) not null, last_used timestamp not null)");
     }
 
     @After

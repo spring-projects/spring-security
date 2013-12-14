@@ -30,7 +30,7 @@ dependencies {
                 "org.slf4j:jcl-over-slf4j:$slf4jVersion",
                 powerMockDependencies
 
-    testRuntime "hsqldb:hsqldb:$hsqlVersion",
+    testRuntime "org.hsqldb:hsqldb:$hsqlVersion",
                 "cglib:cglib-nodep:$cglibVersion"
 }
 

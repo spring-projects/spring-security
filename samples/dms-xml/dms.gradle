@@ -9,7 +9,7 @@ dependencies {
     testCompile "org.springframework:spring-context:$springVersion"
 
     runtime project(':spring-security-config'),
-            "hsqldb:hsqldb:$hsqlVersion",
+            "org.hsqldb:hsqldb:$hsqlVersion",
             "org.springframework:spring-context-support:$springVersion"
 
     optional "net.sf.ehcache:ehcache:$ehcacheVersion"

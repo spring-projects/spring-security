@@ -37,7 +37,7 @@ dependencies {
             'org.apache.directory.server:apacheds-core:1.5.5',
             'org.apache.directory.server:apacheds-server-jndi:1.5.5',
             'org.freemarker:freemarker:2.3.16',
-            "hsqldb:hsqldb:1.8.0.10",
+            "org.hsqldb:hsqldb:1.8.0.10",
             'org.slf4j:slf4j-log4j12:1.5.11',
             'log4j:log4j:1.2.14'
 }

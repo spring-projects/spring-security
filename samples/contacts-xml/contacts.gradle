@@ -20,7 +20,7 @@ dependencies {
             project(':spring-security-taglibs'),
             "org.springframework:spring-context-support:$springVersion",
             "javax.servlet:jstl:$jstlVersion",
-            "hsqldb:hsqldb:$hsqlVersion",
+            "org.hsqldb:hsqldb:$hsqlVersion",
             "org.slf4j:jcl-over-slf4j:$slf4jVersion",
             "ch.qos.logback:logback-classic:$logbackVersion",
             "net.sf.ehcache:ehcache:$ehcacheVersion"
