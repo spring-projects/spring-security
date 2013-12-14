@@ -27,6 +27,9 @@ import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationListener
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.AnnotationAwareOrderComparator
+import org.springframework.core.annotation.Order
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.AuthenticationTrustResolver
@@ -283,4 +286,18 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
             return TR
         }
     }
+
+    def "WebSecurityConfigurerAdapter has Ordered between 0 and lowest priority"() {
+        when:
+            def lowestConfig = new LowestPriorityWebSecurityConfig()
+            def defaultConfig = new DefaultOrderWebSecurityConfig()
+            def compare = new AnnotationAwareOrderComparator()
+        then: "the default ordering is between 0 and lowest priority (Boot adapters)"
+            compare.compare(lowestConfig, defaultConfig) > 0
+    }
+
+    class DefaultOrderWebSecurityConfig extends WebSecurityConfigurerAdapter {}
+
+    @Order(Ordered.LOWEST_PRECEDENCE)
+    class LowestPriorityWebSecurityConfig extends WebSecurityConfigurerAdapter {}
 }

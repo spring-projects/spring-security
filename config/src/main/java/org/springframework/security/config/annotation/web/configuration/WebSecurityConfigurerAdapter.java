@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
@@ -53,6 +54,7 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  *
  * @author Rob Winch
  */
+@Order(100)
 public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigurer<WebSecurity> {
     private final Log logger = LogFactory.getLog(WebSecurityConfigurerAdapter.class);
 
