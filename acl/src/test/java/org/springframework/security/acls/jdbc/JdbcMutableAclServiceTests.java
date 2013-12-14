@@ -105,6 +105,7 @@ public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4Sprin
         jdbcTemplate.execute("drop table acl_object_identity");
         jdbcTemplate.execute("drop table acl_class");
         jdbcTemplate.execute("drop table acl_sid");
+        aclCache.clearCache();
     }
 
     @Test
