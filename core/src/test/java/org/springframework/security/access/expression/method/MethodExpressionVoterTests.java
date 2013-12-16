@@ -6,13 +6,13 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Test;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.expression.method.PreInvocationExpressionAttribute;
 import org.springframework.security.access.prepost.PreInvocationAuthorizationAdviceVoter;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.util.SimpleMethodInvocation;
@@ -51,7 +51,8 @@ public class MethodExpressionVoterTests {
         assertEquals(AccessDecisionVoter.ACCESS_GRANTED,
                 am.vote(joe, mi, createAttributes(new PreInvocationExpressionAttribute("(filterObject == 'jim')", "collection", null))));
         // All objects should have been removed, because the expression is always false
-        assertEquals(0, arg.size());
+        List filteredArg = ((List) mi.getArguments()[0]);
+        assertEquals(0, filteredArg.size());
     }
 
     @Test
@@ -59,9 +60,19 @@ public class MethodExpressionVoterTests {
         List arg = createCollectionArg("joe", "bob", "sam");
         MethodInvocation mi = new SimpleMethodInvocation(new TargetImpl(), methodTakingACollection(), arg);
         am.vote(joe, mi, createAttributes(new PreInvocationExpressionAttribute("(filterObject == 'joe' or filterObject == 'sam')", "collection", "permitAll")));
-        assertEquals("joe and sam should still be in the list", 2, arg.size());
-        assertEquals("joe", arg.get(0));
-        assertEquals("sam", arg.get(1));
+        List filteredArg = ((List) mi.getArguments()[0]);
+        assertEquals("joe and sam should still be in the list", 2, filteredArg.size());
+        assertEquals("joe", filteredArg.get(0));
+        assertEquals("sam", filteredArg.get(1));
+    }
+
+    @Test
+    public void collectionPreFilteringIsSuccessfulEvenWithAnImmutableList() throws Exception {
+        List arg = Collections.singletonList("joe");
+        MethodInvocation mi = new SimpleMethodInvocation(new TargetImpl(), methodTakingACollection(), arg);
+        assertEquals(AccessDecisionVoter.ACCESS_GRANTED,
+                     am.vote(joe, mi, createAttributes(new PreInvocationExpressionAttribute("(filterObject == 'joe')", "collection", "permitAll"))));
+        assertEquals("joe should still be the argument list", arg, mi.getArguments()[0]);
     }
 
     @Test(expected=IllegalArgumentException.class)

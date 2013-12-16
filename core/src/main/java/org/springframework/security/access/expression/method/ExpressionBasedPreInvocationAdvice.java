@@ -30,8 +30,8 @@ public class ExpressionBasedPreInvocationAdvice implements PreInvocationAuthoriz
 
         if (preFilter != null) {
             Object filterTarget = findFilterTarget(preAttr.getFilterTarget(), ctx, mi);
-
-            expressionHandler.filter(filterTarget, preFilter, ctx);
+            Object filterResult = expressionHandler.filter(filterTarget, preFilter, ctx);
+            replaceFirstMethodArgument(mi, filterResult);
         }
 
         if (preAuthorize == null) {
@@ -67,6 +67,14 @@ public class ExpressionBasedPreInvocationAdvice implements PreInvocationAuthoriz
         }
 
         return filterTarget;
+    }
+
+    private void replaceFirstMethodArgument(MethodInvocation mi, Object newFirstArgument) {
+        Object[] arguments = mi.getArguments();
+        if (arguments.length == 0) {
+            throw new IllegalArgumentException("Filter target had no argument to replace.");
+        }
+        arguments[0] = newFirstArgument;
     }
 
 
