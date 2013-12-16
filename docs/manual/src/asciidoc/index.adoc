@@ -5873,10 +5873,26 @@ Refer to the Javadoc for additional integrations with both the Java concurrent A
 
 Spring Security provides a number of optional integrations with Spring MVC. This section covers the integration in further detail.
 
+[[mvc-enablewebmvcsecurity]]
+=== @EnableWebMvcSecurity
+
+To enable Spring Security integration with Spring MVC add the `@EnableWebMvcSecurity` annotation to your configuration. A typical example will look something like this:
+
+[source,java]
+----
+@Configuration
+@EnableWebMvcSecurity
+public class SecurityConfig {
+    // ...
+}
+----
+
 [[mvc-authentication-principal]]
 === @AuthenticationPrincipal
 
-Spring Security provides ability to automatically resolve the current `Authentication.getPrincipal()` for Spring MVC arguments. This means that you can be entirely decoupled from Spring Security in your Spring MVC layer.
+Spring Security provides `AuthenticationPrincipalArgumentResolver` which can automatically resolve the current `Authentication.getPrincipal()` for Spring MVC arguments. By using <<mvc-enablewebmvcsecurity>> you will automatically have this added to your Spring MVC configuration. If you use XML based configuraiton, you must add this yourself.
+
+Once `AuthenticationPrincipalArgumentResolver` is properly configured, you can be entirely decoupled from Spring Security in your Spring MVC layer.
 
 Consider a situation where a custom `UserDetailsService` that returns an `Object` that implements `UserDetails` and your own `CustomUser` `Object`. The `CustomUser` of the currently authenticated user could be accessed using the following code:
 
