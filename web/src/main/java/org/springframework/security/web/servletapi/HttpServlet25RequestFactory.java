@@ -15,6 +15,9 @@ package org.springframework.security.web.servletapi;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.util.Assert;
+
 /**
  * Creates a {@link SecurityContextHolderAwareRequestWrapper}
  *
@@ -23,12 +26,14 @@ import javax.servlet.http.HttpServletResponse;
  */
 final class HttpServlet25RequestFactory implements HttpServletRequestFactory {
     private final String rolePrefix;
+    private final AuthenticationTrustResolver trustResolver;
 
-    HttpServlet25RequestFactory(String rolePrefix) {
+    HttpServlet25RequestFactory(AuthenticationTrustResolver trustResolver, String rolePrefix) {
+        this.trustResolver = trustResolver;
         this.rolePrefix = rolePrefix;
     }
 
     public HttpServletRequest create(HttpServletRequest request, HttpServletResponse response) {
-        return new SecurityContextHolderAwareRequestWrapper(request, rolePrefix) ;
+        return new SecurityContextHolderAwareRequestWrapper(request, trustResolver, rolePrefix) ;
     }
 }

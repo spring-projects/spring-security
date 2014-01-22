@@ -1,4 +1,5 @@
 // Taglibs build file
+apply plugin: 'groovy'
 
 dependencies {
     compile project(':spring-security-core'),
@@ -13,5 +14,12 @@ dependencies {
     provided 'javax.servlet:jsp-api:2.0',
              "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion"
 
+    testCompile "org.codehaus.groovy:groovy-all:$groovyVersion",
+                "org.spockframework:spock-core:$spockVersion"
+
     testRuntime "javax.servlet:jstl:$jstlVersion"
+}
+
+configure([test,spring4Test]) {
+    systemProperties['springSecurityVersion'] = version
 }

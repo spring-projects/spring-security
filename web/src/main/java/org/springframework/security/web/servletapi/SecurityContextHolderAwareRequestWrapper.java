@@ -28,6 +28,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.Assert;
 
 
 /**
@@ -46,11 +47,12 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @author Orlando Garcia Carmona
  * @author Ben Alex
  * @author Luke Taylor
+ * @author Rob Winch
  */
 public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequestWrapper {
     //~ Instance fields ================================================================================================
 
-    private final AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
+    private final AuthenticationTrustResolver trustResolver;
 
     /**
      * The prefix passed by the filter. It will be prepended to any supplied role values before
@@ -60,10 +62,30 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 
     //~ Constructors ===================================================================================================
 
+    /**
+     * Creates a new instance with {@link AuthenticationTrustResolverImpl}.
+     *
+     * @param request
+     * @param rolePrefix
+     */
     public SecurityContextHolderAwareRequestWrapper(HttpServletRequest request, String rolePrefix) {
-        super(request);
+        this(request, new AuthenticationTrustResolverImpl(), rolePrefix);
+    }
 
+    /**
+     * Creates a new instance
+     *
+     * @param request the original {@link HttpServletRequest}
+     * @param trustResolver
+     *            the {@link AuthenticationTrustResolver} to use. Cannot be
+     *            null.
+     * @param rolePrefix The prefix to be added to {@link #isUserInRole(String)} or null if no prefix.
+     */
+    public SecurityContextHolderAwareRequestWrapper(HttpServletRequest request, AuthenticationTrustResolver trustResolver, String rolePrefix) {
+        super(request);
+        Assert.notNull(trustResolver, "trustResolver cannot be null");
         this.rolePrefix = rolePrefix;
+        this.trustResolver = trustResolver;
     }
 
     //~ Methods ========================================================================================================
@@ -76,7 +98,7 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
     private Authentication getAuthentication() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if (!authenticationTrustResolver.isAnonymous(auth)) {
+        if (!trustResolver.isAnonymous(auth)) {
             return auth;
         }
 

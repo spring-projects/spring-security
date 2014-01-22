@@ -2,55 +2,43 @@
 apply plugin: 'base'
 
 task docs {
-    dependsOn 'manual:docbook', 'faq:docbookHtmlSingle', 'apidocs'
-}
-
-subprojects {
-    apply plugin: 'base'
-    apply plugin: 'docbook'
-
-    docbookHtmlSingle.stylesheet = new File(projectDir, 'src/xsl/html-single-custom.xsl')
-}
-
-project('faq') {
-    defaultTasks 'docbookHtmlSingle'
-    [docbookHtml, docbookFoPdf, docbookHtmlSingle]*.sourceFileName = 'faq.xml'
-    docbookHtmlSingle.suffix = ''
-
-    ext.spec = copySpec {
-        into ('faq') {
-            from("$buildDir/docs")
-            from("$projectDir/src/resources")
-        }
-    }
+    dependsOn 'manual:asciidoctor', 'apidocs', 'guides:asciidoctor'
 }
 
 project('manual') {
-    defaultTasks 'docbookHtml', 'docbookHtmlSingle', 'docbookFoPdf'
-    [docbookHtml, docbookFoPdf, docbookHtmlSingle]*.sourceFileName = 'springsecurity.xml'
+    apply plugin: 'base'
+    apply plugin: 'asciidoctor'
 
-    docbookHtml.stylesheet = new File(projectDir, 'src/xsl/html-custom.xsl')
-    docbookHtmlSingle.stylesheet = new File(projectDir, 'src/xsl/html-single-custom.xsl')
-    docbookFoPdf.stylesheet = new File(projectDir, 'src/xsl/pdf-custom.xsl')
-    def imagesDir = new File(projectDir, 'src/docbook/images');
-//    docbookFoPdf.admonGraphicsPath = "${imagesDir}/"
-    docbookFoPdf.imgSrcPath = "${projectDir}/src/docbook/"
+    ext.expandPlaceholders = ""
+
+    asciidoctor {
+        options = [
+          eruby: 'erubis',
+          attributes: [
+              copycss : '',
+              icons : 'font',
+              'source-highlighter': 'prettify',
+              sectanchors : '',
+              toc2: '',
+              idprefix: '',
+              idseparator: '-',
+              doctype: 'book',
+              numbered: '',
+              'spring-security-version' : project.version,
+              'spring-version' : springVersion,
+              'spring4-version' : spring4Version,
+              revnumber : project.version
+          ]
+        ]
+    }
+
 
     ext.spec = copySpec {
-        into ('reference') {
-            from("$buildDir/docs")
-            from("$projectDir/src/resources")
-        }
-        into ('reference/images') {
-            from (imagesDir)
+        into ('reference/htmlsingle') {
+            from(asciidoctor.outputDir)
+            exclude 'build', 'Guardfile'
         }
     }
-}
-
-task reference (type: Copy) {
-    dependsOn 'manual:docbook'
-    destinationDir = buildDir
-    with(project('manual').spec)
 }
 
 task apidocs(type: Javadoc) {
@@ -69,7 +57,7 @@ task apidocs(type: Javadoc) {
 apidocs.options.outputLevel = org.gradle.external.javadoc.JavadocOutputLevel.QUIET
 
 apidocs.options.links = [
-    "http://static.springframework.org/spring/docs/3.0.x/javadoc-api",
+    "http://static.springframework.org/spring/docs/3.2.x/javadoc-api",
     "http://static.springsource.org/spring-ldap/docs/1.3.x/apidocs/",
     "http://download.oracle.com/javase/6/docs/api/"
 ]
@@ -99,10 +87,11 @@ ext.apiSpec = copySpec {
     }
 }
 
-assemble.dependsOn = [apidocs, 'manual:docbook']
+assemble.dependsOn = [apidocs, 'manual:asciidoctor']
 
 task docsZip(type: Zip) {
     dependsOn docs
+    evaluationDependsOn('guides')
     group = 'Distribution'
     baseName = rootProject.name
     classifier = 'docs'
@@ -111,7 +100,7 @@ task docsZip(type: Zip) {
 
     with(project(':docs').apiSpec)
     with(project(':docs:manual').spec)
-    with(project(':docs:faq').spec)
+    with(project(':docs:guides').spec)
 }
 
 task schemaZip(type: Zip) {

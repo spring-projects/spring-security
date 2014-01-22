@@ -99,7 +99,7 @@ class OpenIDConfigTests extends AbstractHttpConfigTests {
         openIDFilter.setReturnToUrlParameters(returnToUrlParameters)
         assert loginFilter.openIDrememberMeParameter != null
 
-        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletRequest request = new MockHttpServletRequest(method:'GET');
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         when: "Initial request is made"

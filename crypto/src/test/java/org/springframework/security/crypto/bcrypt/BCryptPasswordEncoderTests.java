@@ -66,27 +66,20 @@ public class BCryptPasswordEncoderTests {
         assertTrue(encoder.matches("password", result));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void barfsOnNullEncodedValue() {
+    @Test
+    public void doesntMatchNullEncodedValue() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         assertFalse(encoder.matches("password", null));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void barfsOnEmptyEncodedValue() {
+    @Test
+    public void doesntMatchEmptyEncodedValue() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         assertFalse(encoder.matches("password", ""));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void barfsOnShortEncodedValue() {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String result = encoder.encode("password");
-        assertFalse(encoder.matches("password", result.substring(0, 4)));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void barfsOnBogusEncodedValue() {
+    @Test
+    public void doesntMatchBogusEncodedValue() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         assertFalse(encoder.matches("password", "012345678901234567890123456789"));
     }

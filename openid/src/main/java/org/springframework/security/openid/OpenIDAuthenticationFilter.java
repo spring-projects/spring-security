@@ -27,8 +27,10 @@ import org.springframework.util.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.*;
 
 
@@ -204,13 +206,12 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
                 sb.append("?");
                 isFirst = false;
             }
-            sb.append(name).append("=").append(value);
+            sb.append(utf8UrlEncode(name)).append("=").append(utf8UrlEncode(value));
 
             if (iterator.hasNext()) {
                 sb.append("&");
             }
         }
-
         return sb.toString();
     }
 
@@ -268,5 +269,21 @@ public class OpenIDAuthenticationFilter extends AbstractAuthenticationProcessing
     public void setReturnToUrlParameters(Set<String> returnToUrlParameters) {
         Assert.notNull(returnToUrlParameters, "returnToUrlParameters cannot be null");
         this.returnToUrlParameters = returnToUrlParameters;
+    }
+
+    /**
+     * Performs URL encoding with UTF-8
+     *
+     * @param value the value to URL encode
+     * @return the encoded value
+     */
+    private String utf8UrlEncode(String value) {
+        try {
+            return URLEncoder.encode(value, "UTF-8");
+        } catch(UnsupportedEncodingException e) {
+            Error err = new AssertionError("The Java platform guarantees UTF-8 support, but it seemingly is not present.");
+            err.initCause(e);
+            throw err;
+        }
     }
 }

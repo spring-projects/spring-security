@@ -18,6 +18,7 @@ package org.springframework.security.config.debug
 import org.springframework.security.config.BeanIds
 import org.springframework.security.config.http.AbstractHttpConfigTests
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.debug.DebugFilter;
 
 class SecurityDebugBeanFactoryPostProcessorTest extends AbstractHttpConfigTests {
 

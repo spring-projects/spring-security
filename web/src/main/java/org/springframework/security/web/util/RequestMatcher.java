@@ -7,8 +7,9 @@ import javax.servlet.http.HttpServletRequest;
  *
  * @author Luke Taylor
  * @since 3.0.2
+ * @deprecated use {@link org.springframework.security.web.util.matcher.RequestMatcher}
  */
-public interface RequestMatcher {
+public interface RequestMatcher extends org.springframework.security.web.util.matcher.RequestMatcher {
 
     /**
      * Decides whether the rule implemented by the strategy matches the supplied request.

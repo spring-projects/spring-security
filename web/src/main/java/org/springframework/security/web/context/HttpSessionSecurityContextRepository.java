@@ -69,7 +69,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
     private boolean isServlet3 = ClassUtils.hasMethod(ServletRequest.class, "startAsync");
     private String springSecurityContextKey = SPRING_SECURITY_CONTEXT_KEY;
 
-    private final AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
+    private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
     /**
      * Gets the security context for the current request (if available) and returns it.
@@ -295,7 +295,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
             HttpSession httpSession = request.getSession(false);
 
             // See SEC-776
-            if (authentication == null || authenticationTrustResolver.isAnonymous(authentication)) {
+            if (authentication == null || trustResolver.isAnonymous(authentication)) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("SecurityContext is empty or contents are anonymous - context will not be stored in HttpSession.");
                 }
@@ -377,5 +377,18 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 
             return null;
         }
+    }
+
+    /**
+     * Sets the {@link AuthenticationTrustResolver} to be used. The default is
+     * {@link AuthenticationTrustResolverImpl}.
+     *
+     * @param trustResolver
+     *            the {@link AuthenticationTrustResolver} to use. Cannot be
+     *            null.
+     */
+    public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
+        Assert.notNull(trustResolver, "trustResolver cannot be null");
+        this.trustResolver = trustResolver;
     }
 }

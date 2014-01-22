@@ -9,7 +9,6 @@ import java.util.List;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -17,10 +16,11 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.access.PermissionCacheOptimizer;
 import org.springframework.security.access.expression.AbstractSecurityExpressionHandler;
 import org.springframework.security.access.expression.ExpressionUtils;
-import org.springframework.security.access.expression.SecurityExpressionOperations;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.parameters.DefaultSecurityParameterNameDiscoverer;
+import org.springframework.util.Assert;
 
 /**
  * The standard implementation of {@code MethodSecurityExpressionHandler}.
@@ -34,8 +34,8 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 
     protected final Log logger = LogFactory.getLog(getClass());
 
-    private final AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
-    private ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
+    private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+    private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultSecurityParameterNameDiscoverer();
     private PermissionCacheOptimizer permissionCacheOptimizer = null;
 
     public DefaultMethodSecurityExpressionHandler() {
@@ -144,6 +144,23 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
         throw new IllegalArgumentException("Filter target must be a collection or array type, but was " + filterTarget);
     }
 
+    /**
+     * Sets the {@link AuthenticationTrustResolver} to be used. The default is
+     * {@link AuthenticationTrustResolverImpl}.
+     *
+     * @param trustResolver
+     *            the {@link AuthenticationTrustResolver} to use. Cannot be
+     *            null.
+     */
+    public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
+        Assert.notNull(trustResolver, "trustResolver cannot be null");
+        this.trustResolver = trustResolver;
+    }
+
+    /**
+     * Sets the {@link ParameterNameDiscoverer} to use. The default is {@link DefaultSecurityParameterNameDiscoverer}.
+     * @param parameterNameDiscoverer
+     */
     public void setParameterNameDiscoverer(ParameterNameDiscoverer parameterNameDiscoverer) {
         this.parameterNameDiscoverer = parameterNameDiscoverer;
     }
@@ -153,6 +170,6 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
     }
 
     public void setReturnObject(Object returnObject, EvaluationContext ctx) {
-        ((MethodSecurityExpressionRoot)ctx.getRootObject().getValue()).setReturnObject(returnObject);
+        ((MethodSecurityExpressionOperations)ctx.getRootObject().getValue()).setReturnObject(returnObject);
     }
 }

@@ -1,22 +1,33 @@
+import org.gradle.plugins.ide.eclipse.model.SourceFolder
+
 apply plugin: 'java'
-apply plugin: 'eclipse'
+apply plugin: 'javadocHotfix'
+apply plugin: 'eclipse-wtp'
+apply plugin: 'propdeps'
+apply plugin: 'propdeps-maven'
+apply plugin: 'propdeps-idea'
+apply plugin: 'propdeps-eclipse'
 
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
 
-ext.springVersion = '3.2.0.RELEASE'
-ext.springLdapVersion = '1.3.1.RELEASE'
+ext.springLdapVersion = '1.3.2.RELEASE'
 ext.ehcacheVersion = '1.6.2'
 ext.aspectjVersion = '1.6.10'
 ext.apacheDsVersion = '1.5.5'
 ext.jstlVersion = '1.2'
 ext.jettyVersion = '6.1.26'
-ext.hsqlVersion = '1.8.0.10'
-ext.slf4jVersion = '1.6.1'
+ext.hsqlVersion = '2.3.1'
+ext.slf4jVersion = '1.7.5'
 ext.logbackVersion = '0.9.29'
 ext.cglibVersion = '2.2'
-ext.powerMockVersion = '1.4.12'
+ext.powerMockVersion = '1.5.1'
 ext.servletApiVersion = '7.0.33'
+ext.seleniumVersion = '2.33.0'
+ext.groovyVersion = '2.0.5'
+ext.spockVersion = '0.7-groovy-2.0'
+ext.gebVersion = '0.9.0'
+ext.thymeleafVersion = '2.1.2.RELEASE'
 
 ext.powerMockDependencies = [
     "org.powermock:powermock-core:$powerMockVersion",
@@ -25,6 +36,15 @@ ext.powerMockDependencies = [
     "org.powermock:powermock-module-junit4:$powerMockVersion",
     "org.powermock:powermock-api-mockito:$powerMockVersion",
     "org.powermock:powermock-reflect:$powerMockVersion"
+]
+
+ext.apacheds_libs = [
+         "org.apache.directory.server:apacheds-core:$apacheDsVersion",
+         "org.apache.directory.server:apacheds-core-entry:$apacheDsVersion",
+         "org.apache.directory.server:apacheds-protocol-shared:$apacheDsVersion",
+         "org.apache.directory.server:apacheds-protocol-ldap:$apacheDsVersion",
+         "org.apache.directory.server:apacheds-server-jndi:$apacheDsVersion",
+         'org.apache.directory.shared:shared-ldap:0.9.15'
 ]
 
 ext.bundlorProperties = [
@@ -43,21 +63,10 @@ ext.bundlorProperties = [
     aopAllianceRange: '[1.0.0, 2.0.0)'
 ]
 
-configurations {
-    // Configuration which is ONLY used for compileJava and will not be inherited by any others
-    // Revisit post Gradle 1.0
-    compileOnly
-    // Used to identify deps which should be marked as "provided" in maven poms
-    provided
-    testCompile.extendsFrom provided
-    compile.transitive = false
-    testCompile.transitive = false
-}
-
 // Integration test setup
 configurations {
     integrationTestCompile {
-        extendsFrom testCompile
+        extendsFrom testCompile, optional, provided
     }
     integrationTestRuntime {
         extendsFrom integrationTestCompile, testRuntime
@@ -78,18 +87,20 @@ task integrationTest(type: Test, dependsOn: jar) {
     logging.captureStandardOutput(LogLevel.INFO)
     classpath = sourceSets.integrationTest.runtimeClasspath
     maxParallelForks = 1
-    testReport = false
 }
+project.conf2ScopeMappings.addMapping(MavenPlugin.TEST_COMPILE_PRIORITY + 1, project.configurations.getByName("integrationTestCompile"), Conf2ScopeMappingContainer.TEST)
+project.conf2ScopeMappings.addMapping(MavenPlugin.TEST_COMPILE_PRIORITY + 2, project.configurations.getByName("integrationTestRuntime"), Conf2ScopeMappingContainer.TEST)
+check.dependsOn integrationTest
 
 dependencies {
-    compileOnly 'commons-logging:commons-logging:1.1.1'
+    optional 'commons-logging:commons-logging:1.1.1'
 
     compile ("org.springframework:spring-core:$springVersion") {
         exclude(group: 'commons-logging', module: 'commons-logging')
     }
 
-    testCompile 'junit:junit:4.7',
-            'org.mockito:mockito-core:1.8.5',
+    testCompile 'junit:junit:4.10',
+            'org.mockito:mockito-core:1.9.5',
             "org.springframework:spring-test:$springVersion",
             'org.easytesting:fest-assert:1.4'
 
@@ -100,16 +111,20 @@ dependencies {
 
 [configurations.runtime, configurations.default]*.exclude(module: 'commons-logging')
 
-sourceSets.main.compileClasspath += configurations.compileOnly
-sourceSets.main.compileClasspath += configurations.provided
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'org.slf4j') {
+                details.useVersion slf4jVersion
+            }
+    }
+}
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 test {
-    jvmArgs = ['-ea', '-Xmx500m']
+    jvmArgs = ['-ea', '-Xmx500m', '-XX:MaxPermSize=128M']
     maxParallelForks = guessMaxForks()
     logging.captureStandardOutput(LogLevel.INFO)
-    testReport = false
 }
 
 def guessMaxForks() {
@@ -120,7 +135,6 @@ def guessMaxForks() {
 javadoc {
     title = "Spring Security $version API"
     source = sourceSets.main.allJava
-    classpath +=  configurations.compileOnly + configurations.provided
     options {
         memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
         author = true
@@ -151,7 +165,46 @@ javadoc {
     }
 }
 
+eclipse.classpath.downloadSources = true
+
+// http://forums.gradle.org/gradle/topics/eclipse_wtp_deploys_testcode_to_server_example_provided
+eclipse.classpath {
+    defaultOutputDir = file('bin/main')
+    file.whenMerged { cp ->
+        cp.entries.findAll { it instanceof SourceFolder && (it.path.contains("test") || it.path.contains("Test")) }*.output = "bin/test"
+    }
+}
+
+// GRADLE-1116
+project.eclipse.classpath.file.whenMerged { classpath ->
+    classpath.entries.removeAll { entry -> entry.path.endsWith('/build/resources/test') }
+    classpath.entries.removeAll { entry -> entry.path.endsWith('/build/classes/test') }
+    classpath.entries.removeAll { entry -> entry.path.endsWith('/build/resources/main') }
+    classpath.entries.removeAll { entry -> entry.path.endsWith('/build/classes/main') }
+}
+
+// GRADLE-1422
+project.eclipseClasspath.doFirst {
+   // delay adding whenMerged till the entryAttributes are added (must be the last whenMerged)
+   project.eclipse.classpath.file.whenMerged { classpath ->
+       def includeDeps = project.configurations.getByName('runtime').collect {f -> f.absolutePath } as Set
+       classpath.entries.each { cp ->
+           if(cp instanceof org.gradle.plugins.ide.eclipse.model.Library) {
+               def include = includeDeps.contains(cp.path)
+               def attr = 'org.eclipse.jst.component.dependency'
+               if(!include) {
+                   cp.entryAttributes.remove(attr)
+               }
+           }
+       }
+   }
+}
+
 task javadocJar(type: Jar) {
     classifier = 'javadoc'
     from javadoc
+}
+
+artifacts {
+    archives javadocJar
 }

@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
@@ -38,11 +37,15 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
     public final String delete = "delete";
     public final String admin = "administration";
 
-    public SecurityExpressionRoot(Authentication a) {
-        if (a == null) {
+    /**
+     * Creates a new instance
+     * @param authentication the {@link Authentication} to use. Cannot be null.
+     */
+    public SecurityExpressionRoot(Authentication authentication) {
+        if (authentication == null) {
             throw new IllegalArgumentException("Authentication object cannot be null");
         }
-        this.authentication = a;
+        this.authentication = authentication;
     }
 
     public final boolean hasAuthority(String authority) {
@@ -97,6 +100,10 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
         return !trustResolver.isAnonymous(authentication) && !trustResolver.isRememberMe(authentication);
     }
 
+    /**
+     * Convenience method to access {@link Authentication#getPrincipal()} from {@link #getAuthentication()}
+     * @return
+     */
     public Object getPrincipal() {
         return authentication.getPrincipal();
     }

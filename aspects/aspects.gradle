@@ -4,5 +4,6 @@ dependencies {
             "org.springframework:spring-beans:$springVersion",
             "org.springframework:spring-context:$springVersion"
 
-    testCompile 'aopalliance:aopalliance:1.0'
+    testCompile 'aopalliance:aopalliance:1.0',
+                "org.springframework:spring-aop:$springVersion"
 }

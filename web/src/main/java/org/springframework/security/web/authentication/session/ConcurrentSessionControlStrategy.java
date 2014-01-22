@@ -37,7 +37,9 @@ import org.springframework.util.Assert;
  *
  * @author Luke Taylor
  * @since 3.0
+ * @deprecated Use {@link ConcurrentSessionControlAuthenticationStrategy} instead
  */
+@Deprecated
 public class ConcurrentSessionControlStrategy extends SessionFixationProtectionStrategy
         implements MessageSourceAware {
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();

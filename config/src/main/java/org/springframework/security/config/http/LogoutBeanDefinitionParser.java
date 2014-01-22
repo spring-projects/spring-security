@@ -15,6 +15,7 @@
  */
 package org.springframework.security.config.http;
 
+import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -44,13 +45,15 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_DELETE_COOKIES = "delete-cookies";
 
     final String rememberMeServices;
-    private ManagedList logoutHandlers = new ManagedList();
+    private ManagedList<BeanMetadataElement> logoutHandlers = new ManagedList<BeanMetadataElement>();
 
-    public LogoutBeanDefinitionParser(String rememberMeServices) {
+    public LogoutBeanDefinitionParser(String rememberMeServices, BeanMetadataElement csrfLogoutHandler) {
         this.rememberMeServices = rememberMeServices;
+        if(csrfLogoutHandler != null) {
+            logoutHandlers.add(csrfLogoutHandler);
+        }
     }
 
-    @SuppressWarnings("unchecked")
     public BeanDefinition parse(Element element, ParserContext pc) {
         String logoutUrl = null;
         String successHandlerRef = null;
@@ -111,7 +114,7 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
         return builder.getBeanDefinition();
     }
 
-    ManagedList getLogoutHandlers() {
+    ManagedList<BeanMetadataElement> getLogoutHandlers() {
         return logoutHandlers;
     }
 }

@@ -1,0 +1,12 @@
+apply from: WAR_SAMPLE_GRADLE
+
+dependencies {
+
+    providedCompile "javax.servlet:javax.servlet-api:3.0.1",
+                    'javax.servlet.jsp:jsp-api:2.1'
+
+    compile "javax.servlet:jstl:1.2",
+            "org.slf4j:jcl-over-slf4j:$slf4jVersion"
+
+    runtime "ch.qos.logback:logback-classic:$logbackVersion"
+}

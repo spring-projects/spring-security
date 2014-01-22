@@ -7,8 +7,8 @@ import org.junit.Test;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.util.AnyRequestMatcher;
-import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -22,7 +22,7 @@ public class ExpressionBasedFilterInvocationSecurityMetadataSourceTests {
     public void expectedAttributeIsReturned() {
         final String expression = "hasRole('X')";
         LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>>();
-        requestMap.put(new AnyRequestMatcher(), SecurityConfig.createList(expression));
+        requestMap.put(AnyRequestMatcher.INSTANCE, SecurityConfig.createList(expression));
         ExpressionBasedFilterInvocationSecurityMetadataSource mds =
                 new ExpressionBasedFilterInvocationSecurityMetadataSource(requestMap, new DefaultWebSecurityExpressionHandler());
         assertEquals(1, mds.getAllConfigAttributes().size());
@@ -37,7 +37,7 @@ public class ExpressionBasedFilterInvocationSecurityMetadataSourceTests {
     @Test(expected=IllegalArgumentException.class)
     public void invalidExpressionIsRejected() throws Exception {
         LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>>();
-        requestMap.put(new AnyRequestMatcher(), SecurityConfig.createList("hasRole('X'"));
+        requestMap.put(AnyRequestMatcher.INSTANCE, SecurityConfig.createList("hasRole('X'"));
         ExpressionBasedFilterInvocationSecurityMetadataSource mds =
                 new ExpressionBasedFilterInvocationSecurityMetadataSource(requestMap, new DefaultWebSecurityExpressionHandler());
     }

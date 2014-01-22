@@ -50,7 +50,7 @@ public class BasicLookupStrategyTests {
     //~ Methods ========================================================================================================
     @BeforeClass
     public static void initCacheManaer() {
-        cacheManager = new CacheManager();
+        cacheManager = CacheManager.create();
         cacheManager.addCache(new Cache("basiclookuptestcache", 500, false, false, 30, 30));
     }
 

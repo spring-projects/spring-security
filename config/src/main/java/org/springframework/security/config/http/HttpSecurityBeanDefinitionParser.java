@@ -40,7 +40,7 @@ import org.springframework.security.config.authentication.AuthenticationManagerF
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.PortResolverImpl;
-import org.springframework.security.web.util.AnyRequestMatcher;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -137,10 +137,11 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 
         AuthenticationConfigBuilder authBldr = new AuthenticationConfigBuilder(element, pc,
                 httpBldr.getSessionCreationPolicy(), httpBldr.getRequestCache(), authenticationManager,
-                httpBldr.getSessionStrategy(), portMapper, portResolver);
+                httpBldr.getSessionStrategy(), portMapper, portResolver, httpBldr.getCsrfLogoutHandler());
 
         httpBldr.setLogoutHandlers(authBldr.getLogoutHandlers());
         httpBldr.setEntryPoint(authBldr.getEntryPointBean());
+        httpBldr.setAccessDeniedHandler(authBldr.getAccessDeniedHandlerBean());
 
         authenticationProviders.addAll(authBldr.getProviders());
 

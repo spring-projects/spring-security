@@ -1,0 +1,26 @@
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page"
+    xmlns:spring="http://www.springframework.org/tags"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:form="http://www.springframework.org/tags/form" version="2.0">
+    <jsp:directive.page language="java" contentType="text/html" />
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+    <head>
+        <title>Compose</title>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Messages : Create</h1>
+            <form:form action="./" method="post" modelAttribute="message">
+                <form:errors path="*" element="div" cssClass="alert alert-error" />
+                <label for="summary">Summary</label>
+                <form:input type="text" path="summary" class="input-xxlarge" />
+                <label for="text">Message</label>
+                <form:textarea path="text" class="input-xxlarge"></form:textarea>
+                <div class="form-actions">
+                    <input type="submit" value="Create" />
+                </div>
+            </form:form>
+        </div>
+    </body>
+    </html>
+</jsp:root>

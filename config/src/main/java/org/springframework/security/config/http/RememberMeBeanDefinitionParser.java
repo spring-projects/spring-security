@@ -49,7 +49,7 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_SUCCESS_HANDLER_REF = "authentication-success-handler-ref";
     static final String ATT_TOKEN_VALIDITY = "token-validity-seconds";
     static final String ATT_SECURE_COOKIE = "use-secure-cookie";
-    static final String ATT_FORM_REMEMBERME_PARAMETER = "rememberme-parameter";
+    static final String ATT_FORM_REMEMBERME_PARAMETER = "remember-me-parameter";
 
     protected final Log logger = LogFactory.getLog(getClass());
     private final String key;
@@ -132,12 +132,12 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
             }
 
             if (tokenValiditySet) {
-                int tokenValidity = Integer.parseInt(tokenValiditySeconds);
-                if (tokenValidity < 0 && isPersistent) {
+                boolean isTokenValidityNegative = tokenValiditySeconds.startsWith("-");
+                if (isTokenValidityNegative && isPersistent) {
                     pc.getReaderContext().error(ATT_TOKEN_VALIDITY + " cannot be negative if using" +
                             " a persistent remember-me token repository", source);
                 }
-                services.getPropertyValues().addPropertyValue("tokenValiditySeconds", tokenValidity);
+                services.getPropertyValues().addPropertyValue("tokenValiditySeconds", tokenValiditySeconds);
             }
 
             if (remembermeParameterSet) {

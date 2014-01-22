@@ -42,7 +42,7 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsService
         Assert.notNull(token.getDetails());
         Assert.isInstanceOf(GrantedAuthoritiesContainer.class, token.getDetails());
         Collection<? extends GrantedAuthority> authorities = ((GrantedAuthoritiesContainer) token.getDetails()).getGrantedAuthorities();
-        return createuserDetails(token, authorities);
+        return createUserDetails(token, authorities);
     }
 
     /**
@@ -51,6 +51,19 @@ public class PreAuthenticatedGrantedAuthoritiesUserDetailsService
      * @param token the authentication request token
      * @param authorities the pre-authenticated authorities.
      */
+    protected UserDetails createUserDetails(Authentication token, Collection<? extends GrantedAuthority> authorities) {
+        return createuserDetails(token, authorities);
+    }
+
+    /**
+     * Creates the final <tt>UserDetails</tt> object. Can be overridden to customize the contents.
+     *
+     * @deprecated Use {@link #createUserDetails(Authentication, Collection)}
+     *
+     * @param token the authentication request token
+     * @param authorities the pre-authenticated authorities.
+     */
+    @Deprecated
     protected UserDetails createuserDetails(Authentication token, Collection<? extends GrantedAuthority> authorities) {
         return new User(token.getName(), "N/A", true, true, true, true, authorities);
     }

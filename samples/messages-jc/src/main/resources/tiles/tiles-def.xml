@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_1.dtd">
+<tiles-definitions>
+
+  <definition name="messages/*"
+      template="layout">
+    <put-attribute name="content"
+        value="content/messages/{1}"/>
+    <put-attribute name="title"
+        value="title/messages/{1}"/>
+    <put-attribute name="head"
+        value="head/messages/{1}"/>
+  </definition>
+
+  <definition name="content/messages/*"
+      template="messages/{1} :: content"/>
+  <definition name="title/messages/*"
+      template="messages/{1} :: title"/>
+  <definition name="head/messages/*"
+      template="messages/{1} :: /html/head/link"/>
+
+  <definition name="user/*"
+      template="layout">
+    <put-attribute name="content"
+        value="content/user/{1}"/>
+    <put-attribute name="title"
+        value="title/user/{1}"/>
+    <put-attribute name="head"
+        value="head/user/{1}"/>
+  </definition>
+
+  <definition name="content/user/*"
+      template="user/{1} :: content"/>
+  <definition name="title/user/*"
+      template="user/{1} :: title"/>
+  <definition name="head/user/*"
+      template="user/{1} :: /html/head/link"/>
+
+  <definition name="*"
+      template="layout">
+    <put-attribute name="content"
+        value="content/{1}"/>
+    <put-attribute name="title"
+        value="title/{1}"/>
+    <put-attribute name="head"
+        value="head/{1}"/>
+  </definition>
+
+  <definition name="content/*"
+      template="{1} :: content"/>
+  <definition name="title/*"
+      template="{1} :: title"/>
+  <definition name="head/*"
+      template="{1} :: /html/head/link"/>
+</tiles-definitions>

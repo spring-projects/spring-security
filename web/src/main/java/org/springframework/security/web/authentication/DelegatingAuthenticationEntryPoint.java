@@ -22,12 +22,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.util.ELRequestMatcher;
-import org.springframework.security.web.util.RequestMatcher;
-import org.springframework.security.web.util.RequestMatcherEditor;
+import org.springframework.security.web.util.matcher.ELRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcherEditor;
 import org.springframework.util.Assert;
 
 /**
@@ -55,6 +57,7 @@ import org.springframework.util.Assert;
  * @since 3.0.2
  */
 public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
+    private final Log logger = LogFactory.getLog(getClass());
 
     private final LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints;
     private AuthenticationEntryPoint defaultEntryPoint;
@@ -68,10 +71,21 @@ public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPo
             throws IOException, ServletException {
 
         for (RequestMatcher requestMatcher : entryPoints.keySet()) {
+            if(logger.isDebugEnabled()) {
+                logger.debug("Trying to match using " + requestMatcher);
+            }
             if (requestMatcher.matches(request)) {
-               entryPoints.get(requestMatcher).commence(request, response, authException);
+               AuthenticationEntryPoint entryPoint = entryPoints.get(requestMatcher);
+               if(logger.isDebugEnabled()) {
+                   logger.debug("Match found! Executing " + entryPoint);
+               }
+               entryPoint.commence(request, response, authException);
                return;
             }
+        }
+
+        if(logger.isDebugEnabled()) {
+            logger.debug("No match found. Using default entry point " + defaultEntryPoint);
         }
 
         // No EntryPoint matched, use defaultEntryPoint

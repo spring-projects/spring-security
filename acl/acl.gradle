@@ -3,16 +3,16 @@
 dependencies {
     compile project(':spring-security-core'),
             'aopalliance:aopalliance:1.0',
-            "net.sf.ehcache:ehcache:$ehcacheVersion",
             "org.springframework:spring-aop:$springVersion",
-            "org.springframework:spring-beans:$springVersion",
             "org.springframework:spring-context:$springVersion",
             "org.springframework:spring-tx:$springVersion",
             "org.springframework:spring-jdbc:$springVersion"
+
+    optional "net.sf.ehcache:ehcache:$ehcacheVersion"
 
     testCompile "org.springframework:spring-beans:$springVersion",
                 "org.springframework:spring-context-support:$springVersion",
                 "org.springframework:spring-test:$springVersion"
 
-    testRuntime "hsqldb:hsqldb:$hsqlVersion"
+    testRuntime "org.hsqldb:hsqldb:$hsqlVersion"
 }

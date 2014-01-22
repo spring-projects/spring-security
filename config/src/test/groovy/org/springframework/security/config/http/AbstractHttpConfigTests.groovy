@@ -57,8 +57,11 @@ abstract class AbstractHttpConfigTests extends AbstractXmlConfigTests {
     }
 
     List getFilters(String url) {
-        def fcp = appContext.getBean(BeanIds.FILTER_CHAIN_PROXY);
-        return fcp.getFilters(url)
+        springSecurityFilterChain.getFilters(url)
+    }
+
+    Filter getSpringSecurityFilterChain() {
+        appContext.getBean(BeanIds.FILTER_CHAIN_PROXY)
     }
 
     FilterInvocation createFilterinvocation(String path, String method) {

@@ -119,6 +119,9 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
      * @param acl containing the ACEs to insert
      */
     protected void createEntries(final MutableAcl acl) {
+        if(acl.getEntries().isEmpty()) {
+            return;
+        }
         jdbcTemplate.batchUpdate(insertEntry,
             new BatchPreparedStatementSetter() {
                 public int getBatchSize() {

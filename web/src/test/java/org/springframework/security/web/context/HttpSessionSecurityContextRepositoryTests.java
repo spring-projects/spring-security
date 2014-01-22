@@ -13,13 +13,19 @@
 package org.springframework.security.web.context;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.*;
-import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.*;
-import static org.mockito.Mockito.verify;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
-import static org.mockito.Matchers.*;
-import static org.powermock.api.mockito.PowerMockito.*;
+import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.spy;
+import static org.powermock.api.mockito.PowerMockito.when;
+import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletRequest;
@@ -35,6 +41,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
@@ -465,5 +472,27 @@ public class HttpSessionSecurityContextRepositoryTests {
         assertEquals(url, holder.getResponse().encodeRedirectURL(url));
         assertEquals(url, holder.getResponse().encodeUrl(url));
         assertEquals(url, holder.getResponse().encodeURL(url));
+    }
+
+    @Test
+    public void saveContextCustomTrustResolver() {
+        SecurityContext contextToSave = SecurityContextHolder.createEmptyContext();
+        contextToSave.setAuthentication(testToken);
+        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, new MockHttpServletResponse());
+        repo.loadContext(holder);
+        AuthenticationTrustResolver trustResolver = mock(AuthenticationTrustResolver.class);
+        repo.setTrustResolver(trustResolver);
+
+        repo.saveContext(contextToSave, holder.getRequest(), holder.getResponse());
+
+        verify(trustResolver).isAnonymous(contextToSave.getAuthentication());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setTrustResolverNull() {
+        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        repo.setTrustResolver(null);
     }
 }

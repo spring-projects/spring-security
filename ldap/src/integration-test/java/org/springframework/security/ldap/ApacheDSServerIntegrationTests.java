@@ -21,7 +21,7 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsManagerTests
         DefaultLdapAuthoritiesPopulatorTests.class,
         LdapUserDetailsManagerTests.class,
         DefaultSpringSecurityContextSourceTests.class,
-        SpringSecurityLdapTemplateTests.class
+        SpringSecurityLdapTemplateITests.class
 }
 )
 public final class ApacheDSServerIntegrationTests {

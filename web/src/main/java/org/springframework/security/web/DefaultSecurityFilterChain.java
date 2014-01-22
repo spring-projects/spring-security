@@ -2,7 +2,7 @@ package org.springframework.security.web;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import javax.servlet.Filter;
 import javax.servlet.http.HttpServletRequest;

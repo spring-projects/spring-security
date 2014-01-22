@@ -6,12 +6,12 @@
   <xs:attributeGroup name="hash">
       <xs:attribute name="hash" use="required">
          <xs:annotation>
-            <xs:documentation>Defines the hashing algorithm used on user passwords. We recommend strongly against using
-                MD4, as it is a very weak hashing algorithm.
+            <xs:documentation>Defines the hashing algorithm used on user passwords. Bcrypt is recommended.
                 </xs:documentation>
          </xs:annotation>
          <xs:simpleType>
             <xs:restriction base="xs:token">
+               <xs:enumeration value="bcrypt"/>
                <xs:enumeration value="plaintext"/>
                <xs:enumeration value="sha"/>
                <xs:enumeration value="sha-256"/>
@@ -154,12 +154,12 @@
       </xs:attribute>
       <xs:attribute name="hash">
          <xs:annotation>
-            <xs:documentation>Defines the hashing algorithm used on user passwords. We recommend strongly against using
-                MD4, as it is a very weak hashing algorithm.
+            <xs:documentation>Defines the hashing algorithm used on user passwords. Bcrypt is recommended.
                 </xs:documentation>
          </xs:annotation>
          <xs:simpleType>
             <xs:restriction base="xs:token">
+               <xs:enumeration value="bcrypt"/>
                <xs:enumeration value="plaintext"/>
                <xs:enumeration value="sha"/>
                <xs:enumeration value="sha-256"/>
@@ -537,12 +537,12 @@
       </xs:attribute>
       <xs:attribute name="hash">
          <xs:annotation>
-            <xs:documentation>Defines the hashing algorithm used on user passwords. We recommend strongly against using
-                MD4, as it is a very weak hashing algorithm.
+            <xs:documentation>Defines the hashing algorithm used on user passwords. Bcrypt is recommended.
                 </xs:documentation>
          </xs:annotation>
          <xs:simpleType>
             <xs:restriction base="xs:token">
+               <xs:enumeration value="bcrypt"/>
                <xs:enumeration value="plaintext"/>
                <xs:enumeration value="sha"/>
                <xs:enumeration value="sha-256"/>
@@ -868,7 +868,7 @@
          <xs:documentation>Container element for HTTP security configuration. Multiple elements can now be defined,
                 each with a specific pattern to which the enclosed security configuration applies. A
                 pattern can also be configured to bypass Spring Security's filters completely by setting
-                the "secured" attribute to "false".
+                the "security" attribute to "none".
                 </xs:documentation>
       </xs:annotation>
       <xs:complexType>
@@ -1024,6 +1024,8 @@
                   <xs:attributeGroup ref="security:ref"/>
                </xs:complexType>
             </xs:element>
+            <xs:element ref="security:headers"/>
+            <xs:element ref="security:csrf"/>
          </xs:choice>
          <xs:attributeGroup ref="security:http.attlist"/>
       </xs:complexType>
@@ -1057,10 +1059,9 @@
       </xs:attribute>
       <xs:attribute name="auto-config" type="xs:boolean">
          <xs:annotation>
-            <xs:documentation>Automatically registers a login form, BASIC authentication, anonymous authentication,
-                logout services, remember-me and servlet-api-integration. If set to "true", all of these
-                capabilities are added (although you can still customize the configuration of each by
-                providing the respective element). If unspecified, defaults to "false".
+            <xs:documentation>A legacy attribute which automatically registers a login form, BASIC authentication and a
+                logout URL and logout services. If unspecified, defaults to "false". We'd recommend you
+                avoid using this and instead explicitly configure the services you require.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
@@ -1247,6 +1248,7 @@
                <xs:enumeration value="OPTIONS"/>
                <xs:enumeration value="POST"/>
                <xs:enumeration value="PUT"/>
+               <xs:enumeration value="PATCH"/>
                <xs:enumeration value="TRACE"/>
             </xs:restriction>
          </xs:simpleType>
@@ -1664,10 +1666,15 @@
   <xs:attributeGroup name="session-management.attlist">
       <xs:attribute name="session-fixation-protection">
          <xs:annotation>
-            <xs:documentation>Indicates whether an existing session should be invalidated when a user authenticates and
-                a new session started. If set to "none" no change will be made. "newSession" will create a
-                new empty session. "migrateSession" will create a new session and copy the session
-                attributes to the new session. Defaults to "migrateSession".
+            <xs:documentation>Indicates how session fixation protection will be applied when a user authenticates. If
+                set to "none", no protection will be applied. "newSession" will create a new empty
+                session, with only Spring Security-related attributes migrated. "migrateSession" will
+                create a new session and copy all session attributes to the new session. In Servlet 3.1
+                (Java EE 7) and newer containers, specifying "changeSessionId" will keep the existing
+                session and use the container-supplied session fixation protection
+                (HttpServletRequest#changeSessionId()). Defaults to "changeSessionId" in Servlet 3.1 and
+                newer containers, "migrateSession" in older containers. Throws an exception if
+                "changeSessionId" is used in older containers.
                 </xs:documentation>
          </xs:annotation>
          <xs:simpleType>
@@ -1675,6 +1682,7 @@
                <xs:enumeration value="none"/>
                <xs:enumeration value="newSession"/>
                <xs:enumeration value="migrateSession"/>
+               <xs:enumeration value="changeSessionId"/>
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
@@ -1695,7 +1703,7 @@
       <xs:attribute name="session-authentication-error-url" type="xs:token">
          <xs:annotation>
             <xs:documentation>Defines the URL of the error page which should be shown when the
-                SessionAuthenticationStrategy raises an exception. If not set, an unauthorized (402) error
+                SessionAuthenticationStrategy raises an exception. If not set, an unauthorized (401) error
                 code will be returned to the client. Note that this attribute doesn't apply if the error
                 occurs during a form-based login, where the URL for authentication failure will take
                 precedence.
@@ -1788,7 +1796,7 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="token-validity-seconds" type="xs:integer">
+      <xs:attribute name="token-validity-seconds" type="xs:string">
          <xs:annotation>
             <xs:documentation>The period (in seconds) for which the remember-me cookie should be valid.
                 </xs:documentation>
@@ -1801,7 +1809,7 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="rememberme-parameter" type="xs:token">
+      <xs:attribute name="remember-me-parameter" type="xs:token">
          <xs:annotation>
             <xs:documentation>The name of the request parameter which toggles remember-me authentication. Defaults to
                 '_spring_security_remember_me'.
@@ -2232,6 +2240,204 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
+  <xs:element name="csrf">
+      <xs:annotation>
+         <xs:documentation>Element for configuration of the CsrfFilter for protection against CSRF. It also updates
+                the default RequestCache to only replay "GET" requests.
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:csrf-options.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="csrf-options.attlist">
+      <xs:attribute name="request-matcher-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The RequestMatcher instance to be used to determine if CSRF should be applied. Default is
+                any HTTP method except "GET", "TRACE", "HEAD", "OPTIONS"
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="token-repository-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The CsrfTokenRepository to use. The default is HttpSessionCsrfTokenRepository
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="headers">
+      <xs:annotation>
+         <xs:documentation>Element for configuration of the HeaderWritersFilter. Enables easy setting for the
+                X-Frame-Options, X-XSS-Protection and X-Content-Type-Options headers.
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element ref="security:cache-control"/>
+            <xs:element ref="security:xss-protection"/>
+            <xs:element ref="security:hsts"/>
+            <xs:element ref="security:frame-options"/>
+            <xs:element ref="security:content-type-options"/>
+            <xs:element ref="security:header"/>
+         </xs:choice>
+      </xs:complexType>
+   </xs:element>
+  <xs:element name="hsts">
+      <xs:annotation>
+         <xs:documentation>Adds support for HTTP Strict Transport Security (HSTS)
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:hsts-options.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="hsts-options.attlist">
+      <xs:attribute name="include-subdomains" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>Specifies if subdomains should be included. Default true.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="max-age-seconds" type="xs:integer">
+         <xs:annotation>
+            <xs:documentation>Specifies the maximum ammount of time the host should be considered a Known HSTS Host.
+                Default one year.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="request-matcher-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The RequestMatcher instance to be used to determine if the header should be set. Default
+                is if HttpServletRequest.isSecure() is true.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="cache-control">
+      <xs:annotation>
+         <xs:documentation>Adds Cache-Control no-cache, no-store, must-revalidate, Pragma no-cache, and Expires 0 for
+                every request
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType/>
+   </xs:element>
+  <xs:element name="frame-options">
+      <xs:annotation>
+         <xs:documentation>Enable basic clickjacking support for newer browsers (IE8+), will set the X-Frame-Options
+                header.
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:frame-options.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="frame-options.attlist">
+      <xs:attribute name="policy">
+         <xs:annotation>
+            <xs:documentation>Specify the policy to use for the X-Frame-Options-Header.
+                </xs:documentation>
+         </xs:annotation>
+         <xs:simpleType>
+            <xs:restriction base="xs:token">
+               <xs:enumeration value="DENY"/>
+               <xs:enumeration value="SAMEORIGIN"/>
+               <xs:enumeration value="ALLOW-FROM"/>
+            </xs:restriction>
+         </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="strategy">
+         <xs:annotation>
+            <xs:documentation>Specify the strategy to use when ALLOW-FROM is chosen.
+                </xs:documentation>
+         </xs:annotation>
+         <xs:simpleType>
+            <xs:restriction base="xs:token">
+               <xs:enumeration value="static"/>
+               <xs:enumeration value="whitelist"/>
+               <xs:enumeration value="regexp"/>
+            </xs:restriction>
+         </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Defines a reference to a Spring bean Id.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="value" type="xs:string">
+         <xs:annotation>
+            <xs:documentation>Specify the a value to use for the chosen strategy.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="from-parameter" type="xs:string">
+         <xs:annotation>
+            <xs:documentation>Specify the request parameter to use for the origin when using a 'whitelist' or 'regexp'
+                based strategy. Default is 'from'.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="xss-protection">
+      <xs:annotation>
+         <xs:documentation>Enable basic XSS browser protection, supported by newer browsers (IE8+), will set the
+                X-XSS-Protection header.
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:xss-protection.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="xss-protection.attlist">
+      <xs:attribute name="enabled" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>enable or disable the X-XSS-Protection header. Default is 'true' meaning it is enabled.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="block" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>Add mode=block to the header or not, default is on.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="content-type-options">
+      <xs:annotation>
+         <xs:documentation>Add a X-Content-Type-Options header to the resopnse. Value is always 'nosniff'.
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType/>
+   </xs:element>
+  <xs:element name="header">
+      <xs:annotation>
+         <xs:documentation>Add additional headers to the response.
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:header.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="header.attlist">
+      <xs:attribute name="name" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The name of the header to add.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="value" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The value for the header.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Defines a reference to a Spring bean Id.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
   <xs:element name="any-user-service" abstract="true"/>
   <xs:element name="custom-filter">
       <xs:annotation>
@@ -2300,20 +2506,27 @@
       <xs:restriction base="xs:token">
          <xs:enumeration value="FIRST"/>
          <xs:enumeration value="CHANNEL_FILTER"/>
-         <xs:enumeration value="CONCURRENT_SESSION_FILTER"/>
          <xs:enumeration value="SECURITY_CONTEXT_FILTER"/>
+         <xs:enumeration value="CONCURRENT_SESSION_FILTER"/>
+         <xs:enumeration value="WEB_ASYNC_MANAGER_FILTER"/>
+         <xs:enumeration value="HEADERS_FILTER"/>
+         <xs:enumeration value="CSRF_FILTER"/>
          <xs:enumeration value="LOGOUT_FILTER"/>
          <xs:enumeration value="X509_FILTER"/>
          <xs:enumeration value="PRE_AUTH_FILTER"/>
          <xs:enumeration value="CAS_FILTER"/>
          <xs:enumeration value="FORM_LOGIN_FILTER"/>
          <xs:enumeration value="OPENID_FILTER"/>
+         <xs:enumeration value="LOGIN_PAGE_FILTER"/>
+         <xs:enumeration value="DIGEST_AUTH_FILTER"/>
          <xs:enumeration value="BASIC_AUTH_FILTER"/>
+         <xs:enumeration value="REQUEST_CACHE_FILTER"/>
          <xs:enumeration value="SERVLET_API_SUPPORT_FILTER"/>
+         <xs:enumeration value="JAAS_API_SUPPORT_FILTER"/>
          <xs:enumeration value="REMEMBER_ME_FILTER"/>
          <xs:enumeration value="ANONYMOUS_FILTER"/>
-         <xs:enumeration value="EXCEPTION_TRANSLATION_FILTER"/>
          <xs:enumeration value="SESSION_MANAGEMENT_FILTER"/>
+         <xs:enumeration value="EXCEPTION_TRANSLATION_FILTER"/>
          <xs:enumeration value="FILTER_SECURITY_INTERCEPTOR"/>
          <xs:enumeration value="SWITCH_USER_FILTER"/>
          <xs:enumeration value="LAST"/>

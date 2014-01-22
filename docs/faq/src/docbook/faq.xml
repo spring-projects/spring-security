@@ -286,7 +286,7 @@
                     <answer>
                         <para>
                             Note that the permissions for an LDAP directory often do not allow you to read the password
-                            for a user. Hence it is often not possible to use the <link xlink:href="#faq-what-is-userdetailservice"><interfacename>UserDetailsService</interfacename>
+                            for a user. Hence it is often not possible to use the <link linkend="faq-what-is-userdetailservice"><interfacename>UserDetailsService</interfacename>
                             approach</link> where Spring Security compares the stored password with the one submitted by the user.
                             The most common approach is to use LDAP <quote>bind</quote>, which is one of the operations
                             supported by <link xlink:href="http://en.wikipedia.org/wiki/Lightweight_Directory_Access_Protocol">the LDAP protocol</link>.
@@ -357,11 +357,14 @@
                             Security?</para>
                     </question>
                     <answer>
-                        <para>With the default configuration, Spring Security invalidates the
-                            existing session when the user authenticates and creates a new one,
-                            transferring the session data to it. The intention is to change the
-                            session identifier to prevent <quote>session-fixation</quote> attacks.
-                            You can find more about this online and in the reference manual. </para>
+                        <para>With the default configuration, Spring Security changes the session ID
+                            when the user authenticates. If you're using a Servlet 3.1 or newer
+                            container, the session ID is simply changed. If you're using an older
+                            container, Spring Security invalidates the existing session, creates a
+                            new session, and transfers the session data to the new session. Changing
+                            the session identifier in this manner prevents
+                            <quote>session-fixation</quote> attacks. You can find more about this
+                            online and in the reference manual. </para>
                     </answer>
                 </qandaentry>
 
@@ -378,12 +381,15 @@
                             be used under HTTP. The browser will not send the cookie back to the
                             server and any session state will be lost (including the security
                             context information). Starting a session in HTTP first should work as
-                            the session cookie won't be marked as secure (you will also have to
-                            disable Spring Security's <link
+                            the session cookie won't be marked as secure. However, Spring
+                            Security's <link
                             xlink:href="http://static.springsource.org/spring-security/site/docs/3.1.x/reference/springsecurity-single.html#ns-session-fixation"
-                            > Session Fixation Protection</link> support to prevent it from creating
-                            a new secure session on login (you can always create a new session
-                            yourself at a later stage). Note that switching between HTTP and HTTPS
+                            >Session Fixation Protection</link> can interfere with this because
+                            it results in a new session ID cookie being sent back to the user's
+                            browser, usually with the secure flag. To get around this, you can
+                            disable session fixation protection, but in newer Servlet containers
+                            you can also configure session cookies to never use the secure flag.
+                            Note that switching between HTTP and HTTPS
                             is not a good idea in general, as any application which uses HTTP at all
                             is vulnerable to man-in-the-middle attacks. To be truly secure, the user
                             should begin accessing your site in HTTPS and continue using it until
@@ -424,7 +430,7 @@
                             information will not be removed from the registry.</para>
                         <programlisting language="xml"><![CDATA[
     <listener>
-        <listener-class>org.springframework.security.ui.session.HttpSessionEventPublisher</listener-class>
+        <listener-class>org.springframework.security.web.session.HttpSessionEventPublisher</listener-class>
     </listener> ]]>
             </programlisting>
                     </answer>
@@ -650,7 +656,7 @@
                             a <interfacename>UserDetailsService</interfacename> to allow it to load
                             the password (and other data) for a user in order to compare it with the
                             submitted value. Note that if you are using LDAP,
-                            <link xlink:href="#faq-ldap-authentication">this approach may not work</link>.</para>
+                            <link linkend="faq-ldap-authentication">this approach may not work</link>.</para>
                         <para> If you want to customize the authentication process then you should
                             implement <interfacename>AuthenticationProvider</interfacename>
                             yourself. See this <link
@@ -760,7 +766,7 @@
                     </question>
                     <answer>
                         <para>You can't (and shouldn't). You are probably misunderstanding its purpose.
-                            See <quote><link xlink:href="#faq-what-is-userdetailservice">What is a UserDetailsService?</link></quote>
+                            See <quote><link linkend="faq-what-is-userdetailservice">What is a UserDetailsService?</link></quote>
                             above.
                         </para>
                     </answer>
@@ -903,7 +909,7 @@
                             >Spring Reference Manual</link>. In order to do this, you need to know a
                             bit about which beans are created, so you should also read the blog
                             article in the above question on <link
-                            xlink:href="#faq-namespace-to-bean-mapping">how the namespace maps to
+                            linkend="faq-namespace-to-bean-mapping">how the namespace maps to
                             Spring beans</link>. </para>
                         <para> Normally, you would add the functionality you require to the
                             <methodname>postProcessBeforeInitialization</methodname> method of

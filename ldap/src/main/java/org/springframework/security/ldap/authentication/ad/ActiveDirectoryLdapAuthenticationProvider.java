@@ -15,6 +15,7 @@ package org.springframework.security.ldap.authentication.ad;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.core.support.DefaultDirObjectFactory;
 import org.springframework.ldap.support.LdapUtils;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -174,6 +175,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
         env.put(Context.PROVIDER_URL, bindUrl);
         env.put(Context.SECURITY_CREDENTIALS, password);
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+        env.put(Context.OBJECT_FACTORIES, DefaultDirObjectFactory.class.getName());
 
         try {
             return contextFactory.createContext(env);

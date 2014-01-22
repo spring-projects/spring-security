@@ -8,8 +8,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.PortResolverImpl;
-import org.springframework.security.web.util.AnyRequestMatcher;
-import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * {@code RequestCache} which stores the {@code SavedRequest} in the HttpSession.
@@ -25,7 +25,7 @@ public class HttpSessionRequestCache implements RequestCache {
 
     private PortResolver portResolver = new PortResolverImpl();
     private boolean createSessionAllowed = true;
-    private RequestMatcher requestMatcher = new AnyRequestMatcher();
+    private RequestMatcher requestMatcher = AnyRequestMatcher.INSTANCE;
 
     /**
      * Stores the current request, provided the configuration properties allow it.
@@ -49,7 +49,7 @@ public class HttpSessionRequestCache implements RequestCache {
         HttpSession session = currentRequest.getSession(false);
 
         if (session != null) {
-            return (DefaultSavedRequest) session.getAttribute(SAVED_REQUEST);
+            return (SavedRequest) session.getAttribute(SAVED_REQUEST);
         }
 
         return null;

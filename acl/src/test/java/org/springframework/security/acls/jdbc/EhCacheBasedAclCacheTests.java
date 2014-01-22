@@ -40,7 +40,7 @@ public class EhCacheBasedAclCacheTests {
 
     @BeforeClass
     public static void initCacheManaer() {
-        cacheManager = new CacheManager();
+        cacheManager = CacheManager.create();
         // Use disk caching immediately (to test for serialization issue reported in SEC-527)
         cacheManager.addCache(new Cache("ehcachebasedacltests", 0, true, false, 600, 300));
     }

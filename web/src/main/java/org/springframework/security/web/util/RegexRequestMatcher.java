@@ -30,6 +30,8 @@ import org.springframework.util.StringUtils;
  * by default. Case-insensitive matching can be used by using the constructor which takes the {@code caseInsensitive}
  * argument.
  *
+ * @deprecated use {@link org.springframework.security.web.util.matcher.RegexRequestMatcher}
+ *
  * @author Luke Taylor
  * @author Rob Winch
  * @since 3.1

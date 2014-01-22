@@ -98,7 +98,7 @@ public abstract class AclFormattingUtils {
     }
 
     private static String printBinary(int i, char on, char off) {
-        String s = Integer.toString(i, 2);
+        String s = Integer.toBinaryString(i);
         String pattern = Permission.THIRTY_TWO_RESERVED_OFF;
         String temp2 = pattern.substring(0, pattern.length() - s.length()) + s;
 

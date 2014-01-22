@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
  *
  * @author Luke Taylor
  * @since 3.1
+ * @deprecated use org.springframework.security.web.util.matcher.AnyRequestMatcher.INSTANCE instead
  */
 public final class AnyRequestMatcher implements RequestMatcher {
 

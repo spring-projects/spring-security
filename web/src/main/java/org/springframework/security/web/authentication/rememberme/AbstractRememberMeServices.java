@@ -81,7 +81,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     }
 
     public void afterPropertiesSet() throws Exception {
-        Assert.hasLength(key);
+        Assert.hasLength(key, "key cannot be empty or null");
         Assert.notNull(userDetailsService, "A UserDetailsService is required");
     }
 
@@ -244,8 +244,12 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     protected void onLoginFail(HttpServletRequest request, HttpServletResponse response) {}
 
     /**
+     * {@inheritDoc}
+     *
+     * <p>
      * Examines the incoming request and checks for the presence of the configured "remember me" parameter.
      * If it's present, or if <tt>alwaysRemember</tt> is set to true, calls <tt>onLoginSucces</tt>.
+     * </p>
      */
     public final void loginSuccess(HttpServletRequest request, HttpServletResponse response,
             Authentication successfulAuthentication) {
