@@ -7,6 +7,9 @@
     <title>A secure page</title>
   </head>
   <body>
-    <jsp:include page="secure1body.jsp?x=1&y=2"/>
+    <jsp:include page="secure1body.jsp">
+        <jsp:param name="x" value="1" />
+        <jsp:param name="y" value="2" />
+    </jsp:include>
   </body>
 </html>
