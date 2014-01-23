@@ -18,16 +18,23 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.Arrays;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
+import org.springframework.security.access.expression.SecurityExpressionOperations;
 import org.springframework.security.access.vote.AffirmativeBased;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
+import org.springframework.security.web.access.expression.WebSecurityExpressionRoot;
 
 /**
  *
@@ -58,6 +65,92 @@ public class ExpressionUrlAuthorizationConfigurerConfigs {
                     .anyRequest().permitAll()
                     .and()
                 .formLogin();
+        }
+    }
+
+    @EnableWebSecurity
+    @Configuration
+    static class UseBeansInExpressions extends WebSecurityConfigurerAdapter {
+
+        @Autowired
+        public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+            auth
+                .inMemoryAuthentication()
+                    .withUser("user").password("password").roles("USER");
+        }
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .authorizeRequests()
+                    .antMatchers("/admin/**").hasRole("ADMIN")
+                    .antMatchers("/user/**").hasRole("USER")
+                    .antMatchers("/allow/**").access("@permission.check(authentication,'user')")
+                    .anyRequest().access("@permission.check(authentication,'admin')");
+        }
+
+        @Bean
+        public Checker permission() {
+            return new Checker();
+        }
+
+        static class Checker {
+            public boolean check(Authentication authentication, String customArg) {
+                return authentication.getName().contains(customArg);
+            }
+        }
+    }
+
+    @EnableWebSecurity
+    @Configuration
+    static class CustomExpressionRootConfig extends WebSecurityConfigurerAdapter {
+
+        @Autowired
+        public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+            auth
+                .inMemoryAuthentication()
+                    .withUser("user").password("password").roles("USER");
+        }
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .authorizeRequests()
+                    .expressionHandler(expressionHandler())
+                    .antMatchers("/admin/**").hasRole("ADMIN")
+                    .antMatchers("/user/**").hasRole("USER")
+                    .antMatchers("/allow/**").access("check('user')")
+                    .anyRequest().access("check('admin')");
+        }
+
+        @Bean
+        public CustomExpressionHandler expressionHandler() {
+            return new CustomExpressionHandler();
+        }
+
+        static class CustomExpressionHandler extends DefaultWebSecurityExpressionHandler {
+
+            @Override
+            protected SecurityExpressionOperations createSecurityExpressionRoot(
+                    Authentication authentication, FilterInvocation fi) {
+                WebSecurityExpressionRoot root = new CustomExpressionRoot(authentication, fi);
+                root.setPermissionEvaluator(getPermissionEvaluator());
+                root.setTrustResolver(new AuthenticationTrustResolverImpl());
+                root.setRoleHierarchy(getRoleHierarchy());
+                return root;
+            }
+        }
+
+        static class CustomExpressionRoot extends WebSecurityExpressionRoot {
+
+            public CustomExpressionRoot(Authentication a, FilterInvocation fi) {
+                super(a, fi);
+            }
+
+            public boolean check(String customArg) {
+                Authentication auth = this.getAuthentication();
+                return auth.getName().contains(customArg);
+            }
         }
     }
 }

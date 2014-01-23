@@ -31,6 +31,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurerConfigs.CustomExpressionRootConfig;
 import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor
 
@@ -474,5 +475,69 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
             springSecurityFilterChain.doFilter(request, response, chain)
         then:
             1 * al.onApplicationEvent(_ as AuthorizedEvent)
+    }
+
+    def "Use @permission.check in access"() {
+        setup:
+            loadConfig(UseBeansInExpressions)
+        when: "invoke standard expression that denies access"
+            login()
+            request.servletPath = "/admin/1"
+            springSecurityFilterChain.doFilter(request, response, chain)
+        then: "standard expression works - get forbidden"
+            response.status == HttpServletResponse.SC_FORBIDDEN
+        when: "invoke standard expression that allows access"
+            super.setup()
+            login()
+            request.servletPath = "/user/1"
+            springSecurityFilterChain.doFilter(request, response, chain)
+        then: "standard expression works - get ok"
+            response.status == HttpServletResponse.SC_OK
+        when: "invoke custom bean as expression that allows access"
+            super.setup()
+            login()
+            request.servletPath = "/allow/1"
+            springSecurityFilterChain.doFilter(request, response, chain)
+        then: "custom bean expression allows access"
+            response.status == HttpServletResponse.SC_OK
+        when: "invoke custom bean as expression that denies access"
+            super.setup()
+            login()
+            request.servletPath = "/deny/1"
+            springSecurityFilterChain.doFilter(request, response, chain)
+        then: "custom bean expression denies access"
+            response.status == HttpServletResponse.SC_FORBIDDEN
+    }
+
+    def "Use custom expressionroot in access"() {
+        setup:
+            loadConfig(CustomExpressionRootConfig)
+        when: "invoke standard expression that denies access"
+            login()
+            request.servletPath = "/admin/1"
+            springSecurityFilterChain.doFilter(request, response, chain)
+        then: "standard expression works - get forbidden"
+            response.status == HttpServletResponse.SC_FORBIDDEN
+        when: "invoke standard expression that allows access"
+            super.setup()
+            login()
+            request.servletPath = "/user/1"
+            springSecurityFilterChain.doFilter(request, response, chain)
+        then: "standard expression works - get ok"
+            response.status == HttpServletResponse.SC_OK
+        when: "invoke custom bean as expression that allows access"
+            super.setup()
+            login()
+            request.servletPath = "/allow/1"
+            springSecurityFilterChain.doFilter(request, response, chain)
+        then: "custom bean expression allows access"
+            response.status == HttpServletResponse.SC_OK
+        when: "invoke custom bean as expression that denies access"
+            super.setup()
+            login()
+            request.servletPath = "/deny/1"
+            springSecurityFilterChain.doFilter(request, response, chain)
+        then: "custom bean expression denies access"
+            response.status == HttpServletResponse.SC_FORBIDDEN
     }
 }
