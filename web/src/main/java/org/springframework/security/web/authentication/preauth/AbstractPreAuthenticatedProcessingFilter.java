@@ -19,7 +19,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.WebAttributes;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
@@ -66,6 +68,8 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
     private boolean invalidateSessionOnPrincipalChange = true;
 
     private AuthenticationSuccessHandler successHandler = null;
+
+    private AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
 
     /**
      * Check whether all required properties have been set.
@@ -205,6 +209,17 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
             logger.debug("Cleared security context due to exception", failed);
         }
         request.setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, failed);
+
+        try {
+            if (this.failureHandler != null) {
+                failureHandler.onAuthenticationFailure(request, response, failed);
+            }
+        } catch (IOException e) {
+            throw new AuthenticationServiceException("FailureHandler terminated abnormally", e);
+        } catch (ServletException e) {
+            throw new AuthenticationServiceException("FailureHandler terminated abnormally", e);
+        }
+
     }
 
     /**
@@ -277,8 +292,21 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
         this.successHandler = successHandler;
     }
 
+    /**
+     * Sets the strategy used to handle an unsuccessful authentication. This is optional and may be null.
+     * @since 3.3
+     * @author Steffen Ryll
+     */
+    public void setAuthenticationFailureHandler(AuthenticationFailureHandler failureHandler) {
+        this.failureHandler = failureHandler;
+    }
+
     protected AuthenticationSuccessHandler getSuccessHandler() {
         return successHandler;
+    }
+
+    protected AuthenticationFailureHandler getFailureHandler() {
+        return failureHandler;
     }
 
 	/**
