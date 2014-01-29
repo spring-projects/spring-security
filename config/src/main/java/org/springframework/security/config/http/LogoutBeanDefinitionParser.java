@@ -78,7 +78,10 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
         if (!StringUtils.hasText(logoutUrl)) {
             logoutUrl = DEF_LOGOUT_URL;
         }
-        builder.addPropertyValue("filterProcessesUrl", logoutUrl);
+        BeanDefinitionBuilder matcherBuilder = BeanDefinitionBuilder.rootBeanDefinition("org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter$FilterProcessUrlRequestMatcher");
+        matcherBuilder.addConstructorArgValue(logoutUrl);
+
+        builder.addPropertyValue("logoutRequestMatcher", matcherBuilder.getBeanDefinition());
 
         if (StringUtils.hasText(successHandlerRef)) {
             if (StringUtils.hasText(logoutSuccessUrl)) {

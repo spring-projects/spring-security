@@ -148,7 +148,10 @@ public class FormLoginBeanDefinitionParser {
             loginUrl = defaultLoginProcessingUrl;
         }
 
-        filterBuilder.addPropertyValue("filterProcessesUrl", loginUrl);
+        BeanDefinitionBuilder matcherBuilder = BeanDefinitionBuilder.rootBeanDefinition("org.springframework.security.web.authentication.logout.LogoutFilter$FilterProcessUrlRequestMatcher");
+        matcherBuilder.addConstructorArgValue(loginUrl);
+
+        filterBuilder.addPropertyValue("requiresAuthenticationRequestMatcher", matcherBuilder.getBeanDefinition());
 
         if (StringUtils.hasText(successHandlerRef)) {
             filterBuilder.addPropertyReference("authenticationSuccessHandler", successHandlerRef);

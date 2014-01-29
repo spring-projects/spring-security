@@ -125,6 +125,7 @@ public class LogoutFilter extends GenericFilterBean {
     public void setLogoutRequestMatcher(RequestMatcher logoutRequestMatcher) {
         Assert.notNull(logoutRequestMatcher, "logoutRequestMatcher cannot be null");
         this.logoutRequestMatcher = logoutRequestMatcher;
+        this.filterProcessesUrl = null;
     }
 
     @Deprecated

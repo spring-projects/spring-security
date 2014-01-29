@@ -6,6 +6,8 @@ import org.springframework.security.web.access.ExceptionTranslationFilter
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.util.ReflectionUtils;
 
 /**
  *
@@ -101,5 +103,19 @@ class FormLoginConfigTests extends AbstractHttpConfigTests {
         expect:
         apf.usernameParameter == 'xname';
         apf.passwordParameter == 'xpass'
+    }
+
+    def 'SEC-2455: http@login-processing-url'() {
+        when:
+            xml.http {
+                'form-login'('login-processing-url':'/authenticate')
+            }
+            createAppContext()
+
+            def apf = getFilter(UsernamePasswordAuthenticationFilter);
+
+        then:
+            apf.filterProcessesUrl == null // SEC-2455 setFilterProcessesUrl was not invoked
+            FieldUtils.getFieldValue(apf,'requiresAuthenticationRequestMatcher.filterProcessesUrl') == '/authenticate'
     }
 }
