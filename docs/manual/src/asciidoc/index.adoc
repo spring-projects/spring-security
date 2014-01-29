@@ -3244,7 +3244,7 @@ There are two options to using CSRF protection with multipart/form-data. Each op
 
 [NOTE]
 ====
-Before you integrate Spring Security's CSRF protection with multipart file upload, ensure that you can upload without the CSRF protection first. More information about using multipart forms with Spring can be found within the http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-multipart[17.10 Spring's multipart (file upload) support] section of the Spring reference.
+Before you integrate Spring Security's CSRF protection with multipart file upload, ensure that you can upload without the CSRF protection first. More information about using multipart forms with Spring can be found within the http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-multipart[17.10 Spring's multipart (file upload) support] section of the Spring reference and the http://docs.spring.io/spring/docs/3.2.x/javadoc-api/org/springframework/web/multipart/support/MultipartFilter.html[MultipartFilter javadoc].
 ====
 
 [[csrf-multipartfilter]]
