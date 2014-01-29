@@ -3140,7 +3140,7 @@ The last step is to ensure that you include the CSRF token in all PATCH, POST, P
 
 [NOTE]
 ====
-If you are using Spring MVC <form:form> tag or http://www.thymeleaf.org/whatsnew21.html#reqdata[Thymeleaf 2.1+], the `CsrfToken` is automatically included for you using the `CsrfRequestDataValueProcessor`.
+If you are using Spring MVC <form:form> tag or http://www.thymeleaf.org/whatsnew21.html#reqdata[Thymeleaf 2.1+], the `CsrfToken` is automatically included for you if you replace `@EnableWebSecurity` with `@EnableWebMvcSecurity` using the `CsrfRequestDataValueProcessor`.
 ====
 
 [[csrf-include-csrf-token-ajax]]
