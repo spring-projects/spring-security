@@ -15,7 +15,6 @@
 
 package org.springframework.security.ldap.authentication;
 
-import org.springframework.ldap.core.LdapEncoder;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.ldap.search.LdapUserSearch;
 import org.springframework.beans.factory.InitializingBean;

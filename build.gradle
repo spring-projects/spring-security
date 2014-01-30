@@ -27,12 +27,15 @@ allprojects {
     ext.snapshotBuild = version.endsWith('SNAPSHOT')
     ext.springVersion = '3.2.7.RELEASE'
     ext.spring4Version = '4.0.1.RELEASE'
+    ext.springLdapVersion = '1.3.2.RELEASE'
+    ext.springLdap2Version = '2.0.1.CI-SNAPSHOT'
 
     group = 'org.springframework.security'
 
     repositories {
        mavenCentral()
-       maven { url "http://repo.springsource.org/plugins-release" }
+       maven { url "https://repo.spring.io/libs-snapshot" }
+       maven { url "https://repo.spring.io/plugins-release" }
        maven { url "http://repo.terracotta.org/maven2/" }
     }
 
@@ -116,6 +119,9 @@ configure(coreModuleProjects) {
             }
             if (details.requested.name == 'ehcache-terracotta') {
                 details.useVersion '2.1.1'
+            }
+            if (details.requested.group == 'org.springframework.ldap') {
+                details.useVersion springLdap2Version
             }
         }
     }

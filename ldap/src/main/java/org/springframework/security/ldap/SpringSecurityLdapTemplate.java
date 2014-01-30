@@ -24,7 +24,6 @@ import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.DistinguishedName;
-import org.springframework.ldap.core.LdapEncoder;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.util.Assert;
 
