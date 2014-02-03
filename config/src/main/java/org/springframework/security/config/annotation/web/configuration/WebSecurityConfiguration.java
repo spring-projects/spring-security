@@ -23,6 +23,8 @@ import javax.servlet.Filter;
 
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
@@ -34,7 +36,6 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
-import org.springframework.security.config.annotation.AlreadyBuiltException;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
@@ -88,11 +89,7 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
         if(!hasConfigurers) {
             throw new IllegalStateException("At least one non-null instance of "+ WebSecurityConfigurer.class.getSimpleName()+" must be exposed as a @Bean when using @EnableWebSecurity. Hint try extending "+ WebSecurityConfigurerAdapter.class.getSimpleName());
         }
-        try {
-            return webSecurity.build();
-        } catch (AlreadyBuiltException e) {
-            return webSecurity.getObject();
-        }
+        return webSecurity.build();
     }
 
     /**
@@ -115,7 +112,7 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
      */
     @Autowired(required = false)
     public void setFilterChainProxySecurityConfigurer(ObjectPostProcessor<Object> objectPostProcessor,
-            List<SecurityConfigurer<Filter, WebSecurity>> webSecurityConfigurers) throws Exception {
+            @Value("#{@autowiredWebSecurityConfigurersIgnoreParents.getWebSecurityConfigurers()}") List<SecurityConfigurer<Filter, WebSecurity>> webSecurityConfigurers) throws Exception {
         webSecurity = objectPostProcessor.postProcess(new WebSecurity(objectPostProcessor));
         if(debugEnabled != null) {
             webSecurity.debug(debugEnabled);
@@ -137,6 +134,10 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
         this.webSecurityConfigurers = webSecurityConfigurers;
     }
 
+    @Bean
+    public AutowiredWebSecurityConfigurersIgnoreParents autowiredWebSecurityConfigurersIgnoreParents(ConfigurableListableBeanFactory beanFactory) {
+        return new AutowiredWebSecurityConfigurersIgnoreParents(beanFactory);
+    }
 
     /**
      * A custom verision of the Spring provided AnnotationAwareOrderComparator

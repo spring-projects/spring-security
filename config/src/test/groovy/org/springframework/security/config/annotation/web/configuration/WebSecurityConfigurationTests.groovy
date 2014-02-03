@@ -17,31 +17,28 @@ package org.springframework.security.config.annotation.web.configuration;
 
 import static org.junit.Assert.*
 
-import java.util.List;
-
 import org.springframework.beans.factory.BeanCreationException
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.AnnotationConfigApplicationContext
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
-import org.springframework.expression.ExpressionParser;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.access.expression.SecurityExpressionHandler;
+import org.springframework.expression.ExpressionParser
+import org.springframework.mock.web.MockHttpServletRequest
+import org.springframework.security.access.expression.SecurityExpressionHandler
 import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.web.FilterChainProxy
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator;
-import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
-import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
-import org.springframework.security.web.access.expression.WebSecurityExpressionHandler;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator
+import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator
+import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler
+import org.springframework.security.web.access.expression.WebSecurityExpressionHandler
 import org.springframework.security.web.util.matcher.AnyRequestMatcher
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.test.util.ReflectionTestUtils
 
 /**
  * @author Rob Winch
@@ -313,4 +310,36 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
             }
         }
     }
+
+    def "SEC-2461: Multiple WebSecurityConfiguration instances cause null springSecurityFilterChain"() {
+        setup:
+            def parent = loadConfig(ParentConfig)
+            def child = new AnnotationConfigApplicationContext()
+            child.register(ChildConfig)
+            child.parent = parent
+        when:
+            child.refresh()
+        then: "springSecurityFilterChain can be found in parent and child"
+            parent.getBean("springSecurityFilterChain")
+            child.getBean("springSecurityFilterChain")
+        and: "springSecurityFilterChain is defined in both parent and child (don't search parent)"
+            parent.containsBeanDefinition("springSecurityFilterChain")
+            child.containsBeanDefinition("springSecurityFilterChain")
+        cleanup:
+            child?.close()
+            // parent.close() is in superclass
+    }
+
+    @EnableWebSecurity
+    @Configuration
+    static class ParentConfig extends WebSecurityConfigurerAdapter {
+        @Autowired
+        public void configureGlobal(AuthenticationManagerBuilder auth) {
+            auth.inMemoryAuthentication()
+        }
+    }
+
+    @EnableWebSecurity
+    @Configuration
+    static class ChildConfig extends WebSecurityConfigurerAdapter { }
 }
