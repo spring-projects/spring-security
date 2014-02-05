@@ -1,4 +1,4 @@
-/* Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+/* Copyright 2004, 2005, 2006, 2013 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,10 +35,16 @@ import org.springframework.security.cas.web.authentication.ServiceAuthentication
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * Processes a CAS service ticket, obtains proxy granting tickets, and processes proxy tickets.
@@ -183,6 +189,10 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
     private AuthenticationFailureHandler proxyFailureHandler = new SimpleUrlAuthenticationFailureHandler();
 
+    private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+
+    private RequestCache requestCache = new HttpSessionRequestCache();
+
     //~ Constructors ===================================================================================================
 
     public CasAuthenticationFilter() {
@@ -214,6 +224,25 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
         }
 
         chain.doFilter(request, response);
+    }
+
+    /**
+     * We override this method because we don't want to clear the rememberMe in case of an unsuccessfull CAS gateway request.
+     */
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+            AuthenticationException failed) throws IOException, ServletException {
+
+        // if the request had a non empty artifact, we really encounter an unsuccessful authentication
+        // else it is probably an CAS gateway request with no SSO session, we redirect to the saved url
+        if (StringUtils.hasText(obtainArtifact(request))) {
+            super.unsuccessfulAuthentication(request, response, failed);
+        } else {
+            SavedRequest savedRequest = requestCache.getRequest(request, response);
+            if (savedRequest != null) {
+                redirectStrategy.sendRedirect(request, response, savedRequest.getRedirectUrl());
+            }
+        }
     }
 
     @Override
@@ -297,6 +326,16 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
     public final void setServiceProperties(final ServiceProperties serviceProperties) {
         this.artifactParameter = serviceProperties.getArtifactParameter();
         this.authenticateAllArtifacts = serviceProperties.isAuthenticateAllArtifacts();
+    }
+
+    public final void setRedirectStrategy(RedirectStrategy redirectStrategy) {
+        Assert.notNull(redirectStrategy,"redirectStrategy cannot be null");
+        this.redirectStrategy = redirectStrategy;
+    }
+
+    public final void setRequestCache(RequestCache requestCache) {
+        Assert.notNull(requestCache,"requestCache cannot be null");
+        this.requestCache = requestCache;
     }
 
     /**
