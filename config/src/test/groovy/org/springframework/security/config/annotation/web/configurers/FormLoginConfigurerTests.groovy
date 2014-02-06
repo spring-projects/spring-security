@@ -186,6 +186,45 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
         }
     }
 
+    def "FormLogin loginProcessingUrl"() {
+        setup:
+            loadConfig(FormLoginLoginProcessingUrlConfig)
+            request.servletPath = "/loginCheck"
+            request.method = "POST"
+            request.parameters.username = ["user"] as String[]
+            request.parameters.password = ["password"] as String[]
+        when:
+            springSecurityFilterChain.doFilter(request, response, new MockFilterChain())
+        then:
+            response.redirectedUrl == "/"
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    static class FormLoginLoginProcessingUrlConfig extends BaseWebConfig {
+
+        @Override
+        protected void configure(HttpSecurity http) {
+            http
+                .authorizeRequests()
+                    .anyRequest().authenticated()
+                    .and()
+                .formLogin()
+                    .loginProcessingUrl("/loginCheck")
+                    .loginPage("/login")
+                    //.failureUrl("/loginFailure")
+                    .defaultSuccessUrl("/", true)
+                    .passwordParameter("password")
+                    .usernameParameter("username")
+                    .permitAll()
+                    .and()
+                .logout()
+                    .logoutSuccessUrl("/login")
+                    .logoutUrl("/logout")
+                    .deleteCookies("JSESSIONID")
+        }
+    }
+
     def "FormLogin uses PortMapper"() {
         when: "load formLogin() with permitAll"
             FormLoginUsesPortMapperConfig.PORT_MAPPER = Mock(PortMapper)
