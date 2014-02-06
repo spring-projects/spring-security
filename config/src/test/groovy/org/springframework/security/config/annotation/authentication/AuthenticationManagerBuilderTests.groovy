@@ -87,4 +87,37 @@ class AuthenticationManagerBuilderTests extends BaseSpringSpec {
                     .withUser("admin").password("password").roles("USER","ADMIN")
         }
     }
+
+    def "isConfigured with AuthenticationProvider"() {
+        setup:
+            ObjectPostProcessor opp = Mock()
+            AuthenticationProvider provider = Mock()
+            AuthenticationManagerBuilder auth = new AuthenticationManagerBuilder(opp)
+        when:
+            auth
+                .authenticationProvider(provider)
+        then:
+            auth.isConfigured()
+    }
+
+    def "isConfigured with parent"() {
+        setup:
+            ObjectPostProcessor opp = Mock()
+            AuthenticationManager parent = Mock()
+            AuthenticationManagerBuilder auth = new AuthenticationManagerBuilder(opp)
+        when:
+            auth
+                .parentAuthenticationManager(parent)
+        then:
+            auth.isConfigured()
+    }
+
+    def "isConfigured not configured"() {
+        setup:
+            ObjectPostProcessor opp = Mock()
+        when:
+            AuthenticationManagerBuilder auth = new AuthenticationManagerBuilder(opp)
+        then:
+            auth.isConfigured() == false
+    }
 }

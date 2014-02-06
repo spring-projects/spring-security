@@ -35,6 +35,7 @@ dependencies {
                 "org.springframework:spring-orm:$springVersion",
                 "org.springframework:spring-tx:$springVersion",
                 "org.spockframework:spock-core:$spockVersion",
+                "org.spockframework:spock-spring:$spockVersion",
                 "org.slf4j:jcl-over-slf4j:$slf4jVersion",
                 "org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.1.Final",
                 "org.hibernate:hibernate-entitymanager:4.1.0.Final",
@@ -46,11 +47,14 @@ dependencies {
                 "org.apache.directory.server:apacheds-server-jndi:$apacheDsVersion",
                 'org.apache.directory.shared:shared-ldap:0.9.15',
                 'ldapsdk:ldapsdk:4.1',
-                powerMockDependencies
+                powerMockDependencies,
+                "org.springframework.data:spring-data-jpa:1.2.0.RELEASE",
+                "org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.0.Final",
+                 "org.hibernate:hibernate-entitymanager:3.6.10.Final",
+                "org.hsqldb:hsqldb:2.2.8"
     testCompile('org.openid4java:openid4java-nodeps:0.9.6') {
        exclude group: 'com.google.code.guice', module: 'guice'
     }
-
 
     testRuntime "org.hsqldb:hsqldb:$hsqlVersion",
                 "cglib:cglib-nodep:2.2"

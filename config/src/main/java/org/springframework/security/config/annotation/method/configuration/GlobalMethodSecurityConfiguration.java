@@ -16,19 +16,14 @@
 package org.springframework.security.config.annotation.method.configuration;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.aop.framework.ProxyFactoryBean;
-import org.springframework.aop.target.LazyInitTargetSource;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
@@ -67,6 +62,7 @@ import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.util.Assert;
 
 /**
@@ -81,7 +77,6 @@ import org.springframework.util.Assert;
 @Configuration
 public class GlobalMethodSecurityConfiguration implements ImportAware {
     private static final Log logger = LogFactory.getLog(GlobalMethodSecurityConfiguration.class);
-    private ApplicationContext context;
     private ObjectPostProcessor<Object> objectPostProcessor = new ObjectPostProcessor<Object>() {
         public <T> T postProcess(T object) {
             throw new IllegalStateException(ObjectPostProcessor.class.getName()+ " is a required bean. Ensure you have used @"+EnableGlobalMethodSecurity.class.getName());
@@ -93,6 +88,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
     private boolean disableAuthenticationRegistry;
     private AnnotationAttributes enableMethodSecurity;
     private MethodSecurityExpressionHandler expressionHandler;
+    private AuthenticationConfiguration authenticationConfiguration;
 
     /**
      * Creates the default MethodInterceptor which is a MethodSecurityInterceptor using the following methods to
@@ -248,18 +244,10 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
             auth = new AuthenticationManagerBuilder(objectPostProcessor);
             auth.authenticationEventPublisher(eventPublisher);
             configure(auth);
-            if(!disableAuthenticationRegistry) {
+            if(disableAuthenticationRegistry) {
+                authenticationManager = getAuthenticationConfiguration().getAuthenticationManager();
+            } else {
                 authenticationManager = auth.build();
-            }
-            if(authenticationManager == null) {
-                try {
-                    authenticationManager = context.getBean(AuthenticationManagerBuilder.class).getOrBuild();
-                } catch(NoSuchBeanDefinitionException e) {
-                    logger.debug("Could not obtain the AuthenticationManagerBuilder. This is ok for now, we will try using an AuthenticationManager directly",e);
-                }
-            }
-            if(authenticationManager == null) {
-                authenticationManager = lazyBean(AuthenticationManager.class);
             }
         }
         return authenticationManager;
@@ -351,11 +339,6 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
         this.defaultMethodExpressionHandler.setTrustResolver(trustResolver);
     }
 
-    @Autowired
-    public void setApplicationContext(ApplicationContext context) {
-        this.context = context;
-    }
-
     @Autowired(required=false)
     public void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
         this.objectPostProcessor = objectPostProcessor;
@@ -370,17 +353,14 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
         this.defaultMethodExpressionHandler.setPermissionEvaluator(permissionEvaluators.get(0));
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> T lazyBean(Class<T> interfaceName) {
-        LazyInitTargetSource lazyTargetSource = new LazyInitTargetSource();
-        String[] beanNamesForType = context.getBeanNamesForType(interfaceName);
-        Assert.isTrue(beanNamesForType.length == 1 , "Expecting to only find a single bean for type " + interfaceName + ", but found " + Arrays.asList(beanNamesForType));
-        lazyTargetSource.setTargetBeanName(beanNamesForType[0]);
-        lazyTargetSource.setBeanFactory(context);
-        ProxyFactoryBean proxyFactory = new ProxyFactoryBean();
-        proxyFactory.setTargetSource(lazyTargetSource);
-        proxyFactory.setInterfaces(new Class[] { interfaceName });
-        return (T) proxyFactory.getObject();
+    @Autowired(required = false)
+    public void setAuthenticationConfiguration(AuthenticationConfiguration authenticationConfiguration) {
+        this.authenticationConfiguration = authenticationConfiguration;
+    }
+
+    private AuthenticationConfiguration getAuthenticationConfiguration() {
+        Assert.notNull(authenticationConfiguration, "authenticationConfiguration cannot be null");
+        return authenticationConfiguration;
     }
 
     private boolean prePostEnabled() {
@@ -414,5 +394,4 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
         }
         return this.enableMethodSecurity;
     }
-
 }

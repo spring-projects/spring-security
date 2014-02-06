@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.Order;
@@ -31,6 +30,7 @@ import org.springframework.security.authentication.AuthenticationTrustResolverIm
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -43,6 +43,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
+import org.springframework.util.Assert;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 
@@ -68,6 +69,7 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
         }
     };
 
+    private AuthenticationConfiguration authenticationConfiguration;
     private AuthenticationManagerBuilder authenticationBuilder;
     private AuthenticationManagerBuilder parentAuthenticationBuilder;
     private boolean disableAuthenticationRegistration;
@@ -221,18 +223,7 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
         if(!authenticationManagerInitialized) {
             configure(parentAuthenticationBuilder);
             if(disableAuthenticationRegistration) {
-                try {
-                    authenticationManager = context.getBean(AuthenticationManagerBuilder.class).getOrBuild();
-                } catch(NoSuchBeanDefinitionException e) {
-                    logger.debug("Could not obtain the AuthenticationManagerBuilder. This is ok for now, we will try using an AuthenticationManager directly",e);
-                }
-                if(authenticationManager == null) {
-                    try {
-                        authenticationManager = context.getBean(AuthenticationManager.class);
-                    } catch(NoSuchBeanDefinitionException e) {
-                        logger.debug("The AuthenticationManager was not found. This is ok for now as it may not be required.",e);
-                    }
-                }
+                authenticationManager = authenticationConfiguration.getAuthenticationManager();
             } else {
                 authenticationManager = parentAuthenticationBuilder.build();
             }
@@ -341,7 +332,7 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
         this.contentNegotiationStrategy = contentNegotiationStrategy;
     }
 
-    @Autowired(required=false)
+    @Autowired
     public void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
         this.objectPostProcessor = objectPostProcessor;
 
@@ -356,6 +347,10 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
         };
     }
 
+    @Autowired
+    public void setAuthenticationConfiguration(AuthenticationConfiguration authenticationConfiguration) {
+        this.authenticationConfiguration = authenticationConfiguration;
+    }
 
     /**
      * Delays the use of the {@link UserDetailsService} from the
@@ -416,8 +411,9 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
         private AuthenticationManager delegate;
         private final Object delegateMonitor = new Object();
 
-        AuthenticationManagerDelegator(AuthenticationManagerBuilder authentication) {
-            this.delegateBuilder = authentication;
+        AuthenticationManagerDelegator(AuthenticationManagerBuilder delegateBuilder) {
+            Assert.notNull(delegateBuilder,"delegateBuilder cannot be null");
+            this.delegateBuilder = delegateBuilder;
         }
 
         public Authentication authenticate(Authentication authentication) throws AuthenticationException {

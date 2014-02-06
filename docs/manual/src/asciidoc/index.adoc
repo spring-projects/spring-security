@@ -431,6 +431,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ----
 
+NOTE: The name of the configureGlobal method is not important. However, it is important to only configure AuthenticationManagerBuilder in a class annotated with either `@EnableWebSecurity`, `@EnableWebMvcSecurity`, `@EnableGlobalMethodSecurity`, or `@EnableGlobalAuthentication`. Doing otherwise has unpredictable results.
+
 There really isn't much to this configuration, but it does a lot. You can find a summary of the features below:
 
 * Require authentication to every URL in your application

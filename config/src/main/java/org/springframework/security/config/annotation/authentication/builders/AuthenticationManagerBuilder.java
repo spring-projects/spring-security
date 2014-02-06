@@ -27,6 +27,7 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.AbstractConfiguredSecurityBuilder;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityBuilder;
+import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.authentication.ProviderManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configurers.ldap.LdapAuthenticationProviderConfigurer;
 import org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer;
@@ -221,7 +222,7 @@ public class AuthenticationManagerBuilder extends AbstractConfiguredSecurityBuil
 
     @Override
     protected ProviderManager performBuild() throws Exception {
-        if(authenticationProviders.isEmpty() && parentAuthenticationManager == null) {
+        if(!isConfigured()) {
             logger.debug("No authenticationProviders and no parentAuthenticationManager defined. Returning null.");
             return null;
         }
@@ -234,6 +235,26 @@ public class AuthenticationManagerBuilder extends AbstractConfiguredSecurityBuil
         }
         providerManager = postProcess(providerManager);
         return providerManager;
+    }
+
+    /**
+     * Determines if the {@link AuthenticationManagerBuilder} is configured to
+     * build a non null {@link AuthenticationManager}. This means that either a
+     * non-null parent is specified or at least one
+     * {@link AuthenticationProvider} has been specified.
+     *
+     * <p>
+     * When using {@link SecurityConfigurer} instances, the
+     * {@link AuthenticationManagerBuilder} will not be configured until the
+     * {@link SecurityConfigurer#configure(SecurityBuilder)} methods. This means
+     * a {@link SecurityConfigurer} that is last could check this method and
+     * provide a default configuration in the
+     * {@link SecurityConfigurer#configure(SecurityBuilder)} method.
+     *
+     * @return
+     */
+    public boolean isConfigured() {
+        return !authenticationProviders.isEmpty() || parentAuthenticationManager != null;
     }
 
     /**

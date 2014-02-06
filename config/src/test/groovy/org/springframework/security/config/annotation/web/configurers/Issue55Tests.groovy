@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -36,11 +37,13 @@ import org.springframework.stereotype.Component
 class Issue55Tests extends BaseSpringSpec {
 
     def "WebSecurityConfigurerAdapter defaults to @Autowired"() {
+        setup:
+            TestingAuthenticationToken token = new TestingAuthenticationToken("test", "this")
         when:
-        loadConfig(WebSecurityConfigurerAdapterDefaultsAuthManagerConfig)
+            loadConfig(WebSecurityConfigurerAdapterDefaultsAuthManagerConfig)
         then:
-        context.getBean(FilterChainProxy)
-        findFilter(FilterSecurityInterceptor).authenticationManager.parent.class == CustomAuthenticationManager
+            context.getBean(FilterChainProxy)
+            findFilter(FilterSecurityInterceptor).authenticationManager.authenticate(token) == CustomAuthenticationManager.RESULT
      }
 
     @Configuration
@@ -66,12 +69,14 @@ class Issue55Tests extends BaseSpringSpec {
     }
 
     def "multi http WebSecurityConfigurerAdapter defaults to @Autowired"() {
+        setup:
+            TestingAuthenticationToken token = new TestingAuthenticationToken("test", "this")
         when:
-        loadConfig(MultiWebSecurityConfigurerAdapterDefaultsAuthManagerConfig)
+            loadConfig(MultiWebSecurityConfigurerAdapterDefaultsAuthManagerConfig)
         then:
-        context.getBean(FilterChainProxy)
-        findFilter(FilterSecurityInterceptor).authenticationManager.parent.class == CustomAuthenticationManager
-        findFilter(FilterSecurityInterceptor,1).authenticationManager.parent.class == CustomAuthenticationManager
+            context.getBean(FilterChainProxy)
+            findFilter(FilterSecurityInterceptor).authenticationManager.authenticate(token) == CustomAuthenticationManager.RESULT
+            findFilter(FilterSecurityInterceptor,1).authenticationManager.authenticate(token) == CustomAuthenticationManager.RESULT
      }
 
     @Configuration
@@ -107,8 +112,9 @@ class Issue55Tests extends BaseSpringSpec {
     }
 
     static class CustomAuthenticationManager implements AuthenticationManager {
+        static Authentication RESULT = new TestingAuthenticationToken("test", "this","ROLE_USER")
         public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-            return null;
+            return RESULT;
         }
     }
 }

@@ -15,10 +15,25 @@
  */
 package org.springframework.security.config.annotation.authentication.configuration;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.aop.framework.ProxyFactoryBean;
+import org.springframework.aop.target.LazyInitTargetSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configurers.GlobalAuthenticationConfigurerAdapter;
+import org.springframework.util.Assert;
 
 /**
  * Exports the authentication {@link Configuration}
@@ -29,9 +44,98 @@ import org.springframework.security.config.annotation.authentication.builders.Au
  */
 @Configuration
 public class AuthenticationConfiguration {
+    private ApplicationContext applicationContext;
+
+    private AuthenticationManager authenticationManager;
+
+    private boolean authenticationManagerInitialized;
+
+    private List<GlobalAuthenticationConfigurerAdapter> globalAuthConfigures = Collections.emptyList();
+
+    private ObjectPostProcessor<Object> objectPostProcessor;
 
     @Bean
     public AuthenticationManagerBuilder authenticationManagerBuilder(ObjectPostProcessor<Object> objectPostProcessor) {
         return new AuthenticationManagerBuilder(objectPostProcessor);
+    }
+
+    @Bean
+    public GlobalAuthenticationConfigurerAdapter enableGlobalAuthenticationAutowiredConfigurer(ApplicationContext context) {
+        return new EnableGlobalAuthenticationAutowiredConfigurer(context);
+    }
+
+    public AuthenticationManager getAuthenticationManager() throws Exception {
+        if(authenticationManagerInitialized) {
+            return authenticationManager;
+        }
+
+        AuthenticationManagerBuilder authBuilder = authenticationManagerBuilder(objectPostProcessor);
+        for(GlobalAuthenticationConfigurerAdapter config : globalAuthConfigures) {
+            authBuilder.apply(config);
+        }
+
+        authenticationManager = authBuilder.build();
+
+        if(authenticationManager == null) {
+            authenticationManager = getAuthenticationMangerBean();
+        }
+
+        this.authenticationManagerInitialized = true;
+        return authenticationManager;
+    }
+
+    @Autowired(required = false)
+    public void setGlobalAuthenticationConfigurers(List<GlobalAuthenticationConfigurerAdapter> configurers) throws Exception {
+        Collections.sort(configurers, AnnotationAwareOrderComparator.INSTANCE);
+        this.globalAuthConfigures = configurers;
+    }
+
+    @Autowired
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
+    @Autowired
+    public void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
+        this.objectPostProcessor = objectPostProcessor;
+    }
+
+
+    @SuppressWarnings("unchecked")
+    private <T> T lazyBean(Class<T> interfaceName) {
+        LazyInitTargetSource lazyTargetSource = new LazyInitTargetSource();
+        String[] beanNamesForType = applicationContext.getBeanNamesForType(interfaceName);
+        if(beanNamesForType.length == 0) {
+            return null;
+        }
+        Assert.isTrue(beanNamesForType.length == 1 , "Expecting to only find a single bean for type " + interfaceName + ", but found " + Arrays.asList(beanNamesForType));
+        lazyTargetSource.setTargetBeanName(beanNamesForType[0]);
+        lazyTargetSource.setBeanFactory(applicationContext);
+        ProxyFactoryBean proxyFactory = new ProxyFactoryBean();
+        proxyFactory.setTargetSource(lazyTargetSource);
+        proxyFactory.setInterfaces(new Class[] { interfaceName });
+        return (T) proxyFactory.getObject();
+    }
+
+    private AuthenticationManager getAuthenticationMangerBean() {
+        return lazyBean(AuthenticationManager.class);
+    }
+
+
+    private static class EnableGlobalAuthenticationAutowiredConfigurer extends GlobalAuthenticationConfigurerAdapter {
+        private final ApplicationContext context;
+        private static final Log logger = LogFactory.getLog(EnableGlobalAuthenticationAutowiredConfigurer.class);
+
+        public EnableGlobalAuthenticationAutowiredConfigurer(ApplicationContext context) {
+            this.context = context;
+        }
+
+        @Override
+        public void init(AuthenticationManagerBuilder auth) {
+            Map<String, Object> beansWithAnnotation = context.getBeansWithAnnotation(EnableGlobalAuthentication.class);
+            if(logger.isDebugEnabled()) {
+                logger.debug("Eagerly initializing " + beansWithAnnotation);
+            }
+        }
     }
 }

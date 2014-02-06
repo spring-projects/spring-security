@@ -20,6 +20,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Import;
+import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
 
 
 /**
@@ -33,5 +34,6 @@ import org.springframework.context.annotation.Import;
 @Target(value={java.lang.annotation.ElementType.TYPE})
 @Documented
 @Import(WebMvcSecurityConfiguration.class)
+@EnableGlobalAuthentication
 public @interface EnableWebMvcSecurity {
 }
