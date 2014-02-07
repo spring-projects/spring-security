@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-contacts-xml</artifactId>
-  <version>3.2.0.CI-SNAPSHOT</version>
+  <version>3.2.1.CI-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>spring-security-samples-contacts-xml</name>
   <description>spring-security-samples-contacts-xml</description>
@@ -60,37 +60,37 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-acl</artifactId>
-      <version>3.2.0.CI-SNAPSHOT</version>
+      <version>3.2.1.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>3.2.0.CI-SNAPSHOT</version>
+      <version>3.2.1.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-aop</artifactId>
-      <version>3.2.6.RELEASE</version>
+      <version>3.2.7.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-beans</artifactId>
-      <version>3.2.6.RELEASE</version>
+      <version>3.2.7.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
-      <version>3.2.6.RELEASE</version>
+      <version>3.2.7.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
-      <version>3.2.6.RELEASE</version>
+      <version>3.2.7.RELEASE</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -102,25 +102,25 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
-      <version>3.2.6.RELEASE</version>
+      <version>3.2.7.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-tx</artifactId>
-      <version>3.2.6.RELEASE</version>
+      <version>3.2.7.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-web</artifactId>
-      <version>3.2.6.RELEASE</version>
+      <version>3.2.7.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
-      <version>3.2.6.RELEASE</version>
+      <version>3.2.7.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -143,12 +143,6 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-      <version>1.8.0.10</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
       <version>1.2</version>
@@ -161,6 +155,12 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>2.3.1</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>jcl-over-slf4j</artifactId>
       <version>1.7.5</version>
@@ -169,25 +169,25 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>3.2.0.CI-SNAPSHOT</version>
+      <version>3.2.1.CI-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-taglibs</artifactId>
-      <version>3.2.0.CI-SNAPSHOT</version>
+      <version>3.2.1.CI-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>3.2.0.CI-SNAPSHOT</version>
+      <version>3.2.1.CI-SNAPSHOT</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context-support</artifactId>
-      <version>3.2.6.RELEASE</version>
+      <version>3.2.7.RELEASE</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -211,7 +211,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>3.2.6.RELEASE</version>
+      <version>3.2.7.RELEASE</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
