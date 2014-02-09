@@ -30,7 +30,7 @@ abstract class AbstractRequestParameterAllowFromStrategy implements AllowFromStr
             log.debug("Supplied origin '"+allowFromOrigin+"'");
         }
         if (StringUtils.hasText(allowFromOrigin) && allowed(allowFromOrigin)) {
-            return "ALLOW-FROM " + allowFromOrigin;
+            return allowFromOrigin;
         } else {
             return "DENY";
         }
