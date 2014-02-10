@@ -83,7 +83,7 @@ public abstract class AbstractLdapAuthenticationProvider implements Authenticati
 
         UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(user, password,
                 authoritiesMapper.mapAuthorities(user.getAuthorities()));
-        result.setDetails(authentication.getDetails());
+        result.setDetails(user);
 
         return result;
     }
