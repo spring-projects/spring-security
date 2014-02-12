@@ -22,6 +22,7 @@ import org.aopalliance.intercept.MethodInterceptor
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationListener
+import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.access.AccessDeniedException
@@ -296,6 +297,43 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
                 .inMemoryAuthentication()
         }
 
+        @Bean
+        public MethodSecurityService service() {
+            new MethodSecurityServiceImpl()
+        }
+    }
+
+    def "SEC-2479: Support AuthenticationManager in parent"() {
+        setup:
+            SecurityContextHolder.getContext().setAuthentication(
+                new TestingAuthenticationToken("user", "password","ROLE_USER"))
+            loadConfig(Sec2479ParentConfig)
+            def child = new AnnotationConfigApplicationContext()
+            child.register(Sec2479ChildConfig)
+            child.parent = context
+            child.refresh()
+            MethodSecurityService service = child.getBean(MethodSecurityService)
+        when:
+            service.preAuthorize()
+        then:
+            thrown(AccessDeniedException)
+        cleanup:
+            child?.close()
+    }
+
+    @Configuration
+    static class Sec2479ParentConfig {
+        static AuthenticationManager AM
+
+        @Bean
+        public AuthenticationManager am() {
+            AM
+        }
+    }
+
+    @Configuration
+    @EnableGlobalMethodSecurity(prePostEnabled = true)
+    static class Sec2479ChildConfig {
         @Bean
         public MethodSecurityService service() {
             new MethodSecurityServiceImpl()

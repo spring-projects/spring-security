@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.aop.target.LazyInitTargetSource;
+import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -104,7 +105,7 @@ public class AuthenticationConfiguration {
     @SuppressWarnings("unchecked")
     private <T> T lazyBean(Class<T> interfaceName) {
         LazyInitTargetSource lazyTargetSource = new LazyInitTargetSource();
-        String[] beanNamesForType = applicationContext.getBeanNamesForType(interfaceName);
+        String[] beanNamesForType = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(applicationContext, interfaceName);
         if(beanNamesForType.length == 0) {
             return null;
         }
