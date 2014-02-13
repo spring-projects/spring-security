@@ -53,7 +53,7 @@ import org.springframework.util.StringUtils;
  *
  */
 public class KeyBasedPersistenceTokenService implements TokenService, InitializingBean {
-    private int pseudoRandomNumberBits = 256;
+    private int pseudoRandomNumberBytes = 256;
     private String serverSecret;
     private Integer serverInteger;
     private SecureRandom secureRandom;
@@ -113,9 +113,9 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
      * @return a pseduo random number (hex encoded)
      */
     private String generatePseudoRandomNumber() {
-        byte[] randomizedBits = new byte[pseudoRandomNumberBits];
-        secureRandom.nextBytes(randomizedBits);
-        return new String(Hex.encode(randomizedBits));
+        byte[] randomBytes = new byte[pseudoRandomNumberBytes];
+        secureRandom.nextBytes(randomBytes);
+        return new String(Hex.encode(randomBytes));
     }
 
     private String computeServerSecretApplicableAt(long time) {
@@ -134,11 +134,25 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
     }
 
     /**
-     * @param pseudoRandomNumberBits changes the number of bits issued (must be >= 0; defaults to 256)
+     * This method actually sets the number of bytes despite the method name
+     * indicating it is the number of bits.
+     *
+     * @deprecated use {@link #setPseudoRandomNumberBytes(int)}
+     * @param pseudoRandomNumberBytes
+     *            changes the number of bytes issued (must be >= 0; defaults to
+     *            256)
      */
-    public void setPseudoRandomNumberBits(int pseudoRandomNumberBits) {
-        Assert.isTrue(pseudoRandomNumberBits >= 0, "Must have a positive pseudo random number bit size");
-        this.pseudoRandomNumberBits = pseudoRandomNumberBits;
+    public void setPseudoRandomNumberBits(int pseudoRandomNumberBytes) {
+        Assert.isTrue(pseudoRandomNumberBytes >= 0, "Must have a positive pseudo random number bit size");
+        this.pseudoRandomNumberBytes = pseudoRandomNumberBytes;
+    }
+
+    /**
+     * @param pseudoRandomNumberBytes changes the number of bytes issued (must be >= 0; defaults to 256 for passivity reasons)
+     */
+    public void setPseudoRandomNumberBytes(int pseudoRandomNumberBytes) {
+        Assert.isTrue(pseudoRandomNumberBytes >= 0, "Must have a positive pseudo random number bit size");
+        this.pseudoRandomNumberBytes = pseudoRandomNumberBytes;
     }
 
     public void setServerInteger(Integer serverInteger) {
