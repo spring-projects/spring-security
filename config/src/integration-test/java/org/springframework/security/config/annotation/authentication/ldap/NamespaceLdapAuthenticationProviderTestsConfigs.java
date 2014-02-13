@@ -20,6 +20,7 @@ import org.springframework.security.authentication.encoding.PlaintextPasswordEnc
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.PersonContextMapper;
 
 /**
@@ -62,6 +63,18 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
                         .root("dc=springframework,dc=org") // ldap-server@root
                         // .url("ldap://localhost:33389/dc-springframework,dc=org") this overrides root and port and is used for external
                         ;
+        }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    static class CustomAuthoritiesPopulatorConfig extends WebSecurityConfigurerAdapter {
+        static LdapAuthoritiesPopulator LAP;
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+            auth
+                .ldapAuthentication()
+                    .userSearchFilter("(uid={0})")
+                    .ldapAuthoritiesPopulator(LAP);
         }
     }
 

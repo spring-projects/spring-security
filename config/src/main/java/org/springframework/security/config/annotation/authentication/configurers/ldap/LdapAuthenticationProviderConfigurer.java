@@ -36,6 +36,7 @@ import org.springframework.security.ldap.search.LdapUserSearch;
 import org.springframework.security.ldap.server.ApacheDSContainer;
 import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.InetOrgPersonContextMapper;
+import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
 import org.springframework.security.ldap.userdetails.PersonContextMapper;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
@@ -61,15 +62,13 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
     private UserDetailsContextMapper userDetailsContextMapper;
     private PasswordEncoder passwordEncoder;
     private String passwordAttribute;
+    private LdapAuthoritiesPopulator ldapAuthoritiesPopulator;
 
     private LdapAuthenticationProvider build() throws Exception {
         BaseLdapPathContextSource contextSource = getContextSource();
         LdapAuthenticator ldapAuthenticator = createLdapAuthenticator(contextSource);
 
-        DefaultLdapAuthoritiesPopulator authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(
-                contextSource, groupSearchBase);
-        authoritiesPopulator.setGroupRoleAttribute(groupRoleAttribute);
-        authoritiesPopulator.setGroupSearchFilter(groupSearchFilter);
+        LdapAuthoritiesPopulator authoritiesPopulator = getLdapAuthoritiesPopulator();
 
         LdapAuthenticationProvider ldapAuthenticationProvider = new LdapAuthenticationProvider(
                 ldapAuthenticator, authoritiesPopulator);
@@ -84,6 +83,17 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
     }
 
     /**
+     * Specifies the {@link LdapAuthoritiesPopulator}.
+     *
+     * @param ldapAuthoritiesPopulator the {@link LdapAuthoritiesPopulator} the default is {@link DefaultLdapAuthoritiesPopulator}
+     * @return the {@link LdapAuthenticationProviderConfigurer} for further customizations
+     */
+    public LdapAuthenticationProviderConfigurer<B> ldapAuthoritiesPopulator(LdapAuthoritiesPopulator ldapAuthoritiesPopulator) {
+        this.ldapAuthoritiesPopulator = ldapAuthoritiesPopulator;
+        return this;
+    }
+
+    /**
      * Adds an {@link ObjectPostProcessor} for this class.
      *
      * @param objectPostProcessor
@@ -92,6 +102,25 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
     public LdapAuthenticationProviderConfigurer<B> withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
         addObjectPostProcessor(objectPostProcessor);
         return this;
+    }
+
+    /**
+     * Gets the {@link LdapAuthoritiesPopulator} and defaults to {@link DefaultLdapAuthoritiesPopulator}
+     *
+     * @return the {@link LdapAuthoritiesPopulator}
+     */
+    private LdapAuthoritiesPopulator getLdapAuthoritiesPopulator() {
+        if(ldapAuthoritiesPopulator != null) {
+            return ldapAuthoritiesPopulator;
+        }
+
+        DefaultLdapAuthoritiesPopulator defaultAuthoritiesPopulator = new DefaultLdapAuthoritiesPopulator(
+                contextSource, groupSearchBase);
+        defaultAuthoritiesPopulator.setGroupRoleAttribute(groupRoleAttribute);
+        defaultAuthoritiesPopulator.setGroupSearchFilter(groupSearchFilter);
+
+        this.ldapAuthoritiesPopulator = defaultAuthoritiesPopulator;
+        return defaultAuthoritiesPopulator;
     }
 
     /**

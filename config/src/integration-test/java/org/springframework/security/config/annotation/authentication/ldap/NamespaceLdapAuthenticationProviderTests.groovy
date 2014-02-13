@@ -26,6 +26,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.authentication.ldap.NamespaceLdapAuthenticationProviderTestsConfigs.LdapAuthenticationProviderConfig;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
 import org.springframework.security.ldap.authentication.PasswordComparisonAuthenticator;
+import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.PersonContextMapper;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -55,6 +56,17 @@ class NamespaceLdapAuthenticationProviderTests extends BaseSpringSpec {
             provider.authenticator.getUserDns("user") == ["uid=user,ou=people"]
             provider.authenticator.userSearch.searchBase == "ou=users"
             provider.authenticator.userSearch.searchFilter == "(uid={0})"
+    }
+
+    def "SEC-2490: ldap-authentication-provider custom LdapAuthoritiesPopulator"() {
+        setup:
+            LdapAuthoritiesPopulator LAP = Mock()
+            CustomAuthoritiesPopulatorConfig.LAP = LAP
+        when:
+            loadConfig(CustomAuthoritiesPopulatorConfig)
+            LdapAuthenticationProvider provider = findAuthenticationProvider(LdapAuthenticationProvider)
+        then:
+            provider.authoritiesPopulator == LAP
     }
 
     def "ldap-authentication-provider password compare"() {
