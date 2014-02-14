@@ -168,7 +168,7 @@ public class JdbcUserDetailsManagerTests {
         Authentication newAuth = SecurityContextHolder.getContext().getAuthentication();
         assertEquals("joe", newAuth.getName());
         assertEquals(currentAuth.getDetails(), newAuth.getDetails());
-        assertEquals("newPassword", newAuth.getCredentials());
+        assertNull(newAuth.getCredentials());
         assertFalse(cache.getUserMap().containsKey("joe"));
     }
 
@@ -300,6 +300,15 @@ public class JdbcUserDetailsManagerTests {
         template.execute("delete from authorities where username='joe'");
         manager.updateUser(joe);
         assertEquals(0, template.queryForList(SELECT_JOE_AUTHORITIES_SQL).size());
+    }
+
+    // SEC-2166
+    @Test
+    public void createNewAuthenticationUsesNullPasswordToKeepPassordsSave() {
+        insertJoe();
+        UsernamePasswordAuthenticationToken currentAuth = new UsernamePasswordAuthenticationToken("joe",null, AuthorityUtils.createAuthorityList("ROLE_USER"));
+        Authentication updatedAuth = manager.createNewAuthentication(currentAuth, "new");
+        assertNull(updatedAuth.getCredentials());
     }
 
     private Authentication authenticateJoe() {
