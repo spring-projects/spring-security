@@ -221,7 +221,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
         UserDetails user = loadUserByUsername(currentAuth.getName());
 
         UsernamePasswordAuthenticationToken newAuthentication =
-                new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
+                new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
         newAuthentication.setDetails(currentAuth.getDetails());
 
         return newAuthentication;

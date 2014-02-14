@@ -2,6 +2,7 @@ package org.springframework.security.provisioning;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
+import static org.fest.assertions.Assertions.assertThat;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -300,6 +301,15 @@ public class JdbcUserDetailsManagerTests {
         template.execute("delete from authorities where username='joe'");
         manager.updateUser(joe);
         assertEquals(0, template.queryForList(SELECT_JOE_AUTHORITIES_SQL).size());
+    }
+
+    // SEC-2166
+    @Test
+    public void createNewAuthenticationUsesNullPasswordToKeepPassordsSave() {
+        insertJoe();
+        UsernamePasswordAuthenticationToken currentAuth = new UsernamePasswordAuthenticationToken("joe",null, AuthorityUtils.createAuthorityList("ROLE_USER"));
+        Authentication updatedAuth = manager.createNewAuthentication(currentAuth, "new");
+        assertThat(updatedAuth.getCredentials()).isNull();
     }
 
     private Authentication authenticateJoe() {
