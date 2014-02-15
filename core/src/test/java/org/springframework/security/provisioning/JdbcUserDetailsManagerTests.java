@@ -169,7 +169,7 @@ public class JdbcUserDetailsManagerTests {
         Authentication newAuth = SecurityContextHolder.getContext().getAuthentication();
         assertEquals("joe", newAuth.getName());
         assertEquals(currentAuth.getDetails(), newAuth.getDetails());
-        assertEquals("newPassword", newAuth.getCredentials());
+        assertThat(newAuth.getCredentials()).isNull();
         assertFalse(cache.getUserMap().containsKey("joe"));
     }
 
