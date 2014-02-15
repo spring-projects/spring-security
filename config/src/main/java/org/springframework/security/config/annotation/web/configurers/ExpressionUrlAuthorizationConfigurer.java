@@ -132,13 +132,11 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
      *
      * @param requestMatchers the {@link RequestMatcher} instances to register to the {@link ConfigAttribute} instances
      * @param configAttributes the {@link ConfigAttribute} to be mapped by the {@link RequestMatcher} instances
-     * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customization.
      */
-    private ExpressionUrlAuthorizationConfigurer<H> interceptUrl(Iterable<? extends RequestMatcher> requestMatchers, Collection<ConfigAttribute> configAttributes) {
+    private void interceptUrl(Iterable<? extends RequestMatcher> requestMatchers, Collection<ConfigAttribute> configAttributes) {
         for(RequestMatcher requestMatcher : requestMatchers) {
             REGISTRY.addMapping(new AbstractConfigAttributeRequestMatcherRegistry.UrlMapping(requestMatcher, configAttributes));
         }
-        return null;
     }
 
     @Override
