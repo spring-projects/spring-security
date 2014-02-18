@@ -66,6 +66,7 @@ public class FormLoginBeanDefinitionParser {
     private RootBeanDefinition filterBean;
     private RootBeanDefinition entryPointBean;
     private String loginPage;
+    private String loginProcessingUrl;
 
     FormLoginBeanDefinitionParser(String defaultLoginProcessingUrl, String filterClassName,
             BeanReference requestCache, BeanReference sessionStrategy, boolean allowSessionCreation, BeanReference portMapper, BeanReference portResolver) {
@@ -148,6 +149,8 @@ public class FormLoginBeanDefinitionParser {
             loginUrl = defaultLoginProcessingUrl;
         }
 
+        this.loginProcessingUrl = loginUrl;
+
         BeanDefinitionBuilder matcherBuilder = BeanDefinitionBuilder.rootBeanDefinition("org.springframework.security.web.authentication.logout.LogoutFilter$FilterProcessUrlRequestMatcher");
         matcherBuilder.addConstructorArgValue(loginUrl);
 
@@ -203,5 +206,9 @@ public class FormLoginBeanDefinitionParser {
 
     String getLoginPage() {
         return loginPage;
+    }
+
+    String getLoginProcessingUrl() {
+        return loginProcessingUrl;
     }
 }

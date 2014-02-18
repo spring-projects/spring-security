@@ -128,6 +128,9 @@ final class AuthenticationConfigBuilder {
     private final BeanReference portResolver;
     private final BeanMetadataElement csrfLogoutHandler;
 
+    private String loginProcessingUrl;
+    private String openidLoginProcessingUrl;
+
     public AuthenticationConfigBuilder(Element element, ParserContext pc, SessionCreationPolicy sessionPolicy,
             BeanReference requestCache, BeanReference authenticationManager, BeanReference sessionStrategy, BeanReference portMapper, BeanReference portResolver, BeanMetadataElement csrfLogoutHandler) {
         this.httpElt = element;
@@ -197,6 +200,7 @@ final class AuthenticationConfigBuilder {
             parser.parse(formLoginElt, pc);
             formFilter = parser.getFilterBean();
             formEntryPoint = parser.getEntryPointBean();
+            loginProcessingUrl = parser.getLoginProcessingUrl();
         }
 
         if (formFilter != null) {
@@ -221,6 +225,7 @@ final class AuthenticationConfigBuilder {
             parser.parse(openIDLoginElt, pc);
             openIDFilter = parser.getFilterBean();
             openIDEntryPoint = parser.getEntryPointBean();
+            openidLoginProcessingUrl = parser.getLoginProcessingUrl();
 
             List<Element> attrExElts = DomUtils.getChildElementsByTagName(openIDLoginElt, Elements.OPENID_ATTRIBUTE_EXCHANGE);
 
@@ -473,10 +478,12 @@ final class AuthenticationConfigBuilder {
 
             if (formFilterId != null) {
                 loginPageFilter.addConstructorArgReference(formFilterId);
+                loginPageFilter.addPropertyValue("authenticationUrl", loginProcessingUrl);
             }
 
             if (openIDFilterId != null) {
                 loginPageFilter.addConstructorArgReference(openIDFilterId);
+                loginPageFilter.addPropertyValue("openIDauthenticationUrl", openidLoginProcessingUrl);
             }
 
             loginPageGenerationFilter = loginPageFilter.getBeanDefinition();
