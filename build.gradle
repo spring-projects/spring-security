@@ -39,7 +39,7 @@ allprojects {
        maven { url "http://repo.terracotta.org/maven2/" }
     }
 
-    eclipse.project.name = "${project.name}-3.2.x"
+    eclipse.project.name = "${project.name}-4.0.x"
 }
 
 sonarRunner {
