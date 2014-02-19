@@ -198,9 +198,9 @@ If you are using a milestone or release candidate version, you will need to ensu
 ----
 
 [[maven-bom]]
-===== Using Spring 4 and Maven
+===== Spring Framework Bom
 
-Spring Security builds against Spring Framework {spring-version}, but is also tested against Spring Framework {spring4-version}. This means you can use Spring Security {spring-security-version} with Spring Framework {spring4-version}. The problem that many users will have is that Spring Security's transitive dependencies resolve Spring Framework {spring-version} causing all sorts of strange classpath problems.
+Spring Security builds against Spring Framework {spring-version}, but should work with 4.0.x. The problem that many users will have is that Spring Security's transitive dependencies resolve Spring Framework {spring-version} which can cause strange classpath problems.
 
 One (tedious) way to circumvent this issue would be to include all the Spring Framework modules in a http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Dependency_Management[<dependencyManagement>] section of your pom. An alternative approach is to include the `spring-framework-bom` within your `<dependencyManagement>` section of your `pom.xml` as shown below:
 
@@ -213,7 +213,7 @@ One (tedious) way to circumvent this issue would be to include all the Spring Fr
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-framework-bom</artifactId>
-        <version>{spring4-version}</version>
+        <version>{spring-version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -221,7 +221,7 @@ One (tedious) way to circumvent this issue would be to include all the Spring Fr
 </dependencyManagement>
 ----
 
-This will ensure that all the transitive dependencies of Spring Security use the Spring {spring4-version} modules.
+This will ensure that all the transitive dependencies of Spring Security use the Spring {spring-version} modules.
 
 NOTE: This approach uses Maven's "bill of materials" (BOM) concept and is only available in Maven 2.0.9+. For additional details about how dependencies are resolved refer to http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html[Maven's Introduction to the Dependency Mechanism documentation].
 
@@ -274,9 +274,9 @@ repositories {
 ----
 
 [[gradle-resolutionStrategy]]
-===== Using Spring 4 and Gradle
+===== Using Spring 4.0.x and Gradle
 
-By default Gradle will use the newest version when resolving transitive versions. This means that often times no additional work is necessary when running Spring Security {spring-security-version} with Spring Framework {spring4-version}. However, at times there can be issues that come up so it is best to mitigate this using http://www.gradle.org/docs/current/dsl/org.gradle.api.artifacts.ResolutionStrategy.html[Gradle's ResolutionStrategy] as shown below:
+By default Gradle will use the newest version when resolving transitive versions. This means that often times no additional work is necessary when running Spring Security {spring-security-version} with Spring Framework {spring-version}. However, at times there can be issues that come up so it is best to mitigate this using http://www.gradle.org/docs/current/dsl/org.gradle.api.artifacts.ResolutionStrategy.html[Gradle's ResolutionStrategy] as shown below:
 
 .build.gradle
 [source,groovy]
@@ -285,13 +285,13 @@ By default Gradle will use the newest version when resolving transitive versions
 configurations.all {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
         if (details.requested.group == 'org.springframework') {
-            details.useVersion '{spring4-version}'
+            details.useVersion '{spring-version}'
         }
     }
 }
 ----
 
-This will ensure that all the transitive dependencies of Spring Security use the Spring {spring4-version} modules.
+This will ensure that all the transitive dependencies of Spring Security use the Spring {spring-version} modules.
 
 NOTE: This example uses Gradle 1.9, but may need modifications to work in future versions of Gradle since this is an incubating feature within Gradle.
 
@@ -809,7 +809,7 @@ public class MultiHttpSecurityConfig {
 [[jc-method]]
 === Method Security
 
-From version 2.0 onwards Spring Security has improved support substantially for adding security to your service layer methods. It provides support for JSR-250 annotation security as well as the framework’s original @Secured annotation. From 3.0 you can also make use of new <<el-access,expression-based annotations>>. You can apply security to a single bean, using the intercept-methods element to decorate the bean declaration, or you can secure multiple beans across the entire service layer using the AspectJ style pointcuts.
+From version 2.0 onwards Spring Security has improved support substantially for adding security to your service layer methods. It provides support for JSR-250 annotation security as well as the framework���s original @Secured annotation. From 3.0 you can also make use of new <<el-access,expression-based annotations>>. You can apply security to a single bean, using the intercept-methods element to decorate the bean declaration, or you can secure multiple beans across the entire service layer using the AspectJ style pointcuts.
 
 ==== EnableGlobalMethodSecurity
 
@@ -824,7 +824,7 @@ public class MethodSecurityConfig {
 }
 ----
 
-Adding an annotation to a method (on an class or interface) would then limit the access to that method accordingly. Spring Security’s native annotation support defines a set of attributes for the method. These will be passed to the AccessDecisionManager for it to make the actual decision:
+Adding an annotation to a method (on an class or interface) would then limit the access to that method accordingly. Spring Security���s native annotation support defines a set of attributes for the method. These will be passed to the AccessDecisionManager for it to make the actual decision:
 
 [source,java]
 ----
@@ -852,7 +852,7 @@ public class MethodSecurityConfig {
 }
 ----
 
-These are standards-based and allow simple role-based constraints to be applied but do not have the power Spring Security’s native annotations. To use the new expression-based syntax, you would use
+These are standards-based and allow simple role-based constraints to be applied but do not have the power Spring Security���s native annotations. To use the new expression-based syntax, you would use
 
 [source,java]
 ----

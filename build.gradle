@@ -25,10 +25,8 @@ allprojects {
 
     ext.releaseBuild = version.endsWith('RELEASE')
     ext.snapshotBuild = version.endsWith('SNAPSHOT')
-    ext.springVersion = '3.2.8.RELEASE'
-    ext.spring4Version = '4.0.2.RELEASE'
-    ext.springLdapVersion = '1.3.2.RELEASE'
-    ext.springLdap2Version = '2.0.1.RELEASE'
+    ext.springVersion = '4.0.2.RELEASE'
+    ext.springLdapVersion = '2.0.1.RELEASE'
 
     group = 'org.springframework.security'
 
@@ -107,23 +105,6 @@ configure(coreModuleProjects) {
     }
     configurations {
         jacoco //Configuration Group used by Sonar to provide Code Coverage using JaCoCo
-        spring4TestRuntime.extendsFrom testRuntime
-    }
-    configurations.spring4TestRuntime {
-        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-            if (details.requested.group == 'org.springframework') {
-                details.useVersion spring4Version
-            }
-            if (details.requested.name == 'ehcache') {
-                details.useVersion '2.6.5'
-            }
-            if (details.requested.name == 'ehcache-terracotta') {
-                details.useVersion '2.1.1'
-            }
-            if (details.requested.group == 'org.springframework.ldap') {
-                details.useVersion springLdap2Version
-            }
-        }
     }
 
     dependencies {
@@ -135,14 +116,6 @@ configure(coreModuleProjects) {
     integrationTest {
         jvmArgs "-javaagent:${configurations.jacoco.asPath}=destfile=${buildDir}/jacoco.exec,includes=${project.group}.*"
     }
-    task spring4Test(type: Test) {
-        jvmArgs = ['-ea', '-Xmx500m', '-XX:MaxPermSize=128M']
-        exclude "**/EhCacheBasedAclCacheTests.class", "**/Issue55Tests.class"
-        classpath = sourceSets.test.output + sourceSets.main.output + configurations.spring4TestRuntime
-        testResultsDir = file("$buildDir/spring4-test-results/")
-        testReportDir = file("$buildDir/reports/spring4-tests/")
-    }
-    check.dependsOn spring4Test
 }
 
 configure (aspectjProjects) {
