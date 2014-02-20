@@ -46,10 +46,12 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 
     final String rememberMeServices;
     private ManagedList<BeanMetadataElement> logoutHandlers = new ManagedList<BeanMetadataElement>();
+    private boolean csrfEnabled;
 
     public LogoutBeanDefinitionParser(String rememberMeServices, BeanMetadataElement csrfLogoutHandler) {
         this.rememberMeServices = rememberMeServices;
-        if(csrfLogoutHandler != null) {
+        this.csrfEnabled = csrfLogoutHandler != null;
+        if(this.csrfEnabled) {
             logoutHandlers.add(csrfLogoutHandler);
         }
     }
@@ -78,10 +80,9 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
         if (!StringUtils.hasText(logoutUrl)) {
             logoutUrl = DEF_LOGOUT_URL;
         }
-        BeanDefinitionBuilder matcherBuilder = BeanDefinitionBuilder.rootBeanDefinition("org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter$FilterProcessUrlRequestMatcher");
-        matcherBuilder.addConstructorArgValue(logoutUrl);
 
-        builder.addPropertyValue("logoutRequestMatcher", matcherBuilder.getBeanDefinition());
+
+        builder.addPropertyValue("logoutRequestMatcher", getLogoutRequestMatcher(logoutUrl));
 
         if (StringUtils.hasText(successHandlerRef)) {
             if (StringUtils.hasText(logoutSuccessUrl)) {
@@ -115,6 +116,19 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
         builder.addConstructorArgValue(logoutHandlers);
 
         return builder.getBeanDefinition();
+    }
+
+    private BeanDefinition getLogoutRequestMatcher(String logoutUrl) {
+        if(this.csrfEnabled) {
+            BeanDefinitionBuilder matcherBuilder = BeanDefinitionBuilder.rootBeanDefinition("org.springframework.security.web.util.matcher.AntPathRequestMatcher");
+            matcherBuilder.addConstructorArgValue(logoutUrl);
+            matcherBuilder.addConstructorArgValue("POST");
+            return matcherBuilder.getBeanDefinition();
+        } else {
+            BeanDefinitionBuilder matcherBuilder = BeanDefinitionBuilder.rootBeanDefinition("org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter$FilterProcessUrlRequestMatcher");
+            matcherBuilder.addConstructorArgValue(logoutUrl);
+            return matcherBuilder.getBeanDefinition();
+        }
     }
 
     ManagedList<BeanMetadataElement> getLogoutHandlers() {

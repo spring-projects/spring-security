@@ -12,27 +12,29 @@
  */
 package org.springframework.security.config.http
 
-import static org.mockito.Mockito.*
 import static org.mockito.Matchers.*
+import static org.mockito.Mockito.*
 
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-import org.spockframework.compiler.model.WhenBlock;
 import org.springframework.mock.web.MockFilterChain
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.config.annotation.web.configurers.CsrfConfigurerTests.CsrfTokenRepositoryConfig;
-import org.springframework.security.config.annotation.web.configurers.CsrfConfigurerTests.RequireCsrfProtectionMatcherConfig
-import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.authority.AuthorityUtils
+import org.springframework.security.core.context.SecurityContextImpl
+import org.springframework.security.web.access.AccessDeniedHandler
+import org.springframework.security.web.context.HttpRequestResponseHolder
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository
 import org.springframework.security.web.csrf.CsrfFilter
-import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.security.web.csrf.CsrfTokenRepository;
-import org.springframework.security.web.csrf.DefaultCsrfToken;
-import org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor
+import org.springframework.security.web.csrf.CsrfToken
+import org.springframework.security.web.csrf.CsrfTokenRepository
+import org.springframework.security.web.csrf.DefaultCsrfToken
 import org.springframework.security.web.util.matcher.RequestMatcher
-import org.springframework.web.servlet.support.RequestDataValueProcessor;
+import org.springframework.web.servlet.support.RequestDataValueProcessor
 
 import spock.lang.Unroll
 
@@ -203,6 +205,7 @@ class CsrfConfigTests extends AbstractHttpConfigTests {
             }
             mockBean(RequestMatcher,'matcher')
             createAppContext()
+            request.method = 'POST'
             RequestMatcher matcher = appContext.getBean("matcher",RequestMatcher)
         when:
             when(matcher.matches(any(HttpServletRequest))).thenReturn(false)
@@ -272,10 +275,43 @@ class CsrfConfigTests extends AbstractHttpConfigTests {
             when(repo.loadToken(any(HttpServletRequest))).thenReturn(token)
             request.setParameter(token.parameterName,token.token)
             request.method = "POST"
-            request.requestURI = "/j_spring_security_logout"
+            request.servletPath = "/j_spring_security_logout"
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
             verify(repo).saveToken(eq(null),any(HttpServletRequest), any(HttpServletResponse))
     }
+
+        def "SEC-2495: csrf disables logout on GET"() {
+            setup:
+                httpAutoConfig {
+                    'csrf'()
+                }
+                createAppContext()
+                login()
+                request.method = "GET"
+                request.requestURI = "/j_spring_security_logout"
+            when:
+                springSecurityFilterChain.doFilter(request,response,chain)
+            then:
+                getAuthentication(request) != null
+        }
+
+
+        def login(String username="user", String role="ROLE_USER") {
+            login(new UsernamePasswordAuthenticationToken(username, null, AuthorityUtils.createAuthorityList(role)))
+        }
+
+        def login(Authentication auth) {
+            HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository()
+            HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(request, response)
+            repo.loadContext(requestResponseHolder)
+            repo.saveContext(new SecurityContextImpl(authentication:auth), requestResponseHolder.request, requestResponseHolder.response)
+        }
+
+        def getAuthentication(HttpServletRequest request) {
+            HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository()
+            HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(request, response)
+            repo.loadContext(requestResponseHolder)?.authentication
+        }
 }
