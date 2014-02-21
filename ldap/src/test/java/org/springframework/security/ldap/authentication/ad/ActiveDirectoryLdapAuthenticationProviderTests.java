@@ -98,6 +98,32 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
     }
 
     @Test
+    public void successfulAuthenticationProducesExpectedAuthoritiesWithCustomSearchRootAndFilter() throws Exception {
+        provider = new ActiveDirectoryLdapAuthenticationProvider("mydomain.eu", "ldap://192.168.1.200/", "OU=people,DC=example,DC=com", "(&(objectClass=user)(OU=groups,OU=people,DC=example,DC=com))");
+	
+        DirContext ctx = mock(DirContext.class);
+        when(ctx.getNameInNamespace()).thenReturn("");
+
+        DirContextAdapter dca = new DirContextAdapter();
+        SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
+        when(ctx.search(any(Name.class), any(String.class), any(Object[].class), any(SearchControls.class)))
+                .thenReturn(new MockNamingEnumeration(sr))
+                .thenReturn(new MockNamingEnumeration(sr));
+
+        provider.contextFactory = createContextFactoryReturning(ctx);
+
+        Authentication result = provider.authenticate(joe);
+
+        assertEquals(0, result.getAuthorities().size());
+
+        dca.addAttributeValue("memberOf","CN=Admin,CN=Users,DC=mydomain,DC=eu");
+
+        result = provider.authenticate(joe);
+
+        assertEquals(1, result.getAuthorities().size());
+    }
+
+    @Test
     public void nullDomainIsSupportedIfAuthenticatingWithFullUserPrincipal() throws Exception {
         provider = new ActiveDirectoryLdapAuthenticationProvider(null, "ldap://192.168.1.200/");
         DirContext ctx = mock(DirContext.class);
