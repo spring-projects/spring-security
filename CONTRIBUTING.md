@@ -16,7 +16,7 @@ Is there already an issue that addresses your concern? Do a bit of searching in 
 If you're considering anything more than correcting a typo or fixing a minor bug , please discuss it on the [Spring Security forums](http://forum.springsource.org/forumdisplay.php?33-Security) before submitting a pull request. We're happy to provide guidance but please spend an hour or two researching the subject on your own including searching the forums for prior discussions.
 
 # Sign the Contributor License Agreement
-If you have not previously done so, please fill out and submit the SpringSource CLA form. You'll receive a token when this process is complete. Keep track of this, you may be asked for it later!
+If you have not previously done so, please fill out and submit the [SpringSource CLA form](https://support.springsource.com/spring_committer_signup). You'll receive a token when this process is complete. Keep track of this, you may be asked for it later!
 
 * For **Project** select _Spring Security_
 * For **Project Lead** enter _Rob Winch_
