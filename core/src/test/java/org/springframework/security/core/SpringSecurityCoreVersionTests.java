@@ -120,7 +120,7 @@ public class SpringSecurityCoreVersionTests {
     public void noWarnIfSpringVersionLarger() throws Exception {
         spy(SpringSecurityCoreVersion.class);
         spy(SpringVersion.class);
-        when(SpringSecurityCoreVersion.getVersion()).thenReturn("3.2.0.RELEASE");
+        when(SpringSecurityCoreVersion.getVersion()).thenReturn("4.0.0.RELEASE");
         when(SpringVersion.getVersion()).thenReturn("4.0.0.RELEASE");
 
         performChecks();
