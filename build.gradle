@@ -6,7 +6,6 @@ buildscript {
     }
     dependencies {
         classpath("org.springframework.build.gradle:propdeps-plugin:0.0.5")
-        classpath("org.springframework.build.gradle:bundlor-plugin:0.1.2")
         classpath("org.gradle.api.plugins:gradle-tomcat-plugin:0.9.8")
         classpath('me.champeau.gradle:gradle-javadoc-hotfix-plugin:0.1')
         classpath('org.asciidoctor:asciidoctor-gradle-plugin:0.7.0')
@@ -96,13 +95,8 @@ configure(javaProjects) {
 }
 
 configure(coreModuleProjects) {
-    apply plugin: 'bundlor'
     apply plugin: 'emma'
 
-    bundlor.doFirst {
-        def templateText = file("template.mf").text
-        bundlor.manifestTemplate = new SimpleTemplateEngine().createTemplate(templateText).make(bundlorProperties).toString()
-    }
     configurations {
         jacoco //Configuration Group used by Sonar to provide Code Coverage using JaCoCo
     }
