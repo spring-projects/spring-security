@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean class="org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint">
+        <constructor-arg>
+            <map>
+                <entry>
+                    <key>
+                        <bean class="org.springframework.security.web.util.AntPathRequestMatcher">
+                            <constructor-arg value="/**"/>
+                        </bean>
+                    </key>
+                    <bean class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint"/>
+                </entry>
+            </map>
+        </constructor-arg>
+        <property name="defaultEntryPoint">
+            <bean class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint"/>
+        </property>
+    </bean>
+
+</beans>
