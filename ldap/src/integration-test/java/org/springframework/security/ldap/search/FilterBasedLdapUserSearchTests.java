@@ -15,12 +15,13 @@
 
 package org.springframework.security.ldap.search;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import org.junit.*;
+import javax.naming.ldap.LdapName;
+
+import org.junit.Test;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.ldap.AbstractLdapIntegrationTests;
 
@@ -32,7 +33,7 @@ import org.springframework.security.ldap.AbstractLdapIntegrationTests;
 public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests {
 
     @Test
-    public void basicSearchSucceeds() {
+    public void basicSearchSucceeds() throws Exception {
         FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people", "(uid={0})", getContextSource());
         locator.setSearchSubtree(false);
         locator.setSearchTimeLimit(0);
@@ -41,18 +42,18 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
         DirContextOperations bob = locator.searchForUser("bob");
         assertEquals("bob", bob.getStringAttribute("uid"));
 
-        assertEquals(new DistinguishedName("uid=bob,ou=people"), bob.getDn());
+        assertEquals(new LdapName("uid=bob,ou=people"), bob.getDn());
     }
 
     @Test
-    public void searchForNameWithCommaSucceeds() {
+    public void searchForNameWithCommaSucceeds() throws Exception {
         FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people", "(uid={0})", getContextSource());
         locator.setSearchSubtree(false);
 
         DirContextOperations jerry = locator.searchForUser("jerry");
         assertEquals("jerry", jerry.getStringAttribute("uid"));
 
-        assertEquals(new DistinguishedName("cn=mouse\\, jerry,ou=people"), jerry.getDn());
+        assertEquals(new LdapName("cn=mouse\\, jerry,ou=people"), jerry.getDn());
     }
 
     // Try some funny business with filters.
@@ -79,7 +80,7 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
     }
 
     @Test
-    public void subTreeSearchSucceeds() {
+    public void subTreeSearchSucceeds() throws Exception {
         // Don't set the searchBase, so search from the root.
         FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("", "(cn={0})", getContextSource());
         locator.setSearchSubtree(true);
@@ -87,7 +88,7 @@ public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests
         DirContextOperations ben = locator.searchForUser("Ben Alex");
         assertEquals("ben", ben.getStringAttribute("uid"));
 
-        assertEquals(new DistinguishedName("uid=ben,ou=people"), ben.getDn());
+        assertEquals(new LdapName("uid=ben,ou=people"), ben.getDn());
     }
 
     @Test
