@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-rememberme-jc</artifactId>
-  <version>3.2.1.CI-SNAPSHOT</version>
+  <version>4.0.0.CI-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>spring-security-samples-rememberme-jc</name>
   <description>spring-security-samples-rememberme-jc</description>
@@ -102,31 +102,31 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>3.2.1.CI-SNAPSHOT</version>
+      <version>4.0.0.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>3.2.1.CI-SNAPSHOT</version>
+      <version>4.0.0.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-samples-messages-jc</artifactId>
-      <version>3.2.1.CI-SNAPSHOT</version>
+      <version>4.0.0.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>3.2.1.CI-SNAPSHOT</version>
+      <version>4.0.0.CI-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
-      <version>3.2.8.RELEASE</version>
+      <version>4.0.2.RELEASE</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -138,13 +138,13 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
-      <version>3.2.8.RELEASE</version>
+      <version>4.0.2.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
-      <version>3.2.8.RELEASE</version>
+      <version>4.0.2.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -211,7 +211,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>3.2.8.RELEASE</version>
+      <version>4.0.2.RELEASE</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

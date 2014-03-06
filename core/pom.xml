@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-core</artifactId>
-  <version>3.2.1.CI-SNAPSHOT</version>
+  <version>4.0.0.CI-SNAPSHOT</version>
   <name>spring-security-core</name>
   <description>spring-security-core</description>
   <url>http://spring.io/spring-security</url>
@@ -58,25 +58,25 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-aop</artifactId>
-      <version>3.2.8.RELEASE</version>
+      <version>4.0.2.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-beans</artifactId>
-      <version>3.2.8.RELEASE</version>
+      <version>4.0.2.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
-      <version>3.2.8.RELEASE</version>
+      <version>4.0.2.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
-      <version>3.2.8.RELEASE</version>
+      <version>4.0.2.RELEASE</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -88,7 +88,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-expression</artifactId>
-      <version>3.2.8.RELEASE</version>
+      <version>4.0.2.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -108,7 +108,7 @@
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache</artifactId>
-      <version>1.6.2</version>
+      <version>2.6.5</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
@@ -122,14 +122,14 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
-      <version>3.2.8.RELEASE</version>
+      <version>4.0.2.RELEASE</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-tx</artifactId>
-      <version>3.2.8.RELEASE</version>
+      <version>4.0.2.RELEASE</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
@@ -220,7 +220,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>3.2.8.RELEASE</version>
+      <version>4.0.2.RELEASE</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
