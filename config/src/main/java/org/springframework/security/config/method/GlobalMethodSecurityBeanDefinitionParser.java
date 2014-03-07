@@ -452,6 +452,9 @@ public class GlobalMethodSecurityBeanDefinitionParser implements BeanDefinitionP
         }
 
         public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+            if(!registry.containsBeanDefinition(beanName)) {
+                return;
+            }
             BeanDefinition beanDefinition = registry.getBeanDefinition(beanName);
             beanDefinition.setLazyInit(true);
         }
