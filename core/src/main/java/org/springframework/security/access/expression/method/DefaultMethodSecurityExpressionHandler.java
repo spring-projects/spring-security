@@ -102,10 +102,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
                 logger.debug("Retaining elements: " + retainList);
             }
 
-            collection.clear();
-            collection.addAll(retainList);
-
-            return filterTarget;
+            return retainList;
         }
 
         if (filterTarget.getClass().isArray()) {
