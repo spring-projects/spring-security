@@ -200,8 +200,8 @@
             where you would normally place other <input>s. Do NOT place this tag within a Spring <form:form></form:form>
             block—Spring Security handles Spring forms automatically.
         ]]></description>
-        <name>csrfField</name>
-        <tag-class>org.springframework.security.taglibs.csrf.FormFieldTag</tag-class>
+        <name>csrfInput</name>
+        <tag-class>org.springframework.security.taglibs.csrf.CsrfInputTag</tag-class>
         <body-content>empty</body-content>
     </tag>
 
@@ -218,7 +218,7 @@
             tag outputs nothing.
         ]]></description>
         <name>csrfMetaTags</name>
-        <tag-class>org.springframework.security.taglibs.csrf.MetaTagsTag</tag-class>
+        <tag-class>org.springframework.security.taglibs.csrf.CsrfMetaTagsTag</tag-class>
         <body-content>empty</body-content>
     </tag>
 

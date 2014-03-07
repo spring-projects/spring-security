@@ -10,36 +10,36 @@ import static org.junit.Assert.*;
 /**
  * @author Nick Williams
  */
-public class FormFieldTagTests {
+public class CsrfInputTagTests {
 
-    public FormFieldTag tag;
+    public CsrfInputTag tag;
 
     @Before
     public void setUp() {
-        this.tag = new FormFieldTag();
+        this.tag = new CsrfInputTag();
     }
 
     @Test
-    public void testHandleToken01() {
+    public void handleTokenReturnsHiddenInput() {
         CsrfToken token = new DefaultCsrfToken("X-Csrf-Token", "_csrf", "abc123def456ghi789");
 
         String value = this.tag.handleToken(token);
 
         assertNotNull("The returned value should not be null.", value);
         assertEquals("The output is not correct.",
-                "<input type=\"hidden\" name=\"_csrf\" value=\"abc123def456ghi789\" />\n",
+                "<input type=\"hidden\" name=\"_csrf\" value=\"abc123def456ghi789\" />",
                 value);
     }
 
     @Test
-    public void testHandleToken() {
+    public void handleTokenReturnsHiddenInputDifferentTokenValue() {
         CsrfToken token = new DefaultCsrfToken("X-Csrf-Token", "csrfParameter", "fooBarBazQux");
 
         String value = this.tag.handleToken(token);
 
         assertNotNull("The returned value should not be null.", value);
         assertEquals("The output is not correct.",
-                "<input type=\"hidden\" name=\"csrfParameter\" value=\"fooBarBazQux\" />\n",
+                "<input type=\"hidden\" name=\"csrfParameter\" value=\"fooBarBazQux\" />",
                 value);
     }
 }
