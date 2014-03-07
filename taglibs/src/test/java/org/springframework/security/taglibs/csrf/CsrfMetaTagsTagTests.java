@@ -10,40 +10,40 @@ import static org.junit.Assert.*;
 /**
  * @author Nick Williams
  */
-public class MetaTagsTagTests {
+public class CsrfMetaTagsTagTests {
 
-    public MetaTagsTag tag;
+    public CsrfMetaTagsTag tag;
 
     @Before
     public void setUp() {
-        this.tag = new MetaTagsTag();
+        this.tag = new CsrfMetaTagsTag();
     }
 
     @Test
-    public void testHandleToken01() {
+    public void handleTokenRendersTags() {
         CsrfToken token = new DefaultCsrfToken("X-Csrf-Token", "_csrf", "abc123def456ghi789");
 
         String value = this.tag.handleToken(token);
 
         assertNotNull("The returned value should not be null.", value);
         assertEquals("The output is not correct.",
-                "<meta name=\"_csrf_parameter\" content=\"_csrf\" />\n" +
-                        "        <meta name=\"_csrf_header\" content=\"X-Csrf-Token\" />\n" +
-                        "        <meta name=\"_csrf\" content=\"abc123def456ghi789\" />\n",
+                "<meta name=\"_csrf_parameter\" content=\"_csrf\" />" +
+                        "<meta name=\"_csrf_header\" content=\"X-Csrf-Token\" />" +
+                        "<meta name=\"_csrf\" content=\"abc123def456ghi789\" />",
                 value);
     }
 
     @Test
-    public void testHandleToken02() {
+    public void handleTokenRendersTagsDifferentToken() {
         CsrfToken token = new DefaultCsrfToken("csrfHeader", "csrfParameter", "fooBarBazQux");
 
         String value = this.tag.handleToken(token);
 
         assertNotNull("The returned value should not be null.", value);
         assertEquals("The output is not correct.",
-                "<meta name=\"_csrf_parameter\" content=\"csrfParameter\" />\n" +
-                        "        <meta name=\"_csrf_header\" content=\"csrfHeader\" />\n" +
-                        "        <meta name=\"_csrf\" content=\"fooBarBazQux\" />\n",
+                "<meta name=\"_csrf_parameter\" content=\"csrfParameter\" />" +
+                        "<meta name=\"_csrf_header\" content=\"csrfHeader\" />" +
+                        "<meta name=\"_csrf\" content=\"fooBarBazQux\" />",
                 value);
     }
 }

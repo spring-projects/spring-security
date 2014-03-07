@@ -36,9 +36,9 @@ public class AbstractCsrfTagTests {
     }
 
     @Test
-    public void testDoEndTag01() throws JspException, UnsupportedEncodingException {
+    public void noCsrfDoesNotRender() throws JspException, UnsupportedEncodingException {
 
-        this.tag.handleReturn = "fooBarBazQux";
+        this.tag.handleReturn = "shouldNotBeRendered";
 
         int returned = this.tag.doEndTag();
 
@@ -47,7 +47,7 @@ public class AbstractCsrfTagTests {
     }
 
     @Test
-    public void testDoEndTag02() throws JspException, UnsupportedEncodingException {
+    public void hasCsrfRendersReturnedValue() throws JspException, UnsupportedEncodingException {
 
         CsrfToken token = new DefaultCsrfToken("X-Csrf-Token", "_csrf", "abc123def456ghi789");
         this.request.setAttribute(CsrfToken.class.getName(), token);
@@ -62,7 +62,7 @@ public class AbstractCsrfTagTests {
     }
 
     @Test
-    public void testDoEndTag03() throws JspException, UnsupportedEncodingException {
+    public void hasCsrfRendersDifferentValue() throws JspException, UnsupportedEncodingException {
 
         CsrfToken token = new DefaultCsrfToken("X-Csrf-Token", "_csrf", "abc123def456ghi789");
         this.request.setAttribute(CsrfToken.class.getName(), token);
