@@ -38,7 +38,7 @@ public class WhiteListedAllowFromStrategyTests {
         request.setParameter("from", "http://www.test.com");
 
         String result = strategy.getAllowFromValue(request);
-        assertThat(result, is("ALLOW-FROM http://www.test.com"));
+        assertThat(result, is("http://www.test.com"));
     }
 
     @Test
@@ -52,7 +52,7 @@ public class WhiteListedAllowFromStrategyTests {
         request.setParameter("from", "http://www.test.com");
 
         String result = strategy.getAllowFromValue(request);
-        assertThat(result, is("ALLOW-FROM http://www.test.com"));
+        assertThat(result, is("http://www.test.com"));
     }
 
     @Test

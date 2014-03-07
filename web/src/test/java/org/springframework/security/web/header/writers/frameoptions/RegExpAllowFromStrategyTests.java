@@ -33,11 +33,11 @@ public class RegExpAllowFromStrategyTests {
 
         request.setParameter("from", "http://abc.test.com");
         String result1 = strategy.getAllowFromValue(request);
-        assertThat(result1, is("ALLOW-FROM http://abc.test.com"));
+        assertThat(result1, is("http://abc.test.com"));
 
         request.setParameter("from", "http://foo.test.com");
         String result2 = strategy.getAllowFromValue(request);
-        assertThat(result2, is("ALLOW-FROM http://foo.test.com"));
+        assertThat(result2, is("http://foo.test.com"));
 
         request.setParameter("from", "http://test.foobar.com");
         String result3 = strategy.getAllowFromValue(request);

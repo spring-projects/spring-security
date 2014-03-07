@@ -73,7 +73,7 @@ public class AbstractRequestParameterAllowFromStrategyTests {
 
         assertThat(
                 strategy
-                        .getAllowFromValue(request)).isEqualTo("ALLOW-FROM "+value);
+                        .getAllowFromValue(request)).isEqualTo(value);
     }
 
     @Test
