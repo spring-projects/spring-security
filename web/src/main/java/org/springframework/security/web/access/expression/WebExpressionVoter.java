@@ -49,7 +49,7 @@ public class WebExpressionVoter implements AccessDecisionVoter<FilterInvocation>
     }
 
     public boolean supports(Class<?> clazz) {
-        return clazz.isAssignableFrom(FilterInvocation.class);
+        return FilterInvocation.class.isAssignableFrom(clazz);
     }
 
     public void setExpressionHandler(SecurityExpressionHandler<FilterInvocation> expressionHandler) {
