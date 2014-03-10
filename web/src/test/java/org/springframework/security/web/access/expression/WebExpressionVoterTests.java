@@ -1,6 +1,5 @@
 package org.springframework.security.web.access.expression;
 
-import static org.fest.assertions.Assertions.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -72,7 +71,7 @@ public class WebExpressionVoterTests {
     @Test
     public void supportFilterInvocationSubClass() {
         WebExpressionVoter voter = new WebExpressionVoter();
-        assertThat(voter.supports(FilterInvocationChild.class)).isTrue();
+        assertTrue(voter.supports(FilterInvocationChild.class));
     }
 
     private static class FilterInvocationChild extends FilterInvocation {
@@ -85,12 +84,12 @@ public class WebExpressionVoterTests {
     @Test
     public void supportFilterInvocation() {
         WebExpressionVoter voter = new WebExpressionVoter();
-        assertThat(voter.supports(FilterInvocation.class)).isTrue();
+        assertTrue(voter.supports(FilterInvocation.class));
     }
 
     @Test
     public void supportsObjectIsFalse() {
         WebExpressionVoter voter = new WebExpressionVoter();
-        assertThat(voter.supports(Object.class)).isFalse();
+        assertFalse(voter.supports(Object.class));
     }
 }
