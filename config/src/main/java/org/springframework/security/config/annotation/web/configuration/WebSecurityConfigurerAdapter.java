@@ -16,11 +16,13 @@
 package org.springframework.security.config.annotation.web.configuration;
 
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.Order;
@@ -44,6 +46,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 
@@ -71,8 +74,8 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
 
     private AuthenticationConfiguration authenticationConfiguration;
     private AuthenticationManagerBuilder authenticationBuilder;
-    private AuthenticationManagerBuilder parentAuthenticationBuilder;
-    private boolean disableAuthenticationRegistration;
+    private AuthenticationManagerBuilder localConfigureAuthenticationBldr;
+    private boolean disableLocalConfigureAuthenticationBldr;
     private boolean authenticationManagerInitialized;
     private AuthenticationManager authenticationManager;
     private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
@@ -148,7 +151,7 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
      * @throws Exception
      */
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        this.disableAuthenticationRegistration = true;
+        this.disableLocalConfigureAuthenticationBldr = true;
     }
 
     /**
@@ -163,11 +166,11 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
         }
 
         DefaultAuthenticationEventPublisher eventPublisher = objectPostProcessor.postProcess(new DefaultAuthenticationEventPublisher());
-        parentAuthenticationBuilder.authenticationEventPublisher(eventPublisher);
+        localConfigureAuthenticationBldr.authenticationEventPublisher(eventPublisher);
 
         AuthenticationManager authenticationManager = authenticationManager();
         authenticationBuilder.parentAuthenticationManager(authenticationManager);
-        http = new HttpSecurity(objectPostProcessor,authenticationBuilder, parentAuthenticationBuilder.getSharedObjects());
+        http = new HttpSecurity(objectPostProcessor,authenticationBuilder, localConfigureAuthenticationBldr.getSharedObjects());
         http.setSharedObject(UserDetailsService.class, userDetailsService());
         http.setSharedObject(ApplicationContext.class, context);
         http.setSharedObject(ContentNegotiationStrategy.class, contentNegotiationStrategy);
@@ -221,11 +224,11 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
      */
     protected AuthenticationManager authenticationManager() throws Exception {
         if(!authenticationManagerInitialized) {
-            configure(parentAuthenticationBuilder);
-            if(disableAuthenticationRegistration) {
+            configure(localConfigureAuthenticationBldr);
+            if(disableLocalConfigureAuthenticationBldr) {
                 authenticationManager = authenticationConfiguration.getAuthenticationManager();
             } else {
-                authenticationManager = parentAuthenticationBuilder.build();
+                authenticationManager = localConfigureAuthenticationBldr.build();
             }
             authenticationManagerInitialized = true;
         }
@@ -253,7 +256,7 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
      */
     public UserDetailsService userDetailsServiceBean() throws Exception {
         AuthenticationManagerBuilder globalAuthBuilder = context.getBean(AuthenticationManagerBuilder.class);
-        return new UserDetailsServiceDelegator(Arrays.asList(parentAuthenticationBuilder, globalAuthBuilder));
+        return new UserDetailsServiceDelegator(Arrays.asList(localConfigureAuthenticationBldr, globalAuthBuilder));
     }
 
     /**
@@ -266,7 +269,7 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
      */
     protected UserDetailsService userDetailsService() {
         AuthenticationManagerBuilder globalAuthBuilder = context.getBean(AuthenticationManagerBuilder.class);
-        return new UserDetailsServiceDelegator(Arrays.asList(parentAuthenticationBuilder, globalAuthBuilder));
+        return new UserDetailsServiceDelegator(Arrays.asList(localConfigureAuthenticationBldr, globalAuthBuilder));
     }
 
     public void init(final WebSecurity web) throws Exception {
@@ -337,7 +340,7 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
         this.objectPostProcessor = objectPostProcessor;
 
         authenticationBuilder = new AuthenticationManagerBuilder(objectPostProcessor);
-        parentAuthenticationBuilder = new AuthenticationManagerBuilder(objectPostProcessor) {
+        localConfigureAuthenticationBldr = new AuthenticationManagerBuilder(objectPostProcessor) {
             @Override
             public AuthenticationManagerBuilder eraseCredentials(boolean eraseCredentials) {
                 authenticationBuilder.eraseCredentials(eraseCredentials);
@@ -413,6 +416,9 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
 
         AuthenticationManagerDelegator(AuthenticationManagerBuilder delegateBuilder) {
             Assert.notNull(delegateBuilder,"delegateBuilder cannot be null");
+            Field parentAuthMgrField = ReflectionUtils.findField(AuthenticationManagerBuilder.class, "parentAuthenticationManager");
+            ReflectionUtils.makeAccessible(parentAuthMgrField);
+            validateBeanCycle(ReflectionUtils.getField(parentAuthMgrField, delegateBuilder));
             this.delegateBuilder = delegateBuilder;
         }
 
@@ -429,6 +435,19 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
             }
 
             return delegate.authenticate(authentication);
+        }
+
+        private static void validateBeanCycle(Object auth) {
+            if(auth != null) {
+                String lazyBeanClassName = AuthenticationConfiguration.class.getName() + "$LazyBean";
+                Class<?>[] interfaces = auth.getClass().getInterfaces();
+                for(Class<?> i : interfaces) {
+                    String className = i.getName();
+                    if(className.equals(lazyBeanClassName)) {
+                        throw new FatalBeanException("A dependency cycle was detected when trying to resolve the AuthenticationManager. Please ensure you have configured authentication.");
+                    }
+                }
+            }
         }
     }
 }
