@@ -1,5 +1,6 @@
 package org.springframework.security.web.access.expression;
 
+import static org.fest.assertions.Assertions.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -18,6 +19,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
 
 import java.util.ArrayList;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 
 /**
  * @author Luke Taylor
@@ -63,4 +68,29 @@ public class WebExpressionVoterTests {
         assertEquals(AccessDecisionVoter.ACCESS_DENIED, voter.vote(user, fi, attributes));
     }
 
+    // SEC-2507
+    @Test
+    public void supportFilterInvocationSubClass() {
+        WebExpressionVoter voter = new WebExpressionVoter();
+        assertThat(voter.supports(FilterInvocationChild.class)).isTrue();
+    }
+
+    private static class FilterInvocationChild extends FilterInvocation {
+        public FilterInvocationChild(ServletRequest request,
+                ServletResponse response, FilterChain chain) {
+            super(request, response, chain);
+        }
+    }
+
+    @Test
+    public void supportFilterInvocation() {
+        WebExpressionVoter voter = new WebExpressionVoter();
+        assertThat(voter.supports(FilterInvocation.class)).isTrue();
+    }
+
+    @Test
+    public void supportsObjectIsFalse() {
+        WebExpressionVoter voter = new WebExpressionVoter();
+        assertThat(voter.supports(Object.class)).isFalse();
+    }
 }
