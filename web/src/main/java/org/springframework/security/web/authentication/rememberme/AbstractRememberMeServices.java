@@ -418,7 +418,7 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
      */
     @Deprecated
     public void setUserDetailsService(UserDetailsService userDetailsService) {
-        Assert.notNull(userDetailsService, "UserDetailsService canot be null");
+        Assert.notNull(userDetailsService, "UserDetailsService cannot be null");
         this.userDetailsService = userDetailsService;
     }
 
