@@ -52,4 +52,13 @@ public class SystemWideSaltSource implements SaltSource, InitializingBean {
     public void setSystemWideSalt(String systemWideSalt) {
         this.systemWideSalt = systemWideSalt;
     }
+
+    /**
+     * @since 3.2.3
+     * @return 
+     */
+    @Override
+    public String toString() {
+        return systemWideSalt;
+    }
 }
