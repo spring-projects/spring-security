@@ -15,6 +15,8 @@
 
 package org.springframework.security.authentication.dao.salt;
 
+import static org.fest.assertions.Assertions.assertThat;
+
 import org.springframework.security.authentication.dao.SystemWideSaltSource;
 
 import junit.framework.TestCase;
@@ -68,5 +70,13 @@ public class SystemWideSaltSourceTests extends TestCase {
         saltSource.setSystemWideSalt("helloWorld");
         saltSource.afterPropertiesSet();
         assertEquals("helloWorld", saltSource.getSalt(null));
+    }
+
+    // SEC-2173
+    public void testToString() {
+        String systemWideSalt = "helloWorld";
+        SystemWideSaltSource saltSource = new SystemWideSaltSource();
+        saltSource.setSystemWideSalt(systemWideSalt);
+        assertThat(saltSource.toString()).isEqualTo(systemWideSalt);
     }
 }
