@@ -54,8 +54,9 @@ public class SystemWideSaltSource implements SaltSource, InitializingBean {
     }
 
     /**
-     * @since 3.2.3
-     * @return 
+     * Displays the system wide salt
+     * @since 4.0
+     * @return
      */
     @Override
     public String toString() {
