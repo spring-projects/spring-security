@@ -36,7 +36,8 @@ import org.springframework.util.StringUtils;
 
 
 /**
- * An authenticator which binds as a user.
+ * An authenticator which binds as a user, optionally retrieving user
+ * attributes.
  *
  * @author Luke Taylor
  *
@@ -46,6 +47,10 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
     //~ Static fields/initializers =====================================================================================
 
     private static final Log logger = LogFactory.getLog(BindAuthenticator.class);
+
+    //~ Instance fields =====================================================================================
+     private boolean retrieveUserAttributes = true;
+     private boolean retrieveAttributesWithManagerContext = false;
 
     //~ Constructors ===================================================================================================
 
@@ -113,9 +118,7 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
             // Check for password policy control
             PasswordPolicyControl ppolicy = PasswordPolicyControlExtractor.extractControl(ctx);
 
-            logger.debug("Retrieving attributes...");
-
-            Attributes attrs = ctx.getAttributes(userDn, getUserAttributes());
+            Attributes attrs = retrieveUserAttribute(userDn, ctx);
 
             DirContextAdapter result = new DirContextAdapter(attrs, userDn, ctxSource.getBaseLdapPath());
 
@@ -142,6 +145,25 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 
         return null;
     }
+   
+    /**
+     * Retrieves user attributes, using either the user's bind context or the manager context.
+     */
+    protected Attributes retrieveUserAttribute(DistinguishedName userDn,DirContext userContext) throws javax.naming.NamingException {
+        Attributes attrs = null;
+        if (retrieveUserAttributes) {
+            DirContext ctx = null;
+            if (retrieveAttributesWithManagerContext) {
+                logger.debug("Retrieving attributes using manager context...");
+                ctx = getContextSource().getReadOnlyContext();
+            } else {
+                logger.debug("Retrieving attributes using user context...");
+                ctx = userContext;
+            }
+            attrs = ctx.getAttributes(userDn, getUserAttributes());
+        }
+        return attrs;
+    }
 
     /**
      * Allows subclasses to inspect the exception thrown by an attempt to bind with a particular DN.
@@ -152,4 +174,32 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
             logger.debug("Failed to bind as " + userDn + ": " + cause);
         }
     }
+
+    public boolean isRetrieveUserAttributes() {
+        return retrieveUserAttributes;
+    }
+
+    /**
+     * If set to false, no user attributes will be retrieved after binding as
+     * the user. Default is true.
+     */
+    public void setRetrieveUserAttributes(boolean retrieveUserAttributes) {
+        this.retrieveUserAttributes = retrieveUserAttributes;
+    }
+
+    public boolean isRetrieveAttributesWithManagerContext() {
+        return retrieveAttributesWithManagerContext;
+    }
+
+    /**
+     * If set to true (the default), user attributes are retrieved using the
+     * {@link DirContextOperations} obtained when binding as the user. If set to
+     * false, the manager context (the {@link ContextSource} supplied as
+     * constructor argument) is used.
+     */
+    public void setRetrieveAttributesWithManagerContext(
+        boolean retrieveAttributesWithManagerContext) {
+        this.retrieveAttributesWithManagerContext = retrieveAttributesWithManagerContext;
+    }
+
 }
