@@ -89,12 +89,12 @@ public class AccessControlListTag extends TagSupport {
 
         List<Object> requiredPermissions = parseHasPermission(hasPermission);
         for(Object requiredPermission : requiredPermissions) {
-            if (!permissionEvaluator.hasPermission(authentication, domainObject, requiredPermission)) {
-                return skipBody();
+            if (permissionEvaluator.hasPermission(authentication, domainObject, requiredPermission)) {
+                return evalBody();
             }
         }
-
-        return evalBody();
+        return skipBody();
+        
     }
 
     private List<Object> parseHasPermission(String hasPermission) {
