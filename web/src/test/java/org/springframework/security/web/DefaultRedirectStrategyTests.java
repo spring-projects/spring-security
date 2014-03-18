@@ -25,6 +25,7 @@ public class DefaultRedirectStrategyTests {
         assertEquals("remainder", response.getRedirectedUrl());
     }
 
+    // SEC-2177
     @Test
     public void contextRelativeUrlWithMultipleSchemesInHostnameIsHandledCorrectly() throws Exception {
         DefaultRedirectStrategy rds = new DefaultRedirectStrategy();
