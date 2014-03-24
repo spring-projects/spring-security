@@ -15,7 +15,9 @@
  */
 package org.springframework.security.config.annotation.authentication.configuration;
 
+import org.springframework.aop.framework.ProxyFactoryBean
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -25,8 +27,9 @@ import org.springframework.security.access.annotation.Secured
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.BaseSpringSpec
+import org.springframework.security.config.annotation.ObjectPostProcessor
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.authentication.configurers.GlobalAuthenticationConfigurerAdapter
 import org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration
@@ -290,6 +293,36 @@ class AuthenticationConfigurationTests extends BaseSpringSpec {
             provider.userDetailsService = inMemory
 
             auth.authenticationProvider(provider)
+        }
+    }
+
+    def "SEC-2531: AuthenticationConfiguration#lazyBean should use BeanClassLoader on ProxyFactoryBean"() {
+        setup:
+            ObjectPostProcessor opp = Mock()
+            Sec2531Config. opp = opp
+            loadConfig(Sec2531Config)
+        when:
+            AuthenticationConfiguration config = context.getBean(AuthenticationConfiguration)
+            config.getAuthenticationManager()
+        then:
+            1 * opp.postProcess(_ as ProxyFactoryBean) >> { args ->
+                args[0]
+            }
+    }
+
+    @Configuration
+    @Import(AuthenticationConfiguration)
+    static class Sec2531Config {
+        static ObjectPostProcessor opp
+
+        @Bean
+        public ObjectPostProcessor objectPostProcessor() {
+            opp
+        }
+
+        @Bean
+        public AuthenticationManager manager() {
+            null
         }
     }
 }

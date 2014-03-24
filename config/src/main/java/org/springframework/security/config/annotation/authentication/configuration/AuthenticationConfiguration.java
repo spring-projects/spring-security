@@ -113,6 +113,7 @@ public class AuthenticationConfiguration {
         lazyTargetSource.setTargetBeanName(beanNamesForType[0]);
         lazyTargetSource.setBeanFactory(applicationContext);
         ProxyFactoryBean proxyFactory = new ProxyFactoryBean();
+        proxyFactory = objectPostProcessor.postProcess(proxyFactory);
         proxyFactory.setTargetSource(lazyTargetSource);
         proxyFactory.setInterfaces(new Class[] { interfaceName, LazyBean.class });
         return (T) proxyFactory.getObject();
