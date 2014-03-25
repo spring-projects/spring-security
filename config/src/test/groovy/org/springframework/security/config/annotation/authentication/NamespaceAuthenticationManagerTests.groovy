@@ -15,6 +15,7 @@
  */
 package org.springframework.security.config.annotation.authentication
 
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
@@ -87,6 +88,27 @@ class NamespaceAuthenticationManagerTests extends BaseSpringSpec {
         public AuthenticationManager authenticationManagerBean()
                 throws Exception {
             return super.authenticationManagerBean();
+        }
+    }
+
+    def "SEC-2533: global authentication-manager@erase-credentials=false"() {
+        when:
+            loadConfig(GlobalEraseCredentialsFalseConfig)
+            Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user","password"))
+        then:
+            auth.credentials == "password"
+            auth.principal.password == "password"
+    }
+
+    @EnableWebSecurity
+    @Configuration
+    static class GlobalEraseCredentialsFalseConfig extends WebSecurityConfigurerAdapter {
+        @Autowired
+        public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+            auth
+                .eraseCredentials(false)
+                .inMemoryAuthentication()
+                    .withUser("user").password("password").roles("USER")
         }
     }
 }

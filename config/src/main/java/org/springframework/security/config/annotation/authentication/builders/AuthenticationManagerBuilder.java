@@ -78,6 +78,9 @@ public class AuthenticationManagerBuilder extends AbstractConfiguredSecurityBuil
      */
     public AuthenticationManagerBuilder parentAuthenticationManager(
             AuthenticationManager authenticationManager) {
+        if(authenticationManager instanceof ProviderManager) {
+            eraseCredentials(((ProviderManager) authenticationManager).isEraseCredentialsAfterAuthentication());
+        }
         this.parentAuthenticationManager = authenticationManager;
         return this;
     }
