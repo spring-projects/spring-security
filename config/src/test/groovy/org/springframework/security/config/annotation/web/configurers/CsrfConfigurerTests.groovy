@@ -102,6 +102,49 @@ class CsrfConfigurerTests extends BaseSpringSpec {
         }
     }
 
+    def "SEC-2498: Disable CSRF enables RequestCache for any method"() {
+        setup:
+            loadConfig(DisableCsrfEnablesRequestCacheConfig)
+            request.requestURI = '/tosave'
+            request.method = "POST"
+            clearCsrfToken()
+        when:
+            springSecurityFilterChain.doFilter(request,response,chain)
+        then:
+            response.redirectedUrl
+        when:
+            super.setupWeb(request.session)
+            request.method = "POST"
+            request.servletPath = '/login'
+            request.parameters['username'] = ['user'] as String[]
+            request.parameters['password'] = ['password'] as String[]
+            springSecurityFilterChain.doFilter(request,response,chain)
+        then:
+            response.redirectedUrl == 'http://localhost/tosave'
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    static class DisableCsrfEnablesRequestCacheConfig extends WebSecurityConfigurerAdapter {
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .authorizeRequests()
+                    .anyRequest().authenticated()
+                    .and()
+                .formLogin().and()
+                .csrf().disable()
+
+        }
+        @Override
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+            auth
+                .inMemoryAuthentication()
+                    .withUser("user").password("password").roles("USER")
+        }
+    }
+
     def "SEC-2422: csrf expire CSRF token and session-management invalid-session-url"() {
         setup:
             loadConfig(InvalidSessionUrlConfig)

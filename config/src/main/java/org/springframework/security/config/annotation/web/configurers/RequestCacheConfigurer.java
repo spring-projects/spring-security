@@ -15,7 +15,9 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
@@ -114,12 +116,13 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> exte
         return defaultCache;
     }
 
+    @SuppressWarnings("unchecked")
     private RequestMatcher createDefaultSavedRequestMatcher(H http) {
         ContentNegotiationStrategy contentNegotiationStrategy = http.getSharedObject(ContentNegotiationStrategy.class);
         if(contentNegotiationStrategy == null) {
             contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
         }
-        RequestMatcher getRequests = new AntPathRequestMatcher("/**", "GET");
+
         RequestMatcher notFavIcon = new NegatedRequestMatcher(new AntPathRequestMatcher("/**/favicon.ico"));
 
         MediaTypeRequestMatcher jsonRequest = new MediaTypeRequestMatcher(contentNegotiationStrategy, MediaType.APPLICATION_JSON);
@@ -127,6 +130,18 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> exte
         RequestMatcher notJson = new NegatedRequestMatcher(jsonRequest);
 
         RequestMatcher notXRequestedWith = new NegatedRequestMatcher(new RequestHeaderRequestMatcher("X-Requested-With","XMLHttpRequest"));
-        return new AndRequestMatcher(getRequests, notFavIcon, notJson, notXRequestedWith);
+
+        boolean isCsrfEnabled = http.getConfigurer(CsrfConfigurer.class) != null;
+
+        List<RequestMatcher> matchers = new ArrayList<RequestMatcher>();
+        if(isCsrfEnabled) {
+            RequestMatcher getRequests = new AntPathRequestMatcher("/**", "GET");
+            matchers.add(0, getRequests);
+        }
+        matchers.add(notFavIcon);
+        matchers.add(notJson);
+        matchers.add(notXRequestedWith);
+
+        return new AndRequestMatcher(matchers);
     }
 }
