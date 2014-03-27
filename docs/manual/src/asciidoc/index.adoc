@@ -2936,7 +2936,7 @@ The beans required in an application context to enable remember-me services are 
 </bean>
 
 <bean id="rememberMeAuthenticationProvider" class=
- "org.springframework.security.authentication.rememberme.RememberMeAuthenticationProvider">
+ "org.springframework.security.authentication.RememberMeAuthenticationProvider">
   <property name="key" value="springRocks"/>
 </bean>
 ----
