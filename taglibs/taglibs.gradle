@@ -14,11 +14,8 @@ dependencies {
     provided 'javax.servlet.jsp:javax.servlet.jsp-api:2.2.1',
              "javax.servlet:javax.servlet-api:$servletApiVersion"
 
-    testCompile "org.codehaus.groovy:groovy-all:$groovyVersion"
-
-    testCompile("org.spockframework:spock-core:$spockVersion") {
-        exclude group:'junit', module:'junit-dep'
-    }
+    testCompile "org.codehaus.groovy:groovy-all:$groovyVersion",
+                spockDependencies
 
     testRuntime "javax.servlet:jstl:$jstlVersion"
 }

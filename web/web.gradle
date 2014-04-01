@@ -1,10 +1,5 @@
 apply plugin: 'groovy'
 
-configurations {
-    testCompile.exclude group: 'org.mockito', module: 'mockito-all'
-    testCompile.exclude group: 'junit', module: 'junit-dep'
-}
-
 dependencies {
     compile project(':spring-security-core'),
             'aopalliance:aopalliance:1.0',
@@ -22,10 +17,9 @@ dependencies {
     testCompile project(':spring-security-core').sourceSets.test.output,
                 'commons-codec:commons-codec:1.3',
                 "org.slf4j:jcl-over-slf4j:$slf4jVersion",
-                "org.spockframework:spock-core:$spockVersion",
-                "org.springframework:spring-test:$springVersion",
                 "org.codehaus.groovy:groovy-all:$groovyVersion",
-                powerMockDependencies
+                powerMockDependencies,
+                spockDependencies
 
     testRuntime "org.hsqldb:hsqldb:$hsqlVersion"
 }

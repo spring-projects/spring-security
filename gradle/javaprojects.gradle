@@ -28,12 +28,23 @@ ext.spockVersion = '0.7-groovy-2.0'
 ext.gebVersion = '0.9.0'
 ext.thymeleafVersion = '2.1.2.RELEASE'
 
+ext.spockDependencies = [
+    dependencies.create("org.spockframework:spock-spring:$spockVersion") {
+        exclude group: 'junit', module: 'junit-dep'
+    },
+    dependencies.create("org.spockframework:spock-core:$spockVersion") {
+        exclude group: 'junit', module: 'junit-dep'
+    }
+]
+
 ext.powerMockDependencies = [
     "org.powermock:powermock-core:$powerMockVersion",
     "org.powermock:powermock-api-support:$powerMockVersion",
     "org.powermock:powermock-module-junit4-common:$powerMockVersion",
     "org.powermock:powermock-module-junit4:$powerMockVersion",
-    "org.powermock:powermock-api-mockito:$powerMockVersion",
+    dependencies.create("org.powermock:powermock-api-mockito:$powerMockVersion") {
+        exclude group: 'org.mockito', module: 'mockito-all'
+    },
     "org.powermock:powermock-reflect:$powerMockVersion"
 ]
 
