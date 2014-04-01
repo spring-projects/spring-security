@@ -26,7 +26,7 @@ dependencies {
             'javax.persistence:persistence-api:1.0',
             'org.slf4j:jcl-over-slf4j:1.5.11'
 
-    providedCompile "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion"
+    providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
 
     runtime 'org.hibernate:hibernate-entitymanager:3.4.0.GA',
             "org.springframework:spring-context-support:$springVersion",

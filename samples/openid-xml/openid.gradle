@@ -7,7 +7,7 @@ dependencies {
     compile project(':spring-security-core'),
             project(':spring-security-openid')
 
-    providedCompile "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion"
+    providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
 
     runtime project(':spring-security-config'),
             project(':spring-security-taglibs'),

@@ -16,7 +16,7 @@ dependencies {
     }
     compile 'com.google.inject:guice:2.0'
 
-    provided "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion"
+    provided "javax.servlet:javax.servlet-api:$servletApiVersion"
 
     runtime 'org.apache.httpcomponents:httpclient:4.2.3'
 }

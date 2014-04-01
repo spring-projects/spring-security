@@ -7,6 +7,12 @@ apply plugin: 'trang'
 
 compileTestJava.dependsOn(':spring-security-core:compileTestJava')
 
+configurations {
+    testCompile.exclude group: 'org.mockito', module: 'mockito-all'
+    testCompile.exclude group: 'junit', module: 'junit-dep'
+    testCompile.exclude group: 'org.aspectj', module: 'aspectjrt' // Weaver is a superset of RT
+}
+
 dependencies {
     // NB: Don't add other compile time dependencies to the config module as this breaks tooling
     compile project(':spring-security-core'),
@@ -24,7 +30,7 @@ dependencies {
              "org.springframework:spring-jdbc:$springVersion",
              "org.springframework:spring-tx:$springVersion"
 
-    provided "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion"
+    provided "javax.servlet:javax.servlet-api:$servletApiVersion"
 
     testCompile project(':spring-security-cas'),
                 project(':spring-security-core').sourceSets.test.output,
@@ -34,6 +40,7 @@ dependencies {
                 "org.springframework:spring-jdbc:$springVersion",
                 "org.springframework:spring-orm:$springVersion",
                 "org.springframework:spring-tx:$springVersion",
+                'org.springframework.data:spring-data-jpa:1.4.1.RELEASE',
                 "org.spockframework:spock-core:$spockVersion",
                 "org.spockframework:spock-spring:$spockVersion",
                 "org.slf4j:jcl-over-slf4j:$slf4jVersion",
@@ -48,14 +55,12 @@ dependencies {
                 'org.apache.directory.shared:shared-ldap:0.9.15',
                 'ldapsdk:ldapsdk:4.1',
                 powerMockDependencies,
-                "org.springframework.data:spring-data-jpa:1.2.0.RELEASE",
                 "org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.0.Final",
                  "org.hibernate:hibernate-entitymanager:3.6.10.Final",
                 "org.hsqldb:hsqldb:2.2.8"
     testCompile('org.openid4java:openid4java-nodeps:0.9.6') {
-       exclude group: 'com.google.code.guice', module: 'guice'
+        exclude group: 'com.google.code.guice', module: 'guice'
     }
-
     testRuntime "org.hsqldb:hsqldb:$hsqlVersion",
                 "cglib:cglib-nodep:2.2"
 }
