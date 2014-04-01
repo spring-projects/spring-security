@@ -24,7 +24,7 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 /**
  * An {@link org.springframework.security.core.Authentication} implementation that is designed for simple presentation
  * of a username and password.
- * <p>
+ * <p/>
  * The <code>principal</code> and <code>credentials</code> should be set with an <code>Object</code> that provides
  * the respective property via its <code>Object.toString()</code> method. The simplest such <code>Object</code> to use
  * is <code>String</code>.
@@ -46,7 +46,6 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
      * This constructor can be safely used by any code that wishes to create a
      * <code>UsernamePasswordAuthenticationToken</code>, as the {@link
      * #isAuthenticated()} will return <code>false</code>.
-     *
      */
     public UsernamePasswordAuthenticationToken(Object principal, Object credentials) {
         super(null);
@@ -83,12 +82,13 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
     }
 
     public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
-        if (isAuthenticated) {
+        if (isAuthenticated && super.getAuthorities() == null) {
+            super.setAuthenticated(false);
             throw new IllegalArgumentException(
-                "Cannot set this token to trusted - use constructor which takes a GrantedAuthority list instead");
+                    "Cannot set this token to trusted - use constructor which takes a GrantedAuthority list instead");
+        } else if (!isAuthenticated) {
+            super.setAuthenticated(false);
         }
-
-        super.setAuthenticated(false);
     }
 
     @Override
