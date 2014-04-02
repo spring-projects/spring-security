@@ -126,9 +126,9 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.apache.tomcat</groupId>
-      <artifactId>tomcat-servlet-api</artifactId>
-      <version>7.0.33</version>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>3.0.1</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -142,24 +142,64 @@
       <artifactId>commons-codec</artifactId>
       <version>1.3</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>mockito-all</artifactId>
+          <groupId>org.mockito</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit-dep</artifactId>
+          <groupId>junit</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.10</version>
+      <version>4.11</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>mockito-all</artifactId>
+          <groupId>org.mockito</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit-dep</artifactId>
+          <groupId>junit</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.codehaus.groovy</groupId>
-      <artifactId>groovy</artifactId>
+      <artifactId>groovy-all</artifactId>
       <version>2.0.5</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>mockito-all</artifactId>
+          <groupId>org.mockito</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit-dep</artifactId>
+          <groupId>junit</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.easytesting</groupId>
       <artifactId>fest-assert</artifactId>
       <version>1.4</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>mockito-all</artifactId>
+          <groupId>org.mockito</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit-dep</artifactId>
+          <groupId>junit</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.hsqldb</groupId>
@@ -172,60 +212,160 @@
       <artifactId>mockito-core</artifactId>
       <version>1.9.5</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>mockito-all</artifactId>
+          <groupId>org.mockito</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit-dep</artifactId>
+          <groupId>junit</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-api-mockito</artifactId>
       <version>1.5.1</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>mockito-all</artifactId>
+          <groupId>org.mockito</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit-dep</artifactId>
+          <groupId>junit</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-api-support</artifactId>
       <version>1.5.1</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>mockito-all</artifactId>
+          <groupId>org.mockito</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit-dep</artifactId>
+          <groupId>junit</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-core</artifactId>
       <version>1.5.1</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>mockito-all</artifactId>
+          <groupId>org.mockito</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit-dep</artifactId>
+          <groupId>junit</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-module-junit4</artifactId>
       <version>1.5.1</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>mockito-all</artifactId>
+          <groupId>org.mockito</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit-dep</artifactId>
+          <groupId>junit</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-module-junit4-common</artifactId>
       <version>1.5.1</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>mockito-all</artifactId>
+          <groupId>org.mockito</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit-dep</artifactId>
+          <groupId>junit</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-reflect</artifactId>
       <version>1.5.1</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>mockito-all</artifactId>
+          <groupId>org.mockito</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit-dep</artifactId>
+          <groupId>junit</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>jcl-over-slf4j</artifactId>
       <version>1.7.5</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>mockito-all</artifactId>
+          <groupId>org.mockito</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit-dep</artifactId>
+          <groupId>junit</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.spockframework</groupId>
       <artifactId>spock-core</artifactId>
       <version>0.7-groovy-2.0</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>mockito-all</artifactId>
+          <groupId>org.mockito</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit-dep</artifactId>
+          <groupId>junit</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
       <version>4.0.2.RELEASE</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>mockito-all</artifactId>
+          <groupId>org.mockito</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit-dep</artifactId>
+          <groupId>junit</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 </project>

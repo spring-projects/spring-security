@@ -9,5 +9,5 @@ dependencies {
 
     optional "net.sf.ehcache:ehcache:$ehcacheVersion"
 
-    provided "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion"
+    provided "javax.servlet:javax.servlet-api:$servletApiVersion"
 }

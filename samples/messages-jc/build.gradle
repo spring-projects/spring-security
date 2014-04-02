@@ -7,7 +7,6 @@ dependencies {
     compile project(":spring-security-web"),
             project(":spring-security-config"),
             "org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.0.Final",
-            "org.hibernate:hibernate-entitymanager:3.6.10.Final",
             "org.hsqldb:hsqldb:2.2.8",
             "javax.validation:validation-api:1.0.0.GA",
             "org.hibernate:hibernate-validator:4.2.0.Final",
@@ -20,7 +19,12 @@ dependencies {
             "org.springframework:spring-instrument:$springVersion",
             "org.springframework:spring-core:$springVersion",
             "org.springframework:spring-aspects:$springVersion",
-            "org.springframework.data:spring-data-jpa:1.3.4.RELEASE",
             "org.thymeleaf:thymeleaf-spring3:$thymeleafVersion",
             "org.thymeleaf.extras:thymeleaf-extras-tiles2:2.1.0.RELEASE"
+      compile('org.hibernate:hibernate-entitymanager:3.6.10.Final') {
+            exclude group:'javassist', module: 'javassist'
+      }
+      compile('org.springframework.data:spring-data-jpa:1.3.4.RELEASE') {
+            exclude group:'org.aspectj', module:'aspectjrt'
+      }
 }
