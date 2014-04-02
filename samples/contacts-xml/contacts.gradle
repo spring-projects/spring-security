@@ -3,7 +3,7 @@
 apply from: WAR_SAMPLE_GRADLE
 
 dependencies {
-    providedCompile "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion"
+    providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
 
     compile project(':spring-security-core'),
             project(':spring-security-acl'),

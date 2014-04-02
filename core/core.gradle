@@ -8,6 +8,8 @@ configurations {
     included
 
     compile.extendsFrom included
+
+    testCompile.exclude group: 'org.mockito', module: 'mockito-all'
 }
 
 dependencies {

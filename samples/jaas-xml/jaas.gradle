@@ -12,7 +12,7 @@ configurations {
 }
 
 dependencies {
-    providedCompile "org.apache.tomcat:tomcat-servlet-api:$servletApiVersion"
+    providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
 
     compile project(':spring-security-core'),
             "org.springframework:spring-beans:$springVersion",
