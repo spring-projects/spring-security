@@ -54,7 +54,7 @@
     <dependency>
       <groupId>org.jasig.cas.client</groupId>
       <artifactId>cas-client-core</artifactId>
-      <version>3.1.12</version>
+      <version>3.3.1</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
