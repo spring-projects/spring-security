@@ -58,9 +58,9 @@
   </repositories>
   <dependencies>
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>jstl</artifactId>
-      <version>1.2</version>
+      <groupId>javax.servlet.jsp.jstl</groupId>
+      <artifactId>javax.servlet.jsp.jstl-api</artifactId>
+      <version>1.2.1</version>
       <scope>compile</scope>
     </dependency>
     <dependency>

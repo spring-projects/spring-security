@@ -11,10 +11,10 @@ apply plugin: 'propdeps-eclipse'
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
 
-ext.ehcacheVersion = '1.6.2'
+ext.ehcacheVersion = '1.7.2'
 ext.aspectjVersion = '1.6.10'
 ext.apacheDsVersion = '1.5.5'
-ext.jstlVersion = '1.2'
+ext.jstlVersion = '1.2.1'
 ext.jettyVersion = '6.1.26'
 ext.hsqlVersion = '2.3.1'
 ext.slf4jVersion = '1.7.5'
@@ -131,8 +131,8 @@ configurations.all {
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-test {
-    jvmArgs = ['-ea', '-Xmx500m', '-XX:MaxPermSize=128M']
+project.tasks.matching { it instanceof Test && it.name != 'integrationTest' }.all {
+    jvmArgs = ['-ea', '-Xmx500m', '-XX:MaxPermSize=256M']
     maxParallelForks = guessMaxForks()
     logging.captureStandardOutput(LogLevel.INFO)
 }

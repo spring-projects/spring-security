@@ -106,8 +106,8 @@
     </dependency>
     <dependency>
       <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-      <version>1.6.2</version>
+      <artifactId>ehcache-core</artifactId>
+      <version>1.7.2</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>

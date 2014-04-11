@@ -17,7 +17,7 @@ dependencies {
             "org.slf4j:log4j-over-slf4j:$slf4jVersion",
             "org.slf4j:jul-to-slf4j:$slf4jVersion",
             "org.slf4j:jcl-over-slf4j:$slf4jVersion",
-            "javax.servlet:jstl:1.2",
+            "javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:$jstlVersion",
             "javax.validation:validation-api:1.0.0.GA",
             "org.hibernate:hibernate-validator:4.2.0.Final"
 

@@ -35,7 +35,7 @@ dependencies {
                 "org.springframework:spring-orm:$springVersion",
                 "org.springframework:spring-tx:$springVersion",
                 "org.slf4j:jcl-over-slf4j:$slf4jVersion",
-                "org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.1.Final",
+                "org.eclipse.persistence:javax.persistence:2.0.5",
                 "org.hibernate:hibernate-entitymanager:4.1.0.Final",
                 "org.codehaus.groovy:groovy-all:$groovyVersion",
                 "org.apache.directory.server:apacheds-core:$apacheDsVersion",
@@ -46,7 +46,6 @@ dependencies {
                 'org.apache.directory.shared:shared-ldap:0.9.15',
                 'ldapsdk:ldapsdk:4.1',
                 powerMockDependencies,
-                "org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.0.Final",
                  "org.hibernate:hibernate-entitymanager:3.6.10.Final",
                 "org.hsqldb:hsqldb:2.2.8",
                 spockDependencies

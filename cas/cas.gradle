@@ -7,7 +7,7 @@ dependencies {
             "org.springframework:spring-web:$springVersion",
             "org.jasig.cas.client:cas-client-core:3.2.1"
 
-    optional "net.sf.ehcache:ehcache:$ehcacheVersion"
+    optional "net.sf.ehcache:ehcache-core:$ehcacheVersion"
 
     provided "javax.servlet:javax.servlet-api:$servletApiVersion"
 }
