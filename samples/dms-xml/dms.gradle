@@ -12,5 +12,5 @@ dependencies {
             "org.hsqldb:hsqldb:$hsqlVersion",
             "org.springframework:spring-context-support:$springVersion"
 
-    optional "net.sf.ehcache:ehcache:$ehcacheVersion"
+    optional "net.sf.ehcache:ehcache-core:$ehcacheVersion"
 }

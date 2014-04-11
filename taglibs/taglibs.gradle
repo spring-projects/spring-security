@@ -17,9 +17,9 @@ dependencies {
     testCompile "org.codehaus.groovy:groovy-all:$groovyVersion",
                 spockDependencies
 
-    testRuntime "javax.servlet:jstl:$jstlVersion"
+    testRuntime "javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:$jstlVersion"
 }
 
-configure(test) {
+configure(project.tasks.withType(Test)) {
     systemProperties['springSecurityVersion'] = version
 }

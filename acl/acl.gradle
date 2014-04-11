@@ -8,7 +8,7 @@ dependencies {
             "org.springframework:spring-tx:$springVersion",
             "org.springframework:spring-jdbc:$springVersion"
 
-    optional "net.sf.ehcache:ehcache:$ehcacheVersion"
+    optional "net.sf.ehcache:ehcache-core:$ehcacheVersion"
 
     testCompile "org.springframework:spring-beans:$springVersion",
                 "org.springframework:spring-context-support:$springVersion",
