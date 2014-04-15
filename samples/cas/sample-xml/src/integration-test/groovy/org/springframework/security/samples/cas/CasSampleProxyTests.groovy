@@ -19,7 +19,6 @@ import org.apache.commons.httpclient.HttpClient
 import org.apache.commons.httpclient.methods.GetMethod
 import org.jasig.cas.client.jaas.CasLoginModule;
 import org.jasig.cas.client.proxy.Cas20ProxyRetriever
-import org.jasig.cas.client.ssl.HttpsURLConnectionFactory
 import org.springframework.security.samples.cas.pages.*
 
 import spock.lang.*
@@ -37,7 +36,7 @@ class CasSampleProxyTests extends AbstractCasTests {
     HttpClient client = new HttpClient()
     @Shared String casServerUrl = LoginPage.url.replaceFirst('/login','')
     @Shared JettyCasService service = new JettyCasService().init(casServerUrl)
-    @Shared Cas20ProxyRetriever retriever = new Cas20ProxyRetriever(casServerUrl,'UTF-8', new HttpsURLConnectionFactory())
+    @Shared Cas20ProxyRetriever retriever = new Cas20ProxyRetriever(casServerUrl,'UTF-8')
     @Shared String pt
 
     def cleanupSpec() {
