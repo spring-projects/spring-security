@@ -8759,7 +8759,7 @@ The CAS module provides integration with JA-SIG CAS.
 |
 
 | cas-client-core
-| 3.3.1
+| 3.1.12
 | The JA-SIG CAS Client. This is the basis of the Spring Security integration.
 
 | ehcache
