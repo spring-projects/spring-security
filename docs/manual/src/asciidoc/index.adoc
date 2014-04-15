@@ -5525,7 +5525,7 @@ protected void doGet(HttpServletRequest request, HttpServletResponse response)
 
   // Make a remote call using the proxy ticket
   final String serviceUrl = targetUrl+"?ticket="+URLEncoder.encode(proxyTicket, "UTF-8");
-  String proxyResponse = CommonUtils.getResponseFromServer(serviceUrl, "UTF-8");
+  String proxyResponse = CommonUtils.getResponseFromServer(new URL(serviceUrl), connectionFactory, "UTF-8");
   ...
 }
 ----
