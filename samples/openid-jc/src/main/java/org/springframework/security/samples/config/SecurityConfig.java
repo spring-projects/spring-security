@@ -17,8 +17,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
                 .and()
             .openidLogin()
-//                .loginPage("/login")
- //               .permitAll()
+                .loginPage("/login")
+                .permitAll()
                 .authenticationUserDetailsService(new CustomUserDetailsService())
                 .attributeExchange("https://www.google.com/.*")
                     .attribute("email")
@@ -44,9 +44,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .required(true)
                         .and()
                     .and()
-                .attributeExchange(".*epishkhan.ir.*")
-                    .attribute("userkey")
-                        .type("http://axschema.org/userkey")
+                .attributeExchange(".*myopenid.com.*")
+                    .attribute("email")
+                        .type("http://schema.openid.net/contact/email")
+                        .required(true)
+                        .and()
+                    .attribute("fullname")
+                        .type("http://schema.openid.net/namePerson")
                         .required(true);
     }
 }
