@@ -17,8 +17,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
                 .and()
             .openidLogin()
-                .loginPage("/login")
-                .permitAll()
                 .authenticationUserDetailsService(new CustomUserDetailsService())
                 .attributeExchange("https://www.google.com/.*")
                     .attribute("email")
