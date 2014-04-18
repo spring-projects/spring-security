@@ -37,12 +37,17 @@ public class Person extends LdapUserDetailsImpl {
 
     private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
+    private String givenName;
     private String sn;
     private String description;
     private String telephoneNumber;
     private List<String> cn = new ArrayList<String>();
 
     protected Person() {
+    }
+
+    public String getGivenName() {
+        return givenName;
     }
 
     public String getSn() {
@@ -62,6 +67,7 @@ public class Person extends LdapUserDetailsImpl {
     }
 
     protected void populateContext(DirContextAdapter adapter) {
+        adapter.setAttributeValue("givenName", givenName);
         adapter.setAttributeValue("sn", sn);
         adapter.setAttributeValues("cn", getCn());
         adapter.setAttributeValue("description", getDescription());
@@ -81,6 +87,7 @@ public class Person extends LdapUserDetailsImpl {
         public Essence(DirContextOperations ctx) {
             super(ctx);
             setCn(ctx.getStringAttributes("cn"));
+            setGivenName(ctx.getStringAttribute("givenName"));
             setSn(ctx.getStringAttribute("sn"));
             setDescription(ctx.getStringAttribute("description"));
             setTelephoneNumber(ctx.getStringAttribute("telephoneNumber"));
@@ -94,6 +101,7 @@ public class Person extends LdapUserDetailsImpl {
 
         public Essence(Person copyMe) {
             super(copyMe);
+            setGivenName(copyMe.givenName);
             setSn(copyMe.sn);
             setDescription(copyMe.getDescription());
             setTelephoneNumber(copyMe.getTelephoneNumber());
@@ -102,6 +110,10 @@ public class Person extends LdapUserDetailsImpl {
 
         protected LdapUserDetailsImpl createTarget() {
             return new Person();
+        }
+
+        public void setGivenName(String givenName) {
+            ((Person) instance).givenName = givenName;
         }
 
         public void setSn(String sn) {

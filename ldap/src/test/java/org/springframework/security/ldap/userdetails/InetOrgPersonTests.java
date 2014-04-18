@@ -50,6 +50,7 @@ public class InetOrgPersonTests {
 
         assertEquals("HORS1", p.getCarLicense());
         assertEquals("ghengis@mongolia", p.getMail());
+        assertEquals("Ghengis", p.getGivenName());
         assertEquals("Khan", p.getSn());
         assertEquals("Ghengis Khan", p.getCn()[0]);
         assertEquals("00001", p.getEmployeeNumber());
@@ -111,6 +112,7 @@ public class InetOrgPersonTests {
         ctx.setAttributeValue("description", "Scary");
         ctx.setAttributeValue("destinationIndicator", "West");
         ctx.setAttributeValue("displayName", "Ghengis McCann");
+        ctx.setAttributeValue("givenName", "Ghengis");
         ctx.setAttributeValue("homePhone", "+467575436521");
         ctx.setAttributeValue("initials", "G");
         ctx.setAttributeValue("employeeNumber", "00001");
