@@ -17,6 +17,7 @@ package org.springframework.security.samples.cas.web;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.net.URLEncoder;
 
 import javax.servlet.ServletException;
@@ -24,6 +25,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jasig.cas.client.ssl.HttpsURLConnectionFactory;
 import org.jasig.cas.client.util.CommonUtils;
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
 
@@ -53,7 +55,7 @@ public final class ProxyTicketSampleServlet extends HttpServlet {
 
         // Make a remote call to ourself. This is a bit silly, but it works well to demonstrate how to use proxy tickets.
         final String serviceUrl = targetUrl+"?ticket="+URLEncoder.encode(proxyTicket, "UTF-8");
-        String proxyResponse = CommonUtils.getResponseFromServer(serviceUrl, "UTF-8");
+        String proxyResponse = CommonUtils.getResponseFromServer(new URL(serviceUrl), new HttpsURLConnectionFactory(), "UTF-8");
 
         // modify the response and write it out to inform the user that it was obtained using a proxy ticket.
         proxyResponse = proxyResponse.replaceFirst("Secure Page", "Secure Page using a Proxy Ticket");
