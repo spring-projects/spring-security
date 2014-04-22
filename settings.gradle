@@ -9,7 +9,8 @@ def String[] modules = [
     'openid',
     'taglibs',
     'aspects',
-    'crypto'
+    'crypto',
+    'test'
 ]
 
 def String[] samples = [

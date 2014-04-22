@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.samples.config;
+package org.springframework.security.test.web.servlet.showcase.secured;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -27,7 +26,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.samples.mvc.config.WebMvcConfiguration;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithSecurityContextTestExcecutionListener;
 import org.springframework.test.context.ContextConfiguration;
@@ -39,30 +42,27 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 import org.springframework.test.context.web.ServletTestExecutionListener;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-/**
- * @author Rob Winch
- *
- */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes={RootConfiguration.class, WebMvcConfiguration.class})
+@ContextConfiguration(classes=WithUserAuthenticationTests.Config.class)
 @WebAppConfiguration
 @TestExecutionListeners(listeners={ServletTestExecutionListener.class,
         DependencyInjectionTestExecutionListener.class,
         DirtiesContextTestExecutionListener.class,
         TransactionalTestExecutionListener.class,
         WithSecurityContextTestExcecutionListener.class})
-public class SecurityConfigTests {
-    private MockMvc mvc;
+public class WithUserAuthenticationTests {
 
     @Autowired
     private WebApplicationContext context;
 
     @Autowired
     private Filter springSecurityFilterChain;
+
+    private MockMvc mvc;
 
     @Before
     public void setup() {
@@ -74,67 +74,47 @@ public class SecurityConfigTests {
     }
 
     @Test
-    public void requestProtectedResourceRequiresAuthentication() throws Exception {
-        mvc.perform(get("/"))
-            .andExpect(redirectedUrl("http://localhost/login"));
-    }
-
-    @Test
-    public void loginSuccess() throws Exception {
-        mvc.perform(formLogin())
-            .andExpect(redirectedUrl("/"));
-    }
-
-    @Test
-    public void loginFailure() throws Exception {
-        mvc.perform(formLogin().password("invalid"))
-            .andExpect(redirectedUrl("/login?error"));
-    }
-
-    @Test
     @WithMockUser
-    public void requestProtectedResourceWithUser() throws Exception {
-        mvc.perform(get("/"))
-            .andExpect(status().isOk());
+    public void requestProtectedUrlWithUser() throws Exception {
+        mvc
+            .perform(get("/"))
+            // Ensure we got past Security
+            .andExpect(status().isNotFound())
+            // Ensure it appears we are authenticated with user
+            .andExpect(authenticated().withUsername("user"));
     }
 
     @Test
-    @WithMockUser
-    public void composeMessageRequiresCsrfToken() throws Exception {
-        MockHttpServletRequestBuilder composeMessage =
-            post("/")
-                .param("summary", "New Message")
-                .param("text", "This is a new message");
-
-        mvc.perform(composeMessage)
-            .andExpect(status().isForbidden());
+    @WithMockUser(roles="ADMIN")
+    public void requestProtectedUrlWithAdmin() throws Exception {
+        mvc
+            .perform(get("/admin"))
+            // Ensure we got past Security
+            .andExpect(status().isNotFound())
+            // Ensure it appears we are authenticated with user
+            .andExpect(authenticated().withUsername("user").withRoles("ADMIN"));
     }
 
-    @Test
-    @WithMockUser
-    public void composeMessage() throws Exception {
-        MockHttpServletRequestBuilder composeMessage =
-            post("/")
-                .param("summary", "New Message")
-                .param("text", "This is a new message")
-                .with(csrf());
+    @Configuration
+    @EnableWebMvcSecurity
+    @EnableWebMvc
+    static class Config extends WebSecurityConfigurerAdapter {
 
-        mvc.perform(composeMessage)
-            .andExpect(redirectedUrlPattern("/*"));
-    }
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .authorizeRequests()
+                    .antMatchers("/admin/**").hasRole("ADMIN")
+                    .anyRequest().authenticated()
+                    .and()
+                .formLogin();
+        }
 
-    @Test
-    @WithMockUser
-    public void logoutRequiresCsrfToken() throws Exception {
-        mvc.perform(post("/logout"))
-            .andExpect(status().isForbidden());
-    }
-
-    @Test
-    @WithMockUser
-    public void logoutSuccess() throws Exception {
-        mvc.perform(logout())
-            .andExpect(redirectedUrl("/login?logout"))
-            .andExpect(unauthenticated());
+        @Autowired
+        public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+            auth
+                .inMemoryAuthentication()
+                    .withUser("user").password("password").roles("USER");
+        }
     }
 }
