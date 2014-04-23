@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,14 +75,14 @@ public final class RequestHeaderRequestMatcher implements RequestMatcher {
      *
      * @param expectedHeaderName
      *            the name of the expected header. Cannot be null
-     * @param expectedHeaderName
+     * @param expectedHeaderValue
      *            the expected header value or null if the value does not matter
      */
     public RequestHeaderRequestMatcher(String expectedHeaderName,
-            String exepctedHeaderName) {
+            String expectedHeaderValue) {
         Assert.notNull(expectedHeaderName, "headerName cannot be null");
         this.expectedHeaderName = expectedHeaderName;
-        this.expectedHeaderValue = exepctedHeaderName;
+        this.expectedHeaderValue = expectedHeaderValue;
     }
 
     public boolean matches(HttpServletRequest request) {
