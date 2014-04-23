@@ -30,9 +30,7 @@ dependencies {
 
 integrationTest {
     useTestNG();
-    options {
-        jvmArgs = ["-ea", '-Xms128m', '-Xmx500m']
-        systemProperties = ['webapp.dir': "$projectDir/src/main/webapp"]
-    }
+    jvmArgs = ["-ea", '-Xms128m', '-Xmx500m']
+    systemProperty 'webapp.dir', "$projectDir/src/main/webapp"
     maxParallelForks = 1
 }
