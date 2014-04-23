@@ -1,11 +1,28 @@
 package org.springframework.security.acls.jdbc;
 
+import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
+import static org.fest.assertions.Assertions.*;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.List;
+
 import net.sf.ehcache.Ehcache;
-import org.junit.*;
+import net.sf.ehcache.Element;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.security.acls.domain.AclAuthorizationStrategy;
 import org.springframework.security.acls.domain.AclAuthorizationStrategyImpl;
 import org.springframework.security.acls.domain.AclImpl;
@@ -19,48 +36,41 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.util.FieldUtils;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.*;
+import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  * Tests {@link EhCacheBasedAclCache}
  *
  * @author Andrei Stefan
  */
+@RunWith(MockitoJUnitRunner.class)
 public class EhCacheBasedAclCacheTests {
     private static final String TARGET_CLASS = "org.springframework.security.acls.TargetObject";
 
-    private static CacheManager cacheManager;
+    @Mock
+    private Ehcache cache;
+    @Captor
+    private ArgumentCaptor<Element> element;
 
-    @BeforeClass
-    public static void initCacheManaer() {
-        cacheManager = CacheManager.create();
-        // Use disk caching immediately (to test for serialization issue reported in SEC-527)
-        cacheManager.addCache(new Cache("ehcachebasedacltests", 0, true, false, 600, 300));
-    }
+    private EhCacheBasedAclCache myCache;
 
-    @AfterClass
-    public static void shutdownCacheManager() {
-        cacheManager.removalAll();
-        cacheManager.shutdown();
+    private MutableAcl acl;
+
+    @Before
+    public void setup() {
+        myCache = new EhCacheBasedAclCache(cache);
+
+        ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(100));
+        AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
+                new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority("ROLE_AUDITING"),
+                new SimpleGrantedAuthority("ROLE_GENERAL"));
+
+        acl = new AclImpl(identity, Long.valueOf(1), aclAuthorizationStrategy, new ConsoleAuditLogger());
     }
 
     @After
-    public void clearContext() {
+    public void cleanup() {
         SecurityContextHolder.clearContext();
-    }
-
-    private Ehcache getCache() {
-        Ehcache cache = cacheManager.getCache("ehcachebasedacltests");
-        cache.removeAll();
-
-        return cache;
     }
 
     @Test(expected=IllegalArgumentException.class)
@@ -70,9 +80,6 @@ public class EhCacheBasedAclCacheTests {
 
     @Test
     public void methodsRejectNullParameters() throws Exception {
-        Ehcache cache = new MockEhcache();
-        EhCacheBasedAclCache myCache = new EhCacheBasedAclCache(cache);
-
         try {
             Serializable id = null;
             myCache.evictFromCache(id);
@@ -122,12 +129,6 @@ public class EhCacheBasedAclCacheTests {
     // SEC-527
     @Test
     public void testDiskSerializationOfMutableAclObjectInstance() throws Exception {
-        ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(100));
-        AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
-                new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority("ROLE_AUDITING"),
-                new SimpleGrantedAuthority("ROLE_GENERAL"));
-        MutableAcl acl = new AclImpl(identity, Long.valueOf(1), aclAuthorizationStrategy, new ConsoleAuditLogger());
-
         // Serialization test
         File file = File.createTempFile("SEC_TEST", ".object");
         FileOutputStream fos = new FileOutputStream(file);
@@ -150,111 +151,117 @@ public class EhCacheBasedAclCacheTests {
     }
 
     @Test
-    public void cacheOperationsAclWithoutParent() throws Exception {
-        Ehcache cache = getCache();
-        EhCacheBasedAclCache myCache = new EhCacheBasedAclCache(cache);
+    public void clearCache() throws Exception {
+        myCache.clearCache();
 
-        ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(100));
-        AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
-                new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority("ROLE_AUDITING"),
-                new SimpleGrantedAuthority("ROLE_GENERAL"));
-        MutableAcl acl = new AclImpl(identity, Long.valueOf(1), aclAuthorizationStrategy, new ConsoleAuditLogger());
-
-        assertEquals(0, cache.getDiskStoreSize());
-        myCache.putInCache(acl);
-        assertEquals(cache.getSize(), 2);
-        assertEquals(2, cache.getDiskStoreSize());
-        assertTrue(cache.isElementOnDisk(acl.getObjectIdentity()));
-        assertFalse(cache.isElementInMemory(acl.getObjectIdentity()));
-
-        // Check we can get from cache the same objects we put in
-        assertEquals(myCache.getFromCache(Long.valueOf(1)), acl);
-        assertEquals(myCache.getFromCache(identity), acl);
-
-        // Put another object in cache
-        ObjectIdentity identity2 = new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(101));
-        MutableAcl acl2 = new AclImpl(identity2, Long.valueOf(2), aclAuthorizationStrategy, new ConsoleAuditLogger());
-
-        myCache.putInCache(acl2);
-        assertEquals(cache.getSize(), 4);
-        assertEquals(4, cache.getDiskStoreSize());
-
-        // Try to evict an entry that doesn't exist
-        myCache.evictFromCache(Long.valueOf(3));
-        myCache.evictFromCache(new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(102)));
-        assertEquals(cache.getSize(), 4);
-        assertEquals(4, cache.getDiskStoreSize());
-
-        myCache.evictFromCache(Long.valueOf(1));
-        assertEquals(cache.getSize(), 2);
-        assertEquals(2, cache.getDiskStoreSize());
-
-        // Check the second object inserted
-        assertEquals(myCache.getFromCache(Long.valueOf(2)), acl2);
-        assertEquals(myCache.getFromCache(identity2), acl2);
-
-        myCache.evictFromCache(identity2);
-        assertEquals(cache.getSize(), 0);
+        verify(cache).removeAll();
     }
 
-    @SuppressWarnings("unchecked")
     @Test
-    public void cacheOperationsAclWithParent() throws Exception {
-        Ehcache cache = getCache();
-        EhCacheBasedAclCache myCache = new EhCacheBasedAclCache(cache);
+    public void putInCache() throws Exception {
+        myCache.putInCache(acl);
 
+        verify(cache, times(2)).put(element.capture());
+        assertThat(element.getValue().getKey()).isEqualTo(acl.getId());
+        assertThat(element.getValue().getObjectValue()).isEqualTo(acl);
+        assertThat(element.getAllValues().get(0).getKey()).isEqualTo(acl.getObjectIdentity());
+        assertThat(element.getAllValues().get(0).getObjectValue()).isEqualTo(acl);
+    }
+
+    @Test
+    public void putInCacheAclWithParent() throws Exception {
         Authentication auth = new TestingAuthenticationToken("user", "password", "ROLE_GENERAL");
         auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(1));
         ObjectIdentity identityParent = new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(2));
         AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
                 new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority("ROLE_AUDITING"),
                 new SimpleGrantedAuthority("ROLE_GENERAL"));
-        MutableAcl acl = new AclImpl(identity, Long.valueOf(1), aclAuthorizationStrategy, new ConsoleAuditLogger());
         MutableAcl parentAcl = new AclImpl(identityParent, Long.valueOf(2), aclAuthorizationStrategy, new ConsoleAuditLogger());
-
         acl.setParent(parentAcl);
 
-        assertEquals(0, cache.getDiskStoreSize());
         myCache.putInCache(acl);
-        assertEquals(cache.getSize(), 4);
-        assertEquals(4, cache.getDiskStoreSize());
-        assertTrue(cache.isElementOnDisk(acl.getObjectIdentity()));
-        assertTrue(cache.isElementOnDisk(Long.valueOf(1)));
-        assertFalse(cache.isElementInMemory(acl.getObjectIdentity()));
-        assertFalse(cache.isElementInMemory(Long.valueOf(1)));
-        cache.flush();
-        // Wait for the spool to be written to disk (it's asynchronous)
-        Map spool = (Map) FieldUtils.getFieldValue(cache, "diskStore.spool");
 
-        while(spool.size() > 0) {
-            Thread.sleep(50);
-        }
+        verify(cache, times(4)).put(element.capture());
 
-        // Check we can get from cache the same objects we put in
-        AclImpl aclFromCache = (AclImpl) myCache.getFromCache(Long.valueOf(1));
-        // For the checks on transient fields, we need to be sure that the object is being loaded from the cache,
-        // not from the ehcache spool or elsewhere...
-        assertFalse(acl == aclFromCache);
-        assertEquals(acl, aclFromCache);
-        // SEC-951 check transient fields are set on parent
-        assertNotNull(FieldUtils.getFieldValue(aclFromCache.getParentAcl(), "aclAuthorizationStrategy"));
-        assertNotNull(FieldUtils.getFieldValue(aclFromCache.getParentAcl(), "permissionGrantingStrategy"));
-        assertEquals(acl, myCache.getFromCache(identity));
-        assertNotNull(FieldUtils.getFieldValue(aclFromCache, "aclAuthorizationStrategy"));
-        AclImpl parentAclFromCache = (AclImpl) myCache.getFromCache(Long.valueOf(2));
-        assertEquals(parentAcl, parentAclFromCache);
-        assertNotNull(FieldUtils.getFieldValue(parentAclFromCache, "aclAuthorizationStrategy"));
-        assertEquals(parentAcl, myCache.getFromCache(identityParent));
+        List<Element> allValues = element.getAllValues();
+
+        assertThat(allValues.get(0).getKey()).isEqualTo(parentAcl.getObjectIdentity());
+        assertThat(allValues.get(0).getObjectValue()).isEqualTo(parentAcl);
+
+        assertThat(allValues.get(1).getKey()).isEqualTo(parentAcl.getId());
+        assertThat(allValues.get(1).getObjectValue()).isEqualTo(parentAcl);
+
+
+        assertThat(allValues.get(2).getKey()).isEqualTo(acl.getObjectIdentity());
+        assertThat(allValues.get(2).getObjectValue()).isEqualTo(acl);
+
+        assertThat(allValues.get(3).getKey()).isEqualTo(acl.getId());
+        assertThat(allValues.get(3).getObjectValue()).isEqualTo(acl);
     }
 
-    //~ Inner Classes ==================================================================================================
+    @Test
+    public void getFromCacheSerializable() throws Exception {
+        when(cache.get(acl.getId())).thenReturn(new Element(acl.getId(),acl));
 
-    private class MockEhcache extends Cache {
-        public MockEhcache() {
-            super("cache", 0, true, true, 0, 0);
-        }
+        assertThat(myCache.getFromCache(acl.getId())).isEqualTo(acl);
+    }
+
+    @Test
+    public void getFromCacheSerializablePopulatesTransient() throws Exception {
+        when(cache.get(acl.getId())).thenReturn(new Element(acl.getId(),acl));
+
+        myCache.putInCache(acl);
+
+        ReflectionTestUtils.setField(acl, "permissionGrantingStrategy", null);
+        ReflectionTestUtils.setField(acl, "aclAuthorizationStrategy", null);
+
+        MutableAcl fromCache = myCache.getFromCache(acl.getId());
+
+        assertThat(ReflectionTestUtils.getField(fromCache, "aclAuthorizationStrategy")).isNotNull();
+        assertThat(ReflectionTestUtils.getField(fromCache, "permissionGrantingStrategy")).isNotNull();
+    }
+
+    @Test
+    public void getFromCacheObjectIdentity() throws Exception {
+        when(cache.get(acl.getId())).thenReturn(new Element(acl.getId(),acl));
+
+        assertThat(myCache.getFromCache(acl.getId())).isEqualTo(acl);
+    }
+
+    @Test
+    public void getFromCacheObjectIdentityPopulatesTransient() throws Exception {
+        when(cache.get(acl.getObjectIdentity())).thenReturn(new Element(acl.getId(),acl));
+
+        myCache.putInCache(acl);
+
+        ReflectionTestUtils.setField(acl, "permissionGrantingStrategy", null);
+        ReflectionTestUtils.setField(acl, "aclAuthorizationStrategy", null);
+
+        MutableAcl fromCache = myCache.getFromCache(acl.getObjectIdentity());
+
+        assertThat(ReflectionTestUtils.getField(fromCache, "aclAuthorizationStrategy")).isNotNull();
+        assertThat(ReflectionTestUtils.getField(fromCache, "permissionGrantingStrategy")).isNotNull();
+    }
+
+    @Test
+    public void evictCacheSerializable() throws Exception {
+        when(cache.get(acl.getObjectIdentity())).thenReturn(new Element(acl.getId(),acl));
+
+        myCache.evictFromCache(acl.getObjectIdentity());
+
+        verify(cache).remove(acl.getId());
+        verify(cache).remove(acl.getObjectIdentity());
+    }
+
+    @Test
+    public void evictCacheObjectIdentity() throws Exception {
+        when(cache.get(acl.getId())).thenReturn(new Element(acl.getId(),acl));
+
+        myCache.evictFromCache(acl.getId());
+
+        verify(cache).remove(acl.getId());
+        verify(cache).remove(acl.getObjectIdentity());
     }
 }
