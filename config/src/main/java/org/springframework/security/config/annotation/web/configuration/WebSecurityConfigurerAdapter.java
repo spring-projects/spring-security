@@ -18,11 +18,18 @@ package org.springframework.security.config.annotation.web.configuration;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.aop.TargetSource;
+import org.springframework.aop.framework.Advised;
+import org.springframework.aop.target.LazyInitTargetSource;
 import org.springframework.beans.FatalBeanException;
+import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.Order;
@@ -210,7 +217,7 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
      * @throws Exception
      */
     public AuthenticationManager authenticationManagerBean() throws Exception {
-        return new AuthenticationManagerDelegator(authenticationBuilder);
+        return new AuthenticationManagerDelegator(authenticationBuilder, context);
     }
 
     /**
@@ -413,12 +420,14 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
         private AuthenticationManagerBuilder delegateBuilder;
         private AuthenticationManager delegate;
         private final Object delegateMonitor = new Object();
+        private Set<String> beanNames;
 
-        AuthenticationManagerDelegator(AuthenticationManagerBuilder delegateBuilder) {
+        AuthenticationManagerDelegator(AuthenticationManagerBuilder delegateBuilder, ApplicationContext context) {
             Assert.notNull(delegateBuilder,"delegateBuilder cannot be null");
             Field parentAuthMgrField = ReflectionUtils.findField(AuthenticationManagerBuilder.class, "parentAuthenticationManager");
             ReflectionUtils.makeAccessible(parentAuthMgrField);
-            validateBeanCycle(ReflectionUtils.getField(parentAuthMgrField, delegateBuilder));
+            beanNames = getAuthenticationManagerBeanNames(context);
+            validateBeanCycle(ReflectionUtils.getField(parentAuthMgrField, delegateBuilder), beanNames);
             this.delegateBuilder = delegateBuilder;
         }
 
@@ -437,16 +446,24 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
             return delegate.authenticate(authentication);
         }
 
-        private static void validateBeanCycle(Object auth) {
-            if(auth != null) {
-                String lazyBeanClassName = AuthenticationConfiguration.class.getName() + "$LazyBean";
-                Class<?>[] interfaces = auth.getClass().getInterfaces();
-                for(Class<?> i : interfaces) {
-                    String className = i.getName();
-                    if(className.equals(lazyBeanClassName)) {
-                        throw new FatalBeanException("A dependency cycle was detected when trying to resolve the AuthenticationManager. Please ensure you have configured authentication.");
+        private static Set<String> getAuthenticationManagerBeanNames(ApplicationContext applicationContext) {
+             String[] beanNamesForType = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(applicationContext, AuthenticationManager.class);
+             return new HashSet<String>(Arrays.asList(beanNamesForType));
+        }
+
+        private static void validateBeanCycle(Object auth, Set<String> beanNames) {
+            if(auth != null && !beanNames.isEmpty()) {
+                if(auth instanceof Advised){
+                    Advised advised = (Advised) auth;
+                    TargetSource targetSource = advised.getTargetSource();
+                    if(targetSource instanceof LazyInitTargetSource) {
+                        LazyInitTargetSource lits = (LazyInitTargetSource) targetSource;
+                        if(beanNames.contains(lits.getTargetBeanName())) {
+                            throw new FatalBeanException("A dependency cycle was detected when trying to resolve the AuthenticationManager. Please ensure you have configured authentication.");
+                        }
                     }
                 }
+                beanNames = Collections.emptySet();
             }
         }
     }
