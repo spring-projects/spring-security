@@ -123,7 +123,8 @@ abstract class BaseSpringSpec extends Specification {
     AuthenticationManager getAuthenticationManager() {
         try {
             authenticationManager().delegateBuilder.getObject()
-        } catch(NoSuchBeanDefinitionException e) {}
+        } catch(NoSuchBeanDefinitionException e) {
+        } catch(MissingPropertyException e) {}
         findFilter(FilterSecurityInterceptor).authenticationManager
     }
 

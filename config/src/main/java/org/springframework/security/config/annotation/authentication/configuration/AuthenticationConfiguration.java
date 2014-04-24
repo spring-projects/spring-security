@@ -115,15 +115,12 @@ public class AuthenticationConfiguration {
         ProxyFactoryBean proxyFactory = new ProxyFactoryBean();
         proxyFactory = objectPostProcessor.postProcess(proxyFactory);
         proxyFactory.setTargetSource(lazyTargetSource);
-        proxyFactory.setInterfaces(new Class[] { interfaceName, LazyBean.class });
         return (T) proxyFactory.getObject();
     }
 
     private AuthenticationManager getAuthenticationMangerBean() {
         return lazyBean(AuthenticationManager.class);
     }
-
-    private interface LazyBean {}
 
     private static class EnableGlobalAuthenticationAutowiredConfigurer extends GlobalAuthenticationConfigurerAdapter {
         private final ApplicationContext context;
