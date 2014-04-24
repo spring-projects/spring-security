@@ -18,6 +18,7 @@ package org.springframework.security.authentication.dao;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.authentication.encoding.PlaintextPasswordEncoder;
@@ -106,11 +107,11 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
             }
             throw notFound;
         } catch (Exception repositoryProblem) {
-            throw new AuthenticationServiceException(repositoryProblem.getMessage(), repositoryProblem);
+            throw new InternalAuthenticationServiceException(repositoryProblem.getMessage(), repositoryProblem);
         }
 
         if (loadedUser == null) {
-            throw new AuthenticationServiceException(
+            throw new InternalAuthenticationServiceException(
                     "UserDetailsService returned null, which is an interface contract violation");
         }
         return loadedUser;
