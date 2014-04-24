@@ -34,6 +34,7 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -172,9 +173,8 @@ public class DaoAuthenticationProviderTests extends TestCase {
 
         try {
             provider.authenticate(token);
-            fail("Should have thrown AuthenticationServiceException");
-        } catch (AuthenticationServiceException expected) {
-            assertTrue(true);
+            fail("Should have thrown InternalAuthenticationServiceException");
+        } catch (InternalAuthenticationServiceException expected) {
         }
     }
 
