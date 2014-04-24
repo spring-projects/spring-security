@@ -15,6 +15,7 @@
 
 package org.springframework.security.authentication;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -58,6 +59,8 @@ public class UsernamePasswordAuthenticationTokenTests {
             token.setAuthenticated(true);
             fail("Should have prohibited setAuthenticated(true)");
         } catch (IllegalArgumentException expected) {
+            // SEC-2540
+            assertThat(expected).hasMessage("Once created you cannot set this token to authenticated. Create a new instance using the constructor which takes a GrantedAuthority list will mark this as authenticated.");
         }
     }
 
