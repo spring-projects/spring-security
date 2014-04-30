@@ -48,7 +48,7 @@ ext.powerMockDependencies = [
     "org.powermock:powermock-reflect:$powerMockVersion"
 ]
 
-ext.apacheds_libs = [
+ext.apachedsDependencies = [
          "org.apache.directory.server:apacheds-core:$apacheDsVersion",
          "org.apache.directory.server:apacheds-core-entry:$apacheDsVersion",
          "org.apache.directory.server:apacheds-protocol-shared:$apacheDsVersion",

@@ -6,7 +6,7 @@ dependencies {
                     'javax.servlet.jsp:jsp-api:2.1'
 
     compile project(":spring-security-ldap"),
-            apacheds_libs,
+            apachedsDependencies,
             project(":spring-security-config"),
             project(":spring-security-samples-messages-jc"),
             project(":spring-security-core"),
