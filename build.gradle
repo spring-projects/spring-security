@@ -5,7 +5,7 @@ buildscript {
         maven { url "https://repo.spring.io/plugins-release" }
     }
     dependencies {
-        classpath("org.springframework.build.gradle:propdeps-plugin:0.0.5")
+        classpath("org.springframework.build.gradle:propdeps-plugin:0.0.6")
         classpath("org.springframework.build.gradle:springio-platform-plugin:0.0.2.RELEASE")
         classpath("org.gradle.api.plugins:gradle-tomcat-plugin:0.9.8")
         classpath('me.champeau.gradle:gradle-javadoc-hotfix-plugin:0.1')
