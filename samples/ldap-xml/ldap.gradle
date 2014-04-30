@@ -17,5 +17,7 @@ dependencies {
             project(':spring-security-config'),
             project(':spring-security-ldap'),
             "org.slf4j:jcl-over-slf4j:$slf4jVersion",
-            "ch.qos.logback:logback-classic:$logbackVersion"
+            "ch.qos.logback:logback-classic:$logbackVersion",
+            'org.apache.directory.server:apacheds-core:1.5.5',
+            'org.apache.directory.server:apacheds-server-jndi:1.5.5'
 }
