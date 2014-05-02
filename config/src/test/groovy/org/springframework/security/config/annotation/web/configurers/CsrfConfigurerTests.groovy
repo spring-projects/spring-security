@@ -15,6 +15,8 @@
  */
 package org.springframework.security.config.annotation.web.configurers
 
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher
+
 import javax.servlet.http.HttpServletResponse
 
 import org.springframework.context.annotation.Configuration
@@ -336,6 +338,18 @@ class CsrfConfigurerTests extends BaseSpringSpec {
             currentAuthentication != null
     }
 
+    def "SEC-2543: CSRF means logout requires POST"() {
+        setup:
+            loadConfig(LogoutConfig)
+            login()
+            request.servletPath = "/logout"
+            request.method = "GET"
+        when:
+            springSecurityFilterChain.doFilter(request,response,chain)
+        then: "logout with GET is not performed"
+            currentAuthentication != null
+    }
+
     @Configuration
     @EnableWebSecurity
     static class LogoutConfig extends WebSecurityConfigurerAdapter {
@@ -345,6 +359,32 @@ class CsrfConfigurerTests extends BaseSpringSpec {
         protected void configure(HttpSecurity http) throws Exception {
             http
                 .formLogin()
+        }
+    }
+
+    def "CSRF can explicitly enable GET for logout"() {
+        setup:
+            loadConfig(LogoutAllowsGetConfig)
+            login()
+            request.servletPath = "/logout"
+            request.method = "GET"
+        when:
+            springSecurityFilterChain.doFilter(request,response,chain)
+        then: "logout with GET is not performed"
+            currentAuthentication == null
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    static class LogoutAllowsGetConfig extends WebSecurityConfigurerAdapter {
+        static AccessDeniedHandler deniedHandler
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .formLogin().and()
+                .logout()
+                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
         }
     }
 

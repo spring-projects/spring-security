@@ -294,7 +294,9 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>> extends Ab
         }
         if(http.getConfigurer(CsrfConfigurer.class) != null) {
             this.logoutRequestMatcher = new AntPathRequestMatcher(this.logoutUrl, "POST");
+        } else {
+            this.logoutRequestMatcher = new AntPathRequestMatcher(this.logoutUrl);
         }
-        return new AntPathRequestMatcher(this.logoutUrl);
+        return this.logoutRequestMatcher;
     }
 }
