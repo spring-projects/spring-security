@@ -29,9 +29,7 @@ import static org.springframework.security.web.context.HttpSessionSecurityContex
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.*;
 
 import org.junit.After;
 import org.junit.Test;
@@ -494,5 +492,34 @@ public class HttpSessionSecurityContextRepositoryTests {
     public void setTrustResolverNull() {
         HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
         repo.setTrustResolver(null);
+    }
+
+    // SEC-2578
+    @Test
+    public void traverseWrappedRequests() {
+        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
+        SecurityContext context = repo.loadContext(holder);
+        assertNull(request.getSession(false));
+        // Simulate authentication during the request
+        context.setAuthentication(testToken);
+
+        repo.saveContext(context, new HttpServletRequestWrapper(holder.getRequest()), new HttpServletResponseWrapper(holder.getResponse()));
+
+        assertNotNull(request.getSession(false));
+        assertEquals(context, request.getSession().getAttribute(SPRING_SECURITY_CONTEXT_KEY));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void failsWithStandardResponse() {
+        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(testToken);
+
+        repo.saveContext(context,request,response);
     }
 }

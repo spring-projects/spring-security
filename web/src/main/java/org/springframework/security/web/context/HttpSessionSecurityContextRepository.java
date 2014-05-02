@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
+import org.springframework.web.util.WebUtils;
 
 /**
  * A {@code SecurityContextRepository} implementation which stores the security context in the {@code HttpSession}
@@ -105,7 +106,10 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
     }
 
     public void saveContext(SecurityContext context, HttpServletRequest request, HttpServletResponse response) {
-        SaveContextOnUpdateOrErrorResponseWrapper responseWrapper = (SaveContextOnUpdateOrErrorResponseWrapper)response;
+        SaveContextOnUpdateOrErrorResponseWrapper responseWrapper = WebUtils.getNativeResponse(response, SaveContextOnUpdateOrErrorResponseWrapper.class);
+        if(responseWrapper == null) {
+            throw new IllegalStateException("Cannot invoke saveContext on response " + response + ". You must use the HttpRequestResponseHolder.response after invoking loadContext");
+        }
         // saveContext() might already be called by the response wrapper
         // if something in the chain called sendError() or sendRedirect(). This ensures we only call it
         // once per request.
