@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-test</artifactId>
-  <version>4.0.0.CI-SNAPSHOT</version>
+  <version>4.0.0.M1</version>
   <name>spring-security-test</name>
   <description>spring-security-test</description>
   <url>http://spring.io/spring-security</url>
@@ -44,21 +44,21 @@
   </build>
   <repositories>
     <repository>
-      <id>spring-snasphot</id>
-      <url>https://repo.spring.io/snapshot</url>
+      <id>spring-milestone</id>
+      <url>https://repo.spring.io/milestone</url>
     </repository>
   </repositories>
   <dependencies>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>4.0.0.CI-SNAPSHOT</version>
+      <version>4.0.0.M1</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>4.0.0.CI-SNAPSHOT</version>
+      <version>4.0.0.M1</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -167,7 +167,7 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>4.0.0.CI-SNAPSHOT</version>
+      <version>4.0.0.M1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
