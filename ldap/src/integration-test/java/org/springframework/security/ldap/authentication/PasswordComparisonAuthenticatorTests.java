@@ -20,6 +20,7 @@ import org.junit.*;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.encoding.LdapShaPasswordEncoder;
+import org.springframework.security.authentication.encoding.PasswordEncoder;
 import org.springframework.security.authentication.encoding.PlaintextPasswordEncoder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -112,7 +113,7 @@ public class PasswordComparisonAuthenticatorTests extends AbstractLdapIntegratio
 
     @Test(expected = IllegalArgumentException.class)
     public void testPasswordEncoderCantBeNull() {
-        authenticator.setPasswordEncoder(null);
+        authenticator.setPasswordEncoder((PasswordEncoder)null);
     }
 
     @Test

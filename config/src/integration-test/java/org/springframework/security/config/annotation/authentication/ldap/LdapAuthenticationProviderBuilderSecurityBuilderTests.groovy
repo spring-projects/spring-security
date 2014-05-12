@@ -28,6 +28,7 @@ import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.SecurityBuilder;
 import org.springframework.security.config.annotation.authentication.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
 import org.springframework.security.ldap.server.ApacheDSContainer;
@@ -129,6 +130,30 @@ class LdapAuthenticationProviderBuilderSecurityBuilderTests extends BaseSpringSp
             auth
                 .ldapAuthentication()
                     .contextSource(contextSource())
+                    .groupSearchBase("ou=groups")
+                    .userDnPatterns("uid={0},ou=people");
+        }
+    }
+
+    def "SEC-2472: Can use crypto PasswordEncoder"() {
+        setup:
+        PasswordEncoderConfig.PE = Mock(PasswordEncoder)
+        loadConfig(PasswordEncoderConfig)
+        when:
+        AuthenticationManager auth = context.getBean(AuthenticationManager)
+        then:
+        auth.authenticate(new UsernamePasswordAuthenticationToken("admin","password")).authorities.collect { it.authority }.sort() == ["ROLE_ADMIN","ROLE_USER"]
+        PasswordEncoderConfig.PE.matches(_, _) << true
+    }
+
+    @Configuration
+    static class PasswordEncoderConfig extends BaseLdapServerConfig {
+        static PasswordEncoder PE
+        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+            auth
+                .ldapAuthentication()
+                    .contextSource(contextSource())
+                    .passwordEncoder(PE)
                     .groupSearchBase("ou=groups")
                     .userDnPatterns("uid={0},ou=people");
         }

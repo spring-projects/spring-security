@@ -40,6 +40,7 @@ import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
 import org.springframework.security.ldap.userdetails.PersonContextMapper;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
+import org.springframework.util.Assert;
 
 /**
  * Configures LDAP {@link AuthenticationProvider} in the {@link ProviderManagerBuilder}.
@@ -204,9 +205,37 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
      *
      * @param passwordEncoder the {@link PasswordEncoder} to use
      * @return the {@link LdapAuthenticationProviderConfigurer} for further customization
+     * @deprecated Use {@link #passwordEncoder(org.springframework.security.crypto.password.PasswordEncoder)} instead
      */
     public LdapAuthenticationProviderConfigurer<B> passwordEncoder(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
+        return this;
+    }
+
+    /**
+     * Specifies the {@link org.springframework.security.crypto.password.PasswordEncoder} to be used when authenticating with
+     * password comparison.
+     *
+     * @param passwordEncoder the {@link org.springframework.security.crypto.password.PasswordEncoder} to use
+     * @return the {@link LdapAuthenticationProviderConfigurer} for further customization
+     */
+    public LdapAuthenticationProviderConfigurer<B> passwordEncoder(final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
+        Assert.notNull(passwordEncoder, "passwordEncoder must not be null.");
+        passwordEncoder(new PasswordEncoder() {
+            public String encodePassword(String rawPass, Object salt) {
+                checkSalt(salt);
+                return passwordEncoder.encode(rawPass);
+            }
+
+            public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
+                checkSalt(salt);
+                return passwordEncoder.matches(rawPass, encPass);
+            }
+
+            private void checkSalt(Object salt) {
+                Assert.isNull(salt, "Salt value must be null when used with crypto module PasswordEncoder");
+            }
+        });
         return this;
     }
 
