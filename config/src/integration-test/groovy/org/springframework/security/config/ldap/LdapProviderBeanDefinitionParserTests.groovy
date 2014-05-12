@@ -1,7 +1,13 @@
 package org.springframework.security.config.ldap
 
+
+import static org.mockito.Mockito.*
+
 import java.text.MessageFormat
+
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.config.AbstractXmlConfigTests
 import org.springframework.security.config.BeanIds
 import org.springframework.security.util.FieldUtils
@@ -120,6 +126,28 @@ class LdapProviderBeanDefinitionParserTests extends AbstractXmlConfigTests {
         then:
         auth != null
         notThrown(AuthenticationException)
+    }
+
+    def 'SEC-2472: Supports Crypto PasswordEncoder'() {
+        setup:
+        xml.'ldap-server'(ldif:'test-server.ldif')
+        xml.'authentication-manager'{
+            'ldap-authentication-provider'('user-dn-pattern': 'uid={0},ou=people') {
+                'password-compare'() {
+                    'password-encoder'(ref: 'pe')
+                }
+            }
+        }
+        xml.'b:bean'(id:'pe','class':BCryptPasswordEncoder.class.name)
+
+        createAppContext('')
+        def am = appContext.getBean(BeanIds.AUTHENTICATION_MANAGER)
+
+        when:
+        def auth = am.authenticate(new UsernamePasswordAuthenticationToken("bcrypt", 'password'))
+
+        then:
+        auth != null
     }
 
     def inetOrgContextMapperIsSupported()  {

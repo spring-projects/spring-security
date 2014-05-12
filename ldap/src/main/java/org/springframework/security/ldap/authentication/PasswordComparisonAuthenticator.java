@@ -18,6 +18,7 @@ package org.springframework.security.ldap.authentication;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.ldap.NameNotFoundException;
+import org.springframework.ldap.NamingException;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -52,6 +53,7 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 
     private PasswordEncoder passwordEncoder = new LdapShaPasswordEncoder();
     private String passwordAttributeName = "userPassword";
+    private boolean usePasswordAttrCompare = false;
 
     //~ Constructors ===================================================================================================
 
@@ -95,15 +97,25 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
                     user.getDn() +"'");
         }
 
+        if (usePasswordAttrCompare && isPasswordAttrCompare(user, password)) {
+            return user;
+        } else if(isLdapPasswordCompare(user, ldapTemplate, password)) {
+            return user;
+        }
+        throw new BadCredentialsException(messages.getMessage("PasswordComparisonAuthenticator.badCredentials",
+                "Bad credentials"));
+    }
+
+    private boolean isPasswordAttrCompare(DirContextOperations user, String password) {
+        Object passwordAttrValue = user.getObjectAttribute(passwordAttributeName);
+        return passwordEncoder.isPasswordValid(new String((byte[])passwordAttrValue), password, null);
+    }
+
+    private boolean isLdapPasswordCompare(DirContextOperations user,
+            SpringSecurityLdapTemplate ldapTemplate, String password) {
         String encodedPassword = passwordEncoder.encodePassword(password, null);
         byte[] passwordBytes = Utf8.encode(encodedPassword);
-
-        if (!ldapTemplate.compare(user.getDn().toString(), passwordAttributeName, passwordBytes)) {
-            throw new BadCredentialsException(messages.getMessage("PasswordComparisonAuthenticator.badCredentials",
-                    "Bad credentials"));
-        }
-
-        return user;
+        return ldapTemplate.compare(user.getDn().toString(), passwordAttributeName, passwordBytes);
     }
 
     public void setPasswordAttributeName(String passwordAttribute) {
@@ -111,8 +123,40 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
         this.passwordAttributeName = passwordAttribute;
     }
 
-    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+    private void setPasswordEncoder(PasswordEncoder passwordEncoder) {
         Assert.notNull(passwordEncoder, "passwordEncoder must not be null.");
         this.passwordEncoder = passwordEncoder;
+    }
+
+    public void setPasswordEncoder(Object passwordEncoder) {
+        if (passwordEncoder instanceof PasswordEncoder) {
+            this.usePasswordAttrCompare = false;
+            setPasswordEncoder((PasswordEncoder) passwordEncoder);
+            return;
+        }
+
+        if (passwordEncoder instanceof org.springframework.security.crypto.password.PasswordEncoder) {
+            final org.springframework.security.crypto.password.PasswordEncoder delegate =
+                    (org.springframework.security.crypto.password.PasswordEncoder)passwordEncoder;
+            setPasswordEncoder(new PasswordEncoder() {
+                public String encodePassword(String rawPass, Object salt) {
+                    checkSalt(salt);
+                    return delegate.encode(rawPass);
+                }
+
+                public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
+                    checkSalt(salt);
+                    return delegate.matches(rawPass, encPass);
+                }
+
+                private void checkSalt(Object salt) {
+                    Assert.isNull(salt, "Salt value must be null when used with crypto module PasswordEncoder");
+                }
+            });
+            this.usePasswordAttrCompare = true;
+            return;
+        }
+
+        throw new IllegalArgumentException("passwordEncoder must be a PasswordEncoder instance");
     }
 }
