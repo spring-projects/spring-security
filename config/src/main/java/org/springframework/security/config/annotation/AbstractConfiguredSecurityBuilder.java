@@ -29,8 +29,6 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
-import com.google.inject.internal.ImmutableList.Builder;
-
 /**
  * <p>A base {@link SecurityBuilder} that allows {@link SecurityConfigurer} to be
  * applied to it. This makes modifying the {@link SecurityBuilder} a strategy
