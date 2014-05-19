@@ -105,14 +105,6 @@ configure(coreModuleProjects) {
 
     ext.springIoVersion = project.hasProperty('platformVersion') ? platformVersion : '1.0.0.BUILD-SNAPSHOT'
 
-    repositories {
-        maven { url "https://repo.spring.io/libs-snapshot" }
-    }
-
-    dependencies {
-        springIoVersions "io.spring.platform:platform-versions:${springIoVersion}@properties"
-    }
-
     bundlor.doFirst {
         def templateText = file("template.mf").text
         bundlor.manifestTemplate = new SimpleTemplateEngine().createTemplate(templateText).make(bundlorProperties).toString()
@@ -122,6 +114,7 @@ configure(coreModuleProjects) {
     }
     dependencies {
         jacoco "org.jacoco:org.jacoco.agent:0.6.2.201302030002:runtime"
+        springIoVersions "io.spring.platform:platform-versions:${springIoVersion}@properties"
     }
     test {
         jvmArgs "-javaagent:${configurations.jacoco.asPath}=destfile=${buildDir}/jacoco.exec,includes=${project.group}.*"
