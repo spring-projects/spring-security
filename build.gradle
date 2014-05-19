@@ -6,7 +6,7 @@ buildscript {
     }
     dependencies {
         classpath("org.springframework.build.gradle:propdeps-plugin:0.0.6")
-        classpath("org.springframework.build.gradle:springio-platform-plugin:0.0.2.RELEASE")
+        classpath("org.springframework.build.gradle:spring-io-plugin:0.0.3.RELEASE")
         classpath("org.gradle.api.plugins:gradle-tomcat-plugin:0.9.8")
         classpath('me.champeau.gradle:gradle-javadoc-hotfix-plugin:0.1')
         classpath('org.asciidoctor:asciidoctor-gradle-plugin:0.7.0')
@@ -97,13 +97,16 @@ configure(javaProjects) {
 
 configure(coreModuleProjects) {
     apply plugin: 'emma'
-    apply plugin: 'springio-platform'
+    apply plugin: 'spring-io'
+
+    ext.springIoVersion = project.hasProperty('platformVersion') ? platformVersion : '1.0.0.BUILD-SNAPSHOT'
 
     configurations {
         jacoco //Configuration Group used by Sonar to provide Code Coverage using JaCoCo
     }
 
     dependencies {
+        springIoVersions "io.spring.platform:platform-versions:${springIoVersion}@properties"
         jacoco "org.jacoco:org.jacoco.agent:0.6.2.201302030002:runtime"
     }
     test {
