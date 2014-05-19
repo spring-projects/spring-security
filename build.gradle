@@ -101,17 +101,16 @@ configure(javaProjects) {
 configure(coreModuleProjects) {
     apply plugin: 'bundlor'
     apply plugin: 'emma'
-    
-    if (project.hasProperty('platformVersion')) {
-        apply plugin: 'spring-io'
+    apply plugin: 'spring-io'
 
-        repositories {
-            maven { url "https://repo.spring.io/libs-snapshot" }
-        }
+    ext.springIoVersion = project.hasProperty('platformVersion') ? platformVersion : '1.0.0.BUILD-SNAPSHOT'
 
-        dependencies {
-            springIoVersions "io.spring.platform:platform-versions:${platformVersion}@properties"
-        }
+    repositories {
+        maven { url "https://repo.spring.io/libs-snapshot" }
+    }
+
+    dependencies {
+        springIoVersions "io.spring.platform:platform-versions:${springIoVersion}@properties"
     }
 
     bundlor.doFirst {
