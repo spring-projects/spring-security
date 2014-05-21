@@ -42,7 +42,7 @@ class LdapProviderBeanDefinitionParserTests extends AbstractXmlConfigTests {
 
 
     def simpleProviderAuthenticatesCorrectly() {
-        xml.'ldap-server'()
+        xml.'ldap-server'(ldif:'test-server.ldif')
         xml.'authentication-manager'{
             'ldap-authentication-provider'('group-search-filter':'member={0}')
         }
@@ -72,7 +72,7 @@ class LdapProviderBeanDefinitionParserTests extends AbstractXmlConfigTests {
     }
 
     def supportsPasswordComparisonAuthentication() {
-        xml.'ldap-server'()
+        xml.'ldap-server'(ldif:'test-server.ldif')
         xml.'authentication-manager'{
             'ldap-authentication-provider'('user-dn-pattern': 'uid={0},ou=people')
             'password-compare'
@@ -89,7 +89,7 @@ class LdapProviderBeanDefinitionParserTests extends AbstractXmlConfigTests {
     }
 
     def supportsPasswordComparisonAuthenticationWithHashAttribute() {
-        xml.'ldap-server'()
+        xml.'ldap-server'(ldif:'test-server.ldif')
         xml.'authentication-manager'{
             'ldap-authentication-provider'('user-dn-pattern': 'uid={0},ou=people') {
                 'password-compare'('password-attribute': 'uid', hash: 'plaintext')
@@ -108,7 +108,7 @@ class LdapProviderBeanDefinitionParserTests extends AbstractXmlConfigTests {
     }
 
     def supportsPasswordComparisonAuthenticationWithPasswordEncoder() {
-        xml.'ldap-server'()
+        xml.'ldap-server'(ldif:'test-server.ldif')
         xml.'authentication-manager'{
             'ldap-authentication-provider'('user-dn-pattern': 'uid={0},ou=people') {
                 'password-compare'('password-attribute': 'uid') {
