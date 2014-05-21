@@ -11,7 +11,11 @@ if(!snapshotBuild) {
 }
 
 def verifyNoDependenciesMatchingVersion(def pattern) {
-    def dependencies = configurations.all*.allDependencies*.findAll { d -> d.version?.matches(pattern) }.flatten().toSet().join("\n    ")
+    def dependencies = configurations.all*.allDependencies*.findAll { d ->
+        def ignored = 'io.spring.platform:platform-versions'
+        def groupAndName = "$d.group:$d.name".toString()
+        ignored != groupAndName && 	d.version?.matches(pattern)
+    }.flatten().toSet().join("\n    ")
     if(dependencies) {
         throw new GradleException("${project.name} cannot have dependencies with a version that matches $pattern when its version is ${project.version}. Got\n    $dependencies")
     }
