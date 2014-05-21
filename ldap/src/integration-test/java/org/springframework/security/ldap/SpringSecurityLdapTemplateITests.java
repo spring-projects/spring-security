@@ -121,7 +121,7 @@ public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTes
     public void nonSpringLdapSearchCodeTestMethod() throws Exception {
         java.util.Hashtable<String, String> env = new java.util.Hashtable<String, String>();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-        env.put(Context.PROVIDER_URL, "ldap://localhost:53389");
+        env.put(Context.PROVIDER_URL, "ldap://localhost:" + ApacheDSServerIntegrationTests.getServerPort());
         env.put(Context.SECURITY_PRINCIPAL, "");
         env.put(Context.SECURITY_CREDENTIALS, "");
 

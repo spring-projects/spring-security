@@ -71,7 +71,7 @@ public class DefaultSpringSecurityContextSourceTests extends AbstractLdapIntegra
     @Test
     public void serverUrlWithSpacesIsSupported() throws Exception {
         DefaultSpringSecurityContextSource
-                contextSource = new DefaultSpringSecurityContextSource("ldap://127.0.0.1:53389/ou=space%20cadets,dc=springframework,dc=org");
+                contextSource = new DefaultSpringSecurityContextSource("ldap://127.0.0.1:" + ApacheDSServerIntegrationTests.getServerPort() + "/ou=space%20cadets,dc=springframework,dc=org");
         contextSource.afterPropertiesSet();
         contextSource.getContext("uid=space cadet,ou=space cadets,dc=springframework,dc=org", "spacecadetspassword");
     }

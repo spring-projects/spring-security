@@ -1,5 +1,8 @@
 package org.springframework.security.ldap;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -26,6 +29,7 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsManagerTests
 )
 public final class ApacheDSServerIntegrationTests {
     private static ApacheDSContainer server;
+    private static Integer serverPort;
 
     @BeforeClass
     public static void startServer() throws Exception {
@@ -34,12 +38,15 @@ public final class ApacheDSServerIntegrationTests {
 //        contextSource.setUserDn("cn=admin,dc=springsource,dc=com");
 //        contextSource.setPassword("password");
         server = new ApacheDSContainer("dc=springframework,dc=org", "classpath:test-server.ldif");
-        server.setPort(53389);
+        int port = getAvailablePort();
+        server.setPort(port);
         server.afterPropertiesSet();
+        serverPort = port;
     }
 
     @AfterClass
     public static void stopServer() throws Exception {
+        serverPort = null;
         if (server != null) {
             server.stop();
         }
@@ -53,6 +60,12 @@ public final class ApacheDSServerIntegrationTests {
         server.afterPropertiesSet();
     }
 
+    public static int getServerPort() {
+        if(serverPort == null) {
+            throw new IllegalStateException("The ApacheDSContainer is not currently running");
+        }
+        return serverPort;
+    }
 /*
     @After
     public final void reloadServerDataIfDirty() throws Exception {
@@ -105,4 +118,18 @@ public final class ApacheDSServerIntegrationTests {
         }
     }
     */
+
+    private static int getAvailablePort() throws IOException {
+        ServerSocket serverSocket =  null;
+        try {
+            serverSocket = new ServerSocket(0);
+            return serverSocket.getLocalPort();
+        } finally {
+            if(serverSocket != null) {
+                try {
+                    serverSocket.close();
+                } catch (IOException e) {}
+            }
+        }
+    }
 }
