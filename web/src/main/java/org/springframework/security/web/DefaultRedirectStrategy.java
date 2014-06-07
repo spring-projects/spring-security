@@ -35,7 +35,7 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	private boolean contextRelative;
+	protected boolean contextRelative;
 
 	/**
 	 * Redirects the response to the supplied URL.
