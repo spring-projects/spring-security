@@ -57,9 +57,9 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
 		response.sendRedirect(redirectUrl);
 	}
 
-	private String calculateRedirectUrl(String contextPath, String url) {
+	protected String calculateRedirectUrl(String contextPath, String url) {
 		if (!UrlUtils.isAbsoluteUrl(url)) {
-			if (contextRelative) {
+			if (isContextRelative()) {
 				return url;
 			}
 			else {
@@ -69,7 +69,7 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
 
 		// Full URL, including http(s)://
 
-		if (!contextRelative) {
+		if (!isContextRelative()) {
 			return url;
 		}
 
@@ -93,4 +93,11 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
 		this.contextRelative = useRelativeContext;
 	}
 
+	/**
+	 * Returns <tt>true</tt>, if the redirection URL should be calculated
+	 * minus the protocol and context path (defaults to <tt>false</tt>).
+	 */
+	protected boolean isContextRelative() {
+		return contextRelative;
+	}
 }
