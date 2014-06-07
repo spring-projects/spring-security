@@ -57,7 +57,7 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
 		response.sendRedirect(redirectUrl);
 	}
 
-	private String calculateRedirectUrl(String contextPath, String url) {
+	protected String calculateRedirectUrl(String contextPath, String url) {
 		if (!UrlUtils.isAbsoluteUrl(url)) {
 			if (contextRelative) {
 				return url;
