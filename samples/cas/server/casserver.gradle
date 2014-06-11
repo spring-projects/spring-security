@@ -57,5 +57,7 @@ task casServer (type: org.gradle.api.plugins.jetty.JettyRunWar, dependsOn: 'casS
     doFirst() {
         System.setProperty('javax.net.ssl.trustStore', keystore)
         System.setProperty('javax.net.ssl.trustStorePassword', password)
+        System.setProperty('java.naming.factory.url.pkgs','org.mortbay.naming')
+        System.setProperty('java.naming.factory.initial','org.mortbay.naming.InitialContextFactory')
     }
 }
