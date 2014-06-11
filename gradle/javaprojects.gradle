@@ -200,6 +200,10 @@ project.eclipseClasspath.doFirst {
    }
 }
 
+project.idea.module {
+    scopes.TEST.plus += [project.configurations.integrationTestRuntime]
+}
+
 task javadocJar(type: Jar) {
     classifier = 'javadoc'
     from javadoc
