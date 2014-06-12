@@ -19,8 +19,8 @@ dependencies {
             "org.springframework:spring-instrument:$springVersion",
             "org.springframework:spring-core:$springVersion",
             "org.springframework:spring-aspects:$springVersion",
-            "org.thymeleaf:thymeleaf-spring3:$thymeleafVersion",
-            "org.thymeleaf.extras:thymeleaf-extras-tiles2:2.1.0.RELEASE"
+            "org.thymeleaf:thymeleaf-spring4:$thymeleafVersion",
+            "org.thymeleaf.extras:thymeleaf-extras-tiles2-spring4:2.1.1.RELEASE"
       compile('org.hibernate:hibernate-entitymanager:3.6.10.Final') {
             exclude group:'javassist', module: 'javassist'
       }
