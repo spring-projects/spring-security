@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2011 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.samples.config;
+package org.springframework.security.samples.pages;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import geb.*
 
 /**
- * @author Rob Winch
+ * The home page
  *
+ * @author Rob Winch
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes=SecurityConfig.class)
-public class SecurityConfigTests {
-
-    @Test
-    public void securityConfigurationLoads() {}
+class HomePage extends Page {
+    static url = ''
+    static at = { assert driver.title == 'Hello Security'; true}
+    static content = {
+        message { $('p').text() }
+        logout { $('input', type: 'submit').click() }
+    }
 }
