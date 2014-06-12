@@ -206,6 +206,19 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
             throw new IllegalArgumentException("Unsupported implementation of Sid");
         }
 
+        return createOrRetrieveSidPrimaryKey(sidName, sidIsPrincipal, allowCreate);
+    }
+
+    /**
+     * Retrieves the primary key from acl_sid, creating a new row if needed and the allowCreate property is
+     * true.
+     * @param sidName name of Sid to find or to create
+     * @param sidIsPrincipal whether it's a user or granted authority like role
+     * @param allowCreate true if creation is permitted if not found
+     * @return the primary key or null if not found
+     */
+    protected Long createOrRetrieveSidPrimaryKey(String sidName, boolean sidIsPrincipal, boolean allowCreate) {
+
         List<Long> sidIds = jdbcTemplate.queryForList(selectSidPrimaryKey,
                 new Object[] {Boolean.valueOf(sidIsPrincipal), sidName},  Long.class);
 

@@ -83,7 +83,7 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         // Check if authorized by virtue of ACL ownership
-        Sid currentUser = new PrincipalSid(authentication);
+        Sid currentUser = createCurrentUser(authentication);
 
         if (currentUser.equals(acl.getOwner())
                 && ((changeType == CHANGE_GENERAL) || (changeType == CHANGE_OWNERSHIP))) {
@@ -117,6 +117,17 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 
         throw new AccessDeniedException(
                 "Principal does not have required ACL permissions to perform requested operation");
+    }
+
+    /**
+     * Creates a principal-like sid from the authentication information.
+     *
+     * @param authentication the authentication information that can provide principal and thus the sid's id will be
+     *                       dependant on the value inside
+     * @return a sid with the ID taken from the authentication information
+     */
+    protected Sid createCurrentUser(Authentication authentication) {
+        return new PrincipalSid(authentication);
     }
 
     public void setSidRetrievalStrategy(SidRetrievalStrategy sidRetrievalStrategy) {

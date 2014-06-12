@@ -15,6 +15,7 @@
 package org.springframework.security.acls.jdbc;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -43,6 +44,7 @@ import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
+import org.springframework.security.acls.sid.CustomSid;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -488,6 +490,43 @@ public class JdbcMutableAclServiceTests extends AbstractTransactionalJUnit4Sprin
        assertTrue(topParent.isGranted(Arrays.asList(cm), Arrays.asList(benSid), true));
 
        SecurityContextHolder.clearContext();
-   }
+    }
+    @Test
+    public void testProcessingCustomSid() {
+        CustomJdbcMutableAclService customJdbcMutableAclService = spy(new CustomJdbcMutableAclService(dataSource,
+                lookupStrategy, aclCache));
+        CustomSid customSid = new CustomSid("Custom sid");
+        when(customJdbcMutableAclService.createOrRetrieveSidPrimaryKey("Custom sid", false, false)).thenReturn(1L);
+
+        Long result = customJdbcMutableAclService.createOrRetrieveSidPrimaryKey(customSid, false);
+
+        assertEquals(result, new Long(1L));
+    }
+
+    /**
+     * This class needed to show how to extend {@link JdbcMutableAclService} for processing
+     * custom {@link Sid} implementations
+     */
+    private class CustomJdbcMutableAclService extends JdbcMutableAclService {
+
+        private CustomJdbcMutableAclService(DataSource dataSource, LookupStrategy lookupStrategy, AclCache aclCache) {
+            super(dataSource, lookupStrategy, aclCache);
+        }
+
+        @Override
+        protected Long createOrRetrieveSidPrimaryKey(Sid sid, boolean allowCreate) {
+            String sidName;
+            boolean isPrincipal = false;
+            if (sid instanceof CustomSid) {
+                sidName = ((CustomSid)sid).getSid();
+            } else if (sid instanceof GrantedAuthoritySid) {
+                sidName = ((GrantedAuthoritySid)sid).getGrantedAuthority();
+            } else {
+                sidName = ((PrincipalSid)sid).getPrincipal();
+                isPrincipal = true;
+            }
+            return createOrRetrieveSidPrimaryKey(sidName, isPrincipal, allowCreate);
+        }
+    }
 
 }
