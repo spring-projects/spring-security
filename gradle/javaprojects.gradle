@@ -38,6 +38,13 @@ ext.spockDependencies = [
     }
 ]
 
+ext.gebDependencies = spockDependencies + [
+    "org.seleniumhq.selenium:selenium-htmlunit-driver:$seleniumVersion",
+    "org.gebish:geb-spock:$gebVersion",
+    'commons-httpclient:commons-httpclient:3.1',
+    "org.codehaus.groovy:groovy:$groovyVersion"
+]
+
 ext.powerMockDependencies = [
     "org.powermock:powermock-core:$powerMockVersion",
     "org.powermock:powermock-api-support:$powerMockVersion",
