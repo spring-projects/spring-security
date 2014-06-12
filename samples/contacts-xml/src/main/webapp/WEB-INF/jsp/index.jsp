@@ -27,6 +27,11 @@
   </tr>
 </c:forEach>
 </table>
-<p><a href="<c:url value="add.htm"/>">Add</a>   <p><a href="<c:url value="../j_spring_security_logout"/>">Logoff</a> (also clears any remember-me cookie)
+<p><a href="<c:url value="add.htm"/>">Add</a> </p>
+
+<form action="<c:url value="/j_spring_security_logout"/>" method="post">
+    <input type="submit" value="Logoff"/> (also clears any remember-me cookie)
+    <security:csrfInput/>
+</form>
 </body>
 </html>

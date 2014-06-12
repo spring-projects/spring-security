@@ -25,4 +25,5 @@ dependencies {
             "ch.qos.logback:logback-classic:$logbackVersion",
             "net.sf.ehcache:ehcache-core:$ehcacheVersion"
 
+    integrationTestCompile gebDependencies
 }
