@@ -2,6 +2,7 @@
 <%@ page import="java.security.AccessController" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <html>
+<head><title>Home Page</title></head>
 <body>
 <h1>Home Page</h1>
 <p>

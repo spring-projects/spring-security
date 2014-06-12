@@ -26,4 +26,6 @@ dependencies {
             jstlDependencies,
             "org.slf4j:jcl-over-slf4j:$slf4jVersion",
             "ch.qos.logback:logback-classic:$logbackVersion"
+
+    integrationTestCompile gebDependencies
 }

@@ -1,3 +1,5 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ page import="javax.security.auth.Subject" %>
 <%@ page import="java.security.AccessController" %>
 <%@ page import="org.springframework.security.core.context.SecurityContextHolder" %>
@@ -46,6 +48,11 @@
             This is an error and your Spring Security application will not operate properly until corrected.<br /><br />
 <%		}
 %>
+
+<form action="<c:url value="/j_spring_security_logout"/>" method="post">
+    <input type="submit" value="Log Out"/>
+    <sec:csrfInput/>
+</form>
 
 </body>
 </html>
