@@ -7,7 +7,7 @@ dependencies {
 
     compile project(":spring-security-config"),
             project(":spring-security-web"),
-            "javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:$jstlVersion",
+            jstlDependencies,
             "org.slf4j:jcl-over-slf4j:$slf4jVersion"
 
     runtime "ch.qos.logback:logback-classic:$logbackVersion"
