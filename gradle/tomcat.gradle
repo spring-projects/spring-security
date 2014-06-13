@@ -21,14 +21,16 @@ dependencies {
 task integrationTomcatRun(type: org.gradle.api.plugins.tomcat.tasks.TomcatRun) {
     onlyIf { !sourceSets.integrationTest.allSource.empty }
     buildscriptClasspath = tomcatRun.buildscriptClasspath
-    classesDirectory = project.sourceSets.main.output.classesDir
     contextPath = tomcatRun.contextPath
     daemon = true
     tomcatClasspath = tomcatRun.tomcatClasspath
     webAppClasspath = tomcatRun.webAppClasspath
     webAppSourceDirectory = tomcatRun.webAppSourceDirectory
     doFirst {
-
+        def mainOutputDir = project.sourceSets.main.output.classesDir
+        if(mainOutputDir) {
+            classesDirectory = mainOutputDir
+        }
         // delay reserving ports to ensure they are still available
         def ports = reservePorts(3)
         httpPort = ports[0]
