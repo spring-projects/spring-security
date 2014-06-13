@@ -46,14 +46,10 @@ public class SecurityConfigTests {
     @Autowired
     private WebApplicationContext context;
 
-    @Autowired
-    private Filter springSecurityFilterChain;
-
     @Before
     public void setup() {
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
-                .addFilters(springSecurityFilterChain)
                 .build();
     }
 
