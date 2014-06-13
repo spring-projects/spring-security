@@ -1,4 +1,7 @@
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="security" uri="http://www.springframework.org/security/tags" %>
 <html>
+<head><title>Secure Page</title></head>
 <body>
 <h1>Secure Page</h1>
 This is a protected page. You can get to me if you've been remembered,
@@ -10,6 +13,9 @@ or if you've authenticated this session.<br><br>
 
 
 <p><a href="../">Home</a>
-<p><a href="../j_spring_security_logout">Logout</a>
+<form action="<c:url value="/j_spring_security_logout"/>" method="post">
+<input type="submit" value="Logoff"/> (also clears any remember-me cookie)
+<security:csrfInput/>
+</form>
 </body>
 </html>

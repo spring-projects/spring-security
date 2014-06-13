@@ -12,6 +12,8 @@ configurations {
 }
 
 dependencies {
+    compile project(':spring-security-taglibs'),
+            jstlDependencies
 
     runtime project(':spring-security-web'),
             project(':spring-security-config'),
