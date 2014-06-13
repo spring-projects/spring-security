@@ -9,4 +9,6 @@ dependencies {
             "org.slf4j:jcl-over-slf4j:$slf4jVersion"
 
     runtime "ch.qos.logback:logback-classic:$logbackVersion"
+
+    integrationTestCompile gebDependencies
 }
