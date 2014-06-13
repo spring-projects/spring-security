@@ -233,12 +233,17 @@ public final class SecurityMockMvcRequestPostProcessors {
          */
         final void save(SecurityContext securityContext,
                 HttpServletRequest request) {
+            SecurityContextRepository securityContextRepository = WebTestUtils.getSecurityContextRepository(request);
+            boolean isTestRepository = securityContextRepository instanceof TestSecurityContextRepository;
+            if(!isTestRepository) {
+                securityContextRepository = new TestSecurityContextRepository(securityContextRepository);
+                WebTestUtils.setSecurityContextRepository(request, securityContextRepository);
+            }
+
             HttpServletResponse response = new MockHttpServletResponse();
 
             HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(
                     request, response);
-            SecurityContextRepository securityContextRepository = WebTestUtils
-                    .getSecurityContextRepository(request);
             securityContextRepository.loadContext(requestResponseHolder);
 
             request = requestResponseHolder.getRequest();
@@ -246,6 +251,43 @@ public final class SecurityMockMvcRequestPostProcessors {
 
             securityContextRepository.saveContext(securityContext, request,
                     response);
+        }
+
+        /**
+         * Used to wrap the SecurityContextRepository to provide support for testing in stateless mode
+         */
+        private static class TestSecurityContextRepository implements SecurityContextRepository {
+            private final String ATTR_NAME = TestSecurityContextRepository.class.getName().concat(".REPO");
+
+            private final SecurityContextRepository delegate;
+
+            private TestSecurityContextRepository(SecurityContextRepository delegate) {
+                this.delegate = delegate;
+            }
+
+            @Override
+            public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
+                SecurityContext result = getContext(requestResponseHolder.getRequest());
+                // always load from the delegate to ensure the request/response in the holder are updated
+                // remember the SecurityContextRepository is used in many different locations
+                SecurityContext delegateResult = delegate.loadContext(requestResponseHolder);
+                return result == null ? delegateResult : result;
+            }
+
+            @Override
+            public void saveContext(SecurityContext context, HttpServletRequest request, HttpServletResponse response) {
+                request.setAttribute(ATTR_NAME, context);
+                delegate.saveContext(context, request, response);
+            }
+
+            @Override
+            public boolean containsContext(HttpServletRequest request) {
+                return getContext(request) != null || delegate.containsContext(request);
+            }
+
+            private SecurityContext getContext(HttpServletRequest request) {
+                return (SecurityContext) request.getAttribute(ATTR_NAME);
+            }
         }
     }
 

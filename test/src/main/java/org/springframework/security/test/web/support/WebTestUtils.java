@@ -62,6 +62,25 @@ public abstract class WebTestUtils {
     }
 
     /**
+     * Sets the {@link SecurityContextRepository} for the specified
+     * {@link HttpServletRequest}.
+     *
+     * @param request
+     *            the {@link HttpServletRequest} to obtain the
+     *            {@link SecurityContextRepository}
+     * @param securityContextRepository
+     *            the {@link SecurityContextRepository} to set
+     * @return the {@link SecurityContextRepository} for the specified
+     *         {@link HttpServletRequest}
+     */
+    public static void setSecurityContextRepository(HttpServletRequest request, SecurityContextRepository securityContextRepository) {
+        SecurityContextPersistenceFilter filter = findFilter(request, SecurityContextPersistenceFilter.class);
+        if(filter != null) {
+            ReflectionTestUtils.setField(filter, "repo", securityContextRepository);
+        }
+    }
+
+    /**
      * Gets the {@link CsrfTokenRepository} for the specified
      * {@link HttpServletRequest}. If one is not found, the default
      * {@link HttpSessionCsrfTokenRepository} is used.
