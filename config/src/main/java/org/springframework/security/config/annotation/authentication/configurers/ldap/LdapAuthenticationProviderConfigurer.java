@@ -64,7 +64,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
     private BaseLdapPathContextSource contextSource;
     private ContextSourceBuilder contextSourceBuilder = new ContextSourceBuilder();
     private UserDetailsContextMapper userDetailsContextMapper;
-    private PasswordEncoder passwordEncoder;
+    private Object passwordEncoder;
     private String passwordAttribute;
     private LdapAuthoritiesPopulator ldapAuthoritiesPopulator;
 
@@ -226,21 +226,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
      */
     public LdapAuthenticationProviderConfigurer<B> passwordEncoder(final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
         Assert.notNull(passwordEncoder, "passwordEncoder must not be null.");
-        passwordEncoder(new PasswordEncoder() {
-            public String encodePassword(String rawPass, Object salt) {
-                checkSalt(salt);
-                return passwordEncoder.encode(rawPass);
-            }
-
-            public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
-                checkSalt(salt);
-                return passwordEncoder.matches(rawPass, encPass);
-            }
-
-            private void checkSalt(Object salt) {
-                Assert.isNull(salt, "Salt value must be null when used with crypto module PasswordEncoder");
-            }
-        });
+        this.passwordEncoder = passwordEncoder;
         return this;
     }
 
