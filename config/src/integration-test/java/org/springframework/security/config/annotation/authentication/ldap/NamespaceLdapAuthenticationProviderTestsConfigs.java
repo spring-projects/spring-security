@@ -56,7 +56,7 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
                     .userSearchFilter("(uid={0})") // ldap-authentication-provider@user-search-filter
                     // .contextSource(contextSource) // ldap-authentication-provider@server-ref
                     .contextSource()
-                        .ldif("classpath:user.ldif") // ldap-server@ldif
+                        .ldif("classpath:users.xldif") // ldap-server@ldif
                         .managerDn("uid=admin,ou=system") // ldap-server@manager-dn
                         .managerPassword("secret") // ldap-server@manager-password
                         .port(33399) // ldap-server@port
