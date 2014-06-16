@@ -40,7 +40,7 @@ class NamespaceLdapAuthenticationProviderTests extends BaseSpringSpec {
         when:
             loadConfig(LdapAuthenticationProviderConfig)
         then:
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user","password")).authorities*.authority.sort() == ['ROLE_USER']
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("bob","bobspassword"))
     }
 
     def "ldap-authentication-provider custom"() {
@@ -75,6 +75,6 @@ class NamespaceLdapAuthenticationProviderTests extends BaseSpringSpec {
             LdapAuthenticationProvider provider = findAuthenticationProvider(LdapAuthenticationProvider)
         then:
             provider.authenticator instanceof PasswordComparisonAuthenticator
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user","password")).authorities*.authority.sort() == ['ROLE_USER']
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("bob","bobspassword"))
     }
 }

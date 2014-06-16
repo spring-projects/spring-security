@@ -36,7 +36,7 @@ objectclass: inetOrgPerson
 cn: BCrypt user
 sn: BCrypt
 uid: bcrypt
-userPassword: $2a$10$FBAKClV1zBIOOC9XMXf3AO8RoGXYVYsfvUdoLxGkd/BnXEn4tqT3u
+userPassword: $2a$10$lDa0YFNHAt63MjIzK/wUqeM0qjIhzPhp3RNI/MLUQEAUbzhB/SnnS
 
 dn: uid=bob,ou=people,dc=springframework,dc=org
 objectclass: top
@@ -68,22 +68,11 @@ sn: Mouse
 uid: jerry
 userPassword: jerryspassword
 
-dn: uid=bcrypt,ou=people,dc=springframework,dc=org
-objectclass: top
-objectclass: person
-objectclass: organizationalPerson
-objectclass: inetOrgPerson
-cn: BCrypt user
-sn: BCrypt
-uid: bcrypt
-userPassword: $2a$10$lDa0YFNHAt63MjIzK/wUqeM0qjIhzPhp3RNI/MLUQEAUbzhB/SnnS
-
 dn: cn=developers,ou=groups,dc=springframework,dc=org
 objectclass: top
 objectclass: groupOfNames
 cn: developers
 ou: developer
-member: uid=bcrypt,ou=people,dc=springframework,dc=org
 member: uid=ben,ou=people,dc=springframework,dc=org
 member: uid=bob,ou=people,dc=springframework,dc=org
 
