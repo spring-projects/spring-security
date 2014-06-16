@@ -52,10 +52,10 @@ class LdapAuthenticationProviderConfigurerTests extends BaseSpringSpec {
                 .ldapAuthentication()
                     .groupSearchBase("ou=groups")
                     .userDnPatterns("uid={0},ou=people")
-//                    .and()
-//                .ldapAuthentication()
-//                    .groupSearchBase("ou=groups")
-//                    .userDnPatterns("uid={0},ou=people")
+                    .and()
+                .ldapAuthentication()
+                    .groupSearchBase("ou=groups")
+                    .userDnPatterns("uid={0},ou=people")
         }
     }
 }
