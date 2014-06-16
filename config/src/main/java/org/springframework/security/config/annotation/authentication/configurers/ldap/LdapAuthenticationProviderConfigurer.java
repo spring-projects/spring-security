@@ -42,6 +42,9 @@ import org.springframework.security.ldap.userdetails.PersonContextMapper;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 import org.springframework.util.Assert;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+
 /**
  * Configures LDAP {@link AuthenticationProvider} in the {@link ProviderManagerBuilder}.
  *
@@ -404,7 +407,8 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
         private String ldif = "classpath*:*.ldif";
         private String managerPassword;
         private String managerDn;
-        private int port = 33389;
+        private Integer port;
+        private static final int DEFAULT_PORT = 33389;
         private String root = "dc=springframework,dc=org";
         private String url;
 
@@ -449,7 +453,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
         }
 
         /**
-         * The port to connect to LDAP to (the default is 33389).
+         * The port to connect to LDAP to (the default is 33389 or random available port if unavailable).
          * @param port the port to connect to
          * @return the {@link ContextSourceBuilder} for further customization
          */
@@ -509,14 +513,43 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
                 return contextSource;
             }
             ApacheDSContainer apacheDsContainer = new ApacheDSContainer(root, ldif);
-            apacheDsContainer.setPort(port);
+            apacheDsContainer.setPort(getPort());
             postProcess(apacheDsContainer);
             return contextSource;
         }
 
+        private int getPort() {
+            if(port == null) {
+                port = getDefaultPort();
+            }
+            return port;
+        }
+
+        private int getDefaultPort() {
+            ServerSocket serverSocket = null;
+            try {
+                try {
+                    serverSocket = new ServerSocket(DEFAULT_PORT);
+                } catch (IOException e) {
+                    try {
+                        serverSocket = new ServerSocket(0);
+                    } catch(IOException e2) {
+                        return DEFAULT_PORT;
+                    }
+                }
+                return serverSocket.getLocalPort();
+            } finally {
+                if(serverSocket != null) {
+                    try {
+                        serverSocket.close();
+                    } catch (IOException e) {}
+                }
+            }
+        }
+
         private String getProviderUrl() {
             if(url == null) {
-                return "ldap://127.0.0.1:" + port + "/" + root;
+                return "ldap://127.0.0.1:" + getPort() + "/" + root;
             }
             return url;
         }
