@@ -223,6 +223,7 @@ project.eclipseClasspath.doFirst {
 
 project.idea.module {
     scopes.TEST.plus += [project.configurations.integrationTestRuntime]
+    testSourceDirs += sourceSets.integrationTest.resources.srcDirs
 }
 
 task javadocJar(type: Jar) {
