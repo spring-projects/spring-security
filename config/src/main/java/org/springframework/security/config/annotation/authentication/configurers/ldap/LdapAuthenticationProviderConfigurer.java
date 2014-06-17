@@ -150,7 +150,9 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
      */
     private PasswordComparisonAuthenticator createPasswordCompareAuthenticator(BaseLdapPathContextSource contextSource) {
         PasswordComparisonAuthenticator ldapAuthenticator = new PasswordComparisonAuthenticator(contextSource);
-        ldapAuthenticator.setPasswordAttributeName(passwordAttribute);
+        if(passwordAttribute != null) {
+            ldapAuthenticator.setPasswordAttributeName(passwordAttribute);
+        }
         ldapAuthenticator.setPasswordEncoder(passwordEncoder);
         return ldapAuthenticator;
     }
