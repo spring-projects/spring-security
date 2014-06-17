@@ -172,6 +172,26 @@ class HttpHeadersConfigTests extends AbstractHttpConfigTests {
         assertHeaders(response, ['X-Frame-Options':'ALLOW-FROM https://example.com'])
     }
 
+    def 'http headers frame-options ALLOW-FROM with whitelist strategy'() {
+        when:
+        httpAutoConfig {
+            'headers'() {
+                'frame-options'(policy : 'ALLOW-FROM', strategy: 'whitelist', value : 'https://example.com')
+            }
+        }
+        createAppContext()
+
+        def hf = getFilter(HeaderWriterFilter)
+        MockHttpServletResponse response = new MockHttpServletResponse()
+
+        def request = new MockHttpServletRequest()
+        request.setParameter("from", "https://example.com");
+        hf.doFilter(request, response, new MockFilterChain())
+
+        then:
+        assertHeaders(response, ['X-Frame-Options':'ALLOW-FROM https://example.com'])
+    }
+
     def 'http headers header a=b'() {
         when:
         httpAutoConfig {
