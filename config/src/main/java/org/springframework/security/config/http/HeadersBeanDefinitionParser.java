@@ -208,7 +208,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
                         }
                         String fromParameter = getAttribute(frameElt, ATT_FROM_PARAMETER, "from");
                         allowFromStrategy.addPropertyValue("allowFromParameterName", fromParameter);
-                        builder.addConstructorArgValue(allowFromStrategy);
+                        builder.addConstructorArgValue(allowFromStrategy.getBeanDefinition());
                     }
                 } else {
                     parserContext.getReaderContext().error("One of 'strategy' and 'strategy-ref' must be set.",
