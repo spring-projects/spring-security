@@ -17,7 +17,7 @@
 
     <!-- Simple namespace-based configuration -->
 
-    <s:ldap-server ldif="classpath:users.ldif" port="33389"/>
+    <s:ldap-server ldif="classpath:users.ldif"/>
 
     <s:authentication-manager>
         <s:ldap-authentication-provider
