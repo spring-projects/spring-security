@@ -12,7 +12,6 @@ import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.config.BeanIds;
-import org.springframework.security.ldap.server.ApacheDSContainer;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
