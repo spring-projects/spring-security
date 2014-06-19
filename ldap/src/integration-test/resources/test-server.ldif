@@ -122,3 +122,109 @@ objectclass: groupOfNames
 cn: submanagers
 ou: submanager
 member: uid=ben,ou=people,dc=springframework,dc=org
+
+#Nested groups data
+###################
+
+dn: ou=jdeveloper,dc=springframework,dc=org
+objectclass: top
+objectclass: organizationalUnit
+ou: jdeveloper
+
+
+# javadude is part of (in a nested search)
+# circular-java-developers, java-developers, j-developers
+dn: uid=javadude,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Java Dude
+sn: Dude
+uid: javadude
+userPassword: javadudespassword
+
+# groovydude is part of (in a nested search)
+# groovy-developers, java-developers, circular-java-developers, j-developers 
+dn: uid=groovydude,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Groovy Dude
+sn: Dude
+uid: groovydude
+userPassword: groovydudespassword
+
+# closuredude is part of (in a nested search)
+# closure-developers, groovy-developers, java-developers, circular-java-developers, j-developers 
+dn: uid=closuredude,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Closure Dude
+sn: Dude
+uid: closuredude
+userPassword: closuredudespassword
+
+# scaladude is part of (in a nested search)
+# scala-developers, groovy-developers, java-developers, circular-java-developers, j-developers 
+dn: uid=scaladude,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Scala Dude
+sn: Dude
+uid: scaladude
+userPassword: scaladudespassword
+
+dn: cn=j-developers,ou=jdeveloper,dc=springframework,dc=org
+objectclass: top
+objectclass: groupOfNames
+cn: j-developers
+ou: jdeveloper
+member: cn=java-developers,ou=jdeveloper,dc=springframework,dc=org
+
+dn: cn=java-developers,ou=jdeveloper,dc=springframework,dc=org
+objectclass: top
+objectclass: groupOfNames
+cn: java-developers
+ou: jdeveloper
+member: cn=groovy-developers,ou=jdeveloper,dc=springframework,dc=org
+member: cn=scala-developers,ou=jdeveloper,dc=springframework,dc=org
+member: uid=javadude,ou=people,dc=springframework,dc=org
+
+dn: cn=circular-java-developers,ou=jdeveloper,dc=springframework,dc=org
+objectclass: top
+objectclass: groupOfNames
+cn: circular-java-developers
+ou: jdeveloper
+member: cn=groovy-developers,ou=jdeveloper,dc=springframework,dc=org
+member: cn=scala-developers,ou=jdeveloper,dc=springframework,dc=org
+member: uid=javadude,ou=people,dc=springframework,dc=org
+
+
+dn: cn=groovy-developers,ou=jdeveloper,dc=springframework,dc=org
+objectclass: top
+objectclass: groupOfNames
+cn: groovy-developers
+ou: jdeveloper
+member: cn=closure-developers,ou=jdeveloper,dc=springframework,dc=org
+member: uid=groovydude,ou=people,dc=springframework,dc=org
+member: cn=circular-java-developers,ou=jdeveloper,dc=springframework,dc=org
+
+dn: cn=closure-developers,ou=jdeveloper,dc=springframework,dc=org
+objectclass: top
+objectclass: groupOfNames
+cn: closure-developers
+ou: jdeveloper
+member: uid=closuredude,ou=people,dc=springframework,dc=org
+
+dn: cn=scala-developers,ou=jdeveloper,dc=springframework,dc=org
+objectclass: top
+objectclass: groupOfNames
+cn: scala-developers
+ou: jdeveloper
+member: uid=scaladude,ou=people,dc=springframework,dc=org
