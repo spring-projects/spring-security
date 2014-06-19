@@ -30,13 +30,18 @@ import org.springframework.util.Assert;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.PartialResultException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -45,6 +50,7 @@ import java.util.Set;
  *
  * @author Ben Alex
  * @author Luke Taylor
+ * @author Filip Hanik
  * @since 2.0
  */
 public class SpringSecurityLdapTemplate extends LdapTemplate {
@@ -52,6 +58,13 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
     private static final Log logger = LogFactory.getLog(SpringSecurityLdapTemplate.class);
 
     public static final String[] NO_ATTRS = new String[0];
+    
+    /**
+     * Every search results where a record is defined by a Map&lt;String,String[]&gt;
+     * contains at least this key - the DN of the record itself.
+     */
+    public static final String DN_KEY = "spring.security.ldap.dn";
+
     private static final boolean RETURN_OBJECT = true;
 
     //~ Instance fields ================================================================================================
@@ -139,6 +152,34 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
      */
     public Set<String> searchForSingleAttributeValues(final String base, final String filter, final Object[] params,
             final String attributeName) {
+        String[] attributeNames = new String[] {attributeName};
+        Set<Map<String,String[]>> multipleAttributeValues = searchForMultipleAttributeValues(base,filter,params,attributeNames);
+        Set<String> result = new HashSet<String>();
+        for (Map<String,String[]> map : multipleAttributeValues) {
+            String[] values = map.get(attributeName);
+            if (values!=null && values.length>0) {
+                result.addAll(Arrays.asList(values));
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Performs a search using the supplied filter and returns the values of each named attribute
+     * found in all entries matched by the search. Note that one directory entry may have several values for the
+     * attribute. Intended for role searches and similar scenarios.
+     *
+     * @param base the DN to search in
+     * @param filter search filter to use
+     * @param params the parameters to substitute in the search filter
+     * @param attributeNames the attributes' values that are to be retrieved.
+     *
+     * @return the set of String values for each attribute found in all the matching entries.
+     * The attribute name is the key for each set of values. In addition each map contains the DN as a String
+     * with the key predefined key {@link #DN_KEY}.
+     */
+    public Set<Map<String, String[]>> searchForMultipleAttributeValues(final String base, final String filter, final Object[] params,
+            final String[] attributeNames) {
         // Escape the params acording to RFC2254
         Object[] encodedParams = new String[params.length];
 
@@ -149,28 +190,81 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
         String formattedFilter = MessageFormat.format(filter, encodedParams);
         logger.debug("Using filter: " + formattedFilter);
 
-        final HashSet<String> set = new HashSet<String>();
+        final HashSet<Map<String, String[]>> set = new HashSet<Map<String, String[]>>();
 
         ContextMapper roleMapper = new ContextMapper() {
             public Object mapFromContext(Object ctx) {
                 DirContextAdapter adapter = (DirContextAdapter) ctx;
-                String[] values = adapter.getStringAttributes(attributeName);
-                if (values == null || values.length == 0) {
-                    logger.debug("No attribute value found for '" + attributeName + "'");
+                Map<String, String[]> record = new HashMap<String, String[]>();
+                if (attributeNames==null||attributeNames.length==0) {
+                    try {
+                        for (NamingEnumeration ae = adapter.getAttributes().getAll(); ae.hasMore(); ) {
+                            Attribute attr = (Attribute) ae.next();
+                            extractStringAttributeValues(adapter, record, attr.getID());
+                        }
+                    }catch (NamingException x) {
+                        org.springframework.ldap.support.LdapUtils.convertLdapException(x);
+                    }
                 } else {
-                    set.addAll(Arrays.asList(values));
+                    for (String attributeName : attributeNames) {
+                        extractStringAttributeValues(adapter, record, attributeName);
+                    }
                 }
+                record.put(DN_KEY, new String[] {getAdapterDN(adapter)});
+                set.add(record);
                 return null;
             }
         };
 
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope(searchControls.getSearchScope());
-        ctls.setReturningAttributes(new String[] {attributeName});
+        ctls.setReturningAttributes(attributeNames!=null&&attributeNames.length>0?attributeNames:null);
 
         search(base, formattedFilter, ctls, roleMapper);
 
         return set;
+    }
+
+    /**
+     * Returns the DN for the context representing this LDAP record.
+     * By default this is using {@link javax.naming.Context#getNameInNamespace()}
+     * instead of {@link org.springframework.ldap.core.DirContextAdapter#getDn()} since the 
+     * latter returns a partial DN if a base has been specified.
+     * @param adapter - the Context to extract the DN from
+     * @return - the String representing the full DN
+     */
+    protected String getAdapterDN(DirContextAdapter adapter) {
+        //returns the full DN rather than the sub DN if a base is specified
+        return adapter.getNameInNamespace();
+    }
+
+    /**
+     * Extracts String values for a specified attribute name and places them in the map representing the ldap record
+     * If a value is not of type String, it will derive it's value from the {@link Object#toString()}
+     * @param adapter - the adapter that contains the values
+     * @param record - the map holding the attribute names and values
+     * @param attributeName - the name for which to fetch the values from
+     */
+    protected void extractStringAttributeValues(DirContextAdapter adapter, Map<String, String[]> record, String attributeName) {
+        Object[] values = adapter.getObjectAttributes(attributeName);
+        if (values == null || values.length == 0) {
+            logger.debug("No attribute value found for '" + attributeName + "'");
+            return;
+        }
+        List<String> svalues = new ArrayList<String>();
+        for (Object o : values) {
+            if (o!=null) {
+                if (String.class.isAssignableFrom(o.getClass())) {
+                    svalues.add((String)o);
+                } else {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Attribute:" + attributeName + " contains a non string value of type[" + o.getClass() + "]");
+                    }
+                    svalues.add(o.toString());
+                }
+            }
+        }
+        record.put(attributeName, svalues.toArray(new String[svalues.size()]));
     }
 
     /**
