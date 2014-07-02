@@ -324,7 +324,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
                     httpSession.setAttribute(springSecurityContextKey, context);
 
                     if (logger.isDebugEnabled()) {
-                        logger.debug("SecurityContext stored to HttpSession: '" + context + "'");
+                        logger.debug("SecurityContext '" + context + "' stored to HttpSession: '" + httpSession);
                     }
                 }
             }
