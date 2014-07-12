@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-2010 the original author or authors.
+ * Copyright 2004-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.springframework.security.taglibs.authz;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -207,7 +208,12 @@ public abstract class AbstractAuthorizeTag {
     public boolean authorizeUsingUrlCheck() throws IOException {
         String contextPath = ((HttpServletRequest) getRequest()).getContextPath();
         Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
-        return getPrivilegeEvaluator().isAllowed(contextPath, getUrl(), getMethod(), currentUser);
+        for (WebInvocationPrivilegeEvaluator privilegeEvaluator : getPrivilegeEvaluators()) {
+            if (!privilegeEvaluator.isAllowed(contextPath, getUrl(), getMethod(), currentUser)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public String getAccess() {
@@ -328,11 +334,11 @@ public abstract class AbstractAuthorizeTag {
                 + "context. There must be at least one in order to support expressions in JSP 'authorize' tags.");
     }
 
-    private WebInvocationPrivilegeEvaluator getPrivilegeEvaluator() throws IOException {
+    private Collection<WebInvocationPrivilegeEvaluator> getPrivilegeEvaluators() throws IOException {
         WebInvocationPrivilegeEvaluator privEvaluatorFromRequest = (WebInvocationPrivilegeEvaluator) getRequest()
                 .getAttribute(WebAttributes.WEB_INVOCATION_PRIVILEGE_EVALUATOR_ATTRIBUTE);
         if(privEvaluatorFromRequest != null) {
-            return privEvaluatorFromRequest;
+            return Arrays.asList(privEvaluatorFromRequest);
         }
 
         ApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
@@ -344,6 +350,6 @@ public abstract class AbstractAuthorizeTag {
                             + "context. There must be at least one in order to support the use of URL access checks in 'authorize' tags.");
         }
 
-        return (WebInvocationPrivilegeEvaluator) wipes.values().toArray()[0];
+        return wipes.values();
     }
 }
