@@ -17,12 +17,18 @@ package org.springframework.security.taglibs.authz;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.MutablePropertyValues;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockPageContext;
@@ -30,6 +36,7 @@ import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.web.context.WebApplicationContext;
@@ -54,16 +61,27 @@ public class AuthorizeTagTests {
         SecurityContextHolder.getContext().setAuthentication(currentUser);
         StaticWebApplicationContext ctx = new StaticWebApplicationContext();
         ctx.registerSingleton("expressionHandler", DefaultWebSecurityExpressionHandler.class);
-        ctx.registerSingleton("wipe", MockWebInvocationPrivilegeEvaluator.class);
+        ctx.registerSingleton("wipe1", MockWebInvocationPrivilegeEvaluator.class,
+                createPropertyValuesOfMockWipe("/something", "/notallowed"));
+        ctx.registerSingleton("wipe2", MockWebInvocationPrivilegeEvaluator.class,
+                createPropertyValuesOfMockWipe("/deniedMiddle"));
+        ctx.registerSingleton("wipe3", MockWebInvocationPrivilegeEvaluator.class,
+                createPropertyValuesOfMockWipe("/deniedLast"));
         MockServletContext servletCtx = new MockServletContext();
         servletCtx.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ctx);
         authorizeTag = new JspAuthorizeTag();
         authorizeTag.setPageContext(new MockPageContext(servletCtx, request, new MockHttpServletResponse()));
     }
 
+    private MutablePropertyValues createPropertyValuesOfMockWipe(String... deniedUris) {
+        return new MutablePropertyValues(Collections.singletonMap("deniedUris",
+                new HashSet<String>(Arrays.asList(deniedUris))));
+    }
+
     @After
     public void tearDown() throws Exception {
         SecurityContextHolder.clearContext();
+        request.removeAttribute(WebAttributes.WEB_INVOCATION_PRIVILEGE_EVALUATOR_ATTRIBUTE);
     }
 
     // access attribute tests
@@ -103,7 +121,7 @@ public class AuthorizeTagTests {
     }
 
     @Test
-    public void skipsBodyIfUrlIsNotAllowed() throws Exception {
+    public void skipsBodyIfUrlIsNotAllowedMatchesWithFirst() throws Exception {
         authorizeTag.setUrl("/notallowed");
         assertEquals(Tag.SKIP_BODY, authorizeTag.doStartTag());
     }
@@ -120,6 +138,38 @@ public class AuthorizeTagTests {
         authorizeTag.setUrl("/allowed");
         authorizeTag.setMethod("POST");
         assertEquals(Tag.SKIP_BODY, authorizeTag.doStartTag());
+    }
+
+    // SEC-2189
+    @Test
+    public void skipsBodyIfMethodIsNotAllowedMatchesWithMiddle() throws Exception {
+        authorizeTag.setUrl("/deniedMiddle");
+        assertEquals(Tag.SKIP_BODY, authorizeTag.doStartTag());
+    }
+
+    // SEC-2189
+    @Test
+    public void skipsBodyIfMethodIsNotAllowedMatchesWithLast() throws Exception {
+        authorizeTag.setUrl("/deniedLast");
+        assertEquals(Tag.SKIP_BODY, authorizeTag.doStartTag());
+    }
+
+    // SEC-2189
+    @Test
+    public void skipsBodyIfMethodIsNotAllowedMatchesWithRequest() throws Exception {
+        MockWebInvocationPrivilegeEvaluator wipe = new MockWebInvocationPrivilegeEvaluator();
+        wipe.setDeniedUris(Collections.singleton("/deniedRequest"));
+        request.setAttribute(WebAttributes.WEB_INVOCATION_PRIVILEGE_EVALUATOR_ATTRIBUTE, wipe);
+
+        authorizeTag.setUrl("/deniedRequest");
+        assertEquals(Tag.SKIP_BODY, authorizeTag.doStartTag());
+    }
+
+    // SEC-2189
+    @Test
+    public void evaluatesBodyIfUrlIsAllowedMatchesWithRequest() throws Exception {
+        authorizeTag.setUrl("/allowed");
+        assertEquals(Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
     }
 
     // Legacy attribute tests
@@ -195,12 +245,19 @@ public class AuthorizeTagTests {
 
     public static class MockWebInvocationPrivilegeEvaluator implements WebInvocationPrivilegeEvaluator {
 
+        private Set<String> deniedUris;
+
+        public void setDeniedUris(Set<String> deniedUris){
+            this.deniedUris = deniedUris;
+        }
+
         public boolean isAllowed(String uri, Authentication authentication) {
-            return "/allowed".equals(uri);
+            return !deniedUris.contains(uri);
         }
 
         public boolean isAllowed(String contextPath, String uri, String method, Authentication authentication) {
-            return "/allowed".equals(uri) && (method == null || "GET".equals(method));
+            return !deniedUris.contains(uri) && (method == null || "GET".equals(method));
         }
     }
+
 }
