@@ -39,7 +39,7 @@ import org.springframework.test.web.servlet.MockMvc;
  * @author Rob Winch
  * @since 4.0
  */
-public class WithSecurityContextTestExcecutionListener extends
+public class WithSecurityContextTestExecutionListener extends
         AbstractTestExecutionListener {
 
     /**

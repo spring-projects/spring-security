@@ -31,7 +31,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.web.servlet.MockMvc;
 
 /**
- * When used with {@link WithSecurityContextTestExcecutionListener} this annotation can be
+ * When used with {@link WithSecurityContextTestExecutionListener} this annotation can be
  * added to a test method to emulate running with a {@link UserDetails} returned
  * from the {@link UserDetailsService}. In order to work with {@link MockMvc}
  * The {@link SecurityContext} that is used will have the following properties:

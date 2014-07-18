@@ -29,7 +29,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.samples.mvc.config.WebMvcConfiguration;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.context.support.WithSecurityContextTestExcecutionListener;
+import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -54,7 +54,7 @@ import org.springframework.web.context.WebApplicationContext;
         DependencyInjectionTestExecutionListener.class,
         DirtiesContextTestExecutionListener.class,
         TransactionalTestExecutionListener.class,
-        WithSecurityContextTestExcecutionListener.class})
+        WithSecurityContextTestExecutionListener.class})
 public class SecurityConfigTests {
     private MockMvc mvc;
 

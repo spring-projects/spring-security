@@ -19,7 +19,6 @@ import javax.servlet.FilterChain;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.test.context.support.WithSecurityContextTestExcecutionListener;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
@@ -43,7 +42,7 @@ import org.springframework.util.Assert;
  * <ul>
  * <li>Before a test is executed, the {@link TestSecurityContextHolder} is
  * populated. Typically this is done using the
- * {@link WithSecurityContextTestExcecutionListener}</li>
+ * {@link org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener}</li>
  * <li>The test is ran. When used with {@link MockMvc} it is typically used with
  * {@link SecurityMockMvcRequestPostProcessors#testSecurityContext()}. Which ensures
  * the {@link SecurityContext} from {@link TestSecurityContextHolder} is

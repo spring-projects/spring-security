@@ -29,7 +29,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 
 /**
- * When used with {@link WithSecurityContextTestExcecutionListener} this annotation can be
+ * When used with {@link WithSecurityContextTestExecutionListener} this annotation can be
  * added to a test method to emulate running with a mocked user. In order to work with {@link MockMvc}  The
  * {@link SecurityContext} that is used will have the following properties:
  *

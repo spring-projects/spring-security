@@ -37,11 +37,11 @@ public class WithSecurityContextTestExcecutionListenerTests {
     @Mock
     private TestContext testContext;
 
-    private WithSecurityContextTestExcecutionListener listener;
+    private WithSecurityContextTestExecutionListener listener;
 
     @Before
     public void setup() {
-        listener = new WithSecurityContextTestExcecutionListener();
+        listener = new WithSecurityContextTestExecutionListener();
         context = new AnnotationConfigApplicationContext(Config.class);
     }
 

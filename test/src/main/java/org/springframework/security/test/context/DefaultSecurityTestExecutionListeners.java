@@ -15,7 +15,7 @@
  */
 package org.springframework.security.test.context;
 
-import org.springframework.security.test.context.support.WithSecurityContextTestExcecutionListener;
+import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
@@ -38,5 +38,5 @@ import java.lang.annotation.*;
         DependencyInjectionTestExecutionListener.class,
         DirtiesContextTestExecutionListener.class,
         TransactionalTestExecutionListener.class,
-        WithSecurityContextTestExcecutionListener.class})
+        WithSecurityContextTestExecutionListener.class})
 public @interface DefaultSecurityTestExecutionListeners {}
