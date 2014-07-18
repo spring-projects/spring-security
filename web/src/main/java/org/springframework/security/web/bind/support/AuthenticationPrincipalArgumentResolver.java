@@ -106,7 +106,7 @@ public final class AuthenticationPrincipalArgumentResolver implements
         if(principal != null && !parameter.getParameterType().isAssignableFrom(principal.getClass())) {
             AuthenticationPrincipal authPrincipal = findMethodAnnotation(AuthenticationPrincipal.class, parameter);
             if(authPrincipal.errorOnInvalidType()) {
-                throw new ClassCastException(principal + " is not assiable to " + parameter.getParameterType());
+                throw new ClassCastException(principal + " is not assignable to " + parameter.getParameterType());
             } else {
                 return null;
             }
