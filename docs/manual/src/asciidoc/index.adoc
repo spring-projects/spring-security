@@ -691,7 +691,7 @@ public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception 
 
 ==== LDAP Authentication
 
-You can find the updates to suppport LDAP based authentication. The https://github.com/spring-projects/spring-security/tree/master/samples/lda-jc[ldap-jc sample] provides a complete example of using LDAP based authentication.
+You can find the updates to suppport LDAP based authentication. The https://github.com/spring-projects/spring-security/tree/master/samples/ldap-jc[ldap-jc sample] provides a complete example of using LDAP based authentication.
 
 [source,java]
 ----
