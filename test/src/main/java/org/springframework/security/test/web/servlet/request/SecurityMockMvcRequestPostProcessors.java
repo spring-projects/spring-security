@@ -15,7 +15,12 @@
  */
 package org.springframework.security.test.web.servlet.request;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -24,6 +29,9 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -54,6 +62,32 @@ import org.springframework.util.Assert;
  * @since 4.0
  */
 public final class SecurityMockMvcRequestPostProcessors {
+
+    /**
+     * Populates the provided X509Certificate instances on the request.
+     * @param certificates the X509Certificate instances to pouplate
+     * @return the {@link org.springframework.test.web.servlet.request.RequestPostProcessor} to use.
+     */
+    public static RequestPostProcessor x509(X509Certificate... certificates) {
+        return new X509RequestPostProcessor(certificates);
+    }
+
+    /**
+     * Finds an X509Cetificate using a resoureName and populates it on the request.
+     *
+     * @param resourceName the name of the X509Certificate resource
+     * @return the {@link org.springframework.test.web.servlet.request.RequestPostProcessor} to use.
+     * @throws IOException
+     * @throws CertificateException
+     */
+    public static RequestPostProcessor x509(String resourceName) throws IOException, CertificateException {
+        ResourceLoader loader = new DefaultResourceLoader();
+        Resource resource = loader.getResource(resourceName);
+        InputStream inputStream = resource.getInputStream();
+        CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+        X509Certificate certificate = (X509Certificate) certFactory.generateCertificate(inputStream);
+        return x509(certificate);
+    }
 
     /**
      * Creates a {@link RequestPostProcessor} that will automatically populate a
@@ -140,6 +174,24 @@ public final class SecurityMockMvcRequestPostProcessors {
      */
     public static RequestPostProcessor httpBasic(String username, String password) {
         return new HttpBasicRequestPostProcessor(username, password);
+    }
+
+    /**
+     * Populates the X509Certificate instances onto the request
+     */
+    private static class X509RequestPostProcessor implements RequestPostProcessor {
+        private final X509Certificate[] certificates;
+
+        private X509RequestPostProcessor(X509Certificate... certificates) {
+            Assert.notNull("X509Certificate cannot be null");
+            this.certificates = certificates;
+        }
+
+        @Override
+        public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+            request.setAttribute("javax.servlet.request.X509Certificate", certificates);
+            return request;
+        }
     }
 
     /**
