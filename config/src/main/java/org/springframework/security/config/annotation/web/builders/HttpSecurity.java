@@ -1000,7 +1000,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      *                 .and()
      *             .formLogin()
      *                 .and()
-     *             .channelSecurity()
+     *             .requiresChannel()
      *                 .anyRequest().requiresSecure();
      *     }
      *
