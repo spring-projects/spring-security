@@ -53,6 +53,7 @@ import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.util.Assert;
+import org.springframework.util.DigestUtils;
 
 /**
  * Contains {@link MockMvc} {@link RequestPostProcessor} implementations for
@@ -62,6 +63,25 @@ import org.springframework.util.Assert;
  * @since 4.0
  */
 public final class SecurityMockMvcRequestPostProcessors {
+
+    /**
+     * Creates a DigestRequestPostProcessor that enables easily adding digest based authentication to a request.
+     *
+     * @return the DigestRequestPostProcessor to use
+     */
+    public static DigestRequestPostProcessor digest() {
+        return new DigestRequestPostProcessor();
+    }
+
+    /**
+     * Creates a DigestRequestPostProcessor that enables easily adding digest based authentication to a request.
+     *
+     * @param username the username to use
+     * @return the DigestRequestPostProcessor to use
+     */
+    public static DigestRequestPostProcessor digest(String username) {
+        return digest().username(username);
+    }
 
     /**
      * Populates the provided X509Certificate instances on the request.
@@ -253,6 +273,134 @@ public final class SecurityMockMvcRequestPostProcessors {
         }
 
         private CsrfRequestPostProcessor() {}
+    }
+
+    public static class DigestRequestPostProcessor implements RequestPostProcessor {
+        private String username = "user";
+
+        private String password = "password";
+
+        private String realm = "Spring Security";
+
+        private String nonce = generateNonce(60);
+
+        private String qop = "auth";
+
+        private String nc = "00000001";
+
+        private String cnonce = "c822c727a648aba7";
+
+        /**
+         * Configures the username to use
+         * @param username the username to use
+         * @return the DigestRequestPostProcessor for further customization
+         */
+        private DigestRequestPostProcessor username(String username) {
+            Assert.notNull(username, "username cannot be null");
+            this.username = username;
+            return this;
+        }
+
+        /**
+         * Configures the password to use
+         * @param password the password to use
+         * @return the DigestRequestPostProcessor for further customization
+         */
+        public DigestRequestPostProcessor password(String password) {
+            Assert.notNull(password, "password cannot be null");
+            this.password = password;
+            return this;
+        }
+
+        /**
+         * Configures the realm to use
+         * @param realm the realm to use
+         * @return the DigestRequestPostProcessor for further customization
+         */
+        public DigestRequestPostProcessor realm(String realm) {
+            Assert.notNull(realm, "realm cannot be null");
+            this.realm = realm;
+            return this;
+        }
+
+        private static String generateNonce(int validitySeconds) {
+            long expiryTime = System.currentTimeMillis() + (validitySeconds * 1000);
+            String toDigest = expiryTime + ":" + "key";
+            String signatureValue = md5Hex(toDigest);
+            String nonceValue = expiryTime + ":" + signatureValue;
+
+            return new String(Base64.encode(nonceValue.getBytes()));
+        }
+
+        private String createAuthorizationHeader(MockHttpServletRequest request) {
+            String uri = request.getRequestURI();
+            String responseDigest = generateDigest(username, realm, password, request.getMethod(),
+                    uri, qop, nonce, nc, cnonce);
+            return "Digest username=\"" + username + "\", realm=\"" + realm + "\", nonce=\"" + nonce + "\", uri=\"" + uri
+                    + "\", response=\"" + responseDigest + "\", qop=" + qop + ", nc=" + nc + ", cnonce=\"" + cnonce + "\"";
+        }
+
+        @Override
+        public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+
+            request.addHeader("Authorization",
+                    createAuthorizationHeader(request));
+            return request;
+        }
+
+
+        /**
+         * Computes the <code>response</code> portion of a Digest authentication header. Both the server and user
+         * agent should compute the <code>response</code> independently. Provided as a static method to simplify the
+         * coding of user agents.
+         *
+         * @param username               the user's login name.
+         * @param realm                  the name of the realm.
+         * @param password               the user's password in plaintext or ready-encoded.
+         * @param httpMethod             the HTTP request method (GET, POST etc.)
+         * @param uri                    the request URI.
+         * @param qop                    the qop directive, or null if not set.
+         * @param nonce                  the nonce supplied by the server
+         * @param nc                     the "nonce-count" as defined in RFC 2617.
+         * @param cnonce                 opaque string supplied by the client when qop is set.
+         * @return the MD5 of the digest authentication response, encoded in hex
+         * @throws IllegalArgumentException if the supplied qop value is unsupported.
+         */
+        private static String generateDigest(String username, String realm, String password,
+                                     String httpMethod, String uri, String qop, String nonce, String nc, String cnonce)
+                throws IllegalArgumentException {
+            String a1Md5 = encodePasswordInA1Format(username, realm, password);
+            String a2 = httpMethod + ":" + uri;
+            String a2Md5 = md5Hex(a2);
+
+            String digest;
+
+            if (qop == null) {
+                // as per RFC 2069 compliant clients (also reaffirmed by RFC 2617)
+                digest = a1Md5 + ":" + nonce + ":" + a2Md5;
+            } else if ("auth".equals(qop)) {
+                // As per RFC 2617 compliant clients
+                digest = a1Md5 + ":" + nonce + ":" + nc + ":" + cnonce + ":" + qop + ":" + a2Md5;
+            } else {
+                throw new IllegalArgumentException("This method does not support a qop: '" + qop + "'");
+            }
+
+            return md5Hex(digest);
+        }
+
+        static String encodePasswordInA1Format(String username, String realm, String password) {
+            String a1 = username + ":" + realm + ":" + password;
+
+            return md5Hex(a1);
+        }
+
+        private static String md5Hex(String a2) {
+            try {
+                return DigestUtils.md5DigestAsHex(a2.getBytes("UTF-8"));
+            } catch(UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     /**
