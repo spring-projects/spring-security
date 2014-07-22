@@ -17,11 +17,10 @@ package org.springframework.security.test.web.servlet.showcase.login;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.*;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
-
-import javax.servlet.Filter;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +30,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
+import org.springframework.security.test.context.DefaultSecurityTestExecutionListeners;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -42,13 +42,11 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes=AuthenticationTests.Config.class)
 @WebAppConfiguration
+@DefaultSecurityTestExecutionListeners
 public class AuthenticationTests {
 
     @Autowired
     private WebApplicationContext context;
-
-    @Autowired
-    private Filter springSecurityFilterChain;
 
     private MockMvc mvc;
 
@@ -56,7 +54,7 @@ public class AuthenticationTests {
     public void setup() {
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
-                .addFilters(springSecurityFilterChain)
+                .apply(springSecurity())
                 .build();
     }
 

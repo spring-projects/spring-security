@@ -17,6 +17,7 @@ package org.springframework.security.test.web.servlet.showcase.secured;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -31,6 +32,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
+import org.springframework.security.test.context.DefaultSecurityTestExecutionListeners;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -42,6 +44,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes=DefaultfSecurityRequestsTests.Config.class)
 @WebAppConfiguration
+@DefaultSecurityTestExecutionListeners
 public class DefaultfSecurityRequestsTests {
 
     @Autowired
@@ -57,7 +60,7 @@ public class DefaultfSecurityRequestsTests {
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
                 .defaultRequest(get("/").with(user("user").roles("ADMIN")))
-                .addFilters(springSecurityFilterChain)
+                .apply(springSecurity())
                 .build();
     }
 

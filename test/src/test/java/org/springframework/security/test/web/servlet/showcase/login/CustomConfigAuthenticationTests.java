@@ -18,10 +18,9 @@ package org.springframework.security.test.web.servlet.showcase.login;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-
-import javax.servlet.Filter;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +32,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
+import org.springframework.security.test.context.DefaultSecurityTestExecutionListeners;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.test.context.ContextConfiguration;
@@ -46,13 +46,11 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes=CustomConfigAuthenticationTests.Config.class)
 @WebAppConfiguration
+@DefaultSecurityTestExecutionListeners
 public class CustomConfigAuthenticationTests {
 
     @Autowired
     private WebApplicationContext context;
-
-    @Autowired
-    private Filter springSecurityFilterChain;
 
     @Autowired
     private SecurityContextRepository securityContextRepository;
@@ -63,8 +61,7 @@ public class CustomConfigAuthenticationTests {
     public void setup() {
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
-                .defaultRequest(get("/"))
-                .addFilters(springSecurityFilterChain)
+                .apply(springSecurity())
                 .build();
     }
 

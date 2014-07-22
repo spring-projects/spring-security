@@ -17,10 +17,9 @@ package org.springframework.security.test.web.servlet.showcase.secured;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import javax.servlet.Filter;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,6 +35,7 @@ import org.springframework.security.config.annotation.web.servlet.configuration.
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.test.context.DefaultSecurityTestExecutionListeners;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -47,13 +47,11 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes=SecurityRequestsTests.Config.class)
 @WebAppConfiguration
+@DefaultSecurityTestExecutionListeners
 public class SecurityRequestsTests {
 
     @Autowired
     private WebApplicationContext context;
-
-    @Autowired
-    private Filter springSecurityFilterChain;
 
     @Autowired
     private UserDetailsService userDetailsService;
@@ -64,7 +62,7 @@ public class SecurityRequestsTests {
     public void setup() {
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
-                .addFilters(springSecurityFilterChain)
+                .apply(springSecurity())
                 .build();
     }
 

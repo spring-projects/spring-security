@@ -15,10 +15,9 @@
  */
 package org.springframework.security.test.web.servlet.showcase.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import javax.servlet.Filter;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -30,6 +29,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
+import org.springframework.security.test.context.DefaultSecurityTestExecutionListeners;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.test.context.ContextConfiguration;
@@ -43,13 +43,11 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes=CustomCsrfShowcaseTests.Config.class)
 @WebAppConfiguration
+@DefaultSecurityTestExecutionListeners
 public class CustomCsrfShowcaseTests {
 
     @Autowired
     private WebApplicationContext context;
-
-    @Autowired
-    private Filter springSecurityFilterChain;
 
     @Autowired
     private CsrfTokenRepository repository;
@@ -61,7 +59,7 @@ public class CustomCsrfShowcaseTests {
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
                 .defaultRequest(get("/").with(csrf()))
-                .addFilters(springSecurityFilterChain)
+                .apply(springSecurity())
                 .build();
     }
 
