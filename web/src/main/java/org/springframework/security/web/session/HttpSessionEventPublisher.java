@@ -49,7 +49,7 @@ public class HttpSessionEventPublisher implements HttpSessionListener {
     //~ Methods ========================================================================================================
 
     ApplicationContext getContext(ServletContext servletContext) {
-        return WebApplicationContextUtils.getWebApplicationContext(servletContext);
+        return WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
     }
 
     /**

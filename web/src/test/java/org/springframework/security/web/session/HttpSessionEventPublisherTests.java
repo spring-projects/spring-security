@@ -69,4 +69,26 @@ public class HttpSessionEventPublisherTests {
         assertNull(listener.getCreatedEvent());
         assertEquals(session, listener.getDestroyedEvent().getSession());
     }
+
+    // SEC-2599
+    @Test(expected=IllegalStateException.class)
+    public void sessionCreatedNullApplicationContext() {
+        HttpSessionEventPublisher publisher = new HttpSessionEventPublisher();
+        MockServletContext servletContext = new MockServletContext();
+        MockHttpSession session = new MockHttpSession(servletContext);
+        HttpSessionEvent event = new HttpSessionEvent(session);
+
+        publisher.sessionCreated(event);
+    }
+
+    // SEC-2599
+    @Test(expected=IllegalStateException.class)
+    public void sessionDestroyedNullApplicationContext() {
+        HttpSessionEventPublisher publisher = new HttpSessionEventPublisher();
+        MockServletContext servletContext = new MockServletContext();
+        MockHttpSession session = new MockHttpSession(servletContext);
+        HttpSessionEvent event = new HttpSessionEvent(session);
+
+        publisher.sessionDestroyed(event);
+    }
 }
