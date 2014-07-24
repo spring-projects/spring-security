@@ -49,9 +49,7 @@ public class ServiceProperties implements InitializingBean {
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
-        if(!authenticateAllArtifacts) {
-            Assert.hasLength(this.service, "service must be specified unless authenticateAllArtifacts is true.");
-        }
+        Assert.hasLength(this.service, "service cannot be empty.");
         Assert.hasLength(this.artifactParameter, "artifactParameter cannot be empty.");
         Assert.hasLength(this.serviceParameter, "serviceParameter cannot be empty.");
     }

@@ -526,7 +526,9 @@
     <property name="serviceProperties" ref="serviceProperties"/>
     <property name="authenticationDetailsSource">
       <bean class=
-        "org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource"/>
+        "org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource">
+        <constructor-arg ref="serviceProperties"/>
+      </bean>
     </property>
   </bean>
 ]]></programlisting></para>

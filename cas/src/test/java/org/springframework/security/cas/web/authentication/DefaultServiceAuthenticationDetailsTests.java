@@ -18,11 +18,21 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.regex.Pattern;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.web.util.UrlUtils;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  *
@@ -32,9 +42,13 @@ public class DefaultServiceAuthenticationDetailsTests {
     private DefaultServiceAuthenticationDetails details;
     private MockHttpServletRequest request;
     private Pattern artifactPattern;
+    private String casServiceUrl;
+
+    private ConfigurableApplicationContext context;
 
     @Before
     public void setUp() {
+        casServiceUrl = "https://localhost:8443/j_spring_security_cas";
         request = new MockHttpServletRequest();
         request.setScheme("https");
         request.setServerName("localhost");
@@ -44,45 +58,82 @@ public class DefaultServiceAuthenticationDetailsTests {
 
     }
 
-    @Test
-    public void getServiceUrlNullQuery() throws Exception {
-        details = new DefaultServiceAuthenticationDetails(request,artifactPattern);
-        assertEquals(UrlUtils.buildFullRequestUrl(request),details.getServiceUrl());
+    @After
+    public void cleanup() {
+        if(context != null) {
+            context.close();
+        }
     }
 
     @Test
-    public void getServiceUrlTicketOnlyParam() {
+    public void getServiceUrlNullQuery() throws Exception {
+        details = new DefaultServiceAuthenticationDetails(casServiceUrl, request,artifactPattern);
+        assertEquals(UrlUtils.buildFullRequestUrl(request), details.getServiceUrl());
+    }
+
+    @Test
+    public void getServiceUrlTicketOnlyParam() throws Exception {
         request.setQueryString("ticket=123");
-        details = new DefaultServiceAuthenticationDetails(request,artifactPattern);
+        details = new DefaultServiceAuthenticationDetails(casServiceUrl,request,artifactPattern);
         String serviceUrl = details.getServiceUrl();
         request.setQueryString(null);
         assertEquals(UrlUtils.buildFullRequestUrl(request),serviceUrl);
     }
 
     @Test
-    public void getServiceUrlTicketFirstMultiParam() {
+    public void getServiceUrlTicketFirstMultiParam() throws Exception {
         request.setQueryString("ticket=123&other=value");
-        details = new DefaultServiceAuthenticationDetails(request,artifactPattern);
+        details = new DefaultServiceAuthenticationDetails(casServiceUrl, request,artifactPattern);
         String serviceUrl = details.getServiceUrl();
         request.setQueryString("other=value");
         assertEquals(UrlUtils.buildFullRequestUrl(request),serviceUrl);
     }
 
     @Test
-    public void getServiceUrlTicketLastMultiParam() {
+    public void getServiceUrlTicketLastMultiParam() throws Exception {
         request.setQueryString("other=value&ticket=123");
-        details = new DefaultServiceAuthenticationDetails(request,artifactPattern);
+        details = new DefaultServiceAuthenticationDetails(casServiceUrl,request,artifactPattern);
         String serviceUrl = details.getServiceUrl();
         request.setQueryString("other=value");
         assertEquals(UrlUtils.buildFullRequestUrl(request),serviceUrl);
     }
 
     @Test
-    public void getServiceUrlTicketMiddleMultiParam() {
+    public void getServiceUrlTicketMiddleMultiParam() throws Exception {
         request.setQueryString("other=value&ticket=123&last=this");
-        details = new DefaultServiceAuthenticationDetails(request,artifactPattern);
+        details = new DefaultServiceAuthenticationDetails(casServiceUrl,request,artifactPattern);
         String serviceUrl = details.getServiceUrl();
         request.setQueryString("other=value&last=this");
         assertEquals(UrlUtils.buildFullRequestUrl(request),serviceUrl);
+    }
+
+    @Test
+    public void getServiceUrlDoesNotUseHostHeader() throws Exception {
+        casServiceUrl = "https://example.com/j_spring_security_cas";
+        request.setServerName("evil.com");
+        details = new DefaultServiceAuthenticationDetails(casServiceUrl, request,artifactPattern);
+        assertEquals("https://example.com/cas-sample/secure/",details.getServiceUrl());
+    }
+
+    @Test
+    public void getServiceUrlDoesNotUseHostHeaderPassivity() {
+        casServiceUrl = "https://example.com/j_spring_security_cas";
+        request.setServerName("evil.com");
+        ServiceAuthenticationDetails details = loadServiceAuthenticationDetails("defaultserviceauthenticationdetails-passivity.xml");
+        assertEquals("https://example.com/cas-sample/secure/", details.getServiceUrl());
+    }
+
+    @Test
+    public void getServiceUrlDoesNotUseHostHeaderExplicit() {
+        casServiceUrl = "https://example.com/j_spring_security_cas";
+        request.setServerName("evil.com");
+        ServiceAuthenticationDetails details = loadServiceAuthenticationDetails("defaultserviceauthenticationdetails-explicit.xml");
+        assertEquals("https://example.com/cas-sample/secure/", details.getServiceUrl());
+    }
+
+    private ServiceAuthenticationDetails loadServiceAuthenticationDetails(String resourceName) {
+        context = new GenericXmlApplicationContext(getClass(), resourceName);
+        ServiceAuthenticationDetailsSource source = context.getBean(ServiceAuthenticationDetailsSource.class);
+        return source.buildDetails(request);
     }
 }
