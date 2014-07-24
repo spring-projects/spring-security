@@ -15,6 +15,8 @@
  */
 package org.springframework.security.cas.web.authentication;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -50,11 +52,13 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
      *            string from containing the artifact name and value. This can
      *            be created using {@link #createArtifactPattern(String)}.
      */
-    DefaultServiceAuthenticationDetails(HttpServletRequest request, Pattern artifactPattern) {
+    DefaultServiceAuthenticationDetails(String casService, HttpServletRequest request, Pattern artifactPattern) throws MalformedURLException {
         super(request);
+        URL casServiceUrl = new URL(casService);
+        int port = getServicePort(casServiceUrl);
         final String query = getQueryString(request,artifactPattern);
-        this.serviceUrl = UrlUtils.buildFullRequestUrl(request.getScheme(),
-                request.getServerName(), request.getServerPort(),
+        this.serviceUrl = UrlUtils.buildFullRequestUrl(casServiceUrl.getProtocol(),
+                casServiceUrl.getHost(), port,
                 request.getRequestURI(), query);
     }
 
@@ -127,5 +131,18 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
     static Pattern createArtifactPattern(String artifactParameterName) {
         Assert.hasLength(artifactParameterName);
         return Pattern.compile("&?"+Pattern.quote(artifactParameterName)+"=[^&]*");
+    }
+
+    /**
+     * Gets the port from the casServiceURL ensuring to return the proper value if the default port is being used.
+     * @param casServiceUrl the casServerUrl to be used (i.e. "https://example.com/context/j_spring_security_cas_check")
+     * @return the port that is configured for the casServerUrl
+     */
+    private static int getServicePort(URL casServiceUrl) {
+        int port = casServiceUrl.getPort();
+        if(port == -1) {
+            port = casServiceUrl.getDefaultPort();
+        }
+        return port;
     }
 }

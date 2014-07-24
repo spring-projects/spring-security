@@ -5559,7 +5559,9 @@ The next step is to specify `serviceProperties` and the `authenticationDetailsSo
   <property name="serviceProperties" ref="serviceProperties"/>
   <property name="authenticationDetailsSource">
     <bean class=
-      "org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource"/>
+      "org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource">
+      <constructor-arg ref="serviceProperties"/>
+    </bean>
   </property>
 </bean>
 ----
