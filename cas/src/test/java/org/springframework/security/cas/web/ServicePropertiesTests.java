@@ -36,10 +36,13 @@ public class ServicePropertiesTests {
     }
 
     @Test
-    public void allowNullServiceWhenAuthenticateAllTokens() throws Exception {
+    public void nullServiceWhenAuthenticateAllTokens() throws Exception {
         ServiceProperties sp = new ServiceProperties();
         sp.setAuthenticateAllArtifacts(true);
-        sp.afterPropertiesSet();
+        try {
+            sp.afterPropertiesSet();
+            fail("Expected Exception");
+        }catch(IllegalArgumentException success) {}
         sp.setAuthenticateAllArtifacts(false);
         try {
             sp.afterPropertiesSet();
