@@ -92,6 +92,7 @@ import java.util.Set;
  * a search of the entire subtree under <tt>groupSearchBase</tt>.
  *
  * @author Luke Taylor
+ * @author Filip Hanik
  */
 public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator {
     //~ Static fields/initializers =====================================================================================
@@ -105,6 +106,9 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      */
     private GrantedAuthority defaultRole;
 
+    /**
+     * Template that will be used for searching
+     */
     private final SpringSecurityLdapTemplate ldapTemplate;
 
     /**
@@ -127,7 +131,13 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * The pattern to be used for the user search. {0} is the user's DN
      */
     private String groupSearchFilter = "(member={0})";
+    /**
+     * The role prefix that will be prepended to each role name
+     */
     private String rolePrefix = "ROLE_";
+    /**
+     * Should we convert the role name to uppercase
+     */
     private boolean convertToUpperCase = true;
 
     //~ Constructors ===================================================================================================
@@ -143,7 +153,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     public DefaultLdapAuthoritiesPopulator(ContextSource contextSource, String groupSearchBase) {
         Assert.notNull(contextSource, "contextSource must not be null");
         ldapTemplate = new SpringSecurityLdapTemplate(contextSource);
-        ldapTemplate.setSearchControls(searchControls);
+        getLdapTemplate().setSearchControls(getSearchControls());
         this.groupSearchBase = groupSearchBase;
 
         if (groupSearchBase == null) {
@@ -212,8 +222,8 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
                     + groupSearchFilter + " in search base '" + getGroupSearchBase() + "'");
         }
 
-        Set<String> userRoles = ldapTemplate.searchForSingleAttributeValues(getGroupSearchBase(), groupSearchFilter,
-                new String[]{userDn, username}, groupRoleAttribute);
+        Set<String> userRoles = getLdapTemplate().searchForSingleAttributeValues(getGroupSearchBase(), groupSearchFilter,
+            new String[]{userDn, username}, groupRoleAttribute);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Roles from search: " + userRoles);
@@ -232,7 +242,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     }
 
     protected ContextSource getContextSource() {
-        return ldapTemplate.getContextSource();
+        return getLdapTemplate().getContextSource();
     }
 
     protected String getGroupSearchBase() {
@@ -297,6 +307,77 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      *   @see LdapTemplate#setIgnoreNameNotFoundException(boolean)
      */
     public void setIgnorePartialResultException(boolean ignore) {
-        ldapTemplate.setIgnorePartialResultException(ignore);
+        getLdapTemplate().setIgnorePartialResultException(ignore);
     }
+
+    /**
+     * Returns the current LDAP template.
+     * Method available so that classes extending this can override the template used 
+     * @return the LDAP template
+     * @see {@link org.springframework.security.ldap.SpringSecurityLdapTemplate}
+     */
+    protected SpringSecurityLdapTemplate getLdapTemplate() {
+        return ldapTemplate;
+    }
+
+    /**
+     * Returns the default role
+     * Method available so that classes extending this can override
+     * @return the default role used
+     * @see {@link #setDefaultRole(String)}
+     */
+    protected GrantedAuthority getDefaultRole() {
+        return defaultRole;
+    }
+
+    /**
+     * Returns the search controls
+     * Method available so that classes extending this can override the search controls used
+     * @return the search controls
+     */
+    protected SearchControls getSearchControls() {
+        return searchControls;
+    }
+
+    /**
+     * Returns the attribute name of the LDAP attribute that will be mapped to the role name
+     * Method available so that classes extending this can override
+     * @return the attribute name used for role mapping
+     * @see {@link #setGroupRoleAttribute(String)}
+     */
+    protected String getGroupRoleAttribute() {
+        return groupRoleAttribute;
+    }
+
+    /**
+     * Returns the search filter configured for this populator
+     * Method available so that classes extending this can override
+     * @return the search filter
+     * @see {@link #setGroupSearchFilter(String)}
+     */
+    protected String getGroupSearchFilter() {
+        return groupSearchFilter;
+    }
+
+    /**
+     * Returns the role prefix used by this populator
+     * Method available so that classes extending this can override
+     * @return the role prefix
+     * @see {@link #setRolePrefix(String)}
+     */
+    protected String getRolePrefix() {
+        return rolePrefix;
+    }
+
+    /**
+     * Returns true if role names are converted to uppercase
+     * Method available so that classes extending this can override
+     * @return true if role names are converted to uppercase.
+     * @see {@link #setConvertToUpperCase(boolean)}
+     */
+    protected boolean isConvertToUpperCase() {
+        return convertToUpperCase;
+    }
+
+
 }
