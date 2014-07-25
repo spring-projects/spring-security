@@ -24,10 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportAware;
-import org.springframework.context.annotation.Role;
+import org.springframework.context.annotation.*;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.type.AnnotationMetadata;
@@ -48,6 +45,7 @@ import org.springframework.security.access.intercept.AfterInvocationProviderMana
 import org.springframework.security.access.intercept.RunAsManager;
 import org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor;
 import org.springframework.security.access.intercept.aopalliance.MethodSecurityMetadataSourceAdvisor;
+import org.springframework.security.access.intercept.aspectj.AspectJMethodSecurityInterceptor;
 import org.springframework.security.access.method.DelegatingMethodSecurityMetadataSource;
 import org.springframework.security.access.method.MethodSecurityMetadataSource;
 import org.springframework.security.access.prepost.PostInvocationAdviceProvider;
@@ -111,7 +109,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
      */
     @Bean
     public MethodInterceptor methodSecurityInterceptor() throws Exception {
-        MethodSecurityInterceptor methodSecurityInterceptor = new MethodSecurityInterceptor();
+        MethodSecurityInterceptor methodSecurityInterceptor = isAspectJ() ? new AspectJMethodSecurityInterceptor() : new MethodSecurityInterceptor();
         methodSecurityInterceptor
                 .setAccessDecisionManager(accessDecisionManager());
         methodSecurityInterceptor
@@ -377,6 +375,10 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
 
     private int order() {
         return (Integer) enableMethodSecurity().get("order");
+    }
+
+    private boolean isAspectJ() {
+        return enableMethodSecurity().getEnum("mode") == AdviceMode.ASPECTJ;
     }
 
     private AnnotationAttributes enableMethodSecurity() {

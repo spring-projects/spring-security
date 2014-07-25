@@ -59,7 +59,7 @@ ext.javaProjects = subprojects.findAll { project -> project.name != 'docs' && pr
 ext.sampleProjects = subprojects.findAll { project -> project.name.startsWith('spring-security-samples') }
 ext.itestProjects = subprojects.findAll { project -> project.name.startsWith('itest') }
 ext.coreModuleProjects = javaProjects - sampleProjects - itestProjects
-ext.aspectjProjects = [project(':spring-security-aspects'), project(':spring-security-samples-aspectj-xml')]
+ext.aspectjProjects = [project(':spring-security-aspects'), project(':spring-security-samples-aspectj-xml'), project(':spring-security-samples-aspectj-jc')]
 
 configure(allprojects - javaProjects) {
     task afterEclipseImport {

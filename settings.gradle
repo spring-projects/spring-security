@@ -18,6 +18,7 @@ def String[] samples = [
     'contacts-xml',
     'openid-xml',
     'aspectj-xml',
+    'aspectj-jc',
     'gae-xml',
     'dms-xml',
     'preauth-xml',
