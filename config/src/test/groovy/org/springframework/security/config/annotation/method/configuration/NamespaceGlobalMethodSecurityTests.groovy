@@ -15,11 +15,14 @@
  */
 package org.springframework.security.config.annotation.method.configuration
 
+import org.springframework.security.access.intercept.aspectj.AspectJMethodSecurityInterceptor
+
 import static org.fest.assertions.Assertions.assertThat
 import static org.junit.Assert.fail
 
 import java.lang.reflect.Method
 
+import org.springframework.security.access.intercept.aspectj.aspect.AnnotationSecurityAspect
 import org.springframework.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator
 import org.springframework.beans.factory.BeanCreationException
 import org.springframework.context.ConfigurableApplicationContext
@@ -188,8 +191,8 @@ public class NamespaceGlobalMethodSecurityTests extends BaseSpringSpec {
         when:
             context = new AnnotationConfigApplicationContext(AspectJModeConfig)
         then:
-            AnnotationAwareAspectJAutoProxyCreator autoProxyCreator = context.getBean(AnnotationAwareAspectJAutoProxyCreator)
-            autoProxyCreator.proxyTargetClass == true
+            context.getBean(AnnotationSecurityAspect)
+            context.getBean(AspectJMethodSecurityInterceptor)
     }
 
     @Configuration
@@ -201,8 +204,8 @@ public class NamespaceGlobalMethodSecurityTests extends BaseSpringSpec {
         when:
             context = new AnnotationConfigApplicationContext(BaseMethodConfig,AspectJModeExtendsGMSCConfig)
         then:
-            AnnotationAwareAspectJAutoProxyCreator autoProxyCreator = context.getBean(AnnotationAwareAspectJAutoProxyCreator)
-            autoProxyCreator.proxyTargetClass == false
+            context.getBean(AnnotationSecurityAspect)
+            context.getBean(AspectJMethodSecurityInterceptor)
     }
 
     @Configuration
