@@ -249,7 +249,9 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
     private void extractStringAttributeValues(DirContextAdapter adapter, Map<String, List<String>> record, String attributeName) {
         Object[] values = adapter.getObjectAttributes(attributeName);
         if (values == null || values.length == 0) {
-            logger.debug("No attribute value found for '" + attributeName + "'");
+            if(logger.isDebugEnabled()) {
+                logger.debug("No attribute value found for '" + attributeName + "'");
+            }
             return;
         }
         List<String> svalues = new ArrayList<String>();
