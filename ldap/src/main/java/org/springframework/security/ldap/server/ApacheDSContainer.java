@@ -127,7 +127,7 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
 
         server = new LdapServer();
         server.setDirectoryService(service);
-        //AbstractLdapIntegrationTests assume IPv4, so we specify the same here
+        // AbstractLdapIntegrationTests assume IPv4, so we specify the same here
         server.setTransports(new TcpTransport("127.0.0.1", port));
         start();
     }

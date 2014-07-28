@@ -28,8 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A LDAP authority populator that can recursively search static nested groups.
- * <p>An example of nested groups can be
+ * A LDAP authority populator that can recursively search static nested groups. <p>An example of nested groups can be
  * <pre>
  *  #Nested groups data
  *
@@ -128,9 +127,9 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
      * Maximum search depth - represents the number of recursive searches performed
      */
     private int maxSearchDepth = 10;
+
     /**
-     * Constructor for group search scenarios. <tt>userRoleAttributes</tt> may still be
-     * set as a property.
+     * Constructor for group search scenarios. <tt>userRoleAttributes</tt> may still be set as a property.
      *
      * @param contextSource   supplies the contexts used to search for user roles.
      * @param groupSearchBase if this is an empty string the search will be performed from the root DN of the
@@ -157,50 +156,51 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 
     /**
      * Performs the nested group search
-     * @param userDn - the userDN to search for, will become the group DN for subsequent searches
-     * @param username - the username of the user
+     *
+     * @param userDn      - the userDN to search for, will become the group DN for subsequent searches
+     * @param username    - the username of the user
      * @param authorities - the authorities set that will be populated, must not be null
-     * @param depth - the depth remaining, when 0 recursion will end
+     * @param depth       - the depth remaining, when 0 recursion will end
      */
     protected void performNestedSearch(String userDn, String username, Set<GrantedAuthority> authorities, int depth) {
-        if (depth==0) {
+        if (depth == 0) {
             //back out of recursion
             if (logger.isDebugEnabled()) {
                 logger.debug("Search aborted, max depth reached," +
-                    " for roles for user '" + username + "', DN = " + "'" + userDn + "', with filter "
-                    + getGroupSearchFilter() + " in search base '" + getGroupSearchBase() + "'");
+                        " for roles for user '" + username + "', DN = " + "'" + userDn + "', with filter "
+                        + getGroupSearchFilter() + " in search base '" + getGroupSearchBase() + "'");
             }
             return;
         }
 
         if (logger.isDebugEnabled()) {
             logger.debug("Searching for roles for user '" + username + "', DN = " + "'" + userDn + "', with filter "
-                + getGroupSearchFilter() + " in search base '" + getGroupSearchBase() + "'");
+                    + getGroupSearchFilter() + " in search base '" + getGroupSearchBase() + "'");
         }
 
-        if (getAttributeNames()==null) {
+        if (getAttributeNames() == null) {
             setAttributeNames(new HashSet<String>());
         }
         if (StringUtils.hasText(getGroupRoleAttribute()) && !getAttributeNames().contains(getGroupRoleAttribute())) {
             getAttributeNames().add(getGroupRoleAttribute());
         }
 
-        Set<Map<String,String[]>> userRoles = getLdapTemplate().searchForMultipleAttributeValues(
-            getGroupSearchBase(),
-            getGroupSearchFilter(),
-            new String[]{userDn, username},
-            getAttributeNames().toArray(new String[getAttributeNames().size()]));
+        Set<Map<String, String[]>> userRoles = getLdapTemplate().searchForMultipleAttributeValues(
+                getGroupSearchBase(),
+                getGroupSearchFilter(),
+                new String[]{userDn, username},
+                getAttributeNames().toArray(new String[getAttributeNames().size()]));
 
         if (logger.isDebugEnabled()) {
             logger.debug("Roles from search: " + userRoles);
         }
 
-        for (Map<String,String[]> record : userRoles) {
+        for (Map<String, String[]> record : userRoles) {
             boolean circular = false;
             String dn = record.get(SpringSecurityLdapTemplate.DN_KEY)[0];
             String[] roleValues = record.get(getGroupRoleAttribute());
             Set<String> roles = new HashSet<String>();
-            roles.addAll(Arrays.asList(roleValues!=null?roleValues:new String[0]));
+            roles.addAll(Arrays.asList(roleValues != null ? roleValues : new String[0]));
             for (String role : roles) {
                 if (isConvertToUpperCase()) {
                     role = role.toUpperCase();
@@ -208,9 +208,9 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
                 role = getRolePrefix() + role;
                 //if the group already exist, we will not search for it's parents again.
                 //this prevents a forever loop for a misconfigured ldap directory
-                circular = circular | (!authorities.add(new LdapAuthority(role,dn,record)));
+                circular = circular | (!authorities.add(new LdapAuthority(role, dn, record)));
             }
-            String roleName = roles.size()>0 ? roles.iterator().next() : dn;
+            String roleName = roles.size() > 0 ? roles.iterator().next() : dn;
             if (!circular) {
                 performNestedSearch(dn, roleName, authorities, (depth - 1));
             }
@@ -219,8 +219,9 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
     }
 
     /**
-     * Returns the attribute names that this populator has been configured to retrieve
-     * Value can be null, represents fetch all attributes
+     * Returns the attribute names that this populator has been configured to retrieve Value can be null, represents
+     * fetch all attributes
+     *
      * @return the attribute names or null for all
      */
     public Set<String> getAttributeNames() {
@@ -229,6 +230,7 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 
     /**
      * Sets the attribute names to retrieve for each ldap groups. Null means retrieve all
+     *
      * @param attributeNames - the names of the LDAP attributes to retrieve
      */
     public void setAttributeNames(Set<String> attributeNames) {
@@ -236,8 +238,8 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
     }
 
     /**
-     * How far should a nested search go. Depth is calculated in the number of levels we search up for
-     * parent groups.
+     * How far should a nested search go. Depth is calculated in the number of levels we search up for parent groups.
+     *
      * @return the max search depth, default is 10
      */
     public int getMaxSearchDepth() {
@@ -245,14 +247,13 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
     }
 
     /**
-     * How far should a nested search go. Depth is calculated in the number of levels we search up for
-     * parent groups.
+     * How far should a nested search go. Depth is calculated in the number of levels we search up for parent groups.
+     *
      * @param maxSearchDepth the max search depth
      */
     public void setMaxSearchDepth(int maxSearchDepth) {
         this.maxSearchDepth = maxSearchDepth;
     }
-
 
 
 }

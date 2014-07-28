@@ -20,9 +20,9 @@ public class LdapAuthorityTests {
 
     @Before
     public void setUp() {
-        Map<String,String[]> attributes = new HashMap<String,String[]>();
-        attributes.put(SpringSecurityLdapTemplate.DN_KEY,new String[] {DN});
-        attributes.put("mail",new String[] {"filip@ldap.test.org", "filip@ldap.test2.org"});
+        Map<String, String[]> attributes = new HashMap<String, String[]>();
+        attributes.put(SpringSecurityLdapTemplate.DN_KEY, new String[]{DN});
+        attributes.put("mail", new String[]{"filip@ldap.test.org", "filip@ldap.test2.org"});
         authority = new LdapAuthority("testRole", DN, attributes);
     }
 
@@ -47,6 +47,6 @@ public class LdapAuthorityTests {
     @Test
     public void testGetAuthority() throws Exception {
         assertNotNull(authority.getAuthority());
-        assertEquals("testRole",authority.getAuthority());
+        assertEquals("testRole", authority.getAuthority());
     }
 }

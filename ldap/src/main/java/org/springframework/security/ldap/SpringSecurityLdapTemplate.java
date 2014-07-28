@@ -152,12 +152,12 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
      */
     public Set<String> searchForSingleAttributeValues(final String base, final String filter, final Object[] params,
             final String attributeName) {
-        String[] attributeNames = new String[] {attributeName};
-        Set<Map<String,String[]>> multipleAttributeValues = searchForMultipleAttributeValues(base,filter,params,attributeNames);
+        String[] attributeNames = new String[]{attributeName};
+        Set<Map<String, String[]>> multipleAttributeValues = searchForMultipleAttributeValues(base, filter, params, attributeNames);
         Set<String> result = new HashSet<String>();
-        for (Map<String,String[]> map : multipleAttributeValues) {
+        for (Map<String, String[]> map : multipleAttributeValues) {
             String[] values = map.get(attributeName);
-            if (values!=null && values.length>0) {
+            if (values != null && values.length > 0) {
                 result.addAll(Arrays.asList(values));
             }
         }
@@ -183,7 +183,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
         // Escape the params acording to RFC2254
         Object[] encodedParams = new String[params.length];
 
-        for (int i=0; i < params.length; i++) {
+        for (int i = 0; i < params.length; i++) {
             encodedParams[i] = LdapEncoder.filterEncode(params[i].toString());
         }
 
@@ -196,13 +196,13 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
             public Object mapFromContext(Object ctx) {
                 DirContextAdapter adapter = (DirContextAdapter) ctx;
                 Map<String, String[]> record = new HashMap<String, String[]>();
-                if (attributeNames==null||attributeNames.length==0) {
+                if (attributeNames == null || attributeNames.length == 0) {
                     try {
                         for (NamingEnumeration ae = adapter.getAttributes().getAll(); ae.hasMore(); ) {
                             Attribute attr = (Attribute) ae.next();
                             extractStringAttributeValues(adapter, record, attr.getID());
                         }
-                    }catch (NamingException x) {
+                    } catch (NamingException x) {
                         org.springframework.ldap.support.LdapUtils.convertLdapException(x);
                     }
                 } else {
@@ -210,7 +210,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
                         extractStringAttributeValues(adapter, record, attributeName);
                     }
                 }
-                record.put(DN_KEY, new String[] {getAdapterDN(adapter)});
+                record.put(DN_KEY, new String[]{getAdapterDN(adapter)});
                 set.add(record);
                 return null;
             }
@@ -218,7 +218,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 
         SearchControls ctls = new SearchControls();
         ctls.setSearchScope(searchControls.getSearchScope());
-        ctls.setReturningAttributes(attributeNames!=null&&attributeNames.length>0?attributeNames:null);
+        ctls.setReturningAttributes(attributeNames != null && attributeNames.length > 0 ? attributeNames : null);
 
         search(base, formattedFilter, ctls, roleMapper);
 
@@ -239,10 +239,11 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
     }
 
     /**
-     * Extracts String values for a specified attribute name and places them in the map representing the ldap record
-     * If a value is not of type String, it will derive it's value from the {@link Object#toString()}
-     * @param adapter - the adapter that contains the values
-     * @param record - the map holding the attribute names and values
+     * Extracts String values for a specified attribute name and places them in the map representing the ldap record If
+     * a value is not of type String, it will derive it's value from the {@link Object#toString()}
+     *
+     * @param adapter       - the adapter that contains the values
+     * @param record        - the map holding the attribute names and values
      * @param attributeName - the name for which to fetch the values from
      */
     protected void extractStringAttributeValues(DirContextAdapter adapter, Map<String, String[]> record, String attributeName) {
@@ -253,9 +254,9 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
         }
         List<String> svalues = new ArrayList<String>();
         for (Object o : values) {
-            if (o!=null) {
+            if (o != null) {
                 if (String.class.isAssignableFrom(o.getClass())) {
-                    svalues.add((String)o);
+                    svalues.add((String) o);
                 } else {
                     if (logger.isDebugEnabled()) {
                         logger.debug("Attribute:" + attributeName + " contains a non string value of type[" + o.getClass() + "]");

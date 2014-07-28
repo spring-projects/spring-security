@@ -25,10 +25,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Filip Hanik
@@ -52,18 +49,18 @@ public class NestedLdapAuthoritiesPopulatorTests extends AbstractLdapIntegration
         populator.setRolePrefix("");
         populator.setSearchSubtree(true);
         populator.setConvertToUpperCase(false);
-        jDevelopers = new LdapAuthority("j-developers","cn=j-developers,ou=jdeveloper,dc=springframework,dc=org");
-        javaDevelopers = new LdapAuthority("java-developers","cn=java-developers,ou=jdeveloper,dc=springframework,dc=org");
-        groovyDevelopers = new LdapAuthority("groovy-developers","cn=groovy-developers,ou=jdeveloper,dc=springframework,dc=org");
-        scalaDevelopers = new LdapAuthority("scala-developers","cn=scala-developers,ou=jdeveloper,dc=springframework,dc=org");
-        closureDevelopers = new LdapAuthority("closure-developers","cn=closure-developers,ou=jdeveloper,dc=springframework,dc=org");
-        circularJavaDevelopers = new LdapAuthority("circular-java-developers","cn=circular-java-developers,ou=jdeveloper,dc=springframework,dc=org");
+        jDevelopers = new LdapAuthority("j-developers", "cn=j-developers,ou=jdeveloper,dc=springframework,dc=org");
+        javaDevelopers = new LdapAuthority("java-developers", "cn=java-developers,ou=jdeveloper,dc=springframework,dc=org");
+        groovyDevelopers = new LdapAuthority("groovy-developers", "cn=groovy-developers,ou=jdeveloper,dc=springframework,dc=org");
+        scalaDevelopers = new LdapAuthority("scala-developers", "cn=scala-developers,ou=jdeveloper,dc=springframework,dc=org");
+        closureDevelopers = new LdapAuthority("closure-developers", "cn=closure-developers,ou=jdeveloper,dc=springframework,dc=org");
+        circularJavaDevelopers = new LdapAuthority("circular-java-developers", "cn=circular-java-developers,ou=jdeveloper,dc=springframework,dc=org");
     }
 
     @Test
     public void testScalaDudeJDevelopersAuthorities() {
         DirContextAdapter ctx = new DirContextAdapter("uid=scaladude,ou=people,dc=springframework,dc=org");
-        Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx,"scaladude");
+        Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx, "scaladude");
         assertEquals(5, authorities.size());
         assertEquals(Arrays.asList(javaDevelopers, scalaDevelopers, circularJavaDevelopers, jDevelopers, groovyDevelopers), authorities);
     }
@@ -71,7 +68,7 @@ public class NestedLdapAuthoritiesPopulatorTests extends AbstractLdapIntegration
     @Test
     public void testJavaDudeJDevelopersAuthorities() {
         DirContextAdapter ctx = new DirContextAdapter("uid=javadude,ou=people,dc=springframework,dc=org");
-        Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx,"javadude");
+        Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx, "javadude");
         assertEquals(3, authorities.size());
         assertEquals(Arrays.asList(javaDevelopers, circularJavaDevelopers, jDevelopers), authorities);
     }
@@ -80,7 +77,7 @@ public class NestedLdapAuthoritiesPopulatorTests extends AbstractLdapIntegration
     public void testScalaDudeJDevelopersAuthoritiesWithSearchLimit() {
         populator.setMaxSearchDepth(1);
         DirContextAdapter ctx = new DirContextAdapter("uid=scaladude,ou=people,dc=springframework,dc=org");
-        Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx,"scaladude");
+        Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx, "scaladude");
         assertEquals(1, authorities.size());
         assertEquals(Arrays.asList(scalaDevelopers), authorities);
     }
@@ -88,9 +85,9 @@ public class NestedLdapAuthoritiesPopulatorTests extends AbstractLdapIntegration
     @Test
     public void testGroovyDudeJDevelopersAuthorities() {
         DirContextAdapter ctx = new DirContextAdapter("uid=groovydude,ou=people,dc=springframework,dc=org");
-        Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx,"groovydude");
+        Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx, "groovydude");
         assertEquals(4, authorities.size());
-        assertEquals(Arrays.asList(javaDevelopers,circularJavaDevelopers,jDevelopers,groovyDevelopers), authorities);
+        assertEquals(Arrays.asList(javaDevelopers, circularJavaDevelopers, jDevelopers, groovyDevelopers), authorities);
     }
 
     @Test
@@ -98,9 +95,9 @@ public class NestedLdapAuthoritiesPopulatorTests extends AbstractLdapIntegration
         populator.setAttributeNames(new HashSet(Arrays.asList("member")));
 
         DirContextAdapter ctx = new DirContextAdapter("uid=closuredude,ou=people,dc=springframework,dc=org");
-        Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx,"closuredude");
+        Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx, "closuredude");
         assertEquals(5, authorities.size());
-        assertEquals(Arrays.asList(closureDevelopers,javaDevelopers,circularJavaDevelopers,jDevelopers,groovyDevelopers), authorities);
+        assertEquals(Arrays.asList(closureDevelopers, javaDevelopers, circularJavaDevelopers, jDevelopers, groovyDevelopers), authorities);
 
         LdapAuthority[] ldapAuthorities = authorities.toArray(new LdapAuthority[0]);
         assertEquals(5, ldapAuthorities.length);
@@ -108,20 +105,20 @@ public class NestedLdapAuthoritiesPopulatorTests extends AbstractLdapIntegration
         assertTrue(ldapAuthorities[0].getAttributes().containsKey("member"));
         assertNotNull(ldapAuthorities[0].getAttributes().get("member"));
         assertEquals(1, ldapAuthorities[0].getAttributes().get("member").length);
-        assertEquals("uid=closuredude,ou=people,dc=springframework,dc=org",ldapAuthorities[0].getFirstAttributeValue("member"));
+        assertEquals("uid=closuredude,ou=people,dc=springframework,dc=org", ldapAuthorities[0].getFirstAttributeValue("member"));
 
         //java group
         assertTrue(ldapAuthorities[1].getAttributes().containsKey("member"));
         assertNotNull(ldapAuthorities[1].getAttributes().get("member"));
-        assertEquals(3,ldapAuthorities[1].getAttributes().get("member").length);
-        assertEquals(groovyDevelopers.getDn(),ldapAuthorities[1].getFirstAttributeValue("member"));
+        assertEquals(3, ldapAuthorities[1].getAttributes().get("member").length);
+        assertEquals(groovyDevelopers.getDn(), ldapAuthorities[1].getFirstAttributeValue("member"));
         assertEquals(
-            new String[] {
-                groovyDevelopers.getDn(),
-                scalaDevelopers.getDn(),
-                "uid=javadude,ou=people,dc=springframework,dc=org"
-            },
-            ldapAuthorities[1].getAttributes().get("member")
+                new String[]{
+                        groovyDevelopers.getDn(),
+                        scalaDevelopers.getDn(),
+                        "uid=javadude,ou=people,dc=springframework,dc=org"
+                },
+                ldapAuthorities[1].getAttributes().get("member")
         );
 
         //test non existent attribute
