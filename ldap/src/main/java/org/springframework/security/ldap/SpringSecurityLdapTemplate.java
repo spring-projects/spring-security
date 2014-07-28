@@ -233,7 +233,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
      * @param adapter - the Context to extract the DN from
      * @return - the String representing the full DN
      */
-    protected String getAdapterDN(DirContextAdapter adapter) {
+    private String getAdapterDN(DirContextAdapter adapter) {
         //returns the full DN rather than the sub DN if a base is specified
         return adapter.getNameInNamespace();
     }
@@ -246,7 +246,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
      * @param record        - the map holding the attribute names and values
      * @param attributeName - the name for which to fetch the values from
      */
-    protected void extractStringAttributeValues(DirContextAdapter adapter, Map<String, List<String>> record, String attributeName) {
+    private void extractStringAttributeValues(DirContextAdapter adapter, Map<String, List<String>> record, String attributeName) {
         Object[] values = adapter.getObjectAttributes(attributeName);
         if (values == null || values.length == 0) {
             logger.debug("No attribute value found for '" + attributeName + "'");

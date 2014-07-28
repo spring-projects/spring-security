@@ -321,31 +321,12 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     }
 
     /**
-     * Returns the default role
-     * Method available so that classes extending this can override
-     * @return the default role used
-     * @see {@link #setDefaultRole(String)}
-     */
-    protected GrantedAuthority getDefaultRole() {
-        return defaultRole;
-    }
-
-    /**
-     * Returns the search controls
-     * Method available so that classes extending this can override the search controls used
-     * @return the search controls
-     */
-    protected SearchControls getSearchControls() {
-        return searchControls;
-    }
-
-    /**
      * Returns the attribute name of the LDAP attribute that will be mapped to the role name
      * Method available so that classes extending this can override
      * @return the attribute name used for role mapping
      * @see {@link #setGroupRoleAttribute(String)}
      */
-    protected String getGroupRoleAttribute() {
+    protected final String getGroupRoleAttribute() {
         return groupRoleAttribute;
     }
 
@@ -355,7 +336,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * @return the search filter
      * @see {@link #setGroupSearchFilter(String)}
      */
-    protected String getGroupSearchFilter() {
+    protected final String getGroupSearchFilter() {
         return groupSearchFilter;
     }
 
@@ -365,7 +346,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * @return the role prefix
      * @see {@link #setRolePrefix(String)}
      */
-    protected String getRolePrefix() {
+    protected final String getRolePrefix() {
         return rolePrefix;
     }
 
@@ -375,9 +356,26 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * @return true if role names are converted to uppercase.
      * @see {@link #setConvertToUpperCase(boolean)}
      */
-    protected boolean isConvertToUpperCase() {
+    protected final boolean isConvertToUpperCase() {
         return convertToUpperCase;
     }
 
+    /**
+     * Returns the default role
+     * Method available so that classes extending this can override
+     * @return the default role used
+     * @see {@link #setDefaultRole(String)}
+     */
+    private GrantedAuthority getDefaultRole() {
+        return defaultRole;
+    }
 
+    /**
+     * Returns the search controls
+     * Method available so that classes extending this can override the search controls used
+     * @return the search controls
+     */
+    private SearchControls getSearchControls() {
+        return searchControls;
+    }
 }

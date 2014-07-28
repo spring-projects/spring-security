@@ -159,7 +159,7 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
      * @param authorities - the authorities set that will be populated, must not be null
      * @param depth       - the depth remaining, when 0 recursion will end
      */
-    protected void performNestedSearch(String userDn, String username, Set<GrantedAuthority> authorities, int depth) {
+    private void performNestedSearch(String userDn, String username, Set<GrantedAuthority> authorities, int depth) {
         if (depth == 0) {
             //back out of recursion
             if (logger.isDebugEnabled()) {
@@ -223,7 +223,7 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
      *
      * @return the attribute names or null for all
      */
-    public Set<String> getAttributeNames() {
+    private Set<String> getAttributeNames() {
         return attributeNames;
     }
 
@@ -241,7 +241,7 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
      *
      * @return the max search depth, default is 10
      */
-    public int getMaxSearchDepth() {
+    private  int getMaxSearchDepth() {
         return maxSearchDepth;
     }
 
