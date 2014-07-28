@@ -104,13 +104,13 @@ public class NestedLdapAuthoritiesPopulatorTests extends AbstractLdapIntegration
         //closure group
         assertTrue(ldapAuthorities[0].getAttributes().containsKey("member"));
         assertNotNull(ldapAuthorities[0].getAttributes().get("member"));
-        assertEquals(1, ldapAuthorities[0].getAttributes().get("member").length);
+        assertEquals(1, ldapAuthorities[0].getAttributes().get("member").size());
         assertEquals("uid=closuredude,ou=people,dc=springframework,dc=org", ldapAuthorities[0].getFirstAttributeValue("member"));
 
         //java group
         assertTrue(ldapAuthorities[1].getAttributes().containsKey("member"));
         assertNotNull(ldapAuthorities[1].getAttributes().get("member"));
-        assertEquals(3, ldapAuthorities[1].getAttributes().get("member").length);
+        assertEquals(3, ldapAuthorities[1].getAttributes().get("member").size());
         assertEquals(groovyDevelopers.getDn(), ldapAuthorities[1].getFirstAttributeValue("member"));
         assertEquals(
                 new String[]{
@@ -124,7 +124,7 @@ public class NestedLdapAuthoritiesPopulatorTests extends AbstractLdapIntegration
         //test non existent attribute
         assertNull(ldapAuthorities[2].getFirstAttributeValue("test"));
         assertNotNull(ldapAuthorities[2].getAttributeValues("test"));
-        assertEquals(0, ldapAuthorities[2].getAttributeValues("test").length);
+        assertEquals(0, ldapAuthorities[2].getAttributeValues("test").size());
         //test role name
         assertEquals(jDevelopers.getAuthority(), ldapAuthorities[3].getAuthority());
     }

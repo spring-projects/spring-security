@@ -17,6 +17,7 @@ package org.springframework.security.ldap;
 
 import static org.junit.Assert.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -102,14 +103,14 @@ public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTes
 
 	@Test
     public void testMultiAttributeRetrievalWithNullAttributeNames() {
-        Set<Map<String, String[]>> values =
+        Set<Map<String, List<String>>> values =
                 template.searchForMultipleAttributeValues(
                         "ou=people",
                         "(uid={0})",
                         new String[]{"bob"},
                         null);
         assertEquals(1, values.size());
-        Map<String, String[]> record = (Map<String, String[]>) values.toArray()[0];
+        Map<String, List<String>> record = values.iterator().next();
         assertAttributeValue(record, "uid", "bob");
         assertAttributeValue(record, "objectclass", "top", "person", "organizationalPerson", "inetOrgPerson");
         assertAttributeValue(record, "cn", "Bob Hamilton");
@@ -119,14 +120,14 @@ public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTes
 
     @Test
     public void testMultiAttributeRetrievalWithZeroLengthAttributeNames() {
-        Set<Map<String, String[]>> values =
+        Set<Map<String, List<String>>> values =
                 template.searchForMultipleAttributeValues(
                         "ou=people",
                         "(uid={0})",
                         new String[]{"bob"},
                         new String[0]);
         assertEquals(1, values.size());
-        Map<String, String[]> record = (Map<String, String[]>) values.toArray()[0];
+        Map<String, List<String>> record = values.iterator().next();
         assertAttributeValue(record, "uid", "bob");
         assertAttributeValue(record, "objectclass", "top", "person", "organizationalPerson", "inetOrgPerson");
         assertAttributeValue(record, "cn", "Bob Hamilton");
@@ -136,7 +137,7 @@ public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTes
 
     @Test
     public void testMultiAttributeRetrievalWithSpecifiedAttributeNames() {
-        Set<Map<String, String[]>> values =
+        Set<Map<String, List<String>>> values =
                 template.searchForMultipleAttributeValues(
                         "ou=people",
                         "(uid={0})",
@@ -147,7 +148,7 @@ public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTes
                                 "sn"
                         });
         assertEquals(1, values.size());
-        Map<String, String[]> record = (Map<String, String[]>) values.toArray()[0];
+        Map<String, List<String>> record = values.iterator().next();
         assertAttributeValue(record, "uid", "bob");
         assertAttributeValue(record, "cn", "Bob Hamilton");
         assertAttributeValue(record, "sn", "Hamilton");
@@ -155,11 +156,11 @@ public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTes
         assertFalse(record.containsKey("objectclass"));
     }
 
-    protected void assertAttributeValue(Map<String, String[]> record, String attributeName, String... values) {
+    protected void assertAttributeValue(Map<String, List<String>> record, String attributeName, String... values) {
         assertTrue(record.containsKey(attributeName));
-        assertEquals(values.length, record.get(attributeName).length);
+        assertEquals(values.length, record.get(attributeName).size());
         for (int i = 0; i < values.length; i++) {
-            assertEquals(values[i], record.get(attributeName)[i]);
+            assertEquals(values[i], record.get(attributeName).get(i));
         }
     }
 

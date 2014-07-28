@@ -17,6 +17,8 @@ package org.springframework.security.ldap.userdetails;
 
 import org.springframework.security.core.GrantedAuthority;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,7 +32,7 @@ public class LdapAuthority implements GrantedAuthority {
 
     private String dn;
     private String role;
-    private Map<String, String[]> attributes;
+    private Map<String, List<String>> attributes;
 
     /**
      * Constructs an LdapAuthority that has a role and a DN but no other attributes
@@ -49,7 +51,7 @@ public class LdapAuthority implements GrantedAuthority {
      * @param dn
      * @param attributes
      */
-    public LdapAuthority(String role, String dn, Map<String, String[]> attributes) {
+    public LdapAuthority(String role, String dn, Map<String, List<String>> attributes) {
         if (role == null) throw new NullPointerException("role can not be null");
         this.role = role;
         this.dn = dn;
@@ -61,7 +63,7 @@ public class LdapAuthority implements GrantedAuthority {
      *
      * @return the LDAP attributes, map can be null
      */
-    public Map<String, String[]> getAttributes() {
+    public Map<String, List<String>> getAttributes() {
         return attributes;
     }
 
@@ -80,13 +82,13 @@ public class LdapAuthority implements GrantedAuthority {
      * @param name the attribute name
      * @return a String array, never null but may be zero length
      */
-    public String[] getAttributeValues(String name) {
-        String[] result = null;
+    public List<String> getAttributeValues(String name) {
+        List<String> result = null;
         if (attributes != null) {
             result = attributes.get(name);
         }
         if (result == null) {
-            result = new String[0];
+            result = Collections.emptyList();
         }
         return result;
     }
@@ -98,11 +100,11 @@ public class LdapAuthority implements GrantedAuthority {
      * @return the first attribute value for a specified attribute, may be null
      */
     public String getFirstAttributeValue(String name) {
-        String[] result = getAttributeValues(name);
-        if (result.length > 0) {
-            return result[0];
-        } else {
+        List<String> result = getAttributeValues(name);
+        if (result.isEmpty()) {
             return null;
+        } else {
+            return result.get(0);
         }
     }
 

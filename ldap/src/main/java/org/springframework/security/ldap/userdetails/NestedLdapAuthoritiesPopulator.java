@@ -22,10 +22,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A LDAP authority populator that can recursively search static nested groups. <p>An example of nested groups can be
@@ -185,7 +182,7 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
             getAttributeNames().add(getGroupRoleAttribute());
         }
 
-        Set<Map<String, String[]>> userRoles = getLdapTemplate().searchForMultipleAttributeValues(
+        Set<Map<String, List<String>>> userRoles = getLdapTemplate().searchForMultipleAttributeValues(
                 getGroupSearchBase(),
                 getGroupSearchFilter(),
                 new String[]{userDn, username},
@@ -195,12 +192,14 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
             logger.debug("Roles from search: " + userRoles);
         }
 
-        for (Map<String, String[]> record : userRoles) {
+        for (Map<String, List<String>> record : userRoles) {
             boolean circular = false;
-            String dn = record.get(SpringSecurityLdapTemplate.DN_KEY)[0];
-            String[] roleValues = record.get(getGroupRoleAttribute());
+            String dn = record.get(SpringSecurityLdapTemplate.DN_KEY).get(0);
+            List<String> roleValues = record.get(getGroupRoleAttribute());
             Set<String> roles = new HashSet<String>();
-            roles.addAll(Arrays.asList(roleValues != null ? roleValues : new String[0]));
+            if(roleValues != null) {
+                roles.addAll(roleValues);
+            }
             for (String role : roles) {
                 if (isConvertToUpperCase()) {
                     role = role.toUpperCase();

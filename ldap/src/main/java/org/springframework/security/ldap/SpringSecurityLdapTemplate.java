@@ -153,12 +153,12 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
     public Set<String> searchForSingleAttributeValues(final String base, final String filter, final Object[] params,
             final String attributeName) {
         String[] attributeNames = new String[]{attributeName};
-        Set<Map<String, String[]>> multipleAttributeValues = searchForMultipleAttributeValues(base, filter, params, attributeNames);
+        Set<Map<String, List<String>>> multipleAttributeValues = searchForMultipleAttributeValues(base, filter, params, attributeNames);
         Set<String> result = new HashSet<String>();
-        for (Map<String, String[]> map : multipleAttributeValues) {
-            String[] values = map.get(attributeName);
-            if (values != null && values.length > 0) {
-                result.addAll(Arrays.asList(values));
+        for (Map<String, List<String>> map : multipleAttributeValues) {
+            List<String> values = map.get(attributeName);
+            if (values != null) {
+                result.addAll(values);
             }
         }
         return result;
@@ -178,7 +178,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
      * The attribute name is the key for each set of values. In addition each map contains the DN as a String
      * with the key predefined key {@link #DN_KEY}.
      */
-    public Set<Map<String, String[]>> searchForMultipleAttributeValues(final String base, final String filter, final Object[] params,
+    public Set<Map<String, List<String>>> searchForMultipleAttributeValues(final String base, final String filter, final Object[] params,
             final String[] attributeNames) {
         // Escape the params acording to RFC2254
         Object[] encodedParams = new String[params.length];
@@ -190,12 +190,12 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
         String formattedFilter = MessageFormat.format(filter, encodedParams);
         logger.debug("Using filter: " + formattedFilter);
 
-        final HashSet<Map<String, String[]>> set = new HashSet<Map<String, String[]>>();
+        final HashSet<Map<String, List<String>>> set = new HashSet<Map<String, List<String>>>();
 
         ContextMapper roleMapper = new ContextMapper() {
             public Object mapFromContext(Object ctx) {
                 DirContextAdapter adapter = (DirContextAdapter) ctx;
-                Map<String, String[]> record = new HashMap<String, String[]>();
+                Map<String, List<String>> record = new HashMap<String, List<String>>();
                 if (attributeNames == null || attributeNames.length == 0) {
                     try {
                         for (NamingEnumeration ae = adapter.getAttributes().getAll(); ae.hasMore(); ) {
@@ -210,7 +210,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
                         extractStringAttributeValues(adapter, record, attributeName);
                     }
                 }
-                record.put(DN_KEY, new String[]{getAdapterDN(adapter)});
+                record.put(DN_KEY, Arrays.asList(getAdapterDN(adapter)));
                 set.add(record);
                 return null;
             }
@@ -246,7 +246,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
      * @param record        - the map holding the attribute names and values
      * @param attributeName - the name for which to fetch the values from
      */
-    protected void extractStringAttributeValues(DirContextAdapter adapter, Map<String, String[]> record, String attributeName) {
+    protected void extractStringAttributeValues(DirContextAdapter adapter, Map<String, List<String>> record, String attributeName) {
         Object[] values = adapter.getObjectAttributes(attributeName);
         if (values == null || values.length == 0) {
             logger.debug("No attribute value found for '" + attributeName + "'");
@@ -265,7 +265,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
                 }
             }
         }
-        record.put(attributeName, svalues.toArray(new String[svalues.size()]));
+        record.put(attributeName, svalues);
     }
 
     /**
