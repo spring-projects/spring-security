@@ -16,6 +16,7 @@
 package org.springframework.security.ldap.userdetails;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.Assert;
 
 import java.util.Collections;
 import java.util.List;
@@ -52,7 +53,9 @@ public class LdapAuthority implements GrantedAuthority {
      * @param attributes
      */
     public LdapAuthority(String role, String dn, Map<String, List<String>> attributes) {
-        if (role == null) throw new NullPointerException("role can not be null");
+        Assert.notNull(role, "role can not be null");
+        Assert.notNull(dn, "dn can not be null");
+
         this.role = role;
         this.dn = dn;
         this.attributes = attributes;
@@ -121,15 +124,19 @@ public class LdapAuthority implements GrantedAuthority {
      */
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof LdapAuthority)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof LdapAuthority)) {
+            return false;
+        }
 
         LdapAuthority that = (LdapAuthority) o;
 
-        if (!dn.equals(that.dn)) return false;
-        if (role != null ? !role.equals(that.role) : that.role != null) return false;
-
-        return true;
+        if (!dn.equals(that.dn)) {
+            return false;
+        }
+        return role.equals(that.role);
     }
 
     @Override
