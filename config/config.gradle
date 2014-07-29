@@ -18,6 +18,7 @@ dependencies {
     optional project(':spring-security-web'),
              project(':spring-security-ldap'),
              project(':spring-security-openid'),
+             project(':spring-security-aspects'),
              "org.springframework:spring-web:$springVersion",
              "org.springframework:spring-webmvc:$springVersion",
              "org.aspectj:aspectjweaver:$aspectjVersion",
@@ -28,7 +29,6 @@ dependencies {
 
     testCompile project(':spring-security-cas'),
                 project(':spring-security-core').sourceSets.test.output,
-                project(':spring-security-aspects'),
                 'javax.annotation:jsr250-api:1.0',
                 "org.springframework.ldap:spring-ldap-core:$springLdapVersion",
                 "org.springframework:spring-expression:$springVersion",

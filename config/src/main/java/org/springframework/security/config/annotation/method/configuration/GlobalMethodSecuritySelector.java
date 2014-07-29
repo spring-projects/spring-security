@@ -48,7 +48,7 @@ final class GlobalMethodSecuritySelector implements ImportSelector {
 
         AdviceMode mode = attributes.getEnum("mode");
         String autoProxyClassName = AdviceMode.PROXY == mode ? AutoProxyRegistrar.class.getName()
-                : GlobalMethodSecurityAspectJAutoProxyRegistrar.class.getName();
+                : GlobalMethodSecurityAspectJConfiguration.class.getName();
         if(skipMethodSecurityConfiguration) {
             return new String[] { autoProxyClassName };
         }
