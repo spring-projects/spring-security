@@ -1,0 +1,5 @@
+dependencies {
+    compile project(':spring-security-core'),
+            "org.springframework.data:spring-data-commons:$springDataCommonsVersion"
+
+}

@@ -24,7 +24,7 @@ dependencies {
       compile('org.hibernate:hibernate-entitymanager:3.6.10.Final') {
             exclude group:'javassist', module: 'javassist'
       }
-      compile('org.springframework.data:spring-data-jpa:1.3.4.RELEASE') {
+      compile("org.springframework.data:spring-data-jpa:$springDataJpaVersion") {
             exclude group:'org.aspectj', module:'aspectjrt'
       }
 }

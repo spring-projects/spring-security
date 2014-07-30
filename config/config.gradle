@@ -54,7 +54,7 @@ dependencies {
     testCompile('org.openid4java:openid4java-nodeps:0.9.6') {
         exclude group: 'com.google.code.guice', module: 'guice'
     }
-    testCompile('org.springframework.data:spring-data-jpa:1.4.1.RELEASE') {
+    testCompile("org.springframework.data:spring-data-jpa:$springDataJpaVersion") {
         exclude group: 'org.aspectj', module: 'aspectjrt'
     }
 
