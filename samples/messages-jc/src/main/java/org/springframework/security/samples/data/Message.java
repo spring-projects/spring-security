@@ -22,7 +22,6 @@ public class Message {
     @NotEmpty(message = "Summary is required.")
     private String summary;
 
-    @Version
     private Calendar created = Calendar.getInstance();
 
     public Long getId() {
