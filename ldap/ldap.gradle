@@ -19,6 +19,7 @@ dependencies {
         exclude(group: 'org.springframework', module: 'spring-core')
         exclude(group: 'org.springframework', module: 'spring-tx')
         exclude(group: 'org.springframework', module: 'spring-beans')
+        exclude(group: 'org.springframework.data', module: 'spring-data-commons')
     }
 
     testCompile "org.slf4j:slf4j-api:$slf4jVersion",

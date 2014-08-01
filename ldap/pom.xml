@@ -64,6 +64,10 @@
           <groupId>org.springframework</groupId>
         </exclusion>
         <exclusion>
+          <artifactId>spring-data-commons</artifactId>
+          <groupId>org.springframework.data</groupId>
+        </exclusion>
+        <exclusion>
           <artifactId>commons-logging</artifactId>
           <groupId>commons-logging</groupId>
         </exclusion>
