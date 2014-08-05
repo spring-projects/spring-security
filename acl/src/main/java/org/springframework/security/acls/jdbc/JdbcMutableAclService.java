@@ -22,10 +22,7 @@ import javax.sql.DataSource;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
-import org.springframework.security.acls.domain.AccessControlEntryImpl;
-import org.springframework.security.acls.domain.GrantedAuthoritySid;
-import org.springframework.security.acls.domain.ObjectIdentityImpl;
-import org.springframework.security.acls.domain.PrincipalSid;
+import org.springframework.security.acls.domain.*;
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.AclCache;
@@ -80,6 +77,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
     private String selectSidPrimaryKey = "select id from acl_sid where principal=? and sid=?";
     private String updateObjectIdentity = "update acl_object_identity set "
         + "parent_object = ?, owner_sid = ?, entries_inheriting = ?" + " where id = ?";
+    private SidFactory sidFactory = new DefaultSidFactory();
 
     //~ Constructors ===================================================================================================
 
@@ -101,7 +99,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 
         // Need to retrieve the current principal, in order to know who "owns" this ACL (can be changed later on)
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        PrincipalSid sid = new PrincipalSid(auth);
+        Sid sid = sidFactory.createPrincipal(auth);
 
         // Create the acl_object_identity row
         createObjectIdentity(objectIdentity, sid);
@@ -198,16 +196,8 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
         Assert.notNull(sid, "Sid required");
 
         String sidName;
-        boolean sidIsPrincipal = true;
-
-        if (sid instanceof PrincipalSid) {
-            sidName = ((PrincipalSid) sid).getPrincipal();
-        } else if (sid instanceof GrantedAuthoritySid) {
-            sidName = ((GrantedAuthoritySid) sid).getGrantedAuthority();
-            sidIsPrincipal = false;
-        } else {
-            throw new IllegalArgumentException("Unsupported implementation of Sid");
-        }
+        sidName = sid.getSidId();
+        boolean sidIsPrincipal = sid.isPrincipal();
 
         List<Long> sidIds = jdbcTemplate.queryForList(selectSidPrimaryKey,
                 new Object[] {Boolean.valueOf(sidIsPrincipal), sidName},  Long.class);
@@ -432,5 +422,9 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
      */
     public void setForeignKeysInDatabase(boolean foreignKeysInDatabase) {
         this.foreignKeysInDatabase = foreignKeysInDatabase;
+    }
+
+    public void setSidFactory(SidFactory sidFactory) {
+        this.sidFactory = sidFactory;
     }
 }
