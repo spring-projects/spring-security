@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.samples.mvc.config.WebMvcConfiguration;
-import org.springframework.security.test.context.DefaultSecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -44,7 +43,6 @@ import org.springframework.web.context.WebApplicationContext;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={RootConfiguration.class, WebMvcConfiguration.class})
 @WebAppConfiguration
-@DefaultSecurityTestExecutionListeners
 public class SecurityConfigTests {
     private MockMvc mvc;
 

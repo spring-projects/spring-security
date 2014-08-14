@@ -32,7 +32,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
-import org.springframework.security.test.context.DefaultSecurityTestExecutionListeners;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.test.context.ContextConfiguration;
@@ -46,7 +45,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes=CustomConfigAuthenticationTests.Config.class)
 @WebAppConfiguration
-@DefaultSecurityTestExecutionListeners
 public class CustomConfigAuthenticationTests {
 
     @Autowired

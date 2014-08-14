@@ -23,7 +23,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
-import org.springframework.security.test.context.DefaultSecurityTestExecutionListeners;
 import org.springframework.security.test.context.showcase.service.HelloMessageService;
 import org.springframework.security.test.context.showcase.service.MessageService;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -38,7 +37,6 @@ import static org.fest.assertions.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = WithMockUserTests.Config.class)
-@DefaultSecurityTestExecutionListeners
 public class WithMockUserTests {
 	@Autowired
 	private MessageService messageService;

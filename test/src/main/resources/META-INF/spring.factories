@@ -1,0 +1,1 @@
+org.springframework.test.context.TestExecutionListener = org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener

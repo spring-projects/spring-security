@@ -19,6 +19,7 @@ import java.lang.annotation.Annotation;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.TestSecurityContextHolder;
@@ -26,6 +27,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.context.TestContext;
 import org.springframework.test.context.TestExecutionListener;
 import org.springframework.test.context.support.AbstractTestExecutionListener;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.web.servlet.MockMvc;
 
 /**
@@ -39,8 +41,11 @@ import org.springframework.test.web.servlet.MockMvc;
  * @author Rob Winch
  * @since 4.0
  */
+@Order(WithSecurityContextTestExecutionListener.ORDER)
 public class WithSecurityContextTestExecutionListener extends
         AbstractTestExecutionListener {
+
+    public static final int ORDER = 1000;
 
     /**
      * Sets up the {@link SecurityContext} for each test method. First the

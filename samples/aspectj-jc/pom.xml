@@ -64,7 +64,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
-      <version>4.1.0.BUILD-SNAPSHOT</version>
+      <version>4.1.0.RC2</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -126,7 +126,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>4.1.0.BUILD-SNAPSHOT</version>
+      <version>4.1.0.RC2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

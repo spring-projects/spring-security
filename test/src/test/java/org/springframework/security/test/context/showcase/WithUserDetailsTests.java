@@ -28,7 +28,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.test.context.DefaultSecurityTestExecutionListeners;
 import org.springframework.security.test.context.showcase.service.HelloMessageService;
 import org.springframework.security.test.context.showcase.service.MessageService;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -43,7 +42,6 @@ import static org.fest.assertions.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = WithUserDetailsTests.Config.class)
-@DefaultSecurityTestExecutionListeners
 public class WithUserDetailsTests {
 	@Autowired
 	private MessageService messageService;

@@ -35,7 +35,6 @@ import org.springframework.security.config.annotation.web.servlet.configuration.
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.test.context.DefaultSecurityTestExecutionListeners;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -47,7 +46,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes=SecurityRequestsTests.Config.class)
 @WebAppConfiguration
-@DefaultSecurityTestExecutionListeners
 public class SecurityRequestsTests {
 
     @Autowired

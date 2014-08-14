@@ -64,25 +64,25 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-aop</artifactId>
-      <version>4.1.0.BUILD-SNAPSHOT</version>
+      <version>4.1.0.RC2</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-beans</artifactId>
-      <version>4.1.0.BUILD-SNAPSHOT</version>
+      <version>4.1.0.RC2</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
-      <version>4.1.0.BUILD-SNAPSHOT</version>
+      <version>4.1.0.RC2</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
-      <version>4.1.0.BUILD-SNAPSHOT</version>
+      <version>4.1.0.RC2</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -114,6 +114,13 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-messaging</artifactId>
+      <version>4.0.0.CI-SNAPSHOT</version>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-openid</artifactId>
       <version>4.0.0.CI-SNAPSHOT</version>
       <scope>compile</scope>
@@ -129,28 +136,35 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
-      <version>4.1.0.BUILD-SNAPSHOT</version>
+      <version>4.1.0.RC2</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-tx</artifactId>
-      <version>4.1.0.BUILD-SNAPSHOT</version>
+      <version>4.1.0.RC2</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-web</artifactId>
-      <version>4.1.0.BUILD-SNAPSHOT</version>
+      <version>4.1.0.RC2</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
-      <version>4.1.0.BUILD-SNAPSHOT</version>
+      <version>4.1.0.RC2</version>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-websocket</artifactId>
+      <version>4.1.0.RC2</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
@@ -385,19 +399,19 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-expression</artifactId>
-      <version>4.1.0.BUILD-SNAPSHOT</version>
+      <version>4.1.0.RC2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-orm</artifactId>
-      <version>4.1.0.BUILD-SNAPSHOT</version>
+      <version>4.1.0.RC2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>4.1.0.BUILD-SNAPSHOT</version>
+      <version>4.1.0.RC2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
