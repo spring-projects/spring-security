@@ -34,6 +34,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 import org.springframework.core.SpringVersion;
+import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  * Checks that the embedded version information is up to date.
@@ -128,6 +129,20 @@ public class SpringSecurityCoreVersionTests {
         verify(logger, never()).warn(any());
     }
 
+    // SEC-2697
+    @Test
+    public void noWarnIfSpringPatchVersionDoubleDigits() throws Exception {
+        String minSpringVersion = "3.2.8.RELEASE";
+        spy(SpringSecurityCoreVersion.class);
+        spy(SpringVersion.class);
+        when(SpringSecurityCoreVersion.getVersion()).thenReturn("3.2.0.RELEASE");
+        when(SpringVersion.getVersion()).thenReturn("3.2.10.RELEASE");
+
+        performChecks(minSpringVersion);
+
+        verify(logger, never()).warn(any());
+    }
+
     @Test
     public void noLoggingIfPropertySet() throws Exception {
         spy(SpringSecurityCoreVersion.class);
@@ -149,4 +164,7 @@ public class SpringSecurityCoreVersionTests {
         Whitebox.invokeMethod(SpringSecurityCoreVersion.class, "performVersionChecks");
     }
 
+    private void performChecks(String minSpringVersion) throws Exception {
+        Whitebox.invokeMethod(SpringSecurityCoreVersion.class, "performVersionChecks", minSpringVersion);
+    }
 }

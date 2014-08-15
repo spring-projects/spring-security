@@ -38,6 +38,15 @@ public class SpringSecurityCoreVersion {
      * Performs version checks
      */
     private static void performVersionChecks() {
+        performVersionChecks(MIN_SPRING_VERSION);
+    }
+
+    /**
+     * Perform version checks with specific min Spring Version
+     *
+     * @param minSpringVersion
+     */
+    private static void performVersionChecks(String minSpringVersion) {
         // Check Spring Compatibility
         String springVersion = SpringVersion.getVersion();
         String version = getVersion();
@@ -47,8 +56,8 @@ public class SpringSecurityCoreVersion {
         }
 
         logger.info("You are running with Spring Security Core " + version);
-        if (springVersion.compareTo(MIN_SPRING_VERSION) < 0) {
-            logger.warn("**** You are advised to use Spring " + MIN_SPRING_VERSION +
+        if (new ComparableVersion(springVersion).compareTo(new ComparableVersion(minSpringVersion)) < 0) {
+            logger.warn("**** You are advised to use Spring " + minSpringVersion +
                     " or later with this version. You are running: " + springVersion);
         }
     }
