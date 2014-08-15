@@ -52,7 +52,7 @@
     <dependency>
       <groupId>org.springframework.data</groupId>
       <artifactId>spring-data-commons</artifactId>
-      <version>1.9.0.M1</version>
+      <version>1.9.0.RC1</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
