@@ -11,6 +11,7 @@ def String[] modules = [
     'taglibs',
     'aspects',
     'crypto',
+    'messaging',
     'test'
 ]
 

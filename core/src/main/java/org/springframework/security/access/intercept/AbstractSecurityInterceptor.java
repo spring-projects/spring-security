@@ -38,7 +38,9 @@ import org.springframework.security.access.event.AuthorizedEvent;
 import org.springframework.security.access.event.PublicInvocationEvent;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -105,7 +107,7 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
     private ApplicationEventPublisher eventPublisher;
     private AccessDecisionManager accessDecisionManager;
     private AfterInvocationManager afterInvocationManager;
-    private AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager = new NoOpAuthenticationManager();
     private RunAsManager runAsManager = new NullRunAsManager();
 
     private boolean alwaysReauthenticate = false;
@@ -458,6 +460,14 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
     private void publishEvent(ApplicationEvent event) {
         if (this.eventPublisher != null) {
             this.eventPublisher.publishEvent(event);
+        }
+    }
+
+    private static class NoOpAuthenticationManager implements AuthenticationManager {
+
+        @Override
+        public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+            throw new AuthenticationServiceException("Cannot authenticate " + authentication);
         }
     }
 }
