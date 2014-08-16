@@ -41,11 +41,9 @@ import org.springframework.test.web.servlet.MockMvc;
  * @author Rob Winch
  * @since 4.0
  */
-@Order(WithSecurityContextTestExecutionListener.ORDER)
+@Order(1000)
 public class WithSecurityContextTestExecutionListener extends
         AbstractTestExecutionListener {
-
-    public static final int ORDER = 1000;
 
     /**
      * Sets up the {@link SecurityContext} for each test method. First the
