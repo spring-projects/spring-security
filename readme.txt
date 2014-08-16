@@ -44,7 +44,7 @@ MAVEN REPOSITORY DOWNLOADS
 
 Release jars for the project are available from the central maven repository
 
-http://repo1.maven.org/maven2/org/springframework/security/
+https://repo1.maven.org/maven2/org/springframework/security/
 
 Note that milestone releases and snapshots are not uploaded to the central
 repository, but can be obtained from the Spring milestone repository, using the
