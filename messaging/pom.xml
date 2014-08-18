@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-messaging</artifactId>
-  <version>4.0.0.CI-SNAPSHOT</version>
+  <version>4.0.0.M2</version>
   <name>spring-security-messaging</name>
   <description>spring-security-messaging</description>
   <url>http://spring.io/spring-security</url>
@@ -44,8 +44,8 @@
   </build>
   <repositories>
     <repository>
-      <id>spring-snasphot</id>
-      <url>https://repo.spring.io/snapshot</url>
+      <id>spring-milestone</id>
+      <url>https://repo.spring.io/milestone</url>
     </repository>
   </repositories>
   <dependencies>
@@ -58,7 +58,7 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>4.0.0.CI-SNAPSHOT</version>
+      <version>4.0.0.M2</version>
       <scope>compile</scope>
     </dependency>
     <dependency>

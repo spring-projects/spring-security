@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-ldap-xml</artifactId>
-  <version>4.0.0.CI-SNAPSHOT</version>
+  <version>4.0.0.M2</version>
   <packaging>war</packaging>
   <name>spring-security-samples-ldap-xml</name>
   <description>spring-security-samples-ldap-xml</description>
@@ -52,8 +52,8 @@
   </build>
   <repositories>
     <repository>
-      <id>spring-snasphot</id>
-      <url>https://repo.spring.io/snapshot</url>
+      <id>spring-milestone</id>
+      <url>https://repo.spring.io/milestone</url>
     </repository>
   </repositories>
   <dependencies>
@@ -72,7 +72,7 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-taglibs</artifactId>
-      <version>4.0.0.CI-SNAPSHOT</version>
+      <version>4.0.0.M2</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -145,19 +145,19 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>4.0.0.CI-SNAPSHOT</version>
+      <version>4.0.0.M2</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-ldap</artifactId>
-      <version>4.0.0.CI-SNAPSHOT</version>
+      <version>4.0.0.M2</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>4.0.0.CI-SNAPSHOT</version>
+      <version>4.0.0.M2</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
