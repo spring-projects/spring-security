@@ -21,13 +21,12 @@ import org.springframework.security.messaging.access.expression.ExpressionBasedM
 import org.springframework.security.messaging.access.intercept.MessageSecurityMetadataSource;
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
 import org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
+import org.springframework.util.PathMatcher;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Allows mapping security constraints using {@link MessageMatcher} to the security expressions.
@@ -43,7 +42,9 @@ public class MessageSecurityMetadataSourceRegistry {
     private static final String fullyAuthenticated = "fullyAuthenticated";
     private static final String rememberMe = "rememberMe";
 
-    private final LinkedHashMap<MessageMatcher<?>,String> matcherToExpression = new LinkedHashMap<MessageMatcher<?>,String>();
+    private final LinkedHashMap<MatcherBuilder,String> matcherToExpression = new LinkedHashMap<MatcherBuilder,String>();
+
+    private PathMatcher pathMatcher = new AntPathMatcher();
 
     /**
      * Maps any {@link Message} to a security expression.
@@ -51,23 +52,37 @@ public class MessageSecurityMetadataSourceRegistry {
      * @return the Expression to associate
      */
     public Constraint anyMessage() {
-        return new Constraint(Arrays.<MessageMatcher<?>>asList(MessageMatcher.ANY_MESSAGE));
+        return matchers(MessageMatcher.ANY_MESSAGE);
     }
 
     /**
      * Maps a {@link List} of {@link org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher} instances.
      *
-     * @param antPatterns the ant patterns to create {@link org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher}
-     *                    from
+     * @param patterns the patterns to create {@link org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher}
+     *                    from. Uses {@link MessageSecurityMetadataSourceRegistry#pathMatcher(PathMatcher)}.
      *
      * @return the {@link Constraint}  that is associated to the {@link MessageMatcher}
+     * @see {@link MessageSecurityMetadataSourceRegistry#pathMatcher(PathMatcher)} 
      */
-    public Constraint antMatchers(String... antPatterns) {
-        List<MessageMatcher<?>> matchers = new ArrayList<MessageMatcher<?>>(antPatterns.length);
-        for(String pattern : antPatterns) {
-            matchers.add(new SimpDestinationMessageMatcher(pattern));
+    public Constraint destinationMatchers(String... patterns) {
+        List<MatcherBuilder> matchers = new ArrayList<MatcherBuilder>(patterns.length);
+        for(String pattern : patterns) {
+            matchers.add(new PathMatcherMessageMatcherBuilder(pattern));
         }
         return new Constraint(matchers);
+    }
+
+    /**
+     * The {@link PathMatcher} to be used with the {@link MessageSecurityMetadataSourceRegistry#destinationMatchers(String...)}.
+     * The default is to use the default constructor of {@link AntPathMatcher}.
+     *
+     * @param pathMatcher the {@link PathMatcher} to use. Cannot be null.
+     * @return the {@link MessageSecurityMetadataSourceRegistry} for further customization.
+     */
+    public MessageSecurityMetadataSourceRegistry pathMatcher(PathMatcher pathMatcher) {
+        Assert.notNull(pathMatcher, "pathMatcher cannot be null");
+        this.pathMatcher = pathMatcher;
+        return this;
     }
 
     /**
@@ -77,7 +92,11 @@ public class MessageSecurityMetadataSourceRegistry {
      * @return The {@link Constraint} that is associated to the {@link MessageMatcher} instances
      */
     public Constraint matchers(MessageMatcher<?>... matchers) {
-        return new Constraint(Arrays.asList(matchers));
+        List<MatcherBuilder> builders = new ArrayList<MatcherBuilder>(matchers.length);
+        for(MessageMatcher<?> matcher : matchers) {
+            builders.add(new PreBuiltMatcherBuilder(matcher));
+        }
+        return new Constraint(builders);
     }
 
     /**
@@ -88,6 +107,10 @@ public class MessageSecurityMetadataSourceRegistry {
      * @return the {@link MessageSecurityMetadataSource} to use
      */
     protected MessageSecurityMetadataSource createMetadataSource() {
+        LinkedHashMap<MessageMatcher<?>,String> matcherToExpression = new LinkedHashMap<MessageMatcher<?>,String>();
+        for(Map.Entry<MatcherBuilder,String> entry : this.matcherToExpression.entrySet()) {
+            matcherToExpression.put(entry.getKey().build(), entry.getValue());
+        }
         return ExpressionBasedMessageSecurityMetadataSourceFactory.createExpressionMessageMetadataSource(matcherToExpression);
     }
 
@@ -95,14 +118,14 @@ public class MessageSecurityMetadataSourceRegistry {
      * Represents the security constraint to be applied to the {@link MessageMatcher} instances.
      */
     public class Constraint {
-        private final List<MessageMatcher<?>> messageMatchers;
+        private final List<MatcherBuilder> messageMatchers;
 
         /**
          * Creates a new instance
          *
          * @param messageMatchers the {@link MessageMatcher} instances to map to this constraint
          */
-        public Constraint(List<MessageMatcher<?>> messageMatchers) {
+        private Constraint(List<MatcherBuilder> messageMatchers) {
             Assert.notEmpty(messageMatchers, "messageMatchers cannot be null or empty");
             this.messageMatchers = messageMatchers;
         }
@@ -219,7 +242,7 @@ public class MessageSecurityMetadataSourceRegistry {
          * @return the {@link MessageSecurityMetadataSourceRegistry} for further customization
          */
         public MessageSecurityMetadataSourceRegistry access(String attribute) {
-            for(MessageMatcher<?> messageMatcher : messageMatchers) {
+            for(MatcherBuilder messageMatcher : messageMatchers) {
                 matcherToExpression.put(messageMatcher, attribute);
             }
             return MessageSecurityMetadataSourceRegistry.this;
@@ -246,5 +269,35 @@ public class MessageSecurityMetadataSourceRegistry {
     private static String hasAnyAuthority(String... authorities) {
         String anyAuthorities = StringUtils.arrayToDelimitedString(authorities, "','");
         return "hasAnyAuthority('" + anyAuthorities + "')";
+    }
+
+    private class PreBuiltMatcherBuilder implements MatcherBuilder {
+        private MessageMatcher<?> matcher;
+
+        private PreBuiltMatcherBuilder(MessageMatcher<?> matcher) {
+            this.matcher = matcher;
+        }
+
+        @Override
+        public MessageMatcher<?> build() {
+            return matcher;
+        }
+    }
+
+    private class PathMatcherMessageMatcherBuilder implements MatcherBuilder {
+        private final String pattern;
+
+        private PathMatcherMessageMatcherBuilder(String pattern) {
+            this.pattern = pattern;
+        }
+
+        @Override
+        public MessageMatcher<?> build() {
+            return new SimpDestinationMessageMatcher(pattern, pathMatcher);
+        }
+    }
+
+    private interface MatcherBuilder {
+        MessageMatcher<?> build();
     }
 }

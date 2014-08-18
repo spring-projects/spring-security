@@ -48,9 +48,9 @@ import java.util.List;
  *   @Override
  *   protected void configure(MessageSecurityMetadataSourceRegistry messages) {
  *     messages
- *       .antMatchers("/user/queue/errors").permitAll()
- *       .antMatchers("/admin/**").hasRole("ADMIN")
- *       .antMatchers("/**").authenticated();
+ *       .destinationMatchers("/user/queue/errors").permitAll()
+ *       .destinationMatchers("/admin/**").hasRole("ADMIN")
+ *       .anyMessage().authenticated();
  *   }
  * }
  * </pre>
