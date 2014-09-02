@@ -41,10 +41,6 @@ public abstract class AbstractRequestMatcherRegistry<C> {
     /**
      * Maps any request.
      *
-     * @param method the {@link HttpMethod} to use or {@code null} for any {@link HttpMethod}.
-     * @param antPatterns the ant patterns to create {@link org.springframework.security.web.util.matcher.AntPathRequestMatcher}
-     *                    from
-     *
      * @return the object that is chained after creating the {@link RequestMatcher}
      */
     public C anyRequest() {
@@ -181,7 +177,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
         /**
          * Create a {@link List} of {@link RegexRequestMatcher} instances that do not specify an {@link HttpMethod}.
          *
-         *  @param regexPatterns the regular expressions to create {@link RegexRequestMatcher} from
+         * @param regexPatterns the regular expressions to create {@link RegexRequestMatcher} from
          *
          * @return a {@link List} of {@link RegexRequestMatcher} instances
          */
