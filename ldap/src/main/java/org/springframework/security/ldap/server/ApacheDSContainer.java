@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -261,7 +261,14 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
                 ldifFile = ldifs[0].getURI().toString();
             }
             logger.info("Loading LDIF file: " + ldifFile);
-            LdifFileLoader loader = new LdifFileLoader(service.getAdminSession(), ldifFile);
+            LdifFileLoader loader;
+            if (ctxt == null) {
+                loader = new LdifFileLoader(service.getAdminSession(), new File(ldifFile), null,
+                    new PathMatchingResourcePatternResolver().getClassLoader());
+            } else {
+                loader = new LdifFileLoader(service.getAdminSession(), new File(ldifFile), null,
+                    ctxt.getClassLoader());
+            }
             loader.execute();
         } else {
             throw new IllegalArgumentException("More than one LDIF resource found with the supplied pattern:" + ldifResources+ " Got " + Arrays.toString(ldifs));
