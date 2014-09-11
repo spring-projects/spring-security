@@ -260,7 +260,7 @@ public class ApacheDSContainer implements InitializingBean, DisposableBean, Life
                 ldifFile = ldifs[0].getURI().toString();
             }
             logger.info("Loading LDIF file: " + ldifFile);
-            LdifFileLoader loader = new LdifFileLoader(service.getAdminSession(), ldifFile);
+            LdifFileLoader loader = new LdifFileLoader(service.getAdminSession(), new File(ldifFile), null, getClass().getClassLoader());
             loader.execute();
         } else {
             throw new IllegalArgumentException("More than one LDIF resource found with the supplied pattern:" + ldifResources+ " Got " + Arrays.toString(ldifs));
