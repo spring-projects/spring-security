@@ -36,11 +36,11 @@ import static org.powermock.api.mockito.PowerMockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultMessageSecurityMetadataSourceTests {
     @Mock
-    MessageMatcher matcher1;
+    MessageMatcher<Object> matcher1;
     @Mock
-    MessageMatcher matcher2;
+    MessageMatcher<Object> matcher2;
     @Mock
-    Message message;
+    Message<?> message;
     @Mock
     Authentication authentication;
 

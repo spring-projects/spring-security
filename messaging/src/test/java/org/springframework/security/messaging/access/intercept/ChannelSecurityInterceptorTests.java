@@ -27,13 +27,11 @@ import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.access.intercept.InterceptorStatusToken;
 import org.springframework.security.access.intercept.RunAsManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -119,6 +117,7 @@ public class ChannelSecurityInterceptorTests {
     }
 
 
+    @SuppressWarnings("unchecked")
     @Test
     public void preSendPostSendRunAs() throws Exception {
         when(source.getAttributes(message)).thenReturn(attrs);
@@ -138,6 +137,7 @@ public class ChannelSecurityInterceptorTests {
         interceptor.afterSendCompletion(message, channel, true, null);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void preSendFinallySendRunAs() throws Exception {
         when(source.getAttributes(message)).thenReturn(attrs);

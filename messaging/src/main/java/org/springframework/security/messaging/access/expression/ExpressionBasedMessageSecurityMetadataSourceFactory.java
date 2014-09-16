@@ -20,7 +20,6 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.messaging.access.intercept.DefaultMessageSecurityMetadataSource;
 import org.springframework.security.messaging.access.intercept.MessageSecurityMetadataSource;
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
-import org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -66,7 +65,7 @@ public final class ExpressionBasedMessageSecurityMetadataSourceFactory {
      * @return the {@link MessageSecurityMetadataSource} to use. Cannot be null.
      */
     public static MessageSecurityMetadataSource createExpressionMessageMetadataSource(LinkedHashMap<MessageMatcher<?>,String> matcherToExpression) {
-        DefaultMessageSecurityExpressionHandler handler = new DefaultMessageSecurityExpressionHandler();
+        DefaultMessageSecurityExpressionHandler<Object> handler = new DefaultMessageSecurityExpressionHandler<Object>();
 
         LinkedHashMap<MessageMatcher<?>, Collection<ConfigAttribute>> matcherToAttrs = new LinkedHashMap<MessageMatcher<?>, Collection<ConfigAttribute>>();
 

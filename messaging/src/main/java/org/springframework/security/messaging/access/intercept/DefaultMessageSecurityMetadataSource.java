@@ -44,6 +44,7 @@ public final class DefaultMessageSecurityMetadataSource implements MessageSecuri
         this.messageMap = messageMap;
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
         final Message message = (Message) object;
         for (Map.Entry<MessageMatcher<?>, Collection<ConfigAttribute>> entry : messageMap.entrySet()) {

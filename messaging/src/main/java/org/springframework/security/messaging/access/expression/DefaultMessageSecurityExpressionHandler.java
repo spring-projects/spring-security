@@ -24,8 +24,9 @@ import org.springframework.security.core.Authentication;
 /**
  * The default implementation of {@link SecurityExpressionHandler} which uses a {@link MessageSecurityExpressionRoot}.
  *
- * @since 4.0
+ * @param <T> the type for the body of the Message
  *
+ * @since 4.0
  * @author Rob Winch
  */
 public class DefaultMessageSecurityExpressionHandler<T> extends AbstractSecurityExpressionHandler<Message<T>> {

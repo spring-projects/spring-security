@@ -26,6 +26,7 @@ import org.springframework.util.Assert;
  * @since 4.0
  * @author Rob Winch
  */
+@SuppressWarnings("serial")
 class MessageExpressionConfigAttribute implements ConfigAttribute {
     private final Expression authorizeExpression;
 

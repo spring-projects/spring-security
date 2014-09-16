@@ -29,7 +29,7 @@ public class SecurityContextChannelInterceptorTests {
     @Mock
     Principal principal;
 
-    MessageBuilder messageBuilder;
+    MessageBuilder<String> messageBuilder;
 
     Authentication authentication;
 

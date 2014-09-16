@@ -33,9 +33,9 @@ public interface MessageMatcher<T> {
     boolean matches(Message<? extends T> message);
 
     /**
-     * Matches every {@link Message} 
+     * Matches every {@link Message}
      */
-    MessageMatcher ANY_MESSAGE = new MessageMatcher<Object>() {
+    MessageMatcher<Object> ANY_MESSAGE = new MessageMatcher<Object>() {
         public boolean matches(Message<? extends Object> message) {
             return true;
         }
