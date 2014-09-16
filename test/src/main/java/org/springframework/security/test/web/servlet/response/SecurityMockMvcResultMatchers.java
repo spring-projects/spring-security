@@ -113,7 +113,8 @@ public final class SecurityMockMvcResultMatchers {
             if(this.expectedGrantedAuthorities != null) {
                 assertTrue("Authentication cannot be null", auth != null);
                 Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
-                assertEquals(this.expectedGrantedAuthorities + " does not equal " + authorities, this.expectedGrantedAuthorities, authorities);
+                assertTrue(authorities + " does not contain the same authorities as " + this.expectedGrantedAuthorities, authorities.containsAll(this.expectedGrantedAuthorities));
+                assertTrue(this.expectedGrantedAuthorities + " does not contain the same authorities as " + authorities , this.expectedGrantedAuthorities.containsAll(authorities));
             }
         }
 
