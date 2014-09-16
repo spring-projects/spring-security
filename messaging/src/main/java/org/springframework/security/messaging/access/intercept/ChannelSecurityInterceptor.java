@@ -17,7 +17,6 @@ package org.springframework.security.messaging.access.intercept;
 
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
@@ -39,6 +38,7 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  */
 public final class ChannelSecurityInterceptor extends AbstractSecurityInterceptor implements ChannelInterceptor {
+    private static final ThreadLocal<InterceptorStatusToken> tokenHolder = new ThreadLocal<InterceptorStatusToken>();
 
     private final MessageSecurityMetadataSource metadataSource;
 
@@ -67,24 +67,19 @@ public final class ChannelSecurityInterceptor extends AbstractSecurityIntercepto
 
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         InterceptorStatusToken token = beforeInvocation(message);
-        return token == null ? message : new TokenMessage(message,token);
+        if(token != null) {
+            tokenHolder.set(token);
+        }
+        return message;
     }
 
     public void postSend(Message<?> message, MessageChannel channel, boolean sent) {
-        if(!(message instanceof TokenMessage)) {
-            // TODO What if other classes return another instance too?
-            return;
-        }
-        InterceptorStatusToken token = ((TokenMessage)message).getToken();
+        InterceptorStatusToken token = clearToken();
         afterInvocation(token, null);
     }
 
     public void afterSendCompletion(Message<?> message, MessageChannel channel, boolean sent, Exception ex) {
-        if(!(message instanceof TokenMessage)) {
-            // TODO What if other classes return another instance too?
-            return;
-        }
-        InterceptorStatusToken token = ((TokenMessage)message).getToken();
+        InterceptorStatusToken token = clearToken();
         finallyInvocation(token);
     }
 
@@ -99,25 +94,9 @@ public final class ChannelSecurityInterceptor extends AbstractSecurityIntercepto
     public void afterReceiveCompletion(Message<?> message, MessageChannel channel, Exception ex) {
     }
 
-    static final class TokenMessage implements Message {
-        private final Message delegate;
-        private final InterceptorStatusToken token;
-
-        TokenMessage(Message delegate, InterceptorStatusToken token) {
-            this.delegate = delegate;
-            this.token = token;
-        }
-
-        public InterceptorStatusToken getToken() {
-            return token;
-        }
-
-        public MessageHeaders getHeaders() {
-            return delegate.getHeaders();
-        }
-
-        public Object getPayload() {
-            return delegate.getPayload();
-        }
+    private InterceptorStatusToken clearToken() {
+        InterceptorStatusToken token = tokenHolder.get();
+        tokenHolder.remove();
+        return token;
     }
 }
