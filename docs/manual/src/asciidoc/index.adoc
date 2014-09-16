@@ -1451,7 +1451,7 @@ The filters, aliases and namespace elements/attributes which create the filters 
 | `http/x509`
 
 |  PRE_AUTH_FILTER
-| `AstractPreAuthenticatedProcessingFilter` Subclasses
+| `AbstractPreAuthenticatedProcessingFilter` Subclasses
 | N/A
 
 |  CAS_FILTER
