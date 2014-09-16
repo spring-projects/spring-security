@@ -44,7 +44,6 @@ public final class DefaultMessageSecurityMetadataSource implements MessageSecuri
         this.messageMap = messageMap;
     }
 
-    @Override
     public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
         final Message message = (Message) object;
         for (Map.Entry<MessageMatcher<?>, Collection<ConfigAttribute>> entry : messageMap.entrySet()) {
@@ -55,7 +54,6 @@ public final class DefaultMessageSecurityMetadataSource implements MessageSecuri
         return null;
     }
 
-    @Override
     public Collection<ConfigAttribute> getAllConfigAttributes() {
         Set<ConfigAttribute> allAttributes = new HashSet<ConfigAttribute>();
 
@@ -66,7 +64,6 @@ public final class DefaultMessageSecurityMetadataSource implements MessageSecuri
         return allAttributes;
     }
 
-    @Override
     public boolean supports(Class<?> clazz) {
         return Message.class.isAssignableFrom(clazz);
     }

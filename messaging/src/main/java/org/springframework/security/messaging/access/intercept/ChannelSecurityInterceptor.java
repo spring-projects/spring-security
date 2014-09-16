@@ -65,13 +65,11 @@ public final class ChannelSecurityInterceptor extends AbstractSecurityIntercepto
         return metadataSource;
     }
 
-    @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         InterceptorStatusToken token = beforeInvocation(message);
         return token == null ? message : new TokenMessage(message,token);
     }
 
-    @Override
     public void postSend(Message<?> message, MessageChannel channel, boolean sent) {
         if(!(message instanceof TokenMessage)) {
             // TODO What if other classes return another instance too?
@@ -81,7 +79,6 @@ public final class ChannelSecurityInterceptor extends AbstractSecurityIntercepto
         afterInvocation(token, null);
     }
 
-    @Override
     public void afterSendCompletion(Message<?> message, MessageChannel channel, boolean sent, Exception ex) {
         if(!(message instanceof TokenMessage)) {
             // TODO What if other classes return another instance too?
@@ -95,12 +92,10 @@ public final class ChannelSecurityInterceptor extends AbstractSecurityIntercepto
         return true;
     }
 
-    @Override
     public Message<?> postReceive(Message<?> message, MessageChannel channel) {
         return message;
     }
 
-    @Override
     public void afterReceiveCompletion(Message<?> message, MessageChannel channel, Exception ex) {
     }
 
@@ -117,12 +112,10 @@ public final class ChannelSecurityInterceptor extends AbstractSecurityIntercepto
             return token;
         }
 
-        @Override
         public MessageHeaders getHeaders() {
             return delegate.getHeaders();
         }
 
-        @Override
         public Object getPayload() {
             return delegate.getPayload();
         }

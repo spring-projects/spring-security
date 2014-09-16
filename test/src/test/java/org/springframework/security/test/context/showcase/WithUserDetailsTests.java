@@ -89,7 +89,6 @@ public class WithUserDetailsTests {
 
 	static class CustomUserDetailsService implements UserDetailsService {
 
-		@Override
 		public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
 			return new CustomUserDetails("name", username);
 		}

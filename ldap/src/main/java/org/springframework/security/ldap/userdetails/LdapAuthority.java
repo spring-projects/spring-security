@@ -114,7 +114,6 @@ public class LdapAuthority implements GrantedAuthority {
     /**
      * {@inheritDoc}
      */
-    @Override
     public String getAuthority() {
         return role;
     }

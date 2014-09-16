@@ -78,7 +78,6 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
         this(pattern, new AntPathMatcher());
     }
 
-    @Override
     public boolean matches(Message<? extends Object> message) {
         String destination = SimpMessageHeaderAccessor.getDestination(message.getHeaders());
         return destination != null && matcher.match(pattern, destination);

@@ -60,7 +60,6 @@ public class SecurityMockMvcRequestPostProcessorsDigestTests {
         entryPoint.setRealmName("Spring Security");
         filter = new DigestAuthenticationFilter();
         filter.setUserDetailsService(new UserDetailsService() {
-            @Override
             public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
                 return new User(username,password, AuthorityUtils.createAuthorityList("ROLE_USER"));
             }

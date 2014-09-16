@@ -95,7 +95,6 @@ public class SecurityEvaluationContextExtension extends EvaluationContextExtensi
         this.authentication = authentication;
     }
 
-    @Override
     public String getExtensionId() {
         return "security";
     }

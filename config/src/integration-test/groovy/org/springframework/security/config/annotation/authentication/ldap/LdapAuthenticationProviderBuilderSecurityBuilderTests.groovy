@@ -204,7 +204,7 @@ class LdapAuthenticationProviderBuilderSecurityBuilderTests extends BaseSpringSp
             auth.build()
         }
 
-        abstract protected void configure(AuthenticationManagerBuilder auth)
+        abstract protected void configure(AuthenticationManagerBuilder auth) throws Exception
     }
 
     static Integer port;

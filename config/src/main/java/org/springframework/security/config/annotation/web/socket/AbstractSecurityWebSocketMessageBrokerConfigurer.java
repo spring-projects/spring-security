@@ -62,7 +62,6 @@ import java.util.List;
 @Order(Ordered.HIGHEST_PRECEDENCE + 100)
 public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends AbstractWebSocketMessageBrokerConfigurer {
 
-    @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {}
 
     @Override

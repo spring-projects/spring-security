@@ -207,7 +207,6 @@ public final class SecurityMockMvcRequestPostProcessors {
             this.certificates = certificates;
         }
 
-        @Override
         public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
             request.setAttribute("javax.servlet.request.X509Certificate", certificates);
             return request;
@@ -340,7 +339,6 @@ public final class SecurityMockMvcRequestPostProcessors {
                     + "\", response=\"" + responseDigest + "\", qop=" + qop + ", nc=" + nc + ", cnonce=\"" + cnonce + "\"";
         }
 
-        @Override
         public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
 
             request.addHeader("Authorization",
@@ -465,7 +463,6 @@ public final class SecurityMockMvcRequestPostProcessors {
                 this.delegate = delegate;
             }
 
-            @Override
             public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
                 SecurityContext result = getContext(requestResponseHolder.getRequest());
                 // always load from the delegate to ensure the request/response in the holder are updated
@@ -474,13 +471,11 @@ public final class SecurityMockMvcRequestPostProcessors {
                 return result == null ? delegateResult : result;
             }
 
-            @Override
             public void saveContext(SecurityContext context, HttpServletRequest request, HttpServletResponse response) {
                 request.setAttribute(ATTR_NAME, context);
                 delegate.saveContext(context, request, response);
             }
 
-            @Override
             public boolean containsContext(HttpServletRequest request) {
                 return getContext(request) != null || delegate.containsContext(request);
             }

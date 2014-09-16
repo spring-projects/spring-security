@@ -62,7 +62,7 @@ public class MessageSecurityMetadataSourceRegistry {
      *                    from. Uses {@link MessageSecurityMetadataSourceRegistry#pathMatcher(PathMatcher)}.
      *
      * @return the {@link Constraint}  that is associated to the {@link MessageMatcher}
-     * @see {@link MessageSecurityMetadataSourceRegistry#pathMatcher(PathMatcher)} 
+     * @see {@link MessageSecurityMetadataSourceRegistry#pathMatcher(PathMatcher)}
      */
     public Constraint destinationMatchers(String... patterns) {
         List<MatcherBuilder> matchers = new ArrayList<MatcherBuilder>(patterns.length);
@@ -278,7 +278,6 @@ public class MessageSecurityMetadataSourceRegistry {
             this.matcher = matcher;
         }
 
-        @Override
         public MessageMatcher<?> build() {
             return matcher;
         }
@@ -291,7 +290,6 @@ public class MessageSecurityMetadataSourceRegistry {
             this.pattern = pattern;
         }
 
-        @Override
         public MessageMatcher<?> build() {
             return new SimpDestinationMessageMatcher(pattern, pathMatcher);
         }

@@ -465,7 +465,6 @@ public abstract class AbstractSecurityInterceptor implements InitializingBean, A
 
     private static class NoOpAuthenticationManager implements AuthenticationManager {
 
-        @Override
         public Authentication authenticate(Authentication authentication) throws AuthenticationException {
             throw new AuthenticationServiceException("Cannot authenticate " + authentication);
         }
