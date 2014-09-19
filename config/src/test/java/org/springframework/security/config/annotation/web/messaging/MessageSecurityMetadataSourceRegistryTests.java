@@ -61,7 +61,7 @@ public class MessageSecurityMetadataSourceRegistryTests {
                 .build();
         messages
                 .pathMatcher(new AntPathMatcher("."))
-                .destinationMatchers("price.stock.*").permitAll();
+                .antMatchers("price.stock.*").permitAll();
 
         assertThat(getAttribute()).isNull();
 
@@ -71,7 +71,7 @@ public class MessageSecurityMetadataSourceRegistryTests {
                 .build();
         messages
                 .pathMatcher(new AntPathMatcher("."))
-                .destinationMatchers("price.stock.**").permitAll();
+                .antMatchers("price.stock.**").permitAll();
 
         assertThat(getAttribute()).isEqualTo("permitAll");
     }
@@ -83,7 +83,7 @@ public class MessageSecurityMetadataSourceRegistryTests {
                 .setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "price.stock.1.2")
                 .build();
         messages
-                .destinationMatchers("price.stock.*").permitAll()
+                .antMatchers("price.stock.*").permitAll()
                 .pathMatcher(new AntPathMatcher("."));
 
         assertThat(getAttribute()).isNull();
@@ -93,7 +93,7 @@ public class MessageSecurityMetadataSourceRegistryTests {
                 .setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "price.stock.1.2")
                 .build();
         messages
-                .destinationMatchers("price.stock.**").permitAll()
+                .antMatchers("price.stock.**").permitAll()
                 .pathMatcher(new AntPathMatcher("."));
 
         assertThat(getAttribute()).isEqualTo("permitAll");
@@ -123,7 +123,7 @@ public class MessageSecurityMetadataSourceRegistryTests {
     @Test
     public void destinationMatcherExact() {
         messages
-                .destinationMatchers("location").permitAll();
+                .antMatchers("location").permitAll();
 
         assertThat(getAttribute()).isEqualTo("permitAll");
     }
@@ -131,8 +131,8 @@ public class MessageSecurityMetadataSourceRegistryTests {
     @Test
     public void destinationMatcherMulti() {
         messages
-                .destinationMatchers("admin/**","api/**").hasRole("ADMIN")
-                .destinationMatchers("location").permitAll();
+                .antMatchers("admin/**","api/**").hasRole("ADMIN")
+                .antMatchers("location").permitAll();
 
         assertThat(getAttribute()).isEqualTo("permitAll");
     }
@@ -140,7 +140,7 @@ public class MessageSecurityMetadataSourceRegistryTests {
     @Test
     public void destinationMatcherRole() {
         messages
-                .destinationMatchers("admin/**","location/**").hasRole("ADMIN")
+                .antMatchers("admin/**","location/**").hasRole("ADMIN")
                 .anyMessage().denyAll();
 
         assertThat(getAttribute()).isEqualTo("hasRole('ROLE_ADMIN')");
@@ -149,7 +149,7 @@ public class MessageSecurityMetadataSourceRegistryTests {
     @Test
     public void destinationMatcherAnyRole() {
         messages
-                .destinationMatchers("admin/**","location/**").hasAnyRole("ADMIN", "ROOT")
+                .antMatchers("admin/**","location/**").hasAnyRole("ADMIN", "ROOT")
                 .anyMessage().denyAll();
 
         assertThat(getAttribute()).isEqualTo("hasAnyRole('ROLE_ADMIN','ROLE_ROOT')");
@@ -158,7 +158,7 @@ public class MessageSecurityMetadataSourceRegistryTests {
     @Test
     public void destinationMatcherAuthority() {
         messages
-                .destinationMatchers("admin/**","location/**").hasAuthority("ROLE_ADMIN")
+                .antMatchers("admin/**","location/**").hasAuthority("ROLE_ADMIN")
                 .anyMessage().fullyAuthenticated();
 
         assertThat(getAttribute()).isEqualTo("hasAuthority('ROLE_ADMIN')");
@@ -168,7 +168,7 @@ public class MessageSecurityMetadataSourceRegistryTests {
     public void destinationMatcherAccess() {
         String expected = "hasRole('ROLE_ADMIN') and fullyAuthenticated";
         messages
-                .destinationMatchers("admin/**","location/**").access(expected)
+                .antMatchers("admin/**","location/**").access(expected)
                 .anyMessage().denyAll();
 
         assertThat(getAttribute()).isEqualTo(expected);
@@ -177,7 +177,7 @@ public class MessageSecurityMetadataSourceRegistryTests {
     @Test
     public void destinationMatcherAnyAuthority() {
         messages
-                .destinationMatchers("admin/**","location/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_ROOT")
+                .antMatchers("admin/**","location/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_ROOT")
                 .anyMessage().denyAll();
 
         assertThat(getAttribute()).isEqualTo("hasAnyAuthority('ROLE_ADMIN','ROLE_ROOT')");
@@ -186,7 +186,7 @@ public class MessageSecurityMetadataSourceRegistryTests {
     @Test
     public void destinationMatcherRememberMe() {
         messages
-                .destinationMatchers("admin/**","location/**").rememberMe()
+                .antMatchers("admin/**","location/**").rememberMe()
                 .anyMessage().denyAll();
 
         assertThat(getAttribute()).isEqualTo("rememberMe");
@@ -195,7 +195,7 @@ public class MessageSecurityMetadataSourceRegistryTests {
     @Test
     public void destinationMatcherAnonymous() {
         messages
-                .destinationMatchers("admin/**","location/**").anonymous()
+                .antMatchers("admin/**","location/**").anonymous()
                 .anyMessage().denyAll();
 
         assertThat(getAttribute()).isEqualTo("anonymous");
@@ -204,7 +204,7 @@ public class MessageSecurityMetadataSourceRegistryTests {
     @Test
     public void destinationMatcherFullyAuthenticated() {
         messages
-                .destinationMatchers("admin/**","location/**").fullyAuthenticated()
+                .antMatchers("admin/**","location/**").fullyAuthenticated()
                 .anyMessage().denyAll();
 
         assertThat(getAttribute()).isEqualTo("fullyAuthenticated");
@@ -213,7 +213,7 @@ public class MessageSecurityMetadataSourceRegistryTests {
     @Test
     public void destinationMatcherDenyAll() {
         messages
-                .destinationMatchers("admin/**","location/**").denyAll()
+                .antMatchers("admin/**","location/**").denyAll()
                 .anyMessage().permitAll();
 
         assertThat(getAttribute()).isEqualTo("denyAll");

@@ -18,6 +18,7 @@ package org.springframework.security.messaging.util.matcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.support.MessageBuilder;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -68,4 +69,35 @@ public class SimpDestinationMessageMatcherTests {
 
         assertThat(matcher.matches(messageBuilder.build())).isFalse();
     }
+
+    @Test
+    public void matchesFalseMessageTypeNotDisconnectType() throws Exception {
+        matcher = new SimpDestinationMessageMatcher("/match", SimpMessageType.MESSAGE);
+
+        messageBuilder.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.DISCONNECT);
+
+        assertThat(matcher.matches(messageBuilder.build())).isFalse();
+    }
+
+    @Test
+    public void matchesTrueMessageType() throws Exception {
+        matcher = new SimpDestinationMessageMatcher("/match", SimpMessageType.MESSAGE);
+
+        messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER,"/match");
+        messageBuilder.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.MESSAGE);
+
+        assertThat(matcher.matches(messageBuilder.build())).isTrue();
+    }
+
+    @Test
+    public void matchesNullMessageType() throws Exception {
+        matcher = new SimpDestinationMessageMatcher("/match", null);
+
+        messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER,"/match");
+        messageBuilder.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.MESSAGE);
+
+        assertThat(matcher.matches(messageBuilder.build())).isTrue();
+    }
+
+
 }

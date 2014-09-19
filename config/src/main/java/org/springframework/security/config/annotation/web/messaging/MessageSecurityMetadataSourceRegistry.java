@@ -16,11 +16,13 @@
 package org.springframework.security.config.annotation.web.messaging;
 
 import org.springframework.messaging.Message;
+import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.security.config.annotation.web.configurers.RememberMeConfigurer;
 import org.springframework.security.messaging.access.expression.ExpressionBasedMessageSecurityMetadataSourceFactory;
 import org.springframework.security.messaging.access.intercept.MessageSecurityMetadataSource;
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
 import org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher;
+import org.springframework.security.messaging.util.matcher.SimpMessageTypeMatcher;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.PathMatcher;
@@ -56,24 +58,62 @@ public class MessageSecurityMetadataSourceRegistry {
     }
 
     /**
-     * Maps a {@link List} of {@link org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher} instances.
+     * Maps a {@link List} of {@link SimpDestinationMessageMatcher} instances.
      *
+     * @param typesToMatch the {@link SimpMessageType} instance to match on
+     * @return the {@link Constraint} associated to the matchers.
+     */
+    public Constraint typeMatchers(SimpMessageType... typesToMatch) {
+        MessageMatcher<?>[] typeMatchers = new MessageMatcher<?>[typesToMatch.length];
+        for (int i = 0; i < typesToMatch.length; i++) {
+            SimpMessageType typeToMatch = typesToMatch[i];
+            typeMatchers[i] = new SimpMessageTypeMatcher(typeToMatch);
+        }
+        return matchers(typeMatchers);
+    }
+
+    /**
+     * Maps a {@link List} of {@link SimpDestinationMessageMatcher} instances
+     * without regard to the {@link SimpMessageType}. If no destination is found
+     * on the Message, then the Matcher returns false.
+     *
+     * @param patterns
+     *            the patterns to create
+     *            {@link org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher}
+     *            from. Uses
+     *            {@link MessageSecurityMetadataSourceRegistry#pathMatcher(PathMatcher)}
+     *            .
+     *
+     * @return the {@link Constraint} that is associated to the
+     *         {@link MessageMatcher}
+     * @see {@link MessageSecurityMetadataSourceRegistry#pathMatcher(PathMatcher)}
+     */
+    public Constraint antMatchers(String... patterns) {
+        return antMatchers(null, patterns);
+    }
+
+    /**
+     * Maps a {@link List} of {@link SimpDestinationMessageMatcher} instances.
+     * If no destination is found on the Message, then the Matcher returns
+     * false.
+     *
+     * @param type the {@link SimpMessageType} to match on. If null, the {@link SimpMessageType} is not considered for matching.
      * @param patterns the patterns to create {@link org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher}
      *                    from. Uses {@link MessageSecurityMetadataSourceRegistry#pathMatcher(PathMatcher)}.
      *
      * @return the {@link Constraint}  that is associated to the {@link MessageMatcher}
      * @see {@link MessageSecurityMetadataSourceRegistry#pathMatcher(PathMatcher)}
      */
-    public Constraint destinationMatchers(String... patterns) {
+    public Constraint antMatchers(SimpMessageType type, String... patterns) {
         List<MatcherBuilder> matchers = new ArrayList<MatcherBuilder>(patterns.length);
         for(String pattern : patterns) {
-            matchers.add(new PathMatcherMessageMatcherBuilder(pattern));
+            matchers.add(new PathMatcherMessageMatcherBuilder(pattern, type));
         }
         return new Constraint(matchers);
     }
 
     /**
-     * The {@link PathMatcher} to be used with the {@link MessageSecurityMetadataSourceRegistry#destinationMatchers(String...)}.
+     * The {@link PathMatcher} to be used with the {@link MessageSecurityMetadataSourceRegistry#antMatchers(String...)}.
      * The default is to use the default constructor of {@link AntPathMatcher}.
      *
      * @param pathMatcher the {@link PathMatcher} to use. Cannot be null.
@@ -115,17 +155,28 @@ public class MessageSecurityMetadataSourceRegistry {
     }
 
     /**
+     * Allows determining if a mapping was added.
+     *
+     * <p>This is not exposed so as not to confuse users of the API, which should never need to invoke this method.</p>
+     *
+     * @return true if a mapping was added, else false
+     */
+    protected boolean containsMapping() {
+        return !this.matcherToExpression.isEmpty();
+    }
+
+    /**
      * Represents the security constraint to be applied to the {@link MessageMatcher} instances.
      */
     public class Constraint {
-        private final List<MatcherBuilder> messageMatchers;
+        private final List<? extends MatcherBuilder> messageMatchers;
 
         /**
          * Creates a new instance
          *
          * @param messageMatchers the {@link MessageMatcher} instances to map to this constraint
          */
-        private Constraint(List<MatcherBuilder> messageMatchers) {
+        private Constraint(List<? extends MatcherBuilder> messageMatchers) {
             Assert.notEmpty(messageMatchers, "messageMatchers cannot be null or empty");
             this.messageMatchers = messageMatchers;
         }
@@ -285,13 +336,15 @@ public class MessageSecurityMetadataSourceRegistry {
 
     private class PathMatcherMessageMatcherBuilder implements MatcherBuilder {
         private final String pattern;
+        private final SimpMessageType type;
 
-        private PathMatcherMessageMatcherBuilder(String pattern) {
+        private PathMatcherMessageMatcherBuilder(String pattern, SimpMessageType type) {
             this.pattern = pattern;
+            this.type = type;
         }
 
         public MessageMatcher<?> build() {
-            return new SimpDestinationMessageMatcher(pattern, pathMatcher);
+            return new SimpDestinationMessageMatcher(pattern, type, pathMatcher);
         }
     }
 
