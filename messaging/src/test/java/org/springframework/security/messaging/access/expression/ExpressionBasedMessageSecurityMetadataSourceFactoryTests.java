@@ -16,9 +16,6 @@
 package org.springframework.security.messaging.access.expression;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.when;
 import static org.springframework.security.messaging.access.expression.ExpressionBasedMessageSecurityMetadataSourceFactory.*;
 
@@ -39,11 +36,11 @@ import java.util.LinkedHashMap;
 @RunWith(MockitoJUnitRunner.class)
 public class ExpressionBasedMessageSecurityMetadataSourceFactoryTests {
     @Mock
-    MessageMatcher matcher1;
+    MessageMatcher<Object> matcher1;
     @Mock
-    MessageMatcher matcher2;
+    MessageMatcher<Object> matcher2;
     @Mock
-    Message message;
+    Message<Object> message;
     @Mock
     Authentication authentication;
 
