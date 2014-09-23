@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.bind.support;
+package org.springframework.security.web.method.annotation;
 
 import java.lang.annotation.Annotation;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -37,10 +37,9 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * <pre>
  * @Controller
  * public class MyController {
- *     @RequestMapping("/user/current/show")
- *     public String show(@AuthenticationPrincipal CustomUser customUser) {
+ *     @MessageMapping("/im")
+ *     public void im(@AuthenticationPrincipal CustomUser customUser) {
  *         // do something with CustomUser
- *         return "view";
  *     }
  * </pre>
  *
@@ -72,21 +71,18 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * <pre>
  * @Controller
  * public class MyController {
- *     @RequestMapping("/user/current/show")
- *     public String show(@CurrentUser CustomUser customUser) {
+ *     @MessageMapping("/im")
+ *     public void im(@CurrentUser CustomUser customUser) {
  *         // do something with CustomUser
- *         return "view";
  *     }
  * </pre>
  *
- * @deprecated use org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver
- *
  * @author Rob Winch
- * @since 3.2
+ * @since 4.0
  */
-@Deprecated
 public final class AuthenticationPrincipalArgumentResolver implements
     HandlerMethodArgumentResolver {
+
 
     /* (non-Javadoc)
      * @see org.springframework.web.method.support.HandlerMethodArgumentResolver#supportsParameter(org.springframework.core.MethodParameter)

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.bind.support;
+package org.springframework.security.web.method.annotation;
 
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -29,18 +29,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
 import org.springframework.util.ReflectionUtils;
 
 /**
  * @author Rob Winch
  *
  */
-@SuppressWarnings("deprecation")
 public class AuthenticationPrincipalArgumentResolverTests {
     private Object expectedPrincipal;
     private AuthenticationPrincipalArgumentResolver resolver;

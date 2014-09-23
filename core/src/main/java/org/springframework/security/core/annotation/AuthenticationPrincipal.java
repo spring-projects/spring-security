@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.bind.annotation;
+package org.springframework.security.core.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -24,15 +24,13 @@ import java.lang.annotation.Target;
 import org.springframework.security.core.Authentication;
 
 /**
- * Annotation that binds a method parameter or method return value to the
- * {@link Authentication#getPrincipal()}. This is necessary to signal that the
- * argument should be resolved to the current user rather than a user that might
- * be edited on a form.
- *
- * @deprecated Use org.springframework.security.core.annotation.AuthenticationPrincipal instead
+ * Annotation that is used to resolve
+ * {@link Authentication#getPrincipal()} to a method argument.
  *
  * @author Rob Winch
- * @since 3.2
+ * @since 4.0
+ *
+ * @see AuthenticationPrincipalArgumentResolver
  */
 @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
@@ -48,3 +46,4 @@ public @interface AuthenticationPrincipal {
      */
     boolean errorOnInvalidType() default false;
 }
+

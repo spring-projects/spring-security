@@ -19,7 +19,6 @@ import org.springframework.security.config.BeanIds;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.ConfigurableMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcConfigurerAdapter;
-import org.springframework.util.Assert;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.servlet.Filter;

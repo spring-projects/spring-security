@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.bind.support;
+package org.springframework.security.messaging.context;
 
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -29,18 +29,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
 import org.springframework.util.ReflectionUtils;
 
 /**
  * @author Rob Winch
  *
  */
-@SuppressWarnings("deprecation")
 public class AuthenticationPrincipalArgumentResolverTests {
     private Object expectedPrincipal;
     private AuthenticationPrincipalArgumentResolver resolver;
@@ -72,68 +71,68 @@ public class AuthenticationPrincipalArgumentResolverTests {
 
     @Test
     public void resolveArgumentNullAuthentication() throws Exception {
-        assertThat(resolver.resolveArgument(showUserAnnotationString(), null, null, null)).isNull();
+        assertThat(resolver.resolveArgument(showUserAnnotationString(), null)).isNull();
     }
 
     @Test
     public void resolveArgumentNullPrincipal() throws Exception {
         setAuthenticationPrincipal(null);
-        assertThat(resolver.resolveArgument(showUserAnnotationString(), null, null, null)).isNull();
+        assertThat(resolver.resolveArgument(showUserAnnotationString(), null)).isNull();
     }
 
     @Test
     public void resolveArgumentString() throws Exception {
         setAuthenticationPrincipal("john");
-        assertThat(resolver.resolveArgument(showUserAnnotationString(), null, null, null)).isEqualTo(expectedPrincipal);
+        assertThat(resolver.resolveArgument(showUserAnnotationString(), null)).isEqualTo(expectedPrincipal);
     }
 
     @Test
     public void resolveArgumentPrincipalStringOnObject() throws Exception {
         setAuthenticationPrincipal("john");
-        assertThat(resolver.resolveArgument(showUserAnnotationObject(), null, null, null)).isEqualTo(expectedPrincipal);
+        assertThat(resolver.resolveArgument(showUserAnnotationObject(), null)).isEqualTo(expectedPrincipal);
     }
 
     @Test
     public void resolveArgumentUserDetails() throws Exception {
         setAuthenticationPrincipal(new User("user", "password", AuthorityUtils.createAuthorityList("ROLE_USER")));
-        assertThat(resolver.resolveArgument(showUserAnnotationUserDetails(), null, null, null)).isEqualTo(expectedPrincipal);
+        assertThat(resolver.resolveArgument(showUserAnnotationUserDetails(), null)).isEqualTo(expectedPrincipal);
     }
 
     @Test
     public void resolveArgumentCustomUserPrincipal() throws Exception {
         setAuthenticationPrincipal(new CustomUserPrincipal());
-        assertThat(resolver.resolveArgument(showUserAnnotationCustomUserPrincipal(), null, null, null)).isEqualTo(expectedPrincipal);
+        assertThat(resolver.resolveArgument(showUserAnnotationCustomUserPrincipal(), null)).isEqualTo(expectedPrincipal);
     }
 
     @Test
     public void resolveArgumentCustomAnnotation() throws Exception {
         setAuthenticationPrincipal(new CustomUserPrincipal());
-        assertThat(resolver.resolveArgument(showUserCustomAnnotation(), null, null, null)).isEqualTo(expectedPrincipal);
+        assertThat(resolver.resolveArgument(showUserCustomAnnotation(), null)).isEqualTo(expectedPrincipal);
     }
 
     @Test
     public void resolveArgumentNullOnInvalidType() throws Exception {
         setAuthenticationPrincipal(new CustomUserPrincipal());
-        assertThat(resolver.resolveArgument(showUserAnnotationString(), null, null, null)).isNull();
+        assertThat(resolver.resolveArgument(showUserAnnotationString(), null)).isNull();
     }
 
     @Test(expected = ClassCastException.class)
     public void resolveArgumentErrorOnInvalidType() throws Exception {
         setAuthenticationPrincipal(new CustomUserPrincipal());
-        resolver.resolveArgument(showUserAnnotationErrorOnInvalidType(), null, null, null);
+        resolver.resolveArgument(showUserAnnotationErrorOnInvalidType(), null);
     }
 
 
     @Test(expected = ClassCastException.class)
     public void resolveArgumentCustomserErrorOnInvalidType() throws Exception {
         setAuthenticationPrincipal(new CustomUserPrincipal());
-        resolver.resolveArgument(showUserAnnotationCurrentUserErrorOnInvalidType(), null, null, null);
+        resolver.resolveArgument(showUserAnnotationCurrentUserErrorOnInvalidType(), null);
     }
 
     @Test
     public void resolveArgumentObject() throws Exception {
         setAuthenticationPrincipal(new Object());
-        assertThat(resolver.resolveArgument(showUserAnnotationObject(), null, null, null)).isEqualTo(expectedPrincipal);
+        assertThat(resolver.resolveArgument(showUserAnnotationObject(), null)).isEqualTo(expectedPrincipal);
     }
 
     private MethodParameter showUserNoAnnotation() {

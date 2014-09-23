@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.web.socket;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.vote.AffirmativeBased;
@@ -25,6 +26,7 @@ import org.springframework.security.config.annotation.web.messaging.MessageSecur
 import org.springframework.security.messaging.access.expression.MessageExpressionVoter;
 import org.springframework.security.messaging.access.intercept.ChannelSecurityInterceptor;
 import org.springframework.security.messaging.access.intercept.MessageSecurityMetadataSource;
+import org.springframework.security.messaging.context.AuthenticationPrincipalArgumentResolver;
 import org.springframework.security.messaging.context.SecurityContextChannelInterceptor;
 import org.springframework.web.socket.config.annotation.AbstractWebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -61,6 +63,13 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
     private final WebSocketMessageSecurityMetadataSourceRegistry outboundRegistry = new WebSocketMessageSecurityMetadataSourceRegistry();
 
     public final void registerStompEndpoints(StompEndpointRegistry registry) {}
+
+    @Override
+    public void addArgumentResolvers(
+            List<HandlerMethodArgumentResolver> argumentResolvers) {
+        argumentResolvers.add(new AuthenticationPrincipalArgumentResolver());
+    }
+
 
     @Override
     public final void configureClientInboundChannel(ChannelRegistration registration) {

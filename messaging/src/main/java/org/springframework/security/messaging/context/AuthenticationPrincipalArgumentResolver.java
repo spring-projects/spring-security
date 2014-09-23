@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.bind.support;
+package org.springframework.security.messaging.context;
 
 import java.lang.annotation.Annotation;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.support.WebDataBinderFactory;
-import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.method.support.ModelAndViewContainer;
 
 
 /**
@@ -37,10 +35,9 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * <pre>
  * @Controller
  * public class MyController {
- *     @RequestMapping("/user/current/show")
- *     public String show(@AuthenticationPrincipal CustomUser customUser) {
+ *     @MessageMapping("/im")
+ *     public void im(@AuthenticationPrincipal CustomUser customUser) {
  *         // do something with CustomUser
- *         return "view";
  *     }
  * </pre>
  *
@@ -72,35 +69,31 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * <pre>
  * @Controller
  * public class MyController {
- *     @RequestMapping("/user/current/show")
- *     public String show(@CurrentUser CustomUser customUser) {
+ *     @MessageMapping("/im")
+ *     public void im(@CurrentUser CustomUser customUser) {
  *         // do something with CustomUser
- *         return "view";
  *     }
  * </pre>
  *
- * @deprecated use org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver
- *
  * @author Rob Winch
- * @since 3.2
+ * @since 4.0
  */
-@Deprecated
 public final class AuthenticationPrincipalArgumentResolver implements
     HandlerMethodArgumentResolver {
 
-    /* (non-Javadoc)
-     * @see org.springframework.web.method.support.HandlerMethodArgumentResolver#supportsParameter(org.springframework.core.MethodParameter)
+    /*
+     * (non-Javadoc)
+     * @see org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver#supportsParameter(org.springframework.core.MethodParameter)
      */
     public boolean supportsParameter(MethodParameter parameter) {
         return findMethodAnnotation(AuthenticationPrincipal.class, parameter) != null;
     }
 
-    /* (non-Javadoc)
-     * @see org.springframework.web.method.support.HandlerMethodArgumentResolver#resolveArgument(org.springframework.core.MethodParameter, org.springframework.web.method.support.ModelAndViewContainer, org.springframework.web.context.request.NativeWebRequest, org.springframework.web.bind.support.WebDataBinderFactory)
+    /*
+     * (non-Javadoc)
+     * @see org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver#resolveArgument(org.springframework.core.MethodParameter, org.springframework.messaging.Message)
      */
-    public Object resolveArgument(MethodParameter parameter,
-            ModelAndViewContainer mavContainer, NativeWebRequest webRequest,
-            WebDataBinderFactory binderFactory) throws Exception {
+    public Object resolveArgument(MethodParameter parameter, Message<?> message) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(authentication == null) {
             return null;

@@ -23,7 +23,7 @@ public class SpringSecurityCoreVersion {
      */
     public static final long SERIAL_VERSION_UID = 400L;
 
-    static final String MIN_SPRING_VERSION = "4.1.0.RC2";
+    static final String MIN_SPRING_VERSION = "4.1.1.BUILD-SNAPSHOT";
 
     static {
         performVersionChecks();
