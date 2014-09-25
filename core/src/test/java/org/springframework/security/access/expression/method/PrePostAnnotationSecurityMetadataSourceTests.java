@@ -37,6 +37,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
     private MockMethodInvocation annotatedAtClassLevel;
     private MockMethodInvocation annotatedAtInterfaceLevel;
     private MockMethodInvocation annotatedAtMethodLevel;
+    private MockMethodInvocation annotatedAtTargetClassLevel;
 
     @Before
     public void setUpData() throws Exception {
@@ -49,6 +50,7 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
         annotatedAtClassLevel = new MockMethodInvocation(new CustomAnnotationAtClassLevel(), ReturnVoid.class, "doSomething", List.class);
         annotatedAtInterfaceLevel = new MockMethodInvocation(new CustomAnnotationAtInterfaceLevel(), ReturnVoid2.class, "doSomething", List.class);
         annotatedAtMethodLevel = new MockMethodInvocation(new CustomAnnotationAtMethodLevel(), ReturnVoid.class, "doSomething", List.class);
+        annotatedAtTargetClassLevel = new MockMethodInvocation(new CustomAnnotationAtTargetClassLevel(), ReturnVoid.class, "doSomething", List.class);
     }
 
     @Test
@@ -148,6 +150,13 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
         assertEquals(1, attrs.length);
     }
 
+    @Test
+    public void customAnnotationAtTargetMethodLevelIsDetected() throws Exception {
+        ConfigAttribute[] attrs = mds.getAttributes(annotatedAtTargetClassLevel).toArray(new ConfigAttribute[0]);
+
+        assertEquals(1, attrs.length);
+    }
+
     //~ Inner Classes ==================================================================================================
 
     public static interface ReturnVoid {
@@ -218,6 +227,17 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
     @CustomAnnotation
     public static class CustomAnnotationAtClassLevel implements ReturnVoid {
         public void doSomething(List<?> param) {}
+    }
+
+    public static class ReturnVoidImplWithoutAnnotation implements ReturnVoid {
+        @Override
+        public void doSomething(List<?> param) {
+
+        }
+    }
+
+    @CustomAnnotation
+    public static class CustomAnnotationAtTargetClassLevel extends ReturnVoidImplWithoutAnnotation {
     }
 
     public static class CustomAnnotationAtInterfaceLevel implements ReturnVoid2 {
