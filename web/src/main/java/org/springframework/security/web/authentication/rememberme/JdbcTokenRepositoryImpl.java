@@ -71,7 +71,7 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
     }
 
     public void updateToken(String series, String tokenValue, Date lastUsed) {
-        getJdbcTemplate().update(updateTokenSql, tokenValue, new Date(), series);
+        getJdbcTemplate().update(updateTokenSql, tokenValue, lastUsed, series);
     }
 
     /**
