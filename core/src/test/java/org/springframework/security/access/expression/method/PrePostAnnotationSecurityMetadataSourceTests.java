@@ -1,23 +1,31 @@
 package org.springframework.security.access.expression.method;
 
-import static org.junit.Assert.*;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.expression.Expression;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.annotation.sec2150.MethodInvocationFactory;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.access.prepost.PrePostAnnotationSecurityMetadataSource;
+import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  *
@@ -146,6 +154,15 @@ public class PrePostAnnotationSecurityMetadataSourceTests {
         ConfigAttribute[] attrs = mds.getAttributes(annotatedAtMethodLevel).toArray(new ConfigAttribute[0]);
 
         assertEquals(1, attrs.length);
+    }
+
+    @Test
+    public void proxyFactoryInterfaceAttributesFound() throws Exception {
+        MockMethodInvocation mi = MethodInvocationFactory.createSec2150MethodInvocation();
+        Collection<ConfigAttribute> attributes = mds.getAttributes(mi);
+        assertThat(attributes.size()).isEqualTo(1);
+        Expression expression = (Expression) ReflectionTestUtils.getField(attributes.iterator().next(),"authorizeExpression");
+        assertThat(expression.getExpressionString()).isEqualTo("hasRole('ROLE_PERSON')");
     }
 
     //~ Inner Classes ==================================================================================================

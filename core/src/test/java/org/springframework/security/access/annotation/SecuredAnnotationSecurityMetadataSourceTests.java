@@ -14,13 +14,11 @@
  */
 package org.springframework.security.access.annotation;
 
-import static org.junit.Assert.*;
-
-import org.junit.*;
-import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.access.intercept.method.MockMethodInvocation;
-import org.springframework.security.core.GrantedAuthority;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -28,7 +26,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.List;
+
+import org.junit.Test;
+import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.access.annotation.sec2150.MethodInvocationFactory;
+import org.springframework.security.access.intercept.method.MockMethodInvocation;
+import org.springframework.security.core.GrantedAuthority;
 
 
 /**
@@ -178,6 +186,14 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
         assertEquals("CUSTOM", attrs[0].getAttribute());
     }
 
+    @Test
+    public void proxyFactoryInterfaceAttributesFound() throws Exception {
+        MockMethodInvocation mi = MethodInvocationFactory.createSec2150MethodInvocation();
+        Collection<ConfigAttribute> attributes = mds.getAttributes(mi);
+        assertThat(attributes.size()).isEqualTo(1);
+        assertThat(attributes).onProperty("attribute").containsOnly("ROLE_PERSON");
+    }
+
     // Inner classes
     class Department extends Entity {
         public Department(String name) {
@@ -190,6 +206,7 @@ public class SecuredAnnotationSecurityMetadataSourceTests {
         Department someUserMethod3(Department dept);
     }
 
+    @SuppressWarnings("serial")
     class DepartmentServiceImpl extends BusinessServiceImpl<Department> implements DepartmentService {
         @Secured({"ROLE_ADMIN"})
         public Department someUserMethod3(final Department dept) {
