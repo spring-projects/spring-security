@@ -60,7 +60,6 @@ import java.util.List;
 @Order(Ordered.HIGHEST_PRECEDENCE + 100)
 public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends AbstractWebSocketMessageBrokerConfigurer {
     private final WebSocketMessageSecurityMetadataSourceRegistry inboundRegistry = new WebSocketMessageSecurityMetadataSourceRegistry();
-    private final WebSocketMessageSecurityMetadataSourceRegistry outboundRegistry = new WebSocketMessageSecurityMetadataSourceRegistry();
 
     public final void registerStompEndpoints(StompEndpointRegistry registry) {}
 
@@ -79,27 +78,9 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
         }
     }
 
-    @Override
-    public final void configureClientOutboundChannel(ChannelRegistration registration) {
-        ChannelSecurityInterceptor outboundChannelSecurity = outboundChannelSecurity();
-        if(outboundRegistry.containsMapping()) {
-            registration.setInterceptors(securityContextChannelInterceptor(),outboundChannelSecurity);
-        }
-    }
-
     @Bean
     public ChannelSecurityInterceptor inboundChannelSecurity() {
         ChannelSecurityInterceptor channelSecurityInterceptor = new ChannelSecurityInterceptor(inboundMessageSecurityMetadataSource());
-        List<AccessDecisionVoter> voters = new ArrayList<AccessDecisionVoter>();
-        voters.add(new MessageExpressionVoter());
-        AffirmativeBased manager = new AffirmativeBased(voters);
-        channelSecurityInterceptor.setAccessDecisionManager(manager);
-        return channelSecurityInterceptor;
-    }
-
-    @Bean
-    public ChannelSecurityInterceptor outboundChannelSecurity() {
-        ChannelSecurityInterceptor channelSecurityInterceptor = new ChannelSecurityInterceptor(outboundMessageSecurityMetadataSource());
         List<AccessDecisionVoter> voters = new ArrayList<AccessDecisionVoter>();
         voters.add(new MessageExpressionVoter());
         AffirmativeBased manager = new AffirmativeBased(voters);
@@ -118,23 +99,11 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
         return inboundRegistry.createMetadataSource();
     }
 
-    @Bean
-    public MessageSecurityMetadataSource outboundMessageSecurityMetadataSource() {
-        configureOutbound(outboundRegistry);
-        return outboundRegistry.createMetadataSource();
-    }
-
     /**
      *
      * @param messages
      */
     protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {}
-
-    /**
-     *
-     * @param messages
-     */
-    protected void configureOutbound(MessageSecurityMetadataSourceRegistry messages) {}
 
     private class WebSocketMessageSecurityMetadataSourceRegistry extends MessageSecurityMetadataSourceRegistry {
         @Override
