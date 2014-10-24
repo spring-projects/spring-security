@@ -1,0 +1,11 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.bmuschko:gradle-cargo-plugin:2.0.1'
+    }
+}
+
+apply plugin: 'com.bmuschko.cargo'
