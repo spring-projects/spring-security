@@ -4,8 +4,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.bmuschko:gradle-cargo-plugin:2.0.1'
+        classpath 'org.gradle.api.plugins:gradle-cargo-plugin:1.5.2'
     }
 }
 
-apply plugin: 'com.bmuschko.cargo'
+apply plugin: org.gradle.api.plugins.cargo.CargoPlugin
