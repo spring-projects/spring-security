@@ -9,3 +9,36 @@ buildscript {
 }
 
 apply plugin: org.gradle.api.plugins.cargo.CargoPlugin
+
+cargo {
+    containerId = 'tomcat7x'
+
+    local {
+        homeDir = file(project.tomcat_home)
+        jvmArgs = '-javaagent:' + project.contrast_agent + '=' + project.contrast_config
+    }
+}
+
+task integrationTomcatRun(type: org.gradle.api.plugins.cargo.tasks.local.CargoStartLocal) {
+    onlyIf { !sourceSets.integrationTest.allSource.empty }
+
+    contextPath = cargoStartLocal.deployables[0].context
+}
+
+task integrationTomcatStop(type: org.gradle.api.plugins.cargo.tasks.local.CargoStopLocal) {
+    onlyIf { !sourceSets.integrationTest.allSource.empty }
+    doFirst {
+    }
+}
+
+integrationTest {
+    dependsOn integrationTomcatRun
+    doFirst {
+        // TODO: The port should be dynamic, like in the Tomcat Integration Tests
+        def host = 'localhost:8080'
+        // TODO: Need to retrieve the context path from Cargo, somehow - not quite sure how to get at this
+        systemProperties['geb.build.baseUrl'] = 'http://'+host+'/sample-4.0.0.CI-SNAPSHOT/'
+        systemProperties['geb.build.reportsDir'] = 'build/geb-reports'
+    }
+    finalizedBy integrationTomcatStop
+}
