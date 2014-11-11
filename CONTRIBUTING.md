@@ -6,6 +6,18 @@ _Please refer back to this document as a checklist before issuing any pull reque
 
 Each Spring module is slightly different than another in terms of team size, number of issues, etc. Therefore each project is managed slightly different. You will notice that this document is very similar to the [Spring Framework Contributor guidelines](https://github.com/SpringSource/spring-framework/wiki/Contributor-guidelines). However, there are some subtle differences between the two documents, so please be sure to read this document thoroughly.
 
+# Importing into IDE
+
+The following provides information on setting up a development environment that can run the sample in [Spring Tool Suite 3.6.0+](http://www.springsource.org/sts). Other IDE's should work using Gradle's IDE support, but have not been tested.
+
+* IDE Setup
+  * Install Spring Tool Suite 3.6.0+
+  * You will need the following plugins installed (can be found on the Extensions Page)
+   	* Gradle Eclipse
+   	* Groovy Eclipse
+* Importing the project into Spring Tool Suite
+  * File->Import...->Gradle Project
+
 # Understand the basics 
 Not sure what a pull request is, or how to submit one? Take a look at GitHub's excellent [help documentation first](https://help.github.com/articles/using-pull-requests).
 
