@@ -22,6 +22,15 @@ cargo {
 task integrationTomcatRun(type: org.gradle.api.plugins.cargo.tasks.local.CargoStartLocal) {
     onlyIf { !sourceSets.integrationTest.allSource.empty }
 
+    if (new File(project.contrast_config).exists()) {
+        println("Configuring Contrast API")
+        def contrast_config = new XmlSlurper().parse(new File(project.contrast_config))
+        def contrast_username = contrast_config.user.id
+        def contrast_servicekey = contrast_config.user.key
+        def contrast_apikey = contrast_config."global-key"
+        println("Configured for " + contrast_username + " / " + contrast_servicekey + " / " + contrast_apikey)
+    }
+
     contextPath = cargoStartLocal.deployables[0].context
 }
 
@@ -39,6 +48,13 @@ integrationTest {
         // TODO: Need to retrieve the context path from Cargo, somehow - not quite sure how to get at this
         systemProperties['geb.build.baseUrl'] = 'http://'+host+'/sample-4.0.0.CI-SNAPSHOT/'
         systemProperties['geb.build.reportsDir'] = 'build/geb-reports'
+
+        // If there is a contrast.config but no agent, download the agent from the API
+        if (new File(project.contrast_config).exists()) {
+            if (!new File(project.contrast_agent).exists()) {
+                dependsOn downloadContrastAgent
+            }
+        }
     }
     finalizedBy integrationTomcatStop
 }

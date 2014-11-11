@@ -1,0 +1,33 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'de.undercouch:gradle-download-task:1.1'
+    }
+}
+
+
+task downloadContrastAgent(type: de.undercouch.gradle.tasks.download.Download) {
+    doFirst {
+        if (new File(project.contrast_config).exists()) {
+            println("Configuring Contrast API")
+            def contrast_config = new XmlSlurper().parse(new File(project.contrast_config))
+            def contrast_username = contrast_config.user.id
+            def contrast_servicekey = contrast_config.user.key
+            def contrast_apikey = contrast_config."global-key"
+            println("Configured for " + contrast_username)
+        }
+    }
+
+    src 'https://app.contrastsecurity.com/Contrast/api/engine/download/java'
+    dest project.contrast_agent
+
+    headers = {[
+            "Authorization": (downloadContrastAgent.contrast_username + ':' + downloadContrastAgent.contrast_servicekey).bytes.encodeBase64().toString(),
+            "API-Key": downloadContrastAgent.contrast_apikey,
+            "Accept": 'application/json'
+    ]}
+
+    println(headers)
+}
