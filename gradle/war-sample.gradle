@@ -1,6 +1,5 @@
 apply plugin: 'war'
 apply from: CARGO_GRADLE
-apply from: CONTRAST_GRADLE
 
 war {
     baseName = "sample"

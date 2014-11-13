@@ -12,11 +12,12 @@ apply plugin: de.undercouch.gradle.tasks.download.DownloadTaskPlugin
 import de.undercouch.gradle.tasks.download.Download
 
 task downloadContrastAgent(type: Download) {
-    if (project.contrast_enable) {
+    onlyIf { project.contrast_enable }
+    logging.captureStandardOutput LogLevel.QUIET
+
+    doFirst {
         println("Configuring Contrast")
 
-        if (! new File(System.getProperty("java.io.tmpdir") + "/contrast.jar").exists()) {
-            if (new File(project.contrast_config).exists()) {
                 println("Contrast Agent not found - retrieving from server")
                 println("Configuring Contrast API")
                 def contrast_config = new XmlSlurper().parse(new File(project.contrast_config))
