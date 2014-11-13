@@ -7,27 +7,42 @@ buildscript {
     }
 }
 
+apply plugin: de.undercouch.gradle.tasks.download.DownloadTaskPlugin
 
-task downloadContrastAgent(type: de.undercouch.gradle.tasks.download.Download) {
-    doFirst {
-        if (new File(project.contrast_config).exists()) {
-            println("Configuring Contrast API")
-            def contrast_config = new XmlSlurper().parse(new File(project.contrast_config))
-            def contrast_username = contrast_config.user.id
-            def contrast_servicekey = contrast_config.user.key
-            def contrast_apikey = contrast_config."global-key"
-            println("Configured for " + contrast_username)
+import de.undercouch.gradle.tasks.download.Download
+
+task downloadContrastAgent(type: Download) {
+    if (project.contrast_enable) {
+        println("Configuring Contrast")
+
+        if (! new File(System.getProperty("java.io.tmpdir") + "/contrast.jar").exists()) {
+            if (new File(project.contrast_config).exists()) {
+                println("Contrast Agent not found - retrieving from server")
+                println("Configuring Contrast API")
+                def contrast_config = new XmlSlurper().parse(new File(project.contrast_config))
+                def contrast_username = contrast_config.user.id.toString()
+                def contrast_servicekey = contrast_config.user.key.toString()
+                def contrast_apikey = contrast_config."global-key".toString()
+                println("Configured for " + contrast_username)
+
+                download {
+                    src 'https://app.contrastsecurity.com/Contrast/api/engine/default/java?jvm=1.6'
+                    dest System.getProperty("java.io.tmpdir") + '/contrast.jar'
+
+                    def hdrAuth = (contrast_username + ":" + contrast_servicekey).bytes.encodeBase64().toString()
+
+                    headers = [
+                            "Authorization": hdrAuth,
+                            "API-Key": contrast_apikey,
+                            "Accept" : 'application/json'
+                    ]
+                }
+            } else {
+                println("Contrast Configuration is missing. Skipping Contrast Initialization")
+                project.contrast_enable = false
+            }
+        } else {
+            println("Contrast Agent Cached")
         }
     }
-
-    src 'https://app.contrastsecurity.com/Contrast/api/engine/download/java'
-    dest project.contrast_agent
-
-    headers = {[
-            "Authorization": (downloadContrastAgent.contrast_username + ':' + downloadContrastAgent.contrast_servicekey).bytes.encodeBase64().toString(),
-            "API-Key": downloadContrastAgent.contrast_apikey,
-            "Accept": 'application/json'
-    ]}
-
-    println(headers)
 }

@@ -15,29 +15,26 @@ cargo {
 
     local {
         homeDir = file(project.tomcat_home)
-        jvmArgs = '-javaagent:' + project.contrast_agent + '=' + project.contrast_config
+
+        // If app is contrast enabled, configure contrast
+        println("Checking if Contrast Enabled")
+        if (project.contrast_enable) {
+            def contrastAgent = new File(System.getProperty('java.io.tmpdir') + '/contrast.jar')
+            println(contrastAgent.absolutePath)
+            if (contrastAgent.exists()) {
+                println('Using Contrast Agent at: ' + contrastAgent.getAbsolutePath())
+                jvmArgs = '-javaagent:' + contrastAgent.absolutePath + '=' + project.contrast_config
+            }
+        }
     }
 }
 
 task integrationTomcatRun(type: org.gradle.api.plugins.cargo.tasks.local.CargoStartLocal) {
     onlyIf { !sourceSets.integrationTest.allSource.empty }
-
-    if (new File(project.contrast_config).exists()) {
-        println("Configuring Contrast API")
-        def contrast_config = new XmlSlurper().parse(new File(project.contrast_config))
-        def contrast_username = contrast_config.user.id
-        def contrast_servicekey = contrast_config.user.key
-        def contrast_apikey = contrast_config."global-key"
-        println("Configured for " + contrast_username + " / " + contrast_servicekey + " / " + contrast_apikey)
-    }
-
-    contextPath = cargoStartLocal.deployables[0].context
 }
 
 task integrationTomcatStop(type: org.gradle.api.plugins.cargo.tasks.local.CargoStopLocal) {
     onlyIf { !sourceSets.integrationTest.allSource.empty }
-    doFirst {
-    }
 }
 
 integrationTest {
@@ -49,12 +46,7 @@ integrationTest {
         systemProperties['geb.build.baseUrl'] = 'http://'+host+'/sample-4.0.0.CI-SNAPSHOT/'
         systemProperties['geb.build.reportsDir'] = 'build/geb-reports'
 
-        // If there is a contrast.config but no agent, download the agent from the API
-        if (new File(project.contrast_config).exists()) {
-            if (!new File(project.contrast_agent).exists()) {
-                dependsOn downloadContrastAgent
-            }
-        }
     }
+
     finalizedBy integrationTomcatStop
 }
