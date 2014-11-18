@@ -23,13 +23,16 @@ public class SavedRequestAwareWrapperTests {
         return new SavedRequestAwareWrapper(saved, requestToWrap);
     }
 
+    // SEC-2569
     @Test
-    public void savedRequestCookiesAreReturnedIfSavedRequestIsSet() throws Exception {
+    public void savedRequestCookiesAreIgnored() throws Exception {
+        MockHttpServletRequest newRequest = new MockHttpServletRequest();
+        newRequest.setCookies(new Cookie[] {new Cookie("cookie", "fromnew")});
         MockHttpServletRequest savedRequest = new MockHttpServletRequest();
         savedRequest.setCookies(new Cookie[] {new Cookie("cookie", "fromsaved")});
-        SavedRequestAwareWrapper wrapper = createWrapper(savedRequest, new MockHttpServletRequest());
+        SavedRequestAwareWrapper wrapper = createWrapper(savedRequest, newRequest);
         assertEquals(1, wrapper.getCookies().length);
-        assertEquals("fromsaved", wrapper.getCookies()[0].getValue());
+        assertEquals("fromnew", wrapper.getCookies()[0].getValue());
     }
 
     @Test

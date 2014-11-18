@@ -86,13 +86,6 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
     //~ Methods ========================================================================================================
 
     @Override
-    public Cookie[] getCookies() {
-        List<Cookie> cookies = savedRequest.getCookies();
-
-        return cookies.toArray(new Cookie[cookies.size()]);
-    }
-
-    @Override
     public long getDateHeader(String name) {
         String value = getHeader(name);
 
