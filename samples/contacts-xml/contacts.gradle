@@ -23,7 +23,7 @@ dependencies {
             "org.hsqldb:hsqldb:$hsqlVersion",
             "org.slf4j:jcl-over-slf4j:$slf4jVersion",
             "ch.qos.logback:logback-classic:$logbackVersion",
-            "net.sf.ehcache:ehcache-core:$ehcacheVersion"
+            "net.sf.ehcache:ehcache:$ehcacheVersion"
 
     integrationTestCompile gebDependencies
 }
