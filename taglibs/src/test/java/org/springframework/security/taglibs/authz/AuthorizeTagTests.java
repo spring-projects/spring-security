@@ -15,6 +15,7 @@
 
 package org.springframework.security.taglibs.authz;
 
+import static org.mockito.Mockito.*;
 import static org.junit.Assert.assertEquals;
 
 import javax.servlet.jsp.JspException;
@@ -23,10 +24,15 @@ import javax.servlet.jsp.tagext.Tag;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockPageContext;
 import org.springframework.mock.web.MockServletContext;
+import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,9 +46,12 @@ import org.springframework.web.context.support.StaticWebApplicationContext;
  * @author Francois Beausoleil
  * @author Luke Taylor
  */
+@RunWith(MockitoJUnitRunner.class)
 public class AuthorizeTagTests {
     //~ Instance fields ================================================================================================
 
+    @Mock
+    private PermissionEvaluator permissionEvaluator;
     private JspAuthorizeTag authorizeTag;
     private MockHttpServletRequest request = new MockHttpServletRequest();
     private final TestingAuthenticationToken currentUser = new TestingAuthenticationToken("abc", "123", "ROLE SUPERVISOR", "ROLE_TELLER");
@@ -53,7 +62,11 @@ public class AuthorizeTagTests {
     public void setUp() throws Exception {
         SecurityContextHolder.getContext().setAuthentication(currentUser);
         StaticWebApplicationContext ctx = new StaticWebApplicationContext();
-        ctx.registerSingleton("expressionHandler", DefaultWebSecurityExpressionHandler.class);
+
+        BeanDefinitionBuilder webExpressionHandler = BeanDefinitionBuilder.rootBeanDefinition(DefaultWebSecurityExpressionHandler.class);
+        webExpressionHandler.addPropertyValue("permissionEvaluator", permissionEvaluator);
+
+        ctx.registerBeanDefinition("expressionHandler", webExpressionHandler.getBeanDefinition());
         ctx.registerSingleton("wipe", MockWebInvocationPrivilegeEvaluator.class);
         MockServletContext servletCtx = new MockServletContext();
         servletCtx.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ctx);
@@ -67,6 +80,16 @@ public class AuthorizeTagTests {
     }
 
     // access attribute tests
+
+    @Test
+    public void taglibsDocumentationHasPermissionOr() throws Exception {
+        Object domain = new Object();
+        request.setAttribute("domain", domain);
+        authorizeTag.setAccess("hasPermission(#domain,'read') or hasPermission(#domain,'write')");
+        when(permissionEvaluator.hasPermission(eq(currentUser), eq(domain), anyString())).thenReturn(true);
+
+        assertEquals(Tag.EVAL_BODY_INCLUDE, authorizeTag.doStartTag());
+    }
 
     @Test
     public void skipsBodyIfNoAuthenticationPresent() throws Exception {

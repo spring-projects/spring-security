@@ -4978,6 +4978,7 @@ To use any of the tags, you must have the security taglib declared in your JSP:
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 ----
 
+[[taglibs-authorize]]
 === The authorize Tag
 This tag is used to determine whether its contents should be evaluated or not. In Spring Security 3.0, it can be used in two ways  footnote:[
 The legacy options from Spring Security 2.0 are also supported, but discouraged.
@@ -4988,6 +4989,17 @@ The legacy options from Spring Security 2.0 are also supported, but discouraged.
 <sec:authorize access="hasRole('supervisor')">
 
   This content will only be visible to users who have the "supervisor" authority in their list of <tt>GrantedAuthority</tt>s.
+
+</sec:authorize>
+----
+
+When used in conjuction with Spring Security's PermissionEvaluator, the tag can also be used to check permissions. For example:
+
+[source,xml]
+----
+<sec:authorize access="hasPermission(#domain,'read') or hasPermission(#domain,'write')">
+
+  This content will only be visible to users who have read or write permission to the Object found as a request attribute named "domain".
 
 </sec:authorize>
 ----
@@ -5021,18 +5033,20 @@ Of course, it isn't necessary to use JSP tags for this kind of thing and some pe
 
 
 === The accesscontrollist Tag
-This tag is only valid when used with Spring Security's ACL module. It checks a comma-separated list of required permissions for a specified domain object. If the current user has any of those permissions, then the tag body will be evaluated. If they don't, it will be skipped. An example might be
+This tag is only valid when used with Spring Security's ACL module. It checks a comma-separated list of required permissions for a specified domain object. If the current user has all of those permissions, then the tag body will be evaluated. If they don't, it will be skipped. An example might be
+
+CAUTION: In general this tag should be considered deprecated. Instead use the <<taglibs-authorize>>.
 
 [source,xml]
 ----
 <sec:accesscontrollist hasPermission="1,2" domainObject="${someObject}">
 
-  This will be shown if the user has either of the permissions represented by the values "1" or "2" on the given object.
+  This will be shown if the user has all of the permissions represented by the values "1" or "2" on the given object.
 
 </sec:accesscontrollist>
 ----
 
-The permissions are passed to the `PermissionFactory` defined in the application context, converting them to ACL `Permission` instances, so they may be any format which is supported by the factory - they don't have to be integers, they could be strings like `READ` or `WRITE`. If no `PermissionFactory` is found, an instance of `DefaultPermissionFactory` will be used. The `AclService` from the application context will be used to load the `Acl` instance for the supplied object. The `Acl` will be invoked with the required permissions to check if any of them are granted.
+The permissions are passed to the `PermissionFactory` defined in the application context, converting them to ACL `Permission` instances, so they may be any format which is supported by the factory - they don't have to be integers, they could be strings like `READ` or `WRITE`. If no `PermissionFactory` is found, an instance of `DefaultPermissionFactory` will be used. The `AclService` from the application context will be used to load the `Acl` instance for the supplied object. The `Acl` will be invoked with the required permissions to check if all of them are granted.
 
 This tag also supports the `var` attribute, in the same way as the `authorize` tag.
 

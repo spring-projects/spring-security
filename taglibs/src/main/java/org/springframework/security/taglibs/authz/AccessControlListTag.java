@@ -32,7 +32,7 @@ import java.util.*;
 
 
 /**
- * An implementation of {@link Tag} that allows its body through if some authorizations are granted to the request's
+ * An implementation of {@link Tag} that allows its body through if all authorizations are granted to the request's
  * principal.
  * <p>
  * One or more comma separate numeric are specified via the {@code hasPermission} attribute. The tag delegates
