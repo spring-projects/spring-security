@@ -23,13 +23,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.GenericApplicationListenerAdapter;
 import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.context.DelegatingApplicationListener;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.context.DelegatingApplicationListener;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
@@ -474,13 +475,23 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
     private SessionRegistry getSessionRegistry(H http) {
         if(sessionRegistry == null) {
             SessionRegistryImpl sessionRegistry = new SessionRegistryImpl();
-            ApplicationContext context = http.getSharedObject(ApplicationContext.class);
-            DelegatingApplicationListener delegating = context.getBean(DelegatingApplicationListener.class);
-            SmartApplicationListener smartListener = new GenericApplicationListenerAdapter(sessionRegistry);
-            delegating.addListener(smartListener);
+            registerDelegateApplicationListener(http, sessionRegistry);
             this.sessionRegistry = sessionRegistry;
         }
         return sessionRegistry;
+    }
+
+    private void registerDelegateApplicationListener(H http, ApplicationListener<?> delegate) {
+        ApplicationContext context = http.getSharedObject(ApplicationContext.class);
+        if(context == null) {
+            return;
+        }
+        if(context.getBeansOfType(DelegatingApplicationListener.class).isEmpty()) {
+            return;
+        }
+        DelegatingApplicationListener delegating = context.getBean(DelegatingApplicationListener.class);
+        SmartApplicationListener smartListener = new GenericApplicationListenerAdapter(delegate);
+        delegating.addListener(smartListener);
     }
 
     /**
