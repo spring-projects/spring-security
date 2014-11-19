@@ -29,6 +29,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.core.session.SessionDestroyedEvent
 import org.springframework.security.web.access.ExceptionTranslationFilter
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy
@@ -38,6 +39,7 @@ import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.context.SecurityContextRepository
 import org.springframework.security.web.savedrequest.RequestCache
 import org.springframework.security.web.session.ConcurrentSessionFilter
+import org.springframework.security.web.session.HttpSessionDestroyedEvent;
 import org.springframework.security.web.session.SessionManagementFilter
 
 /**
@@ -154,12 +156,14 @@ class SessionManagementConfigurerTests extends BaseSpringSpec {
     def 'session fixation and enable concurrency control'() {
         setup: "context where session fixation is disabled and concurrency control is enabled"
             loadConfig(ConcurrencyControlConfig)
+            def authenticatedSession
         when: "authenticate successfully"
             request.servletPath = "/login"
             request.method = "POST"
             request.setParameter("username", "user");
             request.setParameter("password","password")
             springSecurityFilterChain.doFilter(request, response, chain)
+            authenticatedSession = request.session
         then: "authentication is sucessful"
             response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
             response.redirectedUrl == "/"
@@ -173,6 +177,17 @@ class SessionManagementConfigurerTests extends BaseSpringSpec {
         then:
             response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
             response.redirectedUrl == '/login?error'
+        when: 'SEC-2574: When Session Expires and authentication attempted'
+            context.publishEvent(new HttpSessionDestroyedEvent(authenticatedSession))
+            super.setup()
+            request.servletPath = "/login"
+            request.method = "POST"
+            request.setParameter("username", "user");
+            request.setParameter("password","password")
+            springSecurityFilterChain.doFilter(request, response, chain)
+        then: "authentication is successful"
+            response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
+            response.redirectedUrl == "/"
     }
 
     @EnableWebSecurity
