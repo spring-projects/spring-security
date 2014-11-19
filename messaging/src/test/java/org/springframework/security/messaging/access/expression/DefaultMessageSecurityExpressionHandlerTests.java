@@ -28,8 +28,10 @@ import org.springframework.expression.Expression;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.security.access.expression.ExpressionUtils;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 
@@ -72,6 +74,18 @@ public class DefaultMessageSecurityExpressionHandlerTests {
         EvaluationContext context = handler.createEvaluationContext(authentication, message);
         Expression expression = handler.getExpressionParser().parseExpression("authenticated");
         when(trustResolver.isAnonymous(authentication)).thenReturn(false);
+
+        assertThat(ExpressionUtils.evaluateAsBoolean(expression, context)).isTrue();
+    }
+
+    @Test
+    public void roleHierarchy() {
+        authentication = new TestingAuthenticationToken("admin", "pass", "ROLE_ADMIN");
+        RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
+        roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_USER");
+        handler.setRoleHierarchy(roleHierarchy);
+        EvaluationContext context = handler.createEvaluationContext(authentication, message);
+        Expression expression = handler.getExpressionParser().parseExpression("hasRole('ROLE_USER')");
 
         assertThat(ExpressionUtils.evaluateAsBoolean(expression, context)).isTrue();
     }
