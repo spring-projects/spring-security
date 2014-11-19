@@ -27,6 +27,7 @@ import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.GenericMessage;
+import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -39,6 +40,8 @@ import org.springframework.security.core.authority.AuthorityUtils;
 public class DefaultMessageSecurityExpressionHandlerTests {
     @Mock
     AuthenticationTrustResolver trustResolver;
+    @Mock
+    PermissionEvaluator permissionEvaluator;
 
     DefaultMessageSecurityExpressionHandler<Object> handler;
 
@@ -86,6 +89,16 @@ public class DefaultMessageSecurityExpressionHandlerTests {
         handler.setRoleHierarchy(roleHierarchy);
         EvaluationContext context = handler.createEvaluationContext(authentication, message);
         Expression expression = handler.getExpressionParser().parseExpression("hasRole('ROLE_USER')");
+
+        assertThat(ExpressionUtils.evaluateAsBoolean(expression, context)).isTrue();
+    }
+
+    @Test
+    public void permissionEvaluator() {
+        handler.setPermissionEvaluator(permissionEvaluator);
+        EvaluationContext context = handler.createEvaluationContext(authentication, message);
+        Expression expression = handler.getExpressionParser().parseExpression("hasPermission(message, 'read')");
+        when(permissionEvaluator.hasPermission(authentication, message, "read")).thenReturn(true);
 
         assertThat(ExpressionUtils.evaluateAsBoolean(expression, context)).isTrue();
     }
