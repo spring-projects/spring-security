@@ -22,9 +22,13 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.event.GenericApplicationListenerAdapter;
+import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.context.DelegatingApplicationListener;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
@@ -87,7 +91,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
     private SessionAuthenticationStrategy sessionAuthenticationStrategy;
     private InvalidSessionStrategy invalidSessionStrategy;
     private List<SessionAuthenticationStrategy> sessionAuthenticationStrategies = new ArrayList<SessionAuthenticationStrategy>();
-    private SessionRegistry sessionRegistry = new SessionRegistryImpl();
+    private SessionRegistry sessionRegistry;
     private Integer maximumSessions;
     private String expiredUrl;
     private boolean maxSessionsPreventsLogin;
@@ -367,14 +371,14 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
                 http.setSharedObject(RequestCache.class, new NullRequestCache());
             }
         }
-        http.setSharedObject(SessionAuthenticationStrategy.class, getSessionAuthenticationStrategy());
+        http.setSharedObject(SessionAuthenticationStrategy.class, getSessionAuthenticationStrategy(http));
         http.setSharedObject(InvalidSessionStrategy.class, getInvalidSessionStrategy());
     }
 
     @Override
     public void configure(H http) throws Exception {
         SecurityContextRepository securityContextRepository = http.getSharedObject(SecurityContextRepository.class);
-        SessionManagementFilter sessionManagementFilter = new SessionManagementFilter(securityContextRepository, getSessionAuthenticationStrategy());
+        SessionManagementFilter sessionManagementFilter = new SessionManagementFilter(securityContextRepository, getSessionAuthenticationStrategy(http));
         if(sessionAuthenticationErrorUrl != null) {
             sessionManagementFilter.setAuthenticationFailureHandler(new SimpleUrlAuthenticationFailureHandler(sessionAuthenticationErrorUrl));
         }
@@ -389,7 +393,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 
         http.addFilter(sessionManagementFilter);
         if(isConcurrentSessionControlEnabled()) {
-            ConcurrentSessionFilter concurrentSessionFilter = new ConcurrentSessionFilter(sessionRegistry, expiredUrl);
+            ConcurrentSessionFilter concurrentSessionFilter = new ConcurrentSessionFilter(getSessionRegistry(http), expiredUrl);
             concurrentSessionFilter = postProcess(concurrentSessionFilter);
             http.addFilter(concurrentSessionFilter);
         }
@@ -444,12 +448,13 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
      *
      * @return the {@link SessionAuthenticationStrategy} to use
      */
-    private SessionAuthenticationStrategy getSessionAuthenticationStrategy() {
+    private SessionAuthenticationStrategy getSessionAuthenticationStrategy(H http) {
         if(sessionAuthenticationStrategy != null) {
             return sessionAuthenticationStrategy;
         }
         List<SessionAuthenticationStrategy> delegateStrategies = sessionAuthenticationStrategies;
         if(isConcurrentSessionControlEnabled()) {
+            SessionRegistry sessionRegistry = getSessionRegistry(http);
             ConcurrentSessionControlAuthenticationStrategy concurrentSessionControlStrategy = new ConcurrentSessionControlAuthenticationStrategy(sessionRegistry);
             concurrentSessionControlStrategy.setMaximumSessions(maximumSessions);
             concurrentSessionControlStrategy.setExceptionIfMaximumExceeded(maxSessionsPreventsLogin);
@@ -464,6 +469,18 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
         }
         sessionAuthenticationStrategy = postProcess(new CompositeSessionAuthenticationStrategy(delegateStrategies));
         return sessionAuthenticationStrategy;
+    }
+
+    private SessionRegistry getSessionRegistry(H http) {
+        if(sessionRegistry == null) {
+            SessionRegistryImpl sessionRegistry = new SessionRegistryImpl();
+            ApplicationContext context = http.getSharedObject(ApplicationContext.class);
+            DelegatingApplicationListener delegating = context.getBean(DelegatingApplicationListener.class);
+            SmartApplicationListener smartListener = new GenericApplicationListenerAdapter(sessionRegistry);
+            delegating.addListener(smartListener);
+            this.sessionRegistry = sessionRegistry;
+        }
+        return sessionRegistry;
     }
 
     /**

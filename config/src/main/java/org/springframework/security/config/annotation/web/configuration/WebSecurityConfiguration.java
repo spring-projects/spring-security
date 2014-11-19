@@ -40,6 +40,7 @@ import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.context.DelegatingApplicationListener;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
@@ -71,6 +72,11 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
     private List<SecurityConfigurer<Filter, WebSecurity>> webSecurityConfigurers;
 
     private ClassLoader beanClassLoader;
+
+    @Bean
+    public DelegatingApplicationListener delegatingApplicationListener() {
+        return new DelegatingApplicationListener();
+    }
 
     @Bean
     @DependsOn(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME)
