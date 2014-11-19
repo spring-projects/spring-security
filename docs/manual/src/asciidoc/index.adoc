@@ -3559,7 +3559,7 @@ public class WebSecurityConfig extends
     http
       // ...
       .headers()
-        .hsts();
+        .httpStrictTransportSecurity();
   }
 }
 ----
