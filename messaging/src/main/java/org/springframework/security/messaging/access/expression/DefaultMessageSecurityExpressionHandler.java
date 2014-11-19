@@ -19,7 +19,10 @@ import org.springframework.messaging.Message;
 import org.springframework.security.access.expression.AbstractSecurityExpressionHandler;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.expression.SecurityExpressionOperations;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.Assert;
 
 /**
  * The default implementation of {@link SecurityExpressionHandler} which uses a {@link MessageSecurityExpressionRoot}.
@@ -31,8 +34,17 @@ import org.springframework.security.core.Authentication;
  */
 public class DefaultMessageSecurityExpressionHandler<T> extends AbstractSecurityExpressionHandler<Message<T>> {
 
+    private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+
     @Override
     protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication, Message<T> invocation) {
-        return new MessageSecurityExpressionRoot(authentication,invocation);
+        MessageSecurityExpressionRoot root = new MessageSecurityExpressionRoot(authentication,invocation);
+        root.setTrustResolver(trustResolver);
+        return root;
+    }
+
+    public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
+        Assert.notNull(trustResolver,"trustResolver cannot be null");
+        this.trustResolver = trustResolver;
     }
 }
