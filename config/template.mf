@@ -16,6 +16,7 @@ Import-Template:
  org.openid4java.*;version="${openid4javaRange}";resolution:=optional,
  org.springframework.security.access.*;version="${secRange}",
  org.springframework.security.authentication.*;version="${secRange}",
+ org.springframework.security.context.*;version="${secRange}";resolution:=optional,
  org.springframework.security.core.*;version="${secRange}",
  org.springframework.security.crypto.bcrypt.*;version="${secRange}",
  org.springframework.security.crypto.password.*;version="${secRange}",
