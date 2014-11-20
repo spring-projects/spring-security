@@ -56,7 +56,7 @@ public class KeyBasedPersistenceTokenServiceTests {
     @Test
     public void testOperationWithEmptyRandomNumber() {
         KeyBasedPersistenceTokenService service = getService();
-        service.setPseudoRandomNumberBits(0);
+        service.setPseudoRandomNumberBytes(0);
         Token token = service.allocateToken("Hello:world:::");
         Token result = service.verifyToken(token.getKey());
         Assert.assertEquals(token, result);

@@ -53,7 +53,7 @@ import org.springframework.util.StringUtils;
  *
  */
 public class KeyBasedPersistenceTokenService implements TokenService, InitializingBean {
-    private int pseudoRandomNumberBytes = 256;
+    private int pseudoRandomNumberBytes = 32;
     private String serverSecret;
     private Integer serverInteger;
     private SecureRandom secureRandom;
@@ -134,21 +134,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
     }
 
     /**
-     * This method actually sets the number of bytes despite the method name
-     * indicating it is the number of bits.
-     *
-     * @deprecated use {@link #setPseudoRandomNumberBytes(int)}
-     * @param pseudoRandomNumberBytes
-     *            changes the number of bytes issued (must be >= 0; defaults to
-     *            256)
-     */
-    public void setPseudoRandomNumberBits(int pseudoRandomNumberBytes) {
-        Assert.isTrue(pseudoRandomNumberBytes >= 0, "Must have a positive pseudo random number bit size");
-        this.pseudoRandomNumberBytes = pseudoRandomNumberBytes;
-    }
-
-    /**
-     * @param pseudoRandomNumberBytes changes the number of bytes issued (must be >= 0; defaults to 256 for passivity reasons)
+     * @param pseudoRandomNumberBytes changes the number of bytes issued (must be >= 0; defaults to 256)
      */
     public void setPseudoRandomNumberBytes(int pseudoRandomNumberBytes) {
         Assert.isTrue(pseudoRandomNumberBytes >= 0, "Must have a positive pseudo random number bit size");
