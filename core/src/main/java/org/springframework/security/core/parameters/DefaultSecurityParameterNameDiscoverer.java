@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.core.PrioritizedParameterNameDiscoverer;
@@ -56,11 +57,6 @@ public class DefaultSecurityParameterNameDiscoverer extends
 
     private final Log logger = LogFactory.getLog(getClass());
 
-    private static final String DEFAULT_PARAMETER_NAME_DISCOVERER_CLASSNAME =
-            "org.springframework.core.DefaultParameterNameDiscoverer";
-    private static final boolean DEFAULT_PARAM_DISCOVERER_PRESENT =
-            ClassUtils.isPresent(DEFAULT_PARAMETER_NAME_DISCOVERER_CLASSNAME, DefaultSecurityParameterNameDiscoverer.class.getClassLoader());
-
     private static final String DATA_PARAM_CLASSNAME = "org.springframework.data.repository.query.Param";
     private static final boolean DATA_PARAM_PRESENT =
             ClassUtils.isPresent(DATA_PARAM_CLASSNAME, DefaultSecurityParameterNameDiscoverer.class.getClassLoader());
@@ -91,22 +87,6 @@ public class DefaultSecurityParameterNameDiscoverer extends
         }
 
         addDiscoverer(new AnnotationParameterNameDiscoverer(annotationClassesToUse));
-
-        if (DEFAULT_PARAM_DISCOVERER_PRESENT) {
-            try {
-                Class<? extends ParameterNameDiscoverer> paramNameDiscoverClass = (Class<? extends ParameterNameDiscoverer>) ClassUtils
-                        .forName(DEFAULT_PARAMETER_NAME_DISCOVERER_CLASSNAME,
-                                getClass().getClassLoader());
-                addDiscoverer(paramNameDiscoverClass.newInstance());
-            } catch (Exception e) {
-                logger.warn(
-                        "Could not use "
-                                + DEFAULT_PARAMETER_NAME_DISCOVERER_CLASSNAME
-                                + ". Falling back to LocalVariableTableParameterNameDiscoverer.", e);
-                addDiscoverer(new LocalVariableTableParameterNameDiscoverer());
-            }
-        } else {
-            addDiscoverer(new LocalVariableTableParameterNameDiscoverer());
-        }
+        addDiscoverer(new DefaultParameterNameDiscoverer());
     }
 }
