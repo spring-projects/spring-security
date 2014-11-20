@@ -61,6 +61,10 @@ public final class DelegatingSecurityContextRunnable implements Runnable {
         }
     }
 
+    public String toString() {
+        return delegate.toString();
+    }
+
     /**
      * Factory method for creating a {@link DelegatingSecurityContextRunnable}.
      *

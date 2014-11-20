@@ -64,6 +64,10 @@ public final class DelegatingSecurityContextCallable<V> implements Callable<V> {
         }
     }
 
+    public String toString() {
+        return delegate.toString();
+    }
+
     /**
      * Creates a {@link DelegatingSecurityContextCallable} and with the given {@link Callable} and
      * {@link SecurityContext}, but if the securityContext is null will defaults to the current {@link SecurityContext}
