@@ -141,8 +141,8 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 
     @Override
     @SuppressWarnings("rawtypes")
-    final List<AccessDecisionVoter> getDecisionVoters(H http) {
-        List<AccessDecisionVoter> decisionVoters = new ArrayList<AccessDecisionVoter>();
+    final List<AccessDecisionVoter<? extends Object>> getDecisionVoters(H http) {
+        List<AccessDecisionVoter<? extends Object>> decisionVoters = new ArrayList<AccessDecisionVoter<? extends Object>>();
         WebExpressionVoter expressionVoter = new WebExpressionVoter();
         expressionVoter.setExpressionHandler(getExpressionHandler(http));
         decisionVoters.add(expressionVoter);
@@ -213,8 +213,6 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
         /**
          * Negates the following expression.
          *
-         * @param role the role to require (i.e. USER, ADMIN, etc). Note, it should not start with "ROLE_" as
-         *             this is automatically inserted.
          * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customization
          */
         public AuthorizedUrl not() {

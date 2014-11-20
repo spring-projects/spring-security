@@ -38,7 +38,7 @@ public class UnanimousBased extends AbstractAccessDecisionManager {
     public UnanimousBased() {
     }
 
-    public UnanimousBased(List<AccessDecisionVoter> decisionVoters) {
+    public UnanimousBased(List<AccessDecisionVoter<? extends Object>> decisionVoters) {
         super(decisionVoters);
     }
 

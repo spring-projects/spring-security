@@ -44,7 +44,7 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
     //~ Instance fields ================================================================================================
     protected final Log logger = LogFactory.getLog(getClass());
 
-    private List<AccessDecisionVoter> decisionVoters;
+    private List<AccessDecisionVoter<? extends Object>> decisionVoters;
 
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
@@ -53,7 +53,7 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
     protected AbstractAccessDecisionManager() {
     }
 
-    protected AbstractAccessDecisionManager(List<AccessDecisionVoter> decisionVoters) {
+    protected AbstractAccessDecisionManager(List<AccessDecisionVoter<? extends Object>> decisionVoters) {
         Assert.notEmpty(decisionVoters, "A list of AccessDecisionVoters is required");
         this.decisionVoters = decisionVoters;
     }
@@ -72,7 +72,7 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
         }
     }
 
-    public List<AccessDecisionVoter> getDecisionVoters() {
+    public List<AccessDecisionVoter<? extends Object>> getDecisionVoters() {
         return this.decisionVoters;
     }
 
@@ -88,10 +88,10 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
      * @deprecated Use constructor
      */
     @Deprecated
-    public void setDecisionVoters(List<AccessDecisionVoter> newList) {
+    public void setDecisionVoters(List<AccessDecisionVoter<? extends Object>> newList) {
         Assert.notEmpty(newList);
 
-        Iterator<AccessDecisionVoter> iter = newList.iterator();
+        Iterator<AccessDecisionVoter<? extends Object>> iter = newList.iterator();
 
         while (iter.hasNext()) {
             Object currentObject = iter.next();

@@ -56,7 +56,7 @@ public class AnnotationSecurityAspectTests {
         adm = new AffirmativeBased();
         AccessDecisionVoter[] voters = new AccessDecisionVoter[]
                 {new RoleVoter(), new PreInvocationAuthorizationAdviceVoter(new ExpressionBasedPreInvocationAdvice())};
-        adm.setDecisionVoters(Arrays.asList(voters));
+        adm.setDecisionVoters(Arrays.<AccessDecisionVoter<? extends Object>>asList(voters));
         interceptor.setAccessDecisionManager(adm);
         interceptor.setAuthenticationManager(authman);
         interceptor.setSecurityMetadataSource(new SecuredAnnotationSecurityMetadataSource());

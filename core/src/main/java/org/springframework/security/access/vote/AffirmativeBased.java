@@ -36,7 +36,7 @@ public class AffirmativeBased extends AbstractAccessDecisionManager {
     public AffirmativeBased() {
     }
 
-    public AffirmativeBased(List<AccessDecisionVoter> decisionVoters) {
+    public AffirmativeBased(List<AccessDecisionVoter<? extends Object>> decisionVoters) {
         super(decisionVoters);
     }
 

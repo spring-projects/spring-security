@@ -81,14 +81,12 @@ import org.springframework.util.Assert;
  *
  * <ul>
  * <li>
- * {@link org.springframework.security.config.annotation.web.builders.HttpSecurity#getAuthenticationManager()}
+ * AuthenticationManager
  * </li>
  * </ul>
  *
  * @param <H>
  *            the type of {@link HttpSecurityBuilder} that is being configured
- * @param <C>
- *            the type of object that is being chained
  *
  * @author Rob Winch
  * @since 3.2
@@ -144,15 +142,14 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> 
 
     /**
      * Creates the default {@link AccessDecisionVoter} instances used if an
-     * {@link AccessDecisionManager} was not specified using
-     * {@link #accessDecisionManager(AccessDecisionManager)}.
+     * {@link AccessDecisionManager} was not specified.
      *
      * @param http the builder to use
      */
     @Override
     @SuppressWarnings("rawtypes")
-    final List<AccessDecisionVoter> getDecisionVoters(H http) {
-        List<AccessDecisionVoter> decisionVoters = new ArrayList<AccessDecisionVoter>();
+    final List<AccessDecisionVoter<? extends Object>> getDecisionVoters(H http) {
+        List<AccessDecisionVoter<? extends Object>> decisionVoters = new ArrayList<AccessDecisionVoter<? extends Object>>();
         decisionVoters.add(new RoleVoter());
         decisionVoters.add(new AuthenticatedVoter());
         return decisionVoters;
@@ -236,7 +233,6 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> 
         /**
          * Creates a new instance
          * @param requestMatchers the {@link RequestMatcher} instances to map to some {@link ConfigAttribute} instances.
-         * @see UrlAuthorizationConfigurer#chainRequestMatchers(List)
          */
         private AuthorizedUrl(List<RequestMatcher> requestMatchers) {
             Assert.notEmpty(requestMatchers, "requestMatchers must contain at least one value");

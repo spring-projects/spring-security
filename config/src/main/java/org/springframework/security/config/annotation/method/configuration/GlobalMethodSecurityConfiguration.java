@@ -173,7 +173,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
      */
     @SuppressWarnings("rawtypes")
     protected AccessDecisionManager accessDecisionManager() {
-        List<AccessDecisionVoter> decisionVoters = new ArrayList<AccessDecisionVoter>();
+        List<AccessDecisionVoter<? extends Object>> decisionVoters = new ArrayList<AccessDecisionVoter<? extends Object>>();
         ExpressionBasedPreInvocationAdvice expressionAdvice = new ExpressionBasedPreInvocationAdvice();
         expressionAdvice.setExpressionHandler(getExpressionHandler());
         if(prePostEnabled()) {

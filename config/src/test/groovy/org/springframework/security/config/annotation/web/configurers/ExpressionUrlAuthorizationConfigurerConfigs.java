@@ -55,7 +55,7 @@ public class ExpressionUrlAuthorizationConfigurerConfigs {
         protected void configure(HttpSecurity http) throws Exception {
             SecurityExpressionHandler<FilterInvocation> handler = new DefaultWebSecurityExpressionHandler();
             WebExpressionVoter expressionVoter = new WebExpressionVoter();
-            AffirmativeBased adm = new AffirmativeBased(Arrays.<AccessDecisionVoter>asList(expressionVoter));
+            AffirmativeBased adm = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>>asList(expressionVoter));
             http
                 .authorizeRequests()
                     .expressionHandler(handler)

@@ -61,32 +61,32 @@ public class AffirmativeBasedTests {
 
     @Test
     public void oneAffirmativeVoteOneDenyVoteOneAbstainVoteGrantsAccess() throws Exception {
-        mgr.setDecisionVoters(Arrays.asList(grant, deny, abstain));
+        mgr.setDecisionVoters(Arrays.<AccessDecisionVoter<? extends Object>>asList(grant, deny, abstain));
         mgr.afterPropertiesSet();
         mgr.decide(user, new Object(), attrs);
     }
 
     @Test
     public void oneDenyVoteOneAbstainVoteOneAffirmativeVoteGrantsAccess() throws Exception {
-        mgr.setDecisionVoters(Arrays.asList(deny, abstain, grant));
+        mgr.setDecisionVoters(Arrays.<AccessDecisionVoter<? extends Object>>asList(deny, abstain, grant));
         mgr.decide(user, new Object(), attrs);
     }
 
     @Test
     public void oneAffirmativeVoteTwoAbstainVotesGrantsAccess() throws Exception {
-        mgr.setDecisionVoters(Arrays.asList(grant, abstain, abstain));
+        mgr.setDecisionVoters(Arrays.<AccessDecisionVoter<? extends Object>>asList(grant, abstain, abstain));
         mgr.decide(user, new Object(), attrs);
     }
 
     @Test(expected=AccessDeniedException.class)
     public void oneDenyVoteTwoAbstainVotesDeniesAccess() throws Exception {
-        mgr.setDecisionVoters(Arrays.asList(deny, abstain, abstain));
+        mgr.setDecisionVoters(Arrays.<AccessDecisionVoter<? extends Object>>asList(deny, abstain, abstain));
         mgr.decide(user, new Object(), attrs);
     }
 
     @Test(expected=AccessDeniedException.class)
     public void onlyAbstainVotesDeniesAccessWithDefault() throws Exception {
-        mgr.setDecisionVoters(Arrays.asList(abstain, abstain, abstain));
+        mgr.setDecisionVoters(Arrays.<AccessDecisionVoter<? extends Object>>asList(abstain, abstain, abstain));
         assertTrue(!mgr.isAllowIfAllAbstainDecisions()); // check default
 
         mgr.decide(user, new Object(), attrs);
@@ -94,7 +94,7 @@ public class AffirmativeBasedTests {
 
     @Test
     public void testThreeAbstainVotesGrantsAccessIfAllowIfAllAbstainDecisionsIsSet() throws Exception {
-        mgr.setDecisionVoters(Arrays.asList(abstain, abstain, abstain));
+        mgr.setDecisionVoters(Arrays.<AccessDecisionVoter<? extends Object>>asList(abstain, abstain, abstain));
         mgr.setAllowIfAllAbstainDecisions(true);
         assertTrue(mgr.isAllowIfAllAbstainDecisions()); // check changed
 
