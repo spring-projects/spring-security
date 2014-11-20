@@ -97,7 +97,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>> extends Abst
      * @return the {@link CsrfConfigurer} for further customizations
      */
     public CsrfConfigurer<H> requireCsrfProtectionMatcher(RequestMatcher requireCsrfProtectionMatcher) {
-        Assert.notNull(csrfTokenRepository, "requireCsrfProtectionMatcher cannot be null");
+        Assert.notNull(requireCsrfProtectionMatcher, "requireCsrfProtectionMatcher cannot be null");
         this.requireCsrfProtectionMatcher = requireCsrfProtectionMatcher;
         return this;
     }

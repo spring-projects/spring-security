@@ -464,6 +464,13 @@ class CsrfConfigurerTests extends BaseSpringSpec {
         }
     }
 
+    def 'SEC-2749: requireCsrfProtectionMatcher null'() {
+        when:
+        new CsrfConfigurer<>().requireCsrfProtectionMatcher(null)
+        then:
+        thrown(IllegalArgumentException)
+    }
+
     def clearCsrfToken() {
         request.removeAllParameters()
     }
