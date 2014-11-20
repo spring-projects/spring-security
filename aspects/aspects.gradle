@@ -1,6 +1,7 @@
 
 dependencies {
     compile project(':spring-security-core'),
+            springCoreDependency,
             "org.springframework:spring-beans:$springVersion",
             "org.springframework:spring-context:$springVersion"
 

@@ -2,6 +2,7 @@ apply plugin: 'groovy'
 
 dependencies {
     compile project(':spring-security-core'),
+            springCoreDependency,
             'aopalliance:aopalliance:1.0',
             "org.springframework:spring-beans:$springVersion",
             "org.springframework:spring-context:$springVersion",

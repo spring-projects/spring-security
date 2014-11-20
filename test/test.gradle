@@ -3,6 +3,7 @@
 dependencies {
     compile project(':spring-security-core'),
             project(':spring-security-web'),
+            springCoreDependency,
             "org.springframework:spring-test:$springVersion"
 
     optional project(':spring-security-config')
