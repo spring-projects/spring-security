@@ -126,6 +126,15 @@ public class DelegatingSecurityContextCallableTests {
         assertWrapped(callable.call());
     }
 
+    // --- toString
+
+    // SEC-2682
+    @Test
+    public void toStringDelegates() {
+        callable = new DelegatingSecurityContextCallable<Object>(delegate, securityContext);
+        assertThat(callable.toString()).isEqualTo(delegate.toString());
+    }
+
     private void assertWrapped(Object actualResult) throws Exception {
         assertThat(actualResult).isEqualTo(callableResult);
         verify(delegate).call();

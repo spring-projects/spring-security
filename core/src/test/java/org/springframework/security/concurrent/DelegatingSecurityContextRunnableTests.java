@@ -127,6 +127,15 @@ public class DelegatingSecurityContextRunnableTests {
         assertWrapped();
     }
 
+    // --- toString
+
+    // SEC-2682
+    @Test
+    public void toStringDelegates() {
+        runnable = new DelegatingSecurityContextRunnable(delegate, securityContext);
+        assertThat(runnable.toString()).isEqualTo(delegate.toString());
+    }
+
     private void assertWrapped() {
         verify(delegate).run();
         assertThat(SecurityContextHolder.getContext()).isEqualTo(SecurityContextHolder.createEmptyContext());
