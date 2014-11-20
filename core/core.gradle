@@ -13,7 +13,8 @@ configurations {
 }
 
 dependencies {
-    compile 'aopalliance:aopalliance:1.0',
+    compile springCoreDependency,
+            'aopalliance:aopalliance:1.0',
             "org.springframework:spring-aop:$springVersion",
             "org.springframework:spring-beans:$springVersion",
             "org.springframework:spring-context:$springVersion",

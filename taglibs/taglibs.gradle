@@ -5,6 +5,7 @@ dependencies {
     compile project(':spring-security-core'),
             project(':spring-security-web'),
             project(':spring-security-acl'),
+            springCoreDependency,
             "org.springframework:spring-beans:$springVersion",
             "org.springframework:spring-aop:$springVersion",
             "org.springframework:spring-context:$springVersion",

@@ -10,6 +10,7 @@ compileTestJava.dependsOn(':spring-security-core:compileTestJava')
 dependencies {
     // NB: Don't add other compile time dependencies to the config module as this breaks tooling
     compile project(':spring-security-core'),
+            springCoreDependency,
             'aopalliance:aopalliance:1.0',
             "org.springframework:spring-aop:$springVersion",
             "org.springframework:spring-context:$springVersion",
