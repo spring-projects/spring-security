@@ -150,7 +150,7 @@ public class BasicAuthenticationFilterTests {
 
         verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-        assertThat(SecurityContextHolder.getContext().getAuthentication()).isEqualTo("rod");
+        assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("rod");
     }
 
     @Test
@@ -195,7 +195,7 @@ public class BasicAuthenticationFilterTests {
 
         // Test
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-        assertThat(SecurityContextHolder.getContext().getAuthentication()).isEqualTo("rod");
+        assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("rod");
 
         // NOW PERFORM FAILED AUTHENTICATION
 
