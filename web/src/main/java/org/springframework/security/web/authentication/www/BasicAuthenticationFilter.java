@@ -39,6 +39,7 @@ import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 
 /**
@@ -85,7 +86,7 @@ import org.springframework.web.filter.GenericFilterBean;
  *
  * @author Ben Alex
  */
-public class BasicAuthenticationFilter extends GenericFilterBean {
+public class BasicAuthenticationFilter extends OncePerRequestFilter {
 
     //~ Instance fields ================================================================================================
 
@@ -138,11 +139,9 @@ public class BasicAuthenticationFilter extends GenericFilterBean {
         }
     }
 
-    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         final boolean debug = logger.isDebugEnabled();
-        final HttpServletRequest request = (HttpServletRequest) req;
-        final HttpServletResponse response = (HttpServletResponse) res;
 
         String header = request.getHeader("Authorization");
 
@@ -200,6 +199,8 @@ public class BasicAuthenticationFilter extends GenericFilterBean {
 
         chain.doFilter(request, response);
     }
+
+
 
     /**
      * Decodes the header into a username and password.
