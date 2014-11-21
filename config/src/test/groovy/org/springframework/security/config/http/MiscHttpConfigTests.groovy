@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.config.http;
+package org.springframework.security.config.http
 
+import org.springframework.security.web.header.HeaderWriterFilter
 
 import java.security.Principal
 import javax.servlet.Filter
@@ -105,6 +106,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
 
         assert filters.next() instanceof SecurityContextPersistenceFilter
         assert filters.next() instanceof WebAsyncManagerIntegrationFilter
+        assert filters.next() instanceof HeaderWriterFilter
         assert filters.next() instanceof LogoutFilter
         Object authProcFilter = filters.next();
         assert authProcFilter instanceof UsernamePasswordAuthenticationFilter
@@ -185,7 +187,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         expect:
-        getFilters("/anything")[6] instanceof AnonymousAuthenticationFilter
+        getFilters("/anything")[7] instanceof AnonymousAuthenticationFilter
     }
 
     def anonymousFilterIsRemovedIfDisabledFlagSet() {
@@ -358,7 +360,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         AUTO_CONFIG_FILTERS + 3 == filters.size();
         filters[0] instanceof SecurityContextHolderAwareRequestFilter
         filters[1] instanceof SecurityContextPersistenceFilter
-        filters[5] instanceof SecurityContextHolderAwareRequestFilter
+        filters[6] instanceof SecurityContextHolderAwareRequestFilter
         filters[1] instanceof SecurityContextPersistenceFilter
     }
 
@@ -381,7 +383,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         expect:
-        getFilters("/someurl")[3] instanceof X509AuthenticationFilter
+        getFilters("/someurl")[4] instanceof X509AuthenticationFilter
     }
 
     def x509SubjectPrincipalRegexCanBeSetUsingPropertyPlaceholder() {

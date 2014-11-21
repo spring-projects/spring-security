@@ -638,9 +638,7 @@ class HttpConfigurationBuilder {
 
     private void createAddHeadersFilter() {
         Element elmt = DomUtils.getChildElementByTagName(httpElt, Elements.HEADERS);
-        if (elmt != null) {
-            this.addHeadersFilter = new HeadersBeanDefinitionParser().parse(elmt, pc);
-        }
+        this.addHeadersFilter = new HeadersBeanDefinitionParser().parse(elmt, pc);
 
     }
 

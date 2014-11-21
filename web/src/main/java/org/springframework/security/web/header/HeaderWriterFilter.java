@@ -44,7 +44,7 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
      * @param headerWriters the {@link HeaderWriter} instances to write out headers to the {@link HttpServletResponse}.
      */
     public HeaderWriterFilter(List<HeaderWriter> headerWriters) {
-        Assert.notEmpty(headerWriters, "headerWriters cannot be null");
+        Assert.notEmpty(headerWriters, "headerWriters cannot be null or empty");
         this.headerWriters = headerWriters;
     }
 

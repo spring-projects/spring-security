@@ -6645,7 +6645,14 @@ This element allows for configuring additional (security) headers to be send wit
 ** `X-XSS-Protection` - Can be set using the <<nsa-xss-protection,xss-protection>> element. The http://en.wikipedia.org/wiki/Cross-site_scripting[X-XSS-Protection ] header can be used by browser to do basic control.
 ** `X-Content-Type-Options` - Can be set using the <<nsa-content-type-options,content-type-options>> element. The http://blogs.msdn.com/b/ie/archive/2008/09/02/ie8-security-part-vi-beta-2-update.aspx[X-Content-Type-Options] header prevents Internet Explorer from MIME-sniffing a response away from the declared content-type. This also applies to Google Chrome, when downloading extensions.
 
+[[nsa-headers-attributes]]
+===== <headers> Attributes
+The attributes on the `<headers>` element control the headers element.
 
+
+[[nsa-headers-disabled]]
+* **disabled**
+Optional attribute that specifies to disable Spring Security's HTTP response headers. The default is false (the headers are enabled).
 
 
 [[nsa-headers-parents]]

@@ -80,14 +80,24 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
         headerWriters = new ManagedList<BeanMetadataElement>();
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(HeaderWriterFilter.class);
 
-        parseCacheControlElement(element);
-        parseHstsElement(element);
-        parseXssElement(element, parserContext);
-        parseFrameOptionsElement(element, parserContext);
-        parseContentTypeOptionsElement(element);
+        if(element != null) {
 
-        parseHeaderElements(element);
+            parseCacheControlElement(element);
+            parseHstsElement(element);
+            parseXssElement(element, parserContext);
+            parseFrameOptionsElement(element, parserContext);
+            parseContentTypeOptionsElement(element);
 
+            parseHeaderElements(element);
+        }
+
+        boolean disabled = element != null && "true".equals(element.getAttribute("disabled"));
+        if(disabled) {
+            if(!headerWriters.isEmpty()) {
+                parserContext.getReaderContext().error("Cannot specify <headers disabled=\"true\"> with child elements.", element);
+            }
+            return null;
+        }
         if(headerWriters.isEmpty()) {
             addCacheControl();
             addHsts(null);

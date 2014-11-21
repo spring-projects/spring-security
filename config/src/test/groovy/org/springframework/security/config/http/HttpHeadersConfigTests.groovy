@@ -27,16 +27,48 @@ import org.springframework.security.web.util.matcher.AnyRequestMatcher
  * @author Rob Winch
  */
 class HttpHeadersConfigTests extends AbstractHttpConfigTests {
+    def 'headers disabled'() {
+        setup:
+            httpAutoConfig {
+                'headers'(disabled:true)
+            }
+            createAppContext()
 
-    def 'no http headers filter'() {
+        when:
+            def hf = getFilter(HeaderWriterFilter)
+        then:
+            !hf
+    }
+
+    def 'headers disabled with child fails'() {
+        when:
+            httpAutoConfig {
+                'headers'(disabled:true) {
+                    'content-type-options'()
+                }
+            }
+            createAppContext()
+        then:
+            thrown(BeanDefinitionParsingException)
+    }
+
+    def 'default headers'() {
         httpAutoConfig {
         }
         createAppContext()
 
-        def hf = getFilter(HeaderWriterFilter)
-
-        expect:
-        !hf
+        when:
+            def hf = getFilter(HeaderWriterFilter)
+            MockHttpServletResponse response = new MockHttpServletResponse()
+            hf.doFilter(new MockHttpServletRequest(secure:true), response, new MockFilterChain())
+        then:
+            assertHeaders(response, ['X-Content-Type-Options':'nosniff',
+                                 'X-Frame-Options':'DENY',
+                                 'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
+                                 'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
+                                 'Expires' : '0',
+                                 'Pragma':'no-cache',
+                                 'X-XSS-Protection' : '1; mode=block'])
     }
 
     def 'http headers with empty headers'() {
