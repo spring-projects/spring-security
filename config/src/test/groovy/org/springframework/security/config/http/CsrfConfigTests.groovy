@@ -47,9 +47,34 @@ class CsrfConfigTests extends AbstractHttpConfigTests {
     MockHttpServletResponse response = new MockHttpServletResponse()
     MockFilterChain chain = new MockFilterChain()
 
-    def 'no http csrf filter by default'() {
+    @Unroll
+    def 'csrf is enabled by default'() {
+        setup:
+        httpAutoConfig {
+        }
+        createAppContext()
+        when:
+        request.method = httpMethod
+        springSecurityFilterChain.doFilter(request,response,chain)
+        then:
+        response.status == httpStatus
+        where:
+        httpMethod | httpStatus
+        'POST'     | HttpServletResponse.SC_FORBIDDEN
+        'PUT'      | HttpServletResponse.SC_FORBIDDEN
+        'PATCH'    | HttpServletResponse.SC_FORBIDDEN
+        'DELETE'   | HttpServletResponse.SC_FORBIDDEN
+        'INVALID'  | HttpServletResponse.SC_FORBIDDEN
+        'GET'      | HttpServletResponse.SC_OK
+        'HEAD'     | HttpServletResponse.SC_OK
+        'TRACE'    | HttpServletResponse.SC_OK
+        'OPTIONS'  | HttpServletResponse.SC_OK
+    }
+
+    def 'csrf disabled'() {
         when:
             httpAutoConfig {
+                csrf(disabled:true)
             }
             createAppContext()
         then:

@@ -110,6 +110,7 @@ class InterceptUrlConfigTests extends AbstractHttpConfigTests {
            xml.http() {
                'http-basic'()
                'intercept-url'(pattern: '/**', 'method':'PATCH',access: 'ROLE_ADMIN')
+               csrf(disabled:true)
            }
            createAppContext()
        when: 'Method other than PATCH is used'

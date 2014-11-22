@@ -2251,6 +2251,13 @@
       </xs:complexType>
    </xs:element>
   <xs:attributeGroup name="csrf-options.attlist">
+      <xs:attribute name="disabled" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>Specifies if csrf protection should be disabled. Default false (i.e. CSRF protection is
+                enabled).
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
       <xs:attribute name="request-matcher-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>The RequestMatcher instance to be used to determine if CSRF should be applied. Default is

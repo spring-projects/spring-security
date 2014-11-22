@@ -47,7 +47,7 @@ class SecurityContextHolderAwareRequestConfigTests extends AbstractHttpConfigTes
 
     def withAutoConfig() {
         httpAutoConfig () {
-
+            csrf(disabled:true)
         }
         createAppContext(AUTH_PROVIDER_XML)
 
@@ -93,10 +93,12 @@ class SecurityContextHolderAwareRequestConfigTests extends AbstractHttpConfigTes
         xml.http('authentication-manager-ref' : 'authManager', 'pattern' : '/first/**') {
             'form-login'('login-page' : '/login')
             'logout'('invalidate-session' : 'true')
+            csrf(disabled:true)
         }
         xml.http('authentication-manager-ref' : 'authManager2') {
             'form-login'('login-page' : '/login2')
             'logout'('invalidate-session' : 'false')
+            csrf(disabled:true)
         }
 
         String secondAuthManager = AUTH_PROVIDER_XML.replace("alias='authManager'", "id='authManager2'")
@@ -125,6 +127,7 @@ class SecurityContextHolderAwareRequestConfigTests extends AbstractHttpConfigTes
         xml.http() {
             'form-login'('login-page' : '/login')
             'logout'('invalidate-session' : 'false', 'logout-success-url' : '/login?logout', 'delete-cookies' : 'JSESSIONID')
+            csrf(disabled:true)
         }
         createAppContext(AUTH_PROVIDER_XML)
 

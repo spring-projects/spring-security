@@ -13,6 +13,7 @@ class LogoutConfigTests extends AbstractHttpConfigTests {
         when:
             httpAutoConfig {
                 'logout'('logout-url':'/logout')
+                csrf(disabled:true)
             }
             createAppContext()
 

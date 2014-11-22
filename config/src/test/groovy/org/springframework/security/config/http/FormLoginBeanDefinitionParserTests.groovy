@@ -16,6 +16,7 @@ class FormLoginBeanDefinitionParserTests extends AbstractHttpConfigTests {
             MockHttpServletResponse response = new MockHttpServletResponse()
             MockFilterChain chain = new MockFilterChain()
             httpAutoConfig {
+                csrf(disabled:true)
             }
             createAppContext()
         when:
@@ -38,6 +39,7 @@ class FormLoginBeanDefinitionParserTests extends AbstractHttpConfigTests {
             MockFilterChain chain = new MockFilterChain()
             httpAutoConfig {
                 'form-login'('login-processing-url':'/login_custom','username-parameter':'custom_user','password-parameter':'custom_password')
+                csrf(disabled:true)
             }
             createAppContext()
         when:
@@ -60,6 +62,7 @@ class FormLoginBeanDefinitionParserTests extends AbstractHttpConfigTests {
             MockFilterChain chain = new MockFilterChain()
             httpAutoConfig {
                 'openid-login'()
+                csrf(disabled:true)
             }
             createAppContext()
         when:
@@ -87,6 +90,7 @@ class FormLoginBeanDefinitionParserTests extends AbstractHttpConfigTests {
             MockFilterChain chain = new MockFilterChain()
             httpAutoConfig {
                 'openid-login'('login-processing-url':'/login_custom')
+                csrf(disabled:true)
             }
             createAppContext()
         when:

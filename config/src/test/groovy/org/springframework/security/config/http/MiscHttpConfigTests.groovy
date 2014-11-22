@@ -15,6 +15,7 @@
  */
 package org.springframework.security.config.http
 
+import org.springframework.security.web.csrf.CsrfFilter
 import org.springframework.security.web.header.HeaderWriterFilter
 
 import java.security.Principal
@@ -107,6 +108,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         assert filters.next() instanceof SecurityContextPersistenceFilter
         assert filters.next() instanceof WebAsyncManagerIntegrationFilter
         assert filters.next() instanceof HeaderWriterFilter
+        assert filters.next() instanceof CsrfFilter
         assert filters.next() instanceof LogoutFilter
         Object authProcFilter = filters.next();
         assert authProcFilter instanceof UsernamePasswordAuthenticationFilter
@@ -187,7 +189,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         expect:
-        getFilters("/anything")[7] instanceof AnonymousAuthenticationFilter
+        getFilters("/anything")[8] instanceof AnonymousAuthenticationFilter
     }
 
     def anonymousFilterIsRemovedIfDisabledFlagSet() {
@@ -360,7 +362,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         AUTO_CONFIG_FILTERS + 3 == filters.size();
         filters[0] instanceof SecurityContextHolderAwareRequestFilter
         filters[1] instanceof SecurityContextPersistenceFilter
-        filters[6] instanceof SecurityContextHolderAwareRequestFilter
+        filters[7] instanceof SecurityContextHolderAwareRequestFilter
         filters[1] instanceof SecurityContextPersistenceFilter
     }
 
@@ -383,7 +385,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         createAppContext()
 
         expect:
-        getFilters("/someurl")[4] instanceof X509AuthenticationFilter
+        getFilters("/someurl")[5] instanceof X509AuthenticationFilter
     }
 
     def x509SubjectPrincipalRegexCanBeSetUsingPropertyPlaceholder() {
@@ -420,21 +422,9 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         def handlers = getFilter(LogoutFilter).handlers
 
         expect:
-        handlers[1] instanceof CookieClearingLogoutHandler
-        handlers[1].cookiesToClear[0] == 'JSESSIONID'
-        handlers[1].cookiesToClear[1] == 'mycookie'
-    }
-
-    def invalidLogoutUrlIsDetected() {
-        when:
-        xml.http {
-            'logout'('logout-url': 'noLeadingSlash')
-            'form-login'()
-        }
-        createAppContext()
-
-        then:
-        BeanCreationException e = thrown();
+        handlers[2] instanceof CookieClearingLogoutHandler
+        handlers[2].cookiesToClear[0] == 'JSESSIONID'
+        handlers[2].cookiesToClear[1] == 'mycookie'
     }
 
     def logoutSuccessHandlerIsSetCorrectly() {
@@ -615,6 +605,7 @@ class MiscHttpConfigTests extends AbstractHttpConfigTests {
         xml.debug()
         xml.http() {
             'form-login'()
+            csrf(disabled:true)
             anonymous(enabled: 'false')
         }
         createAppContext()

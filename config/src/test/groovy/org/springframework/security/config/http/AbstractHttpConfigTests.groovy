@@ -26,7 +26,7 @@ import org.springframework.security.web.FilterInvocation
  *
  */
 abstract class AbstractHttpConfigTests extends AbstractXmlConfigTests {
-    final int AUTO_CONFIG_FILTERS = 13;
+    final int AUTO_CONFIG_FILTERS = 14;
 
     def httpAutoConfig(Closure c) {
         xml.http('auto-config': 'true', c)

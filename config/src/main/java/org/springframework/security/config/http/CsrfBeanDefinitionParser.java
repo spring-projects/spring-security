@@ -56,6 +56,10 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
     private BeanDefinition csrfFilter;
 
     public BeanDefinition parse(Element element, ParserContext pc) {
+        boolean disabled = element != null && "true".equals(element.getAttribute("disabled"));
+        if(disabled) {
+            return null;
+        }
         boolean webmvcPresent = ClassUtils.isPresent(DISPATCHER_SERVLET_CLASS_NAME, getClass().getClassLoader());
         if(webmvcPresent) {
             RootBeanDefinition beanDefinition = new RootBeanDefinition(CsrfRequestDataValueProcessor.class);
@@ -64,8 +68,11 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
             pc.registerBeanComponent(componentDefinition);
         }
 
-        csrfRepositoryRef = element.getAttribute(ATT_REPOSITORY);
-        String matcherRef = element.getAttribute(ATT_MATCHER);
+        String matcherRef = null;
+        if(element != null) {
+            csrfRepositoryRef = element.getAttribute(ATT_REPOSITORY);
+            matcherRef = element.getAttribute(ATT_MATCHER);
+        }
 
         if(!StringUtils.hasText(csrfRepositoryRef)) {
             RootBeanDefinition csrfTokenRepository = new RootBeanDefinition(HttpSessionCsrfTokenRepository.class);

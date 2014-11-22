@@ -642,16 +642,18 @@ class HttpConfigurationBuilder {
 
     }
 
-    private CsrfBeanDefinitionParser createCsrfFilter() {
+    private void createCsrfFilter() {
         Element elmt = DomUtils.getChildElementByTagName(httpElt, Elements.CSRF);
-        if (elmt != null) {
-            csrfParser = new CsrfBeanDefinitionParser();
-            csrfFilter = csrfParser.parse(elmt, pc);
-            this.csrfAuthStrategy = csrfParser.getCsrfAuthenticationStrategy();
-            this.csrfLogoutHandler = csrfParser.getCsrfLogoutHandler();
-            return csrfParser;
+        csrfParser = new CsrfBeanDefinitionParser();
+        csrfFilter = csrfParser.parse(elmt, pc);
+
+        if(csrfFilter == null) {
+            csrfParser = null;
+            return;
         }
-        return null;
+
+        this.csrfAuthStrategy = csrfParser.getCsrfAuthenticationStrategy();
+        this.csrfLogoutHandler = csrfParser.getCsrfLogoutHandler();
     }
 
     BeanMetadataElement getCsrfLogoutHandler() {

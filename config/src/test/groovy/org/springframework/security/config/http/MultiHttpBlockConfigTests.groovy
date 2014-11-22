@@ -74,9 +74,11 @@ class MultiHttpBlockConfigTests extends AbstractHttpConfigTests {
         setup:
             xml.http('authentication-manager-ref' : 'authManager', 'pattern' : '/first/**') {
                 'form-login'('login-processing-url': '/first/login')
+                csrf(disabled:true)
             }
             xml.http('authentication-manager-ref' : 'authManager2') {
                 'form-login'()
+                csrf(disabled:true)
             }
             mockBean(UserDetailsService,'uds')
             mockBean(UserDetailsService,'uds2')

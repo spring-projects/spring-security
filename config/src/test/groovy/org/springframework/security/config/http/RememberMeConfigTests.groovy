@@ -91,6 +91,7 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
     def rememberMeServiceWorksWithExternalServicesImpl() {
         httpAutoConfig () {
             'remember-me'('key': "#{'our' + 'key'}", 'services-ref': 'rms')
+            csrf(disabled:true)
         }
         xml.'b:bean'(id: 'rms', 'class': TokenBasedRememberMeServices.class.name) {
             'b:constructor-arg'(value: 'ourKey')
@@ -118,6 +119,7 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
     def rememberMeAddsLogoutHandlerToLogoutFilter() {
         httpAutoConfig () {
             'remember-me'()
+            csrf(disabled:true)
         }
         createAppContext(AUTH_PROVIDER_XML)
 

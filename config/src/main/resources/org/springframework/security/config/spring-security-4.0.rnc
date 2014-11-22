@@ -722,6 +722,9 @@ csrf =
  ## Element for configuration of the CsrfFilter for protection against CSRF. It also updates the default RequestCache to only replay "GET" requests.
     element csrf {csrf-options.attlist}
 csrf-options.attlist &=
+    ## Specifies if csrf protection should be disabled. Default false (i.e. CSRF protection is enabled).
+    attribute disabled {xsd:boolean}?
+csrf-options.attlist &=
     ## The RequestMatcher instance to be used to determine if CSRF should be applied. Default is any HTTP method except "GET", "TRACE", "HEAD", "OPTIONS"
     attribute request-matcher-ref { xsd:token }?
 csrf-options.attlist &=
