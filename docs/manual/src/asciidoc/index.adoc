@@ -3322,23 +3322,9 @@ Spring Security allows users to easily inject the default security headers to as
 * <<headers-frame-options,X-Frame-Options>>
 * <<headers-xss-protection,X-XSS-Protection>>
 
-While each of these headers are considered best practice, it should be noted that not all clients utilize the headers, so additional testing is encouraged. For passivity reasons, if you are using Spring Security's XML namespace support, you must explicitly enable the security headers. All of the default headers can be easily added using the <<nsa-headers,<headers>>> element with no child elements:
+While each of these headers are considered best practice, it should be noted that not all clients utilize the headers, so additional testing is encouraged. As of Spring Security 4.0, HTTP Security response headers are enabled by default.
 
-[NOTE]
-====
-https://jira.springsource.org/browse/SEC-2348[SEC-2348] is logged to ensure Spring Security 4.x's XML namespace configuration will enable Security headers by default.
-====
-
-[source,xml]
-----
-<http>
-    <!-- ... -->
-
-    <headers />
-</http>
-----
-
-Alternatively, you can choose to explicitly list the headers you wish to include. For example, the following is the same the previous configuration. Removing any of the elements will remove that header from the responses.
+Alternatively, you can choose to explicitly list the headers you wish to include. For example, the following is the same the default configuration. Removing any of the elements will remove that header from the responses.
 
 [source,xml]
 ----
@@ -3352,6 +3338,17 @@ Alternatively, you can choose to explicitly list the headers you wish to include
         <frame-options />
         <xss-protection />
     </headers>
+</http>
+----
+
+If necessary, you can disable the HTTP Security response headers with the following configuration:
+
+[source,xml]
+----
+<http>
+    <!-- ... -->
+
+    <headers disabled="true" />
 </http>
 ----
 

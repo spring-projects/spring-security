@@ -107,6 +107,7 @@ public class SessionManagementConfigServlet31Tests {
         loadContext("<http>\n" +
                 "        <form-login/>\n" +
                 "        <session-management/>\n" +
+                "        <csrf disabled='true'/>\n" +
                 "    </http>" +
                 XML_AUTHENTICATION_MANAGER);
 
@@ -132,6 +133,7 @@ public class SessionManagementConfigServlet31Tests {
         loadContext("<http>\n" +
                 "        <form-login/>\n" +
                 "        <session-management session-fixation-protection='changeSessionId'/>\n" +
+                "        <csrf disabled='true'/>\n" +
                 "    </http>" +
                 XML_AUTHENTICATION_MANAGER);
 
