@@ -24,6 +24,7 @@
         <custom-filter ref="singleLogoutFilter" before="CAS_FILTER"/>
         <custom-filter ref="casFilter" position="CAS_FILTER" />
         <logout logout-success-url="/cas-logout.jsp"/>
+        <csrf disabled="true"/>
     </http>
 
     <authentication-manager alias="authManager">

@@ -15,6 +15,7 @@
         <sec:intercept-url pattern="/**" access="@fsi.getAccessDecisionManager() eq @accessDecisionManager" />
         <sec:form-login />
         <sec:custom-filter ref="fsi" after="FILTER_SECURITY_INTERCEPTOR " />
+        <sec:csrf disabled="true"/>
     </sec:http>
 
     <bean id="fsi" class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
