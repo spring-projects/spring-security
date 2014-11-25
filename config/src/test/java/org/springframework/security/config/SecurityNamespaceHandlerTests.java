@@ -13,6 +13,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
+import org.springframework.messaging.Message;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.util.ClassUtils;
 
@@ -121,5 +122,17 @@ public class SecurityNamespaceHandlerTests {
         new InMemoryXmlApplicationContext(
                 XML_AUTHENTICATION_MANAGER);
         // should load just fine since no http block
+    }
+
+
+
+    @Test
+    public void messageNotFoundExceptionNoMessageBlock() throws Exception {
+        String className = FILTER_CHAIN_PROXY_CLASSNAME;
+        spy(ClassUtils.class);
+        doThrow(new ClassNotFoundException(className)).when(ClassUtils.class,"forName",eq(Message.class.getName()),any(ClassLoader.class));
+        new InMemoryXmlApplicationContext(
+                XML_AUTHENTICATION_MANAGER);
+        // should load just fine since no message block
     }
 }

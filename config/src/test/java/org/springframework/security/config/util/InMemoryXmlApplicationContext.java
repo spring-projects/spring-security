@@ -30,9 +30,11 @@ public class InMemoryXmlApplicationContext extends AbstractXmlApplicationContext
                     "    xmlns:context='http://www.springframework.org/schema/context'\n" +
                     "    xmlns:b='http://www.springframework.org/schema/beans'\n" +
                     "    xmlns:aop='http://www.springframework.org/schema/aop'\n" +
+                    "    xmlns:websocket='http://www.springframework.org/schema/websocket'\n" +
                     "    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n" +
                     "    xsi:schemaLocation='http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd\n" +
                     "http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd\n" +
+                    "http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket.xsd\n" +
                     "http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd\n" +
                     "http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-";
     private static final String BEANS_CLOSE = "</b:beans>\n";

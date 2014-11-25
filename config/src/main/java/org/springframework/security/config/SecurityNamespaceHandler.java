@@ -38,6 +38,7 @@ import org.springframework.security.config.http.HttpSecurityBeanDefinitionParser
 import org.springframework.security.config.ldap.LdapProviderBeanDefinitionParser;
 import org.springframework.security.config.ldap.LdapServerBeanDefinitionParser;
 import org.springframework.security.config.ldap.LdapUserServiceBeanDefinitionParser;
+import org.springframework.security.config.message.MessageSecurityBeanDefinitionParser;
 import org.springframework.security.config.method.GlobalMethodSecurityBeanDefinitionParser;
 import org.springframework.security.config.method.InterceptMethodsBeanDefinitionDecorator;
 import org.springframework.security.config.method.MethodSecurityMetadataSourceBeanDefinitionParser;
@@ -56,6 +57,7 @@ import org.w3c.dom.Node;
  */
 public final class SecurityNamespaceHandler implements NamespaceHandler {
     private static final String FILTER_CHAIN_PROXY_CLASSNAME = "org.springframework.security.web.FilterChainProxy";
+    private static final String MESSAGE_CLASSNAME = "org.springframework.messaging.Message";
     private final Log logger = LogFactory.getLog(getClass());
     private final Map<String, BeanDefinitionParser> parsers = new HashMap<String, BeanDefinitionParser>();
     private final BeanDefinitionDecorator interceptMethodsBDD = new InterceptMethodsBeanDefinitionDecorator();
@@ -175,6 +177,10 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
             parsers.put(Elements.FILTER_SECURITY_METADATA_SOURCE, new FilterInvocationSecurityMetadataSourceParser());
             parsers.put(Elements.FILTER_CHAIN, new FilterChainBeanDefinitionParser());
             filterChainMapBDD = new FilterChainMapBeanDefinitionDecorator();
+        }
+
+        if(ClassUtils.isPresent(MESSAGE_CLASSNAME, getClass().getClassLoader())) {
+            parsers.put(Elements.MESSAGES, new MessageSecurityBeanDefinitionParser());
         }
     }
 

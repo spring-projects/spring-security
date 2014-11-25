@@ -275,6 +275,25 @@ protect-pointcut.attlist &=
     ## Access configuration attributes list that applies to all methods matching the pointcut, e.g. "ROLE_A,ROLE_B"
     attribute access {xsd:token}
 
+messages =
+    ## Messages
+    element messages { messages.attrlist, (message-interceptor*) }
+
+messages.attrlist &=
+    ## the id
+    attribute id {xsd:token}?
+
+message-interceptor =
+    ## Message
+    element message-interceptor {message-interceptor.attrlist}
+
+message-interceptor.attrlist &=
+    ## pattern
+    attribute pattern {xsd:token}?
+message-interceptor.attrlist &=
+    ## access
+    attribute access {xsd:token}?
+
 http-firewall =
     ## Allows a custom instance of HttpFirewall to be injected into the FilterChainProxy created by the namespace.
     element http-firewall {ref}

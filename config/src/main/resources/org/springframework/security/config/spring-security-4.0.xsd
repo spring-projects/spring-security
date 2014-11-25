@@ -853,6 +853,49 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
+  <xs:element name="messages">
+      <xs:annotation>
+         <xs:documentation>Messages
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="security:message-interceptor"/>
+         </xs:sequence>
+         <xs:attributeGroup ref="security:messages.attrlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="messages.attrlist">
+      <xs:attribute name="id" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>the id
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="message-interceptor">
+      <xs:annotation>
+         <xs:documentation>Message
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:message-interceptor.attrlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="message-interceptor.attrlist">
+      <xs:attribute name="pattern" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>pattern
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="access" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>access
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
   <xs:element name="http-firewall">
       <xs:annotation>
          <xs:documentation>Allows a custom instance of HttpFirewall to be injected into the FilterChainProxy created
