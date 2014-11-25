@@ -276,22 +276,22 @@ protect-pointcut.attlist &=
     attribute access {xsd:token}
 
 messages =
-    ## Messages
+    ## Allows securing a Message Broker. There are two modes. If no id is specified: ensures that any SimpAnnotationMethodMessageHandler has the AuthenticationPrincipalArgumentResolver registered as a custom argument resolver; ensures that the SecurityContextChannelInterceptor is automatically registered for the clientInboundChannel; and that a ChannelSecurityInterceptor is registered with the clientInboundChannel. If the id is specified, creates a ChannelSecurityInterceptor that can be manually registered with the clientInboundChannel.
     element messages { messages.attrlist, (message-interceptor*) }
 
 messages.attrlist &=
-    ## the id
+    ## A bean identifier, used for referring to the bean elsewhere in the context. If specified, explicit configuration within clientInboundChannel is required. If not specified, ensures that any SimpAnnotationMethodMessageHandler has the AuthenticationPrincipalArgumentResolver registered as a custom argument resolver; ensures that the SecurityContextChannelInterceptor is automatically registered for the clientInboundChannel; and that a ChannelSecurityInterceptor is registered with the clientInboundChannel.
     attribute id {xsd:token}?
 
 message-interceptor =
-    ## Message
+    ## Creates an authorization rule for a message.
     element message-interceptor {message-interceptor.attrlist}
 
 message-interceptor.attrlist &=
-    ## pattern
+    ## The destination ant pattern which will be mapped to the access attribute. For example, /** matches any message with a destination, /admin/** matches any message that has a destination that starts with admin.
     attribute pattern {xsd:token}?
 message-interceptor.attrlist &=
-    ## access
+     ## The access configuration attributes that apply for the configured message. For example, permitAll grants access to anyone, hasRole('ROLE_ADMIN') requires the user have the role 'ROLE_ADMIN'.
     attribute access {xsd:token}?
 
 http-firewall =
