@@ -74,7 +74,7 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
     private ClassLoader beanClassLoader;
 
     @Bean
-    public DelegatingApplicationListener delegatingApplicationListener() {
+    public static DelegatingApplicationListener delegatingApplicationListener() {
         return new DelegatingApplicationListener();
     }
 
