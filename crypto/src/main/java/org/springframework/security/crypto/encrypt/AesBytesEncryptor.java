@@ -36,7 +36,7 @@ import org.springframework.security.crypto.keygen.BytesKeyGenerator;
  *
  * @author Keith Donald
  */
-final class AesBytesEncryptor implements BytesEncryptor {
+public final class AesBytesEncryptor implements BytesEncryptor {
 
     private final SecretKey secretKey;
 
