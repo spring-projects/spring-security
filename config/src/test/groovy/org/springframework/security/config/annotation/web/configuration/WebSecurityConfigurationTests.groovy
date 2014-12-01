@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.config.annotation.web.configuration;
+package org.springframework.security.config.annotation.web.configuration
+
+import java.lang.reflect.Modifier
 
 import static org.junit.Assert.*
 
@@ -342,4 +344,9 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
     @EnableWebSecurity
     @Configuration
     static class ChildConfig extends WebSecurityConfigurerAdapter { }
+
+    def "SEC-2773: delegatingApplicationListener is static method"() {
+        expect: 'delegatingApplicationListener to prevent premature instantiation of WebSecurityConfiguration'
+        Modifier.isStatic(WebSecurityConfiguration.metaClass.methods.find { it.name == 'delegatingApplicationListener'}.modifiers)
+    }
 }
