@@ -157,6 +157,12 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
                 // update the current context to the new target user
                 SecurityContextHolder.getContext().setAuthentication(targetUser);
 
+				// publish event SEC-2548
+                if (this.eventPublisher != null) {
+                    eventPublisher.publishEvent(new AuthenticationSwitchUserEvent(
+                        SecurityContextHolder.getContext().getAuthentication(), targetUser));
+                }
+
                 // redirect to target url
                 successHandler.onAuthenticationSuccess(request, response, targetUser);
             } catch (AuthenticationException e) {
@@ -171,6 +177,11 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 
             // update the current context back to the original user
             SecurityContextHolder.getContext().setAuthentication(originalUser);
+
+			// publish event SEC-2548
+            if (this.eventPublisher != null) {
+                eventPublisher.publishEvent(new AuthenticationSwitchUserEvent(current, originalUser));
+            }
 
             // redirect to target url
             successHandler.onAuthenticationSuccess(request, response, originalUser);
@@ -216,12 +227,6 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
             logger.debug("Switch User Token [" + targetUserRequest + "]");
         }
 
-        // publish event
-        if (this.eventPublisher != null) {
-            eventPublisher.publishEvent(new AuthenticationSwitchUserEvent(
-                    SecurityContextHolder.getContext().getAuthentication(), targetUser));
-        }
-
         return targetUserRequest;
     }
 
@@ -262,11 +267,6 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 
         if ((obj != null) && obj instanceof UserDetails) {
             originalUser = (UserDetails) obj;
-        }
-
-        // publish event
-        if (this.eventPublisher != null) {
-            eventPublisher.publishEvent(new AuthenticationSwitchUserEvent(current, originalUser));
         }
 
         return original;
