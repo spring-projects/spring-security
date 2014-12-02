@@ -157,7 +157,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
                 // update the current context to the new target user
                 SecurityContextHolder.getContext().setAuthentication(targetUser);
 
-				// publish event SEC-2548
+                // publish event SEC-2548
                 if (this.eventPublisher != null) {
                     eventPublisher.publishEvent(new AuthenticationSwitchUserEvent(
                         SecurityContextHolder.getContext().getAuthentication(), targetUser));
@@ -178,7 +178,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
             // update the current context back to the original user
             SecurityContextHolder.getContext().setAuthentication(originalUser);
 
-			// publish event SEC-2548
+            // publish event SEC-2548
             if (this.eventPublisher != null) {
                 eventPublisher.publishEvent(new AuthenticationSwitchUserEvent(current, originalUser));
             }
