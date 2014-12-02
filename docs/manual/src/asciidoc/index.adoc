@@ -3021,11 +3021,11 @@ You will notice that we added the _csrf parameter with a random value. Now the e
 
 
 === When to use CSRF protection
-When you use CSRF protection? Our recommendation is to use CSRF protection for any request that could be processed by a browser by normal users. If you are only creating a service that is used by non-browser clients, you will likely want to disable CSRF protection.
+When should you use CSRF protection? Our recommendation is to use CSRF protection for any request that could be processed by a browser by normal users. If you are only creating a service that is used by non-browser clients, you will likely want to disable CSRF protection.
 
 
 ==== CSRF protection and JSON
-A common question is, but do I need to protect JSON requests made by javascript? The short answer is, it depends. However, you must be very careful as there are CSRF exploits that can impact JSON requests. For example, a malicious user can create a http://blog.opensecurityresearch.com/2012/02/json-csrf-with-parameter-padding.html[CSRF with JSON using the following form]:
+A common question is "do I need to protect JSON requests made by javascript?" The short answer is, it depends. However, you must be very careful as there are CSRF exploits that can impact JSON requests. For example, a malicious user can create a http://blog.opensecurityresearch.com/2012/02/json-csrf-with-parameter-padding.html[CSRF with JSON using the following form]:
 
 
 [source,xml]
@@ -3066,7 +3066,7 @@ What if my application is stateless? That doesn't necessarily mean you are prote
 
 For example, consider an application uses a custom cookie that contains all the state within it for authentication instead of the JSESSIONID. When the CSRF attack is made the custom cookie will be sent with the request in the same manner that the JSESSIONID cookie was sent in our previous example.
 
-User's using basic authentication are also vulnerable to CSRF attacks since the browser will automatically include the username password in any requests in the same manner that the JSESSIONID cookie was sent in our previous example.
+Users using basic authentication are also vulnerable to CSRF attacks since the browser will automatically include the username password in any requests in the same manner that the JSESSIONID cookie was sent in our previous example.
 
 [[csrf-using]]
 === Using Spring Security CSRF Protection
@@ -3143,7 +3143,7 @@ If you are using Spring MVC `<form:form>` tag or http://www.thymeleaf.org/whatsn
 
 [[csrf-include-csrf-token-ajax]]
 ===== Ajax and JSON Requests
-If you using JSON, then it is not possible to submit the CSRF token within an HTTP parameter. Instead you can submit the token within a HTTP header. A typical pattern would be to include the CSRF token within your meta tags. An example with a JSP is shown below:
+If you are using JSON, then it is not possible to submit the CSRF token within an HTTP parameter. Instead you can submit the token within a HTTP header. A typical pattern would be to include the CSRF token within your meta tags. An example with a JSP is shown below:
 
 
 [source,xml]
@@ -3173,7 +3173,7 @@ $(function () {
 });
 ----
 
-As a alternative to jQuery, we recommend using http://cujojs.com/[cujoJS's] rest.js. The https://github.com/cujojs/rest[rest.js] module provides advanced support for working with HTTP request and responses in RESTful ways. A core capability is the ability to contextualize the HTTP client adding behavior as needed by chaining interceptors on to the client.
+As an alternative to jQuery, we recommend using http://cujojs.com/[cujoJS's] rest.js. The https://github.com/cujojs/rest[rest.js] module provides advanced support for working with HTTP requests and responses in RESTful ways. A core capability is the ability to contextualize the HTTP client adding behavior as needed by chaining interceptors on to the client.
 
 [source,javascript]
 ----
@@ -3198,12 +3198,12 @@ One issue is that the expected CSRF token is stored in the HttpSession, so as so
 
 [NOTE]
 ====
-One might ask why the expected `CsrfToken` isn't stored in a cookie. This is because there are known exploits in which headers (i.e. specify the cookies) can be set by another domain. This is the same reason Ruby on Rails http://weblog.rubyonrails.org/2011/2/8/csrf-protection-bypass-in-ruby-on-rails/[no longer skips CSRF checks when the header X-Requested-With is present]. See http://lists.webappsec.org/pipermail/websecurity_lists.webappsec.org/2011-February/007533.html[this webappsec.org thread] for details on how to perform the exploit. Another disadvantage is that by removing the state (i.e. the timeout) you lose the ability to forcibly terminate the token if something got compromised.
+One might ask why the expected `CsrfToken` isn't stored in a cookie. This is because there are known exploits in which headers (i.e. specify the cookies) can be set by another domain. This is the same reason Ruby on Rails http://weblog.rubyonrails.org/2011/2/8/csrf-protection-bypass-in-ruby-on-rails/[no longer skips CSRF checks when the header X-Requested-With is present]. See http://lists.webappsec.org/pipermail/websecurity_lists.webappsec.org/2011-February/007533.html[this webappsec.org thread] for details on how to perform the exploit. Another disadvantage is that by removing the state (i.e. the timeout) you lose the ability to forcibly terminate the token if it is compromised.
 ====
 
 A simple way to mitigate an active user experiencing a timeout is to have some JavaScript that lets the user know their session is about to expire. The user can click a button to continue and refresh the session.
 
-Alternatively, specifying a custom `AccessDeniedHandler` allows you to process the `InvalidCsrfTokenException` anyway you like. For an example of how to customize the `AccessDeniedHandler` refer to the provided links for both <<nsa-access-denied-handler,xml>> and https://github.com/spring-projects/spring-security/blob/3.2.0.RC1/config/src/test/groovy/org/springframework/security/config/annotation/web/configurers/NamespaceHttpAccessDeniedHandlerTests.groovy#L64[Java configuration].
+Alternatively, specifying a custom `AccessDeniedHandler` allows you to process the `InvalidCsrfTokenException` any way you like. For an example of how to customize the `AccessDeniedHandler` refer to the provided links for both <<nsa-access-denied-handler,xml>> and https://github.com/spring-projects/spring-security/blob/3.2.0.RC1/config/src/test/groovy/org/springframework/security/config/annotation/web/configurers/NamespaceHttpAccessDeniedHandlerTests.groovy#L64[Java configuration].
 
 
 [[csrf-login]]
