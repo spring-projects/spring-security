@@ -5,14 +5,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.xml.BeanDefinitionDecorator;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.config.Elements;
+import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -29,7 +32,7 @@ public class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDeco
     public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder holder, ParserContext parserContext) {
         BeanDefinition filterChainProxy = holder.getBeanDefinition();
 
-        Map filterChainMap = new LinkedHashMap();
+        ManagedList<BeanMetadataElement> securityFilterChains = new ManagedList<BeanMetadataElement>();
         Element elt = (Element)node;
 
         MatcherType matcherType = MatcherType.fromElement(elt);
@@ -53,7 +56,7 @@ public class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDeco
             BeanDefinition matcher = matcherType.createMatcher(path, null);
 
             if (filters.equals(HttpSecurityBeanDefinitionParser.OPT_FILTERS_NONE)) {
-                filterChainMap.put(matcher, Collections.EMPTY_LIST);
+                securityFilterChains.add(createSecurityFilterChain(matcher, new ManagedList(0)));
             } else {
                 String[] filterBeanNames = StringUtils.tokenizeToStringArray(filters, ",");
                 ManagedList filterChain = new ManagedList(filterBeanNames.length);
@@ -62,15 +65,19 @@ public class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDeco
                     filterChain.add(new RuntimeBeanReference(name));
                 }
 
-                filterChainMap.put(matcher, filterChain);
+                securityFilterChains.add(createSecurityFilterChain(matcher, filterChain));
             }
         }
 
-        ManagedMap map = new ManagedMap(filterChainMap.size());
-        map.putAll(filterChainMap);
-
-        filterChainProxy.getPropertyValues().addPropertyValue("filterChainMap", map);
+        filterChainProxy.getConstructorArgumentValues().addGenericArgumentValue(securityFilterChains);
 
         return holder;
+    }
+
+    private BeanDefinition createSecurityFilterChain(BeanDefinition matcher, ManagedList<?> filters) {
+        BeanDefinitionBuilder sfc = BeanDefinitionBuilder.rootBeanDefinition(DefaultSecurityFilterChain.class);
+        sfc.addConstructorArgValue(matcher);
+        sfc.addConstructorArgValue(filters);
+        return sfc.getBeanDefinition();
     }
 }

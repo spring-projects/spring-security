@@ -1,7 +1,5 @@
 package org.springframework.security.config.http;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
@@ -23,10 +21,7 @@ public enum MatcherType {
     regex (RegexRequestMatcher.class),
     ciRegex (RegexRequestMatcher.class);
 
-    private static final Log logger = LogFactory.getLog(MatcherType.class);
-
     private static final String ATT_MATCHER_TYPE = "request-matcher";
-    private static final String ATT_PATH_TYPE = "path-type";
 
     private final Class<? extends RequestMatcher> type;
 
@@ -54,11 +49,6 @@ public enum MatcherType {
     static MatcherType fromElement(Element elt) {
         if (StringUtils.hasText(elt.getAttribute(ATT_MATCHER_TYPE))) {
             return valueOf(elt.getAttribute(ATT_MATCHER_TYPE));
-        }
-
-        if (StringUtils.hasText(elt.getAttribute(ATT_PATH_TYPE))) {
-            logger.warn("'" + ATT_PATH_TYPE + "' is deprecated. Please use '" + ATT_MATCHER_TYPE +"' instead.");
-            return valueOf(elt.getAttribute(ATT_PATH_TYPE));
         }
 
         return ant;

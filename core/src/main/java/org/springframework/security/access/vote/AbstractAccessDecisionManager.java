@@ -50,9 +50,6 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
 
     private boolean allowIfAllAbstainDecisions = false;
 
-    protected AbstractAccessDecisionManager() {
-    }
-
     protected AbstractAccessDecisionManager(List<AccessDecisionVoter<? extends Object>> decisionVoters) {
         Assert.notEmpty(decisionVoters, "A list of AccessDecisionVoters is required");
         this.decisionVoters = decisionVoters;
@@ -82,24 +79,6 @@ public abstract class AbstractAccessDecisionManager implements AccessDecisionMan
 
     public void setAllowIfAllAbstainDecisions(boolean allowIfAllAbstainDecisions) {
         this.allowIfAllAbstainDecisions = allowIfAllAbstainDecisions;
-    }
-
-    /**
-     * @deprecated Use constructor
-     */
-    @Deprecated
-    public void setDecisionVoters(List<AccessDecisionVoter<? extends Object>> newList) {
-        Assert.notEmpty(newList);
-
-        Iterator<AccessDecisionVoter<? extends Object>> iter = newList.iterator();
-
-        while (iter.hasNext()) {
-            Object currentObject = iter.next();
-            Assert.isInstanceOf(AccessDecisionVoter.class, currentObject, "AccessDecisionVoter " +
-                    currentObject.getClass().getName() + " must implement AccessDecisionVoter");
-        }
-
-        this.decisionVoters = newList;
     }
 
     public void setMessageSource(MessageSource messageSource) {

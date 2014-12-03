@@ -33,30 +33,19 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  */
-public class AnonymousAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
+public class AnonymousAuthenticationProvider implements AuthenticationProvider, MessageSourceAware {
 
     //~ Instance fields ================================================================================================
 
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private String key;
 
-    /**
-     *
-     * @deprecated Use constructor injection
-     */
-    @Deprecated
-    public AnonymousAuthenticationProvider() {
-    }
-
     public AnonymousAuthenticationProvider(String key) {
+        Assert.hasLength(key, "A Key is required");
         this.key = key;
     }
 
     //~ Methods ========================================================================================================
-
-    public void afterPropertiesSet() throws Exception {
-        Assert.hasLength(key, "A Key is required");
-    }
 
     public Authentication authenticate(Authentication authentication)
         throws AuthenticationException {
@@ -74,15 +63,6 @@ public class AnonymousAuthenticationProvider implements AuthenticationProvider, 
 
     public String getKey() {
         return key;
-    }
-
-    /**
-     *
-     * @deprecated Use constructor injection
-     */
-    @Deprecated
-    public void setKey(String key) {
-        this.key = key;
     }
 
     public void setMessageSource(MessageSource messageSource) {

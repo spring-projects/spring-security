@@ -98,18 +98,13 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
     private String credentialsCharset = "UTF-8";
 
     /**
-     * @deprecated Use constructor injection
-     */
-    public BasicAuthenticationFilter() {
-    }
-
-    /**
      * Creates an instance which will authenticate against the supplied {@code AuthenticationManager}
      * and which will ignore failed authentication attempts, allowing the request to proceed down the filter chain.
      *
      * @param authenticationManager the bean to submit authentication requests to
      */
     public BasicAuthenticationFilter(AuthenticationManager authenticationManager) {
+        Assert.notNull(authenticationManager, "authenticationManager cannot be null");
         this.authenticationManager = authenticationManager;
         ignoreFailure = true;
     }
@@ -124,6 +119,8 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
      */
     public BasicAuthenticationFilter(AuthenticationManager authenticationManager,
                                      AuthenticationEntryPoint authenticationEntryPoint) {
+        Assert.notNull(authenticationManager, "authenticationManager cannot be null");
+        Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint cannot be null");
         this.authenticationManager = authenticationManager;
         this.authenticationEntryPoint = authenticationEntryPoint;
     }
@@ -269,37 +266,12 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
         return authenticationEntryPoint;
     }
 
-    /**
-     * @deprecated Use constructor injection
-     */
-    @Deprecated
-    public void setAuthenticationEntryPoint(AuthenticationEntryPoint authenticationEntryPoint) {
-        this.authenticationEntryPoint = authenticationEntryPoint;
-    }
-
     protected AuthenticationManager getAuthenticationManager() {
         return authenticationManager;
     }
 
-    /**
-     * @deprecated Use constructor injection
-     */
-    @Deprecated
-    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
-    }
-
     protected boolean isIgnoreFailure() {
         return ignoreFailure;
-    }
-
-    /**
-     *
-     * @deprecated Use the constructor which takes a single AuthenticationManager parameter
-     */
-    @Deprecated
-    public void setIgnoreFailure(boolean ignoreFailure) {
-        this.ignoreFailure = ignoreFailure;
     }
 
     public void setAuthenticationDetailsSource(AuthenticationDetailsSource<HttpServletRequest,?> authenticationDetailsSource) {

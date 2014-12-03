@@ -128,14 +128,15 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 
             BeanDefinition matcher = matcherType.createMatcher(path, method);
             BeanDefinitionBuilder attributeBuilder = BeanDefinitionBuilder.rootBeanDefinition(SecurityConfig.class);
-            attributeBuilder.addConstructorArgValue(access);
 
             if (useExpressions) {
                 logger.info("Creating access control expression attribute '" + access + "' for " + path);
                 // The single expression will be parsed later by the ExpressionFilterInvocationSecurityMetadataSource
-                attributeBuilder.setFactoryMethod("createSingleAttributeList");
+                attributeBuilder.addConstructorArgValue(new String[] { access });
+                attributeBuilder.setFactoryMethod("createList");
 
             } else {
+                attributeBuilder.addConstructorArgValue(access);
                 attributeBuilder.setFactoryMethod("createListFromCommaDelimitedString");
             }
 

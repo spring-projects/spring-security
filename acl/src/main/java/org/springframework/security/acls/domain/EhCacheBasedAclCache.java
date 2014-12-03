@@ -46,15 +46,6 @@ public class EhCacheBasedAclCache implements AclCache {
 
     //~ Constructors ===================================================================================================
 
-    /**
-     * @deprecated use the second constructor which injects the strategy objects. See SEC-1498.
-     */
-    @Deprecated
-    public EhCacheBasedAclCache(Ehcache cache) {
-        Assert.notNull(cache, "Cache required");
-        this.cache = cache;
-    }
-
     public EhCacheBasedAclCache(Ehcache cache, PermissionGrantingStrategy permissionGrantingStrategy,
             AclAuthorizationStrategy aclAuthorizationStrategy) {
         Assert.notNull(cache, "Cache required");

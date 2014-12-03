@@ -131,15 +131,20 @@ public class BasicLookupStrategy implements LookupStrategy {
      * @param dataSource to access the database
      * @param aclCache the cache where fully-loaded elements can be stored
      * @param aclAuthorizationStrategy authorization strategy (required)
-     *
-     * @deprecated Use the version which takes a  {@code PermissionGrantingStrategy} argument instead.
      */
-    @Deprecated
     public BasicLookupStrategy(DataSource dataSource, AclCache aclCache,
             AclAuthorizationStrategy aclAuthorizationStrategy, AuditLogger auditLogger) {
         this(dataSource, aclCache, aclAuthorizationStrategy, new DefaultPermissionGrantingStrategy(auditLogger));
     }
 
+    /**
+     * Creates a new instance
+     *
+     * @param dataSource to access the database
+     * @param aclCache the cache where fully-loaded elements can be stored
+     * @param aclAuthorizationStrategy authorization strategy (required)
+     * @param grantingStrategy the PermissionGrantingStrategy
+     */
     public BasicLookupStrategy(DataSource dataSource, AclCache aclCache,
             AclAuthorizationStrategy aclAuthorizationStrategy, PermissionGrantingStrategy grantingStrategy) {
         Assert.notNull(dataSource, "DataSource required");

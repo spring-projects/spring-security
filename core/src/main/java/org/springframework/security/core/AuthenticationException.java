@@ -22,10 +22,6 @@ package org.springframework.security.core;
  * @author Ben Alex
  */
 public abstract class AuthenticationException extends RuntimeException {
-    //~ Instance fields ================================================================================================
-
-    private Authentication authentication;
-    private transient Object extraInformation;
 
     //~ Constructors ===================================================================================================
 
@@ -48,47 +44,4 @@ public abstract class AuthenticationException extends RuntimeException {
         super(msg);
     }
 
-    /**
-     * @deprecated Use the exception message or use a custom exception if you really need additional information.
-     */
-    @Deprecated
-    public AuthenticationException(String msg, Object extraInformation) {
-        super(msg);
-        if (extraInformation instanceof CredentialsContainer) {
-            ((CredentialsContainer) extraInformation).eraseCredentials();
-        }
-        this.extraInformation = extraInformation;
-    }
-
-    //~ Methods ========================================================================================================
-
-    /**
-     * The authentication request which this exception corresponds to (may be {@code null})
-     * @deprecated to avoid potential leaking of sensitive information (e.g. through serialization/remoting).
-     */
-    @Deprecated
-    public Authentication getAuthentication() {
-        return authentication;
-    }
-
-    @Deprecated
-    public void setAuthentication(Authentication authentication) {
-        this.authentication = authentication;
-    }
-
-    /**
-     * Any additional information about the exception. Generally a {@code UserDetails} object.
-     *
-     * @return extra information or {@code null}
-     * @deprecated Use the exception message or use a custom exception if you really need additional information.
-     */
-    @Deprecated
-    public Object getExtraInformation() {
-        return extraInformation;
-    }
-
-    @Deprecated
-    public void clearExtraInformation() {
-        this.extraInformation = null;
-    }
 }

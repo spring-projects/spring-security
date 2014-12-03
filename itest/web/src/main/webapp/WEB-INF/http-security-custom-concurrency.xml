@@ -21,7 +21,7 @@
     </http>
 
     <beans:bean id="aep" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
-        <beans:property name="loginFormUrl" value="/login.jsp" />
+        <beans:constructor-arg value="/login.jsp" />
     </beans:bean>
 
     <beans:bean id="myAuthFilter" class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
@@ -30,8 +30,8 @@
     </beans:bean>
 
     <beans:bean id="concurrencyFilter" class="org.springframework.security.web.session.ConcurrentSessionFilter">
-        <beans:property name="sessionRegistry" ref="sessionRegistry" />
-        <beans:property name="expiredUrl" value="/session-expired.htm" />
+        <beans:constructor-arg ref="sessionRegistry" />
+        <beans:constructor-arg value="/session-expired.htm" />
     </beans:bean>
 
     <beans:bean id="sas" class="org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy">

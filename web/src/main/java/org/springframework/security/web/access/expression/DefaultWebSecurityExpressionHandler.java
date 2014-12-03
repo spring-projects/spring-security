@@ -1,6 +1,7 @@
 package org.springframework.security.web.access.expression;
 
 import org.springframework.security.access.expression.AbstractSecurityExpressionHandler;
+import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.expression.SecurityExpressionOperations;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
@@ -13,8 +14,7 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @since 3.0
  */
-@SuppressWarnings("deprecation")
-public class DefaultWebSecurityExpressionHandler extends AbstractSecurityExpressionHandler<FilterInvocation> implements WebSecurityExpressionHandler {
+public class DefaultWebSecurityExpressionHandler extends AbstractSecurityExpressionHandler<FilterInvocation> implements SecurityExpressionHandler<FilterInvocation> {
 
     private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 

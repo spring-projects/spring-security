@@ -51,16 +51,14 @@ public class ConcurrentSessionFilterTests {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        // Setup our test fixture and registry to want this session to be expired
-        ConcurrentSessionFilter filter = new ConcurrentSessionFilter();
-        filter.setRedirectStrategy(new DefaultRedirectStrategy());
-        filter.setLogoutHandlers(new LogoutHandler[] {new SecurityContextLogoutHandler()});
-
         SessionRegistry registry = new SessionRegistryImpl();
         registry.registerNewSession(session.getId(), "principal");
         registry.getSessionInformation(session.getId()).expireNow();
-        filter.setSessionRegistry(registry);
-        filter.setExpiredUrl("/expired.jsp");
+
+        // Setup our test fixture and registry to want this session to be expired
+        ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry,"/expired.jsp");
+        filter.setRedirectStrategy(new DefaultRedirectStrategy());
+        filter.setLogoutHandlers(new LogoutHandler[]{new SecurityContextLogoutHandler()});
         filter.afterPropertiesSet();
 
         FilterChain fc = mock(FilterChain.class);
@@ -80,11 +78,10 @@ public class ConcurrentSessionFilterTests {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        ConcurrentSessionFilter filter = new ConcurrentSessionFilter();
         SessionRegistry registry = new SessionRegistryImpl();
         registry.registerNewSession(session.getId(), "principal");
         registry.getSessionInformation(session.getId()).expireNow();
-        filter.setSessionRegistry(registry);
+        ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry);
 
         FilterChain fc = mock(FilterChain.class);
         filter.doFilter(request, response, fc);
@@ -96,15 +93,12 @@ public class ConcurrentSessionFilterTests {
 
     @Test(expected=IllegalArgumentException.class)
     public void detectsMissingSessionRegistry() throws Exception {
-        ConcurrentSessionFilter filter = new ConcurrentSessionFilter();
-        filter.afterPropertiesSet();
+        new ConcurrentSessionFilter(null);
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void detectsInvalidUrl() throws Exception {
-        ConcurrentSessionFilter filter = new ConcurrentSessionFilter();
-        filter.setExpiredUrl("ImNotValid");
-        filter.afterPropertiesSet();
+        new ConcurrentSessionFilter(new SessionRegistryImpl(), "ImNotValid");
     }
 
     @Test
@@ -118,13 +112,11 @@ public class ConcurrentSessionFilterTests {
         FilterChain fc = mock(FilterChain.class);
 
         // Setup our test fixture
-        ConcurrentSessionFilter filter = new ConcurrentSessionFilter();
         SessionRegistry registry = new SessionRegistryImpl();
         registry.registerNewSession(session.getId(), "principal");
+        ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry, "/expired.jsp");
 
         Date lastRequest = registry.getSessionInformation(session.getId()).getLastRequest();
-        filter.setSessionRegistry(registry);
-        filter.setExpiredUrl("/expired.jsp");
 
         Thread.sleep(1000);
 

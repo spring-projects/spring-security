@@ -45,7 +45,9 @@ public class OpenIDAuthenticationFilterTests {
 
     @Test
     public void testFilterOperation() throws Exception {
-        MockHttpServletRequest req = new MockHttpServletRequest("GET", REQUEST_PATH);
+        MockHttpServletRequest req = new MockHttpServletRequest();
+        req.setServletPath(REQUEST_PATH);
+        req.setRequestURI(REQUEST_PATH);
         req.setServerPort(8080);
         MockHttpServletResponse response = new MockHttpServletResponse();
 

@@ -82,13 +82,6 @@ import java.util.Date;
  */
 public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 
-    /**
-     * @deprecated Use with-args constructor
-     */
-    @Deprecated
-    public TokenBasedRememberMeServices() {
-    }
-
     public TokenBasedRememberMeServices(String key, UserDetailsService userDetailsService) {
         super(key, userDetailsService);
     }

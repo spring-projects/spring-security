@@ -45,12 +45,4 @@ public class RequestCacheAwareFilter extends GenericFilterBean {
         chain.doFilter(wrappedSavedRequest == null ? request : wrappedSavedRequest, response);
     }
 
-    /**
-     * @deprecated Use constructor injection
-     */
-    @Deprecated
-    public void setRequestCache(RequestCache requestCache) {
-        this.requestCache = requestCache;
-    }
-
 }

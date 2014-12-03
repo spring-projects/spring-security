@@ -308,21 +308,21 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
                 logger.debug("User account is locked");
 
                 throw new LockedException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.locked",
-                        "User account is locked"), user);
+                        "User account is locked"));
             }
 
             if (!user.isEnabled()) {
                 logger.debug("User account is disabled");
 
                 throw new DisabledException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.disabled",
-                        "User is disabled"), user);
+                        "User is disabled"));
             }
 
             if (!user.isAccountNonExpired()) {
                 logger.debug("User account is expired");
 
                 throw new AccountExpiredException(messages.getMessage("AbstractUserDetailsAuthenticationProvider.expired",
-                        "User account has expired"), user);
+                        "User account has expired"));
             }
         }
     }
@@ -334,7 +334,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider implements Authe
 
                 throw new CredentialsExpiredException(messages.getMessage(
                         "AbstractUserDetailsAuthenticationProvider.credentialsExpired",
-                        "User credentials have expired"), user);
+                        "User credentials have expired"));
             }
         }
     }

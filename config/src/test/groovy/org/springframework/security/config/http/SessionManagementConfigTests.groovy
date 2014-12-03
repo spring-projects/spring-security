@@ -285,7 +285,7 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
 
             MockHttpServletRequest request = new MockHttpServletRequest();
             request.getSession();
-            request.setRequestURI("/j_spring_security_check");
+            request.servletPath = "/j_spring_security_check"
             request.setMethod("POST");
             request.setParameter("j_username", "user");
             request.setParameter("j_password", "password");

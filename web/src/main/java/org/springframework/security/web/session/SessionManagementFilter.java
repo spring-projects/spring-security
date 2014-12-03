@@ -104,19 +104,6 @@ public class SessionManagementFilter extends GenericFilterBean {
     }
 
     /**
-     * Sets the strategy object which handles the session management behaviour when a
-     * user has been authenticated during the current request.
-     *
-     * @param sessionAuthenticationStrategy the strategy object. If not set, a {@link SessionFixationProtectionStrategy} is used.
-     * @deprecated Use constructor injection
-     */
-    @Deprecated
-    public void setSessionAuthenticationStrategy(SessionAuthenticationStrategy sessionAuthenticationStrategy) {
-        Assert.notNull(sessionAuthenticationStrategy, "authenticatedSessionStrategy must not be null");
-        this.sessionAuthenticationStrategy = sessionAuthenticationStrategy;
-    }
-
-    /**
      * Sets the strategy which will be invoked instead of allowing the filter chain to prceed, if the user agent
      * requests an invalid session Id. If the property is not set, no action will be taken.
      *

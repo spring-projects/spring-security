@@ -77,7 +77,7 @@ public class AclImplTests {
     @Test(expected=IllegalArgumentException.class)
     public void constructorsRejectNullAclAuthzStrategy() throws Exception {
         try {
-            new AclImpl(objectIdentity, 1, null, mockAuditLogger, null, null, true, new PrincipalSid("joe"));
+            new AclImpl(objectIdentity, 1, null, new DefaultPermissionGrantingStrategy(mockAuditLogger), null, null, true, new PrincipalSid("joe"));
             fail("It should have thrown IllegalArgumentException");
         }
         catch (IllegalArgumentException expected) {

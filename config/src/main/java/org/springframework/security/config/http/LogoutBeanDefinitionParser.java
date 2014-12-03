@@ -119,16 +119,13 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
     }
 
     private BeanDefinition getLogoutRequestMatcher(String logoutUrl) {
+        BeanDefinitionBuilder matcherBuilder = BeanDefinitionBuilder.rootBeanDefinition("org.springframework.security.web.util.matcher.AntPathRequestMatcher");
+        matcherBuilder.addConstructorArgValue(logoutUrl);
         if(this.csrfEnabled) {
-            BeanDefinitionBuilder matcherBuilder = BeanDefinitionBuilder.rootBeanDefinition("org.springframework.security.web.util.matcher.AntPathRequestMatcher");
-            matcherBuilder.addConstructorArgValue(logoutUrl);
             matcherBuilder.addConstructorArgValue("POST");
-            return matcherBuilder.getBeanDefinition();
-        } else {
-            BeanDefinitionBuilder matcherBuilder = BeanDefinitionBuilder.rootBeanDefinition("org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter$FilterProcessUrlRequestMatcher");
-            matcherBuilder.addConstructorArgValue(logoutUrl);
-            return matcherBuilder.getBeanDefinition();
         }
+
+        return matcherBuilder.getBeanDefinition();
     }
 
     ManagedList<BeanMetadataElement> getLogoutHandlers() {

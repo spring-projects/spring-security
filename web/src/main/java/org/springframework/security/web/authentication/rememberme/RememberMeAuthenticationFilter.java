@@ -67,15 +67,10 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
     private AuthenticationManager authenticationManager;
     private RememberMeServices rememberMeServices;
 
-    /**
-     * @deprecated Use constructor injection
-     */
-    @Deprecated
-    public RememberMeAuthenticationFilter() {
-    }
-
     public RememberMeAuthenticationFilter(AuthenticationManager authenticationManager,
                                           RememberMeServices rememberMeServices) {
+        Assert.notNull(authenticationManager, "authenticationManager cannot be null");
+        Assert.notNull(rememberMeServices, "rememberMeServices cannot be null");
         this.authenticationManager = authenticationManager;
         this.rememberMeServices = rememberMeServices;
     }
@@ -170,22 +165,6 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 
     public void setApplicationEventPublisher(ApplicationEventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
-    }
-
-    /**
-     * @deprecated Use constructor injection
-     */
-    @Deprecated
-    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
-    }
-
-    /**
-     * @deprecated Use constructor injection
-     */
-    @Deprecated
-    public void setRememberMeServices(RememberMeServices rememberMeServices) {
-        this.rememberMeServices = rememberMeServices;
     }
 
     /**

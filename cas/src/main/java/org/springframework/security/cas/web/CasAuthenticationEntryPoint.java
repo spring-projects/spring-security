@@ -55,9 +55,7 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
      * disable the session encoding is provided for backwards compatibility.
      *
      * By default, encoding is enabled.
-     * @deprecated since 3.0.0 because CAS is currently on 3.3.5.
      */
-    @Deprecated
     private boolean encodeServiceUrlWithSessionId = true;
 
     //~ Methods ========================================================================================================
@@ -135,9 +133,7 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
      * Sets whether to encode the service url with the session id or not.
      *
      * @param encodeServiceUrlWithSessionId whether to encode the service url with the session id or not.
-     * @deprecated since 3.0.0 because CAS is currently on 3.3.5.
      */
-    @Deprecated
     public final void setEncodeServiceUrlWithSessionId(final boolean encodeServiceUrlWithSessionId) {
         this.encodeServiceUrlWithSessionId = encodeServiceUrlWithSessionId;
     }
@@ -146,9 +142,7 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
      * Sets whether to encode the service url with the session id or not.
      * @return whether to encode the service url with the session id or not.
      *
-     * @deprecated since 3.0.0 because CAS is currently on 3.3.5.
      */
-    @Deprecated
     protected boolean getEncodeServiceUrlWithSessionId() {
         return this.encodeServiceUrlWithSessionId;
     }

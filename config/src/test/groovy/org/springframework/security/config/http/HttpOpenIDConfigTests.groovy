@@ -116,7 +116,7 @@ class OpenIDConfigTests extends AbstractHttpConfigTests {
         then: "Remember-me choice is added to page"
         response.getContentAsString().contains(AbstractRememberMeServices.DEFAULT_PARAMETER)
         when: "Login is submitted with remember-me selected"
-        request.setRequestURI("/j_spring_openid_security_check")
+        request.servletPath = "/j_spring_openid_security_check"
         request.setParameter(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, "http://hey.openid.com/")
         request.setParameter(AbstractRememberMeServices.DEFAULT_PARAMETER, "on")
         response = new MockHttpServletResponse();

@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.config.http;
+package org.springframework.security.config.http
 
+import org.springframework.security.crypto.codec.Base64;
 
 import java.security.Principal
 
@@ -125,4 +126,39 @@ class InterceptUrlConfigTests extends AbstractHttpConfigTests {
         then: 'The response is unauthorized'
             response.status == HttpServletResponse.SC_UNAUTHORIZED
    }
+
+    def "intercept-url supports hasAnyRoles"() {
+        setup:
+            MockHttpServletRequest request = new MockHttpServletRequest(method:'GET')
+            MockHttpServletResponse response = new MockHttpServletResponse()
+            MockFilterChain chain = new MockFilterChain()
+            xml.http('use-expressions':true) {
+                'http-basic'()
+                'intercept-url'(pattern: '/**', access: "hasAnyRole('ROLE_DEVELOPER','ROLE_USER')")
+                csrf(disabled:true)
+            }
+        when:
+            createAppContext()
+        then: 'no error'
+            noExceptionThrown()
+        when: 'ROLE_USER can access'
+            login(request, 'user', 'password')
+            springSecurityFilterChain.doFilter(request,response,chain)
+        then: 'The response is OK'
+            response.status == HttpServletResponse.SC_OK
+        when: 'ROLE_A cannot access'
+            request = new MockHttpServletRequest(method:'GET')
+            response = new MockHttpServletResponse()
+            chain = new MockFilterChain()
+            login(request, 'bob', 'bobspassword')
+            springSecurityFilterChain.doFilter(request,response,chain)
+        then: 'The response is Forbidden'
+            response.status == HttpServletResponse.SC_FORBIDDEN
+
+    }
+
+    def login(MockHttpServletRequest request, String username, String password) {
+        String toEncode = username + ':' + password
+        request.addHeader('Authorization','Basic ' + new String(Base64.encode(toEncode.getBytes('UTF-8'))))
+    }
 }

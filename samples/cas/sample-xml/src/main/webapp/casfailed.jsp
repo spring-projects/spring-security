@@ -10,16 +10,7 @@
 <h2>Login to CAS failed!</h2>
 
 <font color="red">
-    Your CAS credentials were rejected.<br/><br/>
-    Reason:
-<%
-    Exception error = ((AuthenticationException) session.getAttribute(AbstractAuthenticationProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY));
-    if(error != null) {
-%>
-<%= error.getMessage() %>
-<%
-}
-%>
+    Your CAS credentials were rejected.<br/>
 </font>
 
 </body>

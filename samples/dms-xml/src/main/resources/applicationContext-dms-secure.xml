@@ -128,14 +128,14 @@
 
    <!-- An access decision manager used by the business objects -->
    <bean id="businessAccessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
-      <property name="allowIfAllAbstainDecisions" value="true"/>
-      <property name="decisionVoters">
+      <constructor-arg>
          <list>
             <ref local="roleVoter"/>
             <ref local="aclAbstractElementWriteParentVoter"/>
             <ref local="aclAbstractElementWriteVoter"/>
          </list>
-      </property>
+      </constructor-arg>
+      <property name="allowIfAllAbstainDecisions" value="true"/>
    </bean>
 
    <!-- ========= ACCESS CONTROL LIST LOOKUP MANAGER DEFINITIONS ========= -->
@@ -147,6 +147,24 @@
               <property name="cacheName" value="aclCache"/>
            </bean>
         </constructor-arg>
+    <constructor-arg>
+        <bean class="org.springframework.security.acls.domain.DefaultPermissionGrantingStrategy">
+            <constructor-arg>
+                <bean class="org.springframework.security.acls.domain.ConsoleAuditLogger"/>
+            </constructor-arg>
+        </bean>
+    </constructor-arg>
+    <constructor-arg>
+        <bean class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
+            <constructor-arg>
+                <list>
+                    <bean class="org.springframework.security.core.authority.SimpleGrantedAuthority">
+                        <constructor-arg value="ROLE_ACL_ADMIN"/>
+                    </bean>
+                </list>
+            </constructor-arg>
+        </bean>
+    </constructor-arg>
     </bean>
 
     <bean id="lookupStrategy" class="org.springframework.security.acls.jdbc.BasicLookupStrategy">

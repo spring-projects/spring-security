@@ -66,8 +66,7 @@ public class SessionManagementFilterTests {
         SessionAuthenticationStrategy strategy = mock(SessionAuthenticationStrategy.class);
         // mock that repo contains a security context
         when(repo.containsContext(any(HttpServletRequest.class))).thenReturn(true);
-        SessionManagementFilter filter = new SessionManagementFilter(repo);
-        filter.setSessionAuthenticationStrategy(strategy);
+        SessionManagementFilter filter = new SessionManagementFilter(repo,strategy);
         HttpServletRequest request = new MockHttpServletRequest();
         authenticateUser();
 
@@ -80,8 +79,7 @@ public class SessionManagementFilterTests {
     public void strategyIsNotInvokedIfAuthenticationIsNull() throws Exception {
         SecurityContextRepository repo = mock(SecurityContextRepository.class);
         SessionAuthenticationStrategy strategy = mock(SessionAuthenticationStrategy.class);
-        SessionManagementFilter filter = new SessionManagementFilter(repo);
-        filter.setSessionAuthenticationStrategy(strategy);
+        SessionManagementFilter filter = new SessionManagementFilter(repo,strategy);
         HttpServletRequest request = new MockHttpServletRequest();
 
         filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
@@ -94,8 +92,7 @@ public class SessionManagementFilterTests {
         SecurityContextRepository repo = mock(SecurityContextRepository.class);
         // repo will return false to containsContext()
         SessionAuthenticationStrategy strategy = mock(SessionAuthenticationStrategy.class);
-        SessionManagementFilter filter = new SessionManagementFilter(repo);
-        filter.setSessionAuthenticationStrategy(strategy);
+        SessionManagementFilter filter = new SessionManagementFilter(repo,strategy);
         HttpServletRequest request = new MockHttpServletRequest();
         authenticateUser();
 
@@ -114,9 +111,8 @@ public class SessionManagementFilterTests {
         SessionAuthenticationStrategy strategy = mock(SessionAuthenticationStrategy.class);
 
         AuthenticationFailureHandler failureHandler = mock(AuthenticationFailureHandler.class);
-        SessionManagementFilter filter = new SessionManagementFilter(repo);
+        SessionManagementFilter filter = new SessionManagementFilter(repo,strategy);
         filter.setAuthenticationFailureHandler(failureHandler);
-        filter.setSessionAuthenticationStrategy(strategy);
         HttpServletRequest request = new MockHttpServletRequest();
         HttpServletResponse response = new MockHttpServletResponse();
         FilterChain fc = mock(FilterChain.class);
@@ -135,8 +131,7 @@ public class SessionManagementFilterTests {
         SecurityContextRepository repo = mock(SecurityContextRepository.class);
         // repo will return false to containsContext()
         SessionAuthenticationStrategy strategy = mock(SessionAuthenticationStrategy.class);
-        SessionManagementFilter filter = new SessionManagementFilter(repo);
-        filter.setSessionAuthenticationStrategy(strategy);
+        SessionManagementFilter filter = new SessionManagementFilter(repo,strategy);
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestedSessionId("xxx");
         request.setRequestedSessionIdValid(false);

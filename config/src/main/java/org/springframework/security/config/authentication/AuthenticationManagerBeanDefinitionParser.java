@@ -52,7 +52,6 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
 
         String alias = element.getAttribute(ATT_ALIAS);
 
-        checkForDeprecatedSessionControllerRef(element, pc);
         List<BeanMetadataElement> providers = new ManagedList<BeanMetadataElement>();
         NamespaceHandlerResolver resolver = pc.getReaderContext().getNamespaceHandlerResolver();
 
@@ -111,16 +110,6 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
         pc.popAndRegisterContainingComponent();
 
         return null;
-    }
-
-    private void checkForDeprecatedSessionControllerRef(Element element, ParserContext pc) {
-        final String ATT_SESSION_CONTROLLER_REF = "session-controller-ref";
-
-        if (StringUtils.hasText(element.getAttribute(ATT_SESSION_CONTROLLER_REF))) {
-            pc.getReaderContext().warning(ATT_SESSION_CONTROLLER_REF + " is not supported in Spring Security " +
-                    " 3.0 and will be ignored. Use the attribute on the <concurrent-session-control> element instead.",
-                    pc.extractSource(element));
-        }
     }
 
     /**

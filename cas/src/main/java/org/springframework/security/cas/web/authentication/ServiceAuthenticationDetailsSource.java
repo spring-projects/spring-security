@@ -20,10 +20,6 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.util.Assert;
@@ -39,7 +35,7 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  */
 public class ServiceAuthenticationDetailsSource implements AuthenticationDetailsSource<HttpServletRequest,
-        ServiceAuthenticationDetails>, ApplicationContextAware {
+        ServiceAuthenticationDetails> {
     //~ Instance fields ================================================================================================
 
     private final Pattern artifactPattern;
@@ -49,34 +45,12 @@ public class ServiceAuthenticationDetailsSource implements AuthenticationDetails
     //~ Constructors ===================================================================================================
 
     /**
-     * Creates an implementation that uses the default CAS artifactParameterName.
-     * @deprecated Use ServiceAuthenticationDetailsSource(ServiceProperties)
-     */
-    @Deprecated
-    public ServiceAuthenticationDetailsSource() {
-        this(ServiceProperties.DEFAULT_CAS_ARTIFACT_PARAMETER);
-    }
-
-    /**
      * Creates an implementation that uses the specified ServiceProperites and the default CAS artifactParameterName.
      *
      * @param serviceProperties The ServiceProperties to use to construct the serviceUrl.
      */
     public ServiceAuthenticationDetailsSource(ServiceProperties serviceProperties) {
         this(serviceProperties,ServiceProperties.DEFAULT_CAS_ARTIFACT_PARAMETER);
-    }
-
-    /**
-     * Creates an implementation that uses the specified artifactParameterName
-     *
-     * @param artifactParameterName
-     *            the artifactParameterName that is removed from the current
-     *            URL. The result becomes the service url. Cannot be null and
-     *            cannot be an empty String.
-     * @deprecated Use ServiceAuthenticationDetailsSource(ServiceProperties,String)
-     */
-    public ServiceAuthenticationDetailsSource(final String artifactParameterName) {
-        this.artifactPattern = DefaultServiceAuthenticationDetails.createArtifactPattern(artifactParameterName);
     }
 
     /**
@@ -105,12 +79,6 @@ public class ServiceAuthenticationDetailsSource implements AuthenticationDetails
             return new DefaultServiceAuthenticationDetails(serviceProperties.getService(),context,artifactPattern);
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        if(serviceProperties == null) {
-            serviceProperties = applicationContext.getBean(ServiceProperties.class);
         }
     }
 }

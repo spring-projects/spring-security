@@ -55,13 +55,6 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean  implements
     private List<GrantedAuthority> authorities;
 
     /**
-     * @deprecated Use constructor injection version
-     */
-    @Deprecated
-    public AnonymousAuthenticationFilter() {
-    }
-
-    /**
      * Creates a filter with a principal named "anonymousUser" and the single authority "ROLE_ANONYMOUS".
      *
      * @param key the key to identify tokens created by this filter
@@ -77,6 +70,9 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean  implements
      * @param authorities the authority list for anonymous users
      */
     public AnonymousAuthenticationFilter(String key, Object principal, List<GrantedAuthority> authorities) {
+        Assert.hasLength(key, "key cannot be null or empty");
+        Assert.notNull(principal, "Anonymous authentication principal must be set");
+        Assert.notNull(authorities, "Anonymous authorities must be set");
         this.key = key;
         this.principal = principal;
         this.authorities = authorities;
@@ -94,40 +90,21 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean  implements
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
 
-        if (applyAnonymousForThisRequest((HttpServletRequest) req)) {
-            if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                SecurityContextHolder.getContext().setAuthentication(createAuthentication((HttpServletRequest) req));
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            SecurityContextHolder.getContext().setAuthentication(createAuthentication((HttpServletRequest) req));
 
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Populated SecurityContextHolder with anonymous token: '"
-                        + SecurityContextHolder.getContext().getAuthentication() + "'");
-                }
-            } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("SecurityContextHolder not populated with anonymous token, as it already contained: '"
-                        + SecurityContextHolder.getContext().getAuthentication() + "'");
-                }
+            if (logger.isDebugEnabled()) {
+                logger.debug("Populated SecurityContextHolder with anonymous token: '"
+                    + SecurityContextHolder.getContext().getAuthentication() + "'");
+            }
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("SecurityContextHolder not populated with anonymous token, as it already contained: '"
+                    + SecurityContextHolder.getContext().getAuthentication() + "'");
             }
         }
 
         chain.doFilter(req, res);
-    }
-
-    /**
-     * Enables subclasses to determine whether or not an anonymous authentication token should be setup for
-     * this request. This is useful if anonymous authentication should be allowed only for specific IP subnet ranges
-     * etc.
-     *
-     * @param request to assist the method determine request details
-     *
-     * @return <code>true</code> if the anonymous token should be setup for this request (provided that the request
-     *         doesn't already have some other <code>Authentication</code> inside it), or <code>false</code> if no
-     *         anonymous token should be setup for this request
-     * @deprecated no obvious use case and can easily be achieved by other means
-     */
-    @Deprecated
-    protected boolean applyAnonymousForThisRequest(HttpServletRequest request) {
-        return true;
     }
 
     protected Authentication createAuthentication(HttpServletRequest request) {
@@ -148,24 +125,5 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean  implements
 
     public List<GrantedAuthority> getAuthorities() {
         return authorities;
-    }
-
-    /**
-     *
-     * @deprecated use constructor injection instead
-     */
-    @Deprecated
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    /**
-     *
-     * @deprecated use constructor injection instead
-     */
-    @Deprecated
-    public void setUserAttribute(UserAttribute userAttributeDefinition) {
-        this.principal = userAttributeDefinition.getPassword();
-        this.authorities = userAttributeDefinition.getAuthorities();
     }
 }

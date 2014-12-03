@@ -11,25 +11,25 @@
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
     <bean id="fcpMinimalStack" class="org.springframework.security.web.FilterChainProxy">
-        <sec:filter-chain-map path-type="ant">
+        <sec:filter-chain-map request-matcher="ant">
             <sec:filter-chain pattern="/**" filters="scpf,preAuthFilter,etf,fsi"/>
         </sec:filter-chain-map>
     </bean>
 
     <bean id="fcpFullStack" class="org.springframework.security.web.FilterChainProxy">
-        <sec:filter-chain-map path-type="ant">
+        <sec:filter-chain-map request-matcher="ant">
             <sec:filter-chain pattern="/**" filters="scpf,preAuthFilter,apf,basicPf,logoutFilter,scharf,etf,fsi"/>
         </sec:filter-chain-map>
     </bean>
 
     <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
-        <property name="providers">
+        <constructor-arg>
             <list>
                <bean class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
                    <property name="userDetailsService" ref="userService"/>
                </bean>
             </list>
-        </property>
+        </constructor-arg>
     </bean>
 
     <sec:user-service id="userService">
@@ -43,8 +43,7 @@
     </bean>
 
     <bean id="basicPf" class="org.springframework.security.web.authentication.www.BasicAuthenticationFilter">
-        <property name="authenticationManager" ref="authenticationManager"/>
-        <property name="ignoreFailure" value="true"/>
+        <constructor-arg ref="authenticationManager"/>
     </bean>
 
     <bean id="preAuthFilter" class="org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter">
@@ -67,7 +66,7 @@
     </bean>
 
     <bean id="etf" class="org.springframework.security.web.access.ExceptionTranslationFilter">
-        <property name="authenticationEntryPoint" ref="preAuthenticatedProcessingFilterEntryPoint"/>
+        <constructor-arg ref="preAuthenticatedProcessingFilterEntryPoint"/>
     </bean>
 
     <bean id="preAuthenticatedAuthenticationProvider" class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">
@@ -79,12 +78,12 @@
     </bean>
 
     <bean id="accessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
-        <property name="allowIfAllAbstainDecisions" value="false"/>
-        <property name="decisionVoters">
+        <constructor-arg>
             <list>
-                <ref bean="roleVoter"/>
+                <bean class="org.springframework.security.access.vote.RoleVoter"/>
             </list>
-        </property>
+        </constructor-arg>
+        <property name="allowIfAllAbstainDecisions" value="false"/>
     </bean>
 
     <bean id="fsi" class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">

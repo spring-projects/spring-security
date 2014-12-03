@@ -12,11 +12,8 @@ base64 =
     ## Whether a string should be base64 encoded
     attribute base64 {xsd:boolean}
 request-matcher =
-    ## Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for case-insensitive regular expressions.
+    ## Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for case-insensitive regular expressions.
     attribute request-matcher {"ant" | "regex" | "ciRegex"}
-path-type =
-    ## Deprecated. Use request-matcher instead.
-    attribute path-type {"ant" | "regex"}
 port =
     ## Specifies an IP port number. Used to configure an embedded LDAP server, for example.
     attribute port { xsd:positiveInteger }
@@ -324,9 +321,6 @@ http.attlist &=
 http.attlist &=
     request-matcher?
 http.attlist &=
-    ## Deprecated. Use request-matcher instead.
-    path-type?
-http.attlist &=
     ## Provides versions of HttpServletRequest security methods such as isUserInRole() and getPrincipal() which are implemented by accessing the Spring SecurityContext. Defaults to "true".
     attribute servlet-api-provision {xsd:boolean}?
 http.attlist &=
@@ -344,9 +338,6 @@ http.attlist &=
 http.attlist &=
     ## Corresponds to the observeOncePerRequest property of FilterSecurityInterceptor. Defaults to "true"
     attribute once-per-request {xsd:boolean}?
-http.attlist &=
-    ## Deprecated in favour of the access-denied-handler element.
-    attribute access-denied-page {xsd:token}?
 http.attlist &=
     ## Prevents the jsessionid parameter from being added to rendered URLs.
     attribute disable-url-rewriting {xsd:boolean}?
@@ -477,9 +468,6 @@ filter-chain-map =
     ## Used to explicitly configure a FilterChainProxy instance with a FilterChainMap
     element filter-chain-map {filter-chain-map.attlist, filter-chain+}
 filter-chain-map.attlist &=
-    ## Deprecated. Use request-matcher instead.
-    path-type?
-filter-chain-map.attlist &=
     request-matcher?
 
 filter-chain =
@@ -509,14 +497,7 @@ fsmds.attlist &=
     ## Compare after forcing to lowercase
     attribute lowercase-comparisons {xsd:boolean}?
 fsmds.attlist &=
-    ## Deprecate. Use request-matcher instead.
-    path-type?
-fsmds.attlist &=
     request-matcher?
-
-filter-invocation-definition-source =
-    ## Deprecated synonym for filter-security-metadata-source
-    element filter-invocation-definition-source {fsmds.attlist, intercept-url+}
 
 http-basic =
     ## Adds support for basic authentication

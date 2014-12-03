@@ -104,18 +104,4 @@ class FormLoginConfigTests extends AbstractHttpConfigTests {
         apf.usernameParameter == 'xname';
         apf.passwordParameter == 'xpass'
     }
-
-    def 'SEC-2455: http@login-processing-url'() {
-        when:
-            xml.http {
-                'form-login'('login-processing-url':'/authenticate')
-            }
-            createAppContext()
-
-            def apf = getFilter(UsernamePasswordAuthenticationFilter);
-
-        then:
-            apf.filterProcessesUrl == null // SEC-2455 setFilterProcessesUrl was not invoked
-            FieldUtils.getFieldValue(apf,'requiresAuthenticationRequestMatcher.filterProcessesUrl') == '/authenticate'
-    }
 }

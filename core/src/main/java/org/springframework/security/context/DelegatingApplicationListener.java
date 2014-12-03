@@ -32,7 +32,6 @@ import java.util.List;
 public final class DelegatingApplicationListener implements ApplicationListener<ApplicationEvent> {
     private List<SmartApplicationListener> listeners = new ArrayList<SmartApplicationListener>();
 
-    @Override
     public void onApplicationEvent(ApplicationEvent event) {
         if(event == null) {
             return;

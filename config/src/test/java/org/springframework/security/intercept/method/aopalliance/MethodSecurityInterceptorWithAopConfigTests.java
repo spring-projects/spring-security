@@ -30,9 +30,9 @@ public class MethodSecurityInterceptorWithAopConfigTests {
 
     static final String ACCESS_MANAGER_XML =
         "<b:bean id='accessDecisionManager' class='org.springframework.security.access.vote.AffirmativeBased'>" +
-        "   <b:property name='decisionVoters'>" +
+        "   <b:constructor-arg>" +
         "       <b:list><b:bean class='org.springframework.security.access.vote.RoleVoter'/></b:list>" +
-        "   </b:property>" +
+        "   </b:constructor-arg>" +
         "</b:bean>";
 
     static final String TARGET_BEAN_AND_INTERCEPTOR =

@@ -137,7 +137,7 @@ public final class MessageSecurityBeanDefinitionParser implements BeanDefinition
 
     static class MessageSecurityPostProcessor implements BeanDefinitionRegistryPostProcessor {
         private static final String CLIENT_INBOUND_CHANNEL_BEAN_ID = "clientInboundChannel";
-        
+
         private static final String INTERCEPTORS_PROP = "interceptors";
 
         private static final String CUSTOM_ARG_RESOLVERS_PROP = "customArgumentResolvers";
@@ -148,7 +148,6 @@ public final class MessageSecurityBeanDefinitionParser implements BeanDefinition
             this.inboundSecurityInterceptorId = inboundSecurityInterceptorId;
         }
 
-        @Override
         public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
             String[] beanNames = registry.getBeanDefinitionNames();
             for(String beanName : beanNames) {
@@ -181,7 +180,6 @@ public final class MessageSecurityBeanDefinitionParser implements BeanDefinition
             inboundChannel.getPropertyValues().add(INTERCEPTORS_PROP, interceptors);
         }
 
-        @Override
         public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 
         }

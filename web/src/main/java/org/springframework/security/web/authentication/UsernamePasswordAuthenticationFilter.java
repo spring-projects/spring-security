@@ -50,11 +50,6 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
 
     public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "j_username";
     public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = "j_password";
-    /**
-     * @deprecated If you want to retain the username, cache it in a customized {@code AuthenticationFailureHandler}
-     */
-    @Deprecated
-    public static final String SPRING_SECURITY_LAST_USERNAME_KEY = "SPRING_SECURITY_LAST_USERNAME";
 
     private String usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
     private String passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;

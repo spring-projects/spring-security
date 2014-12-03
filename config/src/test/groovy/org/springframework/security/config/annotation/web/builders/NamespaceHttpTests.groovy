@@ -326,10 +326,6 @@ public class NamespaceHttpTests extends BaseSpringSpec {
         }
     }
 
-    // http@path-type is not available (instead request matcher instances are used)
-
-    // http@pattern is not available (instead see the tests http@request-matcher-ref ant or http@request-matcher-ref regex)
-
     def "http@realm"() {
         setup:
             loadConfig(RealmConfig)

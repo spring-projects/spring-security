@@ -84,7 +84,6 @@ final class AuthenticationConfigBuilder {
 
     private static final String ATT_AUTO_CONFIG = "auto-config";
 
-    private static final String ATT_ACCESS_DENIED_PAGE = "access-denied-page";
     private static final String ATT_ACCESS_DENIED_ERROR_PAGE = "error-page";
     private static final String ATT_ENTRY_POINT_REF = "entry-point-ref";
 
@@ -587,19 +586,8 @@ final class AuthenticationConfigBuilder {
     }
 
     private BeanMetadataElement createAccessDeniedHandler(Element element, ParserContext pc) {
-        String accessDeniedPage = element.getAttribute(ATT_ACCESS_DENIED_PAGE);
-        WebConfigUtils.validateHttpRedirect(accessDeniedPage, pc, pc.extractSource(element));
         Element accessDeniedElt = DomUtils.getChildElementByTagName(element, Elements.ACCESS_DENIED_HANDLER);
         BeanDefinitionBuilder accessDeniedHandler = BeanDefinitionBuilder.rootBeanDefinition(AccessDeniedHandlerImpl.class);
-
-        if (StringUtils.hasText(accessDeniedPage)) {
-            if (accessDeniedElt != null) {
-                pc.getReaderContext().error("The attribute " + ATT_ACCESS_DENIED_PAGE +
-                        " cannot be used with <" + Elements.ACCESS_DENIED_HANDLER + ">", pc.extractSource(accessDeniedElt));
-            }
-
-            accessDeniedHandler.addPropertyValue("errorPage", accessDeniedPage);
-        }
 
         if (accessDeniedElt != null) {
             String errorPage = accessDeniedElt.getAttribute("error-page");

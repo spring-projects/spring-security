@@ -223,7 +223,6 @@ public class AclImplementationSecurityCheckTests {
         }
     }
 
-    @SuppressWarnings("deprecation")
     @Test
     public void testSecurityCheckPrincipalOwner() throws Exception {
         Authentication auth = new TestingAuthenticationToken("user", "password", "ROLE_ONE");
@@ -235,7 +234,7 @@ public class AclImplementationSecurityCheckTests {
                 new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority("ROLE_AUDITING"),
                 new SimpleGrantedAuthority("ROLE_GENERAL"));
 
-        Acl acl = new AclImpl(identity, 1, aclAuthorizationStrategy, new ConsoleAuditLogger(), null, null,
+        Acl acl = new AclImpl(identity, 1, aclAuthorizationStrategy, new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()), null, null,
                 false, new PrincipalSid(auth));
         try {
             aclAuthorizationStrategy.securityCheck(acl, AclAuthorizationStrategy.CHANGE_GENERAL);

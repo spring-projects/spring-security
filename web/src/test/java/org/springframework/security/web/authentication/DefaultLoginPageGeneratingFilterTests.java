@@ -67,7 +67,6 @@ public class DefaultLoginPageGeneratingFilterTests {
         MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
         String message = messages.getMessage(
                 "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials", Locale.KOREA);
-        System.out.println("Message: " + message);
         request.getSession().setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, new BadCredentialsException(message));
 
         filter.doFilter(request, new MockHttpServletResponse(), chain);

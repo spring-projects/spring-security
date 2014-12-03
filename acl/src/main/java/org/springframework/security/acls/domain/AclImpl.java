@@ -74,16 +74,6 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
     }
 
     /**
-     * @deprecated Use the version which takes a  {@code PermissionGrantingStrategy} argument instead.
-     */
-    @Deprecated
-    public AclImpl(ObjectIdentity objectIdentity, Serializable id, AclAuthorizationStrategy aclAuthorizationStrategy,
-                    AuditLogger auditLogger, Acl parentAcl, List<Sid> loadedSids, boolean entriesInheriting, Sid owner) {
-        this(objectIdentity, id, aclAuthorizationStrategy, new DefaultPermissionGrantingStrategy(auditLogger),
-                parentAcl, loadedSids, entriesInheriting, owner);
-    }
-
-    /**
      * Full constructor, which should be used by persistence tools that do not
      * provide field-level access features.
      *

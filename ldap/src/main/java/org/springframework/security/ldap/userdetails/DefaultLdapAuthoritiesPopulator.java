@@ -85,9 +85,6 @@ import java.util.Set;
  * A search for roles for user "uid=ben,ou=people,dc=springframework,dc=org" would return the single granted authority
  * "ROLE_DEVELOPER".
  * <p>
- * Note that case-conversion, use of the role prefix and setting a default role are better performed using a
- * {@code GrantedAuthoritiesMapper} and are now deprecated.
- * <p>
  * The single-level search is performed by default. Setting the <tt>searchSubTree</tt> property to true will enable
  * a search of the entire subtree under <tt>groupSearchBase</tt>.
  *
@@ -250,9 +247,8 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     }
 
     /**
-     * @deprecated Convert case in the {@code AuthenticationProvider} using a {@code GrantedAuthoritiesMapper}.
+     * Convert the role to uppercase
      */
-    @Deprecated
     public void setConvertToUpperCase(boolean convertToUpperCase) {
         this.convertToUpperCase = convertToUpperCase;
     }
@@ -261,9 +257,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
      * The default role which will be assigned to all users.
      *
      * @param defaultRole the role name, including any desired prefix.
-     * @deprecated Assign a default role in the {@code AuthenticationProvider} using a {@code GrantedAuthoritiesMapper}.
      */
-    @Deprecated
     public void setDefaultRole(String defaultRole) {
         Assert.notNull(defaultRole, "The defaultRole property cannot be set to null");
         this.defaultRole = new SimpleGrantedAuthority(defaultRole);
@@ -282,10 +276,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
     /**
      * Sets the prefix which will be prepended to the values loaded from the directory.
      * Defaults to "ROLE_" for compatibility with <tt>RoleVoter/tt>.
-     *
-     * @deprecated Map the authorities in the {@code AuthenticationProvider} using a {@code GrantedAuthoritiesMapper}.
      */
-    @Deprecated
     public void setRolePrefix(String rolePrefix) {
         Assert.notNull(rolePrefix, "rolePrefix must not be null");
         this.rolePrefix = rolePrefix;
@@ -312,7 +303,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
     /**
      * Returns the current LDAP template.
-     * Method available so that classes extending this can override the template used 
+     * Method available so that classes extending this can override the template used
      * @return the LDAP template
      * @see {@link org.springframework.security.ldap.SpringSecurityLdapTemplate}
      */

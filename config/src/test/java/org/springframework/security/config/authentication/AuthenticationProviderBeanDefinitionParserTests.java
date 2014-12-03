@@ -8,7 +8,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.authentication.dao.ReflectionSaltSource;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.security.config.BeanIds;
-import org.springframework.security.config.authentication.AuthenticationProviderBeanDefinitionParser;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
@@ -153,8 +152,12 @@ public class AuthenticationProviderBeanDefinitionParserTests {
                 "         <b:property name='userPropertyToUse' value='username'/>" +
                 "    </b:bean>" +
                 "    <b:bean id='customUserService' " +
-                "           class='org.springframework.security.core.userdetails.memory.InMemoryDaoImpl'>" +
-                "        <b:property name='userMap' value='bob=f117f0862384e9497ff4f470e3522606,ROLE_A'/>" +
+                "           class='org.springframework.security.provisioning.InMemoryUserDetailsManager'>" +
+                "        <b:constructor-arg>" +
+                "            <b:props>" +
+                "                <b:prop key='bob'>f117f0862384e9497ff4f470e3522606,ROLE_A</b:prop>" +
+                "            </b:props>" +
+                "        </b:constructor-arg>" +
                 "    </b:bean>");
         getProvider().authenticate(bob);
     }

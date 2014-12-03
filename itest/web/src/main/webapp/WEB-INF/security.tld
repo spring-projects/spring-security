@@ -60,35 +60,6 @@
             <rtexprvalue>false</rtexprvalue>
         </attribute>
 
-        <attribute>
-            <description>
-                A comma separated list of roles which the user must not have
-                for the body to be output. Deprecated in favour of the access expression.
-            </description>
-            <name>ifNotGranted</name>
-            <required>false</required>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-
-        <attribute>
-            <description>
-                A comma separated list of roles which the user must all
-                possess for the body to be output. Deprecated in favour of the access expression.
-            </description>
-            <name>ifAllGranted</name>
-            <required>false</required>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-
-        <attribute>
-            <description>
-                A comma separated list of roles, one of which the user must
-                possess for the body to be output. Deprecated in favour of the access expression.
-            </description>
-            <name>ifAnyGranted</name>
-            <required>false</required>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
     </tag>
 
     <tag>

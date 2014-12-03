@@ -135,7 +135,9 @@ class PlaceHolderAndELConfigTests extends AbstractHttpConfigTests {
 
     def accessDeniedPageWorksWithPlaceholders() {
         System.setProperty("accessDenied", "/go-away");
-        xml.http('auto-config': 'true', 'access-denied-page': '${accessDenied}')
+        xml.http('auto-config': 'true') {
+            'access-denied-handler'('error-page' : '${accessDenied}') {}
+        }
         createAppContext();
 
         expect:

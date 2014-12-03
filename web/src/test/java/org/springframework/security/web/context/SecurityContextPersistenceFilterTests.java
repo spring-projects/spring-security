@@ -61,14 +61,13 @@ public class SecurityContextPersistenceFilterTests {
     public void loadedContextContextIsCopiedToSecurityContextHolderAndUpdatedContextIsStored() throws Exception {
         final MockHttpServletRequest request = new MockHttpServletRequest();
         final MockHttpServletResponse response = new MockHttpServletResponse();
-        SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter();
         final TestingAuthenticationToken beforeAuth = new TestingAuthenticationToken("someoneelse", "passwd", "ROLE_B");
         final SecurityContext scBefore = new SecurityContextImpl();
         final SecurityContext scExpectedAfter = new SecurityContextImpl();
         scExpectedAfter.setAuthentication(testToken);
         scBefore.setAuthentication(beforeAuth);
         final SecurityContextRepository repo = mock(SecurityContextRepository.class);
-        filter.setSecurityContextRepository(repo);
+        SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter(repo);
 
         when(repo.loadContext(any(HttpRequestResponseHolder.class))).thenReturn(scBefore);
 
@@ -90,8 +89,7 @@ public class SecurityContextPersistenceFilterTests {
         final FilterChain chain = mock(FilterChain.class);
         final MockHttpServletRequest request = new MockHttpServletRequest();
         final MockHttpServletResponse response = new MockHttpServletResponse();
-        SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter();
-        filter.setSecurityContextRepository(mock(SecurityContextRepository.class));
+        SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter(mock(SecurityContextRepository.class));
 
         request.setAttribute(SecurityContextPersistenceFilter.FILTER_APPLIED, Boolean.TRUE);
         filter.doFilter(request, response, chain);
@@ -114,9 +112,8 @@ public class SecurityContextPersistenceFilterTests {
         final FilterChain chain = mock(FilterChain.class);
         final MockHttpServletRequest request = new MockHttpServletRequest();
         final MockHttpServletResponse response = new MockHttpServletResponse();
-        SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter();
         SecurityContextRepository repo = new NullSecurityContextRepository();
-        filter.setSecurityContextRepository(repo);
+        SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter(repo);
         filter.doFilter(request, response, chain);
         assertFalse(repo.containsContext(request));
         assertNull(request.getSession(false));

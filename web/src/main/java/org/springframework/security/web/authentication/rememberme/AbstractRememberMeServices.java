@@ -64,14 +64,6 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
     private Method setHttpOnlyMethod;
     private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
-    /**
-     * @deprecated Use constructor injection
-     */
-    @Deprecated
-    protected AbstractRememberMeServices() {
-        this.setHttpOnlyMethod = ReflectionUtils.findMethod(Cookie.class,"setHttpOnly", boolean.class);
-    }
-
     protected AbstractRememberMeServices(String key, UserDetailsService userDetailsService) {
         Assert.hasLength(key, "key cannot be empty or null");
         Assert.notNull(userDetailsService, "UserDetailsService cannot be null");
@@ -410,25 +402,6 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
 
     protected UserDetailsService getUserDetailsService() {
         return userDetailsService;
-    }
-
-    /**
-     *
-     * @deprecated Use constructor injection
-     */
-    @Deprecated
-    public void setUserDetailsService(UserDetailsService userDetailsService) {
-        Assert.notNull(userDetailsService, "UserDetailsService cannot be null");
-        this.userDetailsService = userDetailsService;
-    }
-
-    /**
-     *
-     * @deprecated Use constructor injection
-     */
-    @Deprecated
-    public void setKey(String key) {
-        this.key = key;
     }
 
     public String getKey() {

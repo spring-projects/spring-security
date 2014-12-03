@@ -154,7 +154,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
             logger.debug("Query returned no results for user '" + username + "'");
 
             throw new UsernameNotFoundException(
-                    messages.getMessage("JdbcDaoImpl.notFound", new Object[]{username}, "Username {0} not found"), username);
+                    messages.getMessage("JdbcDaoImpl.notFound", new Object[]{username}, "Username {0} not found"));
         }
 
         UserDetails user = users.get(0); // contains no GrantedAuthority[]
@@ -178,7 +178,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService {
 
             throw new UsernameNotFoundException(
                     messages.getMessage("JdbcDaoImpl.noAuthority",
-                            new Object[] {username}, "User {0} has no GrantedAuthority"), username);
+                            new Object[] {username}, "User {0} has no GrantedAuthority"));
         }
 
         return createUserDetails(username, user, dbAuths);

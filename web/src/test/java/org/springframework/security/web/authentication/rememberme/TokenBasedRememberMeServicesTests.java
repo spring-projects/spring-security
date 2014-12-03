@@ -53,10 +53,8 @@ public class TokenBasedRememberMeServicesTests {
 
     @Before
     public void createTokenBasedRememberMeServices() {
-        services = new TokenBasedRememberMeServices();
         uds = mock(UserDetailsService.class);
-        services.setKey("key");
-        services.setUserDetailsService(uds);
+        services = new TokenBasedRememberMeServices("key",uds);
     }
 
     void udsWillReturnUser() {
@@ -227,8 +225,7 @@ public class TokenBasedRememberMeServicesTests {
     public void testGettersSetters() {
         assertEquals(uds, services.getUserDetailsService());
 
-        services.setKey("d");
-        assertEquals("d", services.getKey());
+        assertEquals("key", services.getKey());
 
         assertEquals(DEFAULT_PARAMETER, services.getParameter());
         services.setParameter("some_param");
@@ -251,7 +248,7 @@ public class TokenBasedRememberMeServicesTests {
 
     @Test
     public void loginSuccessIgnoredIfParameterNotSetOrFalse() {
-        TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
+        TokenBasedRememberMeServices services = new TokenBasedRememberMeServices("key",new AbstractRememberMeServicesTests.MockUserDetailsService(null, false));
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addParameter(DEFAULT_PARAMETER, "false");
 

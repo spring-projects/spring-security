@@ -38,7 +38,6 @@ import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler
-import org.springframework.security.web.access.expression.WebSecurityExpressionHandler
 import org.springframework.security.web.util.matcher.AnyRequestMatcher
 import org.springframework.test.util.ReflectionTestUtils
 
@@ -200,21 +199,20 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
 
     def "Override webSecurityExpressionHandler"() {
         setup:
-            WebSecurityExpressionHandler expressionHandler = Mock()
+            SecurityExpressionHandler expressionHandler = Mock()
             ExpressionParser parser = Mock()
             WebSecurityExpressionHandlerConfig.EH = expressionHandler
         when:
             loadConfig(WebSecurityExpressionHandlerConfig)
         then:
-            context.getBean(WebSecurityExpressionHandler) == expressionHandler
+            context.getBean(SecurityExpressionHandler) == expressionHandler
             1 * expressionHandler.getExpressionParser() >> parser
     }
 
     @EnableWebSecurity
     @Configuration
     static class WebSecurityExpressionHandlerConfig extends WebSecurityConfigurerAdapter {
-        @SuppressWarnings("deprecation")
-        static WebSecurityExpressionHandler EH
+        static SecurityExpressionHandler EH
 
         @Override
         public void configure(WebSecurity web) throws Exception {
@@ -234,7 +232,7 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
         when:
             loadConfig(WebSecurityExpressionHandlerDefaultsConfig)
         then:
-            WebSecurityExpressionHandler wseh = context.getBean(WebSecurityExpressionHandler)
+            SecurityExpressionHandler wseh = context.getBean(SecurityExpressionHandler)
             wseh instanceof DefaultWebSecurityExpressionHandler
     }
 

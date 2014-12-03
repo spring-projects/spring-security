@@ -34,8 +34,7 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
     //~ Methods ========================================================================================================
 
     public void testDetectsAnInvalidKey() throws Exception {
-        RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider();
-        aap.setKey("qwerty");
+        RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider("qwerty");
 
         RememberMeAuthenticationToken token = new RememberMeAuthenticationToken("WRONG_KEY", "Test",
                 AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
@@ -48,10 +47,8 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
     }
 
     public void testDetectsMissingKey() throws Exception {
-        RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider();
-
         try {
-            aap.afterPropertiesSet();
+            new RememberMeAuthenticationProvider(null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -59,15 +56,13 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
     }
 
     public void testGettersSetters() throws Exception {
-        RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider();
-        aap.setKey("qwerty");
+        RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider("qwerty");
         aap.afterPropertiesSet();
         assertEquals("qwerty", aap.getKey());
     }
 
     public void testIgnoresClassesItDoesNotSupport() throws Exception {
-        RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider();
-        aap.setKey("qwerty");
+        RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider("qwerty");
 
         TestingAuthenticationToken token = new TestingAuthenticationToken("user", "password","ROLE_A");
         assertFalse(aap.supports(TestingAuthenticationToken.class));
@@ -77,8 +72,7 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
     }
 
     public void testNormalOperation() throws Exception {
-        RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider();
-        aap.setKey("qwerty");
+        RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider("qwerty");
 
         RememberMeAuthenticationToken token = new RememberMeAuthenticationToken("qwerty", "Test",
                 AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
@@ -89,7 +83,7 @@ public class RememberMeAuthenticationProviderTests extends TestCase {
     }
 
     public void testSupports() {
-        RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider();
+        RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider("qwerty");
         assertTrue(aap.supports(RememberMeAuthenticationToken.class));
         assertFalse(aap.supports(TestingAuthenticationToken.class));
     }

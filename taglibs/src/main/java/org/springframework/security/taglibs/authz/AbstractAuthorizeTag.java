@@ -16,11 +16,7 @@
 package org.springframework.security.taglibs.authz;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
@@ -37,7 +33,6 @@ import org.springframework.expression.ParseException;
 import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.WebAttributes;
@@ -63,10 +58,6 @@ public abstract class AbstractAuthorizeTag {
     private String access;
     private String url;
     private String method = "GET";
-    private String ifAllGranted;
-    private String ifAnyGranted;
-    private String ifNotGranted;
-
     /**
      * This method allows subclasses to provide a way to access the ServletRequest according to the rendering
      * technology.
@@ -91,7 +82,6 @@ public abstract class AbstractAuthorizeTag {
      * <ul>
      * <li>access</li>
      * <li>url, method</li>
-     * <li>ifAllGranted, ifAnyGranted, ifNotGranted</li>
      * </ul>
      * The above combinations are mutually exclusive and evaluated in the given order.
      *
@@ -108,53 +98,11 @@ public abstract class AbstractAuthorizeTag {
             isAuthorized = authorizeUsingUrlCheck();
 
         } else {
-            isAuthorized = authorizeUsingGrantedAuthorities();
+            isAuthorized = false;
 
         }
 
         return isAuthorized;
-    }
-
-    /**
-     * Make an authorization decision by considering ifAllGranted, ifAnyGranted, and ifNotGranted. All 3 or any
-     * combination can be provided. All provided attributes must evaluate to true.
-     *
-     * @return the result of the authorization decision
-     */
-    public boolean authorizeUsingGrantedAuthorities() {
-        boolean hasTextAllGranted = StringUtils.hasText(getIfAllGranted());
-        boolean hasTextAnyGranted = StringUtils.hasText(getIfAnyGranted());
-        boolean hasTextNotGranted = StringUtils.hasText(getIfNotGranted());
-
-        if ((!hasTextAllGranted) && (!hasTextAnyGranted) && (!hasTextNotGranted)) {
-            return false;
-        }
-
-        final Collection<? extends GrantedAuthority> granted = getPrincipalAuthorities();
-        final Set<String> grantedRoles = authoritiesToRoles(granted);
-
-        if (hasTextAllGranted) {
-            final Set<String> requiredRoles = splitRoles(getIfAllGranted());
-            if (!grantedRoles.containsAll(requiredRoles)) {
-                return false;
-            }
-        }
-
-        if (hasTextAnyGranted) {
-            final Set<String> expectOneOfRoles = splitRoles(getIfAnyGranted());
-            if (!containsAnyValue(grantedRoles, expectOneOfRoles)) {
-                return false;
-            }
-        }
-
-        if (hasTextNotGranted) {
-            final Set<String> expectNoneOfRoles = splitRoles(getIfNotGranted());
-            if (containsAnyValue(expectNoneOfRoles, grantedRoles)) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     /**
@@ -234,81 +182,7 @@ public abstract class AbstractAuthorizeTag {
         this.method = (method != null) ? method.toUpperCase() : null;
     }
 
-    public String getIfAllGranted() {
-        return ifAllGranted;
-    }
-
-    public void setIfAllGranted(String ifAllGranted) {
-        this.ifAllGranted = ifAllGranted;
-    }
-
-    public String getIfAnyGranted() {
-        return ifAnyGranted;
-    }
-
-    public void setIfAnyGranted(String ifAnyGranted) {
-        this.ifAnyGranted = ifAnyGranted;
-    }
-
-    public String getIfNotGranted() {
-        return ifNotGranted;
-    }
-
-    public void setIfNotGranted(String ifNotGranted) {
-        this.ifNotGranted = ifNotGranted;
-    }
-
     /*------------- Private helper methods  -----------------*/
-
-    private Collection<? extends GrantedAuthority> getPrincipalAuthorities() {
-        Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
-        if (null == currentUser) {
-            return Collections.emptyList();
-        }
-        return currentUser.getAuthorities();
-    }
-
-    /**
-     * Splits the authorityString using "," as a delimiter into a Set.
-     * @param authorityString
-     * @return
-     */
-    private Set<String> splitRoles(String authorityString) {
-        String[] rolesArray = StringUtils.tokenizeToStringArray(authorityString, ",");
-        Set<String> roles = new HashSet<String>(rolesArray.length);
-        for(String role : rolesArray) {
-            roles.add(role);
-        }
-        return roles;
-    }
-
-    /**
-     * Returns true if any of the values are contained in toTest. Otherwise, false.
-     * @param toTest Check this Set to see if any of the values are contained in it.
-     * @param values The values to check if they are in toTest.
-     * @return
-     */
-    private boolean containsAnyValue(Set<String> toTest, Collection<String> values) {
-        for(String value : values) {
-            if(toTest.contains(value)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private Set<String> authoritiesToRoles(Collection<? extends GrantedAuthority> c) {
-        Set<String> target = new HashSet<String>();
-        for (GrantedAuthority authority : c) {
-            if (null == authority.getAuthority()) {
-                throw new IllegalArgumentException(
-                        "Cannot process GrantedAuthority objects which return null from getAuthority() - attempting to process "
-                                + authority.toString());
-            }
-            target.add(authority.getAuthority());
-        }
-        return target;
-    }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private SecurityExpressionHandler<FilterInvocation> getExpressionHandler() throws IOException {

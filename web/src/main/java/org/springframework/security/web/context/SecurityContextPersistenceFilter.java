@@ -99,15 +99,6 @@ public class SecurityContextPersistenceFilter extends GenericFilterBean {
         }
     }
 
-    /**
-     * @deprecated Use constructor injection
-     */
-    @Deprecated
-    public void setSecurityContextRepository(SecurityContextRepository repo) {
-        Assert.notNull(repo, "SecurityContextRepository cannot be null");
-        this.repo = repo;
-    }
-
     public void setForceEagerSessionCreation(boolean forceEagerSessionCreation) {
         this.forceEagerSessionCreation = forceEagerSessionCreation;
     }

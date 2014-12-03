@@ -49,7 +49,6 @@ public class UsernamePasswordAuthenticationFilterTests extends TestCase {
         request.addParameter(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY, "koala");
 
         UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
-        assertEquals("/j_spring_security_check", filter.getFilterProcessesUrl());
         filter.setAuthenticationManager(createAuthenticationManager());
 //        filter.init(null);
 

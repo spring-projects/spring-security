@@ -63,7 +63,6 @@ public class CasAuthenticationFilterTests {
     @Test
     public void testGettersSetters() {
         CasAuthenticationFilter filter = new CasAuthenticationFilter();
-        assertEquals("/j_spring_cas_security_check", filter.getFilterProcessesUrl());
         filter.setProxyGrantingTicketStorage(mock(ProxyGrantingTicketStorage.class));
         filter.setProxyReceptorUrl("/someurl");
         filter.setServiceProperties(new ServiceProperties());
@@ -71,7 +70,8 @@ public class CasAuthenticationFilterTests {
 
     @Test
     public void testNormalOperation() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/j_spring_cas_security_check");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setServletPath("/j_spring_cas_security_check");
         request.addParameter("ticket", "ST-0-ER94xMJmn6pha35CQRoZ");
 
         CasAuthenticationFilter filter = new CasAuthenticationFilter();
@@ -101,11 +101,13 @@ public class CasAuthenticationFilterTests {
 
     @Test
     public void testRequiresAuthenticationFilterProcessUrl() {
+        String url = "/login/cas";
         CasAuthenticationFilter filter = new CasAuthenticationFilter();
+        filter.setFilterProcessesUrl(url);
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        request.setRequestURI(filter.getFilterProcessesUrl());
+        request.setServletPath(url);
         assertTrue(filter.requiresAuthentication(request, response));
     }
 
@@ -115,13 +117,13 @@ public class CasAuthenticationFilterTests {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        request.setRequestURI("/pgtCallback");
+        request.setServletPath("/pgtCallback");
         assertFalse(filter.requiresAuthentication(request, response));
-        filter.setProxyReceptorUrl(request.getRequestURI());
+        filter.setProxyReceptorUrl(request.getServletPath());
         assertFalse(filter.requiresAuthentication(request, response));
         filter.setProxyGrantingTicketStorage(mock(ProxyGrantingTicketStorage.class));
         assertTrue(filter.requiresAuthentication(request, response));
-        request.setRequestURI("/other");
+        request.setServletPath("/other");
         assertFalse(filter.requiresAuthentication(request, response));
     }
 
@@ -130,15 +132,17 @@ public class CasAuthenticationFilterTests {
         ServiceProperties properties = new ServiceProperties();
         properties.setAuthenticateAllArtifacts(true);
 
+        String url = "/login/cas";
         CasAuthenticationFilter filter = new CasAuthenticationFilter();
+        filter.setFilterProcessesUrl(url);
         filter.setServiceProperties(properties);
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        request.setRequestURI(filter.getFilterProcessesUrl());
+        request.setServletPath(url);
         assertTrue(filter.requiresAuthentication(request, response));
 
-        request.setRequestURI("/other");
+        request.setServletPath("/other");
         assertFalse(filter.requiresAuthentication(request, response));
         request.setParameter(properties.getArtifactParameter(), "value");
         assertTrue(filter.requiresAuthentication(request, response));
@@ -156,9 +160,9 @@ public class CasAuthenticationFilterTests {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        request.setRequestURI("/pgtCallback");
+        request.setServletPath("/pgtCallback");
         filter.setProxyGrantingTicketStorage(mock(ProxyGrantingTicketStorage.class));
-        filter.setProxyReceptorUrl(request.getRequestURI());
+        filter.setProxyReceptorUrl(request.getServletPath());
         assertNull(filter.attemptAuthentication(request, response));
     }
 
@@ -172,7 +176,7 @@ public class CasAuthenticationFilterTests {
         serviceProperties.setAuthenticateAllArtifacts(true);
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setParameter("ticket", "ST-1-123");
-        request.setRequestURI("/authenticate");
+        request.setServletPath("/authenticate");
         MockHttpServletResponse response = new MockHttpServletResponse();
         FilterChain chain = mock(FilterChain.class);
 
@@ -189,7 +193,7 @@ public class CasAuthenticationFilterTests {
         verifyZeroInteractions(successHandler);
 
         // validate for when the filterProcessUrl matches
-        filter.setFilterProcessesUrl(request.getRequestURI());
+        filter.setFilterProcessesUrl(request.getServletPath());
         SecurityContextHolder.clearContext();
         filter.doFilter(request,response,chain);
         verifyNoMoreInteractions(chain);
@@ -204,9 +208,9 @@ public class CasAuthenticationFilterTests {
         MockHttpServletResponse response = new MockHttpServletResponse();
         FilterChain chain = mock(FilterChain.class);
 
-        request.setRequestURI("/pgtCallback");
+        request.setServletPath("/pgtCallback");
         filter.setProxyGrantingTicketStorage(mock(ProxyGrantingTicketStorage.class));
-        filter.setProxyReceptorUrl(request.getRequestURI());
+        filter.setProxyReceptorUrl(request.getServletPath());
 
         filter.doFilter(request,response,chain);
         verifyZeroInteractions(chain);

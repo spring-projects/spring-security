@@ -159,14 +159,4 @@ public class SessionFixationProtectionStrategy extends AbstractSessionFixationPr
     public void setMigrateSessionAttributes(boolean migrateSessionAttributes) {
         this.migrateSessionAttributes = migrateSessionAttributes;
     }
-
-    /**
-     * @deprecated Override the {@code extractAttributes} method instead
-     */
-    @Deprecated
-    public void setRetainedAttributes(List<String> retainedAttributes) {
-        logger.warn("Retained attributes is deprecated. Override the extractAttributes() method instead.");
-        Assert.notNull(retainedAttributes);
-        this.retainedAttributes = retainedAttributes;
-    }
 }

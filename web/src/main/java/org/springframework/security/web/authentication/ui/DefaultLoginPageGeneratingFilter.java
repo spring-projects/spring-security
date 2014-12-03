@@ -63,7 +63,6 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
         this.failureUrl = DEFAULT_LOGIN_PAGE_URL + "?" + ERROR_PARAMETER_NAME;
         if (authFilter != null) {
             formLoginEnabled = true;
-            authenticationUrl = authFilter.getFilterProcessesUrl();
             usernameParameter = authFilter.getUsernameParameter();
             passwordParameter = authFilter.getPasswordParameter();
 
@@ -74,7 +73,6 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 
         if (openIDFilter != null) {
             openIdEnabled = true;
-            openIDauthenticationUrl = openIDFilter.getFilterProcessesUrl();
             openIDusernameParameter = "openid_identifier";
 
             if (openIDFilter.getRememberMeServices() instanceof AbstractRememberMeServices) {

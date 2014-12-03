@@ -22,6 +22,25 @@
               <property name="cacheName" value="aclCache"/>
            </bean>
         </constructor-arg>
+        <constructor-arg>
+            <bean class="org.springframework.security.acls.domain.DefaultPermissionGrantingStrategy">
+                <constructor-arg>
+                    <bean class="org.springframework.security.acls.domain.ConsoleAuditLogger"/>
+                </constructor-arg>
+            </bean>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
+                <constructor-arg>
+                    <list>
+                        <bean class="org.springframework.security.core.authority.SimpleGrantedAuthority">
+                            <constructor-arg value="ROLE_USER"/>
+                        </bean>
+                    </list>
+                </constructor-arg>
+            </bean>
+        </constructor-arg>
+
     </bean>
 
     <bean id="lookupStrategy" class="org.springframework.security.acls.jdbc.BasicLookupStrategy">

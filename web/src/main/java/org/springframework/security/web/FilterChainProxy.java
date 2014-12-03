@@ -219,47 +219,6 @@ public class FilterChainProxy extends GenericFilterBean {
     }
 
     /**
-     * Sets the mapping of URL patterns to filter chains.
-     *
-     * The map keys should be the paths and the values should be arrays of {@code Filter} objects.
-     * It's VERY important that the type of map used preserves ordering - the order in which the iterator
-     * returns the entries must be the same as the order they were added to the map, otherwise you have no way
-     * of guaranteeing that the most specific patterns are returned before the more general ones. So make sure
-     * the Map used is an instance of {@code LinkedHashMap} or an equivalent, rather than a plain {@code HashMap}, for
-     * example.
-     *
-     * @param filterChainMap the map of path Strings to {@code List&lt;Filter&gt;}s.
-     * @deprecated Use the constructor which takes a {@code List&lt;SecurityFilterChain&gt;} instead.
-     */
-    @Deprecated
-    public void setFilterChainMap(Map<RequestMatcher, List<Filter>> filterChainMap) {
-        filterChains = new ArrayList<SecurityFilterChain>(filterChainMap.size());
-
-        for (Map.Entry<RequestMatcher,List<Filter>> entry : filterChainMap.entrySet()) {
-            filterChains.add(new DefaultSecurityFilterChain(entry.getKey(), entry.getValue()));
-        }
-    }
-
-    /**
-     * Returns a copy of the underlying filter chain map. Modifications to the map contents
-     * will not affect the FilterChainProxy state.
-     *
-     * @return the map of path pattern Strings to filter chain lists (with ordering guaranteed).
-     *
-     * @deprecated use the list of {@link SecurityFilterChain}s instead
-     */
-    @Deprecated
-    public Map<RequestMatcher, List<Filter>> getFilterChainMap() {
-        LinkedHashMap<RequestMatcher, List<Filter>> map =  new LinkedHashMap<RequestMatcher, List<Filter>>();
-
-        for (SecurityFilterChain chain : filterChains) {
-            map.put(((DefaultSecurityFilterChain)chain).getRequestMatcher(), chain.getFilters());
-        }
-
-        return map;
-    }
-
-    /**
      * @return the list of {@code SecurityFilterChain}s which will be matched against and
      *         applied to incoming requests.
      */

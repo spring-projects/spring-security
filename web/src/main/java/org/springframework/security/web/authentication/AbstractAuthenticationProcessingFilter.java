@@ -40,6 +40,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
@@ -72,8 +73,8 @@ import org.springframework.web.filter.GenericFilterBean;
  * therein. Otherwise it will redirect to the webapp root "/". You can customize this behaviour by injecting a
  * differently configured instance of this class, or by using a different implementation.
  * <p>
- * See the {@link #successfulAuthentication(HttpServletRequest, HttpServletResponse, Authentication)
- * successfulAuthentication} method for more information.
+ * See the {@link #successfulAuthentication(HttpServletRequest, HttpServletResponse, FilterChain, Authentication)}
+ * method for more information.
  *
  * <h4>Authentication Failure</h4>
  *
@@ -102,12 +103,6 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
         ApplicationEventPublisherAware, MessageSourceAware {
     //~ Static fields/initializers =====================================================================================
 
-    /**
-     * @deprecated Use the value in {@link WebAttributes} directly.
-     */
-    @Deprecated
-    public static final String SPRING_SECURITY_LAST_EXCEPTION_KEY = WebAttributes.AUTHENTICATION_EXCEPTION;
-
     //~ Instance fields ================================================================================================
 
     protected ApplicationEventPublisher eventPublisher;
@@ -117,14 +112,6 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
     private RememberMeServices rememberMeServices = new NullRememberMeServices();
 
     private RequestMatcher requiresAuthenticationRequestMatcher;
-
-    /**
-     * The URL destination that this filter intercepts and processes (usually
-     * something like <code>/j_spring_security_check</code>)
-     * @deprecated use {@link #requiresAuthenticationRequestMatcher} instead
-     */
-    @Deprecated
-    private String filterProcessesUrl;
 
     private boolean continueChainBeforeSuccessfulAuthentication = false;
 
@@ -141,8 +128,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
      * @param defaultFilterProcessesUrl the default value for <tt>filterProcessesUrl</tt>.
      */
     protected AbstractAuthenticationProcessingFilter(String defaultFilterProcessesUrl) {
-        this.requiresAuthenticationRequestMatcher = new FilterProcessUrlRequestMatcher(defaultFilterProcessesUrl);
-        this.filterProcessesUrl = defaultFilterProcessesUrl;
+        setFilterProcessesUrl(defaultFilterProcessesUrl);
     }
 
     /**
@@ -178,8 +164,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
      * <li>An <tt>Authentication</tt> object is returned.
      * The configured {@link SessionAuthenticationStrategy} will be invoked (to handle any session-related behaviour
      * such as creating a new session to protect against session-fixation attacks) followed by the invocation of
-     * {@link #successfulAuthentication(HttpServletRequest, HttpServletResponse, Authentication)
-     * successfulAuthentication} method</li>
+     * {@link #successfulAuthentication(HttpServletRequest, HttpServletResponse, FilterChain, Authentication)} method</li>
      * <li>An <tt>AuthenticationException</tt> occurs during authentication.
      * The {@link #unsuccessfulAuthentication(HttpServletRequest, HttpServletResponse, AuthenticationException)
      * unsuccessfulAuthentication} method will be invoked</li>
@@ -246,9 +231,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
      * Subclasses may override for special requirements, such as Tapestry integration.
      *
      * @return <code>true</code> if the filter should attempt authentication, <code>false</code> otherwise.
-     * @deprecated use {@link #setRequiresAuthenticationRequestMatcher(RequestMatcher)} instead
      */
-    @Deprecated
     protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
         return requiresAuthenticationRequestMatcher.matches(request);
     }
@@ -294,25 +277,6 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
      * @throws ServletException
      */
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-            Authentication authResult) throws IOException, ServletException{
-        successfulAuthentication(request, response, authResult);
-    }
-
-    /**
-     * Default behaviour for successful authentication.
-     * <ol>
-     * <li>Sets the successful <tt>Authentication</tt> object on the {@link SecurityContextHolder}</li>
-     * <li>Informs the configured <tt>RememberMeServices</tt> of the successful login</li>
-     * <li>Fires an {@link InteractiveAuthenticationSuccessEvent} via the configured
-     * <tt>ApplicationEventPublisher</tt></li>
-     * <li>Delegates additional behaviour to the {@link AuthenticationSuccessHandler}.</li>
-     * </ol>
-     *
-     * @param authResult the object returned from the <tt>attemptAuthentication</tt> method.
-     * @deprecated since 3.1. Use {@link #successfulAuthentication(HttpServletRequest, HttpServletResponse, FilterChain, Authentication)} instead.
-     */
-    @Deprecated
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
             Authentication authResult) throws IOException, ServletException {
 
         if (logger.isDebugEnabled()) {
@@ -363,26 +327,17 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
         this.authenticationManager = authenticationManager;
     }
 
-    @Deprecated
-    public String getFilterProcessesUrl() {
-        return filterProcessesUrl;
-    }
-
     /**
      * Sets the URL that determines if authentication is required
      *
      * @param filterProcessesUrl
-     * @deprecated use {@link #setRequiresAuthenticationRequestMatcher(RequestMatcher)} instead
      */
-    @Deprecated
     public void setFilterProcessesUrl(String filterProcessesUrl) {
-        this.requiresAuthenticationRequestMatcher = new FilterProcessUrlRequestMatcher(filterProcessesUrl);
-        this.filterProcessesUrl = filterProcessesUrl;
+        setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher(filterProcessesUrl));
     }
 
     public final void setRequiresAuthenticationRequestMatcher(RequestMatcher requestMatcher) {
         Assert.notNull(requestMatcher, "requestMatcher cannot be null");
-        this.filterProcessesUrl = null;
         this.requiresAuthenticationRequestMatcher = requestMatcher;
     }
 
@@ -397,8 +352,8 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 
     /**
      * Indicates if the filter chain should be continued prior to delegation to
-     * {@link #successfulAuthentication(HttpServletRequest, HttpServletResponse,
-     * Authentication)}, which may be useful in certain environment (such as
+     * {@link #successfulAuthentication(HttpServletRequest, HttpServletResponse, FilterChain, Authentication)}, which
+     * may be useful in certain environment (such as
      * Tapestry applications). Defaults to <code>false</code>.
      */
     public void setContinueChainBeforeSuccessfulAuthentication(boolean continueChainBeforeSuccessfulAuthentication) {
@@ -458,31 +413,5 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 
     protected AuthenticationFailureHandler getFailureHandler() {
         return failureHandler;
-    }
-
-    private static final class FilterProcessUrlRequestMatcher implements RequestMatcher {
-        private final String filterProcessesUrl;
-
-        private FilterProcessUrlRequestMatcher(String filterProcessesUrl) {
-            Assert.hasLength(filterProcessesUrl, "filterProcessesUrl must be specified");
-            Assert.isTrue(UrlUtils.isValidRedirectUrl(filterProcessesUrl), filterProcessesUrl + " isn't a valid redirect URL");
-            this.filterProcessesUrl = filterProcessesUrl;
-        }
-
-        public boolean matches(HttpServletRequest request) {
-            String uri = request.getRequestURI();
-            int pathParamIndex = uri.indexOf(';');
-
-            if (pathParamIndex > 0) {
-                // strip everything after the first semi-colon
-                uri = uri.substring(0, pathParamIndex);
-            }
-
-            if ("".equals(request.getContextPath())) {
-                return uri.endsWith(filterProcessesUrl);
-            }
-
-            return uri.endsWith(request.getContextPath() + filterProcessesUrl);
-        }
     }
 }

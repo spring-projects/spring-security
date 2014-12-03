@@ -67,9 +67,7 @@ public class BasicAuthenticationFilterTests {
         when(manager.authenticate(rodRequest)).thenReturn(rod);
         when(manager.authenticate(not(eq(rodRequest)))).thenThrow(new BadCredentialsException(""));
 
-        filter = new BasicAuthenticationFilter();
-        filter.setAuthenticationManager(manager);
-        filter.setAuthenticationEntryPoint(new BasicAuthenticationEntryPoint());
+        filter = new BasicAuthenticationFilter(manager,new BasicAuthenticationEntryPoint());
     }
 
     @After
@@ -95,11 +93,7 @@ public class BasicAuthenticationFilterTests {
 
     @Test
     public void testGettersSetters() {
-        BasicAuthenticationFilter filter = new BasicAuthenticationFilter();
-        filter.setAuthenticationManager(manager);
         assertThat(filter.getAuthenticationManager()).isNotNull();
-
-        filter.setAuthenticationEntryPoint(mock(AuthenticationEntryPoint.class));
         assertThat(filter.getAuthenticationEntryPoint()).isNotNull();
     }
 
@@ -168,16 +162,12 @@ public class BasicAuthenticationFilterTests {
 
     @Test(expected=IllegalArgumentException.class)
     public void testStartupDetectsMissingAuthenticationEntryPoint() throws Exception {
-        BasicAuthenticationFilter filter = new BasicAuthenticationFilter();
-        filter.setAuthenticationManager(manager);
-        filter.afterPropertiesSet();
+        new BasicAuthenticationFilter(manager, null);
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void testStartupDetectsMissingAuthenticationManager() throws Exception {
-        BasicAuthenticationFilter filter = new BasicAuthenticationFilter();
-        filter.setAuthenticationEntryPoint(mock(AuthenticationEntryPoint.class));
-        filter.afterPropertiesSet();
+        BasicAuthenticationFilter filter = new BasicAuthenticationFilter(null);
     }
 
     @Test
@@ -225,7 +215,7 @@ public class BasicAuthenticationFilterTests {
         request.setServletPath("/some_file.html");
         request.setSession(new MockHttpSession());
 
-        filter.setIgnoreFailure(true);
+        filter = new BasicAuthenticationFilter(manager);
         assertThat(filter.isIgnoreFailure()).isTrue();
         FilterChain chain = mock(FilterChain.class);
         filter.doFilter(request, new MockHttpServletResponse(), chain);

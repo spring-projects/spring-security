@@ -173,7 +173,6 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
             parsers.put(Elements.DEBUG, new DebugBeanDefinitionParser());
             parsers.put(Elements.HTTP, new HttpSecurityBeanDefinitionParser());
             parsers.put(Elements.HTTP_FIREWALL, new HttpFirewallBeanDefinitionParser());
-            parsers.put(Elements.FILTER_INVOCATION_DEFINITION_SOURCE, new FilterInvocationSecurityMetadataSourceParser());
             parsers.put(Elements.FILTER_SECURITY_METADATA_SOURCE, new FilterInvocationSecurityMetadataSourceParser());
             parsers.put(Elements.FILTER_CHAIN, new FilterChainBeanDefinitionParser());
             filterChainMapBDD = new FilterChainMapBeanDefinitionDecorator();

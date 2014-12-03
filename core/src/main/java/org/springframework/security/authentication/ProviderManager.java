@@ -86,14 +86,6 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
     private AuthenticationManager parent;
     private boolean eraseCredentialsAfterAuthentication = true;
-    private boolean clearExtraInformation = false;
-
-    /**
-     * @deprecated Use constructor which takes provider list
-     */
-    @Deprecated
-    public ProviderManager() {
-    }
 
     public ProviderManager(List<AuthenticationProvider> providers) {
         this(providers, null);
@@ -208,11 +200,6 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
     @SuppressWarnings("deprecation")
     private void prepareException(AuthenticationException ex, Authentication auth) {
         eventPublisher.publishAuthenticationFailure(ex, auth);
-        ex.setAuthentication(auth);
-
-        if (clearExtraInformation) {
-            ex.clearExtraInformation();
-        }
     }
 
     /**
@@ -238,14 +225,6 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
         this.messages = new MessageSourceAccessor(messageSource);
     }
 
-    /**
-     * @deprecated Use constructor injection
-     */
-    @Deprecated
-    public void setParent(AuthenticationManager parent) {
-        this.parent = parent;
-    }
-
     public void setAuthenticationEventPublisher(AuthenticationEventPublisher eventPublisher) {
         Assert.notNull(eventPublisher, "AuthenticationEventPublisher cannot be null");
         this.eventPublisher = eventPublisher;
@@ -265,39 +244,6 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 
     public boolean isEraseCredentialsAfterAuthentication() {
         return eraseCredentialsAfterAuthentication;
-    }
-
-    /**
-     * Sets the {@link AuthenticationProvider} objects to be used for authentication.
-     *
-     * @param providers the list of authentication providers which will be used to process authentication requests.
-     *
-     * @throws IllegalArgumentException if the list is empty or null, or any of the elements in the list is not an
-     * AuthenticationProvider instance.
-     * @deprecated Use constructor injection
-     */
-    @Deprecated
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public void setProviders(List providers) {
-        Assert.notNull(providers, "Providers list cannot be null");
-        for(Object currentObject : providers) {
-            Assert.isInstanceOf(AuthenticationProvider.class, currentObject, "Can only provide AuthenticationProvider instances");
-        }
-
-        this.providers = providers;
-    }
-
-    /**
-     * If set to true, the {@code extraInformation} set on an {@code AuthenticationException} will be cleared
-     * before rethrowing it. This is useful for use with remoting protocols where the information shouldn't
-     * be serialized to the client. Defaults to 'false'.
-     *
-     * @see org.springframework.security.core.AuthenticationException#getExtraInformation()
-     * @deprecated the {@code extraInformation} property is deprecated
-     */
-    @Deprecated
-    public void setClearExtraInformation(boolean clearExtraInformation) {
-        this.clearExtraInformation = clearExtraInformation;
     }
 
     private static final class NullEventPublisher implements AuthenticationEventPublisher {

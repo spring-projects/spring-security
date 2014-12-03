@@ -62,27 +62,6 @@ public class OpenID4JavaConsumer implements OpenIDConsumer {
         this(new ConsumerManager(), new NullAxFetchListFactory());
     }
 
-    /**
-     * @deprecated use the {@link AxFetchListFactory} version instead.
-     */
-    @Deprecated
-    public OpenID4JavaConsumer(List<OpenIDAttribute> attributes) throws ConsumerException {
-        this(new ConsumerManager(), attributes);
-    }
-
-    @Deprecated
-    public OpenID4JavaConsumer(ConsumerManager consumerManager, final List<OpenIDAttribute> attributes)
-            throws ConsumerException {
-        this.consumerManager = consumerManager;
-        this.attributesToFetchFactory = new AxFetchListFactory() {
-            private final List<OpenIDAttribute> fetchAttrs = Collections.unmodifiableList(attributes);
-
-            public List<OpenIDAttribute> createAttributeList(String identifier) {
-                return fetchAttrs;
-            }
-        };
-    }
-
     public OpenID4JavaConsumer(AxFetchListFactory attributesToFetchFactory) throws ConsumerException {
         this(new ConsumerManager(), attributesToFetchFactory);
     }

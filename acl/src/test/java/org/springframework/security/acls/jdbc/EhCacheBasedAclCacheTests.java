@@ -29,16 +29,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.security.acls.domain.AclAuthorizationStrategy;
-import org.springframework.security.acls.domain.AclAuthorizationStrategyImpl;
-import org.springframework.security.acls.domain.AclImpl;
-import org.springframework.security.acls.domain.ConsoleAuditLogger;
-import org.springframework.security.acls.domain.EhCacheBasedAclCache;
-import org.springframework.security.acls.domain.ObjectIdentityImpl;
+import org.springframework.security.acls.domain.*;
 import org.springframework.security.acls.model.MutableAcl;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.util.FieldUtils;
@@ -65,7 +61,7 @@ public class EhCacheBasedAclCacheTests {
 
     @Before
     public void setup() {
-        myCache = new EhCacheBasedAclCache(cache);
+        myCache = new EhCacheBasedAclCache(cache, new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()), new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ROLE_USER")));
 
         ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, Long.valueOf(100));
         AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
@@ -82,7 +78,7 @@ public class EhCacheBasedAclCacheTests {
 
     @Test(expected=IllegalArgumentException.class)
     public void constructorRejectsNullParameters() throws Exception {
-        new EhCacheBasedAclCache(null);
+        new EhCacheBasedAclCache(null, new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()), new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ROLE_USER")));
     }
 
     @Test

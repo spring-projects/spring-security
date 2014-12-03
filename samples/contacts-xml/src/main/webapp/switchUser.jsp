@@ -25,8 +25,7 @@
     <c:if test="${not empty param.login_error}">
     <p>
       <font color="red">
-        Your 'su' attempt was not successful, try again.<br/><br/>
-        Reason: <%= ((AuthenticationException) session.getAttribute(AbstractAuthenticationProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY)).getMessage() %>
+        Your 'su' attempt was not successful, try again.<br/>
       </font>
           </p>
     </c:if>

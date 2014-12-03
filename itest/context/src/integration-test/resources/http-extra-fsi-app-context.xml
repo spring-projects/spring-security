@@ -31,12 +31,12 @@
     </bean>
 
     <bean id="accessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
-        <property name="allowIfAllAbstainDecisions" value="false"/>
-        <property name="decisionVoters">
+        <constructor-arg>
             <list>
                 <bean class="org.springframework.security.access.vote.RoleVoter"/>
             </list>
-        </property>
+        </constructor-arg>
+        <property name="allowIfAllAbstainDecisions" value="false"/>
     </bean>
 
     <sec:authentication-manager alias="authenticationManager">

@@ -84,7 +84,7 @@ public class BasicLookupStrategyTests {
 
     @Before
     public void initializeBeans() {
-        EhCacheBasedAclCache cache = new EhCacheBasedAclCache(getCache());
+        EhCacheBasedAclCache cache = new EhCacheBasedAclCache(getCache(), new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()), new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ROLE_USER")));
         AclAuthorizationStrategy authorizationStrategy = new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ROLE_ADMINISTRATOR"));
         strategy = new BasicLookupStrategy(dataSource, cache, authorizationStrategy,
                 new DefaultPermissionGrantingStrategy(new ConsoleAuditLogger()));

@@ -34,9 +34,9 @@
   <xs:attributeGroup name="request-matcher">
       <xs:attribute name="request-matcher" use="required">
          <xs:annotation>
-            <xs:documentation>Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming
-                requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular
-                expressions and 'ciRegex' for case-insensitive regular expressions.
+            <xs:documentation>Defines the strategy use for matching incoming requests. Currently the options are 'ant'
+                (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for
+                case-insensitive regular expressions.
                 </xs:documentation>
          </xs:annotation>
          <xs:simpleType>
@@ -44,20 +44,6 @@
                <xs:enumeration value="ant"/>
                <xs:enumeration value="regex"/>
                <xs:enumeration value="ciRegex"/>
-            </xs:restriction>
-         </xs:simpleType>
-      </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="path-type">
-      <xs:attribute name="path-type" use="required">
-         <xs:annotation>
-            <xs:documentation>Deprecated. Use request-matcher instead.
-                </xs:documentation>
-         </xs:annotation>
-         <xs:simpleType>
-            <xs:restriction base="xs:token">
-               <xs:enumeration value="ant"/>
-               <xs:enumeration value="regex"/>
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
@@ -1160,9 +1146,9 @@
       </xs:attribute>
       <xs:attribute name="request-matcher">
          <xs:annotation>
-            <xs:documentation>Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming
-                requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular
-                expressions and 'ciRegex' for case-insensitive regular expressions.
+            <xs:documentation>Defines the strategy use for matching incoming requests. Currently the options are 'ant'
+                (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for
+                case-insensitive regular expressions.
                 </xs:documentation>
          </xs:annotation>
          <xs:simpleType>
@@ -1170,18 +1156,6 @@
                <xs:enumeration value="ant"/>
                <xs:enumeration value="regex"/>
                <xs:enumeration value="ciRegex"/>
-            </xs:restriction>
-         </xs:simpleType>
-      </xs:attribute>
-      <xs:attribute name="path-type">
-         <xs:annotation>
-            <xs:documentation>Deprecated. Use request-matcher instead.
-                </xs:documentation>
-         </xs:annotation>
-         <xs:simpleType>
-            <xs:restriction base="xs:token">
-               <xs:enumeration value="ant"/>
-               <xs:enumeration value="regex"/>
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
@@ -1225,12 +1199,6 @@
          <xs:annotation>
             <xs:documentation>Corresponds to the observeOncePerRequest property of FilterSecurityInterceptor. Defaults
                 to "true"
-                </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-      <xs:attribute name="access-denied-page" type="xs:token">
-         <xs:annotation>
-            <xs:documentation>Deprecated in favour of the access-denied-handler element.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
@@ -1534,23 +1502,11 @@
       </xs:complexType>
    </xs:element>
   <xs:attributeGroup name="filter-chain-map.attlist">
-      <xs:attribute name="path-type">
-         <xs:annotation>
-            <xs:documentation>Deprecated. Use request-matcher instead.
-                </xs:documentation>
-         </xs:annotation>
-         <xs:simpleType>
-            <xs:restriction base="xs:token">
-               <xs:enumeration value="ant"/>
-               <xs:enumeration value="regex"/>
-            </xs:restriction>
-         </xs:simpleType>
-      </xs:attribute>
       <xs:attribute name="request-matcher">
          <xs:annotation>
-            <xs:documentation>Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming
-                requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular
-                expressions and 'ciRegex' for case-insensitive regular expressions.
+            <xs:documentation>Defines the strategy use for matching incoming requests. Currently the options are 'ant'
+                (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for
+                case-insensitive regular expressions.
                 </xs:documentation>
          </xs:annotation>
          <xs:simpleType>
@@ -1657,23 +1613,11 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="path-type">
-         <xs:annotation>
-            <xs:documentation>Deprecated. Use request-matcher instead.
-                </xs:documentation>
-         </xs:annotation>
-         <xs:simpleType>
-            <xs:restriction base="xs:token">
-               <xs:enumeration value="ant"/>
-               <xs:enumeration value="regex"/>
-            </xs:restriction>
-         </xs:simpleType>
-      </xs:attribute>
       <xs:attribute name="request-matcher">
          <xs:annotation>
-            <xs:documentation>Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming
-                requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular
-                expressions and 'ciRegex' for case-insensitive regular expressions.
+            <xs:documentation>Defines the strategy use for matching incoming requests. Currently the options are 'ant'
+                (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for
+                case-insensitive regular expressions.
                 </xs:documentation>
          </xs:annotation>
          <xs:simpleType>
@@ -1685,26 +1629,6 @@
          </xs:simpleType>
       </xs:attribute>
   </xs:attributeGroup>
-  <xs:element name="filter-invocation-definition-source">
-      <xs:annotation>
-         <xs:documentation>Deprecated synonym for filter-security-metadata-source
-                </xs:documentation>
-      </xs:annotation>
-      <xs:complexType>
-         <xs:sequence>
-            <xs:element maxOccurs="unbounded" name="intercept-url">
-               <xs:annotation>
-                  <xs:documentation>Specifies the access attributes and/or filter list for a particular set of URLs.
-                </xs:documentation>
-               </xs:annotation>
-               <xs:complexType>
-                  <xs:attributeGroup ref="security:intercept-url.attlist"/>
-               </xs:complexType>
-            </xs:element>
-         </xs:sequence>
-         <xs:attributeGroup ref="security:fsmds.attlist"/>
-      </xs:complexType>
-   </xs:element>
   
   <xs:attributeGroup name="http-basic.attlist">
       <xs:attribute name="entry-point-ref" type="xs:token">

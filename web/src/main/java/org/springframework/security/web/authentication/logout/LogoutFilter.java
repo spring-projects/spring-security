@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
@@ -50,7 +51,6 @@ public class LogoutFilter extends GenericFilterBean {
 
     //~ Instance fields ================================================================================================
 
-    private String filterProcessesUrl;
     private RequestMatcher logoutRequestMatcher;
 
     private final List<LogoutHandler> handlers;
@@ -125,50 +125,9 @@ public class LogoutFilter extends GenericFilterBean {
     public void setLogoutRequestMatcher(RequestMatcher logoutRequestMatcher) {
         Assert.notNull(logoutRequestMatcher, "logoutRequestMatcher cannot be null");
         this.logoutRequestMatcher = logoutRequestMatcher;
-        this.filterProcessesUrl = null;
     }
 
-    @Deprecated
     public void setFilterProcessesUrl(String filterProcessesUrl) {
-        this.logoutRequestMatcher = new FilterProcessUrlRequestMatcher(filterProcessesUrl);
-        this.filterProcessesUrl = filterProcessesUrl;
-    }
-
-    @Deprecated
-    protected String getFilterProcessesUrl() {
-        return filterProcessesUrl;
-    }
-
-    private static final class FilterProcessUrlRequestMatcher implements RequestMatcher {
-        private final String filterProcessesUrl;
-
-        private FilterProcessUrlRequestMatcher(String filterProcessesUrl) {
-            Assert.hasLength(filterProcessesUrl, "filterProcessesUrl must be specified");
-            Assert.isTrue(UrlUtils.isValidRedirectUrl(filterProcessesUrl), filterProcessesUrl + " isn't a valid redirect URL");
-            this.filterProcessesUrl = filterProcessesUrl;
-        }
-
-        public boolean matches(HttpServletRequest request) {
-            String uri = request.getRequestURI();
-            int pathParamIndex = uri.indexOf(';');
-
-            if (pathParamIndex > 0) {
-                // strip everything from the first semi-colon
-                uri = uri.substring(0, pathParamIndex);
-            }
-
-            int queryParamIndex = uri.indexOf('?');
-
-            if (queryParamIndex > 0) {
-                // strip everything from the first question mark
-                uri = uri.substring(0, queryParamIndex);
-            }
-
-            if ("".equals(request.getContextPath())) {
-                return uri.endsWith(filterProcessesUrl);
-            }
-
-            return uri.endsWith(request.getContextPath() + filterProcessesUrl);
-        }
+        this.logoutRequestMatcher = new AntPathRequestMatcher(filterProcessesUrl);
     }
 }

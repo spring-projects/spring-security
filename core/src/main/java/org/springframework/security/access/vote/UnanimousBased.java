@@ -31,13 +31,6 @@ import org.springframework.security.core.Authentication;
  */
 public class UnanimousBased extends AbstractAccessDecisionManager {
 
-    /**
-     * @deprecated Use constructor which takes voter list
-     */
-    @Deprecated
-    public UnanimousBased() {
-    }
-
     public UnanimousBased(List<AccessDecisionVoter<? extends Object>> decisionVoters) {
         super(decisionVoters);
     }

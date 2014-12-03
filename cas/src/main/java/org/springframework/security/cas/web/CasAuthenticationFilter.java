@@ -38,6 +38,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
 /**
@@ -170,7 +172,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
     /**
      * The last portion of the receptor url, i.e. /proxy/receptor
      */
-    private String proxyReceptorUrl;
+    private RequestMatcher proxyReceptorMatcher;
 
     /**
      * The backing storage to store ProxyGrantingTicket requests.
@@ -254,7 +256,6 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
     /**
      * Overridden to provide proxying capabilities.
      */
-    @Override
     protected boolean requiresAuthentication(final HttpServletRequest request, final HttpServletResponse response) {
         final boolean serviceTicketRequest = serviceTicketRequest(request, response);
         final boolean result = serviceTicketRequest || proxyReceptorRequest(request) || (proxyTicketRequest(serviceTicketRequest, request));
@@ -286,7 +287,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
     }
 
     public final void setProxyReceptorUrl(final String proxyReceptorUrl) {
-        this.proxyReceptorUrl = proxyReceptorUrl;
+        this.proxyReceptorMatcher = new AntPathRequestMatcher("/**" + proxyReceptorUrl);
     }
 
     public final void setProxyGrantingTicketStorage(
@@ -343,8 +344,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
      * @return
      */
     private boolean proxyReceptorRequest(final HttpServletRequest request) {
-        final String requestUri = request.getRequestURI();
-        final boolean result = proxyReceptorConfigured() && requestUri.endsWith(this.proxyReceptorUrl);
+        final boolean result = proxyReceptorConfigured() && proxyReceptorMatcher.matches(request);
         if(logger.isDebugEnabled()) {
             logger.debug("proxyReceptorRequest = "+result);
         }
@@ -357,7 +357,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
      * @return
      */
     private boolean proxyReceptorConfigured() {
-        final boolean result = this.proxyGrantingTicketStorage != null && !CommonUtils.isEmpty(this.proxyReceptorUrl);
+        final boolean result = this.proxyGrantingTicketStorage != null && proxyReceptorMatcher != null;
         if(logger.isDebugEnabled()) {
             logger.debug("proxyReceptorConfigured = "+result);
         }

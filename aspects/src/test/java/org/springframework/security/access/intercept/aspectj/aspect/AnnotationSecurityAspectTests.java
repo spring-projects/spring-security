@@ -53,10 +53,9 @@ public class AnnotationSecurityAspectTests {
     public final void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         interceptor = new AspectJMethodSecurityInterceptor();
-        adm = new AffirmativeBased();
         AccessDecisionVoter[] voters = new AccessDecisionVoter[]
                 {new RoleVoter(), new PreInvocationAuthorizationAdviceVoter(new ExpressionBasedPreInvocationAdvice())};
-        adm.setDecisionVoters(Arrays.<AccessDecisionVoter<? extends Object>>asList(voters));
+        adm = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>>asList(voters));
         interceptor.setAccessDecisionManager(adm);
         interceptor.setAuthenticationManager(authman);
         interceptor.setSecurityMetadataSource(new SecuredAnnotationSecurityMetadataSource());

@@ -116,14 +116,6 @@ public class DefaultServiceAuthenticationDetailsTests {
     }
 
     @Test
-    public void getServiceUrlDoesNotUseHostHeaderPassivity() {
-        casServiceUrl = "https://example.com/j_spring_security_cas";
-        request.setServerName("evil.com");
-        ServiceAuthenticationDetails details = loadServiceAuthenticationDetails("defaultserviceauthenticationdetails-passivity.xml");
-        assertEquals("https://example.com/cas-sample/secure/", details.getServiceUrl());
-    }
-
-    @Test
     public void getServiceUrlDoesNotUseHostHeaderExplicit() {
         casServiceUrl = "https://example.com/j_spring_security_cas";
         request.setServerName("evil.com");

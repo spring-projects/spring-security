@@ -104,7 +104,7 @@
     <bean id="fcv" class="org.springframework.security.config.http.DefaultFilterChainValidator" />
 
     <bean id="newFilterChainProxyRegex" class="org.springframework.security.web.FilterChainProxy">
-        <sec:filter-chain-map path-type="regex">
+        <sec:filter-chain-map request-matcher="regex">
             <sec:filter-chain pattern="\A/foo/.*\Z" filters="mockFilter"/>
             <sec:filter-chain pattern="\A/s[oO]me/other/path/.*\Z" filters="sif,mockFilter,mockFilter2"/>
             <sec:filter-chain pattern="\A/do/not/filter\Z" filters="none"/>

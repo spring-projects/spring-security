@@ -24,9 +24,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.memory.UserAttribute;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -59,20 +57,12 @@ public class AnonymousAuthenticationFilterTests {
 
     @Test(expected=IllegalArgumentException.class)
     public void testDetectsMissingKey() throws Exception {
-        UserAttribute user = new UserAttribute();
-        user.setPassword("anonymousUsername");
-        user.addAuthority(new SimpleGrantedAuthority("ROLE_ANONYMOUS"));
-
-        AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter();
-        filter.setUserAttribute(user);
-        filter.afterPropertiesSet();
+        new AnonymousAuthenticationFilter(null);
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void testDetectsUserAttribute() throws Exception {
-        AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter();
-        filter.setKey("qwerty");
-        filter.afterPropertiesSet();
+        new AnonymousAuthenticationFilter("qwerty", null, null);
     }
 
     @Test
@@ -96,13 +86,7 @@ public class AnonymousAuthenticationFilterTests {
 
     @Test
     public void testOperationWhenNoAuthenticationInSecurityContextHolder() throws Exception {
-        UserAttribute user = new UserAttribute();
-        user.setPassword("anonymousUsername");
-        user.addAuthority(new SimpleGrantedAuthority("ROLE_ANONYMOUS"));
-
-        AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter();
-        filter.setKey("qwerty");
-        filter.setUserAttribute(user);
+        AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter("qwerty", "anonymousUsername", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
         filter.afterPropertiesSet();
 
         MockHttpServletRequest request = new MockHttpServletRequest();

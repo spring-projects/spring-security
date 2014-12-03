@@ -98,7 +98,7 @@ public class SessionManagementConfigServlet31Tests {
         Method method = mock(Method.class);
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.getSession();
-        request.setRequestURI("/j_spring_security_check");
+        request.setServletPath("/j_spring_security_check");
         request.setMethod("POST");
         request.setParameter("j_username", "user");
         request.setParameter("j_password", "password");
@@ -124,7 +124,7 @@ public class SessionManagementConfigServlet31Tests {
         Method method = mock(Method.class);
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.getSession();
-        request.setRequestURI("/j_spring_security_check");
+        request.setServletPath("/j_spring_security_check");
         request.setMethod("POST");
         request.setParameter("j_username", "user");
         request.setParameter("j_password", "password");

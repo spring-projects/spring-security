@@ -39,7 +39,6 @@ public class UnanimousBasedTests extends TestCase {
     //~ Methods ========================================================================================================
 
     private UnanimousBased makeDecisionManager() {
-        UnanimousBased decisionManager = new UnanimousBased();
         RoleVoter roleVoter = new RoleVoter();
         DenyVoter denyForSureVoter = new DenyVoter();
         DenyAgainVoter denyAgainForSureVoter = new DenyAgainVoter();
@@ -47,13 +46,10 @@ public class UnanimousBasedTests extends TestCase {
         voters.add(roleVoter);
         voters.add(denyForSureVoter);
         voters.add(denyAgainForSureVoter);
-        decisionManager.setDecisionVoters(voters);
-
-        return decisionManager;
+        return new UnanimousBased(voters);
     }
 
     private UnanimousBased makeDecisionManagerWithFooBarPrefix() {
-        UnanimousBased decisionManager = new UnanimousBased();
         RoleVoter roleVoter = new RoleVoter();
         roleVoter.setRolePrefix("FOOBAR_");
 
@@ -63,9 +59,7 @@ public class UnanimousBasedTests extends TestCase {
         voters.add(roleVoter);
         voters.add(denyForSureVoter);
         voters.add(denyAgainForSureVoter);
-        decisionManager.setDecisionVoters(voters);
-
-        return decisionManager;
+        return new UnanimousBased(voters);
     }
 
     private TestingAuthenticationToken makeTestToken() {

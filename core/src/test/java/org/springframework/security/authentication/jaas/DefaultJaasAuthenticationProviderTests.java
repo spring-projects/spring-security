@@ -234,7 +234,7 @@ public class DefaultJaasAuthenticationProviderTests {
     @Test
     public void publishNullPublisher() {
         provider.setApplicationEventPublisher(null);
-        AuthenticationException ae = new BadCredentialsException("Failed to login", token);
+        AuthenticationException ae = new BadCredentialsException("Failed to login");
 
         provider.publishFailureEvent(token, ae);
         provider.publishSuccessEvent(token);

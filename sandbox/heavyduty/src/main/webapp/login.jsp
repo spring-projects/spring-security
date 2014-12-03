@@ -11,16 +11,6 @@
   <body onload="document.f.j_username.focus();">
     <h1>CUSTOM SPRING SECURITY LOGIN</h1>
 
-    <%-- this form-login-page form is also used as the
-         form-error-page to ask for a login again.
-         --%>
-    <% if (session.getAttribute(AbstractAuthenticationProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY) != null) { %>
-      <font color="red">
-        Your login attempt was not successful, try again.<br/><br/>
-        Reason: <%= ((AuthenticationException) session.getAttribute(AbstractAuthenticationProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY)).getMessage() %>
-      </font>
-    <% } %>
-
     <form name="f" action="<c:url value='j_spring_security_check'/>" method="POST">
       <table>
         <tr><td>User:</td><td><input type='text' name='j_username' /></td></tr>

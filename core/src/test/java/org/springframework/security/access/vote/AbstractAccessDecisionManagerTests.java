@@ -41,31 +41,34 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
     //~ Methods ========================================================================================================
 
     public void testAllowIfAccessDecisionManagerDefaults() {
-        MockDecisionManagerImpl mock = new MockDecisionManagerImpl();
+        List list = new Vector();
+        DenyAgainVoter denyVoter = new DenyAgainVoter();
+        list.add(denyVoter);
+        MockDecisionManagerImpl mock = new MockDecisionManagerImpl(list);
         assertTrue(!mock.isAllowIfAllAbstainDecisions()); // default
         mock.setAllowIfAllAbstainDecisions(true);
         assertTrue(mock.isAllowIfAllAbstainDecisions()); // changed
     }
 
     public void testDelegatesSupportsClassRequests() throws Exception {
-        MockDecisionManagerImpl mock = new MockDecisionManagerImpl();
         List list = new Vector();
         list.add(new DenyVoter());
         list.add(new MockStringOnlyVoter());
-        mock.setDecisionVoters(list);
+
+        MockDecisionManagerImpl mock = new MockDecisionManagerImpl(list);
 
         assertTrue(mock.supports(String.class));
         assertTrue(!mock.supports(Integer.class));
     }
 
     public void testDelegatesSupportsRequests() throws Exception {
-        MockDecisionManagerImpl mock = new MockDecisionManagerImpl();
         List list = new Vector();
         DenyVoter voter = new DenyVoter();
         DenyAgainVoter denyVoter = new DenyAgainVoter();
         list.add(voter);
         list.add(denyVoter);
-        mock.setDecisionVoters(list);
+
+        MockDecisionManagerImpl mock = new MockDecisionManagerImpl(list);
 
         ConfigAttribute attr = new SecurityConfig("DENY_AGAIN_FOR_SURE");
         assertTrue(mock.supports(attr));
@@ -75,40 +78,20 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
     }
 
     public void testProperlyStoresListOfVoters() throws Exception {
-        MockDecisionManagerImpl mock = new MockDecisionManagerImpl();
         List list = new Vector();
         DenyVoter voter = new DenyVoter();
         DenyAgainVoter denyVoter = new DenyAgainVoter();
         list.add(voter);
         list.add(denyVoter);
-        mock.setDecisionVoters(list);
+        MockDecisionManagerImpl mock = new MockDecisionManagerImpl(list);
         assertEquals(list.size(), mock.getDecisionVoters().size());
     }
 
     public void testRejectsEmptyList() throws Exception {
-        MockDecisionManagerImpl mock = new MockDecisionManagerImpl();
         List list = new Vector();
 
         try {
-            mock.setDecisionVoters(list);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-    }
-
-    public void testRejectsListContainingInvalidObjectTypes() {
-        MockDecisionManagerImpl mock = new MockDecisionManagerImpl();
-        List list = new Vector();
-        DenyVoter voter = new DenyVoter();
-        DenyAgainVoter denyVoter = new DenyAgainVoter();
-        String notAVoter = "NOT_A_VOTER";
-        list.add(voter);
-        list.add(notAVoter);
-        list.add(denyVoter);
-
-        try {
-            mock.setDecisionVoters(list);
+            new MockDecisionManagerImpl(list);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -116,10 +99,8 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
     }
 
     public void testRejectsNullVotersList() throws Exception {
-        MockDecisionManagerImpl mock = new MockDecisionManagerImpl();
-
         try {
-            mock.setDecisionVoters(null);
+            new MockDecisionManagerImpl(null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -133,10 +114,8 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
 
     public void testWillNotStartIfDecisionVotersNotSet()
         throws Exception {
-        MockDecisionManagerImpl mock = new MockDecisionManagerImpl();
-
         try {
-            mock.afterPropertiesSet();
+        	new MockDecisionManagerImpl(null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -146,6 +125,10 @@ public class AbstractAccessDecisionManagerTests extends TestCase {
     //~ Inner Classes ==================================================================================================
 
     private class MockDecisionManagerImpl extends AbstractAccessDecisionManager {
+        protected MockDecisionManagerImpl(List<AccessDecisionVoter<? extends Object>> decisionVoters) {
+            super(decisionVoters);
+        }
+
         public void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes) {
         }
     }

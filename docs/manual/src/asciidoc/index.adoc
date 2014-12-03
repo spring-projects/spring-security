@@ -2441,7 +2441,7 @@ The `FilterSecurityInterceptor` can be configured with configuration attributes 
 
 It should be noted that the `FilterSecurityInterceptor.setSecurityMetadataSource()` method actually expects an instance of `FilterInvocationSecurityMetadataSource`. This is a marker interface which subclasses`SecurityMetadataSource`. It simply denotes the `SecurityMetadataSource` understands `FilterInvocation` s. In the interests of simplicity we'll continue to refer to the `FilterInvocationSecurityMetadataSource` as a `SecurityMetadataSource`, as the distinction is of little relevance to most users.
 
-The `SecurityMetadataSource` created by the namespace syntax obtains the configuration attributes for a particular `FilterInvocation` by matching the request URL against the configured `pattern` attributes. This behaves in the same way as it does for namespace configuration. The default is to treat all expressions as Apache Ant paths and regular expressions are also supported for more complex cases. The `path-type` attribute is used to specify the type of pattern being used. It is not possible to mix expression syntaxes within the same definition. As an example, the previous configuration using regular expressions instead of Ant paths would be written as follows:
+The `SecurityMetadataSource` created by the namespace syntax obtains the configuration attributes for a particular `FilterInvocation` by matching the request URL against the configured `pattern` attributes. This behaves in the same way as it does for namespace configuration. The default is to treat all expressions as Apache Ant paths and regular expressions are also supported for more complex cases. The `request-matcher` attribute is used to specify the type of pattern being used. It is not possible to mix expression syntaxes within the same definition. As an example, the previous configuration using regular expressions instead of Ant paths would be written as follows:
 
 [source,xml]
 ----
@@ -2451,7 +2451,7 @@ The `SecurityMetadataSource` created by the namespace syntax obtains the configu
   <property name="accessDecisionManager" ref="accessDecisionManager"/>
   <property name="runAsManager" ref="runAsManager"/>
   <property name="securityMetadataSource">
-    <security:filter-security-metadata-source path-type="regex">
+    <security:filter-security-metadata-source request-matcher="regex">
       <security:intercept-url pattern="\A/secure/super/.*\Z" access="ROLE_WE_DONT_HAVE"/>
       <security:intercept-url pattern="\A/secure/.*\" access="ROLE_SUPERVISOR,ROLE_TELLER"/>
     </security:filter-security-metadata-source>
@@ -6488,11 +6488,6 @@ The attributes on the `<http>` element control some of the properties on the cor
 Optional attribute specifying the ID of the `AccessDecisionManager` implementation which should be used for authorizing HTTP requests. By default an `AffirmativeBased` implementation is used for with a `RoleVoter` and an `AuthenticatedVoter`.
 
 
-[[nsa-http-access-denied-page]]
-* **access-denied-page**
-Deprecated in favour of the <<nsa-access-denied-handler,access-denied-handler>> child element.
-
-
 [[nsa-http-authentication-manager-ref]]
 * **authentication-manager-ref**
 A reference to the `AuthenticationManager` used for the `FilterChain` created by this http element.
@@ -6535,11 +6530,6 @@ A bean identifier, used for referring to the bean elsewhere in the context.
 [[nsa-http-once-per-request]]
 * **once-per-request**
 Corresponds to the `observeOncePerRequest` property of `FilterSecurityInterceptor`. Defaults to `true`.
-
-
-[[nsa-http-path-type]]
-* **path-type**
-Deprecated in favor of <<nsa-http-request-matcher,request-matcher>>.
 
 
 [[nsa-http-pattern]]
@@ -7080,7 +7070,6 @@ This element is used to define the set of URL patterns that the application is i
 ===== Parent Elements of <intercept-url>
 
 
-* <<nsa-filter-invocation-definition-source,filter-invocation-definition-source>>
 * <<nsa-filter-security-metadata-source,filter-security-metadata-source>>
 * <<nsa-http,http>>
 
@@ -7603,14 +7592,9 @@ Used to explicitly configure a FilterChainProxy instance with a FilterChainMap
 ===== <filter-chain-map> Attributes
 
 
-[[nsa-filter-chain-map-path-type]]
-* **path-type**
-Superseded by the <<nsa-filter-chain-map-request-matcher,request-matcher>> attribute
-
-
 [[nsa-filter-chain-map-request-matcher]]
 * **request-matcher**
-Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for case-insensitive regular expressions.
+Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for case-insensitive regular expressions.
 
 
 [[nsa-filter-chain-map-children]]
@@ -7653,48 +7637,6 @@ A-pattern that creates RequestMatcher in combination with the <<nsa-filter-chain
 A reference to a `RequestMatcher` that will be used to determine if the `Filter`'s from the `filters` attribute should be invoked.
 
 
-[[nsa-filter-invocation-definition-source]]
-==== <filter-invocation-definition-source>
-Deprecated synonym for filter-security-metadata-source
-
-
-[[nsa-filter-invocation-definition-source-attributes]]
-===== <filter-invocation-definition-source> Attributes
-
-
-[[nsa-filter-invocation-definition-source-id]]
-* **id**
-A bean identifier, used for referring to the bean elsewhere in the context.
-
-
-[[nsa-filter-invocation-definition-source-lowercase-comparisons]]
-* **lowercase-comparisons**
-Compare after forcing to lowercase
-
-
-[[nsa-filter-invocation-definition-source-path-type]]
-* **path-type**
-Superseded by <<nsa-filter-invocation-definition-source-request-matcher,request-matcher>>
-
-
-[[nsa-filter-invocation-definition-source-request-matcher]]
-* **request-matcher**
-Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for case-insensitive regular expressions.
-
-
-[[nsa-filter-invocation-definition-source-use-expressions]]
-* **use-expressions**
-Enables the use of expressions in the 'access' attributes in <intercept-url> elements rather than the traditional list of configuration attributes. Defaults to 'false'. If enabled, each attribute should contain a single boolean expression. If the expression evaluates to 'true', access will be granted.
-
-
-[[nsa-filter-invocation-definition-source-children]]
-===== Child Elements of <filter-invocation-definition-source>
-
-
-* <<nsa-intercept-url,intercept-url>>
-
-
-
 [[nsa-filter-security-metadata-source]]
 ==== <filter-security-metadata-source>
 Used to explicitly configure a FilterSecurityMetadataSource bean for use with a FilterSecurityInterceptor. Usually only needed if you are configuring a FilterChainProxy explicitly, rather than using the<http> element. The intercept-url elements used should only contain pattern, method and access attributes. Any others will result in a configuration error.
@@ -7714,14 +7656,9 @@ A bean identifier, used for referring to the bean elsewhere in the context.
 Compare after forcing to lower case
 
 
-[[nsa-filter-security-metadata-source-path-type]]
-* **path-type**
-Superseded by <<nsa-filter-security-metadata-source-request-matcher,request-matcher>>
-
-
 [[nsa-filter-security-metadata-source-request-matcher]]
 * **request-matcher**
-Supersedes the 'path-type' attribute. Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for case-insensitive regular expressions.
+Defines the strategy use for matching incoming requests. Currently the options are 'ant' (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for case-insensitive regular expressions.
 
 
 [[nsa-filter-security-metadata-source-use-expressions]]

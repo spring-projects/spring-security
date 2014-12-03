@@ -39,7 +39,7 @@ public class OpenID4JavaConsumerTests {
         when(mgr.authenticate(any(DiscoveryInformation.class), anyString(), anyString())).thenReturn(authReq);
         when(mgr.associate(anyList())).thenReturn(di);
 
-        OpenID4JavaConsumer consumer = new OpenID4JavaConsumer(mgr, attributes);
+        OpenID4JavaConsumer consumer = new OpenID4JavaConsumer(mgr, new MockAttributesFactory());
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         consumer.beginConsumption(request, "", "", "");
@@ -195,11 +195,16 @@ public class OpenID4JavaConsumerTests {
         consumer.endConsumption(new MockHttpServletRequest());
     }
 
-    @SuppressWarnings("deprecation")
     @Test
     public void additionalConstructorsWork() throws Exception {
         new OpenID4JavaConsumer();
-        new OpenID4JavaConsumer(attributes);
+        new OpenID4JavaConsumer(new MockAttributesFactory());
     }
 
+    private class MockAttributesFactory implements AxFetchListFactory {
+
+        public List<OpenIDAttribute> createAttributeList(String identifier) {
+            return attributes;
+        }
+    }
 }

@@ -82,15 +82,6 @@ public class FilterChainProxyTests {
     }
 
     @Test
-    @Deprecated
-    public void filterChainMapIsCorrect() throws Exception {
-        fcp.setFilterChainMap(fcp.getFilterChainMap());
-        Map<RequestMatcher, List<Filter>> filterChainMap = fcp.getFilterChainMap();
-        assertEquals(1, filterChainMap.size());
-        assertSame(filter, filterChainMap.get(matcher).get(0));
-    }
-
-    @Test
     public void originalChainIsInvokedAfterSecurityChainIfMatchSucceeds() throws Exception {
         when(matcher.matches(any(HttpServletRequest.class))).thenReturn(true);
         fcp.doFilter(request, response, chain);

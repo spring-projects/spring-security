@@ -16,13 +16,13 @@
     </security:authentication-manager>
 
     <bean id="accessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
-        <property name="allowIfAllAbstainDecisions" value="false"/>
-        <property name="decisionVoters">
+        <constructor-arg>
             <util:list>
                 <bean class="org.springframework.security.access.vote.RoleVoter" />
                 <bean class="org.springframework.security.access.vote.AuthenticatedVoter" />
             </util:list>
-        </property>
+        </constructor-arg>
+        <property name="allowIfAllAbstainDecisions" value="false"/>
     </bean>
 
     <bean id="securityInterceptor" class="org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor">

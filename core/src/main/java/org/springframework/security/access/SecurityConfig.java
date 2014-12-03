@@ -66,14 +66,6 @@ public class SecurityConfig implements ConfigAttribute {
         return createList(StringUtils.commaDelimitedListToStringArray(access));
     }
 
-    /**
-     * @deprecated Use createList instead
-     */
-    @Deprecated
-    public static List<ConfigAttribute> createSingleAttributeList(String access) {
-        return createList(access);
-    }
-
     public static List<ConfigAttribute> createList(String... attributeNames) {
         Assert.notNull(attributeNames, "You must supply an array of attribute names");
         List<ConfigAttribute> attributes = new ArrayList<ConfigAttribute>(attributeNames.length);

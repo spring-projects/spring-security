@@ -156,7 +156,7 @@ class CsrfConfigTests extends AbstractHttpConfigTests {
         when: "authenticate successfully"
             response = new MockHttpServletResponse()
             request = new MockHttpServletRequest(session: request.session)
-            request.requestURI = "/j_spring_security_check"
+            request.servletPath = "/j_spring_security_check"
             request.setParameter(token.parameterName,token.token)
             request.setParameter("j_username","user")
             request.setParameter("j_password","password")
@@ -190,7 +190,7 @@ class CsrfConfigTests extends AbstractHttpConfigTests {
         when: "authenticate successfully"
             response = new MockHttpServletResponse()
             request = new MockHttpServletRequest(session: request.session)
-            request.requestURI = "/j_spring_security_check"
+            request.servletPath = "/j_spring_security_check"
             request.setParameter(token.parameterName,token.token)
             request.setParameter("j_username","user")
             request.setParameter("j_password","password")
@@ -281,7 +281,7 @@ class CsrfConfigTests extends AbstractHttpConfigTests {
             request.method = "POST"
             request.setParameter("j_username","user")
             request.setParameter("j_password","password")
-            request.requestURI = "/j_spring_security_check"
+            request.servletPath = "/j_spring_security_check"
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:

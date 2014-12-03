@@ -106,7 +106,6 @@ public class ConsensusBasedTests {
     }
 
     private ConsensusBased makeDecisionManager() {
-        ConsensusBased decisionManager = new ConsensusBased();
         RoleVoter roleVoter = new RoleVoter();
         DenyVoter denyForSureVoter = new DenyVoter();
         DenyAgainVoter denyAgainForSureVoter = new DenyAgainVoter();
@@ -114,9 +113,8 @@ public class ConsensusBasedTests {
         voters.add(roleVoter);
         voters.add(denyForSureVoter);
         voters.add(denyAgainForSureVoter);
-        decisionManager.setDecisionVoters(voters);
 
-        return decisionManager;
+        return new ConsensusBased(voters);
     }
 
     private TestingAuthenticationToken makeTestToken() {

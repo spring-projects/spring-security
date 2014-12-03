@@ -185,14 +185,14 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
         return this.authenticationUserDetailsService.loadUserDetails(token);
     }
 
-    @Deprecated
     @SuppressWarnings("unchecked")
     /**
-     * @deprecated as of 3.0.  Use the {@link org.springframework.security.cas.authentication.CasAuthenticationProvider#setAuthenticationUserDetailsService(org.springframework.security.core.userdetails.AuthenticationUserDetailsService)} instead.
+     * Sets the UserDetailsService to use. This is a convenience method to invoke
      */
     public void setUserDetailsService(final UserDetailsService userDetailsService) {
         this.authenticationUserDetailsService = new UserDetailsByNameServiceWrapper(userDetailsService);
     }
+
 
     public void setAuthenticationUserDetailsService(final AuthenticationUserDetailsService<CasAssertionAuthenticationToken> authenticationUserDetailsService) {
         this.authenticationUserDetailsService = authenticationUserDetailsService;

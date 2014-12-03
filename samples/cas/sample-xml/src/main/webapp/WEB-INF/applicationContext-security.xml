@@ -62,7 +62,9 @@
         p:proxyGrantingTicketStorage-ref="pgtStorage"
         p:proxyReceptorUrl="/j_spring_cas_security_proxyreceptor">
         <b:property name="authenticationDetailsSource">
-            <b:bean class="org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource"/>
+            <b:bean class="org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource">
+            	<b:constructor-arg ref="serviceProperties"/>
+            </b:bean>
         </b:property>
         <b:property name="authenticationFailureHandler">
             <b:bean class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler"

@@ -52,7 +52,7 @@ import org.springframework.web.filter.GenericFilterBean;
 &lt;bean id="channelProcessingFilter" class="org.springframework.security.web.access.channel.ChannelProcessingFilter">
   &lt;property name="channelDecisionManager" ref="channelDecisionManager"/>
   &lt;property name="securityMetadataSource">
-    &lt;security:filter-security-metadata-source path-type="regex">
+    &lt;security:filter-security-metadata-source request-matcher="regex">
       &lt;security:intercept-url pattern="\A/secure/.*\Z" access="REQUIRES_SECURE_CHANNEL"/>
       &lt;security:intercept-url pattern="\A/login.jsp.*\Z" access="REQUIRES_SECURE_CHANNEL"/>
       &lt;security:intercept-url pattern="\A/.*\Z" access="ANY_CHANNEL"/>

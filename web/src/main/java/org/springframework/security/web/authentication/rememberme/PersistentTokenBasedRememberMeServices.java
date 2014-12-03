@@ -49,14 +49,6 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
     private int seriesLength = DEFAULT_SERIES_LENGTH;
     private int tokenLength = DEFAULT_TOKEN_LENGTH;
 
-    /**
-     * @deprecated Use constructor injection
-     */
-    @Deprecated
-    public PersistentTokenBasedRememberMeServices() {
-        random = new SecureRandom();
-    }
-
     public PersistentTokenBasedRememberMeServices(String key, UserDetailsService userDetailsService,
                                                   PersistentTokenRepository tokenRepository) {
         super(key, userDetailsService);
@@ -170,14 +162,6 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
 
     private void addCookie(PersistentRememberMeToken token, HttpServletRequest request, HttpServletResponse response) {
         setCookie(new String[] {token.getSeries(), token.getTokenValue()}, getTokenValiditySeconds(), request, response);
-    }
-
-    /**
-     * @deprecated Use constructor injection
-     */
-    @Deprecated
-    public void setTokenRepository(PersistentTokenRepository tokenRepository) {
-        this.tokenRepository = tokenRepository;
     }
 
     public void setSeriesLength(int seriesLength) {

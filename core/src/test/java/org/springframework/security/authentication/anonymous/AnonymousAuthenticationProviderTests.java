@@ -37,8 +37,7 @@ public class AnonymousAuthenticationProviderTests {
 
     @Test
     public void testDetectsAnInvalidKey() throws Exception {
-        AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider();
-        aap.setKey("qwerty");
+        AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider("qwerty");
 
         AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("WRONG_KEY", "Test",
                 AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
@@ -52,10 +51,8 @@ public class AnonymousAuthenticationProviderTests {
 
     @Test
     public void testDetectsMissingKey() throws Exception {
-        AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider();
-
         try {
-            aap.afterPropertiesSet();
+            new AnonymousAuthenticationProvider(null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
@@ -64,16 +61,13 @@ public class AnonymousAuthenticationProviderTests {
 
     @Test
     public void testGettersSetters() throws Exception {
-        AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider();
-        aap.setKey("qwerty");
-        aap.afterPropertiesSet();
+        AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider("qwerty");
         assertEquals("qwerty", aap.getKey());
     }
 
     @Test
     public void testIgnoresClassesItDoesNotSupport() throws Exception {
-        AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider();
-        aap.setKey("qwerty");
+        AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider("qwerty");
 
         TestingAuthenticationToken token = new TestingAuthenticationToken("user", "password", "ROLE_A");
         assertFalse(aap.supports(TestingAuthenticationToken.class));
@@ -84,8 +78,7 @@ public class AnonymousAuthenticationProviderTests {
 
     @Test
     public void testNormalOperation() throws Exception {
-        AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider();
-        aap.setKey("qwerty");
+        AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider("qwerty");
 
         AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("qwerty", "Test",
                 AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
@@ -97,7 +90,7 @@ public class AnonymousAuthenticationProviderTests {
 
     @Test
     public void testSupports() {
-        AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider();
+        AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider("qwerty");
         assertTrue(aap.supports(AnonymousAuthenticationToken.class));
         assertFalse(aap.supports(TestingAuthenticationToken.class));
     }

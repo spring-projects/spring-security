@@ -15,8 +15,26 @@
 
 package org.springframework.security.web.authentication;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+import java.io.IOException;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.junit.After;
@@ -33,18 +51,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServicesTests;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
 
 
 /**
@@ -94,8 +105,12 @@ public class AbstractAuthenticationProcessingFilterTests {
         MockAuthenticationFilter filter = new MockAuthenticationFilter();
         filter.setFilterProcessesUrl("/j_spring_security_check");
 
-        request.setRequestURI("/mycontext/j_spring_security_check;jsessionid=I8MIONOSTHOR");
-        assertTrue(filter.requiresAuthentication(request, response));
+        DefaultHttpFirewall firewall = new DefaultHttpFirewall();
+        request.setServletPath("/j_spring_security_check;jsessionid=I8MIONOSTHOR");
+
+        // the firewall ensures that path parameters are ignored
+        HttpServletRequest firewallRequest = firewall.getFirewalledRequest(request);
+        assertTrue(filter.requiresAuthentication(firewallRequest, response));
     }
 
     @Test
@@ -132,10 +147,9 @@ public class AbstractAuthenticationProcessingFilterTests {
         filter.afterPropertiesSet();
 
         assertNotNull(filter.getRememberMeServices());
-        filter.setRememberMeServices(new TokenBasedRememberMeServices());
+        filter.setRememberMeServices(new TokenBasedRememberMeServices("key", new AbstractRememberMeServicesTests.MockUserDetailsService()));
         assertEquals(TokenBasedRememberMeServices.class, filter.getRememberMeServices().getClass());
         assertTrue(filter.getAuthenticationManager() != null);
-        assertEquals("/p", filter.getFilterProcessesUrl());
     }
 
     @Test
@@ -218,7 +232,7 @@ public class AbstractAuthenticationProcessingFilterTests {
             filter.setFilterProcessesUrl(null);
             fail("Should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException expected) {
-            assertEquals("filterProcessesUrl must be specified", expected.getMessage());
+            assertEquals("Pattern cannot be null or empty", expected.getMessage());
         }
     }
 
@@ -401,10 +415,6 @@ public class AbstractAuthenticationProcessingFilterTests {
             } else {
                 throw exceptionToThrow;
             }
-        }
-
-        public boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
-            return super.requiresAuthentication(request, response);
         }
     }
 

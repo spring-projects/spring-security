@@ -5,7 +5,7 @@
 <h1>VERY Secure Page</h1>
 This is a protected page. You can only see me if you are a supervisor.
 
-<authz:authorize ifAllGranted="ROLE_SUPERVISOR">
+<authz:authorize access="hasRole('ROLE_SUPERVISOR')">
    You have "ROLE_SUPERVISOR" (this text is surrounded by &lt;authz:authorize&gt; tags).
 </authz:authorize>
 

@@ -8,8 +8,8 @@ This is a protected page. You can get to me if you've been remembered,
 or if you've authenticated this session.
 </p>
 
-<sec:authorize ifAllGranted="ROLE_SUPERVISOR">
-	You are a supervisor! You can therefore see the <a href="extreme/index.jsp">extremely secure page</a>.<br/><br/>
+<sec:authorize access="hasRole('ROLE_SUPERVISOR')">
+    You are a supervisor! You can therefore see the <a href="extreme/index.jsp">extremely secure page</a>.<br/><br/>
 </sec:authorize>
 
 <h3>Properties obtained using &lt;sec:authentication /&gt; tag</h3>
