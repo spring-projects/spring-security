@@ -30,15 +30,15 @@ public class DefaultLoginPageGeneratingFilterTests {
     @Test
     public void generatingPageWithAuthenticationProcessingFilterOnlyIsSuccessFul() throws Exception {
         DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(new UsernamePasswordAuthenticationFilter());
-        filter.doFilter(new MockHttpServletRequest("GET", "/spring_security_login"), new MockHttpServletResponse(), chain);
-        filter.doFilter(new MockHttpServletRequest("GET", "/spring_security_login;pathparam=unused"), new MockHttpServletResponse(), chain);
+        filter.doFilter(new MockHttpServletRequest("GET", "/login"), new MockHttpServletResponse(), chain);
+        filter.doFilter(new MockHttpServletRequest("GET", "/login;pathparam=unused"), new MockHttpServletResponse(), chain);
     }
 
 
     @Test
     public void generatingPageWithOpenIdFilterOnlyIsSuccessFul() throws Exception {
         DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(new MockProcessingFilter());
-        filter.doFilter(new MockHttpServletRequest("GET", "/spring_security_login"), new MockHttpServletResponse(), chain);
+        filter.doFilter(new MockHttpServletRequest("GET", "/login"), new MockHttpServletResponse(), chain);
     }
 
     // Fake OpenID filter (since it's not in this module
@@ -62,7 +62,7 @@ public class DefaultLoginPageGeneratingFilterTests {
     @Test
     public void handlesNonIso8859CharsInErrorMessage() throws Exception {
         DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(new UsernamePasswordAuthenticationFilter());
-        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/spring_security_login");
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/login");
         request.addParameter("login_error", "true");
         MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
         String message = messages.getMessage(

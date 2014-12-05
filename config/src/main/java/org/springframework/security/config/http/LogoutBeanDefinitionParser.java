@@ -35,23 +35,24 @@ import org.w3c.dom.Element;
  */
 class LogoutBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_LOGOUT_SUCCESS_URL = "logout-success-url";
-    static final String DEF_LOGOUT_SUCCESS_URL = "/";
 
     static final String ATT_INVALIDATE_SESSION = "invalidate-session";
 
     static final String ATT_LOGOUT_URL = "logout-url";
-    static final String DEF_LOGOUT_URL = "/j_spring_security_logout";
+    static final String DEF_LOGOUT_URL = "/logout";
     static final String ATT_LOGOUT_HANDLER = "success-handler-ref";
     static final String ATT_DELETE_COOKIES = "delete-cookies";
 
     final String rememberMeServices;
+    private final String defaultLogoutUrl;
     private ManagedList<BeanMetadataElement> logoutHandlers = new ManagedList<BeanMetadataElement>();
     private boolean csrfEnabled;
 
-    public LogoutBeanDefinitionParser(String rememberMeServices, BeanMetadataElement csrfLogoutHandler) {
+    public LogoutBeanDefinitionParser(String loginPageUrl, String rememberMeServices, BeanMetadataElement csrfLogoutHandler) {
+        this.defaultLogoutUrl = loginPageUrl + "?logout";
         this.rememberMeServices = rememberMeServices;
         this.csrfEnabled = csrfLogoutHandler != null;
-        if(this.csrfEnabled) {
+        if (this.csrfEnabled) {
             logoutHandlers.add(csrfLogoutHandler);
         }
     }
@@ -93,7 +94,7 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
         } else {
             // Use the logout URL if no handler set
             if (!StringUtils.hasText(logoutSuccessUrl)) {
-                logoutSuccessUrl = DEF_LOGOUT_SUCCESS_URL;
+                logoutSuccessUrl = defaultLogoutUrl;
             }
             builder.addConstructorArgValue(logoutSuccessUrl);
         }

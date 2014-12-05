@@ -33,7 +33,7 @@
        </b:property>
     </b:bean>
 
-    <http>
+    <http use-expressions="false">
         <intercept-url pattern="/secure/extreme/**" access="ROLE_SUPERVISOR"/>
         <intercept-url pattern="/secure/**" access="IS_AUTHENTICATED_REMEMBERED" />
         <intercept-url pattern="/testMulti.htm*" access="IS_AUTHENTICATED_FULLY" />

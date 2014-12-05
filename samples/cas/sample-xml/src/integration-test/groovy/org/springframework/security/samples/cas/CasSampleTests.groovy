@@ -52,7 +52,7 @@ class CasSampleTests extends AbstractCasTests {
 
     def 'authenticate attempt with invaid ticket fails'() {
         when: 'present invalid ticket'
-        go "j_spring_cas_security_check?ticket=invalid"
+        go "login/cas?ticket=invalid"
         then: 'the login failed page is displayed'
         $("h2").text() == 'Login to CAS failed!'
     }

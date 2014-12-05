@@ -103,10 +103,10 @@ public class AbstractAuthenticationProcessingFilterTests {
         MockHttpServletRequest request = createMockAuthenticationRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockAuthenticationFilter filter = new MockAuthenticationFilter();
-        filter.setFilterProcessesUrl("/j_spring_security_check");
+        filter.setFilterProcessesUrl("/login");
 
         DefaultHttpFirewall firewall = new DefaultHttpFirewall();
-        request.setServletPath("/j_spring_security_check;jsessionid=I8MIONOSTHOR");
+        request.setServletPath("/login;jsessionid=I8MIONOSTHOR");
 
         // the firewall ensures that path parameters are ignored
         HttpServletRequest firewallRequest = firewall.getFirewalledRequest(request);
@@ -211,7 +211,7 @@ public class AbstractAuthenticationProcessingFilterTests {
         filter.setAuthenticationFailureHandler(failureHandler);
         successHandler.setDefaultTargetUrl("/");
         filter.setAuthenticationSuccessHandler(successHandler);
-        filter.setFilterProcessesUrl("/j_spring_security_check");
+        filter.setFilterProcessesUrl("/login");
 
         try {
             filter.afterPropertiesSet();

@@ -5,9 +5,9 @@
     http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
     <s:http>
-        <s:intercept-url pattern="/secure/extreme/**" access="ROLE_SUPERVISOR"/>
-        <s:intercept-url pattern="/secure/**" access="IS_AUTHENTICATED_REMEMBERED" />
-        <s:intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+        <s:intercept-url pattern="/secure/extreme/**" access="hasRole('ROLE_SUPERVISOR')"/>
+        <s:intercept-url pattern="/secure/**" access="authenticated" />
+        <s:intercept-url pattern="/**" access="permitAll" />
 
         <s:form-login />
         <s:anonymous />

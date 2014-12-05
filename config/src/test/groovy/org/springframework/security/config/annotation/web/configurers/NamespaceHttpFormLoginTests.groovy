@@ -105,8 +105,8 @@ public class NamespaceHttpFormLoginTests extends BaseSpringSpec {
             super.setup()
             request.servletPath = "/authentication/login/process"
             request.method = "POST"
-            request.parameters.j_username = ["user"] as String[]
-            request.parameters.j_password = ["password"] as String[]
+            request.parameters.username = ["user"] as String[]
+            request.parameters.password = ["password"] as String[]
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "sent to default succes page"
             response.getRedirectedUrl() == "/default"
@@ -121,8 +121,8 @@ public class NamespaceHttpFormLoginTests extends BaseSpringSpec {
                     .anyRequest().hasRole("USER")
                     .and()
                 .formLogin()
-                    .usernameParameter("j_username") // form-login@username-parameter
-                    .passwordParameter("j_password") // form-login@password-parameter
+                    .usernameParameter("username") // form-login@username-parameter
+                    .passwordParameter("password") // form-login@password-parameter
                     .loginPage("/authentication/login") // form-login@login-page
                     .failureUrl("/authentication/login?failed") // form-login@authentication-failure-url
                     .loginProcessingUrl("/authentication/login/process") // form-login@login-processing-url

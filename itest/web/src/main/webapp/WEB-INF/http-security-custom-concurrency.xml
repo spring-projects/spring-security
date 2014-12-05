@@ -8,7 +8,7 @@
 
     <http pattern="/login.jsp" security="none" />
 
-    <http entry-point-ref="aep">
+    <http entry-point-ref="aep" use-expressions="false">
         <intercept-url pattern="/**" access="ROLE_DEVELOPER,ROLE_USER" />
 
         <session-management session-authentication-strategy-ref="sas"/>

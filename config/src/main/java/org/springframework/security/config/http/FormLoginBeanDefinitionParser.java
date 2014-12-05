@@ -66,11 +66,13 @@ public class FormLoginBeanDefinitionParser {
     private RootBeanDefinition filterBean;
     private RootBeanDefinition entryPointBean;
     private String loginPage;
+    private String loginMethod;
     private String loginProcessingUrl;
 
-    FormLoginBeanDefinitionParser(String defaultLoginProcessingUrl, String filterClassName,
+    FormLoginBeanDefinitionParser(String defaultLoginProcessingUrl, String loginMethod, String filterClassName,
             BeanReference requestCache, BeanReference sessionStrategy, boolean allowSessionCreation, BeanReference portMapper, BeanReference portResolver) {
         this.defaultLoginProcessingUrl = defaultLoginProcessingUrl;
+        this.loginMethod = loginMethod;
         this.filterClassName = filterClassName;
         this.requestCache = requestCache;
         this.sessionStrategy = sessionStrategy;
@@ -153,6 +155,9 @@ public class FormLoginBeanDefinitionParser {
 
         BeanDefinitionBuilder matcherBuilder = BeanDefinitionBuilder.rootBeanDefinition("org.springframework.security.web.util.matcher.AntPathRequestMatcher");
         matcherBuilder.addConstructorArgValue(loginUrl);
+        if(loginMethod != null) {
+            matcherBuilder.addConstructorArgValue("POST");
+        }
 
         filterBuilder.addPropertyValue("requiresAuthenticationRequestMatcher", matcherBuilder.getBeanDefinition());
 

@@ -20,6 +20,8 @@ import org.springframework.security.config.AbstractXmlConfigTests
 import org.springframework.security.config.BeanIds
 import org.springframework.security.web.FilterInvocation
 
+import javax.servlet.http.HttpServletRequest
+
 /**
  *
  * @author Rob Winch
@@ -29,11 +31,11 @@ abstract class AbstractHttpConfigTests extends AbstractXmlConfigTests {
     final int AUTO_CONFIG_FILTERS = 14;
 
     def httpAutoConfig(Closure c) {
-        xml.http('auto-config': 'true', c)
+        xml.http(['auto-config': 'true', 'use-expressions':false], c)
     }
 
     def httpAutoConfig(String matcher, Closure c) {
-        xml.http(['auto-config': 'true', 'request-matcher': matcher], c)
+        xml.http(['auto-config': 'true', 'use-expressions':false, 'request-matcher': matcher], c)
     }
 
     def interceptUrl(String path, String authz) {
@@ -71,5 +73,10 @@ abstract class AbstractHttpConfigTests extends AbstractXmlConfigTests {
         request.setServletPath(path);
 
         return new FilterInvocation(request, new MockHttpServletResponse(), new MockFilterChain());
+    }
+
+    def basicLogin(HttpServletRequest request, String username="user",String password="password") {
+        def credentials = username + ":" + password
+        request.addHeader("Authorization", "Basic " + credentials.bytes.encodeBase64())
     }
 }

@@ -73,7 +73,7 @@ TROUBLESHOOTING
   load the Acegi Security webapp, get redirected to the CAS server, then
   after login they get redirected back to the Acegi Security webapp and
   receive a failure. This is because the CAS server redirects to something
-  like https://server3.company.com/webapp/j_spring_cas_security_check?ticket=ST-0-ER94xMJmn6pha35CQRoZ
+  like https://server3.company.com/webapp/login/cas?ticket=ST-0-ER94xMJmn6pha35CQRoZ
   which causes the "service ticket" (the "ticket" parameter) to be validated.
   net.sf.acegisecurity.providers.cas.ticketvalidator.CasProxyTicketValidator
   performs service ticket validation by delegation to CAS'

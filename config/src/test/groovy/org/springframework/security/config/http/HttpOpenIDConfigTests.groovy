@@ -34,7 +34,7 @@ class OpenIDConfigTests extends AbstractHttpConfigTests {
         def ap = etf.getAuthenticationEntryPoint();
 
         expect:
-        ap.loginFormUrl == "/spring_security_login"
+        ap.loginFormUrl == "/login"
         // Default login filter should be present since we haven't specified any login URLs
         getFilter(DefaultLoginPageGeneratingFilter) != null
     }
@@ -75,9 +75,10 @@ class OpenIDConfigTests extends AbstractHttpConfigTests {
     def openIDAndRememberMeWorkTogether() {
         xml.debug()
         xml.http() {
-            interceptUrl('/**', 'ROLE_NOBODY')
+            interceptUrl('/**', 'denyAll')
             'openid-login'()
             'remember-me'()
+            'csrf'(disabled:true)
         }
         createAppContext()
 
@@ -107,16 +108,16 @@ class OpenIDConfigTests extends AbstractHttpConfigTests {
         request.setServletPath("/something.html")
         fc.doFilter(request, response, new MockFilterChain())
         then: "Redirected to login"
-        response.getRedirectedUrl().endsWith("/spring_security_login")
+        response.getRedirectedUrl().endsWith("/login")
         when: "Login page is requested"
-        request.setServletPath("/spring_security_login")
-        request.setRequestURI("/spring_security_login")
+        request.setServletPath("/login")
+        request.setRequestURI("/login")
         response = new MockHttpServletResponse()
         fc.doFilter(request, response, new MockFilterChain())
         then: "Remember-me choice is added to page"
         response.getContentAsString().contains(AbstractRememberMeServices.DEFAULT_PARAMETER)
         when: "Login is submitted with remember-me selected"
-        request.servletPath = "/j_spring_openid_security_check"
+        request.servletPath = "/login/openid"
         request.setParameter(OpenIDAuthenticationFilter.DEFAULT_CLAIMED_IDENTITY_FIELD, "http://hey.openid.com/")
         request.setParameter(AbstractRememberMeServices.DEFAULT_PARAMETER, "on")
         response = new MockHttpServletResponse();

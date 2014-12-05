@@ -21,6 +21,6 @@ by the application and will be recognized if you return.
 <p>
 Your principal object is....: <%= request.getUserPrincipal() %>
 </p>
-<p><a href="j_spring_security_logout">Logout</a>
+<p><a href="logout">Logout</a>
 </body>
 </html>

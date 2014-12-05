@@ -52,7 +52,7 @@ class JaasXmlTests extends GebReportingSpec {
         when: 'user logs out'
         logout()
         then: 'the default logout success page is displayed'
-        at HomePage
+        at LogoutPage
         when: 'Unauthenticated user accesses the Secure Page'
         via SecurePage
         then: 'The login page is displayed'

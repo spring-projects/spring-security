@@ -122,7 +122,7 @@ public final class AntPathRequestMatcher implements RequestMatcher {
      *    {@code servletPath} + {@code pathInfo} of the request.
      */
     public boolean matches(HttpServletRequest request) {
-        if (httpMethod != null && request.getMethod() != null && httpMethod != HttpMethod.valueOf(request.getMethod())) {
+        if (httpMethod != null && StringUtils.hasText(request.getMethod()) && httpMethod != HttpMethod.valueOf(request.getMethod())) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Request '" + request.getMethod() + " " + getRequestPath(request) + "'"
                         + " doesn't match '" + httpMethod  + " " + pattern);

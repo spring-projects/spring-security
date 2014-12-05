@@ -36,7 +36,7 @@
 </c:if>
 
 <!-- Simple OpenID Selector -->
-<form action="<c:url value='j_spring_openid_security_check'/>" method="post" id="openid_form">
+<form action="<c:url value='login/openid'/>" method="post" id="openid_form">
     <input type="hidden" name="action" value="verify" />
 
     <fieldset>

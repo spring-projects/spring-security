@@ -60,7 +60,7 @@ public class ServiceProperties implements InitializingBean {
      * This service is the callback URL belonging to the local Spring Security System for Spring secured application.
      * For example,
      * <pre>
-     * https://www.mycompany.com/application/j_spring_cas_security_check
+     * https://www.mycompany.com/application/login/cas
      * </pre>
      *
      * @return the URL of the service the user is authenticating to

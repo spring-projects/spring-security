@@ -98,10 +98,10 @@ public class SessionManagementConfigServlet31Tests {
         Method method = mock(Method.class);
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.getSession();
-        request.setServletPath("/j_spring_security_check");
+        request.setServletPath("/login");
         request.setMethod("POST");
-        request.setParameter("j_username", "user");
-        request.setParameter("j_password", "password");
+        request.setParameter("username", "user");
+        request.setParameter("password", "password");
         when(ReflectionUtils.findMethod(HttpServletRequest.class, "changeSessionId")).thenReturn(method);
 
         loadContext("<http>\n" +
@@ -124,10 +124,10 @@ public class SessionManagementConfigServlet31Tests {
         Method method = mock(Method.class);
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.getSession();
-        request.setServletPath("/j_spring_security_check");
+        request.setServletPath("/login");
         request.setMethod("POST");
-        request.setParameter("j_username", "user");
-        request.setParameter("j_password", "password");
+        request.setParameter("username", "user");
+        request.setParameter("password", "password");
         when(ReflectionUtils.findMethod(HttpServletRequest.class, "changeSessionId")).thenReturn(method);
 
         loadContext("<http>\n" +

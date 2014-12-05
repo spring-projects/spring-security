@@ -17,13 +17,13 @@
         <expression-handler ref="expressionHandler"/>
     </global-method-security>
 
-    <http realm="Contacts Realm">
+    <http realm="Contacts Realm" use-expressions="false">
         <intercept-url pattern="/" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <intercept-url pattern="/index.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <intercept-url pattern="/hello.htm" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <intercept-url pattern="/login.jsp*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
         <intercept-url pattern="/switchuser.jsp" access="ROLE_SUPERVISOR"/>
-        <intercept-url pattern="/j_spring_security_switch_user" access="ROLE_SUPERVISOR"/>
+        <intercept-url pattern="/login/impersonate" access="ROLE_SUPERVISOR"/>
         <intercept-url pattern="/**" access="ROLE_USER"/>
 
         <form-login login-page="/login.jsp" authentication-failure-url="/login.jsp?login_error=1"/>

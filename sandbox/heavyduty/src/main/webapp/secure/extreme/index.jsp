@@ -10,6 +10,6 @@ This is a protected page. You can only see me if you are a supervisor.
 </authz:authorize>
 
 <p><a href="../../">Home</a>
-<p><a href="../../j_spring_security_logout">Logout</a>
+<p><a href="../../logout">Logout</a>
 </body>
 </html>

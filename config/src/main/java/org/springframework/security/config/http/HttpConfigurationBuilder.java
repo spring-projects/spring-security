@@ -133,10 +133,12 @@ class HttpConfigurationBuilder {
     private CsrfBeanDefinitionParser csrfParser;
 
     private BeanDefinition invalidSession;
+    private boolean addAllAuth;
 
-    public HttpConfigurationBuilder(Element element, ParserContext pc,
+    public HttpConfigurationBuilder(Element element, boolean addAllAuth, ParserContext pc,
             BeanReference portMapper, BeanReference portResolver, BeanReference authenticationManager) {
         this.httpElt = element;
+        this.addAllAuth = addAllAuth;
         this.pc = pc;
         this.portMapper = portMapper;
         this.portResolver = portResolver;
@@ -583,7 +585,7 @@ class HttpConfigurationBuilder {
 
     private void createFilterSecurityInterceptor(BeanReference authManager) {
         boolean useExpressions = FilterInvocationSecurityMetadataSourceParser.isUseExpressions(httpElt);
-        RootBeanDefinition securityMds = FilterInvocationSecurityMetadataSourceParser.createSecurityMetadataSource(interceptUrls, httpElt, pc);
+        RootBeanDefinition securityMds = FilterInvocationSecurityMetadataSourceParser.createSecurityMetadataSource(interceptUrls, addAllAuth, httpElt, pc);
 
         RootBeanDefinition accessDecisionMgr;
         ManagedList<BeanDefinition> voters =  new ManagedList<BeanDefinition>(2);

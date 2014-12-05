@@ -19,7 +19,7 @@ public abstract class AbstractStatelessTicketCacheTests {
 
     protected CasAuthenticationToken getToken() {
         List<String> proxyList = new ArrayList<String>();
-        proxyList.add("https://localhost/newPortal/j_spring_cas_security_check");
+        proxyList.add("https://localhost/newPortal/login/cas");
 
         User user = new User("rod", "password", true, true, true, true, AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
         final Assertion assertion = new AssertionImpl("rod");

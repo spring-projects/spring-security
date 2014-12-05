@@ -285,10 +285,10 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
 
             MockHttpServletRequest request = new MockHttpServletRequest();
             request.getSession();
-            request.servletPath = "/j_spring_security_check"
+            request.servletPath = "/login"
             request.setMethod("POST");
-            request.setParameter("j_username", "user");
-            request.setParameter("j_password", "password");
+            request.setParameter("username", "user");
+            request.setParameter("password", "password");
 
             SessionAuthenticationStrategy sessionAuthStrategy = appContext.getBean('ss',SessionAuthenticationStrategy)
             FilterChainProxy springSecurityFilterChain = appContext.getBean(FilterChainProxy)

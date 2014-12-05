@@ -51,7 +51,7 @@ class LdapXmlTests extends GebReportingSpec {
         when: 'user logs out'
         logout.click()
         then: 'the default logout success page is displayed'
-        at HomePage
+        at LogoutPage
         when: 'Unauthenticated user accesses the Manage Page'
         via SecurePage
         then: 'The login page is displayed'

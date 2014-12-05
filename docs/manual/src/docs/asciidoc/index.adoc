@@ -542,7 +542,7 @@ You will notice that this configuration is quite similar the XML Namespace confi
 
 [source,xml]
 ----
-<http use-expressions="true">
+<http>
     <intercept-url pattern="/**" access="authenticated"/>
     <form-login />
     <http-basic />
@@ -552,11 +552,6 @@ You will notice that this configuration is quite similar the XML Namespace confi
 The Java Configuration equivalent of closing an XML tag is expressed using the `and()` method which allows us to continue configuring the parent. If you read the code it also makes sense. I want to configure authorized requests __and__ configure form login __and__ configure HTTP Basic authentication.
 
 However, Java configuration has different defaults URLs and parameters. Keep this in mind when creating custom login pages. The result is that our URLs are more RESTful. Additionally, it is not quite so obvious we are using Spring Security which helps to prevent https://www.owasp.org/index.php/Information_Leak_(information_disclosure)[information leaks]. For example:
-
-* GET /login renders the login page instead of /spring_security_login
-* POST /login authenticates the user instead of /j_spring_security_check
-* The username parameter defaults to username instead of j_username
-* The password parameter defaults to password instead of j_password
 
 [[jc-form]]
 === Java Configuration and Form Login
@@ -1027,7 +1022,7 @@ All you need to enable web security to begin with is
 [source,xml]
 ----
 <http>
-  <intercept-url pattern="/**" access="ROLE_USER" />
+  <intercept-url pattern="/**" access="hasRole('ROLE_USER')" />
   <form-login />
   <logout />
 </http>
@@ -1100,7 +1095,7 @@ secured. It is also possible to have all requests matching a particular pattern 
 <http pattern="/css/**" security="none"/>
 <http pattern="/login.jsp*" security="none"/>
 
-<http>
+<http use-expressions="false">
   <intercept-url pattern="/**" access="ROLE_USER" />
   <form-login login-page='/login.jsp'/>
 </http>
@@ -1115,7 +1110,7 @@ If you want to use basic authentication instead of form login, then change the c
 
 [source,xml]
 ----
-<http>
+<http use-expressions="false">
   <intercept-url pattern="/**" access="ROLE_USER" />
   <http-basic />
 </http>
@@ -1130,7 +1125,7 @@ If a form login isn't prompted by an attempt to access a protected resource, the
 [source,xml]
 ----
 <http pattern="/login.htm*" security="none"/>
-<http>
+<http use-expressions="false">
   <intercept-url pattern='/**' access='ROLE_USER' />
   <form-login login-page='/login.htm' default-target-url='/home.htm'
           always-use-default-target='true' />
@@ -1141,7 +1136,7 @@ For even more control over the destination, you can use the `authentication-succ
 
 [[ns-logout]]
 ==== Logout Handling
-The `logout` element adds support for logging out by navigating to a particular URL. The default logout URL is `/j_spring_security_logout`, but you can set it to something else using the `logout-url` attribute. More information on other available attributes may be found in the namespace appendix.
+The `logout` element adds support for logging out by navigating to a particular URL. The default logout URL is `/logout`, but you can set it to something else using the `logout-url` attribute. More information on other available attributes may be found in the namespace appendix.
 
 [[ns-auth-providers]]
 ==== Using other Authentication Providers
@@ -1288,7 +1283,7 @@ If you are running your application behind a proxy, you may also be able to remo
 
 [source,xml]
 ----
-<LocationMatch "/tutorial/j_spring_security_logout">
+<LocationMatch "/tutorial/logout">
   Header always set Set-Cookie "JSESSIONID=;Path=/tutorial;Expires=Thu, 01 Jan 1970 00:00:00 GMT"
 </LocationMatch>
 ----
@@ -2397,7 +2392,7 @@ As we saw earlier in the namespace chapter, it's possible to use multiple `http`
 ----
 <!-- Stateless RESTful service using Basic authentication -->
 <http pattern="/restful/**" create-session="stateless">
-  <intercept-url pattern='/**' access='ROLE_REMOTE' />
+  <intercept-url pattern='/**' access="hasRole('ROLE_REMOTE')" />
   <http-basic />
 </http>
 
@@ -2406,7 +2401,7 @@ As we saw earlier in the namespace chapter, it's possible to use multiple `http`
 
 <!-- Additional filter chain for normal users, matching all other requests -->
 <http>
-  <intercept-url pattern='/**' access='ROLE_USER' />
+  <intercept-url pattern='/**' access="hasRole('ROLE_USER')" />
   <form-login login-page='/login.htm' default-target-url="/home.htm"/>
   <logout />
 </http>
@@ -2567,7 +2562,7 @@ We've now seen the three main filters which are always present in a Spring Secur
 * Configure an instance of `UsernamePasswordAuthenticationFilter` in the application context
 * Add the filter bean to your filter chain proxy (making sure you pay attention to the order).
 
-The login form simply contains `j_username` and `j_password` input fields, and posts to the URL that is monitored by the filter (by default this is `/j_spring_security_check`). The basic filter configuration looks something like this:
+The login form simply contains `username` and `password` input fields, and posts to the URL that is monitored by the filter (by default this is `/login`). The basic filter configuration looks something like this:
 
 [source,xml]
 ----
@@ -4342,7 +4337,7 @@ To use expressions to secure individual URLs, you would first need to set the `u
 [source,xml]
 ----
 
-  <http use-expressions="true">
+  <http>
     <intercept-url pattern="/admin*"
         access="hasRole('admin') and hasIpAddress('192.168.1.0/24')"/>
     ...
@@ -5294,14 +5289,14 @@ The basic interaction between a web browser, CAS server and a Spring Security-se
 * The web user is browsing the service's public pages. CAS or Spring Security is not involved.
 * The user eventually requests a page that is either secure or one of the beans it uses is secure. Spring Security's `ExceptionTranslationFilter` will detect the `AccessDeniedException` or `AuthenticationException`.
 * Because the user's `Authentication` object (or lack thereof) caused an `AuthenticationException`, the `ExceptionTranslationFilter` will call the configured `AuthenticationEntryPoint`. If using CAS, this will be the `CasAuthenticationEntryPoint` class.
-* The `CasAuthenticationEntryPoint` will redirect the user's browser to the CAS server. It will also indicate a `service` parameter, which is the callback URL for the Spring Security service (your application). For example, the URL to which the browser is redirected might be https://my.company.com/cas/login?service=https%3A%2F%2Fserver3.company.com%2Fwebapp%2Fj_spring_cas_security_check.
+* The `CasAuthenticationEntryPoint` will redirect the user's browser to the CAS server. It will also indicate a `service` parameter, which is the callback URL for the Spring Security service (your application). For example, the URL to which the browser is redirected might be https://my.company.com/cas/login?service=https%3A%2F%2Fserver3.company.com%2Fwebapp%2Flogin/cas.
 * After the user's browser redirects to CAS, they will be prompted for their username and password. If the user presents a session cookie which indicates they've previously logged on, they will not be prompted to login again (there is an exception to this procedure, which we'll cover later). CAS will use the `PasswordHandler` (or `AuthenticationHandler` if using CAS 3.0) discussed above to decide whether the username and password is valid.
-* Upon successful login, CAS will redirect the user's browser back to the original service. It will also include a `ticket` parameter, which is an opaque string representing the "service ticket". Continuing our earlier example, the URL the browser is redirected to might be https://server3.company.com/webapp/j_spring_cas_security_check?ticket=ST-0-ER94xMJmn6pha35CQRoZ.
-* Back in the service web application, the `CasAuthenticationFilter` is always listening for requests to `/j_spring_cas_security_check` (this is configurable, but we'll use the defaults in this introduction). The processing filter will construct a `UsernamePasswordAuthenticationToken` representing the service ticket. The principal will be equal to `CasAuthenticationFilter.CAS_STATEFUL_IDENTIFIER`, whilst the credentials will be the service ticket opaque value. This authentication request will then be handed to the configured `AuthenticationManager`.
+* Upon successful login, CAS will redirect the user's browser back to the original service. It will also include a `ticket` parameter, which is an opaque string representing the "service ticket". Continuing our earlier example, the URL the browser is redirected to might be https://server3.company.com/webapp/login/cas?ticket=ST-0-ER94xMJmn6pha35CQRoZ.
+* Back in the service web application, the `CasAuthenticationFilter` is always listening for requests to `/login/cas` (this is configurable, but we'll use the defaults in this introduction). The processing filter will construct a `UsernamePasswordAuthenticationToken` representing the service ticket. The principal will be equal to `CasAuthenticationFilter.CAS_STATEFUL_IDENTIFIER`, whilst the credentials will be the service ticket opaque value. This authentication request will then be handed to the configured `AuthenticationManager`.
 * The `AuthenticationManager` implementation will be the `ProviderManager`, which is in turn configured with the `CasAuthenticationProvider`. The `CasAuthenticationProvider` only responds to `UsernamePasswordAuthenticationToken` s containing the CAS-specific principal (such as `CasAuthenticationFilter.CAS_STATEFUL_IDENTIFIER`) and `CasAuthenticationToken` s (discussed later).
-* `CasAuthenticationProvider` will validate the service ticket using a `TicketValidator` implementation. This will typically be a `Cas20ServiceTicketValidator` which is one of the classes included in the CAS client library. In the event the application needs to validate proxy tickets, the `Cas20ProxyTicketValidator` is used. The `TicketValidator` makes an HTTPS request to the CAS server in order to validate the service ticket. It may also include a proxy callback URL, which is included in this example: https://my.company.com/cas/proxyValidate?service=https%3A%2F%2Fserver3.company.com%2Fwebapp%2Fj_spring_cas_security_check&ticket=ST-0-ER94xMJmn6pha35CQRoZ&pgtUrl=https://server3.company.com/webapp/j_spring_cas_security_proxyreceptor.
+* `CasAuthenticationProvider` will validate the service ticket using a `TicketValidator` implementation. This will typically be a `Cas20ServiceTicketValidator` which is one of the classes included in the CAS client library. In the event the application needs to validate proxy tickets, the `Cas20ProxyTicketValidator` is used. The `TicketValidator` makes an HTTPS request to the CAS server in order to validate the service ticket. It may also include a proxy callback URL, which is included in this example: https://my.company.com/cas/proxyValidate?service=https%3A%2F%2Fserver3.company.com%2Fwebapp%2Flogin/cas&ticket=ST-0-ER94xMJmn6pha35CQRoZ&pgtUrl=https://server3.company.com/webapp/login/cas/proxyreceptor.
 * Back on the CAS server, the validation request will be received. If the presented service ticket matches the service URL the ticket was issued to, CAS will provide an affirmative response in XML indicating the username. If any proxy was involved in the authentication (discussed below), the list of proxies is also included in the XML response.
-* [OPTIONAL] If the request to the CAS validation service included the proxy callback URL (in the `pgtUrl` parameter), CAS will include a `pgtIou` string in the XML response. This `pgtIou` represents a proxy-granting ticket IOU. The CAS server will then create its own HTTPS connection back to the `pgtUrl`. This is to mutually authenticate the CAS server and the claimed service URL. The HTTPS connection will be used to send a proxy granting ticket to the original web application. For example, https://server3.company.com/webapp/j_spring_cas_security_proxyreceptor?pgtIou=PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt&pgtId=PGT-1-si9YkkHLrtACBo64rmsi3v2nf7cpCResXg5MpESZFArbaZiOKH.
+* [OPTIONAL] If the request to the CAS validation service included the proxy callback URL (in the `pgtUrl` parameter), CAS will include a `pgtIou` string in the XML response. This `pgtIou` represents a proxy-granting ticket IOU. The CAS server will then create its own HTTPS connection back to the `pgtUrl`. This is to mutually authenticate the CAS server and the claimed service URL. The HTTPS connection will be used to send a proxy granting ticket to the original web application. For example, https://server3.company.com/webapp/login/cas/proxyreceptor?pgtIou=PGTIOU-0-R0zlgrl4pdAQwBvJWO3vnNpevwqStbSGcq3vKB2SqSFFRnjPHt&pgtId=PGT-1-si9YkkHLrtACBo64rmsi3v2nf7cpCResXg5MpESZFArbaZiOKH.
 * The `Cas20TicketValidator` will parse the XML received from the CAS server. It will return to the `CasAuthenticationProvider` a `TicketResponse`, which includes the username (mandatory), proxy list (if any were involved), and proxy-granting ticket IOU (if the proxy callback was requested).
 * Next `CasAuthenticationProvider` will call a configured `CasProxyDecider`. The `CasProxyDecider` indicates whether the proxy list in the `TicketResponse` is acceptable to the service. Several implementations are provided with Spring Security: `RejectProxyTickets`, `AcceptAnyCasProxy` and `NamedCasProxyDecider`. These names are largely self-explanatory, except `NamedCasProxyDecider` which allows a `List` of trusted proxies to be provided.
 * `CasAuthenticationProvider` will next request a `AuthenticationUserDetailsService` to load the `GrantedAuthority` objects that apply to the user contained in the `Assertion`.
@@ -5325,7 +5320,7 @@ This section describes how to setup Spring Security to authenticate Service Tick
 <bean id="serviceProperties"
       class="org.springframework.security.cas.ServiceProperties">
   <property name="service"
-      value="https://localhost:8443/cas-sample/j_spring_cas_security_check"/>
+      value="https://localhost:8443/cas-sample/login/cas"/>
   <property name="sendRenew" value="false"/>
 </bean>
 ----
@@ -5418,7 +5413,7 @@ The CAS protocol supports Single Logout and can be easily added to your Spring S
     <bean class=
           "org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler"/>
   </constructor-arg>
-  <property name="filterProcessesUrl" value="/j_spring_cas_security_logout"/>
+  <property name="filterProcessesUrl" value="/logout/cas"/>
 </bean>
 ----
 
@@ -5426,8 +5421,8 @@ The `logout` element logs the user out of the local application, but does not te
 
 It might be confusing why both the `logout` element and the `singleLogoutFilter` are needed. It is considered best practice to logout locally first since the `SingleSignOutFilter` just stores the `HttpSession` in a static `Map` in order to call invalidate on it. With the configuration above, the flow of logout would be:
 
-* The user requests `/j_spring_security_logout` which would log the user out of the local application and send the user to the logout success page.
-* The logout success page, `/cas-logout.jsp`, should instruct the user to click a link pointing to `/j_spring_cas_security_logout` in order to logout out of all applications.
+* The user requests `/logout` which would log the user out of the local application and send the user to the logout success page.
+* The logout success page, `/cas-logout.jsp`, should instruct the user to click a link pointing to `/logout/cas` in order to logout out of all applications.
 * When the user clicks the link, the user is redirected to the CAS single logout URL (https://localhost:9443/cas/logout).
 * On the CAS Server side, the CAS single logout URL then submits single logout requests to all the CAS Services. On the CAS Service side, JASIG's `SingleSignOutFilter` processes the logout request by invaliditing the original session.
 
@@ -5493,7 +5488,7 @@ The next step is to update the `CasAuthenticationProvider` to be able to obtain 
     <bean class="org.jasig.cas.client.validation.Cas20ProxyTicketValidator">
       <constructor-arg value="https://localhost:9443/cas"/>
         <property name="proxyCallbackUrl"
-          value="https://localhost:8443/cas-sample/j_spring_cas_security_proxyreceptor"/>
+          value="https://localhost:8443/cas-sample/login/cas/proxyreceptor"/>
       <property name="proxyGrantingTicketStorage" ref="pgtStorage"/>
     </bean>
   </property>
@@ -5509,7 +5504,7 @@ The last step is to update the `CasAuthenticationFilter` to accept PGT and to st
         class="org.springframework.security.cas.web.CasAuthenticationFilter">
     ...
     <property name="proxyGrantingTicketStorage" ref="pgtStorage"/>
-    <property name="proxyReceptorUrl" value="/j_spring_cas_security_proxyreceptor"/>
+    <property name="proxyReceptorUrl" value="/login/cas/proxyreceptor"/>
   </bean>
 
 ----
@@ -6569,7 +6564,7 @@ Provides versions of `HttpServletRequest` security methods such as `isUserInRole
 
 [[nsa-http-use-expressions]]
 * **use-expressions**
-Enables EL-expressions in the `access` attribute, as described in the chapter on <<el-access-web,expression-based access-control>>.
+Enables EL-expressions in the `access` attribute, as described in the chapter on <<el-access-web,expression-based access-control>>. The default value is true.
 
 
 [[nsa-http-children]]
@@ -6953,7 +6948,7 @@ Defines a reference to a Spring bean that implements `SecurityExpressionHandler`
 
 [[nsa-form-login]]
 ==== <form-login>
-Used to add an `UsernamePasswordAuthenticationFilter` to the filter stack and an `LoginUrlAuthenticationEntryPoint` to the application context to provide authentication on demand. This will always take precedence over other namespace-created entry points. If no attributes are supplied, a login page will be generated automatically at the URL "/spring_security_login"  footnote:[
+Used to add an `UsernamePasswordAuthenticationFilter` to the filter stack and an `LoginUrlAuthenticationEntryPoint` to the application context to provide authentication on demand. This will always take precedence over other namespace-created entry points. If no attributes are supplied, a login page will be generated automatically at the URL "/login"  footnote:[
 This feature is really just provided for convenience and is not intended for production (where a view technology will have been chosen and can be used to render a customized login page). The class `DefaultLoginPageGeneratingFilter` is responsible for rendering the login page and will provide login forms for both normal form login and/or OpenID if required.
 ] The behaviour can be customized using the <<nsa-form-login-attributes, `<form-login>` Attributes>>.
 
@@ -6987,7 +6982,7 @@ Can be used as an alternative to <<nsa-form-login-authentication-failure-url,aut
 
 [[nsa-form-login-authentication-failure-url]]
 * **authentication-failure-url**
-Maps to the `authenticationFailureUrl` property of `UsernamePasswordAuthenticationFilter`. Defines the URL the browser will be redirected to on login failure. Defaults to `/spring_security_login?login_error`, which will be automatically handled by the automatic login page generator, re-rendering the login page with an error message.
+Maps to the `authenticationFailureUrl` property of `UsernamePasswordAuthenticationFilter`. Defines the URL the browser will be redirected to on login failure. Defaults to `/login?login_error`, which will be automatically handled by the automatic login page generator, re-rendering the login page with an error message.
 
 
 [[nsa-form-login-authentication-success-handler-ref]]
@@ -7002,22 +6997,22 @@ Maps to the `defaultTargetUrl` property of `UsernamePasswordAuthenticationFilter
 
 [[nsa-form-login-login-page]]
 * **login-page**
-The URL that should be used to render the login page. Maps to the `loginFormUrl` property of the `LoginUrlAuthenticationEntryPoint`. Defaults to "/spring_security_login".
+The URL that should be used to render the login page. Maps to the `loginFormUrl` property of the `LoginUrlAuthenticationEntryPoint`. Defaults to "/login".
 
 
 [[nsa-form-login-login-processing-url]]
 * **login-processing-url**
-Maps to the `filterProcessesUrl` property of `UsernamePasswordAuthenticationFilter`. The default value is "/j_spring_security_check".
+Maps to the `filterProcessesUrl` property of `UsernamePasswordAuthenticationFilter`. The default value is "/login".
 
 
 [[nsa-form-login-password-parameter]]
 * **password-parameter**
-The name of the request parameter which contains the password. Defaults to "j_password".
+The name of the request parameter which contains the password. Defaults to "password".
 
 
 [[nsa-form-login-username-parameter]]
 * **username-parameter**
-The name of the request parameter which contains the username. Defaults to "j_username".
+The name of the request parameter which contains the username. Defaults to "username".
 
 
 [[nsa-http-basic]]
@@ -7171,7 +7166,7 @@ Setting this attribute will inject the `SessionManagementFilter` with a `SimpleR
 
 [[nsa-logout-logout-url]]
 * **logout-url**
-The URL which will cause a logout (i.e. which will be processed by the filter). Defaults to "/j_spring_security_logout".
+The URL which will cause a logout (i.e. which will be processed by the filter). Defaults to "/logout".
 
 
 [[nsa-logout-success-handler-ref]]
@@ -7181,7 +7176,7 @@ May be used to supply an instance of `LogoutSuccessHandler` which will be invoke
 
 [[nsa-openid-login]]
 ==== <openid-login>
-Similar to `<form-login>` and has the same attributes. The default value for `login-processing-url` is "/j_spring_openid_security_check". An `OpenIDAuthenticationFilter` and `OpenIDAuthenticationProvider` will be registered. The latter requires a reference to a `UserDetailsService`. Again, this can be specified by `id`, using the `user-service-ref` attribute, or will be located automatically in the application context.
+Similar to `<form-login>` and has the same attributes. The default value for `login-processing-url` is "/login/openid". An `OpenIDAuthenticationFilter` and `OpenIDAuthenticationProvider` will be registered. The latter requires a reference to a `UserDetailsService`. Again, this can be specified by `id`, using the `user-service-ref` attribute, or will be located automatically in the application context.
 
 
 [[nsa-openid-login-parents]]
@@ -7213,7 +7208,7 @@ Reference to an AuthenticationFailureHandler bean which should be used to handle
 
 [[nsa-openid-login-authentication-failure-url]]
 * **authentication-failure-url**
-The URL for the login failure page. If no login failure URL is specified, Spring Security will automatically create a failure login URL at /spring_security_login?login_error and a corresponding filter to render that login failure URL when requested.
+The URL for the login failure page. If no login failure URL is specified, Spring Security will automatically create a failure login URL at /login?login_error and a corresponding filter to render that login failure URL when requested.
 
 
 [[nsa-openid-login-authentication-success-handler-ref]]
@@ -7228,17 +7223,17 @@ The URL that will be redirected to after successful authentication, if the user'
 
 [[nsa-openid-login-login-page]]
 * **login-page**
-The URL for the login page. If no login URL is specified, Spring Security will automatically create a login URL at /spring_security_login and a corresponding filter to render that login URL when requested.
+The URL for the login page. If no login URL is specified, Spring Security will automatically create a login URL at /login and a corresponding filter to render that login URL when requested.
 
 
 [[nsa-openid-login-login-processing-url]]
 * **login-processing-url**
-The URL that the login form is posted to. If unspecified, it defaults to /j_spring_security_check.
+The URL that the login form is posted to. If unspecified, it defaults to /login.
 
 
 [[nsa-openid-login-password-parameter]]
 * **password-parameter**
-The name of the request parameter which contains the password. Defaults to "j_password".
+The name of the request parameter which contains the password. Defaults to "password".
 
 
 [[nsa-openid-login-user-service-ref]]
@@ -7248,7 +7243,7 @@ A reference to a user-service (or UserDetailsService bean) Id
 
 [[nsa-openid-login-username-parameter]]
 * **username-parameter**
-The name of the request parameter which contains the username. Defaults to "j_username".
+The name of the request parameter which contains the username. Defaults to "username".
 
 
 [[nsa-openid-login-children]]
@@ -7663,7 +7658,7 @@ Defines the strategy use for matching incoming requests. Currently the options a
 
 [[nsa-filter-security-metadata-source-use-expressions]]
 * **use-expressions**
-Enables the use of expressions in the 'access' attributes in <intercept-url> elements rather than the traditional list of configuration attributes. Defaults to 'false'. If enabled, each attribute should contain a single boolean expression. If the expression evaluates to 'true', access will be granted.
+Enables the use of expressions in the 'access' attributes in <intercept-url> elements rather than the traditional list of configuration attributes. Defaults to 'true'. If enabled, each attribute should contain a single boolean expression. If the expression evaluates to 'true', access will be granted.
 
 
 [[nsa-filter-security-metadata-source-children]]

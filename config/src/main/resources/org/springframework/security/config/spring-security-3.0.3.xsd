@@ -799,7 +799,7 @@
   <xs:attributeGroup name="logout.attlist">
     <xs:attribute name="logout-url" type="xs:token">
       <xs:annotation>
-        <xs:documentation>Specifies the URL that will cause a logout. Spring Security will initialize a filter that responds to this particular URL. Defaults to /j_spring_security_logout if unspecified.</xs:documentation>
+        <xs:documentation>Specifies the URL that will cause a logout. Spring Security will initialize a filter that responds to this particular URL. Defaults to /logout if unspecified.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="logout-success-url" type="xs:token">
@@ -827,7 +827,7 @@
   <xs:attributeGroup name="form-login.attlist">
     <xs:attribute name="login-processing-url" type="xs:token">
       <xs:annotation>
-        <xs:documentation>The URL that the login form is posted to. If unspecified, it defaults to /j_spring_security_check.</xs:documentation>
+        <xs:documentation>The URL that the login form is posted to. If unspecified, it defaults to /login.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="default-target-url" type="xs:token">

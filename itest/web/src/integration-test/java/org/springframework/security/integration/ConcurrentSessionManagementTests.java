@@ -24,8 +24,8 @@ public class ConcurrentSessionManagementTests extends AbstractWebServerIntegrati
         tester2.beginAt("secure/index.html");
         // seems to be a bug in checking for form here (it fails)
         //tester2.assertFormPresent();
-        tester2.setTextField("j_username", "jimi");
-        tester2.setTextField("j_password", "jimispassword");
+        tester2.setTextField("username", "jimi");
+        tester2.setTextField("password", "jimispassword");
         // tester2.submit() also fails to detect the form
         tester2.getTestingEngine().submit();
         tester2.assertTextPresent("Maximum sessions of 1 for this principal exceeded");
@@ -35,8 +35,8 @@ public class ConcurrentSessionManagementTests extends AbstractWebServerIntegrati
 
 
         // Try second session again
-        tester2.setTextField("j_username", "jimi");
-        tester2.setTextField("j_password", "jimispassword");
+        tester2.setTextField("username", "jimi");
+        tester2.setTextField("password", "jimispassword");
         // tester2.submit() also fails to detect the form
         tester2.getTestingEngine().submit();
         tester2.assertTextPresent("A Secure Page");

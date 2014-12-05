@@ -10,7 +10,7 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
-    <http entry-point-ref="casEntryPoint" use-expressions="true">
+    <http entry-point-ref="casEntryPoint">
         <intercept-url pattern="/" access="permitAll"/>
         <intercept-url pattern="/index.jsp" access="permitAll"/>
         <intercept-url pattern="/cas-logout.jsp" access="permitAll"/>
@@ -41,7 +41,7 @@
     <b:bean id="singleLogoutFilter" class="org.jasig.cas.client.session.SingleSignOutFilter"/>
     <!-- This filter redirects to the CAS Server to signal Single Logout should be performed -->
     <b:bean id="requestSingleLogoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter"
-        p:filterProcessesUrl="/j_spring_cas_security_logout">
+        p:filterProcessesUrl="/logout/cas">
         <b:constructor-arg value="https://${cas.server.host}/cas/logout"/>
         <b:constructor-arg>
             <b:bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler"/>
@@ -50,7 +50,7 @@
 
     <b:bean id="serviceProperties"
         class="org.springframework.security.cas.ServiceProperties"
-        p:service="https://${cas.service.host}/cas-sample/j_spring_cas_security_check"
+        p:service="https://${cas.service.host}/cas-sample/login/cas"
         p:authenticateAllArtifacts="true"/>
     <b:bean id="casEntryPoint"
         class="org.springframework.security.cas.web.CasAuthenticationEntryPoint"
@@ -60,10 +60,10 @@
         p:authenticationManager-ref="authManager"
         p:serviceProperties-ref="serviceProperties"
         p:proxyGrantingTicketStorage-ref="pgtStorage"
-        p:proxyReceptorUrl="/j_spring_cas_security_proxyreceptor">
+        p:proxyReceptorUrl="/login/cas/proxyreceptor">
         <b:property name="authenticationDetailsSource">
             <b:bean class="org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource">
-            	<b:constructor-arg ref="serviceProperties"/>
+                <b:constructor-arg ref="serviceProperties"/>
             </b:bean>
         </b:property>
         <b:property name="authenticationFailureHandler">
@@ -89,7 +89,7 @@
             <b:bean
                 class="org.jasig.cas.client.validation.Cas20ProxyTicketValidator"
                 p:acceptAnyProxy="true"
-                p:proxyCallbackUrl="https://${cas.service.host}/cas-sample/j_spring_cas_security_proxyreceptor"
+                p:proxyCallbackUrl="https://${cas.service.host}/cas-sample/login/cas/proxyreceptor"
                 p:proxyGrantingTicketStorage-ref="pgtStorage">
                 <b:constructor-arg value="https://${cas.server.host}/cas" />
             </b:bean>

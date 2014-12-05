@@ -28,8 +28,8 @@ import org.springframework.web.filter.GenericFilterBean;
  * @since 2.0
  */
 public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
-    public static final String DEFAULT_LOGIN_PAGE_URL = "/spring_security_login";
-    public static final String ERROR_PARAMETER_NAME = "login_error";
+    public static final String DEFAULT_LOGIN_PAGE_URL = "/login";
+    public static final String ERROR_PARAMETER_NAME = "error";
     private String loginPageUrl;
     private String logoutSuccessUrl;
     private String failureUrl;

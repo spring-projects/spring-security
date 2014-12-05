@@ -19,7 +19,7 @@
       </font>
     </c:if>
 
-    <form action="<c:url value='j_spring_security_exit_user'/>" method="POST">
+    <form action="<c:url value='logout/impersonate'/>" method="POST">
       <table>
         <tr><td>Current User:</td><td>
 

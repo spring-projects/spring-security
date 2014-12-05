@@ -1,6 +1,8 @@
 package org.springframework.security.config.http;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 
@@ -42,7 +44,7 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
     @Test
     public void parsingMinimalConfigurationIsSuccessful() {
         setContext(
-                "<filter-security-metadata-source id='fids'>" +
+                "<filter-security-metadata-source id='fids' use-expressions='false'>" +
                 "   <intercept-url pattern='/**' access='ROLE_A'/>" +
                 "</filter-security-metadata-source>");
         DefaultFilterInvocationSecurityMetadataSource fids = (DefaultFilterInvocationSecurityMetadataSource) appContext.getBean("fids");
@@ -54,7 +56,7 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
     @Test
     public void expressionsAreSupported() {
         setContext(
-                "<filter-security-metadata-source id='fids' use-expressions='true'>" +
+                "<filter-security-metadata-source id='fids'>" +
                 "   <intercept-url pattern='/**' access=\"hasRole('ROLE_A')\" />" +
                 "</filter-security-metadata-source>");
 
@@ -72,7 +74,7 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
         System.setProperty("secure.role", "ROLE_A");
         setContext(
                 "<b:bean class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>" +
-                "<filter-security-metadata-source id='fids'>" +
+                "<filter-security-metadata-source id='fids' use-expressions='false'>" +
                 "   <intercept-url pattern='${secure.url}' access='${secure.role}'/>" +
                 "</filter-security-metadata-source>");
         DefaultFilterInvocationSecurityMetadataSource fids = (DefaultFilterInvocationSecurityMetadataSource) appContext.getBean("fids");
@@ -85,10 +87,10 @@ public class FilterSecurityMetadataSourceBeanDefinitionParserTests {
     @Test
     public void parsingWithinFilterSecurityInterceptorIsSuccessful() {
         setContext(
-                "<http auto-config='true'/>" +
+                "<http auto-config='true' use-expressions='false'/>" +
                 "<b:bean id='fsi' class='org.springframework.security.web.access.intercept.FilterSecurityInterceptor' autowire='byType'>" +
                 "   <b:property name='securityMetadataSource'>" +
-                "       <filter-security-metadata-source>" +
+                "       <filter-security-metadata-source use-expressions='false'>" +
                 "           <intercept-url pattern='/secure/extreme/**' access='ROLE_SUPERVISOR'/>" +
                 "           <intercept-url pattern='/secure/**' access='ROLE_USER'/>" +
                 "           <intercept-url pattern='/**' access='ROLE_USER'/>" +

@@ -108,7 +108,7 @@ class InterceptUrlConfigTests extends AbstractHttpConfigTests {
            MockHttpServletRequest request = new MockHttpServletRequest(method:'GET')
            MockHttpServletResponse response = new MockHttpServletResponse()
            MockFilterChain chain = new MockFilterChain()
-           xml.http() {
+           xml.http('use-expressions':false) {
                'http-basic'()
                'intercept-url'(pattern: '/**', 'method':'PATCH',access: 'ROLE_ADMIN')
                csrf(disabled:true)

@@ -12,7 +12,7 @@ class FormLoginBeanDefinitionParserTests extends AbstractHttpConfigTests {
 
     def 'form-login default login page'() {
         setup:
-            MockHttpServletRequest request = new MockHttpServletRequest(method:'GET',requestURI:'/spring_security_login')
+            MockHttpServletRequest request = new MockHttpServletRequest(method:'GET',requestURI:'/login')
             MockHttpServletResponse response = new MockHttpServletResponse()
             MockFilterChain chain = new MockFilterChain()
             httpAutoConfig {
@@ -22,11 +22,11 @@ class FormLoginBeanDefinitionParserTests extends AbstractHttpConfigTests {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.getContentAsString() == """<html><head><title>Login Page</title></head><body onload='document.f.j_username.focus();'>
-<h3>Login with Username and Password</h3><form name='f' action='/j_spring_security_check' method='POST'>
+            response.getContentAsString() == """<html><head><title>Login Page</title></head><body onload='document.f.username.focus();'>
+<h3>Login with Username and Password</h3><form name='f' action='/login' method='POST'>
  <table>
-    <tr><td>User:</td><td><input type='text' name='j_username' value=''></td></tr>
-    <tr><td>Password:</td><td><input type='password' name='j_password'/></td></tr>
+    <tr><td>User:</td><td><input type='text' name='username' value=''></td></tr>
+    <tr><td>Password:</td><td><input type='password' name='password'/></td></tr>
     <tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
   </table>
 </form></body></html>"""
@@ -34,7 +34,7 @@ class FormLoginBeanDefinitionParserTests extends AbstractHttpConfigTests {
 
     def 'form-login default login page custom attributes'() {
         setup:
-            MockHttpServletRequest request = new MockHttpServletRequest(method:'GET',requestURI:'/spring_security_login')
+            MockHttpServletRequest request = new MockHttpServletRequest(method:'GET',requestURI:'/login')
             MockHttpServletResponse response = new MockHttpServletResponse()
             MockFilterChain chain = new MockFilterChain()
             httpAutoConfig {
@@ -57,7 +57,7 @@ class FormLoginBeanDefinitionParserTests extends AbstractHttpConfigTests {
 
     def 'openid-login default login page'() {
         setup:
-            MockHttpServletRequest request = new MockHttpServletRequest(method:'GET',requestURI:'/spring_security_login')
+            MockHttpServletRequest request = new MockHttpServletRequest(method:'GET',requestURI:'/login')
             MockHttpServletResponse response = new MockHttpServletResponse()
             MockFilterChain chain = new MockFilterChain()
             httpAutoConfig {
@@ -68,14 +68,14 @@ class FormLoginBeanDefinitionParserTests extends AbstractHttpConfigTests {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.getContentAsString() == """<html><head><title>Login Page</title></head><body onload='document.f.j_username.focus();'>
-<h3>Login with Username and Password</h3><form name='f' action='/j_spring_security_check' method='POST'>
+            response.getContentAsString() == """<html><head><title>Login Page</title></head><body onload='document.f.username.focus();'>
+<h3>Login with Username and Password</h3><form name='f' action='/login' method='POST'>
  <table>
-    <tr><td>User:</td><td><input type='text' name='j_username' value=''></td></tr>
-    <tr><td>Password:</td><td><input type='password' name='j_password'/></td></tr>
+    <tr><td>User:</td><td><input type='text' name='username' value=''></td></tr>
+    <tr><td>Password:</td><td><input type='password' name='password'/></td></tr>
     <tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
   </table>
-</form><h3>Login with OpenID Identity</h3><form name='oidf' action='/j_spring_openid_security_check' method='POST'>
+</form><h3>Login with OpenID Identity</h3><form name='oidf' action='/login/openid' method='POST'>
  <table>
     <tr><td>Identity:</td><td><input type='text' size='30' name='openid_identifier'/></td></tr>
     <tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
@@ -85,7 +85,7 @@ class FormLoginBeanDefinitionParserTests extends AbstractHttpConfigTests {
 
     def 'openid-login default login page custom attributes'() {
         setup:
-            MockHttpServletRequest request = new MockHttpServletRequest(method:'GET',requestURI:'/spring_security_login')
+            MockHttpServletRequest request = new MockHttpServletRequest(method:'GET',requestURI:'/login')
             MockHttpServletResponse response = new MockHttpServletResponse()
             MockFilterChain chain = new MockFilterChain()
             httpAutoConfig {
@@ -96,11 +96,11 @@ class FormLoginBeanDefinitionParserTests extends AbstractHttpConfigTests {
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
-            response.getContentAsString() == """<html><head><title>Login Page</title></head><body onload='document.f.j_username.focus();'>
-<h3>Login with Username and Password</h3><form name='f' action='/j_spring_security_check' method='POST'>
+            response.getContentAsString() == """<html><head><title>Login Page</title></head><body onload='document.f.username.focus();'>
+<h3>Login with Username and Password</h3><form name='f' action='/login' method='POST'>
  <table>
-    <tr><td>User:</td><td><input type='text' name='j_username' value=''></td></tr>
-    <tr><td>Password:</td><td><input type='password' name='j_password'/></td></tr>
+    <tr><td>User:</td><td><input type='text' name='username' value=''></td></tr>
+    <tr><td>Password:</td><td><input type='password' name='password'/></td></tr>
     <tr><td colspan='2'><input name="submit" type="submit" value="Login"/></td></tr>
   </table>
 </form><h3>Login with OpenID Identity</h3><form name='oidf' action='/login_custom' method='POST'>

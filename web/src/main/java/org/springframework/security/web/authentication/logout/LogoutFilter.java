@@ -68,7 +68,7 @@ public class LogoutFilter extends GenericFilterBean {
         this.handlers = Arrays.asList(handlers);
         Assert.notNull(logoutSuccessHandler, "logoutSuccessHandler cannot be null");
         this.logoutSuccessHandler = logoutSuccessHandler;
-        setFilterProcessesUrl("/j_spring_security_logout");
+        setFilterProcessesUrl("/logout");
     }
 
     public LogoutFilter(String logoutSuccessUrl, LogoutHandler... handlers) {
@@ -81,7 +81,7 @@ public class LogoutFilter extends GenericFilterBean {
             urlLogoutSuccessHandler.setDefaultTargetUrl(logoutSuccessUrl);
         }
         logoutSuccessHandler = urlLogoutSuccessHandler;
-        setFilterProcessesUrl("/j_spring_security_logout");
+        setFilterProcessesUrl("/logout");
     }
 
     //~ Methods ========================================================================================================

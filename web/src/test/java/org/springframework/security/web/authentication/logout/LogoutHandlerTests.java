@@ -22,8 +22,8 @@ public class LogoutHandlerTests extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        request.setRequestURI("/context/j_spring_security_logout;someparam=blah?param=blah");
-        request.setServletPath("/j_spring_security_logout;someparam=blah");
+        request.setRequestURI("/context/logout;someparam=blah?param=blah");
+        request.setServletPath("/logout;someparam=blah");
         request.setQueryString("otherparam=blah");
 
         DefaultHttpFirewall fw = new DefaultHttpFirewall();
@@ -35,8 +35,8 @@ public class LogoutHandlerTests extends TestCase {
         request.setContextPath("/context");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        request.setServletPath("/j_spring_security_logout");
-        request.setRequestURI("/context/j_spring_security_logout?param=blah");
+        request.setServletPath("/logout");
+        request.setRequestURI("/context/logout?param=blah");
         request.setQueryString("otherparam=blah");
 
         assertTrue(filter.requiresLogout(request, response));

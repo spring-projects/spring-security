@@ -13,7 +13,7 @@ or if you've authenticated this session.<br><br>
 
 
 <p><a href="../">Home</a>
-<form action="<c:url value="/j_spring_security_logout"/>" method="post">
+<form action="<c:url value="/logout"/>" method="post">
 <input type="submit" value="Logoff"/> (also clears any remember-me cookie)
 <security:csrfInput/>
 </form>

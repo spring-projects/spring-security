@@ -27,8 +27,8 @@ class LoginPage extends Page {
     static at = { assert driver.title == 'Login'; true}
     static content = {
         login(required:false) { user='rod', password='koala' ->
-            loginForm.j_username = user
-            loginForm.j_password = password
+            loginForm.username = user
+            loginForm.password = password
             submit.click()
         }
         loginForm { $('form') }

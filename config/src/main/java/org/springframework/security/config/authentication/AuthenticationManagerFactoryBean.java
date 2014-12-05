@@ -6,8 +6,13 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.BeanIds;
+import org.springframework.security.core.userdetails.UserDetailsService;
+
+import java.util.Arrays;
 
 /**
  * Factory bean for the namespace AuthenticationManager, which allows a more meaningful error message
@@ -28,6 +33,13 @@ public class AuthenticationManagerFactoryBean implements FactoryBean<Authenticat
              return (AuthenticationManager) bf.getBean(BeanIds.AUTHENTICATION_MANAGER);
         } catch (NoSuchBeanDefinitionException e) {
             if (BeanIds.AUTHENTICATION_MANAGER.equals(e.getBeanName())) {
+                try {
+                    UserDetailsService uds = bf.getBean(UserDetailsService.class);
+                    DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+                    provider.setUserDetailsService(uds);
+                    provider.afterPropertiesSet();
+                    return new ProviderManager(Arrays.<AuthenticationProvider>asList(provider));
+                } catch(NoSuchBeanDefinitionException noUds) {}
                 throw new NoSuchBeanDefinitionException(BeanIds.AUTHENTICATION_MANAGER, MISSING_BEAN_ERROR_MESSAGE);
             }
             throw e;

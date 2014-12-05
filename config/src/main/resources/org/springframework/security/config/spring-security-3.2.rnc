@@ -370,7 +370,7 @@ logout =
     ## Incorporates a logout processing filter. Most web applications require a logout filter, although you may not require one if you write a controller to provider similar logic.
     element logout {logout.attlist, empty}
 logout.attlist &=
-    ## Specifies the URL that will cause a logout. Spring Security will initialize a filter that responds to this particular URL. Defaults to /j_spring_security_logout if unspecified.
+    ## Specifies the URL that will cause a logout. Spring Security will initialize a filter that responds to this particular URL. Defaults to /logout if unspecified.
     attribute logout-url {xsd:token}?
 logout.attlist &=
     ## Specifies the URL to display once the user has logged out. If not specified, defaults to /.
@@ -393,13 +393,13 @@ form-login =
     ## Sets up a form login configuration for authentication with a username and password
     element form-login {form-login.attlist, empty}
 form-login.attlist &=
-    ## The URL that the login form is posted to. If unspecified, it defaults to /j_spring_security_check.
+    ## The URL that the login form is posted to. If unspecified, it defaults to /login.
     attribute login-processing-url {xsd:token}?
 form-login.attlist &=
-    ## The name of the request parameter which contains the username. Defaults to 'j_username'.
+    ## The name of the request parameter which contains the username. Defaults to 'username'.
     attribute username-parameter {xsd:token}?
 form-login.attlist &=
-    ## The name of the request parameter which contains the password. Defaults to 'j_password'.
+    ## The name of the request parameter which contains the password. Defaults to 'password'.
     attribute password-parameter {xsd:token}?
 form-login.attlist &=
     ## The URL that will be redirected to after successful authentication, if the user's previous action could not be resumed. This generally happens if the user visits a login page without having first requested a secured operation that triggers authentication. If unspecified, defaults to the root of the application.

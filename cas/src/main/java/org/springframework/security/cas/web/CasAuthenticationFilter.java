@@ -51,7 +51,7 @@ import org.springframework.util.Assert;
  * presented in the <code>ticket</code> request parameter.
  * <p>
  * This filter monitors the <code>service</code> URL so it can
- * receive the service ticket and process it. By default this filter processes the URL <tt>/j_spring_cas_security_check</tt>.
+ * receive the service ticket and process it. By default this filter processes the URL <tt>/login/cas</tt>.
  * When processing this URL, the value of {@link ServiceProperties#getService()} is used as the <tt>service</tt> when validating
  * the <code>ticket</code>. This means that it is important that {@link ServiceProperties#getService()} specifies the same value
  * as the <tt>filterProcessesUrl</tt>.
@@ -92,7 +92,7 @@ import org.springframework.util.Assert;
  * <pre>
  * &lt;b:bean id=&quot;serviceProperties&quot;
  *     class=&quot;org.springframework.security.cas.ServiceProperties&quot;
- *     p:service=&quot;https://service.example.com/cas-sample/j_spring_cas_security_check&quot;
+ *     p:service=&quot;https://service.example.com/cas-sample/login/cas&quot;
  *     p:authenticateAllArtifacts=&quot;true&quot;/&gt;
  * &lt;b:bean id=&quot;casEntryPoint&quot;
  *     class=&quot;org.springframework.security.cas.web.CasAuthenticationEntryPoint&quot;
@@ -102,7 +102,7 @@ import org.springframework.util.Assert;
  *     p:authenticationManager-ref=&quot;authManager&quot;
  *     p:serviceProperties-ref=&quot;serviceProperties&quot;
  *     p:proxyGrantingTicketStorage-ref=&quot;pgtStorage&quot;
- *     p:proxyReceptorUrl=&quot;/j_spring_cas_security_proxyreceptor&quot;&gt;
+ *     p:proxyReceptorUrl=&quot;/login/cas/proxyreceptor&quot;&gt;
  *     &lt;b:property name=&quot;authenticationDetailsSource&quot;&gt;
  *         &lt;b:bean class=&quot;org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource&quot;/&gt;
  *     &lt;/b:property&gt;
@@ -129,7 +129,7 @@ import org.springframework.util.Assert;
  *         &lt;b:bean
  *             class=&quot;org.jasig.cas.client.validation.Cas20ProxyTicketValidator&quot;
  *             p:acceptAnyProxy=&quot;true&quot;
- *             p:proxyCallbackUrl=&quot;https://service.example.com/cas-sample/j_spring_cas_security_proxyreceptor&quot;
+ *             p:proxyCallbackUrl=&quot;https://service.example.com/cas-sample/login/cas/proxyreceptor&quot;
  *             p:proxyGrantingTicketStorage-ref=&quot;pgtStorage&quot;&gt;
  *             &lt;b:constructor-arg value=&quot;https://login.example.org/cas&quot; /&gt;
  *         &lt;/b:bean&gt;
@@ -188,7 +188,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
     //~ Constructors ===================================================================================================
 
     public CasAuthenticationFilter() {
-        super("/j_spring_cas_security_check");
+        super("/login/cas");
         setAuthenticationFailureHandler(new SimpleUrlAuthenticationFailureHandler());
     }
 

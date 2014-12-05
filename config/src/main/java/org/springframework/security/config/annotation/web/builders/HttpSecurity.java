@@ -948,8 +948,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      *                 .antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
      *                 .and()
      *             .formLogin()
-     *                    .usernameParameter("j_username") // default is username
-     *                    .passwordParameter("j_password") // default is password
+     *                    .usernameParameter("username") // default is username
+     *                    .passwordParameter("password") // default is password
      *                    .loginPage("/authentication/login") // default is /login with an HTTP get
      *                    .failureUrl("/authentication/login?failed") // default is /login?error
      *                    .loginProcessingUrl("/authentication/login/process"); // default is /login with an HTTP post

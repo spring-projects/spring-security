@@ -25,6 +25,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.util.TextEscapeUtils;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
 
 
@@ -38,7 +39,7 @@ import org.springframework.util.Assert;
  * The parameter names can also be changed by setting the {@code usernameParameter} and {@code passwordParameter}
  * properties.
  * <p>
- * This filter by default responds to the URL {@code /j_spring_security_check}.
+ * This filter by default responds to the URL {@code /login}.
  *
  * @author Ben Alex
  * @author Colin Sampaleanu
@@ -48,8 +49,8 @@ import org.springframework.util.Assert;
 public class UsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
     //~ Static fields/initializers =====================================================================================
 
-    public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "j_username";
-    public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = "j_password";
+    public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "username";
+    public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = "password";
 
     private String usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
     private String passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
@@ -58,7 +59,7 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
     //~ Constructors ===================================================================================================
 
     public UsernamePasswordAuthenticationFilter() {
-        super("/j_spring_security_check");
+        super(new AntPathRequestMatcher("/login","POST"));
     }
 
     //~ Methods ========================================================================================================
@@ -131,7 +132,7 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
     /**
      * Sets the parameter name which will be used to obtain the username from the login request.
      *
-     * @param usernameParameter the parameter name. Defaults to "j_username".
+     * @param usernameParameter the parameter name. Defaults to "username".
      */
     public void setUsernameParameter(String usernameParameter) {
         Assert.hasText(usernameParameter, "Username parameter must not be empty or null");
@@ -141,7 +142,7 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
     /**
      * Sets the parameter name which will be used to obtain the password from the login request..
      *
-     * @param passwordParameter the parameter name. Defaults to "j_password".
+     * @param passwordParameter the parameter name. Defaults to "password".
      */
     public void setPasswordParameter(String passwordParameter) {
         Assert.hasText(passwordParameter, "Password parameter must not be empty or null");

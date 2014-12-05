@@ -7,7 +7,7 @@
 This is a protected page. You can only see me if you are a supervisor.
 
 <p><a href="../../">Home</a>
-<form action="<c:url value="/j_spring_security_logout"/>" method="post">
+<form action="<c:url value="/logout"/>" method="post">
 <input type="submit" value="Logoff"/>
 <security:csrfInput/>
 </form>

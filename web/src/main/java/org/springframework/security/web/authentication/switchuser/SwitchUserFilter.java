@@ -91,8 +91,8 @@ import org.springframework.web.filter.GenericFilterBean;
  * <pre>
  * &lt;bean id="switchUserProcessingFilter" class="org.springframework.security.web.authentication.switchuser.SwitchUserFilter">
  *    &lt;property name="userDetailsService" ref="userDetailsService" />
- *    &lt;property name="switchUserUrl" value="/j_spring_security_switch_user" />
- *    &lt;property name="exitUserUrl" value="/j_spring_security_exit_user" />
+ *    &lt;property name="switchUserUrl" value="/login/impersonate" />
+ *    &lt;property name="exitUserUrl" value="/logout/impersonate" />
  *    &lt;property name="targetUrl" value="/index.jsp" />
  * &lt;/bean>
  * </pre>
@@ -105,7 +105,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
         MessageSourceAware {
     //~ Static fields/initializers =====================================================================================
 
-    public static final String SPRING_SECURITY_SWITCH_USERNAME_KEY = "j_username";
+    public static final String SPRING_SECURITY_SWITCH_USERNAME_KEY = "username";
     public static final String ROLE_PREVIOUS_ADMINISTRATOR = "ROLE_PREVIOUS_ADMINISTRATOR";
 
     //~ Instance fields ================================================================================================
@@ -113,8 +113,8 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
     private ApplicationEventPublisher eventPublisher;
     private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
-    private String exitUserUrl = "/j_spring_security_exit_user";
-    private String switchUserUrl = "/j_spring_security_switch_user";
+    private String exitUserUrl = "/logout/impersonate";
+    private String switchUserUrl = "/login/impersonate";
     private String targetUrl;
     private String switchFailureUrl;
     private String usernameParameter = SPRING_SECURITY_SWITCH_USERNAME_KEY;
@@ -489,7 +489,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
     /**
      * Allows the parameter containing the username to be customized.
      *
-     * @param usernameParameter the parameter name. Defaults to {@code j_username}
+     * @param usernameParameter the parameter name. Defaults to {@code username}
      */
     public void setUsernameParameter(String usernameParameter) {
         this.usernameParameter = usernameParameter;

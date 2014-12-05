@@ -48,7 +48,7 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
             }
         }
 
-        BeanDefinition mds = createSecurityMetadataSource(interceptUrls, element, parserContext);
+        BeanDefinition mds = createSecurityMetadataSource(interceptUrls, false, element, parserContext);
 
         String id = element.getAttribute(AbstractBeanDefinitionParser.ID_ATTRIBUTE);
 
@@ -60,16 +60,16 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
         return mds;
     }
 
-    static RootBeanDefinition createSecurityMetadataSource(List<Element> interceptUrls, Element elt, ParserContext pc) {
-        MatcherType matcherType = MatcherType.fromElement(elt);
-        boolean useExpressions = isUseExpressions(elt);
+    static RootBeanDefinition createSecurityMetadataSource(List<Element> interceptUrls, boolean addAllAuth, Element httpElt, ParserContext pc) {
+        MatcherType matcherType = MatcherType.fromElement(httpElt);
+        boolean useExpressions = isUseExpressions(httpElt);
 
         ManagedMap<BeanDefinition, BeanDefinition> requestToAttributesMap = parseInterceptUrlsForFilterInvocationRequestMap(
-                matcherType, interceptUrls, useExpressions, pc);
+                matcherType, interceptUrls, useExpressions, addAllAuth, pc);
         BeanDefinitionBuilder fidsBuilder;
 
         if (useExpressions) {
-            Element expressionHandlerElt = DomUtils.getChildElementByTagName(elt, Elements.EXPRESSION_HANDLER);
+            Element expressionHandlerElt = DomUtils.getChildElementByTagName(httpElt, Elements.EXPRESSION_HANDLER);
             String expressionHandlerRef = expressionHandlerElt == null ? null : expressionHandlerElt.getAttribute("ref");
 
             if (StringUtils.hasText(expressionHandlerRef)) {
@@ -86,7 +86,7 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
             fidsBuilder.addConstructorArgValue(requestToAttributesMap);
         }
 
-        fidsBuilder.getRawBeanDefinition().setSource(pc.extractSource(elt));
+        fidsBuilder.getRawBeanDefinition().setSource(pc.extractSource(httpElt));
 
         return (RootBeanDefinition) fidsBuilder.getBeanDefinition();
     }
@@ -100,12 +100,13 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
     }
 
     static boolean isUseExpressions(Element elt) {
-        return "true".equals(elt.getAttribute(ATT_USE_EXPRESSIONS));
+        String useExpressions = elt.getAttribute(ATT_USE_EXPRESSIONS);
+        return !StringUtils.hasText(useExpressions) || "true".equals(useExpressions);
     }
 
     private static ManagedMap<BeanDefinition, BeanDefinition>
         parseInterceptUrlsForFilterInvocationRequestMap(MatcherType matcherType,
-                List<Element> urlElts, boolean useExpressions, ParserContext parserContext) {
+                List<Element> urlElts, boolean useExpressions, boolean addAuthenticatedAll, ParserContext parserContext) {
 
         ManagedMap<BeanDefinition, BeanDefinition> filterInvocationDefinitionMap = new ManagedMap<BeanDefinition, BeanDefinition>();
 
@@ -144,6 +145,15 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
                 logger.warn("Duplicate URL defined: " + path + ". The original attribute values will be overwritten");
             }
 
+            filterInvocationDefinitionMap.put(matcher, attributeBuilder.getBeanDefinition());
+        }
+
+        if(addAuthenticatedAll && filterInvocationDefinitionMap.isEmpty()) {
+
+            BeanDefinition matcher = matcherType.createMatcher("/**", null);
+            BeanDefinitionBuilder attributeBuilder = BeanDefinitionBuilder.rootBeanDefinition(SecurityConfig.class);
+            attributeBuilder.addConstructorArgValue(new String[] { "authenticated" });
+            attributeBuilder.setFactoryMethod("createList");
             filterInvocationDefinitionMap.put(matcher, attributeBuilder.getBeanDefinition());
         }
 

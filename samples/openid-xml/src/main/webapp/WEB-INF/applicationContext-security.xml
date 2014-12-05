@@ -16,7 +16,7 @@
     <http pattern="/js/*" security="none" />
 
     <http>
-        <intercept-url pattern="/**" access="ROLE_USER"/>
+        <intercept-url pattern="/**" access="authenticated"/>
         <logout/>
         <openid-login login-page="/openidlogin.jsp" user-service-ref="registeringUserService"
                 authentication-failure-url="/openidlogin.jsp?login_error=true">

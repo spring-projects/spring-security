@@ -844,7 +844,7 @@
       <xs:annotation>
         <xs:documentation>Specifies the URL that will cause a logout. Spring Security will
           initialize a filter that responds to this particular URL. Defaults to
-          /j_spring_security_logout if unspecified.</xs:documentation>
+          /logout if unspecified.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="logout-success-url" type="xs:string">
@@ -864,7 +864,7 @@
     <xs:attribute name="login-processing-url" type="xs:string">
       <xs:annotation>
         <xs:documentation>The URL that the login form is posted to. If unspecified, it defaults to
-          /j_spring_security_check.</xs:documentation>
+          /login.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="default-target-url" type="xs:string">

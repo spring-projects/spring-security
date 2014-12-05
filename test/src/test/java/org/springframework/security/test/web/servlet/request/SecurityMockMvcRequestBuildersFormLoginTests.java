@@ -70,16 +70,16 @@ public class SecurityMockMvcRequestBuildersFormLoginTests {
 
     @Test
     public void custom() throws Exception {
-        MockHttpServletRequest request = formLogin("/j_spring_security_login")
-                .user("j_username","admin")
-                .password("j_password","secret")
+        MockHttpServletRequest request = formLogin("/login")
+                .user("username","admin")
+                .password("password","secret")
                 .buildRequest(servletContext);
 
-        assertThat(request.getParameter("j_username")).isEqualTo("admin");
-        assertThat(request.getParameter("j_password")).isEqualTo("secret");
+        assertThat(request.getParameter("username")).isEqualTo("admin");
+        assertThat(request.getParameter("password")).isEqualTo("secret");
         assertThat(request.getMethod()).isEqualTo("POST");
         assertThat(request.getParameter(token.getParameterName())).isEqualTo(token.getToken());
-        assertThat(request.getRequestURI()).isEqualTo("/j_spring_security_login");
+        assertThat(request.getRequestURI()).isEqualTo("/login");
         verify(repository).saveToken(eq(token), any(HttpServletRequest.class), any(HttpServletResponse.class));
     }
 

@@ -71,7 +71,7 @@ public class CasAuthenticationFilterTests {
     @Test
     public void testNormalOperation() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setServletPath("/j_spring_cas_security_check");
+        request.setServletPath("/login/cas");
         request.addParameter("ticket", "ST-0-ER94xMJmn6pha35CQRoZ");
 
         CasAuthenticationFilter filter = new CasAuthenticationFilter();

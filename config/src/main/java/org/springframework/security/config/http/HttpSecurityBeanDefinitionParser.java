@@ -132,10 +132,11 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         ManagedList<BeanReference> authenticationProviders = new ManagedList<BeanReference>();
         BeanReference authenticationManager = createAuthenticationManager(element, pc, authenticationProviders);
 
-        HttpConfigurationBuilder httpBldr = new HttpConfigurationBuilder(element, pc,
+        boolean forceAutoConfig = isDefaultHttpConfig(element);
+        HttpConfigurationBuilder httpBldr = new HttpConfigurationBuilder(element, forceAutoConfig, pc,
                 portMapper, portResolver, authenticationManager);
 
-        AuthenticationConfigBuilder authBldr = new AuthenticationConfigBuilder(element, pc,
+        AuthenticationConfigBuilder authBldr = new AuthenticationConfigBuilder(element, forceAutoConfig, pc,
                 httpBldr.getSessionCreationPolicy(), httpBldr.getRequestCache(), authenticationManager,
                 httpBldr.getSessionStrategy(), portMapper, portResolver, httpBldr.getCsrfLogoutHandler());
 
@@ -162,6 +163,10 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
         }
 
         return createSecurityFilterChainBean(element, pc, filterChain);
+    }
+
+    private static boolean isDefaultHttpConfig(Element httpElt) {
+        return httpElt.getChildNodes().getLength() == 0 && httpElt.getAttributes().getLength() == 0;
     }
 
     private BeanReference createSecurityFilterChainBean(Element element, ParserContext pc, List<?> filterChain) {

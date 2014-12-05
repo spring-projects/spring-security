@@ -13,7 +13,7 @@ sourceCompatibility = 1.5
 targetCompatibility = 1.5
 
 ext.ehcacheVersion = '2.6.5'
-ext.aspectjVersion = '1.6.10'
+ext.aspectjVersion = '1.8.4'
 ext.apacheDsVersion = '1.5.5'
 ext.jstlVersion = '1.2.1'
 ext.jettyVersion = '6.1.26'

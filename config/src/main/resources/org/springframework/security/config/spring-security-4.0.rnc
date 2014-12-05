@@ -73,7 +73,7 @@ role-prefix =
     attribute role-prefix {xsd:token}
 
 use-expressions =
-    ## Enables the use of expressions in the 'access' attributes in <intercept-url> elements rather than the traditional list of configuration attributes. Defaults to 'false'. If enabled, each attribute should contain a single boolean expression. If the expression evaluates to 'true', access will be granted.
+    ## Enables the use of expressions in the 'access' attributes in <intercept-url> elements rather than the traditional list of configuration attributes. Defaults to 'true'. If enabled, each attribute should contain a single boolean expression. If the expression evaluates to 'true', access will be granted.
     attribute use-expressions {xsd:boolean}
 
 ldap-server =
@@ -380,7 +380,7 @@ logout =
     ## Incorporates a logout processing filter. Most web applications require a logout filter, although you may not require one if you write a controller to provider similar logic.
     element logout {logout.attlist, empty}
 logout.attlist &=
-    ## Specifies the URL that will cause a logout. Spring Security will initialize a filter that responds to this particular URL. Defaults to /j_spring_security_logout if unspecified.
+    ## Specifies the URL that will cause a logout. Spring Security will initialize a filter that responds to this particular URL. Defaults to /logout if unspecified.
     attribute logout-url {xsd:token}?
 logout.attlist &=
     ## Specifies the URL to display once the user has logged out. If not specified, defaults to /.
@@ -403,13 +403,13 @@ form-login =
     ## Sets up a form login configuration for authentication with a username and password
     element form-login {form-login.attlist, empty}
 form-login.attlist &=
-    ## The URL that the login form is posted to. If unspecified, it defaults to /j_spring_security_check.
+    ## The URL that the login form is posted to. If unspecified, it defaults to /login.
     attribute login-processing-url {xsd:token}?
 form-login.attlist &=
-    ## The name of the request parameter which contains the username. Defaults to 'j_username'.
+    ## The name of the request parameter which contains the username. Defaults to 'username'.
     attribute username-parameter {xsd:token}?
 form-login.attlist &=
-    ## The name of the request parameter which contains the password. Defaults to 'j_password'.
+    ## The name of the request parameter which contains the password. Defaults to 'password'.
     attribute password-parameter {xsd:token}?
 form-login.attlist &=
     ## The URL that will be redirected to after successful authentication, if the user's previous action could not be resumed. This generally happens if the user visits a login page without having first requested a secured operation that triggers authentication. If unspecified, defaults to the root of the application.
@@ -418,10 +418,10 @@ form-login.attlist &=
     ## Whether the user should always be redirected to the default-target-url after login.
     attribute always-use-default-target {xsd:boolean}?
 form-login.attlist &=
-    ## The URL for the login page. If no login URL is specified, Spring Security will automatically create a login URL at /spring_security_login and a corresponding filter to render that login URL when requested.
+    ## The URL for the login page. If no login URL is specified, Spring Security will automatically create a login URL at GET /login and a corresponding filter to render that login URL when requested.
     attribute login-page {xsd:token}?
 form-login.attlist &=
-    ## The URL for the login failure page. If no login failure URL is specified, Spring Security will automatically create a failure login URL at /spring_security_login?login_error and a corresponding filter to render that login failure URL when requested.
+    ## The URL for the login failure page. If no login failure URL is specified, Spring Security will automatically create a failure login URL at /login?error and a corresponding filter to render that login failure URL when requested.
     attribute authentication-failure-url {xsd:token}?
 form-login.attlist &=
     ## Reference to an AuthenticationSuccessHandler bean which should be used to handle a successful authentication request. Should not be used in combination with default-target-url (or always-use-default-target-url) as the implementation should always deal with navigation to the subsequent destination

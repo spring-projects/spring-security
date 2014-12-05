@@ -90,7 +90,7 @@
         <property name="authenticationManager" ref="authenticationManager"/>
         <property name="accessDecisionManager" ref="accessDecisionManager"/>
         <property name="securityMetadataSource">
-            <sec:filter-security-metadata-source>
+            <sec:filter-security-metadata-source use-expressions="false">
                 <sec:intercept-url pattern="/secure/extreme/**" access="ROLE_2"/>
                 <sec:intercept-url pattern="/secure/**" access="ROLE_1"/>
                 <sec:intercept-url pattern="/**" access="ROLE_0"/>

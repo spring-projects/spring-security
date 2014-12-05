@@ -150,8 +150,8 @@ public abstract class AbstractWebServerIntegrationTests {
 
     protected void login(String username, String password) {
         assertFormPresent();
-        setTextField("j_username", username);
-        setTextField("j_password", password);
+        setTextField("username", username);
+        setTextField("password", password);
         submit();
     }
 }

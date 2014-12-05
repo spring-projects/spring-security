@@ -67,7 +67,7 @@ public class SwitchUserFilterTests {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setScheme("http");
         request.setServerName("localhost");
-        request.setRequestURI("/j_spring_security_switch_user");
+        request.setRequestURI("/login/impersonate");
 
         return request;
     }
@@ -145,7 +145,7 @@ public class SwitchUserFilterTests {
     @Test
     public void switchToLockedAccountCausesRedirectToSwitchFailureUrl() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRequestURI("/j_spring_security_switch_user");
+        request.setRequestURI("/login/impersonate");
         request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "mcgarrett");
         MockHttpServletResponse response = new MockHttpServletResponse();
         SwitchUserFilter filter = new SwitchUserFilter();
@@ -162,7 +162,7 @@ public class SwitchUserFilterTests {
 
         // Now check for the redirect
         request.setContextPath("/mywebapp");
-        request.setRequestURI("/mywebapp/j_spring_security_switch_user");
+        request.setRequestURI("/mywebapp/login/impersonate");
         filter = new SwitchUserFilter();
         filter.setTargetUrl("/target");
         filter.setUserDetailsService(new MockUserDetailsService());
@@ -181,8 +181,8 @@ public class SwitchUserFilterTests {
     @Test(expected=IllegalArgumentException.class)
     public void configMissingUserDetailsServiceFails() throws Exception {
         SwitchUserFilter filter = new SwitchUserFilter();
-        filter.setSwitchUserUrl("/j_spring_security_switch_user");
-        filter.setExitUserUrl("/j_spring_security_exit_user");
+        filter.setSwitchUserUrl("/login/impersonate");
+        filter.setExitUserUrl("/logout/impersonate");
         filter.setTargetUrl("/main.jsp");
         filter.afterPropertiesSet();
     }
@@ -191,8 +191,8 @@ public class SwitchUserFilterTests {
     public void testBadConfigMissingTargetUrl() throws Exception {
         SwitchUserFilter filter = new SwitchUserFilter();
         filter.setUserDetailsService(new MockUserDetailsService());
-        filter.setSwitchUserUrl("/j_spring_security_switch_user");
-        filter.setExitUserUrl("/j_spring_security_exit_user");
+        filter.setSwitchUserUrl("/login/impersonate");
+        filter.setExitUserUrl("/logout/impersonate");
         filter.afterPropertiesSet();
     }
 
@@ -200,9 +200,9 @@ public class SwitchUserFilterTests {
     public void defaultProcessesFilterUrlMatchesUrlWithPathParameter() {
         MockHttpServletRequest request = createMockSwitchRequest();
         SwitchUserFilter filter = new SwitchUserFilter();
-        filter.setSwitchUserUrl("/j_spring_security_switch_user");
+        filter.setSwitchUserUrl("/login/impersonate");
 
-        request.setRequestURI("/webapp/j_spring_security_switch_user;jsessionid=8JHDUD723J8");
+        request.setRequestURI("/webapp/login/impersonate;jsessionid=8JHDUD723J8");
         assertTrue(filter.requiresSwitchUser(request));
     }
 
@@ -221,12 +221,12 @@ public class SwitchUserFilterTests {
         SecurityContextHolder.getContext().setAuthentication(admin);
 
         MockHttpServletRequest request = createMockSwitchRequest();
-        request.setRequestURI("/j_spring_security_exit_user");
+        request.setRequestURI("/logout/impersonate");
 
         // setup filter
         SwitchUserFilter filter = new SwitchUserFilter();
         filter.setUserDetailsService(new MockUserDetailsService());
-        filter.setExitUserUrl("/j_spring_security_exit_user");
+        filter.setExitUserUrl("/logout/impersonate");
         filter.setSuccessHandler(new SimpleUrlAuthenticationSuccessHandler("/webapp/someOtherUrl"));
 
         // run 'exit'
@@ -248,12 +248,12 @@ public class SwitchUserFilterTests {
         SecurityContextHolder.clearContext();
 
         MockHttpServletRequest request = createMockSwitchRequest();
-        request.setRequestURI("/j_spring_security_exit_user");
+        request.setRequestURI("/logout/impersonate");
 
         // setup filter
         SwitchUserFilter filter = new SwitchUserFilter();
         filter.setUserDetailsService(new MockUserDetailsService());
-        filter.setExitUserUrl("/j_spring_security_exit_user");
+        filter.setExitUserUrl("/logout/impersonate");
 
         // run 'exit', expect fail due to no current user
         FilterChain chain = mock(FilterChain.class);
@@ -268,10 +268,10 @@ public class SwitchUserFilterTests {
         MockHttpServletRequest request = createMockSwitchRequest();
         request.setContextPath("/webapp");
         request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
-        request.setRequestURI("/webapp/j_spring_security_switch_user");
+        request.setRequestURI("/webapp/login/impersonate");
 
         SwitchUserFilter filter = new SwitchUserFilter();
-        filter.setSwitchUserUrl("/j_spring_security_switch_user");
+        filter.setSwitchUserUrl("/login/impersonate");
         filter.setSuccessHandler(new SimpleUrlAuthenticationSuccessHandler("/someOtherUrl"));
         filter.setUserDetailsService(new MockUserDetailsService());
 
@@ -294,10 +294,10 @@ public class SwitchUserFilterTests {
         MockHttpServletRequest request = createMockSwitchRequest();
         request.setContextPath("/webapp");
         request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
-        request.setRequestURI("/webapp/j_spring_security_switch_user");
+        request.setRequestURI("/webapp/login/impersonate");
 
         SwitchUserFilter filter = new SwitchUserFilter();
-        filter.setSwitchUserUrl("/j_spring_security_switch_user");
+        filter.setSwitchUserUrl("/login/impersonate");
         SimpleUrlAuthenticationSuccessHandler switchSuccessHandler =
             new SimpleUrlAuthenticationSuccessHandler("/someOtherUrl");
         DefaultRedirectStrategy contextRelativeRedirector = new DefaultRedirectStrategy();
@@ -325,7 +325,7 @@ public class SwitchUserFilterTests {
 
         // http request
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRequestURI("/webapp/j_spring_security_switch_user");
+        request.setRequestURI("/webapp/login/impersonate");
         request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
 
         // http response
@@ -334,7 +334,7 @@ public class SwitchUserFilterTests {
         // setup filter
         SwitchUserFilter filter = new SwitchUserFilter();
         filter.setUserDetailsService(new MockUserDetailsService());
-        filter.setSwitchUserUrl("/j_spring_security_switch_user");
+        filter.setSwitchUserUrl("/login/impersonate");
         filter.setSuccessHandler(new SimpleUrlAuthenticationSuccessHandler("/webapp/someOtherUrl"));
 
         FilterChain chain = mock(FilterChain.class);

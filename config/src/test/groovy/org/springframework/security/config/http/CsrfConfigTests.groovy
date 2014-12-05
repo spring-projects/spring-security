@@ -152,14 +152,14 @@ class CsrfConfigTests extends AbstractHttpConfigTests {
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "sent to the login page"
             response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
-            response.redirectedUrl == "http://localhost/spring_security_login"
+            response.redirectedUrl == "http://localhost/login"
         when: "authenticate successfully"
             response = new MockHttpServletResponse()
             request = new MockHttpServletRequest(session: request.session)
-            request.servletPath = "/j_spring_security_check"
+            request.servletPath = "/login"
             request.setParameter(token.parameterName,token.token)
-            request.setParameter("j_username","user")
-            request.setParameter("j_password","password")
+            request.setParameter("username","user")
+            request.setParameter("password","password")
             request.method = "POST"
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "sent to default success because we don't want csrf attempts made prior to authentication to pass"
@@ -186,14 +186,14 @@ class CsrfConfigTests extends AbstractHttpConfigTests {
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "sent to the login page"
             response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
-            response.redirectedUrl == "http://localhost/spring_security_login"
+            response.redirectedUrl == "http://localhost/login"
         when: "authenticate successfully"
             response = new MockHttpServletResponse()
             request = new MockHttpServletRequest(session: request.session)
-            request.servletPath = "/j_spring_security_check"
+            request.servletPath = "/login"
             request.setParameter(token.parameterName,token.token)
-            request.setParameter("j_username","user")
-            request.setParameter("j_password","password")
+            request.setParameter("username","user")
+            request.setParameter("password","password")
             request.method = "POST"
             springSecurityFilterChain.doFilter(request,response,chain)
         then: "sent to original URL since it was a GET"
@@ -279,9 +279,9 @@ class CsrfConfigTests extends AbstractHttpConfigTests {
             when(repo.loadToken(any(HttpServletRequest))).thenReturn(token)
             request.setParameter(token.parameterName,token.token)
             request.method = "POST"
-            request.setParameter("j_username","user")
-            request.setParameter("j_password","password")
-            request.servletPath = "/j_spring_security_check"
+            request.setParameter("username","user")
+            request.setParameter("password","password")
+            request.servletPath = "/login"
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
@@ -300,7 +300,7 @@ class CsrfConfigTests extends AbstractHttpConfigTests {
             when(repo.loadToken(any(HttpServletRequest))).thenReturn(token)
             request.setParameter(token.parameterName,token.token)
             request.method = "POST"
-            request.servletPath = "/j_spring_security_logout"
+            request.servletPath = "/logout"
         when:
             springSecurityFilterChain.doFilter(request,response,chain)
         then:
@@ -315,7 +315,7 @@ class CsrfConfigTests extends AbstractHttpConfigTests {
                 createAppContext()
                 login()
                 request.method = "GET"
-                request.requestURI = "/j_spring_security_logout"
+                request.requestURI = "/logout"
             when:
                 springSecurityFilterChain.doFilter(request,response,chain)
             then:

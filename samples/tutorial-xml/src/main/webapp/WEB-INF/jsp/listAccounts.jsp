@@ -47,7 +47,7 @@ Anyone can view this page, but posting to an Account requires login and must be 
 </c:forEach>
 </table>
 
-<p><a href="j_spring_security_logout">Logout</a></p>
+<p><a href="logout">Logout</a></p>
 </div>
 </body>
 </html>

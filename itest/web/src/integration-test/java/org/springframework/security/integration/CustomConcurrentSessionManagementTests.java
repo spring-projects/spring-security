@@ -24,8 +24,8 @@ public class CustomConcurrentSessionManagementTests extends AbstractWebServerInt
         WebTester tester2 = new WebTester();
         tester2.getTestContext().setBaseUrl(getBaseUrl());
         tester2.beginAt("secure/index.html");
-        tester2.setTextField("j_username", "jimi");
-        tester2.setTextField("j_password", "jimispassword");
+        tester2.setTextField("username", "jimi");
+        tester2.setTextField("password", "jimispassword");
         tester2.setIgnoreFailingStatusCodes(true);
         tester2.submit();
         Assert.assertTrue(tester2.getServerResponse().contains("Maximum sessions of 1 for this principal exceeded"));
@@ -37,15 +37,15 @@ public class CustomConcurrentSessionManagementTests extends AbstractWebServerInt
         login("bessie", "bessiespassword");
         SessionRegistry reg = getAppContext().getBean(SessionRegistry.class);
 
-        tester.gotoPage("/j_spring_security_logout");
+        tester.gotoPage("/logout");
 
         // Login again
         System.out.println("Client: ******* Second login ******* ");
         WebTester tester2 = new WebTester();
         tester2.getTestContext().setBaseUrl(getBaseUrl());
         tester2.beginAt("secure/index.html");
-        tester2.setTextField("j_username", "bessie");
-        tester2.setTextField("j_password", "bessiespassword");
+        tester2.setTextField("username", "bessie");
+        tester2.setTextField("password", "bessiespassword");
         tester2.setIgnoreFailingStatusCodes(true);
         tester2.submit();
         Assert.assertTrue(tester2.getServerResponse().contains("A secure page"));
