@@ -88,6 +88,7 @@ configure(subprojects - coreModuleProjects - project(':spring-security-samples-m
 }
 
 configure(javaProjects) {
+    ext.CARGO_GRADLE = "$rootDir/gradle/cargo.gradle"
     ext.TOMCAT_GRADLE = "$rootDir/gradle/tomcat.gradle"
     ext.WAR_SAMPLE_GRADLE = "$rootDir/gradle/war-sample.gradle"
     apply from: "$rootDir/gradle/javaprojects.gradle"

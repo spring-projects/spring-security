@@ -1,0 +1,110 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'org.gradle.api.plugins:gradle-cargo-plugin:1.5.2'
+        classpath 'de.undercouch:gradle-download-task:1.1'
+    }
+}
+
+apply plugin: org.gradle.api.plugins.cargo.CargoPlugin
+apply plugin: de.undercouch.gradle.tasks.download.DownloadTaskPlugin
+
+import de.undercouch.gradle.tasks.download.Download
+
+def availablePortFinder = AvailablePortFinder.createPrivate()
+
+cargo {
+    containerId = 'tomcat7x'
+
+    local {
+        installer {
+            installUrl = 'http://mirror.tcpdiag.net/apache/tomcat/tomcat-7/v7.0.57/bin/apache-tomcat-7.0.57.tar.gz'
+            downloadDir = file("$buildDir/tomcat-7x")
+            extractDir = file("$buildDir/tomcat-7x")
+        }
+
+        containerProperties {
+            property 'cargo.tomcat.ajp.port', availablePortFinder.nextAvailable
+        }
+    }
+}
+
+task integrationTomcatRun(type: org.gradle.api.plugins.cargo.tasks.local.CargoStartLocal) {
+    onlyIf { !sourceSets.integrationTest.allSource.empty }
+    logging.captureStandardOutput LogLevel.QUIET
+
+    doFirst {
+        // If app is contrast enabled, configure contrast
+        println("Checking if Contrast Enabled")
+
+        if (project.contrast_enable) {
+
+            if (new File(project.contrast_config).exists() && !new File(System.getProperty("java.io.tmpdir") + "/contrast.jar").exists()) {
+                println("Contrast Agent not found - retrieving from server")
+                println("Configuring Contrast API")
+                def contrast_config = new XmlSlurper().parse(new File(project.contrast_config))
+                def contrast_username = contrast_config.user.id.toString()
+                def contrast_servicekey = contrast_config.user.key.toString()
+                def contrast_apikey = contrast_config."global-key".toString()
+                println("Configured for " + contrast_username)
+
+                download {
+                    src 'https://app.contrastsecurity.com/Contrast/api/engine/default/java?jvm=1.6'
+                    dest System.getProperty("java.io.tmpdir") + '/contrast.jar'
+
+                    def hdrAuth = (contrast_username + ":" + contrast_servicekey).bytes.encodeBase64().toString()
+
+                    headers = [
+                            "Authorization": hdrAuth,
+                            "API-Key": contrast_apikey,
+                            "Accept" : 'application/json'
+                    ]
+                }
+            }
+
+            def contrastAgent = new File(System.getProperty('java.io.tmpdir') + '/contrast.jar')
+            println(contrastAgent.absolutePath)
+            if (contrastAgent.exists()) {
+                println('Using Contrast Agent at: ' + contrastAgent.getAbsolutePath())
+                jvmArgs = '-Xmx512m -javaagent:' + contrastAgent.absolutePath + '=' + project.contrast_config
+
+                // Set the timeout for 300s to account for the Contrast agent
+                timeout 300000
+            }
+        }
+
+        port availablePortFinder.nextAvailable
+        rmiPort availablePortFinder.nextAvailable
+
+        println("Configured Tomcat for Port " + port)
+    }
+}
+
+task integrationTomcatStop(type: org.gradle.api.plugins.cargo.tasks.local.CargoStopLocal) {
+    onlyIf { !sourceSets.integrationTest.allSource.empty }
+    logging.captureStandardOutput LogLevel.QUIET
+
+    println("Stopping Tomcat")
+}
+
+integrationTest {
+    dependsOn integrationTomcatRun
+
+    logging.captureStandardOutput LogLevel.QUIET
+
+    doFirst {
+        def host = 'localhost:' + integrationTomcatRun.port
+        def contextPath = cargoStartLocal.deployables[0].properties.file.name
+        contextPath = contextPath.substring(0, contextPath.lastIndexOf("."))
+        println("Configured Host [" + host + "] - Context [" + contextPath + "]")
+
+        systemProperties['geb.build.baseUrl'] = 'http://'+host+'/'+contextPath+'/'
+        systemProperties['geb.build.reportsDir'] = 'build/geb-reports'
+    }
+
+    finalizedBy integrationTomcatStop
+}
+
