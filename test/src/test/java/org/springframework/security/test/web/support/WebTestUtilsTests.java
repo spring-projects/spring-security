@@ -123,7 +123,6 @@ public class WebTestUtilsTests {
     @Configuration
     static class Config {}
 
-    @Configuration
     @EnableWebSecurity
     static class SecurityNoCsrfConfig extends WebSecurityConfigurerAdapter {
 
@@ -133,7 +132,6 @@ public class WebTestUtilsTests {
         }
     }
 
-    @Configuration
     @EnableWebSecurity
     static class CustomSecurityConfig extends WebSecurityConfigurerAdapter {
         static CsrfTokenRepository CSRF_REPO;

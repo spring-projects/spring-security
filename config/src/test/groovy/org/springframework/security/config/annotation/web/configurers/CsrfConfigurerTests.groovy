@@ -72,7 +72,6 @@ class CsrfConfigurerTests extends BaseSpringSpec {
             context.getBean(RequestDataValueProcessor)
     }
 
-    @Configuration
     @EnableWebMvcSecurity
     static class CsrfAppliedDefaultConfig extends WebSecurityConfigurerAdapter {
 
@@ -93,7 +92,6 @@ class CsrfConfigurerTests extends BaseSpringSpec {
             response.status == HttpServletResponse.SC_OK
     }
 
-    @Configuration
     @EnableWebSecurity
     static class DisableCsrfConfig extends WebSecurityConfigurerAdapter {
 
@@ -125,7 +123,6 @@ class CsrfConfigurerTests extends BaseSpringSpec {
             response.redirectedUrl == 'http://localhost/tosave'
     }
 
-    @Configuration
     @EnableWebSecurity
     static class DisableCsrfEnablesRequestCacheConfig extends WebSecurityConfigurerAdapter {
 
@@ -166,7 +163,6 @@ class CsrfConfigurerTests extends BaseSpringSpec {
             response.status == HttpServletResponse.SC_FORBIDDEN
     }
 
-    @Configuration
     @EnableWebSecurity
     static class InvalidSessionUrlConfig extends WebSecurityConfigurerAdapter {
         @Override
@@ -194,7 +190,6 @@ class CsrfConfigurerTests extends BaseSpringSpec {
             response.status == HttpServletResponse.SC_FORBIDDEN
     }
 
-    @Configuration
     @EnableWebSecurity
     static class RequireCsrfProtectionMatcherConfig extends WebSecurityConfigurerAdapter {
         static RequestMatcher matcher
@@ -250,7 +245,6 @@ class CsrfConfigurerTests extends BaseSpringSpec {
             (1.._) *  CsrfTokenRepositoryConfig.repo.saveToken(null, _, _)
     }
 
-    @Configuration
     @EnableWebSecurity
     static class CsrfTokenRepositoryConfig extends WebSecurityConfigurerAdapter {
         static CsrfTokenRepository repo
@@ -284,7 +278,6 @@ class CsrfConfigurerTests extends BaseSpringSpec {
             response.status == HttpServletResponse.SC_OK
     }
 
-    @Configuration
     @EnableWebSecurity
     static class AccessDeniedHandlerConfig extends WebSecurityConfigurerAdapter {
         static AccessDeniedHandler deniedHandler
@@ -312,7 +305,6 @@ class CsrfConfigurerTests extends BaseSpringSpec {
             currentAuthentication == null
     }
 
-    @Configuration
     @EnableWebSecurity
     static class FormLoginConfig extends WebSecurityConfigurerAdapter {
         static AccessDeniedHandler deniedHandler
@@ -350,7 +342,6 @@ class CsrfConfigurerTests extends BaseSpringSpec {
             currentAuthentication != null
     }
 
-    @Configuration
     @EnableWebSecurity
     static class LogoutConfig extends WebSecurityConfigurerAdapter {
         static AccessDeniedHandler deniedHandler
@@ -374,7 +365,6 @@ class CsrfConfigurerTests extends BaseSpringSpec {
             currentAuthentication == null
     }
 
-    @Configuration
     @EnableWebSecurity
     static class LogoutAllowsGetConfig extends WebSecurityConfigurerAdapter {
         static AccessDeniedHandler deniedHandler
@@ -440,7 +430,6 @@ class CsrfConfigurerTests extends BaseSpringSpec {
             response.redirectedUrl == "http://localhost/some-url"
     }
 
-    @Configuration
     @EnableWebSecurity
     static class CsrfDisablesPostRequestFromRequestCacheConfig extends WebSecurityConfigurerAdapter {
         static CsrfTokenRepository repo

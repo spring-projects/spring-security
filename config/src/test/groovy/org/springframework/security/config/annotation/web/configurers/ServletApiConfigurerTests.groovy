@@ -66,7 +66,6 @@ class ServletApiConfigurerTests extends BaseSpringSpec {
 
     @CompileStatic
     @EnableWebSecurity
-    @Configuration
     static class ServletApiConfig extends WebSecurityConfigurerAdapter {
 
         @Override
@@ -87,7 +86,6 @@ class ServletApiConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class CustomEntryPointConfig extends WebSecurityConfigurerAdapter {
         static AuthenticationEntryPoint ENTRYPOINT
 
@@ -117,7 +115,6 @@ class ServletApiConfigurerTests extends BaseSpringSpec {
             findFilter(SecurityContextHolderAwareRequestFilter).authenticationEntryPoint == InvokeTwiceDoesNotOverrideConfig.ENTRYPOINT
     }
 
-    @Configuration
     @EnableWebSecurity
     static class InvokeTwiceDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
         static AuthenticationEntryPoint ENTRYPOINT
@@ -141,7 +138,6 @@ class ServletApiConfigurerTests extends BaseSpringSpec {
             findFilter(SecurityContextHolderAwareRequestFilter).trustResolver == SharedTrustResolverConfig.TR
     }
 
-    @Configuration
     @EnableWebSecurity
     static class SharedTrustResolverConfig extends WebSecurityConfigurerAdapter {
         static AuthenticationTrustResolver TR

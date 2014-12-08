@@ -54,7 +54,6 @@ class SecurityContextConfigurerTests extends BaseSpringSpec {
             findFilter(SecurityContextPersistenceFilter).repo == InvokeTwiceDoesNotOverrideConfig.SCR
     }
 
-    @Configuration
     @EnableWebSecurity
     static class InvokeTwiceDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
         static SecurityContextRepository SCR

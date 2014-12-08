@@ -78,7 +78,6 @@ public class NamespaceGlobalMethodSecurityTests extends BaseSpringSpec {
             thrown(AccessDeniedException)
     }
 
-    @Configuration
     @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
     public static class CustomAccessDecisionManagerConfig extends GlobalMethodSecurityConfiguration {
         @Override
@@ -110,7 +109,6 @@ public class NamespaceGlobalMethodSecurityTests extends BaseSpringSpec {
             thrown(UnsupportedOperationException)
     }
 
-    @Configuration
     @EnableGlobalMethodSecurity
     public static class CustomAuthenticationConfig extends GlobalMethodSecurityConfiguration {
         @Override
@@ -168,7 +166,6 @@ public class NamespaceGlobalMethodSecurityTests extends BaseSpringSpec {
             thrown(AccessDeniedException)
     }
 
-    @Configuration
     @EnableGlobalMethodSecurity
     public static class CustomMethodSecurityMetadataSourceConfig extends GlobalMethodSecurityConfiguration {
         @Override
@@ -195,7 +192,6 @@ public class NamespaceGlobalMethodSecurityTests extends BaseSpringSpec {
             context.getBean(AspectJMethodSecurityInterceptor)
     }
 
-    @Configuration
     @EnableGlobalMethodSecurity(mode = AdviceMode.ASPECTJ, proxyTargetClass = true)
     public static class AspectJModeConfig extends BaseMethodConfig {
     }
@@ -208,7 +204,6 @@ public class NamespaceGlobalMethodSecurityTests extends BaseSpringSpec {
             context.getBean(AspectJMethodSecurityInterceptor)
     }
 
-    @Configuration
     @EnableGlobalMethodSecurity(mode = AdviceMode.ASPECTJ)
     public static class AspectJModeExtendsGMSCConfig extends GlobalMethodSecurityConfiguration {
     }
@@ -223,7 +218,6 @@ public class NamespaceGlobalMethodSecurityTests extends BaseSpringSpec {
             advisor.order == 135
     }
 
-    @Configuration
     @EnableGlobalMethodSecurity(order = 135)
     public static class CustomOrderConfig extends BaseMethodConfig {
     }
@@ -236,7 +230,6 @@ public class NamespaceGlobalMethodSecurityTests extends BaseSpringSpec {
             advisor.order == Ordered.LOWEST_PRECEDENCE
     }
 
-    @Configuration
     @EnableGlobalMethodSecurity
     public static class DefaultOrderConfig extends BaseMethodConfig {
     }
@@ -249,7 +242,6 @@ public class NamespaceGlobalMethodSecurityTests extends BaseSpringSpec {
             advisor.order == Ordered.LOWEST_PRECEDENCE
     }
 
-    @Configuration
     @EnableGlobalMethodSecurity
     public static class DefaultOrderExtendsMethodSecurityConfig extends GlobalMethodSecurityConfiguration {
     }
@@ -331,7 +323,6 @@ public class NamespaceGlobalMethodSecurityTests extends BaseSpringSpec {
             service.runAs().authorities.find { it.authority == "ROLE_RUN_AS_SUPER"}
     }
 
-    @Configuration
     @EnableGlobalMethodSecurity(securedEnabled = true)
     public static class CustomRunAsManagerConfig extends GlobalMethodSecurityConfiguration {
         @Override
@@ -377,7 +368,6 @@ public class NamespaceGlobalMethodSecurityTests extends BaseSpringSpec {
             e.message == "custom AfterInvocationManager"
     }
 
-    @Configuration
     @EnableGlobalMethodSecurity(prePostEnabled = true)
     public static class CustomAfterInvocationManagerConfig extends GlobalMethodSecurityConfiguration {
         @Override

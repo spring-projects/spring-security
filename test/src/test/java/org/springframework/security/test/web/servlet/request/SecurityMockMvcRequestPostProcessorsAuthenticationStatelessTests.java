@@ -42,7 +42,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
+@ContextConfiguration(classes=SecurityMockMvcRequestPostProcessorsAuthenticationStatelessTests.Config.class)
 @WebAppConfiguration
 public class SecurityMockMvcRequestPostProcessorsAuthenticationStatelessTests {
 
@@ -69,7 +69,6 @@ public class SecurityMockMvcRequestPostProcessorsAuthenticationStatelessTests {
           .andExpect(status().is2xxSuccessful());
     }
 
-    @Configuration
     @EnableWebMvcSecurity
     @EnableWebMvc
     static class Config extends WebSecurityConfigurerAdapter {

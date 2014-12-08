@@ -67,7 +67,6 @@ public class WithUserDetailsTests {
 		assertThat(getPrincipal()).isInstanceOf(CustomUserDetails.class);
 	}
 
-	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	@ComponentScan(basePackageClasses = HelloMessageService.class)
 	static class Config {

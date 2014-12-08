@@ -71,7 +71,6 @@ public class NamespaceDebugTests extends BaseSpringSpec {
             context.getBean("springSecurityFilterChain").class == DebugFilter
     }
 
-    @Configuration
     @EnableWebSecurity(debug=true)
     static class DebugWebSecurity extends WebSecurityConfigurerAdapter {
     }

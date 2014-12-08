@@ -80,7 +80,6 @@ public class WithUserDetailsAuthenticationTests {
             .andExpect(authenticated().withUsername("admin").withRoles("ADMIN","USER"));
     }
 
-    @Configuration
     @EnableWebMvcSecurity
     @EnableWebMvc
     static class Config extends WebSecurityConfigurerAdapter {

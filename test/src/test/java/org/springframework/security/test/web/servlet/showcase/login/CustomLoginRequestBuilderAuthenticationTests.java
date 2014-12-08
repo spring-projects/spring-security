@@ -81,7 +81,6 @@ public class CustomLoginRequestBuilderAuthenticationTests {
                     .passwordParam("pass");
     }
 
-    @Configuration
     @EnableWebMvcSecurity
     @EnableWebMvc
     static class Config extends WebSecurityConfigurerAdapter {

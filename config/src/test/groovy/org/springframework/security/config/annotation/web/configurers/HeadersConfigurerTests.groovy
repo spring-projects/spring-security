@@ -54,7 +54,6 @@ class HeadersConfigurerTests extends BaseSpringSpec {
                          'X-XSS-Protection' : '1; mode=block']
     }
 
-    @Configuration
     @EnableWebSecurity
     static class HeadersConfig extends WebSecurityConfigurerAdapter {
 
@@ -73,7 +72,6 @@ class HeadersConfigurerTests extends BaseSpringSpec {
             responseHeaders == ['X-Content-Type-Options':'nosniff']
     }
 
-    @Configuration
     @EnableWebSecurity
     static class ContentTypeOptionsConfig extends WebSecurityConfigurerAdapter {
 
@@ -92,7 +90,6 @@ class HeadersConfigurerTests extends BaseSpringSpec {
             responseHeaders == ['X-Frame-Options':'DENY']
     }
 
-    @Configuration
     @EnableWebSecurity
     static class FrameOptionsConfig extends WebSecurityConfigurerAdapter {
 
@@ -112,7 +109,6 @@ class HeadersConfigurerTests extends BaseSpringSpec {
             responseHeaders == ['Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains']
     }
 
-    @Configuration
     @EnableWebSecurity
     static class HstsConfig extends WebSecurityConfigurerAdapter {
 
@@ -133,7 +129,6 @@ class HeadersConfigurerTests extends BaseSpringSpec {
                          'Pragma':'no-cache']
     }
 
-    @Configuration
     @EnableWebSecurity
     static class CacheControlConfig extends WebSecurityConfigurerAdapter {
 
@@ -152,7 +147,6 @@ class HeadersConfigurerTests extends BaseSpringSpec {
             responseHeaders == ['X-XSS-Protection' : '1; mode=block']
     }
 
-    @Configuration
     @EnableWebSecurity
     static class XssProtectionConfig extends WebSecurityConfigurerAdapter {
 

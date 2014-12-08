@@ -28,8 +28,6 @@ import org.springframework.security.ldap.userdetails.PersonContextMapper;
  *
  */
 public class NamespaceLdapAuthenticationProviderTestsConfigs {
-
-    @Configuration
     @EnableWebSecurity
     static class LdapAuthenticationProviderConfig extends WebSecurityConfigurerAdapter {
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -40,7 +38,6 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
         }
     }
 
-    @Configuration
     @EnableWebSecurity
     static class CustomLdapAuthenticationProviderConfig extends WebSecurityConfigurerAdapter {
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -66,7 +63,6 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
         }
     }
 
-    @Configuration
     @EnableWebSecurity
     static class CustomAuthoritiesPopulatorConfig extends WebSecurityConfigurerAdapter {
         static LdapAuthoritiesPopulator LAP;
@@ -78,7 +74,6 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
         }
     }
 
-    @Configuration
     @EnableWebSecurity
     static class PasswordCompareLdapConfig extends WebSecurityConfigurerAdapter {
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {

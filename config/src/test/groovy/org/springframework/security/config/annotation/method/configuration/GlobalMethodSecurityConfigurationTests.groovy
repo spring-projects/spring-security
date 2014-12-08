@@ -65,7 +65,6 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
             InMemoryAuthWithGlobalMethodSecurityConfig.EVENT.authentication == auth
     }
 
-    @Configuration
     @EnableGlobalMethodSecurity(prePostEnabled = true)
     public static class InMemoryAuthWithGlobalMethodSecurityConfig extends GlobalMethodSecurityConfiguration implements ApplicationListener<AuthenticationSuccessEvent> {
         static AuthenticationSuccessEvent EVENT
@@ -96,7 +95,6 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
             preAdviceVoter.preAdvice.expressionHandler.trustResolver == CustomTrustResolverConfig.TR
     }
 
-    @Configuration
     @EnableGlobalMethodSecurity(prePostEnabled = true)
     static class CustomTrustResolverConfig extends GlobalMethodSecurityConfiguration {
         static AuthenticationTrustResolver TR
@@ -130,7 +128,6 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
             noExceptionThrown()
     }
 
-    @Configuration
     @EnableGlobalMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
     static class ExpressionHandlerHasBeanResolverSetConfig extends GlobalMethodSecurityConfiguration {
 
@@ -182,7 +179,6 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
             noExceptionThrown()
     }
 
-    @Configuration
     @EnableGlobalMethodSecurity(prePostEnabled = true)
     static class MethodSecurityServiceConfig extends GlobalMethodSecurityConfiguration {
 
@@ -217,7 +213,6 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
             thrown(AccessDeniedException)
     }
 
-    @Configuration
     @EnableGlobalMethodSecurity(prePostEnabled = true)
     public static class AutowirePermissionEvaluatorConfig extends GlobalMethodSecurityConfiguration {
         static PermissionEvaluator PE
@@ -246,7 +241,6 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
             noExceptionThrown()
     }
 
-    @Configuration
     @EnableGlobalMethodSecurity(prePostEnabled = true)
     public static class MultiPermissionEvaluatorConfig extends GlobalMethodSecurityConfiguration {
         static PermissionEvaluator PE
@@ -287,7 +281,6 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
 
     static class ChildConfig extends ParentConfig {}
 
-    @Configuration
     @EnableGlobalMethodSecurity(prePostEnabled = true)
     static class ParentConfig {
 
@@ -331,7 +324,6 @@ public class GlobalMethodSecurityConfigurationTests extends BaseSpringSpec {
         }
     }
 
-    @Configuration
     @EnableGlobalMethodSecurity(prePostEnabled = true)
     static class Sec2479ChildConfig {
         @Bean

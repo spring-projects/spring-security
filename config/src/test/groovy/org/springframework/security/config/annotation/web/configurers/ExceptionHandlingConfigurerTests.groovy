@@ -95,7 +95,6 @@ class ExceptionHandlingConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class HttpBasicAndFormLoginEntryPointsConfig extends WebSecurityConfigurerAdapter {
 
         @Override
@@ -137,7 +136,6 @@ class ExceptionHandlingConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class OverrideContentNegotiationStrategySharedObjectConfig extends WebSecurityConfigurerAdapter {
         static ContentNegotiationStrategy CNS
 
@@ -155,7 +153,6 @@ class ExceptionHandlingConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class DefaultHttpConf extends WebSecurityConfigurerAdapter {
     }
 
@@ -167,7 +164,6 @@ class ExceptionHandlingConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class BasicAuthenticationEntryPointBeforeFormLoginConf extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
@@ -188,7 +184,6 @@ class ExceptionHandlingConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class InvokeTwiceDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
         static AuthenticationEntryPoint AEP
         @Override

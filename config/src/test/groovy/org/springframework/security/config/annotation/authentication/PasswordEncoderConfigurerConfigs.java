@@ -35,7 +35,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 public class PasswordEncoderConfigurerConfigs {
 
     @EnableWebSecurity
-    @Configuration
     static class PasswordEncoderConfig extends WebSecurityConfigurerAdapter {
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             BCryptPasswordEncoder encoder = passwordEncoder();
@@ -63,7 +62,6 @@ public class PasswordEncoderConfigurerConfigs {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class PasswordEncoderNoAuthManagerLoadsConfig extends WebSecurityConfigurerAdapter {
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             BCryptPasswordEncoder encoder = passwordEncoder();

@@ -89,7 +89,6 @@ public class AuthenticationTests {
             .andExpect(unauthenticated());
     }
 
-    @Configuration
     @EnableWebMvcSecurity
     @EnableWebMvc
     static class Config extends WebSecurityConfigurerAdapter {

@@ -62,7 +62,6 @@ class OpenIDLoginConfigurerTests extends BaseSpringSpec {
 
     }
 
-    @Configuration
     @EnableWebSecurity
     static class InvokeTwiceDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
 

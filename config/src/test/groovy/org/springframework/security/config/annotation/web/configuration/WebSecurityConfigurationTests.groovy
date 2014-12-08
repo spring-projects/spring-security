@@ -64,7 +64,6 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
     }
 
 
-    @Configuration
     @EnableWebSecurity
     static class SortedWebSecurityConfigurerAdaptersConfig {
         public AuthenticationManager authenticationManager() throws Exception {
@@ -140,7 +139,6 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
     }
 
 
-    @Configuration
     @EnableWebSecurity
     static class DuplicateOrderConfig {
         public AuthenticationManager authenticationManager() throws Exception {
@@ -186,7 +184,6 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class PrivilegeEvaluatorConfigurerAdapterConfig extends WebSecurityConfigurerAdapter {
         static WebInvocationPrivilegeEvaluator PE
 
@@ -210,7 +207,6 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class WebSecurityExpressionHandlerConfig extends WebSecurityConfigurerAdapter {
         static SecurityExpressionHandler EH
 
@@ -237,7 +233,6 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class WebSecurityExpressionHandlerDefaultsConfig extends WebSecurityConfigurerAdapter {
 
         @Override
@@ -258,7 +253,6 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class WebInvocationPrivilegeEvaluatorDefaultsConfig extends WebSecurityConfigurerAdapter {
 
         @Override
@@ -285,7 +279,6 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class DefaultExpressionHandlerSetsBeanResolverConfig extends WebSecurityConfigurerAdapter {
 
         @Override
@@ -331,7 +324,6 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class ParentConfig extends WebSecurityConfigurerAdapter {
         @Autowired
         public void configureGlobal(AuthenticationManagerBuilder auth) {
@@ -340,7 +332,6 @@ class WebSecurityConfigurationTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class ChildConfig extends WebSecurityConfigurerAdapter { }
 
     def "SEC-2773: delegatingApplicationListener is static method"() {

@@ -73,7 +73,6 @@ public class NamespaceGlobalMethodSecurityExpressionHandlerTests extends BaseSpr
         thrown(AccessDeniedException)
     }
 
-    @Configuration
     @EnableGlobalMethodSecurity(prePostEnabled = true)
     public static class CustomAccessDecisionManagerConfig extends GlobalMethodSecurityConfiguration {
         @Override

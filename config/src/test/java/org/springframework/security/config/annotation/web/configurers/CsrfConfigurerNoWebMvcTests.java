@@ -56,7 +56,6 @@ public class CsrfConfigurerNoWebMvcTests {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class EnableWebConfig extends WebSecurityConfigurerAdapter {
 
         @Override
@@ -65,7 +64,6 @@ public class CsrfConfigurerNoWebMvcTests {
     }
 
     @EnableWebMvcSecurity
-    @Configuration
     static class EnableWebMvcConfig extends WebSecurityConfigurerAdapter {
 
         @Override

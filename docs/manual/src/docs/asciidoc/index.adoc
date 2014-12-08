@@ -418,7 +418,6 @@ import org.springframework.context.annotation.*;
 import org.springframework.security.config.annotation.authentication.builders.*;
 import org.springframework.security.config.annotation.web.configuration.*;
 
-@Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -756,7 +755,6 @@ We can configure multiple HttpSecurity instances just as we can have multiple `<
 
 [source,java]
 ----
-@Configuration
 @EnableWebSecurity
 public class MultiHttpSecurityConfig {
     @Autowired
@@ -812,7 +810,6 @@ We can enable annotation-based security using the `@EnableGlobalMethodSecurity` 
 
 [source,java]
 ----
-@Configuration
 @EnableGlobalMethodSecurity(securedEnabled = true)
 public class MethodSecurityConfig {
    // ...
@@ -840,7 +837,6 @@ Support for JSR-250 annotations can be enabled using
 
 [source,java]
 ----
-@Configuration
 @EnableGlobalMethodSecurity(jsr250Enabled = true)
 public class MethodSecurityConfig {
    // ...
@@ -851,7 +847,6 @@ These are standards-based and allow simple role-based constraints to be applied 
 
 [source,java]
 ----
-@Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class MethodSecurityConfig {
    // ...
@@ -881,7 +876,6 @@ Sometimes you may need to perform operations that are more complicated than are 
 
 [source,java]
 ----
-@Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
     @Override
@@ -3097,7 +3091,6 @@ CSRF protection is enabled by default with Java configuration. If you would like
 [source,java]
 ----
 @EnableWebSecurity
-@Configuration
 public class WebSecurityConfig extends
    WebSecurityConfigurerAdapter {
 
@@ -3217,7 +3210,6 @@ If you really want to use HTTP GET with logout you can do so, but remember this 
 [source,java]
 ----
 @EnableWebSecurity
-@Configuration
 public class WebSecurityConfig extends
    WebSecurityConfigurerAdapter {
 
@@ -3352,7 +3344,6 @@ If you are using Spring Security's Java configuration, all of the default securi
 [source,java]
 ----
 @EnableWebSecurity
-@Configuration
 public class WebSecurityConfig extends
    WebSecurityConfigurerAdapter {
 
@@ -3370,7 +3361,6 @@ As soon as you specify any headers that should be included, then only those head
 [source,java]
 ----
 @EnableWebSecurity
-@Configuration
 public class WebSecurityConfig extends
    WebSecurityConfigurerAdapter {
 
@@ -3414,7 +3404,6 @@ Similarly, you can enable only cache control within Java Configuration with the 
 [source,java]
 ----
 @EnableWebSecurity
-@Configuration
 public class WebSecurityConfig extends
    WebSecurityConfigurerAdapter {
 
@@ -3485,7 +3474,6 @@ The X-Content-Type-Options header is added by default with Spring Security Java 
 [source,java]
 ----
 @EnableWebSecurity
-@Configuration
 public class WebSecurityConfig extends
    WebSecurityConfigurerAdapter {
 
@@ -3537,7 +3525,6 @@ Similarly, you can enable only HSTS headers with Java Configuration:
 [source,java]
 ----
 @EnableWebSecurity
-@Configuration
 public class WebSecurityConfig extends
    WebSecurityConfigurerAdapter {
 
@@ -3587,7 +3574,6 @@ Similarly, you can enable only frame options within Java Configuration with the 
 [source,java]
 ----
 @EnableWebSecurity
-@Configuration
 public class WebSecurityConfig extends
    WebSecurityConfigurerAdapter {
 
@@ -3632,7 +3618,6 @@ Similarly, you can enable only xss protection within Java Configuration with the
 [source,java]
 ----
 @EnableWebSecurity
-@Configuration
 public class WebSecurityConfig extends
    WebSecurityConfigurerAdapter {
 
@@ -3679,7 +3664,6 @@ Similarly, the headers could be added to the response using Java Configuration a
 [source,java]
 ----
 @EnableWebSecurity
-@Configuration
 public class WebSecurityConfig extends
    WebSecurityConfigurerAdapter {
 
@@ -3724,7 +3708,6 @@ We could also restrict framing of content to the same origin with Java configura
 [source,java]
 ----
 @EnableWebSecurity
-@Configuration
 public class WebSecurityConfig extends
    WebSecurityConfigurerAdapter {
 
@@ -3775,7 +3758,6 @@ We could also prevent framing of content to the log in page using java configura
 [source,java]
 ----
 @EnableWebSecurity
-@Configuration
 public class WebSecurityConfig extends
    WebSecurityConfigurerAdapter {
 
@@ -5969,7 +5951,6 @@ To enable Spring Security integration with Spring MVC add the `@EnableWebMvcSecu
 
 [source,java]
 ----
-@Configuration
 @EnableWebMvcSecurity
 public class SecurityConfig {
     // ...

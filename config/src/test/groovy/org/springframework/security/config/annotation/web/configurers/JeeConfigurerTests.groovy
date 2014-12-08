@@ -54,7 +54,6 @@ class JeeConfigurerTests extends BaseSpringSpec {
             findFilter(J2eePreAuthenticatedProcessingFilter).authenticationDetailsSource.j2eeMappableRoles == ["ROLE_USER"] as Set
     }
 
-    @Configuration
     @EnableWebSecurity
     static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
         @Override

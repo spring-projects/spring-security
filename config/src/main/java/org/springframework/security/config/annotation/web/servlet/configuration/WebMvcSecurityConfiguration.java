@@ -38,7 +38,6 @@ import org.springframework.web.servlet.support.RequestDataValueProcessor;
  * @author Rob Winch
  * @since 3.2
  */
-@Configuration
 @EnableWebSecurity
 public class WebMvcSecurityConfiguration extends WebMvcConfigurerAdapter {
 

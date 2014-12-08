@@ -22,7 +22,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
  *
  * @author Rob Winch
  */
-@Configuration
 @EnableWebSecurity
 public abstract class BaseWebConfig extends WebSecurityConfigurerAdapter {
     BaseWebConfig(boolean disableDefaults) {

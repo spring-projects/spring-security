@@ -42,7 +42,6 @@ class EnableWebSecurityTests extends BaseSpringSpec {
 
 
     @EnableWebSecurity
-    @Configuration
     static class SecurityConfig extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -79,7 +78,6 @@ class EnableWebSecurityTests extends BaseSpringSpec {
     static class ChildSecurityConfig extends DebugSecurityConfig {
     }
 
-    @Configuration
     @EnableWebSecurity(debug=true)
     static class DebugSecurityConfig extends WebSecurityConfigurerAdapter {
 

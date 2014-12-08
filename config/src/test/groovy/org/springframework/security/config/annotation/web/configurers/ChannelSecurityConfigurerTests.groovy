@@ -64,7 +64,6 @@ class ChannelSecurityConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class DuplicateInvocationsDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
 
         @Override

@@ -162,7 +162,6 @@ class RequestCacheConfigurerTests extends BaseSpringSpec {
 
     }
 
-    @Configuration
     @EnableWebSecurity
     static class RequestCacheDefautlsConfig extends WebSecurityConfigurerAdapter {
 

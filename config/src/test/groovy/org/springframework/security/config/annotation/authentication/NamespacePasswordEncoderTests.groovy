@@ -51,7 +51,6 @@ class NamespacePasswordEncoderTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class PasswordEncoderWithInMemoryConfig extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -72,7 +71,6 @@ class NamespacePasswordEncoderTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class PasswordEncoderWithJdbcConfig extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -101,7 +99,6 @@ class NamespacePasswordEncoderTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class PasswordEncoderWithUserDetailsServiceConfig extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {

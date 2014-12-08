@@ -291,7 +291,6 @@ public class NamespaceRememberMeTests extends BaseSpringSpec {
            1 * DefaultsUserDetailsServiceWithDaoConfig.USERDETAILS_SERVICE.loadUserByUsername("user")
     }
 
-    @Configuration
     @EnableWebSecurity
     static class DefaultsUserDetailsServiceWithDaoConfig extends WebSecurityConfigurerAdapter {
         static UserDetailsService USERDETAILS_SERVICE

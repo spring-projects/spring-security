@@ -91,7 +91,6 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
             response.redirectedUrl == "http://localhost/login"
     }
 
-    @Configuration
     @EnableWebSecurity
     static class FormLoginConfig extends BaseWebConfig {
         @Override
@@ -131,7 +130,6 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
             "/login" | "GET" | "error" | null
     }
 
-    @Configuration
     @EnableWebSecurity
     static class FormLoginConfigPermitAll extends BaseWebConfig {
 
@@ -167,7 +165,6 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
             "/authenticate" | "GET"  | "logout"| null
     }
 
-    @Configuration
     @EnableWebSecurity
     static class FormLoginDefaultsConfig extends BaseWebConfig {
 
@@ -199,7 +196,6 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
             response.redirectedUrl == "/"
     }
 
-    @Configuration
     @EnableWebSecurity
     static class FormLoginLoginProcessingUrlConfig extends BaseWebConfig {
 
@@ -233,7 +229,6 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
             findFilter(ExceptionTranslationFilter).authenticationEntryPoint.portMapper == FormLoginUsesPortMapperConfig.PORT_MAPPER
     }
 
-    @Configuration
     @EnableWebSecurity
     static class FormLoginUsesPortMapperConfig extends BaseWebConfig {
         static PortMapper PORT_MAPPER
@@ -266,7 +261,6 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class PermitAllIgnoresFailureHandlerConfig extends BaseWebConfig {
         static AuthenticationFailureHandler FAILURE_HANDLER
 
@@ -292,7 +286,6 @@ class FormLoginConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class DuplicateInvocationsDoesNotOverrideConfig extends BaseWebConfig {
         static AuthenticationFailureHandler FAILURE_HANDLER
 

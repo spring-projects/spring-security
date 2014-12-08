@@ -131,7 +131,6 @@ public class NamespaceHttpInterceptUrlTests extends BaseSpringSpec {
             response.redirectedUrl == "http://localhost/user"
     }
 
-    @Configuration
     @EnableWebSecurity
     static class HttpInterceptUrlConfig extends WebSecurityConfigurerAdapter {
 

@@ -51,7 +51,6 @@ class PermitAllSupportTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class NoAuthorizedUrlsConfig extends WebSecurityConfigurerAdapter {
 
         @Override

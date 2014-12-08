@@ -82,7 +82,6 @@ public class DefaultfSecurityRequestsTests {
             .andExpect(authenticated().withUsername("user"));
     }
 
-    @Configuration
     @EnableWebMvcSecurity
     @EnableWebMvc
     static class Config extends WebSecurityConfigurerAdapter {

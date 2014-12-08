@@ -88,7 +88,6 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class HeadersArePopulatedByDefaultConfig extends WebSecurityConfigurerAdapter {
 
         @Override
@@ -112,7 +111,6 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class WebAsyncPopulatedByDefaultConfig extends WebSecurityConfigurerAdapter {
 
         @Override
@@ -142,7 +140,6 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class InMemoryAuthWithWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter implements ApplicationListener<AuthenticationSuccessEvent> {
         static List<AuthenticationSuccessEvent> EVENTS = []
         @Bean
@@ -175,7 +172,6 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class OverrideContentNegotiationStrategySharedObjectConfig extends WebSecurityConfigurerAdapter {
         static ContentNegotiationStrategy CNS
 
@@ -193,7 +189,6 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class ContentNegotiationStrategyDefaultSharedObjectConfig extends WebSecurityConfigurerAdapter {}
 
     def "UserDetailsService lazy"() {
@@ -217,7 +212,6 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
         }
     }
 
-    @Configuration
     @EnableWebSecurity
     static class UserDetailsServiceConfig extends WebSecurityConfigurerAdapter {
         @Autowired
@@ -250,7 +244,6 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
             context.getBean(ApplicationContextSharedObjectConfig).http.getSharedObject(ApplicationContext) == context
     }
 
-    @Configuration
     @EnableWebSecurity
     static class ApplicationContextSharedObjectConfig extends WebSecurityConfigurerAdapter {
 
@@ -276,7 +269,6 @@ class WebSecurityConfigurerAdapterTests extends BaseSpringSpec {
             context.getBean(CustomTrustResolverConfig).http.getSharedObject(AuthenticationTrustResolver) == CustomTrustResolverConfig.TR
     }
 
-    @Configuration
     @EnableWebSecurity
     static class CustomTrustResolverConfig extends WebSecurityConfigurerAdapter {
         static AuthenticationTrustResolver TR

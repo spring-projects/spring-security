@@ -87,7 +87,6 @@ public class SampleWebSecurityConfigurerAdapterTests extends BaseSpringSpec {
      * </code>
      * @author Rob Winch
      */
-    @Configuration
     @EnableWebSecurity
     public static class HelloWorldWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
         @Override
@@ -154,7 +153,6 @@ public class SampleWebSecurityConfigurerAdapterTests extends BaseSpringSpec {
      * </code>
      * @author Rob Winch
      */
-    @Configuration
     @EnableWebSecurity
     public static class SampleWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 
@@ -272,7 +270,6 @@ public class SampleWebSecurityConfigurerAdapterTests extends BaseSpringSpec {
      * </code>
      * @author Rob Winch
      */
-    @Configuration
     @EnableWebSecurity
     public static class SampleMultiHttpSecurityConfig {
         @Autowired

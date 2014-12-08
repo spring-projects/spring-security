@@ -77,7 +77,6 @@ public class WithUserClassLevelAuthenticationTests {
             .andExpect(authenticated().withUsername("user").withRoles("ADMIN"));
     }
 
-    @Configuration
     @EnableWebMvcSecurity
     @EnableWebMvc
     static class Config extends WebSecurityConfigurerAdapter {

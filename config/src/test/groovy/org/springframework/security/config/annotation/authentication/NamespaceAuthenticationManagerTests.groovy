@@ -46,7 +46,6 @@ class NamespaceAuthenticationManagerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class EraseCredentialsTrueDefaultConfig extends WebSecurityConfigurerAdapter {
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
@@ -73,7 +72,6 @@ class NamespaceAuthenticationManagerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class EraseCredentialsFalseConfig extends WebSecurityConfigurerAdapter {
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
@@ -101,7 +99,6 @@ class NamespaceAuthenticationManagerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class GlobalEraseCredentialsFalseConfig extends WebSecurityConfigurerAdapter {
         @Autowired
         public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {

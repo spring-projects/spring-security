@@ -54,7 +54,6 @@ class LogoutConfigurerTests extends BaseSpringSpec {
             response.redirectedUrl == "/login?logout"
     }
 
-    @Configuration
     @EnableWebSecurity
     static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
 
@@ -78,7 +77,6 @@ class LogoutConfigurerTests extends BaseSpringSpec {
             response.redirectedUrl == "/login?logout"
     }
 
-    @Configuration
     @EnableWebSecurity
     static class CsrfDisabledConfig extends WebSecurityConfigurerAdapter {
 
@@ -101,7 +99,6 @@ class LogoutConfigurerTests extends BaseSpringSpec {
             response.redirectedUrl == "/login?logout"
     }
 
-    @Configuration
     @EnableWebSecurity
     static class CsrfDisabledCustomLogoutUrlConfig extends WebSecurityConfigurerAdapter {
 

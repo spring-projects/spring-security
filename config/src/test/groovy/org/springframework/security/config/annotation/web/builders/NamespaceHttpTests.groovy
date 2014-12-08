@@ -478,7 +478,6 @@ public class NamespaceHttpTests extends BaseSpringSpec {
             findFilter(FilterSecurityInterceptor).accessDecisionManager.decisionVoters.collect { it.class } == [WebExpressionVoter]
     }
 
-    @Configuration
     @EnableWebSecurity
     static class UseExpressionsConfig extends BaseWebConfig {
         protected void configure(HttpSecurity http) throws Exception {

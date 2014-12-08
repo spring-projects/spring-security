@@ -38,7 +38,6 @@ class AnonymousConfigurerTests extends BaseSpringSpec {
             findFilter(AnonymousAuthenticationFilter).key == "custom"
     }
 
-    @Configuration
     @EnableWebSecurity
     static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
 

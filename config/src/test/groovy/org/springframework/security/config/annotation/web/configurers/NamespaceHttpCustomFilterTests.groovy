@@ -137,7 +137,6 @@ public class NamespaceHttpCustomFilterTests extends BaseSpringSpec {
         filterChain().filters[0].class == CustomFilter
     }
 
-    @Configuration
     @EnableWebSecurity
     static class NoAuthenticationManagerInHtppConfigurationConfig extends WebSecurityConfigurerAdapter {
         NoAuthenticationManagerInHtppConfigurationConfig() {

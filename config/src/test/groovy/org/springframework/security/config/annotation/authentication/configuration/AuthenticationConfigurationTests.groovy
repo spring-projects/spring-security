@@ -58,7 +58,6 @@ class AuthenticationConfigurationTests extends BaseSpringSpec {
     @Import([GlobalMethodSecurityAutowiredConfig,ServicesConfig])
     static class GlobalMethodSecurityAutowiredConfigAndServicesConfig {}
 
-    @Configuration
     @EnableGlobalMethodSecurity(securedEnabled = true)
     static class GlobalMethodSecurityAutowiredConfig {
         @Autowired
@@ -80,11 +79,9 @@ class AuthenticationConfigurationTests extends BaseSpringSpec {
     @Import([GlobalMethodSecurityConfig,WebSecurityConfig,ServicesConfig])
     static class GlobalMethodSecurityConfigAndServicesConfig {}
 
-    @Configuration
     @EnableGlobalMethodSecurity(securedEnabled = true)
     static class GlobalMethodSecurityConfig {}
 
-    @Configuration
     @EnableWebSecurity
     static class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         @Autowired
@@ -108,7 +105,6 @@ class AuthenticationConfigurationTests extends BaseSpringSpec {
     @Import([GlobalMethodSecurityConfig,WebMvcSecurityConfig,ServicesConfig])
     static class GlobalMethodSecurityMvcSecurityAndServicesConfig {}
 
-    @Configuration
     @EnableWebMvcSecurity
     static class WebMvcSecurityConfig extends WebSecurityConfigurerAdapter {
         @Autowired

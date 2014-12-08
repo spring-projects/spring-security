@@ -45,7 +45,6 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class SessionManagementConfig extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
@@ -69,7 +68,6 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class CustomSessionManagementConfig extends WebSecurityConfigurerAdapter {
         static SessionRegistry SR
         @Override
@@ -95,7 +93,6 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class RefsSessionManagementConfig extends WebSecurityConfigurerAdapter {
         static SessionAuthenticationStrategy SAS
         @Override
@@ -114,7 +111,6 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class SFPNoneSessionManagementConfig extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
@@ -132,7 +128,6 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class SFPMigrateSessionManagementConfig extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
@@ -153,7 +148,6 @@ class NamespaceSessionManagementTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class SFPNewSessionSessionManagementConfig extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {

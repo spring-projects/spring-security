@@ -58,7 +58,6 @@ public class SampleEnableGlobalMethodSecurityTests extends BaseSpringSpec {
         thrown(AccessDeniedException)
     }
 
-    @Configuration
     @EnableGlobalMethodSecurity(prePostEnabled=true)
     public static class SampleWebSecurityConfig {
         @Bean
@@ -88,7 +87,6 @@ public class SampleEnableGlobalMethodSecurityTests extends BaseSpringSpec {
         thrown(AccessDeniedException)
     }
 
-    @Configuration
     @EnableGlobalMethodSecurity(prePostEnabled=true)
     public static class CustomPermissionEvaluatorWebSecurityConfig extends GlobalMethodSecurityConfiguration {
         @Bean

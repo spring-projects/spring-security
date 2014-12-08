@@ -46,7 +46,6 @@ class Issue55Tests extends BaseSpringSpec {
             findFilter(FilterSecurityInterceptor).authenticationManager.authenticate(token) == CustomAuthenticationManager.RESULT
      }
 
-    @Configuration
     @EnableWebSecurity
     static class WebSecurityConfigurerAdapterDefaultsAuthManagerConfig {
         @Component
@@ -79,7 +78,6 @@ class Issue55Tests extends BaseSpringSpec {
             findFilter(FilterSecurityInterceptor,1).authenticationManager.authenticate(token) == CustomAuthenticationManager.RESULT
      }
 
-    @Configuration
     @EnableWebSecurity
     static class MultiWebSecurityConfigurerAdapterDefaultsAuthManagerConfig {
         @Component

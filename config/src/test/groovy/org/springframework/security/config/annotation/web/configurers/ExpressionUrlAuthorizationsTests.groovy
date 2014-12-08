@@ -81,7 +81,6 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class NoSpecificAccessDecessionManagerConfig extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
@@ -99,7 +98,6 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class NoRequestsConfig extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
@@ -116,7 +114,6 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class IncompleteMappingConfig extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
@@ -148,7 +145,6 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class HasAuthorityConfig extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
@@ -187,7 +183,6 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class HasAnyAuthorityConfig extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
@@ -215,7 +210,6 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class HasIpAddressConfig extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
@@ -242,7 +236,6 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class AnonymousConfig extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
@@ -269,7 +262,6 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class RememberMeConfig extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
@@ -305,7 +297,6 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class DenyAllConfig extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
@@ -332,7 +323,6 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class NotDenyAllConfig extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
@@ -365,7 +355,6 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class FullyAuthenticatedConfig extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
@@ -408,7 +397,6 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class AccessConfig extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
@@ -440,7 +428,6 @@ public class ExpressionUrlAuthorizationConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class InvokeTwiceDoesNotResetConfig extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http

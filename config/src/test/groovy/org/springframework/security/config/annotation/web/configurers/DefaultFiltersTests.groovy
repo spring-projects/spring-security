@@ -60,7 +60,6 @@ class DefaultFiltersTests extends BaseSpringSpec {
         e.message.contains missingConfigMessage
     }
 
-    @Configuration
     @EnableWebSecurity
     static class FilterChainProxyBuilderMissingConfig { }
 
@@ -72,7 +71,6 @@ class DefaultFiltersTests extends BaseSpringSpec {
         e.message.contains missingConfigMessage
     }
 
-    @Configuration
     @EnableWebSecurity
     static class FilterChainProxyBuilderNoSecurityFilterBuildersConfig {
         @Bean
@@ -94,7 +92,6 @@ class DefaultFiltersTests extends BaseSpringSpec {
         filterChains[0].filters.find { it instanceof UsernamePasswordAuthenticationFilter }
     }
 
-    @Configuration
     @EnableWebSecurity
     static class NullWebInvocationPrivilegeEvaluatorConfig extends BaseWebConfig {
         NullWebInvocationPrivilegeEvaluatorConfig() {
@@ -121,7 +118,6 @@ class DefaultFiltersTests extends BaseSpringSpec {
                      ExceptionTranslationFilter, FilterSecurityInterceptor ]
     }
 
-    @Configuration
     @EnableWebSecurity
     static class FilterChainProxyBuilderIgnoringConfig extends BaseWebConfig {
         @Override
@@ -152,7 +148,6 @@ class DefaultFiltersTests extends BaseSpringSpec {
             "/logout" | null
     }
 
-    @Configuration
     @EnableWebSecurity
     static class DefaultFiltersConfigPermitAll extends BaseWebConfig {
         protected void configure(HttpSecurity http) {

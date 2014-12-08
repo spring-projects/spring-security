@@ -75,7 +75,6 @@ public class CustomCsrfShowcaseTests {
         .andExpect(status().isNotFound());
     }
 
-    @Configuration
     @EnableWebMvcSecurity
     @EnableWebMvc
     static class Config extends WebSecurityConfigurerAdapter {

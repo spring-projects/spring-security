@@ -49,7 +49,6 @@ class NamespaceJdbcUserServiceTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class JdbcUserServiceConfig extends WebSecurityConfigurerAdapter {
         @Autowired
         private DataSource dataSource;
@@ -79,7 +78,6 @@ class NamespaceJdbcUserServiceTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class JdbcUserServiceInMemorySampleConfig extends WebSecurityConfigurerAdapter {
         @Autowired
         private DataSource dataSource;
@@ -127,7 +125,6 @@ class NamespaceJdbcUserServiceTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class CustomJdbcUserServiceSampleConfig extends WebSecurityConfigurerAdapter {
         @Autowired
         private DataSource dataSource;

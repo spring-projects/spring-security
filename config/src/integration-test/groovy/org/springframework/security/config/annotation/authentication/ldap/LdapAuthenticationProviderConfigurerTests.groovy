@@ -45,7 +45,6 @@ class LdapAuthenticationProviderConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class MultiLdapAuthenticationProvidersConfig extends WebSecurityConfigurerAdapter {
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth

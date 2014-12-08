@@ -40,7 +40,6 @@ public class NamespaceHttpExpressionHandlerTests extends BaseSpringSpec {
             noExceptionThrown()
     }
 
-    @Configuration
     @EnableWebSecurity
     static class ExpressionHandlerConfig extends BaseWebConfig {
         static EXPRESSION_HANDLER;

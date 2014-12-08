@@ -60,7 +60,6 @@ public class RememberMeConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class NullUserDetailsConfig extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http
@@ -158,7 +157,6 @@ public class RememberMeConfigurerTests extends BaseSpringSpec {
             response.getRedirectedUrl() == "http://localhost/login"
     }
 
-    @Configuration
     @EnableWebSecurity
     static class RememberMeConfig extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {

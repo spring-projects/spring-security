@@ -46,7 +46,6 @@ class PortMapperConfigurerTests extends BaseSpringSpec {
             response.redirectedUrl == "https://localhost:123"
     }
 
-    @Configuration
     @EnableWebSecurity
     static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
         @Override

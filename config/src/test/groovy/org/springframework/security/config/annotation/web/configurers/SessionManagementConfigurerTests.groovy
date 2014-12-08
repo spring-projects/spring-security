@@ -58,7 +58,6 @@ class SessionManagementConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class SessionManagementDoesNotOverrideExplicitRequestCacheConfig extends WebSecurityConfigurerAdapter {
         static RequestCache REQUEST_CACHE
 
@@ -83,7 +82,6 @@ class SessionManagementConfigurerTests extends BaseSpringSpec {
             findFilter(SecurityContextPersistenceFilter).repo == SessionManagementDoesNotOverrideExplicitSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO
     }
 
-    @Configuration
     @EnableWebSecurity
     static class SessionManagementDoesNotOverrideExplicitSecurityContextRepositoryConfig extends WebSecurityConfigurerAdapter {
         static SecurityContextRepository SECURITY_CONTEXT_REPO
@@ -107,7 +105,6 @@ class SessionManagementConfigurerTests extends BaseSpringSpec {
             findFilter(SecurityContextPersistenceFilter).repo.class == NullSecurityContextRepository
     }
 
-    @Configuration
     @EnableWebSecurity
     static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
         @Override
@@ -134,7 +131,6 @@ class SessionManagementConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class DisableSessionFixationEnableConcurrencyControlConfig extends WebSecurityConfigurerAdapter {
         @Override
         public void configure(HttpSecurity http) {
@@ -191,7 +187,6 @@ class SessionManagementConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class ConcurrencyControlConfig extends WebSecurityConfigurerAdapter {
         @Override
         public void configure(HttpSecurity http) {
@@ -244,7 +239,6 @@ class SessionManagementConfigurerTests extends BaseSpringSpec {
             findFilter(SessionManagementFilter).trustResolver == SharedTrustResolverConfig.TR
     }
 
-    @Configuration
     @EnableWebSecurity
     static class SharedTrustResolverConfig extends WebSecurityConfigurerAdapter {
         static AuthenticationTrustResolver TR

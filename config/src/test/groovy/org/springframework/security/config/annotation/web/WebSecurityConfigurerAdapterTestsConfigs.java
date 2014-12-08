@@ -35,7 +35,6 @@ import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 public class WebSecurityConfigurerAdapterTestsConfigs {
 
     // necessary because groovy resolves incorrect method when using generics
-    @Configuration
     @EnableWebSecurity
     static class MessageSourcesPopulatedConfig extends WebSecurityConfigurerAdapter {
         @Override

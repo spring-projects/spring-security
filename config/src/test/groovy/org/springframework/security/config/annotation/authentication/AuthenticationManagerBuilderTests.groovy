@@ -76,7 +76,6 @@ class AuthenticationManagerBuilderTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class MultiAuthenticationProvidersConfig extends WebSecurityConfigurerAdapter {
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth

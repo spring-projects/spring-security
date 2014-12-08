@@ -67,7 +67,6 @@ public class WithMockUserTests {
 		assertThat(message).contains("admin").contains("ROLE_USER").contains("ROLE_ADMIN");
 	}
 
-	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	@ComponentScan(basePackageClasses = HelloMessageService.class)
 	static class Config {

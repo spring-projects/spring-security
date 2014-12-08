@@ -92,7 +92,6 @@ public class NamespaceHttpJeeTests extends BaseSpringSpec {
             authenticationManager.providers.find { it instanceof PreAuthenticatedAuthenticationProvider }.preAuthenticatedUserDetailsService.class == PreAuthenticatedGrantedAuthoritiesUserDetailsService
     }
 
-    @Configuration
     @EnableWebSecurity
     public static class JeeMappableRolesConfig extends WebSecurityConfigurerAdapter {
 
@@ -119,7 +118,6 @@ public class NamespaceHttpJeeTests extends BaseSpringSpec {
             authenticationManager.providers.find { it instanceof PreAuthenticatedAuthenticationProvider }.preAuthenticatedUserDetailsService.class == CustomUserService
     }
 
-    @Configuration
     @EnableWebSecurity
     public static class JeeUserServiceRefConfig extends WebSecurityConfigurerAdapter {
 

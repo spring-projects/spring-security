@@ -110,7 +110,6 @@ public class SessionManagementConfigurerServlet31Tests {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class SessionManagementDefaultSessionFixationServlet31Config extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {

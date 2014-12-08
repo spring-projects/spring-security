@@ -36,7 +36,6 @@ public class Sec2515Tests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class StackOverflowSecurityConfig extends WebSecurityConfigurerAdapter {
 
         @Override
@@ -55,7 +54,6 @@ public class Sec2515Tests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class CustomBeanNameStackOverflowSecurityConfig extends WebSecurityConfigurerAdapter {
 
         @Override
@@ -81,7 +79,6 @@ public class Sec2515Tests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class CanLoadWithChildConfig extends WebSecurityConfigurerAdapter {
         static AuthenticationManager AM
         @Bean
@@ -98,7 +95,6 @@ public class Sec2515Tests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         @Override

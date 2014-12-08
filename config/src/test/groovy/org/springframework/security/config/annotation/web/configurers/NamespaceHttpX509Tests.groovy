@@ -78,7 +78,6 @@ public class NamespaceHttpX509Tests extends BaseSpringSpec {
             authenticationManager.providers.find { it instanceof PreAuthenticatedAuthenticationProvider }.preAuthenticatedUserDetailsService.class == UserDetailsByNameServiceWrapper
     }
 
-    @Configuration
     @EnableWebSecurity
     public static class X509Config extends WebSecurityConfigurerAdapter {
         @Override
@@ -111,7 +110,6 @@ public class NamespaceHttpX509Tests extends BaseSpringSpec {
             authenticationManager.providers.find { it instanceof PreAuthenticatedAuthenticationProvider }.preAuthenticatedUserDetailsService.class == UserDetailsByNameServiceWrapper
     }
 
-    @Configuration
     @EnableWebSecurity
     public static class AuthenticationDetailsSourceRefConfig extends WebSecurityConfigurerAdapter {
         static AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> AUTHENTICATION_DETAILS_SOURCE
@@ -144,7 +142,6 @@ public class NamespaceHttpX509Tests extends BaseSpringSpec {
             authentication().name == 'rod'
     }
 
-    @Configuration
     @EnableWebSecurity
     public static class SubjectPrincipalRegexConfig extends WebSecurityConfigurerAdapter {
         @Override
@@ -177,7 +174,6 @@ public class NamespaceHttpX509Tests extends BaseSpringSpec {
             authentication().name == 'customuser'
     }
 
-    @Configuration
     @EnableWebSecurity
     public static class UserDetailsServiceRefConfig extends WebSecurityConfigurerAdapter {
         @Override
@@ -210,7 +206,6 @@ public class NamespaceHttpX509Tests extends BaseSpringSpec {
             authentication().name == 'customuser'
     }
 
-    @Configuration
     @EnableWebSecurity
     public static class AuthenticationUserDetailsServiceConfig extends WebSecurityConfigurerAdapter {
         static AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> AUTHENTICATION_DETAILS_SOURCE

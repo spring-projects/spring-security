@@ -77,7 +77,6 @@ public class CsrfShowcaseTests {
             .andExpect(status().isForbidden());
     }
 
-    @Configuration
     @EnableWebMvcSecurity
     @EnableWebMvc
     static class Config extends WebSecurityConfigurerAdapter {

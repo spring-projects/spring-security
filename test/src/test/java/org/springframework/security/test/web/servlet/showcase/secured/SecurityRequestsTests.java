@@ -106,7 +106,6 @@ public class SecurityRequestsTests {
             .andExpect(authenticated().withAuthentication(authentication));
     }
 
-    @Configuration
     @EnableWebMvcSecurity
     @EnableWebMvc
     static class Config extends WebSecurityConfigurerAdapter {

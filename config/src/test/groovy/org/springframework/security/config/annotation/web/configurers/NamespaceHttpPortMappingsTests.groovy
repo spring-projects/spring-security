@@ -81,7 +81,6 @@ public class NamespaceHttpPortMappingsTests extends BaseSpringSpec {
             response.redirectedUrl == "http://localhost:9080/user"
     }
 
-    @Configuration
     @EnableWebSecurity
     static class HttpInterceptUrlWithPortMapperConfig extends WebSecurityConfigurerAdapter {
 

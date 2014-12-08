@@ -47,7 +47,6 @@ public class ExpressionUrlAuthorizationConfigurerConfigs {
      * Ensure that All additional properties properly compile and chain properly
      */
     @EnableWebSecurity
-    @Configuration
     static class AllPropertiesWorkConfig extends WebSecurityConfigurerAdapter {
 
         @SuppressWarnings("rawtypes")
@@ -69,7 +68,6 @@ public class ExpressionUrlAuthorizationConfigurerConfigs {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class UseBeansInExpressions extends WebSecurityConfigurerAdapter {
 
         @Autowired
@@ -102,7 +100,6 @@ public class ExpressionUrlAuthorizationConfigurerConfigs {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class CustomExpressionRootConfig extends WebSecurityConfigurerAdapter {
 
         @Autowired

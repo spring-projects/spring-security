@@ -58,7 +58,6 @@ class HttpBasicConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class DefaultsEntryPointConfig extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
@@ -86,7 +85,6 @@ class HttpBasicConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class CustomAuthenticationEntryPointConfig extends WebSecurityConfigurerAdapter {
         static AuthenticationEntryPoint ENTRY_POINT
 
@@ -114,7 +112,6 @@ class HttpBasicConfigurerTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class DuplicateDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
         static AuthenticationEntryPoint ENTRY_POINT
 

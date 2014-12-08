@@ -104,7 +104,6 @@ public class HttpSecurityTests extends BaseSpringSpec {
     }
 
     @EnableWebSecurity
-    @Configuration
     static class RequestMatcherRegistryConfigs extends BaseWebConfig {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
