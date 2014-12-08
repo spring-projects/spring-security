@@ -1,4 +1,4 @@
-apply plugin: 'asciidoctor'
+apply plugin: 'org.asciidoctor.gradle.asciidoctor'
 
 asciidoctor {
     baseDir = file('src/asciidoc')

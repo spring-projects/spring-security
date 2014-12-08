@@ -17,7 +17,7 @@ import org.gradle.api.file.FileCollection
  */
 class TrangPlugin implements Plugin<Project> {
     public void apply(Project project) {
-        Task rncToXsd = project.tasks.add('rncToXsd', RncToXsd.class)
+        Task rncToXsd = project.tasks.create('rncToXsd', RncToXsd.class)
         rncToXsd.description = 'Converts .rnc to .xsd'
         rncToXsd.group = 'Build'
     }

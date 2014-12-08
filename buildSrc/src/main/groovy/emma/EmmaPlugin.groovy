@@ -21,7 +21,7 @@ class EmmaPlugin implements Plugin<Project> {
         def emmaCoverageFile = "${rootProject.buildDir}/emma/emma.ec"
 
         if (project.configurations.findByName('emma_rt') == null) {
-            project.configurations.add('emma_rt')
+            project.configurations.create('emma_rt')
             project.dependencies {
                 emma_rt 'emma:emma:2.0.5312'
             }
@@ -64,7 +64,7 @@ class EmmaPlugin implements Plugin<Project> {
         CoverageReport task;
 
         if (reportTasks.isEmpty()) {
-            task = rootProject.tasks.add('coverageReport', CoverageReport.class);
+            task = rootProject.tasks.create('coverageReport', CoverageReport.class);
             task.dataPath = [emmaMetaDataFile, emmaCoverageFile];
         } else {
             task = reportTasks[0];

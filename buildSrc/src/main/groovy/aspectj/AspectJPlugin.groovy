@@ -30,7 +30,7 @@ class AspectJPlugin implements Plugin<Project> {
         }
 
         if (project.configurations.findByName('ajtools') == null) {
-            project.configurations.add('ajtools')
+            project.configurations.create('ajtools')
             project.dependencies {
                 ajtools "org.aspectj:aspectjtools:${project.aspectjVersion}"
                 optional "org.aspectj:aspectjrt:${project.aspectjVersion}"
@@ -38,10 +38,10 @@ class AspectJPlugin implements Plugin<Project> {
         }
 
         if (project.configurations.findByName('aspectpath') == null) {
-            project.configurations.add('aspectpath')
+            project.configurations.create('aspectpath')
         }
 
-        project.tasks.add(name: 'compileAspect', overwrite: true, description: 'Compiles AspectJ Source', type: Ajc) {
+        project.tasks.create(name: 'compileAspect', overwrite: true, description: 'Compiles AspectJ Source', type: Ajc) {
             dependsOn project.configurations*.getTaskDependencyFromProjectDependency(true, "compileJava")
 
             dependsOn project.processResources
@@ -54,7 +54,7 @@ class AspectJPlugin implements Plugin<Project> {
         project.tasks.compileJava.dependsOn project.tasks.compileAspect
 
 
-        project.tasks.add(name: 'compileTestAspect', overwrite: true, description: 'Compiles AspectJ Test Source', type: Ajc) {
+        project.tasks.create(name: 'compileTestAspect', overwrite: true, description: 'Compiles AspectJ Test Source', type: Ajc) {
             dependsOn project.processTestResources, project.compileJava, project.jar
             sourceSet = project.sourceSets.test
             inputs.files(sourceSet.allSource)
