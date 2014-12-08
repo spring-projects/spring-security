@@ -7,9 +7,13 @@ task docs {
 
 project('manual') {
     apply plugin: 'base'
-    apply plugin: 'asciidoctor'
+    apply plugin: 'org.asciidoctor.gradle.asciidoctor'
 
     ext.expandPlaceholders = ""
+
+    asciidoctorj {
+        version = '1.5.2'
+    }
 
     asciidoctor {
         options = [

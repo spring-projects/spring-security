@@ -87,27 +87,24 @@ def customizePom(pom, gradleProject) {
                 }
             }
         }
-        build {
-            plugins {
-                plugin {
-                    groupId = 'org.apache.maven.plugins'
-                    artifactId = 'maven-compiler-plugin'
-                    configuration {
-                        source = '1.7'
-                        target = '1.7'
-                    }
-                }
-                if(isWar) {
-                    plugin {
-                        groupId = 'org.apache.maven.plugins'
-                        artifactId = 'maven-war-plugin'
-                        version = '2.3'
-                        configuration {
-                            failOnMissingWebXml = 'false'
-                        }
-                    }
-                }
-            }
+    }
+
+    // http://forums.gradle.org/gradle/topics/after_upgrade_gradle_to_2_0_version_the_maven_pom_not_support_build_property
+    pom.withXml {
+        def plugins = asNode().appendNode('build').appendNode('plugins')
+        plugins
+            .appendNode('plugin')
+                .appendNode('maven-compiler-plugin').parent()
+                .appendNode('configuration')
+                    .appendNode('source','1.7').parent()
+                    .appendNode('target','1.7')
+        if(isWar) {
+            plugins
+                .appendNode('plugin')
+                    .appendNode('maven-war-plugin').parent()
+                    .appendNode('version','2.3').parent()
+                    .appendNode('configuration')
+                        .appendNode('failOnMissingWebXml','false')
         }
     }
 }
