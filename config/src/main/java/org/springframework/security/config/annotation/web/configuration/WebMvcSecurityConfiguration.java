@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.config.annotation.web.servlet.configuration;
-
-import java.util.List;
+package org.springframework.security.config.annotation.web.configuration;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.support.RequestDataValueProcessor;
+
+import java.util.List;
 
 /**
  * Used to add a {@link RequestDataValueProcessor} for Spring MVC and Spring
@@ -35,12 +33,10 @@ import org.springframework.web.servlet.support.RequestDataValueProcessor;
  * {@link AuthenticationPrincipalArgumentResolver} as a
  * {@link HandlerMethodArgumentResolver}.
  *
- * @deprecated This is applied internally using SpringWebMvcImportSelector
  * @author Rob Winch
  * @since 3.2
  */
-@EnableWebSecurity
-public class WebMvcSecurityConfiguration extends WebMvcConfigurerAdapter {
+class WebMvcSecurityConfiguration extends WebMvcConfigurerAdapter {
 
     @Override
     @SuppressWarnings("deprecation")
@@ -50,6 +46,7 @@ public class WebMvcSecurityConfiguration extends WebMvcConfigurerAdapter {
         argumentResolvers.add(new org.springframework.security.web.bind.support.AuthenticationPrincipalArgumentResolver());
     }
 
+    @ConditionalOnMissingBean(RequestDataValueProcessor.class)
     @Bean
     public RequestDataValueProcessor requestDataValueProcessor() {
         return new CsrfRequestDataValueProcessor();

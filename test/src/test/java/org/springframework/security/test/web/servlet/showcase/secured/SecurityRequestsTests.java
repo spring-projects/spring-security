@@ -31,7 +31,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -106,7 +106,7 @@ public class SecurityRequestsTests {
             .andExpect(authenticated().withAuthentication(authentication));
     }
 
-    @EnableWebMvcSecurity
+    @EnableWebSecurity
     @EnableWebMvc
     static class Config extends WebSecurityConfigurerAdapter {
 

@@ -105,7 +105,7 @@ class AuthenticationConfigurationTests extends BaseSpringSpec {
     @Import([GlobalMethodSecurityConfig,WebMvcSecurityConfig,ServicesConfig])
     static class GlobalMethodSecurityMvcSecurityAndServicesConfig {}
 
-    @EnableWebMvcSecurity
+    @EnableWebSecurity
     static class WebMvcSecurityConfig extends WebSecurityConfigurerAdapter {
         @Autowired
         public void configureGlobal(AuthenticationManagerBuilder auth) {

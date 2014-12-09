@@ -72,7 +72,7 @@ class CsrfConfigurerTests extends BaseSpringSpec {
             context.getBean(RequestDataValueProcessor)
     }
 
-    @EnableWebMvcSecurity
+    @EnableWebSecurity
     static class CsrfAppliedDefaultConfig extends WebSecurityConfigurerAdapter {
 
         @Override

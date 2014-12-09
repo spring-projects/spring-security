@@ -28,6 +28,7 @@ import org.springframework.security.config.annotation.authentication.configurati
  * Add this annotation to an {@code @Configuration} class to have the Spring Security
  * configuration integrate with Spring MVC.
  *
+ * @deprecated Use EnableWebSecurity instead which will automatically add the Spring MVC related Security items.
  * @author Rob Winch
  * @since 3.2
  */
@@ -37,5 +38,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 @Import(WebMvcSecurityConfiguration.class)
 @EnableGlobalAuthentication
 @Configuration
+@Deprecated
 public @interface EnableWebMvcSecurity {
 }

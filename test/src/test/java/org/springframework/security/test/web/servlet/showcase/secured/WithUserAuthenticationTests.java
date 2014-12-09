@@ -23,7 +23,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.ContextConfiguration;
@@ -78,7 +78,7 @@ public class WithUserAuthenticationTests {
             .andExpect(authenticated().withUsername("user").withRoles("ADMIN"));
     }
 
-    @EnableWebMvcSecurity
+    @EnableWebSecurity
     @EnableWebMvc
     static class Config extends WebSecurityConfigurerAdapter {
 

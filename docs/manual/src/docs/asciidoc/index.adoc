@@ -430,7 +430,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ----
 
-NOTE: The name of the configureGlobal method is not important. However, it is important to only configure AuthenticationManagerBuilder in a class annotated with either `@EnableWebSecurity`, `@EnableWebMvcSecurity`, `@EnableGlobalMethodSecurity`, or `@EnableGlobalAuthentication`. Doing otherwise has unpredictable results.
+NOTE: The name of the configureGlobal method is not important. However, it is important to only configure AuthenticationManagerBuilder in a class annotated with either `@EnableWebSecurity`, `@EnableGlobalMethodSecurity`, or `@EnableGlobalAuthentication`. Doing otherwise has unpredictable results.
 
 There really isn't much to this configuration, but it does a lot. You can find a summary of the features below:
 
@@ -3126,7 +3126,7 @@ An easier approach is to use <<the-csrfInput-tag,the csrfInput tag>> from the Sp
 
 [NOTE]
 ====
-If you are using Spring MVC `<form:form>` tag or http://www.thymeleaf.org/whatsnew21.html#reqdata[Thymeleaf 2.1+], and you replace `@EnableWebSecurity` with `@EnableWebMvcSecurity`, the `CsrfToken` is automatically included for you (using the `CsrfRequestDataValueProcessor`).
+If you are using Spring MVC `<form:form>` tag or http://www.thymeleaf.org/whatsnew21.html#reqdata[Thymeleaf 2.1+] and are using `@EnableWebSecurity`, the `CsrfToken` is automatically included for you (using the `CsrfRequestDataValueProcessor`).
 ====
 
 [[csrf-include-csrf-token-ajax]]
@@ -5947,15 +5947,10 @@ Spring Security provides a number of optional integrations with Spring MVC. This
 [[mvc-enablewebmvcsecurity]]
 === @EnableWebMvcSecurity
 
-To enable Spring Security integration with Spring MVC add the `@EnableWebMvcSecurity` annotation to your configuration. A typical example will look something like this:
+WARN: As of Spring Security 4.0, `@EnableWebMvcSecurity` is deprecated. The replacement is `@EnableWebSecurity` which will determine adding the Spring MVC features based upon the classpath.
 
-[source,java]
-----
-@EnableWebMvcSecurity
-public class SecurityConfig {
-    // ...
-}
-----
+To enable Spring Security integration with Spring MVC add the `@EnableWebSecurity` annotation to your configuration. A typical example will look something like this:
+
 
 [[mvc-authentication-principal]]
 === @AuthenticationPrincipal

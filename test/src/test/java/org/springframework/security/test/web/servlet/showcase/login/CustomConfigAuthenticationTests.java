@@ -31,7 +31,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.test.context.ContextConfiguration;
@@ -90,7 +90,7 @@ public class CustomConfigAuthenticationTests {
             .andExpect(unauthenticated());
     }
 
-    @EnableWebMvcSecurity
+    @EnableWebSecurity
     @EnableWebMvc
     static class Config extends WebSecurityConfigurerAdapter {
 
