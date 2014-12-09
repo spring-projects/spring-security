@@ -16,6 +16,7 @@
 package org.springframework.security.config.annotation.web.configurers
 
 import org.springframework.beans.factory.BeanCreationException
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -23,6 +24,8 @@ import org.springframework.mock.web.MockFilterChain
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.security.config.annotation.BaseSpringSpec
+import org.springframework.security.config.annotation.ObjectPostProcessor
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.builders.WebSecurity
@@ -50,32 +53,29 @@ import org.springframework.security.web.util.matcher.AnyRequestMatcher
  * @author Rob Winch
  */
 class DefaultFiltersTests extends BaseSpringSpec {
-    def missingConfigMessage = "At least one non-null instance of "+ WebSecurityConfigurer.class.getSimpleName()+" must be exposed as a @Bean when using @EnableWebSecurity. Hint try extending "+ WebSecurityConfigurerAdapter.class.getSimpleName()
 
-    def "DefaultSecurityFilterChainBuilder cannot be null"() {
+    def "Default the WebSecurityConfigurerAdapter"() {
         when:
         context = new AnnotationConfigApplicationContext(FilterChainProxyBuilderMissingConfig)
         then:
-        BeanCreationException e = thrown()
-        e.message.contains missingConfigMessage
+        context.getBean(FilterChainProxy) != null
     }
 
     @EnableWebSecurity
-    static class FilterChainProxyBuilderMissingConfig { }
-
-    def "FilterChainProxyBuilder no DefaultSecurityFilterChainBuilder specified"() {
-        when:
-        context = new AnnotationConfigApplicationContext(FilterChainProxyBuilderNoSecurityFilterBuildersConfig)
-        then:
-        BeanCreationException e = thrown()
-        e.message.contains missingConfigMessage
+    static class FilterChainProxyBuilderMissingConfig {
+        @Autowired
+        public void configureGlobal(AuthenticationManagerBuilder auth) {
+            auth
+                .inMemoryAuthentication()
+                    .withUser("user").password("password").roles("USER")
+        }
     }
 
     @EnableWebSecurity
     static class FilterChainProxyBuilderNoSecurityFilterBuildersConfig {
         @Bean
-        public WebSecurity filterChainProxyBuilder() {
-            new WebSecurity()
+        public WebSecurity filterChainProxyBuilder(ObjectPostProcessor<Object> opp) {
+            new WebSecurity(opp)
                 .ignoring()
                     .antMatchers("/resources/**")
         }

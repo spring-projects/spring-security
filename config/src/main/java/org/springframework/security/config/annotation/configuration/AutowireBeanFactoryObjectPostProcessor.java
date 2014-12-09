@@ -62,6 +62,7 @@ final class AutowireBeanFactoryObjectPostProcessor implements ObjectPostProcesso
             Class<?> type = object.getClass();
             throw new RuntimeException("Could not postProcess " + object + " of type " + type, e);
         }
+        autowireBeanFactory.autowireBean(object);
         if(result instanceof DisposableBean) {
             disposableBeans.add((DisposableBean) result);
         }

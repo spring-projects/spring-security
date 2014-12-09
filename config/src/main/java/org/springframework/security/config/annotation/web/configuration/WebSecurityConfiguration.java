@@ -38,6 +38,7 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityConfigurer;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.context.DelegatingApplicationListener;
@@ -73,6 +74,9 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 
     private ClassLoader beanClassLoader;
 
+    @Autowired(required = false)
+    private ObjectPostProcessor<Object> objectObjectPostProcessor;
+
     @Bean
     public static DelegatingApplicationListener delegatingApplicationListener() {
         return new DelegatingApplicationListener();
@@ -93,7 +97,8 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
     public Filter springSecurityFilterChain() throws Exception {
         boolean hasConfigurers = webSecurityConfigurers != null && !webSecurityConfigurers.isEmpty();
         if(!hasConfigurers) {
-            throw new IllegalStateException("At least one non-null instance of "+ WebSecurityConfigurer.class.getSimpleName()+" must be exposed as a @Bean when using @EnableWebSecurity. Hint try extending "+ WebSecurityConfigurerAdapter.class.getSimpleName());
+            WebSecurityConfigurerAdapter adapter = objectObjectPostProcessor.postProcess(new WebSecurityConfigurerAdapter() {});
+            webSecurity.apply(adapter);
         }
         return webSecurity.build();
     }
