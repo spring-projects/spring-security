@@ -113,7 +113,7 @@ public interface HttpSecurityBuilder<H extends HttpSecurityBuilder<H>> extends S
      * been added using {@link #addFilterAfter(Filter, Class)} or
      * {@link #addFilterBefore(Filter, Class)}.
      *
-     * @param filter the {@link Filter} to register before the type {@code afterFilter}
+     * @param filter the {@link Filter} to register after the type {@code afterFilter}
      * @param afterFilter the Class of the known {@link Filter}.
      * @return the {@link HttpSecurity} for further customizations
      */
