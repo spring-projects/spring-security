@@ -12,24 +12,30 @@ apply plugin: 'propdeps-eclipse'
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
 
-ext.ehcacheVersion = '2.6.5'
-ext.aspectjVersion = '1.8.4'
 ext.apacheDsVersion = '1.5.5'
-ext.jstlVersion = '1.2.1'
+ext.aspectjVersion = '1.8.4'
+ext.casClientVersion = '3.3.3'
+ext.cglibVersion = '3.1'
+ext.commonsCodecVersion = '1.10'
+ext.commonsCollectionsVersion = '3.2.1'
+ext.commonsLoggingVersion = '1.2'
+ext.ehcacheVersion = '2.9.0'
+ext.gebVersion = '0.10.0'
+ext.groovyVersion = '2.3.8'
+ext.hsqlVersion = '2.3.2'
+ext.jacksonDatavindVersion = '2.4.4'
 ext.jettyVersion = '6.1.26'
-ext.hsqlVersion = '2.3.1'
-ext.slf4jVersion = '1.7.5'
-ext.logbackVersion = '0.9.29'
-ext.cglibVersion = '2.2'
-ext.powerMockVersion = '1.5.1'
+ext.jstlVersion = '1.2.1'
+ext.junitVersion = '4.11'
+ext.logbackVersion = '1.1.2'
+ext.powerMockVersion = '1.6.0'
+ext.seleniumVersion = '2.44.0'
 ext.servletApiVersion = '3.0.1'
-ext.seleniumVersion = '2.33.0'
-ext.groovyVersion = '2.0.5'
+ext.slf4jVersion = '1.7.7'
 ext.spockVersion = '0.7-groovy-2.0'
-ext.gebVersion = '0.9.0'
+ext.springDataCommonsVersion = '1.9.1.RELEASE'
+ext.springDataJpaVersion = '1.7.1.RELEASE'
 ext.thymeleafVersion = '2.1.3.RELEASE'
-ext.springDataJpaVersion = '1.7.0.RC1'
-ext.springDataCommonsVersion = '1.9.0.RC1'
 
 ext.spockDependencies = [
     dependencies.create("org.spockframework:spock-spring:$spockVersion") {
@@ -119,9 +125,9 @@ project.conf2ScopeMappings.addMapping(MavenPlugin.TEST_COMPILE_PRIORITY + 2, pro
 check.dependsOn integrationTest
 
 dependencies {
-    optional 'commons-logging:commons-logging:1.1.1'
+    optional "commons-logging:commons-logging:$commonsLoggingVersion"
 
-    testCompile 'junit:junit:4.11',
+    testCompile "junit:junit:$junitVersion",
             'org.mockito:mockito-core:1.9.5',
             "org.springframework:spring-test:$springVersion",
             'org.easytesting:fest-assert:1.4'

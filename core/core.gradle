@@ -28,7 +28,7 @@ dependencies {
 
     included cryptoProject
 
-    testCompile 'commons-collections:commons-collections:3.2',
+    testCompile "commons-collections:commons-collections:$commonsCollectionsVersion",
                 "org.springframework:spring-test:$springVersion",
                 "org.slf4j:jcl-over-slf4j:$slf4jVersion",
                 powerMockDependencies

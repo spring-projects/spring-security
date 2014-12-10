@@ -7,7 +7,7 @@ dependencies {
     compile project(":spring-security-web"),
             project(":spring-security-config"),
             "org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.0.Final",
-            "org.hsqldb:hsqldb:2.2.8",
+            "org.hsqldb:hsqldb:$hsqlVersion",
             "javax.validation:validation-api:1.0.0.GA",
             "org.hibernate:hibernate-validator:4.2.0.Final",
             "org.springframework:spring-webmvc:$springVersion",

@@ -9,7 +9,7 @@ configurations {
     casServer
 }
 dependencies {
-    casServer "org.jasig.cas:cas-server-webapp:3.4.3.1@war"
+    casServer "org.jasig.cas:cas-server-webapp:4.0.0@war"
 }
 
 task casServerOverlay(type: Sync) {

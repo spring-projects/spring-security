@@ -3,14 +3,14 @@ buildscript {
         maven { url "https://repo.spring.io/plugins-release" }
     }
     dependencies {
-        classpath("org.gradle.api.plugins:gradle-tomcat-plugin:1.2.3")
+        classpath("org.gradle.api.plugins:gradle-tomcat-plugin:1.2.5")
     }
 }
 
 apply plugin: 'tomcat'
 
 dependencies {
-    def tomcatVersion = '7.0.54'
+    def tomcatVersion = '7.0.57'
     tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
            "org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}"
     tomcat("org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}") {

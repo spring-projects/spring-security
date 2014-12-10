@@ -10,7 +10,7 @@ dependencies {
             "org.springframework:spring-messaging:$springVersion"
 
     testCompile project(':spring-security-core').sourceSets.test.output,
-                'commons-codec:commons-codec:1.3',
+                "commons-codec:commons-codec:$commonsCodecVersion",
                 "org.slf4j:jcl-over-slf4j:$slf4jVersion",
                 "org.codehaus.groovy:groovy-all:$groovyVersion",
                 powerMockDependencies,

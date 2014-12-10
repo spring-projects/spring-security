@@ -51,7 +51,7 @@ dependencies {
                 'ldapsdk:ldapsdk:4.1',
                 powerMockDependencies,
                  "org.hibernate:hibernate-entitymanager:3.6.10.Final",
-                "org.hsqldb:hsqldb:2.2.8",
+                "org.hsqldb:hsqldb:$hsqlVersion",
                 spockDependencies
 
     testCompile('org.openid4java:openid4java-nodeps:0.9.6') {
@@ -62,7 +62,7 @@ dependencies {
     }
 
     testRuntime "org.hsqldb:hsqldb:$hsqlVersion",
-                "cglib:cglib-nodep:2.2"
+                "cglib:cglib-nodep:$cglibVersion"
 }
 
 test {
