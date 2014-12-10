@@ -26,7 +26,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Autowired
-    public void registerGlobalAuthentication(
+    public void configureGlobal(
             AuthenticationManagerBuilder auth) throws Exception {
         auth
             .inMemoryAuthentication()

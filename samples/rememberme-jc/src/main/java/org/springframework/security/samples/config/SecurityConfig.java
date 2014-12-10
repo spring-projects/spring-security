@@ -11,7 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    public void registerGlobalAuthentication(
+    public void configureGlobal(
             AuthenticationManagerBuilder auth) throws Exception {
         auth
             .inMemoryAuthentication()

@@ -10,7 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 public class SecurityConfig {
 
     @Autowired
-    public void registerGlobalAuthentication(
+    public void configureGlobal(
             AuthenticationManagerBuilder auth) throws Exception {
         auth
             .inMemoryAuthentication()
