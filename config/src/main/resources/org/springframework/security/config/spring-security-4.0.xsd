@@ -195,7 +195,7 @@
       <xs:attribute name="use-expressions" use="required" type="xs:boolean">
          <xs:annotation>
             <xs:documentation>Enables the use of expressions in the 'access' attributes in &lt;intercept-url&gt; elements
-                rather than the traditional list of configuration attributes. Defaults to 'false'. If
+                rather than the traditional list of configuration attributes. Defaults to 'true'. If
                 enabled, each attribute should contain a single boolean expression. If the expression
                 evaluates to 'true', access will be granted.
                 </xs:documentation>
@@ -619,7 +619,7 @@
       <xs:attribute name="use-expressions" type="xs:boolean">
          <xs:annotation>
             <xs:documentation>Enables the use of expressions in the 'access' attributes in &lt;intercept-url&gt; elements
-                rather than the traditional list of configuration attributes. Defaults to 'false'. If
+                rather than the traditional list of configuration attributes. Defaults to 'true'. If
                 enabled, each attribute should contain a single boolean expression. If the expression
                 evaluates to 'true', access will be granted.
                 </xs:documentation>
@@ -1113,7 +1113,7 @@
       <xs:attribute name="use-expressions" type="xs:boolean">
          <xs:annotation>
             <xs:documentation>Enables the use of expressions in the 'access' attributes in &lt;intercept-url&gt; elements
-                rather than the traditional list of configuration attributes. Defaults to 'false'. If
+                rather than the traditional list of configuration attributes. Defaults to 'true'. If
                 enabled, each attribute should contain a single boolean expression. If the expression
                 evaluates to 'true', access will be granted.
                 </xs:documentation>
@@ -1353,8 +1353,7 @@
   <xs:attributeGroup name="form-login.attlist">
       <xs:attribute name="login-processing-url" type="xs:token">
          <xs:annotation>
-            <xs:documentation>The URL that the login form is posted to. If unspecified, it defaults to
-                /login.
+            <xs:documentation>The URL that the login form is posted to. If unspecified, it defaults to /login.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
@@ -1388,16 +1387,16 @@
       <xs:attribute name="login-page" type="xs:token">
          <xs:annotation>
             <xs:documentation>The URL for the login page. If no login URL is specified, Spring Security will
-                automatically create a login URL at GET /login and a corresponding filter to
-                render that login URL when requested.
+                automatically create a login URL at GET /login and a corresponding filter to render that
+                login URL when requested.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
       <xs:attribute name="authentication-failure-url" type="xs:token">
          <xs:annotation>
             <xs:documentation>The URL for the login failure page. If no login failure URL is specified, Spring Security
-                will automatically create a failure login URL at /login?error and a
-                corresponding filter to render that login failure URL when requested.
+                will automatically create a failure login URL at /login?error and a corresponding filter
+                to render that login failure URL when requested.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
@@ -1595,7 +1594,7 @@
       <xs:attribute name="use-expressions" type="xs:boolean">
          <xs:annotation>
             <xs:documentation>Enables the use of expressions in the 'access' attributes in &lt;intercept-url&gt; elements
-                rather than the traditional list of configuration attributes. Defaults to 'false'. If
+                rather than the traditional list of configuration attributes. Defaults to 'true'. If
                 enabled, each attribute should contain a single boolean expression. If the expression
                 evaluates to 'true', access will be granted.
                 </xs:documentation>
