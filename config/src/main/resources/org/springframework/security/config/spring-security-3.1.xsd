@@ -1324,8 +1324,7 @@
   <xs:attributeGroup name="form-login.attlist">
       <xs:attribute name="login-processing-url" type="xs:token">
          <xs:annotation>
-            <xs:documentation>The URL that the login form is posted to. If unspecified, it defaults to
-                /login.
+            <xs:documentation>The URL that the login form is posted to. If unspecified, it defaults to /login.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>

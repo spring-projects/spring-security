@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-data-jc</artifactId>
-  <version>4.0.0.CI-SNAPSHOT</version>
+  <version>4.0.0.RC1</version>
   <name>spring-security-samples-data-jc</name>
   <description>spring-security-samples-data-jc</description>
   <url>http://spring.io/spring-security</url>
@@ -32,8 +32,8 @@
   </scm>
   <repositories>
     <repository>
-      <id>spring-snasphot</id>
-      <url>https://repo.spring.io/snapshot</url>
+      <id>spring-milestone</id>
+      <url>https://repo.spring.io/milestone</url>
     </repository>
   </repositories>
   <dependencies>
@@ -76,13 +76,13 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>4.0.0.CI-SNAPSHOT</version>
+      <version>4.0.0.RC1</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-data</artifactId>
-      <version>4.0.0.CI-SNAPSHOT</version>
+      <version>4.0.0.RC1</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
