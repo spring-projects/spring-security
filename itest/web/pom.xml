@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>itest-web</artifactId>
-  <version>4.0.0.RC1</version>
+  <version>4.0.0.CI-SNAPSHOT</version>
   <name>itest-web</name>
   <description>itest-web</description>
   <url>http://spring.io/spring-security</url>
@@ -32,8 +32,8 @@
   </scm>
   <repositories>
     <repository>
-      <id>spring-milestone</id>
-      <url>https://repo.spring.io/milestone</url>
+      <id>spring-snasphot</id>
+      <url>https://repo.spring.io/snapshot</url>
     </repository>
   </repositories>
   <dependencies>
@@ -147,31 +147,31 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>4.0.0.RC1</version>
+      <version>4.0.0.CI-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>4.0.0.RC1</version>
+      <version>4.0.0.CI-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-ldap</artifactId>
-      <version>4.0.0.RC1</version>
+      <version>4.0.0.CI-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-taglibs</artifactId>
-      <version>4.0.0.RC1</version>
+      <version>4.0.0.CI-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>4.0.0.RC1</version>
+      <version>4.0.0.CI-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
