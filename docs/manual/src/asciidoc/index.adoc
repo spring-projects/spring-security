@@ -3701,8 +3701,8 @@ public class WebSecurityConfig extends
     http
       // ...
       .headers()
-        .addHeaderWriter(new StaticHeaderWriter("X-Content-Security-Policy","default-src 'self'"))
-        .addHeaderWriter(new StaticHeaderWriter("X-WebKit-CSP","default-src 'self'"));
+        .addHeaderWriter(new StaticHeadersWriter("X-Content-Security-Policy","default-src 'self'"))
+        .addHeaderWriter(new StaticHeadersWriter("X-WebKit-CSP","default-src 'self'"));
   }
 }
 ----
