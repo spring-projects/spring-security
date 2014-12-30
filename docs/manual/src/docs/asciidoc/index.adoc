@@ -419,7 +419,7 @@ import org.springframework.security.config.annotation.authentication.builders.*;
 import org.springframework.security.config.annotation.web.configuration.*;
 
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class MySecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
@@ -462,7 +462,7 @@ The next step is to register the `springSecurityFilterChain` with the war. This 
 
 ==== AbstractSecurityWebApplicationInitializer without Existing Spring
 
-If you are not using Spring or Spring MVC, you will need to pass in the `SecurityConfig` into the superclass to ensure the configuration is picked up. You can find an example below:
+If you are not using Spring or Spring MVC, you will need to pass in the `MySecurityConfig` into the superclass to ensure the configuration is picked up. You can find an example below:
 
 [source,java]
 ----
@@ -472,7 +472,7 @@ public class SecurityWebApplicationInitializer
       extends AbstractSecurityWebApplicationInitializer {
 
     public SecurityWebApplicationInitializer() {
-        super(SecurityConfig.class);
+        super(MySecurityConfig.class);
     }
 }
 ----
@@ -480,7 +480,7 @@ public class SecurityWebApplicationInitializer
 The `SecurityWebApplicationInitializer` will do the following things:
 
 * Automatically register the springSecurityFilterChain Filter for every URL in your application
-* Add a ContextLoaderListener that loads the <<jc-hello-wsca,SecurityConfig>>.
+* Add a ContextLoaderListener that loads the <<jc-hello-wsca,MySecurityConfig>>.
 
 ==== AbstractSecurityWebApplicationInitializer with Spring MVC
 
@@ -496,7 +496,7 @@ public class SecurityWebApplicationInitializer
 }
 ----
 
-This would simply only register the springSecurityFilterChain Filter for every URL in your application. After that we would ensure that `SecurityConfig` was loaded in our existing ApplicationInitializer. For example, if we were using Spring MVC it would be added in the `getRootConfigClasses()`
+This would simply only register the springSecurityFilterChain Filter for every URL in your application. After that we would ensure that `MySecurityConfig` was loaded in our existing ApplicationInitializer. For example, if we were using Spring MVC it would be added in the `getRootConfigClasses()`
 
 [[message-web-application-inititializer-java]]
 [source,java]
@@ -506,7 +506,7 @@ public class MvcWebApplicationInitializer extends
 
     @Override
     protected Class<?>[] getRootConfigClasses() {
-        return new Class[] { SecurityConfig.class };
+        return new Class[] { MySecurityConfig.class };
     }
 
     // ... other overrides ...
@@ -516,7 +516,7 @@ public class MvcWebApplicationInitializer extends
 [[jc-httpsecurity]]
 === HttpSecurity
 
-Thus far our <<jc-hello-wsca,SecurityConfig>> only contains information about how to authenticate our users. How does Spring Security know that we want to require all users to be authenticated? How does Spring Security know we want to support form based authentication? The reason for this is that the `WebSecurityConfigurerAdapter` provides a default configuration in the `configure(HttpSecurity http)` method that looks like:
+Thus far our <<jc-hello-wsca,MySecurityConfig>> only contains information about how to authenticate our users. How does Spring Security know that we want to require all users to be authenticated? How does Spring Security know we want to support form based authentication? The reason for this is that the `WebSecurityConfigurerAdapter` provides a default configuration in the `configure(HttpSecurity http)` method that looks like:
 
 [source,java]
 ----
