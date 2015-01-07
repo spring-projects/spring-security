@@ -163,6 +163,17 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extend
     }
 
     /**
+     * The HTTP parameter used to indicate to remember the user at time of login.
+     *
+     * @param rememberMeParameter the HTTP parameter used to indicate to remember the user
+     * @return  the {@link RememberMeConfigurer} for further customization
+     */
+    public RememberMeConfigurer<H> rememberMeParameter(String rememberMeParameter) {
+        this.rememberMeParameter = rememberMeParameter;
+        return this;
+    }
+
+    /**
      * Allows control over the destination a remembered user is sent to when they are successfully authenticated.
      * By default, the filter will just allow the current request to proceed, but if an
      * {@code AuthenticationSuccessHandler} is set, it will be invoked and the {@code doFilter()} method will return
