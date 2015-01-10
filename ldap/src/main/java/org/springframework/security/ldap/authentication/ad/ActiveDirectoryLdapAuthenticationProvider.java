@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -47,11 +47,12 @@ import java.util.regex.Pattern;
  * Specialized LDAP authentication provider which uses Active Directory configuration conventions.
  * <p>
  * It will authenticate using the Active Directory
- * <a href="http://msdn.microsoft.com/en-us/library/ms680857%28VS.85%29.aspx">{@code userPrincipalName}</a>
- * (in the form {@code username@domain}). If the username does not already end with the domain name, the
- * {@code userPrincipalName} will be built by appending the configured domain name to the username supplied in the
- * authentication request. If no domain name is configured, it is assumed that the username will always contain the
- * domain name.
+ * <a href="http://msdn.microsoft.com/en-us/library/ms680857%28VS.85%29.aspx">{@code userPrincipalName}</a> or
+ * <a href="http://msdn.microsoft.com/en-us/library/ms679635%28v=vs.85%29.aspx">{@code sAMAccountName}</a> (or a custom
+ * {@link #setSearchFilter(String) searchFilter}) in the form {@code username@domain}. If the username does not
+ * already end with the domain name, the {@code userPrincipalName} will be built by appending the configured domain
+ * name to the username supplied in the authentication request. If no domain name is configured, it is assumed that
+ * the username will always contain the domain name.
  * <p>
  * The user authorities are obtained from the data contained in the {@code memberOf} attribute.
  *
@@ -96,16 +97,10 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
     private final String rootDn;
     private final String url;
     private boolean convertSubErrorCodesToExceptions;
+    private String searchFilter = "(&(objectClass=user)(|(sAMAccountName={0})(userPrincipalName={0})))";
 
     // Only used to allow tests to substitute a mock LdapContext
     ContextFactory contextFactory = new ContextFactory();
-
-    /**
-     * @param domain the domain for which authentication should take place
-     */
-//    public ActiveDirectoryLdapAuthenticationProvider(String domain) {
-//        this (domain, null);
-//    }
 
     /**
      * @param domain the domain name (may be null or empty)
@@ -114,7 +109,6 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
     public ActiveDirectoryLdapAuthenticationProvider(String domain, String url) {
         Assert.isTrue(StringUtils.hasText(url), "Url cannot be empty");
         this.domain = StringUtils.hasText(domain) ? domain.toLowerCase() : null;
-        //this.url = StringUtils.hasText(url) ? url : null;
         this.url = url;
         rootDn = this.domain == null ? null : rootDnFromDomain(this.domain);
     }
@@ -122,13 +116,12 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
     @Override
     protected DirContextOperations doAuthentication(UsernamePasswordAuthenticationToken auth) {
         String username = auth.getName();
-        String password = (String)auth.getCredentials();
+        String password = (String) auth.getCredentials();
 
         DirContext ctx = bindAsUser(username, password);
 
         try {
             return searchForUser(ctx, username);
-
         } catch (NamingException e) {
             logger.error("Failed to locate directory entry for authenticated user: " + username, e);
             throw badCredentials(e);
@@ -168,7 +161,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
         // TODO. add DNS lookup based on domain
         final String bindUrl = url;
 
-        Hashtable<String,String> env = new Hashtable<String,String>();
+        Hashtable<String, String> env = new Hashtable<String, String>();
         env.put(Context.SECURITY_AUTHENTICATION, "simple");
         String bindPrincipal = createBindPrincipal(username);
         env.put(Context.SECURITY_PRINCIPAL, bindPrincipal);
@@ -189,25 +182,26 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
         }
     }
 
-    void handleBindException(String bindPrincipal, NamingException exception) {
+    private void handleBindException(String bindPrincipal, NamingException exception) {
         if (logger.isDebugEnabled()) {
             logger.debug("Authentication for " + bindPrincipal + " failed:" + exception);
         }
 
         int subErrorCode = parseSubErrorCode(exception.getMessage());
 
-        if (subErrorCode > 0) {
-            logger.info("Active Directory authentication failed: " + subCodeToLogMessage(subErrorCode));
-
-            if (convertSubErrorCodesToExceptions) {
-                raiseExceptionForErrorCode(subErrorCode, exception);
-            }
-        } else {
+        if (subErrorCode <= 0) {
             logger.debug("Failed to locate AD-specific sub-error code in message");
+            return;
+        }
+
+        logger.info("Active Directory authentication failed: " + subCodeToLogMessage(subErrorCode));
+
+        if (convertSubErrorCodesToExceptions) {
+            raiseExceptionForErrorCode(subErrorCode, exception);
         }
     }
 
-    int parseSubErrorCode(String message) {
+    private int parseSubErrorCode(String message) {
         Matcher m = SUB_ERROR_CODE.matcher(message);
 
         if (m.matches()) {
@@ -217,7 +211,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
         return -1;
     }
 
-    void raiseExceptionForErrorCode(int code, NamingException exception) {
+    private void raiseExceptionForErrorCode(int code, NamingException exception) {
         String hexString = Integer.toHexString(code);
         Throwable cause = new ActiveDirectoryAuthenticationException(hexString, exception.getMessage(), exception);
         switch (code) {
@@ -238,7 +232,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
         }
     }
 
-    String subCodeToLogMessage(int code) {
+    private String subCodeToLogMessage(int code) {
         switch (code) {
             case USERNAME_NOT_FOUND:
                 return "User was not found in directory";
@@ -270,28 +264,25 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
         return (BadCredentialsException) badCredentials().initCause(cause);
     }
 
-    @SuppressWarnings("deprecation")
-    private DirContextOperations searchForUser(DirContext ctx, String username) throws NamingException {
-        SearchControls searchCtls = new SearchControls();
-        searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+    private DirContextOperations searchForUser(DirContext context, String username) throws NamingException {
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-        String searchFilter = "(&(objectClass=user)(userPrincipalName={0}))";
-
-        final String bindPrincipal = createBindPrincipal(username);
-
+        String bindPrincipal = createBindPrincipal(username);
         String searchRoot = rootDn != null ? rootDn : searchRootFromPrincipal(bindPrincipal);
 
         try {
-            return SpringSecurityLdapTemplate.searchForSingleEntryInternal(ctx, searchCtls, searchRoot, searchFilter,
-                new Object[]{bindPrincipal});
+            return SpringSecurityLdapTemplate.searchForSingleEntryInternal(context, searchControls,
+                    searchRoot, searchFilter, new Object[]{username});
         } catch (IncorrectResultSizeDataAccessException incorrectResults) {
-            if (incorrectResults.getActualSize() == 0) {
-                UsernameNotFoundException userNameNotFoundException = new UsernameNotFoundException("User " + username + " not found in directory.");
-                userNameNotFoundException.initCause(incorrectResults);
-                throw badCredentials(userNameNotFoundException);
+            // Search should never return multiple results if properly configured - just rethrow
+            if (incorrectResults.getActualSize() != 0) {
+                throw incorrectResults;
             }
-            // Search should never return multiple results if properly configured, so just rethrow
-            throw incorrectResults;
+            // If we found no results, then the username/password did not match
+            UsernameNotFoundException userNameNotFoundException = new UsernameNotFoundException("User " + username
+                    + " not found in directory.", incorrectResults);
+            throw badCredentials(userNameNotFoundException);
         }
     }
 
@@ -303,7 +294,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
             throw badCredentials();
         }
 
-        return rootDnFromDomain(bindPrincipal.substring(atChar+ 1, bindPrincipal.length()));
+        return rootDnFromDomain(bindPrincipal.substring(atChar + 1, bindPrincipal.length()));
     }
 
     private String rootDnFromDomain(String domain) {
@@ -340,6 +331,21 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
      */
     public void setConvertSubErrorCodesToExceptions(boolean convertSubErrorCodesToExceptions) {
         this.convertSubErrorCodesToExceptions = convertSubErrorCodesToExceptions;
+    }
+
+    /**
+     * The LDAP filter string to search for the user being authenticated.
+     * Occurrences of {0} are replaced with the {@code username@domain}.
+     * <p>
+     * Defaults to: {@code (&(objectClass=user)(|(sAMAccountName={0})(userPrincipalName={0})))}
+     * </p>
+     *
+     * @param searchFilter the filter string
+     *
+     * @since 3.2
+     */
+    public void setSearchFilter(String searchFilter) {
+        this.searchFilter = searchFilter;
     }
 
     static class ContextFactory {
