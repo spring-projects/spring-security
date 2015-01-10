@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -44,6 +44,7 @@ import javax.naming.directory.SearchResult;
 import java.util.Hashtable;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
@@ -95,6 +96,32 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
         result = provider.authenticate(joe);
 
         assertEquals(1, result.getAuthorities().size());
+    }
+
+    // SEC-1915
+    @Test
+    public void customSearchFilterIsUsedForSuccessfulAuthentication() throws Exception {
+        //given
+        String customSearchFilter = "(&(objectClass=user)(sAMAccountName={0}))";
+
+        DirContext ctx = mock(DirContext.class);
+        when(ctx.getNameInNamespace()).thenReturn("");
+
+        DirContextAdapter dca = new DirContextAdapter();
+        SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
+        when(ctx.search(any(Name.class), eq(customSearchFilter), any(Object[].class), any(SearchControls.class)))
+                .thenReturn(new MockNamingEnumeration(sr));
+
+        ActiveDirectoryLdapAuthenticationProvider customProvider
+                = new ActiveDirectoryLdapAuthenticationProvider("mydomain.eu", "ldap://192.168.1.200/");
+        customProvider.contextFactory = createContextFactoryReturning(ctx);
+
+        //when
+        customProvider.setSearchFilter(customSearchFilter);
+        Authentication result = customProvider.authenticate(joe);
+
+        //then
+        assertTrue(result.isAuthenticated());
     }
 
     @Test
@@ -319,17 +346,4 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
             return next();
         }
     }
-
-//    @Test
-//    public void realAuthenticationIsSucessful() throws Exception {
-//        ActiveDirectoryLdapAuthenticationProvider provider =
-//                new ActiveDirectoryLdapAuthenticationProvider(null, "ldap://192.168.1.200/");
-//
-//        provider.setConvertSubErrorCodesToExceptions(true);
-//
-//        Authentication result = provider.authenticate(new UsernamePasswordAuthenticationToken("luke@fenetres.monkeymachine.eu","p!ssw0rd"));
-//
-//        assertEquals(1, result.getAuthorities().size());
-//        assertTrue(result.getAuthorities().contains(new SimpleGrantedAuthority("blah")));
-//    }
 }
