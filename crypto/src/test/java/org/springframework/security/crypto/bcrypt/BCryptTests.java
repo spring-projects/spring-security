@@ -17,6 +17,7 @@ package org.springframework.security.crypto.bcrypt;
 import java.util.Arrays;
 
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 /**
@@ -93,8 +94,143 @@ public class BCryptTests {
             "$2a$10$LgfYWkbzEvQ4JakH7rOvHe0y8pHKF9OaFgwUZ2q7W2FFZmZzJYlfS"},
         {"~!@#$%^&*()      ~!@#$%^&*()PNBFRD",
             "$2a$12$WApznUOJfkEGSmYRfnkrPO",
-            "$2a$12$WApznUOJfkEGSmYRfnkrPOr466oFDCaj4b6HY3EXGvfxm43seyhgC"}
+            "$2a$12$WApznUOJfkEGSmYRfnkrPOr466oFDCaj4b6HY3EXGvfxm43seyhgC"},
+        { "", // Note that this must be 4 or more from the end to pass testCheckpw_failure
+            "$2a$05$CCCCCCCCCCCCCCCCCCCCC.",
+            "$2a$05$CCCCCCCCCCCCCCCCCCCCC.7uG0VCzI2bS7j6ymqJi9CdcdxiRTWNy" },
+        { "U*U",
+            "$2a$05$CCCCCCCCCCCCCCCCCCCCC.",
+            "$2a$05$CCCCCCCCCCCCCCCCCCCCC.E5YPO9kmyuRGyh0XouQYb4YMJKvyOeW" },
+        { "U*U*",
+            "$2a$05$CCCCCCCCCCCCCCCCCCCCC.",
+            "$2a$05$CCCCCCCCCCCCCCCCCCCCC.VGOzA784oUp/Z0DY336zx7pLYAy0lwK" },
+        { "U*U*U",
+            "$2a$05$XXXXXXXXXXXXXXXXXXXXXO",
+            "$2a$05$XXXXXXXXXXXXXXXXXXXXXOAcXxm9kjPGEMsLznoKqmqw7tc8WCx4a" },
+        { "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+            "$2a$05$abcdefghijklmnopqrstuu",
+            "$2a$05$abcdefghijklmnopqrstuu5s2v8.iXieOjg/.AySBTTZIIVFJeBui" }
     };
+
+    byte[][] binary_test_vectors =
+        {
+            // ""
+            {
+            },
+
+            // "U*U"
+            {
+                (byte) 'U', (byte) '*', (byte) 'U'
+            },
+
+            // "U*U*"
+            {
+                (byte) 'U', (byte) '*', (byte) 'U', (byte) '*'
+            },
+
+            // "U*U*U"
+            {
+                (byte) 'U', (byte) '*', (byte) 'U', (byte) '*', (byte) 'U'
+            },
+
+            // [0xaa] * 72
+            {
+                (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+                (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+                (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+                (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+                (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+                (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+                (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+                (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+                (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+                (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+                (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+                (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa
+            },
+
+            // [0xaa] * 72 + "chars after 72 are ignored as usual"
+            {
+                (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+                (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+                (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+                (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+                (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+                (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+                (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+                (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+                (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+                (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+                (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+                (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa, (byte) 0xaa,
+                (byte) 'c', (byte) 'h', (byte) 'a', (byte) 'r', (byte) 's', (byte) ' ',
+                (byte) 'a', (byte) 'f', (byte) 't', (byte) 'e', (byte) 'r', (byte) ' ',
+                (byte) '7', (byte) '2', (byte) ' ', (byte) 'a', (byte) 'r', (byte) 'e',
+                (byte) 'i', (byte) 'g', (byte) 'n', (byte) 'o', (byte) 'r', (byte) 'e',
+                (byte) 'd', (byte) ' ', (byte) 'a', (byte) 's', (byte) ' ', (byte) 'u',
+                (byte) 's', (byte) 'u', (byte) 'a', (byte) 'l'
+            },
+
+            // [0xaa, 0x55] * 36
+            {
+                (byte) 0xaa, (byte) 0x55, (byte) 0xaa, (byte) 0x55, (byte) 0xaa, (byte) 0x55,
+                (byte) 0xaa, (byte) 0x55, (byte) 0xaa, (byte) 0x55, (byte) 0xaa, (byte) 0x55,
+                (byte) 0xaa, (byte) 0x55, (byte) 0xaa, (byte) 0x55, (byte) 0xaa, (byte) 0x55,
+                (byte) 0xaa, (byte) 0x55, (byte) 0xaa, (byte) 0x55, (byte) 0xaa, (byte) 0x55,
+                (byte) 0xaa, (byte) 0x55, (byte) 0xaa, (byte) 0x55, (byte) 0xaa, (byte) 0x55,
+                (byte) 0xaa, (byte) 0x55, (byte) 0xaa, (byte) 0x55, (byte) 0xaa, (byte) 0x55,
+                (byte) 0xaa, (byte) 0x55, (byte) 0xaa, (byte) 0x55, (byte) 0xaa, (byte) 0x55,
+                (byte) 0xaa, (byte) 0x55, (byte) 0xaa, (byte) 0x55, (byte) 0xaa, (byte) 0x55,
+                (byte) 0xaa, (byte) 0x55, (byte) 0xaa, (byte) 0x55, (byte) 0xaa, (byte) 0x55,
+                (byte) 0xaa, (byte) 0x55, (byte) 0xaa, (byte) 0x55, (byte) 0xaa, (byte) 0x55,
+                (byte) 0xaa, (byte) 0x55, (byte) 0xaa, (byte) 0x55, (byte) 0xaa, (byte) 0x55,
+                (byte) 0xaa, (byte) 0x55, (byte) 0xaa, (byte) 0x55, (byte) 0xaa, (byte) 0x55
+            },
+
+            // [0x55, 0xaa, 0xff] * 24
+            {
+                (byte) 0x55, (byte) 0xaa, (byte) 0xff, (byte) 0x55, (byte) 0xaa, (byte) 0xff,
+                (byte) 0x55, (byte) 0xaa, (byte) 0xff, (byte) 0x55, (byte) 0xaa, (byte) 0xff,
+                (byte) 0x55, (byte) 0xaa, (byte) 0xff, (byte) 0x55, (byte) 0xaa, (byte) 0xff,
+                (byte) 0x55, (byte) 0xaa, (byte) 0xff, (byte) 0x55, (byte) 0xaa, (byte) 0xff,
+                (byte) 0x55, (byte) 0xaa, (byte) 0xff, (byte) 0x55, (byte) 0xaa, (byte) 0xff,
+                (byte) 0x55, (byte) 0xaa, (byte) 0xff, (byte) 0x55, (byte) 0xaa, (byte) 0xff,
+                (byte) 0x55, (byte) 0xaa, (byte) 0xff, (byte) 0x55, (byte) 0xaa, (byte) 0xff,
+                (byte) 0x55, (byte) 0xaa, (byte) 0xff, (byte) 0x55, (byte) 0xaa, (byte) 0xff,
+                (byte) 0x55, (byte) 0xaa, (byte) 0xff, (byte) 0x55, (byte) 0xaa, (byte) 0xff,
+                (byte) 0x55, (byte) 0xaa, (byte) 0xff, (byte) 0x55, (byte) 0xaa, (byte) 0xff,
+                (byte) 0x55, (byte) 0xaa, (byte) 0xff, (byte) 0x55, (byte) 0xaa, (byte) 0xff,
+                (byte) 0x55, (byte) 0xaa, (byte) 0xff, (byte) 0x55, (byte) 0xaa, (byte) 0xff
+            }
+        };
+
+    String[][] binary_test_match_vectors =
+        {
+            { // ""
+              "$2a$05$CCCCCCCCCCCCCCCCCCCCC.",
+              "$2a$05$CCCCCCCCCCCCCCCCCCCCC.7uG0VCzI2bS7j6ymqJi9CdcdxiRTWNy" },
+            { // "U*U"
+              "$2a$05$CCCCCCCCCCCCCCCCCCCCC.",
+              "$2a$05$CCCCCCCCCCCCCCCCCCCCC.E5YPO9kmyuRGyh0XouQYb4YMJKvyOeW" },
+            { // "U*U*"
+              "$2a$05$CCCCCCCCCCCCCCCCCCCCC.",
+              "$2a$05$CCCCCCCCCCCCCCCCCCCCC.VGOzA784oUp/Z0DY336zx7pLYAy0lwK" },
+            { // "U*U*U"
+              "$2a$05$XXXXXXXXXXXXXXXXXXXXXO",
+              "$2a$05$XXXXXXXXXXXXXXXXXXXXXOAcXxm9kjPGEMsLznoKqmqw7tc8WCx4a" },
+            { // [0xaa] * 72
+              "$2a$05$/OK.fbVrR/bpIqNJ5ianF.",
+              "$2a$05$/OK.fbVrR/bpIqNJ5ianF.swQOIzjOiJ9GHEPuhEkvqrUyvWhEMx6" },
+            { // [0xaa] * 72 + "chars after 72 are ignored as usual"
+              "$2a$05$/OK.fbVrR/bpIqNJ5ianF.",
+              "$2a$05$/OK.fbVrR/bpIqNJ5ianF.swQOIzjOiJ9GHEPuhEkvqrUyvWhEMx6" },
+            { // [0xaa, 0x55] * 36
+              "$2a$05$/OK.fbVrR/bpIqNJ5ianF.",
+              "$2a$05$/OK.fbVrR/bpIqNJ5ianF.R9xrDjiycxMbQE2bp.vgqlYpW5wx2yy" },
+            { // [0x55, 0xaa, 0xff] * 24
+              "$2a$05$/OK.fbVrR/bpIqNJ5ianF.",
+              "$2a$05$/OK.fbVrR/bpIqNJ5ianF.9tQZzcJfm3uj2NvJ/n5xkhpqLrMpWCe" }
+        };
 
     /**
      * Test method for 'BCrypt.hashpw(String, String)'
@@ -111,6 +247,23 @@ public class BCryptTests {
             print(".");
         }
         println("");
+    }
+
+    /**
+     * Test method for 'BCrypt.hashpw(byte[], String)'
+     */
+    @Test
+    public void testHashpwBinary() {
+        System.out.print("BCrypt.hashpw(byte[]): ");
+        for (int i = 0; i < binary_test_vectors.length; i++) {
+            byte[] plain = binary_test_vectors[i];
+            String salt = binary_test_match_vectors[i][0];
+            String expected = binary_test_match_vectors[i][1];
+            String hashed = BCrypt.hashpw(plain, salt);
+            assertEquals(hashed, expected);
+            System.out.print(".");
+        }
+        System.out.println("");
     }
 
     /**
@@ -166,6 +319,22 @@ public class BCryptTests {
     }
 
     /**
+     * Test method for 'BCrypt.checkpw(byte[], String)'
+     * expecting success
+     */
+    @Test
+    public void testCheckpwBinary_success() {
+        System.out.print("BCrypt.checkpw(byte[]) w/ good passwords: ");
+        for (int i = 0; i < binary_test_vectors.length; i++) {
+            byte[] plain = binary_test_vectors[i];
+            String expected = binary_test_match_vectors[i][1];
+            assertTrue(BCrypt.checkpw(plain, expected));
+            System.out.print(".");
+        }
+        System.out.println("");
+    }
+
+    /**
      * Test method for 'BCrypt.checkpw(String, String)' expecting failure
      */
     @Test
@@ -179,6 +348,23 @@ public class BCryptTests {
             print(".");
         }
         println("");
+    }
+
+    /**
+     * Test method for 'BCrypt.checkpw(byte[], String)'
+     * expecting failure
+     */
+    @Test
+    public void testCheckpwBinary_failure() {
+        System.out.print("BCrypt.checkpw(byte[]) w/ bad passwords: ");
+        for (int i = 0; i < binary_test_vectors.length; i++) {
+            int broken_index = (i + 4) % binary_test_vectors.length;
+            byte[] plain = binary_test_vectors[i];
+            String expected = binary_test_match_vectors[broken_index][1];
+            assertFalse(BCrypt.checkpw(plain, expected));
+            System.out.print(".");
+        }
+        System.out.println("");
     }
 
     /**
