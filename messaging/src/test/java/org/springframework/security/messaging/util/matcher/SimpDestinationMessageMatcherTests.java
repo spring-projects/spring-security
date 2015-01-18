@@ -15,13 +15,13 @@
  */
 package org.springframework.security.messaging.util.matcher;
 
+import static org.fest.assertions.Assertions.assertThat;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.support.MessageBuilder;
-
-import static org.fest.assertions.Assertions.assertThat;
 
 
 public class SimpDestinationMessageMatcherTests {
@@ -99,5 +99,14 @@ public class SimpDestinationMessageMatcherTests {
         assertThat(matcher.matches(messageBuilder.build())).isTrue();
     }
 
+    @Test
+    public void typeConstructorParameterIsTransmitted() throws Exception {
+        matcher = new SimpDestinationMessageMatcher("/match", SimpMessageType.MESSAGE);
+
+        MessageMatcher<Object> expectedTypeMatcher = new SimpMessageTypeMatcher(SimpMessageType.MESSAGE);
+
+	assertThat(matcher.getMessageTypeMatcher()).isEqualTo(expectedTypeMatcher);
+
+    }
 
 }

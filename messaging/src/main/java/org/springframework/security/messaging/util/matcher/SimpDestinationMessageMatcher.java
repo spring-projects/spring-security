@@ -88,7 +88,7 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
      * @param pathMatcher the {@link PathMatcher} to use.
      */
     public SimpDestinationMessageMatcher(String pattern, SimpMessageType type) {
-        this(pattern, null, new AntPathMatcher());
+        this(pattern, type, new AntPathMatcher());
     }
 
     /**
@@ -116,4 +116,10 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
         String destination = SimpMessageHeaderAccessor.getDestination(message.getHeaders());
         return destination != null && matcher.match(pattern, destination);
     }
+
+
+    public MessageMatcher<Object> getMessageTypeMatcher() {
+        return messageTypeMatcher;
+    }
+
 }
