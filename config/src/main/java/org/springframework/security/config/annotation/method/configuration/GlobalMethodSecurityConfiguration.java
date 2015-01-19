@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.*;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -85,8 +86,8 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
     private AuthenticationManagerBuilder auth;
     private boolean disableAuthenticationRegistry;
     private AnnotationAttributes enableMethodSecurity;
+    private ApplicationContext context;
     private MethodSecurityExpressionHandler expressionHandler;
-    private AuthenticationConfiguration authenticationConfiguration;
 
     /**
      * Creates the default MethodInterceptor which is a MethodSecurityInterceptor using the following methods to
@@ -351,14 +352,13 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
         this.defaultMethodExpressionHandler.setPermissionEvaluator(permissionEvaluators.get(0));
     }
 
-    @Autowired(required = false)
-    public void setAuthenticationConfiguration(AuthenticationConfiguration authenticationConfiguration) {
-        this.authenticationConfiguration = authenticationConfiguration;
+    @Autowired
+    public void setApplicationContext(ApplicationContext context) {
+        this.context = context;
     }
 
     private AuthenticationConfiguration getAuthenticationConfiguration() {
-        Assert.notNull(authenticationConfiguration, "authenticationConfiguration cannot be null");
-        return authenticationConfiguration;
+        return context.getBean(AuthenticationConfiguration.class);
     }
 
     private boolean prePostEnabled() {
