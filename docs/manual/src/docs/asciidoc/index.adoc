@@ -1,5 +1,6 @@
 = Spring Security Reference
 Ben Alex; Luke Taylor; Rob Winch
+:include-dir: _includes
 
 Spring Security is a powerful and highly customizable authentication and access-control framework. It is the de-facto standard for securing Spring-based applications.
 
@@ -2273,6 +2274,7 @@ When an authentication provider (such as Spring Security's `DaoAuthenticationPro
 
 If you want to generate encoded passwords directly in Java for storage in your user database, then you can use the `encode` method on the `PasswordEncoder`.
 
+include::{include-dir}/test.adoc[]
 
 [[web-app-security]]
 = Web Application Security
