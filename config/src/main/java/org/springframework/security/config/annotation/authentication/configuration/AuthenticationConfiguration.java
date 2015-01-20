@@ -61,7 +61,7 @@ public class AuthenticationConfiguration {
     }
 
     @Bean
-    public GlobalAuthenticationConfigurerAdapter enableGlobalAuthenticationAutowiredConfigurer(ApplicationContext context) {
+    public static GlobalAuthenticationConfigurerAdapter enableGlobalAuthenticationAutowiredConfigurer(ApplicationContext context) {
         return new EnableGlobalAuthenticationAutowiredConfigurer(context);
     }
 

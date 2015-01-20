@@ -16,7 +16,12 @@
 package org.springframework.security.config.annotation.authentication.configuration;
 
 import org.springframework.aop.framework.ProxyFactoryBean
+import org.springframework.beans.BeansException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.config.BeanPostProcessor
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory
+import org.springframework.beans.factory.support.BeanDefinitionRegistry
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -320,5 +325,45 @@ class AuthenticationConfigurationTests extends BaseSpringSpec {
         public AuthenticationManager manager() {
             null
         }
+    }
+
+    def "SEC-2822: Cannot Force Authentication already built"() {
+        setup:
+        loadConfig(Sec2822WebSecurity,Sec2822UseAuth,Sec2822Config)
+        when:
+        AuthenticationConfiguration config = context.getBean(AuthenticationConfiguration)
+        config.getAuthenticationManager()
+        then:
+        noExceptionThrown()
+    }
+
+    @Configuration
+    @Import(AuthenticationConfiguration)
+    static class Sec2822Config {}
+
+    @Configuration
+    @EnableWebSecurity
+    static class Sec2822WebSecurity extends WebSecurityConfigurerAdapter {
+        @Autowired
+        public void configureGlobal(AuthenticationManagerBuilder auth) {
+            auth.inMemoryAuthentication()
+        }
+    }
+
+    @Configuration
+    static class Sec2822UseAuth {
+        @Autowired
+        public void useAuthenticationManager(AuthenticationConfiguration auth) {
+            auth.authenticationManager
+        }
+
+        // Ensures that Sec2822UseAuth is initialized before Sec2822WebSecurity
+        // must have additional GlobalAuthenticationConfigurerAdapter to trigger SEC-2822
+        @Bean
+        public static GlobalAuthenticationConfigurerAdapter bootGlobalAuthenticationConfigurerAdapter() {
+            new BootGlobalAuthenticationConfigurerAdapter()
+        }
+
+        static class BootGlobalAuthenticationConfigurerAdapter extends GlobalAuthenticationConfigurerAdapter { }
     }
 }
