@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.method.configuration
 import org.springframework.beans.BeansException
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.security.config.annotation.authentication.configurers.GlobalAuthenticationConfigurerAdapter
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 
 import javax.sql.DataSource
 
