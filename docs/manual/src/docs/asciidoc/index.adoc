@@ -3736,7 +3736,7 @@ At times you may want to only write a header for certain requests. For example, 
     <!-- ... -->
 
     <headers>
-        <header header-ref="headerWriter"/>
+        <header ref="headerWriter"/>
     </headers>
 </http>
 
@@ -6780,12 +6780,12 @@ The `name` of the header.
 
 
 [[nsa-header-value]]
-* **header-value**
+* **value**
 The `value` of the header to add.
 
 
 [[nsa-header-ref]]
-* **header-ref**
+* **ref**
 Reference to a custom implementation of the `HeaderWriter` interface.
 
 
