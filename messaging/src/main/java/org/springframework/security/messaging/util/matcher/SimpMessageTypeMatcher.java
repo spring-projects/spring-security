@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,7 +19,9 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
+import org.springframework.messaging.support.GenericMessage;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 
 /**
  * A {@link MessageMatcher} that matches if the provided {@link Message} has a
@@ -50,4 +52,24 @@ public class SimpMessageTypeMatcher implements MessageMatcher<Object> {
 
         return typeToMatch == messageType;
     }
+
+
+
+    @Override
+    public boolean equals(Object other) {
+	if (this == other) {
+		return true;
+	}
+	if (!(other instanceof SimpMessageTypeMatcher)) {
+		return false;
+	}
+	SimpMessageTypeMatcher otherMatcher = (SimpMessageTypeMatcher) other;
+	return ObjectUtils.nullSafeEquals(this.typeToMatch, otherMatcher.typeToMatch);
+
+    }
+
+	public int hashCode() {
+		// Using nullSafeHashCode for proper array hashCode handling
+		return ObjectUtils.nullSafeHashCode(this.typeToMatch);
+	}
 }
