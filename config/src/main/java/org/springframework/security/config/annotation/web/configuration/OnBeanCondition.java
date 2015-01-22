@@ -26,12 +26,10 @@ import java.util.Map;
  * @author Rob Winch
  */
 class OnMissingBeanCondition implements ConfigurationCondition {
-    @Override
     public ConfigurationPhase getConfigurationPhase() {
         return ConfigurationPhase.REGISTER_BEAN;
     }
 
-    @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
         Map<String,Object> attrs = metadata.getAnnotationAttributes(ConditionalOnMissingBean.class.getName());
 

@@ -23,7 +23,7 @@ sourceSets {
     integrationTest.groovy.srcDir file('src/integration-test/groovy')
 }
 
-eclipse.classpath.plusConfigurations += configurations.integrationTestRuntime
+eclipse.classpath.plusConfigurations += [configurations.integrationTestRuntime]
 
 dependencies {
     providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
