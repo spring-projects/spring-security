@@ -45,6 +45,10 @@ public class SimpDestinationMessageMatcherTests {
         new SimpDestinationMessageMatcher(null);
     }
 
+    public void constructorOnlyPathNoError() {
+        new SimpDestinationMessageMatcher("/path");
+    }
+
     @Test
     public void matchesDoesNotMatchNullDestination() throws Exception {
         assertThat(matcher.matches(messageBuilder.build())).isFalse();

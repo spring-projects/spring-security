@@ -81,7 +81,7 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
      *            the pattern to use
      */
     public SimpDestinationMessageMatcher(String pattern) {
-        this(pattern, null);
+        this(pattern, new AntPathMatcher());
     }
 
     /**
