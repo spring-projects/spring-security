@@ -58,12 +58,22 @@ public class MessageSecurityMetadataSourceRegistry {
     }
 
     /**
+     * Maps any {@link Message} that has a null SimpMessageHeaderAccessor destination header (i.e. CONNECT,
+     * CONNECT_ACK, HEARTBEAT, UNSUBSCRIBE, DISCONNECT, DISCONNECT_ACK, OTHER)
+     *
+     * @return the Expression to associate
+     */
+    public Constraint nullDestMatcher() {
+        return matchers(SimpDestinationMessageMatcher.NULL_DESTINATION_MATCHER);
+    }
+
+    /**
      * Maps a {@link List} of {@link SimpDestinationMessageMatcher} instances.
      *
      * @param typesToMatch the {@link SimpMessageType} instance to match on
      * @return the {@link Constraint} associated to the matchers.
      */
-    public Constraint typeMatchers(SimpMessageType... typesToMatch) {
+    public Constraint simpTypeMatchers(SimpMessageType... typesToMatch) {
         MessageMatcher<?>[] typeMatchers = new MessageMatcher<?>[typesToMatch.length];
         for (int i = 0; i < typesToMatch.length; i++) {
             SimpMessageType typeToMatch = typesToMatch[i];
@@ -81,15 +91,45 @@ public class MessageSecurityMetadataSourceRegistry {
      *            the patterns to create
      *            {@link org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher}
      *            from. Uses
-     *            {@link MessageSecurityMetadataSourceRegistry#pathMatcher(PathMatcher)}
+     *            {@link MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)}
      *            .
      *
      * @return the {@link Constraint} that is associated to the
      *         {@link MessageMatcher}
-     * @see {@link MessageSecurityMetadataSourceRegistry#pathMatcher(PathMatcher)}
+     * @see {@link MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)}
      */
-    public Constraint antMatchers(String... patterns) {
-        return antMatchers(null, patterns);
+    public Constraint simpDestMatchers(String... patterns) {
+        return simpDestMatchers(null, patterns);
+    }
+
+    /**
+     * Maps a {@link List} of {@link SimpDestinationMessageMatcher} instances that match on {@code SimpMessageType.MESSAGE}.
+     * If no destination is found on the Message, then the Matcher returns
+     * false.
+     *
+     * @param patterns the patterns to create {@link org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher}
+     *                    from. Uses {@link MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)}.
+     *
+     * @return the {@link Constraint}  that is associated to the {@link MessageMatcher}
+     * @see {@link MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)}
+     */
+    public Constraint simpDestMessageMatchers(String... patterns) {
+        return simpDestMatchers(SimpMessageType.MESSAGE, patterns);
+    }
+
+    /**
+     * Maps a {@link List} of {@link SimpDestinationMessageMatcher} instances that match on {@code SimpMessageType.SUBSCRIBE}.
+     * If no destination is found on the Message, then the Matcher returns
+     * false.
+     *
+     * @param patterns the patterns to create {@link org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher}
+     *                    from. Uses {@link MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)}.
+     *
+     * @return the {@link Constraint}  that is associated to the {@link MessageMatcher}
+     * @see {@link MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)}
+     */
+    public Constraint simpDestSubscribeMatchers(String... patterns) {
+        return simpDestMatchers(SimpMessageType.SUBSCRIBE, patterns);
     }
 
     /**
@@ -99,12 +139,12 @@ public class MessageSecurityMetadataSourceRegistry {
      *
      * @param type the {@link SimpMessageType} to match on. If null, the {@link SimpMessageType} is not considered for matching.
      * @param patterns the patterns to create {@link org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher}
-     *                    from. Uses {@link MessageSecurityMetadataSourceRegistry#pathMatcher(PathMatcher)}.
+     *                    from. Uses {@link MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)}.
      *
      * @return the {@link Constraint}  that is associated to the {@link MessageMatcher}
-     * @see {@link MessageSecurityMetadataSourceRegistry#pathMatcher(PathMatcher)}
+     * @see {@link MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)}
      */
-    public Constraint antMatchers(SimpMessageType type, String... patterns) {
+    private Constraint simpDestMatchers(SimpMessageType type, String... patterns) {
         List<MatcherBuilder> matchers = new ArrayList<MatcherBuilder>(patterns.length);
         for(String pattern : patterns) {
             matchers.add(new PathMatcherMessageMatcherBuilder(pattern, type));
@@ -113,13 +153,13 @@ public class MessageSecurityMetadataSourceRegistry {
     }
 
     /**
-     * The {@link PathMatcher} to be used with the {@link MessageSecurityMetadataSourceRegistry#antMatchers(String...)}.
+     * The {@link PathMatcher} to be used with the {@link MessageSecurityMetadataSourceRegistry#simpDestMatchers(String...)}.
      * The default is to use the default constructor of {@link AntPathMatcher}.
      *
      * @param pathMatcher the {@link PathMatcher} to use. Cannot be null.
      * @return the {@link MessageSecurityMetadataSourceRegistry} for further customization.
      */
-    public MessageSecurityMetadataSourceRegistry pathMatcher(PathMatcher pathMatcher) {
+    public MessageSecurityMetadataSourceRegistry simpDestPathMatcher(PathMatcher pathMatcher) {
         Assert.notNull(pathMatcher, "pathMatcher cannot be null");
         this.pathMatcher = pathMatcher;
         return this;
@@ -344,7 +384,14 @@ public class MessageSecurityMetadataSourceRegistry {
         }
 
         public MessageMatcher<?> build() {
-            return new SimpDestinationMessageMatcher(pattern, type, pathMatcher);
+            if(type == null) {
+                return new SimpDestinationMessageMatcher(pattern, pathMatcher);
+            } else if(SimpMessageType.MESSAGE == type) {
+                return SimpDestinationMessageMatcher.createMessageMatcher(pattern, pathMatcher);
+            } else if(SimpMessageType.SUBSCRIBE == type) {
+                return SimpDestinationMessageMatcher.createSubscribeMatcher(pattern, pathMatcher);
+            }
+            throw new IllegalStateException(type + " is not supported since it does not have a destination");
         }
     }
 

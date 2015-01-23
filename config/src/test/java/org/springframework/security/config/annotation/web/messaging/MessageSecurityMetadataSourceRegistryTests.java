@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.messaging.access.intercept.MessageSecurityMetadataSource;
@@ -48,20 +49,21 @@ public class MessageSecurityMetadataSourceRegistryTests {
         message = MessageBuilder
                 .withPayload("Hi")
                 .setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "location")
-                   .build();
+                .setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.MESSAGE)
+                .build();
     }
 
     // See https://github.com/spring-projects/spring-security/commit/3f30529039c76facf335d6ca69d18d8ae287f3f9#commitcomment-7412712
     // https://jira.spring.io/browse/SPR-11660
     @Test
-    public void destinationMatcherCustom() {
+    public void simpDestMatchersCustom() {
         message = MessageBuilder
                 .withPayload("Hi")
                 .setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "price.stock.1.2")
                 .build();
         messages
-                .pathMatcher(new AntPathMatcher("."))
-                .antMatchers("price.stock.*").permitAll();
+                .simpDestPathMatcher(new AntPathMatcher("."))
+                .simpDestMatchers("price.stock.*").permitAll();
 
         assertThat(getAttribute()).isNull();
 
@@ -70,21 +72,21 @@ public class MessageSecurityMetadataSourceRegistryTests {
                 .setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "price.stock.1.2")
                 .build();
         messages
-                .pathMatcher(new AntPathMatcher("."))
-                .antMatchers("price.stock.**").permitAll();
+                .simpDestPathMatcher(new AntPathMatcher("."))
+                .simpDestMatchers("price.stock.**").permitAll();
 
         assertThat(getAttribute()).isEqualTo("permitAll");
     }
 
     @Test
-    public void destinationMatcherCustomSetAfterMatchersDoesNotMatter() {
+    public void simpDestMatchersCustomSetAfterMatchersDoesNotMatter() {
         message = MessageBuilder
                 .withPayload("Hi")
                 .setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "price.stock.1.2")
                 .build();
         messages
-                .antMatchers("price.stock.*").permitAll()
-                .pathMatcher(new AntPathMatcher("."));
+                .simpDestMatchers("price.stock.*").permitAll()
+                .simpDestPathMatcher(new AntPathMatcher("."));
 
         assertThat(getAttribute()).isNull();
 
@@ -93,14 +95,15 @@ public class MessageSecurityMetadataSourceRegistryTests {
                 .setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "price.stock.1.2")
                 .build();
         messages
-                .antMatchers("price.stock.**").permitAll()
-                .pathMatcher(new AntPathMatcher("."));
+                .simpDestMatchers("price.stock.**").permitAll()
+                .simpDestPathMatcher(new AntPathMatcher("."));
 
         assertThat(getAttribute()).isEqualTo("permitAll");
     }
+
     @Test(expected = IllegalArgumentException.class)
     public void pathMatcherNull() {
-        messages.pathMatcher(null);
+        messages.simpDestPathMatcher(null);
     }
 
     @Test
@@ -121,102 +124,201 @@ public class MessageSecurityMetadataSourceRegistryTests {
     }
 
     @Test
-    public void destinationMatcherExact() {
+    public void simpDestMatchersExact() {
         messages
-                .antMatchers("location").permitAll();
+                .simpDestMatchers("location").permitAll();
 
         assertThat(getAttribute()).isEqualTo("permitAll");
     }
 
     @Test
-    public void destinationMatcherMulti() {
+    public void simpDestMatchersMulti() {
         messages
-                .antMatchers("admin/**","api/**").hasRole("ADMIN")
-                .antMatchers("location").permitAll();
+                .simpDestMatchers("admin/**","api/**").hasRole("ADMIN")
+                .simpDestMatchers("location").permitAll();
 
         assertThat(getAttribute()).isEqualTo("permitAll");
     }
 
     @Test
-    public void destinationMatcherRole() {
+    public void simpDestMatchersRole() {
         messages
-                .antMatchers("admin/**","location/**").hasRole("ADMIN")
+                .simpDestMatchers("admin/**","location/**").hasRole("ADMIN")
                 .anyMessage().denyAll();
 
         assertThat(getAttribute()).isEqualTo("hasRole('ROLE_ADMIN')");
     }
 
     @Test
-    public void destinationMatcherAnyRole() {
+    public void simpDestMatchersAnyRole() {
         messages
-                .antMatchers("admin/**","location/**").hasAnyRole("ADMIN", "ROOT")
+                .simpDestMatchers("admin/**","location/**").hasAnyRole("ADMIN", "ROOT")
                 .anyMessage().denyAll();
 
         assertThat(getAttribute()).isEqualTo("hasAnyRole('ROLE_ADMIN','ROLE_ROOT')");
     }
 
     @Test
-    public void destinationMatcherAuthority() {
+    public void simpDestMatchersAuthority() {
         messages
-                .antMatchers("admin/**","location/**").hasAuthority("ROLE_ADMIN")
+                .simpDestMatchers("admin/**","location/**").hasAuthority("ROLE_ADMIN")
                 .anyMessage().fullyAuthenticated();
 
         assertThat(getAttribute()).isEqualTo("hasAuthority('ROLE_ADMIN')");
     }
 
     @Test
-    public void destinationMatcherAccess() {
+    public void simpDestMatchersAccess() {
         String expected = "hasRole('ROLE_ADMIN') and fullyAuthenticated";
         messages
-                .antMatchers("admin/**","location/**").access(expected)
+                .simpDestMatchers("admin/**","location/**").access(expected)
                 .anyMessage().denyAll();
 
         assertThat(getAttribute()).isEqualTo(expected);
     }
 
     @Test
-    public void destinationMatcherAnyAuthority() {
+    public void simpDestMatchersAnyAuthority() {
         messages
-                .antMatchers("admin/**","location/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_ROOT")
+                .simpDestMatchers("admin/**","location/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_ROOT")
                 .anyMessage().denyAll();
 
         assertThat(getAttribute()).isEqualTo("hasAnyAuthority('ROLE_ADMIN','ROLE_ROOT')");
     }
 
     @Test
-    public void destinationMatcherRememberMe() {
+    public void simpDestMatchersRememberMe() {
         messages
-                .antMatchers("admin/**","location/**").rememberMe()
+                .simpDestMatchers("admin/**","location/**").rememberMe()
                 .anyMessage().denyAll();
 
         assertThat(getAttribute()).isEqualTo("rememberMe");
     }
 
     @Test
-    public void destinationMatcherAnonymous() {
+    public void simpDestMatchersAnonymous() {
         messages
-                .antMatchers("admin/**","location/**").anonymous()
+                .simpDestMatchers("admin/**","location/**").anonymous()
                 .anyMessage().denyAll();
 
         assertThat(getAttribute()).isEqualTo("anonymous");
     }
 
     @Test
-    public void destinationMatcherFullyAuthenticated() {
+    public void simpDestMatchersFullyAuthenticated() {
         messages
-                .antMatchers("admin/**","location/**").fullyAuthenticated()
+                .simpDestMatchers("admin/**","location/**").fullyAuthenticated()
                 .anyMessage().denyAll();
 
         assertThat(getAttribute()).isEqualTo("fullyAuthenticated");
     }
 
     @Test
-    public void destinationMatcherDenyAll() {
+    public void simpDestMatchersDenyAll() {
         messages
-                .antMatchers("admin/**","location/**").denyAll()
+                .simpDestMatchers("admin/**","location/**").denyAll()
                 .anyMessage().permitAll();
 
         assertThat(getAttribute()).isEqualTo("denyAll");
+    }
+
+    @Test
+    public void simpDestMessageMatchersNotMatch() {
+        messages
+                .simpDestMessageMatchers("admin/**").denyAll()
+                .anyMessage().permitAll();
+
+        assertThat(getAttribute()).isEqualTo("permitAll");
+    }
+
+    @Test
+    public void simpDestMessageMatchersMatch() {
+        messages
+                .simpDestMessageMatchers("location/**").denyAll()
+                .anyMessage().permitAll();
+
+        assertThat(getAttribute()).isEqualTo("denyAll");
+    }
+
+    @Test
+    public void simpDestSubscribeMatchersNotMatch() {
+        messages
+                .simpDestSubscribeMatchers("location/**").denyAll()
+                .anyMessage().permitAll();
+
+        assertThat(getAttribute()).isEqualTo("permitAll");
+    }
+
+    @Test
+    public void simpDestSubscribeMatchersMatch() {
+        message = MessageBuilder.fromMessage(message)
+                    .setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.SUBSCRIBE)
+                    .build();
+
+        messages
+                .simpDestSubscribeMatchers("location/**").denyAll()
+                .anyMessage().permitAll();
+
+        assertThat(getAttribute()).isEqualTo("denyAll");
+    }
+
+    @Test
+    public void nullDestMatcherNotMatches() {
+         messages
+             .nullDestMatcher().denyAll()
+             .anyMessage().permitAll();
+
+        assertThat(getAttribute()).isEqualTo("permitAll");
+    }
+
+    @Test
+    public void nullDestMatcherMatch() {
+        message = MessageBuilder
+                .withPayload("Hi")
+                .setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.CONNECT)
+                .build();
+
+         messages
+             .nullDestMatcher().denyAll()
+             .anyMessage().permitAll();
+
+        assertThat(getAttribute()).isEqualTo("denyAll");
+    }
+
+    @Test
+    public void simpTypeMatchersMatch() {
+         messages
+             .simpTypeMatchers(SimpMessageType.MESSAGE).denyAll()
+             .anyMessage().permitAll();
+
+        assertThat(getAttribute()).isEqualTo("denyAll");
+    }
+
+    @Test
+    public void simpTypeMatchersMatchMulti() {
+         messages
+             .simpTypeMatchers(SimpMessageType.CONNECT, SimpMessageType.MESSAGE).denyAll()
+             .anyMessage().permitAll();
+
+        assertThat(getAttribute()).isEqualTo("denyAll");
+    }
+
+    @Test
+    public void simpTypeMatchersNotMatch() {
+         messages
+             .simpTypeMatchers(SimpMessageType.CONNECT).denyAll()
+             .anyMessage().permitAll();
+
+        assertThat(getAttribute()).isEqualTo("permitAll");
+    }
+
+    @Test
+    public void simpTypeMatchersNotMatchMulti() {
+         messages
+             .simpTypeMatchers(SimpMessageType.CONNECT, SimpMessageType.DISCONNECT).denyAll()
+             .anyMessage().permitAll();
+
+        assertThat(getAttribute()).isEqualTo("permitAll");
     }
 
     private String getAttribute() {
