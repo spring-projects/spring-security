@@ -122,4 +122,11 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
         return messageTypeMatcher;
     }
 
+
+    @Override
+    public String toString() {
+        return "SimpDestinationMessageMatcher [matcher=" + matcher
+                + ", messageTypeMatcher=" + messageTypeMatcher + ", pattern="
+                + pattern + "]";
+    }
 }

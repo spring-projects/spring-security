@@ -19,7 +19,6 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
-import org.springframework.messaging.support.GenericMessage;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
@@ -38,7 +37,9 @@ public class SimpMessageTypeMatcher implements MessageMatcher<Object> {
     /**
      * Creates a new instance
      *
-     * @param typeToMatch the {@link SimpMessageType} that will result in a match. Cannot be null.
+     * @param typeToMatch
+     *            the {@link SimpMessageType} that will result in a match.
+     *            Cannot be null.
      */
     public SimpMessageTypeMatcher(SimpMessageType typeToMatch) {
         Assert.notNull(typeToMatch, "typeToMatch cannot be null");
@@ -53,23 +54,27 @@ public class SimpMessageTypeMatcher implements MessageMatcher<Object> {
         return typeToMatch == messageType;
     }
 
-
-
     @Override
     public boolean equals(Object other) {
-	if (this == other) {
-		return true;
-	}
-	if (!(other instanceof SimpMessageTypeMatcher)) {
-		return false;
-	}
-	SimpMessageTypeMatcher otherMatcher = (SimpMessageTypeMatcher) other;
-	return ObjectUtils.nullSafeEquals(this.typeToMatch, otherMatcher.typeToMatch);
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof SimpMessageTypeMatcher)) {
+            return false;
+        }
+        SimpMessageTypeMatcher otherMatcher = (SimpMessageTypeMatcher) other;
+        return ObjectUtils.nullSafeEquals(this.typeToMatch,
+                otherMatcher.typeToMatch);
 
     }
 
-	public int hashCode() {
-		// Using nullSafeHashCode for proper array hashCode handling
-		return ObjectUtils.nullSafeHashCode(this.typeToMatch);
-	}
+    public int hashCode() {
+        // Using nullSafeHashCode for proper array hashCode handling
+        return ObjectUtils.nullSafeHashCode(this.typeToMatch);
+    }
+
+    @Override
+    public String toString() {
+        return "SimpMessageTypeMatcher [typeToMatch=" + typeToMatch + "]";
+    }
 }
