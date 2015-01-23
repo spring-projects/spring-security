@@ -36,6 +36,9 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  */
 public final class SecurityContextChannelInterceptor extends ChannelInterceptorAdapter implements ExecutorChannelInterceptor {
+    private final SecurityContext EMPTY_CONTEXT = SecurityContextHolder.createEmptyContext();
+    private static final ThreadLocal<SecurityContext> ORIGINAL_CONTEXT = new ThreadLocal<SecurityContext>();
+
     private final String authenticationHeaderName;
 
     /**
@@ -75,6 +78,9 @@ public final class SecurityContextChannelInterceptor extends ChannelInterceptorA
     }
 
     private void setup(Message<?> message) {
+        SecurityContext currentContext = SecurityContextHolder.getContext();
+        ORIGINAL_CONTEXT.set(currentContext);
+
         Object user = message.getHeaders().get(authenticationHeaderName);
         if(!(user instanceof Authentication)) {
             return;
@@ -86,6 +92,17 @@ public final class SecurityContextChannelInterceptor extends ChannelInterceptorA
     }
 
     private void cleanup() {
-        SecurityContextHolder.clearContext();
+        SecurityContext originalContext = ORIGINAL_CONTEXT.get();
+        ORIGINAL_CONTEXT.remove();
+
+        try {
+            if(EMPTY_CONTEXT.equals(originalContext)) {
+                SecurityContextHolder.clearContext();
+            } else {
+                SecurityContextHolder.setContext(originalContext);
+            }
+        } catch(Throwable t) {
+            SecurityContextHolder.clearContext();
+        }
     }
 }

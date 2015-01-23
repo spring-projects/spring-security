@@ -146,4 +146,19 @@ public class SecurityContextChannelInterceptorTests {
 
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
     }
+
+    @Test
+    public void restoresOriginalContext() throws Exception {
+        TestingAuthenticationToken original = new TestingAuthenticationToken("original", "original", "ROLE_USER");
+        SecurityContextHolder.getContext().setAuthentication(original);
+
+        messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, authentication);
+        interceptor.beforeHandle(messageBuilder.build(), channel, handler);
+
+        assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(authentication);
+
+        interceptor.afterMessageHandled(messageBuilder.build(), channel, handler, null);
+
+        assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(original);
+    }
 }
