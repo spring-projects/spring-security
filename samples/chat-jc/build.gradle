@@ -1,0 +1,40 @@
+apply from: WAR_SAMPLE_GRADLE
+
+repositories {
+    maven { url 'http://clojars.org/repo' }
+}
+
+
+dependencies {
+    providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
+
+    compile project(":spring-security-web"),
+            project(":spring-security-config"),
+            project(":spring-security-messaging"),
+            project(":spring-security-data"),
+            "org.springframework:spring-webmvc:${springVersion}",
+            "org.springframework:spring-websocket:${springVersion}",
+            "org.springframework:spring-messaging:${springVersion}",
+            "org.springframework.session:spring-session:${springSessionVersion}",
+            "org.springframework.data:spring-data-redis:${springDataRedisVersion}",
+            "org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.0.Final",
+            "org.hsqldb:hsqldb:$hsqlVersion",
+            "javax.validation:validation-api:1.0.0.GA",
+            "org.hibernate:hibernate-validator:4.2.0.Final",
+            "redis.clients:jedis:2.4.2",
+            "redis.embedded:embedded-redis:0.2",
+            "org.apache.commons:commons-pool2:2.2",
+            "org.thymeleaf:thymeleaf-spring4:$thymeleafVersion",
+            "org.thymeleaf.extras:thymeleaf-extras-tiles2-spring4:2.1.1.RELEASE",
+            "org.slf4j:slf4j-api:$slf4jVersion",
+            "javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:$jstlVersion",
+            "com.fasterxml.jackson.core:jackson-databind:$jacksonDatavindVersion"
+    compile('org.hibernate:hibernate-entitymanager:3.6.10.Final') {
+        exclude group:'javassist', module: 'javassist'
+    }
+    compile("org.springframework.data:spring-data-jpa:$springDataJpaVersion") {
+        exclude group:'org.aspectj', module:'aspectjrt'
+    }
+
+    runtime "ch.qos.logback:logback-classic:$logbackVersion"
+}

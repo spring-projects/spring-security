@@ -1,0 +1,24 @@
+{
+  "name": "knockout",
+  "version": "2.3.0",
+  "main": "knockout.js",
+  "scripts": [
+    "knockout.js"
+  ],
+  "dependencies": {},
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "components"
+  ],
+  "homepage": "https://github.com/bowerjs/knockout",
+  "_release": "2.3.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "2.3.0",
+    "commit": "cd433fbf32abab7da5b2df204dea22f862354992"
+  },
+  "_source": "git://github.com/bowerjs/knockout.git",
+  "_target": "~2.3",
+  "_originalSource": "git://github.com/bowerjs/knockout.git"
+}

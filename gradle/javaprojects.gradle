@@ -35,7 +35,10 @@ ext.slf4jVersion = '1.7.7'
 ext.spockVersion = '0.7-groovy-2.0'
 ext.springDataCommonsVersion = '1.9.1.RELEASE'
 ext.springDataJpaVersion = '1.7.1.RELEASE'
+ext.springDataRedisVersion = '1.4.1.RELEASE'
+ext.springSessionVersion = '1.0.0.RELEASE'
 ext.thymeleafVersion = '2.1.3.RELEASE'
+ext.thymeleafVersion = '1.2.7.RELEASE'
 
 ext.spockDependencies = [
     dependencies.create("org.spockframework:spock-spring:$spockVersion") {

@@ -1,0 +1,14 @@
+{
+  "name": "knockout",
+  "version": "2.3.0",
+  "main": "knockout.js",
+  "scripts": [
+    "knockout.js"
+  ],
+  "dependencies": {},
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "components"
+  ]
+}

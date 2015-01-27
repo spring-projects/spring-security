@@ -1,0 +1,10 @@
+{
+  "name": "sockjs",
+  "version": "0.3.4",
+  "main": "sockjs.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "components"
+  ]
+}

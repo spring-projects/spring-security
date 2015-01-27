@@ -1,0 +1,20 @@
+{
+  "name": "sockjs",
+  "version": "0.3.4",
+  "main": "sockjs.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "components"
+  ],
+  "homepage": "https://github.com/myguidingstar/bower-sockjs",
+  "_release": "0.3.4",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.3.4",
+    "commit": "ae96e770ab85caf9073a8806a9dcd7c0ce316623"
+  },
+  "_source": "git://github.com/myguidingstar/bower-sockjs.git",
+  "_target": "~0.3",
+  "_originalSource": "sockjs"
+}
