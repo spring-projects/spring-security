@@ -56,6 +56,8 @@ public final class CsrfAuthenticationStrategy implements
             CsrfToken newToken = this.csrfTokenRepository.generateToken(request);
             this.csrfTokenRepository.saveToken(null, request, response);
             this.csrfTokenRepository.saveToken(newToken, request, response);
+            request.setAttribute(CsrfToken.class.getName(), newToken);
+            request.setAttribute(newToken.getParameterName(), newToken);
         }
     }
 }
