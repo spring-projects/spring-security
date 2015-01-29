@@ -15,6 +15,8 @@
  */
 package org.springframework.security.config.annotation.method.configuration;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.context.annotation.AdviceMode;
@@ -49,10 +51,20 @@ final class GlobalMethodSecuritySelector implements ImportSelector {
         AdviceMode mode = attributes.getEnum("mode");
         String autoProxyClassName = AdviceMode.PROXY == mode ? AutoProxyRegistrar.class.getName()
                 : GlobalMethodSecurityAspectJAutoProxyRegistrar.class.getName();
-        if(skipMethodSecurityConfiguration) {
-            return new String[] { autoProxyClassName };
+
+        boolean jsr250Enabled = attributes.getBoolean("jsr250Enabled");
+
+        List<String> classNames = new ArrayList<String>(4);
+        classNames.add(autoProxyClassName);
+
+        if(!skipMethodSecurityConfiguration) {
+            classNames.add(GlobalMethodSecurityConfiguration.class.getName());
         }
-        return new String[] { autoProxyClassName,
-                GlobalMethodSecurityConfiguration.class.getName()};
+
+        if(jsr250Enabled) {
+            classNames.add(Jsr250MetadataSourceConfiguration.class.getName());
+        }
+
+        return classNames.toArray(new String[0]);
     }
 }

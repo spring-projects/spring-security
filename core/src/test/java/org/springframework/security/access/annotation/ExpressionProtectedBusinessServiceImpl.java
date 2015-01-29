@@ -49,4 +49,8 @@ public class ExpressionProtectedBusinessServiceImpl implements BusinessService {
     public void methodWithBeanNamePropertyAccessExpression(String x) {
 
     }
+
+    public void rolesAllowedUser() {
+
+    }
 }

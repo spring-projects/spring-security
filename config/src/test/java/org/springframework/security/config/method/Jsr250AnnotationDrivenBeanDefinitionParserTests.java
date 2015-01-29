@@ -68,4 +68,14 @@ public class Jsr250AnnotationDrivenBeanDefinitionParserTests {
 
         target.someAdminMethod();
     }
+
+
+    @Test
+    public void hasAnyRoleAddsDefaultPrefix() {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
+                AuthorityUtils.createAuthorityList("ROLE_USER"));
+        SecurityContextHolder.getContext().setAuthentication(token);
+
+        target.rolesAllowedUser();
+    }
 }

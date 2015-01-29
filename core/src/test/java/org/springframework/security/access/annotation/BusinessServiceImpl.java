@@ -49,4 +49,7 @@ public class BusinessServiceImpl<E extends Entity> implements BusinessService {
         return null;
     }
 
+    public void rolesAllowedUser() {
+
+    }
 }

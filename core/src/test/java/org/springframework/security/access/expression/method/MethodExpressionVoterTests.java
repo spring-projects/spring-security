@@ -19,7 +19,7 @@ import org.springframework.security.util.SimpleMethodInvocation;
 
 @SuppressWarnings("unchecked")
 public class MethodExpressionVoterTests {
-    private TestingAuthenticationToken joe = new TestingAuthenticationToken("joe", "joespass", "blah");
+    private TestingAuthenticationToken joe = new TestingAuthenticationToken("joe", "joespass", "ROLE_blah");
     private PreInvocationAuthorizationAdviceVoter am =
         new PreInvocationAuthorizationAdviceVoter(new ExpressionBasedPreInvocationAdvice());
 

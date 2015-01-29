@@ -50,4 +50,8 @@ public class Jsr250BusinessServiceImpl implements BusinessService {
         return null;
     }
 
+    @RolesAllowed({"USER"})
+    public void rolesAllowedUser() {
+
+    }
 }

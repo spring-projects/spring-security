@@ -47,6 +47,9 @@ public interface BusinessService extends Serializable {
     @RolesAllowed({"ROLE_USER"})
     public void someUserMethod2();
 
+    @RolesAllowed({"USER"})
+    public void rolesAllowedUser();
+
     public int someOther(String s);
 
     public int someOther(int input);

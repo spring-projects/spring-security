@@ -37,6 +37,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
     private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
     private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultSecurityParameterNameDiscoverer();
     private PermissionCacheOptimizer permissionCacheOptimizer = null;
+    private String defaultRolePrefix = "ROLE_";
 
     public DefaultMethodSecurityExpressionHandler() {
     }
@@ -57,6 +58,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
         root.setPermissionEvaluator(getPermissionEvaluator());
         root.setTrustResolver(trustResolver);
         root.setRoleHierarchy(getRoleHierarchy());
+        root.setDefaultRolePrefix(defaultRolePrefix);
 
         return root;
     }
@@ -171,5 +173,22 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 
     public void setReturnObject(Object returnObject, EvaluationContext ctx) {
         ((MethodSecurityExpressionOperations)ctx.getRootObject().getValue()).setReturnObject(returnObject);
+    }
+
+    /**
+     * <p>
+     * Sets the default prefix to be added to {@link #hasAnyRole(String...)} or
+     * {@link #hasRole(String)}. For example, if hasRole("ADMIN") or hasRole("ROLE_ADMIN") is passed in,
+     * then the role ROLE_ADMIN will be used when the defaultRolePrefix is "ROLE_" (default).
+     * </p>
+     *
+     * <p>
+     * If null or empty, then no default role prefix is used.
+     * </p>
+     *
+     * @param defaultRolePrefix the default prefix to add to roles. Default "ROLE_".
+     */
+    public void setDefaultRolePrefix(String defaultRolePrefix) {
+        this.defaultRolePrefix = defaultRolePrefix;
     }
 }

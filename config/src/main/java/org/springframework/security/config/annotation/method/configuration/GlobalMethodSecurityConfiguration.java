@@ -88,6 +88,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
     private AnnotationAttributes enableMethodSecurity;
     private ApplicationContext context;
     private MethodSecurityExpressionHandler expressionHandler;
+    private Jsr250MethodSecurityMetadataSource jsr250MethodSecurityMetadataSource;
 
     /**
      * Creates the default MethodInterceptor which is a MethodSecurityInterceptor using the following methods to
@@ -172,7 +173,6 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
      *
      * @return
      */
-    @SuppressWarnings("rawtypes")
     protected AccessDecisionManager accessDecisionManager() {
         List<AccessDecisionVoter<? extends Object>> decisionVoters = new ArrayList<AccessDecisionVoter<? extends Object>>();
         ExpressionBasedPreInvocationAdvice expressionAdvice = new ExpressionBasedPreInvocationAdvice();
@@ -282,14 +282,13 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
             sources.add(customMethodSecurityMetadataSource);
         }
         if (prePostEnabled()) {
-            sources.add(new PrePostAnnotationSecurityMetadataSource(
-                    attributeFactory));
+            sources.add(new PrePostAnnotationSecurityMetadataSource(attributeFactory));
         }
         if (securedEnabled()) {
             sources.add(new SecuredAnnotationSecurityMetadataSource());
         }
         if (jsr250Enabled()) {
-            sources.add(new Jsr250MethodSecurityMetadataSource());
+            sources.add(jsr250MethodSecurityMetadataSource);
         }
         return new DelegatingMethodSecurityMetadataSource(sources);
     }
@@ -345,11 +344,26 @@ public class GlobalMethodSecurityConfiguration implements ImportAware {
     }
 
     @Autowired(required = false)
+    public void setJsr250MethodSecurityMetadataSource(
+            Jsr250MethodSecurityMetadataSource jsr250MethodSecurityMetadataSource) {
+        this.jsr250MethodSecurityMetadataSource = jsr250MethodSecurityMetadataSource;
+    }
+
+    @Autowired(required = false)
     public void setPermissionEvaluator(List<PermissionEvaluator> permissionEvaluators) {
         if(permissionEvaluators.size() != 1) {
             logger.debug("Not autwiring PermissionEvaluator since size != 1. Got " + permissionEvaluators);
         }
         this.defaultMethodExpressionHandler.setPermissionEvaluator(permissionEvaluators.get(0));
+    }
+
+    @Autowired(required = false)
+    public void setMethodSecurityExpressionHandler(List<MethodSecurityExpressionHandler> handlers) {
+        if(handlers.size() != 1) {
+            logger.debug("Not autwiring PermissionEvaluator since size != 1. Got " + handlers);
+            return;
+        }
+        this.expressionHandler = handlers.get(0);
     }
 
     @Autowired

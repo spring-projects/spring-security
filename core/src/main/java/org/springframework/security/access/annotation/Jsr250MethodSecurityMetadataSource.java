@@ -38,6 +38,24 @@ import org.springframework.security.access.method.AbstractFallbackMethodSecurity
  */
 public class Jsr250MethodSecurityMetadataSource extends AbstractFallbackMethodSecurityMetadataSource {
 
+    private String defaultRolePrefix = "ROLE_";
+
+    /**
+     * <p>
+     * Sets the default prefix to be added to {@link RolesAllowed}. For example, if {@code @RolesAllowed("ADMIN")} or {@code @RolesAllowed("ADMIN")} is used,
+     * then the role ROLE_ADMIN will be used when the defaultRolePrefix is "ROLE_" (default).
+     * </p>
+     *
+     * <p>
+     * If null or empty, then no default role prefix is used.
+     * </p>
+     *
+     * @param defaultRolePrefix the default prefix to add to roles. Default "ROLE_".
+     */
+    public void setDefaultRolePrefix(String defaultRolePrefix) {
+        this.defaultRolePrefix = defaultRolePrefix;
+    }
+
     protected Collection<ConfigAttribute> findAttributes(Class<?> clazz) {
         return processAnnotations(clazz.getAnnotations());
     }
@@ -69,11 +87,25 @@ public class Jsr250MethodSecurityMetadataSource extends AbstractFallbackMethodSe
                 RolesAllowed ra = (RolesAllowed) a;
 
                 for (String allowed : ra.value()) {
-                    attributes.add(new Jsr250SecurityConfig(allowed));
+                    String defaultedAllowed = getRoleWithDefaultPrefix(allowed);
+                    attributes.add(new Jsr250SecurityConfig(defaultedAllowed));
                 }
                 return attributes;
             }
         }
         return null;
+    }
+
+    private String getRoleWithDefaultPrefix(String role) {
+        if(role == null) {
+            return role;
+        }
+        if(defaultRolePrefix == null || defaultRolePrefix.length() == 0) {
+            return role;
+        }
+        if(role.startsWith(defaultRolePrefix)) {
+            return role;
+        }
+        return defaultRolePrefix + role;
     }
 }

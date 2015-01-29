@@ -628,7 +628,7 @@ protected void configure(HttpSecurity http) throws Exception {
         .authorizeRequests()                                                                <1>
             .antMatchers("/resources/**", "/signup", "/about").permitAll()                  <2>
             .antMatchers("/admin/**").hasRole("ADMIN")                                      <3>
-            .antMatchers("/db/**").access("hasRole('ROLE_ADMIN') and hasRole('ROLE_DBA')")  <4>
+            .antMatchers("/db/**").access("hasRole('ADMIN') and hasRole('DBA')")            <4>
             .anyRequest().authenticated()                                                   <5>
             .and()
         // ...
@@ -639,7 +639,7 @@ protected void configure(HttpSecurity http) throws Exception {
 <1> There are multiple children to the `http.authorizeRequests()` method each matcher is considered in the order they were declared.
 <2> We specified multiple URL patterns that any user can access. Specifically, any user can access a request if the URL starts with "/resources/", equals "/signup", or equals "/about".
 <3> Any URL that starts with "/admin/" will be resticted to users who have the role "ROLE_ADMIN". You will notice that since we are invoking the `hasRole` method we do not need to specify the "ROLE_" prefix.
-<4> Any URL that starts with "/db/" requires the user to have both "ROLE_ADMIN" and "ROLE_DBA"
+<4> Any URL that starts with "/db/" requires the user to have both "ROLE_ADMIN" and "ROLE_DBA". You will notice that since we are using the `hasRole` expression we do not need to specify the "ROLE_" prefix.
 <5> Any URL that has not already been matched on only requires that the user be authenticated
 
 [[jc-authentication]]
@@ -817,7 +817,7 @@ public class MethodSecurityConfig {
 }
 ----
 
-Adding an annotation to a method (on an class or interface) would then limit the access to that method accordingly. Spring Security���s native annotation support defines a set of attributes for the method. These will be passed to the AccessDecisionManager for it to make the actual decision:
+Adding an annotation to a method (on an class or interface) would then limit the access to that method accordingly. Spring Security's native annotation support defines a set of attributes for the method. These will be passed to the AccessDecisionManager for it to make the actual decision:
 
 [source,java]
 ----
@@ -844,7 +844,7 @@ public class MethodSecurityConfig {
 }
 ----
 
-These are standards-based and allow simple role-based constraints to be applied but do not have the power Spring Security���s native annotations. To use the new expression-based syntax, you would use
+These are standards-based and allow simple role-based constraints to be applied but do not have the power Spring Security's native annotations. To use the new expression-based syntax, you would use
 
 [source,java]
 ----
@@ -1017,7 +1017,7 @@ All you need to enable web security to begin with is
 [source,xml]
 ----
 <http>
-  <intercept-url pattern="/**" access="hasRole('ROLE_USER')" />
+  <intercept-url pattern="/**" access="hasRole('USER')" />
   <form-login />
   <logout />
 </http>
@@ -2388,7 +2388,7 @@ As we saw earlier in the namespace chapter, it's possible to use multiple `http`
 ----
 <!-- Stateless RESTful service using Basic authentication -->
 <http pattern="/restful/**" create-session="stateless">
-  <intercept-url pattern='/**' access="hasRole('ROLE_REMOTE')" />
+  <intercept-url pattern='/**' access="hasRole('REMOTE')" />
   <http-basic />
 </http>
 
@@ -2397,7 +2397,7 @@ As we saw earlier in the namespace chapter, it's possible to use multiple `http`
 
 <!-- Additional filter chain for normal users, matching all other requests -->
 <http>
-  <intercept-url pattern='/**' access="hasRole('ROLE_USER')" />
+  <intercept-url pattern='/**' access="hasRole('USER')" />
   <form-login login-page='/login.htm' default-target-url="/home.htm"/>
   <logout />
 </http>
@@ -4270,16 +4270,16 @@ The base class for expression root objects is `SecurityExpressionRoot`. This pro
 | Expression | Description
 
 | `hasRole([role])`
-| Returns `true` if the current principal has the specified role. This is a synonym for `hasAuthority([authority])`
+| Returns `true` if the current principal has the specified role. By default if the supplied role does not start with 'ROLE_' it will be added. This can be customized by modifying the `defaultRolePrefix` on `DefaultWebSecurityExpressionHandler`.
 
 | `hasAnyRole([role1,role2])`
-| Returns `true` if the current principal has any of the supplied roles (given as a comma-separated list of strings) This is a synonym for `hasAnyAuthority([authority1,authority2])`
+| Returns `true` if the current principal has any of the supplied roles (given as a comma-separated list of strings). By default if the supplied role does not start with 'ROLE_' it will be added. This can be customized by modifying the `defaultRolePrefix` on `DefaultWebSecurityExpressionHandler`.
 
 | `hasAuthority([authority])`
-| Returns `true` if the current principal has the specified authority. This is a synonym for `hasRole([role])`
+| Returns `true` if the current principal has the specified authority.
 
 | `hasAnyAuthority([authority1,authority2])`
-| Returns `true` if the current principal has any of the supplied roles (given as a comma-separated list of strings) `hasAnyRole([role1,role2])``hasAnyRole([role1,role2])`
+| Returns `true` if the current principal has any of the supplied roles (given as a comma-separated list of strings)
 
 | `principal`
 | Allows direct access to the principal object representing the current user
@@ -4351,7 +4351,7 @@ The most obviously useful annotation is `@PreAuthorize` which decides whether a 
 
 [source,java]
 ----
-@PreAuthorize("hasRole('ROLE_USER')")
+@PreAuthorize("hasRole('USER')")
 public void create(Contact contact);
 ----
 
@@ -4430,7 +4430,7 @@ As you may already be aware, Spring Security supports filtering of collections a
 
 [source,java]
 ----
-@PreAuthorize("hasRole('ROLE_USER')")
+@PreAuthorize("hasRole('USER')")
 @PostFilter("hasPermission(filterObject, 'read') or hasPermission(filterObject, 'admin')")
 public List<Contact> getAll();
 ----
@@ -7694,7 +7694,7 @@ Defines an authorization rule for a message.
 * **pattern** An ant based pattern that matches on the Message destination. For example, "/**" matches any Message with a destination; "/admin/**" matches any Message that has a destination that starts with "/admin/**".
 
 [[nsa-message-interceptor-access]]
-* **access** The expression used to secure the Message. For example, "denyAll" will deny access to all of the matching Messages; "permitAll" will grant access to all of the matching Messages; "hasRole('ROLE_ADMIN') requires the current user to have the role 'ROLE_ADMIN' for the matching Messages.
+* **access** The expression used to secure the Message. For example, "denyAll" will deny access to all of the matching Messages; "permitAll" will grant access to all of the matching Messages; "hasRole('ADMIN') requires the current user to have the role 'ROLE_ADMIN' for the matching Messages.
 
 [[nsa-authentication]]
 === Authentication Services

@@ -24,6 +24,7 @@ import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
@@ -32,10 +33,17 @@ import org.springframework.security.access.intercept.method.MockMethodInvocation
  * @author Luke Taylor
  * @author Ben Alex
  */
-public class Jsr250MethodDefinitionSourceTests {
-    Jsr250MethodSecurityMetadataSource mds = new Jsr250MethodSecurityMetadataSource();
-    A a = new A();
-    UserAllowedClass userAllowed = new UserAllowedClass();
+public class Jsr250MethodSecurityMetadataSourceTests {
+    Jsr250MethodSecurityMetadataSource mds;
+    A a;
+    UserAllowedClass userAllowed;
+
+    @Before
+    public void setup() {
+        mds = new Jsr250MethodSecurityMetadataSource();
+        a = new A();
+        userAllowed = new UserAllowedClass();
+    }
 
     private ConfigAttribute[] findAttributes(String methodName) throws Exception {
         return mds.findAttributes(a.getClass().getMethod(methodName), null).toArray(new ConfigAttribute[0]);
@@ -45,7 +53,7 @@ public class Jsr250MethodDefinitionSourceTests {
     public void methodWithRolesAllowedHasCorrectAttribute() throws Exception {
         ConfigAttribute[] accessAttributes = findAttributes("adminMethod");
         assertEquals(1, accessAttributes.length);
-        assertEquals("ADMIN", accessAttributes[0].toString());
+        assertEquals("ROLE_ADMIN", accessAttributes[0].toString());
     }
 
     @Test
@@ -71,7 +79,41 @@ public class Jsr250MethodDefinitionSourceTests {
     public void methodRoleOverridesClassRole() throws Exception {
         Collection<ConfigAttribute> accessAttributes = mds.findAttributes(userAllowed.getClass().getMethod("adminMethod"), null);
         assertEquals(1, accessAttributes.size());
-        assertEquals("ADMIN", accessAttributes.toArray()[0].toString());
+        assertEquals("ROLE_ADMIN", accessAttributes.toArray()[0].toString());
+    }
+
+    @Test
+    public void customDefaultRolePrefix() throws Exception {
+        mds.setDefaultRolePrefix("CUSTOMPREFIX_");
+
+        ConfigAttribute[] accessAttributes = findAttributes("adminMethod");
+        assertEquals(1, accessAttributes.length);
+        assertEquals("CUSTOMPREFIX_ADMIN", accessAttributes[0].toString());
+    }
+
+    @Test
+    public void emptyDefaultRolePrefix() throws Exception {
+        mds.setDefaultRolePrefix("");
+
+        ConfigAttribute[] accessAttributes = findAttributes("adminMethod");
+        assertEquals(1, accessAttributes.length);
+        assertEquals("ADMIN", accessAttributes[0].toString());
+    }
+
+    @Test
+    public void nullDefaultRolePrefix() throws Exception {
+        mds.setDefaultRolePrefix(null);
+
+        ConfigAttribute[] accessAttributes = findAttributes("adminMethod");
+        assertEquals(1, accessAttributes.length);
+        assertEquals("ADMIN", accessAttributes[0].toString());
+    }
+
+    @Test
+    public void alreadyHasDefaultPrefix() throws Exception {
+        ConfigAttribute[] accessAttributes = findAttributes("roleAdminMethod");
+        assertEquals(1, accessAttributes.length);
+        assertEquals("ROLE_ADMIN", accessAttributes[0].toString());
     }
 
     // JSR-250 Spec Tests
@@ -98,7 +140,7 @@ public class Jsr250MethodDefinitionSourceTests {
 
         Collection<ConfigAttribute> accessAttributes = mds.getAttributes(mi);
         assertEquals(1, accessAttributes.size());
-        assertEquals("DERIVED", accessAttributes.toArray()[0].toString());
+        assertEquals("ROLE_DERIVED", accessAttributes.toArray()[0].toString());
     }
 
     @Test
@@ -108,7 +150,7 @@ public class Jsr250MethodDefinitionSourceTests {
 
         Collection<ConfigAttribute> accessAttributes = mds.getAttributes(mi);
         assertEquals(1, accessAttributes.size());
-        assertEquals("DERIVED", accessAttributes.toArray()[0].toString());
+        assertEquals("ROLE_DERIVED", accessAttributes.toArray()[0].toString());
     }
 
     @Test
@@ -118,7 +160,7 @@ public class Jsr250MethodDefinitionSourceTests {
 
         Collection<ConfigAttribute> accessAttributes = mds.getAttributes(mi);
         assertEquals(1, accessAttributes.size());
-        assertEquals("EXPLICIT", accessAttributes.toArray()[0].toString());
+        assertEquals("ROLE_EXPLICIT", accessAttributes.toArray()[0].toString());
     }
 
     /**
@@ -151,7 +193,7 @@ public class Jsr250MethodDefinitionSourceTests {
 
         Collection<ConfigAttribute> accessAttributes = mds.getAttributes(mi);
         assertEquals(1, accessAttributes.size());
-        assertEquals("DERIVED", accessAttributes.toArray()[0].toString());
+        assertEquals("ROLE_DERIVED", accessAttributes.toArray()[0].toString());
     }
 
     //~ Inner Classes ======================================================================================================
@@ -162,6 +204,9 @@ public class Jsr250MethodDefinitionSourceTests {
 
         @RolesAllowed("ADMIN")
         public void adminMethod() {}
+
+        @RolesAllowed("ROLE_ADMIN")
+        public void roleAdminMethod() {}
 
         @PermitAll
         public void permitAllMethod() {}
