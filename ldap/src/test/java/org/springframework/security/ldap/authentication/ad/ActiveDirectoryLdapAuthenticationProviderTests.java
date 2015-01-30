@@ -75,26 +75,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 
     @Test
     public void successfulAuthenticationProducesExpectedAuthorities() throws Exception {
-        DirContext ctx = mock(DirContext.class);
-        when(ctx.getNameInNamespace()).thenReturn("");
-
-        DirContextAdapter dca = new DirContextAdapter();
-        SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
-        when(ctx.search(any(Name.class), any(String.class), any(Object[].class), any(SearchControls.class)))
-                .thenReturn(new MockNamingEnumeration(sr))
-                .thenReturn(new MockNamingEnumeration(sr));
-
-        provider.contextFactory = createContextFactoryReturning(ctx);
-
-        Authentication result = provider.authenticate(joe);
-
-        assertEquals(0, result.getAuthorities().size());
-
-        dca.addAttributeValue("memberOf","CN=Admin,CN=Users,DC=mydomain,DC=eu");
-
-        result = provider.authenticate(joe);
-
-        assertEquals(1, result.getAuthorities().size());
+        checkAuthentication("dc=mydomain,dc=eu", provider);
     }
 
     @Test
@@ -272,6 +253,13 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
         provider.authenticate(joe);
     }
 
+    @Test
+    public void rootDnProvidedSeparatelyFromDomainAlsoWorks() throws Exception {
+        ActiveDirectoryLdapAuthenticationProvider provider = new ActiveDirectoryLdapAuthenticationProvider("dc=ad,dc=eu,dc=mydomain", "mydomain.eu", "ldap://192.168.1.200/");
+        checkAuthentication("dc=ad,dc=eu,dc=mydomain", provider);
+
+    }
+
     ContextFactory createContextFactoryThrowing(final NamingException e) {
         return new ContextFactory() {
             @Override
@@ -289,6 +277,30 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
                 return ctx;
             }
         };
+    }
+
+    private void checkAuthentication(String rootDn, ActiveDirectoryLdapAuthenticationProvider provider) throws NamingException {
+        DirContext ctx = mock(DirContext.class);
+        when(ctx.getNameInNamespace()).thenReturn("");
+
+        DirContextAdapter dca = new DirContextAdapter();
+        SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
+        @SuppressWarnings("deprecation") DistinguishedName searchBaseDn = new DistinguishedName(rootDn);
+        when(ctx.search(eq(searchBaseDn), any(String.class), any(Object[].class), any(SearchControls.class)))
+                .thenReturn(new MockNamingEnumeration(sr))
+                .thenReturn(new MockNamingEnumeration(sr));
+
+        provider.contextFactory = createContextFactoryReturning(ctx);
+
+        Authentication result = provider.authenticate(joe);
+
+        assertEquals(0, result.getAuthorities().size());
+
+        dca.addAttributeValue("memberOf","CN=Admin,CN=Users,DC=mydomain,DC=eu");
+
+        result = provider.authenticate(joe);
+
+        assertEquals(1, result.getAuthorities().size());
     }
 
     static class MockNamingEnumeration implements NamingEnumeration<SearchResult> {
