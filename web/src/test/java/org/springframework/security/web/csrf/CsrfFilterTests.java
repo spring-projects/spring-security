@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.web.csrf;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -45,6 +46,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * @author Rob Winch
+ * @author Kazuki Shimizu
  *
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -118,7 +120,7 @@ public class CsrfFilterTests {
 		assertThat(request.getAttribute(CsrfToken.class.getName())).isEqualTo(token);
 
 		verify(deniedHandler).handle(eq(request), eq(response),
-				any(InvalidCsrfTokenException.class));
+				isA(InvalidCsrfTokenException.class));
 		verifyZeroInteractions(filterChain);
 	}
 
@@ -135,7 +137,7 @@ public class CsrfFilterTests {
 		assertThat(request.getAttribute(CsrfToken.class.getName())).isEqualTo(token);
 
 		verify(deniedHandler).handle(eq(request), eq(response),
-				any(InvalidCsrfTokenException.class));
+				isA(InvalidCsrfTokenException.class));
 		verifyZeroInteractions(filterChain);
 	}
 
@@ -152,7 +154,7 @@ public class CsrfFilterTests {
 		assertThat(request.getAttribute(CsrfToken.class.getName())).isEqualTo(token);
 
 		verify(deniedHandler).handle(eq(request), eq(response),
-				any(InvalidCsrfTokenException.class));
+				isA(InvalidCsrfTokenException.class));
 		verifyZeroInteractions(filterChain);
 	}
 
@@ -170,7 +172,7 @@ public class CsrfFilterTests {
 		assertThat(request.getAttribute(CsrfToken.class.getName())).isEqualTo(token);
 
 		verify(deniedHandler).handle(eq(request), eq(response),
-				any(InvalidCsrfTokenException.class));
+				isA(InvalidCsrfTokenException.class));
 		verifyZeroInteractions(filterChain);
 	}
 
@@ -306,7 +308,7 @@ public class CsrfFilterTests {
 			filter.doFilter(request, response, filterChain);
 
 			verify(deniedHandler).handle(eq(request), eq(response),
-					any(InvalidCsrfTokenException.class));
+					isA(InvalidCsrfTokenException.class));
 			verifyZeroInteractions(filterChain);
 		}
 	}
@@ -325,7 +327,7 @@ public class CsrfFilterTests {
 			filter.doFilter(request, response, filterChain);
 
 			verify(deniedHandler).handle(eq(request), eq(response),
-					any(InvalidCsrfTokenException.class));
+					isA(InvalidCsrfTokenException.class));
 			verifyZeroInteractions(filterChain);
 		}
 	}
@@ -358,6 +360,37 @@ public class CsrfFilterTests {
 
 	private static final CsrfTokenAssert assertToken(Object token) {
 		return new CsrfTokenAssert((CsrfToken) token);
+	}
+
+	// SEC-2836
+	@Test
+	public void doFilterAccessDeniedNotLoadTokenAndTokenPresent() throws ServletException,
+			IOException {
+		when(requestMatcher.matches(request)).thenReturn(true);
+		when(tokenRepository.loadToken(request)).thenReturn(null); // not load token
+		when(tokenRepository.generateToken(request)).thenReturn(token);
+		request.setParameter(token.getParameterName(), token.getToken() + ".REQUESTED"); // token present
+
+		filter.doFilter(request, response, filterChain);
+
+		verify(deniedHandler).handle(eq(request), eq(response),
+				isA(MissingCsrfTokenException.class));
+		verifyZeroInteractions(filterChain);
+	}
+
+	// SEC-2836
+	@Test
+	public void doFilterAccessDeniedNotLoadTokenAndTokenNotPresent() throws ServletException,
+			IOException {
+		when(requestMatcher.matches(request)).thenReturn(true);
+		when(tokenRepository.loadToken(request)).thenReturn(null); // not load token
+		when(tokenRepository.generateToken(request)).thenReturn(token);
+
+		filter.doFilter(request, response, filterChain);
+
+		verify(deniedHandler).handle(eq(request), eq(response),
+				isA(InvalidCsrfTokenException.class));
+		verifyZeroInteractions(filterChain);
 	}
 
 	private static class CsrfTokenAssert extends
