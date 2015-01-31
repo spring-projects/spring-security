@@ -1827,6 +1827,13 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="remember-me-cookie" type="xs:token">
+          <xs:annotation>
+              <xs:documentation>The name of cookie which store the token for remember-me authentication. Defaults to
+                  'SPRING_SECURITY_REMEMBER_ME_COOKIE'.
+              </xs:documentation>
+          </xs:annotation>
+      </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="token-repository-ref">
       <xs:attribute name="token-repository-ref" use="required" type="xs:token">

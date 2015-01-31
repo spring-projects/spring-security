@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
     static final String ATT_TOKEN_VALIDITY = "token-validity-seconds";
     static final String ATT_SECURE_COOKIE = "use-secure-cookie";
     static final String ATT_FORM_REMEMBERME_PARAMETER = "remember-me-parameter";
+    static final String ATT_REMEMBERME_COOKIE = "remember-me-cookie";
 
     protected final Log logger = LogFactory.getLog(getClass());
     private final String key;
@@ -74,6 +75,7 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
         String tokenValiditySeconds = element.getAttribute(ATT_TOKEN_VALIDITY);
         String useSecureCookie = element.getAttribute(ATT_SECURE_COOKIE);
         String remembermeParameter = element.getAttribute(ATT_FORM_REMEMBERME_PARAMETER);
+        String remembermeCookie = element.getAttribute(ATT_REMEMBERME_COOKIE);
         Object source = pc.extractSource(element);
 
         RootBeanDefinition services = null;
@@ -85,11 +87,12 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
         boolean useSecureCookieSet = StringUtils.hasText(useSecureCookie);
         boolean tokenValiditySet = StringUtils.hasText(tokenValiditySeconds);
         boolean remembermeParameterSet = StringUtils.hasText(remembermeParameter);
+        boolean remembermeCookieSet = StringUtils.hasText(remembermeCookie);
 
-        if (servicesRefSet && (dataSourceSet || tokenRepoSet || userServiceSet || tokenValiditySet || useSecureCookieSet || remembermeParameterSet)) {
+        if (servicesRefSet && (dataSourceSet || tokenRepoSet || userServiceSet || tokenValiditySet || useSecureCookieSet || remembermeParameterSet || remembermeCookieSet)) {
             pc.getReaderContext().error(ATT_SERVICES_REF + " can't be used in combination with attributes "
                     + ATT_TOKEN_REPOSITORY + "," + ATT_DATA_SOURCE + ", " + ATT_USER_SERVICE_REF + ", " + ATT_TOKEN_VALIDITY
-                    + ", " + ATT_SECURE_COOKIE + " or " + ATT_FORM_REMEMBERME_PARAMETER, source);
+                    + ", " + ATT_SECURE_COOKIE + ", " + ATT_FORM_REMEMBERME_PARAMETER + " or " + ATT_REMEMBERME_COOKIE, source);
         }
 
         if (dataSourceSet && tokenRepoSet) {
@@ -142,6 +145,10 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 
             if (remembermeParameterSet) {
                 services.getPropertyValues().addPropertyValue("parameter", remembermeParameter);
+            }
+
+            if (remembermeCookieSet) {
+                services.getPropertyValues().addPropertyValue("cookieName", remembermeCookie);
             }
 
             services.setSource(source);
