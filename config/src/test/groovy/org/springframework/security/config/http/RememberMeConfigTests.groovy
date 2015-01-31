@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -275,6 +275,31 @@ class RememberMeConfigTests extends AbstractHttpConfigTests {
         createAppContext(AUTH_PROVIDER_XML)
         then:
         BeanDefinitionParsingException e = thrown()
+    }
+
+    // SEC-2826
+    def 'Custom remember-me-cookie is supported'() {
+        httpAutoConfig () {
+            'remember-me'('remember-me-cookie': 'ourCookie')
+        }
+
+        createAppContext(AUTH_PROVIDER_XML)
+        expect:
+        rememberMeServices().cookieName == 'ourCookie'
+    }
+
+    // SEC-2826
+    def 'remember-me-cookie cannot be used together with services-ref'() {
+        when:
+        httpAutoConfig () {
+            'remember-me'('remember-me-cookie': 'ourCookie', 'services-ref': 'ourService')
+        }
+
+        createAppContext(AUTH_PROVIDER_XML)
+        then:
+        BeanDefinitionParsingException e = thrown()
+        expect:
+        e.message == 'Configuration problem: services-ref can\'t be used in combination with attributes token-repository-ref,data-source-ref, user-service-ref, token-validity-seconds, use-secure-cookie, remember-me-parameter or remember-me-cookie\nOffending resource: null'
     }
 
     def rememberMeServices() {
