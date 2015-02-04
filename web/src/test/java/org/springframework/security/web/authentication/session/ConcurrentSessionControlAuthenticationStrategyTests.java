@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,7 +95,7 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
         // no exception
     }
 
-    @Test(expected = SessionAuthenticationException.class)
+    @Test(expected = ConcurrentSessionAuthenticationException.class)
     public void maxSessionsWithException() {
         when(sessionRegistry.getAllSessions(any(), anyBoolean())).thenReturn(Collections.<SessionInformation>singletonList(sessionInformation));
         strategy.setMaximumSessions(1);

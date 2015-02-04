@@ -127,7 +127,7 @@ public class ConcurrentSessionControlAuthenticationStrategy implements MessageSo
     protected void allowableSessionsExceeded(List<SessionInformation> sessions, int allowableSessions,
             SessionRegistry registry) throws SessionAuthenticationException {
         if (exceptionIfMaximumExceeded || (sessions == null)) {
-            throw new SessionAuthenticationException(messages.getMessage("ConcurrentSessionControlAuthenticationStrategy.exceededAllowed",
+            throw new ConcurrentSessionAuthenticationException(messages.getMessage("ConcurrentSessionControlAuthenticationStrategy.exceededAllowed",
                     new Object[] {Integer.valueOf(allowableSessions)},
                     "Maximum sessions of {0} for this principal exceeded"));
         }
