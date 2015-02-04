@@ -349,6 +349,10 @@ public abstract class AbstractRememberMeServices implements RememberMeServices, 
         cookie.setMaxAge(maxAge);
         cookie.setPath(getCookiePath(request));
 
+        if(maxAge < 1) {
+            cookie.setVersion(1);
+        }
+
         if (useSecureCookie == null) {
             cookie.setSecure(request.isSecure());
         } else {
