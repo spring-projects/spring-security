@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ import org.springframework.util.Assert;
 public final class DelegatingAccessDeniedHandler implements AccessDeniedHandler {
     private final LinkedHashMap<Class<? extends AccessDeniedException>, AccessDeniedHandler> handlers;
 
-    private final AccessDeniedHandler defaultHander;
+    private final AccessDeniedHandler defaultHandler;
 
     /**
      * Creates a new instance
@@ -49,17 +49,17 @@ public final class DelegatingAccessDeniedHandler implements AccessDeniedHandler 
      *            {@link AccessDeniedHandler} that should be used. Each is
      *            considered in the order they are specified and only the first
      *            {@link AccessDeniedHandler} is ued.
-     * @param defaultHander
+     * @param defaultHandler
      *            the default {@link AccessDeniedHandler} that should be used if
      *            none of the handlers matches.
      */
     public DelegatingAccessDeniedHandler(
             LinkedHashMap<Class<? extends AccessDeniedException>, AccessDeniedHandler> handlers,
-            AccessDeniedHandler defaultHander) {
+            AccessDeniedHandler defaultHandler) {
         Assert.notEmpty(handlers, "handlers cannot be null or empty");
-        Assert.notNull(defaultHander, "defaultHandler cannot be null");
+        Assert.notNull(defaultHandler, "defaultHandler cannot be null");
         this.handlers = handlers;
-        this.defaultHander = defaultHander;
+        this.defaultHandler = defaultHandler;
     }
 
 
@@ -75,7 +75,7 @@ public final class DelegatingAccessDeniedHandler implements AccessDeniedHandler 
                 return;
             }
         }
-        defaultHander.handle(request, response, accessDeniedException);
+        defaultHandler.handle(request, response, accessDeniedException);
     }
 
 }
