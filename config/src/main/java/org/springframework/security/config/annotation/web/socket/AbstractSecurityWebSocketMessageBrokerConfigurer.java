@@ -82,7 +82,7 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
     public ChannelSecurityInterceptor inboundChannelSecurity() {
         ChannelSecurityInterceptor channelSecurityInterceptor = new ChannelSecurityInterceptor(inboundMessageSecurityMetadataSource());
         List<AccessDecisionVoter<? extends Object>> voters = new ArrayList<AccessDecisionVoter<? extends Object>>();
-        voters.add(new MessageExpressionVoter());
+        voters.add(new MessageExpressionVoter<Object>());
         AffirmativeBased manager = new AffirmativeBased(voters);
         channelSecurityInterceptor.setAccessDecisionManager(manager);
         return channelSecurityInterceptor;
