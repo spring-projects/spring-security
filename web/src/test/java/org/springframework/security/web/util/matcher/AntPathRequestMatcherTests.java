@@ -151,6 +151,16 @@ public class AntPathRequestMatcherTests {
         new AntPathRequestMatcher("/blah", "GET").toString();
     }
 
+    // SEC-2831
+    @Test
+    public void matchesWithInvalidMethod() {
+        AntPathRequestMatcher matcher = new AntPathRequestMatcher("/blah", "GET");
+        MockHttpServletRequest request = createRequest("/blah");
+        request.setMethod("INVALID");
+
+        assertThat(matcher.matches(request)).isFalse();
+    }
+
     private HttpServletRequest createRequestWithNullMethod(String path) {
         when(request.getQueryString()).thenReturn("doesntMatter");
         when(request.getServletPath()).thenReturn(path);

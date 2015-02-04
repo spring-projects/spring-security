@@ -122,7 +122,7 @@ public final class AntPathRequestMatcher implements RequestMatcher {
      *    {@code servletPath} + {@code pathInfo} of the request.
      */
     public boolean matches(HttpServletRequest request) {
-        if (httpMethod != null && request.getMethod() != null && httpMethod != HttpMethod.valueOf(request.getMethod())) {
+        if (httpMethod != null && request.getMethod() != null && httpMethod != valueOf(request.getMethod())) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Request '" + request.getMethod() + " " + getRequestPath(request) + "'"
                         + " doesn't match '" + httpMethod  + " " + pattern);
@@ -199,6 +199,21 @@ public final class AntPathRequestMatcher implements RequestMatcher {
         sb.append("]");
 
         return sb.toString();
+    }
+
+    /**
+     * Provides a save way of obtaining the HttpMethod from a String. If the method is invalid, returns null.
+     *
+     * @param method the HTTP method to use.
+     *
+     * @return the HttpMethod or null if method is invalid.
+     */
+    private static HttpMethod valueOf(String method) {
+        try {
+            return HttpMethod.valueOf(method);
+        } catch(IllegalArgumentException e) {}
+
+        return null;
     }
 
     private static interface Matcher {

@@ -12,6 +12,7 @@
  */
 package org.springframework.security.web.util.matcher;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
@@ -92,6 +93,16 @@ public class RegexRequestMatcherTests {
         RegexRequestMatcher matcher = new RegexRequestMatcher("/something/.*", null);
         HttpServletRequest request = createRequestWithNullMethod("/nomatch");
         assertFalse(matcher.matches(request));
+    }
+
+    // SEC-2831
+    @Test
+    public void matchesWithInvalidMethod() {
+        RegexRequestMatcher matcher = new RegexRequestMatcher("/blah", "GET");
+        MockHttpServletRequest request = new MockHttpServletRequest("INVALID","/blah");
+        request.setMethod("INVALID");
+
+        assertThat(matcher.matches(request)).isFalse();
     }
 
     private HttpServletRequest createRequestWithNullMethod(String path) {
