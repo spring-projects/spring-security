@@ -75,7 +75,7 @@ public final class RegexRequestMatcher implements RequestMatcher {
      * @return true if the pattern matches the URL, false otherwise.
      */
     public boolean matches(HttpServletRequest request) {
-        if (httpMethod != null && request.getMethod() != null && httpMethod != HttpMethod.valueOf(request.getMethod())) {
+        if (httpMethod != null && request.getMethod() != null && httpMethod != valueOf(request.getMethod())) {
             return false;
         }
 
@@ -101,5 +101,21 @@ public final class RegexRequestMatcher implements RequestMatcher {
         }
 
         return pattern.matcher(url).matches();
+    }
+
+
+    /**
+     * Provides a save way of obtaining the HttpMethod from a String. If the method is invalid, returns null.
+     *
+     * @param method the HTTP method to use.
+     *
+     * @return the HttpMethod or null if method is invalid.
+     */
+    private static HttpMethod valueOf(String method) {
+        try {
+            return HttpMethod.valueOf(method);
+        } catch(IllegalArgumentException e) {}
+
+        return null;
     }
 }
