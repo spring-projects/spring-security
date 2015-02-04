@@ -225,7 +225,7 @@ public class MessageSecurityMetadataSourceRegistryTests {
     @Test
     public void simpDestMessageMatchersNotMatch() {
         messages
-                .simpDestMessageMatchers("admin/**").denyAll()
+                .simpMessageDestMatchers("admin/**").denyAll()
                 .anyMessage().permitAll();
 
         assertThat(getAttribute()).isEqualTo("permitAll");
@@ -234,7 +234,7 @@ public class MessageSecurityMetadataSourceRegistryTests {
     @Test
     public void simpDestMessageMatchersMatch() {
         messages
-                .simpDestMessageMatchers("location/**").denyAll()
+                .simpMessageDestMatchers("location/**").denyAll()
                 .anyMessage().permitAll();
 
         assertThat(getAttribute()).isEqualTo("denyAll");
@@ -243,7 +243,7 @@ public class MessageSecurityMetadataSourceRegistryTests {
     @Test
     public void simpDestSubscribeMatchersNotMatch() {
         messages
-                .simpDestSubscribeMatchers("location/**").denyAll()
+                .simpSubscribeDestMatchers("location/**").denyAll()
                 .anyMessage().permitAll();
 
         assertThat(getAttribute()).isEqualTo("permitAll");
@@ -256,7 +256,7 @@ public class MessageSecurityMetadataSourceRegistryTests {
                     .build();
 
         messages
-                .simpDestSubscribeMatchers("location/**").denyAll()
+                .simpSubscribeDestMatchers("location/**").denyAll()
                 .anyMessage().permitAll();
 
         assertThat(getAttribute()).isEqualTo("denyAll");

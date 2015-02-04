@@ -46,8 +46,8 @@ import java.util.List;
  *   @Override
  *   protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
  *     messages
- *       .antMatchers("/user/queue/errors").permitAll()
- *       .antMatchers("/admin/**").hasRole("ADMIN")
+ *       .simpDestMatchers("/user/queue/errors").permitAll()
+ *       .simpDestMatchers("/admin/**").hasRole("ADMIN")
  *       .anyMessage().authenticated();
  *   }
  * }
@@ -61,7 +61,7 @@ import java.util.List;
 public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends AbstractWebSocketMessageBrokerConfigurer {
     private final WebSocketMessageSecurityMetadataSourceRegistry inboundRegistry = new WebSocketMessageSecurityMetadataSourceRegistry();
 
-    public final void registerStompEndpoints(StompEndpointRegistry registry) {}
+    public void registerStompEndpoints(StompEndpointRegistry registry) {}
 
     @Override
     public void addArgumentResolvers(
@@ -76,6 +76,15 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
         if(inboundRegistry.containsMapping()) {
             registration.setInterceptors(securityContextChannelInterceptor(),inboundChannelSecurity);
         }
+        customizeClientInboundChannel(registration);
+    }
+
+    /**
+     * Allows subclasses to customize the configuration of the {@link ChannelRegistration}.
+     *
+     * @param registration the {@link ChannelRegistration} to customize
+     */
+    protected void customizeClientInboundChannel(ChannelRegistration registration) {
     }
 
     @Bean

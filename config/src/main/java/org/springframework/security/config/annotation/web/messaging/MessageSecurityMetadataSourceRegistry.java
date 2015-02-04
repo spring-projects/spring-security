@@ -113,7 +113,7 @@ public class MessageSecurityMetadataSourceRegistry {
      * @return the {@link Constraint}  that is associated to the {@link MessageMatcher}
      * @see {@link MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)}
      */
-    public Constraint simpDestMessageMatchers(String... patterns) {
+    public Constraint simpMessageDestMatchers(String... patterns) {
         return simpDestMatchers(SimpMessageType.MESSAGE, patterns);
     }
 
@@ -128,7 +128,7 @@ public class MessageSecurityMetadataSourceRegistry {
      * @return the {@link Constraint}  that is associated to the {@link MessageMatcher}
      * @see {@link MessageSecurityMetadataSourceRegistry#simpDestPathMatcher(PathMatcher)}
      */
-    public Constraint simpDestSubscribeMatchers(String... patterns) {
+    public Constraint simpSubscribeDestMatchers(String... patterns) {
         return simpDestMatchers(SimpMessageType.SUBSCRIBE, patterns);
     }
 
