@@ -20,7 +20,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 public class AbstractPreAuthenticatedProcessingFilterTests {
     private AbstractPreAuthenticatedProcessingFilter filter;
@@ -123,10 +126,91 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
         assertEquals(authentication, SecurityContextHolder.getContext().getAuthentication());
     }
 
+    // SEC-1869
+    @Test
+    public void nullSuccessHandlerDoesntHarm() throws Exception {
+        MockHttpServletRequest request = createMockAuthenticationRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        Authentication authentication = new TestingAuthenticationToken("oldUser", "pass", "ROLE_USER");
+
+        filter.setAuthenticationSuccessHandler(null);
+
+        // be sure that this doesn't fail even though authenticationSuccessHandler is null
+        filter.successfulAuthentication(request, response, authentication);
+
+        assertEquals(authentication, SecurityContextHolder.getContext().getAuthentication());
+    }
+
+    // SEC-1869
+    @Test
+    public void successHandlerIsCalled() throws Exception {
+        MockHttpServletRequest request = createMockAuthenticationRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        Authentication authentication = new TestingAuthenticationToken("oldUser", "pass", "ROLE_USER");
+
+        AuthenticationSuccessHandler successHandler = mock(AuthenticationSuccessHandler.class);
+        filter.setAuthenticationSuccessHandler(successHandler);
+
+        filter.successfulAuthentication(request, response, authentication);
+
+        verify(successHandler, times(1)).onAuthenticationSuccess(request, response, authentication);
+        assertEquals(authentication, SecurityContextHolder.getContext().getAuthentication());
+    }
+
+    // SEC-1869
+    @Test
+    public void nullFailureHandlerDoesntHarm() throws Exception {
+        MockHttpServletRequest request = createMockAuthenticationRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        AuthenticationException authExc = new PreAuthenticatedCredentialsNotFoundException("foo!");
+
+        filter.setAuthenticationFailureHandler(null);
+
+        // be sure that this doesn't fail even though authenticationFailureHandler is null
+        filter.unsuccessfulAuthentication(request, response, authExc);
+
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+    }
+
+    // SEC-1869
+    @Test
+    public void failureHandlerIsInvoked() throws Exception {
+        MockHttpServletRequest request = createMockAuthenticationRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        AuthenticationFailureHandler failureHandler = mock(AuthenticationFailureHandler.class);
+
+        // mock an AuthenticationManager that always throws an exception
+        PreAuthenticatedCredentialsNotFoundException authExc = new PreAuthenticatedCredentialsNotFoundException("");
+        AuthenticationManager am = mock(AuthenticationManager.class);
+        when(am.authenticate(any(Authentication.class))).thenThrow(authExc);
+
+        filter.setAuthenticationManager(am);
+        filter.setAuthenticationFailureHandler(failureHandler);
+        filter.afterPropertiesSet();
+
+        filter.doFilter(request, response, mock(FilterChain.class));
+
+        // check that this exception causes the failure handler to be called. The exception as such
+        // is not propagated, but the failure handler receives it to act on it if needed.
+        verify(failureHandler, times(1)).onAuthenticationFailure(request, response, authExc);
+    }
+
+    private MockHttpServletRequest createMockAuthenticationRequest() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+
+        request.setServletPath("/j_mock_post");
+        request.setScheme("http");
+        request.setServerName("www.example.com");
+        request.setRequestURI("/mycontext/j_mock_post");
+        request.setContextPath("/mycontext");
+
+        return request;
+    }
+
     private void testDoFilter(boolean grantAccess) throws Exception {
         MockHttpServletRequest req = new MockHttpServletRequest();
         MockHttpServletResponse res = new MockHttpServletResponse();
-        getFilter(grantAccess).doFilter(req,res,new MockFilterChain());
+        getFilter(grantAccess).doFilter(req, res, new MockFilterChain());
         assertEquals(grantAccess, null != SecurityContextHolder.getContext().getAuthentication());
     }
 
