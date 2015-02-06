@@ -735,11 +735,17 @@ headers =
  ## Element for configuration of the HeaderWritersFilter. Enables easy setting for the X-Frame-Options, X-XSS-Protection and X-Content-Type-Options headers.
  element headers { headers-options.attlist, (cache-control? & xss-protection? & hsts? & frame-options? & content-type-options? & header*)}
 headers-options.attlist &=
+    ## Specifies if the default headers should be disabled. Default false.
+    attribute defaults-disabled {xsd:boolean}?
+headers-options.attlist &=
     ## Specifies if headers should be disabled. Default false.
     attribute disabled {xsd:boolean}?
 hsts =
     ## Adds support for HTTP Strict Transport Security (HSTS)
     element hsts {hsts-options.attlist}
+hsts-options.attlist &=
+    ## Specifies if HTTP Strict Transport Security (HSTS) should be disabled. Default false.
+    attribute disabled {xsd:boolean}?
 hsts-options.attlist &=
     ## Specifies if subdomains should be included. Default true.
     attribute include-subdomains {xsd:boolean}?
@@ -752,11 +758,17 @@ hsts-options.attlist &=
 
 cache-control =
     ## Adds Cache-Control no-cache, no-store, must-revalidate, Pragma no-cache, and Expires 0 for every request
-    element cache-control {empty}
+    element cache-control {cache-control.attlist}
+cache-control.attlist &=
+    ## Specifies if Cache Control should be disabled. Default false.
+    attribute disabled {xsd:boolean}?
 
 frame-options =
     ## Enable basic clickjacking support for newer browsers (IE8+), will set the X-Frame-Options header.
     element frame-options {frame-options.attlist,empty}
+frame-options.attlist &=
+    ## If disabled, the X-Frame-Options header will not be included. Default false.
+    attribute disabled {xsd:boolean}?
 frame-options.attlist &=
     ## Specify the policy to use for the X-Frame-Options-Header.
     attribute policy {"DENY","SAMEORIGIN","ALLOW-FROM"}?
@@ -778,7 +790,10 @@ xss-protection =
     ## Enable basic XSS browser protection, supported by newer browsers (IE8+), will set the X-XSS-Protection header.
     element xss-protection {xss-protection.attlist,empty}
 xss-protection.attlist &=
-    ## enable or disable the X-XSS-Protection header. Default is 'true' meaning it is enabled.
+    ## disable the X-XSS-Protection header. Default is 'false' meaning it is enabled.
+    attribute disabled {xsd:boolean}?
+xss-protection.attlist &=
+    ## specify that XSS Protection should be explicitly enabled or disabled. Default is 'true' meaning it is enabled.
     attribute enabled {xsd:boolean}?
 xss-protection.attlist &=
     ## Add mode=block to the header or not, default is on.
@@ -786,7 +801,10 @@ xss-protection.attlist &=
 
 content-type-options =
     ## Add a X-Content-Type-Options header to the resopnse. Value is always 'nosniff'.
-    element content-type-options {empty}
+    element content-type-options {content-type-options.attlist, empty}
+content-type-options.attlist &=
+    ## If disabled, the X-Content-Type-Options header will not be included. Default false.
+    attribute disabled {xsd:boolean}?
 
 header=
     ## Add additional headers to the response.

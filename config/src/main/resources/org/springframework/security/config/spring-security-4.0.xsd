@@ -2273,6 +2273,12 @@
       </xs:complexType>
    </xs:element>
   <xs:attributeGroup name="headers-options.attlist">
+      <xs:attribute name="defaults-disabled" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>Specifies if the default headers should be disabled. Default false.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
       <xs:attribute name="disabled" type="xs:boolean">
          <xs:annotation>
             <xs:documentation>Specifies if headers should be disabled. Default false.
@@ -2290,6 +2296,12 @@
       </xs:complexType>
    </xs:element>
   <xs:attributeGroup name="hsts-options.attlist">
+      <xs:attribute name="disabled" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>Specifies if HTTP Strict Transport Security (HSTS) should be disabled. Default false.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
       <xs:attribute name="include-subdomains" type="xs:boolean">
          <xs:annotation>
             <xs:documentation>Specifies if subdomains should be included. Default true.
@@ -2317,8 +2329,18 @@
                 every request
                 </xs:documentation>
       </xs:annotation>
-      <xs:complexType/>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:cache-control.attlist"/>
+      </xs:complexType>
    </xs:element>
+  <xs:attributeGroup name="cache-control.attlist">
+      <xs:attribute name="disabled" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>Specifies if Cache Control should be disabled. Default false.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
   <xs:element name="frame-options">
       <xs:annotation>
          <xs:documentation>Enable basic clickjacking support for newer browsers (IE8+), will set the X-Frame-Options
@@ -2330,6 +2352,12 @@
       </xs:complexType>
    </xs:element>
   <xs:attributeGroup name="frame-options.attlist">
+      <xs:attribute name="disabled" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>If disabled, the X-Frame-Options header will not be included. Default false.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
       <xs:attribute name="policy">
          <xs:annotation>
             <xs:documentation>Specify the policy to use for the X-Frame-Options-Header.
@@ -2387,9 +2415,16 @@
       </xs:complexType>
    </xs:element>
   <xs:attributeGroup name="xss-protection.attlist">
+      <xs:attribute name="disabled" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>disable the X-XSS-Protection header. Default is 'false' meaning it is enabled.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
       <xs:attribute name="enabled" type="xs:boolean">
          <xs:annotation>
-            <xs:documentation>enable or disable the X-XSS-Protection header. Default is 'true' meaning it is enabled.
+            <xs:documentation>specify that XSS Protection should be explicitly enabled or disabled. Default is 'true'
+                meaning it is enabled.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
@@ -2405,8 +2440,18 @@
          <xs:documentation>Add a X-Content-Type-Options header to the resopnse. Value is always 'nosniff'.
                 </xs:documentation>
       </xs:annotation>
-      <xs:complexType/>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:content-type-options.attlist"/>
+      </xs:complexType>
    </xs:element>
+  <xs:attributeGroup name="content-type-options.attlist">
+      <xs:attribute name="disabled" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>If disabled, the X-Content-Type-Options header will not be included. Default false.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
   <xs:element name="header">
       <xs:annotation>
          <xs:documentation>Add additional headers to the response.

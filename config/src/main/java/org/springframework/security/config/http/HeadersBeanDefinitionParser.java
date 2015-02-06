@@ -17,6 +17,7 @@ package org.springframework.security.config.http;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.BeanMetadataElement;
@@ -47,6 +48,7 @@ import org.w3c.dom.Element;
  * @since 3.2
  */
 public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
+    private static final String ATT_DISABLED = "disabled";
 
     private static final String ATT_ENABLED = "enabled";
     private static final String ATT_BLOCK = "block";
@@ -80,43 +82,37 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
         headerWriters = new ManagedList<BeanMetadataElement>();
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(HeaderWriterFilter.class);
 
-        if(element != null) {
-
-            parseCacheControlElement(element);
-            parseHstsElement(element);
-            parseXssElement(element, parserContext);
-            parseFrameOptionsElement(element, parserContext);
-            parseContentTypeOptionsElement(element);
-
-            parseHeaderElements(element);
-        }
-
         boolean disabled = element != null && "true".equals(element.getAttribute("disabled"));
+        boolean defaultsDisabled = element != null && "true".equals(element.getAttribute("defaults-disabled"));
+
+        boolean addIfNotPresent = element == null || !disabled && !defaultsDisabled;
+
+        parseCacheControlElement(addIfNotPresent, element);
+        parseHstsElement(addIfNotPresent,element, parserContext);
+        parseXssElement(addIfNotPresent, element, parserContext);
+        parseFrameOptionsElement(addIfNotPresent, element, parserContext);
+        parseContentTypeOptionsElement(addIfNotPresent, element);
+
+        parseHeaderElements(element);
+
         if(disabled) {
             if(!headerWriters.isEmpty()) {
                 parserContext.getReaderContext().error("Cannot specify <headers disabled=\"true\"> with child elements.", element);
             }
             return null;
         }
-        if(headerWriters.isEmpty()) {
-            addCacheControl();
-            addHsts(null);
-            addContentTypeOptions();
 
-            BeanDefinitionBuilder frameOptions = BeanDefinitionBuilder.genericBeanDefinition(XFrameOptionsHeaderWriter.class);
-            frameOptions.addConstructorArgValue("DENY");
-            headerWriters.add(frameOptions.getBeanDefinition());
-
-            BeanDefinitionBuilder xss = BeanDefinitionBuilder.genericBeanDefinition(XXssProtectionHeaderWriter.class);
-            headerWriters.add(xss.getBeanDefinition());
-        }
         builder.addConstructorArgValue(headerWriters);
         return builder.getBeanDefinition();
     }
 
-    private void parseCacheControlElement(Element element) {
-        Element cacheControlElement = DomUtils.getChildElementByTagName(element, CACHE_CONTROL_ELEMENT);
-        if (cacheControlElement != null) {
+    private void parseCacheControlElement(boolean addIfNotPresent, Element element) {
+        Element cacheControlElement = element == null ? null : DomUtils.getChildElementByTagName(element, CACHE_CONTROL_ELEMENT);
+        boolean disabled = "true".equals(getAttribute(cacheControlElement, ATT_DISABLED, "false"));
+        if(disabled) {
+            return;
+        }
+        if (addIfNotPresent || cacheControlElement != null) {
             addCacheControl();
         }
     }
@@ -126,34 +122,55 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
         headerWriters.add(headersWriter.getBeanDefinition());
     }
 
-    private void parseHstsElement(Element element) {
-        Element hstsElement = DomUtils.getChildElementByTagName(element, HSTS_ELEMENT);
-        if (hstsElement != null) {
-            addHsts(hstsElement);
+    private void parseHstsElement(boolean addIfNotPresent, Element element, ParserContext context) {
+        Element hstsElement = element == null ? null : DomUtils.getChildElementByTagName(element, HSTS_ELEMENT);
+        if (addIfNotPresent || hstsElement != null) {
+            addHsts(addIfNotPresent, hstsElement, context);
         }
     }
 
-    private void addHsts(Element hstsElement) {
+    private void addHsts(boolean addIfNotPresent, Element hstsElement, ParserContext context) {
         BeanDefinitionBuilder headersWriter = BeanDefinitionBuilder.genericBeanDefinition(HstsHeaderWriter.class);
         if(hstsElement != null) {
+            boolean disabled = "true".equals(getAttribute(hstsElement, ATT_DISABLED, "false"));
             String includeSubDomains = hstsElement.getAttribute(ATT_INCLUDE_SUBDOMAINS);
             if(StringUtils.hasText(includeSubDomains)) {
+                if(disabled) {
+                    attrNotAllowed(context, ATT_INCLUDE_SUBDOMAINS, ATT_DISABLED, hstsElement);
+                }
                 headersWriter.addPropertyValue("includeSubDomains", includeSubDomains);
             }
             String maxAgeSeconds = hstsElement.getAttribute(ATT_MAX_AGE_SECONDS);
             if(StringUtils.hasText(maxAgeSeconds)) {
+                if(disabled) {
+                    attrNotAllowed(context, ATT_MAX_AGE_SECONDS, ATT_DISABLED, hstsElement);
+                }
                 headersWriter.addPropertyValue("maxAgeInSeconds", maxAgeSeconds);
             }
             String requestMatcherRef = hstsElement.getAttribute(ATT_REQUEST_MATCHER_REF);
             if(StringUtils.hasText(requestMatcherRef)) {
+                if(disabled) {
+                    attrNotAllowed(context, ATT_REQUEST_MATCHER_REF, ATT_DISABLED, hstsElement);
+                }
                 headersWriter.addPropertyReference("requestMatcher", requestMatcherRef);
             }
+
+            if(disabled == true) {
+                return;
+            }
         }
-        headerWriters.add(headersWriter.getBeanDefinition());
+        if(addIfNotPresent || hstsElement != null) {
+            headerWriters.add(headersWriter.getBeanDefinition());
+        }
+    }
+
+    private void attrNotAllowed(ParserContext context, String attrName, String otherAttrName, Element element) {
+        context.getReaderContext().error("Only one of '" + attrName + "' or '"+ otherAttrName +"' can be set.",
+                element);
     }
 
     private void parseHeaderElements(Element element) {
-        List<Element> headerElts = DomUtils.getChildElementsByTagName(element, GENERIC_HEADER_ELEMENT);
+        List<Element> headerElts = element == null ? Collections.<Element>emptyList() : DomUtils.getChildElementsByTagName(element, GENERIC_HEADER_ELEMENT);
         for (Element headerElt : headerElts) {
             String headerFactoryRef = headerElt.getAttribute(ATT_REF);
             if (StringUtils.hasText(headerFactoryRef)) {
@@ -167,9 +184,13 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
         }
     }
 
-    private void parseContentTypeOptionsElement(Element element) {
-        Element contentTypeElt = DomUtils.getChildElementByTagName(element, CONTENT_TYPE_ELEMENT);
-        if (contentTypeElt != null) {
+    private void parseContentTypeOptionsElement(boolean addIfNotPresent, Element element) {
+        Element contentTypeElt = element == null ? null : DomUtils.getChildElementByTagName(element, CONTENT_TYPE_ELEMENT);
+        boolean disabled = "true".equals(getAttribute(contentTypeElt, ATT_DISABLED, "false"));
+        if(disabled) {
+            return;
+        }
+        if (addIfNotPresent || contentTypeElt != null) {
             addContentTypeOptions();
         }
     }
@@ -179,12 +200,21 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
         headerWriters.add(builder.getBeanDefinition());
     }
 
-    private void parseFrameOptionsElement(Element element, ParserContext parserContext) {
+    private void parseFrameOptionsElement(boolean addIfNotPresent, Element element, ParserContext parserContext) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(XFrameOptionsHeaderWriter.class);
 
-        Element frameElt = DomUtils.getChildElementByTagName(element, FRAME_OPTIONS_ELEMENT);
+        Element frameElt = element == null ? null : DomUtils.getChildElementByTagName(element, FRAME_OPTIONS_ELEMENT);
         if (frameElt != null) {
-            String header = getAttribute(frameElt, ATT_POLICY, "DENY");
+            String header = getAttribute(frameElt, ATT_POLICY, null);
+            boolean disabled = "true".equals(getAttribute(frameElt, ATT_DISABLED, "false"));
+
+            if(disabled && header != null) {
+                this.attrNotAllowed(parserContext, ATT_DISABLED, ATT_POLICY, frameElt);
+            }
+            if(!StringUtils.hasText(header)) {
+                header = "DENY";
+            }
+
             if (ALLOW_FROM.equals(header) ) {
                 String strategyRef = getAttribute(frameElt, ATT_REF, null);
                 String strategy = getAttribute(frameElt, ATT_STRATEGY, null);
@@ -227,28 +257,52 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
             } else {
                 builder.addConstructorArgValue(header);
             }
+
+            if(disabled) {
+                return;
+            }
+        }
+
+        if(addIfNotPresent || frameElt != null) {
             headerWriters.add(builder.getBeanDefinition());
         }
     }
 
-    private void parseXssElement(Element element, ParserContext parserContext) {
-        Element xssElt = DomUtils.getChildElementByTagName(element, XSS_ELEMENT);
+    private void parseXssElement(boolean addIfNotPresent, Element element, ParserContext parserContext) {
+        Element xssElt = element == null ? null : DomUtils.getChildElementByTagName(element, XSS_ELEMENT);
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(XXssProtectionHeaderWriter.class);
         if (xssElt != null) {
-            String enabled = xssElt.getAttribute(ATT_ENABLED);
-            String block = xssElt.getAttribute(ATT_BLOCK);
+            boolean disabled = "true".equals(getAttribute(xssElt, ATT_DISABLED, "false"));
 
-            BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(XXssProtectionHeaderWriter.class);
+            String enabled = xssElt.getAttribute(ATT_ENABLED);
             if(StringUtils.hasText(enabled)) {
+                if(disabled) {
+                    attrNotAllowed(parserContext, ATT_ENABLED, ATT_DISABLED, xssElt);
+                }
                 builder.addPropertyValue("enabled", enabled);
             }
+
+            String block = xssElt.getAttribute(ATT_BLOCK);
             if(StringUtils.hasText(block)) {
+                if(disabled) {
+                    attrNotAllowed(parserContext, ATT_BLOCK, ATT_DISABLED, xssElt);
+                }
                 builder.addPropertyValue("block", block);
             }
+
+            if(disabled) {
+                return;
+            }
+        }
+        if(addIfNotPresent || xssElt != null) {
             headerWriters.add(builder.getBeanDefinition());
         }
     }
 
     private String getAttribute(Element element, String name, String defaultValue) {
+        if(element == null) {
+            return defaultValue;
+        }
         String value = element.getAttribute(name);
         if (StringUtils.hasText(value)) {
             return value;

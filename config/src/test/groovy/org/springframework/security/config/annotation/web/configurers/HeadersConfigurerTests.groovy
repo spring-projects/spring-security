@@ -26,6 +26,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.access.AccessDeniedHandler
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter.XFrameOptionsMode;
 import org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.support.RequestDataValueProcessor;
@@ -77,7 +78,10 @@ class HeadersConfigurerTests extends BaseSpringSpec {
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            http.headers().contentTypeOptions()
+            http
+                .headers()
+                    .defaultsDisabled()
+                    .contentTypeOptions()
         }
     }
 
@@ -95,7 +99,10 @@ class HeadersConfigurerTests extends BaseSpringSpec {
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            http.headers().frameOptions()
+            http
+                .headers()
+                    .defaultsDisabled()
+                    .frameOptions()
         }
     }
 
@@ -114,7 +121,10 @@ class HeadersConfigurerTests extends BaseSpringSpec {
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            http.headers().httpStrictTransportSecurity()
+            http
+                .headers()
+                    .defaultsDisabled()
+                    .httpStrictTransportSecurity()
         }
     }
 
@@ -134,7 +144,10 @@ class HeadersConfigurerTests extends BaseSpringSpec {
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            http.headers().cacheControl()
+            http
+                .headers()
+                    .defaultsDisabled()
+                    .cacheControl()
         }
     }
 
@@ -152,7 +165,37 @@ class HeadersConfigurerTests extends BaseSpringSpec {
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            http.headers().xssProtection()
+            http
+                .headers()
+                    .defaultsDisabled()
+                    .xssProtection()
+        }
+    }
+
+    def "headers custom x-frame-options"() {
+        setup:
+            loadConfig(HeadersCustomSameOriginConfig)
+            request.secure = true
+        when:
+            springSecurityFilterChain.doFilter(request,response,chain)
+        then:
+            responseHeaders == ['X-Content-Type-Options':'nosniff',
+                         'X-Frame-Options':'SAMEORIGIN',
+                         'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains',
+                         'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
+                         'Expires' : '0',
+                         'Pragma':'no-cache',
+                         'X-XSS-Protection' : '1; mode=block']
+    }
+
+    @EnableWebSecurity
+    static class HeadersCustomSameOriginConfig extends WebSecurityConfigurerAdapter {
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .headers()
+                    .frameOptions().sameOrigin()
         }
     }
 }

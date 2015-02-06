@@ -28,6 +28,7 @@ import org.springframework.security.web.header.writers.frameoptions.StaticAllowF
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter.XFrameOptionsMode
 import org.springframework.security.web.util.matcher.AnyRequestMatcher
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * Tests to verify that all the functionality of <headers> attributes is present
@@ -80,7 +81,8 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
         protected void configure(HttpSecurity http) {
             http
                 .headers()
-                    .addHeaderWriter(new CacheControlHeadersWriter())
+                    .defaultsDisabled()
+                    .cacheControl()
         }
     }
 
@@ -100,7 +102,8 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
         protected void configure(HttpSecurity http) {
             http
                 .headers()
-                    .addHeaderWriter(new HstsHeaderWriter())
+                    .defaultsDisabled()
+                    .httpStrictTransportSecurity()
         }
     }
 
@@ -120,8 +123,11 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
             http
                 .headers()
                     // hsts@request-matcher-ref, hsts@max-age-seconds, hsts@include-subdomains
-                    // Additional Constructors are provided to leverage default values
-                    .addHeaderWriter(new HstsHeaderWriter(AnyRequestMatcher.INSTANCE, 15768000, false))
+                    .defaultsDisabled()
+                    .httpStrictTransportSecurity()
+                        .requestMatcher(AnyRequestMatcher.INSTANCE)
+                        .maxAgeInSeconds(15768000)
+                        .includeSubDomains(false)
         }
     }
 
@@ -141,7 +147,9 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
             http
                 .headers()
                     // frame-options@policy=SAMEORIGIN
-                    .addHeaderWriter(new XFrameOptionsHeaderWriter(XFrameOptionsMode.SAMEORIGIN))
+                    .defaultsDisabled()
+                    .frameOptions()
+                        .sameOrigin()
         }
     }
 
@@ -164,6 +172,7 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
             http
                 .headers()
                     // frame-options@ref
+                    .defaultsDisabled()
                     .addHeaderWriter(new XFrameOptionsHeaderWriter(new StaticAllowFromStrategy(new URI("https://example.com"))))
         }
     }
@@ -184,7 +193,8 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
             http
                 .headers()
                     // xss-protection
-                    .addHeaderWriter(new XXssProtectionHeaderWriter())
+                    .defaultsDisabled()
+                    .xssProtection()
         }
     }
 
@@ -204,7 +214,10 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
             http
                 .headers()
                     // xss-protection@enabled and xss-protection@block
-                    .addHeaderWriter(new XXssProtectionHeaderWriter(enabled:true,block:false))
+                    .defaultsDisabled()
+                    .xssProtection()
+                        .xssProtectionEnabled(true)
+                        .block(false)
         }
     }
 
@@ -224,7 +237,8 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
             http
                 .headers()
                     // content-type-options
-                    .addHeaderWriter(new XContentTypeOptionsHeaderWriter())
+                    .defaultsDisabled()
+                    .contentTypeOptions()
         }
     }
 
@@ -245,6 +259,7 @@ public class NamespaceHttpHeadersTests extends BaseSpringSpec {
         protected void configure(HttpSecurity http) {
             http
                 .headers()
+                    .defaultsDisabled()
                     .addHeaderWriter(new StaticHeadersWriter("customHeaderName", "customHeaderValue"))
         }
     }

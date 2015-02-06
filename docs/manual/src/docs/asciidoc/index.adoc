@@ -3303,7 +3303,23 @@ You can also specify a custom RequestMatcher to determine which requests are pro
 This section discusses Spring Security's support for adding various security headers to the response.
 
 === Default Security Headers
-Spring Security allows users to easily inject the default security headers to assist in protecting their application. The following is a list of the current __Default Security Headers__ provided by Spring Security:
+Spring Security allows users to easily inject the default security headers to assist in protecting their application.
+The default for Spring Security is to include the following headers:
+
+[source,http]
+----
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Content-Type-Options: nosniff
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+----
+
+NOTE: Strict-Transport-Security is only added on HTTPS requests
+
+For additional details on each of these headers, refer to the corresponding sections:
 
 * <<headers-cache-control,Cache Control>>
 * <<headers-content-type-options,Content Type Options>>
@@ -3311,9 +3327,48 @@ Spring Security allows users to easily inject the default security headers to as
 * <<headers-frame-options,X-Frame-Options>>
 * <<headers-xss-protection,X-XSS-Protection>>
 
-While each of these headers are considered best practice, it should be noted that not all clients utilize the headers, so additional testing is encouraged. As of Spring Security 4.0, HTTP Security response headers are enabled by default.
+While each of these headers are considered best practice, it should be noted that not all clients utilize the headers, so additional testing is encouraged.
 
-Alternatively, you can choose to explicitly list the headers you wish to include. For example, the following is the same the default configuration. Removing any of the elements will remove that header from the responses.
+You can customize specific headers.
+For example, assume that want your HTTP response headers to look like the following:
+
+[source,http]
+----
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-XSS-Protection: 1; mode=block
+----
+
+Specifically, you want all of the default headers with the following customizations:
+
+* <<headers-frame-options,X-Frame-Options>> to allow any request from same domain
+* <<headers-hsts,HTTP Strict Transport Security (HSTS)>> will not be addded to the response
+
+You can easily do this with the following Java Configuration:
+
+[source,java]
+----
+@EnableWebSecurity
+public class WebSecurityConfig extends
+   WebSecurityConfigurerAdapter {
+
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    http
+      // ...
+      .headers()
+        .frameOptions()
+            .sameOrigin()
+            .and()
+        .hsts().disable();
+  }
+}
+----
+
+Alternatively, if you are using Spring Security XML Configuration, you can use the following:
 
 [source,xml]
 ----
@@ -3321,27 +3376,50 @@ Alternatively, you can choose to explicitly list the headers you wish to include
     <!-- ... -->
 
     <headers>
-        <cache-control />
-        <content-type-options />
-        <hsts />
-        <frame-options />
-        <xss-protection />
+        <frame-options policy="SAMEORIGIN" />
+        <hsts disable="true"/>
     </headers>
 </http>
 ----
 
-If necessary, you can disable the HTTP Security response headers with the following configuration:
+If you do not want the defaults to be added and want explicit control over what should be used, you can disable the defaults.
+An example for both Java and XML based configuration is provided below:
+
+If you are using Spring Security's Java Configuration the following will only add <<headers-cache-control,Cache Control>>.
+
+[source,java]
+----
+@EnableWebSecurity
+public class WebSecurityConfig extends
+   WebSecurityConfigurerAdapter {
+
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    http
+      // ...
+      .headers()
+         // do not use any default headers unless explicitly listed
+        .defaultsDisabled()
+        .cacheControl();
+  }
+}
+----
+
+The following XML will only add <<headers-cache-control,Cache Control>>.
 
 [source,xml]
 ----
 <http>
     <!-- ... -->
 
-    <headers disabled="true" />
+    <headers defaults-disabled="true">
+        <cache-control/>
+    </headers>
 </http>
 ----
 
-If you are using Spring Security's Java configuration, all of the default security headers are added by default. They can be disabled using the Java configuration below:
+
+If necessary, you can disable all of the HTTP Security response headers with the following Java Configuration:
 
 [source,java]
 ----
@@ -3358,23 +3436,15 @@ public class WebSecurityConfig extends
 }
 ----
 
-As soon as you specify any headers that should be included, then only those headers will be include. For example, the following configuration will include support for <<headers-cache-control,Cache Control>> and <<headers-frame-options,X-Frame-Options>> only.
+If necessary, you can disable all of the HTTP Security response headers with the following XML configuration below:
 
-[source,java]
+[source,xml]
 ----
-@EnableWebSecurity
-public class WebSecurityConfig extends
-   WebSecurityConfigurerAdapter {
+<http>
+    <!-- ... -->
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http
-      // ...
-      .headers()
-        .cacheControl()
-        .frameOptions();
-  }
-}
+    <headers disabled="true" />
+</http>
 ----
 
 [[headers-cache-control]]
@@ -3388,14 +3458,15 @@ Pragma: no-cache
 Expires: 0
 ----
 
-Simply adding the <<nsa-headers,<headers>>> element with no child elements will automatically add Cache Control and quite a few other protections. However, if you only want cache control, you can enable this feature using Spring Security's XML namespace with the <<nsa-cache-control,<cache-control>>> element.
+Simply adding the <<nsa-headers,<headers>>> element with no child elements will automatically add Cache Control and quite a few other protections.
+However, if you only want cache control, you can enable this feature using Spring Security's XML namespace with the <<nsa-cache-control,<cache-control>>> element and the <<nsa-headers-defaults-disabled,headers@defaults-disabled>> attribute.
 
 [source,xml]
 ----
 <http>
     <!-- ... -->
 
-    <headers>
+    <headers defaults-disable="true">
         <cache-control />
     </headers>
 </http>
@@ -3414,6 +3485,7 @@ public class WebSecurityConfig extends
     http
       // ...
       .headers()
+        .defaultsDisabled()
         .cacheControl();
   }
 }
@@ -3458,14 +3530,15 @@ Content sniffing can be disabled by adding the following header to our response:
 X-Content-Type-Options: nosniff
 ----
 
-Just as with the cache control element, the nosniff directive is added by default when using the <headers> element with no child elements. However, if you want more control over which headers are added you can use the <<nsa-content-type-options,<content-type-options>>> element as shown below:
+Just as with the cache control element, the nosniff directive is added by default when using the <headers> element with no child elements.
+However, if you want more control over which headers are added you can use the <<nsa-content-type-options,<content-type-options>>> element and the <<nsa-headers-defaults-disabled,headers@defaults-disabled>> attribute as shown below:
 
 [source,xml]
 ----
 <http>
     <!-- ... -->
 
-    <headers>
+    <headers defaults-disabled="true">
         <content-type-options />
     </headers>
 </http>
@@ -3484,6 +3557,7 @@ public class WebSecurityConfig extends
     http
       // ...
       .headers()
+        .defaultsDisabled()
         .contentTypeOptions();
   }
 }
@@ -3509,7 +3583,7 @@ Strict-Transport-Security: max-age=31536000 ; includeSubDomains
 
 The optional includeSubDomains directive instructs Spring Security that subdomains (i.e. secure.mybank.example.com) should also be treated as an HSTS domain.
 
-As with the other headers, Spring Security adds the previous header to the response when the <headers> element is specified with no child elements. It is also automatically added when you are using Java Configuration. You can also only use HSTS headers with the <<nsa-hsts,<hsts>>> element as shown below:
+As with the other headers, Spring Security adds HSTS by default. You can customize HSTS headers with the <<nsa-hsts,<hsts>>> element as shown below:
 
 [source,xml]
 ----
@@ -3517,7 +3591,9 @@ As with the other headers, Spring Security adds the previous header to the respo
     <!-- ... -->
 
     <headers>
-        <hsts />
+        <hsts
+            include-subdomains="true"
+            max-age-seconds="31536000" />
     </headers>
 </http>
 ----
@@ -3535,7 +3611,9 @@ public class WebSecurityConfig extends
     http
       // ...
       .headers()
-        .httpStrictTransportSecurity();
+        .httpStrictTransportSecurity()
+            .includeSubdomains(true)
+            .maxAgeSeconds(31536000);
   }
 }
 ----
@@ -3558,7 +3636,11 @@ A more modern approach to address clickjacking is to use https://developer.mozil
 X-Frame-Options: DENY
 ----
 
-The X-Frame-Options response header instructs the browser to prevent any site with this header in the response from being rendered within a frame. As with the other response headers, this is automatically included when the <headers> element is specified with no child elements. You can also explicitly specify the <<nsa-frame-options,frame-options>> element to control which headers are added to the response.
+The X-Frame-Options response header instructs the browser to prevent any site with this header in the response from being rendered within a frame.
+By default, Spring Security disables rendering within an iframe.
+
+You can customize X-Frame-Options with the <<nsa-frame-options,frame-options>> element.
+For example, the following will instruct Spring Security to use "X-Frame-Options: SAMEORIGIN" which allows iframes within the same domain:
 
 [source,xml]
 ----
@@ -3566,12 +3648,13 @@ The X-Frame-Options response header instructs the browser to prevent any site wi
     <!-- ... -->
 
     <headers>
-        <frame-options />
+        <frame-options
+          policy="SAMEORIGIN" />
     </headers>
 </http>
 ----
 
-Similarly, you can enable only frame options within Java Configuration with the following:
+Similarly, you can customize frame options to use the same origin within Java Configuration using the following:
 
 [source,java]
 ----
@@ -3584,12 +3667,11 @@ public class WebSecurityConfig extends
     http
       // ...
       .headers()
-        .frameOptions();
+        .frameOptions()
+            .sameOrigin();
   }
 }
 ----
-
-If you want to change the value for the X-Frame-Options header, then you can use a <<headers-headers-writer,XFrameOptionsHeaderWriter instance>>.
 
 [[headers-xss-protection]]
 ==== X-XSS-Protection
@@ -3602,7 +3684,7 @@ The filtering is typically enabled by default, so adding the header typically ju
 X-XSS-Protection: 1; mode=block
 ----
 
-This header is included by default when the <headers> element is specified with no child elements. We can explicitly state it using the <<nsa-xss-protection,xss-protection>> element as shown below:
+This header is included by default. However, we can customize it if we wanted. For example:
 
 [source,xml]
 ----
@@ -3610,12 +3692,12 @@ This header is included by default when the <headers> element is specified with 
     <!-- ... -->
 
     <headers>
-        <xss-protection />
+        <xss-protection block="false"/>
     </headers>
 </http>
 ----
 
-Similarly, you can enable only xss protection within Java Configuration with the following:
+Similarly, you can customize xss protection within Java Configuration with the following:
 
 [source,java]
 ----
@@ -3628,7 +3710,8 @@ public class WebSecurityConfig extends
     http
       // ...
       .headers()
-        .xssProtection();
+        .xssProtection()
+            .block(false);
   }
 }
 ----
@@ -3639,7 +3722,11 @@ Spring Security has mechanisms to make it convenient to add the more common secu
 
 [[headers-static]]
 ==== Static Headers
-There may be times you wish to inject custom security headers into your application that are not supported out of the box. For example, perhaps you wish to have early support for http://www.w3.org/TR/CSP/[Content Security Policy] in order to ensure that resources are only loaded from the same origin. Since support for Content Security Policy has not been finalized, browsers use one of two common extension headers to implement the feature. This means we will need to inject the policy twice. An example of the headers can be seen below:
+There may be times you wish to inject custom security headers into your application that are not supported out of the box.
+For example, perhaps you wish to have early support for http://www.w3.org/TR/CSP/[Content Security Policy] in order to ensure that resources are only loaded from the same origin.
+Since support for Content Security Policy has not been finalized, browsers use one of two common extension headers to implement the feature.
+This means we will need to inject the policy twice.
+An example of the headers can be seen below:
 
 [source]
 ----
@@ -3736,6 +3823,7 @@ At times you may want to only write a header for certain requests. For example, 
     <!-- ... -->
 
     <headers>
+        <frame-options disabled="true"/>
         <header ref="headerWriter"/>
     </headers>
 </http>
@@ -3771,6 +3859,7 @@ public class WebSecurityConfig extends
     http
       // ...
       .headers()
+        .frameOptions().disabled()
         .addHeaderWriter(headerWriter);
   }
 }
@@ -6605,6 +6694,10 @@ This element allows for configuring additional (security) headers to be send wit
 The attributes on the `<headers>` element control the headers element.
 
 
+[[nsa-headers-defaults-disabled]]
+* **defaults-disabled**
+Optional attribute that specifies to disable the default Spring Security's HTTP response headers. The default is false (the default headers are included).
+
 [[nsa-headers-disabled]]
 * **disabled**
 Optional attribute that specifies to disable Spring Security's HTTP response headers. The default is false (the headers are enabled).
@@ -6635,6 +6728,14 @@ Optional attribute that specifies to disable Spring Security's HTTP response hea
 Adds `Cache-Control`, `Pragma`, and `Expires` headers to ensure that the browser does not cache your secured pages.
 
 
+[[nsa-cache-control-attributes]]
+===== <cache-control> Attributes
+
+[[nsa-cache-control-disabled]]
+* **disabled**
+Specifies if Cache Control should be disabled. Default false.
+
+
 [[nsa-cache-control-parents]]
 ===== Parent Elements of <cache-control>
 
@@ -6651,6 +6752,9 @@ When enabled adds the http://tools.ietf.org/html/rfc6797[Strict-Transport-Securi
 [[nsa-hsts-attributes]]
 ===== <hsts> Attributes
 
+[[nsa-hsts-disabled]]
+* **disabled**
+Specifies if Strict-Transport-Security should be disabled. Default false.
 
 [[nsa-hsts-include-subdomains]]
 * **include-sub-domains**
@@ -6682,6 +6786,9 @@ When enabled adds the http://tools.ietf.org/html/draft-ietf-websec-x-frame-optio
 [[nsa-frame-options-attributes]]
 ===== <frame-options> Attributes
 
+[[nsa-frame-options-disabled]]
+* **disabled**
+If disabled, the X-Frame-Options header will not be included. Default false.
 
 [[nsa-frame-options-policy]]
 * **policy**
@@ -6735,9 +6842,14 @@ Adds the http://blogs.msdn.com/b/ie/archive/2008/07/02/ie8-security-part-iv-the-
 ===== <xss-protection> Attributes
 
 
+[[nsa-xss-protection-disabled]]
+* **xss-protection-disabled**
+Do not include the header for http://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[reflected / Type-1 Cross-Site Scripting (XSS)] protection.
+
+
 [[nsa-xss-protection-enabled]]
 * **xss-protection-enabled**
-Enable or Disable http://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[reflected / Type-1 Cross-Site Scripting (XSS)] protection.
+Explicitly enable or eisable http://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[reflected / Type-1 Cross-Site Scripting (XSS)] protection.
 
 
 [[nsa-xss-protection-block]]
@@ -6756,6 +6868,13 @@ When true and xss-protection-enabled is true, adds mode=block to the header. Thi
 ==== <content-type-options>
 Add the X-Content-Type-Options header with the value of nosniff to the response. This http://blogs.msdn.com/b/ie/archive/2008/09/02/ie8-security-part-vi-beta-2-update.aspx[disables MIME-sniffing] for IE8+ and Chrome extensions.
 
+
+[[nsa-content-type-options-attributes]]
+===== <content-type-options> Attributes
+
+[[nsa-content-type-options-disabled]]
+* **disabled**
+Specifies if Content Type Options should be disabled. Default false.
 
 [[nsa-content-type-options-parents]]
 ===== Parent Elements of <content-type-options>
