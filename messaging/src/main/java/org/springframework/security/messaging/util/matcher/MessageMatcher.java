@@ -39,5 +39,9 @@ public interface MessageMatcher<T> {
         public boolean matches(Message<? extends Object> message) {
             return true;
         }
+
+        public String toString() {
+            return "ANY_MESSAGE";
+        }
     };
 }
