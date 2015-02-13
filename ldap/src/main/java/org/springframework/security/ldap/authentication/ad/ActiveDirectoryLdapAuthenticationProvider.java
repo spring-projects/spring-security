@@ -94,6 +94,8 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 
     private final String domain;
     private final String rootDn;
+    private final String searchRoot;
+    private final String searchFilter;
     private final String url;
     private boolean convertSubErrorCodesToExceptions;
 
@@ -112,11 +114,23 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
      * @param url an LDAP url (or multiple URLs)
      */
     public ActiveDirectoryLdapAuthenticationProvider(String domain, String url) {
+        this(domain, url, null, null);
+    }
+
+    /**
+     * @param domain the domain name (may be null or empty)
+     * @param url an LDAP url (or multiple URLs)
+     * @param searchRoot the LDAP search root (may be null or empty)
+     * @param searchFilter The LDAP search filter used to restrict results (may be null or empty)
+     */
+    public ActiveDirectoryLdapAuthenticationProvider(String domain, String url, String searchRoot, String searchFilter) {
         Assert.isTrue(StringUtils.hasText(url), "Url cannot be empty");
         this.domain = StringUtils.hasText(domain) ? domain.toLowerCase() : null;
         //this.url = StringUtils.hasText(url) ? url : null;
         this.url = url;
         rootDn = this.domain == null ? null : rootDnFromDomain(this.domain);
+		this.searchRoot = StringUtils.hasText(searchRoot) ? searchRoot : null;
+		this.searchFilter = StringUtils.hasText(searchFilter) ? searchFilter : "(&(objectClass=user)(userPrincipalName={0}))";
     }
 
     @Override
@@ -275,11 +289,9 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
         SearchControls searchCtls = new SearchControls();
         searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-        String searchFilter = "(&(objectClass=user)(userPrincipalName={0}))";
-
         final String bindPrincipal = createBindPrincipal(username);
 
-        String searchRoot = rootDn != null ? rootDn : searchRootFromPrincipal(bindPrincipal);
+        final String searchRoot = StringUtils.hasText(this.searchRoot) ? this.searchRoot : (rootDn != null ? rootDn : searchRootFromPrincipal(bindPrincipal));
 
         try {
             return SpringSecurityLdapTemplate.searchForSingleEntryInternal(ctx, searchCtls, searchRoot, searchFilter,
