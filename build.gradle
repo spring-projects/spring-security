@@ -164,7 +164,3 @@ artifacts {
     archives project(':docs').docsZip
     archives project(':docs').schemaZip
 }
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '1.12'
-}
