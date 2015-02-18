@@ -6040,7 +6040,7 @@ Spring Security provides a number of optional integrations with Spring MVC. This
 
 WARN: As of Spring Security 4.0, `@EnableWebMvcSecurity` is deprecated. The replacement is `@EnableWebSecurity` which will determine adding the Spring MVC features based upon the classpath.
 
-To enable Spring Security integration with Spring MVC add the `@EnableWebSecurity` annotation to your configuration. A typical example will look something like this:
+To enable Spring Security integration with Spring MVC add the `@EnableWebSecurity` annotation to your configuration.
 
 
 [[mvc-authentication-principal]]
@@ -6134,6 +6134,8 @@ There is no automatic integration with a `DeferredResult` that is returned by co
 [[mvc-csrf]]
 === Spring MVC and CSRF Integration
 
+==== Automatic Token Inclusion
+
 Spring Security will automatically <<csrf-include-csrf-token,include the CSRF Token>> within forms that use the http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/view.html#view-jsp-formtaglib-formtag[Spring MVC form tag]. For example, the following JSP:
 
 [source,xml]
@@ -6173,6 +6175,30 @@ Will output HTML that is similar to the following:
 
 <!-- ... -->
 ----
+
+[[mvc-csrf-resolver]]
+==== Resolving the CsrfToken
+
+Spring Security provides `CsrfTokenResolver` which can automatically resolve the current `CsrfToken` for Spring MVC arguments.
+By using <<mvc-enablewebsecurity>> you will automatically have this added to your Spring MVC configuration.
+If you use XML based configuraiton, you must add this yourself.
+
+Once `CsrfTokenResolver` is properly configured, you can expose the `CsrfToken` to your static HTML based application.
+
+[source,java]
+----
+@RestController
+public class CsrfController {
+
+    @RequestMapping("/csrf")
+    public CsrfToken csrf(CsrfToken token) {
+        return token;
+    }
+}
+----
+
+It is important to keep the `CsrfToken` a secret from other domains.
+This means if you are using https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS[Cross Origin Sharing (CORS)], you should **NOT** expose the `CsrfToken` to any external domains.
 
 = Appendix
 

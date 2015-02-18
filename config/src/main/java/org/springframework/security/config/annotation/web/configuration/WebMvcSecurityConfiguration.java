@@ -17,6 +17,7 @@ package org.springframework.security.config.annotation.web.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver;
+import org.springframework.security.web.method.annotation.CsrfTokenArgumentResolver;
 import org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -44,6 +45,7 @@ class WebMvcSecurityConfiguration extends WebMvcConfigurerAdapter {
             List<HandlerMethodArgumentResolver> argumentResolvers) {
         argumentResolvers.add(new AuthenticationPrincipalArgumentResolver());
         argumentResolvers.add(new org.springframework.security.web.bind.support.AuthenticationPrincipalArgumentResolver());
+        argumentResolvers.add(new CsrfTokenArgumentResolver());
     }
 
     @ConditionalOnMissingBean(RequestDataValueProcessor.class)
