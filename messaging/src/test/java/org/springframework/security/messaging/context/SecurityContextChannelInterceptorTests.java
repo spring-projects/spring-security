@@ -10,8 +10,11 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.messaging.context.SecurityContextChannelInterceptor;
 
@@ -35,10 +38,13 @@ public class SecurityContextChannelInterceptorTests {
 
     SecurityContextChannelInterceptor interceptor;
 
+    AnonymousAuthenticationToken expectedAnonymous;
+
     @Before
     public void setup() {
         authentication = new TestingAuthenticationToken("user","pass", "ROLE_USER");
         messageBuilder = MessageBuilder.withPayload("payload");
+        expectedAnonymous = new AnonymousAuthenticationToken("key", "anonymous", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 
         interceptor = new SecurityContextChannelInterceptor();
     }
@@ -73,20 +79,45 @@ public class SecurityContextChannelInterceptorTests {
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(authentication);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void setAnonymousAuthenticationNull() {
+        interceptor.setAnonymousAuthentication(null);
+    }
+
+    @Test
+    public void preSendUsesCustomAnonymous() throws Exception {
+        expectedAnonymous = new AnonymousAuthenticationToken("customKey", "customAnonymous", AuthorityUtils.createAuthorityList("ROLE_CUSTOM"));
+        interceptor.setAnonymousAuthentication(expectedAnonymous);
+
+        interceptor.preSend(messageBuilder.build(), channel);
+
+        assertAnonymous();
+    }
+
+    // SEC-2845
     @Test
     public void preSendUserNotAuthentication() throws Exception {
         messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, principal);
 
         interceptor.preSend(messageBuilder.build(), channel);
 
-        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+        assertAnonymous();
     }
 
+    // SEC-2845
     @Test
     public void preSendUserNotSet() throws Exception {
         interceptor.preSend(messageBuilder.build(), channel);
 
-        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+        assertAnonymous();
+    }
+
+    // SEC-2845
+    @Test
+    public void preSendUserNotSetCustomAnonymous() throws Exception {
+        interceptor.preSend(messageBuilder.build(), channel);
+
+        assertAnonymous();
     }
 
     @Test
@@ -114,20 +145,22 @@ public class SecurityContextChannelInterceptorTests {
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(authentication);
     }
 
+    // SEC-2845
     @Test
     public void beforeHandleUserNotAuthentication() throws Exception {
         messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, principal);
 
         interceptor.beforeHandle(messageBuilder.build(), channel, handler);
 
-        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+        assertAnonymous();
     }
 
+    // SEC-2845
     @Test
     public void beforeHandleUserNotSet() throws Exception {
         interceptor.beforeHandle(messageBuilder.build(), channel, handler);
 
-        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+        assertAnonymous();
     }
 
 
@@ -147,6 +180,7 @@ public class SecurityContextChannelInterceptorTests {
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
     }
 
+    // SEC-2829
     @Test
     public void restoresOriginalContext() throws Exception {
         TestingAuthenticationToken original = new TestingAuthenticationToken("original", "original", "ROLE_USER");
@@ -160,5 +194,48 @@ public class SecurityContextChannelInterceptorTests {
         interceptor.afterMessageHandled(messageBuilder.build(), channel, handler, null);
 
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(original);
+    }
+
+    /**
+     * If a user sends a message when processing another message
+     *
+     * @throws Exception
+     */
+    @Test
+    public void restoresOriginalContextNestedThreeDeep() throws Exception {
+        AnonymousAuthenticationToken anonymous = new AnonymousAuthenticationToken("key", "anonymous", AuthorityUtils.createAuthorityList("ROLE_USER"));
+
+        TestingAuthenticationToken origional = new TestingAuthenticationToken("original", "origional", "ROLE_USER");
+        SecurityContextHolder.getContext().setAuthentication(origional);
+
+        messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, authentication);
+        interceptor.beforeHandle(messageBuilder.build(), channel, handler);
+
+        assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(authentication);
+
+        // start send message
+        messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, null);
+        interceptor.beforeHandle(messageBuilder.build(), channel, handler);
+
+        assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo(anonymous.getName());
+
+        interceptor.afterMessageHandled(messageBuilder.build(), channel, handler, null);
+
+        assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(authentication);
+        // end send message
+
+        interceptor.afterMessageHandled(messageBuilder.build(), channel, handler, null);
+
+        assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(origional);
+    }
+
+    private void assertAnonymous() {
+        Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        assertThat(currentAuthentication).isInstanceOf(AnonymousAuthenticationToken.class);
+
+        AnonymousAuthenticationToken anonymous = (AnonymousAuthenticationToken) currentAuthentication;
+        assertThat(anonymous.getName()).isEqualTo(expectedAnonymous.getName());
+        assertThat(anonymous.getAuthorities()).containsOnly(expectedAnonymous.getAuthorities().toArray());
+        assertThat(anonymous.getKeyHash()).isEqualTo(expectedAnonymous.getKeyHash());
     }
 }

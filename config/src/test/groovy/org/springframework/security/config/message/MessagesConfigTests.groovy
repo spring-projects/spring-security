@@ -36,7 +36,7 @@ import org.springframework.security.core.context.SecurityContextHolder
  * @author Rob Winch
  */
 class MessagesConfigTests extends AbstractXmlConfigTests {
-    Authentication messageUser
+    Authentication messageUser = new TestingAuthenticationToken('user','pass','ROLE_USER')
 
     def cleanup() {
         SecurityContextHolder.clearContext()
@@ -59,6 +59,21 @@ class MessagesConfigTests extends AbstractXmlConfigTests {
 
         and: 'access is granted to the permitAll endpoint'
         clientInboundChannel.send(message('/permitAll'))
+    }
+
+    def 'anonymous authentication supported'() {
+        setup:
+        messages {
+            'message-interceptor'(pattern:'/permitAll',access:'permitAll')
+            'message-interceptor'(pattern:'/denyAll',access:'denyAll')
+        }
+        messageUser = null
+
+        when: 'message is sent to the permitAll endpoint with no user'
+        clientInboundChannel.send(message('/permitAll'))
+
+        then: 'access is granted'
+        noExceptionThrown()
     }
 
     def 'messages with no id automatically adds Authentication argument resolver'() {
@@ -198,12 +213,13 @@ class MessagesConfigTests extends AbstractXmlConfigTests {
     }
 
     def message(String destination) {
-        messageUser = new TestingAuthenticationToken('user','pass','ROLE_USER')
         SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create()
         headers.sessionId = '123'
         headers.sessionAttributes = [:]
         headers.destination = destination
-        headers.user = messageUser
+        if(messageUser != null) {
+            headers.user = messageUser
+        }
         new GenericMessage<String>("hi",headers.messageHeaders)
     }
 
