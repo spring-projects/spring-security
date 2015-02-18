@@ -127,12 +127,12 @@ public class SecurityNamespaceHandlerTests {
 
 
     @Test
-    public void messageNotFoundExceptionNoMessageBlock() throws Exception {
+    public void websocketNotFoundExceptionNoMessageBlock() throws Exception {
         String className = FILTER_CHAIN_PROXY_CLASSNAME;
         spy(ClassUtils.class);
         doThrow(new ClassNotFoundException(className)).when(ClassUtils.class,"forName",eq(Message.class.getName()),any(ClassLoader.class));
         new InMemoryXmlApplicationContext(
                 XML_AUTHENTICATION_MANAGER);
-        // should load just fine since no message block
+        // should load just fine since no websocket block
     }
 }

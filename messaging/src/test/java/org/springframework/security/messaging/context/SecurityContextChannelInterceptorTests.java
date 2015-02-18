@@ -197,7 +197,7 @@ public class SecurityContextChannelInterceptorTests {
     }
 
     /**
-     * If a user sends a message when processing another message
+     * If a user sends a websocket when processing another websocket
      *
      * @throws Exception
      */
@@ -213,7 +213,7 @@ public class SecurityContextChannelInterceptorTests {
 
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(authentication);
 
-        // start send message
+        // start send websocket
         messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, null);
         interceptor.beforeHandle(messageBuilder.build(), channel, handler);
 
@@ -222,7 +222,7 @@ public class SecurityContextChannelInterceptorTests {
         interceptor.afterMessageHandled(messageBuilder.build(), channel, handler, null);
 
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(authentication);
-        // end send message
+        // end send websocket
 
         interceptor.afterMessageHandled(messageBuilder.build(), channel, handler, null);
 

@@ -7790,15 +7790,15 @@ Enables the use of expressions in the 'access' attributes in <intercept-url> ele
 
 * <<nsa-intercept-url,intercept-url>>
 
-[[nsa-message-security]]
-=== Message/WebSocket Security
+[[nsa-websocket-security]]
+=== WebSocket Security
 
 Spring Security 4.0+ provides support for authorizing messages. One concrete example of where this is useful is to provide authorization in WebSocket based applications.
 
-[[nsa-messages]]
-==== <messages>
+[[nsa-websocket-message-broker]]
+==== <websocket-message-broker>
 
-The messages attribute has two different modes. If the <<nsa-messages-id>> is not specified, then it will do the following things:
+The websocket-message-broker element has two different modes. If the <<nsa-websocket-id>> is not specified, then it will do the following things:
 
 * Ensure that any SimpAnnotationMethodMessageHandler has the AuthenticationPrincipalArgumentResolver registered as a custom argument resolver. This allows the use of `@AuthenticationPrincipal` to resolve the principal of the current `Authentication`
 * Ensures that the SecurityContextChannelInterceptor is automatically registered for the clientInboundChannel. This populates the SecurityContextHolder with the user that is found in the Message
@@ -7809,38 +7809,38 @@ The messages attribute has two different modes. If the <<nsa-messages-id>> is no
 If additional control is necessary, the id can be specified and a ChannelSecurityInterceptor will be assigned to the specified id. All the wiring with Spring's messaging infrastructure can then be done manually. This is more cumbersome, but provides greater control over the configuration.
 
 
-[[nsa-messages-attributes]]
-===== <messages> Attributes
+[[nsa-websocket-message-broker-attributes]]
+===== <websocket-message-broker> Attributes
 
-[[nsa-messages-id]]
-* **id** A bean identifier, used for referring to the ChannelSecurityInterceptor bean elsewhere in the context. If specified, Spring Security requires explicit configuration within Spring Messaging. If not specified, Spring Security will automatically integrate with the messaging infrastructure as described in <<nsa-messages>>
+[[nsa-websocket-message-broker-id]]
+* **id** A bean identifier, used for referring to the ChannelSecurityInterceptor bean elsewhere in the context. If specified, Spring Security requires explicit configuration within Spring Messaging. If not specified, Spring Security will automatically integrate with the messaging infrastructure as described in <<nsa-websocket-message-broker>>
 
-[[nsa-messages-children]]
-===== Child Elements of <messages>
+[[nsa-websocket-message-broker-children]]
+===== Child Elements of <websocket-message-broker>
 
 
-* <<nsa-message-interceptor,message-interceptor>>
+* <<nsa-intercept-message,intercept-message>>
 
-[[nsa-message-interceptor]]
-==== <message-interceptor>
+[[nsa-intercept-message]]
+==== <intercept-message>
 
 Defines an authorization rule for a message.
 
 
-[[nsa-message-interceptor-parents]]
-===== Parent Elements of <message-interceptor>
+[[nsa-intercept-message-parents]]
+===== Parent Elements of <intercept-message>
 
 
-* <<nsa-messages,messages>>
+* <<nsa-websocket-message-broker,websocket-message-broker>>
 
 
-[[nsa-message-interceptor-attributes]]
-===== <message-interceptor> Attributes
+[[nsa-intercept-message-attributes]]
+===== <intercept-message> Attributes
 
-[[nsa-message-interceptor-pattern]]
+[[nsa-intercept-message-pattern]]
 * **pattern** An ant based pattern that matches on the Message destination. For example, "/**" matches any Message with a destination; "/admin/**" matches any Message that has a destination that starts with "/admin/**".
 
-[[nsa-message-interceptor-access]]
+[[nsa-intercept-message-access]]
 * **access** The expression used to secure the Message. For example, "denyAll" will deny access to all of the matching Messages; "permitAll" will grant access to all of the matching Messages; "hasRole('ADMIN') requires the current user to have the role 'ROLE_ADMIN' for the matching Messages.
 
 [[nsa-authentication]]

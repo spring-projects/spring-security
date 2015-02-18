@@ -839,7 +839,7 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
-  <xs:element name="messages">
+  <xs:element name="websocket-message-broker">
       <xs:annotation>
          <xs:documentation>Allows securing a Message Broker. There are two modes. If no id is specified: ensures that
                 any SimpAnnotationMethodMessageHandler has the AuthenticationPrincipalArgumentResolver
@@ -852,12 +852,12 @@
       </xs:annotation>
       <xs:complexType>
          <xs:sequence>
-            <xs:element minOccurs="0" maxOccurs="unbounded" ref="security:message-interceptor"/>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="security:intercept-message"/>
          </xs:sequence>
-         <xs:attributeGroup ref="security:messages.attrlist"/>
+         <xs:attributeGroup ref="security:websocket-message-broker.attrlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="messages.attrlist">
+  <xs:attributeGroup name="websocket-message-broker.attrlist">
       <xs:attribute name="id" type="xs:token">
          <xs:annotation>
             <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context. If specified,
@@ -871,16 +871,16 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
-  <xs:element name="message-interceptor">
+  <xs:element name="intercept-message">
       <xs:annotation>
-         <xs:documentation>Creates an authorization rule for a message.
+         <xs:documentation>Creates an authorization rule for a websocket message.
                 </xs:documentation>
       </xs:annotation>
       <xs:complexType>
-         <xs:attributeGroup ref="security:message-interceptor.attrlist"/>
+         <xs:attributeGroup ref="security:intercept-message.attrlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="message-interceptor.attrlist">
+  <xs:attributeGroup name="intercept-message.attrlist">
       <xs:attribute name="pattern" type="xs:token">
          <xs:annotation>
             <xs:documentation>The destination ant pattern which will be mapped to the access attribute. For example, /**

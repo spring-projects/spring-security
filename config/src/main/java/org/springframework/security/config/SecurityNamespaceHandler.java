@@ -38,10 +38,10 @@ import org.springframework.security.config.http.HttpSecurityBeanDefinitionParser
 import org.springframework.security.config.ldap.LdapProviderBeanDefinitionParser;
 import org.springframework.security.config.ldap.LdapServerBeanDefinitionParser;
 import org.springframework.security.config.ldap.LdapUserServiceBeanDefinitionParser;
-import org.springframework.security.config.message.MessageSecurityBeanDefinitionParser;
 import org.springframework.security.config.method.GlobalMethodSecurityBeanDefinitionParser;
 import org.springframework.security.config.method.InterceptMethodsBeanDefinitionDecorator;
 import org.springframework.security.config.method.MethodSecurityMetadataSourceBeanDefinitionParser;
+import org.springframework.security.config.websocket.WebSocketMessageBrokerSecurityBeanDefinitionParser;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.ClassUtils;
 import org.w3c.dom.Element;
@@ -179,7 +179,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
         }
 
         if(ClassUtils.isPresent(MESSAGE_CLASSNAME, getClass().getClassLoader())) {
-            parsers.put(Elements.MESSAGES, new MessageSecurityBeanDefinitionParser());
+            parsers.put(Elements.WEBSOCKET_MESSAGE_BROKER, new WebSocketMessageBrokerSecurityBeanDefinitionParser());
         }
     }
 

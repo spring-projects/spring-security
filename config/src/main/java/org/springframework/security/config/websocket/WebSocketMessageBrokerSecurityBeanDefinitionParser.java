@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.config.message;
+package org.springframework.security.config.websocket;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,13 +42,13 @@ import org.w3c.dom.Element;
 import java.util.List;
 
 /**
- * Parses Spring Security's message namespace support. A simple example is:
+ * Parses Spring Security's websocket namespace support. A simple example is:
  *
  * <code>
- * &lt;messages&gt;
- *     &lt;message-interceptor pattern='/permitAll' access='permitAll' /&gt;
- *     &lt;message-interceptor pattern='/denyAll' access='denyAll' /&gt;
- * &lt;/messages&gt;
+ * &lt;websocket-message-broker&gt;
+ *     &lt;intercept-message pattern='/permitAll' access='permitAll' /&gt;
+ *     &lt;intercept-message pattern='/denyAll' access='denyAll' /&gt;
+ * &lt;/websocket-message-broker&gt;
  * </code>
  *
  * <p>
@@ -63,10 +63,10 @@ import java.util.List;
  * </p>
  *
  * <code>
- * &lt;messages id="channelSecurityInterceptor"&gt;
- *     &lt;message-interceptor pattern='/permitAll' access='permitAll' /&gt;
- *     &lt;message-interceptor pattern='/denyAll' access='denyAll' /&gt;
- * &lt;/messages&gt;
+ * &lt;websocket-message-broker id="channelSecurityInterceptor"&gt;
+ *     &lt;intercept-message pattern='/permitAll' access='permitAll' /&gt;
+ *     &lt;intercept-message pattern='/denyAll' access='denyAll' /&gt;
+ * &lt;/websocket-message-broker&gt;
  * </code>
  *
  * <p>
@@ -78,8 +78,8 @@ import java.util.List;
  * @author Rob Winch
  * @since 4.0
  */
-public final class MessageSecurityBeanDefinitionParser implements BeanDefinitionParser {
-    private static final Log logger = LogFactory.getLog(MessageSecurityBeanDefinitionParser.class);
+public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements BeanDefinitionParser {
+    private static final Log logger = LogFactory.getLog(WebSocketMessageBrokerSecurityBeanDefinitionParser.class);
 
     private static final String ID_ATTR = "id";
 

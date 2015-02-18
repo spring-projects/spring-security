@@ -55,6 +55,6 @@ public abstract class Elements {
     public static final String HEADERS = "headers";
     public static final String CSRF = "csrf";
 
-    public static final String MESSAGES = "messages";
-    public static final String INTERCEPT_MESSAGE = "message-interceptor";
+    public static final String WEBSOCKET_MESSAGE_BROKER = "websocket-message-broker";
+    public static final String INTERCEPT_MESSAGE = "intercept-message";
 }

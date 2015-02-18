@@ -1,4 +1,4 @@
-package org.springframework.security.config.message
+package org.springframework.security.config.websocket
 
 import org.springframework.beans.BeansException
 import org.springframework.beans.factory.config.BeanDefinition
@@ -47,7 +47,7 @@ import org.springframework.security.core.context.SecurityContextHolder
  *
  * @author Rob Winch
  */
-class MessagesConfigTests extends AbstractXmlConfigTests {
+class WebSocketMessageBrokerConfigTests extends AbstractXmlConfigTests {
     Authentication messageUser = new TestingAuthenticationToken('user','pass','ROLE_USER')
     boolean useSockJS = false
 
@@ -55,11 +55,11 @@ class MessagesConfigTests extends AbstractXmlConfigTests {
         SecurityContextHolder.clearContext()
     }
 
-    def 'messages with no id automatically integrates with clientInboundChannel'() {
+    def 'websocket with no id automatically integrates with clientInboundChannel'() {
         setup:
-        messages {
-            'message-interceptor'(pattern:'/permitAll',access:'permitAll')
-            'message-interceptor'(pattern:'/denyAll',access:'denyAll')
+        websocket {
+            'intercept-message'(pattern:'/permitAll',access:'permitAll')
+            'intercept-message'(pattern:'/denyAll',access:'denyAll')
         }
 
 
@@ -76,9 +76,9 @@ class MessagesConfigTests extends AbstractXmlConfigTests {
 
     def 'anonymous authentication supported'() {
         setup:
-        messages {
-            'message-interceptor'(pattern:'/permitAll',access:'permitAll')
-            'message-interceptor'(pattern:'/denyAll',access:'denyAll')
+        websocket {
+            'intercept-message'(pattern:'/permitAll',access:'permitAll')
+            'intercept-message'(pattern:'/denyAll',access:'denyAll')
         }
         messageUser = null
 
@@ -94,8 +94,8 @@ class MessagesConfigTests extends AbstractXmlConfigTests {
         def id = 'authenticationController'
         bean(id,MyController)
         bean('inPostProcessor',InboundExecutorPostProcessor)
-        messages {
-            'message-interceptor'(pattern:'/**',access:'permitAll')
+        websocket {
+            'intercept-message'(pattern:'/**',access:'permitAll')
         }
 
         when: 'message is sent to the authentication endpoint'
@@ -111,8 +111,8 @@ class MessagesConfigTests extends AbstractXmlConfigTests {
         def id = 'authenticationController'
         bean(id,MyController)
         bean('inPostProcessor',InboundExecutorPostProcessor)
-        messages {
-            'message-interceptor'(pattern:'/**',access:'permitAll')
+        websocket {
+            'intercept-message'(pattern:'/**',access:'permitAll')
         }
 
         SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT)
@@ -142,8 +142,8 @@ class MessagesConfigTests extends AbstractXmlConfigTests {
         def id = 'authenticationController'
         bean(id,MyController)
         bean('inPostProcessor',InboundExecutorPostProcessor)
-        messages {
-            'message-interceptor'(pattern:'/**',access:'permitAll')
+        websocket {
+            'intercept-message'(pattern:'/**',access:'permitAll')
         }
 
         SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT)
@@ -175,11 +175,11 @@ class MessagesConfigTests extends AbstractXmlConfigTests {
         def id = 'authenticationController'
         bean(id,MyController)
         bean('inPostProcessor',InboundExecutorPostProcessor)
-        messages {
-            'message-interceptor'(pattern:'/**',access:'permitAll')
+        websocket {
+            'intercept-message'(pattern:'/**',access:'permitAll')
         }
 
-        when: 'message of type CONNECTION is sent without CsrfTOken'
+        when: 'websocket of type CONNECTION is sent without CsrfTOken'
         SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT)
         Message<?> message = message(headers,'/authentication')
         clientInboundChannel.send(message)
@@ -189,7 +189,7 @@ class MessagesConfigTests extends AbstractXmlConfigTests {
         expected.cause instanceof MissingCsrfTokenException
     }
 
-    def 'messages with no id does not override customArgumentResolvers'() {
+    def 'websocket with no id does not override customArgumentResolvers'() {
         setup:
         def id = 'authenticationController'
         bean(id,MyController)
@@ -205,11 +205,11 @@ class MessagesConfigTests extends AbstractXmlConfigTests {
                 'b:ref'(bean:'mcar')
             }
         }
-        messages {
-            'message-interceptor'(pattern:'/**',access:'permitAll')
+        websocket {
+            'intercept-message'(pattern:'/**',access:'permitAll')
         }
 
-        when: 'message is sent to the myCustom endpoint'
+        when: 'websocket is sent to the myCustom endpoint'
         clientInboundChannel.send(message('/myCustom'))
 
         then: 'myCustomArgument is resolved'
@@ -217,10 +217,10 @@ class MessagesConfigTests extends AbstractXmlConfigTests {
         controller.myCustomArgument!= null
     }
 
-    def 'messages with id does not integrate with clientInboundChannel'() {
+    def 'websocket with id does not integrate with clientInboundChannel'() {
         setup:
-        messages([id:'inCsi']) {
-            'message-interceptor'(pattern:'/**',access:'denyAll')
+        websocket([id:'inCsi']) {
+            'intercept-message'(pattern:'/**',access:'denyAll')
         }
 
         when:
@@ -231,8 +231,8 @@ class MessagesConfigTests extends AbstractXmlConfigTests {
 
     }
 
-    def 'messages with id can be explicitly integrated with clientInboundChannel'() {
-        setup: 'message security explicitly setup'
+    def 'websocket with id can be explicitly integrated with clientInboundChannel'() {
+        setup: 'websocket security explicitly setup'
         xml.'websocket:message-broker' {
             'websocket:transport' {}
             'websocket:stomp-endpoint'(path:'/app') {
@@ -246,8 +246,8 @@ class MessagesConfigTests extends AbstractXmlConfigTests {
                 }
             }
         }
-        xml.messages(id:'inCsi') {
-            'message-interceptor'(pattern:'/**',access:'denyAll')
+        xml.'websocket-message-broker'(id:'inCsi') {
+            'intercept-message'(pattern:'/**',access:'denyAll')
         }
         createAppContext()
 
@@ -276,9 +276,9 @@ class MessagesConfigTests extends AbstractXmlConfigTests {
                 }
             }
         }
-        xml.messages {
-            'message-interceptor'(pattern:'/denyAll',access:'denyAll')
-            'message-interceptor'(pattern:'/permitAll',access:'permitAll')
+        xml.'websocket-message-broker' {
+            'intercept-message'(pattern:'/denyAll',access:'denyAll')
+            'intercept-message'(pattern:'/permitAll',access:'permitAll')
         }
         createAppContext()
         ChannelInterceptor mci = appContext.getBean('mci')
@@ -291,7 +291,7 @@ class MessagesConfigTests extends AbstractXmlConfigTests {
 
     }
 
-    def messages(Map<String,Object> attrs=[:], Closure c) {
+    def websocket(Map<String,Object> attrs=[:], Closure c) {
         bean('testHandler', TestHandshakeHandler)
         xml.'websocket:message-broker' {
             'websocket:transport' {}
@@ -306,7 +306,7 @@ class MessagesConfigTests extends AbstractXmlConfigTests {
             }
             'websocket:simple-broker'(prefix:"/queue, /topic"){}
         }
-        xml.messages(attrs, c)
+        xml.'websocket-message-broker'(attrs, c)
         createAppContext()
     }
 
