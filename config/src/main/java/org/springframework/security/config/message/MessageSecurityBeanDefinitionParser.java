@@ -33,6 +33,8 @@ import org.springframework.security.messaging.access.intercept.ChannelSecurityIn
 import org.springframework.security.messaging.context.AuthenticationPrincipalArgumentResolver;
 import org.springframework.security.messaging.context.SecurityContextChannelInterceptor;
 import org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher;
+import org.springframework.security.messaging.web.csrf.CsrfChannelInterceptor;
+import org.springframework.security.messaging.web.socket.server.CsrfTokenHandshakeInterceptor;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -152,7 +154,8 @@ public final class MessageSecurityBeanDefinitionParser implements BeanDefinition
             String[] beanNames = registry.getBeanDefinitionNames();
             for(String beanName : beanNames) {
                 BeanDefinition bd = registry.getBeanDefinition(beanName);
-                if(bd.getBeanClassName().equals(SimpAnnotationMethodMessageHandler.class.getName())) {
+                String beanClassName = bd.getBeanClassName();
+                if(beanClassName.equals(SimpAnnotationMethodMessageHandler.class.getName())) {
                     PropertyValue current = bd.getPropertyValues().getPropertyValue(CUSTOM_ARG_RESOLVERS_PROP);
                     ManagedList<Object> argResolvers = new ManagedList<Object>();
                     if(current != null) {
@@ -161,6 +164,13 @@ public final class MessageSecurityBeanDefinitionParser implements BeanDefinition
                     argResolvers.add(new RootBeanDefinition(AuthenticationPrincipalArgumentResolver.class));
                     bd.getPropertyValues().add(CUSTOM_ARG_RESOLVERS_PROP, argResolvers);
                 }
+                else if(beanClassName.equals("org.springframework.web.socket.server.support.WebSocketHttpRequestHandler")) {
+                    addCsrfTokenHandshakeInterceptor(bd);
+                } else if(beanClassName.equals("org.springframework.web.socket.sockjs.transport.TransportHandlingSockJsService")) {
+                    addCsrfTokenHandshakeInterceptor(bd);
+                } else if(beanClassName.equals("org.springframework.web.socket.sockjs.transport.handler.DefaultSockJsService")) {
+                    addCsrfTokenHandshakeInterceptor(bd);
+                }
             }
 
             if(!registry.containsBeanDefinition(CLIENT_INBOUND_CHANNEL_BEAN_ID)) {
@@ -168,6 +178,7 @@ public final class MessageSecurityBeanDefinitionParser implements BeanDefinition
             }
             ManagedList<Object> interceptors = new ManagedList();
             interceptors.add(new RootBeanDefinition(SecurityContextChannelInterceptor.class));
+            interceptors.add(new RootBeanDefinition(CsrfChannelInterceptor.class));
             interceptors.add(registry.getBeanDefinition(inboundSecurityInterceptorId));
 
             BeanDefinition inboundChannel = registry.getBeanDefinition(CLIENT_INBOUND_CHANNEL_BEAN_ID);
@@ -178,6 +189,14 @@ public final class MessageSecurityBeanDefinitionParser implements BeanDefinition
             }
 
             inboundChannel.getPropertyValues().add(INTERCEPTORS_PROP, interceptors);
+        }
+
+        private void addCsrfTokenHandshakeInterceptor(BeanDefinition bd) {
+            String interceptorPropertyName = "handshakeInterceptors";
+            ManagedList<? super Object> interceptors = new ManagedList<Object>();
+            interceptors.add(new RootBeanDefinition(CsrfTokenHandshakeInterceptor.class));
+            interceptors.addAll((ManagedList<Object>)bd.getPropertyValues().get(interceptorPropertyName));
+            bd.getPropertyValues().add(interceptorPropertyName, interceptors);
         }
 
         public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {

@@ -122,6 +122,120 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
         assertThat(context.getBean(MyController.class).authenticationPrincipal).isEqualTo((String) messageUser.getPrincipal());
     }
 
+    @Test
+    public void addsAuthenticationPrincipalResolverWhenNoAuthorization() throws InterruptedException {
+        loadConfig(NoInboundSecurityConfig.class);
+
+        MessageChannel messageChannel = clientInboundChannel();
+        Message<String> message = message("/permitAll/authentication");
+        messageChannel.send(message);
+
+        assertThat(context.getBean(MyController.class).authenticationPrincipal).isEqualTo((String) messageUser.getPrincipal());
+    }
+
+    @Test
+    public void addsCsrfProtectionWhenNoAuthorization() throws InterruptedException {
+        loadConfig(NoInboundSecurityConfig.class);
+
+        SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
+        Message<?> message = message(headers, "/authentication");
+        MessageChannel messageChannel = clientInboundChannel();
+
+        try {
+            messageChannel.send(message);
+            fail("Expected Exception");
+        } catch(MessageDeliveryException success) {
+            assertThat(success.getCause()).isInstanceOf(MissingCsrfTokenException.class);
+        }
+    }
+
+    @Test
+    public void csrfProtectionForConnect() throws InterruptedException {
+        loadConfig(SockJsSecurityConfig.class);
+
+        SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
+        Message<?> message = message(headers, "/authentication");
+        MessageChannel messageChannel = clientInboundChannel();
+
+        try {
+            messageChannel.send(message);
+            fail("Expected Exception");
+        } catch(MessageDeliveryException success) {
+            assertThat(success.getCause()).isInstanceOf(MissingCsrfTokenException.class);
+        }
+    }
+
+    @Test
+    public void csrfProtectionDisabledForConnect() throws InterruptedException {
+        loadConfig(CsrfDisabledSockJsSecurityConfig.class);
+
+        SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
+        Message<?> message = message(headers, "/permitAll/connect");
+        MessageChannel messageChannel = clientInboundChannel();
+
+        messageChannel.send(message);
+    }
+
+    @Test
+    public void messagesConnectUseCsrfTokenHandshakeInterceptor() throws Exception {
+
+        loadConfig(SockJsSecurityConfig.class);
+
+        SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
+        Message<?> message = message(headers, "/authentication");
+        MockHttpServletRequest request = sockjsHttpRequest("/chat");
+        HttpRequestHandler handler = handler(request);
+
+        handler.handleRequest(request, new MockHttpServletResponse());
+
+        assertHandshake(request);
+    }
+
+    @Test
+    public void messagesConnectUseCsrfTokenHandshakeInterceptorMultipleMappings() throws Exception {
+        loadConfig(SockJsSecurityConfig.class);
+
+        SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
+        Message<?> message = message(headers, "/authentication");
+        MockHttpServletRequest request = sockjsHttpRequest("/other");
+        HttpRequestHandler handler = handler(request);
+
+        handler.handleRequest(request, new MockHttpServletResponse());
+
+        assertHandshake(request);
+    }
+
+    @Test
+    public void messagesConnectWebSocketUseCsrfTokenHandshakeInterceptor() throws Exception {
+        loadConfig(WebSocketSecurityConfig.class);
+
+        SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
+        Message<?> message = message(headers, "/authentication");
+        MockHttpServletRequest request = websocketHttpRequest("/websocket");
+        HttpRequestHandler handler = handler(request);
+
+        handler.handleRequest(request, new MockHttpServletResponse());
+
+        assertHandshake(request);
+    }
+
+    private void assertHandshake(HttpServletRequest request) {
+        TestHandshakeHandler handshakeHandler = context.getBean(TestHandshakeHandler.class);
+        assertThat(handshakeHandler.attributes.get(CsrfToken.class.getName())).isSameAs(token);
+        assertThat(handshakeHandler.attributes.get(sessionAttr)).isEqualTo(request.getSession().getAttribute(sessionAttr));
+    }
+
+    private HttpRequestHandler handler(HttpServletRequest request) throws Exception {
+        HandlerMapping handlerMapping = context.getBean(HandlerMapping.class);
+        return (HttpRequestHandler) handlerMapping.getHandler(request).getHandler();
+    }
+
+    private MockHttpServletRequest websocketHttpRequest(String mapping) {
+        MockHttpServletRequest request = sockjsHttpRequest(mapping);
+        request.setRequestURI(mapping);
+        return request;
+    }
+
     private MockHttpServletRequest sockjsHttpRequest(String mapping) {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setMethod("GET");
@@ -247,6 +361,75 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
         @Bean
         public MyController myController() {
             return new MyController();
+        }
+
+        @Bean
+        public TestHandshakeHandler testHandshakeHandler() {
+            return new TestHandshakeHandler();
+        }
+    }
+
+
+
+    @Configuration
+    @EnableWebSocketMessageBroker
+    @Import(SyncExecutorConfig.class)
+    static class NoInboundSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
+
+        public void registerStompEndpoints(StompEndpointRegistry registry) {
+            registry
+                    .addEndpoint("/other")
+                    .withSockJS()
+                    .setInterceptors(new HttpSessionHandshakeInterceptor());
+
+            registry
+                    .addEndpoint("/chat")
+                    .withSockJS()
+                    .setInterceptors(new HttpSessionHandshakeInterceptor());
+        }
+
+        @Override
+        protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
+        }
+
+        @Override
+        public void configureMessageBroker(MessageBrokerRegistry registry) {
+            registry.enableSimpleBroker("/queue/", "/topic/");
+            registry.setApplicationDestinationPrefixes("/permitAll", "/denyAll");
+        }
+
+        @Bean
+        public MyController myController() {
+            return new MyController();
+        }
+    }
+
+    @Configuration
+    static class CsrfDisabledSockJsSecurityConfig extends SockJsSecurityConfig {
+
+        @Override
+        protected boolean sameOriginEnforced() {
+            return false;
+        }
+    }
+
+    @Configuration
+    @EnableWebSocketMessageBroker
+    @Import(SyncExecutorConfig.class)
+    static class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
+
+        public void registerStompEndpoints(StompEndpointRegistry registry) {
+            registry
+                    .addEndpoint("/websocket")
+                        .setHandshakeHandler(testHandshakeHandler())
+                        .addInterceptors(new HttpSessionHandshakeInterceptor());
+        }
+
+        @Override
+        protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
+            messages
+                    .simpDestMatchers("/permitAll/**").permitAll()
+                    .anyMessage().denyAll();
         }
 
         @Bean

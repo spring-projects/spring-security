@@ -55,6 +55,13 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @since 3.2
  */
 public final class CsrfFilter extends OncePerRequestFilter {
+    /**
+     * The default {@link RequestMatcher} that indicates if CSRF protection is
+     * required or not. The default is to ignore GET, HEAD, TRACE, OPTIONS and
+     * process all other requests.
+     */
+    public static final RequestMatcher DEFAULT_CSRF_MATCHER = new DefaultRequiresCsrfMatcher();
+
     private final Log logger = LogFactory.getLog(getClass());
     private final CsrfTokenRepository tokenRepository;
     private RequestMatcher requireCsrfProtectionMatcher = new DefaultRequiresCsrfMatcher();

@@ -15,6 +15,9 @@
  */
 package org.springframework.security.config.annotation.web.socket;
 
+import org.springframework.beans.factory.SmartInitializingSingleton;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -28,11 +31,20 @@ import org.springframework.security.messaging.access.intercept.ChannelSecurityIn
 import org.springframework.security.messaging.access.intercept.MessageSecurityMetadataSource;
 import org.springframework.security.messaging.context.AuthenticationPrincipalArgumentResolver;
 import org.springframework.security.messaging.context.SecurityContextChannelInterceptor;
+import org.springframework.security.messaging.web.csrf.CsrfChannelInterceptor;
+import org.springframework.security.messaging.web.socket.server.CsrfTokenHandshakeInterceptor;
+import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
 import org.springframework.web.socket.config.annotation.AbstractWebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.server.HandshakeInterceptor;
+import org.springframework.web.socket.server.support.WebSocketHttpRequestHandler;
+import org.springframework.web.socket.sockjs.SockJsService;
+import org.springframework.web.socket.sockjs.support.SockJsHttpRequestHandler;
+import org.springframework.web.socket.sockjs.transport.TransportHandlingSockJsService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Allows configuring WebSocket Authorization.
@@ -58,8 +70,11 @@ import java.util.List;
  * @author Rob Winch
  */
 @Order(Ordered.HIGHEST_PRECEDENCE + 100)
-public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends AbstractWebSocketMessageBrokerConfigurer {
+public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends AbstractWebSocketMessageBrokerConfigurer
+        implements SmartInitializingSingleton {
     private final WebSocketMessageSecurityMetadataSourceRegistry inboundRegistry = new WebSocketMessageSecurityMetadataSourceRegistry();
+
+    private ApplicationContext context;
 
     public void registerStompEndpoints(StompEndpointRegistry registry) {}
 
@@ -69,14 +84,32 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
         argumentResolvers.add(new AuthenticationPrincipalArgumentResolver());
     }
 
-
     @Override
     public final void configureClientInboundChannel(ChannelRegistration registration) {
         ChannelSecurityInterceptor inboundChannelSecurity = inboundChannelSecurity();
+        registration.setInterceptors(securityContextChannelInterceptor());
+        if(sameOriginEnforced()) {
+            registration.setInterceptors(csrfChannelInterceptor());
+        }
         if(inboundRegistry.containsMapping()) {
-            registration.setInterceptors(securityContextChannelInterceptor(),inboundChannelSecurity);
+            registration.setInterceptors(inboundChannelSecurity);
         }
         customizeClientInboundChannel(registration);
+    }
+
+    /**
+     * <p>
+     * Determines if a CSRF token is required for connecting. This protects against remote sites from connecting to the
+     * application and being able to read/write data over the connection. The default is true.
+     * </p>
+     * <p>
+     * Subclasses can override this method to disable CSRF protection
+     * </p>
+     *
+     * @return true if a CSRF is required for connecting, else false
+     */
+    protected boolean sameOriginEnforced() {
+        return true;
     }
 
     /**
@@ -85,6 +118,11 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
      * @param registration the {@link ChannelRegistration} to customize
      */
     protected void customizeClientInboundChannel(ChannelRegistration registration) {
+    }
+
+    @Bean
+    public CsrfChannelInterceptor csrfChannelInterceptor() {
+        return new CsrfChannelInterceptor();
     }
 
     @Bean
@@ -123,6 +161,49 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
         @Override
         protected boolean containsMapping() {
             return super.containsMapping();
+        }
+    }
+
+    @Autowired
+    public void setApplicationContext(ApplicationContext context) {
+        this.context = context;
+    }
+
+    public void afterSingletonsInstantiated() {
+        if(!sameOriginEnforced()) {
+            return;
+        }
+
+        String beanName = "stompWebSocketHandlerMapping";
+        SimpleUrlHandlerMapping mapping = context.getBean(beanName, SimpleUrlHandlerMapping.class);
+        Map<String, Object> mappings = mapping.getHandlerMap();
+        for(Object object : mappings.values()) {
+            if(object instanceof SockJsHttpRequestHandler) {
+                SockJsHttpRequestHandler sockjsHandler = (SockJsHttpRequestHandler) object;
+                SockJsService sockJsService = sockjsHandler.getSockJsService();
+                if(!(sockJsService instanceof TransportHandlingSockJsService)) {
+                    throw new IllegalStateException("sockJsService must be instance of TransportHandlingSockJsService got " + sockJsService);
+                }
+
+                TransportHandlingSockJsService transportHandlingSockJsService = (TransportHandlingSockJsService) sockJsService;
+                List<HandshakeInterceptor> handshakeInterceptors = transportHandlingSockJsService.getHandshakeInterceptors();
+                List<HandshakeInterceptor> interceptorsToSet = new ArrayList<HandshakeInterceptor>(handshakeInterceptors.size() + 1);
+                interceptorsToSet.add(new CsrfTokenHandshakeInterceptor());
+                interceptorsToSet.addAll(handshakeInterceptors);
+
+                transportHandlingSockJsService.setHandshakeInterceptors(interceptorsToSet);
+            }
+            else if(object instanceof WebSocketHttpRequestHandler) {
+                WebSocketHttpRequestHandler handler = (WebSocketHttpRequestHandler) object;
+                List<HandshakeInterceptor> handshakeInterceptors = handler.getHandshakeInterceptors();
+                List<HandshakeInterceptor> interceptorsToSet = new ArrayList<HandshakeInterceptor>(handshakeInterceptors.size() + 1);
+                interceptorsToSet.add(new CsrfTokenHandshakeInterceptor());
+                interceptorsToSet.addAll(handshakeInterceptors);
+
+                handler.setHandshakeInterceptors(interceptorsToSet);
+            } else {
+                throw new IllegalStateException("Bean " + beanName + " is expected to contain mappings to either a SockJsHttpRequestHandler or a WebSocketHttpRequestHandler but got " + object);
+            }
         }
     }
 }

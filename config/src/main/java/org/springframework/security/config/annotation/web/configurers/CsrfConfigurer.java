@@ -15,9 +15,14 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -31,6 +36,9 @@ import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
 import org.springframework.security.web.session.InvalidSessionAccessDeniedHandler;
 import org.springframework.security.web.session.InvalidSessionStrategy;
+import org.springframework.security.web.util.matcher.AndRequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
@@ -66,7 +74,8 @@ import org.springframework.util.Assert;
  */
 public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<CsrfConfigurer<H>,H> {
     private CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
-    private RequestMatcher requireCsrfProtectionMatcher;
+    private RequestMatcher requireCsrfProtectionMatcher = CsrfFilter.DEFAULT_CSRF_MATCHER;
+    private List<RequestMatcher> ignoredCsrfProtectionMatchers = new ArrayList<RequestMatcher>();
 
     /**
      * Creates a new instance
@@ -102,10 +111,38 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>> extends Abst
         return this;
     }
 
+    /**
+     * <p>
+     * Allows specifying {@link HttpServletRequest} that should not use CSRF Protection even if they match the {@link #requireCsrfProtectionMatcher(RequestMatcher)}.
+     * </p>
+     *
+     * <p>
+     * The following will ensure CSRF protection ignores:
+     * </p>
+     * <ul>
+     * <li>Any GET, HEAD, TRACE, OPTIONS (this is the default)</li>
+     * <li>We also explicitly state to ignore any request that starts with "/sockjs/"</li>
+     * </ul>
+     *
+     * <pre>
+     * http
+     *     .csrf()
+     *         .ignoringAntMatchers("/sockjs/**")
+     *         .and()
+     *     ...
+     * </pre>
+     *
+     * @since 4.0
+     */
+    public CsrfConfigurer<H> ignoringAntMatchers(String... antPatterns) {
+        return new IgnoreCsrfProtectionRegistry().antMatchers(antPatterns).and();
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public void configure(H http) throws Exception {
         CsrfFilter filter = new CsrfFilter(csrfTokenRepository);
+        RequestMatcher requireCsrfProtectionMatcher = getRequireCsrfProtectionMatcher();
         if(requireCsrfProtectionMatcher != null) {
             filter.setRequireCsrfProtectionMatcher(requireCsrfProtectionMatcher);
         }
@@ -123,6 +160,18 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>> extends Abst
         }
         filter = postProcess(filter);
         http.addFilter(filter);
+    }
+
+    /**
+     * Gets the final {@link RequestMatcher} to use by combining the {@link #requireCsrfProtectionMatcher(RequestMatcher)} and any {@link #ignore()}.
+     *
+     * @return the {@link RequestMatcher} to use
+     */
+    private RequestMatcher getRequireCsrfProtectionMatcher() {
+        if(ignoredCsrfProtectionMatchers.isEmpty()) {
+            return requireCsrfProtectionMatcher;
+        }
+        return new AndRequestMatcher(requireCsrfProtectionMatcher, new NegatedRequestMatcher(new OrRequestMatcher(ignoredCsrfProtectionMatchers)));
     }
 
     /**
@@ -189,5 +238,26 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>> extends Abst
                 new LinkedHashMap<Class<? extends AccessDeniedException>, AccessDeniedHandler>();
         handlers.put(MissingCsrfTokenException.class, invalidSessionDeniedHandler);
         return new DelegatingAccessDeniedHandler(handlers, defaultAccessDeniedHandler);
+    }
+
+    /**
+     * Allows registering {@link RequestMatcher} instances that should be
+     * ignored (even if the {@link HttpServletRequest} matches the
+     * {@link CsrfConfigurer#requireCsrfProtectionMatcher(RequestMatcher)}.
+     *
+     * @author Rob Winch
+     * @since 4.0
+     */
+    private class IgnoreCsrfProtectionRegistry extends AbstractRequestMatcherRegistry<IgnoreCsrfProtectionRegistry>{
+
+        public CsrfConfigurer<H> and() {
+            return CsrfConfigurer.this;
+        }
+
+        protected IgnoreCsrfProtectionRegistry chainRequestMatchers(
+                List<RequestMatcher> requestMatchers) {
+            ignoredCsrfProtectionMatchers.addAll(requestMatchers);
+            return this;
+        }
     }
 }
