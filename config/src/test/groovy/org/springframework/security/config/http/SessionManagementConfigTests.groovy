@@ -368,6 +368,54 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
         !(getFilters("/someurl").find { it instanceof SessionManagementFilter})
     }
 
+    def 'session-fixation-protection=none'() {
+        setup:
+        MockHttpServletRequest request = new MockHttpServletRequest(method:'POST')
+        request.session.id = '123'
+        request.setParameter('username', 'user')
+        request.setParameter('password', 'password')
+        request.servletPath = '/login'
+
+        MockHttpServletResponse response = new MockHttpServletResponse()
+        MockFilterChain chain = new MockFilterChain()
+        httpAutoConfig {
+            'session-management'('session-fixation-protection': 'none')
+            csrf(disabled:true)
+        }
+        createAppContext()
+        request.session.id = '123'
+
+        when:
+        springSecurityFilterChain.doFilter(request,response, chain)
+
+        then:
+        request.session.id == '123'
+    }
+
+    def 'session-fixation-protection=migrateSession'() {
+        setup:
+        MockHttpServletRequest request = new MockHttpServletRequest(method:'POST')
+        request.session.id = '123'
+        request.setParameter('username', 'user')
+        request.setParameter('password', 'password')
+        request.servletPath = '/login'
+
+        MockHttpServletResponse response = new MockHttpServletResponse()
+        MockFilterChain chain = new MockFilterChain()
+        httpAutoConfig {
+            'session-management'('session-fixation-protection': 'migrateSession')
+            csrf(disabled:true)
+        }
+        createAppContext()
+        request.session.id = '123'
+
+        when:
+        springSecurityFilterChain.doFilter(request,response, chain)
+
+        then:
+        request.session.id != '123'
+    }
+
     def disablingSessionProtectionRetainsSessionManagementFilterInvalidSessionUrlSet() {
         httpAutoConfig {
             'session-management'('session-fixation-protection': 'none', 'invalid-session-url': '/timeoutUrl')
