@@ -290,6 +290,9 @@ intercept-message.attrlist &=
 intercept-message.attrlist &=
      ## The access configuration attributes that apply for the configured message. For example, permitAll grants access to anyone, hasRole('ROLE_ADMIN') requires the user have the role 'ROLE_ADMIN'.
     attribute access {xsd:token}?
+intercept-message.attrlist &=
+     ## The type of message to match on. Valid values are defined in SimpMessageType (i.e. CONNECT, CONNECT_ACK, HEARTBEAT, MESSAGE, SUBSCRIBE, UNSUBSCRIBE, DISCONNECT, DISCONNECT_ACK, OTHER).
+    attribute type {"CONNECT" | "CONNECT_ACK" | "HEARTBEAT" | "MESSAGE" | "SUBSCRIBE"| "UNSUBSCRIBE" | "DISCONNECT" | "DISCONNECT_ACK" | "OTHER"}?
 
 http-firewall =
     ## Allows a custom instance of HttpFirewall to be injected into the FilterChainProxy created by the namespace.

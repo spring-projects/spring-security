@@ -897,6 +897,27 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="type">
+         <xs:annotation>
+            <xs:documentation>The type of message to match on. Valid values are defined in SimpMessageType (i.e.
+                CONNECT, CONNECT_ACK, HEARTBEAT, MESSAGE, SUBSCRIBE, UNSUBSCRIBE, DISCONNECT,
+                DISCONNECT_ACK, OTHER).
+                </xs:documentation>
+         </xs:annotation>
+         <xs:simpleType>
+            <xs:restriction base="xs:token">
+               <xs:enumeration value="CONNECT"/>
+               <xs:enumeration value="CONNECT_ACK"/>
+               <xs:enumeration value="HEARTBEAT"/>
+               <xs:enumeration value="MESSAGE"/>
+               <xs:enumeration value="SUBSCRIBE"/>
+               <xs:enumeration value="UNSUBSCRIBE"/>
+               <xs:enumeration value="DISCONNECT"/>
+               <xs:enumeration value="DISCONNECT_ACK"/>
+               <xs:enumeration value="OTHER"/>
+            </xs:restriction>
+         </xs:simpleType>
+      </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="http-firewall">
       <xs:annotation>

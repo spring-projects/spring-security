@@ -7840,6 +7840,10 @@ Defines an authorization rule for a message.
 [[nsa-intercept-message-pattern]]
 * **pattern** An ant based pattern that matches on the Message destination. For example, "/**" matches any Message with a destination; "/admin/**" matches any Message that has a destination that starts with "/admin/**".
 
+[[nsa-intercept-message-type]]
+* **type** The type of message to match on.
+Valid values are defined in SimpMessageType (i.e. CONNECT, CONNECT_ACK, HEARTBEAT, MESSAGE, SUBSCRIBE, UNSUBSCRIBE, DISCONNECT, DISCONNECT_ACK, OTHER).
+
 [[nsa-intercept-message-access]]
 * **access** The expression used to secure the Message. For example, "denyAll" will deny access to all of the matching Messages; "permitAll" will grant access to all of the matching Messages; "hasRole('ADMIN') requires the current user to have the role 'ROLE_ADMIN' for the matching Messages.
 

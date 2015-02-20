@@ -24,6 +24,7 @@ import org.springframework.beans.factory.support.*;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.xml.XmlReaderContext;
+import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.annotation.support.SimpAnnotationMethodMessageHandler;
 import org.springframework.security.access.vote.ConsensusBased;
 import org.springframework.security.config.Elements;
@@ -33,8 +34,10 @@ import org.springframework.security.messaging.access.intercept.ChannelSecurityIn
 import org.springframework.security.messaging.context.AuthenticationPrincipalArgumentResolver;
 import org.springframework.security.messaging.context.SecurityContextChannelInterceptor;
 import org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher;
+import org.springframework.security.messaging.util.matcher.SimpMessageTypeMatcher;
 import org.springframework.security.messaging.web.csrf.CsrfChannelInterceptor;
 import org.springframework.security.messaging.web.socket.server.CsrfTokenHandshakeInterceptor;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
@@ -87,6 +90,8 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 
     private static final String ACCESS_ATTR = "access";
 
+    private static final String TYPE_ATTR = "type";
+
 
     /**
      * @param element
@@ -105,9 +110,10 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
         for(Element interceptMessage : interceptMessages) {
             String matcherPattern = interceptMessage.getAttribute(PATTERN_ATTR);
             String accessExpression = interceptMessage.getAttribute(ACCESS_ATTR);
-            BeanDefinitionBuilder matcher = BeanDefinitionBuilder.rootBeanDefinition(SimpDestinationMessageMatcher.class);
-            matcher.addConstructorArgValue(matcherPattern);
-            matcherToExpression.put(matcher.getBeanDefinition(), accessExpression);
+            String messageType = interceptMessage.getAttribute(TYPE_ATTR);
+
+            BeanDefinition matcher = createMatcher(matcherPattern, messageType, parserContext, interceptMessage);
+            matcherToExpression.put(matcher, accessExpression);
         }
 
         BeanDefinitionBuilder mds = BeanDefinitionBuilder.rootBeanDefinition(ExpressionBasedMessageSecurityMetadataSourceFactory.class);
@@ -135,6 +141,34 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
         }
 
         return null;
+    }
+
+    private BeanDefinition createMatcher(String matcherPattern, String messageType, ParserContext parserContext, Element interceptMessage) {
+        boolean hasPattern = StringUtils.hasText(matcherPattern);
+        boolean hasMessageType = StringUtils.hasText(messageType);
+        if(!hasPattern) {
+            BeanDefinitionBuilder matcher = BeanDefinitionBuilder.rootBeanDefinition(SimpMessageTypeMatcher.class);
+            matcher.addConstructorArgValue(messageType);
+            return matcher.getBeanDefinition();
+        }
+
+
+        String factoryName = null;
+        if(hasPattern && hasMessageType) {
+            SimpMessageType type = SimpMessageType.valueOf(messageType);
+            if(SimpMessageType.MESSAGE == type) {
+                factoryName = "createMessageMatcher";
+            } else if(SimpMessageType.SUBSCRIBE == type) {
+                factoryName = "createSubscribeMatcher";
+            } else {
+                parserContext.getReaderContext().error("Cannot use intercept-websocket@message-type="+messageType+" with a pattern because the type does not have a destination.", interceptMessage);
+            }
+        }
+        BeanDefinitionBuilder matcher = BeanDefinitionBuilder.rootBeanDefinition(SimpDestinationMessageMatcher.class);
+        matcher.setFactoryMethod(factoryName);
+        matcher.addConstructorArgValue(matcherPattern);
+        matcher.addConstructorArgValue(new RootBeanDefinition(AntPathMatcher.class));
+        return matcher.getBeanDefinition();
     }
 
     static class MessageSecurityPostProcessor implements BeanDefinitionRegistryPostProcessor {
