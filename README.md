@@ -26,7 +26,7 @@ a cross-platform, self-contained bootstrap mechanism for the build.
 
 ### Prerequisites
 
-[Git][] and [JDK 8 update 20 or later][JDK8 build]
+[Git][] and the [JDK][JDK8 build]
 
 Be sure that your `JAVA_HOME` environment variable points to the `jdk1.8.0` folder
 extracted from the JDK download.
@@ -59,6 +59,8 @@ Check out the [Spring Security tags on Stack Overflow][]. [Commercial support][]
 [Spring Security API Documentation]: http://docs.spring.io/spring-security/site/docs/current/apidocs/
 [downloading Spring artifacts]: https://github.com/spring-projects/spring-framework/wiki/Downloading-Spring-artifacts
 [`./gradlew`]: http://vimeo.com/34436402
+[Gradle]: http://gradle.org
+[Gradle build and release FAQ]: https://github.com/spring-projects/spring-framework/wiki/Gradle-build-and-release-FAQ
 [Git]: http://help.github.com/set-up-git-redirect
 [JDK8 build]: http://www.oracle.com/technetwork/java/javase/downloads
 [Spring Security tags on Stack Overflow]: http://stackoverflow.com/questions/tagged/spring-security
