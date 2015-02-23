@@ -25,8 +25,7 @@ below, [`./gradlew`][] is invoked from the root of the source tree and serves as
 a cross-platform, self-contained bootstrap mechanism for the build.
 
 ### Prerequisites
-
-[Git][] and the [JDK][JDK8 build]
+[Git][] and the [JDK][JDK8 build].
 
 Be sure that your `JAVA_HOME` environment variable points to the `jdk1.8.0` folder
 extracted from the JDK download.
