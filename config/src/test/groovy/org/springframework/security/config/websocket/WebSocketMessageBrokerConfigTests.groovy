@@ -263,6 +263,24 @@ class WebSocketMessageBrokerConfigTests extends AbstractXmlConfigTests {
         expected.cause instanceof InvalidCsrfTokenException
     }
 
+    def 'messages of type CONNECT disabled valid CsrfToken'() {
+        setup:
+        def id = 'authenticationController'
+        bean(id,MyController)
+        bean('inPostProcessor',InboundExecutorPostProcessor)
+        websocket('same-origin-disabled':true) {
+            'intercept-message'(pattern:'/**',access:'permitAll')
+        }
+
+        when: 'websocket of type CONNECTION is sent without CsrfTOken'
+        SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT)
+        Message<?> message = message(headers,'/authentication')
+        clientInboundChannel.send(message)
+
+        then: 'CSRF Protection blocks the Message'
+        noExceptionThrown()
+    }
+
     def 'websocket with no id does not override customArgumentResolvers'() {
         setup:
         def id = 'authenticationController'

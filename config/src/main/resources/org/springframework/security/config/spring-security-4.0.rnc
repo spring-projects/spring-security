@@ -279,6 +279,9 @@ websocket-message-broker =
 websocket-message-broker.attrlist &=
     ## A bean identifier, used for referring to the bean elsewhere in the context. If specified, explicit configuration within clientInboundChannel is required. If not specified, ensures that any SimpAnnotationMethodMessageHandler has the AuthenticationPrincipalArgumentResolver registered as a custom argument resolver; ensures that the SecurityContextChannelInterceptor is automatically registered for the clientInboundChannel; and that a ChannelSecurityInterceptor is registered with the clientInboundChannel.
     attribute id {xsd:token}?
+websocket-message-broker.attrlist &=
+    ## Disables the requirement for CSRF token to be present in the Stomp headers (default false). Changing the default is useful if it is necessary to allow other origins to make SockJS connections.
+    attribute same-origin-disabled {xsd:boolean}?
 
 intercept-message =
     ## Creates an authorization rule for a websocket message.

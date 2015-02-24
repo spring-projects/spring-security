@@ -88,7 +88,7 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
     public final void configureClientInboundChannel(ChannelRegistration registration) {
         ChannelSecurityInterceptor inboundChannelSecurity = inboundChannelSecurity();
         registration.setInterceptors(securityContextChannelInterceptor());
-        if(sameOriginEnforced()) {
+        if(!sameOriginDisabled()) {
             registration.setInterceptors(csrfChannelInterceptor());
         }
         if(inboundRegistry.containsMapping()) {
@@ -100,16 +100,16 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
     /**
      * <p>
      * Determines if a CSRF token is required for connecting. This protects against remote sites from connecting to the
-     * application and being able to read/write data over the connection. The default is true.
+     * application and being able to read/write data over the connection. The default is false (the token is required).
      * </p>
      * <p>
      * Subclasses can override this method to disable CSRF protection
      * </p>
      *
-     * @return true if a CSRF is required for connecting, else false
+     * @return false if a CSRF token is required for connecting, else true
      */
-    protected boolean sameOriginEnforced() {
-        return true;
+    protected boolean sameOriginDisabled() {
+        return false;
     }
 
     /**
@@ -170,7 +170,7 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
     }
 
     public void afterSingletonsInstantiated() {
-        if(!sameOriginEnforced()) {
+        if(sameOriginDisabled()) {
             return;
         }
 

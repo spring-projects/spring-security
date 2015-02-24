@@ -86,6 +86,8 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 
     private static final String ID_ATTR = "id";
 
+    private static final String DISABLED_ATTR = "same-origin-disabled";
+
     private static final String PATTERN_ATTR = "pattern";
 
     private static final String ACCESS_ATTR = "access";
@@ -105,6 +107,8 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
         ManagedMap<BeanDefinition,String> matcherToExpression = new ManagedMap<BeanDefinition, String>();
 
         String id = element.getAttribute(ID_ATTR);
+        boolean sameOriginDisabled = Boolean.parseBoolean(element.getAttribute(DISABLED_ATTR));
+
 
         List<Element> interceptMessages = DomUtils.getChildElementsByTagName(element, Elements.INTERCEPT_MESSAGE);
         for(Element interceptMessage : interceptMessages) {
@@ -137,6 +141,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
         } else {
             BeanDefinitionBuilder mspp = BeanDefinitionBuilder.rootBeanDefinition(MessageSecurityPostProcessor.class);
             mspp.addConstructorArgValue(inSecurityInterceptorName);
+            mspp.addConstructorArgValue(sameOriginDisabled);
             context.registerWithGeneratedName(mspp.getBeanDefinition());
         }
 
@@ -180,8 +185,11 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 
         private final String inboundSecurityInterceptorId;
 
-        public MessageSecurityPostProcessor(String inboundSecurityInterceptorId) {
+        private final boolean sameOriginDisabled;
+
+        public MessageSecurityPostProcessor(String inboundSecurityInterceptorId, boolean sameOriginDisabled) {
             this.inboundSecurityInterceptorId = inboundSecurityInterceptorId;
+            this.sameOriginDisabled = sameOriginDisabled;
         }
 
         public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
@@ -212,7 +220,9 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
             }
             ManagedList<Object> interceptors = new ManagedList();
             interceptors.add(new RootBeanDefinition(SecurityContextChannelInterceptor.class));
-            interceptors.add(new RootBeanDefinition(CsrfChannelInterceptor.class));
+            if(!sameOriginDisabled) {
+                interceptors.add(new RootBeanDefinition(CsrfChannelInterceptor.class));
+            }
             interceptors.add(registry.getBeanDefinition(inboundSecurityInterceptorId));
 
             BeanDefinition inboundChannel = registry.getBeanDefinition(CLIENT_INBOUND_CHANNEL_BEAN_ID);
@@ -226,6 +236,9 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
         }
 
         private void addCsrfTokenHandshakeInterceptor(BeanDefinition bd) {
+            if(sameOriginDisabled) {
+                return;
+            }
             String interceptorPropertyName = "handshakeInterceptors";
             ManagedList<? super Object> interceptors = new ManagedList<Object>();
             interceptors.add(new RootBeanDefinition(CsrfTokenHandshakeInterceptor.class));

@@ -7815,6 +7815,9 @@ If additional control is necessary, the id can be specified and a ChannelSecurit
 [[nsa-websocket-message-broker-id]]
 * **id** A bean identifier, used for referring to the ChannelSecurityInterceptor bean elsewhere in the context. If specified, Spring Security requires explicit configuration within Spring Messaging. If not specified, Spring Security will automatically integrate with the messaging infrastructure as described in <<nsa-websocket-message-broker>>
 
+[[nsa-websocket-message-broker-same-origin-disabled]]
+* **same-origin-disabled** Disables the requirement for CSRF token to be present in the Stomp headers (default false). Changing the default is useful if it is necessary to allow other origins to make SockJS connections.
+
 [[nsa-websocket-message-broker-children]]
 ===== Child Elements of <websocket-message-broker>
 

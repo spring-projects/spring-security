@@ -408,8 +408,8 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
     static class CsrfDisabledSockJsSecurityConfig extends SockJsSecurityConfig {
 
         @Override
-        protected boolean sameOriginEnforced() {
-            return false;
+        protected boolean sameOriginDisabled() {
+            return true;
         }
     }
 

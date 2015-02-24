@@ -870,6 +870,14 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="same-origin-disabled" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>Disables the requrement for CSRF token to be present in the Stomp headers (default false).
+                Changing the default is useful if it is necessary to allow other origins to make SockJS
+                connections.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="intercept-message">
       <xs:annotation>
