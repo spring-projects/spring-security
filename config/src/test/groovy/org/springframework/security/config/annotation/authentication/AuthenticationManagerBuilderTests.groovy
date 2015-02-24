@@ -15,18 +15,28 @@
  */
 package org.springframework.security.config.annotation.authentication
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
+import org.springframework.core.io.Resource;
 import org.springframework.security.authentication.AuthenticationEventPublisher
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationProvider
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.ProviderManager
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.BaseSpringSpec
 import org.springframework.security.config.annotation.ObjectPostProcessor
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
+import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication
+import org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 /**
  *
@@ -118,5 +128,40 @@ class AuthenticationManagerBuilderTests extends BaseSpringSpec {
             AuthenticationManagerBuilder auth = new AuthenticationManagerBuilder(opp)
         then:
             auth.isConfigured() == false
+    }
+
+    def "user from properties"() {
+        setup:
+        loadConfig(UserFromPropertiesConfig)
+        AuthenticationManager manager = context.getBean(AuthenticationConfiguration).authenticationManager
+        when:
+        manager.authenticate(new UsernamePasswordAuthenticationToken("joe","joespassword"))
+        then:
+        noExceptionThrown()
+    }
+
+    @Configuration
+    @EnableGlobalAuthentication
+    @Import(ObjectPostProcessorConfiguration.class)
+    static class UserFromPropertiesConfig {
+
+        @Bean
+        public AuthenticationManager authenticationManager() {
+            return new ProviderManager(Arrays.asList(authenticationProvider()));
+        }
+
+        @Bean
+        public AuthenticationProvider authenticationProvider() {
+            DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+            provider.setUserDetailsService(userDetailsService())
+            return provider;
+        }
+
+        @Bean
+        public UserDetailsService userDetailsService(@Value("classpath:org/springframework/security/config/users.properties") Resource users) {
+            Properties properties = new Properties();
+            properties.load(users.getInputStream());
+            return new InMemoryUserDetailsManager(properties);
+        }
     }
 }
