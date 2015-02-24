@@ -15,6 +15,7 @@
  */
 package org.springframework.security.web.csrf;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
@@ -73,7 +74,7 @@ public class CsrfAuthenticationStrategyTests {
         strategy.onAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"), request, response);
 
         verify(csrfTokenRepository).saveToken(null, request, response);
-        verify(csrfTokenRepository).saveToken(eq(generatedToken), eq(request), eq(response));
+        verify(csrfTokenRepository,never()).saveToken(eq(generatedToken), any(HttpServletRequest.class), any(HttpServletResponse.class));
         // SEC-2404, SEC-2832
         CsrfToken tokenInRequest = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
         assertThat(tokenInRequest.getToken()).isSameAs(generatedToken.getToken());
@@ -82,6 +83,19 @@ public class CsrfAuthenticationStrategyTests {
         assertThat(request.getAttribute(generatedToken.getParameterName())).isSameAs(tokenInRequest);
     }
 
+    // SEC-2872
+    @Test
+    public void delaySavingCsrf() {
+        when(csrfTokenRepository.loadToken(request)).thenReturn(existingToken);
+        when(csrfTokenRepository.generateToken(request)).thenReturn(generatedToken);
+        strategy.onAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"), request, response);
+
+        verify(csrfTokenRepository).saveToken(null, request, response);
+        verify(csrfTokenRepository,never()).saveToken(eq(generatedToken), any(HttpServletRequest.class), any(HttpServletResponse.class));
+
+        CsrfToken tokenInRequest = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        tokenInRequest.getToken();
+        verify(csrfTokenRepository).saveToken(eq(generatedToken), any(HttpServletRequest.class), any(HttpServletResponse.class));
     }
 
     @Test
