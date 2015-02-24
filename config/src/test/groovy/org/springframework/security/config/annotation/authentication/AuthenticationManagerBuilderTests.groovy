@@ -145,6 +145,9 @@ class AuthenticationManagerBuilderTests extends BaseSpringSpec {
     @Import(ObjectPostProcessorConfiguration.class)
     static class UserFromPropertiesConfig {
 
+        @Value("classpath:org/springframework/security/config/users.properties")
+        Resource users;
+
         @Bean
         public AuthenticationManager authenticationManager() {
             return new ProviderManager(Arrays.asList(authenticationProvider()));
@@ -158,7 +161,7 @@ class AuthenticationManagerBuilderTests extends BaseSpringSpec {
         }
 
         @Bean
-        public UserDetailsService userDetailsService(@Value("classpath:org/springframework/security/config/users.properties") Resource users) {
+        public UserDetailsService userDetailsService() {
             Properties properties = new Properties();
             properties.load(users.getInputStream());
             return new InMemoryUserDetailsManager(properties);
