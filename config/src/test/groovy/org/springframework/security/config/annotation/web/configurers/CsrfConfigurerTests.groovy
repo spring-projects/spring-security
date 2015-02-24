@@ -237,6 +237,7 @@ class CsrfConfigurerTests extends BaseSpringSpec {
         setup:
             CsrfTokenRepositoryConfig.repo = Mock(CsrfTokenRepository)
             (1.._) * CsrfTokenRepositoryConfig.repo.loadToken(_) >> csrfToken
+            (1.._) * CsrfTokenRepositoryConfig.repo.generateToken(_) >> csrfToken
             loadConfig(CsrfTokenRepositoryConfig)
             request.method = "POST"
             request.getSession()
@@ -391,6 +392,7 @@ class CsrfConfigurerTests extends BaseSpringSpec {
     def "csrf disables POST requests from RequestCache"() {
         setup:
             CsrfDisablesPostRequestFromRequestCacheConfig.repo = Mock(CsrfTokenRepository)
+            (1.._) * CsrfDisablesPostRequestFromRequestCacheConfig.repo.generateToken(_) >> csrfToken
             loadConfig(CsrfDisablesPostRequestFromRequestCacheConfig)
             request.servletPath = "/some-url"
             request.requestURI = "/some-url"
@@ -417,6 +419,7 @@ class CsrfConfigurerTests extends BaseSpringSpec {
     def "csrf enables GET requests with RequestCache"() {
         setup:
             CsrfDisablesPostRequestFromRequestCacheConfig.repo = Mock(CsrfTokenRepository)
+            (1.._) * CsrfDisablesPostRequestFromRequestCacheConfig.repo.generateToken(_) >> csrfToken
             loadConfig(CsrfDisablesPostRequestFromRequestCacheConfig)
             request.servletPath = "/some-url"
             request.requestURI = "/some-url"
