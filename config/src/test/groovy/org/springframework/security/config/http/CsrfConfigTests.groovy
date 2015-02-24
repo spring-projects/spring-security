@@ -144,6 +144,7 @@ class CsrfConfigTests extends AbstractHttpConfigTests {
             CsrfTokenRepository repo = appContext.getBean("repo",CsrfTokenRepository)
             CsrfToken token = new DefaultCsrfToken("X-CSRF-TOKEN","_csrf", "abc")
             when(repo.loadToken(any(HttpServletRequest))).thenReturn(token)
+            when(repo.generateToken(any(HttpServletRequest))).thenReturn(token)
             request.setParameter(token.parameterName,token.token)
             request.servletPath = "/some-url"
             request.requestURI = "/some-url"
@@ -178,6 +179,7 @@ class CsrfConfigTests extends AbstractHttpConfigTests {
             CsrfTokenRepository repo = appContext.getBean("repo",CsrfTokenRepository)
             CsrfToken token = new DefaultCsrfToken("X-CSRF-TOKEN","_csrf", "abc")
             when(repo.loadToken(any(HttpServletRequest))).thenReturn(token)
+        when(repo.generateToken(any(HttpServletRequest))).thenReturn(token)
             request.setParameter(token.parameterName,token.token)
             request.servletPath = "/some-url"
             request.requestURI = "/some-url"
@@ -277,6 +279,7 @@ class CsrfConfigTests extends AbstractHttpConfigTests {
             CsrfTokenRepository repo = appContext.getBean("repo",CsrfTokenRepository)
             CsrfToken token = new DefaultCsrfToken("X-CSRF-TOKEN","_csrf", "abc")
             when(repo.loadToken(any(HttpServletRequest))).thenReturn(token)
+            when(repo.generateToken(any(HttpServletRequest))).thenReturn(token)
             request.setParameter(token.parameterName,token.token)
             request.method = "POST"
             request.setParameter("username","user")
