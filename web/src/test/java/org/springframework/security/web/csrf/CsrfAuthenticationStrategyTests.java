@@ -73,8 +73,15 @@ public class CsrfAuthenticationStrategyTests {
         strategy.onAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"), request, response);
 
         verify(csrfTokenRepository).saveToken(null, request, response);
-        // SEC-2404
         verify(csrfTokenRepository).saveToken(eq(generatedToken), eq(request), eq(response));
+        // SEC-2404, SEC-2832
+        CsrfToken tokenInRequest = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        assertThat(tokenInRequest.getToken()).isSameAs(generatedToken.getToken());
+        assertThat(tokenInRequest.getHeaderName()).isSameAs(generatedToken.getHeaderName());
+        assertThat(tokenInRequest.getParameterName()).isSameAs(generatedToken.getParameterName());
+        assertThat(request.getAttribute(generatedToken.getParameterName())).isSameAs(tokenInRequest);
+    }
+
     }
 
     @Test
