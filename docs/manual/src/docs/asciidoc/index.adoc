@@ -366,36 +366,61 @@ git clone https://github.com/spring-projects/spring-security.git
 This will give you access to the entire project history (including all releases and branches) on your local machine.
 
 [[new]]
-== What's new in Spring Security 3.2
+== What's new in Spring Security 4.0
 
-There are https://jira.springsource.org/issues/?jql=project%20%3D%20SEC%20AND%20fixVersion%20in%20(%223.2.0.RC2%22%2C%20%223.2.0%22%2C%20%223.2.0.RC1%22%2C%20%223.2.0.M2%22%2C%20%223.2.0.M1%22)%20ORDER%20BY%20priority%20DESC%2C%20issuetype%20ASC%2C%20key%20DESC[150+ tickets resolved] with the Spring Security 3.2 release. Below are the highlights of the new features found in Spring Security 3.2.
+There are https://jira.springsource.org/issues/?jql=project%20%3D%20SEC%20AND%20fixVersion%20in%20(%223.2.0.RC2%22%2C%20%223.2.0%22%2C%20%223.2.0.RC1%22%2C%20%223.2.0.M2%22%2C%20%223.2.0.M1%22)%20ORDER%20BY%20priority%20DESC%2C%20issuetype%20ASC%2C%20key%20DESC[150+ tickets resolved] with the Spring Security 4.0 release. Below are the highlights of the new features found in Spring Security 4.0.
 
-* <<jc,Java Configuration Support>>
-* <<csrf,Cross Site Request Forgery (CSRF) Protection>>
-* <<headers-frame-options,Click Jacking Protection>>
-* <<headers>>
-* Optional <<mvc,Spring MVC>> Integration
-** Automatic Resolving `Authentication.getPrincipal()` with <<mvc-authentication-principal>>
-** Automatic <<mvc-async,Spring MVC Async integration>>
-** <<mvc-csrf>>
-* <<concurrency>>
-* <<servletapi-3>> and <<servletapi-31>>
-* Extended ability to <<el-pre-post-annotations-arguments,resolve method parameter names>> to assist with Method based security
-** Support for standard JDK 8 reflection
-** Support for annotation based resolution
-** Enables resolving parameter names on interfaces
-** Automatic integration with Spring Data's `@Param` tag
-* Additional `RequestMatcher` implementations
-** http://docs.spring.io/spring-security/site/docs/3.2.x-SNAPSHOT/apidocs/org/springframework/security/web/util/matcher/MediaTypeRequestMatcher.html[MediaTypeRequestMatcher] - allows matching requests using content negotiation.
-** `OrRequestMatcher` - allows passing in multiple RequestMatcher instances into the contructor. If a single one returns true, then the result is true.
-** `AndRequestMatcher` - allows passing in multiple RequestMatcher instances into the contructor. If a all of them return true, then the result is true.
-** `NegatedRequestMatcher` - allows padding in a RequestMatcher instance. If the result of the delegate is false, the result is true.
-* `DebugFilter` now outputs request headers
-* Documentation
-** Started creating task focussed http://docs.spring.io/spring-security/site/docs/3.2.x-SNAPSHOT/guides/[guides]
-** 10+ https://github.com/spring-projects/spring-security/tree/master/samples[Spring Security Samples] added
-** Converted all documentation to http://asciidoctor.org/[Asciidoctor]
-* Sonar integration for the build
+* <<websocket,Web Socket Support>>
+* <<test,Test Support>>
+* <<data,Spring Data Integration>>
+* <<mvc-csrf-resolver,CSRF Token Argument Resolver>>
+* More Secure Defaults
+* Methods with role in them do not require ROLE_
+For example, previously the following would be required within XML configuration:
+
++
+
+[source,xml]
+----
+<intercept-url pattern="/**" access="hasRole('ROLE_USER')"/>
+----
+
++
+
+Now you can optionally omit the ROLE_ prefix.
+We do this to remove duplication.
+Specifically, since the expression hasRole already defines the value as a role it automatically adds the prefix if it is not there.
+For example, the following is the same as the previous configuration:
+
++
+
+[source,xml]
+----
+<intercept-url pattern="/**" access="hasRole('USER')"/>
+----
+
++
+
+Similarly, the following configuration:
+
++
+
+[source,java]
+----
+@PreAuthorize("hasRole('ROLE_USER')")
+----
++
+
+is the same as this more concise configuration:
++
+
+[source,java]
+----
+@PreAuthorize("hasRole('USER')")
+----
+
+* Many Integration Tests Added to Samples
+* https://jira.spring.io/browse/SEC-2790[Deprecate @EnableWebMvcSecurity] - by updating the minimum Spring Version, we can now allow defaulting MVC integration with `@EnableWebSecurity` but still allow it to be overridden
 
 [[jc]]
 == Java Configuration
