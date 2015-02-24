@@ -1,6 +1,6 @@
 = Spring Security
 
-Spring Security provides security services for the [Spring IO Platform][]. Spring Security 3.1 requires Spring 3.0.3 as
+Spring Security provides security services for the http://docs.spring.io[Spring IO Platform]. Spring Security 3.1 requires Spring 3.0.3 as
 a minimum and also requires Java 5.
 
 For a detailed list of features and access to the latest release, please visit http://spring.io/projects[Spring projects].
@@ -43,7 +43,7 @@ git clone git@github.com:spring-projects/spring-security.git
 ./gradlew build
 ----
 
-... and discover more commands with `./gradlew tasks`. 
+Discover more commands with `./gradlew tasks`. 
 See also the https://github.com/spring-projects/spring-framework/wiki/Gradle-build-and-release-FAQ[Gradle build and release FAQ].
 
 == Getting Support
