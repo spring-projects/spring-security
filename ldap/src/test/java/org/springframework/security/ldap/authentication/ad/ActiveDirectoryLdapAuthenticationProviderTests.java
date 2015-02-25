@@ -314,7 +314,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 
     @Test
     public void rootDnProvidedSeparatelyFromDomainAlsoWorks() throws Exception {
-        ActiveDirectoryLdapAuthenticationProvider provider = new ActiveDirectoryLdapAuthenticationProvider("dc=ad,dc=eu,dc=mydomain", "mydomain.eu", "ldap://192.168.1.200/");
+        ActiveDirectoryLdapAuthenticationProvider provider = new ActiveDirectoryLdapAuthenticationProvider("mydomain.eu", "ldap://192.168.1.200/", "dc=ad,dc=eu,dc=mydomain");
         checkAuthentication("dc=ad,dc=eu,dc=mydomain", provider);
 
     }
