@@ -46,10 +46,7 @@ import java.util.Hashtable;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider.ContextFactory;
 
 /**
@@ -122,6 +119,41 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 
         //then
         assertTrue(result.isAuthenticated());
+    }
+
+    @Test
+    public void defaultSearchFilter() throws Exception {
+        //given
+        final String defaultSearchFilter = "(&(objectClass=user)(userPrincipalName={0}))";
+
+        DirContext ctx = mock(DirContext.class);
+        when(ctx.getNameInNamespace()).thenReturn("");
+
+        DirContextAdapter dca = new DirContextAdapter();
+        SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
+        when(ctx.search(any(Name.class), eq(defaultSearchFilter), any(Object[].class), any(SearchControls.class)))
+                .thenReturn(new MockNamingEnumeration(sr));
+
+        ActiveDirectoryLdapAuthenticationProvider customProvider
+                = new ActiveDirectoryLdapAuthenticationProvider("mydomain.eu", "ldap://192.168.1.200/");
+        customProvider.contextFactory = createContextFactoryReturning(ctx);
+
+        //when
+        Authentication result = customProvider.authenticate(joe);
+
+        //then
+        assertTrue(result.isAuthenticated());
+        verify(ctx).search(any(DistinguishedName.class), eq(defaultSearchFilter), any(Object[].class), any(SearchControls.class));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setSearchFilterNull() {
+        provider.setSearchFilter(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setSearchFilterEmpty() {
+        provider.setSearchFilter(" ");
     }
 
     @Test
