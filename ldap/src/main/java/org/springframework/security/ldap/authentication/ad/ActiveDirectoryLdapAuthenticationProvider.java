@@ -97,7 +97,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
     private final String rootDn;
     private final String url;
     private boolean convertSubErrorCodesToExceptions;
-    private String searchFilter = "(&(objectClass=user)(|(sAMAccountName={0})(userPrincipalName={0})))";
+    private String searchFilter = "(&(objectClass=user)(userPrincipalName={0}))";
 
     // Only used to allow tests to substitute a mock LdapContext
     ContextFactory contextFactory = new ContextFactory();
@@ -337,14 +337,15 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
      * The LDAP filter string to search for the user being authenticated.
      * Occurrences of {0} are replaced with the {@code username@domain}.
      * <p>
-     * Defaults to: {@code (&(objectClass=user)(|(sAMAccountName={0})(userPrincipalName={0})))}
+     * Defaults to: {@code (&(objectClass=user)(userPrincipalName={0}))}
      * </p>
      *
      * @param searchFilter the filter string
      *
-     * @since 3.2
+     * @since 3.2.6
      */
     public void setSearchFilter(String searchFilter) {
+        Assert.hasText(searchFilter,"searchFilter must have text");
         this.searchFilter = searchFilter;
     }
 
