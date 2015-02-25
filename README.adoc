@@ -54,5 +54,5 @@ http://spring.io/services[Commercial support] is available too.
 http://help.github.com/send-pull-requests[Pull requests] are welcome; see the https://github.com/spring-projects/spring-security/blob/master/CONTRIBUTING.md[contributor guidelines] for details.
 
 == License
-Spring Boot is Open Source software released under the
+Spring Security is Open Source software released under the
 http://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
