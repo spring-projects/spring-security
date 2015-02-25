@@ -18,9 +18,7 @@ package org.springframework.security.web.authentication.rememberme;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -174,6 +172,20 @@ public class JdbcTokenRepositoryImplTests {
         repo.initDao();
 
         template.queryForList("select username,series,token,last_used from persistent_logins");
+    }
+
+
+    // SEC-2879
+    @Test
+    public void updateUsesLastUsed() {
+        JdbcTemplate template = mock(JdbcTemplate.class);
+        Date lastUsed = new Date(1424841314059L);
+        JdbcTokenRepositoryImpl repository = new JdbcTokenRepositoryImpl();
+        repository.setJdbcTemplate(template);
+
+        repository.updateToken("series", "token", lastUsed);
+
+        verify(template).update(anyString(), anyString(), eq(lastUsed), anyString());
     }
 
 }
