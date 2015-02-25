@@ -24,7 +24,7 @@ import org.springframework.messaging.Message;
  *
  * @since 4.0
  */
-public class OrMessageMatcher<T> extends AbstractMessageMatcherComposite<T> {
+public final class OrMessageMatcher<T> extends AbstractMessageMatcherComposite<T> {
     /**
      * Creates a new instance
      *
@@ -40,23 +40,23 @@ public class OrMessageMatcher<T> extends AbstractMessageMatcherComposite<T> {
      * @param messageMatchers the {@link MessageMatcher} instances to try
      */
     @SafeVarargs
-    public OrMessageMatcher(MessageMatcher<T>... messagetMatchers) {
-        super(messagetMatchers);
+    public OrMessageMatcher(MessageMatcher<T>... messageMatchers) {
+        super(messageMatchers);
 
     }
 
     @Override
     public boolean matches(Message<? extends T> message) {
         for (MessageMatcher<T> matcher : getMessageMatchers()) {
-            if (getLogger().isDebugEnabled()) {
-                getLogger().debug("Trying to match using " + matcher);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Trying to match using " + matcher);
             }
             if (matcher.matches(message)) {
-                getLogger().debug("matched");
+                LOGGER.debug("matched");
                 return true;
             }
         }
-        getLogger().debug("No matches found");
+        LOGGER.debug("No matches found");
         return false;
     }
 }

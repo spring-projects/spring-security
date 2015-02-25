@@ -28,8 +28,8 @@ import org.apache.commons.logging.Log;
  *
  * @since 4.0
  */
-public abstract class AbstractMessageMatcherComposite<T> implements MessageMatcher<T> {
-    private final Log logger = getLog(getClass());
+abstract class AbstractMessageMatcherComposite<T> implements MessageMatcher<T> {
+    protected final Log LOGGER = getLog(getClass());
 
     private final List<MessageMatcher<T>> messageMatchers;
 
@@ -53,17 +53,14 @@ public abstract class AbstractMessageMatcherComposite<T> implements MessageMatch
      * @param messageMatchers the {@link MessageMatcher} instances to try
      */
     @SafeVarargs
-    public AbstractMessageMatcherComposite(MessageMatcher<T>... messagetMatchers) {
-        this(asList(messagetMatchers));
+    public AbstractMessageMatcherComposite(MessageMatcher<T>... messageMatchers) {
+        this(asList(messageMatchers));
     }
 
     public List<MessageMatcher<T>> getMessageMatchers() {
         return messageMatchers;
     }
 
-    public Log getLogger() {
-        return logger;
-    }
     @Override
     public String toString() {
         return getClass().getSimpleName()+ "[messageMatchers=" + messageMatchers + "]";
