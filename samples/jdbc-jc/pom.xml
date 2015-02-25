@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-jdbc-jc</artifactId>
-  <version>4.0.0.CI-SNAPSHOT</version>
+  <version>4.0.0.RC2</version>
   <packaging>war</packaging>
   <name>spring-security-samples-jdbc-jc</name>
   <description>spring-security-samples-jdbc-jc</description>
@@ -33,8 +33,8 @@
   </scm>
   <repositories>
     <repository>
-      <id>spring-snasphot</id>
-      <url>https://repo.spring.io/snapshot</url>
+      <id>spring-milestone</id>
+      <url>https://repo.spring.io/milestone</url>
     </repository>
   </repositories>
   <dependencies>
@@ -83,25 +83,25 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>4.0.0.CI-SNAPSHOT</version>
+      <version>4.0.0.RC2</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>4.0.0.CI-SNAPSHOT</version>
+      <version>4.0.0.RC2</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-samples-messages-jc</artifactId>
-      <version>4.0.0.CI-SNAPSHOT</version>
+      <version>4.0.0.RC2</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>4.0.0.CI-SNAPSHOT</version>
+      <version>4.0.0.RC2</version>
       <scope>compile</scope>
     </dependency>
     <dependency>

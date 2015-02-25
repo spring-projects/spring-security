@@ -872,9 +872,9 @@
       </xs:attribute>
       <xs:attribute name="same-origin-disabled" type="xs:boolean">
          <xs:annotation>
-            <xs:documentation>Disables the requrement for CSRF token to be present in the Stomp headers (default false).
-                Changing the default is useful if it is necessary to allow other origins to make SockJS
-                connections.
+            <xs:documentation>Disables the requirement for CSRF token to be present in the Stomp headers (default
+                false). Changing the default is useful if it is necessary to allow other origins to make
+                SockJS connections.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
@@ -1828,11 +1828,11 @@
          </xs:annotation>
       </xs:attribute>
       <xs:attribute name="remember-me-cookie" type="xs:token">
-          <xs:annotation>
-              <xs:documentation>The name of cookie which store the token for remember-me authentication. Defaults to
-                  'remember-me'.
-              </xs:documentation>
-          </xs:annotation>
+         <xs:annotation>
+            <xs:documentation>The name of cookie which store the token for remember-me authentication. Defaults to
+                'remember-me'.
+                </xs:documentation>
+         </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
   <xs:attributeGroup name="token-repository-ref">
