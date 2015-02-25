@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.springframework.security</groupId>
   <artifactId>spring-security-samples-gae-xml</artifactId>
-  <version>3.2.4.CI-SNAPSHOT</version>
+  <version>3.2.6.RELEASE</version>
   <packaging>war</packaging>
   <name>spring-security-samples-gae-xml</name>
   <description>spring-security-samples-gae-xml</description>
@@ -50,12 +50,6 @@
       </plugin>
     </plugins>
   </build>
-  <repositories>
-    <repository>
-      <id>spring-snasphot</id>
-      <url>https://repo.spring.io/snapshot</url>
-    </repository>
-  </repositories>
   <dependencies>
     <dependency>
       <groupId>com.google.appengine</groupId>
@@ -84,13 +78,13 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
-      <version>3.2.4.CI-SNAPSHOT</version>
+      <version>3.2.6.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
-      <version>3.2.4.CI-SNAPSHOT</version>
+      <version>3.2.6.RELEASE</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -110,18 +104,6 @@
       <artifactId>spring-context-support</artifactId>
       <version>3.2.8.RELEASE</version>
       <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-core</artifactId>
-      <version>3.2.8.RELEASE</version>
-      <scope>compile</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>commons-logging</artifactId>
-          <groupId>commons-logging</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
@@ -163,13 +145,13 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
-      <version>3.2.4.CI-SNAPSHOT</version>
+      <version>3.2.6.RELEASE</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-taglibs</artifactId>
-      <version>3.2.4.CI-SNAPSHOT</version>
+      <version>3.2.6.RELEASE</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
