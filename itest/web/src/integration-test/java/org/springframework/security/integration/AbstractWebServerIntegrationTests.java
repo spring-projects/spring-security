@@ -119,7 +119,7 @@ public abstract class AbstractWebServerIntegrationTests {
     protected Cookie getRememberMeCookie() {
         List<Cookie> cookies = (List<Cookie>) tester.getTestingEngine().getCookies();
         for (Cookie c : cookies) {
-            if (c.getName().equals("SPRING_SECURITY_REMEMBER_ME_COOKIE")) {
+            if (c.getName().equals("remember-me")) {
                 return c;
             }
         }

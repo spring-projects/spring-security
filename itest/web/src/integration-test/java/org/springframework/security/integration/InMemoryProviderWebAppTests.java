@@ -62,7 +62,7 @@ public class InMemoryProviderWebAppTests extends AbstractWebServerIntegrationTes
     @Test
     public void persistentLoginIsSuccesful() throws Exception {
         beginAt("secure/index.html");
-        tester.checkCheckbox("_spring_security_remember_me");
+        tester.checkCheckbox("remember-me");
         login("jimi", "jimispassword");
         Cookie rememberMe = getRememberMeCookie();
         assertNotNull(rememberMe);

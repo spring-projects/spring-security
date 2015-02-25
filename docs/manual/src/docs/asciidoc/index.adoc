@@ -7591,12 +7591,12 @@ A reference to a `DataSource` bean. If this is set, `PersistentTokenBasedRemembe
 
 [[nsa-remember-me-remember-me-parameter]]
 * **remember-me-parameter**
-The name of the request parameter which toggles remember-me authentication. Defaults to "_spring_security_remember_me". Maps to the "parameter" property of `AbstractRememberMeServices`.
+The name of the request parameter which toggles remember-me authentication. Defaults to "remember-me". Maps to the "parameter" property of `AbstractRememberMeServices`.
 
 
 [[nsa-remember-me-remember-me-cookie]]
 * **remember-me-cookie**
-The name of cookie which store the token for remember-me authentication. Defaults to "SPRING_SECURITY_REMEMBER_ME_COOKIE". Maps to the "cookieName" property of `AbstractRememberMeServices`.
+The name of cookie which store the token for remember-me authentication. Defaults to "remember-me". Maps to the "cookieName" property of `AbstractRememberMeServices`.
 
 
 [[nsa-remember-me-key]]

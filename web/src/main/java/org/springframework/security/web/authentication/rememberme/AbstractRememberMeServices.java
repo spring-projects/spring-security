@@ -40,8 +40,8 @@ import org.springframework.util.StringUtils;
 public abstract class AbstractRememberMeServices implements RememberMeServices, InitializingBean, LogoutHandler {
     //~ Static fields/initializers =====================================================================================
 
-    public static final String SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY = "SPRING_SECURITY_REMEMBER_ME_COOKIE";
-    public static final String DEFAULT_PARAMETER = "_spring_security_remember_me";
+    public static final String SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY = "remember-me";
+    public static final String DEFAULT_PARAMETER = "remember-me";
     public static final int TWO_WEEKS_S = 1209600;
 
     private static final String DELIMITER = ":";
