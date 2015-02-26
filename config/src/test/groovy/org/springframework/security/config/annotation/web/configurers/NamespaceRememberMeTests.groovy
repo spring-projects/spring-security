@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -268,6 +268,25 @@ public class NamespaceRememberMeTests extends BaseSpringSpec {
             loadConfig(RememberMeParameterConfig)
         then: "custom rememberMeParameter will be used"
             findFilter(RememberMeAuthenticationFilter).rememberMeServices.parameter == "rememberMe"
+    }
+
+    @Configuration
+    static class RememberMeCookieNameConfig extends BaseWebConfig {
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .formLogin()
+                    .and()
+                .rememberMe()
+                    .rememberMeCookieName("rememberMe")
+        }
+    }
+
+    // SEC-2880
+    def "http/remember-me@remember-me-cookie"() {
+        when: "use custom rememberMeCookieName"
+        loadConfig(RememberMeCookieNameConfig)
+        then: "custom rememberMeCookieName will be used"
+        findFilter(RememberMeAuthenticationFilter).rememberMeServices.cookieName == "rememberMe"
     }
 
     @Configuration
