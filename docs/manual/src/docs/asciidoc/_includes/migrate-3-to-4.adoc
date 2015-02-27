@@ -1,0 +1,561 @@
+[[m3to4]]
+= Migrating from 3.x to 4.x
+
+As exploits against applications evolve, so must Spring Security.
+As a major release version, the Spring Security team took the opportunity to make some non-passive changes which focus on:
+
+* Ensuring Spring Security is more secure by default
+* Minimizing https://www.owasp.org/index.php/Information_Leakage[Information Leakage]
+* Removing deprecated APIs
+
+A complete listing of non-passive changes between 3.x and 4.x can be found in https://jira.spring.io/issues/?jql=project%20%3D%20SEC%20AND%20status%20in%20(Resolved%2C%20Closed)%20AND%20fixVersion%20in%20(4.0.0.M1%2C%204.0.0.M2%2C%204.0.0.RC1%2C%204.0.0.RC2)%20AND%20labels%20%3D%20passivity[JIRA]
+This guide is intended to help users migrate from Spring Security 3.x to Spring Security 4.x.
+
+NOTE: It is expected that users will be able to easily perform a successful migration within an hour.
+
+[[m3to4-xmlnamespace-defaults]]
+== Migrate XML Namespace Defaults
+
+We updated the default values for many of the Spring Security XML Namespace Elements.
+If you do not use XML based configuration, you may safely skip this section and proceed to <<m3to4-filter-urls>>
+You can find a detailed list of changes and how to address them below.
+
+[[m3to4-xmlnamespace-http]]
+=== Migrate <http>
+
+The <<nsa-http-use-expressions,http@use-expressions>> attribute's default value changed from false to true.
+This means if the use-expression attribute is not explicitly configured, then the configuration will need updated.
+For example, if an application using Spring Security 3.2.x contains a configuration similar to the following:
+
+.Spring Security 3.2.x Sample Configuration
+[source,xml]
+----
+<http> <!--1-->
+    <intercept-url pattern="/login" access="ROLE_ANONYMOUS"/>
+    <intercept-url pattern="/**" access="ROLE_USER"/>
+    ...
+</http>
+----
+
+<1> Observe that the use-expressions attribute is not provided. If it were provided, then nothing needs to be done.
+
+The configuration will need to be updated to something similar to the following when Spring Security 4.x:
+
+.Migration to Spring Security 4 Configuration
+[source,xml]
+----
+<http use-expressions="false"> <!--1-->
+    <intercept-url pattern="/login" access="ROLE_ANONYMOUS"/>
+    <intercept-url pattern="/**" access="ROLE_USER"/>
+    ...
+</http>
+----
+
+<1> We explicitly provide the use-expressions attribute. Again, if the attribute was already provided, then nothing needs to be done.
+
+*Alternatively*, the application can omit the the use-expressions attribute and switch to using expressions.
+For example, something similar to the following:
+
+
+.Alternative Migration to Spring Security 4 Configuration
+[source,xml]
+----
+<http>
+    <intercept-url pattern="/login" access="permitAll"/>
+    <intercept-url pattern="/**" access="hasRole('USER')"/>
+    ...
+</http>
+----
+
+[[m3to4-xmlnamespace-form-login]]
+=== Migrating <form-login>
+
+If the `<form-login>` is being used within an application, then some of the default attributes have changed.
+Below are detailed description of the changes and how to migrate:
+
+* The <<nsa-form-login-username-parameter,form-login@username-parameter>> attribute default value changed from j_username to username. If an application explicitly provides the attribute, no action is required for the migration.
+* The <<nsa-form-login-password-parameter,form-login@password-parameter>> attribute default value changed from j_password to password. If an application explicitly provides the attribute, no action is required for the migration.
+* The <<nsa-form-login-login-processing-url,form-login@login-processing-url>> attribute default value changed from /j_spring_security_check to POST /login. If an application explicitly provides the attribute, no action is required for the migration.
+* The <<nsa-form-login-authentication-failure-url,form-login@authentication-failure-url>> attribute default value changed from appending ?login_error to the login-page to appending ?error to the login-page. If an application explicitly provides the attribute, no action is required for the migration.
+
+These changes mean if you have the following configuration within your XML configuration when using Spring Security 3.2.x:
+
+
+.Spring Security 3.2.x Sample Configuration
+[source,xml]
+----
+<http>
+    ...
+    <form-login login-page="/login"/>
+</http>
+----
+
+You will need to migrate by explicitly configuring the attributes that have new default values when migrating to Spring Security 4.x:
+
+NOTE: Any attribute that is already explicitly provided will not be impacted and requires no action.
+
+.Migration to Spring Security 4 Configuration
+[source,xml]
+----
+<http>
+    ...
+    <form-login login-page="/login"
+                username-parameter="j_username" <!--1-->
+                password-parameter="j_password" <!--2-->
+                login-processing-url="/j_spring_security_check" <!--3-->
+                authentication-failure-url="/login?login_error=1" <!--4-->
+    />
+</http>
+----
+
+<1> If the configuration does not specify the username-parameter, then it should be explicitly stated
+<2> If the configuration does not specify the password-parameter, then it should be explicitly stated
+<3> If the configuration does not specify the login-processing-url, then it should be explicitly stated
+<4> If the configuration does not specify the authentication-failure-url, then it should be explicitly stated
+
+**Alternatively**, the application can be updated to use the new defaults.
+For example, one might update their log in form to look like the following:
+
+.Alternative Migration to Spring Security 4.x (i.e. login.jsp)
+[source,xml]
+----
+<c:if test="${param.error != null}"> <!--1-->
+  <p>Invalid username / password</p>
+</c:if>
+<c:url var="loginUrl" value="/login"/> <!--2-->
+<form action="${loginUrl}" method="post">
+    <p><label for="username">User:</label></p>
+    <input type="text" id="username" name="username"/> <!--3-->
+
+    <p><label for="password">Password:</label></p>
+    <input type="password" id="password" name="password"> <!--4-->
+
+    <div>
+        <input name="submit" type="submit"/>
+    </div>
+</form>
+----
+
+<1> If the configuration does not specify the authentication-failure-url, then detect that an invalid log in check to see if the HTTP parameter error is not null.
+<2> If the configuration does not specify the login-processing-url, then modify the URL to submit to be "/login"
+<3> If the configuration does not specify the username-parameter, then modify the username HTTP parameter to be "username"
+<4> If the configuration does not specify the password-parameter, then modify the password HTTP parameter to be "password"
+
+[[m3to4-xmlnamespace-openid-login]]
+=== Migrating <openid-login>
+
+The <<nsa-openid-login-login-processing-url,openid-login@login-processing-url>> attribute default value changed from /j_spring_openid_security_login to /login/openid.
+
+This means if the login-processing-url attribute is not explicitly configured, then the configuration will need updated.
+For example, if an application using Spring Security 3.2.x contains a configuration similar to the following:
+
+.Spring Security 3.2.x Sample Configuration
+[source,xml]
+----
+<http>
+    <openid-login /> <!--1-->
+    ...
+</http>
+----
+
+<1> Observe that the login-processing-url attribute is not provided. If it were provided, then nothing needs to be done.
+
+The configuration will need to be updated to something similar to the following when Spring Security 4.x:
+
+.Migration to Spring Security 4 Configuration
+[source,xml]
+----
+<http>
+    <openid-login login-processing-url="/j_spring_openid_security_login"/> <!--1-->
+    ...
+</http>
+----
+
+<1> We explicitly provide the login-processing-url attribute. Again, if the attribute was already provided, then nothing needs to be done.
+
+*Alternatively*, the application can omit the the login-processing-url attribute and update the log in form.
+For example, something similar to the following:
+
+.Alternative Migration to Spring Security 4.x (i.e. login.jsp)
+[source,xml]
+----
+<c:url var="openidLoginUrl" value="/login/openid"/> <!--1-->
+<form action="${openidLoginUrl}" method="post">
+
+<div>
+    <input name="openid_identifier" type="text" value="http://" />
+    <input type="submit" value="Sign-In"/>
+</div>
+</form>
+----
+
+<1> If the configuration does not specify the login-processing-url attribute, then update the log in action to "/login/openid".
+
+[[m3to4-xmlnamespace-headers]]
+=== Migrating <headers>
+
+As Spring Security 4.0+ <<headers,Security HTTP Response Headers>> is now enabled by default.
+This means if an application did not provide the <<nsa-headers,headers>> element, then the configuration will need updated.
+For example, if an application using Spring Security 3.2.x contains a configuration similar to the following:
+
+.Spring Security 3.2.x Sample Configuration
+[source,xml]
+----
+<http>
+    ...
+    <!-- no headers element -->
+</http>
+----
+
+The application will need updated.
+The quickest, but not ideal, solution is to explicitly disable the headers protection using <<nsa-headers-disabled,headers@disabled>>.
+For example:
+
+.Migration to Spring Security 4 Configuration
+[source,xml]
+----
+<http>
+    ...
+    <headers disabled="true"/>
+</http>
+----
+
+*Alternatively*, the application would enable Security HTTP Response Headers.
+In many instances, leaving the Security HTTP Response Headers enabled will not have a negative impact on an application.
+
+Developers are encouraged to read <<headers,Security HTTP Response Headers>> for details on using this feature.
+
+[[m3to4-xmlnamespace-csrf]]
+=== Migrating <csrf>
+
+As Spring Security 4.0+ <<csrf,CSRF Protection>> is now enabled by default.
+This means if an application did not provide the <<nsa-csrf,csrf>> element, then the configuration will need updated.
+For example, if an application using Spring Security 3.2.x contains a configuration similar to the following:
+
+[source,xml]
+----
+<http>
+    ...
+    <!-- no csrf element -->
+</http>
+----
+
+The application will need updated.
+The quickest, but not ideal, solution is to explicitly disable the csrf protection using <<nsa-csrf-disabled,csrf@disabled>>.
+For example:
+
+.Migration to Spring Security 4 Configuration
+[source,xml]
+----
+<http>
+    ...
+    <csrf disabled="true"/>
+</http>
+----
+
+*Alternatively*, the application would enable CSRF.
+For more details refer to <<csrf-using,Using Spring Security CSRF Protection>>.
+
+[[m3to4-xmlnamespace-remember-me]]
+=== Migrating <remember-me>
+
+If the `<remember-me>` element is being used within an application, then some of the default attributes have changed.
+Below are detailed description of the changes and how to migrate:
+
+* The <<nsa-remember-me-remember-me-parameter,remember-me@remember-me-parameter>> attribute default value changed from "_spring_security_remember_me" to "remember-me". If an application explicitly provides the attribute, no action is required for the migration.
+* The <<nsa-remember-me-remember-me-cookie,remember-me@remember-me-cookie>> attribute default value changed from "_spring_security_remember_me" to "SPRING_SECURITY_REMEMBER_ME_COOKIE". If an application explicitly provides the attribute, no action is required for the migration.
+
+These changes mean if you have the following configuration within your XML configuration when using Spring Security 3.2.x:
+
+[source,xml]
+----
+<http>
+    ...
+    <remember-me />
+</http>
+----
+
+You will need to migrate by explicitly configuring the attributes that have new default values when migrating to Spring Security 4.x:
+
+NOTE: Any attribute that is already explicitly provided will not be impacted and requires no action.
+
+[source,xml]
+----
+<http>
+    ...
+    <remember-me login-page="/login"
+                remember-me-parameter="_spring_security_remember_me" <!--1-->
+                remember-me-cookie="SPRING_SECURITY_REMEMBER_ME_COOKIE" <!--2-->
+    />
+</http>
+----
+
+<1> If the configuration does not specify the remember-me-parameter, then it should be explicitly stated
+<2> If the configuration does not specify the remember-me-cookie, then it should be explicitly stated
+
+**Alternatively**, the application can be updated to use the new defaults.
+For example, one might update their log in form to look like the following:
+
+.login.html
+[source,xml]
+----
+<c:url var="loginUrl" value="/login"/> <!--2-->
+<form action="${loginUrl}" method="post">
+    ...
+
+    <p><label for="remember-me">Remember Me</label></p>
+    <input type="checkbox" id="remember-me" name="remember-me"/> <!--1-->
+
+    <div>
+        <input name="submit" type="submit"/>
+    </div>
+</form>
+----
+
+<1> If the configuration does not specify the remember-me-parameter, then update the HTTP parameter name to be remember-me
+
+NOTE: This approach means that previously remembered users will be forgotten since the remember me cookie name will change.
+If you are fine with users needing to authenticate again, then nothing is required.
+If you do not want users to authenticate, then the cookie name must be set to SPRING_SECURITY_REMEMBER_ME_COOKIE as illustrated above.
+
+[[m3to4-filter-urls]]
+== Migrate Default Filter URLs
+
+A number of servlet Filter's had their default URLs switched to help guard against information leakage.
+
+[[m3to4-filter-urls-cas]]
+=== CasAuthenticationFilter
+
+The `CasAuthenticationFilter` filterProcessesUrl property default value changed from "/j_spring_cas_security_check" to "/login/cas".
+This means if the filterProcessesUrl property is not explicitly specified, then the configuration will need updated.
+For example, if an application using Spring Security 3.2.x contains a configuration similar to the following:
+
+[source,xml]
+----
+<bean id="casFilter"
+      class="org.springframework.security.cas.web.CasAuthenticationFilter">
+  <property name="authenticationManager" ref="authenticationManager"/>
+</bean>
+----
+
+The configuration will need to be updated to something similar to the following when Spring Security 4.x:
+
+[source,xml]
+----
+<bean id="casFilter"
+      class="org.springframework.security.cas.web.CasAuthenticationFilter">
+  <property name="authenticationManager" ref="authenticationManager"/>
+  <property name="filterProcessesUrl" value="/j_spring_cas_security_check"/>
+</bean>
+----
+
+*Alternatively*, the `ServiceProperties` can be updated to use the new default:
+
+[source,xml]
+----
+<bean id="serviceProperties"
+      class="org.springframework.security.cas.ServiceProperties">
+  <property name="service"
+      value="https://example.com/cas-sample/login/cas"/>
+</bean>
+----
+
+[[m3to4-filter-urls-switchuser]]
+=== SwitchUserFilter
+
+* The `SwitchUserFilter` switchUserUrl property default value changed from "/j_spring_security_switch_user" to "/login/impersonate".
+This means if the switchUserUrl property is not explicitly specified, then the configuration will need updated.
+* The `SwitchUserFilter` exitUserUrl property default value changed from "/j_spring_security_exit_user" to "/logout/impersonate".
+This means if the exitUserUrl property is not explicitly specified, then the configuration will need updated.
+
+For example, if an application using Spring Security 3.2.x contains a configuration similar to the following:
+
+[source,xml]
+----
+<bean id="switchUserProcessingFilter" class="org.springframework.security.web.authentication.switchuser.SwitchUserFilter">
+    <property name="userDetailsService" ref="userDetailsService" />
+    <property name="targetUrl" value="/" />
+ </bean>
+----
+
+The configuration will need to be updated to something similar to the following when Spring Security 4.x:
+
+[source,xml]
+----
+<bean id="switchUserProcessingFilter" class="org.springframework.security.web.authentication.switchuser.SwitchUserFilter">
+    <property name="switchUserUrl" value="/login/impersonate" />
+    <property name="exitUserUrl" value="/logout/impersonate" />
+
+    <property name="userDetailsService" ref="userDetailsService" />
+    <property name="targetUrl" value="/" />
+ </bean>
+----
+
+*Alternatively*, the URL's within the application can be updated from:
+
+* "/j_spring_security_switch_user" to "/login/impersonate"
+* "/j_spring_security_exit_user" to "/logout/impersonate"
+
+[[m3to4-header]]
+== HTTP Response Header Configuration Changes
+
+In Spring Security 3.x the HTTP Response Header configuration was difficult to customize.
+If an application overrode a single default, then all of the other defaults would be disabled.
+This was unintuitive, error prone, and most importantly not very secure.
+
+Spring Security 4.x has changed both the Java Configuration and XML Configuration to require explicit disabling of defaults.
+Additionally, it has made customizing a single default much easier.
+
+If an application has customized the HTTP Response Header Configuration in any way, they are impacted by this change.
+If the application used the defaults, then they are not impacted by this change.
+
+A detailed description of how to configure Security HTTP Response Headers can be found in the <<headers,reference>>.
+Below we highlight the changes in configuring the Security HTTP Response Headers between 3.x and 4.x.
+
+* <<m3to4-header-xml,Migrating XML Based Configuration>>
+* <<m3to4-header-jc,Migrating Java Based Configuration>>
+
+[[m3to4-header-xml]]
+=== XML Namespace HTTP Response Header Samples
+
+In Spring Security 3.x, the following configuration
+
+[source,xml]
+----
+<http>
+   ...
+   <headers>
+       <frame-options policy="SAMEORIGIN"/>
+   </headers>
+----
+
+would add the following header:
+
+[source,http]
+----
+X-Frame-Options: SAMEORIGIN
+----
+
+In Spring Security 4.x, the same configuration would add
+
+[source,http]
+----
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Content-Type-Options: nosniff
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains
+X-Frame-Options: SAMEORIGIN
+X-XSS-Protection: 1; mode=block
+----
+
+If we want to the configuration the same, we must explicitly disable the other defaults.
+
+[source,xml]
+----
+<http>
+   ...
+   <headers defaults-disabled="true">
+       <frame-options policy="SAMEORIGIN"/>
+   </headers>
+----
+
+would add the following header:
+
+[source,http]
+----
+X-Frame-Options: SAMEORIGIN
+----
+
+[[m3to4-header-jc]]
+=== Java Configuration HTTP Response Header Samples
+
+[[m3to4-header-jc-defaults-preserved]]
+==== Migrate Headers Java Config Defaults Preserved
+
+In Spring Security 3.x, the following configuration
+
+[source,java]
+----
+http
+  // ...
+  .headers()
+    .addHeaderWriter(new XFrameOptionsHeaderWriter(XFrameOptionsMode.SAMEORIGIN));
+----
+
+would add the following header:
+
+[source,http]
+----
+X-Frame-Options: SAMEORIGIN
+----
+
+In Spring Security 4.x, the same configuration would add
+
+[source,http]
+----
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Content-Type-Options: nosniff
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains
+X-Frame-Options: SAMEORIGIN
+X-XSS-Protection: 1; mode=block
+----
+
+If we want to the configuration the same, we must explicitly disable the other defaults.
+
+[source,java]
+----
+http
+  // ...
+  .headers()
+     // do not use any default headers unless explicitly listed
+    .defaultsDisabled()
+    .frameOptions()
+        .sameOrigin();
+----
+
+would add the following header:
+
+[source,http]
+----
+X-Frame-Options: SAMEORIGIN
+----
+
+
+[[m3to4-header-jc-]]
+==== Migrate Headers Java Config Method Chaining
+
+In Spring Security 3.x, the following configuration
+
+[source,java]
+----
+http
+  // ...
+  .headers()
+    .cacheControl()
+    .frameOptions();
+----
+
+would compile succesfully.
+However, Spring Security 4.x it will not compile.
+This is due to the fact that additional options needed to be added to support customizing the configuration.
+Instead, we must chain the headers customizations with `.and()`.
+For example:
+
+[source,java]
+----
+http
+  // ...
+  .headers()
+     // do not use any default headers unless explicitly listed
+    .defaultsDisabled()
+    .cacheControl().and()
+    .frameOptions();
+----
+
+[[m3to4-deprecations]]
+== Deprecations
+
+TBD
