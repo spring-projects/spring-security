@@ -300,12 +300,10 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 
     static class MyCustomArgumentResolver implements HandlerMethodArgumentResolver {
 
-        @Override
         public boolean supportsParameter(MethodParameter parameter) {
             return parameter.getParameterType().isAssignableFrom(MyCustomArgument.class);
         }
 
-        @Override
         public Object resolveArgument(MethodParameter parameter, Message<?> message) throws Exception {
             return new MyCustomArgument("");
         }
