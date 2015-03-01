@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
@@ -102,8 +102,9 @@ public final class AntPathRequestMatcher implements RequestMatcher {
                 pattern = pattern.toLowerCase();
             }
 
-            // If the pattern ends with {@code /**} and has no other wildcards, then optimize to a sub-path match
-            if (pattern.endsWith(MATCH_ALL) && pattern.indexOf('?') == -1 &&
+            // If the pattern ends with {@code /**} and has no other wildcards or path variables, then optimize to a sub-path match
+            // TODO: use spring-framework  AntPathMatcher.VARIABLE_PATTERN instead.           
+            if (pattern.endsWith(MATCH_ALL) && (pattern.indexOf('?') == -1 && pattern.indexOf('{') == -1 && pattern.indexOf('}') == -1) &&
                     pattern.indexOf("*") == pattern.length() - 2) {
                 matcher = new SubpathMatcher(pattern.substring(0, pattern.length() - 3));
             } else {
