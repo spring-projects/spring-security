@@ -35,9 +35,10 @@ import org.springframework.security.web.authentication.DelegatingAuthenticationE
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.Assert;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 
@@ -109,6 +110,22 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
     public HttpBasicConfigurer<B> realmName(String realmName) throws Exception {
         basicAuthEntryPoint.setRealmName(realmName);
         basicAuthEntryPoint.afterPropertiesSet();
+        return this;
+    }
+
+    /**
+     * Allows easily changing the challenge (default "Basic"), but leaving the remaining 
+     * defaults in place. If {@link #authenticationEntryPoint(AuthenticationEntryPoint)} 
+     * has been invoked, invoking this method will result in an error.
+     *
+     * @param challenge
+     *            the HTTP Basic realm to use
+     * @return {@link HttpBasicConfigurer} for additional customization
+     * @throws Exception
+     */
+    public HttpBasicConfigurer<B> challenge(String challenge) throws Exception {
+    	Assert.hasText(challenge, "Basic auth challenge must have text");
+        basicAuthEntryPoint.setChallenge(challenge);
         return this;
     }
 

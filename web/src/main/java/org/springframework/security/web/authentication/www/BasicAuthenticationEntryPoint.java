@@ -42,6 +42,8 @@ public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint, 
 
     private String realmName;
 
+    private String challenge = "Basic";
+
     //~ Methods ========================================================================================================
 
     public void afterPropertiesSet() throws Exception {
@@ -50,7 +52,7 @@ public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint, 
 
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
             throws IOException, ServletException {
-        response.addHeader("WWW-Authenticate", "Basic realm=\"" + realmName + "\"");
+        response.addHeader("WWW-Authenticate", challenge + " realm=\"" + realmName + "\"");
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
     }
 
@@ -61,5 +63,13 @@ public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint, 
     public void setRealmName(String realmName) {
         this.realmName = realmName;
     }
+
+	public String getChallenge() {
+		return challenge;
+	}
+
+	public void setChallenge(String challenge) {
+		this.challenge = challenge;
+	}
 
 }
