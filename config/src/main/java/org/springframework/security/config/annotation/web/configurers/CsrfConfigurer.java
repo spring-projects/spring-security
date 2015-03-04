@@ -76,12 +76,61 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>> extends Abst
     private CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
     private RequestMatcher requireCsrfProtectionMatcher = CsrfFilter.DEFAULT_CSRF_MATCHER;
     private List<RequestMatcher> ignoredCsrfProtectionMatchers = new ArrayList<RequestMatcher>();
+	private String cookieName;
+	private String cookiePath;
 
     /**
      * Creates a new instance
      * @see HttpSecurity#csrf()
      */
     public CsrfConfigurer() {
+    }
+
+    /**
+     * Specify the header name to use in the default {@link CsrfTokenRepository}. The default 
+     * is "X-CSRF-TOKEN", but it is common in front end frameworks to send other values (e.g.
+     * "X-XSRF-TOKEN").
+     *
+     * @param headerName the header name to use
+     * @return the {@link CsrfConfigurer} for further customizations
+     */
+    public CsrfConfigurer<H> headerName(String headerName) {
+        Assert.notNull(headerName, "headerName cannot be null");
+        if (csrfTokenRepository instanceof HttpSessionCsrfTokenRepository) {
+        	HttpSessionCsrfTokenRepository httpRepository = (HttpSessionCsrfTokenRepository) csrfTokenRepository;
+        	httpRepository.setHeaderName(headerName);
+        }
+        return this;
+    }
+
+    /**
+     * Specify the cookie name to use when sending a cookie containing the CSRF token. The default 
+     * is null (meaning send no cookie), but it is common in front end frameworks to expect other 
+     * values (e.g. "XSRF-TOKEN").
+     *
+     * @param cookieName the cookie name to use
+     * @return the {@link CsrfConfigurer} for further customizations
+     */
+    public CsrfConfigurer<H> cookie(String cookieName) {
+        return this.cookie(cookieName, null);
+    }
+
+
+    /**
+     * Specify the cookie name and path to use when sending a cookie containing the CSRF token. 
+     * The default is null (meaning send no cookie), but it is common in front end frameworks 
+     * to expect other values (e.g. "XSRF-TOKEN").
+     *
+     * @param cookieName the cookie name to use
+     * @param cookiePath the cookie path to send
+     * @return the {@link CsrfConfigurer} for further customizations
+     * @see CsrfConfigurer#cookie(String)
+     */
+    public CsrfConfigurer<H> cookie(String cookieName, String cookiePath) {
+		Assert.notNull(cookieName, "cookieName cannot be null");
+        this.cookieName = cookieName;
+        this.cookiePath = cookiePath;
+        return this;
     }
 
     /**
@@ -158,6 +207,8 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>> extends Abst
         if(sessionConfigurer != null) {
             sessionConfigurer.addSessionAuthenticationStrategy(new CsrfAuthenticationStrategy(csrfTokenRepository));
         }
+        filter.setCookieName(cookieName);
+        filter.setCookiePath(cookiePath);
         filter = postProcess(filter);
         http.addFilter(filter);
     }

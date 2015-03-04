@@ -294,6 +294,27 @@ public class CsrfFilterTests {
     }
 
     @Test
+    public void doFilterIsCsrfRequestGenerateCookie() throws ServletException,
+            IOException {
+    	filter.setCookieName("XSRF-TOKEN");
+        when(requestMatcher.matches(request)).thenReturn(true);
+        when(tokenRepository.generateToken(request))
+                .thenReturn(token);
+        request.setParameter(token.getParameterName(), token.getToken());
+
+        filter.doFilter(request, response, filterChain);
+
+        assertToken(request.getAttribute(token.getParameterName())).isEqualTo(
+                token);
+        assertToken(request.getAttribute(CsrfToken.class.getName())).isEqualTo(
+                token);
+
+        verify(filterChain).doFilter(request, response);
+        verifyZeroInteractions(deniedHandler);
+        assertThat(response.getCookie("XSRF-TOKEN").getValue()).isEqualTo(token.getToken());
+    }
+
+    @Test
     public void doFilterDefaultRequireCsrfProtectionMatcherAllowedMethods()
             throws ServletException, IOException {
         filter = new CsrfFilter(tokenRepository);

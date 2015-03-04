@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -28,10 +29,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.UrlUtils;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.WebUtils;
 
 /**
  * <p>
@@ -66,6 +68,8 @@ public final class CsrfFilter extends OncePerRequestFilter {
     private final CsrfTokenRepository tokenRepository;
     private RequestMatcher requireCsrfProtectionMatcher = new DefaultRequiresCsrfMatcher();
     private AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
+    private String cookieName;
+    private String cookiePath;
 
     public CsrfFilter(CsrfTokenRepository csrfTokenRepository) {
         Assert.notNull(csrfTokenRepository, "csrfTokenRepository cannot be null");
@@ -84,6 +88,20 @@ public final class CsrfFilter extends OncePerRequestFilter {
         if(missingToken) {
             CsrfToken generatedToken = tokenRepository.generateToken(request);
             csrfToken = new SaveOnAccessCsrfToken(tokenRepository, request, response, generatedToken);
+            if (cookieName!=null) {
+            	Cookie cookie = WebUtils.getCookie(request, cookieName);
+				String token = csrfToken.getToken();
+				if (cookie==null || token!=null && !token.equals(cookie.getValue())) {
+					cookie = new Cookie(cookieName, token);
+					if (cookiePath==null) {
+						String path = request.getContextPath();
+						cookie.setPath(path.equals("") ? "/" : path);
+					} else {
+						cookie.setPath(cookiePath);
+					}
+					response.addCookie(cookie);
+				}
+            }
         }
         request.setAttribute(CsrfToken.class.getName(), csrfToken);
         request.setAttribute(csrfToken.getParameterName(), csrfToken);
@@ -146,6 +164,28 @@ public final class CsrfFilter extends OncePerRequestFilter {
         Assert.notNull(accessDeniedHandler, "accessDeniedHandler cannot be null");
         this.accessDeniedHandler = accessDeniedHandler;
     }
+    
+    /**
+     * The name of a cookie to send containing the CSRF token value. Some client-side
+     * frameworks use this mechanism to find the value of the token, and then send it
+     * back as a header if it is set.
+     * 
+	 * @param cookieName the cookie name to set (default null, meaning not to send
+	 * a cookie at all)
+	 */
+	public void setCookieName(String cookieName) {
+		this.cookieName = cookieName;
+	}
+	
+	/**
+	 * The path to send in a cookie (if {@link #setCookieName(String) cookieName} is set). 
+	 * If unset the path will be set to the context path of the request.
+	 *  
+	 * @param cookiePath the cookie path to set (e.g. "/"), default null.
+	 */
+	public void setCookiePath(String cookiePath) {
+		this.cookiePath = cookiePath;
+	}
 
     @SuppressWarnings("serial")
     private static final class SaveOnAccessCsrfToken implements CsrfToken {
