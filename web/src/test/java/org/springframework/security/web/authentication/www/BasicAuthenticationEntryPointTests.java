@@ -93,7 +93,7 @@ public class BasicAuthenticationEntryPointTests extends TestCase {
         BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
 
         ep.setRealmName("hello");
-        ep.setChallenge("Auth");
+        ep.setChallenge("Auth realm=\"%\"");
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/some_path");
