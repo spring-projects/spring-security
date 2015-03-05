@@ -76,8 +76,6 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>> extends Abst
     private CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
     private RequestMatcher requireCsrfProtectionMatcher = CsrfFilter.DEFAULT_CSRF_MATCHER;
     private List<RequestMatcher> ignoredCsrfProtectionMatchers = new ArrayList<RequestMatcher>();
-	private String cookieName;
-	private String cookiePath;
 
     /**
      * Creates a new instance
@@ -128,8 +126,11 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>> extends Abst
      */
     public CsrfConfigurer<H> cookie(String cookieName, String cookiePath) {
 		Assert.notNull(cookieName, "cookieName cannot be null");
-        this.cookieName = cookieName;
-        this.cookiePath = cookiePath;
+        if (csrfTokenRepository instanceof HttpSessionCsrfTokenRepository) {
+        	HttpSessionCsrfTokenRepository httpRepository = (HttpSessionCsrfTokenRepository) csrfTokenRepository;
+        	httpRepository.setCookieName(cookieName);
+        	httpRepository.setCookiePath(cookiePath);
+        }
         return this;
     }
 
@@ -207,8 +208,6 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>> extends Abst
         if(sessionConfigurer != null) {
             sessionConfigurer.addSessionAuthenticationStrategy(new CsrfAuthenticationStrategy(csrfTokenRepository));
         }
-        filter.setCookieName(cookieName);
-        filter.setCookiePath(cookiePath);
         filter = postProcess(filter);
         http.addFilter(filter);
     }
