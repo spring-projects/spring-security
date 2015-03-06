@@ -8,7 +8,7 @@ As a major release version, the Spring Security team took the opportunity to mak
 * Minimizing https://www.owasp.org/index.php/Information_Leakage[Information Leakage]
 * Removing deprecated APIs
 
-A complete listing of non-passive changes between 3.x and 4.x can be found in https://jira.spring.io/issues/?jql=project%20%3D%20SEC%20AND%20status%20in%20(Resolved%2C%20Closed)%20AND%20fixVersion%20in%20(4.0.0.M1%2C%204.0.0.M2%2C%204.0.0.RC1%2C%204.0.0.RC2)%20AND%20labels%20%3D%20passivity[JIRA]
+A complete listing of non-passive changes between 3.x and 4.x can be found in https://jira.spring.io/issues/?jql=project%20%3D%20SEC%20AND%20status%20in%20(Resolved%2C%20Closed)%20AND%20fixVersion%20in%20(4.0.0%2C%204.0.0.M1%2C%204.0.0.M2%2C%204.0.0.RC1%2C%204.0.0.RC2)%20AND%20labels%20%3D%20passivity[JIRA]
 This guide is intended to help users migrate from Spring Security 3.x to Spring Security 4.x.
 
 NOTE: It is expected that users will be able to easily perform a successful migration within an hour.
@@ -17,8 +17,30 @@ NOTE: It is expected that users will be able to easily perform a successful migr
 == Migrate XML Namespace Defaults
 
 We updated the default values for many of the Spring Security XML Namespace Elements.
-If you do not use XML based configuration, you may safely skip this section and proceed to <<m3to4-filter-urls>>
 You can find a detailed list of changes and how to address them below.
+
+NOTE: If you do not use XML based configuration, you may safely skip this section and proceed to <<m3to4-filter-urls>>
+
+[[m3to4-xmlnamespace-related]]
+=== Related Links
+
+For thoroughness we have include the related links in the table below.
+
+|====
+| JIRA | Commits
+
+| https://jira.spring.io/browse/SEC-2783[SEC-2783]
+| https://github.com/spring-projects/spring-security/commit/c67ff42b8abe124b7956896c78e9aac896fd79d9[c67ff42]
+
+| https://jira.spring.io/browse/SEC-2347[SEC-2347]
+| https://github.com/spring-projects/spring-security/commit/4392205f63e49b9675b06e584f571a48b017d0b6[4392205]
+
+| https://jira.spring.io/browse/SEC-2348[SEC-2348]
+| https://github.com/spring-projects/spring-security/commit/eedbf442359f9a99e367f2fdef61deea1cef46c9[eedbf44]
+
+| https://jira.spring.io/browse/SEC-2873[SEC-2873]
+| https://github.com/spring-projects/spring-security/commit/5f57e5b0c3726466db4f5d0521ac26423f0d9cd4[5f57e5b]
+|====
 
 [[m3to4-xmlnamespace-http]]
 === Migrate <http>
@@ -558,4 +580,212 @@ http
 [[m3to4-deprecations]]
 == Deprecations
 
-TBD
+=== spring-security-acl
+
+==== AclImpl
+
+AclImpl had a deprecated constructor removed. Specifically, the constructor that defaults the `PermissionGrantingStrategy` was removed:
+
+[source,java]
+----
+@Deprecated
+public AclImpl(ObjectIdentity objectIdentity, Serializable id, AclAuthorizationStrategy aclAuthorizationStrategy,
+               AuditLogger auditLogger, Acl parentAcl, List<Sid> loadedSids, boolean entriesInheriting, Sid owner) {
+    ...
+}
+----
+
+This means that an AclImpl was being created with this constructor:
+
+[source,java]
+----
+new AclImpl(objectIdentity, id, aclAuthorizationStrategy, auditLogger,
+            parentAcl, loadedSids, entriesInheriting, owner);
+----
+
+it needs to be updated to pass in the `PermissionGrantingStrategy` instead of the `AuditLogger`
+
+
+[source,java]
+----
+PermissionGrantingStrategy permissionGrantingStrategy =
+   new DefaultPermissionGrantingStrategy(auditLogger);
+new AclImpl(objectIdentity, id, aclAuthorizationStrategy, permissionGrantingStrategy,
+            parentAcl, loadedSids, entriesInheriting, owner);
+----
+
+==== EhCacheBasedAclCache
+
+`EhCacheBasedAclCache` had a deprecated constructor removed. Specifically, the constructor that defaults the `PermissionGrantingStrategy` was removed:
+
+[source,java]
+----
+@Deprecated
+public EhCacheBasedAclCache(Ehcache cache) {
+    ...
+}
+----
+
+This means that an `EhCacheBasedAclCache` was being created with this constructor:
+
+[source,java]
+----
+new EhCacheBasedAclCache(ehCache);
+----
+
+it needs to be updated to pass in the `PermissionGrantingStrategy` too:
+
+
+[source,java]
+----
+PermissionGrantingStrategy permissionGrantingStrategy =
+   new DefaultPermissionGrantingStrategy(auditLogger);
+new EhCacheBasedAclCache(ehCache, permissionGrantingStrategy);
+----
+
+=== spring-security-cas
+
+==== ServiceAuthenticationDetailsSource
+
+`ServiceAuthenticationDetailsSource` removed the deprecated construtors that defaulted the `ServiceProperties`.
+
+[source,java]
+----
+@Deprecated
+public ServiceAuthenticationDetailsSource() {
+    ...
+}
+
+@Deprecated
+public ServiceAuthenticationDetailsSource(final String artifactParameterName) {
+    ...
+}
+----
+
+This means that an `ServiceAuthenticationDetailsSource` was being created with these constructors:
+
+[source,java]
+----
+new ServiceAuthenticationDetailsSource();
+
+new ServiceAuthenticationDetailsSource(artifactId);
+----
+
+it needs to be updated to pass in the `ServiceProperties` as shown below:
+
+
+[source,java]
+----
+new ServiceAuthenticationDetailsSource(serviceProperties);
+
+new ServiceAuthenticationDetailsSource(serviceProperties, artifactId);
+----
+
+=== spring-security-config
+
+==== filter-invocation-definition-source
+
+The XML element `filter-invocation-definition-source` was removed in favor of <<nsa-filter-security-metadata-source,filter-security-metadata-source>>.
+This means if you have something like this:
+
+[source,xml]
+----
+<filter-invocation-definition-source ...>
+    ...
+</filter-invocation-definition-source>
+----
+
+it needs to be replaced with:
+
+[source,xml]
+----
+<filter-security-metadata-source ...>
+    ...
+</filter-security-metadata-source>
+----
+
+==== http@access-denied-page
+The XML attribute `http@access-denied-page` was removed in favor of <<nsa-access-denied-handler-error-page,access-denied-handler@error-page>>.
+This means if you have something like this:
+
+
+[source,xml]
+----
+<http ... access-denied-page="/denied">
+    ...
+</http>
+----
+
+it needs to be replaced with:
+
+[source,xml]
+----
+<http ...>
+    <access-denied-handler error-page="/denied"/>
+</http>
+----
+
+==== http@path-type
+The XML attribute `http@path-type` was removed in favor of <<nsa-http-request-matcher,http@request-matcher>>.
+This means if you have something like this:
+
+
+[source,xml]
+----
+<http ... path-type="regex">
+    ...
+</http>
+----
+
+it needs to be replaced with:
+
+[source,xml]
+----
+<http ... request-matcher="regex">
+    ...
+</http>
+----
+
+==== filter-chain-map@path-type
+The XML attribute `filter-chain-map@path-type` was removed in favor of <<nsa-filter-chain-map-request-matcher,filter-chain-map@request-matcher>>.
+This means if you have something like this:
+
+
+[source,xml]
+----
+<filter-chain-map ... path-type="regex">
+    ...
+</filter-chain-map>
+----
+
+it needs to be replaced with:
+
+[source,xml]
+----
+<filter-chain-map ... request-matcher="regex">
+    ...
+</filter-chain-map>
+----
+
+==== filter-security-metadata-source@path-type
+The XML attribute `filter-security-metadata-source@path-type` was removed in favor of <<nsa-filter-security-metadata-source-request-matcher,filter-security-metadata-source@request-matcher>>.
+This means if you have something like this:
+
+
+[source,xml]
+----
+<filter-security-metadata-source ... path-type="regex">
+    ...
+</filter-security-metadata-source>
+----
+
+it needs to be replaced with:
+
+[source,xml]
+----
+<filter-security-metadata-source ... request-matcher="regex">
+    ...
+</filter-security-metadata-source>
+----
+
+
