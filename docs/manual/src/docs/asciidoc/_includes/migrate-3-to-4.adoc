@@ -305,7 +305,7 @@ NOTE: Any attribute that is already explicitly provided will not be impacted and
 ----
 <http>
     ...
-    <remember-me login-page="/login"
+    <remember-me
                 remember-me-parameter="_spring_security_remember_me" <!--1-->
                 remember-me-cookie="SPRING_SECURITY_REMEMBER_ME_COOKIE" <!--2-->
     />
@@ -580,6 +580,9 @@ http
 [[m3to4-deprecations]]
 == Deprecations
 
+A number of deprecations were removed in Spring Security 4.
+The following section describes how to migrate the removal of all deprecations.
+
 === spring-security-acl
 
 ==== AclImpl
@@ -788,4 +791,632 @@ it needs to be replaced with:
 </filter-security-metadata-source>
 ----
 
+=== spring-security-core
 
+==== SecurityConfig
+
+`SecurityConfig.createSingleAttributeList(String)` was removed in favor of using `SecurityConfig.createList(String...)`.
+This means if you have something like this:
+
+[source,java]
+----
+List<ConfigAttribute> attrs =
+    SecurityConfig.createSingleAttributeList("ROLE_USER");
+----
+
+needs to be replaced with:
+
+[source,java]
+----
+List<ConfigAttribute> attrs =
+    SecurityConfig.createList("ROLE_USER");
+----
+
+==== UserDetailsServiceWrapper
+
+`UserDetailsServiceWrapper` was deprecated in favor of using `RoleHierarchyAuthoritiesMapper`.
+For example, if you have something like this:
+
+[source,xml]
+----
+<authentication-manager>
+    <authentication-provider user-service-ref="userDetailsServiceWrapper"/>
+</authentication-manager>
+
+<b:bean id="userDetailsServiceWrapper" class="org.springframework.security.access.hierarchicalroles.UserDetailsServiceWrapper">
+    <b:property name="userDetailsService" ref="userDetailsService"/>
+    <b:property name="roleHierarchy" ref="roleHierarchy"/>
+</b:bean>
+
+<b:bean id="roleHierarchy" class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl">
+    <b:property name="hierarchy">
+        <b:value>
+            ROLE_ADMIN > ROLE_USER
+        </b:value>
+    </b:property>
+</b:bean>
+----
+
+then it needs to be migrated with something like this:
+
+TBD
+
+==== UserDetailsWrapper
+`UserDetailsWrapper` was deprecated in favor of using `RoleHierarchyAuthoritiesMapper`.
+Typically users would not use the `UserDetailsWrapper` directly. However, if they are they can use `RoleHierarchyAuthoritiesMapper`
+For example, if the following code is present:
+
+[source,java]
+----
+UserDetailsWrapper authenticate = new UserDetailsWrapper(userDetails, roleHiearchy);
+----
+
+then it needs to be replaced by:
+
+[source,java]
+----
+Collection<GrantedAuthority> allAuthorities =
+    roleHiearchy.getReachableGrantedAuthorities(userDetails.getAuthorities());
+UserDetails authenticate =
+    new User(userDetails.getUsername(), userDetails.getPassword(), allAuthorities);
+----
+
+==== AbstractAccessDecisionManager
+
+The default constructor for `AbstractAccessDecisionManager` has been deprecated along with the `setDecisionVoters` method.
+Naturally, this impacts the subclasses `AffirmativeBased`, `ConsensusBased`, and `UnanimousBased`.
+For example, this means that if you are using the following:
+
+[source,java]
+----
+AffirmativeBased affirm = new AffirmativeBased();
+affirm.setDecisionVoters(voters);
+----
+
+it needs to be migrated to:
+
+[source,java]
+----
+AffirmativeBased affirm = new AffirmativeBased(voters);
+----
+
+This type of migration also applies to XML based configuration.
+For example, if you are using the following:
+
+[source,xml]
+----
+<b:bean class="org.springframework.security.access.vote.UnanimousBased">
+    <b:property name="decisionVoters" ref="voters"/>
+</b:bean>
+----
+
+then it needs to be migrated to:
+
+[source,xml]
+----
+<b:bean class="org.springframework.security.access.vote.UnanimousBased">
+    <b:constructor-arg ref="voters"/>
+</b:bean>
+----
+
+==== AuthenticationException
+
+The constructor that accepts extraInformation within `AuthenticationException` was removed to prevent accidental leaking of the `UserDetails`.
+Specifically, the following we removed.
+
+[source,java]
+----
+public AccountExpiredException(String msg, Object extraInformation) {
+...
+}
+----
+
+This impacts the subclasses `AccountStatusException`, `AccountExpiredException`, `BadCredentialsException`, `CredentialsExpiredException`, `DisabledException`, `LockedException`, and `UsernameNotFoundException`.
+If use are using any of these constructors, simply remove the additional argument.
+For example, the following is changed from:
+
+[source,java]
+----
+new LockedException("Message", userDetails);
+----
+
+to:
+
+[source,java]
+----
+new LockedException("Message");
+----
+
+==== AnonymousAuthenticationProvider
+
+`AnonymousAuthenticationProvider` default constructor and `setKey` method was deprecated in favor of using constructor injection.
+For example, if you have the following:
+
+[source,java]
+----
+AnonymousAuthenticationProvider provider = new AnonymousAuthenticationProvider();
+provider.setKey(key);
+----
+
+it should be changed to:
+
+[source,java]
+----
+AnonymousAuthenticationProvider provider = new AnonymousAuthenticationProvider(key);
+----
+
+==== AuthenticationDetailsSourceImpl
+
+`AuthenticationDetailsSourceImpl` was deprecated in favor of writing a custom `AuthenticationDetailsSource`.
+For example, if you have the following:
+
+[source,java]
+----
+AuthenticationDetailsSourceImpl source = AuthenticationDetailsSourceImpl();
+source.setClazz(CustomSource.class);
+----
+
+You should implement `AuthenticationDetailsSource` directly to return `CustomSource`:
+
+[source,java]
+----
+public CustomSourceAuthenticationDetailsSource implements AuthenticationDetailsSource<Object, Object> {
+
+    public Object buildDetails(Object context) {
+        return new CustomSource(context);
+    }
+}
+----
+
+==== ProviderManager
+
+`ProviderManager` has removed the deprecated default constructor and the correspdonding setter methods in favor of using constructor injection.
+It has also removed the clearExtraInformation property since the `AuthenticationException` had the extra information property removed.
+
+For example, if you have something like the following:
+
+[source,java]
+----
+ProviderManager provider = new ProviderManager();
+provider.setParent(parent);
+provider.setProviders(providers);
+provider.setClearExtraInformation(true);
+----
+
+then it should be changed to:
+
+[source,java]
+----
+ProviderManager provider = new ProviderManager(parent, providers);
+----
+
+==== RememberMeAuthenticationProvider
+`RememberMeAuthenticationProvider` had the default constructor and the `setKey` method removed in favor of constructor injection.
+For example:
+
+[source,java]
+----
+RememberMeAuthenticationProvider provider = new RememberMeAuthenticationProvider();
+provider.setProvider(key);
+----
+
+should be migrated to:
+
+[source,java]
+----
+RememberMeAuthenticationProvider provider = new RememberMeAuthenticationProvider(key);
+----
+
+==== GrantedAuthorityImpl
+
+`GrantedAuthorityImpl` was removed in favor of `SimpleGrantedAuthority` or implementing your own.
+For example:
+
+[source,java]
+----
+new GrantedAuthorityImpl(role);
+----
+
+should be replaced with
+
+[source,java]
+----
+new SimpleGrantedAuthority(role);
+----
+
+==== InMemoryDaoImpl
+
+`InMemoryDaoImpl` was replaced in favor of `InMemoryUserDetailsManager`
+
+==== spring-security-openid
+
+==== OpenID4JavaConsumer
+
+The `OpenID4JavaConsumer` constructors that accept `List<OpenIDAttribute>` have been removed in favor of using an `AxFetchListFactory`.
+For example:
+
+[source,java]
+----
+new OpenIDJavaConsumer(attributes);
+----
+
+should be replaced with:
+
+[source,java]
+----
+Map<String, List<OpenIDAttribute>> regexMap = new HashMap<String,List<OpenIDAttribute>>();
+regexMap.put(".*", attributes);
+RegexBasedAxFetchListFactory factory = new RegexBasedAxFetchListFactory(regexMap);
+new OpenIDJavaConsumer(factory);
+----
+
+=== spring-security-taglibs
+
+Spring Security's authorize JSP tag deprecated the properties `ifAllGranted`, `ifAnyGranted`, and `ifNotGranted` in favor of using expressions.
+
+For example:
+
+[source,xml]
+----
+<sec:authorize ifAllGranted="ROLE_A,ROLE_B">
+  Must have ROLE_A and ROLE_B
+</sec:authorize>
+<sec:authorize ifAnyGranted="ROLE_A,ROLE_B">
+  Must have ROLE_A or ROLE_B
+</sec:authorize>
+<sec:authorize ifNotGranted="ROLE_A,ROLE_B">
+  Must not have ROLE_A
+</sec:authorize>
+----
+
+can be replaced with:
+
+[source,xml]
+----
+<sec:authorize access="hasRole('ROLE_A') and hasRole('ROLE_B')">
+  Must have ROLE_A and ROLE_B
+</sec:authorize>
+<sec:authorize access="hasAnyRole('ROLE_A','ROLE_B')">
+  Must have ROLE_A or ROLE_B
+</sec:authorize>
+<sec:authorize ifNotGranted="!hasRole('ROLE_A')">
+  Must not have ROLE_A
+</sec:authorize>
+----
+
+=== spring-security-web
+
+==== FilterChainProxy
+
+`FilterChainProxy` removed the `setFilterChainMap` method in favor of constructor injection.
+For example, if you have the following:
+
+[source,java]
+----
+FilterChainProxy filter = new FilterChainProxy();
+filter.setFilterChainMap(filterChainMap);
+----
+
+it should be replaced with:
+
+[source,java]
+----
+FilterChainProxy filter = new FilterChainProxy(filterChainMap);
+----
+
+`FilterChainProxy` also removed `getFilterChainMap` in favor of using `getFilterChains` for example:
+
+[source,java]
+----
+FilterChainProxy filter = ...
+Map<RequestMatcher,List<Filter>> mappings = filter.getFilterChainMap();
+----
+
+should be replaced with
+
+
+[source,java]
+----
+FilterChainProxy filter = ...
+List<SecurityFilterChain> mappings = filter.getFilterChains();
+----
+
+==== ExceptionTranslationFilter
+
+The default constructor for `ExceptionTranslationFilter` and the `setAuthenticationEntryPoint` method was removed in favor of using constructor injection.
+
+[source,java]
+----
+ExceptionTranslationFilter filter = new ExceptionTranslationFilter();
+filter.setAuthenticationEntryPoint(entryPoint);
+filter.setRequestCache(requestCache);
+----
+
+can be replaced with
+
+[source,java]
+----
+ExceptionTranslationFilter filter = new ExceptionTranslationFilter(entryPoint, requestCache);
+----
+
+==== AbstractAuthenticationProcessingFilter
+
+`AbstractAuthenticationProcessingFilter` had its `successfulAuthentication(HttpServletRequest,HttpServletResponse,Authentication)` method removed.
+So if your application overrides the following method:
+
+[source,java]
+----
+protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+             Authentication authResult) throws IOException, ServletException {
+}
+----
+
+it should be replaced with:
+
+[source,java]
+----
+protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+             FilterChain chain, Authentication authResult) throws IOException, ServletException {
+}
+----
+
+==== AnonymousAuthenticationFilter
+
+`AnonymousAuthenticationFilter` had the default constructor and the `setKey` and `setPrincipal` methods removed in favor of constructor injection.
+For example:
+
+[source,java]
+----
+AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter();
+filter.setKey(key);
+filter.setUserAttribute(attrs);
+----
+
+should be replaced with:
+
+[source,java]
+----
+AnonymousAuthenticationFilter filter =
+    new AnonymousAuthenticationFilter(key,attrs.getPassword(),attrs.getAuthorities());
+----
+
+==== LoginUrlAuthenticationEntryPoint
+
+The `LoginUrlAuthenticationEntryPoint` default constructor and the `setLoginFormUrl` method was removed in favor of constructor injection.
+For example:
+
+[source,java]
+----
+LoginUrlAuthenticationEntryPoint entryPoint = new LoginUrlAuthenticationEntryPoint();
+entryPoint.setLoginFormUrl(loginFormUrl);
+----
+should be replaced with
+
+[source,java]
+----
+LoginUrlAuthenticationEntryPoint entryPoint = new LoginUrlAuthenticationEntryPoint(loginFormUrl);
+----
+
+==== PreAuthenticatedGrantedAuthoritiesUserDetailsService
+
+`PreAuthenticatedGrantedAuthoritiesUserDetailsService` removed `createuserDetails` in favor of `createUserDetails`.
+
+==== AbstractRememberMeServices
+
+`AbstractRememberMeServices` and its subclasses `PersistentTokenBasedRememberMeServices` and `TokenBasedRememberMeServices` removed the default constructor and the `setKey` and `setUserDetailsService` methods in favor of constructor injection.
+For example:
+
+[source,java]
+----
+PersistentTokenBasedRememberMeServices services = new PersistentTokenBasedRememberMeServices();
+services.setKey(key);
+services.setUserDetailService(userDetailsService);
+services.setTokenRepository(tokenRepository);
+----
+
+should be replaced with
+
+[source,java]
+----
+PersistentTokenBasedRememberMeServices services =
+    new PersistentTokenBasedRememberMeServices(key, userDetailsService, tokenRepository);
+----
+
+==== RememberMeAuthenticationFilter
+
+`RememberMeAuthenticationFilter` default constructor and the `setAuthenticationManager` and `setRememberMeServices` methods were removed in favor of constructor injection.
+
+[source,java]
+----
+RememberMeAuthenticationFilter filter = new RememberMeAuthenticationFilter();
+filter.setAuthenticationManager(authenticationManager);
+filter.setRememberServices(rememberMeServices);
+----
+
+should be replaced with
+
+[source,java]
+----
+RememberMeAuthenticationFilter filter =
+    new RememberMeAuthenticationFilter(authenticationManager,rememberMeServices);
+----
+
+==== TokenBasedRememberMeServices
+
+`TokenBasedRememberMeServices` default constructor and the `setKey` and `setUserDetailsService` methods were removed in favor of constructor injection.
+
+[source,java]
+----
+TokenBasedRememberMeServices services = new TokenBasedRememberMeServices();
+services.setKey(key);
+services.setUserDetailsService(userDetailsService);
+----
+
+should be replaced with
+
+[source,java]
+----
+TokenBasedRememberMeServices services =
+    new TokenBasedRememberMeServices(key,userDetailsService);
+----
+
+==== ConcurrentSessionControlStrategy
+
+`ConcurrentSessionControlStrategy` was replaced with `ConcurrentSessionControlAuthenticationStrategy`.
+Previously `ConcurrentSessionControlStrategy` could not be decoupled from `SessionFixationProtectionStrategy`.
+Now it is completely decoupled.
+For example, the following:
+
+[source,java]
+----
+ConcurrentSessionControlStrategy strategy = new ConcurrentSessionControlStrategy(sessionRegistry);
+----
+
+can be replaced with
+
+[source,java]
+----
+List<SessionAuthenticationStrategy> delegates = new ArrayList<SessionAuthenticationStrategy>();
+delegates.add(new ConcurrentSessionControlAuthenticationStrategy(sessionRegistry));
+delegates.add(new SessionFixationProtectionStrategy());
+delegates.add(new RegisterSessionAuthenticationStrategy(sessionRegistry));
+CompositeSessionAuthenticationStrategy strategy = new CompositeSessionAuthenticationStrategy(delegates);
+----
+
+==== SessionFixationProtectionStrategy
+
+`SessionFixationProtectionStrategy` removed `setRetainedAttributes` method in favor of users subclassing `SessionFixationProtectionStrategy` and overriding `extractAttributes` method.
+
+==== BasicAuthenticationFilter
+
+`BasicAuthenticationFilter` default constructor and the `setAuthenticationManager` and `setRememberMeServices` methods were removed in favor of constructor injection.
+
+[source,java]
+----
+BasicAuthenticationFilter filter = new BasicAuthenticationFilter();
+filter.setAuthenticationManager(authenticationManager);
+filter.setAuthenticationEntryPoint(entryPoint);
+filter.setIgnoreFailure(ignoreFailure);
+----
+
+should be replaced with
+
+[source,java]
+----
+BasicAuthenticationFilter filter =
+    new BasicAuthenticationFilter(authenticationManager,entryPoint, ignoreFailure);
+----
+
+==== SecurityContextPersistenceFilter
+
+`SecurityContextPersistenceFilter` removed the `setSecurityContextRepository` in favor of constructor injection.
+For example:
+
+[source,java]
+----
+SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter();
+filter.setSecurityContextRepository(securityContextRepository);
+----
+
+should be replaced with
+
+[source,java]
+----
+SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter(securityContextRepository);
+----
+
+==== RequestCacheAwareFilter
+
+`RequestCacheAwareFilter` removed the `setRequestCache` in favor of constructor injection.
+For example:
+
+[source,java]
+----
+RequestCacheAwareFilter filter = new RequestCacheAwareFilter();
+filter.setRequestCache(requestCache);
+----
+
+should be replaced with
+
+[source,java]
+----
+RequestCacheAwareFilter filter = new RequestCacheAwareFilter(requestCache);
+----
+
+==== ConcurrentSessionFilter
+
+`ConcurrentSessionFilter` removed the default constructor and the `setExpiredUrl` and `setSessionRegistry` methods in favor of constructor injection.
+For example:
+
+[source,java]
+----
+ConcurrentSessionFilter filter = new ConcurrentSessionFilter();
+filter.setSessionRegistry(sessionRegistry);
+filter.setExpiredUrl(expiredUrl);
+----
+
+should be replaced with
+
+[source,java]
+----
+ConcurrentSessionFilter filter = new ConcurrentSessionFilter(sessionRegistry,expiredUrl);
+----
+
+==== SessionManagementFilter
+
+`SessionManagementFilter` removed the `setSessionAuthenticationStrategy` method in favor of constructor injection.
+For example:
+
+[source,java]
+----
+SessionManagementFilter filter = new SessionManagementFilter(securityContextRepository);
+filter.setSessionAuthenticationStrategy(sessionAuthenticationStrategy);
+----
+
+should be replaced with
+
+[source,java]
+----
+SessionManagementFilter filter = new SessionManagementFilter(securityContextRepository, sessionAuthenticationStrategy);
+----
+
+==== RequestMatcher
+
+The `RequestMatcher` and its implementations have moved from the package `org.springframework.security.web.util` to `org.springframework.security.web.util.matcher`.
+Specifically
+
+* `org.springframework.security.web.util.RequestMatcher` -> `org.springframework.security.web.util.matcher.RequestMatcher`
+* `org.springframework.security.web.util.AntPathRequestMatcher` -> `org.springframework.security.web.util.matcher.AntPathRequestMatcher`
+* `org.springframework.security.web.util.AnyRequestMatcher` -> `org.springframework.security.web.util.matcher.AnyRequestMatcher.INSTANCE`
+* `org.springframework.security.web.util.ELRequestMatcher` -> `org.springframework.security.web.util.matcher.ELRequestMatcher`
+* `org.springframework.security.web.util.IpAddressMatcher` -> `org.springframework.security.web.util.matcher.IpAddressMatcher`
+* `org.springframework.security.web.util.RequestMatcherEditor` -> `org.springframework.security.web.util.matcher.RequestMatcherEditor`
+* `org.springframework.security.web.util.RegexRequestMatcher` -> `org.springframework.security.web.util.matcher.RegexRequestMatcher`
+
+==== WebSecurityExpressionHandler
+
+`WebSecurityExpressionHandler` was removed in favor of using `SecurityExpressionHandler<FilterInvocation>`.
+
+This means if you are using:
+
+[source,java]
+----
+WebSecurityExpressionHandler handler = ...
+----
+
+it needs to be updated to
+
+[source,java]
+----
+SecurityExpressionHandler<FilterInvocation> handler = ...
+----
+
+== Automatic ROLE_ prefixing
+
+Spring Security 4 made the use of ROLE_ consistent.
+
+Not everyone is impacted by this change.
+You are impacted if user's roles are *not* prefixed with ROLE_.
+If all of your user's roles are prefixed with ROLE_ you are NOT impacted.
+
+For details on this change and how to migrate, refer to the https://jira.spring.io/browse/SEC-2758[SEC-2758] description.
