@@ -43,8 +43,7 @@ public class Http403ForbiddenEntryPoint implements AuthenticationEntryPoint {
         if (logger.isDebugEnabled()) {
             logger.debug("Pre-authenticated entry point called. Rejecting access");
         }
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
-        httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
+        response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
     }
 
 
