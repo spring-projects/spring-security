@@ -260,9 +260,9 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
         }
 
         if ("".equals(request.getContextPath())) {
-            return uri.endsWith(url);
+            return uri.equals(url);
         }
 
-        return uri.endsWith(request.getContextPath() + url);
+        return uri.equals(request.getContextPath() + url);
     }
 }
