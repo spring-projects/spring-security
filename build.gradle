@@ -138,7 +138,7 @@ task dist(type: Zip) {
     def zipRootDir = "${project.name}-$version"
     into(zipRootDir) {
         from(rootDir) {
-            include '*.txt'
+            include '*.adoc'
         }
         into('docs') {
             with(project(':docs').apiSpec)
