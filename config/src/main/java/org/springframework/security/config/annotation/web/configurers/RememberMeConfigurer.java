@@ -19,6 +19,7 @@ import java.util.UUID;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.RememberMeAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -43,8 +44,7 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
  * The following Filters are populated
  *
  * <ul>
- * <li>
- * {@link RememberMeAuthenticationFilter}</li>
+ * <li>{@link RememberMeAuthenticationFilter}</li>
  * </ul>
  *
  * <h2>Shared Objects Created</h2>
@@ -69,7 +69,7 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
  * <li>{@link AuthenticationManager}</li>
  * <li>{@link UserDetailsService} if no {@link #userDetailsService(UserDetailsService)}
  * was specified.</li>
- * <li> {@link DefaultLoginPageGeneratingFilter} - if present will be populated with
+ * <li>{@link DefaultLoginPageGeneratingFilter} - if present will be populated with
  * information from the configuration</li>
  * </ul>
  *
@@ -77,8 +77,8 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
  * @author Eddú Meléndez
  * @since 3.2
  */
-public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extends
-		AbstractHttpConfigurer<RememberMeConfigurer<H>, H> {
+public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
+		extends AbstractHttpConfigurer<RememberMeConfigurer<H>, H> {
 	private AuthenticationSuccessHandler authenticationSuccessHandler;
 	private String key;
 	private RememberMeServices rememberMeServices;
@@ -90,6 +90,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extend
 	private UserDetailsService userDetailsService;
 	private Integer tokenValiditySeconds;
 	private Boolean useSecureCookie;
+	private Boolean alwaysRemember;
 
 	/**
 	 * Creates a new instance
@@ -183,10 +184,12 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extend
 	}
 
 	/**
-	 * The name of cookie which store the token for remember me authentication. Defaults to 'remember-me'.
+	 * The name of cookie which store the token for remember me authentication. Defaults
+	 * to 'remember-me'.
 	 *
-	 * @param rememberMeCookieName the name of cookie which store the token for remember me authentication
-	 * @return  the {@link RememberMeConfigurer} for further customization
+	 * @param rememberMeCookieName the name of cookie which store the token for remember
+	 * me authentication
+	 * @return the {@link RememberMeConfigurer} for further customization
 	 * @since 4.0.1
 	 */
 	public RememberMeConfigurer<H> rememberMeCookieName(String rememberMeCookieName) {
@@ -197,7 +200,8 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extend
 	/**
 	 * The domain name within which the remember me cookie is visible.
 	 *
-	 * @param rememberMeCookieDomain the domain name within which the remember me cookie is visible.
+	 * @param rememberMeCookieDomain the domain name within which the remember me cookie
+	 * is visible.
 	 * @return the {@link RememberMeConfigurer} for further customization
 	 * @since 4.1.0
 	 */
@@ -244,8 +248,8 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extend
 		RememberMeServices rememberMeServices = getRememberMeServices(http, key);
 		http.setSharedObject(RememberMeServices.class, rememberMeServices);
 		LogoutConfigurer<H> logoutConfigurer = http.getConfigurer(LogoutConfigurer.class);
-		if (logoutConfigurer != null && logoutHandler != null) {
-			logoutConfigurer.addLogoutHandler(logoutHandler);
+		if (logoutConfigurer != null && this.logoutHandler != null) {
+			logoutConfigurer.addLogoutHandler(this.logoutHandler);
 		}
 
 		RememberMeAuthenticationProvider authenticationProvider = new RememberMeAuthenticationProvider(
@@ -259,10 +263,11 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extend
 	@Override
 	public void configure(H http) throws Exception {
 		RememberMeAuthenticationFilter rememberMeFilter = new RememberMeAuthenticationFilter(
-				http.getSharedObject(AuthenticationManager.class), rememberMeServices);
-		if (authenticationSuccessHandler != null) {
+				http.getSharedObject(AuthenticationManager.class),
+				this.rememberMeServices);
+		if (this.authenticationSuccessHandler != null) {
 			rememberMeFilter
-					.setAuthenticationSuccessHandler(authenticationSuccessHandler);
+					.setAuthenticationSuccessHandler(this.authenticationSuccessHandler);
 		}
 		rememberMeFilter = postProcess(rememberMeFilter);
 		http.addFilter(rememberMeFilter);
@@ -273,7 +278,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extend
 	 * @return the HTTP parameter used to indicate to remember the user
 	 */
 	private String getRememberMeParameter() {
-		return rememberMeParameter;
+		return this.rememberMeParameter;
 	}
 
 	/**
@@ -297,29 +302,34 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extend
 	 * @return the {@link RememberMeServices} to use
 	 * @throws Exception
 	 */
-	private RememberMeServices getRememberMeServices(H http, String key) throws Exception {
-		if (rememberMeServices != null) {
-			if (rememberMeServices instanceof LogoutHandler && logoutHandler == null) {
-				this.logoutHandler = (LogoutHandler) rememberMeServices;
+	private RememberMeServices getRememberMeServices(H http, String key)
+			throws Exception {
+		if (this.rememberMeServices != null) {
+			if (this.rememberMeServices instanceof LogoutHandler
+					&& this.logoutHandler == null) {
+				this.logoutHandler = (LogoutHandler) this.rememberMeServices;
 			}
-			return rememberMeServices;
+			return this.rememberMeServices;
 		}
 		AbstractRememberMeServices tokenRememberMeServices = createRememberMeServices(
 				http, key);
-		tokenRememberMeServices.setParameter(rememberMeParameter);
-		tokenRememberMeServices.setCookieName(rememberMeCookieName);
-		if (rememberMeCookieDomain != null) {
-			tokenRememberMeServices.setCookieDomain(rememberMeCookieDomain);
+		tokenRememberMeServices.setParameter(this.rememberMeParameter);
+		tokenRememberMeServices.setCookieName(this.rememberMeCookieName);
+		if (this.rememberMeCookieDomain != null) {
+			tokenRememberMeServices.setCookieDomain(this.rememberMeCookieDomain);
 		}
-		if (tokenValiditySeconds != null) {
-			tokenRememberMeServices.setTokenValiditySeconds(tokenValiditySeconds);
+		if (this.tokenValiditySeconds != null) {
+			tokenRememberMeServices.setTokenValiditySeconds(this.tokenValiditySeconds);
 		}
-		if (useSecureCookie != null) {
-			tokenRememberMeServices.setUseSecureCookie(useSecureCookie);
+		if (this.useSecureCookie != null) {
+			tokenRememberMeServices.setUseSecureCookie(this.useSecureCookie);
+		}
+		if (this.alwaysRemember != null) {
+			tokenRememberMeServices.setAlwaysRemember(this.alwaysRemember);
 		}
 		tokenRememberMeServices.afterPropertiesSet();
-		logoutHandler = tokenRememberMeServices;
-		rememberMeServices = tokenRememberMeServices;
+		this.logoutHandler = tokenRememberMeServices;
+		this.rememberMeServices = tokenRememberMeServices;
 		return tokenRememberMeServices;
 	}
 
@@ -335,7 +345,8 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extend
 	 */
 	private AbstractRememberMeServices createRememberMeServices(H http, String key)
 			throws Exception {
-		return tokenRepository == null ? createTokenBasedRememberMeServices(http, key)
+		return this.tokenRepository == null
+				? createTokenBasedRememberMeServices(http, key)
 				: createPersistentRememberMeServices(http, key);
 	}
 
@@ -363,7 +374,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extend
 			String key) {
 		UserDetailsService userDetailsService = getUserDetailsService(http);
 		return new PersistentTokenBasedRememberMeServices(key, userDetailsService,
-				tokenRepository);
+				this.tokenRepository);
 	}
 
 	/**
@@ -375,16 +386,15 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extend
 	 * @return the {@link UserDetailsService} to use
 	 */
 	private UserDetailsService getUserDetailsService(H http) {
-		if (userDetailsService == null) {
-			userDetailsService = http.getSharedObject(UserDetailsService.class);
+		if (this.userDetailsService == null) {
+			this.userDetailsService = http.getSharedObject(UserDetailsService.class);
 		}
-		if (userDetailsService == null) {
-			throw new IllegalStateException(
-					"userDetailsService cannot be null. Invoke "
-							+ RememberMeConfigurer.class.getSimpleName()
-							+ "#userDetailsService(UserDetailsService) or see its javadoc for alternative approaches.");
+		if (this.userDetailsService == null) {
+			throw new IllegalStateException("userDetailsService cannot be null. Invoke "
+					+ RememberMeConfigurer.class.getSimpleName()
+					+ "#userDetailsService(UserDetailsService) or see its javadoc for alternative approaches.");
 		}
-		return userDetailsService;
+		return this.userDetailsService;
 	}
 
 	/**
@@ -394,9 +404,9 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extend
 	 * @return the remember me key to use
 	 */
 	private String getKey() {
-		if (key == null) {
-			key = UUID.randomUUID().toString();
+		if (this.key == null) {
+			this.key = UUID.randomUUID().toString();
 		}
-		return key;
+		return this.key;
 	}
 }
