@@ -371,7 +371,7 @@ public class WebSecurityConfig
             ...
 ----
 
-If we are using XML based configuration, we can use the <<nsa-csrf-request-matcher-ref>>.
+If we are using XML based configuration, we can use the <<nsa-csrf-request-matcher-ref,csrf@request-matcher-ref>>.
 For example:
 
 [source,xml]
