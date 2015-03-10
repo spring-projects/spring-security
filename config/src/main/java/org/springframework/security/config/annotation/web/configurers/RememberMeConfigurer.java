@@ -84,6 +84,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extend
     private UserDetailsService userDetailsService;
     private Integer tokenValiditySeconds;
     private Boolean useSecureCookie;
+    private Boolean alwaysRemember;
 
     /**
      * Creates a new instance
@@ -104,7 +105,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extend
     }
 
     /**
-     *Whether the cookie should be flagged as secure or not. Secure cookies can only be sent over an HTTPS connection
+     * Whether the cookie should be flagged as secure or not. Secure cookies can only be sent over an HTTPS connection
      * and thus cannot be accidentally submitted over HTTP where they could be intercepted.
      * <p>
      * By default the cookie will be secure if the request is secure. If you only want to use remember-me over
@@ -116,6 +117,20 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extend
      */
     public RememberMeConfigurer<H> useSecureCookie(boolean useSecureCookie) {
         this.useSecureCookie = useSecureCookie;
+        return this;
+    }
+
+    /**
+     * Whether the cookie should always be created even if the remember-me parameter is not set.
+     * <p>
+     * By default this will be set to {@code false}.
+     *
+     * @param alwaysRemember set to {@code true} to always trigger remember me, {@code false} to use the remember-me parameter.
+     * @return the {@link RememberMeConfigurer} for further customization
+     * @see AbstractRememberMeServices#setAlwaysRemember(boolean)
+     */
+    public RememberMeConfigurer<H> alwaysRemember(boolean alwaysRemember) {
+        this.alwaysRemember = alwaysRemember;
         return this;
     }
 
@@ -277,6 +292,9 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>> extend
         }
         if (useSecureCookie != null) {
             tokenRememberMeServices.setUseSecureCookie(useSecureCookie);
+        }
+        if (alwaysRemember != null) {
+            tokenRememberMeServices.setAlwaysRemember(alwaysRemember);
         }
         tokenRememberMeServices.afterPropertiesSet();
         logoutHandler = tokenRememberMeServices;
