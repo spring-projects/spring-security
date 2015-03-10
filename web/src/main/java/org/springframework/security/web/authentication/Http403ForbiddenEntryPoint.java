@@ -45,6 +45,4 @@ public class Http403ForbiddenEntryPoint implements AuthenticationEntryPoint {
         }
         response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
     }
-
-
 }
