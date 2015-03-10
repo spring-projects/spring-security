@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
@@ -41,8 +42,10 @@ import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+
 import java.util.Hashtable;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -144,6 +147,33 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
         //then
         assertTrue(result.isAuthenticated());
         verify(ctx).search(any(DistinguishedName.class), eq(defaultSearchFilter), any(Object[].class), any(SearchControls.class));
+    }
+
+    // SEC-2897
+    @Test
+    public void bindPrincipalUsed() throws Exception {
+        //given
+        final String defaultSearchFilter = "(&(objectClass=user)(userPrincipalName={0}))";
+        ArgumentCaptor<Object[]> captor = ArgumentCaptor.forClass(Object[].class);
+
+        DirContext ctx = mock(DirContext.class);
+        when(ctx.getNameInNamespace()).thenReturn("");
+
+        DirContextAdapter dca = new DirContextAdapter();
+        SearchResult sr = new SearchResult("CN=Joe Jannsen,CN=Users", dca, dca.getAttributes());
+        when(ctx.search(any(Name.class), eq(defaultSearchFilter), captor.capture(), any(SearchControls.class)))
+                .thenReturn(new MockNamingEnumeration(sr));
+
+        ActiveDirectoryLdapAuthenticationProvider customProvider
+                = new ActiveDirectoryLdapAuthenticationProvider("mydomain.eu", "ldap://192.168.1.200/");
+        customProvider.contextFactory = createContextFactoryReturning(ctx);
+
+        //when
+        Authentication result = customProvider.authenticate(joe);
+
+        //then
+        assertThat(captor.getValue()).containsOnly("joe@mydomain.eu");
+        assertTrue(result.isAuthenticated());
     }
 
     @Test(expected = IllegalArgumentException.class)

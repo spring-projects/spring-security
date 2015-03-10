@@ -273,7 +273,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 
         try {
             return SpringSecurityLdapTemplate.searchForSingleEntryInternal(context, searchControls,
-                    searchRoot, searchFilter, new Object[]{username});
+                    searchRoot, searchFilter, new Object[]{bindPrincipal});
         } catch (IncorrectResultSizeDataAccessException incorrectResults) {
             // Search should never return multiple results if properly configured - just rethrow
             if (incorrectResults.getActualSize() != 0) {
