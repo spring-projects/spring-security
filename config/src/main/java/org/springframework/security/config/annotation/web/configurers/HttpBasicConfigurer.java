@@ -15,13 +15,10 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,15 +26,15 @@ import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 
@@ -169,21 +166,5 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>> extends
         }
         basicAuthenticationFilter = postProcess(basicAuthenticationFilter);
         http.addFilter(basicAuthenticationFilter);
-    }
-
-    private static class HttpStatusEntryPoint implements AuthenticationEntryPoint {
-        private final HttpStatus httpStatus;
-
-        public HttpStatusEntryPoint(HttpStatus httpStatus) {
-            super();
-            this.httpStatus = httpStatus;
-        }
-
-        public void commence(HttpServletRequest request,
-                HttpServletResponse response,
-                AuthenticationException authException) throws IOException,
-                ServletException {
-            response.setStatus(httpStatus.value());
-        }
     }
 }
