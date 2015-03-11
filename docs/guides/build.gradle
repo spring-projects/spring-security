@@ -1,7 +1,7 @@
 apply plugin: 'org.asciidoctor.gradle.asciidoctor'
 
 asciidoctor {
-    baseDir = file('src/asciidoc')
+    baseDir = file('src/docs/asciidoc')
     options = [
       eruby: 'erubis',
       eruby: 'erubis',
