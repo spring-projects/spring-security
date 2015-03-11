@@ -63,7 +63,9 @@ public class BasicAuthenticationEntryPointTests extends TestCase {
     public void testGettersSetters() {
         BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
         ep.setRealmName("realm");
+        ep.setChallenge("Foo");
         assertEquals("realm", ep.getRealmName());
+        assertEquals("Foo", ep.getChallenge());
     }
 
     public void testNormalOperation() throws Exception {
@@ -85,5 +87,27 @@ public class BasicAuthenticationEntryPointTests extends TestCase {
         assertEquals(msg, response.getErrorMessage());
 
         assertEquals("Basic realm=\"hello\"", response.getHeader("WWW-Authenticate"));
+    }
+
+    public void testNormalOperationWithChallenge() throws Exception {
+        BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
+
+        ep.setRealmName("hello");
+        ep.setChallenge("Auth realm=\"%\"");
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI("/some_path");
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        //ep.afterPropertiesSet();
+
+        String msg = "These are the jokes kid";
+        ep.commence(request, response, new DisabledException(msg));
+
+        assertEquals(401, response.getStatus());
+        assertEquals(msg, response.getErrorMessage());
+
+        assertEquals("Auth realm=\"hello\"", response.getHeader("WWW-Authenticate"));
     }
 }
