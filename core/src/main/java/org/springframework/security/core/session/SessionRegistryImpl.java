@@ -36,6 +36,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  *
  * @author Ben Alex
  * @author Luke Taylor
+ * @author Kazuki Shimizu
  */
 public class SessionRegistryImpl implements SessionRegistry, ApplicationListener<SessionDestroyedEvent> {
 
@@ -89,14 +90,25 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
         removeSessionInformation(sessionId);
     }
 
+    @Deprecated
     public void refreshLastRequest(String sessionId) {
         Assert.hasText(sessionId, "SessionId required as per interface contract");
 
         SessionInformation info = getSessionInformation(sessionId);
 
         if (info != null) {
-            info.refreshLastRequest();
+            refreshLastRequest(info);
         }
+    }
+
+    public void refreshLastRequest(SessionInformation sessionInformation) {
+        Assert.notNull(sessionInformation, "sessionInformation required as per interface contract");
+        sessionInformation.refreshLastRequest();
+    }
+
+    public void expireSession(SessionInformation sessionInformation) {
+        Assert.notNull(sessionInformation, "sessionInformation required as per interface contract");
+        sessionInformation.expireNow();
     }
 
     public void registerNewSession(String sessionId, Object principal) {

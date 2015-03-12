@@ -42,7 +42,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * Filter required by concurrent session handling package.
  * <p>
  * This filter performs two functions. First, it calls
- * {@link org.springframework.security.core.session.SessionRegistry#refreshLastRequest(String)} for each request
+ * {@link org.springframework.security.core.session.SessionRegistry#refreshLastRequest(SessionInformation)} for each request
  * so that registered sessions always have a correct "last update" date/time. Second, it retrieves a
  * {@link org.springframework.security.core.session.SessionInformation} from the <code>SessionRegistry</code>
  * for each request and checks if the session has been marked as expired.
@@ -53,6 +53,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * {@link org.springframework.security.web.session.HttpSessionEventPublisher} registered in <code>web.xml</code>.</p>
  *
  * @author Ben Alex
+ * @author Kazuki Shimizu
  */
 public class ConcurrentSessionFilter extends GenericFilterBean {
     //~ Instance fields ================================================================================================
@@ -114,7 +115,7 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
                     return;
                 } else {
                     // Non-expired - update last request date/time
-                    sessionRegistry.refreshLastRequest(info.getSessionId());
+                    sessionRegistry.refreshLastRequest(info);
                 }
             }
         }

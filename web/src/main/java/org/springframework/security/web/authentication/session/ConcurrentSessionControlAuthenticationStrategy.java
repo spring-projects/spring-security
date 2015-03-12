@@ -49,6 +49,7 @@ import org.springframework.util.Assert;
  *
  * @author Luke Taylor
  * @author Rob Winch
+ * @author Kazuki Shimizu
  * @since 3.2
  */
 public class ConcurrentSessionControlAuthenticationStrategy implements MessageSourceAware, SessionAuthenticationStrategy {
@@ -141,8 +142,7 @@ public class ConcurrentSessionControlAuthenticationStrategy implements MessageSo
                 leastRecentlyUsed = session;
             }
         }
-
-        leastRecentlyUsed.expireNow();
+        sessionRegistry.expireSession(leastRecentlyUsed);
     }
 
     /**
