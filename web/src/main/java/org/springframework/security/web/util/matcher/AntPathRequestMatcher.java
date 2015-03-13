@@ -103,7 +103,6 @@ public final class AntPathRequestMatcher implements RequestMatcher {
             }
 
             // If the pattern ends with {@code /**} and has no other wildcards or path variables, then optimize to a sub-path match
-            // TODO: use spring-framework  AntPathMatcher.VARIABLE_PATTERN instead.           
             if (pattern.endsWith(MATCH_ALL) && (pattern.indexOf('?') == -1 && pattern.indexOf('{') == -1 && pattern.indexOf('}') == -1) &&
                     pattern.indexOf("*") == pattern.length() - 2) {
                 matcher = new SubpathMatcher(pattern.substring(0, pattern.length() - 3));

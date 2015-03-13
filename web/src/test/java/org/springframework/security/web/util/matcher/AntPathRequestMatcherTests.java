@@ -94,6 +94,17 @@ public class AntPathRequestMatcherTests {
     }
 
     @Test
+    public void nontrailingWildcardWithVariableMatchesCorrectly() {
+        AntPathRequestMatcher matcher = new AntPathRequestMatcher("/**/{id}");
+        assertTrue(matcher.matches(createRequest("/blah/1234")));
+        assertTrue(matcher.matches(createRequest("/bleh/4567")));
+        assertTrue(matcher.matches(createRequest("/paskos/blah/")));
+        assertTrue(matcher.matches(createRequest("/12345/blah/xxx")));
+        assertTrue(matcher.matches(createRequest("/12345/blaha")));
+        assertTrue(matcher.matches(createRequest("/paskos/bleh/")));
+    }
+
+    @Test
     public void requestHasNullMethodMatches() {
         AntPathRequestMatcher matcher = new AntPathRequestMatcher("/something/*", "GET");
         HttpServletRequest request = createRequestWithNullMethod("/something/here");
