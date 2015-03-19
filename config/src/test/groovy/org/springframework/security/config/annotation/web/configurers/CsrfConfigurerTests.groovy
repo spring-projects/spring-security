@@ -65,7 +65,7 @@ class CsrfConfigurerTests extends BaseSpringSpec {
             'OPTIONS'  | HttpServletResponse.SC_OK
     }
 
-    def "csrf default creates CsrfRequestDataValueProcessor"() {
+	 def "csrf default creates CsrfRequestDataValueProcessor"() {
         when:
             loadConfig(CsrfAppliedDefaultConfig)
         then:

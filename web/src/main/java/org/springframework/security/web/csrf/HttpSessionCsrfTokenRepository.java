@@ -17,11 +17,13 @@ package org.springframework.security.web.csrf;
 
 import java.util.UUID;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.util.Assert;
+import org.springframework.web.util.WebUtils;
 
 /**
  * A {@link CsrfTokenRepository} that stores the {@link CsrfToken} in the {@link HttpSession}.
@@ -40,6 +42,10 @@ public final class HttpSessionCsrfTokenRepository implements CsrfTokenRepository
 
     private String headerName = DEFAULT_CSRF_HEADER_NAME;
 
+    private String cookieName;
+
+    private String cookiePath;
+
     private String sessionAttributeName = DEFAULT_CSRF_TOKEN_ATTR_NAME;
 
     /*
@@ -56,6 +62,20 @@ public final class HttpSessionCsrfTokenRepository implements CsrfTokenRepository
         } else {
             HttpSession session = request.getSession();
             session.setAttribute(sessionAttributeName, token);
+        }
+        if (cookieName!=null) {
+        	Cookie cookie = WebUtils.getCookie(request, cookieName);
+			String value = token.getToken();
+			if (cookie==null || token!=null && !value.equals(cookie.getValue())) {
+				cookie = new Cookie(cookieName, value);
+				if (cookiePath==null) {
+					String path = request.getContextPath();
+					cookie.setPath(path.equals("") ? "/" : path);
+				} else {
+					cookie.setPath(cookiePath);
+				}
+				response.addCookie(cookie);
+			}
         }
     }
 
@@ -99,6 +119,28 @@ public final class HttpSessionCsrfTokenRepository implements CsrfTokenRepository
         this.headerName = headerName;
     }
 
+
+    /**
+     * The name of a cookie to send containing the CSRF token value. Some client-side
+     * frameworks use this mechanism to find the value of the token, and then send it
+     * back as a header if it is set.
+     * 
+	 * @param cookieName the cookie name to set (default null, meaning not to send
+	 * a cookie at all)
+	 */
+	public void setCookieName(String cookieName) {
+		this.cookieName = cookieName;
+	}
+	
+	/**
+	 * The path to send in a cookie (if {@link #setCookieName(String) cookieName} is set). 
+	 * If unset the path will be set to the context path of the request.
+	 *  
+	 * @param cookiePath the cookie path to set (e.g. "/"), default null.
+	 */
+	public void setCookiePath(String cookiePath) {
+		this.cookiePath = cookiePath;
+	}
 
     /**
      * Sets the {@link HttpSession} attribute name that the {@link CsrfToken} is stored in

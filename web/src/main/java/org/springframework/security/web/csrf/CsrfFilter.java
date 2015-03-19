@@ -28,8 +28,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.UrlUtils;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -84,7 +84,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
         if(missingToken) {
             CsrfToken generatedToken = tokenRepository.generateToken(request);
             csrfToken = new SaveOnAccessCsrfToken(tokenRepository, request, response, generatedToken);
-        }
+       }
         request.setAttribute(CsrfToken.class.getName(), csrfToken);
         request.setAttribute(csrfToken.getParameterName(), csrfToken);
 
@@ -146,7 +146,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
         Assert.notNull(accessDeniedHandler, "accessDeniedHandler cannot be null");
         this.accessDeniedHandler = accessDeniedHandler;
     }
-
+    
     @SuppressWarnings("serial")
     private static final class SaveOnAccessCsrfToken implements CsrfToken {
         private transient CsrfTokenRepository tokenRepository;
