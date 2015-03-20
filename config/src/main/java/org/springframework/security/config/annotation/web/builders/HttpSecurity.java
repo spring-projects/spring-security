@@ -1313,9 +1313,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
      * @since 3.2
      */
     public final class RequestMatcherConfigurer extends AbstractRequestMatcherRegistry<RequestMatcherConfigurer> {
+        private List<RequestMatcher> matchers = new ArrayList<RequestMatcher>();
 
         protected RequestMatcherConfigurer chainRequestMatchers(List<RequestMatcher> requestMatchers) {
-            requestMatcher(new OrRequestMatcher(requestMatchers));
+            matchers.addAll(requestMatchers);
+            requestMatcher(new OrRequestMatcher(matchers));
             return this;
         }
 
