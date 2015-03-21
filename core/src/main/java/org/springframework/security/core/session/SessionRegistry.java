@@ -21,6 +21,7 @@ import java.util.List;
  * Maintains a registry of <code>SessionInformation</code> instances.
  *
  * @author Ben Alex
+ * @author Kazuki Shimizu
  */
 public interface SessionRegistry {
     //~ Methods ========================================================================================================
@@ -59,8 +60,23 @@ public interface SessionRegistry {
      * Silently returns if the given <code>sessionId</code> cannot be found or the session is marked to expire.
      *
      * @param sessionId for which to update the date and time of the last request (should never be <code>null</code>)
+     * @deprecated Please use the {@link #refreshLastRequest(SessionInformation)} instead of.
      */
+    @Deprecated
     void refreshLastRequest(String sessionId);
+
+    /**
+     * Refresh the last request time on session.
+     *
+     * @param sessionInformation session information (should never be <code>null</code>)
+     */
+    void refreshLastRequest(SessionInformation sessionInformation);
+
+    /**
+     * Update to the expired status.
+     * @param sessionInformation session information (should never be <code>null</code>)
+     */
+    void expireSession(SessionInformation sessionInformation);
 
     /**
      * Registers a new session for the specified principal. The newly registered session will not be marked for

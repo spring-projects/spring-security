@@ -15,21 +15,23 @@
 
 package org.springframework.security.core.session;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import java.util.Date;
 
-import org.springframework.security.core.session.SessionInformation;
+import static org.junit.Assert.*;
 
 
 /**
  * Tests {@link SessionInformation}.
  *
  * @author Ben Alex
+ * @author Kazuki Shimizu
  */
-public class SessionInformationTests extends TestCase {
+public class SessionInformationTests {
     //~ Methods ========================================================================================================
 
+    @Test
     public void testObject() throws Exception {
         Object principal = "Some principal object";
         String sessionId = "1234567890";
@@ -39,11 +41,14 @@ public class SessionInformationTests extends TestCase {
         assertEquals(principal, info.getPrincipal());
         assertEquals(sessionId, info.getSessionId());
         assertEquals(currentDate, info.getLastRequest());
+        assertFalse(info.isExpired());
 
         Thread.sleep(10);
 
         info.refreshLastRequest();
+        info.expireNow();
 
         assertTrue(info.getLastRequest().after(currentDate));
+        assertTrue(info.isExpired());
     }
 }

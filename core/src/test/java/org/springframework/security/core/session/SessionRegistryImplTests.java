@@ -23,14 +23,12 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.session.SessionDestroyedEvent;
-import org.springframework.security.core.session.SessionInformation;
-import org.springframework.security.core.session.SessionRegistryImpl;
 
 /**
  * Tests {@link SessionRegistryImpl}.
  *
  * @author Ben Alex
+ * @author Kazuki Shimizu
  */
 public class SessionRegistryImplTests {
     private SessionRegistryImpl sessionRegistry;
@@ -169,6 +167,40 @@ public class SessionRegistryImplTests {
         sessionRegistry.removeSessionInformation(sessionId2);
         assertNull(sessionRegistry.getSessionInformation(sessionId2));
         assertEquals(0, sessionRegistry.getAllSessions(principal, false).size());
+    }
+
+    // SEC-2903
+    @Test
+    public void testExpireSession(){
+        sessionRegistry.registerNewSession("session1", "username1");
+        SessionInformation sessionInformation = sessionRegistry.getSessionInformation("session1");
+        sessionRegistry.expireSession(sessionInformation);
+
+        assertTrue(sessionInformation.isExpired());
+    }
+
+    // SEC-2903
+    @Test(expected = IllegalArgumentException.class)
+    public void testExpireSessionNull(){
+        sessionRegistry.expireSession(null);
+    }
+
+    // SEC-2903
+    @Test
+    public void testRefreshLastRequest() throws InterruptedException {
+        sessionRegistry.registerNewSession("session1", "username1");
+        SessionInformation sessionInformation = sessionRegistry.getSessionInformation("session1");
+        Date lastRequestTime = sessionInformation.getLastRequest();
+        Thread.sleep(10);
+        sessionRegistry.refreshLastRequest(sessionInformation);
+
+        assertTrue(sessionInformation.getLastRequest().after(lastRequestTime));
+    }
+
+    // SEC-2903
+    @Test(expected = IllegalArgumentException.class)
+    public void testRefreshLastRequestNull(){
+        sessionRegistry.refreshLastRequest((SessionInformation) null);
     }
 
     private boolean contains(String sessionId, Object principal) {

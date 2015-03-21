@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.security.web.authentication.session;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -29,6 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -38,16 +40,18 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 
 /**
  *
  * @author Rob Winch
+ * @author Kazuki Shimizu
  *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ConcurrentSessionControlAuthenticationStrategyTests {
-    @Mock
-    private SessionRegistry sessionRegistry;
+    @Spy
+    private SessionRegistry sessionRegistry = new SessionRegistryImpl();
 
     private Authentication authentication;
     private MockHttpServletRequest request;
@@ -73,7 +77,7 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 
     @Test
     public void noRegisteredSession() {
-        when(sessionRegistry.getAllSessions(any(), anyBoolean())).thenReturn(Collections.<SessionInformation>emptyList());
+        doReturn(Collections.<SessionInformation>emptyList()).when(sessionRegistry).getAllSessions(any(), anyBoolean());
         strategy.setMaximumSessions(1);
         strategy.setExceptionIfMaximumExceeded(true);
 
@@ -86,7 +90,7 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
     public void maxSessionsSameSessionId() {
         MockHttpSession session = new MockHttpSession(new MockServletContext(), sessionInformation.getSessionId());
         request.setSession(session);
-        when(sessionRegistry.getAllSessions(any(), anyBoolean())).thenReturn(Collections.<SessionInformation>singletonList(sessionInformation));
+        doReturn(Collections.<SessionInformation>singletonList(sessionInformation)).when(sessionRegistry).getAllSessions(any(), anyBoolean());
         strategy.setMaximumSessions(1);
         strategy.setExceptionIfMaximumExceeded(true);
 
@@ -97,7 +101,7 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 
     @Test(expected = SessionAuthenticationException.class)
     public void maxSessionsWithException() {
-        when(sessionRegistry.getAllSessions(any(), anyBoolean())).thenReturn(Collections.<SessionInformation>singletonList(sessionInformation));
+        doReturn(Collections.<SessionInformation>singletonList(sessionInformation)).when(sessionRegistry).getAllSessions(any(), anyBoolean());
         strategy.setMaximumSessions(1);
         strategy.setExceptionIfMaximumExceeded(true);
 
@@ -106,7 +110,7 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 
     @Test
     public void maxSessionsExpireExistingUser() {
-        when(sessionRegistry.getAllSessions(any(), anyBoolean())).thenReturn(Collections.<SessionInformation>singletonList(sessionInformation));
+        doReturn(Collections.<SessionInformation>singletonList(sessionInformation)).when(sessionRegistry).getAllSessions(any(), anyBoolean());
         strategy.setMaximumSessions(1);
 
         strategy.onAuthentication(authentication, request, response);
@@ -117,7 +121,7 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
     @Test
     public void maxSessionsExpireLeastRecentExistingUser() {
         SessionInformation moreRecentSessionInfo = new SessionInformation(authentication.getPrincipal(), "unique", new Date(1374766999999L));
-        when(sessionRegistry.getAllSessions(any(), anyBoolean())).thenReturn(Arrays.<SessionInformation>asList(moreRecentSessionInfo,sessionInformation));
+        doReturn(Arrays.<SessionInformation>asList(moreRecentSessionInfo, sessionInformation)).when(sessionRegistry).getAllSessions(any(), anyBoolean());
         strategy.setMaximumSessions(2);
 
         strategy.onAuthentication(authentication, request, response);
