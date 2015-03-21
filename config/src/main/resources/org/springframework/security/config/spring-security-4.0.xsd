@@ -1705,6 +1705,15 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="invalid-session-request-matcher-ref" type="xs:token">
+          <xs:annotation>
+              <xs:documentation>Sets the RequestMatcher to customize target URLs of detecting a invalid session.
+                  Setting this attribute will be inject to the SessionManagementFilter#invalidSessionDetectionMatcher field.
+                  This attribute is valid only when set the invalid-session-url.
+                  Default setting set the RequestMatcher to detect a invalid session for all requests.
+              </xs:documentation>
+          </xs:annotation>
+      </xs:attribute>
       <xs:attribute name="session-authentication-strategy-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Allows injection of the SessionAuthenticationStrategy instance used by the
