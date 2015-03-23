@@ -2,10 +2,10 @@
 
 <project name="Spring Security Core">
 
-    <body>
-        <menu ref="parent"/>
-        <menu ref="reports"/>
-    </body>
+	<body>
+		<menu ref="parent"/>
+		<menu ref="reports"/>
+	</body>
 
 </project>
 

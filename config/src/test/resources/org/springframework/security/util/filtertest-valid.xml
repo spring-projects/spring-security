@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *	   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,163 +18,163 @@
  *
 -->
 <beans default-lazy-init="true" xmlns="http://www.springframework.org/schema/beans"
-    xmlns:sec="http://www.springframework.org/schema/security"
-    xmlns:util="http://www.springframework.org/schema/util"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd
-        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+	xmlns:sec="http://www.springframework.org/schema/security"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd
+		http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
-    <bean id="mockFilter" class="org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter"/>
+	<bean id="mockFilter" class="org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter"/>
 
-    <bean id="mockFilter2" class="org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter"/>
+	<bean id="mockFilter2" class="org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter"/>
 
-    <!-- These are just here so we have filters of a specific type to check the ordering is as expected -->
-    <bean id="sif" class="org.springframework.security.web.context.SecurityContextPersistenceFilter"/>
+	<!-- These are just here so we have filters of a specific type to check the ordering is as expected -->
+	<bean id="sif" class="org.springframework.security.web.context.SecurityContextPersistenceFilter"/>
 
-    <bean id="apf" class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
-       <property name="authenticationManager" ref="authenticationManager"/>
-    </bean>
+	<bean id="apf" class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
+	   <property name="authenticationManager" ref="authenticationManager"/>
+	</bean>
 
-    <sec:authentication-manager alias="authenticationManager">
-        <sec:authentication-provider>
-            <sec:user-service>
-                <sec:user name="jemima" password="password" authorities="A"/>
-            </sec:user-service>
-        </sec:authentication-provider>
-    </sec:authentication-manager>
+	<sec:authentication-manager alias="authenticationManager">
+		<sec:authentication-provider>
+			<sec:user-service>
+				<sec:user name="jemima" password="password" authorities="A"/>
+			</sec:user-service>
+		</sec:authentication-provider>
+	</sec:authentication-manager>
 
-    <bean id="mockNotAFilter" class="org.springframework.security.web.util.matcher.AnyRequestMatcher"/>
+	<bean id="mockNotAFilter" class="org.springframework.security.web.util.matcher.AnyRequestMatcher"/>
 
-    <bean id="fooMatcher" class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
-        <constructor-arg value="/foo/**"/>
-    </bean>
+	<bean id="fooMatcher" class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
+		<constructor-arg value="/foo/**"/>
+	</bean>
 
-    <bean id="filterChain" class="org.springframework.security.web.FilterChainProxy">
-        <constructor-arg>
-           <list>
-               <sec:filter-chain request-matcher-ref="fooMatcher" filters="mockFilter"/>
-               <sec:filter-chain pattern="/some/other/path/**" filters="mockFilter"/>
-               <sec:filter-chain pattern="/do/not/filter" filters="none"/>
-           </list>
-        </constructor-arg>
-    </bean>
+	<bean id="filterChain" class="org.springframework.security.web.FilterChainProxy">
+		<constructor-arg>
+		   <list>
+			   <sec:filter-chain request-matcher-ref="fooMatcher" filters="mockFilter"/>
+			   <sec:filter-chain pattern="/some/other/path/**" filters="mockFilter"/>
+			   <sec:filter-chain pattern="/do/not/filter" filters="none"/>
+		   </list>
+		</constructor-arg>
+	</bean>
 
 <!-- TODO: Refactor to replace the above (SEC-1034: 'new' is now the only valid syntax) -->
-    <bean id="newFilterChainProxy" class="org.springframework.security.web.FilterChainProxy">
-        <constructor-arg>
-           <util:list>
-                <sec:filter-chain pattern="/foo/**" filters="mockFilter"/>
-                <sec:filter-chain pattern="/some/other/path/**"
-                    filters="
-                    sif,
-                    mockFilter,
-                    mockFilter2"
-                    />
-                <sec:filter-chain pattern="/do/not/filter" filters="none"/>
-                <sec:filter-chain pattern="/**" filters="sif,apf,mockFilter"/>
-           </util:list>
-        </constructor-arg>
-    </bean>
+	<bean id="newFilterChainProxy" class="org.springframework.security.web.FilterChainProxy">
+		<constructor-arg>
+		   <util:list>
+				<sec:filter-chain pattern="/foo/**" filters="mockFilter"/>
+				<sec:filter-chain pattern="/some/other/path/**"
+					filters="
+					sif,
+					mockFilter,
+					mockFilter2"
+					/>
+				<sec:filter-chain pattern="/do/not/filter" filters="none"/>
+				<sec:filter-chain pattern="/**" filters="sif,apf,mockFilter"/>
+		   </util:list>
+		</constructor-arg>
+	</bean>
 
-    <bean id="newFilterChainProxyNoDefaultPath" class="org.springframework.security.web.FilterChainProxy">
-        <constructor-arg>
-           <util:list>
-                <sec:filter-chain pattern="/foo/**" filters="mockFilter"/>
-                <sec:filter-chain pattern="/*.bar" filters="mockFilter,mockFilter2"/>
-           </util:list>
-        </constructor-arg>
-    </bean>
+	<bean id="newFilterChainProxyNoDefaultPath" class="org.springframework.security.web.FilterChainProxy">
+		<constructor-arg>
+		   <util:list>
+				<sec:filter-chain pattern="/foo/**" filters="mockFilter"/>
+				<sec:filter-chain pattern="/*.bar" filters="mockFilter,mockFilter2"/>
+		   </util:list>
+		</constructor-arg>
+	</bean>
 
-    <bean id="newFilterChainProxyWrongPathOrder" class="org.springframework.security.web.FilterChainProxy">
-        <constructor-arg>
-           <util:list>
-            <sec:filter-chain pattern="/foo/**" filters="mockFilter"/>
-            <sec:filter-chain pattern="/**" filters="
-                                sif,
-                                apf,
-                                mockFilter"/>
-            <sec:filter-chain pattern="/some/other/path/**" filters="sif,mockFilter,mockFilter2"/>
-           </util:list>
-        </constructor-arg>
-        <property name="filterChainValidator" ref="fcv" />
-    </bean>
+	<bean id="newFilterChainProxyWrongPathOrder" class="org.springframework.security.web.FilterChainProxy">
+		<constructor-arg>
+		   <util:list>
+			<sec:filter-chain pattern="/foo/**" filters="mockFilter"/>
+			<sec:filter-chain pattern="/**" filters="
+								sif,
+								apf,
+								mockFilter"/>
+			<sec:filter-chain pattern="/some/other/path/**" filters="sif,mockFilter,mockFilter2"/>
+		   </util:list>
+		</constructor-arg>
+		<property name="filterChainValidator" ref="fcv" />
+	</bean>
 
-    <bean id="fcv" class="org.springframework.security.config.http.DefaultFilterChainValidator" />
+	<bean id="fcv" class="org.springframework.security.config.http.DefaultFilterChainValidator" />
 
-    <bean id="newFilterChainProxyRegex" class="org.springframework.security.web.FilterChainProxy">
-        <sec:filter-chain-map request-matcher="regex">
-            <sec:filter-chain pattern="\A/foo/.*\Z" filters="mockFilter"/>
-            <sec:filter-chain pattern="\A/s[oO]me/other/path/.*\Z" filters="sif,mockFilter,mockFilter2"/>
-            <sec:filter-chain pattern="\A/do/not/filter\Z" filters="none"/>
-            <sec:filter-chain pattern="\A/.*\Z" filters="sif,apf,mockFilter"/>
-        </sec:filter-chain-map>
-    </bean>
+	<bean id="newFilterChainProxyRegex" class="org.springframework.security.web.FilterChainProxy">
+		<sec:filter-chain-map request-matcher="regex">
+			<sec:filter-chain pattern="\A/foo/.*\Z" filters="mockFilter"/>
+			<sec:filter-chain pattern="\A/s[oO]me/other/path/.*\Z" filters="sif,mockFilter,mockFilter2"/>
+			<sec:filter-chain pattern="\A/do/not/filter\Z" filters="none"/>
+			<sec:filter-chain pattern="\A/.*\Z" filters="sif,apf,mockFilter"/>
+		</sec:filter-chain-map>
+	</bean>
 
-    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
 
-    <bean id="sec1235FilterChainProxy" class="org.springframework.security.web.FilterChainProxy">
-        <constructor-arg>
-           <util:list>
-                <sec:filter-chain pattern="${sec1235.pattern1}*" filters="sif,apf,mockFilter"/>
-                <sec:filter-chain pattern="${sec1235.pattern2}" filters="mockFilter2"/>
-                <sec:filter-chain pattern="/**" filters="sif"/>
-           </util:list>
-        </constructor-arg>
-    </bean>
+	<bean id="sec1235FilterChainProxy" class="org.springframework.security.web.FilterChainProxy">
+		<constructor-arg>
+		   <util:list>
+				<sec:filter-chain pattern="${sec1235.pattern1}*" filters="sif,apf,mockFilter"/>
+				<sec:filter-chain pattern="${sec1235.pattern2}" filters="mockFilter2"/>
+				<sec:filter-chain pattern="/**" filters="sif"/>
+		   </util:list>
+		</constructor-arg>
+	</bean>
 
-    <bean id="newFilterChainProxyNonNamespace" class="org.springframework.security.web.FilterChainProxy">
-        <constructor-arg>
-            <list>
-                <bean class="org.springframework.security.web.DefaultSecurityFilterChain">
-                    <constructor-arg ref="fooMatcher"/>
-                    <constructor-arg>
-                        <list>
-                          <ref local="mockFilter"/>
-                        </list>
-                    </constructor-arg>
-                </bean>
-                <bean class="org.springframework.security.web.DefaultSecurityFilterChain">
-                    <constructor-arg>
-                        <bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
-                            <constructor-arg value="/some/other/path/**"/>
-                        </bean>
-                    </constructor-arg>
-                    <constructor-arg>
-                        <list>
-                            <ref local="sif"/>
-                            <ref local="mockFilter"/>
-                            <ref local="mockFilter2"/>
-                        </list>
-                    </constructor-arg>
-                </bean>
-                <bean class="org.springframework.security.web.DefaultSecurityFilterChain">
-                    <constructor-arg>
-                        <bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
-                            <constructor-arg value="/do/not/filter*"/>
-                        </bean>
-                    </constructor-arg>
-                    <constructor-arg>
-                        <list />
-                    </constructor-arg>
-                </bean>
-                <bean class="org.springframework.security.web.DefaultSecurityFilterChain">
-                    <constructor-arg>
-                        <bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
-                            <constructor-arg value="/**"/>
-                        </bean>
-                    </constructor-arg>
-                    <constructor-arg>
-                        <list>
-                          <ref local="sif"/>
-                          <ref local="apf"/>
-                          <ref local="mockFilter"/>
-                        </list>
-                    </constructor-arg>
-                </bean>
-            </list>
-        </constructor-arg>
-    </bean>
+	<bean id="newFilterChainProxyNonNamespace" class="org.springframework.security.web.FilterChainProxy">
+		<constructor-arg>
+			<list>
+				<bean class="org.springframework.security.web.DefaultSecurityFilterChain">
+					<constructor-arg ref="fooMatcher"/>
+					<constructor-arg>
+						<list>
+						  <ref local="mockFilter"/>
+						</list>
+					</constructor-arg>
+				</bean>
+				<bean class="org.springframework.security.web.DefaultSecurityFilterChain">
+					<constructor-arg>
+						<bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
+							<constructor-arg value="/some/other/path/**"/>
+						</bean>
+					</constructor-arg>
+					<constructor-arg>
+						<list>
+							<ref local="sif"/>
+							<ref local="mockFilter"/>
+							<ref local="mockFilter2"/>
+						</list>
+					</constructor-arg>
+				</bean>
+				<bean class="org.springframework.security.web.DefaultSecurityFilterChain">
+					<constructor-arg>
+						<bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
+							<constructor-arg value="/do/not/filter*"/>
+						</bean>
+					</constructor-arg>
+					<constructor-arg>
+						<list />
+					</constructor-arg>
+				</bean>
+				<bean class="org.springframework.security.web.DefaultSecurityFilterChain">
+					<constructor-arg>
+						<bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
+							<constructor-arg value="/**"/>
+						</bean>
+					</constructor-arg>
+					<constructor-arg>
+						<list>
+						  <ref local="sif"/>
+						  <ref local="apf"/>
+						  <ref local="mockFilter"/>
+						</list>
+					</constructor-arg>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
 
 </beans>

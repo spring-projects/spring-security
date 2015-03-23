@@ -5,99 +5,99 @@
   -->
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:sec="http://www.springframework.org/schema/security"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+	xmlns:sec="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+						http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
-    <bean id="fcpMinimalStack" class="org.springframework.security.web.FilterChainProxy">
-        <sec:filter-chain-map request-matcher="ant">
-            <sec:filter-chain pattern="/**" filters="scpf,preAuthFilter,etf,fsi"/>
-        </sec:filter-chain-map>
-    </bean>
+	<bean id="fcpMinimalStack" class="org.springframework.security.web.FilterChainProxy">
+		<sec:filter-chain-map request-matcher="ant">
+			<sec:filter-chain pattern="/**" filters="scpf,preAuthFilter,etf,fsi"/>
+		</sec:filter-chain-map>
+	</bean>
 
-    <bean id="fcpFullStack" class="org.springframework.security.web.FilterChainProxy">
-        <sec:filter-chain-map request-matcher="ant">
-            <sec:filter-chain pattern="/**" filters="scpf,preAuthFilter,apf,basicPf,logoutFilter,scharf,etf,fsi"/>
-        </sec:filter-chain-map>
-    </bean>
+	<bean id="fcpFullStack" class="org.springframework.security.web.FilterChainProxy">
+		<sec:filter-chain-map request-matcher="ant">
+			<sec:filter-chain pattern="/**" filters="scpf,preAuthFilter,apf,basicPf,logoutFilter,scharf,etf,fsi"/>
+		</sec:filter-chain-map>
+	</bean>
 
-    <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
-        <constructor-arg>
-            <list>
-               <bean class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
-                   <property name="userDetailsService" ref="userService"/>
-               </bean>
-            </list>
-        </constructor-arg>
-    </bean>
+	<bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
+		<constructor-arg>
+			<list>
+			   <bean class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+				   <property name="userDetailsService" ref="userService"/>
+			   </bean>
+			</list>
+		</constructor-arg>
+	</bean>
 
-    <sec:user-service id="userService">
-        <sec:user name="bob" password="bobspassword" authorities="ROLE_0,ROLE_1"/>
-    </sec:user-service>
+	<sec:user-service id="userService">
+		<sec:user name="bob" password="bobspassword" authorities="ROLE_0,ROLE_1"/>
+	</sec:user-service>
 
-    <bean id="scpf" class="org.springframework.security.web.context.SecurityContextPersistenceFilter"/>
+	<bean id="scpf" class="org.springframework.security.web.context.SecurityContextPersistenceFilter"/>
 
-    <bean id="apf" class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
-        <property name="authenticationManager" ref="authenticationManager"/>
-    </bean>
+	<bean id="apf" class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
+		<property name="authenticationManager" ref="authenticationManager"/>
+	</bean>
 
-    <bean id="basicPf" class="org.springframework.security.web.authentication.www.BasicAuthenticationFilter">
-        <constructor-arg ref="authenticationManager"/>
-    </bean>
+	<bean id="basicPf" class="org.springframework.security.web.authentication.www.BasicAuthenticationFilter">
+		<constructor-arg ref="authenticationManager"/>
+	</bean>
 
-    <bean id="preAuthFilter" class="org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter">
-        <property name="authenticationManager" ref="authenticationManager"/>
-        <property name="exceptionIfHeaderMissing" value="false" />
-    </bean>
+	<bean id="preAuthFilter" class="org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter">
+		<property name="authenticationManager" ref="authenticationManager"/>
+		<property name="exceptionIfHeaderMissing" value="false" />
+	</bean>
 
-    <bean id="scharf" class="org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter" />
+	<bean id="scharf" class="org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter" />
 
-    <bean id="preAuthenticatedProcessingFilterEntryPoint"
-            class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint"/>
+	<bean id="preAuthenticatedProcessingFilterEntryPoint"
+			class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint"/>
 
-    <bean id="logoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter">
-        <constructor-arg value="/"/>
-        <constructor-arg>
-            <list>
-                <bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler"/>
-            </list>
-        </constructor-arg>
-    </bean>
+	<bean id="logoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter">
+		<constructor-arg value="/"/>
+		<constructor-arg>
+			<list>
+				<bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler"/>
+			</list>
+		</constructor-arg>
+	</bean>
 
-    <bean id="etf" class="org.springframework.security.web.access.ExceptionTranslationFilter">
-        <constructor-arg ref="preAuthenticatedProcessingFilterEntryPoint"/>
-    </bean>
+	<bean id="etf" class="org.springframework.security.web.access.ExceptionTranslationFilter">
+		<constructor-arg ref="preAuthenticatedProcessingFilterEntryPoint"/>
+	</bean>
 
-    <bean id="preAuthenticatedAuthenticationProvider" class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">
-        <property name="preAuthenticatedUserDetailsService" ref="preAuthenticatedUserDetailsService"/>
-    </bean>
+	<bean id="preAuthenticatedAuthenticationProvider" class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">
+		<property name="preAuthenticatedUserDetailsService" ref="preAuthenticatedUserDetailsService"/>
+	</bean>
 
-    <bean id="preAuthenticatedUserDetailsService" class="org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper">
-        <property name="userDetailsService" ref="userService"/>
-    </bean>
+	<bean id="preAuthenticatedUserDetailsService" class="org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper">
+		<property name="userDetailsService" ref="userService"/>
+	</bean>
 
-    <bean id="accessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
-        <constructor-arg>
-            <list>
-                <bean class="org.springframework.security.access.vote.RoleVoter"/>
-            </list>
-        </constructor-arg>
-        <property name="allowIfAllAbstainDecisions" value="false"/>
-    </bean>
+	<bean id="accessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
+		<constructor-arg>
+			<list>
+				<bean class="org.springframework.security.access.vote.RoleVoter"/>
+			</list>
+		</constructor-arg>
+		<property name="allowIfAllAbstainDecisions" value="false"/>
+	</bean>
 
-    <bean id="fsi" class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
-        <property name="authenticationManager" ref="authenticationManager"/>
-        <property name="accessDecisionManager" ref="accessDecisionManager"/>
-        <property name="securityMetadataSource">
-            <sec:filter-security-metadata-source use-expressions="false">
-                <sec:intercept-url pattern="/secure/extreme/**" access="ROLE_2"/>
-                <sec:intercept-url pattern="/secure/**" access="ROLE_1"/>
-                <sec:intercept-url pattern="/**" access="ROLE_0"/>
-            </sec:filter-security-metadata-source>
-        </property>
-    </bean>
+	<bean id="fsi" class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+		<property name="authenticationManager" ref="authenticationManager"/>
+		<property name="accessDecisionManager" ref="accessDecisionManager"/>
+		<property name="securityMetadataSource">
+			<sec:filter-security-metadata-source use-expressions="false">
+				<sec:intercept-url pattern="/secure/extreme/**" access="ROLE_2"/>
+				<sec:intercept-url pattern="/secure/**" access="ROLE_1"/>
+				<sec:intercept-url pattern="/**" access="ROLE_0"/>
+			</sec:filter-security-metadata-source>
+		</property>
+	</bean>
 
-    <bean id="roleVoter" class="org.springframework.security.access.vote.RoleVoter"/>
+	<bean id="roleVoter" class="org.springframework.security.access.vote.RoleVoter"/>
 
 </beans>
