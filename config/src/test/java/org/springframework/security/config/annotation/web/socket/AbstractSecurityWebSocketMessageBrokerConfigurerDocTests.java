@@ -68,124 +68,127 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class AbstractSecurityWebSocketMessageBrokerConfigurerDocTests {
-    AnnotationConfigWebApplicationContext context;
+	AnnotationConfigWebApplicationContext context;
 
-    TestingAuthenticationToken messageUser;
+	TestingAuthenticationToken messageUser;
 
-    CsrfToken token;
+	CsrfToken token;
 
-    String sessionAttr;
+	String sessionAttr;
 
-    @Before
-    public void setup() {
-        token = new DefaultCsrfToken("header", "param", "token");
-        sessionAttr = "sessionAttr";
-        messageUser = new TestingAuthenticationToken("user","pass","ROLE_USER");
-    }
+	@Before
+	public void setup() {
+		token = new DefaultCsrfToken("header", "param", "token");
+		sessionAttr = "sessionAttr";
+		messageUser = new TestingAuthenticationToken("user", "pass", "ROLE_USER");
+	}
 
-    @After
-    public void cleanup() {
-        if(context != null) {
-            context.close();
-        }
-    }
+	@After
+	public void cleanup() {
+		if (context != null) {
+			context.close();
+		}
+	}
 
-    @Test
-    public void securityMappings() {
-        loadConfig(WebSocketSecurityConfig.class);
+	@Test
+	public void securityMappings() {
+		loadConfig(WebSocketSecurityConfig.class);
 
-        clientInboundChannel().send(message("/user/queue/errors",SimpMessageType.SUBSCRIBE));
+		clientInboundChannel().send(
+				message("/user/queue/errors", SimpMessageType.SUBSCRIBE));
 
-        try {
-            clientInboundChannel().send(message("/denyAll", SimpMessageType.MESSAGE));
-            fail("Expected Exception");
-        } catch(MessageDeliveryException expected) {
-            assertThat(expected.getCause()).isInstanceOf(AccessDeniedException.class);
-        }
-    }
+		try {
+			clientInboundChannel().send(message("/denyAll", SimpMessageType.MESSAGE));
+			fail("Expected Exception");
+		}
+		catch (MessageDeliveryException expected) {
+			assertThat(expected.getCause()).isInstanceOf(AccessDeniedException.class);
+		}
+	}
 
+	private void loadConfig(Class<?>... configs) {
+		context = new AnnotationConfigWebApplicationContext();
+		context.register(configs);
+		context.register(WebSocketConfig.class, SyncExecutorConfig.class);
+		context.setServletConfig(new MockServletConfig());
+		context.refresh();
+	}
 
-    private void loadConfig(Class<?>... configs) {
-        context = new AnnotationConfigWebApplicationContext();
-        context.register(configs);
-        context.register(WebSocketConfig.class,SyncExecutorConfig.class);
-        context.setServletConfig(new MockServletConfig());
-        context.refresh();
-    }
+	private MessageChannel clientInboundChannel() {
+		return context.getBean("clientInboundChannel", MessageChannel.class);
+	}
 
-    private MessageChannel clientInboundChannel() {
-        return context.getBean("clientInboundChannel", MessageChannel.class);
-    }
+	private Message<String> message(String destination, SimpMessageType type) {
+		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(type);
+		return message(headers, destination);
+	}
 
-    private Message<String> message(String destination, SimpMessageType type) {
-        SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(type);
-        return message(headers, destination);
-    }
+	private Message<String> message(SimpMessageHeaderAccessor headers, String destination) {
+		headers.setSessionId("123");
+		headers.setSessionAttributes(new HashMap<String, Object>());
+		if (destination != null) {
+			headers.setDestination(destination);
+		}
+		if (messageUser != null) {
+			headers.setUser(messageUser);
+		}
+		return new GenericMessage<String>("hi", headers.getMessageHeaders());
+	}
 
-    private Message<String> message(SimpMessageHeaderAccessor headers, String destination) {
-        headers.setSessionId("123");
-        headers.setSessionAttributes(new HashMap<String, Object>());
-        if(destination != null) {
-            headers.setDestination(destination);
-        }
-        if(messageUser != null) {
-            headers.setUser(messageUser);
-        }
-        return new GenericMessage<String>("hi",headers.getMessageHeaders());
-    }
+	@Controller
+	static class MyController {
 
-    @Controller
-    static class MyController {
+		@MessageMapping("/authentication")
+		public void authentication(@AuthenticationPrincipal String un) {
+			// ... do something ...
+		}
+	}
 
-        @MessageMapping("/authentication")
-        public void authentication(@AuthenticationPrincipal String un) {
-            // ... do something ...
-        }
-    }
+	@Configuration
+	static class WebSocketSecurityConfig extends
+			AbstractSecurityWebSocketMessageBrokerConfigurer {
 
-    @Configuration
-    static class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
+		@Override
+		protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
+			messages.nullDestMatcher().authenticated()
+					// <1>
+					.simpSubscribeDestMatchers("/user/queue/errors").permitAll()
+					// <2>
+					.simpDestMatchers("/app/**").hasRole("USER")
+					// <3>
+					.simpSubscribeDestMatchers("/user/**", "/topic/friends/*")
+					.hasRole("USER") // <4>
+					.simpTypeMatchers(MESSAGE, SUBSCRIBE).denyAll() // <5>
+					.anyMessage().denyAll(); // <6>
 
-        @Override
-        protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
-            messages
-                    .nullDestMatcher().authenticated() // <1>
-                    .simpSubscribeDestMatchers("/user/queue/errors").permitAll() // <2>
-                    .simpDestMatchers("/app/**").hasRole("USER") // <3>
-                    .simpSubscribeDestMatchers("/user/**", "/topic/friends/*").hasRole("USER") // <4>
-                    .simpTypeMatchers(MESSAGE, SUBSCRIBE).denyAll() // <5>
-                    .anyMessage().denyAll(); // <6>
+		}
+	}
 
-        }
-    }
+	@Configuration
+	@EnableWebSocketMessageBroker
+	static class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
-    @Configuration
-    @EnableWebSocketMessageBroker
-    static class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
+		public void registerStompEndpoints(StompEndpointRegistry registry) {
+			registry.addEndpoint("/chat").withSockJS();
+		}
 
-        public void registerStompEndpoints(StompEndpointRegistry registry) {
-            registry
-                    .addEndpoint("/chat")
-                    .withSockJS();
-        }
+		@Override
+		public void configureMessageBroker(MessageBrokerRegistry registry) {
+			registry.enableSimpleBroker("/queue/", "/topic/");
+			registry.setApplicationDestinationPrefixes("/permitAll", "/denyAll");
+		}
 
-        @Override
-        public void configureMessageBroker(MessageBrokerRegistry registry) {
-            registry.enableSimpleBroker("/queue/", "/topic/");
-            registry.setApplicationDestinationPrefixes("/permitAll", "/denyAll");
-        }
+		@Bean
+		public MyController myController() {
+			return new MyController();
+		}
+	}
 
-        @Bean
-        public MyController myController() {
-            return new MyController();
-        }
-    }
-
-    @Configuration
-    static class SyncExecutorConfig {
-        @Bean
-        public static SyncExecutorSubscribableChannelPostProcessor postProcessor() {
-            return new SyncExecutorSubscribableChannelPostProcessor();
-        }
-    }
+	@Configuration
+	static class SyncExecutorConfig {
+		@Bean
+		public static SyncExecutorSubscribableChannelPostProcessor postProcessor() {
+			return new SyncExecutorSubscribableChannelPostProcessor();
+		}
+	}
 }

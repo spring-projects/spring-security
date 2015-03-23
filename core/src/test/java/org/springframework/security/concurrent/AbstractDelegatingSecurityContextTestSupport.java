@@ -30,59 +30,63 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- * Abstract base class for testing classes that extend {@link AbstractDelegatingSecurityContextSupport}
+ * Abstract base class for testing classes that extend
+ * {@link AbstractDelegatingSecurityContextSupport}
  *
  * @author Rob Winch
  * @since 3.2
  *
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ DelegatingSecurityContextRunnable.class, DelegatingSecurityContextCallable.class })
+@PrepareForTest({ DelegatingSecurityContextRunnable.class,
+		DelegatingSecurityContextCallable.class })
 public abstract class AbstractDelegatingSecurityContextTestSupport {
-    @Mock
-    protected SecurityContext securityContext;
+	@Mock
+	protected SecurityContext securityContext;
 
-    @Mock
-    protected SecurityContext currentSecurityContext;
+	@Mock
+	protected SecurityContext currentSecurityContext;
 
-    @Captor
-    protected ArgumentCaptor<SecurityContext> securityContextCaptor;
+	@Captor
+	protected ArgumentCaptor<SecurityContext> securityContextCaptor;
 
-    @Mock
-    protected Callable<Object> callable;
+	@Mock
+	protected Callable<Object> callable;
 
-    @Mock
-    protected Callable<Object> wrappedCallable;
+	@Mock
+	protected Callable<Object> wrappedCallable;
 
-    @Mock
-    protected Runnable runnable;
+	@Mock
+	protected Runnable runnable;
 
-    @Mock
-    protected Runnable wrappedRunnable;
+	@Mock
+	protected Runnable wrappedRunnable;
 
-    public final void explicitSecurityContextPowermockSetup() throws Exception {
-        spy(DelegatingSecurityContextCallable.class);
-        doReturn(wrappedCallable).when(DelegatingSecurityContextCallable.class, "create", eq(callable),
-                securityContextCaptor.capture());
-        spy(DelegatingSecurityContextRunnable.class);
-        doReturn(wrappedRunnable).when(DelegatingSecurityContextRunnable.class, "create", eq(runnable),
-                securityContextCaptor.capture());
-    }
+	public final void explicitSecurityContextPowermockSetup() throws Exception {
+		spy(DelegatingSecurityContextCallable.class);
+		doReturn(wrappedCallable).when(DelegatingSecurityContextCallable.class, "create",
+				eq(callable), securityContextCaptor.capture());
+		spy(DelegatingSecurityContextRunnable.class);
+		doReturn(wrappedRunnable).when(DelegatingSecurityContextRunnable.class, "create",
+				eq(runnable), securityContextCaptor.capture());
+	}
 
-    public final void currentSecurityContextPowermockSetup() throws Exception {
-        spy(DelegatingSecurityContextCallable.class);
-        doReturn(wrappedCallable).when(DelegatingSecurityContextCallable.class, "create", callable, null);
-        spy(DelegatingSecurityContextRunnable.class);
-        doReturn(wrappedRunnable).when(DelegatingSecurityContextRunnable.class, "create", runnable, null);
-    }
+	public final void currentSecurityContextPowermockSetup() throws Exception {
+		spy(DelegatingSecurityContextCallable.class);
+		doReturn(wrappedCallable).when(DelegatingSecurityContextCallable.class, "create",
+				callable, null);
+		spy(DelegatingSecurityContextRunnable.class);
+		doReturn(wrappedRunnable).when(DelegatingSecurityContextRunnable.class, "create",
+				runnable, null);
+	}
 
-    @Before
-    public final void setContext() {
-        SecurityContextHolder.setContext(currentSecurityContext);
-    }
+	@Before
+	public final void setContext() {
+		SecurityContextHolder.setContext(currentSecurityContext);
+	}
 
-    @After
-    public final void clearContext() {
-        SecurityContextHolder.clearContext();
-    }
+	@After
+	public final void clearContext() {
+		SecurityContextHolder.clearContext();
+	}
 }

@@ -17,40 +17,40 @@ import org.w3c.dom.Element;
  * @since 3.1
  */
 public enum MatcherType {
-    ant (AntPathRequestMatcher.class),
-    regex (RegexRequestMatcher.class),
-    ciRegex (RegexRequestMatcher.class);
+	ant(AntPathRequestMatcher.class), regex(RegexRequestMatcher.class), ciRegex(
+			RegexRequestMatcher.class);
 
-    private static final String ATT_MATCHER_TYPE = "request-matcher";
+	private static final String ATT_MATCHER_TYPE = "request-matcher";
 
-    private final Class<? extends RequestMatcher> type;
+	private final Class<? extends RequestMatcher> type;
 
-    MatcherType(Class<? extends RequestMatcher> type) {
-        this.type = type;
-    }
+	MatcherType(Class<? extends RequestMatcher> type) {
+		this.type = type;
+	}
 
-    public BeanDefinition createMatcher(String path, String method) {
-        if (("/**".equals(path) || "**".equals(path)) && method == null) {
-            return new RootBeanDefinition(AnyRequestMatcher.class);
-        }
+	public BeanDefinition createMatcher(String path, String method) {
+		if (("/**".equals(path) || "**".equals(path)) && method == null) {
+			return new RootBeanDefinition(AnyRequestMatcher.class);
+		}
 
-        BeanDefinitionBuilder matcherBldr = BeanDefinitionBuilder.rootBeanDefinition(type);
+		BeanDefinitionBuilder matcherBldr = BeanDefinitionBuilder
+				.rootBeanDefinition(type);
 
-        matcherBldr.addConstructorArgValue(path);
-        matcherBldr.addConstructorArgValue(method);
+		matcherBldr.addConstructorArgValue(path);
+		matcherBldr.addConstructorArgValue(method);
 
-        if (this == ciRegex) {
-             matcherBldr.addConstructorArgValue(true);
-        }
+		if (this == ciRegex) {
+			matcherBldr.addConstructorArgValue(true);
+		}
 
-        return matcherBldr.getBeanDefinition();
-    }
+		return matcherBldr.getBeanDefinition();
+	}
 
-    static MatcherType fromElement(Element elt) {
-        if (StringUtils.hasText(elt.getAttribute(ATT_MATCHER_TYPE))) {
-            return valueOf(elt.getAttribute(ATT_MATCHER_TYPE));
-        }
+	static MatcherType fromElement(Element elt) {
+		if (StringUtils.hasText(elt.getAttribute(ATT_MATCHER_TYPE))) {
+			return valueOf(elt.getAttribute(ATT_MATCHER_TYPE));
+		}
 
-        return ant;
-    }
+		return ant;
+	}
 }

@@ -19,25 +19,25 @@ import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.codec.Utf8;
 
 /**
- * Delegates to an {@link BytesEncryptor} to encrypt text strings.
- * Raw text strings are UTF-8 encoded before being passed to the encryptor.
- * Encrypted strings are returned hex-encoded.
+ * Delegates to an {@link BytesEncryptor} to encrypt text strings. Raw text strings are
+ * UTF-8 encoded before being passed to the encryptor. Encrypted strings are returned
+ * hex-encoded.
  * @author Keith Donald
  */
 final class HexEncodingTextEncryptor implements TextEncryptor {
 
-    private final BytesEncryptor encryptor;
+	private final BytesEncryptor encryptor;
 
-    public HexEncodingTextEncryptor(BytesEncryptor encryptor) {
-        this.encryptor = encryptor;
-    }
+	public HexEncodingTextEncryptor(BytesEncryptor encryptor) {
+		this.encryptor = encryptor;
+	}
 
-    public String encrypt(String text) {
-        return new String(Hex.encode(encryptor.encrypt(Utf8.encode(text))));
-    }
+	public String encrypt(String text) {
+		return new String(Hex.encode(encryptor.encrypt(Utf8.encode(text))));
+	}
 
-    public String decrypt(String encryptedText) {
-        return Utf8.decode(encryptor.decrypt(Hex.decode(encryptedText)));
-    }
+	public String decrypt(String encryptedText) {
+		return Utf8.decode(encryptor.decrypt(Hex.decode(encryptedText)));
+	}
 
 }

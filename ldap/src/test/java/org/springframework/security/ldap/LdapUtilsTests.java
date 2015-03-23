@@ -23,7 +23,6 @@ import javax.naming.directory.DirContext;
 
 import org.junit.Test;
 
-
 /**
  * Tests {@link LdapUtils}
  *
@@ -31,57 +30,68 @@ import org.junit.Test;
  */
 public class LdapUtilsTests {
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    @Test
-    public void testCloseContextSwallowsNamingException() throws Exception {
-        final DirContext dirCtx = mock(DirContext.class);
-        doThrow(new NamingException()).when(dirCtx).close();
+	@Test
+	public void testCloseContextSwallowsNamingException() throws Exception {
+		final DirContext dirCtx = mock(DirContext.class);
+		doThrow(new NamingException()).when(dirCtx).close();
 
-        LdapUtils.closeContext(dirCtx);
-    }
+		LdapUtils.closeContext(dirCtx);
+	}
 
-    @Test
-    public void testGetRelativeNameReturnsEmptyStringForDnEqualToBaseName() throws Exception {
-        final DirContext mockCtx = mock(DirContext.class);
+	@Test
+	public void testGetRelativeNameReturnsEmptyStringForDnEqualToBaseName()
+			throws Exception {
+		final DirContext mockCtx = mock(DirContext.class);
 
-        when(mockCtx.getNameInNamespace()).thenReturn("dc=springframework,dc=org");
+		when(mockCtx.getNameInNamespace()).thenReturn("dc=springframework,dc=org");
 
-        assertEquals("", LdapUtils.getRelativeName("dc=springframework,dc=org", mockCtx));
-    }
+		assertEquals("", LdapUtils.getRelativeName("dc=springframework,dc=org", mockCtx));
+	}
 
-    @Test
-    public void testGetRelativeNameReturnsFullDnWithEmptyBaseName() throws Exception {
-        final DirContext mockCtx = mock(DirContext.class);
-        when(mockCtx.getNameInNamespace()).thenReturn("");
+	@Test
+	public void testGetRelativeNameReturnsFullDnWithEmptyBaseName() throws Exception {
+		final DirContext mockCtx = mock(DirContext.class);
+		when(mockCtx.getNameInNamespace()).thenReturn("");
 
-        assertEquals("cn=jane,dc=springframework,dc=org",
-            LdapUtils.getRelativeName("cn=jane,dc=springframework,dc=org", mockCtx));
-    }
+		assertEquals("cn=jane,dc=springframework,dc=org",
+				LdapUtils.getRelativeName("cn=jane,dc=springframework,dc=org", mockCtx));
+	}
 
-    @Test
-    public void testGetRelativeNameWorksWithArbitrarySpaces() throws Exception {
-        final DirContext mockCtx = mock(DirContext.class);
-        when(mockCtx.getNameInNamespace()).thenReturn("dc=springsecurity,dc = org");
+	@Test
+	public void testGetRelativeNameWorksWithArbitrarySpaces() throws Exception {
+		final DirContext mockCtx = mock(DirContext.class);
+		when(mockCtx.getNameInNamespace()).thenReturn("dc=springsecurity,dc = org");
 
-        assertEquals("cn=jane smith",
-            LdapUtils.getRelativeName("cn=jane smith, dc = springsecurity , dc=org", mockCtx));
-    }
+		assertEquals("cn=jane smith", LdapUtils.getRelativeName(
+				"cn=jane smith, dc = springsecurity , dc=org", mockCtx));
+	}
 
-    @Test
-    public void testRootDnsAreParsedFromUrlsCorrectly() {
-        assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine"));
-        assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine:11389"));
-        assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine/"));
-        assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine.co.uk/"));
-        assertEquals("dc=springframework,dc=org",
-            LdapUtils.parseRootDnFromUrl("ldaps://monkeymachine.co.uk/dc=springframework,dc=org"));
-        assertEquals("dc=springframework,dc=org", LdapUtils.parseRootDnFromUrl("ldap:///dc=springframework,dc=org"));
-        assertEquals("dc=springframework,dc=org",
-            LdapUtils.parseRootDnFromUrl("ldap://monkeymachine/dc=springframework,dc=org"));
-        assertEquals("dc=springframework,dc=org/ou=blah",
-            LdapUtils.parseRootDnFromUrl("ldap://monkeymachine.co.uk/dc=springframework,dc=org/ou=blah"));
-        assertEquals("dc=springframework,dc=org/ou=blah",
-            LdapUtils.parseRootDnFromUrl("ldap://monkeymachine.co.uk:389/dc=springframework,dc=org/ou=blah"));
-    }
+	@Test
+	public void testRootDnsAreParsedFromUrlsCorrectly() {
+		assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine"));
+		assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine:11389"));
+		assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine/"));
+		assertEquals("", LdapUtils.parseRootDnFromUrl("ldap://monkeymachine.co.uk/"));
+		assertEquals(
+				"dc=springframework,dc=org",
+				LdapUtils
+						.parseRootDnFromUrl("ldaps://monkeymachine.co.uk/dc=springframework,dc=org"));
+		assertEquals("dc=springframework,dc=org",
+				LdapUtils.parseRootDnFromUrl("ldap:///dc=springframework,dc=org"));
+		assertEquals(
+				"dc=springframework,dc=org",
+				LdapUtils
+						.parseRootDnFromUrl("ldap://monkeymachine/dc=springframework,dc=org"));
+		assertEquals(
+				"dc=springframework,dc=org/ou=blah",
+				LdapUtils
+						.parseRootDnFromUrl("ldap://monkeymachine.co.uk/dc=springframework,dc=org/ou=blah"));
+		assertEquals(
+				"dc=springframework,dc=org/ou=blah",
+				LdapUtils
+						.parseRootDnFromUrl("ldap://monkeymachine.co.uk:389/dc=springframework,dc=org/ou=blah"));
+	}
 }

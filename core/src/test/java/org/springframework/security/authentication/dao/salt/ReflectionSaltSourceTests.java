@@ -30,37 +30,38 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @author Ben Alex
  */
 public class ReflectionSaltSourceTests {
-    private UserDetails user = new User("scott", "wombat", true, true, true, true,
-            AuthorityUtils.createAuthorityList("HOLDER"));
+	private UserDetails user = new User("scott", "wombat", true, true, true, true,
+			AuthorityUtils.createAuthorityList("HOLDER"));
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    @Test(expected=IllegalArgumentException.class)
-    public void detectsMissingUserPropertyToUse() throws Exception {
-        ReflectionSaltSource saltSource = new ReflectionSaltSource();
-        saltSource.afterPropertiesSet();
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void detectsMissingUserPropertyToUse() throws Exception {
+		ReflectionSaltSource saltSource = new ReflectionSaltSource();
+		saltSource.afterPropertiesSet();
+	}
 
-    @Test(expected=AuthenticationServiceException.class)
-    public void exceptionIsThrownWhenInvalidPropertyRequested() throws Exception {
-        ReflectionSaltSource saltSource = new ReflectionSaltSource();
-        saltSource.setUserPropertyToUse("getDoesNotExist");
-        saltSource.afterPropertiesSet();
-        saltSource.getSalt(user);
-    }
+	@Test(expected = AuthenticationServiceException.class)
+	public void exceptionIsThrownWhenInvalidPropertyRequested() throws Exception {
+		ReflectionSaltSource saltSource = new ReflectionSaltSource();
+		saltSource.setUserPropertyToUse("getDoesNotExist");
+		saltSource.afterPropertiesSet();
+		saltSource.getSalt(user);
+	}
 
-    @Test
-    public void methodNameAsPropertyToUseReturnsCorrectSaltValue() {
-        ReflectionSaltSource saltSource = new ReflectionSaltSource();
-        saltSource.setUserPropertyToUse("getUsername");
+	@Test
+	public void methodNameAsPropertyToUseReturnsCorrectSaltValue() {
+		ReflectionSaltSource saltSource = new ReflectionSaltSource();
+		saltSource.setUserPropertyToUse("getUsername");
 
-        assertEquals("scott", saltSource.getSalt(user));
-    }
+		assertEquals("scott", saltSource.getSalt(user));
+	}
 
-    @Test
-    public void propertyNameAsPropertyToUseReturnsCorrectSaltValue() {
-        ReflectionSaltSource saltSource = new ReflectionSaltSource();
-        saltSource.setUserPropertyToUse("password");
-        assertEquals("wombat", saltSource.getSalt(user));
-    }
+	@Test
+	public void propertyNameAsPropertyToUseReturnsCorrectSaltValue() {
+		ReflectionSaltSource saltSource = new ReflectionSaltSource();
+		saltSource.setUserPropertyToUse("password");
+		assertEquals("wombat", saltSource.getSalt(user));
+	}
 }

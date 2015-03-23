@@ -16,20 +16,20 @@ package org.springframework.security.openid;
 
 import org.springframework.security.core.AuthenticationException;
 
-
 /**
  * Indicates that OpenID authentication was cancelled
  *
  * @author Robin Bramley, Opsera Ltd
  */
 public class AuthenticationCancelledException extends AuthenticationException {
-    //~ Constructors ===================================================================================================
+	// ~ Constructors
+	// ===================================================================================================
 
-    public AuthenticationCancelledException(String msg) {
-        super(msg);
-    }
+	public AuthenticationCancelledException(String msg) {
+		super(msg);
+	}
 
-    public AuthenticationCancelledException(String msg, Throwable t) {
-        super(msg, t);
-    }
+	public AuthenticationCancelledException(String msg, Throwable t) {
+		super(msg, t);
+	}
 }

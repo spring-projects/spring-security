@@ -33,24 +33,28 @@ import org.springframework.security.config.BeanIds;
  * @author Rob Winch
  */
 abstract class MethodConfigUtils {
-    @SuppressWarnings("unchecked")
-    static void registerDefaultMethodAccessManagerIfNecessary(ParserContext parserContext) {
-        if (!parserContext.getRegistry().containsBeanDefinition(BeanIds.METHOD_ACCESS_MANAGER)) {
-            parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_ACCESS_MANAGER,
-                    createAccessManagerBean(RoleVoter.class, AuthenticatedVoter.class));
-        }
-    }
+	@SuppressWarnings("unchecked")
+	static void registerDefaultMethodAccessManagerIfNecessary(ParserContext parserContext) {
+		if (!parserContext.getRegistry().containsBeanDefinition(
+				BeanIds.METHOD_ACCESS_MANAGER)) {
+			parserContext.getRegistry().registerBeanDefinition(
+					BeanIds.METHOD_ACCESS_MANAGER,
+					createAccessManagerBean(RoleVoter.class, AuthenticatedVoter.class));
+		}
+	}
 
-    @SuppressWarnings("unchecked")
-    private static RootBeanDefinition createAccessManagerBean(Class<? extends AccessDecisionVoter>... voters) {
-        ManagedList defaultVoters = new ManagedList(voters.length);
+	@SuppressWarnings("unchecked")
+	private static RootBeanDefinition createAccessManagerBean(
+			Class<? extends AccessDecisionVoter>... voters) {
+		ManagedList defaultVoters = new ManagedList(voters.length);
 
-        for(Class<? extends AccessDecisionVoter> voter : voters) {
-            defaultVoters.add(new RootBeanDefinition(voter));
-        }
+		for (Class<? extends AccessDecisionVoter> voter : voters) {
+			defaultVoters.add(new RootBeanDefinition(voter));
+		}
 
-        BeanDefinitionBuilder accessMgrBuilder = BeanDefinitionBuilder.rootBeanDefinition(AffirmativeBased.class);
-        accessMgrBuilder.addConstructorArgValue(defaultVoters);
-        return (RootBeanDefinition) accessMgrBuilder.getBeanDefinition();
-    }
+		BeanDefinitionBuilder accessMgrBuilder = BeanDefinitionBuilder
+				.rootBeanDefinition(AffirmativeBased.class);
+		accessMgrBuilder.addConstructorArgValue(defaultVoters);
+		return (RootBeanDefinition) accessMgrBuilder.getBeanDefinition();
+	}
 }

@@ -20,8 +20,9 @@ import java.util.*;
 /**
  * Spring Security debugging filter.
  * <p>
- * Logs information (such as session creation) to help the user understand how requests are being handled
- * by Spring Security and provide them with other relevant information (such as when sessions are being created).
+ * Logs information (such as session creation) to help the user understand how requests
+ * are being handled by Spring Security and provide them with other relevant information
+ * (such as when sessions are being created).
  *
  *
  * @author Luke Taylor
@@ -29,131 +30,135 @@ import java.util.*;
  * @since 3.1
  */
 public final class DebugFilter implements Filter {
-    private static final String ALREADY_FILTERED_ATTR_NAME = DebugFilter.class.getName().concat(".FILTERED");
+	private static final String ALREADY_FILTERED_ATTR_NAME = DebugFilter.class.getName()
+			.concat(".FILTERED");
 
-    private final FilterChainProxy fcp;
-    private final Logger logger = new Logger();
+	private final FilterChainProxy fcp;
+	private final Logger logger = new Logger();
 
-    public DebugFilter(FilterChainProxy fcp) {
-        this.fcp = fcp;
-    }
+	public DebugFilter(FilterChainProxy fcp) {
+		this.fcp = fcp;
+	}
 
-    public final void doFilter(ServletRequest srvltRequest, ServletResponse srvltResponse, FilterChain filterChain)
-            throws ServletException, IOException {
+	public final void doFilter(ServletRequest srvltRequest,
+			ServletResponse srvltResponse, FilterChain filterChain)
+			throws ServletException, IOException {
 
-        if (!(srvltRequest instanceof HttpServletRequest) || !(srvltResponse instanceof HttpServletResponse)) {
-            throw new ServletException("DebugFilter just supports HTTP requests");
-        }
-        HttpServletRequest request = (HttpServletRequest) srvltRequest;
-        HttpServletResponse response = (HttpServletResponse) srvltResponse;
+		if (!(srvltRequest instanceof HttpServletRequest)
+				|| !(srvltResponse instanceof HttpServletResponse)) {
+			throw new ServletException("DebugFilter just supports HTTP requests");
+		}
+		HttpServletRequest request = (HttpServletRequest) srvltRequest;
+		HttpServletResponse response = (HttpServletResponse) srvltResponse;
 
-        List<Filter> filters = getFilters(request);
-        logger.info("Request received for " + request.getMethod() + " '" + UrlUtils.buildRequestUrl(request) + "':\n\n" +
-                request + "\n\n" +
-                "servletPath:" + request.getServletPath() + "\n" +
-                "pathInfo:" + request.getPathInfo() + "\n" +
-                "headers: \n" + formatHeaders(request) + "\n\n" +
-                formatFilters(filters));
+		List<Filter> filters = getFilters(request);
+		logger.info("Request received for " + request.getMethod() + " '"
+				+ UrlUtils.buildRequestUrl(request) + "':\n\n" + request + "\n\n"
+				+ "servletPath:" + request.getServletPath() + "\n" + "pathInfo:"
+				+ request.getPathInfo() + "\n" + "headers: \n" + formatHeaders(request)
+				+ "\n\n" + formatFilters(filters));
 
-        if (request.getAttribute(ALREADY_FILTERED_ATTR_NAME) == null) {
-            invokeWithWrappedRequest(request, response, filterChain);
-        } else {
-            fcp.doFilter(request, response, filterChain);
-        }
-    }
+		if (request.getAttribute(ALREADY_FILTERED_ATTR_NAME) == null) {
+			invokeWithWrappedRequest(request, response, filterChain);
+		}
+		else {
+			fcp.doFilter(request, response, filterChain);
+		}
+	}
 
-    private void invokeWithWrappedRequest(HttpServletRequest request,
-            HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
-        request.setAttribute(ALREADY_FILTERED_ATTR_NAME, Boolean.TRUE);
-        request = new DebugRequestWrapper(request);
-        try {
-            fcp.doFilter(request, response, filterChain);
-        }
-        finally {
-            request.removeAttribute(ALREADY_FILTERED_ATTR_NAME);
-        }
-    }
+	private void invokeWithWrappedRequest(HttpServletRequest request,
+			HttpServletResponse response, FilterChain filterChain) throws IOException,
+			ServletException {
+		request.setAttribute(ALREADY_FILTERED_ATTR_NAME, Boolean.TRUE);
+		request = new DebugRequestWrapper(request);
+		try {
+			fcp.doFilter(request, response, filterChain);
+		}
+		finally {
+			request.removeAttribute(ALREADY_FILTERED_ATTR_NAME);
+		}
+	}
 
-    String formatHeaders(HttpServletRequest request) {
-        StringBuilder sb = new StringBuilder();
-        Enumeration<String> eHeaderNames = request.getHeaderNames();
-        while(eHeaderNames.hasMoreElements()) {
-            String headerName = eHeaderNames.nextElement();
-            sb.append(headerName);
-            sb.append(": ");
-            Enumeration<String> eHeaderValues = request.getHeaders(headerName);
-            while(eHeaderValues.hasMoreElements()) {
-                sb.append(eHeaderValues.nextElement());
-                if(eHeaderValues.hasMoreElements()) {
-                    sb.append(", ");
-                }
-            }
-            sb.append("\n");
-        }
-        return sb.toString();
-    }
+	String formatHeaders(HttpServletRequest request) {
+		StringBuilder sb = new StringBuilder();
+		Enumeration<String> eHeaderNames = request.getHeaderNames();
+		while (eHeaderNames.hasMoreElements()) {
+			String headerName = eHeaderNames.nextElement();
+			sb.append(headerName);
+			sb.append(": ");
+			Enumeration<String> eHeaderValues = request.getHeaders(headerName);
+			while (eHeaderValues.hasMoreElements()) {
+				sb.append(eHeaderValues.nextElement());
+				if (eHeaderValues.hasMoreElements()) {
+					sb.append(", ");
+				}
+			}
+			sb.append("\n");
+		}
+		return sb.toString();
+	}
 
-    String formatFilters(List<Filter> filters) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Security filter chain: ");
-        if (filters == null) {
-            sb.append("no match");
-        } else if (filters.isEmpty()) {
-            sb.append("[] empty (bypassed by security='none') ");
-        } else {
-            sb.append("[\n");
-            for (Filter f : filters) {
-                sb.append("  ").append(f.getClass().getSimpleName()).append("\n");
-            }
-            sb.append("]");
-        }
+	String formatFilters(List<Filter> filters) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Security filter chain: ");
+		if (filters == null) {
+			sb.append("no match");
+		}
+		else if (filters.isEmpty()) {
+			sb.append("[] empty (bypassed by security='none') ");
+		}
+		else {
+			sb.append("[\n");
+			for (Filter f : filters) {
+				sb.append("  ").append(f.getClass().getSimpleName()).append("\n");
+			}
+			sb.append("]");
+		}
 
-        return sb.toString();
-    }
+		return sb.toString();
+	}
 
-    private List<Filter> getFilters(HttpServletRequest request)  {
-        for (SecurityFilterChain chain : fcp.getFilterChains()) {
-            if (chain.matches(request)) {
-                return chain.getFilters();
-            }
-        }
+	private List<Filter> getFilters(HttpServletRequest request) {
+		for (SecurityFilterChain chain : fcp.getFilterChains()) {
+			if (chain.matches(request)) {
+				return chain.getFilters();
+			}
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    public void init(FilterConfig filterConfig) throws ServletException {
-    }
+	public void init(FilterConfig filterConfig) throws ServletException {
+	}
 
-    public void destroy() {
-    }
+	public void destroy() {
+	}
 }
 
 class DebugRequestWrapper extends HttpServletRequestWrapper {
-    private static final Logger logger = new Logger();
+	private static final Logger logger = new Logger();
 
-    public DebugRequestWrapper(HttpServletRequest request) {
-        super(request);
-    }
+	public DebugRequestWrapper(HttpServletRequest request) {
+		super(request);
+	}
 
-    @Override
-    public HttpSession getSession() {
-        boolean sessionExists = super.getSession(false) != null;
-        HttpSession session = super.getSession();
+	@Override
+	public HttpSession getSession() {
+		boolean sessionExists = super.getSession(false) != null;
+		HttpSession session = super.getSession();
 
-        if (!sessionExists) {
-            logger.info("New HTTP session created: " + session.getId(), true);
-        }
+		if (!sessionExists) {
+			logger.info("New HTTP session created: " + session.getId(), true);
+		}
 
-        return session;
-    }
+		return session;
+	}
 
-    @Override
-    public HttpSession getSession(boolean create) {
-        if (!create) {
-            return super.getSession(create);
-        }
-        return getSession();
-    }
+	@Override
+	public HttpSession getSession(boolean create) {
+		if (!create) {
+			return super.getSession(create);
+		}
+		return getSession();
+	}
 }
-
-

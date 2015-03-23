@@ -4,3 +4,4 @@
  * is a core part of the web-based concurrent session control, but the code is not dependent on any of the servlet APIs.
  */
 package org.springframework.security.core.session;
+

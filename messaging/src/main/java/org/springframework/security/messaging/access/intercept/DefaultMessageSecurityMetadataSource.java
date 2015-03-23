@@ -23,12 +23,12 @@ import org.springframework.security.messaging.util.matcher.MessageMatcher;
 import java.util.*;
 
 /**
- * A default implementation of {@link MessageSecurityMetadataSource} that looks up the {@link ConfigAttribute} instances
- * using a {@link MessageMatcher}.
+ * A default implementation of {@link MessageSecurityMetadataSource} that looks up the
+ * {@link ConfigAttribute} instances using a {@link MessageMatcher}.
  *
  * <p>
- * Each entry is considered in order. The first entry that matches, the corresponding {@code Collection<ConfigAttribute>}
- * is returned.
+ * Each entry is considered in order. The first entry that matches, the corresponding
+ * {@code Collection<ConfigAttribute>} is returned.
  * </p>
  *
  * @see ChannelSecurityInterceptor
@@ -37,35 +37,39 @@ import java.util.*;
  * @since 4.0
  * @author Rob Winch
  */
-public final class DefaultMessageSecurityMetadataSource implements MessageSecurityMetadataSource {
-    private final Map<MessageMatcher<?>,Collection<ConfigAttribute>> messageMap;
+public final class DefaultMessageSecurityMetadataSource implements
+		MessageSecurityMetadataSource {
+	private final Map<MessageMatcher<?>, Collection<ConfigAttribute>> messageMap;
 
-    public DefaultMessageSecurityMetadataSource(LinkedHashMap<MessageMatcher<?>, Collection<ConfigAttribute>> messageMap) {
-        this.messageMap = messageMap;
-    }
+	public DefaultMessageSecurityMetadataSource(
+			LinkedHashMap<MessageMatcher<?>, Collection<ConfigAttribute>> messageMap) {
+		this.messageMap = messageMap;
+	}
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
-        final Message message = (Message) object;
-        for (Map.Entry<MessageMatcher<?>, Collection<ConfigAttribute>> entry : messageMap.entrySet()) {
-            if (entry.getKey().matches(message)) {
-                return entry.getValue();
-            }
-        }
-        return null;
-    }
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public Collection<ConfigAttribute> getAttributes(Object object)
+			throws IllegalArgumentException {
+		final Message message = (Message) object;
+		for (Map.Entry<MessageMatcher<?>, Collection<ConfigAttribute>> entry : messageMap
+				.entrySet()) {
+			if (entry.getKey().matches(message)) {
+				return entry.getValue();
+			}
+		}
+		return null;
+	}
 
-    public Collection<ConfigAttribute> getAllConfigAttributes() {
-        Set<ConfigAttribute> allAttributes = new HashSet<ConfigAttribute>();
+	public Collection<ConfigAttribute> getAllConfigAttributes() {
+		Set<ConfigAttribute> allAttributes = new HashSet<ConfigAttribute>();
 
-        for (Collection<ConfigAttribute> entry : messageMap.values()) {
-            allAttributes.addAll(entry);
-        }
+		for (Collection<ConfigAttribute> entry : messageMap.values()) {
+			allAttributes.addAll(entry);
+		}
 
-        return allAttributes;
-    }
+		return allAttributes;
+	}
 
-    public boolean supports(Class<?> clazz) {
-        return Message.class.isAssignableFrom(clazz);
-    }
+	public boolean supports(Class<?> clazz) {
+		return Message.class.isAssignableFrom(clazz);
+	}
 }

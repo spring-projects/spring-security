@@ -15,12 +15,13 @@
  */
 package org.springframework.security.test.context.showcase;
 
+import static org.fest.assertions.Assertions.assertThat;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -33,8 +34,6 @@ import org.springframework.security.test.context.showcase.service.MessageService
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import static org.fest.assertions.Assertions.assertThat;
 
 /**
  * @author Rob Winch
@@ -70,11 +69,13 @@ public class WithUserDetailsTests {
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	@ComponentScan(basePackageClasses = HelloMessageService.class)
 	static class Config {
+		// @formatter:off
 		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 			auth
 					.userDetailsService(userDetailsService());
 		}
+		// @formatter:on
 
 		@Bean
 		public UserDetailsService userDetailsService() {
@@ -88,7 +89,8 @@ public class WithUserDetailsTests {
 
 	static class CustomUserDetailsService implements UserDetailsService {
 
-		public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
+		public UserDetails loadUserByUsername(final String username)
+				throws UsernameNotFoundException {
 			return new CustomUserDetails("name", username);
 		}
 	}

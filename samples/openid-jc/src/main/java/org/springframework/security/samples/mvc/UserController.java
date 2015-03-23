@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @RequestMapping("/user/")
 public class UserController {
 
-    @RequestMapping(method=RequestMethod.GET)
-    public String show(Model model, OpenIDAuthenticationToken authentication) {
-        model.addAttribute("authentication", authentication);
-        return "user/show";
-    }
+	@RequestMapping(method = RequestMethod.GET)
+	public String show(Model model, OpenIDAuthenticationToken authentication) {
+		model.addAttribute("authentication", authentication);
+		return "user/show";
+	}
 }

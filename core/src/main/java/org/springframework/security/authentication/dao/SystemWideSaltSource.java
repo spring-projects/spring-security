@@ -17,49 +17,53 @@ package org.springframework.security.authentication.dao;
 
 import org.springframework.security.core.userdetails.UserDetails;
 
-
 import org.springframework.beans.factory.InitializingBean;
 
-
 /**
- * Uses a static system-wide <code>String</code> as the salt.<P>Does not supply a different salt for each {@link
- * org.springframework.security.core.userdetails.User}. This means users sharing the same password will still have the same digested
- * password. Of benefit is the digested passwords will at least be more protected than if stored without any salt.</p>
+ * Uses a static system-wide <code>String</code> as the salt.
+ * <P>
+ * Does not supply a different salt for each
+ * {@link org.springframework.security.core.userdetails.User}. This means users sharing
+ * the same password will still have the same digested password. Of benefit is the
+ * digested passwords will at least be more protected than if stored without any salt.
+ * </p>
  *
  * @author Ben Alex
  */
 public class SystemWideSaltSource implements SaltSource, InitializingBean {
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private String systemWideSalt;
+	private String systemWideSalt;
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public void afterPropertiesSet() throws Exception {
-        if ((this.systemWideSalt == null) || "".equals(this.systemWideSalt)) {
-            throw new IllegalArgumentException("A systemWideSalt must be set");
-        }
-    }
+	public void afterPropertiesSet() throws Exception {
+		if ((this.systemWideSalt == null) || "".equals(this.systemWideSalt)) {
+			throw new IllegalArgumentException("A systemWideSalt must be set");
+		}
+	}
 
-    public Object getSalt(UserDetails user) {
-        return this.systemWideSalt;
-    }
+	public Object getSalt(UserDetails user) {
+		return this.systemWideSalt;
+	}
 
-    public String getSystemWideSalt() {
-        return this.systemWideSalt;
-    }
+	public String getSystemWideSalt() {
+		return this.systemWideSalt;
+	}
 
-    public void setSystemWideSalt(String systemWideSalt) {
-        this.systemWideSalt = systemWideSalt;
-    }
+	public void setSystemWideSalt(String systemWideSalt) {
+		this.systemWideSalt = systemWideSalt;
+	}
 
-    /**
-     * Displays the system wide salt
-     * @since 4.0
-     * @return
-     */
-    @Override
-    public String toString() {
-        return systemWideSalt;
-    }
+	/**
+	 * Displays the system wide salt
+	 * @since 4.0
+	 * @return
+	 */
+	@Override
+	public String toString() {
+		return systemWideSalt;
+	}
 }

@@ -35,50 +35,50 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DelegatingRequestMatcherHeaderWriterTests {
-    @Mock
-    private RequestMatcher matcher;
+	@Mock
+	private RequestMatcher matcher;
 
-    @Mock
-    private HeaderWriter delegate;
+	@Mock
+	private HeaderWriter delegate;
 
-    private MockHttpServletRequest request;
+	private MockHttpServletRequest request;
 
-    private MockHttpServletResponse response;
+	private MockHttpServletResponse response;
 
-    private DelegatingRequestMatcherHeaderWriter headerWriter;
+	private DelegatingRequestMatcherHeaderWriter headerWriter;
 
-    @Before
-    public void setup() {
-        request = new MockHttpServletRequest();
-        response = new MockHttpServletResponse();
-        headerWriter = new DelegatingRequestMatcherHeaderWriter(matcher, delegate);
-    }
+	@Before
+	public void setup() {
+		request = new MockHttpServletRequest();
+		response = new MockHttpServletResponse();
+		headerWriter = new DelegatingRequestMatcherHeaderWriter(matcher, delegate);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullRequestMatcher() {
-        new DelegatingRequestMatcherHeaderWriter(null, delegate);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullRequestMatcher() {
+		new DelegatingRequestMatcherHeaderWriter(null, delegate);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullDelegate() {
-        new DelegatingRequestMatcherHeaderWriter(matcher, null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullDelegate() {
+		new DelegatingRequestMatcherHeaderWriter(matcher, null);
+	}
 
-    @Test
-    public void writeHeadersOnMatch() {
-        when(matcher.matches(request)).thenReturn(true);
+	@Test
+	public void writeHeadersOnMatch() {
+		when(matcher.matches(request)).thenReturn(true);
 
-        headerWriter.writeHeaders(request, response);
+		headerWriter.writeHeaders(request, response);
 
-        verify(delegate).writeHeaders(request, response);
-    }
+		verify(delegate).writeHeaders(request, response);
+	}
 
-    @Test
-    public void writeHeadersOnNoMatch() {
-        when(matcher.matches(request)).thenReturn(false);
+	@Test
+	public void writeHeadersOnNoMatch() {
+		when(matcher.matches(request)).thenReturn(false);
 
-        headerWriter.writeHeaders(request, response);
+		headerWriter.writeHeaders(request, response);
 
-        verify(delegate, times(0)).writeHeaders(request, response);
-    }
+		verify(delegate, times(0)).writeHeaders(request, response);
+	}
 }

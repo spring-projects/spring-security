@@ -32,22 +32,20 @@ import org.springframework.util.Assert;
  * @since 3.2
  */
 public final class InvalidSessionAccessDeniedHandler implements AccessDeniedHandler {
-    private final InvalidSessionStrategy invalidSessionStrategy;
+	private final InvalidSessionStrategy invalidSessionStrategy;
 
-    /**
-     * Creates a new instance
-     * @param invalidSessionStrategy the {@link InvalidSessionStrategy} to delegate to
-     */
-    public InvalidSessionAccessDeniedHandler(
-            InvalidSessionStrategy invalidSessionStrategy) {
-        Assert.notNull(invalidSessionStrategy, "invalidSessionStrategy cannot be null");
-        this.invalidSessionStrategy = invalidSessionStrategy;
-    }
+	/**
+	 * Creates a new instance
+	 * @param invalidSessionStrategy the {@link InvalidSessionStrategy} to delegate to
+	 */
+	public InvalidSessionAccessDeniedHandler(InvalidSessionStrategy invalidSessionStrategy) {
+		Assert.notNull(invalidSessionStrategy, "invalidSessionStrategy cannot be null");
+		this.invalidSessionStrategy = invalidSessionStrategy;
+	}
 
-    public void handle(HttpServletRequest request,
-            HttpServletResponse response,
-            AccessDeniedException accessDeniedException) throws IOException,
-            ServletException {
-        invalidSessionStrategy.onInvalidSessionDetected(request, response);
-    }
+	public void handle(HttpServletRequest request, HttpServletResponse response,
+			AccessDeniedException accessDeniedException) throws IOException,
+			ServletException {
+		invalidSessionStrategy.onInvalidSessionDetected(request, response);
+	}
 }

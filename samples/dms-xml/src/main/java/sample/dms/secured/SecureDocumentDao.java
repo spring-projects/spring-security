@@ -9,8 +9,8 @@ import sample.dms.DocumentDao;
  *
  */
 public interface SecureDocumentDao extends DocumentDao {
-    /**
-     * @return all the usernames existing in the system.
-     */
-    public String[] getUsers();
+	/**
+	 * @return all the usernames existing in the system.
+	 */
+	public String[] getUsers();
 }

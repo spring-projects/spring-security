@@ -23,44 +23,45 @@ import org.springframework.security.core.Authentication;
  * @since 3.1
  */
 public class AclPermissionCacheOptimizer implements PermissionCacheOptimizer {
-    private final Log logger = LogFactory.getLog(getClass());
-    private final AclService aclService;
-    private SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
-    private ObjectIdentityRetrievalStrategy oidRetrievalStrategy = new ObjectIdentityRetrievalStrategyImpl();
+	private final Log logger = LogFactory.getLog(getClass());
+	private final AclService aclService;
+	private SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
+	private ObjectIdentityRetrievalStrategy oidRetrievalStrategy = new ObjectIdentityRetrievalStrategyImpl();
 
-    public AclPermissionCacheOptimizer(AclService aclService) {
-        this.aclService = aclService;
-    }
+	public AclPermissionCacheOptimizer(AclService aclService) {
+		this.aclService = aclService;
+	}
 
-    public void cachePermissionsFor(Authentication authentication, Collection<?> objects) {
-        if (objects.isEmpty()) {
-            return;
-        }
+	public void cachePermissionsFor(Authentication authentication, Collection<?> objects) {
+		if (objects.isEmpty()) {
+			return;
+		}
 
-        List<ObjectIdentity> oidsToCache = new ArrayList<ObjectIdentity>(objects.size());
+		List<ObjectIdentity> oidsToCache = new ArrayList<ObjectIdentity>(objects.size());
 
-        for (Object domainObject : objects) {
-            if (domainObject == null) {
-                continue;
-            }
-            ObjectIdentity oid = oidRetrievalStrategy.getObjectIdentity(domainObject);
-            oidsToCache.add(oid);
-        }
+		for (Object domainObject : objects) {
+			if (domainObject == null) {
+				continue;
+			}
+			ObjectIdentity oid = oidRetrievalStrategy.getObjectIdentity(domainObject);
+			oidsToCache.add(oid);
+		}
 
-        List<Sid> sids = sidRetrievalStrategy.getSids(authentication);
+		List<Sid> sids = sidRetrievalStrategy.getSids(authentication);
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Eagerly loading Acls for " + oidsToCache.size() + " objects");
-        }
+		if (logger.isDebugEnabled()) {
+			logger.debug("Eagerly loading Acls for " + oidsToCache.size() + " objects");
+		}
 
-        aclService.readAclsById(oidsToCache, sids);
-    }
+		aclService.readAclsById(oidsToCache, sids);
+	}
 
-    public void setObjectIdentityRetrievalStrategy(ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy) {
-        this.oidRetrievalStrategy = objectIdentityRetrievalStrategy;
-    }
+	public void setObjectIdentityRetrievalStrategy(
+			ObjectIdentityRetrievalStrategy objectIdentityRetrievalStrategy) {
+		this.oidRetrievalStrategy = objectIdentityRetrievalStrategy;
+	}
 
-    public void setSidRetrievalStrategy(SidRetrievalStrategy sidRetrievalStrategy) {
-        this.sidRetrievalStrategy = sidRetrievalStrategy;
-    }
+	public void setSidRetrievalStrategy(SidRetrievalStrategy sidRetrievalStrategy) {
+		this.sidRetrievalStrategy = sidRetrievalStrategy;
+	}
 }

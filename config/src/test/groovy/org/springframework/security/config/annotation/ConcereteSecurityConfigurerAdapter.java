@@ -22,16 +22,17 @@ import java.util.List;
  * @author Rob Winch
  *
  */
-class ConcereteSecurityConfigurerAdapter extends SecurityConfigurerAdapter<Object, SecurityBuilder<Object>> {
-    private List<Object> list = new ArrayList<Object>();
+class ConcereteSecurityConfigurerAdapter extends
+		SecurityConfigurerAdapter<Object, SecurityBuilder<Object>> {
+	private List<Object> list = new ArrayList<Object>();
 
-    @Override
-    public void configure(SecurityBuilder<Object> builder) throws Exception {
-        list = postProcess(list);
-    }
+	@Override
+	public void configure(SecurityBuilder<Object> builder) throws Exception {
+		list = postProcess(list);
+	}
 
-    public ConcereteSecurityConfigurerAdapter list(List<Object> l) {
-        this.list = l;
-        return this;
-    }
+	public ConcereteSecurityConfigurerAdapter list(List<Object> l) {
+		this.list = l;
+		return this;
+	}
 }

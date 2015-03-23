@@ -37,28 +37,33 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * Adds URL based authorization based upon SpEL expressions to an application. At least one
- * {@link org.springframework.web.bind.annotation.RequestMapping} needs to be mapped to {@link ConfigAttribute}'s for
- * this {@link SecurityContextConfigurer} to have meaning.
- * <h2>Security Filters</h2>
+ * Adds URL based authorization based upon SpEL expressions to an application. At least
+ * one {@link org.springframework.web.bind.annotation.RequestMapping} needs to be mapped
+ * to {@link ConfigAttribute}'s for this {@link SecurityContextConfigurer} to have
+ * meaning. <h2>Security Filters</h2>
  *
  * The following Filters are populated
  *
  * <ul>
- *     <li>{@link org.springframework.security.web.access.intercept.FilterSecurityInterceptor}</li>
+ * <li>{@link org.springframework.security.web.access.intercept.FilterSecurityInterceptor}
+ * </li>
  * </ul>
  *
  * <h2>Shared Objects Created</h2>
  *
- * The following shared objects are populated to allow other {@link org.springframework.security.config.annotation.SecurityConfigurer}'s to customize:
+ * The following shared objects are populated to allow other
+ * {@link org.springframework.security.config.annotation.SecurityConfigurer}'s to
+ * customize:
  * <ul>
- *     <li>{@link org.springframework.security.web.access.intercept.FilterSecurityInterceptor}</li>
+ * <li>{@link org.springframework.security.web.access.intercept.FilterSecurityInterceptor}
+ * </li>
  * </ul>
  *
  * <h2>Shared Objects Used</h2>
  *
  * <ul>
- * <li>{@link AuthenticationTrustResolver} is optionally used to populate the {@link DefaultWebSecurityExpressionHandler}</li>
+ * <li>{@link AuthenticationTrustResolver} is optionally used to populate the
+ * {@link DefaultWebSecurityExpressionHandler}</li>
  * </ul>
  *
  * @param <H> the type of {@link HttpSecurityBuilder} that is being configured
@@ -67,287 +72,325 @@ import org.springframework.util.StringUtils;
  * @since 3.2
  * @see {@link org.springframework.security.config.annotation.web.builders.HttpSecurity#authorizeRequests()}
  */
-public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractInterceptUrlConfigurer<ExpressionUrlAuthorizationConfigurer<H>,H> {
-    static final String permitAll = "permitAll";
-    private static final String denyAll = "denyAll";
-    private static final String anonymous = "anonymous";
-    private static final String authenticated = "authenticated";
-    private static final String fullyAuthenticated = "fullyAuthenticated";
-    private static final String rememberMe = "rememberMe";
+public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
+		extends
+		AbstractInterceptUrlConfigurer<ExpressionUrlAuthorizationConfigurer<H>, H> {
+	static final String permitAll = "permitAll";
+	private static final String denyAll = "denyAll";
+	private static final String anonymous = "anonymous";
+	private static final String authenticated = "authenticated";
+	private static final String fullyAuthenticated = "fullyAuthenticated";
+	private static final String rememberMe = "rememberMe";
 
-    private final ExpressionInterceptUrlRegistry REGISTRY = new ExpressionInterceptUrlRegistry();
+	private final ExpressionInterceptUrlRegistry REGISTRY = new ExpressionInterceptUrlRegistry();
 
-    private SecurityExpressionHandler<FilterInvocation> expressionHandler;
+	private SecurityExpressionHandler<FilterInvocation> expressionHandler;
 
-    /**
-     * Creates a new instance
-     * @see HttpSecurity#authorizeRequests()
-     */
-    public ExpressionUrlAuthorizationConfigurer() {
-    }
+	/**
+	 * Creates a new instance
+	 * @see HttpSecurity#authorizeRequests()
+	 */
+	public ExpressionUrlAuthorizationConfigurer() {
+	}
 
-    public ExpressionInterceptUrlRegistry getRegistry() {
-        return REGISTRY;
-    }
+	public ExpressionInterceptUrlRegistry getRegistry() {
+		return REGISTRY;
+	}
 
-    public class ExpressionInterceptUrlRegistry extends ExpressionUrlAuthorizationConfigurer<H>.AbstractInterceptUrlRegistry<ExpressionInterceptUrlRegistry,AuthorizedUrl> {
+	public class ExpressionInterceptUrlRegistry
+			extends
+			ExpressionUrlAuthorizationConfigurer<H>.AbstractInterceptUrlRegistry<ExpressionInterceptUrlRegistry, AuthorizedUrl> {
 
-        @Override
-        protected final AuthorizedUrl chainRequestMatchersInternal(List<RequestMatcher> requestMatchers) {
-            return new AuthorizedUrl(requestMatchers);
-        }
+		@Override
+		protected final AuthorizedUrl chainRequestMatchersInternal(
+				List<RequestMatcher> requestMatchers) {
+			return new AuthorizedUrl(requestMatchers);
+		}
 
+		/**
+		 * Allows customization of the {@link SecurityExpressionHandler} to be used. The
+		 * default is {@link DefaultWebSecurityExpressionHandler}
+		 *
+		 * @param expressionHandler the {@link SecurityExpressionHandler} to be used
+		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
+		 * customization.
+		 */
+		public ExpressionInterceptUrlRegistry expressionHandler(
+				SecurityExpressionHandler<FilterInvocation> expressionHandler) {
+			ExpressionUrlAuthorizationConfigurer.this.expressionHandler = expressionHandler;
+			return this;
+		}
 
-        /**
-         * Allows customization of the {@link SecurityExpressionHandler} to be used. The default is {@link DefaultWebSecurityExpressionHandler}
-         *
-         * @param expressionHandler the {@link SecurityExpressionHandler} to be used
-         * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customization.
-         */
-        public ExpressionInterceptUrlRegistry expressionHandler(SecurityExpressionHandler<FilterInvocation> expressionHandler) {
-            ExpressionUrlAuthorizationConfigurer.this.expressionHandler = expressionHandler;
-            return this;
-        }
+		/**
+		 * Adds an {@link ObjectPostProcessor} for this class.
+		 *
+		 * @param objectPostProcessor
+		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
+		 * customizations
+		 */
+		public ExpressionInterceptUrlRegistry withObjectPostProcessor(
+				ObjectPostProcessor<?> objectPostProcessor) {
+			addObjectPostProcessor(objectPostProcessor);
+			return this;
+		}
 
-        /**
-         * Adds an {@link ObjectPostProcessor} for this class.
-         *
-         * @param objectPostProcessor
-         * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customizations
-         */
-        public ExpressionInterceptUrlRegistry withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
-            addObjectPostProcessor(objectPostProcessor);
-            return this;
-        }
+		public H and() {
+			return ExpressionUrlAuthorizationConfigurer.this.and();
+		}
 
-        public H and() {
-            return ExpressionUrlAuthorizationConfigurer.this.and();
-        }
+	}
 
-    }
+	/**
+	 * Allows registering multiple {@link RequestMatcher} instances to a collection of
+	 * {@link ConfigAttribute} instances
+	 *
+	 * @param requestMatchers the {@link RequestMatcher} instances to register to the
+	 * {@link ConfigAttribute} instances
+	 * @param configAttributes the {@link ConfigAttribute} to be mapped by the
+	 * {@link RequestMatcher} instances
+	 */
+	private void interceptUrl(Iterable<? extends RequestMatcher> requestMatchers,
+			Collection<ConfigAttribute> configAttributes) {
+		for (RequestMatcher requestMatcher : requestMatchers) {
+			REGISTRY.addMapping(new AbstractConfigAttributeRequestMatcherRegistry.UrlMapping(
+					requestMatcher, configAttributes));
+		}
+	}
 
+	@Override
+	@SuppressWarnings("rawtypes")
+	final List<AccessDecisionVoter<? extends Object>> getDecisionVoters(H http) {
+		List<AccessDecisionVoter<? extends Object>> decisionVoters = new ArrayList<AccessDecisionVoter<? extends Object>>();
+		WebExpressionVoter expressionVoter = new WebExpressionVoter();
+		expressionVoter.setExpressionHandler(getExpressionHandler(http));
+		decisionVoters.add(expressionVoter);
+		return decisionVoters;
+	}
 
-    /**
-     * Allows registering multiple {@link RequestMatcher} instances to a collection of {@link ConfigAttribute} instances
-     *
-     * @param requestMatchers the {@link RequestMatcher} instances to register to the {@link ConfigAttribute} instances
-     * @param configAttributes the {@link ConfigAttribute} to be mapped by the {@link RequestMatcher} instances
-     */
-    private void interceptUrl(Iterable<? extends RequestMatcher> requestMatchers, Collection<ConfigAttribute> configAttributes) {
-        for(RequestMatcher requestMatcher : requestMatchers) {
-            REGISTRY.addMapping(new AbstractConfigAttributeRequestMatcherRegistry.UrlMapping(requestMatcher, configAttributes));
-        }
-    }
+	@Override
+	final ExpressionBasedFilterInvocationSecurityMetadataSource createMetadataSource(
+			H http) {
+		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = REGISTRY
+				.createRequestMap();
+		if (requestMap.isEmpty()) {
+			throw new IllegalStateException(
+					"At least one mapping is required (i.e. authorizeRequests().anyRequest.authenticated())");
+		}
+		return new ExpressionBasedFilterInvocationSecurityMetadataSource(requestMap,
+				getExpressionHandler(http));
+	}
 
-    @Override
-    @SuppressWarnings("rawtypes")
-    final List<AccessDecisionVoter<? extends Object>> getDecisionVoters(H http) {
-        List<AccessDecisionVoter<? extends Object>> decisionVoters = new ArrayList<AccessDecisionVoter<? extends Object>>();
-        WebExpressionVoter expressionVoter = new WebExpressionVoter();
-        expressionVoter.setExpressionHandler(getExpressionHandler(http));
-        decisionVoters.add(expressionVoter);
-        return decisionVoters;
-    }
+	private SecurityExpressionHandler<FilterInvocation> getExpressionHandler(H http) {
+		if (expressionHandler == null) {
+			DefaultWebSecurityExpressionHandler defaultHandler = new DefaultWebSecurityExpressionHandler();
+			AuthenticationTrustResolver trustResolver = http
+					.getSharedObject(AuthenticationTrustResolver.class);
+			if (trustResolver != null) {
+				defaultHandler.setTrustResolver(trustResolver);
+			}
+			expressionHandler = postProcess(defaultHandler);
+		}
 
-    @Override
-    final ExpressionBasedFilterInvocationSecurityMetadataSource createMetadataSource(H http) {
-        LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = REGISTRY.createRequestMap();
-        if(requestMap.isEmpty()) {
-            throw new IllegalStateException("At least one mapping is required (i.e. authorizeRequests().anyRequest.authenticated())");
-        }
-        return new ExpressionBasedFilterInvocationSecurityMetadataSource(requestMap, getExpressionHandler(http));
-    }
+		return expressionHandler;
+	}
 
-    private SecurityExpressionHandler<FilterInvocation> getExpressionHandler(H http) {
-        if(expressionHandler == null) {
-            DefaultWebSecurityExpressionHandler defaultHandler = new DefaultWebSecurityExpressionHandler();
-            AuthenticationTrustResolver trustResolver = http.getSharedObject(AuthenticationTrustResolver.class);
-            if(trustResolver != null) {
-                defaultHandler.setTrustResolver(trustResolver);
-            }
-            expressionHandler = postProcess(defaultHandler);
-        }
+	private static String hasAnyRole(String... authorities) {
+		String anyAuthorities = StringUtils.arrayToDelimitedString(authorities,
+				"','ROLE_");
+		return "hasAnyRole('ROLE_" + anyAuthorities + "')";
+	}
 
-        return expressionHandler;
-    }
+	private static String hasRole(String role) {
+		Assert.notNull(role, "role cannot be null");
+		if (role.startsWith("ROLE_")) {
+			throw new IllegalArgumentException(
+					"role should not start with 'ROLE_' since it is automatically inserted. Got '"
+							+ role + "'");
+		}
+		return "hasRole('ROLE_" + role + "')";
+	}
 
-    private static String hasAnyRole(String... authorities) {
-        String anyAuthorities = StringUtils.arrayToDelimitedString(authorities, "','ROLE_");
-        return "hasAnyRole('ROLE_" + anyAuthorities + "')";
-    }
+	private static String hasAuthority(String authority) {
+		return "hasAuthority('" + authority + "')";
+	}
 
-    private static String hasRole(String role) {
-        Assert.notNull(role, "role cannot be null");
-        if (role.startsWith("ROLE_")) {
-            throw new IllegalArgumentException("role should not start with 'ROLE_' since it is automatically inserted. Got '" + role + "'");
-        }
-        return "hasRole('ROLE_" + role + "')";
-    }
+	private static String hasAnyAuthority(String... authorities) {
+		String anyAuthorities = StringUtils.arrayToDelimitedString(authorities, "','");
+		return "hasAnyAuthority('" + anyAuthorities + "')";
+	}
 
-    private static String hasAuthority(String authority) {
-        return "hasAuthority('" + authority + "')";
-    }
+	private static String hasIpAddress(String ipAddressExpression) {
+		return "hasIpAddress('" + ipAddressExpression + "')";
+	}
 
-    private static String hasAnyAuthority(String... authorities) {
-        String anyAuthorities = StringUtils.arrayToDelimitedString(authorities, "','");
-        return "hasAnyAuthority('" + anyAuthorities + "')";
-    }
+	public final class AuthorizedUrl {
+		private List<RequestMatcher> requestMatchers;
+		private boolean not;
 
-    private static String hasIpAddress(String ipAddressExpression) {
-        return "hasIpAddress('" + ipAddressExpression + "')";
-    }
+		/**
+		 * Creates a new instance
+		 *
+		 * @param requestMatchers the {@link RequestMatcher} instances to map
+		 */
+		private AuthorizedUrl(List<RequestMatcher> requestMatchers) {
+			this.requestMatchers = requestMatchers;
+		}
 
-    public final class AuthorizedUrl {
-        private List<RequestMatcher> requestMatchers;
-        private boolean not;
+		/**
+		 * Negates the following expression.
+		 *
+		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
+		 * customization
+		 */
+		public AuthorizedUrl not() {
+			this.not = true;
+			return this;
+		}
 
-        /**
-         * Creates a new instance
-         *
-         * @param requestMatchers the {@link RequestMatcher} instances to map
-         */
-        private AuthorizedUrl(List<RequestMatcher> requestMatchers) {
-            this.requestMatchers = requestMatchers;
-        }
+		/**
+		 * Shortcut for specifying URLs require a particular role. If you do not want to
+		 * have "ROLE_" automatically inserted see {@link #hasAuthority(String)}.
+		 *
+		 * @param role the role to require (i.e. USER, ADMIN, etc). Note, it should not
+		 * start with "ROLE_" as this is automatically inserted.
+		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
+		 * customization
+		 */
+		public ExpressionInterceptUrlRegistry hasRole(String role) {
+			return access(ExpressionUrlAuthorizationConfigurer.hasRole(role));
+		}
 
-        /**
-         * Negates the following expression.
-         *
-         * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customization
-         */
-        public AuthorizedUrl not() {
-            this.not = true;
-            return this;
-        }
+		/**
+		 * Shortcut for specifying URLs require any of a number of roles. If you do not
+		 * want to have "ROLE_" automatically inserted see
+		 * {@link #hasAnyAuthority(String...)}
+		 *
+		 * @param roles the roles to require (i.e. USER, ADMIN, etc). Note, it should not
+		 * start with "ROLE_" as this is automatically inserted.
+		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
+		 * customization
+		 */
+		public ExpressionInterceptUrlRegistry hasAnyRole(String... roles) {
+			return access(ExpressionUrlAuthorizationConfigurer.hasAnyRole(roles));
+		}
 
-        /**
-         * Shortcut for specifying URLs require a particular role. If you do not want to have "ROLE_" automatically
-         * inserted see {@link #hasAuthority(String)}.
-         *
-         * @param role the role to require (i.e. USER, ADMIN, etc). Note, it should not start with "ROLE_" as
-         *             this is automatically inserted.
-         * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customization
-         */
-        public ExpressionInterceptUrlRegistry hasRole(String role) {
-            return access(ExpressionUrlAuthorizationConfigurer.hasRole(role));
-        }
+		/**
+		 * Specify that URLs require a particular authority.
+		 *
+		 * @param authority the authority to require (i.e. ROLE_USER, ROLE_ADMIN, etc).
+		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
+		 * customization
+		 */
+		public ExpressionInterceptUrlRegistry hasAuthority(String authority) {
+			return access(ExpressionUrlAuthorizationConfigurer.hasAuthority(authority));
+		}
 
-        /**
-         * Shortcut for specifying URLs require any of a number of roles. If you
-         * do not want to have "ROLE_" automatically inserted see
-         * {@link #hasAnyAuthority(String...)}
-         *
-         * @param roles
-         *            the roles to require (i.e. USER, ADMIN, etc). Note, it
-         *            should not start with "ROLE_" as this is automatically
-         *            inserted.
-         * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
-         *         customization
-         */
-        public ExpressionInterceptUrlRegistry hasAnyRole(String... roles) {
-            return access(ExpressionUrlAuthorizationConfigurer.hasAnyRole(roles));
-        }
+		/**
+		 * Specify that URLs requires any of a number authorities.
+		 *
+		 * @param authorities the requests require at least one of the authorities (i.e.
+		 * "ROLE_USER","ROLE_ADMIN" would mean either "ROLE_USER" or "ROLE_ADMIN" is
+		 * required).
+		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
+		 * customization
+		 */
+		public ExpressionInterceptUrlRegistry hasAnyAuthority(String... authorities) {
+			return access(ExpressionUrlAuthorizationConfigurer
+					.hasAnyAuthority(authorities));
+		}
 
-        /**
-         * Specify that URLs require a particular authority.
-         *
-         * @param authority the authority to require (i.e. ROLE_USER, ROLE_ADMIN, etc).
-         * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customization
-         */
-        public ExpressionInterceptUrlRegistry hasAuthority(String authority) {
-            return access(ExpressionUrlAuthorizationConfigurer.hasAuthority(authority));
-        }
+		/**
+		 * Specify that URLs requires a specific IP Address or <a href=
+		 * "http://forum.springsource.org/showthread.php?102783-How-to-use-hasIpAddress&p=343971#post343971"
+		 * >subnet</a>.
+		 *
+		 * @param ipaddressExpression the ipaddress (i.e. 192.168.1.79) or local subnet
+		 * (i.e. 192.168.0/24)
+		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
+		 * customization
+		 */
+		public ExpressionInterceptUrlRegistry hasIpAddress(String ipaddressExpression) {
+			return access(ExpressionUrlAuthorizationConfigurer
+					.hasIpAddress(ipaddressExpression));
+		}
 
-        /**
-         * Specify that URLs requires any of a number authorities.
-         *
-         * @param authorities the requests require at least one of the authorities (i.e. "ROLE_USER","ROLE_ADMIN" would
-         *                    mean either "ROLE_USER" or "ROLE_ADMIN" is required).
-         * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customization
-         */
-        public ExpressionInterceptUrlRegistry hasAnyAuthority(String... authorities) {
-            return access(ExpressionUrlAuthorizationConfigurer.hasAnyAuthority(authorities));
-        }
+		/**
+		 * Specify that URLs are allowed by anyone.
+		 *
+		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
+		 * customization
+		 */
+		public ExpressionInterceptUrlRegistry permitAll() {
+			return access(permitAll);
+		}
 
-        /**
-         * Specify that URLs requires a specific IP Address or
-         * <a href="http://forum.springsource.org/showthread.php?102783-How-to-use-hasIpAddress&p=343971#post343971">subnet</a>.
-         *
-         * @param ipaddressExpression the ipaddress (i.e. 192.168.1.79) or local subnet (i.e. 192.168.0/24)
-         * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customization
-         */
-        public ExpressionInterceptUrlRegistry hasIpAddress(String ipaddressExpression) {
-            return access(ExpressionUrlAuthorizationConfigurer.hasIpAddress(ipaddressExpression));
-        }
+		/**
+		 * Specify that URLs are allowed by anonymous users.
+		 *
+		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
+		 * customization
+		 */
+		public ExpressionInterceptUrlRegistry anonymous() {
+			return access(anonymous);
+		}
 
-        /**
-         * Specify that URLs are allowed by anyone.
-         *
-         * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customization
-         */
-        public ExpressionInterceptUrlRegistry permitAll() {
-            return access(permitAll);
-        }
+		/**
+		 * Specify that URLs are allowed by users that have been remembered.
+		 *
+		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
+		 * customization
+		 * @see {@link RememberMeConfigurer}
+		 */
+		public ExpressionInterceptUrlRegistry rememberMe() {
+			return access(rememberMe);
+		}
 
-        /**
-         * Specify that URLs are allowed by anonymous users.
-         *
-         * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customization
-         */
-        public ExpressionInterceptUrlRegistry anonymous() {
-            return access(anonymous);
-        }
+		/**
+		 * Specify that URLs are not allowed by anyone.
+		 *
+		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
+		 * customization
+		 */
+		public ExpressionInterceptUrlRegistry denyAll() {
+			return access(denyAll);
+		}
 
-        /**
-         * Specify that URLs are allowed by users that have been remembered.
-         *
-         * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customization
-         * @see {@link RememberMeConfigurer}
-         */
-        public ExpressionInterceptUrlRegistry rememberMe() {
-            return access(rememberMe);
-        }
+		/**
+		 * Specify that URLs are allowed by any authenticated user.
+		 *
+		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
+		 * customization
+		 */
+		public ExpressionInterceptUrlRegistry authenticated() {
+			return access(authenticated);
+		}
 
-        /**
-         * Specify that URLs are not allowed by anyone.
-         *
-         * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customization
-         */
-        public ExpressionInterceptUrlRegistry denyAll() {
-            return access(denyAll);
-        }
+		/**
+		 * Specify that URLs are allowed by users who have authenticated and were not
+		 * "remembered".
+		 *
+		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
+		 * customization
+		 * @see {@link RememberMeConfigurer}
+		 */
+		public ExpressionInterceptUrlRegistry fullyAuthenticated() {
+			return access(fullyAuthenticated);
+		}
 
-        /**
-         * Specify that URLs are allowed by any authenticated user.
-         *
-         * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customization
-         */
-        public ExpressionInterceptUrlRegistry authenticated() {
-            return access(authenticated);
-        }
-
-        /**
-         * Specify that URLs are allowed by users who have authenticated and were not "remembered".
-         *
-         * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customization
-         * @see {@link RememberMeConfigurer}
-         */
-        public ExpressionInterceptUrlRegistry fullyAuthenticated() {
-            return access(fullyAuthenticated);
-        }
-
-        /**
-         * Allows specifying that URLs are secured by an arbitrary expression
-         *
-         * @param attribute the expression to secure the URLs (i.e. "hasRole('ROLE_USER') and hasRole('ROLE_SUPER')")
-         * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customization
-         */
-        public ExpressionInterceptUrlRegistry access(String attribute) {
-            if(not) {
-                attribute = "!" + attribute;
-            }
-            interceptUrl(requestMatchers, SecurityConfig.createList(attribute));
-            return ExpressionUrlAuthorizationConfigurer.this.REGISTRY;
-        }
-    }
+		/**
+		 * Allows specifying that URLs are secured by an arbitrary expression
+		 *
+		 * @param attribute the expression to secure the URLs (i.e.
+		 * "hasRole('ROLE_USER') and hasRole('ROLE_SUPER')")
+		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
+		 * customization
+		 */
+		public ExpressionInterceptUrlRegistry access(String attribute) {
+			if (not) {
+				attribute = "!" + attribute;
+			}
+			interceptUrl(requestMatchers, SecurityConfig.createList(attribute));
+			return ExpressionUrlAuthorizationConfigurer.this.REGISTRY;
+		}
+	}
 }

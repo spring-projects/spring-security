@@ -21,10 +21,14 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 
 /**
- * Adds a Filter that will generate a login page if one is not specified otherwise when using {@link WebSecurityConfigurerAdapter}.
+ * Adds a Filter that will generate a login page if one is not specified otherwise when
+ * using {@link WebSecurityConfigurerAdapter}.
  *
  * <p>
- * By default an {@link org.springframework.security.web.access.channel.InsecureChannelProcessor} and a {@link org.springframework.security.web.access.channel.SecureChannelProcessor} will be registered.
+ * By default an
+ * {@link org.springframework.security.web.access.channel.InsecureChannelProcessor} and a
+ * {@link org.springframework.security.web.access.channel.SecureChannelProcessor} will be
+ * registered.
  * </p>
  *
  * <h2>Security Filters</h2>
@@ -32,20 +36,21 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
  * The following Filters are conditionally populated
  *
  * <ul>
- *     <li>{@link DefaultLoginPageGeneratingFilter} if the {@link FormLoginConfigurer} did not have a login page specified</li>
+ * <li>{@link DefaultLoginPageGeneratingFilter} if the {@link FormLoginConfigurer} did not
+ * have a login page specified</li>
  * </ul>
  *
  * <h2>Shared Objects Created</h2>
  *
- * No shared objects are created.
- *isLogoutRequest
- * <h2>Shared Objects Used</h2>
+ * No shared objects are created. isLogoutRequest <h2>Shared Objects Used</h2>
  *
  * The following shared objects are used:
  *
  * <ul>
- *     <li>{@link org.springframework.security.web.PortMapper} is used to create the default {@link org.springframework.security.web.access.channel.ChannelProcessor} instances</li>
- *     <li>{@link FormLoginConfigurer} is used to determine if the {@link DefaultLoginPageConfigurer} should be added and how to configure it.</li>
+ * <li>{@link org.springframework.security.web.PortMapper} is used to create the default
+ * {@link org.springframework.security.web.access.channel.ChannelProcessor} instances</li>
+ * <li>{@link FormLoginConfigurer} is used to determine if the
+ * {@link DefaultLoginPageConfigurer} should be added and how to configure it.</li>
  * </ul>
  *
  * @see WebSecurityConfigurerAdapter
@@ -54,29 +59,30 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
  * @since 3.2
  */
 public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>> extends
-        AbstractHttpConfigurer<DefaultLoginPageConfigurer<H>,H> {
+		AbstractHttpConfigurer<DefaultLoginPageConfigurer<H>, H> {
 
-    private DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = new DefaultLoginPageGeneratingFilter();
+	private DefaultLoginPageGeneratingFilter loginPageGeneratingFilter = new DefaultLoginPageGeneratingFilter();
 
-    @Override
-    public void init(H http) throws Exception {
-        http.setSharedObject(DefaultLoginPageGeneratingFilter.class, loginPageGeneratingFilter);
-    }
+	@Override
+	public void init(H http) throws Exception {
+		http.setSharedObject(DefaultLoginPageGeneratingFilter.class,
+				loginPageGeneratingFilter);
+	}
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public void configure(H http) throws Exception {
-        AuthenticationEntryPoint authenticationEntryPoint = null;
-        ExceptionHandlingConfigurer<?> exceptionConf = http.getConfigurer(ExceptionHandlingConfigurer.class);
-        if(exceptionConf != null) {
-            authenticationEntryPoint = exceptionConf.getAuthenticationEntryPoint();
-        }
+	@Override
+	@SuppressWarnings("unchecked")
+	public void configure(H http) throws Exception {
+		AuthenticationEntryPoint authenticationEntryPoint = null;
+		ExceptionHandlingConfigurer<?> exceptionConf = http
+				.getConfigurer(ExceptionHandlingConfigurer.class);
+		if (exceptionConf != null) {
+			authenticationEntryPoint = exceptionConf.getAuthenticationEntryPoint();
+		}
 
-        if(loginPageGeneratingFilter.isEnabled() && authenticationEntryPoint == null) {
-            loginPageGeneratingFilter = postProcess(loginPageGeneratingFilter);
-            http.addFilter(loginPageGeneratingFilter);
-        }
-    }
-
+		if (loginPageGeneratingFilter.isEnabled() && authenticationEntryPoint == null) {
+			loginPageGeneratingFilter = postProcess(loginPageGeneratingFilter);
+			http.addFilter(loginPageGeneratingFilter);
+		}
+	}
 
 }

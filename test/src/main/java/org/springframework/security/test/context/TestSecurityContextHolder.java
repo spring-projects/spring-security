@@ -26,27 +26,26 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.Assert;
 
 /**
- * The {@link TestSecurityContextHolder} is very similar to
- * {@link SecurityContextHolder}, but is necessary for testing. For example, we
- * cannot populate the desired {@link SecurityContext} in
- * {@link SecurityContextHolder} for web based testing. In a web request, the
- * {@link SecurityContextPersistenceFilter} will override the
+ * The {@link TestSecurityContextHolder} is very similar to {@link SecurityContextHolder},
+ * but is necessary for testing. For example, we cannot populate the desired
+ * {@link SecurityContext} in {@link SecurityContextHolder} for web based testing. In a
+ * web request, the {@link SecurityContextPersistenceFilter} will override the
  * {@link SecurityContextHolder} with the value returned by the
  * {@link SecurityContextRepository}. At the end of the {@link FilterChain} the
  * {@link SecurityContextPersistenceFilter} will clear out the
- * {@link SecurityContextHolder}. This means if we make multiple web requests,
- * we will not know which {@link SecurityContext} to use on subsequent requests.
+ * {@link SecurityContextHolder}. This means if we make multiple web requests, we will not
+ * know which {@link SecurityContext} to use on subsequent requests.
  *
  * Typical usage is as follows:
  *
  * <ul>
- * <li>Before a test is executed, the {@link TestSecurityContextHolder} is
- * populated. Typically this is done using the
- * {@link org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener}</li>
+ * <li>Before a test is executed, the {@link TestSecurityContextHolder} is populated.
+ * Typically this is done using the
+ * {@link org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener}
+ * </li>
  * <li>The test is ran. When used with {@link MockMvc} it is typically used with
- * {@link SecurityMockMvcRequestPostProcessors#testSecurityContext()}. Which ensures
- * the {@link SecurityContext} from {@link TestSecurityContextHolder} is
- * properly populated.</li>
+ * {@link SecurityMockMvcRequestPostProcessors#testSecurityContext()}. Which ensures the
+ * {@link SecurityContext} from {@link TestSecurityContextHolder} is properly populated.</li>
  * <li>After the test is executed, the {@link TestSecurityContextHolder} and the
  * {@link SecurityContextHolder} are cleared out</li>
  * </ul>
@@ -57,53 +56,54 @@ import org.springframework.util.Assert;
  */
 public final class TestSecurityContextHolder {
 
-    private static final ThreadLocal<SecurityContext> contextHolder = new ThreadLocal<SecurityContext>();
+	private static final ThreadLocal<SecurityContext> contextHolder = new ThreadLocal<SecurityContext>();
 
-    /**
-     * Clears the {@link SecurityContext} from {@link TestSecurityContextHolder}
-     * and {@link SecurityContextHolder}.
-     */
-    public static void clearContext() {
-        contextHolder.remove();
-        SecurityContextHolder.clearContext();
-    }
+	/**
+	 * Clears the {@link SecurityContext} from {@link TestSecurityContextHolder} and
+	 * {@link SecurityContextHolder}.
+	 */
+	public static void clearContext() {
+		contextHolder.remove();
+		SecurityContextHolder.clearContext();
+	}
 
-    /**
-     * Gets the {@link SecurityContext} from {@link TestSecurityContextHolder}.
-     *
-     * @return the {@link SecurityContext} from {@link TestSecurityContextHolder}.
-     */
-    public static SecurityContext getContext() {
-        SecurityContext ctx = contextHolder.get();
+	/**
+	 * Gets the {@link SecurityContext} from {@link TestSecurityContextHolder}.
+	 *
+	 * @return the {@link SecurityContext} from {@link TestSecurityContextHolder}.
+	 */
+	public static SecurityContext getContext() {
+		SecurityContext ctx = contextHolder.get();
 
-        if (ctx == null) {
-            ctx = getDefaultContext();
-            contextHolder.set(ctx);
-        }
+		if (ctx == null) {
+			ctx = getDefaultContext();
+			contextHolder.set(ctx);
+		}
 
-        return ctx;
-    }
+		return ctx;
+	}
 
-    /**
-     * Sets the {@link SecurityContext} on {@link TestSecurityContextHolder} and {@link SecurityContextHolder}.
-     * @param context the {@link SecurityContext} to use
-     */
-    public static void setContext(SecurityContext context) {
-        Assert.notNull(context,
-                "Only non-null SecurityContext instances are permitted");
-        contextHolder.set(context);
-        SecurityContextHolder.setContext(context);
-    }
+	/**
+	 * Sets the {@link SecurityContext} on {@link TestSecurityContextHolder} and
+	 * {@link SecurityContextHolder}.
+	 * @param context the {@link SecurityContext} to use
+	 */
+	public static void setContext(SecurityContext context) {
+		Assert.notNull(context, "Only non-null SecurityContext instances are permitted");
+		contextHolder.set(context);
+		SecurityContextHolder.setContext(context);
+	}
 
-    /**
-     * Gets the default {@link SecurityContext} by delegating to the {@link SecurityContextHolder}
-     *
-     * @return the default {@link SecurityContext}
-     */
-    private static SecurityContext getDefaultContext() {
-        return SecurityContextHolder.getContext();
-    }
+	/**
+	 * Gets the default {@link SecurityContext} by delegating to the
+	 * {@link SecurityContextHolder}
+	 *
+	 * @return the default {@link SecurityContext}
+	 */
+	private static SecurityContext getDefaultContext() {
+		return SecurityContextHolder.getContext();
+	}
 
-    private TestSecurityContextHolder() {
-    }
+	private TestSecurityContextHolder() {
+	}
 }

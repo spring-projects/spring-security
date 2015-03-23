@@ -52,96 +52,104 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.util.ReflectionUtils;
 
-
 /**
  *
  * @author Rob Winch
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ReflectionUtils.class, Method.class})
+@PrepareForTest({ ReflectionUtils.class, Method.class })
 public class SessionManagementConfigurerServlet31Tests {
-    @Mock
-    Method method;
+	@Mock
+	Method method;
 
-    MockHttpServletRequest request;
-    MockHttpServletResponse response;
-    MockFilterChain chain;
+	MockHttpServletRequest request;
+	MockHttpServletResponse response;
+	MockFilterChain chain;
 
-    ConfigurableApplicationContext context;
+	ConfigurableApplicationContext context;
 
-    Filter springSecurityFilterChain;
+	Filter springSecurityFilterChain;
 
-    @Before
-    public void setup() {
-        request = new MockHttpServletRequest();
-        response = new MockHttpServletResponse();
-        chain = new MockFilterChain();
-    }
+	@Before
+	public void setup() {
+		request = new MockHttpServletRequest();
+		response = new MockHttpServletResponse();
+		chain = new MockFilterChain();
+	}
 
-    @After
-    public void teardown() {
-        if(context != null) {
-            context.close();
-        }
-    }
+	@After
+	public void teardown() {
+		if (context != null) {
+			context.close();
+		}
+	}
 
-    @Test
-    public void changeSessionIdDefaultsInServlet31Plus() throws Exception {
-        spy(ReflectionUtils.class);
-        Method method = mock(Method.class);
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.getSession();
-        request.setServletPath("/login");
-        request.setMethod("POST");
-        request.setParameter("username", "user");
-        request.setParameter("password", "password");
-        HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
-        CsrfToken token = repository.generateToken(request);
-        repository.saveToken(token, request, response);
-        request.setParameter(token.getParameterName(),token.getToken());
-        when(ReflectionUtils.findMethod(HttpServletRequest.class, "changeSessionId")).thenReturn(method);
+	@Test
+	public void changeSessionIdDefaultsInServlet31Plus() throws Exception {
+		spy(ReflectionUtils.class);
+		Method method = mock(Method.class);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.getSession();
+		request.setServletPath("/login");
+		request.setMethod("POST");
+		request.setParameter("username", "user");
+		request.setParameter("password", "password");
+		HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
+		CsrfToken token = repository.generateToken(request);
+		repository.saveToken(token, request, response);
+		request.setParameter(token.getParameterName(), token.getToken());
+		when(ReflectionUtils.findMethod(HttpServletRequest.class, "changeSessionId"))
+				.thenReturn(method);
 
-        loadConfig(SessionManagementDefaultSessionFixationServlet31Config.class);
+		loadConfig(SessionManagementDefaultSessionFixationServlet31Config.class);
 
-        springSecurityFilterChain.doFilter(request,response,chain);
+		springSecurityFilterChain.doFilter(request, response, chain);
 
-        verifyStatic();
-        ReflectionUtils.invokeMethod(same(method), any(HttpServletRequest.class));
-    }
+		verifyStatic();
+		ReflectionUtils.invokeMethod(same(method), any(HttpServletRequest.class));
+	}
 
-    @EnableWebSecurity
-    static class SessionManagementDefaultSessionFixationServlet31Config extends WebSecurityConfigurerAdapter {
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .formLogin()
-                    .and()
-                .sessionManagement();
-        }
+	@EnableWebSecurity
+	static class SessionManagementDefaultSessionFixationServlet31Config extends
+			WebSecurityConfigurerAdapter {
+		// @formatter:off
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.formLogin()
+					.and()
+				.sessionManagement();
+		}
+		// @formatter:on
 
-        @Override
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER");
-        }
-    }
+		// @formatter:off
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER");
+		}
+		// @formatter:on
+	}
 
-    private void loadConfig(Class<?>...classes) {
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-        context.register(classes);
-        context.refresh();
-        this.context = context;
-        this.springSecurityFilterChain = this.context.getBean("springSecurityFilterChain",Filter.class);
-    }
+	private void loadConfig(Class<?>... classes) {
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+		context.register(classes);
+		context.refresh();
+		this.context = context;
+		this.springSecurityFilterChain = this.context.getBean(
+				"springSecurityFilterChain", Filter.class);
+	}
 
-    private void login(Authentication auth) {
-        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
-        HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(request, response);
-        repo.loadContext(requestResponseHolder);
+	private void login(Authentication auth) {
+		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+		HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(
+				request, response);
+		repo.loadContext(requestResponseHolder);
 
-        SecurityContextImpl securityContextImpl = new SecurityContextImpl();
-        securityContextImpl.setAuthentication(auth);
-        repo.saveContext(securityContextImpl, requestResponseHolder.getRequest(), requestResponseHolder.getResponse());
-    }
+		SecurityContextImpl securityContextImpl = new SecurityContextImpl();
+		securityContextImpl.setAuthentication(auth);
+		repo.saveContext(securityContextImpl, requestResponseHolder.getRequest(),
+				requestResponseHolder.getResponse());
+	}
 }

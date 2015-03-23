@@ -29,34 +29,39 @@ import org.springframework.security.web.csrf.InvalidCsrfTokenException;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
 
 /**
- * {@link ChannelInterceptorAdapter} that validates that a valid CSRF is included in the header of any
- * {@link SimpMessageType#CONNECT} message. The expected {@link CsrfToken} is populated by CsrfTokenHandshakeInterceptor.
+ * {@link ChannelInterceptorAdapter} that validates that a valid CSRF is included in the
+ * header of any {@link SimpMessageType#CONNECT} message. The expected {@link CsrfToken}
+ * is populated by CsrfTokenHandshakeInterceptor.
  *
  * @author Rob Winch
  * @since 4.0
  */
 public final class CsrfChannelInterceptor extends ChannelInterceptorAdapter {
-    private final MessageMatcher<Object> matcher = new SimpMessageTypeMatcher(SimpMessageType.CONNECT);
+	private final MessageMatcher<Object> matcher = new SimpMessageTypeMatcher(
+			SimpMessageType.CONNECT);
 
-    @Override
-    public Message<?> preSend(Message<?> message, MessageChannel channel) {
-        if(!matcher.matches(message)) {
-            return message;
-        }
+	@Override
+	public Message<?> preSend(Message<?> message, MessageChannel channel) {
+		if (!matcher.matches(message)) {
+			return message;
+		}
 
-        Map<String, Object> sessionAttributes = SimpMessageHeaderAccessor.getSessionAttributes(message.getHeaders());
-        CsrfToken expectedToken = sessionAttributes == null ? null : (CsrfToken) sessionAttributes.get(CsrfToken.class.getName());
+		Map<String, Object> sessionAttributes = SimpMessageHeaderAccessor
+				.getSessionAttributes(message.getHeaders());
+		CsrfToken expectedToken = sessionAttributes == null ? null
+				: (CsrfToken) sessionAttributes.get(CsrfToken.class.getName());
 
-        if(expectedToken == null) {
-            throw new MissingCsrfTokenException(null);
-        }
+		if (expectedToken == null) {
+			throw new MissingCsrfTokenException(null);
+		}
 
-        String actualTokenValue = SimpMessageHeaderAccessor.wrap(message).getFirstNativeHeader(expectedToken.getHeaderName());
+		String actualTokenValue = SimpMessageHeaderAccessor.wrap(message)
+				.getFirstNativeHeader(expectedToken.getHeaderName());
 
-        boolean csrfCheckPassed = expectedToken.getToken().equals(actualTokenValue);
-        if(csrfCheckPassed) {
-            return message;
-        }
-        throw new InvalidCsrfTokenException(expectedToken, actualTokenValue);
-    }
+		boolean csrfCheckPassed = expectedToken.getToken().equals(actualTokenValue);
+		if (csrfCheckPassed) {
+			return message;
+		}
+		throw new InvalidCsrfTokenException(expectedToken, actualTokenValue);
+	}
 }

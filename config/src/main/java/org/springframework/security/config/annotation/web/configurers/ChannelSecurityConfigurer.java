@@ -40,11 +40,12 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * Adds channel security (i.e. requires HTTPS or HTTP) to an application. In order for
- * {@link ChannelSecurityConfigurer} to be useful, at least one {@link RequestMatcher} should be mapped to HTTP
- * or HTTPS.
+ * {@link ChannelSecurityConfigurer} to be useful, at least one {@link RequestMatcher}
+ * should be mapped to HTTP or HTTPS.
  *
  * <p>
- * By default an {@link InsecureChannelProcessor} and a {@link SecureChannelProcessor} will be registered.
+ * By default an {@link InsecureChannelProcessor} and a {@link SecureChannelProcessor}
+ * will be registered.
  * </p>
  *
  * <h2>Security Filters</h2>
@@ -52,7 +53,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * The following Filters are populated
  *
  * <ul>
- *     <li>{@link ChannelProcessingFilter}</li>
+ * <li>{@link ChannelProcessingFilter}</li>
  * </ul>
  *
  * <h2>Shared Objects Created</h2>
@@ -64,7 +65,8 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * The following shared objects are used:
  *
  * <ul>
- *     <li>{@link PortMapper} is used to create the default {@link ChannelProcessor} instances</li>
+ * <li>{@link PortMapper} is used to create the default {@link ChannelProcessor} instances
+ * </li>
  * </ul>
  *
  * @param <H> the type of {@link HttpSecurityBuilder} that is being configured
@@ -73,130 +75,138 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * @since 3.2
  */
 public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>> extends
-        AbstractHttpConfigurer<ChannelSecurityConfigurer<H>, H> {
-    private ChannelProcessingFilter channelFilter = new ChannelProcessingFilter();
-    private LinkedHashMap<RequestMatcher,Collection<ConfigAttribute>> requestMap = new LinkedHashMap<RequestMatcher,Collection<ConfigAttribute>>();
-    private List<ChannelProcessor> channelProcessors;
+		AbstractHttpConfigurer<ChannelSecurityConfigurer<H>, H> {
+	private ChannelProcessingFilter channelFilter = new ChannelProcessingFilter();
+	private LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>>();
+	private List<ChannelProcessor> channelProcessors;
 
-    private final ChannelRequestMatcherRegistry REGISTRY = new ChannelRequestMatcherRegistry();
+	private final ChannelRequestMatcherRegistry REGISTRY = new ChannelRequestMatcherRegistry();
 
-    /**
-     * Creates a new instance
-     * @see HttpSecurity#requiresChannel()
-     */
-    public ChannelSecurityConfigurer() {
-    }
+	/**
+	 * Creates a new instance
+	 * @see HttpSecurity#requiresChannel()
+	 */
+	public ChannelSecurityConfigurer() {
+	}
 
-    public ChannelRequestMatcherRegistry getRegistry() {
-        return REGISTRY;
-    }
+	public ChannelRequestMatcherRegistry getRegistry() {
+		return REGISTRY;
+	}
 
-    @Override
-    public void configure(H http) throws Exception {
-        ChannelDecisionManagerImpl channelDecisionManager = new ChannelDecisionManagerImpl();
-        channelDecisionManager.setChannelProcessors(getChannelProcessors(http));
-        channelDecisionManager = postProcess(channelDecisionManager);
+	@Override
+	public void configure(H http) throws Exception {
+		ChannelDecisionManagerImpl channelDecisionManager = new ChannelDecisionManagerImpl();
+		channelDecisionManager.setChannelProcessors(getChannelProcessors(http));
+		channelDecisionManager = postProcess(channelDecisionManager);
 
-        channelFilter.setChannelDecisionManager(channelDecisionManager);
+		channelFilter.setChannelDecisionManager(channelDecisionManager);
 
-        DefaultFilterInvocationSecurityMetadataSource filterInvocationSecurityMetadataSource =
-                new DefaultFilterInvocationSecurityMetadataSource(requestMap);
-        channelFilter.setSecurityMetadataSource(filterInvocationSecurityMetadataSource);
+		DefaultFilterInvocationSecurityMetadataSource filterInvocationSecurityMetadataSource = new DefaultFilterInvocationSecurityMetadataSource(
+				requestMap);
+		channelFilter.setSecurityMetadataSource(filterInvocationSecurityMetadataSource);
 
-        channelFilter = postProcess(channelFilter);
-        http.addFilter(channelFilter);
-    }
+		channelFilter = postProcess(channelFilter);
+		http.addFilter(channelFilter);
+	}
 
-    private List<ChannelProcessor> getChannelProcessors(H http) {
-        if(channelProcessors != null) {
-            return channelProcessors;
-        }
+	private List<ChannelProcessor> getChannelProcessors(H http) {
+		if (channelProcessors != null) {
+			return channelProcessors;
+		}
 
-        InsecureChannelProcessor insecureChannelProcessor = new InsecureChannelProcessor();
-        SecureChannelProcessor secureChannelProcessor = new SecureChannelProcessor();
+		InsecureChannelProcessor insecureChannelProcessor = new InsecureChannelProcessor();
+		SecureChannelProcessor secureChannelProcessor = new SecureChannelProcessor();
 
-        PortMapper portMapper = http.getSharedObject(PortMapper.class);
-        if(portMapper != null) {
-            RetryWithHttpEntryPoint httpEntryPoint = new RetryWithHttpEntryPoint();
-            httpEntryPoint.setPortMapper(portMapper);
-            insecureChannelProcessor.setEntryPoint(httpEntryPoint);
+		PortMapper portMapper = http.getSharedObject(PortMapper.class);
+		if (portMapper != null) {
+			RetryWithHttpEntryPoint httpEntryPoint = new RetryWithHttpEntryPoint();
+			httpEntryPoint.setPortMapper(portMapper);
+			insecureChannelProcessor.setEntryPoint(httpEntryPoint);
 
-            RetryWithHttpsEntryPoint httpsEntryPoint = new RetryWithHttpsEntryPoint();
-            httpsEntryPoint.setPortMapper(portMapper);
-            secureChannelProcessor.setEntryPoint(httpsEntryPoint);
-        }
-        insecureChannelProcessor = postProcess(insecureChannelProcessor);
-        secureChannelProcessor = postProcess(secureChannelProcessor);
-        return Arrays.<ChannelProcessor>asList(insecureChannelProcessor, secureChannelProcessor);
-    }
+			RetryWithHttpsEntryPoint httpsEntryPoint = new RetryWithHttpsEntryPoint();
+			httpsEntryPoint.setPortMapper(portMapper);
+			secureChannelProcessor.setEntryPoint(httpsEntryPoint);
+		}
+		insecureChannelProcessor = postProcess(insecureChannelProcessor);
+		secureChannelProcessor = postProcess(secureChannelProcessor);
+		return Arrays.<ChannelProcessor> asList(insecureChannelProcessor,
+				secureChannelProcessor);
+	}
 
+	private ChannelRequestMatcherRegistry addAttribute(String attribute,
+			List<RequestMatcher> matchers) {
+		for (RequestMatcher matcher : matchers) {
+			Collection<ConfigAttribute> attrs = Arrays
+					.<ConfigAttribute> asList(new SecurityConfig(attribute));
+			requestMap.put(matcher, attrs);
+		}
+		return REGISTRY;
+	}
 
-    private ChannelRequestMatcherRegistry addAttribute(String attribute, List<RequestMatcher> matchers) {
-        for(RequestMatcher matcher : matchers) {
-            Collection<ConfigAttribute> attrs = Arrays.<ConfigAttribute>asList(new SecurityConfig(attribute));
-            requestMap.put(matcher, attrs);
-        }
-        return REGISTRY;
-    }
+	public final class ChannelRequestMatcherRegistry extends
+			AbstractConfigAttributeRequestMatcherRegistry<RequiresChannelUrl> {
 
-    public final class ChannelRequestMatcherRegistry extends AbstractConfigAttributeRequestMatcherRegistry<RequiresChannelUrl> {
+		@Override
+		protected RequiresChannelUrl chainRequestMatchersInternal(
+				List<RequestMatcher> requestMatchers) {
+			return new RequiresChannelUrl(requestMatchers);
+		}
 
-        @Override
-        protected RequiresChannelUrl chainRequestMatchersInternal(List<RequestMatcher> requestMatchers) {
-            return new RequiresChannelUrl(requestMatchers);
-        }
+		/**
+		 * Adds an {@link ObjectPostProcessor} for this class.
+		 *
+		 * @param objectPostProcessor
+		 * @return the {@link ChannelSecurityConfigurer} for further customizations
+		 */
+		public ChannelRequestMatcherRegistry withObjectPostProcessor(
+				ObjectPostProcessor<?> objectPostProcessor) {
+			addObjectPostProcessor(objectPostProcessor);
+			return this;
+		}
 
-        /**
-         * Adds an {@link ObjectPostProcessor} for this class.
-         *
-         * @param objectPostProcessor
-         * @return the {@link ChannelSecurityConfigurer} for further customizations
-         */
-        public ChannelRequestMatcherRegistry withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
-            addObjectPostProcessor(objectPostProcessor);
-            return this;
-        }
+		/**
+		 * Sets the {@link ChannelProcessor} instances to use in
+		 * {@link ChannelDecisionManagerImpl}
+		 * @param channelProcessors
+		 * @return
+		 */
+		public ChannelRequestMatcherRegistry channelProcessors(
+				List<ChannelProcessor> channelProcessors) {
+			ChannelSecurityConfigurer.this.channelProcessors = channelProcessors;
+			return this;
+		}
 
-        /**
-         * Sets the {@link ChannelProcessor} instances to use in  {@link ChannelDecisionManagerImpl}
-         * @param channelProcessors
-         * @return
-         */
-        public ChannelRequestMatcherRegistry channelProcessors(List<ChannelProcessor> channelProcessors) {
-            ChannelSecurityConfigurer.this.channelProcessors = channelProcessors;
-            return this;
-        }
+		/**
+		 * Return the {@link SecurityBuilder} when done using the
+		 * {@link SecurityConfigurer}. This is useful for method chaining.
+		 *
+		 * @return
+		 */
+		public H and() {
+			return ChannelSecurityConfigurer.this.and();
+		}
 
-        /**
-         * Return the {@link SecurityBuilder} when done using the
-         * {@link SecurityConfigurer}. This is useful for method chaining.
-         *
-         * @return
-         */
-        public H and() {
-            return ChannelSecurityConfigurer.this.and();
-        }
+		private ChannelRequestMatcherRegistry() {
+		}
+	}
 
-        private ChannelRequestMatcherRegistry() {}
-    }
+	public final class RequiresChannelUrl {
+		private List<RequestMatcher> requestMatchers;
 
-    public final class RequiresChannelUrl {
-        private List<RequestMatcher> requestMatchers;
+		private RequiresChannelUrl(List<RequestMatcher> requestMatchers) {
+			this.requestMatchers = requestMatchers;
+		}
 
-        private RequiresChannelUrl(List<RequestMatcher> requestMatchers) {
-            this.requestMatchers = requestMatchers;
-        }
+		public ChannelRequestMatcherRegistry requiresSecure() {
+			return requires("REQUIRES_SECURE_CHANNEL");
+		}
 
-        public ChannelRequestMatcherRegistry requiresSecure() {
-            return requires("REQUIRES_SECURE_CHANNEL");
-        }
+		public ChannelRequestMatcherRegistry requiresInsecure() {
+			return requires("REQUIRES_INSECURE_CHANNEL");
+		}
 
-        public ChannelRequestMatcherRegistry requiresInsecure() {
-            return requires("REQUIRES_INSECURE_CHANNEL");
-        }
-
-        public ChannelRequestMatcherRegistry requires(String attribute) {
-            return addAttribute(attribute, requestMatchers);
-        }
-    }
+		public ChannelRequestMatcherRegistry requires(String attribute) {
+			return addAttribute(attribute, requestMatchers);
+		}
+	}
 }

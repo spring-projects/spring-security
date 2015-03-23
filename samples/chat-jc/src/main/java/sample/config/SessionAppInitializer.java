@@ -21,11 +21,10 @@ import org.springframework.web.servlet.support.AbstractDispatcherServletInitiali
 /**
  * @author Rob Winch
  */
-public class SessionAppInitializer
-       extends AbstractHttpSessionApplicationInitializer {
+public class SessionAppInitializer extends AbstractHttpSessionApplicationInitializer {
 
-    @Override
-    protected String getDispatcherWebApplicationContextSuffix() {
-        return AbstractDispatcherServletInitializer.DEFAULT_SERVLET_NAME;
-    }
+	@Override
+	protected String getDispatcherWebApplicationContextSuffix() {
+		return AbstractDispatcherServletInitializer.DEFAULT_SERVLET_NAME;
+	}
 }

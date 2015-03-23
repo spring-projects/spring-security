@@ -30,31 +30,32 @@ import org.springframework.security.core.AuthenticationException;
  * @since 4.0
  */
 public class HttpStatusEntryPointTests {
-    MockHttpServletRequest request;
-    MockHttpServletResponse response;
-    AuthenticationException authException;
+	MockHttpServletRequest request;
+	MockHttpServletResponse response;
+	AuthenticationException authException;
 
-    HttpStatusEntryPoint entryPoint;
+	HttpStatusEntryPoint entryPoint;
 
-    @SuppressWarnings("serial")
-    @Before
-    public void setup() {
-        request = new MockHttpServletRequest();
-        response = new MockHttpServletResponse();
-        authException = new AuthenticationException("") {};
-        entryPoint = new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED);
-    }
+	@SuppressWarnings("serial")
+	@Before
+	public void setup() {
+		request = new MockHttpServletRequest();
+		response = new MockHttpServletResponse();
+		authException = new AuthenticationException("") {
+		};
+		entryPoint = new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullStatus() {
-        new HttpStatusEntryPoint(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullStatus() {
+		new HttpStatusEntryPoint(null);
+	}
 
-    @Test
-    public void unauthorized() throws Exception {
-        entryPoint.commence(request, response, authException);
+	@Test
+	public void unauthorized() throws Exception {
+		entryPoint.commence(request, response, authException);
 
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
-    }
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+	}
 
 }

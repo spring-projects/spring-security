@@ -36,180 +36,180 @@ import org.springframework.security.crypto.codec.Utf8;
  * @author Luke Taylor
  */
 public class SpringSecurityLdapTemplateITests extends AbstractLdapIntegrationTests {
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private SpringSecurityLdapTemplate template;
+	private SpringSecurityLdapTemplate template;
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    @Before
-    public void setUp() throws Exception {
-        template = new SpringSecurityLdapTemplate(getContextSource());
-    }
-
-    @Test
-    public void compareOfCorrectValueSucceeds() {
-        assertTrue(template.compare("uid=bob,ou=people", "uid", "bob"));
-    }
-
-    @Test
-    public void compareOfCorrectByteValueSucceeds() {
-        assertTrue(template.compare("uid=bob,ou=people", "userPassword", Utf8.encode("bobspassword")));
-    }
-
-    @Test
-    public void compareOfWrongByteValueFails() {
-        assertFalse(template.compare("uid=bob,ou=people", "userPassword", Utf8.encode("wrongvalue")));
-    }
-
-    @Test
-    public void compareOfWrongValueFails() {
-        assertFalse(template.compare("uid=bob,ou=people", "uid", "wrongvalue"));
-    }
-
-//    @Test
-//    public void testNameExistsForInValidNameFails() {
-//        assertFalse(template.nameExists("ou=doesntexist,dc=springframework,dc=org"));
-//    }
-//
-//    @Test
-//    public void testNameExistsForValidNameSucceeds() {
-//        assertTrue(template.nameExists("ou=groups,dc=springframework,dc=org"));
-//    }
-
-    @Test
-    public void namingExceptionIsTranslatedCorrectly() {
-        try {
-            template.executeReadOnly(new ContextExecutor() {
-                    public Object executeWithContext(DirContext dirContext) throws NamingException {
-                        throw new NamingException();
-                    }
-                });
-            fail("Expected UncategorizedLdapException on NamingException");
-        } catch (UncategorizedLdapException expected) {}
-    }
-
-    @Test
-    public void roleSearchReturnsCorrectNumberOfRoles() {
-        String param = "uid=ben,ou=people,dc=springframework,dc=org";
-
-        Set<String> values = template.searchForSingleAttributeValues("ou=groups", "(member={0})", new String[] {param}, "ou");
-
-        assertEquals("Expected 3 results from search", 3, values.size());
-        assertTrue(values.contains("developer"));
-        assertTrue(values.contains("manager"));
-        assertTrue(values.contains("submanager"));
-    }
+	@Before
+	public void setUp() throws Exception {
+		template = new SpringSecurityLdapTemplate(getContextSource());
+	}
 
 	@Test
-    public void testMultiAttributeRetrievalWithNullAttributeNames() {
-        Set<Map<String, List<String>>> values =
-                template.searchForMultipleAttributeValues(
-                        "ou=people",
-                        "(uid={0})",
-                        new String[]{"bob"},
-                        null);
-        assertEquals(1, values.size());
-        Map<String, List<String>> record = values.iterator().next();
-        assertAttributeValue(record, "uid", "bob");
-        assertAttributeValue(record, "objectclass", "top", "person", "organizationalPerson", "inetOrgPerson");
-        assertAttributeValue(record, "cn", "Bob Hamilton");
-        assertAttributeValue(record, "sn", "Hamilton");
-        assertFalse(record.containsKey("userPassword"));
-    }
+	public void compareOfCorrectValueSucceeds() {
+		assertTrue(template.compare("uid=bob,ou=people", "uid", "bob"));
+	}
 
-    @Test
-    public void testMultiAttributeRetrievalWithZeroLengthAttributeNames() {
-        Set<Map<String, List<String>>> values =
-                template.searchForMultipleAttributeValues(
-                        "ou=people",
-                        "(uid={0})",
-                        new String[]{"bob"},
-                        new String[0]);
-        assertEquals(1, values.size());
-        Map<String, List<String>> record = values.iterator().next();
-        assertAttributeValue(record, "uid", "bob");
-        assertAttributeValue(record, "objectclass", "top", "person", "organizationalPerson", "inetOrgPerson");
-        assertAttributeValue(record, "cn", "Bob Hamilton");
-        assertAttributeValue(record, "sn", "Hamilton");
-        assertFalse(record.containsKey("userPassword"));
-    }
+	@Test
+	public void compareOfCorrectByteValueSucceeds() {
+		assertTrue(template.compare("uid=bob,ou=people", "userPassword",
+				Utf8.encode("bobspassword")));
+	}
 
-    @Test
-    public void testMultiAttributeRetrievalWithSpecifiedAttributeNames() {
-        Set<Map<String, List<String>>> values =
-                template.searchForMultipleAttributeValues(
-                        "ou=people",
-                        "(uid={0})",
-                        new String[]{"bob"},
-                        new String[]{
-                                "uid",
-                                "cn",
-                                "sn"
-                        });
-        assertEquals(1, values.size());
-        Map<String, List<String>> record = values.iterator().next();
-        assertAttributeValue(record, "uid", "bob");
-        assertAttributeValue(record, "cn", "Bob Hamilton");
-        assertAttributeValue(record, "sn", "Hamilton");
-        assertFalse(record.containsKey("userPassword"));
-        assertFalse(record.containsKey("objectclass"));
-    }
+	@Test
+	public void compareOfWrongByteValueFails() {
+		assertFalse(template.compare("uid=bob,ou=people", "userPassword",
+				Utf8.encode("wrongvalue")));
+	}
 
-    protected void assertAttributeValue(Map<String, List<String>> record, String attributeName, String... values) {
-        assertTrue(record.containsKey(attributeName));
-        assertEquals(values.length, record.get(attributeName).size());
-        for (int i = 0; i < values.length; i++) {
-            assertEquals(values[i], record.get(attributeName).get(i));
-        }
-    }
+	@Test
+	public void compareOfWrongValueFails() {
+		assertFalse(template.compare("uid=bob,ou=people", "uid", "wrongvalue"));
+	}
 
-    @Test
-    public void testRoleSearchForMissingAttributeFailsGracefully() {
-        String param = "uid=ben,ou=people,dc=springframework,dc=org";
+	// @Test
+	// public void testNameExistsForInValidNameFails() {
+	// assertFalse(template.nameExists("ou=doesntexist,dc=springframework,dc=org"));
+	// }
+	//
+	// @Test
+	// public void testNameExistsForValidNameSucceeds() {
+	// assertTrue(template.nameExists("ou=groups,dc=springframework,dc=org"));
+	// }
 
-        Set<String> values = template.searchForSingleAttributeValues("ou=groups", "(member={0})", new String[] {param}, "mail");
+	@Test
+	public void namingExceptionIsTranslatedCorrectly() {
+		try {
+			template.executeReadOnly(new ContextExecutor() {
+				public Object executeWithContext(DirContext dirContext)
+						throws NamingException {
+					throw new NamingException();
+				}
+			});
+			fail("Expected UncategorizedLdapException on NamingException");
+		}
+		catch (UncategorizedLdapException expected) {
+		}
+	}
 
-        assertEquals(0, values.size());
-    }
+	@Test
+	public void roleSearchReturnsCorrectNumberOfRoles() {
+		String param = "uid=ben,ou=people,dc=springframework,dc=org";
 
-    @Test
-    public void roleSearchWithEscapedCharacterSucceeds() throws Exception {
-        String param = "cn=mouse\\, jerry,ou=people,dc=springframework,dc=org";
+		Set<String> values = template.searchForSingleAttributeValues("ou=groups",
+				"(member={0})", new String[] { param }, "ou");
 
-        Set<String> values = template.searchForSingleAttributeValues("ou=groups", "(member={0})", new String[] {param}, "cn");
+		assertEquals("Expected 3 results from search", 3, values.size());
+		assertTrue(values.contains("developer"));
+		assertTrue(values.contains("manager"));
+		assertTrue(values.contains("submanager"));
+	}
 
-        assertEquals(1, values.size());
-    }
+	@Test
+	public void testMultiAttributeRetrievalWithNullAttributeNames() {
+		Set<Map<String, List<String>>> values = template
+				.searchForMultipleAttributeValues("ou=people", "(uid={0})",
+						new String[] { "bob" }, null);
+		assertEquals(1, values.size());
+		Map<String, List<String>> record = values.iterator().next();
+		assertAttributeValue(record, "uid", "bob");
+		assertAttributeValue(record, "objectclass", "top", "person",
+				"organizationalPerson", "inetOrgPerson");
+		assertAttributeValue(record, "cn", "Bob Hamilton");
+		assertAttributeValue(record, "sn", "Hamilton");
+		assertFalse(record.containsKey("userPassword"));
+	}
 
-    @Test
-    public void nonSpringLdapSearchCodeTestMethod() throws Exception {
-        java.util.Hashtable<String, String> env = new java.util.Hashtable<String, String>();
-        env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-        env.put(Context.PROVIDER_URL, "ldap://localhost:" + ApacheDSServerIntegrationTests.getServerPort());
-        env.put(Context.SECURITY_PRINCIPAL, "");
-        env.put(Context.SECURITY_CREDENTIALS, "");
+	@Test
+	public void testMultiAttributeRetrievalWithZeroLengthAttributeNames() {
+		Set<Map<String, List<String>>> values = template
+				.searchForMultipleAttributeValues("ou=people", "(uid={0})",
+						new String[] { "bob" }, new String[0]);
+		assertEquals(1, values.size());
+		Map<String, List<String>> record = values.iterator().next();
+		assertAttributeValue(record, "uid", "bob");
+		assertAttributeValue(record, "objectclass", "top", "person",
+				"organizationalPerson", "inetOrgPerson");
+		assertAttributeValue(record, "cn", "Bob Hamilton");
+		assertAttributeValue(record, "sn", "Hamilton");
+		assertFalse(record.containsKey("userPassword"));
+	}
 
-        DirContext ctx = new javax.naming.directory.InitialDirContext(env);
-        SearchControls controls = new SearchControls();
-        controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        controls.setReturningObjFlag(true);
-        controls.setReturningAttributes(null);
-        String param = "cn=mouse\\, jerry,ou=people,dc=springframework,dc=org";
+	@Test
+	public void testMultiAttributeRetrievalWithSpecifiedAttributeNames() {
+		Set<Map<String, List<String>>> values = template
+				.searchForMultipleAttributeValues("ou=people", "(uid={0})",
+						new String[] { "bob" }, new String[] { "uid", "cn", "sn" });
+		assertEquals(1, values.size());
+		Map<String, List<String>> record = values.iterator().next();
+		assertAttributeValue(record, "uid", "bob");
+		assertAttributeValue(record, "cn", "Bob Hamilton");
+		assertAttributeValue(record, "sn", "Hamilton");
+		assertFalse(record.containsKey("userPassword"));
+		assertFalse(record.containsKey("objectclass"));
+	}
 
-        javax.naming.NamingEnumeration<SearchResult> results =
-            ctx.search("ou=groups,dc=springframework,dc=org",
-                    "(member={0})", new String[] {param},
-                    controls);
+	protected void assertAttributeValue(Map<String, List<String>> record,
+			String attributeName, String... values) {
+		assertTrue(record.containsKey(attributeName));
+		assertEquals(values.length, record.get(attributeName).size());
+		for (int i = 0; i < values.length; i++) {
+			assertEquals(values[i], record.get(attributeName).get(i));
+		}
+	}
 
-        assertTrue("Expected a result", results.hasMore());
-    }
+	@Test
+	public void testRoleSearchForMissingAttributeFailsGracefully() {
+		String param = "uid=ben,ou=people,dc=springframework,dc=org";
 
-    @Test
-    public void searchForSingleEntryWithEscapedCharsInDnSucceeds() {
-        String param = "mouse, jerry";
+		Set<String> values = template.searchForSingleAttributeValues("ou=groups",
+				"(member={0})", new String[] { param }, "mail");
 
-        template.searchForSingleEntry("ou=people", "(cn={0})", new String[] {param});
-    }
+		assertEquals(0, values.size());
+	}
+
+	@Test
+	public void roleSearchWithEscapedCharacterSucceeds() throws Exception {
+		String param = "cn=mouse\\, jerry,ou=people,dc=springframework,dc=org";
+
+		Set<String> values = template.searchForSingleAttributeValues("ou=groups",
+				"(member={0})", new String[] { param }, "cn");
+
+		assertEquals(1, values.size());
+	}
+
+	@Test
+	public void nonSpringLdapSearchCodeTestMethod() throws Exception {
+		java.util.Hashtable<String, String> env = new java.util.Hashtable<String, String>();
+		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+		env.put(Context.PROVIDER_URL, "ldap://localhost:"
+				+ ApacheDSServerIntegrationTests.getServerPort());
+		env.put(Context.SECURITY_PRINCIPAL, "");
+		env.put(Context.SECURITY_CREDENTIALS, "");
+
+		DirContext ctx = new javax.naming.directory.InitialDirContext(env);
+		SearchControls controls = new SearchControls();
+		controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+		controls.setReturningObjFlag(true);
+		controls.setReturningAttributes(null);
+		String param = "cn=mouse\\, jerry,ou=people,dc=springframework,dc=org";
+
+		javax.naming.NamingEnumeration<SearchResult> results = ctx.search(
+				"ou=groups,dc=springframework,dc=org", "(member={0})",
+				new String[] { param }, controls);
+
+		assertTrue("Expected a result", results.hasMore());
+	}
+
+	@Test
+	public void searchForSingleEntryWithEscapedCharsInDnSucceeds() {
+		String param = "mouse, jerry";
+
+		template.searchForSingleEntry("ou=people", "(cn={0})", new String[] { param });
+	}
 
 }

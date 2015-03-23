@@ -17,7 +17,6 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.event.AuthorizedEvent;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,25 +25,28 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 
 @EnableWebSecurity
-public class AuthorizedRequestsWithPostProcessorConfig extends WebSecurityConfigurerAdapter {
-    static ApplicationListener<AuthorizedEvent> AL;
+public class AuthorizedRequestsWithPostProcessorConfig extends
+		WebSecurityConfigurerAdapter {
+	static ApplicationListener<AuthorizedEvent> AL;
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http
-            .authorizeRequests()
-                .anyRequest().permitAll()
-                .withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
-                    public <O extends FilterSecurityInterceptor> O postProcess(
-                            O fsi) {
-                        fsi.setPublishAuthorizationSuccess(true);
-                        return fsi;
-                    }
-                });
-    }
+	// @formatter:off
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+			.authorizeRequests()
+				.anyRequest().permitAll()
+				.withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
+					public <O extends FilterSecurityInterceptor> O postProcess(
+							O fsi) {
+						fsi.setPublishAuthorizationSuccess(true);
+						return fsi;
+					}
+				});
+	}
+	// @formatter:on
 
-    @Bean
-    public ApplicationListener<AuthorizedEvent> applicationListener() {
-        return AL;
-    }
+	@Bean
+	public ApplicationListener<AuthorizedEvent> applicationListener() {
+		return AL;
+	}
 }

@@ -16,45 +16,52 @@ import org.springframework.security.core.Authentication;
  * @author Luke Taylor
  * @since 3.0
  */
-public class ExpressionBasedPostInvocationAdvice implements PostInvocationAuthorizationAdvice{
-    protected final Log logger = LogFactory.getLog(getClass());
+public class ExpressionBasedPostInvocationAdvice implements
+		PostInvocationAuthorizationAdvice {
+	protected final Log logger = LogFactory.getLog(getClass());
 
-    private final MethodSecurityExpressionHandler expressionHandler;
+	private final MethodSecurityExpressionHandler expressionHandler;
 
-    public ExpressionBasedPostInvocationAdvice(MethodSecurityExpressionHandler expressionHandler) {
-        this.expressionHandler = expressionHandler;
-    }
+	public ExpressionBasedPostInvocationAdvice(
+			MethodSecurityExpressionHandler expressionHandler) {
+		this.expressionHandler = expressionHandler;
+	}
 
-    public Object after(Authentication authentication, MethodInvocation mi,
-            PostInvocationAttribute postAttr, Object returnedObject) throws AccessDeniedException{
-        PostInvocationExpressionAttribute pia = (PostInvocationExpressionAttribute) postAttr;
-        EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication, mi);
-        Expression postFilter = pia.getFilterExpression();
-        Expression postAuthorize = pia.getAuthorizeExpression();
+	public Object after(Authentication authentication, MethodInvocation mi,
+			PostInvocationAttribute postAttr, Object returnedObject)
+			throws AccessDeniedException {
+		PostInvocationExpressionAttribute pia = (PostInvocationExpressionAttribute) postAttr;
+		EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication,
+				mi);
+		Expression postFilter = pia.getFilterExpression();
+		Expression postAuthorize = pia.getAuthorizeExpression();
 
-        if (postFilter != null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Applying PostFilter expression " + postFilter);
-            }
+		if (postFilter != null) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Applying PostFilter expression " + postFilter);
+			}
 
-            if (returnedObject != null) {
-                returnedObject = expressionHandler.filter(returnedObject, postFilter, ctx);
-            } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Return object is null, filtering will be skipped");
-                }
-            }
-        }
+			if (returnedObject != null) {
+				returnedObject = expressionHandler
+						.filter(returnedObject, postFilter, ctx);
+			}
+			else {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Return object is null, filtering will be skipped");
+				}
+			}
+		}
 
-        expressionHandler.setReturnObject(returnedObject, ctx);
+		expressionHandler.setReturnObject(returnedObject, ctx);
 
-        if (postAuthorize != null && !ExpressionUtils.evaluateAsBoolean(postAuthorize, ctx)) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("PostAuthorize expression rejected access");
-            }
-            throw new AccessDeniedException("Access is denied");
-        }
+		if (postAuthorize != null
+				&& !ExpressionUtils.evaluateAsBoolean(postAuthorize, ctx)) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("PostAuthorize expression rejected access");
+			}
+			throw new AccessDeniedException("Access is denied");
+		}
 
-        return returnedObject;
-    }
+		return returnedObject;
+	}
 }

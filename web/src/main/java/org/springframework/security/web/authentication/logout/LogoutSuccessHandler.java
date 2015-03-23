@@ -9,19 +9,19 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
 
 /**
- * Strategy that is called after a successful logout by the {@link LogoutFilter}, to handle redirection or
- * forwarding to the appropriate destination.
+ * Strategy that is called after a successful logout by the {@link LogoutFilter}, to
+ * handle redirection or forwarding to the appropriate destination.
  * <p>
- * Note that the interface is almost the same as {@link LogoutHandler} but may raise an exception.
- * <tt>LogoutHandler</tt> implementations expect to be invoked to perform necessary cleanup, so should not throw
- * exceptions.
+ * Note that the interface is almost the same as {@link LogoutHandler} but may raise an
+ * exception. <tt>LogoutHandler</tt> implementations expect to be invoked to perform
+ * necessary cleanup, so should not throw exceptions.
  *
  * @author Luke Taylor
  * @since 3.0
  */
 public interface LogoutSuccessHandler {
 
-    void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
-            throws IOException, ServletException;
+	void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
+			Authentication authentication) throws IOException, ServletException;
 
 }

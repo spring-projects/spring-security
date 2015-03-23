@@ -7,16 +7,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    @SuppressWarnings({"unused", "FieldCanBeLocal"})
-    private UserRepository userRepository;
+	@SuppressWarnings({ "unused", "FieldCanBeLocal" })
+	private UserRepository userRepository;
 
-    @Transactional(readOnly=true)
-    public UserDetails loadUserByUsername(String username) {
-        return null;
-    }
+	@Transactional(readOnly = true)
+	public UserDetails loadUserByUsername(String username) {
+		return null;
+	}
 
-    @Required
-    public void setUserRepository(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+	@Required
+	public void setUserRepository(UserRepository userRepository) {
+		this.userRepository = userRepository;
+	}
 }

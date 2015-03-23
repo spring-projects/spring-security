@@ -24,99 +24,108 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 
-
 /**
  * Tests {@link RunAsManagerImpl}.
  *
  * @author Ben Alex
  */
 public class RunAsManagerImplTests extends TestCase {
-    public void testAlwaysSupportsClass() {
-        RunAsManagerImpl runAs = new RunAsManagerImpl();
-        assertTrue(runAs.supports(String.class));
-    }
+	public void testAlwaysSupportsClass() {
+		RunAsManagerImpl runAs = new RunAsManagerImpl();
+		assertTrue(runAs.supports(String.class));
+	}
 
-    public void testDoesNotReturnAdditionalAuthoritiesIfCalledWithoutARunAsSetting() throws Exception {
-        UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test", "Password",
-                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
+	public void testDoesNotReturnAdditionalAuthoritiesIfCalledWithoutARunAsSetting()
+			throws Exception {
+		UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken(
+				"Test", "Password", AuthorityUtils.createAuthorityList("ROLE_ONE",
+						"ROLE_TWO"));
 
-        RunAsManagerImpl runAs = new RunAsManagerImpl();
-        runAs.setKey("my_password");
+		RunAsManagerImpl runAs = new RunAsManagerImpl();
+		runAs.setKey("my_password");
 
-        Authentication resultingToken = runAs.buildRunAs(inputToken, new Object(), SecurityConfig.createList("SOMETHING_WE_IGNORE"));
-        assertEquals(null, resultingToken);
-    }
+		Authentication resultingToken = runAs.buildRunAs(inputToken, new Object(),
+				SecurityConfig.createList("SOMETHING_WE_IGNORE"));
+		assertEquals(null, resultingToken);
+	}
 
-    public void testRespectsRolePrefix() throws Exception {
-        UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test", "Password",
-                AuthorityUtils.createAuthorityList("ONE", "TWO"));
+	public void testRespectsRolePrefix() throws Exception {
+		UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken(
+				"Test", "Password", AuthorityUtils.createAuthorityList("ONE", "TWO"));
 
-        RunAsManagerImpl runAs = new RunAsManagerImpl();
-        runAs.setKey("my_password");
-        runAs.setRolePrefix("FOOBAR_");
+		RunAsManagerImpl runAs = new RunAsManagerImpl();
+		runAs.setKey("my_password");
+		runAs.setRolePrefix("FOOBAR_");
 
-        Authentication result = runAs.buildRunAs(inputToken, new Object(), SecurityConfig.createList("RUN_AS_SOMETHING"));
+		Authentication result = runAs.buildRunAs(inputToken, new Object(),
+				SecurityConfig.createList("RUN_AS_SOMETHING"));
 
-        assertTrue("Should have returned a RunAsUserToken", result instanceof RunAsUserToken);
-        assertEquals(inputToken.getPrincipal(), result.getPrincipal());
-        assertEquals(inputToken.getCredentials(), result.getCredentials());
-        Set<String> authorities = AuthorityUtils.authorityListToSet(result.getAuthorities());
+		assertTrue("Should have returned a RunAsUserToken",
+				result instanceof RunAsUserToken);
+		assertEquals(inputToken.getPrincipal(), result.getPrincipal());
+		assertEquals(inputToken.getCredentials(), result.getCredentials());
+		Set<String> authorities = AuthorityUtils.authorityListToSet(result
+				.getAuthorities());
 
-        assertTrue(authorities.contains("FOOBAR_RUN_AS_SOMETHING"));
-        assertTrue(authorities.contains("ONE"));
-        assertTrue(authorities.contains("TWO"));
+		assertTrue(authorities.contains("FOOBAR_RUN_AS_SOMETHING"));
+		assertTrue(authorities.contains("ONE"));
+		assertTrue(authorities.contains("TWO"));
 
-        RunAsUserToken resultCast = (RunAsUserToken) result;
-        assertEquals("my_password".hashCode(), resultCast.getKeyHash());
-    }
+		RunAsUserToken resultCast = (RunAsUserToken) result;
+		assertEquals("my_password".hashCode(), resultCast.getKeyHash());
+	}
 
-    public void testReturnsAdditionalGrantedAuthorities() throws Exception {
-        UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test", "Password",
-                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
+	public void testReturnsAdditionalGrantedAuthorities() throws Exception {
+		UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken(
+				"Test", "Password", AuthorityUtils.createAuthorityList("ROLE_ONE",
+						"ROLE_TWO"));
 
-        RunAsManagerImpl runAs = new RunAsManagerImpl();
-        runAs.setKey("my_password");
+		RunAsManagerImpl runAs = new RunAsManagerImpl();
+		runAs.setKey("my_password");
 
-        Authentication result = runAs.buildRunAs(inputToken, new Object(), SecurityConfig.createList("RUN_AS_SOMETHING"));
+		Authentication result = runAs.buildRunAs(inputToken, new Object(),
+				SecurityConfig.createList("RUN_AS_SOMETHING"));
 
-        if (!(result instanceof RunAsUserToken)) {
-            fail("Should have returned a RunAsUserToken");
-        }
+		if (!(result instanceof RunAsUserToken)) {
+			fail("Should have returned a RunAsUserToken");
+		}
 
-        assertEquals(inputToken.getPrincipal(), result.getPrincipal());
-        assertEquals(inputToken.getCredentials(), result.getCredentials());
+		assertEquals(inputToken.getPrincipal(), result.getPrincipal());
+		assertEquals(inputToken.getCredentials(), result.getCredentials());
 
-        Set<String> authorities = AuthorityUtils.authorityListToSet(result.getAuthorities());
-        assertTrue(authorities.contains("ROLE_RUN_AS_SOMETHING"));
-        assertTrue(authorities.contains("ROLE_ONE"));
-        assertTrue(authorities.contains("ROLE_TWO"));
+		Set<String> authorities = AuthorityUtils.authorityListToSet(result
+				.getAuthorities());
+		assertTrue(authorities.contains("ROLE_RUN_AS_SOMETHING"));
+		assertTrue(authorities.contains("ROLE_ONE"));
+		assertTrue(authorities.contains("ROLE_TWO"));
 
-        RunAsUserToken resultCast = (RunAsUserToken) result;
-        assertEquals("my_password".hashCode(), resultCast.getKeyHash());
-    }
+		RunAsUserToken resultCast = (RunAsUserToken) result;
+		assertEquals("my_password".hashCode(), resultCast.getKeyHash());
+	}
 
-    public void testStartupDetectsMissingKey() throws Exception {
-        RunAsManagerImpl runAs = new RunAsManagerImpl();
+	public void testStartupDetectsMissingKey() throws Exception {
+		RunAsManagerImpl runAs = new RunAsManagerImpl();
 
-        try {
-            runAs.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-    }
+		try {
+			runAs.afterPropertiesSet();
+			fail("Should have thrown IllegalArgumentException");
+		}
+		catch (IllegalArgumentException expected) {
+			assertTrue(true);
+		}
+	}
 
-    public void testStartupSuccessfulWithKey() throws Exception {
-        RunAsManagerImpl runAs = new RunAsManagerImpl();
-        runAs.setKey("hello_world");
-        runAs.afterPropertiesSet();
-        assertEquals("hello_world", runAs.getKey());
-    }
+	public void testStartupSuccessfulWithKey() throws Exception {
+		RunAsManagerImpl runAs = new RunAsManagerImpl();
+		runAs.setKey("hello_world");
+		runAs.afterPropertiesSet();
+		assertEquals("hello_world", runAs.getKey());
+	}
 
-    public void testSupports() throws Exception {
-        RunAsManager runAs = new RunAsManagerImpl();
-        assertTrue(runAs.supports(new SecurityConfig("RUN_AS_SOMETHING")));
-        assertTrue(!runAs.supports(new SecurityConfig("ROLE_WHICH_IS_IGNORED")));
-        assertTrue(!runAs.supports(new SecurityConfig("role_LOWER_CASE_FAILS")));
-    }
+	public void testSupports() throws Exception {
+		RunAsManager runAs = new RunAsManagerImpl();
+		assertTrue(runAs.supports(new SecurityConfig("RUN_AS_SOMETHING")));
+		assertTrue(!runAs.supports(new SecurityConfig("ROLE_WHICH_IS_IGNORED")));
+		assertTrue(!runAs.supports(new SecurityConfig("role_LOWER_CASE_FAILS")));
+	}
 }

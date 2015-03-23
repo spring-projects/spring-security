@@ -3,8 +3,8 @@ package org.springframework.security.web.authentication.preauth.websphere;
 import java.util.List;
 
 /**
- * Provides indirection between classes using websphere and the actual container interaction,
- * allowing for easier unit testing.
+ * Provides indirection between classes using websphere and the actual container
+ * interaction, allowing for easier unit testing.
  * <p>
  * Only for internal use.
  *
@@ -13,7 +13,7 @@ import java.util.List;
  */
 interface WASUsernameAndGroupsExtractor {
 
-    List<String> getGroupsForCurrentUser();
+	List<String> getGroupsForCurrentUser();
 
-    String getCurrentUserName();
+	String getCurrentUserName();
 }

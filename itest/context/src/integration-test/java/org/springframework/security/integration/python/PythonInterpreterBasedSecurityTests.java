@@ -8,19 +8,20 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@ContextConfiguration(locations={"/python-method-access-app-context.xml"})
+@ContextConfiguration(locations = { "/python-method-access-app-context.xml" })
 @RunWith(SpringJUnit4ClassRunner.class)
 public class PythonInterpreterBasedSecurityTests {
 
-    @Autowired
-    private TestService service;
+	@Autowired
+	private TestService service;
 
-    @Test
-    public void serviceMethod() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("bob","bobspassword"));
+	@Test
+	public void serviceMethod() throws Exception {
+		SecurityContextHolder.getContext().setAuthentication(
+				new UsernamePasswordAuthenticationToken("bob", "bobspassword"));
 
-//        for (int i=0; i < 1000; i++) {
-            service.someMethod();
-//        }
-    }
+		// for (int i=0; i < 1000; i++) {
+		service.someMethod();
+		// }
+	}
 }

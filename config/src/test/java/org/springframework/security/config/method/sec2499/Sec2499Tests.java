@@ -25,26 +25,27 @@ import org.springframework.context.support.GenericXmlApplicationContext;
  *
  */
 public class Sec2499Tests {
-    private GenericXmlApplicationContext parent;
+	private GenericXmlApplicationContext parent;
 
-    private GenericXmlApplicationContext child;
+	private GenericXmlApplicationContext child;
 
-    @After
-    public void cleanup() {
-        if(parent != null) {
-            parent.close();
-        }
-        if(child != null) {
-            child.close();
-        }
-    }
+	@After
+	public void cleanup() {
+		if (parent != null) {
+			parent.close();
+		}
+		if (child != null) {
+			child.close();
+		}
+	}
 
-    @Test
-    public void methodExpressionHandlerInParentContextLoads() {
-        parent = new GenericXmlApplicationContext("org/springframework/security/config/method/sec2499/parent.xml");
-        child = new GenericXmlApplicationContext();
-        child.load("org/springframework/security/config/method/sec2499/child.xml");
-        child.setParent(parent);
-        child.refresh();
-    }
+	@Test
+	public void methodExpressionHandlerInParentContextLoads() {
+		parent = new GenericXmlApplicationContext(
+				"org/springframework/security/config/method/sec2499/parent.xml");
+		child = new GenericXmlApplicationContext();
+		child.load("org/springframework/security/config/method/sec2499/child.xml");
+		child.setParent(parent);
+		child.refresh();
+	}
 }

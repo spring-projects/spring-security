@@ -15,36 +15,36 @@ import org.springframework.util.Assert;
  */
 public final class SimpleGrantedAuthority implements GrantedAuthority {
 
-    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-    private final String role;
+	private final String role;
 
-    public SimpleGrantedAuthority(String role) {
-        Assert.hasText(role, "A granted authority textual representation is required");
-        this.role = role;
-    }
+	public SimpleGrantedAuthority(String role) {
+		Assert.hasText(role, "A granted authority textual representation is required");
+		this.role = role;
+	}
 
-    public String getAuthority() {
-        return role;
-    }
+	public String getAuthority() {
+		return role;
+	}
 
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
 
-        if (obj instanceof SimpleGrantedAuthority) {
-            return role.equals(((SimpleGrantedAuthority) obj).role);
-        }
+		if (obj instanceof SimpleGrantedAuthority) {
+			return role.equals(((SimpleGrantedAuthority) obj).role);
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-    public int hashCode() {
-        return this.role.hashCode();
-    }
+	public int hashCode() {
+		return this.role.hashCode();
+	}
 
-    public String toString() {
-        return this.role;
-    }
+	public String toString() {
+		return this.role;
+	}
 }

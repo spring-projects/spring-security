@@ -24,7 +24,6 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-
 /**
  * A filter used to filter arrays.
  *
@@ -32,86 +31,91 @@ import org.apache.commons.logging.LogFactory;
  * @author Paulo Neves
  */
 class ArrayFilterer<T> implements Filterer<T> {
-    //~ Static fields/initializers =====================================================================================
+	// ~ Static fields/initializers
+	// =====================================================================================
 
-    protected static final Log logger = LogFactory.getLog(ArrayFilterer.class);
+	protected static final Log logger = LogFactory.getLog(ArrayFilterer.class);
 
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private final Set<T> removeList;
-    private final T[] list;
+	private final Set<T> removeList;
+	private final T[] list;
 
-    //~ Constructors ===================================================================================================
+	// ~ Constructors
+	// ===================================================================================================
 
-    ArrayFilterer(T[] list) {
-        this.list = list;
+	ArrayFilterer(T[] list) {
+		this.list = list;
 
-        // Collect the removed objects to a HashSet so that
-        // it is fast to lookup them when a filtered array
-        // is constructed.
-        removeList = new HashSet<T>();
-    }
+		// Collect the removed objects to a HashSet so that
+		// it is fast to lookup them when a filtered array
+		// is constructed.
+		removeList = new HashSet<T>();
+	}
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    /**
-     *
-     * @see org.springframework.security.acls.afterinvocation.Filterer#getFilteredObject()
-     */
-    @SuppressWarnings("unchecked")
-    public T[] getFilteredObject() {
-        // Recreate an array of same type and filter the removed objects.
-        int originalSize = list.length;
-        int sizeOfResultingList = originalSize - removeList.size();
-        T[] filtered = (T[]) Array.newInstance(list.getClass().getComponentType(), sizeOfResultingList);
+	/**
+	 *
+	 * @see org.springframework.security.acls.afterinvocation.Filterer#getFilteredObject()
+	 */
+	@SuppressWarnings("unchecked")
+	public T[] getFilteredObject() {
+		// Recreate an array of same type and filter the removed objects.
+		int originalSize = list.length;
+		int sizeOfResultingList = originalSize - removeList.size();
+		T[] filtered = (T[]) Array.newInstance(list.getClass().getComponentType(),
+				sizeOfResultingList);
 
-        for (int i = 0, j = 0; i < list.length; i++) {
-            T object = list[i];
+		for (int i = 0, j = 0; i < list.length; i++) {
+			T object = list[i];
 
-            if (!removeList.contains(object)) {
-                filtered[j] = object;
-                j++;
-            }
-        }
+			if (!removeList.contains(object)) {
+				filtered[j] = object;
+				j++;
+			}
+		}
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Original array contained " + originalSize + " elements; now contains " + sizeOfResultingList
-                + " elements");
-        }
+		if (logger.isDebugEnabled()) {
+			logger.debug("Original array contained " + originalSize
+					+ " elements; now contains " + sizeOfResultingList + " elements");
+		}
 
-        return filtered;
-    }
+		return filtered;
+	}
 
-    /**
-     *
-     * @see org.springframework.security.acls.afterinvocation.Filterer#iterator()
-     */
-    public Iterator<T> iterator() {
-        return new Iterator<T>() {
-            private int index = 0;
+	/**
+	 *
+	 * @see org.springframework.security.acls.afterinvocation.Filterer#iterator()
+	 */
+	public Iterator<T> iterator() {
+		return new Iterator<T>() {
+			private int index = 0;
 
-            public boolean hasNext() {
-                return index < list.length;
-            }
+			public boolean hasNext() {
+				return index < list.length;
+			}
 
-            public T next() {
-                if (!hasNext()) {
-                    throw new NoSuchElementException();
-                }
-                return list[index++];
-            }
+			public T next() {
+				if (!hasNext()) {
+					throw new NoSuchElementException();
+				}
+				return list[index++];
+			}
 
-            public void remove() {
-                throw new UnsupportedOperationException();
-            }
-        };
-    }
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+		};
+	}
 
-    /**
-     *
-     * @see org.springframework.security.acls.afterinvocation.Filterer#remove(java.lang.Object)
-     */
-    public void remove(T object) {
-        removeList.add(object);
-    }
+	/**
+	 *
+	 * @see org.springframework.security.acls.afterinvocation.Filterer#remove(java.lang.Object)
+	 */
+	public void remove(T object) {
+		removeList.add(object);
+	}
 }

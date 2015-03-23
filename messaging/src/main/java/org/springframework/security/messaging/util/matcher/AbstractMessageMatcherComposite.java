@@ -29,40 +29,41 @@ import org.apache.commons.logging.Log;
  * @since 4.0
  */
 abstract class AbstractMessageMatcherComposite<T> implements MessageMatcher<T> {
-    protected final Log LOGGER = getLog(getClass());
+	protected final Log LOGGER = getLog(getClass());
 
-    private final List<MessageMatcher<T>> messageMatchers;
+	private final List<MessageMatcher<T>> messageMatchers;
 
-    /**
-     * Creates a new instance
-     *
-     * @param messageMatchers the {@link MessageMatcher} instances to try
-     */
-    public AbstractMessageMatcherComposite(List<MessageMatcher<T>> messageMatchers) {
-        notEmpty(messageMatchers, "messageMatchers must contain a value");
-        if (messageMatchers.contains(null)) {
-            throw new IllegalArgumentException("messageMatchers cannot contain null values");
-        }
-        this.messageMatchers = messageMatchers;
+	/**
+	 * Creates a new instance
+	 *
+	 * @param messageMatchers the {@link MessageMatcher} instances to try
+	 */
+	public AbstractMessageMatcherComposite(List<MessageMatcher<T>> messageMatchers) {
+		notEmpty(messageMatchers, "messageMatchers must contain a value");
+		if (messageMatchers.contains(null)) {
+			throw new IllegalArgumentException(
+					"messageMatchers cannot contain null values");
+		}
+		this.messageMatchers = messageMatchers;
 
-    }
+	}
 
-    /**
-     * Creates a new instance
-     *
-     * @param messageMatchers the {@link MessageMatcher} instances to try
-     */
-    @SafeVarargs
-    public AbstractMessageMatcherComposite(MessageMatcher<T>... messageMatchers) {
-        this(asList(messageMatchers));
-    }
+	/**
+	 * Creates a new instance
+	 *
+	 * @param messageMatchers the {@link MessageMatcher} instances to try
+	 */
+	@SafeVarargs
+	public AbstractMessageMatcherComposite(MessageMatcher<T>... messageMatchers) {
+		this(asList(messageMatchers));
+	}
 
-    public List<MessageMatcher<T>> getMessageMatchers() {
-        return messageMatchers;
-    }
+	public List<MessageMatcher<T>> getMessageMatchers() {
+		return messageMatchers;
+	}
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName()+ "[messageMatchers=" + messageMatchers + "]";
-    }
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + "[messageMatchers=" + messageMatchers + "]";
+	}
 }

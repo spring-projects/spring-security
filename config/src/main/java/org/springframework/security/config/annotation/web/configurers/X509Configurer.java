@@ -34,10 +34,10 @@ import org.springframework.security.web.authentication.preauth.x509.SubjectDnX50
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
 
 /**
- * Adds X509 based pre authentication to an application. Since validating the
- * certificate happens when the client connects, the requesting and validation
- * of the client certificate should be performed by the container. Spring Security
- * will then use the certificate to look up the {@link Authentication} for the user.
+ * Adds X509 based pre authentication to an application. Since validating the certificate
+ * happens when the client connects, the requesting and validation of the client
+ * certificate should be performed by the container. Spring Security will then use the
+ * certificate to look up the {@link Authentication} for the user.
  *
  * <h2>Security Filters</h2>
  *
@@ -53,8 +53,8 @@ import org.springframework.security.web.authentication.preauth.x509.X509Authenti
  *
  * <ul>
  * <li>
- * {@link AuthenticationEntryPoint}
- * is populated with an {@link Http403ForbiddenEntryPoint}</li>
+ * {@link AuthenticationEntryPoint} is populated with an
+ * {@link Http403ForbiddenEntryPoint}</li>
  * <li>A {@link PreAuthenticatedAuthenticationProvider} is populated into
  * {@link HttpSecurity#authenticationProvider(org.springframework.security.authentication.AuthenticationProvider)}
  * </li>
@@ -65,132 +65,140 @@ import org.springframework.security.web.authentication.preauth.x509.X509Authenti
  * The following shared objects are used:
  *
  * <ul>
- * <li>A {@link UserDetailsService} shared object is used if no {@link AuthenticationUserDetailsService} is specified</li>
+ * <li>A {@link UserDetailsService} shared object is used if no
+ * {@link AuthenticationUserDetailsService} is specified</li>
  * </ul>
  *
  * @author Rob Winch
  * @since 3.2
  */
-public final class X509Configurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<X509Configurer<H>,H> {
-    private X509AuthenticationFilter x509AuthenticationFilter;
-    private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> authenticationUserDetailsService;
-    private String subjectPrincipalRegex;
-    private AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> authenticationDetailsSource;
+public final class X509Configurer<H extends HttpSecurityBuilder<H>> extends
+		AbstractHttpConfigurer<X509Configurer<H>, H> {
+	private X509AuthenticationFilter x509AuthenticationFilter;
+	private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> authenticationUserDetailsService;
+	private String subjectPrincipalRegex;
+	private AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> authenticationDetailsSource;
 
-    /**
-     * Creates a new instance
-     * @see HttpSecurity#x509()
-     */
-    public X509Configurer() {
-    }
+	/**
+	 * Creates a new instance
+	 * @see HttpSecurity#x509()
+	 */
+	public X509Configurer() {
+	}
 
-    /**
-     * Allows specifying the entire {@link X509AuthenticationFilter}. If this is
-     * specified, the properties on {@link X509Configurer} will not be
-     * populated on the {@link X509AuthenticationFilter}.
-     *
-     * @param x509AuthenticationFilter the {@link X509AuthenticationFilter} to use
-     * @return the {@link X509Configurer} for further customizations
-     */
-    public X509Configurer<H> x509AuthenticationFilter(
-            X509AuthenticationFilter x509AuthenticationFilter) {
-        this.x509AuthenticationFilter = x509AuthenticationFilter;
-        return this;
-    }
+	/**
+	 * Allows specifying the entire {@link X509AuthenticationFilter}. If this is
+	 * specified, the properties on {@link X509Configurer} will not be populated on the
+	 * {@link X509AuthenticationFilter}.
+	 *
+	 * @param x509AuthenticationFilter the {@link X509AuthenticationFilter} to use
+	 * @return the {@link X509Configurer} for further customizations
+	 */
+	public X509Configurer<H> x509AuthenticationFilter(
+			X509AuthenticationFilter x509AuthenticationFilter) {
+		this.x509AuthenticationFilter = x509AuthenticationFilter;
+		return this;
+	}
 
-    /**
-     * Specifies the {@link AuthenticationDetailsSource}
-     *
-     * @param authenticationDetailsSource the {@link AuthenticationDetailsSource} to use
-     * @return the {@link X509Configurer} to use
-     */
-    public X509Configurer<H> authenticationDetailsSource(AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> authenticationDetailsSource) {
-        this.authenticationDetailsSource = authenticationDetailsSource;
-        return this;
-    }
+	/**
+	 * Specifies the {@link AuthenticationDetailsSource}
+	 *
+	 * @param authenticationDetailsSource the {@link AuthenticationDetailsSource} to use
+	 * @return the {@link X509Configurer} to use
+	 */
+	public X509Configurer<H> authenticationDetailsSource(
+			AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> authenticationDetailsSource) {
+		this.authenticationDetailsSource = authenticationDetailsSource;
+		return this;
+	}
 
-    /**
-     * Shortcut for invoking {@link #authenticationUserDetailsService(AuthenticationUserDetailsService)} with a {@link UserDetailsByNameServiceWrapper}.
-     *
-     * @param userDetailsService the {@link UserDetailsService} to use
-     * @return the {@link X509Configurer} for further customizations
-     */
-    public X509Configurer<H> userDetailsService(
-            UserDetailsService userDetailsService) {
-        UserDetailsByNameServiceWrapper<PreAuthenticatedAuthenticationToken> authenticationUserDetailsService = new UserDetailsByNameServiceWrapper<PreAuthenticatedAuthenticationToken>();
-        authenticationUserDetailsService.setUserDetailsService(userDetailsService);
-        return authenticationUserDetailsService(authenticationUserDetailsService);
-    }
+	/**
+	 * Shortcut for invoking
+	 * {@link #authenticationUserDetailsService(AuthenticationUserDetailsService)} with a
+	 * {@link UserDetailsByNameServiceWrapper}.
+	 *
+	 * @param userDetailsService the {@link UserDetailsService} to use
+	 * @return the {@link X509Configurer} for further customizations
+	 */
+	public X509Configurer<H> userDetailsService(UserDetailsService userDetailsService) {
+		UserDetailsByNameServiceWrapper<PreAuthenticatedAuthenticationToken> authenticationUserDetailsService = new UserDetailsByNameServiceWrapper<PreAuthenticatedAuthenticationToken>();
+		authenticationUserDetailsService.setUserDetailsService(userDetailsService);
+		return authenticationUserDetailsService(authenticationUserDetailsService);
+	}
 
-    /**
-     * Specifies the {@link AuthenticationUserDetailsService} to use. If not
-     * specified, the shared {@link UserDetailsService} will be used to create a
-     * {@link UserDetailsByNameServiceWrapper}.
-     *
-     * @param authenticationUserDetailsService the {@link AuthenticationUserDetailsService} to use
-     * @return the {@link X509Configurer} for further customizations
-     */
-    public X509Configurer<H> authenticationUserDetailsService(
-            AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> authenticationUserDetailsService) {
-        this.authenticationUserDetailsService = authenticationUserDetailsService;
-        return this;
-    }
+	/**
+	 * Specifies the {@link AuthenticationUserDetailsService} to use. If not specified,
+	 * the shared {@link UserDetailsService} will be used to create a
+	 * {@link UserDetailsByNameServiceWrapper}.
+	 *
+	 * @param authenticationUserDetailsService the
+	 * {@link AuthenticationUserDetailsService} to use
+	 * @return the {@link X509Configurer} for further customizations
+	 */
+	public X509Configurer<H> authenticationUserDetailsService(
+			AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> authenticationUserDetailsService) {
+		this.authenticationUserDetailsService = authenticationUserDetailsService;
+		return this;
+	}
 
-    /**
-     * Specifies the regex to extract the principal from the certificate. If not
-     * specified, the default expression from
-     * {@link SubjectDnX509PrincipalExtractor} is used.
-     *
-     * @param subjectPrincipalRegex
-     *            the regex to extract the user principal from the certificate
-     *            (i.e. "CN=(.*?)(?:,|$)").
-     * @return the {@link X509Configurer} for further customizations
-     */
-    public X509Configurer<H> subjectPrincipalRegex(String subjectPrincipalRegex) {
-        this.subjectPrincipalRegex = subjectPrincipalRegex;
-        return this;
-    }
+	/**
+	 * Specifies the regex to extract the principal from the certificate. If not
+	 * specified, the default expression from {@link SubjectDnX509PrincipalExtractor} is
+	 * used.
+	 *
+	 * @param subjectPrincipalRegex the regex to extract the user principal from the
+	 * certificate (i.e. "CN=(.*?)(?:,|$)").
+	 * @return the {@link X509Configurer} for further customizations
+	 */
+	public X509Configurer<H> subjectPrincipalRegex(String subjectPrincipalRegex) {
+		this.subjectPrincipalRegex = subjectPrincipalRegex;
+		return this;
+	}
 
-    @Override
-    public void init(H http) throws Exception {
-        PreAuthenticatedAuthenticationProvider authenticationProvider = new PreAuthenticatedAuthenticationProvider();
-        authenticationProvider.setPreAuthenticatedUserDetailsService(getAuthenticationUserDetailsService(http));
+	// @formatter:off
+	@Override
+	public void init(H http) throws Exception {
+		PreAuthenticatedAuthenticationProvider authenticationProvider = new PreAuthenticatedAuthenticationProvider();
+		authenticationProvider.setPreAuthenticatedUserDetailsService(getAuthenticationUserDetailsService(http));
 
-        http
-            .authenticationProvider(authenticationProvider)
-            .setSharedObject(AuthenticationEntryPoint.class,new Http403ForbiddenEntryPoint());
-    }
+		http
+			.authenticationProvider(authenticationProvider)
+			.setSharedObject(AuthenticationEntryPoint.class,new Http403ForbiddenEntryPoint());
+	}
+	// @formatter:on
 
-    @Override
-    public void configure(H http) throws Exception {
-        X509AuthenticationFilter filter = getFilter(http.getSharedObject(AuthenticationManager.class));
-        http.addFilter(filter);
-    }
+	@Override
+	public void configure(H http) throws Exception {
+		X509AuthenticationFilter filter = getFilter(http
+				.getSharedObject(AuthenticationManager.class));
+		http.addFilter(filter);
+	}
 
-    private X509AuthenticationFilter getFilter(
-            AuthenticationManager authenticationManager) {
-        if (x509AuthenticationFilter == null) {
-            x509AuthenticationFilter = new X509AuthenticationFilter();
-            x509AuthenticationFilter.setAuthenticationManager(authenticationManager);
-            if(subjectPrincipalRegex != null) {
-                SubjectDnX509PrincipalExtractor principalExtractor = new SubjectDnX509PrincipalExtractor();
-                principalExtractor.setSubjectDnRegex(subjectPrincipalRegex);
-                x509AuthenticationFilter.setPrincipalExtractor(principalExtractor);
-            }
-            if(authenticationDetailsSource != null) {
-                x509AuthenticationFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
-            }
-            x509AuthenticationFilter = postProcess(x509AuthenticationFilter);
-        }
+	private X509AuthenticationFilter getFilter(AuthenticationManager authenticationManager) {
+		if (x509AuthenticationFilter == null) {
+			x509AuthenticationFilter = new X509AuthenticationFilter();
+			x509AuthenticationFilter.setAuthenticationManager(authenticationManager);
+			if (subjectPrincipalRegex != null) {
+				SubjectDnX509PrincipalExtractor principalExtractor = new SubjectDnX509PrincipalExtractor();
+				principalExtractor.setSubjectDnRegex(subjectPrincipalRegex);
+				x509AuthenticationFilter.setPrincipalExtractor(principalExtractor);
+			}
+			if (authenticationDetailsSource != null) {
+				x509AuthenticationFilter
+						.setAuthenticationDetailsSource(authenticationDetailsSource);
+			}
+			x509AuthenticationFilter = postProcess(x509AuthenticationFilter);
+		}
 
-        return x509AuthenticationFilter;
-    }
+		return x509AuthenticationFilter;
+	}
 
-    private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> getAuthenticationUserDetailsService(H http) {
-        if(authenticationUserDetailsService == null) {
-            userDetailsService(http.getSharedObject(UserDetailsService.class));
-        }
-        return authenticationUserDetailsService;
-    }
+	private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> getAuthenticationUserDetailsService(
+			H http) {
+		if (authenticationUserDetailsService == null) {
+			userDetailsService(http.getSharedObject(UserDetailsService.class));
+		}
+		return authenticationUserDetailsService;
+	}
 
 }

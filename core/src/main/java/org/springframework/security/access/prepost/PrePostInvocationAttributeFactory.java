@@ -9,7 +9,9 @@ import org.springframework.aop.framework.AopInfrastructureBean;
  */
 public interface PrePostInvocationAttributeFactory extends AopInfrastructureBean {
 
-    PreInvocationAttribute createPreInvocationAttribute(String preFilterAttribute, String filterObject, String preAuthorizeAttribute);
+	PreInvocationAttribute createPreInvocationAttribute(String preFilterAttribute,
+			String filterObject, String preAuthorizeAttribute);
 
-    PostInvocationAttribute createPostInvocationAttribute(String postFilterAttribute, String postAuthorizeAttribute);
+	PostInvocationAttribute createPostInvocationAttribute(String postFilterAttribute,
+			String postAuthorizeAttribute);
 }

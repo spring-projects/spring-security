@@ -15,7 +15,6 @@
 
 package org.springframework.security.web.authentication;
 
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -33,120 +32,145 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
-
 /**
  * Tests {@link UsernamePasswordAuthenticationFilter}.
  *
  * @author Ben Alex
  */
 public class UsernamePasswordAuthenticationFilterTests extends TestCase {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    @Test
-    public void testNormalOperation() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
-        request.addParameter(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY, "rod");
-        request.addParameter(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY, "koala");
+	@Test
+	public void testNormalOperation() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
+		request.addParameter(
+				UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY,
+				"rod");
+		request.addParameter(
+				UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY,
+				"koala");
 
-        UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
-        filter.setAuthenticationManager(createAuthenticationManager());
-//        filter.init(null);
+		UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
+		filter.setAuthenticationManager(createAuthenticationManager());
+		// filter.init(null);
 
-        Authentication result = filter.attemptAuthentication(request, new MockHttpServletResponse());
-        assertTrue(result != null);
-        assertEquals("127.0.0.1", ((WebAuthenticationDetails) result.getDetails()).getRemoteAddress());
-    }
+		Authentication result = filter.attemptAuthentication(request,
+				new MockHttpServletResponse());
+		assertTrue(result != null);
+		assertEquals("127.0.0.1",
+				((WebAuthenticationDetails) result.getDetails()).getRemoteAddress());
+	}
 
-    @Test
-    public void testNullPasswordHandledGracefully() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
-        request.addParameter(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY, "rod");
+	@Test
+	public void testNullPasswordHandledGracefully() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
+		request.addParameter(
+				UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY,
+				"rod");
 
-        UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
-        filter.setAuthenticationManager(createAuthenticationManager());
-        assertNotNull(filter.attemptAuthentication(request, new MockHttpServletResponse()));
-    }
+		UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
+		filter.setAuthenticationManager(createAuthenticationManager());
+		assertNotNull(filter
+				.attemptAuthentication(request, new MockHttpServletResponse()));
+	}
 
-    @Test
-    public void testNullUsernameHandledGracefully() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
-        request.addParameter(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY, "koala");
+	@Test
+	public void testNullUsernameHandledGracefully() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
+		request.addParameter(
+				UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY,
+				"koala");
 
-        UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
-        filter.setAuthenticationManager(createAuthenticationManager());
-        assertNotNull(filter.attemptAuthentication(request, new MockHttpServletResponse()));
-    }
+		UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
+		filter.setAuthenticationManager(createAuthenticationManager());
+		assertNotNull(filter
+				.attemptAuthentication(request, new MockHttpServletResponse()));
+	}
 
-    @Test
-    public void testUsingDifferentParameterNamesWorksAsExpected() throws ServletException {
-        UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
-        filter.setAuthenticationManager(createAuthenticationManager());
-        filter.setUsernameParameter("x");
-        filter.setPasswordParameter("y");
+	@Test
+	public void testUsingDifferentParameterNamesWorksAsExpected() throws ServletException {
+		UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
+		filter.setAuthenticationManager(createAuthenticationManager());
+		filter.setUsernameParameter("x");
+		filter.setPasswordParameter("y");
 
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
-        request.addParameter("x", "rod");
-        request.addParameter("y", "koala");
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
+		request.addParameter("x", "rod");
+		request.addParameter("y", "koala");
 
-        Authentication result = filter.attemptAuthentication(request, new MockHttpServletResponse());
-        assertNotNull(result);
-        assertEquals("127.0.0.1", ((WebAuthenticationDetails) result.getDetails()).getRemoteAddress());
-    }
+		Authentication result = filter.attemptAuthentication(request,
+				new MockHttpServletResponse());
+		assertNotNull(result);
+		assertEquals("127.0.0.1",
+				((WebAuthenticationDetails) result.getDetails()).getRemoteAddress());
+	}
 
-    @Test
-    public void testSpacesAreTrimmedCorrectlyFromUsername() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
-        request.addParameter(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY, " rod ");
-        request.addParameter(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY, "koala");
+	@Test
+	public void testSpacesAreTrimmedCorrectlyFromUsername() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
+		request.addParameter(
+				UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY,
+				" rod ");
+		request.addParameter(
+				UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY,
+				"koala");
 
-        UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
-        filter.setAuthenticationManager(createAuthenticationManager());
+		UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
+		filter.setAuthenticationManager(createAuthenticationManager());
 
-        Authentication result = filter.attemptAuthentication(request, new MockHttpServletResponse());
-        assertEquals("rod", result.getName());
-    }
+		Authentication result = filter.attemptAuthentication(request,
+				new MockHttpServletResponse());
+		assertEquals("rod", result.getName());
+	}
 
-    @Test
-    public void testFailedAuthenticationThrowsException() {
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
-        request.addParameter(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY, "rod");
-        UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
-        AuthenticationManager am = mock(AuthenticationManager.class);
-        when(am.authenticate(any(Authentication.class))).thenThrow(new BadCredentialsException(""));
-        filter.setAuthenticationManager(am);
+	@Test
+	public void testFailedAuthenticationThrowsException() {
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/");
+		request.addParameter(
+				UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY,
+				"rod");
+		UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
+		AuthenticationManager am = mock(AuthenticationManager.class);
+		when(am.authenticate(any(Authentication.class))).thenThrow(
+				new BadCredentialsException(""));
+		filter.setAuthenticationManager(am);
 
-        try {
-            filter.attemptAuthentication(request, new MockHttpServletResponse());
-            fail("Expected AuthenticationException");
-        } catch (AuthenticationException e) {
-        }
-    }
+		try {
+			filter.attemptAuthentication(request, new MockHttpServletResponse());
+			fail("Expected AuthenticationException");
+		}
+		catch (AuthenticationException e) {
+		}
+	}
 
-    /**
-     * SEC-571
-     */
-    @Test
-    public void noSessionIsCreatedIfAllowSessionCreationIsFalse() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest();
+	/**
+	 * SEC-571
+	 */
+	@Test
+	public void noSessionIsCreatedIfAllowSessionCreationIsFalse() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
 
-        UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
-        filter.setAllowSessionCreation(false);
-        filter.setAuthenticationManager(createAuthenticationManager());
+		UsernamePasswordAuthenticationFilter filter = new UsernamePasswordAuthenticationFilter();
+		filter.setAllowSessionCreation(false);
+		filter.setAuthenticationManager(createAuthenticationManager());
 
-        filter.attemptAuthentication(request, new MockHttpServletResponse());
+		filter.attemptAuthentication(request, new MockHttpServletResponse());
 
-        assertNull(request.getSession(false));
-    }
+		assertNull(request.getSession(false));
+	}
 
-    private AuthenticationManager createAuthenticationManager() {
-        AuthenticationManager am = mock(AuthenticationManager.class);
-        when(am.authenticate(any(Authentication.class))).thenAnswer(new Answer<Authentication>() {
-            public Authentication answer(InvocationOnMock invocation) throws Throwable {
-                return (Authentication) invocation.getArguments()[0];
-            }
-        });
+	private AuthenticationManager createAuthenticationManager() {
+		AuthenticationManager am = mock(AuthenticationManager.class);
+		when(am.authenticate(any(Authentication.class))).thenAnswer(
+				new Answer<Authentication>() {
+					public Authentication answer(InvocationOnMock invocation)
+							throws Throwable {
+						return (Authentication) invocation.getArguments()[0];
+					}
+				});
 
-        return am;
-    }
+		return am;
+	}
 
 }

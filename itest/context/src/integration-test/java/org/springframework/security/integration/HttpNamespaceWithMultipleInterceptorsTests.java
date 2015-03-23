@@ -18,43 +18,45 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@ContextConfiguration(locations={"/http-extra-fsi-app-context.xml"})
+@ContextConfiguration(locations = { "/http-extra-fsi-app-context.xml" })
 @RunWith(SpringJUnit4ClassRunner.class)
 public class HttpNamespaceWithMultipleInterceptorsTests {
 
-    @Autowired
-    private FilterChainProxy fcp;
+	@Autowired
+	private FilterChainProxy fcp;
 
-    @Test
-    public void requestThatIsMatchedByDefaultInterceptorIsAllowed() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setMethod("GET");
-        request.setServletPath("/somefile.html");
-        request.setSession(createAuthenticatedSession("ROLE_0", "ROLE_1", "ROLE_2"));
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        fcp.doFilter(request, response, new MockFilterChain());
-        assertEquals(200, response.getStatus());
-    }
+	@Test
+	public void requestThatIsMatchedByDefaultInterceptorIsAllowed() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setMethod("GET");
+		request.setServletPath("/somefile.html");
+		request.setSession(createAuthenticatedSession("ROLE_0", "ROLE_1", "ROLE_2"));
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		fcp.doFilter(request, response, new MockFilterChain());
+		assertEquals(200, response.getStatus());
+	}
 
-    @Test
-    public void securedUrlAccessIsRejectedWithoutRequiredRole() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setMethod("GET");
+	@Test
+	public void securedUrlAccessIsRejectedWithoutRequiredRole() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setMethod("GET");
 
-        request.setServletPath("/secure/somefile.html");
-        request.setSession(createAuthenticatedSession("ROLE_0"));
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        fcp.doFilter(request, response, new MockFilterChain());
-        assertEquals(403, response.getStatus());
-    }
+		request.setServletPath("/secure/somefile.html");
+		request.setSession(createAuthenticatedSession("ROLE_0"));
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		fcp.doFilter(request, response, new MockFilterChain());
+		assertEquals(403, response.getStatus());
+	}
 
-    public HttpSession createAuthenticatedSession(String... roles) {
-        MockHttpSession session = new MockHttpSession();
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("bob", "bobspassword", roles));
-        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
-        SecurityContextHolder.clearContext();
-        return session;
-    }
-
+	public HttpSession createAuthenticatedSession(String... roles) {
+		MockHttpSession session = new MockHttpSession();
+		SecurityContextHolder.getContext().setAuthentication(
+				new TestingAuthenticationToken("bob", "bobspassword", roles));
+		session.setAttribute(
+				HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+				SecurityContextHolder.getContext());
+		SecurityContextHolder.clearContext();
+		return session;
+	}
 
 }

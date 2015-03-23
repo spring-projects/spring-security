@@ -20,22 +20,27 @@ import org.springframework.security.core.Authentication;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
 /**
- * Implementation of {@link NullRememberMeServices} that does nothing.<p>Used as a default by several framework
- * classes.</p>
+ * Implementation of {@link NullRememberMeServices} that does nothing.
+ * <p>
+ * Used as a default by several framework classes.
+ * </p>
  *
  * @author Ben Alex
  */
 public class NullRememberMeServices implements RememberMeServices {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public Authentication autoLogin(HttpServletRequest request, HttpServletResponse response) {
-        return null;
-    }
+	public Authentication autoLogin(HttpServletRequest request,
+			HttpServletResponse response) {
+		return null;
+	}
 
-    public void loginFail(HttpServletRequest request, HttpServletResponse response) {}
+	public void loginFail(HttpServletRequest request, HttpServletResponse response) {
+	}
 
-    public void loginSuccess(HttpServletRequest request, HttpServletResponse response,
-        Authentication successfulAuthentication) {}
+	public void loginSuccess(HttpServletRequest request, HttpServletResponse response,
+			Authentication successfulAuthentication) {
+	}
 }

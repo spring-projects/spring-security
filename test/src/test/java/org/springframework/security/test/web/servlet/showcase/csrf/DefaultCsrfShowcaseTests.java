@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package org.springframework.security.test.web.servlet.showcase.csrf;
+
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -37,51 +38,46 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes=DefaultCsrfShowcaseTests.Config.class)
+@ContextConfiguration(classes = DefaultCsrfShowcaseTests.Config.class)
 @WebAppConfiguration
 public class DefaultCsrfShowcaseTests {
 
-    @Autowired
-    private WebApplicationContext context;
+	@Autowired
+	private WebApplicationContext context;
 
-    private MockMvc mvc;
+	private MockMvc mvc;
 
-    @Before
-    public void setup() {
-        mvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .defaultRequest(get("/").with(csrf()))
-                .apply(springSecurity())
-                .build();
-    }
+	@Before
+	public void setup() {
+		mvc = MockMvcBuilders.webAppContextSetup(context)
+				.defaultRequest(get("/").with(csrf())).apply(springSecurity()).build();
+	}
 
-    @Test
-    public void postWithCsrfWorks() throws Exception {
-        mvc
-            .perform(post("/"))
-            .andExpect(status().isNotFound());
-    }
+	@Test
+	public void postWithCsrfWorks() throws Exception {
+		mvc.perform(post("/")).andExpect(status().isNotFound());
+	}
 
-    @Test
-    public void postWithCsrfWorksWithPut() throws Exception {
-        mvc
-            .perform(put("/"))
-            .andExpect(status().isNotFound());
-    }
+	@Test
+	public void postWithCsrfWorksWithPut() throws Exception {
+		mvc.perform(put("/")).andExpect(status().isNotFound());
+	}
 
-    @EnableWebSecurity
-    @EnableWebMvc
-    static class Config extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class Config extends WebSecurityConfigurerAdapter {
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-        }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+		}
 
-        @Autowired
-        public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER");
-        }
-    }
+		// @formatter:off
+		@Autowired
+		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER");
+		}
+		// @formatter:on
+	}
 }

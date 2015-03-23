@@ -8,29 +8,34 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.access.channel.ChannelDecisionManagerImpl;
 
 /**
- * Used as a factory bean to create config attribute values for the <tt>requires-channel</tt> attribute.
+ * Used as a factory bean to create config attribute values for the
+ * <tt>requires-channel</tt> attribute.
  *
  * @author Luke Taylor
  * @since 3.0
  */
 public class ChannelAttributeFactory {
-    private static final String OPT_REQUIRES_HTTP = "http";
-    private static final String OPT_REQUIRES_HTTPS = "https";
-    private static final String OPT_ANY_CHANNEL = "any";
+	private static final String OPT_REQUIRES_HTTP = "http";
+	private static final String OPT_REQUIRES_HTTPS = "https";
+	private static final String OPT_ANY_CHANNEL = "any";
 
-    public static List<ConfigAttribute> createChannelAttributes(String requiredChannel) {
-        String channelConfigAttribute;
+	public static List<ConfigAttribute> createChannelAttributes(String requiredChannel) {
+		String channelConfigAttribute;
 
-        if (requiredChannel.equals(OPT_REQUIRES_HTTPS)) {
-            channelConfigAttribute = "REQUIRES_SECURE_CHANNEL";
-        } else if (requiredChannel.equals(OPT_REQUIRES_HTTP)) {
-            channelConfigAttribute = "REQUIRES_INSECURE_CHANNEL";
-        } else if (requiredChannel.equals(OPT_ANY_CHANNEL)) {
-            channelConfigAttribute = ChannelDecisionManagerImpl.ANY_CHANNEL;
-        } else {
-            throw new BeanCreationException("Unknown channel attribute " + requiredChannel);
-        }
+		if (requiredChannel.equals(OPT_REQUIRES_HTTPS)) {
+			channelConfigAttribute = "REQUIRES_SECURE_CHANNEL";
+		}
+		else if (requiredChannel.equals(OPT_REQUIRES_HTTP)) {
+			channelConfigAttribute = "REQUIRES_INSECURE_CHANNEL";
+		}
+		else if (requiredChannel.equals(OPT_ANY_CHANNEL)) {
+			channelConfigAttribute = ChannelDecisionManagerImpl.ANY_CHANNEL;
+		}
+		else {
+			throw new BeanCreationException("Unknown channel attribute "
+					+ requiredChannel);
+		}
 
-        return SecurityConfig.createList(channelConfigAttribute);
-    }
+		return SecurityConfig.createList(channelConfigAttribute);
+	}
 }

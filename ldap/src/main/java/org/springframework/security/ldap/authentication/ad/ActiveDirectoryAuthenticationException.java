@@ -16,15 +16,18 @@ import org.springframework.security.core.AuthenticationException;
 
 /**
  * <p>
- * Thrown as a translation of an {@link javax.naming.AuthenticationException} when attempting to authenticate against
- * Active Directory using {@link ActiveDirectoryLdapAuthenticationProvider}. Typically this error is wrapped by an
- * {@link AuthenticationException} since it does not provide a user friendly message. When wrapped, the original
- * Exception can be caught and {@link ActiveDirectoryAuthenticationException} can be accessed using
+ * Thrown as a translation of an {@link javax.naming.AuthenticationException} when
+ * attempting to authenticate against Active Directory using
+ * {@link ActiveDirectoryLdapAuthenticationProvider}. Typically this error is wrapped by
+ * an {@link AuthenticationException} since it does not provide a user friendly message.
+ * When wrapped, the original Exception can be caught and
+ * {@link ActiveDirectoryAuthenticationException} can be accessed using
  * {@link AuthenticationException#getCause()} for custom error handling.
  * </p>
  * <p>
- * The {@link #getDataCode()} will return the error code associated with the data portion of the error message. For
- * example, the following error message would return 773 for {@link #getDataCode()}.
+ * The {@link #getDataCode()} will return the error code associated with the data portion
+ * of the error message. For example, the following error message would return 773 for
+ * {@link #getDataCode()}.
  * </p>
  *
  * <pre>
@@ -35,14 +38,15 @@ import org.springframework.security.core.AuthenticationException;
  */
 @SuppressWarnings("serial")
 public final class ActiveDirectoryAuthenticationException extends AuthenticationException {
-    private final String dataCode;
+	private final String dataCode;
 
-    ActiveDirectoryAuthenticationException(String dataCode, String message, Throwable cause) {
-        super(message, cause);
-        this.dataCode = dataCode;
-    }
+	ActiveDirectoryAuthenticationException(String dataCode, String message,
+			Throwable cause) {
+		super(message, cause);
+		this.dataCode = dataCode;
+	}
 
-    public String getDataCode() {
-        return dataCode;
-    }
+	public String getDataCode() {
+		return dataCode;
+	}
 }

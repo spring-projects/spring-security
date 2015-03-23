@@ -8,7 +8,7 @@ import java.util.List;
  * @since 3.1
  */
 public class NullAxFetchListFactory implements AxFetchListFactory {
-    public List<OpenIDAttribute> createAttributeList(String identifier) {
-        return Collections.emptyList();
-    }
+	public List<OpenIDAttribute> createAttributeList(String identifier) {
+		return Collections.emptyList();
+	}
 }

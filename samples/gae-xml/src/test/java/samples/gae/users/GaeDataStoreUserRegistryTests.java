@@ -16,38 +16,39 @@ import samples.gae.security.AppRole;
  * @author Luke Taylor
  */
 public class GaeDataStoreUserRegistryTests {
-    private final LocalServiceTestHelper helper =
-        new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
+	private final LocalServiceTestHelper helper = new LocalServiceTestHelper(
+			new LocalDatastoreServiceTestConfig());
 
-    @Before
-    public void setUp() throws Exception {
-        helper.setUp();
-    }
+	@Before
+	public void setUp() throws Exception {
+		helper.setUp();
+	}
 
-    @After
-    public void tearDown() throws Exception {
-        helper.tearDown();
-    }
+	@After
+	public void tearDown() throws Exception {
+		helper.tearDown();
+	}
 
-    @Test
-    public void correctDataIsRetrievedAfterInsert() {
-        GaeDatastoreUserRegistry registry = new GaeDatastoreUserRegistry();
+	@Test
+	public void correctDataIsRetrievedAfterInsert() {
+		GaeDatastoreUserRegistry registry = new GaeDatastoreUserRegistry();
 
-        Set<AppRole> roles = EnumSet.of(AppRole.ADMIN, AppRole.USER);
-        String userId = "someUserId";
+		Set<AppRole> roles = EnumSet.of(AppRole.ADMIN, AppRole.USER);
+		String userId = "someUserId";
 
-        GaeUser origUser = new GaeUser(userId, "nick", "nick@blah.com", "Forename", "Surname", roles, true);
+		GaeUser origUser = new GaeUser(userId, "nick", "nick@blah.com", "Forename",
+				"Surname", roles, true);
 
-        registry.registerUser(origUser);
+		registry.registerUser(origUser);
 
-        GaeUser loadedUser = registry.findUser(userId);
+		GaeUser loadedUser = registry.findUser(userId);
 
-        assertEquals(loadedUser.getUserId(), origUser.getUserId());
-        assertEquals(true, loadedUser.isEnabled());
-        assertEquals(roles, loadedUser.getAuthorities());
-        assertEquals("nick", loadedUser.getNickname());
-        assertEquals("nick@blah.com", loadedUser.getEmail());
-        assertEquals("Forename", loadedUser.getForename());
-        assertEquals("Surname", loadedUser.getSurname());
-    }
+		assertEquals(loadedUser.getUserId(), origUser.getUserId());
+		assertEquals(true, loadedUser.isEnabled());
+		assertEquals(roles, loadedUser.getAuthorities());
+		assertEquals("nick", loadedUser.getNickname());
+		assertEquals("nick@blah.com", loadedUser.getEmail());
+		assertEquals("Forename", loadedUser.getForename());
+		assertEquals("Surname", loadedUser.getSurname());
+	}
 }

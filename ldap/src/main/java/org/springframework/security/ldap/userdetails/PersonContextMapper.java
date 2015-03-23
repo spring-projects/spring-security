@@ -13,20 +13,21 @@ import org.springframework.util.Assert;
  */
 public class PersonContextMapper implements UserDetailsContextMapper {
 
-    public UserDetails mapUserFromContext(DirContextOperations ctx, String username, Collection<? extends GrantedAuthority> authorities) {
-        Person.Essence p = new Person.Essence(ctx);
+	public UserDetails mapUserFromContext(DirContextOperations ctx, String username,
+			Collection<? extends GrantedAuthority> authorities) {
+		Person.Essence p = new Person.Essence(ctx);
 
-        p.setUsername(username);
-        p.setAuthorities(authorities);
+		p.setUsername(username);
+		p.setAuthorities(authorities);
 
-        return p.createUserDetails();
+		return p.createUserDetails();
 
-    }
+	}
 
-    public void mapUserToContext(UserDetails user, DirContextAdapter ctx) {
-        Assert.isInstanceOf(Person.class, user, "UserDetails must be a Person instance");
+	public void mapUserToContext(UserDetails user, DirContextAdapter ctx) {
+		Assert.isInstanceOf(Person.class, user, "UserDetails must be a Person instance");
 
-        Person p = (Person) user;
-        p.populateContext(ctx);
-    }
+		Person p = (Person) user;
+		p.populateContext(ctx);
+	}
 }

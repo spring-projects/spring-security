@@ -19,55 +19,58 @@ import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.util.Assert;
 
-
 /**
- * Provides helper methods for writing domain object ACL voters.
- * Not bound to any particular ACL system.
+ * Provides helper methods for writing domain object ACL voters. Not bound to any
+ * particular ACL system.
  *
  * @author Ben Alex
  */
 public abstract class AbstractAclVoter implements AccessDecisionVoter<MethodInvocation> {
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private Class<?> processDomainObjectClass;
+	private Class<?> processDomainObjectClass;
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    protected Object getDomainObjectInstance(MethodInvocation invocation) {
-        Object[] args;
-        Class<?>[] params;
+	protected Object getDomainObjectInstance(MethodInvocation invocation) {
+		Object[] args;
+		Class<?>[] params;
 
-        params = invocation.getMethod().getParameterTypes();
-        args = invocation.getArguments();
+		params = invocation.getMethod().getParameterTypes();
+		args = invocation.getArguments();
 
-        for (int i = 0; i < params.length; i++) {
-            if (processDomainObjectClass.isAssignableFrom(params[i])) {
-                return args[i];
-            }
-        }
+		for (int i = 0; i < params.length; i++) {
+			if (processDomainObjectClass.isAssignableFrom(params[i])) {
+				return args[i];
+			}
+		}
 
-        throw new AuthorizationServiceException("MethodInvocation: " + invocation
-            + " did not provide any argument of type: " + processDomainObjectClass);
-    }
+		throw new AuthorizationServiceException("MethodInvocation: " + invocation
+				+ " did not provide any argument of type: " + processDomainObjectClass);
+	}
 
-    public Class<?> getProcessDomainObjectClass() {
-        return processDomainObjectClass;
-    }
+	public Class<?> getProcessDomainObjectClass() {
+		return processDomainObjectClass;
+	}
 
-    public void setProcessDomainObjectClass(Class<?> processDomainObjectClass) {
-        Assert.notNull(processDomainObjectClass, "processDomainObjectClass cannot be set to null");
-        this.processDomainObjectClass = processDomainObjectClass;
-    }
+	public void setProcessDomainObjectClass(Class<?> processDomainObjectClass) {
+		Assert.notNull(processDomainObjectClass,
+				"processDomainObjectClass cannot be set to null");
+		this.processDomainObjectClass = processDomainObjectClass;
+	}
 
-    /**
-     * This implementation supports only <code>MethodSecurityInterceptor</code>, because it queries the
-     * presented <code>MethodInvocation</code>.
-     *
-     * @param clazz the secure object
-     *
-     * @return <code>true</code> if the secure object is <code>MethodInvocation</code>, <code>false</code> otherwise
-     */
-    public boolean supports(Class<?> clazz) {
-        return (MethodInvocation.class.isAssignableFrom(clazz));
-    }
+	/**
+	 * This implementation supports only <code>MethodSecurityInterceptor</code>, because
+	 * it queries the presented <code>MethodInvocation</code>.
+	 *
+	 * @param clazz the secure object
+	 *
+	 * @return <code>true</code> if the secure object is <code>MethodInvocation</code>,
+	 * <code>false</code> otherwise
+	 */
+	public boolean supports(Class<?> clazz) {
+		return (MethodInvocation.class.isAssignableFrom(clazz));
+	}
 }

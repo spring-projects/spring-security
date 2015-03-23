@@ -24,20 +24,20 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.TextInputCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
-
 /**
  * TestCallbackHandler
  *
  * @author Ray Krueger
  */
 public class TestCallbackHandler implements JaasAuthenticationCallbackHandler {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public void handle(Callback callback, Authentication auth)
-        throws IOException, UnsupportedCallbackException {
-        if (callback instanceof TextInputCallback) {
-            TextInputCallback tic = (TextInputCallback) callback;
-            tic.setText(auth.getPrincipal().toString());
-        }
-    }
+	public void handle(Callback callback, Authentication auth) throws IOException,
+			UnsupportedCallbackException {
+		if (callback instanceof TextInputCallback) {
+			TextInputCallback tic = (TextInputCallback) callback;
+			tic.setText(auth.getPrincipal().toString());
+		}
+	}
 }

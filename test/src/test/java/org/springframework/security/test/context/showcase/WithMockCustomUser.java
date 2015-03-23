@@ -29,10 +29,10 @@ public @interface WithMockCustomUser {
 	String username() default "rob";
 
 	/**
-	 * The roles to use. The default is "USER". A {@link org.springframework.security.core.GrantedAuthority} will
-	 * be created for each value within roles. Each value in roles will
-	 * automatically be prefixed with "ROLE_". For example, the default will
-	 * result in "ROLE_USER" being used.
+	 * The roles to use. The default is "USER". A
+	 * {@link org.springframework.security.core.GrantedAuthority} will be created for each
+	 * value within roles. Each value in roles will automatically be prefixed with
+	 * "ROLE_". For example, the default will result in "ROLE_USER" being used.
 	 *
 	 * @return
 	 */

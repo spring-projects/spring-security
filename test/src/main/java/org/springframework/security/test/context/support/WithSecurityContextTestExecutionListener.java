@@ -31,8 +31,8 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import org.springframework.test.web.servlet.MockMvc;
 
 /**
- * A {@link TestExecutionListener} that will find annotations that are annotated
- * with {@link WithSecurityContext} on a test method or at the class level. If found, the
+ * A {@link TestExecutionListener} that will find annotations that are annotated with
+ * {@link WithSecurityContext} on a test method or at the class level. If found, the
  * {@link WithSecurityContext#factory()} is used to create a {@link SecurityContext} that
  * will be used with this test. If using with {@link MockMvc} the
  * {@link SecurityMockMvcRequestPostProcessors#testSecurityContext()} needs to be used
@@ -43,68 +43,68 @@ import org.springframework.test.web.servlet.MockMvc;
  */
 @Order(1000)
 public class WithSecurityContextTestExecutionListener extends
-        AbstractTestExecutionListener {
+		AbstractTestExecutionListener {
 
-    /**
-     * Sets up the {@link SecurityContext} for each test method. First the
-     * specific method is inspected for a {@link WithSecurityContext} or {@link Annotation}
-     * that has {@link WithSecurityContext} on it. If that is not found, the class is
-     * inspected. If still not found, then no {@link SecurityContext} is
-     * populated.
-     */
-    @Override
-    public void beforeTestMethod(TestContext testContext) throws Exception {
-        Annotation[] methodAnnotations = AnnotationUtils
-                .getAnnotations(testContext.getTestMethod());
-        ApplicationContext context = testContext.getApplicationContext();
-        SecurityContext securityContext = createSecurityContext(
-                methodAnnotations, context);
-        if (securityContext == null) {
-            Annotation[] classAnnotations = testContext.getTestClass()
-                    .getAnnotations();
-            securityContext = createSecurityContext(classAnnotations, context);
-        }
-        if (securityContext != null) {
-            TestSecurityContextHolder.setContext(securityContext);
-        }
-    }
+	/**
+	 * Sets up the {@link SecurityContext} for each test method. First the specific method
+	 * is inspected for a {@link WithSecurityContext} or {@link Annotation} that has
+	 * {@link WithSecurityContext} on it. If that is not found, the class is inspected. If
+	 * still not found, then no {@link SecurityContext} is populated.
+	 */
+	@Override
+	public void beforeTestMethod(TestContext testContext) throws Exception {
+		Annotation[] methodAnnotations = AnnotationUtils.getAnnotations(testContext
+				.getTestMethod());
+		ApplicationContext context = testContext.getApplicationContext();
+		SecurityContext securityContext = createSecurityContext(methodAnnotations,
+				context);
+		if (securityContext == null) {
+			Annotation[] classAnnotations = testContext.getTestClass().getAnnotations();
+			securityContext = createSecurityContext(classAnnotations, context);
+		}
+		if (securityContext != null) {
+			TestSecurityContextHolder.setContext(securityContext);
+		}
+	}
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private SecurityContext createSecurityContext(Annotation[] annotations,
-            ApplicationContext context) {
-        for (Annotation a : annotations) {
-            WithSecurityContext withUser = AnnotationUtils.findAnnotation(
-                    a.annotationType(), WithSecurityContext.class);
-            if (withUser != null) {
-                WithSecurityContextFactory factory = createFactory(
-                        withUser, context);
-                try {
-                    return factory.createSecurityContext(a);
-                } catch (RuntimeException e) {
-                    throw new IllegalStateException("Unable to create SecurityContext using "+ a, e);
-                }
-            }
-        }
-        return null;
-    }
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private SecurityContext createSecurityContext(Annotation[] annotations,
+			ApplicationContext context) {
+		for (Annotation a : annotations) {
+			WithSecurityContext withUser = AnnotationUtils.findAnnotation(
+					a.annotationType(), WithSecurityContext.class);
+			if (withUser != null) {
+				WithSecurityContextFactory factory = createFactory(withUser, context);
+				try {
+					return factory.createSecurityContext(a);
+				}
+				catch (RuntimeException e) {
+					throw new IllegalStateException(
+							"Unable to create SecurityContext using " + a, e);
+				}
+			}
+		}
+		return null;
+	}
 
-    private WithSecurityContextFactory<? extends Annotation> createFactory(
-            WithSecurityContext withUser, ApplicationContext context) {
-        Class<? extends WithSecurityContextFactory<? extends Annotation>> clazz = withUser
-                .factory();
-        try {
-            return context.getAutowireCapableBeanFactory().createBean(clazz);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+	private WithSecurityContextFactory<? extends Annotation> createFactory(
+			WithSecurityContext withUser, ApplicationContext context) {
+		Class<? extends WithSecurityContextFactory<? extends Annotation>> clazz = withUser
+				.factory();
+		try {
+			return context.getAutowireCapableBeanFactory().createBean(clazz);
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    /**
-     * Clears out the {@link TestSecurityContextHolder} and the
-     * {@link SecurityContextHolder} after each test method.
-     */
-    @Override
-    public void afterTestMethod(TestContext testContext) throws Exception {
-        TestSecurityContextHolder.clearContext();
-    }
+	/**
+	 * Clears out the {@link TestSecurityContextHolder} and the
+	 * {@link SecurityContextHolder} after each test method.
+	 */
+	@Override
+	public void afterTestMethod(TestContext testContext) throws Exception {
+		TestSecurityContextHolder.clearContext();
+	}
 }

@@ -15,7 +15,6 @@
 
 package org.springframework.security.core.userdetails.cache;
 
-
 import static org.junit.Assert.*;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -34,61 +33,64 @@ import org.springframework.security.core.userdetails.cache.EhCacheBasedUserCache
  * @author Ben Alex
  */
 public class EhCacheBasedUserCacheTests {
-    private static CacheManager cacheManager;
+	private static CacheManager cacheManager;
 
-    //~ Methods ========================================================================================================
-    @BeforeClass
-    public static void initCacheManaer() {
-        cacheManager = CacheManager.create();
-        cacheManager.addCache(new Cache("ehcacheusercachetests", 500, false, false, 30, 30));
-    }
+	// ~ Methods
+	// ========================================================================================================
+	@BeforeClass
+	public static void initCacheManaer() {
+		cacheManager = CacheManager.create();
+		cacheManager.addCache(new Cache("ehcacheusercachetests", 500, false, false, 30,
+				30));
+	}
 
-    @AfterClass
-    public static void shutdownCacheManager() {
-        cacheManager.removalAll();
-        cacheManager.shutdown();
-    }
+	@AfterClass
+	public static void shutdownCacheManager() {
+		cacheManager.removalAll();
+		cacheManager.shutdown();
+	}
 
-    private Ehcache getCache() {
-        Ehcache cache = cacheManager.getCache("ehcacheusercachetests");
-        cache.removeAll();
+	private Ehcache getCache() {
+		Ehcache cache = cacheManager.getCache("ehcacheusercachetests");
+		cache.removeAll();
 
-        return cache;
-    }
+		return cache;
+	}
 
-    private User getUser() {
-        return new User("john", "password", true, true, true, true,
-                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
-    }
+	private User getUser() {
+		return new User("john", "password", true, true, true, true,
+				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
+	}
 
-    @Test
-    public void cacheOperationsAreSuccessful() throws Exception {
-        EhCacheBasedUserCache cache = new EhCacheBasedUserCache();
-        cache.setCache(getCache());
-        cache.afterPropertiesSet();
+	@Test
+	public void cacheOperationsAreSuccessful() throws Exception {
+		EhCacheBasedUserCache cache = new EhCacheBasedUserCache();
+		cache.setCache(getCache());
+		cache.afterPropertiesSet();
 
-        // Check it gets stored in the cache
-        cache.putUserInCache(getUser());
-        assertEquals(getUser().getPassword(), cache.getUserFromCache(getUser().getUsername()).getPassword());
+		// Check it gets stored in the cache
+		cache.putUserInCache(getUser());
+		assertEquals(getUser().getPassword(),
+				cache.getUserFromCache(getUser().getUsername()).getPassword());
 
-        // Check it gets removed from the cache
-        cache.removeUserFromCache(getUser());
-        assertNull(cache.getUserFromCache(getUser().getUsername()));
+		// Check it gets removed from the cache
+		cache.removeUserFromCache(getUser());
+		assertNull(cache.getUserFromCache(getUser().getUsername()));
 
-        // Check it doesn't return values for null or unknown users
-        assertNull(cache.getUserFromCache(null));
-        assertNull(cache.getUserFromCache("UNKNOWN_USER"));
-    }
+		// Check it doesn't return values for null or unknown users
+		assertNull(cache.getUserFromCache(null));
+		assertNull(cache.getUserFromCache("UNKNOWN_USER"));
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void startupDetectsMissingCache() throws Exception {
-        EhCacheBasedUserCache cache = new EhCacheBasedUserCache();
+	@Test(expected = IllegalArgumentException.class)
+	public void startupDetectsMissingCache() throws Exception {
+		EhCacheBasedUserCache cache = new EhCacheBasedUserCache();
 
-        cache.afterPropertiesSet();
-        fail("Should have thrown IllegalArgumentException");
+		cache.afterPropertiesSet();
+		fail("Should have thrown IllegalArgumentException");
 
-        Ehcache myCache = getCache();
-        cache.setCache(myCache);
-        assertEquals(myCache, cache.getCache());
-    }
+		Ehcache myCache = getCache();
+		cache.setCache(myCache);
+		assertEquals(myCache, cache.getCache());
+	}
 }

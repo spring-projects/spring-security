@@ -24,12 +24,12 @@ package org.springframework.security.remoting.dns;
  */
 public class DnsLookupException extends RuntimeException {
 
-    public DnsLookupException(String msg, Throwable cause) {
-        super(msg, cause);
-    }
+	public DnsLookupException(String msg, Throwable cause) {
+		super(msg, cause);
+	}
 
-    public DnsLookupException(String msg) {
-        super(msg);
-    }
+	public DnsLookupException(String msg) {
+		super(msg);
+	}
 
 }

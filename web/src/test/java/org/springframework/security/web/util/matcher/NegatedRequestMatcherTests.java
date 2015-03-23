@@ -34,32 +34,32 @@ import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class NegatedRequestMatcherTests {
-    @Mock
-    private RequestMatcher delegate;
+	@Mock
+	private RequestMatcher delegate;
 
-    @Mock
-    private HttpServletRequest request;
+	@Mock
+	private HttpServletRequest request;
 
-    private RequestMatcher matcher;
+	private RequestMatcher matcher;
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNull() {
-        new NegatedRequestMatcher(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNull() {
+		new NegatedRequestMatcher(null);
+	}
 
-    @Test
-    public void matchesDelegateFalse() {
-        when(delegate.matches(request)).thenReturn(false);
-        matcher = new NegatedRequestMatcher(delegate);
+	@Test
+	public void matchesDelegateFalse() {
+		when(delegate.matches(request)).thenReturn(false);
+		matcher = new NegatedRequestMatcher(delegate);
 
-        assertThat(matcher.matches(request)).isTrue();
-    }
+		assertThat(matcher.matches(request)).isTrue();
+	}
 
-    @Test
-    public void matchesDelegateTrue() {
-        when(delegate.matches(request)).thenReturn(true);
-        matcher = new NegatedRequestMatcher(delegate);
+	@Test
+	public void matchesDelegateTrue() {
+		when(delegate.matches(request)).thenReturn(true);
+		matcher = new NegatedRequestMatcher(delegate);
 
-        assertThat(matcher.matches(request)).isFalse();
-    }
+		assertThat(matcher.matches(request)).isFalse();
+	}
 }

@@ -15,115 +15,117 @@ import org.junit.After;
  * @author Luke Taylor
  */
 public class UserServiceBeanDefinitionParserTests {
-    private AbstractXmlApplicationContext appContext;
+	private AbstractXmlApplicationContext appContext;
 
-    @After
-    public void closeAppContext() {
-        if (appContext != null) {
-            appContext.close();
-        }
-    }
+	@After
+	public void closeAppContext() {
+		if (appContext != null) {
+			appContext.close();
+		}
+	}
 
-    @Test
-    public void userServiceWithValidPropertiesFileWorksSuccessfully() {
-        setContext(
-                "<user-service id='service' " +
-                        "properties='classpath:org/springframework/security/config/users.properties'/>");
-        UserDetailsService userService = (UserDetailsService) appContext.getBean("service");
-        userService.loadUserByUsername("bob");
-        userService.loadUserByUsername("joe");
-    }
+	@Test
+	public void userServiceWithValidPropertiesFileWorksSuccessfully() {
+		setContext("<user-service id='service' "
+				+ "properties='classpath:org/springframework/security/config/users.properties'/>");
+		UserDetailsService userService = (UserDetailsService) appContext
+				.getBean("service");
+		userService.loadUserByUsername("bob");
+		userService.loadUserByUsername("joe");
+	}
 
-    @Test
-    public void userServiceWithEmbeddedUsersWorksSuccessfully() {
-        setContext(
-                "<user-service id='service'>" +
-                "    <user name='joe' password='joespassword' authorities='ROLE_A'/>" +
-                "</user-service>");
-        UserDetailsService userService = (UserDetailsService) appContext.getBean("service");
-        userService.loadUserByUsername("joe");
-    }
+	@Test
+	public void userServiceWithEmbeddedUsersWorksSuccessfully() {
+		setContext("<user-service id='service'>"
+				+ "    <user name='joe' password='joespassword' authorities='ROLE_A'/>"
+				+ "</user-service>");
+		UserDetailsService userService = (UserDetailsService) appContext
+				.getBean("service");
+		userService.loadUserByUsername("joe");
+	}
 
-    @Test
-    public void namePasswordAndAuthoritiesSupportPlaceholders() {
-        System.setProperty("principal.name", "joe");
-        System.setProperty("principal.pass", "joespassword");
-        System.setProperty("principal.authorities", "ROLE_A,ROLE_B");
-        setContext(
-                "<b:bean class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>" +
-                "<user-service id='service'>" +
-                "    <user name='${principal.name}' password='${principal.pass}' authorities='${principal.authorities}'/>" +
-                "</user-service>");
-        UserDetailsService userService = (UserDetailsService) appContext.getBean("service");
-        UserDetails joe = userService.loadUserByUsername("joe");
-        assertEquals("joespassword", joe.getPassword());
-        assertEquals(2, joe.getAuthorities().size());
-    }
+	@Test
+	public void namePasswordAndAuthoritiesSupportPlaceholders() {
+		System.setProperty("principal.name", "joe");
+		System.setProperty("principal.pass", "joespassword");
+		System.setProperty("principal.authorities", "ROLE_A,ROLE_B");
+		setContext("<b:bean class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>"
+				+ "<user-service id='service'>"
+				+ "    <user name='${principal.name}' password='${principal.pass}' authorities='${principal.authorities}'/>"
+				+ "</user-service>");
+		UserDetailsService userService = (UserDetailsService) appContext
+				.getBean("service");
+		UserDetails joe = userService.loadUserByUsername("joe");
+		assertEquals("joespassword", joe.getPassword());
+		assertEquals(2, joe.getAuthorities().size());
+	}
 
-    @Test
-    public void embeddedUsersWithNoPasswordIsGivenGeneratedValue() {
-        setContext(
-                "<user-service id='service'>" +
-                "    <user name='joe' authorities='ROLE_A'/>" +
-                "</user-service>");
-        UserDetailsService userService = (UserDetailsService) appContext.getBean("service");
-        UserDetails joe = userService.loadUserByUsername("joe");
-        assertTrue(joe.getPassword().length() > 0);
-        Long.parseLong(joe.getPassword());
-    }
+	@Test
+	public void embeddedUsersWithNoPasswordIsGivenGeneratedValue() {
+		setContext("<user-service id='service'>"
+				+ "    <user name='joe' authorities='ROLE_A'/>" + "</user-service>");
+		UserDetailsService userService = (UserDetailsService) appContext
+				.getBean("service");
+		UserDetails joe = userService.loadUserByUsername("joe");
+		assertTrue(joe.getPassword().length() > 0);
+		Long.parseLong(joe.getPassword());
+	}
 
-    @Test
-    public void worksWithOpenIDUrlsAsNames() {
-        setContext(
-                "<user-service id='service'>" +
-                "    <user name='http://joe.myopenid.com/' authorities='ROLE_A'/>" +
-                "    <user name='https://www.google.com/accounts/o8/id?id=MPtOaenBIk5yzW9n7n9' authorities='ROLE_A'/>" +
-                "</user-service>");
-        UserDetailsService userService = (UserDetailsService) appContext.getBean("service");
-        assertEquals("http://joe.myopenid.com/", userService.loadUserByUsername("http://joe.myopenid.com/").getUsername());
-        assertEquals("https://www.google.com/accounts/o8/id?id=MPtOaenBIk5yzW9n7n9",
-                userService.loadUserByUsername("https://www.google.com/accounts/o8/id?id=MPtOaenBIk5yzW9n7n9").getUsername());
-    }
+	@Test
+	public void worksWithOpenIDUrlsAsNames() {
+		setContext("<user-service id='service'>"
+				+ "    <user name='http://joe.myopenid.com/' authorities='ROLE_A'/>"
+				+ "    <user name='https://www.google.com/accounts/o8/id?id=MPtOaenBIk5yzW9n7n9' authorities='ROLE_A'/>"
+				+ "</user-service>");
+		UserDetailsService userService = (UserDetailsService) appContext
+				.getBean("service");
+		assertEquals("http://joe.myopenid.com/",
+				userService.loadUserByUsername("http://joe.myopenid.com/").getUsername());
+		assertEquals(
+				"https://www.google.com/accounts/o8/id?id=MPtOaenBIk5yzW9n7n9",
+				userService.loadUserByUsername(
+						"https://www.google.com/accounts/o8/id?id=MPtOaenBIk5yzW9n7n9")
+						.getUsername());
+	}
 
-    @Test
-    public void disabledAndEmbeddedFlagsAreSupported() {
-        setContext(
-                "<user-service id='service'>" +
-                "    <user name='joe' password='joespassword' authorities='ROLE_A' locked='true'/>" +
-                "    <user name='Bob' password='bobspassword' authorities='ROLE_A' disabled='true'/>" +
-                "</user-service>");
-        UserDetailsService userService = (UserDetailsService) appContext.getBean("service");
-        UserDetails joe = userService.loadUserByUsername("joe");
-        assertFalse(joe.isAccountNonLocked());
-        // Check case-sensitive lookup SEC-1432
-        UserDetails bob = userService.loadUserByUsername("Bob");
-        assertFalse(bob.isEnabled());
-    }
+	@Test
+	public void disabledAndEmbeddedFlagsAreSupported() {
+		setContext("<user-service id='service'>"
+				+ "    <user name='joe' password='joespassword' authorities='ROLE_A' locked='true'/>"
+				+ "    <user name='Bob' password='bobspassword' authorities='ROLE_A' disabled='true'/>"
+				+ "</user-service>");
+		UserDetailsService userService = (UserDetailsService) appContext
+				.getBean("service");
+		UserDetails joe = userService.loadUserByUsername("joe");
+		assertFalse(joe.isAccountNonLocked());
+		// Check case-sensitive lookup SEC-1432
+		UserDetails bob = userService.loadUserByUsername("Bob");
+		assertFalse(bob.isEnabled());
+	}
 
-    @Test(expected=FatalBeanException.class)
-    public void userWithBothPropertiesAndEmbeddedUsersThrowsException() {
-        setContext(
-                "<user-service id='service' properties='doesntmatter.props'>" +
-                "    <user name='joe' password='joespassword' authorities='ROLE_A'/>" +
-                "</user-service>");
-        UserDetailsService userService = (UserDetailsService) appContext.getBean("service");
-        userService.loadUserByUsername("Joe");
-    }
+	@Test(expected = FatalBeanException.class)
+	public void userWithBothPropertiesAndEmbeddedUsersThrowsException() {
+		setContext("<user-service id='service' properties='doesntmatter.props'>"
+				+ "    <user name='joe' password='joespassword' authorities='ROLE_A'/>"
+				+ "</user-service>");
+		UserDetailsService userService = (UserDetailsService) appContext
+				.getBean("service");
+		userService.loadUserByUsername("Joe");
+	}
 
-    @Test(expected= FatalBeanException.class)
-    public void multipleTopLevelUseWithoutIdThrowsException() {
-        setContext(
-                "<user-service properties='classpath:org/springframework/security/config/users.properties'/>" +
-                "<user-service properties='classpath:org/springframework/security/config/users.properties'/>");
+	@Test(expected = FatalBeanException.class)
+	public void multipleTopLevelUseWithoutIdThrowsException() {
+		setContext("<user-service properties='classpath:org/springframework/security/config/users.properties'/>"
+				+ "<user-service properties='classpath:org/springframework/security/config/users.properties'/>");
 
-    }
+	}
 
-    @Test(expected= FatalBeanException.class)
-    public void userServiceWithMissingPropertiesFileThrowsException() {
-        setContext("<user-service id='service' properties='classpath:doesntexist.properties'/>");
-    }
+	@Test(expected = FatalBeanException.class)
+	public void userServiceWithMissingPropertiesFileThrowsException() {
+		setContext("<user-service id='service' properties='classpath:doesntexist.properties'/>");
+	}
 
-    private void setContext(String context) {
-        appContext = new InMemoryXmlApplicationContext(context);
-    }
+	private void setContext(String context) {
+		appContext = new InMemoryXmlApplicationContext(context);
+	}
 }

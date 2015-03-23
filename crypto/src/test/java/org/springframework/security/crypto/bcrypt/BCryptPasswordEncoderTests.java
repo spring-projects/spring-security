@@ -22,66 +22,65 @@ import org.junit.Test;
 
 import java.security.SecureRandom;
 
-
 /**
  * @author Dave Syer
  *
  */
 public class BCryptPasswordEncoderTests {
 
-    @Test
-    public void matches() {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String result = encoder.encode("password");
-        assertFalse(result.equals("password"));
-        assertTrue(encoder.matches("password", result));
-    }
+	@Test
+	public void matches() {
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		String result = encoder.encode("password");
+		assertFalse(result.equals("password"));
+		assertTrue(encoder.matches("password", result));
+	}
 
-    @Test
-    public void unicode() {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String result = encoder.encode("passw\u9292rd");
-        assertFalse(encoder.matches("pass\u9292\u9292rd", result));
-        assertTrue(encoder.matches("passw\u9292rd", result));
-    }
+	@Test
+	public void unicode() {
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		String result = encoder.encode("passw\u9292rd");
+		assertFalse(encoder.matches("pass\u9292\u9292rd", result));
+		assertTrue(encoder.matches("passw\u9292rd", result));
+	}
 
-    @Test
-    public void notMatches() {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String result = encoder.encode("password");
-        assertFalse(encoder.matches("bogus", result));
-    }
+	@Test
+	public void notMatches() {
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		String result = encoder.encode("password");
+		assertFalse(encoder.matches("bogus", result));
+	}
 
-    @Test
-    public void customStrength() {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(8);
-        String result = encoder.encode("password");
-        assertTrue(encoder.matches("password", result));
-    }
+	@Test
+	public void customStrength() {
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(8);
+		String result = encoder.encode("password");
+		assertTrue(encoder.matches("password", result));
+	}
 
-    @Test
-    public void customRandom() {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(8, new SecureRandom());
-        String result = encoder.encode("password");
-        assertTrue(encoder.matches("password", result));
-    }
+	@Test
+	public void customRandom() {
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(8, new SecureRandom());
+		String result = encoder.encode("password");
+		assertTrue(encoder.matches("password", result));
+	}
 
-    @Test
-    public void doesntMatchNullEncodedValue() {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        assertFalse(encoder.matches("password", null));
-    }
+	@Test
+	public void doesntMatchNullEncodedValue() {
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		assertFalse(encoder.matches("password", null));
+	}
 
-    @Test
-    public void doesntMatchEmptyEncodedValue() {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        assertFalse(encoder.matches("password", ""));
-    }
+	@Test
+	public void doesntMatchEmptyEncodedValue() {
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		assertFalse(encoder.matches("password", ""));
+	}
 
-    @Test
-    public void doesntMatchBogusEncodedValue() {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        assertFalse(encoder.matches("password", "012345678901234567890123456789"));
-    }
+	@Test
+	public void doesntMatchBogusEncodedValue() {
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		assertFalse(encoder.matches("password", "012345678901234567890123456789"));
+	}
 
 }

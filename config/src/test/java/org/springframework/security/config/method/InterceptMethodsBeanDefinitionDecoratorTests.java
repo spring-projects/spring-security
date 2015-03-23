@@ -27,69 +27,73 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:org/springframework/security/config/method-security.xml")
-public class InterceptMethodsBeanDefinitionDecoratorTests implements ApplicationContextAware {
-    @Autowired
-    @Qualifier("target")
-    private TestBusinessBean target;
-    @Autowired
-    @Qualifier("transactionalTarget")
-    private TestBusinessBean transactionalTarget;
-    private ApplicationContext appContext;
+public class InterceptMethodsBeanDefinitionDecoratorTests implements
+		ApplicationContextAware {
+	@Autowired
+	@Qualifier("target")
+	private TestBusinessBean target;
+	@Autowired
+	@Qualifier("transactionalTarget")
+	private TestBusinessBean transactionalTarget;
+	private ApplicationContext appContext;
 
-    @BeforeClass
-    public static void loadContext() {
-        // Set value for placeholder
-        System.setProperty("admin.role", "ROLE_ADMIN");
-    }
+	@BeforeClass
+	public static void loadContext() {
+		// Set value for placeholder
+		System.setProperty("admin.role", "ROLE_ADMIN");
+	}
 
-    @After
-    public void clearContext() {
-        SecurityContextHolder.clearContext();
-    }
+	@After
+	public void clearContext() {
+		SecurityContextHolder.clearContext();
+	}
 
-    @Test
-    public void targetDoesntLoseApplicationListenerInterface() {
-        assertEquals(1, appContext.getBeansOfType(ApplicationListener.class).size());
-        assertEquals(1, appContext.getBeanNamesForType(ApplicationListener.class).length);
-        appContext.publishEvent(new AuthenticationSuccessEvent(new TestingAuthenticationToken("user", "")));
+	@Test
+	public void targetDoesntLoseApplicationListenerInterface() {
+		assertEquals(1, appContext.getBeansOfType(ApplicationListener.class).size());
+		assertEquals(1, appContext.getBeanNamesForType(ApplicationListener.class).length);
+		appContext.publishEvent(new AuthenticationSuccessEvent(
+				new TestingAuthenticationToken("user", "")));
 
-        assertTrue(target instanceof ApplicationListener<?>);
-    }
+		assertTrue(target instanceof ApplicationListener<?>);
+	}
 
-    @Test
-    public void targetShouldAllowUnprotectedMethodInvocationWithNoContext() {
-        target.unprotected();
-    }
+	@Test
+	public void targetShouldAllowUnprotectedMethodInvocationWithNoContext() {
+		target.unprotected();
+	}
 
-    @Test(expected=AuthenticationCredentialsNotFoundException.class)
-    public void targetShouldPreventProtectedMethodInvocationWithNoContext() {
-        target.doSomething();
-    }
+	@Test(expected = AuthenticationCredentialsNotFoundException.class)
+	public void targetShouldPreventProtectedMethodInvocationWithNoContext() {
+		target.doSomething();
+	}
 
-    @Test
-    public void targetShouldAllowProtectedMethodInvocationWithCorrectRole() {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-                AuthorityUtils.createAuthorityList("ROLE_USER"));
-        SecurityContextHolder.getContext().setAuthentication(token);
+	@Test
+	public void targetShouldAllowProtectedMethodInvocationWithCorrectRole() {
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+				"Test", "Password", AuthorityUtils.createAuthorityList("ROLE_USER"));
+		SecurityContextHolder.getContext().setAuthentication(token);
 
-        target.doSomething();
-    }
+		target.doSomething();
+	}
 
-    @Test(expected=AccessDeniedException.class)
-    public void targetShouldPreventProtectedMethodInvocationWithIncorrectRole() {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-                AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
-        SecurityContextHolder.getContext().setAuthentication(token);
+	@Test(expected = AccessDeniedException.class)
+	public void targetShouldPreventProtectedMethodInvocationWithIncorrectRole() {
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+				"Test", "Password",
+				AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
+		SecurityContextHolder.getContext().setAuthentication(token);
 
-        target.doSomething();
-    }
+		target.doSomething();
+	}
 
-    @Test(expected = AuthenticationException.class)
-    public void transactionalMethodsShouldBeSecured() throws Exception {
-        transactionalTarget.doSomething();
-    }
+	@Test(expected = AuthenticationException.class)
+	public void transactionalMethodsShouldBeSecured() throws Exception {
+		transactionalTarget.doSomething();
+	}
 
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.appContext = applicationContext;
-    }
+	public void setApplicationContext(ApplicationContext applicationContext)
+			throws BeansException {
+		this.appContext = applicationContext;
+	}
 }

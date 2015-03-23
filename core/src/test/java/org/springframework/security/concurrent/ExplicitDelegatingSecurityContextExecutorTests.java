@@ -16,22 +16,23 @@ import org.junit.Before;
 import org.springframework.security.core.context.SecurityContext;
 
 /**
- * Tests Explicitly specifying the {@link SecurityContext} on {@link DelegatingSecurityContextExecutor}
+ * Tests Explicitly specifying the {@link SecurityContext} on
+ * {@link DelegatingSecurityContextExecutor}
  *
  * @author Rob Winch
  * @since 3.2
  *
  */
 public class ExplicitDelegatingSecurityContextExecutorTests extends
-        AbstractDelegatingSecurityContextExecutorTests {
+		AbstractDelegatingSecurityContextExecutorTests {
 
-    @Before
-    public void setUp() throws Exception {
-        super.explicitSecurityContextPowermockSetup();
-    }
+	@Before
+	public void setUp() throws Exception {
+		super.explicitSecurityContextPowermockSetup();
+	}
 
-    @Override
-    protected DelegatingSecurityContextExecutor create() {
-        return new DelegatingSecurityContextExecutor(getExecutor(), securityContext);
-    }
+	@Override
+	protected DelegatingSecurityContextExecutor create() {
+		return new DelegatingSecurityContextExecutor(getExecutor(), securityContext);
+	}
 }

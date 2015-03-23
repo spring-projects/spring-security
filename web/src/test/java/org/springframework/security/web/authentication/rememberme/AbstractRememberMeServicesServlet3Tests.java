@@ -30,41 +30,43 @@ import org.springframework.util.ReflectionUtils;
  * @author Rob Winch
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Method.class, ReflectionUtils.class})
+@PrepareForTest({ Method.class, ReflectionUtils.class })
 public class AbstractRememberMeServicesServlet3Tests {
-    @Mock
-    private Method method;
+	@Mock
+	private Method method;
 
-    @Before
-    public void setUp() throws Exception {
-        spy(ReflectionUtils.class);
+	@Before
+	public void setUp() throws Exception {
+		spy(ReflectionUtils.class);
 
-        when(ReflectionUtils.findMethod(Cookie.class, "setHttpOnly", boolean.class)).thenReturn(method);
-    }
+		when(ReflectionUtils.findMethod(Cookie.class, "setHttpOnly", boolean.class))
+				.thenReturn(method);
+	}
 
-    @Test
-    public void httpOnlySetInServlet30DefaultConstructor() throws Exception {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getContextPath()).thenReturn("/contextpath");
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        ArgumentCaptor<Cookie> cookie = ArgumentCaptor.forClass(Cookie.class);
-        MockRememberMeServices services = new MockRememberMeServices();
-        services.setCookie(new String[] {"mycookie"}, 1000, request, response);
-        verify(response).addCookie(cookie.capture());
-        verifyStatic();
-        ReflectionUtils.invokeMethod(same(method), eq(cookie.getValue()), eq(true));
-    }
+	@Test
+	public void httpOnlySetInServlet30DefaultConstructor() throws Exception {
+		HttpServletRequest request = mock(HttpServletRequest.class);
+		when(request.getContextPath()).thenReturn("/contextpath");
+		HttpServletResponse response = mock(HttpServletResponse.class);
+		ArgumentCaptor<Cookie> cookie = ArgumentCaptor.forClass(Cookie.class);
+		MockRememberMeServices services = new MockRememberMeServices();
+		services.setCookie(new String[] { "mycookie" }, 1000, request, response);
+		verify(response).addCookie(cookie.capture());
+		verifyStatic();
+		ReflectionUtils.invokeMethod(same(method), eq(cookie.getValue()), eq(true));
+	}
 
-    @Test
-    public void httpOnlySetInServlet30() throws Exception {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getContextPath()).thenReturn("/contextpath");
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        ArgumentCaptor<Cookie> cookie = ArgumentCaptor.forClass(Cookie.class);
-        MockRememberMeServices services = new MockRememberMeServices("key",mock(UserDetailsService.class));
-        services.setCookie(new String[] {"mycookie"}, 1000, request, response);
-        verify(response).addCookie(cookie.capture());
-        verifyStatic();
-        ReflectionUtils.invokeMethod(same(method), eq(cookie.getValue()), eq(true));
-    }
+	@Test
+	public void httpOnlySetInServlet30() throws Exception {
+		HttpServletRequest request = mock(HttpServletRequest.class);
+		when(request.getContextPath()).thenReturn("/contextpath");
+		HttpServletResponse response = mock(HttpServletResponse.class);
+		ArgumentCaptor<Cookie> cookie = ArgumentCaptor.forClass(Cookie.class);
+		MockRememberMeServices services = new MockRememberMeServices("key",
+				mock(UserDetailsService.class));
+		services.setCookie(new String[] { "mycookie" }, 1000, request, response);
+		verify(response).addCookie(cookie.capture());
+		verifyStatic();
+		ReflectionUtils.invokeMethod(same(method), eq(cookie.getValue()), eq(true));
+	}
 }

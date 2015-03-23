@@ -20,83 +20,88 @@ import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 
-
 /**
  * Represents a remembered <code>Authentication</code>.
  * <p>
- * A remembered <code>Authentication</code> must provide a fully valid <code>Authentication</code>, including the
- * <code>GrantedAuthority</code>s that apply.
+ * A remembered <code>Authentication</code> must provide a fully valid
+ * <code>Authentication</code>, including the <code>GrantedAuthority</code>s that apply.
  *
  * @author Ben Alex
  * @author Luke Taylor
  */
 public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 
-    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private final Object principal;
-    private final int keyHash;
+	private final Object principal;
+	private final int keyHash;
 
-    //~ Constructors ===================================================================================================
+	// ~ Constructors
+	// ===================================================================================================
 
-    /**
-     * Constructor.
-     *
-     * @param key to identify if this object made by an authorised client
-     * @param principal the principal (typically a <code>UserDetails</code>)
-     * @param authorities the authorities granted to the principal
-     *
-     * @throws IllegalArgumentException if a <code>null</code> was passed
-     */
-    public RememberMeAuthenticationToken(String key, Object principal, Collection<? extends GrantedAuthority> authorities) {
-        super(authorities);
+	/**
+	 * Constructor.
+	 *
+	 * @param key to identify if this object made by an authorised client
+	 * @param principal the principal (typically a <code>UserDetails</code>)
+	 * @param authorities the authorities granted to the principal
+	 *
+	 * @throws IllegalArgumentException if a <code>null</code> was passed
+	 */
+	public RememberMeAuthenticationToken(String key, Object principal,
+			Collection<? extends GrantedAuthority> authorities) {
+		super(authorities);
 
-        if ((key == null) || ("".equals(key)) || (principal == null) || "".equals(principal)) {
-            throw new IllegalArgumentException("Cannot pass null or empty values to constructor");
-        }
+		if ((key == null) || ("".equals(key)) || (principal == null)
+				|| "".equals(principal)) {
+			throw new IllegalArgumentException(
+					"Cannot pass null or empty values to constructor");
+		}
 
-        this.keyHash = key.hashCode();
-        this.principal = principal;
-        setAuthenticated(true);
-    }
+		this.keyHash = key.hashCode();
+		this.principal = principal;
+		setAuthenticated(true);
+	}
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    /**
-     * Always returns an empty <code>String</code>
-     *
-     * @return an empty String
-     */
-    public Object getCredentials() {
-        return "";
-    }
+	/**
+	 * Always returns an empty <code>String</code>
+	 *
+	 * @return an empty String
+	 */
+	public Object getCredentials() {
+		return "";
+	}
 
-    public int getKeyHash() {
-        return this.keyHash;
-    }
+	public int getKeyHash() {
+		return this.keyHash;
+	}
 
-    public Object getPrincipal() {
-        return this.principal;
-    }
+	public Object getPrincipal() {
+		return this.principal;
+	}
 
-    public boolean equals(Object obj) {
-        if (!super.equals(obj)) {
-            return false;
-        }
+	public boolean equals(Object obj) {
+		if (!super.equals(obj)) {
+			return false;
+		}
 
-        if (obj instanceof RememberMeAuthenticationToken) {
-            RememberMeAuthenticationToken test = (RememberMeAuthenticationToken) obj;
+		if (obj instanceof RememberMeAuthenticationToken) {
+			RememberMeAuthenticationToken test = (RememberMeAuthenticationToken) obj;
 
-            if (this.getKeyHash() != test.getKeyHash()) {
-                return false;
-            }
+			if (this.getKeyHash() != test.getKeyHash()) {
+				return false;
+			}
 
-            return true;
-        }
+			return true;
+		}
 
-        return false;
-    }
+		return false;
+	}
 
 }

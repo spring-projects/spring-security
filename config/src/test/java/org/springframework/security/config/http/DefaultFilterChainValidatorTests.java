@@ -46,49 +46,56 @@ import org.springframework.security.web.util.matcher.AnyRequestMatcher;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultFilterChainValidatorTests {
-    private DefaultFilterChainValidator validator;
-    private FilterChainProxy fcp;
-    @Mock
-    private Log logger;
-    @Mock
-    private DefaultFilterInvocationSecurityMetadataSource metadataSource;
-    @Mock
-    private AccessDecisionManager accessDecisionManager;
+	private DefaultFilterChainValidator validator;
+	private FilterChainProxy fcp;
+	@Mock
+	private Log logger;
+	@Mock
+	private DefaultFilterInvocationSecurityMetadataSource metadataSource;
+	@Mock
+	private AccessDecisionManager accessDecisionManager;
 
-    private FilterSecurityInterceptor fsi;
+	private FilterSecurityInterceptor fsi;
 
-    @Before
-    public void setUp() throws Exception {
-        AnonymousAuthenticationFilter aaf = new AnonymousAuthenticationFilter("anonymous");
-        fsi = new FilterSecurityInterceptor();
-        fsi.setAccessDecisionManager(accessDecisionManager);
-        fsi.setSecurityMetadataSource(metadataSource);
-        AuthenticationEntryPoint authenticationEntryPoint = new LoginUrlAuthenticationEntryPoint("/login");
-        ExceptionTranslationFilter etf = new ExceptionTranslationFilter(authenticationEntryPoint);
-        DefaultSecurityFilterChain securityChain = new DefaultSecurityFilterChain(AnyRequestMatcher.INSTANCE, aaf, etf, fsi);
-        fcp = new FilterChainProxy(securityChain);
-        validator = new DefaultFilterChainValidator();
-        Whitebox.setInternalState(validator, "logger", logger);
-    }
+	@Before
+	public void setUp() throws Exception {
+		AnonymousAuthenticationFilter aaf = new AnonymousAuthenticationFilter("anonymous");
+		fsi = new FilterSecurityInterceptor();
+		fsi.setAccessDecisionManager(accessDecisionManager);
+		fsi.setSecurityMetadataSource(metadataSource);
+		AuthenticationEntryPoint authenticationEntryPoint = new LoginUrlAuthenticationEntryPoint(
+				"/login");
+		ExceptionTranslationFilter etf = new ExceptionTranslationFilter(
+				authenticationEntryPoint);
+		DefaultSecurityFilterChain securityChain = new DefaultSecurityFilterChain(
+				AnyRequestMatcher.INSTANCE, aaf, etf, fsi);
+		fcp = new FilterChainProxy(securityChain);
+		validator = new DefaultFilterChainValidator();
+		Whitebox.setInternalState(validator, "logger", logger);
+	}
 
-    // SEC-1878
-    @SuppressWarnings("unchecked")
-    @Test
-    public void validateCheckLoginPageIsntProtectedThrowsIllegalArgumentException() {
-        IllegalArgumentException toBeThrown = new IllegalArgumentException("failed to eval expression");
-        doThrow(toBeThrown).when(accessDecisionManager).decide(any(Authentication.class), anyObject(), any(Collection.class));
-        validator.validate(fcp);
-        verify(logger).info("Unable to check access to the login page to determine if anonymous access is allowed. This might be an error, but can happen under normal circumstances.", toBeThrown);
-    }
+	// SEC-1878
+	@SuppressWarnings("unchecked")
+	@Test
+	public void validateCheckLoginPageIsntProtectedThrowsIllegalArgumentException() {
+		IllegalArgumentException toBeThrown = new IllegalArgumentException(
+				"failed to eval expression");
+		doThrow(toBeThrown).when(accessDecisionManager).decide(any(Authentication.class),
+				anyObject(), any(Collection.class));
+		validator.validate(fcp);
+		verify(logger)
+				.info("Unable to check access to the login page to determine if anonymous access is allowed. This might be an error, but can happen under normal circumstances.",
+						toBeThrown);
+	}
 
-    // SEC-1957
-    @Test
-    public void validateCustomMetadataSource() {
-        FilterInvocationSecurityMetadataSource customMetaDataSource = mock(FilterInvocationSecurityMetadataSource.class);
-        fsi.setSecurityMetadataSource(customMetaDataSource);
+	// SEC-1957
+	@Test
+	public void validateCustomMetadataSource() {
+		FilterInvocationSecurityMetadataSource customMetaDataSource = mock(FilterInvocationSecurityMetadataSource.class);
+		fsi.setSecurityMetadataSource(customMetaDataSource);
 
-        validator.validate(fcp);
+		validator.validate(fcp);
 
-        verify(customMetaDataSource).getAttributes(any());
-    }
+		verify(customMetaDataSource).getAttributes(any());
+	}
 }

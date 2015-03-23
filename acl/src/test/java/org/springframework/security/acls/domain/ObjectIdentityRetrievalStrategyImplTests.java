@@ -13,30 +13,32 @@ import junit.framework.TestCase;
  * @author Andrei Stefan
  */
 public class ObjectIdentityRetrievalStrategyImplTests extends TestCase {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public void testObjectIdentityCreation() throws Exception {
-        MockIdDomainObject domain = new MockIdDomainObject();
-        domain.setId(Integer.valueOf(1));
+	public void testObjectIdentityCreation() throws Exception {
+		MockIdDomainObject domain = new MockIdDomainObject();
+		domain.setId(Integer.valueOf(1));
 
-        ObjectIdentityRetrievalStrategy retStrategy = new ObjectIdentityRetrievalStrategyImpl();
-        ObjectIdentity identity = retStrategy.getObjectIdentity(domain);
+		ObjectIdentityRetrievalStrategy retStrategy = new ObjectIdentityRetrievalStrategyImpl();
+		ObjectIdentity identity = retStrategy.getObjectIdentity(domain);
 
-        assertNotNull(identity);
-        assertEquals(identity, new ObjectIdentityImpl(domain));
-    }
+		assertNotNull(identity);
+		assertEquals(identity, new ObjectIdentityImpl(domain));
+	}
 
-    //~ Inner Classes ==================================================================================================
-    @SuppressWarnings("unused")
-    private class MockIdDomainObject {
-        private Object id;
+	// ~ Inner Classes
+	// ==================================================================================================
+	@SuppressWarnings("unused")
+	private class MockIdDomainObject {
+		private Object id;
 
-        public Object getId() {
-            return id;
-        }
+		public Object getId() {
+			return id;
+		}
 
-        public void setId(Object id) {
-            this.id = id;
-        }
-    }
+		public void setId(Object id) {
+			this.id = id;
+		}
+	}
 }

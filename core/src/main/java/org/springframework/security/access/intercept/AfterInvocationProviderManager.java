@@ -28,101 +28,112 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
-
 /**
  * Provider-based implementation of {@link AfterInvocationManager}.
  * <p>
- * Handles configuration of a bean context defined list of  {@link AfterInvocationProvider}s.
+ * Handles configuration of a bean context defined list of {@link AfterInvocationProvider}
+ * s.
  * <p>
  * Every <code>AfterInvocationProvider</code> will be polled when the
- * {@link #decide(Authentication, Object, Collection, Object)} method is called. The <code>Object</code> returned
- * from each provider will be presented to the successive provider for processing. This means each provider
- * <b>must</b> ensure they return the <code>Object</code>, even if they are not interested in the "after invocation"
- * decision (perhaps as the secure object invocation did not include a configuration attribute a given provider is
- * configured to respond to).
+ * {@link #decide(Authentication, Object, Collection, Object)} method is called. The
+ * <code>Object</code> returned from each provider will be presented to the successive
+ * provider for processing. This means each provider <b>must</b> ensure they return the
+ * <code>Object</code>, even if they are not interested in the "after invocation" decision
+ * (perhaps as the secure object invocation did not include a configuration attribute a
+ * given provider is configured to respond to).
  *
  * @author Ben Alex
  */
-public class AfterInvocationProviderManager implements AfterInvocationManager, InitializingBean {
-    //~ Static fields/initializers =====================================================================================
+public class AfterInvocationProviderManager implements AfterInvocationManager,
+		InitializingBean {
+	// ~ Static fields/initializers
+	// =====================================================================================
 
-    protected static final Log logger = LogFactory.getLog(AfterInvocationProviderManager.class);
+	protected static final Log logger = LogFactory
+			.getLog(AfterInvocationProviderManager.class);
 
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private List<AfterInvocationProvider> providers;
+	private List<AfterInvocationProvider> providers;
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public void afterPropertiesSet() throws Exception {
-        checkIfValidList(this.providers);
-    }
+	public void afterPropertiesSet() throws Exception {
+		checkIfValidList(this.providers);
+	}
 
-    private void checkIfValidList(List<?> listToCheck) {
-        if ((listToCheck == null) || (listToCheck.size() == 0)) {
-            throw new IllegalArgumentException("A list of AfterInvocationProviders is required");
-        }
-    }
+	private void checkIfValidList(List<?> listToCheck) {
+		if ((listToCheck == null) || (listToCheck.size() == 0)) {
+			throw new IllegalArgumentException(
+					"A list of AfterInvocationProviders is required");
+		}
+	}
 
-    public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> config,
-            Object returnedObject) throws AccessDeniedException {
+	public Object decide(Authentication authentication, Object object,
+			Collection<ConfigAttribute> config, Object returnedObject)
+			throws AccessDeniedException {
 
-        Object result = returnedObject;
+		Object result = returnedObject;
 
-        for(AfterInvocationProvider provider : providers) {
-            result = provider.decide(authentication, object, config, result);
-        }
+		for (AfterInvocationProvider provider : providers) {
+			result = provider.decide(authentication, object, config, result);
+		}
 
-        return result;
-    }
+		return result;
+	}
 
-    public List<AfterInvocationProvider> getProviders() {
-        return this.providers;
-    }
+	public List<AfterInvocationProvider> getProviders() {
+		return this.providers;
+	}
 
-    public void setProviders(List<?> newList) {
-        checkIfValidList(newList);
-        providers = new ArrayList<AfterInvocationProvider>(newList.size());
+	public void setProviders(List<?> newList) {
+		checkIfValidList(newList);
+		providers = new ArrayList<AfterInvocationProvider>(newList.size());
 
-        for(Object currentObject : newList) {
-            Assert.isInstanceOf(AfterInvocationProvider.class, currentObject, "AfterInvocationProvider " +
-                    currentObject.getClass().getName() + " must implement AfterInvocationProvider");
-            providers.add((AfterInvocationProvider) currentObject);
-        }
-    }
+		for (Object currentObject : newList) {
+			Assert.isInstanceOf(AfterInvocationProvider.class, currentObject,
+					"AfterInvocationProvider " + currentObject.getClass().getName()
+							+ " must implement AfterInvocationProvider");
+			providers.add((AfterInvocationProvider) currentObject);
+		}
+	}
 
-    public boolean supports(ConfigAttribute attribute) {
-        for(AfterInvocationProvider provider : providers) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Evaluating " + attribute + " against " + provider);
-            }
+	public boolean supports(ConfigAttribute attribute) {
+		for (AfterInvocationProvider provider : providers) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Evaluating " + attribute + " against " + provider);
+			}
 
-            if (provider.supports(attribute)) {
-                return true;
-            }
-        }
+			if (provider.supports(attribute)) {
+				return true;
+			}
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-    /**
-     * Iterates through all <code>AfterInvocationProvider</code>s and ensures each can support the presented
-     * class.
-     * <p>
-     * If one or more providers cannot support the presented class, <code>false</code> is returned.
-     *
-     * @param clazz the secure object class being queries
-     *
-     * @return if the <code>AfterInvocationProviderManager</code> can support the secure object class, which requires
-     *         every one of its <code>AfterInvocationProvider</code>s to support the secure object class
-     */
-    public boolean supports(Class<?> clazz) {
-        for (AfterInvocationProvider provider : providers) {
-            if (!provider.supports(clazz)) {
-                return false;
-            }
-        }
+	/**
+	 * Iterates through all <code>AfterInvocationProvider</code>s and ensures each can
+	 * support the presented class.
+	 * <p>
+	 * If one or more providers cannot support the presented class, <code>false</code> is
+	 * returned.
+	 *
+	 * @param clazz the secure object class being queries
+	 *
+	 * @return if the <code>AfterInvocationProviderManager</code> can support the secure
+	 * object class, which requires every one of its <code>AfterInvocationProvider</code>s
+	 * to support the secure object class
+	 */
+	public boolean supports(Class<?> clazz) {
+		for (AfterInvocationProvider provider : providers) {
+			if (!provider.supports(clazz)) {
+				return false;
+			}
+		}
 
-        return true;
-    }
+		return true;
+	}
 }

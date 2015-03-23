@@ -55,10 +55,11 @@ import java.util.List;
  * </code>
  *
  * <p>
- * The above configuration will ensure that any SimpAnnotationMethodMessageHandler has the AuthenticationPrincipalArgumentResolver
- * registered as a custom argument resolver. It also ensures that the SecurityContextChannelInterceptor is automatically
- * registered for the clientInboundChannel. Last, it ensures that a ChannelSecurityInterceptor is registered with the
- * clientInboundChannel.
+ * The above configuration will ensure that any SimpAnnotationMethodMessageHandler has the
+ * AuthenticationPrincipalArgumentResolver registered as a custom argument resolver. It
+ * also ensures that the SecurityContextChannelInterceptor is automatically registered for
+ * the clientInboundChannel. Last, it ensures that a ChannelSecurityInterceptor is
+ * registered with the clientInboundChannel.
  * </p>
  *
  * <p>
@@ -73,181 +74,219 @@ import java.util.List;
  * </code>
  *
  * <p>
- * Now the configuration will only create a bean named ChannelSecurityInterceptor and assign it to the id of
- * channelSecurityInterceptor. Users can explicitly wire Spring Security using the standard Spring Messaging XML
- * namespace support.
+ * Now the configuration will only create a bean named ChannelSecurityInterceptor and
+ * assign it to the id of channelSecurityInterceptor. Users can explicitly wire Spring
+ * Security using the standard Spring Messaging XML namespace support.
  * </p>
  *
  * @author Rob Winch
  * @since 4.0
  */
-public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements BeanDefinitionParser {
-    private static final Log logger = LogFactory.getLog(WebSocketMessageBrokerSecurityBeanDefinitionParser.class);
+public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
+		BeanDefinitionParser {
+	private static final Log logger = LogFactory
+			.getLog(WebSocketMessageBrokerSecurityBeanDefinitionParser.class);
 
-    private static final String ID_ATTR = "id";
+	private static final String ID_ATTR = "id";
 
-    private static final String DISABLED_ATTR = "same-origin-disabled";
+	private static final String DISABLED_ATTR = "same-origin-disabled";
 
-    private static final String PATTERN_ATTR = "pattern";
+	private static final String PATTERN_ATTR = "pattern";
 
-    private static final String ACCESS_ATTR = "access";
+	private static final String ACCESS_ATTR = "access";
 
-    private static final String TYPE_ATTR = "type";
+	private static final String TYPE_ATTR = "type";
 
+	/**
+	 * @param element
+	 * @param parserContext
+	 * @return
+	 */
+	public BeanDefinition parse(Element element, ParserContext parserContext) {
+		BeanDefinitionRegistry registry = parserContext.getRegistry();
+		XmlReaderContext context = parserContext.getReaderContext();
 
-    /**
-     * @param element
-     * @param parserContext
-     * @return
-     */
-    public BeanDefinition parse(Element element, ParserContext parserContext) {
-        BeanDefinitionRegistry registry = parserContext.getRegistry();
-        XmlReaderContext context = parserContext.getReaderContext();
+		ManagedMap<BeanDefinition, String> matcherToExpression = new ManagedMap<BeanDefinition, String>();
 
-        ManagedMap<BeanDefinition,String> matcherToExpression = new ManagedMap<BeanDefinition, String>();
+		String id = element.getAttribute(ID_ATTR);
+		boolean sameOriginDisabled = Boolean.parseBoolean(element
+				.getAttribute(DISABLED_ATTR));
 
-        String id = element.getAttribute(ID_ATTR);
-        boolean sameOriginDisabled = Boolean.parseBoolean(element.getAttribute(DISABLED_ATTR));
+		List<Element> interceptMessages = DomUtils.getChildElementsByTagName(element,
+				Elements.INTERCEPT_MESSAGE);
+		for (Element interceptMessage : interceptMessages) {
+			String matcherPattern = interceptMessage.getAttribute(PATTERN_ATTR);
+			String accessExpression = interceptMessage.getAttribute(ACCESS_ATTR);
+			String messageType = interceptMessage.getAttribute(TYPE_ATTR);
 
+			BeanDefinition matcher = createMatcher(matcherPattern, messageType,
+					parserContext, interceptMessage);
+			matcherToExpression.put(matcher, accessExpression);
+		}
 
-        List<Element> interceptMessages = DomUtils.getChildElementsByTagName(element, Elements.INTERCEPT_MESSAGE);
-        for(Element interceptMessage : interceptMessages) {
-            String matcherPattern = interceptMessage.getAttribute(PATTERN_ATTR);
-            String accessExpression = interceptMessage.getAttribute(ACCESS_ATTR);
-            String messageType = interceptMessage.getAttribute(TYPE_ATTR);
+		BeanDefinitionBuilder mds = BeanDefinitionBuilder
+				.rootBeanDefinition(ExpressionBasedMessageSecurityMetadataSourceFactory.class);
+		mds.setFactoryMethod("createExpressionMessageMetadataSource");
+		mds.addConstructorArgValue(matcherToExpression);
 
-            BeanDefinition matcher = createMatcher(matcherPattern, messageType, parserContext, interceptMessage);
-            matcherToExpression.put(matcher, accessExpression);
-        }
+		String mdsId = context.registerWithGeneratedName(mds.getBeanDefinition());
 
-        BeanDefinitionBuilder mds = BeanDefinitionBuilder.rootBeanDefinition(ExpressionBasedMessageSecurityMetadataSourceFactory.class);
-        mds.setFactoryMethod("createExpressionMessageMetadataSource");
-        mds.addConstructorArgValue(matcherToExpression);
+		ManagedList<BeanDefinition> voters = new ManagedList<BeanDefinition>();
+		voters.add(new RootBeanDefinition(MessageExpressionVoter.class));
+		BeanDefinitionBuilder adm = BeanDefinitionBuilder
+				.rootBeanDefinition(ConsensusBased.class);
+		adm.addConstructorArgValue(voters);
 
-        String mdsId = context.registerWithGeneratedName(mds.getBeanDefinition());
+		BeanDefinitionBuilder inboundChannelSecurityInterceptor = BeanDefinitionBuilder
+				.rootBeanDefinition(ChannelSecurityInterceptor.class);
+		inboundChannelSecurityInterceptor.addConstructorArgValue(registry
+				.getBeanDefinition(mdsId));
+		inboundChannelSecurityInterceptor.addPropertyValue("accessDecisionManager",
+				adm.getBeanDefinition());
+		String inSecurityInterceptorName = context
+				.registerWithGeneratedName(inboundChannelSecurityInterceptor
+						.getBeanDefinition());
 
-        ManagedList<BeanDefinition> voters = new ManagedList<BeanDefinition>();
-        voters.add(new RootBeanDefinition(MessageExpressionVoter.class));
-        BeanDefinitionBuilder adm = BeanDefinitionBuilder.rootBeanDefinition(ConsensusBased.class);
-        adm.addConstructorArgValue(voters);
+		if (StringUtils.hasText(id)) {
+			registry.registerAlias(inSecurityInterceptorName, id);
+		}
+		else {
+			BeanDefinitionBuilder mspp = BeanDefinitionBuilder
+					.rootBeanDefinition(MessageSecurityPostProcessor.class);
+			mspp.addConstructorArgValue(inSecurityInterceptorName);
+			mspp.addConstructorArgValue(sameOriginDisabled);
+			context.registerWithGeneratedName(mspp.getBeanDefinition());
+		}
 
-        BeanDefinitionBuilder inboundChannelSecurityInterceptor = BeanDefinitionBuilder.rootBeanDefinition(ChannelSecurityInterceptor.class);
-        inboundChannelSecurityInterceptor.addConstructorArgValue(registry.getBeanDefinition(mdsId));
-        inboundChannelSecurityInterceptor.addPropertyValue("accessDecisionManager", adm.getBeanDefinition());
-        String inSecurityInterceptorName = context.registerWithGeneratedName(inboundChannelSecurityInterceptor.getBeanDefinition());
+		return null;
+	}
 
-        if(StringUtils.hasText(id)) {
-            registry.registerAlias(inSecurityInterceptorName, id);
-        } else {
-            BeanDefinitionBuilder mspp = BeanDefinitionBuilder.rootBeanDefinition(MessageSecurityPostProcessor.class);
-            mspp.addConstructorArgValue(inSecurityInterceptorName);
-            mspp.addConstructorArgValue(sameOriginDisabled);
-            context.registerWithGeneratedName(mspp.getBeanDefinition());
-        }
+	private BeanDefinition createMatcher(String matcherPattern, String messageType,
+			ParserContext parserContext, Element interceptMessage) {
+		boolean hasPattern = StringUtils.hasText(matcherPattern);
+		boolean hasMessageType = StringUtils.hasText(messageType);
+		if (!hasPattern) {
+			BeanDefinitionBuilder matcher = BeanDefinitionBuilder
+					.rootBeanDefinition(SimpMessageTypeMatcher.class);
+			matcher.addConstructorArgValue(messageType);
+			return matcher.getBeanDefinition();
+		}
 
-        return null;
-    }
+		String factoryName = null;
+		if (hasPattern && hasMessageType) {
+			SimpMessageType type = SimpMessageType.valueOf(messageType);
+			if (SimpMessageType.MESSAGE == type) {
+				factoryName = "createMessageMatcher";
+			}
+			else if (SimpMessageType.SUBSCRIBE == type) {
+				factoryName = "createSubscribeMatcher";
+			}
+			else {
+				parserContext
+						.getReaderContext()
+						.error("Cannot use intercept-websocket@message-type="
+								+ messageType
+								+ " with a pattern because the type does not have a destination.",
+								interceptMessage);
+			}
+		}
+		BeanDefinitionBuilder matcher = BeanDefinitionBuilder
+				.rootBeanDefinition(SimpDestinationMessageMatcher.class);
+		matcher.setFactoryMethod(factoryName);
+		matcher.addConstructorArgValue(matcherPattern);
+		matcher.addConstructorArgValue(new RootBeanDefinition(AntPathMatcher.class));
+		return matcher.getBeanDefinition();
+	}
 
-    private BeanDefinition createMatcher(String matcherPattern, String messageType, ParserContext parserContext, Element interceptMessage) {
-        boolean hasPattern = StringUtils.hasText(matcherPattern);
-        boolean hasMessageType = StringUtils.hasText(messageType);
-        if(!hasPattern) {
-            BeanDefinitionBuilder matcher = BeanDefinitionBuilder.rootBeanDefinition(SimpMessageTypeMatcher.class);
-            matcher.addConstructorArgValue(messageType);
-            return matcher.getBeanDefinition();
-        }
+	static class MessageSecurityPostProcessor implements
+			BeanDefinitionRegistryPostProcessor {
+		private static final String CLIENT_INBOUND_CHANNEL_BEAN_ID = "clientInboundChannel";
 
+		private static final String INTERCEPTORS_PROP = "interceptors";
 
-        String factoryName = null;
-        if(hasPattern && hasMessageType) {
-            SimpMessageType type = SimpMessageType.valueOf(messageType);
-            if(SimpMessageType.MESSAGE == type) {
-                factoryName = "createMessageMatcher";
-            } else if(SimpMessageType.SUBSCRIBE == type) {
-                factoryName = "createSubscribeMatcher";
-            } else {
-                parserContext.getReaderContext().error("Cannot use intercept-websocket@message-type="+messageType+" with a pattern because the type does not have a destination.", interceptMessage);
-            }
-        }
-        BeanDefinitionBuilder matcher = BeanDefinitionBuilder.rootBeanDefinition(SimpDestinationMessageMatcher.class);
-        matcher.setFactoryMethod(factoryName);
-        matcher.addConstructorArgValue(matcherPattern);
-        matcher.addConstructorArgValue(new RootBeanDefinition(AntPathMatcher.class));
-        return matcher.getBeanDefinition();
-    }
+		private static final String CUSTOM_ARG_RESOLVERS_PROP = "customArgumentResolvers";
 
-    static class MessageSecurityPostProcessor implements BeanDefinitionRegistryPostProcessor {
-        private static final String CLIENT_INBOUND_CHANNEL_BEAN_ID = "clientInboundChannel";
+		private final String inboundSecurityInterceptorId;
 
-        private static final String INTERCEPTORS_PROP = "interceptors";
+		private final boolean sameOriginDisabled;
 
-        private static final String CUSTOM_ARG_RESOLVERS_PROP = "customArgumentResolvers";
+		public MessageSecurityPostProcessor(String inboundSecurityInterceptorId,
+				boolean sameOriginDisabled) {
+			this.inboundSecurityInterceptorId = inboundSecurityInterceptorId;
+			this.sameOriginDisabled = sameOriginDisabled;
+		}
 
-        private final String inboundSecurityInterceptorId;
+		public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry)
+				throws BeansException {
+			String[] beanNames = registry.getBeanDefinitionNames();
+			for (String beanName : beanNames) {
+				BeanDefinition bd = registry.getBeanDefinition(beanName);
+				String beanClassName = bd.getBeanClassName();
+				if (beanClassName.equals(SimpAnnotationMethodMessageHandler.class
+						.getName())) {
+					PropertyValue current = bd.getPropertyValues().getPropertyValue(
+							CUSTOM_ARG_RESOLVERS_PROP);
+					ManagedList<Object> argResolvers = new ManagedList<Object>();
+					if (current != null) {
+						argResolvers.addAll((ManagedList<?>) current.getValue());
+					}
+					argResolvers.add(new RootBeanDefinition(
+							AuthenticationPrincipalArgumentResolver.class));
+					bd.getPropertyValues().add(CUSTOM_ARG_RESOLVERS_PROP, argResolvers);
+				}
+				else if (beanClassName
+						.equals("org.springframework.web.socket.server.support.WebSocketHttpRequestHandler")) {
+					addCsrfTokenHandshakeInterceptor(bd);
+				}
+				else if (beanClassName
+						.equals("org.springframework.web.socket.sockjs.transport.TransportHandlingSockJsService")) {
+					addCsrfTokenHandshakeInterceptor(bd);
+				}
+				else if (beanClassName
+						.equals("org.springframework.web.socket.sockjs.transport.handler.DefaultSockJsService")) {
+					addCsrfTokenHandshakeInterceptor(bd);
+				}
+			}
 
-        private final boolean sameOriginDisabled;
+			if (!registry.containsBeanDefinition(CLIENT_INBOUND_CHANNEL_BEAN_ID)) {
+				return;
+			}
+			ManagedList<Object> interceptors = new ManagedList();
+			interceptors.add(new RootBeanDefinition(
+					SecurityContextChannelInterceptor.class));
+			if (!sameOriginDisabled) {
+				interceptors.add(new RootBeanDefinition(CsrfChannelInterceptor.class));
+			}
+			interceptors.add(registry.getBeanDefinition(inboundSecurityInterceptorId));
 
-        public MessageSecurityPostProcessor(String inboundSecurityInterceptorId, boolean sameOriginDisabled) {
-            this.inboundSecurityInterceptorId = inboundSecurityInterceptorId;
-            this.sameOriginDisabled = sameOriginDisabled;
-        }
+			BeanDefinition inboundChannel = registry
+					.getBeanDefinition(CLIENT_INBOUND_CHANNEL_BEAN_ID);
+			PropertyValue currentInterceptorsPv = inboundChannel.getPropertyValues()
+					.getPropertyValue(INTERCEPTORS_PROP);
+			if (currentInterceptorsPv != null) {
+				ManagedList<?> currentInterceptors = (ManagedList<?>) currentInterceptorsPv
+						.getValue();
+				interceptors.addAll(currentInterceptors);
+			}
 
-        public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-            String[] beanNames = registry.getBeanDefinitionNames();
-            for(String beanName : beanNames) {
-                BeanDefinition bd = registry.getBeanDefinition(beanName);
-                String beanClassName = bd.getBeanClassName();
-                if(beanClassName.equals(SimpAnnotationMethodMessageHandler.class.getName())) {
-                    PropertyValue current = bd.getPropertyValues().getPropertyValue(CUSTOM_ARG_RESOLVERS_PROP);
-                    ManagedList<Object> argResolvers = new ManagedList<Object>();
-                    if(current != null) {
-                        argResolvers.addAll((ManagedList<?>)current.getValue());
-                    }
-                    argResolvers.add(new RootBeanDefinition(AuthenticationPrincipalArgumentResolver.class));
-                    bd.getPropertyValues().add(CUSTOM_ARG_RESOLVERS_PROP, argResolvers);
-                }
-                else if(beanClassName.equals("org.springframework.web.socket.server.support.WebSocketHttpRequestHandler")) {
-                    addCsrfTokenHandshakeInterceptor(bd);
-                } else if(beanClassName.equals("org.springframework.web.socket.sockjs.transport.TransportHandlingSockJsService")) {
-                    addCsrfTokenHandshakeInterceptor(bd);
-                } else if(beanClassName.equals("org.springframework.web.socket.sockjs.transport.handler.DefaultSockJsService")) {
-                    addCsrfTokenHandshakeInterceptor(bd);
-                }
-            }
+			inboundChannel.getPropertyValues().add(INTERCEPTORS_PROP, interceptors);
+		}
 
-            if(!registry.containsBeanDefinition(CLIENT_INBOUND_CHANNEL_BEAN_ID)) {
-                return;
-            }
-            ManagedList<Object> interceptors = new ManagedList();
-            interceptors.add(new RootBeanDefinition(SecurityContextChannelInterceptor.class));
-            if(!sameOriginDisabled) {
-                interceptors.add(new RootBeanDefinition(CsrfChannelInterceptor.class));
-            }
-            interceptors.add(registry.getBeanDefinition(inboundSecurityInterceptorId));
+		private void addCsrfTokenHandshakeInterceptor(BeanDefinition bd) {
+			if (sameOriginDisabled) {
+				return;
+			}
+			String interceptorPropertyName = "handshakeInterceptors";
+			ManagedList<? super Object> interceptors = new ManagedList<Object>();
+			interceptors.add(new RootBeanDefinition(CsrfTokenHandshakeInterceptor.class));
+			interceptors.addAll((ManagedList<Object>) bd.getPropertyValues().get(
+					interceptorPropertyName));
+			bd.getPropertyValues().add(interceptorPropertyName, interceptors);
+		}
 
-            BeanDefinition inboundChannel = registry.getBeanDefinition(CLIENT_INBOUND_CHANNEL_BEAN_ID);
-            PropertyValue currentInterceptorsPv =  inboundChannel.getPropertyValues().getPropertyValue(INTERCEPTORS_PROP);
-            if(currentInterceptorsPv != null) {
-                ManagedList<?> currentInterceptors = (ManagedList<?>) currentInterceptorsPv.getValue();
-                interceptors.addAll(currentInterceptors);
-            }
+		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)
+				throws BeansException {
 
-            inboundChannel.getPropertyValues().add(INTERCEPTORS_PROP, interceptors);
-        }
-
-        private void addCsrfTokenHandshakeInterceptor(BeanDefinition bd) {
-            if(sameOriginDisabled) {
-                return;
-            }
-            String interceptorPropertyName = "handshakeInterceptors";
-            ManagedList<? super Object> interceptors = new ManagedList<Object>();
-            interceptors.add(new RootBeanDefinition(CsrfTokenHandshakeInterceptor.class));
-            interceptors.addAll((ManagedList<Object>)bd.getPropertyValues().get(interceptorPropertyName));
-            bd.getPropertyValues().add(interceptorPropertyName, interceptors);
-        }
-
-        public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-
-        }
-    }
+		}
+	}
 }

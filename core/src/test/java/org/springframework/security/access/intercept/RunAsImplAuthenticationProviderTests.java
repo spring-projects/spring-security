@@ -24,56 +24,58 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 
-
 /**
  * Tests {@link RunAsImplAuthenticationProvider}.
  */
 public class RunAsImplAuthenticationProviderTests {
 
-    @Test(expected = BadCredentialsException.class)
-    public void testAuthenticationFailDueToWrongKey() {
-        RunAsUserToken token = new RunAsUserToken("wrong_key", "Test", "Password",
-                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), UsernamePasswordAuthenticationToken.class);
-        RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
-        provider.setKey("hello_world");
+	@Test(expected = BadCredentialsException.class)
+	public void testAuthenticationFailDueToWrongKey() {
+		RunAsUserToken token = new RunAsUserToken("wrong_key", "Test", "Password",
+				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"),
+				UsernamePasswordAuthenticationToken.class);
+		RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
+		provider.setKey("hello_world");
 
-        provider.authenticate(token);
-    }
+		provider.authenticate(token);
+	}
 
-    @Test
-    public void testAuthenticationSuccess() {
-        RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
-                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), UsernamePasswordAuthenticationToken.class);
-        RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
-        provider.setKey("my_password");
+	@Test
+	public void testAuthenticationSuccess() {
+		RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
+				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"),
+				UsernamePasswordAuthenticationToken.class);
+		RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
+		provider.setKey("my_password");
 
-        Authentication result = provider.authenticate(token);
+		Authentication result = provider.authenticate(token);
 
-        Assert.assertTrue("Should have returned RunAsUserToken", result instanceof RunAsUserToken);
+		Assert.assertTrue("Should have returned RunAsUserToken",
+				result instanceof RunAsUserToken);
 
-        RunAsUserToken resultCast = (RunAsUserToken) result;
-        assertEquals("my_password".hashCode(), resultCast.getKeyHash());
-    }
+		RunAsUserToken resultCast = (RunAsUserToken) result;
+		assertEquals("my_password".hashCode(), resultCast.getKeyHash());
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testStartupFailsIfNoKey() throws Exception {
-        RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
+	@Test(expected = IllegalArgumentException.class)
+	public void testStartupFailsIfNoKey() throws Exception {
+		RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
 
-        provider.afterPropertiesSet();
-    }
+		provider.afterPropertiesSet();
+	}
 
-    @Test
-    public void testStartupSuccess() throws Exception {
-        RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
-        provider.setKey("hello_world");
-        assertEquals("hello_world", provider.getKey());
-        provider.afterPropertiesSet();
-    }
+	@Test
+	public void testStartupSuccess() throws Exception {
+		RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
+		provider.setKey("hello_world");
+		assertEquals("hello_world", provider.getKey());
+		provider.afterPropertiesSet();
+	}
 
-    @Test
-    public void testSupports() {
-        RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
-        assertTrue(provider.supports(RunAsUserToken.class));
-        assertTrue(!provider.supports(TestingAuthenticationToken.class));
-    }
+	@Test
+	public void testSupports() {
+		RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
+		assertTrue(provider.supports(RunAsUserToken.class));
+		assertTrue(!provider.supports(TestingAuthenticationToken.class));
+	}
 }

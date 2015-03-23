@@ -20,13 +20,14 @@ package org.springframework.security.openid;
  * @author Robin Bramley, Opsera Ltd
  */
 public class OpenIDConsumerException extends Exception {
-    //~ Constructors ===================================================================================================
+	// ~ Constructors
+	// ===================================================================================================
 
-    public OpenIDConsumerException(String message) {
-        super(message);
-    }
+	public OpenIDConsumerException(String message) {
+		super(message);
+	}
 
-    public OpenIDConsumerException(String message, Throwable t) {
-        super(message, t);
-    }
+	public OpenIDConsumerException(String message, Throwable t) {
+		super(message, t);
+	}
 }

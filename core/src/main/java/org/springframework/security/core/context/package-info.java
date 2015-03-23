@@ -9,3 +9,4 @@
  * by calling the {@link org.springframework.security.core.context.SecurityContextHolder SecurityContextHolder}.
  */
 package org.springframework.security.core.context;
+

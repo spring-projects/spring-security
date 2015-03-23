@@ -30,13 +30,15 @@ import java.util.List;
 /**
  * @author Rob Winch
  */
-public class WithMockCustomUserSecurityContextFactory implements WithSecurityContextFactory<WithMockCustomUser> {
+public class WithMockCustomUserSecurityContextFactory implements
+		WithSecurityContextFactory<WithMockCustomUser> {
 	public SecurityContext createSecurityContext(WithMockCustomUser customUser) {
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
 
-		CustomUserDetails principal = new CustomUserDetails(customUser.name(), customUser.username());
-		Authentication auth =
-			new UsernamePasswordAuthenticationToken(principal, "password", principal.getAuthorities());
+		CustomUserDetails principal = new CustomUserDetails(customUser.name(),
+				customUser.username());
+		Authentication auth = new UsernamePasswordAuthenticationToken(principal,
+				"password", principal.getAuthorities());
 		context.setAuthentication(auth);
 		return context;
 	}

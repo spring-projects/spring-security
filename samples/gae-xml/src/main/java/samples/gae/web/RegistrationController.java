@@ -23,39 +23,42 @@ import samples.gae.users.UserRegistry;
  * @author Luke Taylor
  */
 @Controller
-@RequestMapping(value="/register.htm")
+@RequestMapping(value = "/register.htm")
 public class RegistrationController {
 
-    @Autowired
-    private UserRegistry registry;
+	@Autowired
+	private UserRegistry registry;
 
-    @RequestMapping(method= RequestMethod.GET)
-    public RegistrationForm registrationForm() {
-        return new RegistrationForm();
-    }
+	@RequestMapping(method = RequestMethod.GET)
+	public RegistrationForm registrationForm() {
+		return new RegistrationForm();
+	}
 
-    @RequestMapping(method = RequestMethod.POST)
-    public String register(@Valid RegistrationForm form, BindingResult result) {
-        if (result.hasErrors()) {
-            return null;
-        }
+	@RequestMapping(method = RequestMethod.POST)
+	public String register(@Valid RegistrationForm form, BindingResult result) {
+		if (result.hasErrors()) {
+			return null;
+		}
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        GaeUser currentUser = (GaeUser)authentication.getPrincipal();
-        Set<AppRole> roles = EnumSet.of(AppRole.USER);
+		Authentication authentication = SecurityContextHolder.getContext()
+				.getAuthentication();
+		GaeUser currentUser = (GaeUser) authentication.getPrincipal();
+		Set<AppRole> roles = EnumSet.of(AppRole.USER);
 
-        if (UserServiceFactory.getUserService().isUserAdmin()) {
-            roles.add(AppRole.ADMIN);
-        }
+		if (UserServiceFactory.getUserService().isUserAdmin()) {
+			roles.add(AppRole.ADMIN);
+		}
 
-        GaeUser user = new GaeUser(currentUser.getUserId(), currentUser.getNickname(), currentUser.getEmail(),
-                form.getForename(), form.getSurname(), roles, true);
+		GaeUser user = new GaeUser(currentUser.getUserId(), currentUser.getNickname(),
+				currentUser.getEmail(), form.getForename(), form.getSurname(), roles,
+				true);
 
-        registry.registerUser(user);
+		registry.registerUser(user);
 
-        // Update the context with the full authentication
-        SecurityContextHolder.getContext().setAuthentication(new GaeUserAuthentication(user, authentication.getDetails()));
+		// Update the context with the full authentication
+		SecurityContextHolder.getContext().setAuthentication(
+				new GaeUserAuthentication(user, authentication.getDetails()));
 
-        return "redirect:/home.htm";
-    }
+		return "redirect:/home.htm";
+	}
 }

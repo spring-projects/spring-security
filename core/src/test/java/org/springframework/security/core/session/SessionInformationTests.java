@@ -21,29 +21,30 @@ import java.util.Date;
 
 import org.springframework.security.core.session.SessionInformation;
 
-
 /**
  * Tests {@link SessionInformation}.
  *
  * @author Ben Alex
  */
 public class SessionInformationTests extends TestCase {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public void testObject() throws Exception {
-        Object principal = "Some principal object";
-        String sessionId = "1234567890";
-        Date currentDate = new Date();
+	public void testObject() throws Exception {
+		Object principal = "Some principal object";
+		String sessionId = "1234567890";
+		Date currentDate = new Date();
 
-        SessionInformation info = new SessionInformation(principal, sessionId, currentDate);
-        assertEquals(principal, info.getPrincipal());
-        assertEquals(sessionId, info.getSessionId());
-        assertEquals(currentDate, info.getLastRequest());
+		SessionInformation info = new SessionInformation(principal, sessionId,
+				currentDate);
+		assertEquals(principal, info.getPrincipal());
+		assertEquals(sessionId, info.getSessionId());
+		assertEquals(currentDate, info.getLastRequest());
 
-        Thread.sleep(10);
+		Thread.sleep(10);
 
-        info.refreshLastRequest();
+		info.refreshLastRequest();
 
-        assertTrue(info.getLastRequest().after(currentDate));
-    }
+		assertTrue(info.getLastRequest().after(currentDate));
+	}
 }

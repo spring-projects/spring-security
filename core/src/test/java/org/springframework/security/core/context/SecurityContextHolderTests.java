@@ -27,33 +27,36 @@ import org.springframework.security.core.context.SecurityContextImpl;
  */
 public class SecurityContextHolderTests extends TestCase {
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public final void setUp() throws Exception {
-        SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
-    }
+	public final void setUp() throws Exception {
+		SecurityContextHolder
+				.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
+	}
 
-    public void testContextHolderGetterSetterClearer() {
-        SecurityContext sc = new SecurityContextImpl();
-        sc.setAuthentication(new UsernamePasswordAuthenticationToken("Foobar", "pass"));
-        SecurityContextHolder.setContext(sc);
-        assertEquals(sc, SecurityContextHolder.getContext());
-        SecurityContextHolder.clearContext();
-        assertNotSame(sc, SecurityContextHolder.getContext());
-        SecurityContextHolder.clearContext();
-    }
+	public void testContextHolderGetterSetterClearer() {
+		SecurityContext sc = new SecurityContextImpl();
+		sc.setAuthentication(new UsernamePasswordAuthenticationToken("Foobar", "pass"));
+		SecurityContextHolder.setContext(sc);
+		assertEquals(sc, SecurityContextHolder.getContext());
+		SecurityContextHolder.clearContext();
+		assertNotSame(sc, SecurityContextHolder.getContext());
+		SecurityContextHolder.clearContext();
+	}
 
-    public void testNeverReturnsNull() {
-        assertNotNull(SecurityContextHolder.getContext());
-        SecurityContextHolder.clearContext();
-    }
+	public void testNeverReturnsNull() {
+		assertNotNull(SecurityContextHolder.getContext());
+		SecurityContextHolder.clearContext();
+	}
 
-    public void testRejectsNulls() {
-        try {
-            SecurityContextHolder.setContext(null);
-            fail("Should have rejected null");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-    }
+	public void testRejectsNulls() {
+		try {
+			SecurityContextHolder.setContext(null);
+			fail("Should have rejected null");
+		}
+		catch (IllegalArgumentException expected) {
+			assertTrue(true);
+		}
+	}
 }

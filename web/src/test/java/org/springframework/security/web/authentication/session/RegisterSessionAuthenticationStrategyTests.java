@@ -35,33 +35,34 @@ import org.springframework.security.core.session.SessionRegistry;
 @RunWith(MockitoJUnitRunner.class)
 public class RegisterSessionAuthenticationStrategyTests {
 
-    @Mock
-    private SessionRegistry registry;
+	@Mock
+	private SessionRegistry registry;
 
-    private RegisterSessionAuthenticationStrategy authenticationStrategy;
+	private RegisterSessionAuthenticationStrategy authenticationStrategy;
 
-    private Authentication authentication;
-    private MockHttpServletRequest request;
-    private MockHttpServletResponse response;
+	private Authentication authentication;
+	private MockHttpServletRequest request;
+	private MockHttpServletResponse response;
 
-    @Before
-    public void setup() {
-        authenticationStrategy = new RegisterSessionAuthenticationStrategy(registry);
-        authentication = new TestingAuthenticationToken("user", "password","ROLE_USER");
-        request = new MockHttpServletRequest();
-        response = new MockHttpServletResponse();
-    }
+	@Before
+	public void setup() {
+		authenticationStrategy = new RegisterSessionAuthenticationStrategy(registry);
+		authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
+		request = new MockHttpServletRequest();
+		response = new MockHttpServletResponse();
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullRegistry() {
-        new RegisterSessionAuthenticationStrategy(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullRegistry() {
+		new RegisterSessionAuthenticationStrategy(null);
+	}
 
-    @Test
-    public void onAuthenticationRegistersSession() {
-        authenticationStrategy.onAuthentication(authentication, request, response);
+	@Test
+	public void onAuthenticationRegistersSession() {
+		authenticationStrategy.onAuthentication(authentication, request, response);
 
-        verify(registry).registerNewSession(request.getSession().getId(), authentication.getPrincipal());
-    }
+		verify(registry).registerNewSession(request.getSession().getId(),
+				authentication.getPrincipal());
+	}
 
 }

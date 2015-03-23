@@ -40,51 +40,52 @@ import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
  *
  */
 public class AbstractAuthorizeTagTests {
-    private AbstractAuthorizeTag tag;
-    private MockHttpServletRequest request;
-    private MockHttpServletResponse response;
-    private MockServletContext servletContext;
+	private AbstractAuthorizeTag tag;
+	private MockHttpServletRequest request;
+	private MockHttpServletResponse response;
+	private MockServletContext servletContext;
 
-    @Before
-    public void setup() {
-        tag = new AuthzTag();
-        request = new MockHttpServletRequest();
-        response = new MockHttpServletResponse();
-        servletContext = new MockServletContext();
-    }
+	@Before
+	public void setup() {
+		tag = new AuthzTag();
+		request = new MockHttpServletRequest();
+		response = new MockHttpServletResponse();
+		servletContext = new MockServletContext();
+	}
 
-    @After
-    public void teardown() {
-        SecurityContextHolder.clearContext();
-    }
+	@After
+	public void teardown() {
+		SecurityContextHolder.clearContext();
+	}
 
-    @Test
-    public void privilegeEvaluatorFromRequest() throws IOException {
-        String uri = "/something";
-        WebInvocationPrivilegeEvaluator expected = mock(WebInvocationPrivilegeEvaluator.class);
-        tag.setUrl(uri);
-        request.setAttribute(WebAttributes.WEB_INVOCATION_PRIVILEGE_EVALUATOR_ATTRIBUTE, expected);
+	@Test
+	public void privilegeEvaluatorFromRequest() throws IOException {
+		String uri = "/something";
+		WebInvocationPrivilegeEvaluator expected = mock(WebInvocationPrivilegeEvaluator.class);
+		tag.setUrl(uri);
+		request.setAttribute(WebAttributes.WEB_INVOCATION_PRIVILEGE_EVALUATOR_ATTRIBUTE,
+				expected);
 
-        tag.authorizeUsingUrlCheck();
+		tag.authorizeUsingUrlCheck();
 
-        verify(expected).isAllowed(eq(""), eq(uri), eq("GET"), any(Authentication.class));
-    }
+		verify(expected).isAllowed(eq(""), eq(uri), eq("GET"), any(Authentication.class));
+	}
 
-    private class AuthzTag extends AbstractAuthorizeTag {
+	private class AuthzTag extends AbstractAuthorizeTag {
 
-        @Override
-        protected ServletRequest getRequest() {
-            return request;
-        }
+		@Override
+		protected ServletRequest getRequest() {
+			return request;
+		}
 
-        @Override
-        protected ServletResponse getResponse() {
-            return response;
-        }
+		@Override
+		protected ServletResponse getResponse() {
+			return response;
+		}
 
-        @Override
-        protected ServletContext getServletContext() {
-            return servletContext;
-        }
-    }
+		@Override
+		protected ServletContext getServletContext() {
+			return servletContext;
+		}
+	}
 }

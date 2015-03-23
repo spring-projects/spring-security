@@ -39,64 +39,56 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes=AuthenticationTests.Config.class)
+@ContextConfiguration(classes = AuthenticationTests.Config.class)
 @WebAppConfiguration
 public class AuthenticationTests {
 
-    @Autowired
-    private WebApplicationContext context;
+	@Autowired
+	private WebApplicationContext context;
 
-    private MockMvc mvc;
+	private MockMvc mvc;
 
-    @Before
-    public void setup() {
-        mvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .apply(springSecurity())
-                .build();
-    }
+	@Before
+	public void setup() {
+		mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+	}
 
-    @Test
-    public void requiresAuthentication() throws Exception {
-        mvc
-            .perform(get("/"))
-            .andExpect(status().isMovedTemporarily());
-    }
+	@Test
+	public void requiresAuthentication() throws Exception {
+		mvc.perform(get("/")).andExpect(status().isMovedTemporarily());
+	}
 
-    @Test
-    public void httpBasicAuthenticationSuccess() throws Exception {
-        mvc
-            .perform(get("/secured/butnotfound").with(httpBasic("user","password")))
-            .andExpect(status().isNotFound())
-            .andExpect(authenticated().withUsername("user"));
-    }
+	@Test
+	public void httpBasicAuthenticationSuccess() throws Exception {
+		mvc.perform(get("/secured/butnotfound").with(httpBasic("user", "password")))
+				.andExpect(status().isNotFound())
+				.andExpect(authenticated().withUsername("user"));
+	}
 
-    @Test
-    public void authenticationSuccess() throws Exception {
-        mvc
-            .perform(formLogin())
-            .andExpect(status().isMovedTemporarily())
-            .andExpect(redirectedUrl("/"))
-            .andExpect(authenticated().withUsername("user"));
-    }
+	@Test
+	public void authenticationSuccess() throws Exception {
+		mvc.perform(formLogin()).andExpect(status().isMovedTemporarily())
+				.andExpect(redirectedUrl("/"))
+				.andExpect(authenticated().withUsername("user"));
+	}
 
-    @Test
-    public void authenticationFailed() throws Exception {
-        mvc
-            .perform(formLogin().user("user").password("invalid"))
-            .andExpect(status().isMovedTemporarily())
-            .andExpect(redirectedUrl("/login?error"))
-            .andExpect(unauthenticated());
-    }
+	@Test
+	public void authenticationFailed() throws Exception {
+		mvc.perform(formLogin().user("user").password("invalid"))
+				.andExpect(status().isMovedTemporarily())
+				.andExpect(redirectedUrl("/login?error")).andExpect(unauthenticated());
+	}
 
-    @EnableWebSecurity
-    @EnableWebMvc
-    static class Config extends WebSecurityConfigurerAdapter {
-        @Autowired
-        public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER");
-        }
-    }
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class Config extends WebSecurityConfigurerAdapter {
+		// @formatter:off
+		@Autowired
+		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER");
+		}
+		// @formatter:on
+	}
 }

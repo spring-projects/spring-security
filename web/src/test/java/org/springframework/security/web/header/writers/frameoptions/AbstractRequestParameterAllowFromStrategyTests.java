@@ -27,76 +27,72 @@ import org.springframework.security.web.header.writers.frameoptions.AbstractRequ
  *
  */
 public class AbstractRequestParameterAllowFromStrategyTests {
-    private MockHttpServletRequest request;
+	private MockHttpServletRequest request;
 
-    @Before
-    public void setup() {
-        request = new MockHttpServletRequest();
-    }
+	@Before
+	public void setup() {
+		request = new MockHttpServletRequest();
+	}
 
-    @Test
-    public void nullAllowFromParameterValue() {
-        RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(true);
+	@Test
+	public void nullAllowFromParameterValue() {
+		RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(
+				true);
 
-        assertThat(
-                strategy
-                        .getAllowFromValue(request)).isEqualTo("DENY");
-    }
+		assertThat(strategy.getAllowFromValue(request)).isEqualTo("DENY");
+	}
 
-    @Test
-    public void emptyAllowFromParameterValue() {
-        request.setParameter("x-frames-allow-from", "");
-        RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(true);
+	@Test
+	public void emptyAllowFromParameterValue() {
+		request.setParameter("x-frames-allow-from", "");
+		RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(
+				true);
 
-        assertThat(
-                strategy
-                        .getAllowFromValue(request)).isEqualTo("DENY");
-    }
+		assertThat(strategy.getAllowFromValue(request)).isEqualTo("DENY");
+	}
 
-    @Test
-    public void emptyAllowFromCustomParameterValue() {
-        String customParam = "custom";
-        request.setParameter(customParam, "");
-        RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(true);
-        strategy.setAllowFromParameterName(customParam);
+	@Test
+	public void emptyAllowFromCustomParameterValue() {
+		String customParam = "custom";
+		request.setParameter(customParam, "");
+		RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(
+				true);
+		strategy.setAllowFromParameterName(customParam);
 
-        assertThat(
-                strategy
-                        .getAllowFromValue(request)).isEqualTo("DENY");
-    }
+		assertThat(strategy.getAllowFromValue(request)).isEqualTo("DENY");
+	}
 
-    @Test
-    public void allowFromParameterValueAllowed() {
-        String value = "https://example.com";
-        request.setParameter("x-frames-allow-from", value);
-        RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(true);
+	@Test
+	public void allowFromParameterValueAllowed() {
+		String value = "https://example.com";
+		request.setParameter("x-frames-allow-from", value);
+		RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(
+				true);
 
-        assertThat(
-                strategy
-                        .getAllowFromValue(request)).isEqualTo(value);
-    }
+		assertThat(strategy.getAllowFromValue(request)).isEqualTo(value);
+	}
 
-    @Test
-    public void allowFromParameterValueDenied() {
-        String value = "https://example.com";
-        request.setParameter("x-frames-allow-from", value);
-        RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(false);
+	@Test
+	public void allowFromParameterValueDenied() {
+		String value = "https://example.com";
+		request.setParameter("x-frames-allow-from", value);
+		RequestParameterAllowFromStrategyStub strategy = new RequestParameterAllowFromStrategyStub(
+				false);
 
-        assertThat(
-                strategy
-                        .getAllowFromValue(request)).isEqualTo("DENY");
-    }
+		assertThat(strategy.getAllowFromValue(request)).isEqualTo("DENY");
+	}
 
-    private static class RequestParameterAllowFromStrategyStub extends AbstractRequestParameterAllowFromStrategy {
-        private boolean match;
+	private static class RequestParameterAllowFromStrategyStub extends
+			AbstractRequestParameterAllowFromStrategy {
+		private boolean match;
 
-        RequestParameterAllowFromStrategyStub(boolean match) {
-            this.match = match;
-        }
+		RequestParameterAllowFromStrategyStub(boolean match) {
+			this.match = match;
+		}
 
-        @Override
-        protected boolean allowed(String allowFromOrigin) {
-            return match;
-        }
-    }
+		@Override
+		protected boolean allowed(String allowFromOrigin) {
+			return match;
+		}
+	}
 }

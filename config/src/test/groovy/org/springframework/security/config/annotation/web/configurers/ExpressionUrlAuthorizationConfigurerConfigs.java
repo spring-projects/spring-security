@@ -15,7 +15,6 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
-
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,111 +42,122 @@ import org.springframework.security.web.access.expression.WebSecurityExpressionR
  */
 public class ExpressionUrlAuthorizationConfigurerConfigs {
 
-    /**
-     * Ensure that All additional properties properly compile and chain properly
-     */
-    @EnableWebSecurity
-    static class AllPropertiesWorkConfig extends WebSecurityConfigurerAdapter {
+	/**
+	 * Ensure that All additional properties properly compile and chain properly
+	 */
+	@EnableWebSecurity
+	static class AllPropertiesWorkConfig extends WebSecurityConfigurerAdapter {
 
-        @SuppressWarnings("rawtypes")
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            SecurityExpressionHandler<FilterInvocation> handler = new DefaultWebSecurityExpressionHandler();
-            WebExpressionVoter expressionVoter = new WebExpressionVoter();
-            AffirmativeBased adm = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>>asList(expressionVoter));
-            http
-                .authorizeRequests()
-                    .expressionHandler(handler)
-                    .accessDecisionManager(adm)
-                    .filterSecurityInterceptorOncePerRequest(true)
-                    .antMatchers("/a","/b").hasRole("ADMIN")
-                    .anyRequest().permitAll()
-                    .and()
-                .formLogin();
-        }
-    }
+		// @formatter:off
+		@SuppressWarnings("rawtypes")
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			SecurityExpressionHandler<FilterInvocation> handler = new DefaultWebSecurityExpressionHandler();
+			WebExpressionVoter expressionVoter = new WebExpressionVoter();
+			AffirmativeBased adm = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>>asList(expressionVoter));
+			http
+				.authorizeRequests()
+					.expressionHandler(handler)
+					.accessDecisionManager(adm)
+					.filterSecurityInterceptorOncePerRequest(true)
+					.antMatchers("/a","/b").hasRole("ADMIN")
+					.anyRequest().permitAll()
+					.and()
+				.formLogin();
+		}
+		// @formatter:on
+	}
 
-    @EnableWebSecurity
-    static class UseBeansInExpressions extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	static class UseBeansInExpressions extends WebSecurityConfigurerAdapter {
 
-        @Autowired
-        public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER");
-        }
+		// @formatter:off
+		@Autowired
+		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER");
+		}
+		// @formatter:on
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .antMatchers("/admin/**").hasRole("ADMIN")
-                    .antMatchers("/user/**").hasRole("USER")
-                    .antMatchers("/allow/**").access("@permission.check(authentication,'user')")
-                    .anyRequest().access("@permission.check(authentication,'admin')");
-        }
+		// @formatter:off
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.antMatchers("/admin/**").hasRole("ADMIN")
+					.antMatchers("/user/**").hasRole("USER")
+					.antMatchers("/allow/**").access("@permission.check(authentication,'user')")
+					.anyRequest().access("@permission.check(authentication,'admin')");
+		}
+		// @formatter:on
 
-        @Bean
-        public Checker permission() {
-            return new Checker();
-        }
+		@Bean
+		public Checker permission() {
+			return new Checker();
+		}
 
-        static class Checker {
-            public boolean check(Authentication authentication, String customArg) {
-                return authentication.getName().contains(customArg);
-            }
-        }
-    }
+		static class Checker {
+			public boolean check(Authentication authentication, String customArg) {
+				return authentication.getName().contains(customArg);
+			}
+		}
+	}
 
-    @EnableWebSecurity
-    static class CustomExpressionRootConfig extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	static class CustomExpressionRootConfig extends WebSecurityConfigurerAdapter {
 
-        @Autowired
-        public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER");
-        }
+		// @formatter:off
+		@Autowired
+		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER");
+		}
+		// @formatter:on
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .expressionHandler(expressionHandler())
-                    .antMatchers("/admin/**").hasRole("ADMIN")
-                    .antMatchers("/user/**").hasRole("USER")
-                    .antMatchers("/allow/**").access("check('user')")
-                    .anyRequest().access("check('admin')");
-        }
+		// @formatter:off
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.expressionHandler(expressionHandler())
+					.antMatchers("/admin/**").hasRole("ADMIN")
+					.antMatchers("/user/**").hasRole("USER")
+					.antMatchers("/allow/**").access("check('user')")
+					.anyRequest().access("check('admin')");
+		}
+		// @formatter:on
 
-        @Bean
-        public CustomExpressionHandler expressionHandler() {
-            return new CustomExpressionHandler();
-        }
+		@Bean
+		public CustomExpressionHandler expressionHandler() {
+			return new CustomExpressionHandler();
+		}
 
-        static class CustomExpressionHandler extends DefaultWebSecurityExpressionHandler {
+		static class CustomExpressionHandler extends DefaultWebSecurityExpressionHandler {
 
-            @Override
-            protected SecurityExpressionOperations createSecurityExpressionRoot(
-                    Authentication authentication, FilterInvocation fi) {
-                WebSecurityExpressionRoot root = new CustomExpressionRoot(authentication, fi);
-                root.setPermissionEvaluator(getPermissionEvaluator());
-                root.setTrustResolver(new AuthenticationTrustResolverImpl());
-                root.setRoleHierarchy(getRoleHierarchy());
-                return root;
-            }
-        }
+			@Override
+			protected SecurityExpressionOperations createSecurityExpressionRoot(
+					Authentication authentication, FilterInvocation fi) {
+				WebSecurityExpressionRoot root = new CustomExpressionRoot(authentication,
+						fi);
+				root.setPermissionEvaluator(getPermissionEvaluator());
+				root.setTrustResolver(new AuthenticationTrustResolverImpl());
+				root.setRoleHierarchy(getRoleHierarchy());
+				return root;
+			}
+		}
 
-        static class CustomExpressionRoot extends WebSecurityExpressionRoot {
+		static class CustomExpressionRoot extends WebSecurityExpressionRoot {
 
-            public CustomExpressionRoot(Authentication a, FilterInvocation fi) {
-                super(a, fi);
-            }
+			public CustomExpressionRoot(Authentication a, FilterInvocation fi) {
+				super(a, fi);
+			}
 
-            public boolean check(String customArg) {
-                Authentication auth = this.getAuthentication();
-                return auth.getName().contains(customArg);
-            }
-        }
-    }
+			public boolean check(String customArg) {
+				Authentication auth = this.getAuthentication();
+				return auth.getName().contains(customArg);
+			}
+		}
+	}
 }

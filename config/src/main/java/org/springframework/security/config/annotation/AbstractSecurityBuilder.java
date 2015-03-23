@@ -18,8 +18,8 @@ package org.springframework.security.config.annotation;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * A base {@link SecurityBuilder} that ensures the object being built is only
- * built one time.
+ * A base {@link SecurityBuilder} that ensures the object being built is only built one
+ * time.
  *
  * @param <O> the type of Object that is being built
  *
@@ -27,40 +27,42 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  */
 public abstract class AbstractSecurityBuilder<O> implements SecurityBuilder<O> {
-    private AtomicBoolean building = new AtomicBoolean();
+	private AtomicBoolean building = new AtomicBoolean();
 
-    private O object;
+	private O object;
 
-    /* (non-Javadoc)
-     * @see org.springframework.security.config.annotation.SecurityBuilder#build()
-     */
-    public final O build() throws Exception {
-        if(building.compareAndSet(false, true)) {
-            object = doBuild();
-            return object;
-        }
-        throw new AlreadyBuiltException("This object has already been built");
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.springframework.security.config.annotation.SecurityBuilder#build()
+	 */
+	public final O build() throws Exception {
+		if (building.compareAndSet(false, true)) {
+			object = doBuild();
+			return object;
+		}
+		throw new AlreadyBuiltException("This object has already been built");
+	}
 
-    /**
-     * Gets the object that was built. If it has not been built yet an Exception
-     * is thrown.
-     *
-     * @return the Object that was built
-     */
-    public final O getObject() {
-        if(!building.get()) {
-            throw new IllegalStateException("This object has not been built");
-        }
-        return object;
-    }
+	/**
+	 * Gets the object that was built. If it has not been built yet an Exception is
+	 * thrown.
+	 *
+	 * @return the Object that was built
+	 */
+	public final O getObject() {
+		if (!building.get()) {
+			throw new IllegalStateException("This object has not been built");
+		}
+		return object;
+	}
 
-    /**
-     * Subclasses should implement this to perform the build.
-     *
-     * @return the object that should be returned by {@link #build()}.
-     *
-     * @throws Exception if an error occurs
-     */
-    protected abstract O doBuild() throws Exception;
+	/**
+	 * Subclasses should implement this to perform the build.
+	 *
+	 * @return the object that should be returned by {@link #build()}.
+	 *
+	 * @throws Exception if an error occurs
+	 */
+	protected abstract O doBuild() throws Exception;
 }

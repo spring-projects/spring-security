@@ -41,65 +41,62 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes=SecurityMockMvcRequestPostProcessorsAuthenticationStatelessTests.Config.class)
+@ContextConfiguration(classes = SecurityMockMvcRequestPostProcessorsAuthenticationStatelessTests.Config.class)
 @WebAppConfiguration
 public class SecurityMockMvcRequestPostProcessorsAuthenticationStatelessTests {
 
-    @Autowired
-    private WebApplicationContext context;
+	@Autowired
+	private WebApplicationContext context;
 
-    private MockMvc mvc;
+	private MockMvc mvc;
 
-    @Before
-    public void setup() {
-        mvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .apply(springSecurity())
-                .build();
-    }
+	@Before
+	public void setup() {
+		mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+	}
 
-    // SEC-2593
-    @Test
-    public void userRequestPostProcessorWorksWithStateless() throws Exception {
-       mvc
-          .perform(get("/").with(user("user")))
-          .andExpect(status().is2xxSuccessful());
-    }
+	// SEC-2593
+	@Test
+	public void userRequestPostProcessorWorksWithStateless() throws Exception {
+		mvc.perform(get("/").with(user("user"))).andExpect(status().is2xxSuccessful());
+	}
 
-    // SEC-2593
-    @WithMockUser
-    @Test
-    public void withMockUserWorksWithStateless() throws Exception {
-       mvc
-          .perform(get("/"))
-          .andExpect(status().is2xxSuccessful());
-    }
+	// SEC-2593
+	@WithMockUser
+	@Test
+	public void withMockUserWorksWithStateless() throws Exception {
+		mvc.perform(get("/")).andExpect(status().is2xxSuccessful());
+	}
 
-    @EnableWebSecurity
-    @EnableWebMvc
-    static class Config extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class Config extends WebSecurityConfigurerAdapter {
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            super.configure(http);
+		// @formatter:off
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			super.configure(http);
 
-            http
-                .sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        }
+			http
+				.sessionManagement()
+					.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+		}
+		// @formatter:on
 
-        @Autowired
-        public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication();
-        }
+		// @formatter:off
+		@Autowired
+		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication();
+		}
+		// @formatter:on
 
-        @RestController
-        static class Controller {
-            @RequestMapping
-            public String hello() {
-                return "Hello";
-            }
-        }
-    }
+		@RestController
+		static class Controller {
+			@RequestMapping
+			public String hello() {
+				return "Hello";
+			}
+		}
+	}
 }

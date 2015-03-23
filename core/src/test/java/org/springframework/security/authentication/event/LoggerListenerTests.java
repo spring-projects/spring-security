@@ -17,13 +17,11 @@ package org.springframework.security.authentication.event;
 
 import junit.framework.TestCase;
 
-
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.event.AuthenticationFailureDisabledEvent;
 import org.springframework.security.authentication.event.LoggerListener;
 import org.springframework.security.core.Authentication;
-
 
 /**
  * Tests {@link LoggerListener}.
@@ -31,29 +29,30 @@ import org.springframework.security.core.Authentication;
  * @author Ben Alex
  */
 public class LoggerListenerTests extends TestCase {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    private Authentication getAuthentication() {
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken("Principal",
-                "Credentials");
-        authentication.setDetails("127.0.0.1");
+	private Authentication getAuthentication() {
+		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+				"Principal", "Credentials");
+		authentication.setDetails("127.0.0.1");
 
-        return authentication;
-    }
+		return authentication;
+	}
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(LoggerListenerTests.class);
-    }
+	public static void main(String[] args) {
+		junit.textui.TestRunner.run(LoggerListenerTests.class);
+	}
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+	public final void setUp() throws Exception {
+		super.setUp();
+	}
 
-    public void testLogsEvents() {
-        AuthenticationFailureDisabledEvent event = new AuthenticationFailureDisabledEvent(getAuthentication(),
-                new LockedException("TEST"));
-        LoggerListener listener = new LoggerListener();
-        listener.onApplicationEvent(event);
-        assertTrue(true);
-    }
+	public void testLogsEvents() {
+		AuthenticationFailureDisabledEvent event = new AuthenticationFailureDisabledEvent(
+				getAuthentication(), new LockedException("TEST"));
+		LoggerListener listener = new LoggerListener();
+		listener.onApplicationEvent(event);
+		assertTrue(true);
+	}
 }

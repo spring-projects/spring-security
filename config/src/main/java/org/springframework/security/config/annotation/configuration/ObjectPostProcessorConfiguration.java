@@ -23,10 +23,9 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 /**
- * Spring {@link Configuration} that exports the default
- * {@link ObjectPostProcessor}. This class is not intended to be imported
- * manually rather it is imported automatically when using
- * {@link EnableWebSecurity} or {@link EnableGlobalMethodSecurity}.
+ * Spring {@link Configuration} that exports the default {@link ObjectPostProcessor}. This
+ * class is not intended to be imported manually rather it is imported automatically when
+ * using {@link EnableWebSecurity} or {@link EnableGlobalMethodSecurity}.
  *
  * @see EnableWebSecurity
  * @see EnableGlobalMethodSecurity
@@ -37,8 +36,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 @Configuration
 public class ObjectPostProcessorConfiguration {
 
-    @Bean
-    public ObjectPostProcessor<Object> objectPostProcessor(AutowireCapableBeanFactory beanFactory) {
-        return new AutowireBeanFactoryObjectPostProcessor(beanFactory);
-    }
+	@Bean
+	public ObjectPostProcessor<Object> objectPostProcessor(
+			AutowireCapableBeanFactory beanFactory) {
+		return new AutowireBeanFactoryObjectPostProcessor(beanFactory);
+	}
 }

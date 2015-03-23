@@ -27,69 +27,78 @@ import java.util.*;
  *
  */
 public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDecorator {
-    private final BeanDefinitionDecorator delegate = new InternalInterceptMethodsBeanDefinitionDecorator();
+	private final BeanDefinitionDecorator delegate = new InternalInterceptMethodsBeanDefinitionDecorator();
 
-    public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition, ParserContext parserContext) {
-        MethodConfigUtils.registerDefaultMethodAccessManagerIfNecessary(parserContext);
+	public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition,
+			ParserContext parserContext) {
+		MethodConfigUtils.registerDefaultMethodAccessManagerIfNecessary(parserContext);
 
-        return delegate.decorate(node, definition, parserContext);
-    }
+		return delegate.decorate(node, definition, parserContext);
+	}
 }
 
 /**
- * This is the real class which does the work. We need access to the ParserContext in order to do bean
- * registration.
+ * This is the real class which does the work. We need access to the ParserContext in
+ * order to do bean registration.
  */
-class InternalInterceptMethodsBeanDefinitionDecorator extends AbstractInterceptorDrivenBeanDefinitionDecorator {
-    static final String ATT_METHOD = "method";
-    static final String ATT_ACCESS = "access";
-    private static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
+class InternalInterceptMethodsBeanDefinitionDecorator extends
+		AbstractInterceptorDrivenBeanDefinitionDecorator {
+	static final String ATT_METHOD = "method";
+	static final String ATT_ACCESS = "access";
+	private static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
 
-    protected BeanDefinition createInterceptorDefinition(Node node) {
-        Element interceptMethodsElt = (Element)node;
-        BeanDefinitionBuilder interceptor = BeanDefinitionBuilder.rootBeanDefinition(MethodSecurityInterceptor.class);
+	protected BeanDefinition createInterceptorDefinition(Node node) {
+		Element interceptMethodsElt = (Element) node;
+		BeanDefinitionBuilder interceptor = BeanDefinitionBuilder
+				.rootBeanDefinition(MethodSecurityInterceptor.class);
 
-        // Default to autowiring to pick up after invocation mgr
-        interceptor.setAutowireMode(RootBeanDefinition.AUTOWIRE_BY_TYPE);
+		// Default to autowiring to pick up after invocation mgr
+		interceptor.setAutowireMode(RootBeanDefinition.AUTOWIRE_BY_TYPE);
 
-        String accessManagerId = interceptMethodsElt.getAttribute(ATT_ACCESS_MGR);
+		String accessManagerId = interceptMethodsElt.getAttribute(ATT_ACCESS_MGR);
 
-        if (!StringUtils.hasText(accessManagerId)) {
-            accessManagerId = BeanIds.METHOD_ACCESS_MANAGER;
-        }
+		if (!StringUtils.hasText(accessManagerId)) {
+			accessManagerId = BeanIds.METHOD_ACCESS_MANAGER;
+		}
 
-        interceptor.addPropertyValue("accessDecisionManager", new RuntimeBeanReference(accessManagerId));
-        interceptor.addPropertyValue("authenticationManager", new RuntimeBeanReference(BeanIds.AUTHENTICATION_MANAGER));
+		interceptor.addPropertyValue("accessDecisionManager", new RuntimeBeanReference(
+				accessManagerId));
+		interceptor.addPropertyValue("authenticationManager", new RuntimeBeanReference(
+				BeanIds.AUTHENTICATION_MANAGER));
 
-        // Lookup parent bean information
+		// Lookup parent bean information
 
-        String parentBeanClass = ((Element) node.getParentNode()).getAttribute("class");
+		String parentBeanClass = ((Element) node.getParentNode()).getAttribute("class");
 
-        // Parse the included methods
-        List<Element> methods = DomUtils.getChildElementsByTagName(interceptMethodsElt, Elements.PROTECT);
-        Map<String, BeanDefinition> mappings = new ManagedMap<String, BeanDefinition>();
+		// Parse the included methods
+		List<Element> methods = DomUtils.getChildElementsByTagName(interceptMethodsElt,
+				Elements.PROTECT);
+		Map<String, BeanDefinition> mappings = new ManagedMap<String, BeanDefinition>();
 
-        for (Element protectmethodElt : methods) {
-            BeanDefinitionBuilder attributeBuilder = BeanDefinitionBuilder.rootBeanDefinition(SecurityConfig.class);
-            attributeBuilder.setFactoryMethod("createListFromCommaDelimitedString");
-            attributeBuilder.addConstructorArgValue(protectmethodElt.getAttribute(ATT_ACCESS));
+		for (Element protectmethodElt : methods) {
+			BeanDefinitionBuilder attributeBuilder = BeanDefinitionBuilder
+					.rootBeanDefinition(SecurityConfig.class);
+			attributeBuilder.setFactoryMethod("createListFromCommaDelimitedString");
+			attributeBuilder.addConstructorArgValue(protectmethodElt
+					.getAttribute(ATT_ACCESS));
 
-            // Support inference of class names
-            String methodName = protectmethodElt.getAttribute(ATT_METHOD);
+			// Support inference of class names
+			String methodName = protectmethodElt.getAttribute(ATT_METHOD);
 
-            if (methodName.lastIndexOf(".") == -1) {
-                if (parentBeanClass != null && !"".equals(parentBeanClass)) {
-                    methodName = parentBeanClass + "." + methodName;
-                }
-            }
+			if (methodName.lastIndexOf(".") == -1) {
+				if (parentBeanClass != null && !"".equals(parentBeanClass)) {
+					methodName = parentBeanClass + "." + methodName;
+				}
+			}
 
-            mappings.put(methodName, attributeBuilder.getBeanDefinition());
-        }
+			mappings.put(methodName, attributeBuilder.getBeanDefinition());
+		}
 
-        BeanDefinition metadataSource = new RootBeanDefinition(MapBasedMethodSecurityMetadataSource.class);
-        metadataSource.getConstructorArgumentValues().addGenericArgumentValue(mappings);
-        interceptor.addPropertyValue("securityMetadataSource", metadataSource);
+		BeanDefinition metadataSource = new RootBeanDefinition(
+				MapBasedMethodSecurityMetadataSource.class);
+		metadataSource.getConstructorArgumentValues().addGenericArgumentValue(mappings);
+		interceptor.addPropertyValue("securityMetadataSource", metadataSource);
 
-        return interceptor.getBeanDefinition();
-    }
+		return interceptor.getBeanDefinition();
+	}
 }

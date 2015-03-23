@@ -25,170 +25,189 @@ import org.springframework.util.Assert;
 /**
  * The standard implementation of {@code MethodSecurityExpressionHandler}.
  * <p>
- * A single instance should usually be shared amongst the beans that require expression support.
+ * A single instance should usually be shared amongst the beans that require expression
+ * support.
  *
  * @author Luke Taylor
  * @since 3.0
  */
-public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpressionHandler<MethodInvocation> implements MethodSecurityExpressionHandler {
+public class DefaultMethodSecurityExpressionHandler extends
+		AbstractSecurityExpressionHandler<MethodInvocation> implements
+		MethodSecurityExpressionHandler {
 
-    protected final Log logger = LogFactory.getLog(getClass());
+	protected final Log logger = LogFactory.getLog(getClass());
 
-    private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
-    private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultSecurityParameterNameDiscoverer();
-    private PermissionCacheOptimizer permissionCacheOptimizer = null;
-    private String defaultRolePrefix = "ROLE_";
+	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+	private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultSecurityParameterNameDiscoverer();
+	private PermissionCacheOptimizer permissionCacheOptimizer = null;
+	private String defaultRolePrefix = "ROLE_";
 
-    public DefaultMethodSecurityExpressionHandler() {
-    }
+	public DefaultMethodSecurityExpressionHandler() {
+	}
 
-    /**
-     * Uses a {@link MethodSecurityEvaluationContext} as the <tt>EvaluationContext</tt> implementation.
-     */
-    public StandardEvaluationContext createEvaluationContextInternal(Authentication auth, MethodInvocation mi) {
-        return new MethodSecurityEvaluationContext(auth, mi, parameterNameDiscoverer);
-    }
+	/**
+	 * Uses a {@link MethodSecurityEvaluationContext} as the <tt>EvaluationContext</tt>
+	 * implementation.
+	 */
+	public StandardEvaluationContext createEvaluationContextInternal(Authentication auth,
+			MethodInvocation mi) {
+		return new MethodSecurityEvaluationContext(auth, mi, parameterNameDiscoverer);
+	}
 
-    /**
-     * Creates the root object for expression evaluation.
-     */
-    protected MethodSecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication, MethodInvocation invocation) {
-        MethodSecurityExpressionRoot root = new MethodSecurityExpressionRoot(authentication);
-        root.setThis(invocation.getThis());
-        root.setPermissionEvaluator(getPermissionEvaluator());
-        root.setTrustResolver(trustResolver);
-        root.setRoleHierarchy(getRoleHierarchy());
-        root.setDefaultRolePrefix(defaultRolePrefix);
+	/**
+	 * Creates the root object for expression evaluation.
+	 */
+	protected MethodSecurityExpressionOperations createSecurityExpressionRoot(
+			Authentication authentication, MethodInvocation invocation) {
+		MethodSecurityExpressionRoot root = new MethodSecurityExpressionRoot(
+				authentication);
+		root.setThis(invocation.getThis());
+		root.setPermissionEvaluator(getPermissionEvaluator());
+		root.setTrustResolver(trustResolver);
+		root.setRoleHierarchy(getRoleHierarchy());
+		root.setDefaultRolePrefix(defaultRolePrefix);
 
-        return root;
-    }
+		return root;
+	}
 
-    /**
-     * Filters the {@code filterTarget} object (which must be either a collection or an array), by evaluating the
-     * supplied expression.
-     * <p>
-     * If a {@code Collection} is used, the original instance will be modified to contain the elements for which
-     * the permission expression evaluates to {@code true}. For an array, a new array instance will be returned.
-     */
-    @SuppressWarnings("unchecked")
-    public Object filter(Object filterTarget, Expression filterExpression, EvaluationContext ctx) {
-        MethodSecurityExpressionOperations rootObject = (MethodSecurityExpressionOperations) ctx.getRootObject().getValue();
-        final boolean debug = logger.isDebugEnabled();
-        List retainList;
+	/**
+	 * Filters the {@code filterTarget} object (which must be either a collection or an
+	 * array), by evaluating the supplied expression.
+	 * <p>
+	 * If a {@code Collection} is used, the original instance will be modified to contain
+	 * the elements for which the permission expression evaluates to {@code true}. For an
+	 * array, a new array instance will be returned.
+	 */
+	@SuppressWarnings("unchecked")
+	public Object filter(Object filterTarget, Expression filterExpression,
+			EvaluationContext ctx) {
+		MethodSecurityExpressionOperations rootObject = (MethodSecurityExpressionOperations) ctx
+				.getRootObject().getValue();
+		final boolean debug = logger.isDebugEnabled();
+		List retainList;
 
-        if (debug) {
-            logger.debug("Filtering with expression: " + filterExpression.getExpressionString());
-        }
+		if (debug) {
+			logger.debug("Filtering with expression: "
+					+ filterExpression.getExpressionString());
+		}
 
-        if (filterTarget instanceof Collection) {
-            Collection collection = (Collection)filterTarget;
-            retainList = new ArrayList(collection.size());
+		if (filterTarget instanceof Collection) {
+			Collection collection = (Collection) filterTarget;
+			retainList = new ArrayList(collection.size());
 
-            if (debug) {
-                logger.debug("Filtering collection with " + collection.size() + " elements");
-            }
+			if (debug) {
+				logger.debug("Filtering collection with " + collection.size()
+						+ " elements");
+			}
 
-            if (permissionCacheOptimizer != null) {
-                permissionCacheOptimizer.cachePermissionsFor(rootObject.getAuthentication(), collection);
-            }
+			if (permissionCacheOptimizer != null) {
+				permissionCacheOptimizer.cachePermissionsFor(
+						rootObject.getAuthentication(), collection);
+			}
 
-            for (Object filterObject : (Collection)filterTarget) {
-                rootObject.setFilterObject(filterObject);
+			for (Object filterObject : (Collection) filterTarget) {
+				rootObject.setFilterObject(filterObject);
 
-                if (ExpressionUtils.evaluateAsBoolean(filterExpression, ctx)) {
-                    retainList.add(filterObject);
-                }
-            }
+				if (ExpressionUtils.evaluateAsBoolean(filterExpression, ctx)) {
+					retainList.add(filterObject);
+				}
+			}
 
-            if (debug) {
-                logger.debug("Retaining elements: " + retainList);
-            }
+			if (debug) {
+				logger.debug("Retaining elements: " + retainList);
+			}
 
-            collection.clear();
-            collection.addAll(retainList);
+			collection.clear();
+			collection.addAll(retainList);
 
-            return filterTarget;
-        }
+			return filterTarget;
+		}
 
-        if (filterTarget.getClass().isArray()) {
-            Object[] array = (Object[])filterTarget;
-            retainList = new ArrayList(array.length);
+		if (filterTarget.getClass().isArray()) {
+			Object[] array = (Object[]) filterTarget;
+			retainList = new ArrayList(array.length);
 
-            if (debug) {
-                logger.debug("Filtering array with " + array.length + " elements");
-            }
+			if (debug) {
+				logger.debug("Filtering array with " + array.length + " elements");
+			}
 
-            if (permissionCacheOptimizer != null) {
-                permissionCacheOptimizer.cachePermissionsFor(rootObject.getAuthentication(), Arrays.asList(array));
-            }
+			if (permissionCacheOptimizer != null) {
+				permissionCacheOptimizer.cachePermissionsFor(
+						rootObject.getAuthentication(), Arrays.asList(array));
+			}
 
-            for (Object o : array) {
-                rootObject.setFilterObject(o);
+			for (Object o : array) {
+				rootObject.setFilterObject(o);
 
-                if (ExpressionUtils.evaluateAsBoolean(filterExpression, ctx)) {
-                    retainList.add(o);
-                }
-            }
+				if (ExpressionUtils.evaluateAsBoolean(filterExpression, ctx)) {
+					retainList.add(o);
+				}
+			}
 
-            if (debug) {
-                logger.debug("Retaining elements: " + retainList);
-            }
+			if (debug) {
+				logger.debug("Retaining elements: " + retainList);
+			}
 
-            Object[] filtered = (Object[]) Array.newInstance(filterTarget.getClass().getComponentType(),
-                            retainList.size());
-            for (int i = 0; i < retainList.size(); i++) {
-                filtered[i] = retainList.get(i);
-            }
+			Object[] filtered = (Object[]) Array.newInstance(filterTarget.getClass()
+					.getComponentType(), retainList.size());
+			for (int i = 0; i < retainList.size(); i++) {
+				filtered[i] = retainList.get(i);
+			}
 
-            return filtered;
-        }
+			return filtered;
+		}
 
-        throw new IllegalArgumentException("Filter target must be a collection or array type, but was " + filterTarget);
-    }
+		throw new IllegalArgumentException(
+				"Filter target must be a collection or array type, but was "
+						+ filterTarget);
+	}
 
-    /**
-     * Sets the {@link AuthenticationTrustResolver} to be used. The default is
-     * {@link AuthenticationTrustResolverImpl}.
-     *
-     * @param trustResolver
-     *            the {@link AuthenticationTrustResolver} to use. Cannot be
-     *            null.
-     */
-    public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
-        Assert.notNull(trustResolver, "trustResolver cannot be null");
-        this.trustResolver = trustResolver;
-    }
+	/**
+	 * Sets the {@link AuthenticationTrustResolver} to be used. The default is
+	 * {@link AuthenticationTrustResolverImpl}.
+	 *
+	 * @param trustResolver the {@link AuthenticationTrustResolver} to use. Cannot be
+	 * null.
+	 */
+	public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
+		Assert.notNull(trustResolver, "trustResolver cannot be null");
+		this.trustResolver = trustResolver;
+	}
 
-    /**
-     * Sets the {@link ParameterNameDiscoverer} to use. The default is {@link DefaultSecurityParameterNameDiscoverer}.
-     * @param parameterNameDiscoverer
-     */
-    public void setParameterNameDiscoverer(ParameterNameDiscoverer parameterNameDiscoverer) {
-        this.parameterNameDiscoverer = parameterNameDiscoverer;
-    }
+	/**
+	 * Sets the {@link ParameterNameDiscoverer} to use. The default is
+	 * {@link DefaultSecurityParameterNameDiscoverer}.
+	 * @param parameterNameDiscoverer
+	 */
+	public void setParameterNameDiscoverer(ParameterNameDiscoverer parameterNameDiscoverer) {
+		this.parameterNameDiscoverer = parameterNameDiscoverer;
+	}
 
-    public void setPermissionCacheOptimizer(PermissionCacheOptimizer permissionCacheOptimizer) {
-        this.permissionCacheOptimizer = permissionCacheOptimizer;
-    }
+	public void setPermissionCacheOptimizer(
+			PermissionCacheOptimizer permissionCacheOptimizer) {
+		this.permissionCacheOptimizer = permissionCacheOptimizer;
+	}
 
-    public void setReturnObject(Object returnObject, EvaluationContext ctx) {
-        ((MethodSecurityExpressionOperations)ctx.getRootObject().getValue()).setReturnObject(returnObject);
-    }
+	public void setReturnObject(Object returnObject, EvaluationContext ctx) {
+		((MethodSecurityExpressionOperations) ctx.getRootObject().getValue())
+				.setReturnObject(returnObject);
+	}
 
-    /**
-     * <p>
-     * Sets the default prefix to be added to {@link #hasAnyRole(String...)} or
-     * {@link #hasRole(String)}. For example, if hasRole("ADMIN") or hasRole("ROLE_ADMIN") is passed in,
-     * then the role ROLE_ADMIN will be used when the defaultRolePrefix is "ROLE_" (default).
-     * </p>
-     *
-     * <p>
-     * If null or empty, then no default role prefix is used.
-     * </p>
-     *
-     * @param defaultRolePrefix the default prefix to add to roles. Default "ROLE_".
-     */
-    public void setDefaultRolePrefix(String defaultRolePrefix) {
-        this.defaultRolePrefix = defaultRolePrefix;
-    }
+	/**
+	 * <p>
+	 * Sets the default prefix to be added to {@link #hasAnyRole(String...)} or
+	 * {@link #hasRole(String)}. For example, if hasRole("ADMIN") or hasRole("ROLE_ADMIN")
+	 * is passed in, then the role ROLE_ADMIN will be used when the defaultRolePrefix is
+	 * "ROLE_" (default).
+	 * </p>
+	 *
+	 * <p>
+	 * If null or empty, then no default role prefix is used.
+	 * </p>
+	 *
+	 * @param defaultRolePrefix the default prefix to add to roles. Default "ROLE_".
+	 */
+	public void setDefaultRolePrefix(String defaultRolePrefix) {
+		this.defaultRolePrefix = defaultRolePrefix;
+	}
 }

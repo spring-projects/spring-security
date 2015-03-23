@@ -20,29 +20,30 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.concurrent.DelegatingSecurityContextExecutor;
 import org.springframework.security.concurrent.AbstractDelegatingSecurityContextExecutorTests;
 
-
 /**
- * Tests using the an explicit {@link SecurityContext} on {@link DelegatingSecurityContextExecutor}
+ * Tests using the an explicit {@link SecurityContext} on
+ * {@link DelegatingSecurityContextExecutor}
  *
  * @author Rob Winch
  * @since 3.2
  *
  */
-public class ExplicitDelegatingSecurityContextTaskExecutorTests extends AbstractDelegatingSecurityContextExecutorTests {
-    @Mock
-    private TaskExecutor taskExecutorDelegate;
+public class ExplicitDelegatingSecurityContextTaskExecutorTests extends
+		AbstractDelegatingSecurityContextExecutorTests {
+	@Mock
+	private TaskExecutor taskExecutorDelegate;
 
+	@Before
+	public void setUp() throws Exception {
+		explicitSecurityContextPowermockSetup();
+	}
 
-    @Before
-    public void setUp() throws Exception {
-        explicitSecurityContextPowermockSetup();
-    }
+	protected Executor getExecutor() {
+		return taskExecutorDelegate;
+	}
 
-    protected Executor getExecutor() {
-        return taskExecutorDelegate;
-    }
-
-    protected DelegatingSecurityContextExecutor create() {
-        return new DelegatingSecurityContextTaskExecutor(taskExecutorDelegate, securityContext);
-    }
+	protected DelegatingSecurityContextExecutor create() {
+		return new DelegatingSecurityContextTaskExecutor(taskExecutorDelegate,
+				securityContext);
+	}
 }

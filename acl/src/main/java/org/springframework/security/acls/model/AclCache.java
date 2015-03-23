@@ -18,7 +18,6 @@ import org.springframework.security.acls.jdbc.JdbcAclService;
 
 import java.io.Serializable;
 
-
 /**
  * A caching layer for {@link JdbcAclService}.
  *
@@ -26,17 +25,18 @@ import java.io.Serializable;
  *
  */
 public interface AclCache {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    void evictFromCache(Serializable pk);
+	void evictFromCache(Serializable pk);
 
-    void evictFromCache(ObjectIdentity objectIdentity);
+	void evictFromCache(ObjectIdentity objectIdentity);
 
-    MutableAcl getFromCache(ObjectIdentity objectIdentity);
+	MutableAcl getFromCache(ObjectIdentity objectIdentity);
 
-    MutableAcl getFromCache(Serializable pk);
+	MutableAcl getFromCache(Serializable pk);
 
-    void putInCache(MutableAcl acl);
+	void putInCache(MutableAcl acl);
 
-    void clearCache();
+	void clearCache();
 }

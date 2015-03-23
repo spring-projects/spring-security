@@ -21,21 +21,23 @@ import org.springframework.ldap.core.support.BaseLdapPathContextSource;
  * @author Luke Taylor
  */
 public abstract class AbstractLdapIntegrationTests {
-    private static DefaultSpringSecurityContextSource contextSource;
+	private static DefaultSpringSecurityContextSource contextSource;
 
-    @BeforeClass
-    public static void createContextSource() throws Exception {
-        int serverPort = ApacheDSServerIntegrationTests.getServerPort();
-        contextSource = new DefaultSpringSecurityContextSource("ldap://127.0.0.1:" + serverPort + "/dc=springframework,dc=org");
-// OpenLDAP configuration
-//        contextSource = new DefaultSpringSecurityContextSource("ldap://127.0.0.1:22389/dc=springsource,dc=com");
-//        contextSource.setUserDn("cn=admin,dc=springsource,dc=com");
-//        contextSource.setPassword("password");
-        contextSource.afterPropertiesSet();
-    }
+	@BeforeClass
+	public static void createContextSource() throws Exception {
+		int serverPort = ApacheDSServerIntegrationTests.getServerPort();
+		contextSource = new DefaultSpringSecurityContextSource("ldap://127.0.0.1:"
+				+ serverPort + "/dc=springframework,dc=org");
+		// OpenLDAP configuration
+		// contextSource = new
+		// DefaultSpringSecurityContextSource("ldap://127.0.0.1:22389/dc=springsource,dc=com");
+		// contextSource.setUserDn("cn=admin,dc=springsource,dc=com");
+		// contextSource.setPassword("password");
+		contextSource.afterPropertiesSet();
+	}
 
-    public BaseLdapPathContextSource getContextSource() {
-        return contextSource;
-    }
+	public BaseLdapPathContextSource getContextSource() {
+		return contextSource;
+	}
 
 }

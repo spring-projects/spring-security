@@ -33,55 +33,59 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class UserRepositoryUserDetailsService implements UserDetailsService {
-    private final UserRepository userRepository;
+	private final UserRepository userRepository;
 
-    @Autowired
-    public UserRepositoryUserDetailsService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+	@Autowired
+	public UserRepositoryUserDetailsService(UserRepository userRepository) {
+		this.userRepository = userRepository;
+	}
 
-    /* (non-Javadoc)
-     * @see org.springframework.security.core.userdetails.UserDetailsService#loadUserByUsername(java.lang.String)
-     */
-    public UserDetails loadUserByUsername(String username)
-            throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(username);
-        if(user == null) {
-            throw new UsernameNotFoundException("Could not find user " + username);
-        }
-        return new CustomUserDetails(user);
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.springframework.security.core.userdetails.UserDetailsService#loadUserByUsername
+	 * (java.lang.String)
+	 */
+	public UserDetails loadUserByUsername(String username)
+			throws UsernameNotFoundException {
+		User user = userRepository.findByEmail(username);
+		if (user == null) {
+			throw new UsernameNotFoundException("Could not find user " + username);
+		}
+		return new CustomUserDetails(user);
+	}
 
-    private final static class CustomUserDetails extends User implements UserDetails {
+	private final static class CustomUserDetails extends User implements UserDetails {
 
-        private CustomUserDetails(User user) {
-            super(user);
-        }
+		private CustomUserDetails(User user) {
+			super(user);
+		}
 
-        public Collection<? extends GrantedAuthority> getAuthorities() {
-            return AuthorityUtils.createAuthorityList("ROLE_USER");
-        }
+		public Collection<? extends GrantedAuthority> getAuthorities() {
+			return AuthorityUtils.createAuthorityList("ROLE_USER");
+		}
 
-        public String getUsername() {
-            return getEmail();
-        }
+		public String getUsername() {
+			return getEmail();
+		}
 
-        public boolean isAccountNonExpired() {
-            return true;
-        }
+		public boolean isAccountNonExpired() {
+			return true;
+		}
 
-        public boolean isAccountNonLocked() {
-            return true;
-        }
+		public boolean isAccountNonLocked() {
+			return true;
+		}
 
-        public boolean isCredentialsNonExpired() {
-            return true;
-        }
+		public boolean isCredentialsNonExpired() {
+			return true;
+		}
 
-        public boolean isEnabled() {
-            return true;
-        }
+		public boolean isEnabled() {
+			return true;
+		}
 
-        private static final long serialVersionUID = 5639683223516504866L;
-    }
+		private static final long serialVersionUID = 5639683223516504866L;
+	}
 }

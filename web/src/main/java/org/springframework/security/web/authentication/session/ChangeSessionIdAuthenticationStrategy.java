@@ -23,29 +23,36 @@ import javax.servlet.http.HttpSession;
 import org.springframework.util.ReflectionUtils;
 
 /**
- * Uses {@link HttpServletRequest#changeSessionId()} to protect against session
- * fixation attacks. This is the default implementation for Servlet 3.1+.
+ * Uses {@link HttpServletRequest#changeSessionId()} to protect against session fixation
+ * attacks. This is the default implementation for Servlet 3.1+.
  *
  * @author Rob Winch
  * @since 3.2
  */
-public final class ChangeSessionIdAuthenticationStrategy extends AbstractSessionFixationProtectionStrategy {
-    private final Method changeSessionIdMethod;
+public final class ChangeSessionIdAuthenticationStrategy extends
+		AbstractSessionFixationProtectionStrategy {
+	private final Method changeSessionIdMethod;
 
-    public ChangeSessionIdAuthenticationStrategy() {
-        Method changeSessionIdMethod = ReflectionUtils.findMethod(HttpServletRequest.class, "changeSessionId");
-        if(changeSessionIdMethod == null) {
-            throw new IllegalStateException("HttpServletRequest.changeSessionId is undefined. Are you using a Servlet 3.1+ environment?");
-        }
-        this.changeSessionIdMethod = changeSessionIdMethod;
-    }
+	public ChangeSessionIdAuthenticationStrategy() {
+		Method changeSessionIdMethod = ReflectionUtils.findMethod(
+				HttpServletRequest.class, "changeSessionId");
+		if (changeSessionIdMethod == null) {
+			throw new IllegalStateException(
+					"HttpServletRequest.changeSessionId is undefined. Are you using a Servlet 3.1+ environment?");
+		}
+		this.changeSessionIdMethod = changeSessionIdMethod;
+	}
 
-    /* (non-Javadoc)
-     * @see org.springframework.security.web.authentication.session.AbstractSessionFixationProtectionStrategy#applySessionFixation(javax.servlet.http.HttpServletRequest)
-     */
-    @Override
-    HttpSession applySessionFixation(HttpServletRequest request) {
-        ReflectionUtils.invokeMethod(changeSessionIdMethod, request);
-        return request.getSession();
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.springframework.security.web.authentication.session.
+	 * AbstractSessionFixationProtectionStrategy
+	 * #applySessionFixation(javax.servlet.http.HttpServletRequest)
+	 */
+	@Override
+	HttpSession applySessionFixation(HttpServletRequest request) {
+		ReflectionUtils.invokeMethod(changeSessionIdMethod, request);
+		return request.getSession();
+	}
 }

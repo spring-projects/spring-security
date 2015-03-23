@@ -16,13 +16,15 @@
 package org.springframework.security.access.vote;
 
 /**
- * Used by {@link BasicAclEntryVoterTests} so it can create a <code>MethodInvocation</code> contining
- * <code>SomeDomainObject</code>.
+ * Used by {@link BasicAclEntryVoterTests} so it can create a
+ * <code>MethodInvocation</code> contining <code>SomeDomainObject</code>.
  *
  * @author Ben Alex
  */
 public class SomeDomainObjectManager {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public void someServiceMethod(SomeDomainObject someDomainObject) {}
+	public void someServiceMethod(SomeDomainObject someDomainObject) {
+	}
 }

@@ -22,74 +22,77 @@ import java.util.Vector;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-
 /**
- * Used by {@link InMemoryDaoImpl} to temporarily store the attributes associated with a user.
+ * Used by {@link InMemoryDaoImpl} to temporarily store the attributes associated with a
+ * user.
  *
  * @author Ben Alex
  */
 public class UserAttribute {
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private List<GrantedAuthority> authorities = new Vector<GrantedAuthority>();
-    private String password;
-    private boolean enabled = true;
+	private List<GrantedAuthority> authorities = new Vector<GrantedAuthority>();
+	private String password;
+	private boolean enabled = true;
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public void addAuthority(GrantedAuthority newAuthority) {
-        this.authorities.add(newAuthority);
-    }
+	public void addAuthority(GrantedAuthority newAuthority) {
+		this.authorities.add(newAuthority);
+	}
 
-    public List<GrantedAuthority> getAuthorities() {
-        return this.authorities;
-    }
+	public List<GrantedAuthority> getAuthorities() {
+		return this.authorities;
+	}
 
-    /**
-     * Set all authorities for this user.
-     *
-     * @param authorities {@link List} &lt;{@link GrantedAuthority}>
-     * @since 1.1
-     */
-    public void setAuthorities(List<GrantedAuthority> authorities) {
-        this.authorities = authorities;
-    }
+	/**
+	 * Set all authorities for this user.
+	 *
+	 * @param authorities {@link List} &lt;{@link GrantedAuthority}>
+	 * @since 1.1
+	 */
+	public void setAuthorities(List<GrantedAuthority> authorities) {
+		this.authorities = authorities;
+	}
 
-    /**
-     * Set all authorities for this user from String values.
-     * It will create the necessary {@link GrantedAuthority} objects.
-     *
-     * @param authoritiesAsStrings {@link List} &lt;{@link String}>
-     * @since 1.1
-     */
-    public void setAuthoritiesAsString(List<String> authoritiesAsStrings) {
-        setAuthorities(new ArrayList<GrantedAuthority>(authoritiesAsStrings.size()));
-        for(String authority : authoritiesAsStrings) {
-            addAuthority(new SimpleGrantedAuthority(authority));
-        }
-    }
+	/**
+	 * Set all authorities for this user from String values. It will create the necessary
+	 * {@link GrantedAuthority} objects.
+	 *
+	 * @param authoritiesAsStrings {@link List} &lt;{@link String}>
+	 * @since 1.1
+	 */
+	public void setAuthoritiesAsString(List<String> authoritiesAsStrings) {
+		setAuthorities(new ArrayList<GrantedAuthority>(authoritiesAsStrings.size()));
+		for (String authority : authoritiesAsStrings) {
+			addAuthority(new SimpleGrantedAuthority(authority));
+		}
+	}
 
-    public String getPassword() {
-        return password;
-    }
+	public String getPassword() {
+		return password;
+	}
 
-    public boolean isEnabled() {
-        return enabled;
-    }
+	public boolean isEnabled() {
+		return enabled;
+	}
 
-    public boolean isValid() {
-        if ((this.password != null) && (authorities.size() > 0)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+	public boolean isValid() {
+		if ((this.password != null) && (authorities.size() > 0)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+	public void setPassword(String password) {
+		this.password = password;
+	}
 }

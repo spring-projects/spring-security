@@ -16,7 +16,6 @@
 
 package org.springframework.security.remoting.dns;
 
-
 /**
  * This will be thrown if no entry matches the specified DNS query.
  *
@@ -25,15 +24,14 @@ package org.springframework.security.remoting.dns;
  */
 public class DnsEntryNotFoundException extends DnsLookupException {
 
-    private static final long serialVersionUID = -947232730426775162L;
+	private static final long serialVersionUID = -947232730426775162L;
 
-    public DnsEntryNotFoundException(String msg) {
-        super(msg);
-    }
+	public DnsEntryNotFoundException(String msg) {
+		super(msg);
+	}
 
-    public DnsEntryNotFoundException(String msg, Throwable cause) {
-        super(msg, cause);
-    }
-
+	public DnsEntryNotFoundException(String msg, Throwable cause) {
+		super(msg, cause);
+	}
 
 }

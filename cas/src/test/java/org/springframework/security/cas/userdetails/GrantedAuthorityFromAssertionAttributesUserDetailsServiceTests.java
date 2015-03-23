@@ -21,29 +21,30 @@ import java.util.Set;
  */
 public class GrantedAuthorityFromAssertionAttributesUserDetailsServiceTests {
 
-    @Test
-    public void correctlyExtractsNamedAttributesFromAssertionAndConvertsThemToAuthorities() {
-        GrantedAuthorityFromAssertionAttributesUserDetailsService uds =
-                new GrantedAuthorityFromAssertionAttributesUserDetailsService(new String[] {"a", "b", "c", "d"});
-        uds.setConvertToUpperCase(false);
-        Assertion assertion = mock(Assertion.class);
-        AttributePrincipal principal = mock(AttributePrincipal.class);
-        Map<String, Object> attributes = new HashMap<String, Object>();
-        attributes.put("a", Arrays.asList("role_a1", "role_a2"));
-        attributes.put("b", "role_b");
-        attributes.put("c", "role_c");
-        attributes.put("d", null);
-        attributes.put("someother", "unused");
-        when(assertion.getPrincipal()).thenReturn(principal);
-        when(principal.getAttributes()).thenReturn(attributes);
-        when(principal.getName()).thenReturn("somebody");
-        CasAssertionAuthenticationToken token = new CasAssertionAuthenticationToken(assertion, "ticket");
-        UserDetails user = uds.loadUserDetails(token);
-        Set<String> roles = AuthorityUtils.authorityListToSet(user.getAuthorities());
-        assertTrue(roles.size() == 4);
-        assertTrue(roles.contains("role_a1"));
-        assertTrue(roles.contains("role_a2"));
-        assertTrue(roles.contains("role_b"));
-        assertTrue(roles.contains("role_c"));
-    }
+	@Test
+	public void correctlyExtractsNamedAttributesFromAssertionAndConvertsThemToAuthorities() {
+		GrantedAuthorityFromAssertionAttributesUserDetailsService uds = new GrantedAuthorityFromAssertionAttributesUserDetailsService(
+				new String[] { "a", "b", "c", "d" });
+		uds.setConvertToUpperCase(false);
+		Assertion assertion = mock(Assertion.class);
+		AttributePrincipal principal = mock(AttributePrincipal.class);
+		Map<String, Object> attributes = new HashMap<String, Object>();
+		attributes.put("a", Arrays.asList("role_a1", "role_a2"));
+		attributes.put("b", "role_b");
+		attributes.put("c", "role_c");
+		attributes.put("d", null);
+		attributes.put("someother", "unused");
+		when(assertion.getPrincipal()).thenReturn(principal);
+		when(principal.getAttributes()).thenReturn(attributes);
+		when(principal.getName()).thenReturn("somebody");
+		CasAssertionAuthenticationToken token = new CasAssertionAuthenticationToken(
+				assertion, "ticket");
+		UserDetails user = uds.loadUserDetails(token);
+		Set<String> roles = AuthorityUtils.authorityListToSet(user.getAuthorities());
+		assertTrue(roles.size() == 4);
+		assertTrue(roles.contains("role_a1"));
+		assertTrue(roles.contains("role_a2"));
+		assertTrue(roles.contains("role_b"));
+		assertTrue(roles.contains("role_c"));
+	}
 }

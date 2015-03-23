@@ -12,22 +12,25 @@ import org.springframework.security.core.AuthenticationException;
 /**
  * Strategy used to handle a failed authentication attempt.
  * <p>
- * Typical behaviour might be to redirect the user to the authentication page (in the case of a form login) to
- * allow them to try again. More sophisticated logic might be implemented depending on the type of the exception.
- * For example, a {@link CredentialsExpiredException} might cause a redirect to a web controller which allowed the
- * user to change their password.
+ * Typical behaviour might be to redirect the user to the authentication page (in the case
+ * of a form login) to allow them to try again. More sophisticated logic might be
+ * implemented depending on the type of the exception. For example, a
+ * {@link CredentialsExpiredException} might cause a redirect to a web controller which
+ * allowed the user to change their password.
  *
  * @author Luke Taylor
  * @since 3.0
  */
 public interface AuthenticationFailureHandler {
 
-    /**
-     * Called when an authentication attempt fails.
-     * @param request the request during which the authentication attempt occurred.
-     * @param response the response.
-     * @param exception the exception which was thrown to reject the authentication request.
-     */
-    void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationException exception) throws IOException, ServletException;
+	/**
+	 * Called when an authentication attempt fails.
+	 * @param request the request during which the authentication attempt occurred.
+	 * @param response the response.
+	 * @param exception the exception which was thrown to reject the authentication
+	 * request.
+	 */
+	void onAuthenticationFailure(HttpServletRequest request,
+			HttpServletResponse response, AuthenticationException exception)
+			throws IOException, ServletException;
 }

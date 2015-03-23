@@ -17,32 +17,34 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 public class GaeAppController {
 
-    @RequestMapping(value = "/", method= RequestMethod.GET)
-    public String landing() {
-        return "landing";
-    }
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public String landing() {
+		return "landing";
+	}
 
-    @RequestMapping(value = "/home.htm", method= RequestMethod.GET)
-    public String home() {
-        return "home";
-    }
+	@RequestMapping(value = "/home.htm", method = RequestMethod.GET)
+	public String home() {
+		return "home";
+	}
 
-    @RequestMapping(value = "/disabled.htm", method= RequestMethod.GET)
-    public String disabled() {
-        return "disabled";
-    }
+	@RequestMapping(value = "/disabled.htm", method = RequestMethod.GET)
+	public String disabled() {
+		return "disabled";
+	}
 
-    @RequestMapping(value = "/logout.htm", method= RequestMethod.GET)
-    public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        request.getSession().invalidate();
+	@RequestMapping(value = "/logout.htm", method = RequestMethod.GET)
+	public void logout(HttpServletRequest request, HttpServletResponse response)
+			throws IOException {
+		request.getSession().invalidate();
 
-        String logoutUrl = UserServiceFactory.getUserService().createLogoutURL("/loggedout.htm");
+		String logoutUrl = UserServiceFactory.getUserService().createLogoutURL(
+				"/loggedout.htm");
 
-        response.sendRedirect(logoutUrl);
-    }
+		response.sendRedirect(logoutUrl);
+	}
 
-    @RequestMapping(value = "/loggedout.htm", method= RequestMethod.GET)
-    public String loggedOut() {
-        return "loggedout";
-    }
+	@RequestMapping(value = "/loggedout.htm", method = RequestMethod.GET)
+	public String loggedOut() {
+		return "loggedout";
+	}
 }

@@ -21,7 +21,6 @@ import static org.mockito.Mockito.*;
 import org.junit.*;
 import org.springframework.security.core.GrantedAuthority;
 
-
 /**
  * Tests {@link SimpleGrantedAuthority}.
  *
@@ -29,26 +28,26 @@ import org.springframework.security.core.GrantedAuthority;
  */
 public class SimpleGrantedAuthorityTests {
 
-    @Test
-    public void equalsBehavesAsExpected() throws Exception {
-        SimpleGrantedAuthority auth1 = new SimpleGrantedAuthority("TEST");
-        assertEquals(auth1, auth1);
-        assertEquals(auth1, new SimpleGrantedAuthority("TEST"));
+	@Test
+	public void equalsBehavesAsExpected() throws Exception {
+		SimpleGrantedAuthority auth1 = new SimpleGrantedAuthority("TEST");
+		assertEquals(auth1, auth1);
+		assertEquals(auth1, new SimpleGrantedAuthority("TEST"));
 
-        assertFalse(auth1.equals("TEST"));
+		assertFalse(auth1.equals("TEST"));
 
-        SimpleGrantedAuthority auth3 = new SimpleGrantedAuthority("NOT_EQUAL");
-        assertTrue(!auth1.equals(auth3));
+		SimpleGrantedAuthority auth3 = new SimpleGrantedAuthority("NOT_EQUAL");
+		assertTrue(!auth1.equals(auth3));
 
-        assertFalse(auth1.equals(mock(GrantedAuthority.class)));
+		assertFalse(auth1.equals(mock(GrantedAuthority.class)));
 
-        assertFalse(auth1.equals(Integer.valueOf(222)));
-    }
+		assertFalse(auth1.equals(Integer.valueOf(222)));
+	}
 
-    @Test
-    public void toStringReturnsAuthorityValue() {
-        SimpleGrantedAuthority auth = new SimpleGrantedAuthority("TEST");
-        assertEquals("TEST", auth.toString());
-    }
+	@Test
+	public void toStringReturnsAuthorityValue() {
+		SimpleGrantedAuthority auth = new SimpleGrantedAuthority("TEST");
+		assertEquals("TEST", auth.toString());
+	}
 
 }

@@ -26,54 +26,62 @@ import org.springframework.web.context.request.async.CallableProcessingIntercept
  * Allows for integration with Spring MVC's {@link Callable} support.
  * </p>
  * <p>
- * A {@link CallableProcessingInterceptor} that establishes the injected {@link SecurityContext} on the
- * {@link SecurityContextHolder} when {@link #preProcess(NativeWebRequest, Callable)} is invoked. It also clear out the
- * {@link SecurityContextHolder} by invoking {@link SecurityContextHolder#clearContext()} in the
- * {@link #postProcess(NativeWebRequest, Callable, Object)} method.
+ * A {@link CallableProcessingInterceptor} that establishes the injected
+ * {@link SecurityContext} on the {@link SecurityContextHolder} when
+ * {@link #preProcess(NativeWebRequest, Callable)} is invoked. It also clear out the
+ * {@link SecurityContextHolder} by invoking {@link SecurityContextHolder#clearContext()}
+ * in the {@link #postProcess(NativeWebRequest, Callable, Object)} method.
  * </p>
  *
  * @author Rob Winch
  * @since 3.2
  */
-public final class SecurityContextCallableProcessingInterceptor extends CallableProcessingInterceptorAdapter {
-    private SecurityContext securityContext;
+public final class SecurityContextCallableProcessingInterceptor extends
+		CallableProcessingInterceptorAdapter {
+	private SecurityContext securityContext;
 
-    /**
-     * Create a new {@link SecurityContextCallableProcessingInterceptor} that uses the {@link SecurityContext} from the
-     * {@link SecurityContextHolder} at the time {@link #beforeConcurrentHandling(NativeWebRequest, Callable)} is invoked.
-     */
-    public SecurityContextCallableProcessingInterceptor() {
-    }
+	/**
+	 * Create a new {@link SecurityContextCallableProcessingInterceptor} that uses the
+	 * {@link SecurityContext} from the {@link SecurityContextHolder} at the time
+	 * {@link #beforeConcurrentHandling(NativeWebRequest, Callable)} is invoked.
+	 */
+	public SecurityContextCallableProcessingInterceptor() {
+	}
 
-    /**
-     * Creates a new {@link SecurityContextCallableProcessingInterceptor} with the specified {@link SecurityContext}.
-     * @param securityContext the {@link SecurityContext} to set on the {@link SecurityContextHolder} in
-     * {@link #preProcess(NativeWebRequest, Callable)}. Cannot be null.
-     * @throws IllegalArgumentException if {@link SecurityContext} is null.
-     */
-    public SecurityContextCallableProcessingInterceptor(SecurityContext securityContext) {
-        Assert.notNull(securityContext, "securityContext cannot be null");
-        setSecurityContext(securityContext);
-    }
+	/**
+	 * Creates a new {@link SecurityContextCallableProcessingInterceptor} with the
+	 * specified {@link SecurityContext}.
+	 * @param securityContext the {@link SecurityContext} to set on the
+	 * {@link SecurityContextHolder} in {@link #preProcess(NativeWebRequest, Callable)}.
+	 * Cannot be null.
+	 * @throws IllegalArgumentException if {@link SecurityContext} is null.
+	 */
+	public SecurityContextCallableProcessingInterceptor(SecurityContext securityContext) {
+		Assert.notNull(securityContext, "securityContext cannot be null");
+		setSecurityContext(securityContext);
+	}
 
-    @Override
-    public <T> void beforeConcurrentHandling(NativeWebRequest request, Callable<T> task) throws Exception {
-        if(securityContext == null) {
-            setSecurityContext(SecurityContextHolder.getContext());
-        }
-    }
+	@Override
+	public <T> void beforeConcurrentHandling(NativeWebRequest request, Callable<T> task)
+			throws Exception {
+		if (securityContext == null) {
+			setSecurityContext(SecurityContextHolder.getContext());
+		}
+	}
 
-    @Override
-    public <T> void preProcess(NativeWebRequest request, Callable<T> task) throws Exception {
-        SecurityContextHolder.setContext(securityContext);
-    }
+	@Override
+	public <T> void preProcess(NativeWebRequest request, Callable<T> task)
+			throws Exception {
+		SecurityContextHolder.setContext(securityContext);
+	}
 
-    @Override
-    public <T> void postProcess(NativeWebRequest request, Callable<T> task, Object concurrentResult) throws Exception {
-        SecurityContextHolder.clearContext();
-    }
+	@Override
+	public <T> void postProcess(NativeWebRequest request, Callable<T> task,
+			Object concurrentResult) throws Exception {
+		SecurityContextHolder.clearContext();
+	}
 
-    private void setSecurityContext(SecurityContext securityContext) {
-        this.securityContext = securityContext;
-    }
+	private void setSecurityContext(SecurityContext securityContext) {
+		this.securityContext = securityContext;
+	}
 }

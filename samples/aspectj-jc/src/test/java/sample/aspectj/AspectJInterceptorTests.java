@@ -23,71 +23,73 @@ import java.lang.reflect.Proxy;
 import static org.fest.assertions.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes=AspectjSecurityConfig.class)
+@ContextConfiguration(classes = AspectjSecurityConfig.class)
 public class AspectJInterceptorTests {
-    private Authentication admin = new UsernamePasswordAuthenticationToken("test", "xxx", AuthorityUtils.createAuthorityList("ROLE_ADMIN"));
-    private Authentication user = new UsernamePasswordAuthenticationToken("test", "xxx", AuthorityUtils.createAuthorityList("ROLE_USER"));
+	private Authentication admin = new UsernamePasswordAuthenticationToken("test", "xxx",
+			AuthorityUtils.createAuthorityList("ROLE_ADMIN"));
+	private Authentication user = new UsernamePasswordAuthenticationToken("test", "xxx",
+			AuthorityUtils.createAuthorityList("ROLE_USER"));
 
-    @Autowired
-    private Service service;
+	@Autowired
+	private Service service;
 
-    @Autowired
-    private SecuredService securedService;
+	@Autowired
+	private SecuredService securedService;
 
-    @Test
-    public void publicMethod() throws Exception {
-        service.publicMethod();
-    }
+	@Test
+	public void publicMethod() throws Exception {
+		service.publicMethod();
+	}
 
-    @Test(expected = AuthenticationCredentialsNotFoundException.class)
-    public void securedMethodNotAuthenticated() throws Exception {
-        service.secureMethod();
-    }
+	@Test(expected = AuthenticationCredentialsNotFoundException.class)
+	public void securedMethodNotAuthenticated() throws Exception {
+		service.secureMethod();
+	}
 
-    @Test(expected = AccessDeniedException.class)
-    public void securedMethodWrongRole() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(admin);
-        service.secureMethod();
-    }
+	@Test(expected = AccessDeniedException.class)
+	public void securedMethodWrongRole() throws Exception {
+		SecurityContextHolder.getContext().setAuthentication(admin);
+		service.secureMethod();
+	}
 
-    @Test
-    public void securedMethodEverythingOk() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(user);
-        service.secureMethod();
-    }
+	@Test
+	public void securedMethodEverythingOk() throws Exception {
+		SecurityContextHolder.getContext().setAuthentication(user);
+		service.secureMethod();
+	}
 
-    @Test(expected = AuthenticationCredentialsNotFoundException.class)
-    public void securedClassNotAuthenticated() throws Exception {
-        securedService.secureMethod();
-    }
+	@Test(expected = AuthenticationCredentialsNotFoundException.class)
+	public void securedClassNotAuthenticated() throws Exception {
+		securedService.secureMethod();
+	}
 
-    @Test(expected = AccessDeniedException.class)
-    public void securedClassWrongRole() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(admin);
-        securedService.secureMethod();
-    }
+	@Test(expected = AccessDeniedException.class)
+	public void securedClassWrongRole() throws Exception {
+		SecurityContextHolder.getContext().setAuthentication(admin);
+		securedService.secureMethod();
+	}
 
-    @Test(expected = AccessDeniedException.class)
-    public void securedClassWrongRoleOnNewedInstance() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(admin);
-        new SecuredService().secureMethod();
-    }
+	@Test(expected = AccessDeniedException.class)
+	public void securedClassWrongRoleOnNewedInstance() throws Exception {
+		SecurityContextHolder.getContext().setAuthentication(admin);
+		new SecuredService().secureMethod();
+	}
 
-    @Test
-    public void securedClassEverythingOk() throws Exception {
-        SecurityContextHolder.getContext().setAuthentication(user);
-        securedService.secureMethod();
-        new SecuredService().secureMethod();
-    }
+	@Test
+	public void securedClassEverythingOk() throws Exception {
+		SecurityContextHolder.getContext().setAuthentication(user);
+		securedService.secureMethod();
+		new SecuredService().secureMethod();
+	}
 
-    // SEC-2595
-    @Test
-    public void notProxy() {
-        assertThat(Proxy.isProxyClass(securedService.getClass())).isFalse();
-    }
+	// SEC-2595
+	@Test
+	public void notProxy() {
+		assertThat(Proxy.isProxyClass(securedService.getClass())).isFalse();
+	}
 
-    @After
-    public void tearDown() {
-        SecurityContextHolder.clearContext();
-    }
+	@After
+	public void tearDown() {
+		SecurityContextHolder.clearContext();
+	}
 }

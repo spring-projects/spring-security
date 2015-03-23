@@ -21,7 +21,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
 
-
 /**
  * Tests {@link NullUserCache}.
  *
@@ -29,17 +28,18 @@ import org.springframework.security.core.userdetails.cache.NullUserCache;
  */
 public class NullUserCacheTests extends TestCase {
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    private User getUser() {
-        return new User("john", "password", true, true, true, true,
-                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
-    }
+	private User getUser() {
+		return new User("john", "password", true, true, true, true,
+				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
+	}
 
-    public void testCacheOperation() throws Exception {
-        NullUserCache cache = new NullUserCache();
-        cache.putUserInCache(getUser());
-        assertNull(cache.getUserFromCache(null));
-        cache.removeUserFromCache(null);
-    }
+	public void testCacheOperation() throws Exception {
+		NullUserCache cache = new NullUserCache();
+		cache.putUserInCache(getUser());
+		assertNull(cache.getUserFromCache(null));
+		cache.removeUserFromCache(null);
+	}
 }

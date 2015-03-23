@@ -22,136 +22,139 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
 /**
- * Base class which allows the application to be started with a particular Spring application
- * context. Subclasses override the <tt>getContextConfigLocations</tt> method to return
- * a list of context file names which is passed to the <tt>ContextLoaderListener</tt> when
- * starting up the webapp.
+ * Base class which allows the application to be started with a particular Spring
+ * application context. Subclasses override the <tt>getContextConfigLocations</tt> method
+ * to return a list of context file names which is passed to the
+ * <tt>ContextLoaderListener</tt> when starting up the webapp.
  *
  * @author Luke Taylor
  */
 public abstract class AbstractWebServerIntegrationTests {
-    private Server server;
-    private final Object SERVER_LOCK = new Object();
-    protected final WebTester tester = new WebTester();
+	private Server server;
+	private final Object SERVER_LOCK = new Object();
+	protected final WebTester tester = new WebTester();
 
-    /**
-     * Override to set the application context files that should be loaded or return null
-     * to use web.xml.
-     */
-    protected abstract String getContextConfigLocations();
+	/**
+	 * Override to set the application context files that should be loaded or return null
+	 * to use web.xml.
+	 */
+	protected abstract String getContextConfigLocations();
 
-    protected String getContextPath() {
-        return "/testapp";
-    }
+	protected String getContextPath() {
+		return "/testapp";
+	}
 
-    @BeforeClass
-    public void startServer() throws Exception {
-        synchronized(SERVER_LOCK) {
-            if (server == null) {
-                //System.setProperty("DEBUG", "true");
-                //System.setProperty("VERBOSE", "true");
-                //System.setProperty("IGNORED", "true");
-                server = new Server(0);
-                server.addHandler(createWebContext());
-                server.start();
-            }
-        }
-    }
+	@BeforeClass
+	public void startServer() throws Exception {
+		synchronized (SERVER_LOCK) {
+			if (server == null) {
+				// System.setProperty("DEBUG", "true");
+				// System.setProperty("VERBOSE", "true");
+				// System.setProperty("IGNORED", "true");
+				server = new Server(0);
+				server.addHandler(createWebContext());
+				server.start();
+			}
+		}
+	}
 
-    @SuppressWarnings("unchecked")
-    private WebAppContext createWebContext() {
-        String webappDir = System.getProperty("webapp.dir");
+	@SuppressWarnings("unchecked")
+	private WebAppContext createWebContext() {
+		String webappDir = System.getProperty("webapp.dir");
 
-        WebAppContext webCtx = new WebAppContext(webappDir == null ? "src/main/webapp" : webappDir, getContextPath());
+		WebAppContext webCtx = new WebAppContext(webappDir == null ? "src/main/webapp"
+				: webappDir, getContextPath());
 
-        if (StringUtils.hasText(getContextConfigLocations())) {
-            webCtx.addEventListener(new ContextLoaderListener());
-            webCtx.addEventListener(new HttpSessionEventPublisher());
-            webCtx.getInitParams().put("contextConfigLocation", getContextConfigLocations());
-        }
+		if (StringUtils.hasText(getContextConfigLocations())) {
+			webCtx.addEventListener(new ContextLoaderListener());
+			webCtx.addEventListener(new HttpSessionEventPublisher());
+			webCtx.getInitParams().put("contextConfigLocation",
+					getContextConfigLocations());
+		}
 
-        ServletHolder servlet = new ServletHolder();
-        servlet.setName("testapp");
-        servlet.setClassName(DispatcherServlet.class.getName());
-        webCtx.addServlet(servlet, "*.htm");
+		ServletHolder servlet = new ServletHolder();
+		servlet.setName("testapp");
+		servlet.setClassName(DispatcherServlet.class.getName());
+		webCtx.addServlet(servlet, "*.htm");
 
-        return webCtx;
-    }
+		return webCtx;
+	}
 
-    @AfterClass
-    public void stopServer() throws Exception {
-        synchronized(SERVER_LOCK) {
-            if (server != null) {
-                server.stop();
-            }
-            server = null;
-        }
-    }
+	@AfterClass
+	public void stopServer() throws Exception {
+		synchronized (SERVER_LOCK) {
+			if (server != null) {
+				server.stop();
+			}
+			server = null;
+		}
+	}
 
-    @BeforeMethod
-    public void initializeTester() {
-        tester.getTestContext().setBaseUrl(getBaseUrl());
-    }
+	@BeforeMethod
+	public void initializeTester() {
+		tester.getTestContext().setBaseUrl(getBaseUrl());
+	}
 
-    @AfterMethod
-    public void resetWebConversation() {
-        tester.closeBrowser();
-        tester.setTestContext(null);
-    }
+	@AfterMethod
+	public void resetWebConversation() {
+		tester.closeBrowser();
+		tester.setTestContext(null);
+	}
 
-    protected final String getBaseUrl() {
-        int port = server.getConnectors()[0].getLocalPort();
-        return "http://localhost:" + port + getContextPath() + "/";
-    }
+	protected final String getBaseUrl() {
+		int port = server.getConnectors()[0].getLocalPort();
+		return "http://localhost:" + port + getContextPath() + "/";
+	}
 
-    protected final Object getBean(String beanName) {
-        return getAppContext().getBean(beanName);
-    }
+	protected final Object getBean(String beanName) {
+		return getAppContext().getBean(beanName);
+	}
 
-    protected final WebApplicationContext getAppContext() {
-        ServletContext servletCtx = ((WebAppContext)server.getHandler()).getServletContext();
-        WebApplicationContext appCtx =
-                WebApplicationContextUtils.getRequiredWebApplicationContext(servletCtx);
-        return appCtx;
-    }
+	protected final WebApplicationContext getAppContext() {
+		ServletContext servletCtx = ((WebAppContext) server.getHandler())
+				.getServletContext();
+		WebApplicationContext appCtx = WebApplicationContextUtils
+				.getRequiredWebApplicationContext(servletCtx);
+		return appCtx;
+	}
 
-    @SuppressWarnings("unchecked")
-    protected Cookie getRememberMeCookie() {
-        List<Cookie> cookies = (List<Cookie>) tester.getTestingEngine().getCookies();
-        for (Cookie c : cookies) {
-            if (c.getName().equals("remember-me")) {
-                return c;
-            }
-        }
-        return null;
-    }
+	@SuppressWarnings("unchecked")
+	protected Cookie getRememberMeCookie() {
+		List<Cookie> cookies = (List<Cookie>) tester.getTestingEngine().getCookies();
+		for (Cookie c : cookies) {
+			if (c.getName().equals("remember-me")) {
+				return c;
+			}
+		}
+		return null;
+	}
 
-    protected final void submit() {
-        tester.submit();
-    }
+	protected final void submit() {
+		tester.submit();
+	}
 
-    protected final void beginAt(String url) {
-        tester.beginAt(url);
-    }
+	protected final void beginAt(String url) {
+		tester.beginAt(url);
+	}
 
-    protected final void setTextField(String name, String value) {
-        tester.setTextField(name, value);
-    }
+	protected final void setTextField(String name, String value) {
+		tester.setTextField(name, value);
+	}
 
-    protected final void assertFormPresent() {
-        tester.assertFormPresent();
-    }
+	protected final void assertFormPresent() {
+		tester.assertFormPresent();
+	}
 
-    protected final void assertTextPresent(String text) {
-        tester.assertTextPresent(text);
-    }
+	protected final void assertTextPresent(String text) {
+		tester.assertTextPresent(text);
+	}
 
-    // Security-specific utility methods
+	// Security-specific utility methods
 
-    protected void login(String username, String password) {
-        assertFormPresent();
-        setTextField("username", username);
-        setTextField("password", password);
-        submit();
-    }
+	protected void login(String username, String password) {
+		assertFormPresent();
+		setTextField("username", username);
+		setTextField("password", password);
+		submit();
+	}
 }

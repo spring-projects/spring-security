@@ -18,64 +18,69 @@ import org.springframework.util.ClassUtils;
  * @since 3.0.3
  */
 public final class MethodInvocationAdapter implements MethodInvocation {
-    private final ProceedingJoinPoint jp;
-    private final Method method;
-    private final Object target;
+	private final ProceedingJoinPoint jp;
+	private final Method method;
+	private final Object target;
 
-    MethodInvocationAdapter(JoinPoint jp) {
-        this.jp = (ProceedingJoinPoint)jp;
-        if (jp.getTarget() != null) {
-            target = jp.getTarget();
-        } else {
-            // SEC-1295: target may be null if an ITD is in use
-            target = jp.getSignature().getDeclaringType();
-        }
-        String targetMethodName = jp.getStaticPart().getSignature().getName();
-        Class<?>[] types = ((CodeSignature) jp.getStaticPart().getSignature()).getParameterTypes();
-        Class<?> declaringType = jp.getStaticPart().getSignature().getDeclaringType();
+	MethodInvocationAdapter(JoinPoint jp) {
+		this.jp = (ProceedingJoinPoint) jp;
+		if (jp.getTarget() != null) {
+			target = jp.getTarget();
+		}
+		else {
+			// SEC-1295: target may be null if an ITD is in use
+			target = jp.getSignature().getDeclaringType();
+		}
+		String targetMethodName = jp.getStaticPart().getSignature().getName();
+		Class<?>[] types = ((CodeSignature) jp.getStaticPart().getSignature())
+				.getParameterTypes();
+		Class<?> declaringType = jp.getStaticPart().getSignature().getDeclaringType();
 
-        method = findMethod(targetMethodName, declaringType, types);
+		method = findMethod(targetMethodName, declaringType, types);
 
-        if(method == null) {
-            throw new IllegalArgumentException("Could not obtain target method from JoinPoint: '"+ jp + "'");
-        }
-    }
+		if (method == null) {
+			throw new IllegalArgumentException(
+					"Could not obtain target method from JoinPoint: '" + jp + "'");
+		}
+	}
 
-    private Method findMethod(String name, Class<?> declaringType, Class<?>[] params) {
-        Method method = null;
+	private Method findMethod(String name, Class<?> declaringType, Class<?>[] params) {
+		Method method = null;
 
-        try {
-            method = declaringType.getMethod(name, params);
-        } catch (NoSuchMethodException ignored) {
-        }
+		try {
+			method = declaringType.getMethod(name, params);
+		}
+		catch (NoSuchMethodException ignored) {
+		}
 
-        if (method == null) {
-            try {
-                method = declaringType.getDeclaredMethod(name, params);
-            } catch (NoSuchMethodException ignored) {
-            }
-        }
+		if (method == null) {
+			try {
+				method = declaringType.getDeclaredMethod(name, params);
+			}
+			catch (NoSuchMethodException ignored) {
+			}
+		}
 
-        return method;
-    }
+		return method;
+	}
 
-    public Method getMethod() {
-        return method;
-    }
+	public Method getMethod() {
+		return method;
+	}
 
-    public Object[] getArguments() {
-        return jp.getArgs();
-    }
+	public Object[] getArguments() {
+		return jp.getArgs();
+	}
 
-    public AccessibleObject getStaticPart() {
-        return method;
-    }
+	public AccessibleObject getStaticPart() {
+		return method;
+	}
 
-    public Object getThis() {
-        return target;
-    }
+	public Object getThis() {
+		return target;
+	}
 
-    public Object proceed() throws Throwable {
-        return jp.proceed();
-    }
+	public Object proceed() throws Throwable {
+		return jp.proceed();
+	}
 }

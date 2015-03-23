@@ -27,7 +27,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.util.SimpleMethodInvocation;
 
-
 /**
  * Tests {@link InterceptorStatusToken}.
  *
@@ -35,16 +34,16 @@ import org.springframework.security.util.SimpleMethodInvocation;
  */
 public class InterceptorStatusTokenTests {
 
-    @Test
-    public void testOperation() {
-        List<ConfigAttribute> attr = SecurityConfig.createList("FOO");
-        MethodInvocation mi = new SimpleMethodInvocation();
-        SecurityContext ctx = SecurityContextHolder.createEmptyContext();
-        InterceptorStatusToken token = new InterceptorStatusToken(ctx, true, attr, mi);
+	@Test
+	public void testOperation() {
+		List<ConfigAttribute> attr = SecurityConfig.createList("FOO");
+		MethodInvocation mi = new SimpleMethodInvocation();
+		SecurityContext ctx = SecurityContextHolder.createEmptyContext();
+		InterceptorStatusToken token = new InterceptorStatusToken(ctx, true, attr, mi);
 
-        assertTrue(token.isContextHolderRefreshRequired());
-        assertEquals(attr, token.getAttributes());
-        assertEquals(mi, token.getSecureObject());
-        assertSame(ctx, token.getSecurityContext());
-    }
+		assertTrue(token.isContextHolderRefreshRequired());
+		assertEquals(attr, token.getAttributes());
+		assertEquals(mi, token.getSecureObject());
+		assertSame(ctx, token.getSecurityContext());
+	}
 }

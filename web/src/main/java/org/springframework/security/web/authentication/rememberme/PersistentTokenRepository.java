@@ -3,8 +3,8 @@ package org.springframework.security.web.authentication.rememberme;
 import java.util.Date;
 
 /**
- * The abstraction used by {@link PersistentTokenBasedRememberMeServices} to store the persistent
- * login tokens for a user.
+ * The abstraction used by {@link PersistentTokenBasedRememberMeServices} to store the
+ * persistent login tokens for a user.
  *
  * @see JdbcTokenRepositoryImpl
  * @see InMemoryTokenRepositoryImpl
@@ -14,12 +14,12 @@ import java.util.Date;
  */
 public interface PersistentTokenRepository {
 
-    void createNewToken(PersistentRememberMeToken token);
+	void createNewToken(PersistentRememberMeToken token);
 
-    void updateToken(String series, String tokenValue, Date lastUsed);
+	void updateToken(String series, String tokenValue, Date lastUsed);
 
-    PersistentRememberMeToken getTokenForSeries(String seriesId);
+	PersistentRememberMeToken getTokenForSeries(String seriesId);
 
-    void removeUserTokens(String username);
+	void removeUserTokens(String username);
 
 }

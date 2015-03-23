@@ -27,10 +27,10 @@ import org.springframework.security.core.Authentication;
  */
 public final class MessageSecurityExpressionRoot extends SecurityExpressionRoot {
 
-    public final Message<?> message;
+	public final Message<?> message;
 
-    public MessageSecurityExpressionRoot(Authentication authentication, Message<?> message) {
-        super(authentication);
-        this.message = message;
-    }
+	public MessageSecurityExpressionRoot(Authentication authentication, Message<?> message) {
+		super(authentication);
+		this.message = message;
+	}
 }

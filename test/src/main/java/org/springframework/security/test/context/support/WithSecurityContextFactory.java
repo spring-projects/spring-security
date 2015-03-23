@@ -22,8 +22,7 @@ import org.springframework.security.test.context.TestSecurityContextHolder;
 
 /**
  * An API that works with WithUserTestExcecutionListener for creating a
- * {@link SecurityContext} that is populated in the
- * {@link TestSecurityContextHolder}.
+ * {@link SecurityContext} that is populated in the {@link TestSecurityContextHolder}.
  *
  * @author Rob Winch
  *
@@ -35,13 +34,12 @@ import org.springframework.security.test.context.TestSecurityContextHolder;
  */
 public interface WithSecurityContextFactory<A extends Annotation> {
 
-    /**
-     * Create a {@link SecurityContext} given an Annotation.
-     *
-     * @param annotation
-     *            the {@link Annotation} to create the {@link SecurityContext}
-     *            from. Cannot be null.
-     * @return the {@link SecurityContext} to use. Cannot be null.
-     */
-    SecurityContext createSecurityContext(A annotation);
+	/**
+	 * Create a {@link SecurityContext} given an Annotation.
+	 *
+	 * @param annotation the {@link Annotation} to create the {@link SecurityContext}
+	 * from. Cannot be null.
+	 * @return the {@link SecurityContext} to use. Cannot be null.
+	 */
+	SecurityContext createSecurityContext(A annotation);
 }

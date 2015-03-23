@@ -11,19 +11,19 @@ import org.springframework.beans.factory.DisposableBean;
  * @author Luke Taylor
  */
 public class TestDataSource extends DriverManagerDataSource implements DisposableBean {
-    String name;
+	String name;
 
-    public TestDataSource(String databaseName) {
-        name = databaseName;
-        System.out.println("Creating database: " + name);
-        setDriverClassName("org.hsqldb.jdbcDriver");
-        setUrl("jdbc:hsqldb:mem:" + databaseName);
-        setUsername("sa");
-        setPassword("");
-    }
+	public TestDataSource(String databaseName) {
+		name = databaseName;
+		System.out.println("Creating database: " + name);
+		setDriverClassName("org.hsqldb.jdbcDriver");
+		setUrl("jdbc:hsqldb:mem:" + databaseName);
+		setUsername("sa");
+		setPassword("");
+	}
 
-    public void destroy() throws Exception {
-        System.out.println("Shutting down database: " + name);
-        new JdbcTemplate(this).execute("SHUTDOWN");
-    }
+	public void destroy() throws Exception {
+		System.out.println("Shutting down database: " + name);
+		new JdbcTemplate(this).execute("SHUTDOWN");
+	}
 }

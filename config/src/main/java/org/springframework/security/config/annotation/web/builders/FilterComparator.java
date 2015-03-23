@@ -46,8 +46,8 @@ import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
 
 /**
- * An internal use only {@link Comparator} that sorts the Security {@link Filter} instances to ensure they are in the
- * correct order.
+ * An internal use only {@link Comparator} that sorts the Security {@link Filter}
+ * instances to ensure they are in the correct order.
  *
  * @author Rob Winch
  * @since 3.2
@@ -55,127 +55,138 @@ import org.springframework.security.web.session.SessionManagementFilter;
 
 @SuppressWarnings("serial")
 final class FilterComparator implements Comparator<Filter>, Serializable {
-    private static final int STEP = 100;
-    private Map<String,Integer> filterToOrder = new HashMap<String,Integer>();
+	private static final int STEP = 100;
+	private Map<String, Integer> filterToOrder = new HashMap<String, Integer>();
 
-    FilterComparator() {
-        int order = 100;
-        put(ChannelProcessingFilter.class, order);
-        order += STEP;
-        put(ConcurrentSessionFilter.class, order);
-        order += STEP;
-        put(WebAsyncManagerIntegrationFilter.class, order);
-        order += STEP;
-        put(SecurityContextPersistenceFilter.class, order);
-        order += STEP;
-        put(HeaderWriterFilter.class, order);
-        order += STEP;
-        put(CsrfFilter.class, order);
-        order += STEP;
-        put(LogoutFilter.class, order);
-        order += STEP;
-        put(X509AuthenticationFilter.class, order);
-        order += STEP;
-        put(AbstractPreAuthenticatedProcessingFilter.class, order);
-        order += STEP;
-        filterToOrder.put("org.springframework.security.cas.web.CasAuthenticationFilter", order);
-        order += STEP;
-        put(UsernamePasswordAuthenticationFilter.class, order);
-        order += STEP;
-        put(ConcurrentSessionFilter.class, order);
-        order += STEP;
-        filterToOrder.put("org.springframework.security.openid.OpenIDAuthenticationFilter", order);
-        order += STEP;
-        put(DefaultLoginPageGeneratingFilter.class, order);
-        order += STEP;
-        put(ConcurrentSessionFilter.class, order);
-        order += STEP;
-        put(DigestAuthenticationFilter.class, order);
-        order += STEP;
-        put(BasicAuthenticationFilter.class, order);
-        order += STEP;
-        put(RequestCacheAwareFilter.class, order);
-        order += STEP;
-        put(SecurityContextHolderAwareRequestFilter.class, order);
-        order += STEP;
-        put(JaasApiIntegrationFilter.class, order);
-        order += STEP;
-        put(RememberMeAuthenticationFilter.class, order);
-        order += STEP;
-        put(AnonymousAuthenticationFilter.class, order);
-        order += STEP;
-        put(SessionManagementFilter.class, order);
-        order += STEP;
-        put(ExceptionTranslationFilter.class, order);
-        order += STEP;
-        put(FilterSecurityInterceptor.class, order);
-        order += STEP;
-        put(SwitchUserFilter.class, order);
-    }
+	FilterComparator() {
+		int order = 100;
+		put(ChannelProcessingFilter.class, order);
+		order += STEP;
+		put(ConcurrentSessionFilter.class, order);
+		order += STEP;
+		put(WebAsyncManagerIntegrationFilter.class, order);
+		order += STEP;
+		put(SecurityContextPersistenceFilter.class, order);
+		order += STEP;
+		put(HeaderWriterFilter.class, order);
+		order += STEP;
+		put(CsrfFilter.class, order);
+		order += STEP;
+		put(LogoutFilter.class, order);
+		order += STEP;
+		put(X509AuthenticationFilter.class, order);
+		order += STEP;
+		put(AbstractPreAuthenticatedProcessingFilter.class, order);
+		order += STEP;
+		filterToOrder.put("org.springframework.security.cas.web.CasAuthenticationFilter",
+				order);
+		order += STEP;
+		put(UsernamePasswordAuthenticationFilter.class, order);
+		order += STEP;
+		put(ConcurrentSessionFilter.class, order);
+		order += STEP;
+		filterToOrder.put(
+				"org.springframework.security.openid.OpenIDAuthenticationFilter", order);
+		order += STEP;
+		put(DefaultLoginPageGeneratingFilter.class, order);
+		order += STEP;
+		put(ConcurrentSessionFilter.class, order);
+		order += STEP;
+		put(DigestAuthenticationFilter.class, order);
+		order += STEP;
+		put(BasicAuthenticationFilter.class, order);
+		order += STEP;
+		put(RequestCacheAwareFilter.class, order);
+		order += STEP;
+		put(SecurityContextHolderAwareRequestFilter.class, order);
+		order += STEP;
+		put(JaasApiIntegrationFilter.class, order);
+		order += STEP;
+		put(RememberMeAuthenticationFilter.class, order);
+		order += STEP;
+		put(AnonymousAuthenticationFilter.class, order);
+		order += STEP;
+		put(SessionManagementFilter.class, order);
+		order += STEP;
+		put(ExceptionTranslationFilter.class, order);
+		order += STEP;
+		put(FilterSecurityInterceptor.class, order);
+		order += STEP;
+		put(SwitchUserFilter.class, order);
+	}
 
-    public int compare(Filter lhs, Filter rhs) {
-        Integer left = getOrder(lhs.getClass());
-        Integer right = getOrder(rhs.getClass());
-        return left - right;
-    }
+	public int compare(Filter lhs, Filter rhs) {
+		Integer left = getOrder(lhs.getClass());
+		Integer right = getOrder(rhs.getClass());
+		return left - right;
+	}
 
-    /**
-     * Determines if a particular {@link Filter} is registered to be sorted
-     *
-     * @param filter
-     * @return
-     */
-    public boolean isRegistered(Class<? extends Filter> filter) {
-        return getOrder(filter) != null;
-    }
+	/**
+	 * Determines if a particular {@link Filter} is registered to be sorted
+	 *
+	 * @param filter
+	 * @return
+	 */
+	public boolean isRegistered(Class<? extends Filter> filter) {
+		return getOrder(filter) != null;
+	}
 
-    /**
-     * Registers a {@link Filter} to exist after a particular {@link Filter} that is already registered.
-     * @param filter the {@link Filter} to register
-     * @param afterFilter the {@link Filter} that is already registered and that {@code filter} should be placed after.
-     */
-    public void registerAfter(Class<? extends Filter> filter, Class<? extends Filter> afterFilter) {
-        Integer position = getOrder(afterFilter);
-        if(position == null) {
-            throw new IllegalArgumentException("Cannot register after unregistered Filter "+afterFilter);
-        }
+	/**
+	 * Registers a {@link Filter} to exist after a particular {@link Filter} that is
+	 * already registered.
+	 * @param filter the {@link Filter} to register
+	 * @param afterFilter the {@link Filter} that is already registered and that
+	 * {@code filter} should be placed after.
+	 */
+	public void registerAfter(Class<? extends Filter> filter,
+			Class<? extends Filter> afterFilter) {
+		Integer position = getOrder(afterFilter);
+		if (position == null) {
+			throw new IllegalArgumentException(
+					"Cannot register after unregistered Filter " + afterFilter);
+		}
 
-        put(filter, position + 1);
-    }
+		put(filter, position + 1);
+	}
 
-    /**
-     * Registers a {@link Filter} to exist before a particular {@link Filter} that is already registered.
-     * @param filter the {@link Filter} to register
-     * @param beforeFilter the {@link Filter} that is already registered and that {@code filter} should be placed before.
-     */
-    public void registerBefore(Class<? extends Filter> filter, Class<? extends Filter> beforeFilter) {
-        Integer position = getOrder(beforeFilter);
-        if(position == null) {
-            throw new IllegalArgumentException("Cannot register after unregistered Filter "+beforeFilter);
-        }
+	/**
+	 * Registers a {@link Filter} to exist before a particular {@link Filter} that is
+	 * already registered.
+	 * @param filter the {@link Filter} to register
+	 * @param beforeFilter the {@link Filter} that is already registered and that
+	 * {@code filter} should be placed before.
+	 */
+	public void registerBefore(Class<? extends Filter> filter,
+			Class<? extends Filter> beforeFilter) {
+		Integer position = getOrder(beforeFilter);
+		if (position == null) {
+			throw new IllegalArgumentException(
+					"Cannot register after unregistered Filter " + beforeFilter);
+		}
 
-        put(filter, position - 1);
-    }
+		put(filter, position - 1);
+	}
 
-    private void put(Class<? extends Filter> filter, int position) {
-        String className = filter.getName();
-        filterToOrder.put(className, position);
-    }
+	private void put(Class<? extends Filter> filter, int position) {
+		String className = filter.getName();
+		filterToOrder.put(className, position);
+	}
 
-    /**
-     * Gets the order of a particular {@link Filter} class taking into consideration superclasses.
-     *
-     * @param clazz the {@link Filter} class to determine the sort order
-     * @return the sort order or null if not defined
-     */
-    private Integer getOrder(Class<?> clazz) {
-        while(clazz != null) {
-            Integer result = filterToOrder.get(clazz.getName());
-            if(result != null) {
-                return result;
-            }
-            clazz = clazz.getSuperclass();
-        }
-        return null;
-    }
+	/**
+	 * Gets the order of a particular {@link Filter} class taking into consideration
+	 * superclasses.
+	 *
+	 * @param clazz the {@link Filter} class to determine the sort order
+	 * @return the sort order or null if not defined
+	 */
+	private Integer getOrder(Class<?> clazz) {
+		while (clazz != null) {
+			Integer result = filterToOrder.get(clazz.getName());
+			if (result != null) {
+				return result;
+			}
+			clazz = clazz.getSuperclass();
+		}
+		return null;
+	}
 }

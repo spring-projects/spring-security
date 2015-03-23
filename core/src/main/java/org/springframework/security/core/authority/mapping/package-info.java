@@ -6,3 +6,4 @@
  * required within an application.
  */
 package org.springframework.security.core.authority.mapping;
+

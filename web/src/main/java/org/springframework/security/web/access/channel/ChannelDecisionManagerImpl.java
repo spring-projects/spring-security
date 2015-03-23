@@ -15,7 +15,6 @@
 
 package org.springframework.security.web.access.channel;
 
-
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.web.FilterInvocation;
 
@@ -31,79 +30,85 @@ import java.util.List;
 
 import javax.servlet.ServletException;
 
-
 /**
  * Implementation of {@link ChannelDecisionManager}.
  * <p>
- * Iterates through each configured {@link ChannelProcessor}. If a <code>ChannelProcessor</code> has any issue with the
- * security of the request, it should cause a redirect, exception or whatever other action is appropriate for the
+ * Iterates through each configured {@link ChannelProcessor}. If a
+ * <code>ChannelProcessor</code> has any issue with the security of the request, it should
+ * cause a redirect, exception or whatever other action is appropriate for the
  * <code>ChannelProcessor</code> implementation.
  * <p>
  * Once any response is committed (ie a redirect is written to the response object), the
- * <code>ChannelDecisionManagerImpl</code> will not iterate through any further <code>ChannelProcessor</code>s.
+ * <code>ChannelDecisionManagerImpl</code> will not iterate through any further
+ * <code>ChannelProcessor</code>s.
  * <p>
- * The attribute "ANY_CHANNEL" if applied to a particular URL, the iteration through the channel processors will be
- * skipped (see SEC-494, SEC-335).
+ * The attribute "ANY_CHANNEL" if applied to a particular URL, the iteration through the
+ * channel processors will be skipped (see SEC-494, SEC-335).
  *
  * @author Ben Alex
  */
-public class ChannelDecisionManagerImpl implements ChannelDecisionManager, InitializingBean {
+public class ChannelDecisionManagerImpl implements ChannelDecisionManager,
+		InitializingBean {
 
-    public static final String ANY_CHANNEL = "ANY_CHANNEL";
+	public static final String ANY_CHANNEL = "ANY_CHANNEL";
 
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private List<ChannelProcessor> channelProcessors;
+	private List<ChannelProcessor> channelProcessors;
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public void afterPropertiesSet() throws Exception {
-        Assert.notEmpty(channelProcessors, "A list of ChannelProcessors is required");
-    }
+	public void afterPropertiesSet() throws Exception {
+		Assert.notEmpty(channelProcessors, "A list of ChannelProcessors is required");
+	}
 
-    public void decide(FilterInvocation invocation, Collection<ConfigAttribute> config) throws IOException, ServletException {
-        for (ConfigAttribute attribute : config) {
-            if (ANY_CHANNEL.equals(attribute.getAttribute())) {
-                return;
-            }
-        }
+	public void decide(FilterInvocation invocation, Collection<ConfigAttribute> config)
+			throws IOException, ServletException {
+		for (ConfigAttribute attribute : config) {
+			if (ANY_CHANNEL.equals(attribute.getAttribute())) {
+				return;
+			}
+		}
 
-        for (ChannelProcessor processor : channelProcessors) {
-            processor.decide(invocation, config);
+		for (ChannelProcessor processor : channelProcessors) {
+			processor.decide(invocation, config);
 
-            if (invocation.getResponse().isCommitted()) {
-                break;
-            }
-        }
-    }
+			if (invocation.getResponse().isCommitted()) {
+				break;
+			}
+		}
+	}
 
-    protected List<ChannelProcessor> getChannelProcessors() {
-        return this.channelProcessors;
-    }
+	protected List<ChannelProcessor> getChannelProcessors() {
+		return this.channelProcessors;
+	}
 
-    @SuppressWarnings("cast")
-    public void setChannelProcessors(List<?> newList) {
-        Assert.notEmpty(newList, "A list of ChannelProcessors is required");
-        channelProcessors = new ArrayList<ChannelProcessor>(newList.size());
+	@SuppressWarnings("cast")
+	public void setChannelProcessors(List<?> newList) {
+		Assert.notEmpty(newList, "A list of ChannelProcessors is required");
+		channelProcessors = new ArrayList<ChannelProcessor>(newList.size());
 
-        for (Object currentObject : newList) {
-            Assert.isInstanceOf(ChannelProcessor.class, currentObject, "ChannelProcessor " +
-                    currentObject.getClass().getName() + " must implement ChannelProcessor");
-            channelProcessors.add((ChannelProcessor)currentObject);
-        }
-    }
+		for (Object currentObject : newList) {
+			Assert.isInstanceOf(ChannelProcessor.class, currentObject,
+					"ChannelProcessor " + currentObject.getClass().getName()
+							+ " must implement ChannelProcessor");
+			channelProcessors.add((ChannelProcessor) currentObject);
+		}
+	}
 
-    public boolean supports(ConfigAttribute attribute) {
-        if (ANY_CHANNEL.equals(attribute.getAttribute())) {
-            return true;
-        }
+	public boolean supports(ConfigAttribute attribute) {
+		if (ANY_CHANNEL.equals(attribute.getAttribute())) {
+			return true;
+		}
 
-        for (ChannelProcessor processor : channelProcessors) {
-            if (processor.supports(attribute)) {
-                return true;
-            }
-        }
+		for (ChannelProcessor processor : channelProcessors) {
+			if (processor.supports(attribute)) {
+				return true;
+			}
+		}
 
-        return false;
-    }
+		return false;
+	}
 }

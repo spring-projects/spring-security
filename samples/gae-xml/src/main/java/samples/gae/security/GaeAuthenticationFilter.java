@@ -30,82 +30,90 @@ import samples.gae.users.GaeUser;
  * @author Luke Taylor
  */
 public class GaeAuthenticationFilter extends GenericFilterBean {
-    private static final String REGISTRATION_URL = "/register.htm";
+	private static final String REGISTRATION_URL = "/register.htm";
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> ads = new WebAuthenticationDetailsSource();
-    private AuthenticationManager authenticationManager;
-    private AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
+	private final AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> ads = new WebAuthenticationDetailsSource();
+	private AuthenticationManager authenticationManager;
+	private AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
 
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User googleUser = UserServiceFactory.getUserService().getCurrentUser();
+	public void doFilter(ServletRequest request, ServletResponse response,
+			FilterChain chain) throws IOException, ServletException {
+		Authentication authentication = SecurityContextHolder.getContext()
+				.getAuthentication();
+		User googleUser = UserServiceFactory.getUserService().getCurrentUser();
 
-        if (authentication != null && !loggedInUserMatchesGaeUser(authentication, googleUser)) {
-            SecurityContextHolder.clearContext();
-            authentication = null;
-            ((HttpServletRequest)request).getSession().invalidate();
-        }
+		if (authentication != null
+				&& !loggedInUserMatchesGaeUser(authentication, googleUser)) {
+			SecurityContextHolder.clearContext();
+			authentication = null;
+			((HttpServletRequest) request).getSession().invalidate();
+		}
 
-        if (authentication == null) {
-            if (googleUser != null) {
-                logger.debug("Currently logged on to GAE as user " + googleUser);
-                logger.debug("Authenticating to Spring Security");
-                // User has returned after authenticating via GAE. Need to authenticate through Spring Security.
-                PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(googleUser, null);
-                token.setDetails(ads.buildDetails((HttpServletRequest) request));
+		if (authentication == null) {
+			if (googleUser != null) {
+				logger.debug("Currently logged on to GAE as user " + googleUser);
+				logger.debug("Authenticating to Spring Security");
+				// User has returned after authenticating via GAE. Need to authenticate
+				// through Spring Security.
+				PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(
+						googleUser, null);
+				token.setDetails(ads.buildDetails((HttpServletRequest) request));
 
-                try {
-                    authentication = authenticationManager.authenticate(token);
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+				try {
+					authentication = authenticationManager.authenticate(token);
+					SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                    if (authentication.getAuthorities().contains(AppRole.NEW_USER)) {
-                        logger.debug("New user authenticated. Redirecting to registration page");
-                        ((HttpServletResponse) response).sendRedirect(REGISTRATION_URL);
+					if (authentication.getAuthorities().contains(AppRole.NEW_USER)) {
+						logger.debug("New user authenticated. Redirecting to registration page");
+						((HttpServletResponse) response).sendRedirect(REGISTRATION_URL);
 
-                        return;
-                    }
+						return;
+					}
 
-                } catch (AuthenticationException e) {
-                    failureHandler.onAuthenticationFailure((HttpServletRequest)request, (HttpServletResponse)response, e);
+				}
+				catch (AuthenticationException e) {
+					failureHandler.onAuthenticationFailure((HttpServletRequest) request,
+							(HttpServletResponse) response, e);
 
-                    return;
-                }
-            }
-        }
+					return;
+				}
+			}
+		}
 
-        chain.doFilter(request, response);
-    }
+		chain.doFilter(request, response);
+	}
 
-    private boolean loggedInUserMatchesGaeUser(Authentication authentication, User googleUser) {
-        assert authentication != null;
+	private boolean loggedInUserMatchesGaeUser(Authentication authentication,
+			User googleUser) {
+		assert authentication != null;
 
-        if (googleUser == null) {
-            // User has logged out of GAE but is still logged into application
-            return false;
-        }
+		if (googleUser == null) {
+			// User has logged out of GAE but is still logged into application
+			return false;
+		}
 
-        GaeUser gaeUser = (GaeUser)authentication.getPrincipal();
+		GaeUser gaeUser = (GaeUser) authentication.getPrincipal();
 
-        if (!gaeUser.getEmail().equals(googleUser.getEmail())) {
-            return false;
-        }
+		if (!gaeUser.getEmail().equals(googleUser.getEmail())) {
+			return false;
+		}
 
-        return true;
+		return true;
 
-    }
+	}
 
-    @Override
-    public void afterPropertiesSet() throws ServletException {
-        Assert.notNull(authenticationManager, "AuthenticationManager must be set");
-    }
+	@Override
+	public void afterPropertiesSet() throws ServletException {
+		Assert.notNull(authenticationManager, "AuthenticationManager must be set");
+	}
 
-    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
-    }
+	public void setAuthenticationManager(AuthenticationManager authenticationManager) {
+		this.authenticationManager = authenticationManager;
+	}
 
-    public void setFailureHandler(AuthenticationFailureHandler failureHandler) {
-        this.failureHandler = failureHandler;
-    }
+	public void setFailureHandler(AuthenticationFailureHandler failureHandler) {
+		this.failureHandler = failureHandler;
+	}
 }

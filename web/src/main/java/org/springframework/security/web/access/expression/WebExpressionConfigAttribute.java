@@ -10,22 +10,22 @@ import org.springframework.security.access.ConfigAttribute;
  * @since 3.0
  */
 class WebExpressionConfigAttribute implements ConfigAttribute {
-    private final Expression authorizeExpression;
+	private final Expression authorizeExpression;
 
-    public WebExpressionConfigAttribute(Expression authorizeExpression) {
-        this.authorizeExpression = authorizeExpression;
-    }
+	public WebExpressionConfigAttribute(Expression authorizeExpression) {
+		this.authorizeExpression = authorizeExpression;
+	}
 
-    Expression getAuthorizeExpression() {
-        return authorizeExpression;
-    }
+	Expression getAuthorizeExpression() {
+		return authorizeExpression;
+	}
 
-    public String getAttribute() {
-        return null;
-    }
+	public String getAttribute() {
+		return null;
+	}
 
-    @Override
-    public String toString() {
-        return authorizeExpression.getExpressionString();
-    }
+	@Override
+	public String toString() {
+		return authorizeExpression.getExpressionString();
+	}
 }

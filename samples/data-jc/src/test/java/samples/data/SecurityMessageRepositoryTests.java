@@ -38,36 +38,34 @@ import static org.fest.assertions.Assertions.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = DataConfig.class)
 public class SecurityMessageRepositoryTests {
-    @Autowired
-    SecurityMessageRepository repository;
+	@Autowired
+	SecurityMessageRepository repository;
 
-    User user;
+	User user;
 
-    @Before
-    public void setup() {
-        user = new User();
-        user.setId(0L);
-        List<GrantedAuthority> authorities =
-                AuthorityUtils.createAuthorityList("ROLE_USER");
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(user, "notused", authorities);
-        SecurityContextHolder
-                .getContext()
-                .setAuthentication(authentication);
-    }
+	@Before
+	public void setup() {
+		user = new User();
+		user.setId(0L);
+		List<GrantedAuthority> authorities = AuthorityUtils
+				.createAuthorityList("ROLE_USER");
+		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+				user, "notused", authorities);
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+	}
 
-    @After
-    public void cleanup() {
-        SecurityContextHolder.clearContext();
-    }
+	@After
+	public void cleanup() {
+		SecurityContextHolder.clearContext();
+	}
 
-    @Test
-    public void findAllOnlyToCurrentUser() {
-        Long expectedId = user.getId();
-        List<Message> messages = repository.findAll();
-        assertThat(messages.size()).isEqualTo(3);
-        for(Message m : messages) {
-            assertThat(m.getTo().getId()).isEqualTo(expectedId);
-        }
-    }
+	@Test
+	public void findAllOnlyToCurrentUser() {
+		Long expectedId = user.getId();
+		List<Message> messages = repository.findAll();
+		assertThat(messages.size()).isEqualTo(3);
+		for (Message m : messages) {
+			assertThat(m.getTo().getId()).isEqualTo(expectedId);
+		}
+	}
 }

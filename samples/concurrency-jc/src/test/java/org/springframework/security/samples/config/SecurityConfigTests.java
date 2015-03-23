@@ -25,9 +25,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes=SecurityConfig.class)
+@ContextConfiguration(classes = SecurityConfig.class)
 public class SecurityConfigTests {
 
-    @Test
-    public void securityConfigurationLoads() {}
+	@Test
+	public void securityConfigurationLoads() {
+	}
 }

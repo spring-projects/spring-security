@@ -33,55 +33,62 @@ import org.springframework.security.web.csrf.DefaultCsrfToken;
 @RunWith(PowerMockRunner.class)
 @PrepareOnlyThisForTest(WebTestUtils.class)
 public class SecurityMockMvcRequestPostProcessorsCsrfTests {
-    @Mock
-    private CsrfTokenRepository repository;
-    private DefaultCsrfToken token;
+	@Mock
+	private CsrfTokenRepository repository;
+	private DefaultCsrfToken token;
 
-    private MockHttpServletRequest request;
+	private MockHttpServletRequest request;
 
-    @Before
-    public void setup() {
-        token = new DefaultCsrfToken("header", "param", "token");
-        request = new MockHttpServletRequest();
-        mockWebTestUtils();
-    }
+	@Before
+	public void setup() {
+		token = new DefaultCsrfToken("header", "param", "token");
+		request = new MockHttpServletRequest();
+		mockWebTestUtils();
+	}
 
-    @Test
-    public void csrfWithParam() {
-        MockHttpServletRequest postProcessedRequest = csrf().postProcessRequest(request);
+	@Test
+	public void csrfWithParam() {
+		MockHttpServletRequest postProcessedRequest = csrf().postProcessRequest(request);
 
-        assertThat(postProcessedRequest.getParameter(token.getParameterName())).isEqualTo(token.getToken());
-        assertThat(postProcessedRequest.getHeader(token.getHeaderName())).isNull();
-    }
+		assertThat(postProcessedRequest.getParameter(token.getParameterName()))
+				.isEqualTo(token.getToken());
+		assertThat(postProcessedRequest.getHeader(token.getHeaderName())).isNull();
+	}
 
-    @Test
-    public void csrfWithHeader() {
-        MockHttpServletRequest postProcessedRequest = csrf().asHeader().postProcessRequest(request);
+	@Test
+	public void csrfWithHeader() {
+		MockHttpServletRequest postProcessedRequest = csrf().asHeader()
+				.postProcessRequest(request);
 
-        assertThat(postProcessedRequest.getParameter(token.getParameterName())).isNull();
-        assertThat(postProcessedRequest.getHeader(token.getHeaderName())).isEqualTo(token.getToken());
-    }
+		assertThat(postProcessedRequest.getParameter(token.getParameterName())).isNull();
+		assertThat(postProcessedRequest.getHeader(token.getHeaderName())).isEqualTo(
+				token.getToken());
+	}
 
-    @Test
-    public void csrfWithInvalidParam() {
-        MockHttpServletRequest postProcessedRequest = csrf().useInvalidToken().postProcessRequest(request);
+	@Test
+	public void csrfWithInvalidParam() {
+		MockHttpServletRequest postProcessedRequest = csrf().useInvalidToken()
+				.postProcessRequest(request);
 
-        assertThat(postProcessedRequest.getParameter(token.getParameterName())).isNotEmpty().isNotEqualTo(token.getToken());
-        assertThat(postProcessedRequest.getHeader(token.getHeaderName())).isNull();
-    }
+		assertThat(postProcessedRequest.getParameter(token.getParameterName()))
+				.isNotEmpty().isNotEqualTo(token.getToken());
+		assertThat(postProcessedRequest.getHeader(token.getHeaderName())).isNull();
+	}
 
-    @Test
-    public void csrfWithInvalidHeader() {
-        MockHttpServletRequest postProcessedRequest = csrf().asHeader().useInvalidToken().postProcessRequest(request);
+	@Test
+	public void csrfWithInvalidHeader() {
+		MockHttpServletRequest postProcessedRequest = csrf().asHeader().useInvalidToken()
+				.postProcessRequest(request);
 
-        assertThat(postProcessedRequest.getParameter(token.getParameterName())).isNull();
-        assertThat(postProcessedRequest.getHeader(token.getHeaderName())).isNotEmpty().isNotEqualTo(token.getToken());
-    }
+		assertThat(postProcessedRequest.getParameter(token.getParameterName())).isNull();
+		assertThat(postProcessedRequest.getHeader(token.getHeaderName())).isNotEmpty()
+				.isNotEqualTo(token.getToken());
+	}
 
-    private void mockWebTestUtils() {
-        spy(WebTestUtils.class);
-        when(WebTestUtils.getCsrfTokenRepository(request)).thenReturn(repository);
-        when(repository.loadToken(request)).thenReturn(token);
-        when(repository.generateToken(request)).thenReturn(token);
-    }
+	private void mockWebTestUtils() {
+		spy(WebTestUtils.class);
+		when(WebTestUtils.getCsrfTokenRepository(request)).thenReturn(repository);
+		when(repository.loadToken(request)).thenReturn(token);
+		when(repository.generateToken(request)).thenReturn(token);
+	}
 }

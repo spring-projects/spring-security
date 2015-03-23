@@ -34,96 +34,107 @@ import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.util.Assert;
 
-
 /**
  * Simple JDBC-based implementation of <code>AclService</code>.
  * <p>
- * Requires the "dirty" flags in {@link org.springframework.security.acls.domain.AclImpl} and
- * {@link org.springframework.security.acls.domain.AccessControlEntryImpl} to be set, so that the implementation can
- * detect changed parameters easily.
+ * Requires the "dirty" flags in {@link org.springframework.security.acls.domain.AclImpl}
+ * and {@link org.springframework.security.acls.domain.AccessControlEntryImpl} to be set,
+ * so that the implementation can detect changed parameters easily.
  *
  * @author Ben Alex
  */
 public class JdbcAclService implements AclService {
-    //~ Static fields/initializers =====================================================================================
+	// ~ Static fields/initializers
+	// =====================================================================================
 
-    protected static final Log log = LogFactory.getLog(JdbcAclService.class);
-    private static final String DEFAULT_SELECT_ACL_WITH_PARENT_SQL = "select obj.object_id_identity as obj_id, class.class as class "
-        + "from acl_object_identity obj, acl_object_identity parent, acl_class class "
-        + "where obj.parent_object = parent.id and obj.object_id_class = class.id "
-        + "and parent.object_id_identity = ? and parent.object_id_class = ("
-        + "select id FROM acl_class where acl_class.class = ?)";
+	protected static final Log log = LogFactory.getLog(JdbcAclService.class);
+	private static final String DEFAULT_SELECT_ACL_WITH_PARENT_SQL = "select obj.object_id_identity as obj_id, class.class as class "
+			+ "from acl_object_identity obj, acl_object_identity parent, acl_class class "
+			+ "where obj.parent_object = parent.id and obj.object_id_class = class.id "
+			+ "and parent.object_id_identity = ? and parent.object_id_class = ("
+			+ "select id FROM acl_class where acl_class.class = ?)";
 
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    protected final JdbcTemplate jdbcTemplate;
-    private final LookupStrategy lookupStrategy;
-    private String findChildrenSql = DEFAULT_SELECT_ACL_WITH_PARENT_SQL;
+	protected final JdbcTemplate jdbcTemplate;
+	private final LookupStrategy lookupStrategy;
+	private String findChildrenSql = DEFAULT_SELECT_ACL_WITH_PARENT_SQL;
 
-    //~ Constructors ===================================================================================================
+	// ~ Constructors
+	// ===================================================================================================
 
-    public JdbcAclService(DataSource dataSource, LookupStrategy lookupStrategy) {
-        Assert.notNull(dataSource, "DataSource required");
-        Assert.notNull(lookupStrategy, "LookupStrategy required");
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.lookupStrategy = lookupStrategy;
-    }
+	public JdbcAclService(DataSource dataSource, LookupStrategy lookupStrategy) {
+		Assert.notNull(dataSource, "DataSource required");
+		Assert.notNull(lookupStrategy, "LookupStrategy required");
+		this.jdbcTemplate = new JdbcTemplate(dataSource);
+		this.lookupStrategy = lookupStrategy;
+	}
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public List<ObjectIdentity> findChildren(ObjectIdentity parentIdentity) {
-        Object[] args = {parentIdentity.getIdentifier(), parentIdentity.getType()};
-        List<ObjectIdentity> objects = jdbcTemplate.query(findChildrenSql, args,
-                new RowMapper<ObjectIdentity>() {
-                    public ObjectIdentity mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        String javaType = rs.getString("class");
-                        Long identifier = new Long(rs.getLong("obj_id"));
+	public List<ObjectIdentity> findChildren(ObjectIdentity parentIdentity) {
+		Object[] args = { parentIdentity.getIdentifier(), parentIdentity.getType() };
+		List<ObjectIdentity> objects = jdbcTemplate.query(findChildrenSql, args,
+				new RowMapper<ObjectIdentity>() {
+					public ObjectIdentity mapRow(ResultSet rs, int rowNum)
+							throws SQLException {
+						String javaType = rs.getString("class");
+						Long identifier = new Long(rs.getLong("obj_id"));
 
-                        return new ObjectIdentityImpl(javaType, identifier);
-                    }
-                });
+						return new ObjectIdentityImpl(javaType, identifier);
+					}
+				});
 
-        if (objects.size() == 0) {
-            return null;
-        }
+		if (objects.size() == 0) {
+			return null;
+		}
 
-        return objects;
-    }
+		return objects;
+	}
 
-    public Acl readAclById(ObjectIdentity object, List<Sid> sids) throws NotFoundException {
-        Map<ObjectIdentity, Acl> map = readAclsById(Arrays.asList(object), sids);
-        Assert.isTrue(map.containsKey(object), "There should have been an Acl entry for ObjectIdentity " + object);
+	public Acl readAclById(ObjectIdentity object, List<Sid> sids)
+			throws NotFoundException {
+		Map<ObjectIdentity, Acl> map = readAclsById(Arrays.asList(object), sids);
+		Assert.isTrue(map.containsKey(object),
+				"There should have been an Acl entry for ObjectIdentity " + object);
 
-        return (Acl) map.get(object);
-    }
+		return (Acl) map.get(object);
+	}
 
-    public Acl readAclById(ObjectIdentity object) throws NotFoundException {
-        return readAclById(object, null);
-    }
+	public Acl readAclById(ObjectIdentity object) throws NotFoundException {
+		return readAclById(object, null);
+	}
 
-    public Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects) throws NotFoundException {
-        return readAclsById(objects, null);
-    }
+	public Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects)
+			throws NotFoundException {
+		return readAclsById(objects, null);
+	}
 
-    public Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects, List<Sid> sids) throws NotFoundException {
-        Map<ObjectIdentity, Acl> result = lookupStrategy.readAclsById(objects, sids);
+	public Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects,
+			List<Sid> sids) throws NotFoundException {
+		Map<ObjectIdentity, Acl> result = lookupStrategy.readAclsById(objects, sids);
 
-        // Check every requested object identity was found (throw NotFoundException if needed)
-        for (ObjectIdentity oid : objects) {
-            if (!result.containsKey(oid)) {
-                throw new NotFoundException("Unable to find ACL information for object identity '" + oid + "'");
-            }
-        }
+		// Check every requested object identity was found (throw NotFoundException if
+		// needed)
+		for (ObjectIdentity oid : objects) {
+			if (!result.containsKey(oid)) {
+				throw new NotFoundException(
+						"Unable to find ACL information for object identity '" + oid
+								+ "'");
+			}
+		}
 
-        return result;
-    }
+		return result;
+	}
 
-    /**
-     * Allows customization of the SQL query used to find child object identities.
-     *
-     * @param findChildrenSql
-     */
-    public void setFindChildrenQuery(String findChildrenSql) {
-        this.findChildrenSql = findChildrenSql;
-    }
+	/**
+	 * Allows customization of the SQL query used to find child object identities.
+	 *
+	 * @param findChildrenSql
+	 */
+	public void setFindChildrenQuery(String findChildrenSql) {
+		this.findChildrenSql = findChildrenSql;
+	}
 }

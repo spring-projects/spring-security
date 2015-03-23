@@ -20,7 +20,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.cache.Cache;
 import org.springframework.util.Assert;
 
-
 /**
  * Caches tickets using a Spring IoC defined {@link Cache}.
  *
@@ -29,52 +28,59 @@ import org.springframework.util.Assert;
  *
  */
 public class SpringCacheBasedTicketCache implements StatelessTicketCache {
-    //~ Static fields/initializers =====================================================================================
+	// ~ Static fields/initializers
+	// =====================================================================================
 
-    private static final Log logger = LogFactory.getLog(SpringCacheBasedTicketCache.class);
+	private static final Log logger = LogFactory
+			.getLog(SpringCacheBasedTicketCache.class);
 
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private final Cache cache;
+	private final Cache cache;
 
-    //~ Constructors ===================================================================================================
+	// ~ Constructors
+	// ===================================================================================================
 
-    public SpringCacheBasedTicketCache(Cache cache) throws Exception {
-        Assert.notNull(cache, "cache mandatory");
-        this.cache = cache;
-    }
+	public SpringCacheBasedTicketCache(Cache cache) throws Exception {
+		Assert.notNull(cache, "cache mandatory");
+		this.cache = cache;
+	}
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public CasAuthenticationToken getByTicketId(final String serviceTicket) {
-        final Cache.ValueWrapper element = serviceTicket != null ? cache.get(serviceTicket) : null;
+	public CasAuthenticationToken getByTicketId(final String serviceTicket) {
+		final Cache.ValueWrapper element = serviceTicket != null ? cache
+				.get(serviceTicket) : null;
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Cache hit: " + (element != null) + "; service ticket: " + serviceTicket);
-        }
+		if (logger.isDebugEnabled()) {
+			logger.debug("Cache hit: " + (element != null) + "; service ticket: "
+					+ serviceTicket);
+		}
 
-        return element == null ? null : (CasAuthenticationToken) element.get();
-    }
+		return element == null ? null : (CasAuthenticationToken) element.get();
+	}
 
-    public void putTicketInCache(final CasAuthenticationToken token) {
-        String key = token.getCredentials().toString();
+	public void putTicketInCache(final CasAuthenticationToken token) {
+		String key = token.getCredentials().toString();
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Cache put: " + key);
-        }
+		if (logger.isDebugEnabled()) {
+			logger.debug("Cache put: " + key);
+		}
 
-        cache.put(key, token);
-    }
+		cache.put(key, token);
+	}
 
-    public void removeTicketFromCache(final CasAuthenticationToken token) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Cache remove: " + token.getCredentials().toString());
-        }
+	public void removeTicketFromCache(final CasAuthenticationToken token) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Cache remove: " + token.getCredentials().toString());
+		}
 
-        this.removeTicketFromCache(token.getCredentials().toString());
-    }
+		this.removeTicketFromCache(token.getCredentials().toString());
+	}
 
-    public void removeTicketFromCache(final String serviceTicket) {
-        cache.evict(serviceTicket);
-    }
+	public void removeTicketFromCache(final String serviceTicket) {
+		cache.evict(serviceTicket);
+	}
 }

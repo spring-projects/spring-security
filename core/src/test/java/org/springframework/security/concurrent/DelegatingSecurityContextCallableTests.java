@@ -36,108 +36,113 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DelegatingSecurityContextCallableTests {
-    @Mock
-    private Callable<Object> delegate;
-    @Mock
-    private SecurityContext securityContext;
-    @Mock
-    private Object callableResult;
+	@Mock
+	private Callable<Object> delegate;
+	@Mock
+	private SecurityContext securityContext;
+	@Mock
+	private Object callableResult;
 
-    private Callable<Object> callable;
+	private Callable<Object> callable;
 
-    @Before
-    @SuppressWarnings("serial")
-    public void setUp() throws Exception {
-        when(delegate.call()).thenAnswer(new Returns(callableResult) {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                assertThat(SecurityContextHolder.getContext()).isEqualTo(securityContext);
-                return super.answer(invocation);
-            }
-        });
-    }
+	@Before
+	@SuppressWarnings("serial")
+	public void setUp() throws Exception {
+		when(delegate.call()).thenAnswer(new Returns(callableResult) {
+			@Override
+			public Object answer(InvocationOnMock invocation) throws Throwable {
+				assertThat(SecurityContextHolder.getContext()).isEqualTo(securityContext);
+				return super.answer(invocation);
+			}
+		});
+	}
 
-    @After
-    public void tearDown() {
-        SecurityContextHolder.clearContext();
-    }
+	@After
+	public void tearDown() {
+		SecurityContextHolder.clearContext();
+	}
 
-    // --- constructor ---
+	// --- constructor ---
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullDelegate() {
-        new DelegatingSecurityContextCallable<Object>(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullDelegate() {
+		new DelegatingSecurityContextCallable<Object>(null);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullDelegateNonNullSecurityContext() {
-        new DelegatingSecurityContextCallable<Object>(null, securityContext);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullDelegateNonNullSecurityContext() {
+		new DelegatingSecurityContextCallable<Object>(null, securityContext);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullDelegateAndSecurityContext() {
-        new DelegatingSecurityContextCallable<Object>(null, null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullDelegateAndSecurityContext() {
+		new DelegatingSecurityContextCallable<Object>(null, null);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullSecurityContext() {
-        new DelegatingSecurityContextCallable<Object>(delegate, null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullSecurityContext() {
+		new DelegatingSecurityContextCallable<Object>(delegate, null);
+	}
 
-    // --- call ---
+	// --- call ---
 
-    @Test
-    public void call() throws Exception {
-        callable = new DelegatingSecurityContextCallable<Object>(delegate, securityContext);
-        assertWrapped(callable.call());
-    }
+	@Test
+	public void call() throws Exception {
+		callable = new DelegatingSecurityContextCallable<Object>(delegate,
+				securityContext);
+		assertWrapped(callable.call());
+	}
 
-    @Test
-    public void callDefaultSecurityContext() throws Exception {
-        SecurityContextHolder.setContext(securityContext);
-        callable = new DelegatingSecurityContextCallable<Object>(delegate);
-        SecurityContextHolder.clearContext(); // ensure callable is what sets up the SecurityContextHolder
-        assertWrapped(callable.call());
-    }
+	@Test
+	public void callDefaultSecurityContext() throws Exception {
+		SecurityContextHolder.setContext(securityContext);
+		callable = new DelegatingSecurityContextCallable<Object>(delegate);
+		SecurityContextHolder.clearContext(); // ensure callable is what sets up the
+												// SecurityContextHolder
+		assertWrapped(callable.call());
+	}
 
-    // --- create ---
+	// --- create ---
 
-    @Test(expected = IllegalArgumentException.class)
-    public void createNullDelegate() {
-        DelegatingSecurityContextCallable.create(null, securityContext);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void createNullDelegate() {
+		DelegatingSecurityContextCallable.create(null, securityContext);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void createNullDelegateAndSecurityContext() {
-        DelegatingSecurityContextRunnable.create(null, null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void createNullDelegateAndSecurityContext() {
+		DelegatingSecurityContextRunnable.create(null, null);
+	}
 
-    @Test
-    public void createNullSecurityContext() throws Exception {
-        SecurityContextHolder.setContext(securityContext);
-        callable = DelegatingSecurityContextCallable.create(delegate, null);
-        SecurityContextHolder.clearContext(); // ensure callable is what sets up the SecurityContextHolder
-        assertWrapped(callable.call());
-    }
+	@Test
+	public void createNullSecurityContext() throws Exception {
+		SecurityContextHolder.setContext(securityContext);
+		callable = DelegatingSecurityContextCallable.create(delegate, null);
+		SecurityContextHolder.clearContext(); // ensure callable is what sets up the
+												// SecurityContextHolder
+		assertWrapped(callable.call());
+	}
 
-    @Test
-    public void create() throws Exception {
-        callable = DelegatingSecurityContextCallable.create(delegate, securityContext);
-        assertWrapped(callable.call());
-    }
+	@Test
+	public void create() throws Exception {
+		callable = DelegatingSecurityContextCallable.create(delegate, securityContext);
+		assertWrapped(callable.call());
+	}
 
-    // --- toString
+	// --- toString
 
-    // SEC-2682
-    @Test
-    public void toStringDelegates() {
-        callable = new DelegatingSecurityContextCallable<Object>(delegate, securityContext);
-        assertThat(callable.toString()).isEqualTo(delegate.toString());
-    }
+	// SEC-2682
+	@Test
+	public void toStringDelegates() {
+		callable = new DelegatingSecurityContextCallable<Object>(delegate,
+				securityContext);
+		assertThat(callable.toString()).isEqualTo(delegate.toString());
+	}
 
-    private void assertWrapped(Object actualResult) throws Exception {
-        assertThat(actualResult).isEqualTo(callableResult);
-        verify(delegate).call();
-        assertThat(SecurityContextHolder.getContext()).isEqualTo(SecurityContextHolder.createEmptyContext());
-    }
+	private void assertWrapped(Object actualResult) throws Exception {
+		assertThat(actualResult).isEqualTo(callableResult);
+		verify(delegate).call();
+		assertThat(SecurityContextHolder.getContext()).isEqualTo(
+				SecurityContextHolder.createEmptyContext());
+	}
 }

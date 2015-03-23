@@ -15,32 +15,33 @@ import org.springframework.security.core.Authentication;
  */
 public class CookieClearingLogoutHandlerTests {
 
-    // SEC-2036
-    @Test
-    public void emptyContextRootIsConverted() {
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setContextPath("");
-        CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler("my_cookie");
-        handler.logout(request, response, mock(Authentication.class));
-        assertEquals(1, response.getCookies().length);
-        for (Cookie c : response.getCookies()) {
-            assertEquals("/", c.getPath());
-            assertEquals(0, c.getMaxAge());
-        }
-    }
+	// SEC-2036
+	@Test
+	public void emptyContextRootIsConverted() {
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setContextPath("");
+		CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler("my_cookie");
+		handler.logout(request, response, mock(Authentication.class));
+		assertEquals(1, response.getCookies().length);
+		for (Cookie c : response.getCookies()) {
+			assertEquals("/", c.getPath());
+			assertEquals(0, c.getMaxAge());
+		}
+	}
 
-    @Test
-    public void configuredCookiesAreCleared() {
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setContextPath("/app");
-        CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler("my_cookie", "my_cookie_too");
-        handler.logout(request, response, mock(Authentication.class));
-        assertEquals(2, response.getCookies().length);
-        for (Cookie c : response.getCookies()) {
-            assertEquals("/app", c.getPath());
-            assertEquals(0, c.getMaxAge());
-        }
-    }
+	@Test
+	public void configuredCookiesAreCleared() {
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setContextPath("/app");
+		CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler(
+				"my_cookie", "my_cookie_too");
+		handler.logout(request, response, mock(Authentication.class));
+		assertEquals(2, response.getCookies().length);
+		for (Cookie c : response.getCookies()) {
+			assertEquals("/app", c.getPath());
+			assertEquals(0, c.getMaxAge());
+		}
+	}
 }

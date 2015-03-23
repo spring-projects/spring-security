@@ -24,10 +24,9 @@ import java.lang.annotation.Target;
 import org.springframework.security.core.parameters.AnnotationParameterNameDiscoverer;
 
 /**
- * An annotation that can be used along with
- * {@link AnnotationParameterNameDiscoverer} to specify parameter names. This is
- * useful for interfaces prior to JDK 8 which cannot contain the parameter
- * names.
+ * An annotation that can be used along with {@link AnnotationParameterNameDiscoverer} to
+ * specify parameter names. This is useful for interfaces prior to JDK 8 which cannot
+ * contain the parameter names.
  *
  * @see AnnotationParameterNameDiscoverer
  *
@@ -39,9 +38,9 @@ import org.springframework.security.core.parameters.AnnotationParameterNameDisco
 @Documented
 public @interface P {
 
-    /**
-     * The parameter name
-     * @return
-     */
-    String value();
+	/**
+	 * The parameter name
+	 * @return
+	 */
+	String value();
 }

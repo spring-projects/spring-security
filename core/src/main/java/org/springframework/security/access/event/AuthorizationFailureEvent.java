@@ -21,61 +21,68 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 
-
 /**
- * Indicates a secure object invocation failed because the principal could not
- * be authorized for the request.
+ * Indicates a secure object invocation failed because the principal could not be
+ * authorized for the request.
  *
- * <p>This event might be thrown as a result of either an
- * {@link org.springframework.security.access.AccessDecisionManager AccessDecisionManager} or an
- * {@link org.springframework.security.access.intercept.AfterInvocationManager AfterInvocationManager}.
+ * <p>
+ * This event might be thrown as a result of either an
+ * {@link org.springframework.security.access.AccessDecisionManager AccessDecisionManager}
+ * or an {@link org.springframework.security.access.intercept.AfterInvocationManager
+ * AfterInvocationManager}.
  *
  * @author Ben Alex
  */
 public class AuthorizationFailureEvent extends AbstractAuthorizationEvent {
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private AccessDeniedException accessDeniedException;
-    private Authentication authentication;
-    private Collection<ConfigAttribute> configAttributes;
+	private AccessDeniedException accessDeniedException;
+	private Authentication authentication;
+	private Collection<ConfigAttribute> configAttributes;
 
-    //~ Constructors ===================================================================================================
+	// ~ Constructors
+	// ===================================================================================================
 
-    /**
-     * Construct the event.
-     *
-     * @param secureObject the secure object
-     * @param attributes that apply to the secure object
-     * @param authentication that was found in the <code>SecurityContextHolder</code>
-     * @param accessDeniedException that was returned by the
-     *        <code>AccessDecisionManager</code>
-     *
-     * @throws IllegalArgumentException if any null arguments are presented.
-     */
-    public AuthorizationFailureEvent(Object secureObject, Collection<ConfigAttribute> attributes,
-        Authentication authentication, AccessDeniedException accessDeniedException) {
-        super(secureObject);
+	/**
+	 * Construct the event.
+	 *
+	 * @param secureObject the secure object
+	 * @param attributes that apply to the secure object
+	 * @param authentication that was found in the <code>SecurityContextHolder</code>
+	 * @param accessDeniedException that was returned by the
+	 * <code>AccessDecisionManager</code>
+	 *
+	 * @throws IllegalArgumentException if any null arguments are presented.
+	 */
+	public AuthorizationFailureEvent(Object secureObject,
+			Collection<ConfigAttribute> attributes, Authentication authentication,
+			AccessDeniedException accessDeniedException) {
+		super(secureObject);
 
-        if ((attributes == null) || (authentication == null) || (accessDeniedException == null)) {
-            throw new IllegalArgumentException("All parameters are required and cannot be null");
-        }
+		if ((attributes == null) || (authentication == null)
+				|| (accessDeniedException == null)) {
+			throw new IllegalArgumentException(
+					"All parameters are required and cannot be null");
+		}
 
-        this.configAttributes = attributes;
-        this.authentication = authentication;
-        this.accessDeniedException = accessDeniedException;
-    }
+		this.configAttributes = attributes;
+		this.authentication = authentication;
+		this.accessDeniedException = accessDeniedException;
+	}
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public AccessDeniedException getAccessDeniedException() {
-        return accessDeniedException;
-    }
+	public AccessDeniedException getAccessDeniedException() {
+		return accessDeniedException;
+	}
 
-    public Authentication getAuthentication() {
-        return authentication;
-    }
+	public Authentication getAuthentication() {
+		return authentication;
+	}
 
-    public Collection<ConfigAttribute> getConfigAttributes() {
-        return configAttributes;
-    }
+	public Collection<ConfigAttribute> getConfigAttributes() {
+		return configAttributes;
+	}
 }

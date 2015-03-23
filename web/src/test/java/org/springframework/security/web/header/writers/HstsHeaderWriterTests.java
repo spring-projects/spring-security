@@ -29,117 +29,125 @@ import org.springframework.security.web.util.matcher.AnyRequestMatcher;
  *
  */
 public class HstsHeaderWriterTests {
-    private MockHttpServletRequest request;
-    private MockHttpServletResponse response;
+	private MockHttpServletRequest request;
+	private MockHttpServletResponse response;
 
-    private HstsHeaderWriter writer;
+	private HstsHeaderWriter writer;
 
-    @Before
-    public void setup() {
-        request = new MockHttpServletRequest();
-        request.setSecure(true);
-        response = new MockHttpServletResponse();
+	@Before
+	public void setup() {
+		request = new MockHttpServletRequest();
+		request.setSecure(true);
+		response = new MockHttpServletResponse();
 
-        writer = new HstsHeaderWriter();
-    }
+		writer = new HstsHeaderWriter();
+	}
 
-    @Test
-    public void allArgsCustomConstructorWriteHeaders() {
-        request.setSecure(false);
-        writer = new HstsHeaderWriter(AnyRequestMatcher.INSTANCE, 15768000, false);
+	@Test
+	public void allArgsCustomConstructorWriteHeaders() {
+		request.setSecure(false);
+		writer = new HstsHeaderWriter(AnyRequestMatcher.INSTANCE, 15768000, false);
 
-        writer.writeHeaders(request, response);
+		writer.writeHeaders(request, response);
 
-        assertThat(response.getHeaderNames().size()).isEqualTo(1);
-        assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo("max-age=15768000");
-    }
+		assertThat(response.getHeaderNames().size()).isEqualTo(1);
+		assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo(
+				"max-age=15768000");
+	}
 
-    @Test
-    public void maxAgeAndIncludeSubdomainsCustomConstructorWriteHeaders() {
-        request.setSecure(false);
-        writer = new HstsHeaderWriter(AnyRequestMatcher.INSTANCE, 15768000, false);
+	@Test
+	public void maxAgeAndIncludeSubdomainsCustomConstructorWriteHeaders() {
+		request.setSecure(false);
+		writer = new HstsHeaderWriter(AnyRequestMatcher.INSTANCE, 15768000, false);
 
-        writer.writeHeaders(request, response);
+		writer.writeHeaders(request, response);
 
-        assertThat(response.getHeaderNames().size()).isEqualTo(1);
-        assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo("max-age=15768000");
-    }
+		assertThat(response.getHeaderNames().size()).isEqualTo(1);
+		assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo(
+				"max-age=15768000");
+	}
 
-    @Test
-    public void maxAgeCustomConstructorWriteHeaders() {
-        writer = new HstsHeaderWriter(15768000);
+	@Test
+	public void maxAgeCustomConstructorWriteHeaders() {
+		writer = new HstsHeaderWriter(15768000);
 
-        writer.writeHeaders(request, response);
+		writer.writeHeaders(request, response);
 
-        assertThat(response.getHeaderNames().size()).isEqualTo(1);
-        assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo("max-age=15768000 ; includeSubDomains");
-    }
+		assertThat(response.getHeaderNames().size()).isEqualTo(1);
+		assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo(
+				"max-age=15768000 ; includeSubDomains");
+	}
 
-    @Test
-    public void includeSubDomainsCustomConstructorWriteHeaders() {
-        writer = new HstsHeaderWriter(false);
+	@Test
+	public void includeSubDomainsCustomConstructorWriteHeaders() {
+		writer = new HstsHeaderWriter(false);
 
-        writer.writeHeaders(request, response);
+		writer.writeHeaders(request, response);
 
-        assertThat(response.getHeaderNames().size()).isEqualTo(1);
-        assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo("max-age=31536000");
-    }
+		assertThat(response.getHeaderNames().size()).isEqualTo(1);
+		assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo(
+				"max-age=31536000");
+	}
 
-    @Test
-    public void writeHeadersDefaultValues() {
-        writer.writeHeaders(request, response);
+	@Test
+	public void writeHeadersDefaultValues() {
+		writer.writeHeaders(request, response);
 
-        assertThat(response.getHeaderNames().size()).isEqualTo(1);
-        assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo("max-age=31536000 ; includeSubDomains");
-    }
+		assertThat(response.getHeaderNames().size()).isEqualTo(1);
+		assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo(
+				"max-age=31536000 ; includeSubDomains");
+	}
 
-    @Test
-    public void writeHeadersIncludeSubDomainsFalse() {
-        writer.setIncludeSubDomains(false);
+	@Test
+	public void writeHeadersIncludeSubDomainsFalse() {
+		writer.setIncludeSubDomains(false);
 
-        writer.writeHeaders(request, response);
+		writer.writeHeaders(request, response);
 
-        assertThat(response.getHeaderNames().size()).isEqualTo(1);
-        assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo("max-age=31536000");
-    }
+		assertThat(response.getHeaderNames().size()).isEqualTo(1);
+		assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo(
+				"max-age=31536000");
+	}
 
-    @Test
-    public void writeHeadersCustomMaxAgeInSeconds() {
-        writer.setMaxAgeInSeconds(1);
+	@Test
+	public void writeHeadersCustomMaxAgeInSeconds() {
+		writer.setMaxAgeInSeconds(1);
 
-        writer.writeHeaders(request, response);
+		writer.writeHeaders(request, response);
 
-        assertThat(response.getHeaderNames().size()).isEqualTo(1);
-        assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo("max-age=1 ; includeSubDomains");
-    }
+		assertThat(response.getHeaderNames().size()).isEqualTo(1);
+		assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo(
+				"max-age=1 ; includeSubDomains");
+	}
 
-    @Test
-    public void writeHeadersInsecureRequestDoesNotWriteHeader() {
-        request.setSecure(false);
+	@Test
+	public void writeHeadersInsecureRequestDoesNotWriteHeader() {
+		request.setSecure(false);
 
-        writer.writeHeaders(request, response);
+		writer.writeHeaders(request, response);
 
-        assertThat(response.getHeaderNames().isEmpty()).isTrue();
-    }
+		assertThat(response.getHeaderNames().isEmpty()).isTrue();
+	}
 
-    @Test
-    public void writeHeadersAnyRequestMatcher() {
-        writer.setRequestMatcher(AnyRequestMatcher.INSTANCE);
-        request.setSecure(false);
+	@Test
+	public void writeHeadersAnyRequestMatcher() {
+		writer.setRequestMatcher(AnyRequestMatcher.INSTANCE);
+		request.setSecure(false);
 
-        writer.writeHeaders(request, response);
+		writer.writeHeaders(request, response);
 
-        assertThat(response.getHeaderNames().size()).isEqualTo(1);
-        assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo("max-age=31536000 ; includeSubDomains");
-    }
+		assertThat(response.getHeaderNames().size()).isEqualTo(1);
+		assertThat(response.getHeader("Strict-Transport-Security")).isEqualTo(
+				"max-age=31536000 ; includeSubDomains");
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void setMaxAgeInSecondsToNegative() {
-        writer.setMaxAgeInSeconds(-1);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void setMaxAgeInSecondsToNegative() {
+		writer.setMaxAgeInSeconds(-1);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void setRequestMatcherToNull() {
-        writer.setRequestMatcher(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void setRequestMatcherToNull() {
+		writer.setRequestMatcher(null);
+	}
 }

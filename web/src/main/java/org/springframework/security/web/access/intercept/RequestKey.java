@@ -5,64 +5,64 @@ package org.springframework.security.web.access.intercept;
  * @since 2.0
  */
 public class RequestKey {
-    private final String url;
-    private final String method;
+	private final String url;
+	private final String method;
 
-    public RequestKey(String url) {
-        this(url, null);
-    }
+	public RequestKey(String url) {
+		this(url, null);
+	}
 
-    public RequestKey(String url, String method) {
-        this.url = url;
-        this.method = method;
-    }
+	public RequestKey(String url, String method) {
+		this.url = url;
+		this.method = method;
+	}
 
-    String getUrl() {
-        return url;
-    }
+	String getUrl() {
+		return url;
+	}
 
-    String getMethod() {
-        return method;
-    }
+	String getMethod() {
+		return method;
+	}
 
-    public int hashCode() {
-        int code = 31;
-        code ^= url.hashCode();
+	public int hashCode() {
+		int code = 31;
+		code ^= url.hashCode();
 
-        if (method != null) {
-            code ^= method.hashCode();
-        }
+		if (method != null) {
+			code ^= method.hashCode();
+		}
 
-        return code;
-    }
+		return code;
+	}
 
-    public boolean equals(Object obj) {
-        if (!(obj instanceof RequestKey)) {
-            return false;
-        }
+	public boolean equals(Object obj) {
+		if (!(obj instanceof RequestKey)) {
+			return false;
+		}
 
-        RequestKey key = (RequestKey) obj;
+		RequestKey key = (RequestKey) obj;
 
-        if (!url.equals(key.url)) {
-            return false;
-        }
+		if (!url.equals(key.url)) {
+			return false;
+		}
 
-        if (method == null) {
-            return key.method == null;
-        }
+		if (method == null) {
+			return key.method == null;
+		}
 
-        return method.equals(key.method);
-    }
+		return method.equals(key.method);
+	}
 
-    public String toString() {
-        StringBuilder sb = new StringBuilder(url.length() + 7);
-        sb.append("[");
-        if (method != null) {
-            sb.append(method).append(",");
-        }
-        sb.append(url);
-        sb.append("]");
+	public String toString() {
+		StringBuilder sb = new StringBuilder(url.length() + 7);
+		sb.append("[");
+		if (method != null) {
+			sb.append(method).append(",");
+		}
+		sb.append(url);
+		sb.append("]");
 
-        return sb.toString();
-    }
+		return sb.toString();
+	}
 }

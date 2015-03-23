@@ -39,46 +39,51 @@ import org.springframework.security.test.web.support.WebTestUtils;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 
-
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({WebTestUtils.class,SecurityMockMvcRequestBuildersFormLogoutTests.class})
+@PrepareForTest({ WebTestUtils.class, SecurityMockMvcRequestBuildersFormLogoutTests.class })
 public class SecurityMockMvcRequestBuildersFormLogoutTests {
-    @Mock
-    private CsrfTokenRepository repository;
-    private DefaultCsrfToken token;
-    private MockServletContext servletContext;
+	@Mock
+	private CsrfTokenRepository repository;
+	private DefaultCsrfToken token;
+	private MockServletContext servletContext;
 
-    @Before
-    public void setup() {
-        token = new DefaultCsrfToken("header", "param", "token");
-        servletContext = new MockServletContext();
-    }
+	@Before
+	public void setup() {
+		token = new DefaultCsrfToken("header", "param", "token");
+		servletContext = new MockServletContext();
+	}
 
-    @Test
-    public void defaults() throws Exception {
-        mockWebTestUtils();
-        MockHttpServletRequest request = logout().buildRequest(servletContext);
+	@Test
+	public void defaults() throws Exception {
+		mockWebTestUtils();
+		MockHttpServletRequest request = logout().buildRequest(servletContext);
 
-        assertThat(request.getMethod()).isEqualTo("POST");
-        assertThat(request.getParameter(token.getParameterName())).isEqualTo(token.getToken());
-        assertThat(request.getRequestURI()).isEqualTo("/logout");
-        verify(repository).saveToken(eq(token), any(HttpServletRequest.class), any(HttpServletResponse.class));
-    }
+		assertThat(request.getMethod()).isEqualTo("POST");
+		assertThat(request.getParameter(token.getParameterName())).isEqualTo(
+				token.getToken());
+		assertThat(request.getRequestURI()).isEqualTo("/logout");
+		verify(repository).saveToken(eq(token), any(HttpServletRequest.class),
+				any(HttpServletResponse.class));
+	}
 
-    @Test
-    public void custom() throws Exception {
-        mockWebTestUtils();
-        MockHttpServletRequest request = logout("/admin/logout").buildRequest(servletContext);
+	@Test
+	public void custom() throws Exception {
+		mockWebTestUtils();
+		MockHttpServletRequest request = logout("/admin/logout").buildRequest(
+				servletContext);
 
-        assertThat(request.getMethod()).isEqualTo("POST");
-        assertThat(request.getParameter(token.getParameterName())).isEqualTo(token.getToken());
-        assertThat(request.getRequestURI()).isEqualTo("/admin/logout");
-        verify(repository).saveToken(eq(token), any(HttpServletRequest.class), any(HttpServletResponse.class));
-    }
+		assertThat(request.getMethod()).isEqualTo("POST");
+		assertThat(request.getParameter(token.getParameterName())).isEqualTo(
+				token.getToken());
+		assertThat(request.getRequestURI()).isEqualTo("/admin/logout");
+		verify(repository).saveToken(eq(token), any(HttpServletRequest.class),
+				any(HttpServletResponse.class));
+	}
 
-    private void mockWebTestUtils() throws Exception {
-        spy(WebTestUtils.class);
-        doReturn(repository).when(WebTestUtils.class,"getCsrfTokenRepository",any(HttpServletRequest.class));
-        when(repository.generateToken(any(HttpServletRequest.class))).thenReturn(token);
-    }
+	private void mockWebTestUtils() throws Exception {
+		spy(WebTestUtils.class);
+		doReturn(repository).when(WebTestUtils.class, "getCsrfTokenRepository",
+				any(HttpServletRequest.class));
+		when(repository.generateToken(any(HttpServletRequest.class))).thenReturn(token);
+	}
 }

@@ -15,7 +15,6 @@
  */
 package org.springframework.security.messaging.access.expression;
 
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,35 +27,35 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MessageExpressionConfigAttributeTests {
-    @Mock
-    Expression expression;
+	@Mock
+	Expression expression;
 
-    MessageExpressionConfigAttribute attribute;
+	MessageExpressionConfigAttribute attribute;
 
-    @Before
-    public void setup() {
-        attribute = new MessageExpressionConfigAttribute(expression);
-    }
+	@Before
+	public void setup() {
+		attribute = new MessageExpressionConfigAttribute(expression);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullExpression() {
-        new MessageExpressionConfigAttribute(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullExpression() {
+		new MessageExpressionConfigAttribute(null);
+	}
 
-    @Test
-    public void getAuthorizeExpression() {
-        assertThat(attribute.getAuthorizeExpression()).isSameAs(expression);
-    }
+	@Test
+	public void getAuthorizeExpression() {
+		assertThat(attribute.getAuthorizeExpression()).isSameAs(expression);
+	}
 
-    @Test
-    public void getAttribute() {
-        assertThat(attribute.getAttribute()).isNull();
-    }
+	@Test
+	public void getAttribute() {
+		assertThat(attribute.getAttribute()).isNull();
+	}
 
-    @Test
-    public void toStringUsesExpressionString() {
-        when(expression.getExpressionString()).thenReturn("toString");
+	@Test
+	public void toStringUsesExpressionString() {
+		when(expression.getExpressionString()).thenReturn("toString");
 
-        assertThat(attribute.toString()).isEqualTo(expression.getExpressionString());
-    }
+		assertThat(attribute.toString()).isEqualTo(expression.getExpressionString());
+	}
 }

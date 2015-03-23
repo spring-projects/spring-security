@@ -10,18 +10,18 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AbstractAuthenticationTargetUrlRequestHandler;
 
 /**
- * Handles the navigation on logout by delegating to the {@link AbstractAuthenticationTargetUrlRequestHandler}
- * base class logic.
+ * Handles the navigation on logout by delegating to the
+ * {@link AbstractAuthenticationTargetUrlRequestHandler} base class logic.
  *
  * @author Luke Taylor
  * @since 3.0
  */
-public class SimpleUrlLogoutSuccessHandler extends AbstractAuthenticationTargetUrlRequestHandler
-        implements LogoutSuccessHandler {
+public class SimpleUrlLogoutSuccessHandler extends
+		AbstractAuthenticationTargetUrlRequestHandler implements LogoutSuccessHandler {
 
-    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
-            throws IOException, ServletException {
-        super.handle(request, response, authentication);
-    }
+	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
+			Authentication authentication) throws IOException, ServletException {
+		super.handle(request, response, authentication);
+	}
 
 }

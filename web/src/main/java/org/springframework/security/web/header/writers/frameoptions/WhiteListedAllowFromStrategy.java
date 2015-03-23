@@ -10,21 +10,22 @@ import org.springframework.util.Assert;
  * @author Marten Deinum
  * @since 3.2
  */
-public final class WhiteListedAllowFromStrategy extends AbstractRequestParameterAllowFromStrategy {
+public final class WhiteListedAllowFromStrategy extends
+		AbstractRequestParameterAllowFromStrategy {
 
-    private final Collection<String> allowed;
+	private final Collection<String> allowed;
 
-    /**
-     * Creates a new instance
-     * @param allowed the origins that are allowed.
-     */
-    public WhiteListedAllowFromStrategy(Collection<String> allowed) {
-        Assert.notEmpty(allowed, "Allowed origins cannot be empty.");
-        this.allowed = allowed;
-    }
+	/**
+	 * Creates a new instance
+	 * @param allowed the origins that are allowed.
+	 */
+	public WhiteListedAllowFromStrategy(Collection<String> allowed) {
+		Assert.notEmpty(allowed, "Allowed origins cannot be empty.");
+		this.allowed = allowed;
+	}
 
-    @Override
-    protected boolean allowed(String allowFromOrigin) {
-        return allowed.contains(allowFromOrigin);
-    }
+	@Override
+	protected boolean allowed(String allowFromOrigin) {
+		return allowed.contains(allowFromOrigin);
+	}
 }

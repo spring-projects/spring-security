@@ -33,51 +33,50 @@ import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-
 /**
  *
  * @author Rob Winch
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CsrfTokenHandshakeInterceptorTests {
-    @Mock
-    WebSocketHandler wsHandler;
-    @Mock
-    ServerHttpResponse response;
+	@Mock
+	WebSocketHandler wsHandler;
+	@Mock
+	ServerHttpResponse response;
 
-    Map<String, Object> attributes;
+	Map<String, Object> attributes;
 
-    ServerHttpRequest request;
+	ServerHttpRequest request;
 
-    MockHttpServletRequest httpRequest;
+	MockHttpServletRequest httpRequest;
 
-    CsrfTokenHandshakeInterceptor interceptor;
+	CsrfTokenHandshakeInterceptor interceptor;
 
-    @Before
-    public void setup() {
-        httpRequest = new MockHttpServletRequest();
-        attributes = new HashMap<String,Object>();
-        request = new ServletServerHttpRequest(httpRequest);
+	@Before
+	public void setup() {
+		httpRequest = new MockHttpServletRequest();
+		attributes = new HashMap<String, Object>();
+		request = new ServletServerHttpRequest(httpRequest);
 
-        interceptor = new CsrfTokenHandshakeInterceptor();
-    }
+		interceptor = new CsrfTokenHandshakeInterceptor();
+	}
 
-    @Test
-    public void beforeHandshakeNoAttribute() throws Exception {
-        interceptor.beforeHandshake(request, response, wsHandler, attributes);
+	@Test
+	public void beforeHandshakeNoAttribute() throws Exception {
+		interceptor.beforeHandshake(request, response, wsHandler, attributes);
 
-        assertThat(attributes).isEmpty();
-    }
+		assertThat(attributes).isEmpty();
+	}
 
-    @Test
-    public void beforeHandshake() throws Exception {
-        CsrfToken token = new DefaultCsrfToken("header", "param", "token");
-        httpRequest.setAttribute(CsrfToken.class.getName(), token);
+	@Test
+	public void beforeHandshake() throws Exception {
+		CsrfToken token = new DefaultCsrfToken("header", "param", "token");
+		httpRequest.setAttribute(CsrfToken.class.getName(), token);
 
-        interceptor.beforeHandshake(request, response, wsHandler, attributes);
+		interceptor.beforeHandshake(request, response, wsHandler, attributes);
 
-        assertThat(attributes.keySet()).containsOnly(CsrfToken.class.getName());
-        assertThat(attributes.values()).containsOnly(token);
-    }
+		assertThat(attributes.keySet()).containsOnly(CsrfToken.class.getName());
+		assertThat(attributes.values()).containsOnly(token);
+	}
 
 }

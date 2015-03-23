@@ -33,10 +33,12 @@ import org.springframework.security.web.util.matcher.RequestMatcherEditor;
 import org.springframework.util.Assert;
 
 /**
- * An {@code AuthenticationEntryPoint} which selects a concrete {@code AuthenticationEntryPoint} based on a
- * {@link RequestMatcher} evaluation.
+ * An {@code AuthenticationEntryPoint} which selects a concrete
+ * {@code AuthenticationEntryPoint} based on a {@link RequestMatcher} evaluation.
  *
- * <p>A configuration might look like this:</p>
+ * <p>
+ * A configuration might look like this:
+ * </p>
  *
  * <pre>
  * &lt;bean id=&quot;daep&quot; class=&quot;org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint&quot;&gt;
@@ -50,58 +52,58 @@ import org.springframework.util.Assert;
  * &lt;/bean&gt;
  * </pre>
  *
- * This example uses the {@link RequestMatcherEditor} which creates a {@link ELRequestMatcher} instances for the map
- * keys.
+ * This example uses the {@link RequestMatcherEditor} which creates a
+ * {@link ELRequestMatcher} instances for the map keys.
  *
  * @author Mike Wiesner
  * @since 3.0.2
  */
-public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
-    private final Log logger = LogFactory.getLog(getClass());
+public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPoint,
+		InitializingBean {
+	private final Log logger = LogFactory.getLog(getClass());
 
-    private final LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints;
-    private AuthenticationEntryPoint defaultEntryPoint;
+	private final LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints;
+	private AuthenticationEntryPoint defaultEntryPoint;
 
-    public DelegatingAuthenticationEntryPoint(LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints) {
-        this.entryPoints = entryPoints;
-    }
+	public DelegatingAuthenticationEntryPoint(
+			LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints) {
+		this.entryPoints = entryPoints;
+	}
 
-    public void commence(HttpServletRequest request,
-            HttpServletResponse response, AuthenticationException authException)
-            throws IOException, ServletException {
+	public void commence(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException authException) throws IOException, ServletException {
 
-        for (RequestMatcher requestMatcher : entryPoints.keySet()) {
-            if(logger.isDebugEnabled()) {
-                logger.debug("Trying to match using " + requestMatcher);
-            }
-            if (requestMatcher.matches(request)) {
-               AuthenticationEntryPoint entryPoint = entryPoints.get(requestMatcher);
-               if(logger.isDebugEnabled()) {
-                   logger.debug("Match found! Executing " + entryPoint);
-               }
-               entryPoint.commence(request, response, authException);
-               return;
-            }
-        }
+		for (RequestMatcher requestMatcher : entryPoints.keySet()) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Trying to match using " + requestMatcher);
+			}
+			if (requestMatcher.matches(request)) {
+				AuthenticationEntryPoint entryPoint = entryPoints.get(requestMatcher);
+				if (logger.isDebugEnabled()) {
+					logger.debug("Match found! Executing " + entryPoint);
+				}
+				entryPoint.commence(request, response, authException);
+				return;
+			}
+		}
 
-        if(logger.isDebugEnabled()) {
-            logger.debug("No match found. Using default entry point " + defaultEntryPoint);
-        }
+		if (logger.isDebugEnabled()) {
+			logger.debug("No match found. Using default entry point " + defaultEntryPoint);
+		}
 
-        // No EntryPoint matched, use defaultEntryPoint
-        defaultEntryPoint.commence(request, response, authException);
-    }
+		// No EntryPoint matched, use defaultEntryPoint
+		defaultEntryPoint.commence(request, response, authException);
+	}
 
-    /**
-     * EntryPoint which is used when no RequestMatcher returned true
-     */
-    public void setDefaultEntryPoint(AuthenticationEntryPoint defaultEntryPoint) {
-        this.defaultEntryPoint = defaultEntryPoint;
-    }
+	/**
+	 * EntryPoint which is used when no RequestMatcher returned true
+	 */
+	public void setDefaultEntryPoint(AuthenticationEntryPoint defaultEntryPoint) {
+		this.defaultEntryPoint = defaultEntryPoint;
+	}
 
-    public void afterPropertiesSet() throws Exception {
-       Assert.notEmpty(entryPoints, "entryPoints must be specified");
-       Assert.notNull(defaultEntryPoint, "defaultEntryPoint must be specified");
-    }
+	public void afterPropertiesSet() throws Exception {
+		Assert.notEmpty(entryPoints, "entryPoints must be specified");
+		Assert.notNull(defaultEntryPoint, "defaultEntryPoint must be specified");
+	}
 }
-

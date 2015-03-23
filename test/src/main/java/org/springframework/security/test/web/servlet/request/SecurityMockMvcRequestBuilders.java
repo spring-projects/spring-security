@@ -35,179 +35,183 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
  */
 public final class SecurityMockMvcRequestBuilders {
 
-    /**
-     * Creates a request (including any necessary {@link CsrfToken}) that will
-     * submit a form based login to POST "/login".
-     *
-     * @return the FormLoginRequestBuilder for further customizations
-     */
-    public static FormLoginRequestBuilder formLogin() {
-        return new FormLoginRequestBuilder();
-    }
+	/**
+	 * Creates a request (including any necessary {@link CsrfToken}) that will submit a
+	 * form based login to POST "/login".
+	 *
+	 * @return the FormLoginRequestBuilder for further customizations
+	 */
+	public static FormLoginRequestBuilder formLogin() {
+		return new FormLoginRequestBuilder();
+	}
 
-    /**
-     * Creates a request (including any necessary {@link CsrfToken}) that will
-     * submit a form based login to POST {@code loginProcessingUrl}.
-     *
-     * @param loginProcessingUrl
-     *            the URL to POST to
-     *
-     * @return the FormLoginRequestBuilder for further customizations
-     */
-    public static FormLoginRequestBuilder formLogin(String loginProcessingUrl) {
-        return formLogin().loginProcessingUrl(loginProcessingUrl);
-    }
+	/**
+	 * Creates a request (including any necessary {@link CsrfToken}) that will submit a
+	 * form based login to POST {@code loginProcessingUrl}.
+	 *
+	 * @param loginProcessingUrl the URL to POST to
+	 *
+	 * @return the FormLoginRequestBuilder for further customizations
+	 */
+	public static FormLoginRequestBuilder formLogin(String loginProcessingUrl) {
+		return formLogin().loginProcessingUrl(loginProcessingUrl);
+	}
 
-    /**
-     * Creates a logout request.
-     *
-     * @return the LogoutRequestBuilder for additional customizations
-     */
-    public static LogoutRequestBuilder logout() {
-        return new LogoutRequestBuilder();
-    }
+	/**
+	 * Creates a logout request.
+	 *
+	 * @return the LogoutRequestBuilder for additional customizations
+	 */
+	public static LogoutRequestBuilder logout() {
+		return new LogoutRequestBuilder();
+	}
 
-    /**
-     * Creates a logout request (including any necessary {@link CsrfToken}) to
-     * the specified {@code logoutUrl}
-     *
-     * @return the LogoutRequestBuilder for additional customizations
-     */
-    public static LogoutRequestBuilder logout(String logoutUrl) {
-        return new LogoutRequestBuilder().logoutUrl(logoutUrl);
-    }
+	/**
+	 * Creates a logout request (including any necessary {@link CsrfToken}) to the
+	 * specified {@code logoutUrl}
+	 *
+	 * @return the LogoutRequestBuilder for additional customizations
+	 */
+	public static LogoutRequestBuilder logout(String logoutUrl) {
+		return new LogoutRequestBuilder().logoutUrl(logoutUrl);
+	}
 
-    /**
-     * Creates a logout request (including any necessary {@link CsrfToken})
-     *
-     * @author Rob Winch
-     * @since 4.0
-     */
-    public static final class LogoutRequestBuilder implements RequestBuilder {
-        private String logoutUrl = "/logout";
-        private RequestPostProcessor postProcessor = csrf();
+	/**
+	 * Creates a logout request (including any necessary {@link CsrfToken})
+	 *
+	 * @author Rob Winch
+	 * @since 4.0
+	 */
+	public static final class LogoutRequestBuilder implements RequestBuilder {
+		private String logoutUrl = "/logout";
+		private RequestPostProcessor postProcessor = csrf();
 
-        public MockHttpServletRequest buildRequest(ServletContext servletContext) {
-            MockHttpServletRequest request = post(logoutUrl)
-                    .buildRequest(servletContext);
-            return postProcessor.postProcessRequest(request);
-        }
+		public MockHttpServletRequest buildRequest(ServletContext servletContext) {
+			MockHttpServletRequest request = post(logoutUrl).buildRequest(servletContext);
+			return postProcessor.postProcessRequest(request);
+		}
 
-        /**
-         * Specifies the logout URL to POST to. Defaults to "/logout".
-         *
-         * @param logoutUrl the logout URL to POST to. Defaults to "/logout".
-         * @return the {@link LogoutRequestBuilder} for additional customizations
-         */
-        public LogoutRequestBuilder logoutUrl(String logoutUrl) {
-            this.logoutUrl = logoutUrl;
-            return this;
-        }
+		/**
+		 * Specifies the logout URL to POST to. Defaults to "/logout".
+		 *
+		 * @param logoutUrl the logout URL to POST to. Defaults to "/logout".
+		 * @return the {@link LogoutRequestBuilder} for additional customizations
+		 */
+		public LogoutRequestBuilder logoutUrl(String logoutUrl) {
+			this.logoutUrl = logoutUrl;
+			return this;
+		}
 
-        private LogoutRequestBuilder() {}
-    }
+		private LogoutRequestBuilder() {
+		}
+	}
 
-    /**
-     * Creates a form based login request including any necessary {@link CsrfToken}.
-     *
-     * @author Rob Winch
-     * @since 4.0
-     */
-    public static final class FormLoginRequestBuilder implements RequestBuilder {
-        private String usernameParam = "username";
-        private String passwordParam = "password";
-        private String username = "user";
-        private String password = "password";
-        private String loginProcessingUrl = "/login";
-        private RequestPostProcessor postProcessor = csrf();
+	/**
+	 * Creates a form based login request including any necessary {@link CsrfToken}.
+	 *
+	 * @author Rob Winch
+	 * @since 4.0
+	 */
+	public static final class FormLoginRequestBuilder implements RequestBuilder {
+		private String usernameParam = "username";
+		private String passwordParam = "password";
+		private String username = "user";
+		private String password = "password";
+		private String loginProcessingUrl = "/login";
+		private RequestPostProcessor postProcessor = csrf();
 
-        public MockHttpServletRequest buildRequest(ServletContext servletContext) {
-            MockHttpServletRequest request = post(loginProcessingUrl)
-                    .param(usernameParam,username)
-                    .param(passwordParam, password)
-                    .buildRequest(servletContext);
-            return postProcessor.postProcessRequest(request);
-        }
+		public MockHttpServletRequest buildRequest(ServletContext servletContext) {
+			MockHttpServletRequest request = post(loginProcessingUrl)
+					.param(usernameParam, username).param(passwordParam, password)
+					.buildRequest(servletContext);
+			return postProcessor.postProcessRequest(request);
+		}
 
-        /**
-         * Specifies the URL to POST to. Default is "/login"
-         *
-         * @param loginProcessingUrl the URL to POST to. Default is "/login"
-         * @return
-         */
-        public FormLoginRequestBuilder loginProcessingUrl(String loginProcessingUrl) {
-            this.loginProcessingUrl = loginProcessingUrl;
-            return this;
-        }
+		/**
+		 * Specifies the URL to POST to. Default is "/login"
+		 *
+		 * @param loginProcessingUrl the URL to POST to. Default is "/login"
+		 * @return
+		 */
+		public FormLoginRequestBuilder loginProcessingUrl(String loginProcessingUrl) {
+			this.loginProcessingUrl = loginProcessingUrl;
+			return this;
+		}
 
-        /**
-         * The HTTP parameter to place the username. Default is "username".
-         * @param usernameParameter the HTTP parameter to place the username. Default is "username".
-         * @return the {@link FormLoginRequestBuilder} for additional customizations
-         */
-        public FormLoginRequestBuilder userParameter(String usernameParameter) {
-            this.usernameParam = usernameParameter;
-            return this;
-        }
+		/**
+		 * The HTTP parameter to place the username. Default is "username".
+		 * @param usernameParameter the HTTP parameter to place the username. Default is
+		 * "username".
+		 * @return the {@link FormLoginRequestBuilder} for additional customizations
+		 */
+		public FormLoginRequestBuilder userParameter(String usernameParameter) {
+			this.usernameParam = usernameParameter;
+			return this;
+		}
 
-        /**
-         * The HTTP parameter to place the password. Default is "password".
-         * @param passwordParameter the HTTP parameter to place the password. Default is "password".
-         * @return the {@link FormLoginRequestBuilder} for additional customizations
-         */
-        public FormLoginRequestBuilder passwordParam(String passwordParameter) {
-            this.passwordParam = passwordParameter;
-            return this;
-        }
+		/**
+		 * The HTTP parameter to place the password. Default is "password".
+		 * @param passwordParameter the HTTP parameter to place the password. Default is
+		 * "password".
+		 * @return the {@link FormLoginRequestBuilder} for additional customizations
+		 */
+		public FormLoginRequestBuilder passwordParam(String passwordParameter) {
+			this.passwordParam = passwordParameter;
+			return this;
+		}
 
-        /**
-         * The value of the password parameter. Default is "password".
-         * @param password the value of the password parameter. Default is "password".
-         * @return the {@link FormLoginRequestBuilder} for additional customizations
-         */
-        public FormLoginRequestBuilder password(String password) {
-            this.password = password;
-            return this;
-        }
+		/**
+		 * The value of the password parameter. Default is "password".
+		 * @param password the value of the password parameter. Default is "password".
+		 * @return the {@link FormLoginRequestBuilder} for additional customizations
+		 */
+		public FormLoginRequestBuilder password(String password) {
+			this.password = password;
+			return this;
+		}
 
-        /**
-         * The value of the username parameter. Default is "user".
-         * @param username the value of the username parameter. Default is "user".
-         * @return the {@link FormLoginRequestBuilder} for additional customizations
-         */
-        public FormLoginRequestBuilder user(String username) {
-            this.username = username;
-            return this;
-        }
+		/**
+		 * The value of the username parameter. Default is "user".
+		 * @param username the value of the username parameter. Default is "user".
+		 * @return the {@link FormLoginRequestBuilder} for additional customizations
+		 */
+		public FormLoginRequestBuilder user(String username) {
+			this.username = username;
+			return this;
+		}
 
-        /**
-         * Specify both the password parameter name and the password.
-         *
-         * @param passwordParameter the HTTP parameter to place the password. Default is "password".
-         * @param password the value of the password parameter. Default is "password".
-         * @return the {@link FormLoginRequestBuilder} for additional customizations
-         */
-        public FormLoginRequestBuilder password(String passwordParameter, String password) {
-            passwordParam(passwordParameter);
-            this.password = password;
-            return this;
-        }
+		/**
+		 * Specify both the password parameter name and the password.
+		 *
+		 * @param passwordParameter the HTTP parameter to place the password. Default is
+		 * "password".
+		 * @param password the value of the password parameter. Default is "password".
+		 * @return the {@link FormLoginRequestBuilder} for additional customizations
+		 */
+		public FormLoginRequestBuilder password(String passwordParameter, String password) {
+			passwordParam(passwordParameter);
+			this.password = password;
+			return this;
+		}
 
-        /**
-         * Specify both the password parameter name and the password.
-         *
-         * @param usernameParameter the HTTP parameter to place the username. Default is "username".
-         * @param username the value of the username parameter. Default is "user".
-         * @return the {@link FormLoginRequestBuilder} for additional customizations
-         */
-        public FormLoginRequestBuilder user(String usernameParameter, String username) {
-            userParameter(usernameParameter);
-            this.username = username;
-            return this;
-        }
+		/**
+		 * Specify both the password parameter name and the password.
+		 *
+		 * @param usernameParameter the HTTP parameter to place the username. Default is
+		 * "username".
+		 * @param username the value of the username parameter. Default is "user".
+		 * @return the {@link FormLoginRequestBuilder} for additional customizations
+		 */
+		public FormLoginRequestBuilder user(String usernameParameter, String username) {
+			userParameter(usernameParameter);
+			this.username = username;
+			return this;
+		}
 
-        private FormLoginRequestBuilder() {}
-    }
+		private FormLoginRequestBuilder() {
+		}
+	}
 
-    private SecurityMockMvcRequestBuilders() {}
+	private SecurityMockMvcRequestBuilders() {
+	}
 }

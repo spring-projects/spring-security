@@ -15,7 +15,6 @@
 
 package org.springframework.security.acls.model;
 
-
 /**
  * Strategy interface that provides the ability to determine which {@link ObjectIdentity}
  * will be returned for a particular domain object
@@ -24,7 +23,8 @@ package org.springframework.security.acls.model;
  *
  */
 public interface ObjectIdentityRetrievalStrategy {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    ObjectIdentity getObjectIdentity(Object domainObject);
+	ObjectIdentity getObjectIdentity(Object domainObject);
 }

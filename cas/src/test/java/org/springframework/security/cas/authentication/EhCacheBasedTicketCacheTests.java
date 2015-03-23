@@ -27,62 +27,63 @@ import org.springframework.security.cas.authentication.EhCacheBasedTicketCache;
 
 import static org.junit.Assert.*;
 
-
 /**
  * Tests {@link EhCacheBasedTicketCache}.
  *
  * @author Ben Alex
  */
 public class EhCacheBasedTicketCacheTests extends AbstractStatelessTicketCacheTests {
-    private static CacheManager cacheManager;
+	private static CacheManager cacheManager;
 
-    //~ Methods ========================================================================================================
-    @BeforeClass
-    public static void initCacheManaer() {
-        cacheManager = CacheManager.create();
-        cacheManager.addCache(new Cache("castickets", 500, false, false, 30, 30));
-    }
+	// ~ Methods
+	// ========================================================================================================
+	@BeforeClass
+	public static void initCacheManaer() {
+		cacheManager = CacheManager.create();
+		cacheManager.addCache(new Cache("castickets", 500, false, false, 30, 30));
+	}
 
-    @AfterClass
-    public static void shutdownCacheManager() {
-        cacheManager.removalAll();
-        cacheManager.shutdown();
-    }
+	@AfterClass
+	public static void shutdownCacheManager() {
+		cacheManager.removalAll();
+		cacheManager.shutdown();
+	}
 
-    @Test
-    public void testCacheOperation() throws Exception {
-        EhCacheBasedTicketCache cache = new EhCacheBasedTicketCache();
-        cache.setCache(cacheManager.getCache("castickets"));
-        cache.afterPropertiesSet();
+	@Test
+	public void testCacheOperation() throws Exception {
+		EhCacheBasedTicketCache cache = new EhCacheBasedTicketCache();
+		cache.setCache(cacheManager.getCache("castickets"));
+		cache.afterPropertiesSet();
 
-        final CasAuthenticationToken token = getToken();
+		final CasAuthenticationToken token = getToken();
 
-        // Check it gets stored in the cache
-        cache.putTicketInCache(token);
-        assertEquals(token, cache.getByTicketId("ST-0-ER94xMJmn6pha35CQRoZ"));
+		// Check it gets stored in the cache
+		cache.putTicketInCache(token);
+		assertEquals(token, cache.getByTicketId("ST-0-ER94xMJmn6pha35CQRoZ"));
 
-        // Check it gets removed from the cache
-        cache.removeTicketFromCache(getToken());
-        assertNull(cache.getByTicketId("ST-0-ER94xMJmn6pha35CQRoZ"));
+		// Check it gets removed from the cache
+		cache.removeTicketFromCache(getToken());
+		assertNull(cache.getByTicketId("ST-0-ER94xMJmn6pha35CQRoZ"));
 
-        // Check it doesn't return values for null or unknown service tickets
-        assertNull(cache.getByTicketId(null));
-        assertNull(cache.getByTicketId("UNKNOWN_SERVICE_TICKET"));
-    }
+		// Check it doesn't return values for null or unknown service tickets
+		assertNull(cache.getByTicketId(null));
+		assertNull(cache.getByTicketId("UNKNOWN_SERVICE_TICKET"));
+	}
 
-    @Test
-    public void testStartupDetectsMissingCache() throws Exception {
-        EhCacheBasedTicketCache cache = new EhCacheBasedTicketCache();
+	@Test
+	public void testStartupDetectsMissingCache() throws Exception {
+		EhCacheBasedTicketCache cache = new EhCacheBasedTicketCache();
 
-        try {
-            cache.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
+		try {
+			cache.afterPropertiesSet();
+			fail("Should have thrown IllegalArgumentException");
+		}
+		catch (IllegalArgumentException expected) {
+			assertTrue(true);
+		}
 
-        Ehcache myCache = cacheManager.getCache("castickets");
-        cache.setCache(myCache);
-        assertEquals(myCache, cache.getCache());
-    }
+		Ehcache myCache = cacheManager.getCache("castickets");
+		cache.setCache(myCache);
+		assertEquals(myCache, cache.getCache());
+	}
 }

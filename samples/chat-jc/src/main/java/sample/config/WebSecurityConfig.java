@@ -27,44 +27,46 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension;
 
-
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class WebSecurityConfig
-    extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+	// @formatter:off
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
 
-        http
-            .headers()
-                .frameOptions().sameOrigin()
-                .and()
-            .csrf()
-                .ignoringAntMatchers("/chat/**")
-                .and()
-            .authorizeRequests()
-                .antMatchers("/resources/**").permitAll()
-                .anyRequest().authenticated()
-                .and()
-            .formLogin()
-                .loginPage("/login")
-                .permitAll()
-                .and()
-            .logout()
-                .permitAll();
-    }
+		http
+			.headers()
+				.frameOptions().sameOrigin()
+				.and()
+			.csrf()
+				.ignoringAntMatchers("/chat/**")
+				.and()
+			.authorizeRequests()
+				.antMatchers("/resources/**").permitAll()
+				.anyRequest().authenticated()
+				.and()
+			.formLogin()
+				.loginPage("/login")
+				.permitAll()
+				.and()
+			.logout()
+				.permitAll();
+	}
+	// @formatter:on
 
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth, UserDetailsService userDetailsService) throws Exception {
-        auth
-            .userDetailsService(userDetailsService)
-                .passwordEncoder(new BCryptPasswordEncoder());
-    }
+	// @formatter:off
+	@Autowired
+	public void configureGlobal(AuthenticationManagerBuilder auth, UserDetailsService userDetailsService) throws Exception {
+		auth
+			.userDetailsService(userDetailsService)
+				.passwordEncoder(new BCryptPasswordEncoder());
+	}
+	// @formatter:on
 
-    @Bean
-    public SecurityEvaluationContextExtension securityEvaluationContextExtension() {
-        return new SecurityEvaluationContextExtension();
-    }
+	@Bean
+	public SecurityEvaluationContextExtension securityEvaluationContextExtension() {
+		return new SecurityEvaluationContextExtension();
+	}
 }

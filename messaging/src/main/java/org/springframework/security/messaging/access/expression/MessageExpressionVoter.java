@@ -27,52 +27,58 @@ import org.springframework.util.Assert;
 import java.util.Collection;
 
 /**
- * Voter which handles {@link Message} authorisation decisions. If a {@link MessageExpressionConfigAttribute} is found,
- * then its expression is evaluated. If true, {@code ACCESS_GRANTED} is returned. If false, {@code ACCESS_DENIED} is
- * returned. If no {@code MessageExpressionConfigAttribute} is found, then {@code ACCESS_ABSTAIN} is returned.
+ * Voter which handles {@link Message} authorisation decisions. If a
+ * {@link MessageExpressionConfigAttribute} is found, then its expression is evaluated. If
+ * true, {@code ACCESS_GRANTED} is returned. If false, {@code ACCESS_DENIED} is returned.
+ * If no {@code MessageExpressionConfigAttribute} is found, then {@code ACCESS_ABSTAIN} is
+ * returned.
  *
  * @since 4.0
  * @author Rob Winch
  */
 public class MessageExpressionVoter<T> implements AccessDecisionVoter<Message<T>> {
-    private SecurityExpressionHandler<Message<T>> expressionHandler = new DefaultMessageSecurityExpressionHandler<T>();
+	private SecurityExpressionHandler<Message<T>> expressionHandler = new DefaultMessageSecurityExpressionHandler<T>();
 
-    public int vote(Authentication authentication, Message<T> message, Collection<ConfigAttribute> attributes) {
-        assert authentication != null;
-        assert message != null;
-        assert attributes != null;
+	public int vote(Authentication authentication, Message<T> message,
+			Collection<ConfigAttribute> attributes) {
+		assert authentication != null;
+		assert message != null;
+		assert attributes != null;
 
-        MessageExpressionConfigAttribute attr = findConfigAttribute(attributes);
+		MessageExpressionConfigAttribute attr = findConfigAttribute(attributes);
 
-        if (attr == null) {
-            return ACCESS_ABSTAIN;
-        }
+		if (attr == null) {
+			return ACCESS_ABSTAIN;
+		}
 
-        EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication, message);
+		EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication,
+				message);
 
-        return ExpressionUtils.evaluateAsBoolean(attr.getAuthorizeExpression(), ctx) ?
-                ACCESS_GRANTED : ACCESS_DENIED;
-    }
+		return ExpressionUtils.evaluateAsBoolean(attr.getAuthorizeExpression(), ctx) ? ACCESS_GRANTED
+				: ACCESS_DENIED;
+	}
 
-    private MessageExpressionConfigAttribute findConfigAttribute(Collection<ConfigAttribute> attributes) {
-        for (ConfigAttribute attribute : attributes) {
-            if (attribute instanceof MessageExpressionConfigAttribute) {
-                return (MessageExpressionConfigAttribute)attribute;
-            }
-        }
-        return null;
-    }
+	private MessageExpressionConfigAttribute findConfigAttribute(
+			Collection<ConfigAttribute> attributes) {
+		for (ConfigAttribute attribute : attributes) {
+			if (attribute instanceof MessageExpressionConfigAttribute) {
+				return (MessageExpressionConfigAttribute) attribute;
+			}
+		}
+		return null;
+	}
 
-    public boolean supports(ConfigAttribute attribute) {
-        return attribute instanceof MessageExpressionConfigAttribute;
-    }
+	public boolean supports(ConfigAttribute attribute) {
+		return attribute instanceof MessageExpressionConfigAttribute;
+	}
 
-    public boolean supports(Class<?> clazz) {
-        return Message.class.isAssignableFrom(clazz);
-    }
+	public boolean supports(Class<?> clazz) {
+		return Message.class.isAssignableFrom(clazz);
+	}
 
-    public void setExpressionHandler(SecurityExpressionHandler<Message<T>> expressionHandler) {
-        Assert.notNull(expressionHandler, "expressionHandler cannot be null");
-        this.expressionHandler = expressionHandler;
-    }
+	public void setExpressionHandler(
+			SecurityExpressionHandler<Message<T>> expressionHandler) {
+		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
+		this.expressionHandler = expressionHandler;
+	}
 }

@@ -18,16 +18,19 @@ package org.springframework.security.authentication.event;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
-
 /**
- * Application event which indicates authentication failure due to the user's credentials having expired.
+ * Application event which indicates authentication failure due to the user's credentials
+ * having expired.
  *
  * @author Ben Alex
  */
-public class AuthenticationFailureCredentialsExpiredEvent extends AbstractAuthenticationFailureEvent {
-    //~ Constructors ===================================================================================================
+public class AuthenticationFailureCredentialsExpiredEvent extends
+		AbstractAuthenticationFailureEvent {
+	// ~ Constructors
+	// ===================================================================================================
 
-    public AuthenticationFailureCredentialsExpiredEvent(Authentication authentication, AuthenticationException exception) {
-        super(authentication, exception);
-    }
+	public AuthenticationFailureCredentialsExpiredEvent(Authentication authentication,
+			AuthenticationException exception) {
+		super(authentication, exception);
+	}
 }

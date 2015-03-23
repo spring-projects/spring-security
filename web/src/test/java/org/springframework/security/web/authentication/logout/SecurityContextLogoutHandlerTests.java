@@ -31,43 +31,46 @@ import org.springframework.security.core.context.SecurityContextHolder;
  *
  */
 public class SecurityContextLogoutHandlerTests {
-    private MockHttpServletRequest request;
-    private MockHttpServletResponse response;
-    private SecurityContextLogoutHandler handler;
+	private MockHttpServletRequest request;
+	private MockHttpServletResponse response;
+	private SecurityContextLogoutHandler handler;
 
-    @Before
-    public void setUp() {
-        request = new MockHttpServletRequest();
-        response = new MockHttpServletResponse();
+	@Before
+	public void setUp() {
+		request = new MockHttpServletRequest();
+		response = new MockHttpServletResponse();
 
-        handler = new SecurityContextLogoutHandler();
+		handler = new SecurityContextLogoutHandler();
 
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(new TestingAuthenticationToken("user", "password", AuthorityUtils.createAuthorityList("ROLE_USER")));
-        SecurityContextHolder.setContext(context);
-    }
+		SecurityContext context = SecurityContextHolder.createEmptyContext();
+		context.setAuthentication(new TestingAuthenticationToken("user", "password",
+				AuthorityUtils.createAuthorityList("ROLE_USER")));
+		SecurityContextHolder.setContext(context);
+	}
 
-    @After
-    public void tearDown() {
-        SecurityContextHolder.clearContext();
-    }
+	@After
+	public void tearDown() {
+		SecurityContextHolder.clearContext();
+	}
 
-    // SEC-2025
-    @Test
-    public void clearsAuthentication() {
-        SecurityContext beforeContext = SecurityContextHolder.getContext();
-        handler.logout(request, response, SecurityContextHolder.getContext().getAuthentication());
-        assertNull(beforeContext.getAuthentication());
-    }
+	// SEC-2025
+	@Test
+	public void clearsAuthentication() {
+		SecurityContext beforeContext = SecurityContextHolder.getContext();
+		handler.logout(request, response, SecurityContextHolder.getContext()
+				.getAuthentication());
+		assertNull(beforeContext.getAuthentication());
+	}
 
-    @Test
-    public void disableClearsAuthentication() {
-        handler.setClearAuthentication(false);
-        SecurityContext beforeContext = SecurityContextHolder.getContext();
-        Authentication beforeAuthentication = beforeContext.getAuthentication();
-        handler.logout(request, response, SecurityContextHolder.getContext().getAuthentication());
+	@Test
+	public void disableClearsAuthentication() {
+		handler.setClearAuthentication(false);
+		SecurityContext beforeContext = SecurityContextHolder.getContext();
+		Authentication beforeAuthentication = beforeContext.getAuthentication();
+		handler.logout(request, response, SecurityContextHolder.getContext()
+				.getAuthentication());
 
-        assertNotNull(beforeContext.getAuthentication());
-        assertSame(beforeAuthentication, beforeContext.getAuthentication());
-    }
+		assertNotNull(beforeContext.getAuthentication());
+		assertSame(beforeAuthentication, beforeContext.getAuthentication());
+	}
 }

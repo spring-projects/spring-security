@@ -17,54 +17,56 @@ package org.springframework.security.authentication;
 
 import org.springframework.security.core.Authentication;
 
-
 /**
  * Basic implementation of {@link AuthenticationTrustResolver}.
  * <p>
- * Makes trust decisions based on whether the passed <code>Authentication</code> is an instance of a defined class.
+ * Makes trust decisions based on whether the passed <code>Authentication</code> is an
+ * instance of a defined class.
  * <p>
- * If {@link #anonymousClass} or {@link #rememberMeClass} is <code>null</code>, the corresponding method will
- * always return <code>false</code>.
+ * If {@link #anonymousClass} or {@link #rememberMeClass} is <code>null</code>, the
+ * corresponding method will always return <code>false</code>.
  *
  * @author Ben Alex
  */
 public class AuthenticationTrustResolverImpl implements AuthenticationTrustResolver {
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private Class<? extends Authentication> anonymousClass = AnonymousAuthenticationToken.class;
-    private Class<? extends Authentication> rememberMeClass = RememberMeAuthenticationToken.class;
+	private Class<? extends Authentication> anonymousClass = AnonymousAuthenticationToken.class;
+	private Class<? extends Authentication> rememberMeClass = RememberMeAuthenticationToken.class;
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    Class<? extends Authentication> getAnonymousClass() {
-        return anonymousClass;
-    }
+	Class<? extends Authentication> getAnonymousClass() {
+		return anonymousClass;
+	}
 
-    Class<? extends Authentication> getRememberMeClass() {
-        return rememberMeClass;
-    }
+	Class<? extends Authentication> getRememberMeClass() {
+		return rememberMeClass;
+	}
 
-    public boolean isAnonymous(Authentication authentication) {
-        if ((anonymousClass == null) || (authentication == null)) {
-            return false;
-        }
+	public boolean isAnonymous(Authentication authentication) {
+		if ((anonymousClass == null) || (authentication == null)) {
+			return false;
+		}
 
-        return anonymousClass.isAssignableFrom(authentication.getClass());
-    }
+		return anonymousClass.isAssignableFrom(authentication.getClass());
+	}
 
-    public boolean isRememberMe(Authentication authentication) {
-        if ((rememberMeClass == null) || (authentication == null)) {
-            return false;
-        }
+	public boolean isRememberMe(Authentication authentication) {
+		if ((rememberMeClass == null) || (authentication == null)) {
+			return false;
+		}
 
-        return rememberMeClass.isAssignableFrom(authentication.getClass());
-    }
+		return rememberMeClass.isAssignableFrom(authentication.getClass());
+	}
 
-    public void setAnonymousClass(Class<? extends Authentication> anonymousClass) {
-        this.anonymousClass = anonymousClass;
-    }
+	public void setAnonymousClass(Class<? extends Authentication> anonymousClass) {
+		this.anonymousClass = anonymousClass;
+	}
 
-    public void setRememberMeClass(Class<? extends Authentication> rememberMeClass) {
-        this.rememberMeClass = rememberMeClass;
-    }
+	public void setRememberMeClass(Class<? extends Authentication> rememberMeClass) {
+		this.rememberMeClass = rememberMeClass;
+	}
 }

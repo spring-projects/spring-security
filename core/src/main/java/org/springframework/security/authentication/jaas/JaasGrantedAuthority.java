@@ -20,10 +20,9 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 
 import java.security.Principal;
 
-
 /**
- * {@code GrantedAuthority} which, in addition to the assigned role, holds the principal that an
- * {@link AuthorityGranter} used as a reason to grant this authority.
+ * {@code GrantedAuthority} which, in addition to the assigned role, holds the principal
+ * that an {@link AuthorityGranter} used as a reason to grant this authority.
  *
  * @author Ray Krueger
  *
@@ -31,44 +30,45 @@ import java.security.Principal;
  */
 public final class JaasGrantedAuthority implements GrantedAuthority {
 
-    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-    private final String role;
-    private final Principal principal;
+	private final String role;
+	private final Principal principal;
 
-    public JaasGrantedAuthority(String role, Principal principal) {
-        this.role = role;
-        this.principal = principal;
-    }
+	public JaasGrantedAuthority(String role, Principal principal) {
+		this.role = role;
+		this.principal = principal;
+	}
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public Principal getPrincipal() {
-        return principal;
-    }
+	public Principal getPrincipal() {
+		return principal;
+	}
 
-    public String getAuthority() {
-        return role;
-    }
+	public String getAuthority() {
+		return role;
+	}
 
-    public int hashCode() {
-        return 31 ^ principal.hashCode() ^ role.hashCode();
-    }
+	public int hashCode() {
+		return 31 ^ principal.hashCode() ^ role.hashCode();
+	}
 
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
 
-        if (obj instanceof JaasGrantedAuthority) {
-            JaasGrantedAuthority jga = (JaasGrantedAuthority) obj;
-            return this.role.equals(jga.role) && this.principal.equals(jga.principal);
-        }
+		if (obj instanceof JaasGrantedAuthority) {
+			JaasGrantedAuthority jga = (JaasGrantedAuthority) obj;
+			return this.role.equals(jga.role) && this.principal.equals(jga.principal);
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-    public String toString() {
-        return "Jaas Authority [" + role + "," + principal + "]" ;
-    }
+	public String toString() {
+		return "Jaas Authority [" + role + "," + principal + "]";
+	}
 }

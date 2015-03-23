@@ -17,11 +17,9 @@ package org.springframework.security.core.context;
 
 import junit.framework.TestCase;
 
-
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextImpl;
-
 
 /**
  * Tests {@link SecurityContextImpl}.
@@ -29,29 +27,31 @@ import org.springframework.security.core.context.SecurityContextImpl;
  * @author Ben Alex
  */
 public class SecurityContextImplTests extends TestCase {
-    //~ Constructors ===================================================================================================
+	// ~ Constructors
+	// ===================================================================================================
 
-    public SecurityContextImplTests() {
-        super();
-    }
+	public SecurityContextImplTests() {
+		super();
+	}
 
-    public SecurityContextImplTests(String arg0) {
-        super(arg0);
-    }
+	public SecurityContextImplTests(String arg0) {
+		super(arg0);
+	}
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public void testEmptyObjectsAreEquals() {
-        SecurityContextImpl obj1 = new SecurityContextImpl();
-        SecurityContextImpl obj2 = new SecurityContextImpl();
-        assertTrue(obj1.equals(obj2));
-    }
+	public void testEmptyObjectsAreEquals() {
+		SecurityContextImpl obj1 = new SecurityContextImpl();
+		SecurityContextImpl obj2 = new SecurityContextImpl();
+		assertTrue(obj1.equals(obj2));
+	}
 
-    public void testSecurityContextCorrectOperation() {
-        SecurityContext context = new SecurityContextImpl();
-        Authentication auth = new UsernamePasswordAuthenticationToken("rod", "koala");
-        context.setAuthentication(auth);
-        assertEquals(auth, context.getAuthentication());
-        assertTrue(context.toString().lastIndexOf("rod") != -1);
-    }
+	public void testSecurityContextCorrectOperation() {
+		SecurityContext context = new SecurityContextImpl();
+		Authentication auth = new UsernamePasswordAuthenticationToken("rod", "koala");
+		context.setAuthentication(auth);
+		assertEquals(auth, context.getAuthentication());
+		assertTrue(context.toString().lastIndexOf("rod") != -1);
+	}
 }

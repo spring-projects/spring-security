@@ -19,20 +19,20 @@ import org.springframework.security.web.authentication.NullRememberMeServices;
 
 import junit.framework.TestCase;
 
-
 /**
  * Tests {@link org.springframework.security.web.authentication.NullRememberMeServices}.
  *
  * @author Ben Alex
  */
 public class NullRememberMeServicesTests extends TestCase {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public void testAlwaysReturnsNull() {
-        NullRememberMeServices services = new NullRememberMeServices();
-        assertNull(services.autoLogin(null, null));
-        services.loginFail(null, null);
-        services.loginSuccess(null, null, null);
-        assertTrue(true);
-    }
+	public void testAlwaysReturnsNull() {
+		NullRememberMeServices services = new NullRememberMeServices();
+		assertNull(services.autoLogin(null, null));
+		services.loginFail(null, null);
+		services.loginSuccess(null, null, null);
+		assertTrue(true);
+	}
 }

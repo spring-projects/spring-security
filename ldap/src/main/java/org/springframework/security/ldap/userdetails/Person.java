@@ -14,7 +14,6 @@
  */
 package org.springframework.security.ldap.userdetails;
 
-
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
@@ -28,128 +27,122 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * UserDetails implementation whose properties are based on the LDAP schema for <tt>Person</tt>.
+ * UserDetails implementation whose properties are based on the LDAP schema for
+ * <tt>Person</tt>.
  *
  * @author Luke
  * @since 2.0
  */
 public class Person extends LdapUserDetailsImpl {
 
-    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-    private String givenName;
-    private String sn;
-    private String description;
-    private String telephoneNumber;
-    private List<String> cn = new ArrayList<String>();
+	private String givenName;
+	private String sn;
+	private String description;
+	private String telephoneNumber;
+	private List<String> cn = new ArrayList<String>();
 
-    protected Person() {
-    }
+	protected Person() {
+	}
 
-    public String getGivenName() {
-        return givenName;
-    }
+	public String getGivenName() {
+		return givenName;
+	}
 
-    public String getSn() {
-        return sn;
-    }
+	public String getSn() {
+		return sn;
+	}
 
-    public String[] getCn() {
-        return cn.toArray(new String[cn.size()]);
-    }
+	public String[] getCn() {
+		return cn.toArray(new String[cn.size()]);
+	}
 
-    public String getDescription() {
-        return description;
-    }
+	public String getDescription() {
+		return description;
+	}
 
-    public String getTelephoneNumber() {
-        return telephoneNumber;
-    }
+	public String getTelephoneNumber() {
+		return telephoneNumber;
+	}
 
-    protected void populateContext(DirContextAdapter adapter) {
-        adapter.setAttributeValue("givenName", givenName);
-        adapter.setAttributeValue("sn", sn);
-        adapter.setAttributeValues("cn", getCn());
-        adapter.setAttributeValue("description", getDescription());
-        adapter.setAttributeValue("telephoneNumber", getTelephoneNumber());
+	protected void populateContext(DirContextAdapter adapter) {
+		adapter.setAttributeValue("givenName", givenName);
+		adapter.setAttributeValue("sn", sn);
+		adapter.setAttributeValues("cn", getCn());
+		adapter.setAttributeValue("description", getDescription());
+		adapter.setAttributeValue("telephoneNumber", getTelephoneNumber());
 
-        if(getPassword() != null) {
-            adapter.setAttributeValue("userPassword", getPassword());
-        }
-        adapter.setAttributeValues("objectclass", new String[] {"top", "person"});
-    }
+		if (getPassword() != null) {
+			adapter.setAttributeValue("userPassword", getPassword());
+		}
+		adapter.setAttributeValues("objectclass", new String[] { "top", "person" });
+	}
 
-    public static class Essence extends LdapUserDetailsImpl.Essence {
+	public static class Essence extends LdapUserDetailsImpl.Essence {
 
-        public Essence() {
-        }
+		public Essence() {
+		}
 
-        public Essence(DirContextOperations ctx) {
-            super(ctx);
-            setCn(ctx.getStringAttributes("cn"));
-            setGivenName(ctx.getStringAttribute("givenName"));
-            setSn(ctx.getStringAttribute("sn"));
-            setDescription(ctx.getStringAttribute("description"));
-            setTelephoneNumber(ctx.getStringAttribute("telephoneNumber"));
-            Object passo = ctx.getObjectAttribute("userPassword");
+		public Essence(DirContextOperations ctx) {
+			super(ctx);
+			setCn(ctx.getStringAttributes("cn"));
+			setGivenName(ctx.getStringAttribute("givenName"));
+			setSn(ctx.getStringAttribute("sn"));
+			setDescription(ctx.getStringAttribute("description"));
+			setTelephoneNumber(ctx.getStringAttribute("telephoneNumber"));
+			Object passo = ctx.getObjectAttribute("userPassword");
 
-            if(passo != null) {
-                String password = LdapUtils.convertPasswordToString(passo);
-                setPassword(password);
-            }
-        }
+			if (passo != null) {
+				String password = LdapUtils.convertPasswordToString(passo);
+				setPassword(password);
+			}
+		}
 
-        public Essence(Person copyMe) {
-            super(copyMe);
-            setGivenName(copyMe.givenName);
-            setSn(copyMe.sn);
-            setDescription(copyMe.getDescription());
-            setTelephoneNumber(copyMe.getTelephoneNumber());
-            ((Person) instance).cn = new ArrayList<String>(copyMe.cn);
-        }
+		public Essence(Person copyMe) {
+			super(copyMe);
+			setGivenName(copyMe.givenName);
+			setSn(copyMe.sn);
+			setDescription(copyMe.getDescription());
+			setTelephoneNumber(copyMe.getTelephoneNumber());
+			((Person) instance).cn = new ArrayList<String>(copyMe.cn);
+		}
 
-        protected LdapUserDetailsImpl createTarget() {
-            return new Person();
-        }
+		protected LdapUserDetailsImpl createTarget() {
+			return new Person();
+		}
 
-        public void setGivenName(String givenName) {
-            ((Person) instance).givenName = givenName;
-        }
+		public void setGivenName(String givenName) {
+			((Person) instance).givenName = givenName;
+		}
 
-        public void setSn(String sn) {
-            ((Person) instance).sn = sn;
-        }
+		public void setSn(String sn) {
+			((Person) instance).sn = sn;
+		}
 
-        public void setCn(String[] cn) {
-            ((Person) instance).cn = Arrays.asList(cn);
-        }
+		public void setCn(String[] cn) {
+			((Person) instance).cn = Arrays.asList(cn);
+		}
 
-        public void addCn(String value) {
-            ((Person) instance).cn.add(value);
-        }
+		public void addCn(String value) {
+			((Person) instance).cn.add(value);
+		}
 
-        public void setTelephoneNumber(String tel) {
-            ((Person) instance).telephoneNumber = tel;
-        }
+		public void setTelephoneNumber(String tel) {
+			((Person) instance).telephoneNumber = tel;
+		}
 
-        public void setDescription(String desc) {
-            ((Person) instance).description = desc;
-        }
+		public void setDescription(String desc) {
+			((Person) instance).description = desc;
+		}
 
-        public LdapUserDetails createUserDetails() {
-            Person p = (Person) super.createUserDetails();
-            Assert.hasLength(p.sn);
-            Assert.notNull(p.cn);
-            Assert.notEmpty(p.cn);
-            // TODO: Check contents for null entries
-            return p;
-        }
-    }
+		public LdapUserDetails createUserDetails() {
+			Person p = (Person) super.createUserDetails();
+			Assert.hasLength(p.sn);
+			Assert.notNull(p.cn);
+			Assert.notEmpty(p.cn);
+			// TODO: Check contents for null entries
+			return p;
+		}
+	}
 }
-
-
-
-
-
-
-

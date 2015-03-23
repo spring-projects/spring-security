@@ -17,7 +17,6 @@ package org.springframework.security.authentication.event;
 
 import junit.framework.TestCase;
 
-
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
@@ -27,62 +26,65 @@ import org.springframework.security.authentication.event.AuthenticationSuccessEv
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
-
 /**
  * Tests {@link AbstractAuthenticationEvent} and its subclasses.
  *
  * @author Ben Alex
  */
 public class AuthenticationEventTests extends TestCase {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    private Authentication getAuthentication() {
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken("Principal",
-                "Credentials");
-        authentication.setDetails("127.0.0.1");
+	private Authentication getAuthentication() {
+		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+				"Principal", "Credentials");
+		authentication.setDetails("127.0.0.1");
 
-        return authentication;
-    }
+		return authentication;
+	}
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(AuthenticationEventTests.class);
-    }
+	public static void main(String[] args) {
+		junit.textui.TestRunner.run(AuthenticationEventTests.class);
+	}
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+	public final void setUp() throws Exception {
+		super.setUp();
+	}
 
-    public void testAbstractAuthenticationEvent() {
-        Authentication auth = getAuthentication();
-        AbstractAuthenticationEvent event = new AuthenticationSuccessEvent(auth);
-        assertEquals(auth, event.getAuthentication());
-    }
+	public void testAbstractAuthenticationEvent() {
+		Authentication auth = getAuthentication();
+		AbstractAuthenticationEvent event = new AuthenticationSuccessEvent(auth);
+		assertEquals(auth, event.getAuthentication());
+	}
 
-    public void testAbstractAuthenticationFailureEvent() {
-        Authentication auth = getAuthentication();
-        AuthenticationException exception = new DisabledException("TEST");
-        AbstractAuthenticationFailureEvent event = new AuthenticationFailureDisabledEvent(auth, exception);
-        assertEquals(auth, event.getAuthentication());
-        assertEquals(exception, event.getException());
-    }
+	public void testAbstractAuthenticationFailureEvent() {
+		Authentication auth = getAuthentication();
+		AuthenticationException exception = new DisabledException("TEST");
+		AbstractAuthenticationFailureEvent event = new AuthenticationFailureDisabledEvent(
+				auth, exception);
+		assertEquals(auth, event.getAuthentication());
+		assertEquals(exception, event.getException());
+	}
 
-    public void testRejectsNullAuthentication() {
-        AuthenticationException exception = new DisabledException("TEST");
+	public void testRejectsNullAuthentication() {
+		AuthenticationException exception = new DisabledException("TEST");
 
-        try {
-            new AuthenticationFailureDisabledEvent(null, exception);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-    }
+		try {
+			new AuthenticationFailureDisabledEvent(null, exception);
+			fail("Should have thrown IllegalArgumentException");
+		}
+		catch (IllegalArgumentException expected) {
+			assertTrue(true);
+		}
+	}
 
-    public void testRejectsNullAuthenticationException() {
-        try {
-            new AuthenticationFailureDisabledEvent(getAuthentication(), null);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-    }
+	public void testRejectsNullAuthenticationException() {
+		try {
+			new AuthenticationFailureDisabledEvent(getAuthentication(), null);
+			fail("Should have thrown IllegalArgumentException");
+		}
+		catch (IllegalArgumentException expected) {
+			assertTrue(true);
+		}
+	}
 }

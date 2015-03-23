@@ -14,7 +14,6 @@
  */
 package org.springframework.security.acls.model;
 
-
 /**
  * A mutable ACL that provides audit capabilities.
  *
@@ -22,7 +21,8 @@ package org.springframework.security.acls.model;
  *
  */
 public interface AuditableAcl extends MutableAcl {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    void updateAuditing(int aceIndex, boolean auditSuccess, boolean auditFailure);
+	void updateAuditing(int aceIndex, boolean auditSuccess, boolean auditFailure);
 }

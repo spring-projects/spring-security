@@ -29,30 +29,31 @@ import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.util.Assert;
 
-
 /**
- * A class used to get all the {@link WebSecurityConfigurer} instances from the
- * current {@link ApplicationContext} but ignoring the parent.
+ * A class used to get all the {@link WebSecurityConfigurer} instances from the current
+ * {@link ApplicationContext} but ignoring the parent.
  *
  * @author Rob Winch
  *
  */
 final class AutowiredWebSecurityConfigurersIgnoreParents {
 
-    private final ConfigurableListableBeanFactory beanFactory;
+	private final ConfigurableListableBeanFactory beanFactory;
 
-    public AutowiredWebSecurityConfigurersIgnoreParents(ConfigurableListableBeanFactory beanFactory) {
-        Assert.notNull(beanFactory,"beanFactory cannot be null");
-        this.beanFactory = beanFactory;
-    }
+	public AutowiredWebSecurityConfigurersIgnoreParents(
+			ConfigurableListableBeanFactory beanFactory) {
+		Assert.notNull(beanFactory, "beanFactory cannot be null");
+		this.beanFactory = beanFactory;
+	}
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public List<SecurityConfigurer<Filter, WebSecurity>> getWebSecurityConfigurers() {
-        List<SecurityConfigurer<Filter, WebSecurity>> webSecurityConfigurers = new ArrayList<SecurityConfigurer<Filter, WebSecurity>>();
-        Map<String, WebSecurityConfigurer> beansOfType = beanFactory.getBeansOfType(WebSecurityConfigurer.class);
-        for(Entry<String,WebSecurityConfigurer> entry : beansOfType.entrySet()) {
-            webSecurityConfigurers.add(entry.getValue());
-        }
-        return webSecurityConfigurers;
-    }
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public List<SecurityConfigurer<Filter, WebSecurity>> getWebSecurityConfigurers() {
+		List<SecurityConfigurer<Filter, WebSecurity>> webSecurityConfigurers = new ArrayList<SecurityConfigurer<Filter, WebSecurity>>();
+		Map<String, WebSecurityConfigurer> beansOfType = beanFactory
+				.getBeansOfType(WebSecurityConfigurer.class);
+		for (Entry<String, WebSecurityConfigurer> entry : beansOfType.entrySet()) {
+			webSecurityConfigurers.add(entry.getValue());
+		}
+		return webSecurityConfigurers;
+	}
 }

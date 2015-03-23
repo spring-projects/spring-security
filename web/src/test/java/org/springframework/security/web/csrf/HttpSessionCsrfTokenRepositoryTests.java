@@ -27,127 +27,124 @@ import org.springframework.mock.web.MockHttpServletResponse;
  *
  */
 public class HttpSessionCsrfTokenRepositoryTests {
-    private MockHttpServletRequest request;
+	private MockHttpServletRequest request;
 
-    private MockHttpServletResponse response;
+	private MockHttpServletResponse response;
 
-    private CsrfToken token;
-    private HttpSessionCsrfTokenRepository repo;
+	private CsrfToken token;
+	private HttpSessionCsrfTokenRepository repo;
 
-    @Before
-    public void setup() {
-        request = new MockHttpServletRequest();
-        response = new MockHttpServletResponse();
-        repo = new HttpSessionCsrfTokenRepository();
-    }
+	@Before
+	public void setup() {
+		request = new MockHttpServletRequest();
+		response = new MockHttpServletResponse();
+		repo = new HttpSessionCsrfTokenRepository();
+	}
 
-    @Test
-    public void generateToken() {
-        token = repo.generateToken(request);
+	@Test
+	public void generateToken() {
+		token = repo.generateToken(request);
 
-        assertThat(token.getParameterName()).isEqualTo("_csrf");
-        assertThat(token.getToken()).isNotEmpty();
+		assertThat(token.getParameterName()).isEqualTo("_csrf");
+		assertThat(token.getToken()).isNotEmpty();
 
-        CsrfToken loadedToken = repo.loadToken(request);
+		CsrfToken loadedToken = repo.loadToken(request);
 
-        assertThat(loadedToken).isNull();
-    }
+		assertThat(loadedToken).isNull();
+	}
 
-    @Test
-    public void generateCustomParameter() {
-        String paramName = "_csrf";
-        repo.setParameterName(paramName);
+	@Test
+	public void generateCustomParameter() {
+		String paramName = "_csrf";
+		repo.setParameterName(paramName);
 
-        token = repo.generateToken(request);
+		token = repo.generateToken(request);
 
-        assertThat(token.getParameterName()).isEqualTo(paramName);
-        assertThat(token.getToken()).isNotEmpty();
-    }
+		assertThat(token.getParameterName()).isEqualTo(paramName);
+		assertThat(token.getToken()).isNotEmpty();
+	}
 
-    @Test
-    public void generateCustomHeader() {
-        String headerName = "CSRF";
-        repo.setHeaderName(headerName);
+	@Test
+	public void generateCustomHeader() {
+		String headerName = "CSRF";
+		repo.setHeaderName(headerName);
 
-        token = repo.generateToken(request);
+		token = repo.generateToken(request);
 
-        assertThat(token.getHeaderName()).isEqualTo(headerName);
-        assertThat(token.getToken()).isNotEmpty();
-    }
+		assertThat(token.getHeaderName()).isEqualTo(headerName);
+		assertThat(token.getToken()).isNotEmpty();
+	}
 
-    @Test
-    public void loadTokenNull() {
-        assertThat(repo.loadToken(request)).isNull();
-        assertThat(request.getSession(false)).isNull();
-    }
+	@Test
+	public void loadTokenNull() {
+		assertThat(repo.loadToken(request)).isNull();
+		assertThat(request.getSession(false)).isNull();
+	}
 
-    @Test
-    public void loadTokenNullWhenSessionExists() {
-        request.getSession();
-        assertThat(repo.loadToken(request)).isNull();
-    }
+	@Test
+	public void loadTokenNullWhenSessionExists() {
+		request.getSession();
+		assertThat(repo.loadToken(request)).isNull();
+	}
 
-    @Test
-    public void saveToken() {
-        CsrfToken tokenToSave = new DefaultCsrfToken("123", "abc", "def");
-        repo.saveToken(tokenToSave, request, response);
+	@Test
+	public void saveToken() {
+		CsrfToken tokenToSave = new DefaultCsrfToken("123", "abc", "def");
+		repo.saveToken(tokenToSave, request, response);
 
-        String attrName = request.getSession().getAttributeNames()
-                .nextElement();
-        CsrfToken loadedToken = (CsrfToken) request.getSession().getAttribute(
-                attrName);
+		String attrName = request.getSession().getAttributeNames().nextElement();
+		CsrfToken loadedToken = (CsrfToken) request.getSession().getAttribute(attrName);
 
-        assertThat(loadedToken).isEqualTo(tokenToSave);
-    }
+		assertThat(loadedToken).isEqualTo(tokenToSave);
+	}
 
-    @Test
-    public void saveTokenCustomSessionAttribute() {
-        CsrfToken tokenToSave = new DefaultCsrfToken("123", "abc", "def");
-        String sessionAttributeName = "custom";
-        repo.setSessionAttributeName(sessionAttributeName);
-        repo.saveToken(tokenToSave, request, response);
+	@Test
+	public void saveTokenCustomSessionAttribute() {
+		CsrfToken tokenToSave = new DefaultCsrfToken("123", "abc", "def");
+		String sessionAttributeName = "custom";
+		repo.setSessionAttributeName(sessionAttributeName);
+		repo.saveToken(tokenToSave, request, response);
 
-        CsrfToken loadedToken = (CsrfToken) request.getSession().getAttribute(
-                sessionAttributeName);
+		CsrfToken loadedToken = (CsrfToken) request.getSession().getAttribute(
+				sessionAttributeName);
 
-        assertThat(loadedToken).isEqualTo(tokenToSave);
-    }
+		assertThat(loadedToken).isEqualTo(tokenToSave);
+	}
 
-    @Test
-    public void saveTokenNullToken() {
-        saveToken();
+	@Test
+	public void saveTokenNullToken() {
+		saveToken();
 
-        repo.saveToken(null, request, response);
+		repo.saveToken(null, request, response);
 
-        assertThat(request.getSession().getAttributeNames().hasMoreElements())
-                .isFalse();
-    }
+		assertThat(request.getSession().getAttributeNames().hasMoreElements()).isFalse();
+	}
 
-    @Test
-    public void saveTokenNullTokenWhenSessionNotExists() {
+	@Test
+	public void saveTokenNullTokenWhenSessionNotExists() {
 
-        repo.saveToken(null, request, response);
+		repo.saveToken(null, request, response);
 
-        assertThat(request.getSession(false)).isNull();
-    }
+		assertThat(request.getSession(false)).isNull();
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void setSessionAttributeNameEmpty() {
-        repo.setSessionAttributeName("");
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void setSessionAttributeNameEmpty() {
+		repo.setSessionAttributeName("");
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void setSessionAttributeNameNull() {
-        repo.setSessionAttributeName(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void setSessionAttributeNameNull() {
+		repo.setSessionAttributeName(null);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void setParameterNameEmpty() {
-        repo.setParameterName("");
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void setParameterNameEmpty() {
+		repo.setParameterName("");
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void setParameterNameNull() {
-        repo.setParameterName(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void setParameterNameNull() {
+		repo.setParameterName(null);
+	}
 }

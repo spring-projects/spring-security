@@ -8,17 +8,17 @@ import org.springframework.security.acls.model.Sid;
  */
 public class CustomSid implements Sid {
 
-    private String sid;
+	private String sid;
 
-    public CustomSid(String sid) {
-        this.sid = sid;
-    }
+	public CustomSid(String sid) {
+		this.sid = sid;
+	}
 
-    public String getSid() {
-        return sid;
-    }
+	public String getSid() {
+		return sid;
+	}
 
-    public void setSid(String sid) {
-        this.sid = sid;
-    }
+	public void setSid(String sid) {
+		this.sid = sid;
+	}
 }

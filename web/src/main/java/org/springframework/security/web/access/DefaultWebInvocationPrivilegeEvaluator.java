@@ -26,7 +26,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.util.Assert;
 
-
 /**
  * Allows users to determine whether they have privileges for a given web URI.
  *
@@ -34,85 +33,99 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @since 3.0
  */
-public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPrivilegeEvaluator {
-    //~ Static fields/initializers =====================================================================================
+public class DefaultWebInvocationPrivilegeEvaluator implements
+		WebInvocationPrivilegeEvaluator {
+	// ~ Static fields/initializers
+	// =====================================================================================
 
-    protected static final Log logger = LogFactory.getLog(DefaultWebInvocationPrivilegeEvaluator.class);
+	protected static final Log logger = LogFactory
+			.getLog(DefaultWebInvocationPrivilegeEvaluator.class);
 
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private final AbstractSecurityInterceptor securityInterceptor;
+	private final AbstractSecurityInterceptor securityInterceptor;
 
-    //~ Constructors ===================================================================================================
+	// ~ Constructors
+	// ===================================================================================================
 
-    public DefaultWebInvocationPrivilegeEvaluator(AbstractSecurityInterceptor securityInterceptor) {
-        Assert.notNull(securityInterceptor, "SecurityInterceptor cannot be null");
-        Assert.isTrue(FilterInvocation.class.equals(securityInterceptor.getSecureObjectClass()),
-            "AbstractSecurityInterceptor does not support FilterInvocations");
-        Assert.notNull(securityInterceptor.getAccessDecisionManager(),
-            "AbstractSecurityInterceptor must provide a non-null AccessDecisionManager");
+	public DefaultWebInvocationPrivilegeEvaluator(
+			AbstractSecurityInterceptor securityInterceptor) {
+		Assert.notNull(securityInterceptor, "SecurityInterceptor cannot be null");
+		Assert.isTrue(
+				FilterInvocation.class.equals(securityInterceptor.getSecureObjectClass()),
+				"AbstractSecurityInterceptor does not support FilterInvocations");
+		Assert.notNull(securityInterceptor.getAccessDecisionManager(),
+				"AbstractSecurityInterceptor must provide a non-null AccessDecisionManager");
 
-        this.securityInterceptor = securityInterceptor;
-    }
+		this.securityInterceptor = securityInterceptor;
+	}
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    /**
-     * Determines whether the user represented by the supplied <tt>Authentication</tt> object is
-     * allowed to invoke the supplied URI.
-     *
-     * @param uri the URI excluding the context path (a default context path setting will be used)
-     */
-    public boolean isAllowed(String uri, Authentication authentication) {
-        return isAllowed(null, uri, null, authentication);
-    }
+	/**
+	 * Determines whether the user represented by the supplied <tt>Authentication</tt>
+	 * object is allowed to invoke the supplied URI.
+	 *
+	 * @param uri the URI excluding the context path (a default context path setting will
+	 * be used)
+	 */
+	public boolean isAllowed(String uri, Authentication authentication) {
+		return isAllowed(null, uri, null, authentication);
+	}
 
-    /**
-     * Determines whether the user represented by the supplied <tt>Authentication</tt> object is
-     * allowed to invoke the supplied URI, with the given .
-     * <p>
-     * Note the default implementation of <tt>FilterInvocationSecurityMetadataSource</tt> disregards the
-     * <code>contextPath</code> when evaluating which secure object metadata applies to a given
-     * request URI, so generally the <code>contextPath</code> is unimportant unless you
-     * are using a custom <code>FilterInvocationSecurityMetadataSource</code>.
-     *
-     * @param uri the URI excluding the context path
-     * @param contextPath the context path (may be null, in which case a default value will be used).
-     * @param method the HTTP method (or null, for any method)
-     * @param authentication the <tt>Authentication</tt> instance whose authorities should be used in evaluation
-     *          whether access should be granted.
-     * @return true if access is allowed, false if denied
-     */
-    public boolean isAllowed(String contextPath, String uri, String method, Authentication authentication) {
-        Assert.notNull(uri, "uri parameter is required");
+	/**
+	 * Determines whether the user represented by the supplied <tt>Authentication</tt>
+	 * object is allowed to invoke the supplied URI, with the given .
+	 * <p>
+	 * Note the default implementation of <tt>FilterInvocationSecurityMetadataSource</tt>
+	 * disregards the <code>contextPath</code> when evaluating which secure object
+	 * metadata applies to a given request URI, so generally the <code>contextPath</code>
+	 * is unimportant unless you are using a custom
+	 * <code>FilterInvocationSecurityMetadataSource</code>.
+	 *
+	 * @param uri the URI excluding the context path
+	 * @param contextPath the context path (may be null, in which case a default value
+	 * will be used).
+	 * @param method the HTTP method (or null, for any method)
+	 * @param authentication the <tt>Authentication</tt> instance whose authorities should
+	 * be used in evaluation whether access should be granted.
+	 * @return true if access is allowed, false if denied
+	 */
+	public boolean isAllowed(String contextPath, String uri, String method,
+			Authentication authentication) {
+		Assert.notNull(uri, "uri parameter is required");
 
-        FilterInvocation fi = new FilterInvocation(contextPath, uri, method);
-        Collection<ConfigAttribute> attrs = securityInterceptor.obtainSecurityMetadataSource().getAttributes(fi);
+		FilterInvocation fi = new FilterInvocation(contextPath, uri, method);
+		Collection<ConfigAttribute> attrs = securityInterceptor
+				.obtainSecurityMetadataSource().getAttributes(fi);
 
-        if (attrs == null) {
-            if (securityInterceptor.isRejectPublicInvocations()) {
-                return false;
-            }
+		if (attrs == null) {
+			if (securityInterceptor.isRejectPublicInvocations()) {
+				return false;
+			}
 
-            return true;
-        }
+			return true;
+		}
 
-        if (authentication == null) {
-            return false;
-        }
+		if (authentication == null) {
+			return false;
+		}
 
-        try {
-            securityInterceptor.getAccessDecisionManager().decide(authentication, fi, attrs);
-        } catch (AccessDeniedException unauthorized) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(fi.toString() + " denied for " + authentication.toString(), unauthorized);
-            }
+		try {
+			securityInterceptor.getAccessDecisionManager().decide(authentication, fi,
+					attrs);
+		}
+		catch (AccessDeniedException unauthorized) {
+			if (logger.isDebugEnabled()) {
+				logger.debug(fi.toString() + " denied for " + authentication.toString(),
+						unauthorized);
+			}
 
-            return false;
-        }
+			return false;
+		}
 
-        return true;
-    }
+		return true;
+	}
 }
-
-

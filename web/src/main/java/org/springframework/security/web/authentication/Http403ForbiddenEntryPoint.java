@@ -13,15 +13,13 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 
 /**
  * <p>
- * In the pre-authenticated authentication case (unlike CAS, for example) the
- * user will already have been identified through some external mechanism and a
- * secure context established by the time the security-enforcement filter is
- * invoked.
+ * In the pre-authenticated authentication case (unlike CAS, for example) the user will
+ * already have been identified through some external mechanism and a secure context
+ * established by the time the security-enforcement filter is invoked.
  * <p>
- * Therefore this class isn't actually responsible for the commencement of
- * authentication, as it is in the case of other providers. It will be called if
- * the user is rejected by the AbstractPreAuthenticatedProcessingFilter,
- * resulting in a null authentication.
+ * Therefore this class isn't actually responsible for the commencement of authentication,
+ * as it is in the case of other providers. It will be called if the user is rejected by
+ * the AbstractPreAuthenticatedProcessingFilter, resulting in a null authentication.
  * <p>
  * The <code>commence</code> method will always return an
  * <code>HttpServletResponse.SC_FORBIDDEN</code> (403 error).
@@ -33,16 +31,16 @@ import org.springframework.security.web.AuthenticationEntryPoint;
  * @since 2.0
  */
 public class Http403ForbiddenEntryPoint implements AuthenticationEntryPoint {
-    private static final Log logger = LogFactory.getLog(Http403ForbiddenEntryPoint.class);
+	private static final Log logger = LogFactory.getLog(Http403ForbiddenEntryPoint.class);
 
-    /**
-     * Always returns a 403 error code to the client.
-     */
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException arg2) throws IOException,
-            ServletException {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Pre-authenticated entry point called. Rejecting access");
-        }
-        response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
-    }
+	/**
+	 * Always returns a 403 error code to the client.
+	 */
+	public void commence(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException arg2) throws IOException, ServletException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Pre-authenticated entry point called. Rejecting access");
+		}
+		response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
+	}
 }

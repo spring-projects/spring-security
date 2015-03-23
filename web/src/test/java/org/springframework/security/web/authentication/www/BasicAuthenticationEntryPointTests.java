@@ -22,68 +22,70 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationEn
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-
 /**
  * Tests {@link BasicAuthenticationEntryPoint}.
  *
  * @author Ben Alex
  */
 public class BasicAuthenticationEntryPointTests extends TestCase {
-    //~ Constructors ===================================================================================================
+	// ~ Constructors
+	// ===================================================================================================
 
-    public BasicAuthenticationEntryPointTests() {
-        super();
-    }
+	public BasicAuthenticationEntryPointTests() {
+		super();
+	}
 
-    public BasicAuthenticationEntryPointTests(String arg0) {
-        super(arg0);
-    }
+	public BasicAuthenticationEntryPointTests(String arg0) {
+		super(arg0);
+	}
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(BasicAuthenticationEntryPointTests.class);
-    }
+	public static void main(String[] args) {
+		junit.textui.TestRunner.run(BasicAuthenticationEntryPointTests.class);
+	}
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+	public final void setUp() throws Exception {
+		super.setUp();
+	}
 
-    public void testDetectsMissingRealmName() throws Exception {
-        BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
+	public void testDetectsMissingRealmName() throws Exception {
+		BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
 
-        try {
-            ep.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("realmName must be specified", expected.getMessage());
-        }
-    }
+		try {
+			ep.afterPropertiesSet();
+			fail("Should have thrown IllegalArgumentException");
+		}
+		catch (IllegalArgumentException expected) {
+			assertEquals("realmName must be specified", expected.getMessage());
+		}
+	}
 
-    public void testGettersSetters() {
-        BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
-        ep.setRealmName("realm");
-        assertEquals("realm", ep.getRealmName());
-    }
+	public void testGettersSetters() {
+		BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
+		ep.setRealmName("realm");
+		assertEquals("realm", ep.getRealmName());
+	}
 
-    public void testNormalOperation() throws Exception {
-        BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
+	public void testNormalOperation() throws Exception {
+		BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
 
-        ep.setRealmName("hello");
+		ep.setRealmName("hello");
 
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRequestURI("/some_path");
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/some_path");
 
-        MockHttpServletResponse response = new MockHttpServletResponse();
+		MockHttpServletResponse response = new MockHttpServletResponse();
 
-        //ep.afterPropertiesSet();
+		// ep.afterPropertiesSet();
 
-        String msg = "These are the jokes kid";
-        ep.commence(request, response, new DisabledException(msg));
+		String msg = "These are the jokes kid";
+		ep.commence(request, response, new DisabledException(msg));
 
-        assertEquals(401, response.getStatus());
-        assertEquals(msg, response.getErrorMessage());
+		assertEquals(401, response.getStatus());
+		assertEquals(msg, response.getErrorMessage());
 
-        assertEquals("Basic realm=\"hello\"", response.getHeader("WWW-Authenticate"));
-    }
+		assertEquals("Basic realm=\"hello\"", response.getHeader("WWW-Authenticate"));
+	}
 }

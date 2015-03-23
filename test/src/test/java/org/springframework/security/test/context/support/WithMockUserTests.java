@@ -22,15 +22,17 @@ import org.springframework.core.annotation.AnnotationUtils;
 
 public class WithMockUserTests {
 
-    @Test
-    public void defaults() {
-        WithMockUser mockUser = AnnotationUtils.findAnnotation(Annotated.class, WithMockUser.class);
-        assertThat(mockUser.value()).isEqualTo("user");
-        assertThat(mockUser.username()).isEmpty();
-        assertThat(mockUser.password()).isEqualTo("password");
-        assertThat(mockUser.roles()).containsOnly("USER");
-    }
+	@Test
+	public void defaults() {
+		WithMockUser mockUser = AnnotationUtils.findAnnotation(Annotated.class,
+				WithMockUser.class);
+		assertThat(mockUser.value()).isEqualTo("user");
+		assertThat(mockUser.username()).isEmpty();
+		assertThat(mockUser.password()).isEqualTo("password");
+		assertThat(mockUser.roles()).containsOnly("USER");
+	}
 
-    @WithMockUser
-    private class Annotated {}
+	@WithMockUser
+	private class Annotated {
+	}
 }

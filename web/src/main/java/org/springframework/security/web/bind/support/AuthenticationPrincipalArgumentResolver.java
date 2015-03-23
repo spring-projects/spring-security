@@ -28,7 +28,6 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-
 /**
  * Allows resolving the {@link Authentication#getPrincipal()} using the
  * {@link AuthenticationPrincipal} annotation. For example, the following
@@ -45,12 +44,12 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * </pre>
  *
  * <p>
- * Will resolve the CustomUser argument using
- * {@link Authentication#getPrincipal()} from the {@link SecurityContextHolder}.
- * If the {@link Authentication} or {@link Authentication#getPrincipal()} is
- * null, it will return null. If the types do not match, null will be returned
- * unless {@link AuthenticationPrincipal#errorOnInvalidType()} is true in which
- * case a {@link ClassCastException} will be thrown.
+ * Will resolve the CustomUser argument using {@link Authentication#getPrincipal()} from
+ * the {@link SecurityContextHolder}. If the {@link Authentication} or
+ * {@link Authentication#getPrincipal()} is null, it will return null. If the types do not
+ * match, null will be returned unless
+ * {@link AuthenticationPrincipal#errorOnInvalidType()} is true in which case a
+ * {@link ClassCastException} will be thrown.
  * </p>
  *
  * <p>
@@ -79,63 +78,83 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  *     }
  * </pre>
  *
- * @deprecated use org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver
+ * @deprecated use org.springframework.security.web.method.annotation.
+ * AuthenticationPrincipalArgumentResolver
  *
  * @author Rob Winch
  * @since 3.2
  */
 @Deprecated
 public final class AuthenticationPrincipalArgumentResolver implements
-    HandlerMethodArgumentResolver {
+		HandlerMethodArgumentResolver {
 
-    /* (non-Javadoc)
-     * @see org.springframework.web.method.support.HandlerMethodArgumentResolver#supportsParameter(org.springframework.core.MethodParameter)
-     */
-    public boolean supportsParameter(MethodParameter parameter) {
-        return findMethodAnnotation(AuthenticationPrincipal.class, parameter) != null;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.springframework.web.method.support.HandlerMethodArgumentResolver#supportsParameter
+	 * (org.springframework.core.MethodParameter)
+	 */
+	public boolean supportsParameter(MethodParameter parameter) {
+		return findMethodAnnotation(AuthenticationPrincipal.class, parameter) != null;
+	}
 
-    /* (non-Javadoc)
-     * @see org.springframework.web.method.support.HandlerMethodArgumentResolver#resolveArgument(org.springframework.core.MethodParameter, org.springframework.web.method.support.ModelAndViewContainer, org.springframework.web.context.request.NativeWebRequest, org.springframework.web.bind.support.WebDataBinderFactory)
-     */
-    public Object resolveArgument(MethodParameter parameter,
-            ModelAndViewContainer mavContainer, NativeWebRequest webRequest,
-            WebDataBinderFactory binderFactory) throws Exception {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication == null) {
-            return null;
-        }
-        Object principal = authentication.getPrincipal();
-        if(principal != null && !parameter.getParameterType().isAssignableFrom(principal.getClass())) {
-            AuthenticationPrincipal authPrincipal = findMethodAnnotation(AuthenticationPrincipal.class, parameter);
-            if(authPrincipal.errorOnInvalidType()) {
-                throw new ClassCastException(principal + " is not assignable to " + parameter.getParameterType());
-            } else {
-                return null;
-            }
-        }
-        return principal;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.springframework.web.method.support.HandlerMethodArgumentResolver#resolveArgument
+	 * (org.springframework.core.MethodParameter,
+	 * org.springframework.web.method.support.ModelAndViewContainer,
+	 * org.springframework.web.context.request.NativeWebRequest,
+	 * org.springframework.web.bind.support.WebDataBinderFactory)
+	 */
+	public Object resolveArgument(MethodParameter parameter,
+			ModelAndViewContainer mavContainer, NativeWebRequest webRequest,
+			WebDataBinderFactory binderFactory) throws Exception {
+		Authentication authentication = SecurityContextHolder.getContext()
+				.getAuthentication();
+		if (authentication == null) {
+			return null;
+		}
+		Object principal = authentication.getPrincipal();
+		if (principal != null
+				&& !parameter.getParameterType().isAssignableFrom(principal.getClass())) {
+			AuthenticationPrincipal authPrincipal = findMethodAnnotation(
+					AuthenticationPrincipal.class, parameter);
+			if (authPrincipal.errorOnInvalidType()) {
+				throw new ClassCastException(principal + " is not assignable to "
+						+ parameter.getParameterType());
+			}
+			else {
+				return null;
+			}
+		}
+		return principal;
+	}
 
-    /**
-     * Obtains the specified {@link Annotation} on the specified {@link MethodParameter}.
-     *
-     * @param annotationClass the class of the {@link Annotation} to find on the {@link MethodParameter}
-     * @param parameter the {@link MethodParameter} to search for an {@link Annotation}
-     * @return the {@link Annotation} that was found or null.
-     */
-    private <T extends Annotation> T findMethodAnnotation(Class<T> annotationClass, MethodParameter parameter) {
-        T annotation = parameter.getParameterAnnotation(annotationClass);
-        if(annotation != null) {
-            return annotation;
-        }
-        Annotation[] annotationsToSearch = parameter.getParameterAnnotations();
-        for(Annotation toSearch : annotationsToSearch) {
-            annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(), annotationClass);
-            if(annotation != null) {
-                return annotation;
-            }
-        }
-        return null;
-    }
+	/**
+	 * Obtains the specified {@link Annotation} on the specified {@link MethodParameter}.
+	 *
+	 * @param annotationClass the class of the {@link Annotation} to find on the
+	 * {@link MethodParameter}
+	 * @param parameter the {@link MethodParameter} to search for an {@link Annotation}
+	 * @return the {@link Annotation} that was found or null.
+	 */
+	private <T extends Annotation> T findMethodAnnotation(Class<T> annotationClass,
+			MethodParameter parameter) {
+		T annotation = parameter.getParameterAnnotation(annotationClass);
+		if (annotation != null) {
+			return annotation;
+		}
+		Annotation[] annotationsToSearch = parameter.getParameterAnnotations();
+		for (Annotation toSearch : annotationsToSearch) {
+			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(),
+					annotationClass);
+			if (annotation != null) {
+				return annotation;
+			}
+		}
+		return null;
+	}
 }

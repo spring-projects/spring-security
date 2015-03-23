@@ -44,126 +44,135 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChannelSecurityInterceptorTests {
-    @Mock
-    Message<Object> message;
-    @Mock
-    MessageChannel channel;
-    @Mock
-    MessageSecurityMetadataSource source;
-    @Mock
-    AccessDecisionManager accessDecisionManager;
-    @Mock
-    RunAsManager runAsManager;
-    @Mock
-    Authentication runAs;
+	@Mock
+	Message<Object> message;
+	@Mock
+	MessageChannel channel;
+	@Mock
+	MessageSecurityMetadataSource source;
+	@Mock
+	AccessDecisionManager accessDecisionManager;
+	@Mock
+	RunAsManager runAsManager;
+	@Mock
+	Authentication runAs;
 
-    Authentication originalAuth;
+	Authentication originalAuth;
 
-    List<ConfigAttribute> attrs;
+	List<ConfigAttribute> attrs;
 
-    ChannelSecurityInterceptor interceptor;
+	ChannelSecurityInterceptor interceptor;
 
-    @Before
-    public void setup() {
-        attrs = Arrays.<ConfigAttribute>asList(new SecurityConfig("ROLE_USER"));
-        interceptor = new ChannelSecurityInterceptor(source);
-        interceptor.setAccessDecisionManager(accessDecisionManager);
-        interceptor.setRunAsManager(runAsManager);
+	@Before
+	public void setup() {
+		attrs = Arrays.<ConfigAttribute> asList(new SecurityConfig("ROLE_USER"));
+		interceptor = new ChannelSecurityInterceptor(source);
+		interceptor.setAccessDecisionManager(accessDecisionManager);
+		interceptor.setRunAsManager(runAsManager);
 
-        originalAuth = new TestingAuthenticationToken("user", "pass", "ROLE_USER");
-        SecurityContextHolder.getContext().setAuthentication(originalAuth);
-    }
+		originalAuth = new TestingAuthenticationToken("user", "pass", "ROLE_USER");
+		SecurityContextHolder.getContext().setAuthentication(originalAuth);
+	}
 
-    @After
-    public void cleanup() {
-        SecurityContextHolder.clearContext();
-    }
+	@After
+	public void cleanup() {
+		SecurityContextHolder.clearContext();
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorMessageSecurityMetadataSourceNull() {
-        new ChannelSecurityInterceptor(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorMessageSecurityMetadataSourceNull() {
+		new ChannelSecurityInterceptor(null);
+	}
 
-    @Test
-    public void getSecureObjectClass() throws Exception {
-        assertThat(interceptor.getSecureObjectClass()).isEqualTo(Message.class);
-    }
+	@Test
+	public void getSecureObjectClass() throws Exception {
+		assertThat(interceptor.getSecureObjectClass()).isEqualTo(Message.class);
+	}
 
-    @Test
-    public void obtainSecurityMetadataSource() throws Exception {
-        assertThat(interceptor.obtainSecurityMetadataSource()).isEqualTo(source);
-    }
+	@Test
+	public void obtainSecurityMetadataSource() throws Exception {
+		assertThat(interceptor.obtainSecurityMetadataSource()).isEqualTo(source);
+	}
 
-    @Test
-    public void preSendNullAttributes() throws Exception {
-        assertThat(interceptor.preSend(message, channel)).isSameAs(message);
-    }
+	@Test
+	public void preSendNullAttributes() throws Exception {
+		assertThat(interceptor.preSend(message, channel)).isSameAs(message);
+	}
 
-    @Test
-    public void preSendGrant() throws Exception {
-        when(source.getAttributes(message)).thenReturn(attrs);
+	@Test
+	public void preSendGrant() throws Exception {
+		when(source.getAttributes(message)).thenReturn(attrs);
 
-        Message<?> result = interceptor.preSend(message, channel);
+		Message<?> result = interceptor.preSend(message, channel);
 
-        assertThat(result).isSameAs(message);
-    }
+		assertThat(result).isSameAs(message);
+	}
 
-    @Test(expected = AccessDeniedException.class)
-    public void preSendDeny() throws Exception {
-        when(source.getAttributes(message)).thenReturn(attrs);
-        doThrow(new AccessDeniedException("")).when(accessDecisionManager).decide(any(Authentication.class), eq(message), eq(attrs));
+	@Test(expected = AccessDeniedException.class)
+	public void preSendDeny() throws Exception {
+		when(source.getAttributes(message)).thenReturn(attrs);
+		doThrow(new AccessDeniedException("")).when(accessDecisionManager).decide(
+				any(Authentication.class), eq(message), eq(attrs));
 
-        interceptor.preSend(message, channel);
-    }
+		interceptor.preSend(message, channel);
+	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void preSendPostSendRunAs() throws Exception {
+		when(source.getAttributes(message)).thenReturn(attrs);
+		when(
+				runAsManager.buildRunAs(any(Authentication.class), any(),
+						any(Collection.class))).thenReturn(runAs);
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void preSendPostSendRunAs() throws Exception {
-        when(source.getAttributes(message)).thenReturn(attrs);
-        when(runAsManager.buildRunAs(any(Authentication.class), any(), any(Collection.class))).thenReturn(runAs);
+		Message<?> preSend = interceptor.preSend(message, channel);
 
-        Message<?> preSend = interceptor.preSend(message,channel);
+		assertThat(SecurityContextHolder.getContext().getAuthentication())
+				.isSameAs(runAs);
 
-        assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(runAs);
+		interceptor.postSend(preSend, channel, true);
 
-        interceptor.postSend(preSend, channel, true);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(
+				originalAuth);
+	}
 
-        assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(originalAuth);
-    }
+	@Test
+	public void afterSendCompletionNotTokenMessageNoExceptionThrown() throws Exception {
+		interceptor.afterSendCompletion(message, channel, true, null);
+	}
 
-    @Test
-    public void afterSendCompletionNotTokenMessageNoExceptionThrown() throws Exception {
-        interceptor.afterSendCompletion(message, channel, true, null);
-    }
+	@SuppressWarnings("unchecked")
+	@Test
+	public void preSendFinallySendRunAs() throws Exception {
+		when(source.getAttributes(message)).thenReturn(attrs);
+		when(
+				runAsManager.buildRunAs(any(Authentication.class), any(),
+						any(Collection.class))).thenReturn(runAs);
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void preSendFinallySendRunAs() throws Exception {
-        when(source.getAttributes(message)).thenReturn(attrs);
-        when(runAsManager.buildRunAs(any(Authentication.class), any(), any(Collection.class))).thenReturn(runAs);
+		Message<?> preSend = interceptor.preSend(message, channel);
 
-        Message<?> preSend = interceptor.preSend(message,channel);
+		assertThat(SecurityContextHolder.getContext().getAuthentication())
+				.isSameAs(runAs);
 
-        assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(runAs);
+		interceptor.afterSendCompletion(preSend, channel, true, new RuntimeException());
 
-        interceptor.afterSendCompletion(preSend, channel, true, new RuntimeException());
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(
+				originalAuth);
+	}
 
-        assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(originalAuth);
-    }
+	@Test
+	public void preReceive() throws Exception {
+		assertThat(interceptor.preReceive(channel)).isTrue();
+		;
+	}
 
-    @Test
-    public void preReceive() throws Exception {
-        assertThat(interceptor.preReceive(channel)).isTrue();;
-    }
+	@Test
+	public void postReceive() throws Exception {
+		assertThat(interceptor.postReceive(message, channel)).isSameAs(message);
+	}
 
-    @Test
-    public void postReceive() throws Exception {
-        assertThat(interceptor.postReceive(message, channel)).isSameAs(message);
-    }
-
-    @Test
-    public void afterReceiveCompletionNullExceptionNoExceptionThrown() throws Exception {
-        interceptor.afterReceiveCompletion(message, channel, null);
-    }
+	@Test
+	public void afterReceiveCompletionNullExceptionNoExceptionThrown() throws Exception {
+		interceptor.afterReceiveCompletion(message, channel, null);
+	}
 }

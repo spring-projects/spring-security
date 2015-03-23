@@ -16,30 +16,30 @@ import java.util.*;
  * @author Luke Taylor
  * @since 2.0
  */
-public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails extends WebAuthenticationDetails implements
-        GrantedAuthoritiesContainer {
+public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails extends
+		WebAuthenticationDetails implements GrantedAuthoritiesContainer {
 
-    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-    private final List<GrantedAuthority> authorities;
+	private final List<GrantedAuthority> authorities;
 
-    public PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(HttpServletRequest request,
-            Collection<? extends GrantedAuthority> authorities) {
-        super(request);
+	public PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(
+			HttpServletRequest request, Collection<? extends GrantedAuthority> authorities) {
+		super(request);
 
-        List<GrantedAuthority> temp = new ArrayList<GrantedAuthority>(authorities.size());
-        temp.addAll(authorities);
-        this.authorities = Collections.unmodifiableList(temp);
-    }
+		List<GrantedAuthority> temp = new ArrayList<GrantedAuthority>(authorities.size());
+		temp.addAll(authorities);
+		this.authorities = Collections.unmodifiableList(temp);
+	}
 
-    public List<GrantedAuthority> getGrantedAuthorities() {
-        return authorities;
-    }
+	public List<GrantedAuthority> getGrantedAuthorities() {
+		return authorities;
+	}
 
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(super.toString()).append("; ");
-        sb.append(authorities);
-        return sb.toString();
-    }
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(super.toString()).append("; ");
+		sb.append(authorities);
+		return sb.toString();
+	}
 }

@@ -42,49 +42,54 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
-    private UserRepository myUserRepository;
+	@Autowired
+	private UserRepository myUserRepository;
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-            .authenticationProvider(authenticationProvider());
-    }
+	// @formatter:off
+	@Override
+	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		auth
+			.authenticationProvider(authenticationProvider());
+	}
+	// @formatter:on
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http
-            .authorizeRequests()
-                .antMatchers("/*").permitAll();
-    }
+	// @formatter:off
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+			.authorizeRequests()
+				.antMatchers("/*").permitAll();
+	}
+	// @formatter:on
 
-    @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean()
-            throws Exception {
-        return super.authenticationManagerBean();
-    }
+	@Bean
+	@Override
+	public AuthenticationManager authenticationManagerBean() throws Exception {
+		return super.authenticationManagerBean();
+	}
 
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        Assert.notNull(myUserRepository);
-        return new AuthenticationProvider() {
-            public boolean supports(Class<?> authentication) {
-                return true;
-            }
-            public Authentication authenticate(Authentication authentication)
-                    throws AuthenticationException {
-                Object principal = authentication.getPrincipal();
-                String username = String.valueOf(principal);
-                User user = myUserRepository.findByUsername(username);
-                if(user == null) {
-                    throw new UsernameNotFoundException("No user for principal "+principal);
-                }
-                if(!authentication.getCredentials().equals(user.getPassword())) {
-                    throw new BadCredentialsException("Invalid password");
-                }
-                return new TestingAuthenticationToken(principal, null, "ROLE_USER");
-            }
-        };
-    }
+	@Bean
+	public AuthenticationProvider authenticationProvider() {
+		Assert.notNull(myUserRepository);
+		return new AuthenticationProvider() {
+			public boolean supports(Class<?> authentication) {
+				return true;
+			}
+
+			public Authentication authenticate(Authentication authentication)
+					throws AuthenticationException {
+				Object principal = authentication.getPrincipal();
+				String username = String.valueOf(principal);
+				User user = myUserRepository.findByUsername(username);
+				if (user == null) {
+					throw new UsernameNotFoundException("No user for principal "
+							+ principal);
+				}
+				if (!authentication.getCredentials().equals(user.getPassword())) {
+					throw new BadCredentialsException("Invalid password");
+				}
+				return new TestingAuthenticationToken(principal, null, "ROLE_USER");
+			}
+		};
+	}
 }

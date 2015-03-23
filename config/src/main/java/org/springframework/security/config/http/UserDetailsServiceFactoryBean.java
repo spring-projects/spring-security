@@ -24,109 +24,121 @@ import org.springframework.util.StringUtils;
  */
 public class UserDetailsServiceFactoryBean implements ApplicationContextAware {
 
-    private ApplicationContext beanFactory;
+	private ApplicationContext beanFactory;
 
-    UserDetailsService userDetailsService(String id) {
-        if (!StringUtils.hasText(id)) {
-            return getUserDetailsService();
-        }
+	UserDetailsService userDetailsService(String id) {
+		if (!StringUtils.hasText(id)) {
+			return getUserDetailsService();
+		}
 
-        return (UserDetailsService) beanFactory.getBean(id);
-    }
+		return (UserDetailsService) beanFactory.getBean(id);
+	}
 
-    UserDetailsService cachingUserDetailsService(String id) {
-        if (!StringUtils.hasText(id)) {
-            return getUserDetailsService();
-        }
-        // Overwrite with the caching version if available
-        String cachingId = id + AbstractUserDetailsServiceBeanDefinitionParser.CACHING_SUFFIX;
+	UserDetailsService cachingUserDetailsService(String id) {
+		if (!StringUtils.hasText(id)) {
+			return getUserDetailsService();
+		}
+		// Overwrite with the caching version if available
+		String cachingId = id
+				+ AbstractUserDetailsServiceBeanDefinitionParser.CACHING_SUFFIX;
 
-        if (beanFactory.containsBeanDefinition(cachingId)) {
-            return (UserDetailsService) beanFactory.getBean(cachingId);
-        }
+		if (beanFactory.containsBeanDefinition(cachingId)) {
+			return (UserDetailsService) beanFactory.getBean(cachingId);
+		}
 
-        return (UserDetailsService) beanFactory.getBean(id);
-    }
+		return (UserDetailsService) beanFactory.getBean(id);
+	}
 
-    @SuppressWarnings("unchecked")
-    AuthenticationUserDetailsService authenticationUserDetailsService(String name) {
-        UserDetailsService uds;
+	@SuppressWarnings("unchecked")
+	AuthenticationUserDetailsService authenticationUserDetailsService(String name) {
+		UserDetailsService uds;
 
-        if (!StringUtils.hasText(name)) {
-            Map<String,?> beans = getBeansOfType(AuthenticationUserDetailsService.class);
+		if (!StringUtils.hasText(name)) {
+			Map<String, ?> beans = getBeansOfType(AuthenticationUserDetailsService.class);
 
-            if (!beans.isEmpty()) {
-                if (beans.size() > 1) {
-                    throw new ApplicationContextException("More than one AuthenticationUserDetailsService registered." +
-                            " Please use a specific Id reference.");
-                }
-                return (AuthenticationUserDetailsService) beans.values().toArray()[0];
-            }
+			if (!beans.isEmpty()) {
+				if (beans.size() > 1) {
+					throw new ApplicationContextException(
+							"More than one AuthenticationUserDetailsService registered."
+									+ " Please use a specific Id reference.");
+				}
+				return (AuthenticationUserDetailsService) beans.values().toArray()[0];
+			}
 
-            uds = getUserDetailsService();
-        } else {
-            Object bean = beanFactory.getBean(name);
+			uds = getUserDetailsService();
+		}
+		else {
+			Object bean = beanFactory.getBean(name);
 
-            if (bean instanceof AuthenticationUserDetailsService) {
-                return (AuthenticationUserDetailsService)bean;
-            } else if (bean instanceof UserDetailsService) {
-                uds = cachingUserDetailsService(name);
+			if (bean instanceof AuthenticationUserDetailsService) {
+				return (AuthenticationUserDetailsService) bean;
+			}
+			else if (bean instanceof UserDetailsService) {
+				uds = cachingUserDetailsService(name);
 
-                if (uds == null) {
-                    uds = (UserDetailsService)bean;
-                }
-            } else {
-                throw new ApplicationContextException("Bean '" + name + "' must be a UserDetailsService or an" +
-                        " AuthenticationUserDetailsService");
-            }
-        }
+				if (uds == null) {
+					uds = (UserDetailsService) bean;
+				}
+			}
+			else {
+				throw new ApplicationContextException("Bean '" + name
+						+ "' must be a UserDetailsService or an"
+						+ " AuthenticationUserDetailsService");
+			}
+		}
 
-        return new UserDetailsByNameServiceWrapper(uds);
-    }
+		return new UserDetailsByNameServiceWrapper(uds);
+	}
 
-    /**
-     * Obtains a user details service for use in RememberMeServices etc. Will return a caching version
-     * if available so should not be used for beans which need to separate the two.
-     */
-    private UserDetailsService getUserDetailsService() {
-        Map<String,?> beans = getBeansOfType(CachingUserDetailsService.class);
+	/**
+	 * Obtains a user details service for use in RememberMeServices etc. Will return a
+	 * caching version if available so should not be used for beans which need to separate
+	 * the two.
+	 */
+	private UserDetailsService getUserDetailsService() {
+		Map<String, ?> beans = getBeansOfType(CachingUserDetailsService.class);
 
-        if (beans.size() == 0) {
-            beans = getBeansOfType(UserDetailsService.class);
-        }
+		if (beans.size() == 0) {
+			beans = getBeansOfType(UserDetailsService.class);
+		}
 
-        if (beans.size() == 0) {
-            throw new ApplicationContextException("No UserDetailsService registered.");
+		if (beans.size() == 0) {
+			throw new ApplicationContextException("No UserDetailsService registered.");
 
-        } else if (beans.size() > 1) {
-            throw new ApplicationContextException("More than one UserDetailsService registered. Please " +
-                    "use a specific Id reference in <remember-me/> <openid-login/> or <x509 /> elements.");
-        }
+		}
+		else if (beans.size() > 1) {
+			throw new ApplicationContextException(
+					"More than one UserDetailsService registered. Please "
+							+ "use a specific Id reference in <remember-me/> <openid-login/> or <x509 /> elements.");
+		}
 
-        return (UserDetailsService) beans.values().toArray()[0];
-    }
+		return (UserDetailsService) beans.values().toArray()[0];
+	}
 
-    public void setApplicationContext(ApplicationContext beanFactory) throws BeansException {
-        this.beanFactory = beanFactory;
-    }
+	public void setApplicationContext(ApplicationContext beanFactory)
+			throws BeansException {
+		this.beanFactory = beanFactory;
+	}
 
-    private Map<String,?> getBeansOfType(Class<?> type) {
-        Map<String,?> beans = beanFactory.getBeansOfType(type);
+	private Map<String, ?> getBeansOfType(Class<?> type) {
+		Map<String, ?> beans = beanFactory.getBeansOfType(type);
 
-        // Check ancestor bean factories if they exist and the current one has none of the required type
-        BeanFactory parent = beanFactory.getParentBeanFactory();
-        while (parent != null && beans.size() == 0) {
-            if (parent instanceof ListableBeanFactory) {
-                beans = ((ListableBeanFactory)parent).getBeansOfType(type);
-            }
-            if (parent instanceof HierarchicalBeanFactory) {
-                parent = ((HierarchicalBeanFactory)parent).getParentBeanFactory();
-            } else {
-                break;
-            }
-        }
+		// Check ancestor bean factories if they exist and the current one has none of the
+		// required type
+		BeanFactory parent = beanFactory.getParentBeanFactory();
+		while (parent != null && beans.size() == 0) {
+			if (parent instanceof ListableBeanFactory) {
+				beans = ((ListableBeanFactory) parent).getBeansOfType(type);
+			}
+			if (parent instanceof HierarchicalBeanFactory) {
+				parent = ((HierarchicalBeanFactory) parent).getParentBeanFactory();
+			}
+			else {
+				break;
+			}
+		}
 
-        return beans;
-    }
+		return beans;
+	}
 
 }

@@ -33,26 +33,23 @@ import org.springframework.security.web.access.intercept.FilterInvocationSecurit
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
-
 /**
  * Adds URL based authorization using
  * {@link DefaultFilterInvocationSecurityMetadataSource}. At least one
- * {@link org.springframework.web.bind.annotation.RequestMapping} needs to be
- * mapped to {@link ConfigAttribute}'s for this
- * {@link SecurityContextConfigurer} to have meaning. <h2>Security Filters</h2>
+ * {@link org.springframework.web.bind.annotation.RequestMapping} needs to be mapped to
+ * {@link ConfigAttribute}'s for this {@link SecurityContextConfigurer} to have meaning.
+ * <h2>Security Filters</h2>
  *
  * <p>
- * Usage includes applying the {@link UrlAuthorizationConfigurer} and then
- * modifying the StandardInterceptUrlRegistry. For example:
+ * Usage includes applying the {@link UrlAuthorizationConfigurer} and then modifying the
+ * StandardInterceptUrlRegistry. For example:
  * </p>
  *
  * <pre>
  * protected void configure(HttpSecurity http) throws Exception {
- *     http
- *          .apply(new UrlAuthorizationConfigurer<HttpSecurity>()).getRegistry()
- *              .antMatchers("/users**","/sessions/**").hasRole("USER")
- *              .antMatchers("/signup").hasRole("ANONYMOUS")
- *              .anyRequest().hasRole("USER");
+ * 	http.apply(new UrlAuthorizationConfigurer&lt;HttpSecurity&gt;()).getRegistry()
+ * 			.antMatchers(&quot;/users**&quot;, &quot;/sessions/**&quot;).hasRole(&quot;USER&quot;)
+ * 			.antMatchers(&quot;/signup&quot;).hasRole(&quot;ANONYMOUS&quot;).anyRequest().hasRole(&quot;USER&quot;);
  * }
  * </pre>
  *
@@ -60,19 +57,17 @@ import org.springframework.util.Assert;
  *
  * <ul>
  * <li>
- * {@link org.springframework.security.web.access.intercept.FilterSecurityInterceptor}
- * </li>
+ * {@link org.springframework.security.web.access.intercept.FilterSecurityInterceptor}</li>
  * </ul>
  *
  * <h2>Shared Objects Created</h2>
  *
  * The following shared objects are populated to allow other
- * {@link org.springframework.security.config.annotation.SecurityConfigurer}'s
- * to customize:
+ * {@link org.springframework.security.config.annotation.SecurityConfigurer}'s to
+ * customize:
  * <ul>
  * <li>
- * {@link org.springframework.security.web.access.intercept.FilterSecurityInterceptor}
- * </li>
+ * {@link org.springframework.security.web.access.intercept.FilterSecurityInterceptor}</li>
  * </ul>
  *
  * <h2>Shared Objects Used</h2>
@@ -81,226 +76,236 @@ import org.springframework.util.Assert;
  *
  * <ul>
  * <li>
- * AuthenticationManager
- * </li>
+ * AuthenticationManager</li>
  * </ul>
  *
- * @param <H>
- *            the type of {@link HttpSecurityBuilder} that is being configured
+ * @param <H> the type of {@link HttpSecurityBuilder} that is being configured
  *
  * @author Rob Winch
  * @since 3.2
  * @see ExpressionUrlAuthorizationConfigurer
  */
-public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractInterceptUrlConfigurer<UrlAuthorizationConfigurer<H>,H> {
-    private final StandardInterceptUrlRegistry REGISTRY = new StandardInterceptUrlRegistry();
+public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> extends
+		AbstractInterceptUrlConfigurer<UrlAuthorizationConfigurer<H>, H> {
+	private final StandardInterceptUrlRegistry REGISTRY = new StandardInterceptUrlRegistry();
 
-    /**
-     * The StandardInterceptUrlRegistry is what users will interact with after
-     * applying the {@link UrlAuthorizationConfigurer}.
-     *
-     * @return
-     */
-    public StandardInterceptUrlRegistry getRegistry() {
-        return REGISTRY;
-    }
+	/**
+	 * The StandardInterceptUrlRegistry is what users will interact with after applying
+	 * the {@link UrlAuthorizationConfigurer}.
+	 *
+	 * @return
+	 */
+	public StandardInterceptUrlRegistry getRegistry() {
+		return REGISTRY;
+	}
 
-    /**
-     * Adds an {@link ObjectPostProcessor} for this class.
-     *
-     * @param objectPostProcessor
-     * @return the {@link UrlAuthorizationConfigurer} for further customizations
-     */
-    public UrlAuthorizationConfigurer<H> withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
-        addObjectPostProcessor(objectPostProcessor);
-        return this;
-    }
+	/**
+	 * Adds an {@link ObjectPostProcessor} for this class.
+	 *
+	 * @param objectPostProcessor
+	 * @return the {@link UrlAuthorizationConfigurer} for further customizations
+	 */
+	public UrlAuthorizationConfigurer<H> withObjectPostProcessor(
+			ObjectPostProcessor<?> objectPostProcessor) {
+		addObjectPostProcessor(objectPostProcessor);
+		return this;
+	}
 
-    public class StandardInterceptUrlRegistry extends ExpressionUrlAuthorizationConfigurer<H>.AbstractInterceptUrlRegistry<StandardInterceptUrlRegistry,AuthorizedUrl> {
+	public class StandardInterceptUrlRegistry
+			extends
+			ExpressionUrlAuthorizationConfigurer<H>.AbstractInterceptUrlRegistry<StandardInterceptUrlRegistry, AuthorizedUrl> {
 
-        @Override
-        protected final AuthorizedUrl chainRequestMatchersInternal(List<RequestMatcher> requestMatchers) {
-            return new AuthorizedUrl(requestMatchers);
-        }
+		@Override
+		protected final AuthorizedUrl chainRequestMatchersInternal(
+				List<RequestMatcher> requestMatchers) {
+			return new AuthorizedUrl(requestMatchers);
+		}
 
-        /**
-         * Adds an {@link ObjectPostProcessor} for this class.
-         *
-         * @param objectPostProcessor
-         * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customizations
-         */
-        public StandardInterceptUrlRegistry withObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
-            addObjectPostProcessor(objectPostProcessor);
-            return this;
-        }
+		/**
+		 * Adds an {@link ObjectPostProcessor} for this class.
+		 *
+		 * @param objectPostProcessor
+		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
+		 * customizations
+		 */
+		public StandardInterceptUrlRegistry withObjectPostProcessor(
+				ObjectPostProcessor<?> objectPostProcessor) {
+			addObjectPostProcessor(objectPostProcessor);
+			return this;
+		}
 
-        public H and() {
-            return UrlAuthorizationConfigurer.this.and();
-        }
+		public H and() {
+			return UrlAuthorizationConfigurer.this.and();
+		}
 
-    }
+	}
 
-    /**
-     * Creates the default {@link AccessDecisionVoter} instances used if an
-     * {@link AccessDecisionManager} was not specified.
-     *
-     * @param http the builder to use
-     */
-    @Override
-    @SuppressWarnings("rawtypes")
-    final List<AccessDecisionVoter<? extends Object>> getDecisionVoters(H http) {
-        List<AccessDecisionVoter<? extends Object>> decisionVoters = new ArrayList<AccessDecisionVoter<? extends Object>>();
-        decisionVoters.add(new RoleVoter());
-        decisionVoters.add(new AuthenticatedVoter());
-        return decisionVoters;
-    }
+	/**
+	 * Creates the default {@link AccessDecisionVoter} instances used if an
+	 * {@link AccessDecisionManager} was not specified.
+	 *
+	 * @param http the builder to use
+	 */
+	@Override
+	@SuppressWarnings("rawtypes")
+	final List<AccessDecisionVoter<? extends Object>> getDecisionVoters(H http) {
+		List<AccessDecisionVoter<? extends Object>> decisionVoters = new ArrayList<AccessDecisionVoter<? extends Object>>();
+		decisionVoters.add(new RoleVoter());
+		decisionVoters.add(new AuthenticatedVoter());
+		return decisionVoters;
+	}
 
-    /**
-     * Creates the {@link FilterInvocationSecurityMetadataSource} to use. The
-     * implementation is a {@link DefaultFilterInvocationSecurityMetadataSource}.
-     *
-     * @param http the builder to use
-     */
-    @Override
-    FilterInvocationSecurityMetadataSource createMetadataSource(H http) {
-        return new DefaultFilterInvocationSecurityMetadataSource(REGISTRY.createRequestMap());
-    }
+	/**
+	 * Creates the {@link FilterInvocationSecurityMetadataSource} to use. The
+	 * implementation is a {@link DefaultFilterInvocationSecurityMetadataSource}.
+	 *
+	 * @param http the builder to use
+	 */
+	@Override
+	FilterInvocationSecurityMetadataSource createMetadataSource(H http) {
+		return new DefaultFilterInvocationSecurityMetadataSource(
+				REGISTRY.createRequestMap());
+	}
 
-    /**
-     * Adds a mapping of the {@link RequestMatcher} instances to the {@link ConfigAttribute} instances.
-     * @param requestMatchers the {@link RequestMatcher} instances that should map to the provided {@link ConfigAttribute} instances
-     * @param configAttributes the {@link ConfigAttribute} instances that should be mapped by the {@link RequestMatcher} instances
-     * @return the {@link UrlAuthorizationConfigurer} for further customizations
-     */
-    private StandardInterceptUrlRegistry addMapping(Iterable<? extends RequestMatcher> requestMatchers, Collection<ConfigAttribute> configAttributes) {
-        for(RequestMatcher requestMatcher : requestMatchers) {
-            REGISTRY.addMapping(new AbstractConfigAttributeRequestMatcherRegistry.UrlMapping(requestMatcher, configAttributes));
-        }
-        return REGISTRY;
-    }
+	/**
+	 * Adds a mapping of the {@link RequestMatcher} instances to the
+	 * {@link ConfigAttribute} instances.
+	 * @param requestMatchers the {@link RequestMatcher} instances that should map to the
+	 * provided {@link ConfigAttribute} instances
+	 * @param configAttributes the {@link ConfigAttribute} instances that should be mapped
+	 * by the {@link RequestMatcher} instances
+	 * @return the {@link UrlAuthorizationConfigurer} for further customizations
+	 */
+	private StandardInterceptUrlRegistry addMapping(
+			Iterable<? extends RequestMatcher> requestMatchers,
+			Collection<ConfigAttribute> configAttributes) {
+		for (RequestMatcher requestMatcher : requestMatchers) {
+			REGISTRY.addMapping(new AbstractConfigAttributeRequestMatcherRegistry.UrlMapping(
+					requestMatcher, configAttributes));
+		}
+		return REGISTRY;
+	}
 
-    /**
-     * Creates a String for specifying a user requires a role.
-     *
-     * @param role
-     *            the role that should be required which is prepended with ROLE_
-     *            automatically (i.e. USER, ADMIN, etc). It should not start
-     *            with ROLE_
-     * @return the {@link ConfigAttribute} expressed as a String
-     */
-    private static String hasRole(String role) {
-        Assert.isTrue(
-                !role.startsWith("ROLE_"),
-                role
-                        + " should not start with ROLE_ since ROLE_ is automatically prepended when using hasRole. Consider using hasAuthority or access instead.");
-        return "ROLE_" + role;
-    }
+	/**
+	 * Creates a String for specifying a user requires a role.
+	 *
+	 * @param role the role that should be required which is prepended with ROLE_
+	 * automatically (i.e. USER, ADMIN, etc). It should not start with ROLE_
+	 * @return the {@link ConfigAttribute} expressed as a String
+	 */
+	private static String hasRole(String role) {
+		Assert.isTrue(
+				!role.startsWith("ROLE_"),
+				role
+						+ " should not start with ROLE_ since ROLE_ is automatically prepended when using hasRole. Consider using hasAuthority or access instead.");
+		return "ROLE_" + role;
+	}
 
-    /**
-     * Creates a String for specifying that a user requires one of many roles.
-     *
-     * @param roles
-     *            the roles that the user should have at least one of (i.e.
-     *            ADMIN, USER, etc). Each role should not start with ROLE_ since
-     *            it is automatically prepended already.
-     * @return the {@link ConfigAttribute} expressed as a String
-     */
-    private static String[] hasAnyRole(String... roles) {
-        for(int i=0;i<roles.length;i++) {
-            roles[i] = "ROLE_" + roles[i];
-        }
-        return roles;
-    }
+	/**
+	 * Creates a String for specifying that a user requires one of many roles.
+	 *
+	 * @param roles the roles that the user should have at least one of (i.e. ADMIN, USER,
+	 * etc). Each role should not start with ROLE_ since it is automatically prepended
+	 * already.
+	 * @return the {@link ConfigAttribute} expressed as a String
+	 */
+	private static String[] hasAnyRole(String... roles) {
+		for (int i = 0; i < roles.length; i++) {
+			roles[i] = "ROLE_" + roles[i];
+		}
+		return roles;
+	}
 
-    /**
-     * Creates a String for specifying that a user requires one of many authorities
-     * @param authorities the authorities that the user should have at least one of (i.e. ROLE_USER, ROLE_ADMIN, etc).
-     * @return the {@link ConfigAttribute} expressed as a String.
-     */
-    private static String[] hasAnyAuthority(String... authorities) {
-        return authorities;
-    }
+	/**
+	 * Creates a String for specifying that a user requires one of many authorities
+	 * @param authorities the authorities that the user should have at least one of (i.e.
+	 * ROLE_USER, ROLE_ADMIN, etc).
+	 * @return the {@link ConfigAttribute} expressed as a String.
+	 */
+	private static String[] hasAnyAuthority(String... authorities) {
+		return authorities;
+	}
 
-    /**
-     * Maps the specified {@link RequestMatcher} instances to {@link ConfigAttribute} instances.
-     *
-     * @author Rob Winch
-     * @since 3.2
-     */
-    public final class AuthorizedUrl {
-        private final List<RequestMatcher> requestMatchers;
+	/**
+	 * Maps the specified {@link RequestMatcher} instances to {@link ConfigAttribute}
+	 * instances.
+	 *
+	 * @author Rob Winch
+	 * @since 3.2
+	 */
+	public final class AuthorizedUrl {
+		private final List<RequestMatcher> requestMatchers;
 
-        /**
-         * Creates a new instance
-         * @param requestMatchers the {@link RequestMatcher} instances to map to some {@link ConfigAttribute} instances.
-         */
-        private AuthorizedUrl(List<RequestMatcher> requestMatchers) {
-            Assert.notEmpty(requestMatchers, "requestMatchers must contain at least one value");
-            this.requestMatchers = requestMatchers;
-        }
+		/**
+		 * Creates a new instance
+		 * @param requestMatchers the {@link RequestMatcher} instances to map to some
+		 * {@link ConfigAttribute} instances.
+		 */
+		private AuthorizedUrl(List<RequestMatcher> requestMatchers) {
+			Assert.notEmpty(requestMatchers,
+					"requestMatchers must contain at least one value");
+			this.requestMatchers = requestMatchers;
+		}
 
-        /**
-         * Specifies a user requires a role.
-         *
-         * @param role
-         *            the role that should be required which is prepended with ROLE_
-         *            automatically (i.e. USER, ADMIN, etc). It should not start
-         *            with ROLE_
-         * the {@link UrlAuthorizationConfigurer} for further customization
-         */
-        public StandardInterceptUrlRegistry hasRole(String role) {
-            return access(UrlAuthorizationConfigurer.hasRole(role));
-        }
+		/**
+		 * Specifies a user requires a role.
+		 *
+		 * @param role the role that should be required which is prepended with ROLE_
+		 * automatically (i.e. USER, ADMIN, etc). It should not start with ROLE_ the
+		 * {@link UrlAuthorizationConfigurer} for further customization
+		 */
+		public StandardInterceptUrlRegistry hasRole(String role) {
+			return access(UrlAuthorizationConfigurer.hasRole(role));
+		}
 
-        /**
-         * Specifies that a user requires one of many roles.
-         *
-         * @param roles
-         *            the roles that the user should have at least one of (i.e.
-         *            ADMIN, USER, etc). Each role should not start with ROLE_ since
-         *            it is automatically prepended already.
-         * @return the {@link UrlAuthorizationConfigurer} for further customization
-         */
-        public StandardInterceptUrlRegistry hasAnyRole(String... roles) {
-            return access(UrlAuthorizationConfigurer.hasAnyRole(roles));
-        }
+		/**
+		 * Specifies that a user requires one of many roles.
+		 *
+		 * @param roles the roles that the user should have at least one of (i.e. ADMIN,
+		 * USER, etc). Each role should not start with ROLE_ since it is automatically
+		 * prepended already.
+		 * @return the {@link UrlAuthorizationConfigurer} for further customization
+		 */
+		public StandardInterceptUrlRegistry hasAnyRole(String... roles) {
+			return access(UrlAuthorizationConfigurer.hasAnyRole(roles));
+		}
 
-        /**
-         * Specifies a user requires an authority.
-         *
-         * @param authority
-         *            the authority that should be required
-         * @return the {@link UrlAuthorizationConfigurer} for further customization
-         */
-        public StandardInterceptUrlRegistry hasAuthority(String authority) {
-            return access(authority);
-        }
+		/**
+		 * Specifies a user requires an authority.
+		 *
+		 * @param authority the authority that should be required
+		 * @return the {@link UrlAuthorizationConfigurer} for further customization
+		 */
+		public StandardInterceptUrlRegistry hasAuthority(String authority) {
+			return access(authority);
+		}
 
-        /**
-         * Specifies that a user requires one of many authorities
-         * @param authorities the authorities that the user should have at least one of (i.e. ROLE_USER, ROLE_ADMIN, etc).
-         * @return the {@link UrlAuthorizationConfigurer} for further customization
-         */
-        public StandardInterceptUrlRegistry hasAnyAuthority(String... authorities) {
-            return access(UrlAuthorizationConfigurer.hasAnyAuthority(authorities));
-        }
+		/**
+		 * Specifies that a user requires one of many authorities
+		 * @param authorities the authorities that the user should have at least one of
+		 * (i.e. ROLE_USER, ROLE_ADMIN, etc).
+		 * @return the {@link UrlAuthorizationConfigurer} for further customization
+		 */
+		public StandardInterceptUrlRegistry hasAnyAuthority(String... authorities) {
+			return access(UrlAuthorizationConfigurer.hasAnyAuthority(authorities));
+		}
 
-        /**
-         * Specifies that an anonymous user is allowed access
-         * @return the {@link UrlAuthorizationConfigurer} for further customization
-         */
-        public StandardInterceptUrlRegistry anonymous() {
-            return hasRole("ROLE_ANONYMOUS");
-        }
+		/**
+		 * Specifies that an anonymous user is allowed access
+		 * @return the {@link UrlAuthorizationConfigurer} for further customization
+		 */
+		public StandardInterceptUrlRegistry anonymous() {
+			return hasRole("ROLE_ANONYMOUS");
+		}
 
-        /**
-         * Specifies that the user must have the specified {@link ConfigAttribute}'s
-         * @param attributes the {@link ConfigAttribute}'s that restrict access to a URL
-         * @return the {@link UrlAuthorizationConfigurer} for further customization
-         */
-        public StandardInterceptUrlRegistry access(String... attributes) {
-            addMapping(requestMatchers, SecurityConfig.createList(attributes));
-            return UrlAuthorizationConfigurer.this.REGISTRY;
-        }
-    }
+		/**
+		 * Specifies that the user must have the specified {@link ConfigAttribute}'s
+		 * @param attributes the {@link ConfigAttribute}'s that restrict access to a URL
+		 * @return the {@link UrlAuthorizationConfigurer} for further customization
+		 */
+		public StandardInterceptUrlRegistry access(String... attributes) {
+			addMapping(requestMatchers, SecurityConfig.createList(attributes));
+			return UrlAuthorizationConfigurer.this.REGISTRY;
+		}
+	}
 }

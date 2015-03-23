@@ -1,6 +1,5 @@
 package sample.config;
 
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -17,28 +16,31 @@ import sample.websocket.WebSocketDisconnectHandler;
 @Configuration
 @EnableScheduling
 @EnableWebSocketMessageBroker
-public class WebSocketConfig<S extends ExpiringSession> extends AbstractSessionWebSocketMessageBrokerConfigurer<S> {
+public class WebSocketConfig<S extends ExpiringSession> extends
+		AbstractSessionWebSocketMessageBrokerConfigurer<S> {
 
-    @Override
-    protected void configureStompEndpoints(StompEndpointRegistry registry) {
-        registry
-                .addEndpoint("/chat")
-                .withSockJS();
-    }
+	@Override
+	protected void configureStompEndpoints(StompEndpointRegistry registry) {
+		registry.addEndpoint("/chat").withSockJS();
+	}
 
-    @Override
-    public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/queue/", "/topic/");
-        registry.setApplicationDestinationPrefixes("/app");
-    }
+	@Override
+	public void configureMessageBroker(MessageBrokerRegistry registry) {
+		registry.enableSimpleBroker("/queue/", "/topic/");
+		registry.setApplicationDestinationPrefixes("/app");
+	}
 
-    @Bean
-    public WebSocketConnectHandler webSocketConnectHandler(SimpMessageSendingOperations messagingTemplate, ActiveWebSocketUserRepository repository) {
-        return new WebSocketConnectHandler(messagingTemplate, repository);
-    }
+	@Bean
+	public WebSocketConnectHandler webSocketConnectHandler(
+			SimpMessageSendingOperations messagingTemplate,
+			ActiveWebSocketUserRepository repository) {
+		return new WebSocketConnectHandler(messagingTemplate, repository);
+	}
 
-    @Bean
-    public WebSocketDisconnectHandler webSocketDisconnectHandler(SimpMessageSendingOperations messagingTemplate, ActiveWebSocketUserRepository repository) {
-        return new WebSocketDisconnectHandler(messagingTemplate, repository);
-    }
+	@Bean
+	public WebSocketDisconnectHandler webSocketDisconnectHandler(
+			SimpMessageSendingOperations messagingTemplate,
+			ActiveWebSocketUserRepository repository) {
+		return new WebSocketDisconnectHandler(messagingTemplate, repository);
+	}
 }

@@ -6,8 +6,8 @@ import java.lang.annotation.Annotation;
 import java.util.*;
 
 /**
- * Strategy to process a custom security annotation to extract the relevant {@code ConfigAttribute}s for
- * securing a method.
+ * Strategy to process a custom security annotation to extract the relevant
+ * {@code ConfigAttribute}s for securing a method.
  * <p>
  * Used by {@code SecuredAnnotationSecurityMetadataSource}.
  *
@@ -15,5 +15,5 @@ import java.util.*;
  */
 public interface AnnotationMetadataExtractor<A extends Annotation> {
 
-    Collection<? extends ConfigAttribute> extractAttributes(A securityAnnotation);
+	Collection<? extends ConfigAttribute> extractAttributes(A securityAnnotation);
 }

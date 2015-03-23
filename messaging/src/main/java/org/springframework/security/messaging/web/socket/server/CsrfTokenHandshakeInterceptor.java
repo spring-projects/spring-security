@@ -27,28 +27,29 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
 /**
- * Copies a CsrfToken from the HttpServletRequest's attributes to the WebSocket attributes. This is used as the
- * expected CsrfToken when validating connection requests to ensure only the same origin connects.
+ * Copies a CsrfToken from the HttpServletRequest's attributes to the WebSocket
+ * attributes. This is used as the expected CsrfToken when validating connection requests
+ * to ensure only the same origin connects.
  *
  * @author Rob Winch
  * @since 4.0
  */
 public final class CsrfTokenHandshakeInterceptor implements HandshakeInterceptor {
 
-    public boolean beforeHandshake(ServerHttpRequest request,
-            ServerHttpResponse response, WebSocketHandler wsHandler,
-            Map<String, Object> attributes) throws Exception {
-        HttpServletRequest httpRequest = ((ServletServerHttpRequest)request).getServletRequest();
-        CsrfToken token = (CsrfToken) httpRequest.getAttribute(CsrfToken.class.getName());
-        if(token == null) {
-            return true;
-        }
-        attributes.put(CsrfToken.class.getName(), token);
-        return true;
-    }
+	public boolean beforeHandshake(ServerHttpRequest request,
+			ServerHttpResponse response, WebSocketHandler wsHandler,
+			Map<String, Object> attributes) throws Exception {
+		HttpServletRequest httpRequest = ((ServletServerHttpRequest) request)
+				.getServletRequest();
+		CsrfToken token = (CsrfToken) httpRequest.getAttribute(CsrfToken.class.getName());
+		if (token == null) {
+			return true;
+		}
+		attributes.put(CsrfToken.class.getName(), token);
+		return true;
+	}
 
-    public void afterHandshake(ServerHttpRequest request,
-            ServerHttpResponse response, WebSocketHandler wsHandler,
-            Exception exception) {
-    }
+	public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response,
+			WebSocketHandler wsHandler, Exception exception) {
+	}
 }

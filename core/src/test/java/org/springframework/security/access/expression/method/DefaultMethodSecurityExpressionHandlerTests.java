@@ -17,38 +17,40 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultMethodSecurityExpressionHandlerTests {
-    private DefaultMethodSecurityExpressionHandler handler;
+	private DefaultMethodSecurityExpressionHandler handler;
 
-    @Mock
-    private Authentication authentication;
-    @Mock
-    private MethodInvocation methodInvocation;
-    @Mock
-    private AuthenticationTrustResolver trustResolver;
+	@Mock
+	private Authentication authentication;
+	@Mock
+	private MethodInvocation methodInvocation;
+	@Mock
+	private AuthenticationTrustResolver trustResolver;
 
-    @Before
-    public void setup() {
-        handler = new DefaultMethodSecurityExpressionHandler();
-    }
+	@Before
+	public void setup() {
+		handler = new DefaultMethodSecurityExpressionHandler();
+	}
 
-    @After
-    public void cleanup() {
-        SecurityContextHolder.clearContext();
-    }
+	@After
+	public void cleanup() {
+		SecurityContextHolder.clearContext();
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void setTrustResolverNull() {
-        handler.setTrustResolver(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void setTrustResolverNull() {
+		handler.setTrustResolver(null);
+	}
 
-    @Test
-    public void createEvaluationContextCustomTrustResolver() {
-        handler.setTrustResolver(trustResolver);
+	@Test
+	public void createEvaluationContextCustomTrustResolver() {
+		handler.setTrustResolver(trustResolver);
 
-        Expression expression = handler.getExpressionParser().parseExpression("anonymous");
-        EvaluationContext context = handler.createEvaluationContext(authentication, methodInvocation);
-        expression.getValue(context, Boolean.class);
+		Expression expression = handler.getExpressionParser()
+				.parseExpression("anonymous");
+		EvaluationContext context = handler.createEvaluationContext(authentication,
+				methodInvocation);
+		expression.getValue(context, Boolean.class);
 
-        verify(trustResolver).isAnonymous(authentication);
-    }
+		verify(trustResolver).isAnonymous(authentication);
+	}
 }

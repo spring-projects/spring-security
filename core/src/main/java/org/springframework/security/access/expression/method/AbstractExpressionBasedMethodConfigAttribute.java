@@ -7,7 +7,8 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.util.Assert;
 
 /**
- * Contains both filtering and authorization expression meta-data for Spring-EL based access control.
+ * Contains both filtering and authorization expression meta-data for Spring-EL based
+ * access control.
  * <p>
  * Base class for pre or post-invocation phases of a method invocation.
  * <p>
@@ -17,34 +18,41 @@ import org.springframework.util.Assert;
  * @since 3.0
  */
 abstract class AbstractExpressionBasedMethodConfigAttribute implements ConfigAttribute {
-    private final Expression filterExpression;
-    private final Expression authorizeExpression;
+	private final Expression filterExpression;
+	private final Expression authorizeExpression;
 
-    /**
-     * Parses the supplied expressions as Spring-EL.
-     */
-    AbstractExpressionBasedMethodConfigAttribute(String filterExpression, String authorizeExpression) throws ParseException {
-        Assert.isTrue(filterExpression != null || authorizeExpression != null, "Filter and authorization Expressions cannot both be null");
-        SpelExpressionParser parser = new SpelExpressionParser();
-        this.filterExpression = filterExpression == null ? null : parser.parseExpression(filterExpression);
-        this.authorizeExpression = authorizeExpression == null ? null : parser.parseExpression(authorizeExpression);
-    }
+	/**
+	 * Parses the supplied expressions as Spring-EL.
+	 */
+	AbstractExpressionBasedMethodConfigAttribute(String filterExpression,
+			String authorizeExpression) throws ParseException {
+		Assert.isTrue(filterExpression != null || authorizeExpression != null,
+				"Filter and authorization Expressions cannot both be null");
+		SpelExpressionParser parser = new SpelExpressionParser();
+		this.filterExpression = filterExpression == null ? null : parser
+				.parseExpression(filterExpression);
+		this.authorizeExpression = authorizeExpression == null ? null : parser
+				.parseExpression(authorizeExpression);
+	}
 
-    AbstractExpressionBasedMethodConfigAttribute(Expression filterExpression, Expression authorizeExpression) throws ParseException {
-        Assert.isTrue(filterExpression != null || authorizeExpression != null, "Filter and authorization Expressions cannot both be null");
-        this.filterExpression = filterExpression == null ? null : filterExpression;
-        this.authorizeExpression = authorizeExpression == null ? null : authorizeExpression;
-    }
+	AbstractExpressionBasedMethodConfigAttribute(Expression filterExpression,
+			Expression authorizeExpression) throws ParseException {
+		Assert.isTrue(filterExpression != null || authorizeExpression != null,
+				"Filter and authorization Expressions cannot both be null");
+		this.filterExpression = filterExpression == null ? null : filterExpression;
+		this.authorizeExpression = authorizeExpression == null ? null
+				: authorizeExpression;
+	}
 
-    Expression getFilterExpression() {
-        return filterExpression;
-    }
+	Expression getFilterExpression() {
+		return filterExpression;
+	}
 
-    Expression getAuthorizeExpression() {
-        return authorizeExpression;
-    }
+	Expression getAuthorizeExpression() {
+		return authorizeExpression;
+	}
 
-    public String getAttribute() {
-        return null;
-    }
+	public String getAttribute() {
+		return null;
+	}
 }

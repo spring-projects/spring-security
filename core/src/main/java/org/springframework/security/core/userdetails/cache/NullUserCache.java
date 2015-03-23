@@ -15,10 +15,8 @@
 
 package org.springframework.security.core.userdetails.cache;
 
-
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
-
 
 /**
  * Does not perform any caching.
@@ -26,13 +24,16 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @author Ben Alex
  */
 public class NullUserCache implements UserCache {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public UserDetails getUserFromCache(String username) {
-        return null;
-    }
+	public UserDetails getUserFromCache(String username) {
+		return null;
+	}
 
-    public void putUserInCache(UserDetails user) {}
+	public void putUserInCache(UserDetails user) {
+	}
 
-    public void removeUserFromCache(String username) {}
+	public void removeUserFromCache(String username) {
+	}
 }

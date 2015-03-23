@@ -25,51 +25,55 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class SecurityEvaluationContextExtensionTests {
-    SecurityEvaluationContextExtension securityExtension;
+	SecurityEvaluationContextExtension securityExtension;
 
-    @Before
-    public void setup() {
-        securityExtension = new SecurityEvaluationContextExtension();
-    }
+	@Before
+	public void setup() {
+		securityExtension = new SecurityEvaluationContextExtension();
+	}
 
-    @After
-    public void cleanup() {
-        SecurityContextHolder.clearContext();
-    }
+	@After
+	public void cleanup() {
+		SecurityContextHolder.clearContext();
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void getRootObjectSecurityContextHolderAuthenticationNull() {
-        getRoot().getAuthentication();
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void getRootObjectSecurityContextHolderAuthenticationNull() {
+		getRoot().getAuthentication();
+	}
 
-    @Test
-    public void getRootObjectSecurityContextHolderAuthentication() {
-        TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+	@Test
+	public void getRootObjectSecurityContextHolderAuthentication() {
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken(
+				"user", "password", "ROLE_USER");
+		SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        assertThat(getRoot().getAuthentication()).isSameAs(authentication);
-    }
+		assertThat(getRoot().getAuthentication()).isSameAs(authentication);
+	}
 
-    @Test
-    public void getRootObjectExplicitAuthenticationOverridesSecurityContextHolder() {
-        TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
-        securityExtension = new SecurityEvaluationContextExtension(explicit);
+	@Test
+	public void getRootObjectExplicitAuthenticationOverridesSecurityContextHolder() {
+		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit",
+				"password", "ROLE_EXPLICIT");
+		securityExtension = new SecurityEvaluationContextExtension(explicit);
 
-        TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken(
+				"user", "password", "ROLE_USER");
+		SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        assertThat(getRoot().getAuthentication()).isSameAs(explicit);
-    }
+		assertThat(getRoot().getAuthentication()).isSameAs(explicit);
+	}
 
-    @Test
-    public void getRootObjectExplicitAuthentication() {
-        TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
-        securityExtension = new SecurityEvaluationContextExtension(explicit);
+	@Test
+	public void getRootObjectExplicitAuthentication() {
+		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit",
+				"password", "ROLE_EXPLICIT");
+		securityExtension = new SecurityEvaluationContextExtension(explicit);
 
-        assertThat(getRoot().getAuthentication()).isSameAs(explicit);
-    }
+		assertThat(getRoot().getAuthentication()).isSameAs(explicit);
+	}
 
-    private SecurityExpressionRoot getRoot() {
-        return (SecurityExpressionRoot) securityExtension.getRootObject();
-    }
+	private SecurityExpressionRoot getRoot() {
+		return (SecurityExpressionRoot) securityExtension.getRootObject();
+	}
 }

@@ -9,8 +9,8 @@ import java.security.cert.X509Certificate;
  */
 public interface X509PrincipalExtractor {
 
-    /**
-     * Returns the principal (usually a String) for the given certificate.
-     */
-    Object extractPrincipal(X509Certificate cert);
+	/**
+	 * Returns the principal (usually a String) for the given certificate.
+	 */
+	Object extractPrincipal(X509Certificate cert);
 }

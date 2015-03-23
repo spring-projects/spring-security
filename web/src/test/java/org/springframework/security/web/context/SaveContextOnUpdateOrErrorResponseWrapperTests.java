@@ -34,154 +34,157 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SaveContextOnUpdateOrErrorResponseWrapperTests {
-    @Mock
-    private SecurityContext securityContext;
+	@Mock
+	private SecurityContext securityContext;
 
-    private MockHttpServletResponse response;
-    private SaveContextOnUpdateOrErrorResponseWrapperStub wrappedResponse;
+	private MockHttpServletResponse response;
+	private SaveContextOnUpdateOrErrorResponseWrapperStub wrappedResponse;
 
-    @Before
-    public void setUp() {
-        response = new MockHttpServletResponse();
-        wrappedResponse = new SaveContextOnUpdateOrErrorResponseWrapperStub(response, true);
-        SecurityContextHolder.setContext(securityContext);
-    }
+	@Before
+	public void setUp() {
+		response = new MockHttpServletResponse();
+		wrappedResponse = new SaveContextOnUpdateOrErrorResponseWrapperStub(response,
+				true);
+		SecurityContextHolder.setContext(securityContext);
+	}
 
-    @After
-    public void clearContext() {
-        SecurityContextHolder.clearContext();
-    }
+	@After
+	public void clearContext() {
+		SecurityContextHolder.clearContext();
+	}
 
-    @Test
-    public void sendErrorSavesSecurityContext() throws Exception {
-        int error = HttpServletResponse.SC_FORBIDDEN;
-        wrappedResponse.sendError(error);
-        assertThat(wrappedResponse.securityContext).isEqualTo(securityContext);
-        assertThat(response.getStatus()).isEqualTo(error);
-    }
+	@Test
+	public void sendErrorSavesSecurityContext() throws Exception {
+		int error = HttpServletResponse.SC_FORBIDDEN;
+		wrappedResponse.sendError(error);
+		assertThat(wrappedResponse.securityContext).isEqualTo(securityContext);
+		assertThat(response.getStatus()).isEqualTo(error);
+	}
 
-    @Test
-    public void sendErrorSkipsSaveSecurityContextDisables() throws Exception {
-        final int error = HttpServletResponse.SC_FORBIDDEN;
-        wrappedResponse.disableSaveOnResponseCommitted();
-        wrappedResponse.sendError(error);
-        assertThat(wrappedResponse.securityContext).isNull();
-        assertThat(response.getStatus()).isEqualTo(error);
-    }
+	@Test
+	public void sendErrorSkipsSaveSecurityContextDisables() throws Exception {
+		final int error = HttpServletResponse.SC_FORBIDDEN;
+		wrappedResponse.disableSaveOnResponseCommitted();
+		wrappedResponse.sendError(error);
+		assertThat(wrappedResponse.securityContext).isNull();
+		assertThat(response.getStatus()).isEqualTo(error);
+	}
 
-    @Test
-    public void sendErrorWithMessageSavesSecurityContext() throws Exception {
-        int error = HttpServletResponse.SC_FORBIDDEN;
-        String message = "Forbidden";
-        wrappedResponse.sendError(error, message);
-        assertThat(wrappedResponse.securityContext).isEqualTo(securityContext);
-        assertThat(response.getStatus()).isEqualTo(error);
-        assertThat(response.getErrorMessage()).isEqualTo(message);
-    }
+	@Test
+	public void sendErrorWithMessageSavesSecurityContext() throws Exception {
+		int error = HttpServletResponse.SC_FORBIDDEN;
+		String message = "Forbidden";
+		wrappedResponse.sendError(error, message);
+		assertThat(wrappedResponse.securityContext).isEqualTo(securityContext);
+		assertThat(response.getStatus()).isEqualTo(error);
+		assertThat(response.getErrorMessage()).isEqualTo(message);
+	}
 
-    @Test
-    public void sendErrorWithMessageSkipsSaveSecurityContextDisables() throws Exception {
-        final int error = HttpServletResponse.SC_FORBIDDEN;
-        final String message = "Forbidden";
-        wrappedResponse.disableSaveOnResponseCommitted();
-        wrappedResponse.sendError(error, message);
-        assertThat(wrappedResponse.securityContext).isNull();
-        assertThat(response.getStatus()).isEqualTo(error);
-        assertThat(response.getErrorMessage()).isEqualTo(message);
-    }
+	@Test
+	public void sendErrorWithMessageSkipsSaveSecurityContextDisables() throws Exception {
+		final int error = HttpServletResponse.SC_FORBIDDEN;
+		final String message = "Forbidden";
+		wrappedResponse.disableSaveOnResponseCommitted();
+		wrappedResponse.sendError(error, message);
+		assertThat(wrappedResponse.securityContext).isNull();
+		assertThat(response.getStatus()).isEqualTo(error);
+		assertThat(response.getErrorMessage()).isEqualTo(message);
+	}
 
-    @Test
-    public void sendRedirectSavesSecurityContext() throws Exception {
-        String url = "/location";
-        wrappedResponse.sendRedirect(url);
-        assertThat(wrappedResponse.securityContext).isEqualTo(securityContext);
-        assertThat(response.getRedirectedUrl()).isEqualTo(url);
-    }
+	@Test
+	public void sendRedirectSavesSecurityContext() throws Exception {
+		String url = "/location";
+		wrappedResponse.sendRedirect(url);
+		assertThat(wrappedResponse.securityContext).isEqualTo(securityContext);
+		assertThat(response.getRedirectedUrl()).isEqualTo(url);
+	}
 
-    @Test
-    public void sendRedirectSkipsSaveSecurityContextDisables() throws Exception {
-        final String url = "/location";
-        wrappedResponse.disableSaveOnResponseCommitted();
-        wrappedResponse.sendRedirect(url);
-        assertThat(wrappedResponse.securityContext).isNull();
-        assertThat(response.getRedirectedUrl()).isEqualTo(url);
-    }
+	@Test
+	public void sendRedirectSkipsSaveSecurityContextDisables() throws Exception {
+		final String url = "/location";
+		wrappedResponse.disableSaveOnResponseCommitted();
+		wrappedResponse.sendRedirect(url);
+		assertThat(wrappedResponse.securityContext).isNull();
+		assertThat(response.getRedirectedUrl()).isEqualTo(url);
+	}
 
-    @Test
-    public void outputFlushSavesSecurityContext() throws Exception {
-        wrappedResponse.getOutputStream().flush();
-        assertThat(wrappedResponse.securityContext).isEqualTo(securityContext);
-    }
+	@Test
+	public void outputFlushSavesSecurityContext() throws Exception {
+		wrappedResponse.getOutputStream().flush();
+		assertThat(wrappedResponse.securityContext).isEqualTo(securityContext);
+	}
 
-    @Test
-    public void outputFlushSkipsSaveSecurityContextDisables() throws Exception {
-        wrappedResponse.disableSaveOnResponseCommitted();
-        wrappedResponse.getOutputStream().flush();
-        assertThat(wrappedResponse.securityContext).isNull();
-    }
+	@Test
+	public void outputFlushSkipsSaveSecurityContextDisables() throws Exception {
+		wrappedResponse.disableSaveOnResponseCommitted();
+		wrappedResponse.getOutputStream().flush();
+		assertThat(wrappedResponse.securityContext).isNull();
+	}
 
-    @Test
-    public void outputCloseSavesSecurityContext() throws Exception {
-        wrappedResponse.getOutputStream().close();
-        assertThat(wrappedResponse.securityContext).isEqualTo(securityContext);
-    }
+	@Test
+	public void outputCloseSavesSecurityContext() throws Exception {
+		wrappedResponse.getOutputStream().close();
+		assertThat(wrappedResponse.securityContext).isEqualTo(securityContext);
+	}
 
-    @Test
-    public void outputCloseSkipsSaveSecurityContextDisables() throws Exception {
-        wrappedResponse.disableSaveOnResponseCommitted();
-        wrappedResponse.getOutputStream().close();
-        assertThat(wrappedResponse.securityContext).isNull();
-    }
+	@Test
+	public void outputCloseSkipsSaveSecurityContextDisables() throws Exception {
+		wrappedResponse.disableSaveOnResponseCommitted();
+		wrappedResponse.getOutputStream().close();
+		assertThat(wrappedResponse.securityContext).isNull();
+	}
 
-    @Test
-    public void writerFlushSavesSecurityContext() throws Exception {
-        wrappedResponse.getWriter().flush();
-        assertThat(wrappedResponse.securityContext).isEqualTo(securityContext);
-    }
+	@Test
+	public void writerFlushSavesSecurityContext() throws Exception {
+		wrappedResponse.getWriter().flush();
+		assertThat(wrappedResponse.securityContext).isEqualTo(securityContext);
+	}
 
-    @Test
-    public void writerFlushSkipsSaveSecurityContextDisables() throws Exception {
-        wrappedResponse.disableSaveOnResponseCommitted();
-        wrappedResponse.getWriter().flush();
-        assertThat(wrappedResponse.securityContext).isNull();
-    }
+	@Test
+	public void writerFlushSkipsSaveSecurityContextDisables() throws Exception {
+		wrappedResponse.disableSaveOnResponseCommitted();
+		wrappedResponse.getWriter().flush();
+		assertThat(wrappedResponse.securityContext).isNull();
+	}
 
-    @Test
-    public void writerCloseSavesSecurityContext() throws Exception {
-        wrappedResponse.getWriter().close();
-        assertThat(wrappedResponse.securityContext).isEqualTo(securityContext);
-    }
+	@Test
+	public void writerCloseSavesSecurityContext() throws Exception {
+		wrappedResponse.getWriter().close();
+		assertThat(wrappedResponse.securityContext).isEqualTo(securityContext);
+	}
 
-    @Test
-    public void writerCloseSkipsSaveSecurityContextDisables() throws Exception {
-        wrappedResponse.disableSaveOnResponseCommitted();
-        wrappedResponse.getWriter().close();
-        assertThat(wrappedResponse.securityContext).isNull();
-    }
+	@Test
+	public void writerCloseSkipsSaveSecurityContextDisables() throws Exception {
+		wrappedResponse.disableSaveOnResponseCommitted();
+		wrappedResponse.getWriter().close();
+		assertThat(wrappedResponse.securityContext).isNull();
+	}
 
-    @Test
-    public void flushBufferSavesSecurityContext() throws Exception {
-        wrappedResponse.flushBuffer();
-        assertThat(wrappedResponse.securityContext).isEqualTo(securityContext);
-    }
+	@Test
+	public void flushBufferSavesSecurityContext() throws Exception {
+		wrappedResponse.flushBuffer();
+		assertThat(wrappedResponse.securityContext).isEqualTo(securityContext);
+	}
 
-    @Test
-    public void flushBufferSkipsSaveSecurityContextDisables() throws Exception {
-        wrappedResponse.disableSaveOnResponseCommitted();
-        wrappedResponse.flushBuffer();
-        assertThat(wrappedResponse.securityContext).isNull();
-    }
+	@Test
+	public void flushBufferSkipsSaveSecurityContextDisables() throws Exception {
+		wrappedResponse.disableSaveOnResponseCommitted();
+		wrappedResponse.flushBuffer();
+		assertThat(wrappedResponse.securityContext).isNull();
+	}
 
-    private static class SaveContextOnUpdateOrErrorResponseWrapperStub extends SaveContextOnUpdateOrErrorResponseWrapper {
-        private SecurityContext securityContext;
+	private static class SaveContextOnUpdateOrErrorResponseWrapperStub extends
+			SaveContextOnUpdateOrErrorResponseWrapper {
+		private SecurityContext securityContext;
 
-        public SaveContextOnUpdateOrErrorResponseWrapperStub(HttpServletResponse response, boolean disableUrlRewriting) {
-            super(response, disableUrlRewriting);
-        }
+		public SaveContextOnUpdateOrErrorResponseWrapperStub(
+				HttpServletResponse response, boolean disableUrlRewriting) {
+			super(response, disableUrlRewriting);
+		}
 
-        @Override
-        protected void saveContext(SecurityContext context) {
-            securityContext = context;
-        }
-    }
+		@Override
+		protected void saveContext(SecurityContext context) {
+			securityContext = context;
+		}
+	}
 }

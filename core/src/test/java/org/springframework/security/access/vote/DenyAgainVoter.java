@@ -33,34 +33,35 @@ import java.util.Iterator;
  * @author Ben Alex
  */
 public class DenyAgainVoter implements AccessDecisionVoter<Object> {
-    // ~ Methods
-    // ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public boolean supports(ConfigAttribute attribute) {
-        if ("DENY_AGAIN_FOR_SURE".equals(attribute.getAttribute())) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
+	public boolean supports(ConfigAttribute attribute) {
+		if ("DENY_AGAIN_FOR_SURE".equals(attribute.getAttribute())) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
 
-    public boolean supports(Class<?> clazz) {
-        return true;
-    }
+	public boolean supports(Class<?> clazz) {
+		return true;
+	}
 
-    public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
-        Iterator<ConfigAttribute> iter = attributes.iterator();
+	public int vote(Authentication authentication, Object object,
+			Collection<ConfigAttribute> attributes) {
+		Iterator<ConfigAttribute> iter = attributes.iterator();
 
-        while (iter.hasNext()) {
-            ConfigAttribute attribute = iter.next();
+		while (iter.hasNext()) {
+			ConfigAttribute attribute = iter.next();
 
-            if (this.supports(attribute)) {
-                return ACCESS_DENIED;
-            }
-        }
+			if (this.supports(attribute)) {
+				return ACCESS_DENIED;
+			}
+		}
 
-        return ACCESS_ABSTAIN;
-    }
+		return ACCESS_ABSTAIN;
+	}
 
 }

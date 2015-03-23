@@ -8,9 +8,9 @@ package samples.gae.users;
  */
 public interface UserRegistry {
 
-    GaeUser findUser(String userId);
+	GaeUser findUser(String userId);
 
-    void registerUser(GaeUser newUser);
+	void registerUser(GaeUser newUser);
 
-    void removeUser(String userId);
+	void removeUser(String userId);
 }

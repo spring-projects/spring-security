@@ -39,64 +39,64 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes=WithUserAuthenticationTests.Config.class)
+@ContextConfiguration(classes = WithUserAuthenticationTests.Config.class)
 @WebAppConfiguration
 public class WithUserAuthenticationTests {
 
-    @Autowired
-    private WebApplicationContext context;
+	@Autowired
+	private WebApplicationContext context;
 
-    private MockMvc mvc;
+	private MockMvc mvc;
 
-    @Before
-    public void setup() {
-        mvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .apply(SecurityMockMvcConfigurers.springSecurity())
-                .build();
-    }
+	@Before
+	public void setup() {
+		mvc = MockMvcBuilders.webAppContextSetup(context)
+				.apply(SecurityMockMvcConfigurers.springSecurity()).build();
+	}
 
-    @Test
-    @WithMockUser
-    public void requestProtectedUrlWithUser() throws Exception {
-        mvc
-            .perform(get("/"))
-            // Ensure we got past Security
-            .andExpect(status().isNotFound())
-            // Ensure it appears we are authenticated with user
-            .andExpect(authenticated().withUsername("user"));
-    }
+	@Test
+	@WithMockUser
+	public void requestProtectedUrlWithUser() throws Exception {
+		mvc.perform(get("/"))
+		// Ensure we got past Security
+				.andExpect(status().isNotFound())
+				// Ensure it appears we are authenticated with user
+				.andExpect(authenticated().withUsername("user"));
+	}
 
-    @Test
-    @WithMockUser(roles="ADMIN")
-    public void requestProtectedUrlWithAdmin() throws Exception {
-        mvc
-            .perform(get("/admin"))
-            // Ensure we got past Security
-            .andExpect(status().isNotFound())
-            // Ensure it appears we are authenticated with user
-            .andExpect(authenticated().withUsername("user").withRoles("ADMIN"));
-    }
+	@Test
+	@WithMockUser(roles = "ADMIN")
+	public void requestProtectedUrlWithAdmin() throws Exception {
+		mvc.perform(get("/admin"))
+		// Ensure we got past Security
+				.andExpect(status().isNotFound())
+				// Ensure it appears we are authenticated with user
+				.andExpect(authenticated().withUsername("user").withRoles("ADMIN"));
+	}
 
-    @EnableWebSecurity
-    @EnableWebMvc
-    static class Config extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class Config extends WebSecurityConfigurerAdapter {
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .antMatchers("/admin/**").hasRole("ADMIN")
-                    .anyRequest().authenticated()
-                    .and()
-                .formLogin();
-        }
+		// @formatter:off
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.antMatchers("/admin/**").hasRole("ADMIN")
+					.anyRequest().authenticated()
+					.and()
+				.formLogin();
+		}
+		// @formatter:on
 
-        @Autowired
-        public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER");
-        }
-    }
+		// @formatter:off
+		@Autowired
+		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER");
+		}
+		// @formatter:on
+	}
 }

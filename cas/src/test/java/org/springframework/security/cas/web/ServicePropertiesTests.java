@@ -27,46 +27,51 @@ import org.springframework.security.cas.ServiceProperties;
  * @author Ben Alex
  */
 public class ServicePropertiesTests {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    @Test(expected=IllegalArgumentException.class)
-    public void detectsMissingService() throws Exception {
-        ServiceProperties sp = new ServiceProperties();
-        sp.afterPropertiesSet();
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void detectsMissingService() throws Exception {
+		ServiceProperties sp = new ServiceProperties();
+		sp.afterPropertiesSet();
+	}
 
-    @Test
-    public void nullServiceWhenAuthenticateAllTokens() throws Exception {
-        ServiceProperties sp = new ServiceProperties();
-        sp.setAuthenticateAllArtifacts(true);
-        try {
-            sp.afterPropertiesSet();
-            fail("Expected Exception");
-        }catch(IllegalArgumentException success) {}
-        sp.setAuthenticateAllArtifacts(false);
-        try {
-            sp.afterPropertiesSet();
-            fail("Expected Exception");
-        }catch(IllegalArgumentException success) {}
-    }
+	@Test
+	public void nullServiceWhenAuthenticateAllTokens() throws Exception {
+		ServiceProperties sp = new ServiceProperties();
+		sp.setAuthenticateAllArtifacts(true);
+		try {
+			sp.afterPropertiesSet();
+			fail("Expected Exception");
+		}
+		catch (IllegalArgumentException success) {
+		}
+		sp.setAuthenticateAllArtifacts(false);
+		try {
+			sp.afterPropertiesSet();
+			fail("Expected Exception");
+		}
+		catch (IllegalArgumentException success) {
+		}
+	}
 
-    @Test
-    public void testGettersSetters() throws Exception {
-        ServiceProperties[] sps = {new ServiceProperties(), new SamlServiceProperties()};
-        for(ServiceProperties sp : sps) {
-            sp.setSendRenew(false);
-            assertFalse(sp.isSendRenew());
-            sp.setSendRenew(true);
-            assertTrue(sp.isSendRenew());
-            sp.setArtifactParameter("notticket");
-            assertEquals("notticket", sp.getArtifactParameter());
-            sp.setServiceParameter("notservice");
-            assertEquals("notservice", sp.getServiceParameter());
+	@Test
+	public void testGettersSetters() throws Exception {
+		ServiceProperties[] sps = { new ServiceProperties(), new SamlServiceProperties() };
+		for (ServiceProperties sp : sps) {
+			sp.setSendRenew(false);
+			assertFalse(sp.isSendRenew());
+			sp.setSendRenew(true);
+			assertTrue(sp.isSendRenew());
+			sp.setArtifactParameter("notticket");
+			assertEquals("notticket", sp.getArtifactParameter());
+			sp.setServiceParameter("notservice");
+			assertEquals("notservice", sp.getServiceParameter());
 
-            sp.setService("https://mycompany.com/service");
-            assertEquals("https://mycompany.com/service", sp.getService());
+			sp.setService("https://mycompany.com/service");
+			assertEquals("https://mycompany.com/service", sp.getService());
 
-            sp.afterPropertiesSet();
-        }
-    }
+			sp.afterPropertiesSet();
+		}
+	}
 }

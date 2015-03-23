@@ -35,11 +35,11 @@ import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 
 /**
- * Adds request cache for Spring Security. Specifically this ensures that
- * requests that are saved (i.e. after authentication is required) are later
- * replayed. All properties have reasonable defaults, so no additional
- * configuration is required other than applying this
- * {@link org.springframework.security.config.annotation.SecurityConfigurer}.
+ * Adds request cache for Spring Security. Specifically this ensures that requests that
+ * are saved (i.e. after authentication is required) are later replayed. All properties
+ * have reasonable defaults, so no additional configuration is required other than
+ * applying this {@link org.springframework.security.config.annotation.SecurityConfigurer}
+ * .
  *
  * <h2>Security Filters</h2>
  *
@@ -58,90 +58,96 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  * The following shared objects are used:
  *
  * <ul>
- * <li>If no explicit {@link RequestCache}, is provided a {@link RequestCache}
- * shared object is used to replay the request after authentication is
- * successful</li>
+ * <li>If no explicit {@link RequestCache}, is provided a {@link RequestCache} shared
+ * object is used to replay the request after authentication is successful</li>
  * </ul>
  *
  * @author Rob Winch
  * @since 3.2
  * @see RequestCache
  */
-public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<RequestCacheConfigurer<H>,H> {
+public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>> extends
+		AbstractHttpConfigurer<RequestCacheConfigurer<H>, H> {
 
-    public RequestCacheConfigurer() {
-    }
+	public RequestCacheConfigurer() {
+	}
 
-    /**
-     * Allows explicit configuration of the {@link RequestCache} to be used. Defaults to try finding a
-     * {@link RequestCache} as a shared object. Then falls back to a {@link HttpSessionRequestCache}.
-     *
-     * @param requestCache the explicit {@link RequestCache} to use
-     * @return the {@link RequestCacheConfigurer} for further customization
-     */
-    public RequestCacheConfigurer<H> requestCache(RequestCache requestCache) {
-        getBuilder().setSharedObject(RequestCache.class, requestCache);
-        return this;
-    }
+	/**
+	 * Allows explicit configuration of the {@link RequestCache} to be used. Defaults to
+	 * try finding a {@link RequestCache} as a shared object. Then falls back to a
+	 * {@link HttpSessionRequestCache}.
+	 *
+	 * @param requestCache the explicit {@link RequestCache} to use
+	 * @return the {@link RequestCacheConfigurer} for further customization
+	 */
+	public RequestCacheConfigurer<H> requestCache(RequestCache requestCache) {
+		getBuilder().setSharedObject(RequestCache.class, requestCache);
+		return this;
+	}
 
-    @Override
-    public void init(H http) throws Exception {
-        http.setSharedObject(RequestCache.class, getRequestCache(http));
-    }
+	@Override
+	public void init(H http) throws Exception {
+		http.setSharedObject(RequestCache.class, getRequestCache(http));
+	}
 
-    @Override
-    public void configure(H http) throws Exception {
-        RequestCache requestCache = getRequestCache(http);
-        RequestCacheAwareFilter requestCacheFilter = new RequestCacheAwareFilter(requestCache);
-        requestCacheFilter = postProcess(requestCacheFilter);
-        http.addFilter(requestCacheFilter);
-    }
+	@Override
+	public void configure(H http) throws Exception {
+		RequestCache requestCache = getRequestCache(http);
+		RequestCacheAwareFilter requestCacheFilter = new RequestCacheAwareFilter(
+				requestCache);
+		requestCacheFilter = postProcess(requestCacheFilter);
+		http.addFilter(requestCacheFilter);
+	}
 
-    /**
-     * Gets the {@link RequestCache} to use. If one is defined using
-     * {@link #requestCache(org.springframework.security.web.savedrequest.RequestCache)}, then it is used. Otherwise, an
-     * attempt to find a {@link RequestCache} shared object is made. If that fails, an {@link HttpSessionRequestCache}
-     * is used
-     *
-     * @param http the {@link HttpSecurity} to attempt to fined the shared object
-     * @return the {@link RequestCache} to use
-     */
-    private RequestCache getRequestCache(H http) {
-        RequestCache result = http.getSharedObject(RequestCache.class);
-        if(result != null) {
-            return result;
-        }
-        HttpSessionRequestCache defaultCache = new HttpSessionRequestCache();
-        defaultCache.setRequestMatcher(createDefaultSavedRequestMatcher(http));
-        return defaultCache;
-    }
+	/**
+	 * Gets the {@link RequestCache} to use. If one is defined using
+	 * {@link #requestCache(org.springframework.security.web.savedrequest.RequestCache)},
+	 * then it is used. Otherwise, an attempt to find a {@link RequestCache} shared object
+	 * is made. If that fails, an {@link HttpSessionRequestCache} is used
+	 *
+	 * @param http the {@link HttpSecurity} to attempt to fined the shared object
+	 * @return the {@link RequestCache} to use
+	 */
+	private RequestCache getRequestCache(H http) {
+		RequestCache result = http.getSharedObject(RequestCache.class);
+		if (result != null) {
+			return result;
+		}
+		HttpSessionRequestCache defaultCache = new HttpSessionRequestCache();
+		defaultCache.setRequestMatcher(createDefaultSavedRequestMatcher(http));
+		return defaultCache;
+	}
 
-    @SuppressWarnings("unchecked")
-    private RequestMatcher createDefaultSavedRequestMatcher(H http) {
-        ContentNegotiationStrategy contentNegotiationStrategy = http.getSharedObject(ContentNegotiationStrategy.class);
-        if(contentNegotiationStrategy == null) {
-            contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
-        }
+	@SuppressWarnings("unchecked")
+	private RequestMatcher createDefaultSavedRequestMatcher(H http) {
+		ContentNegotiationStrategy contentNegotiationStrategy = http
+				.getSharedObject(ContentNegotiationStrategy.class);
+		if (contentNegotiationStrategy == null) {
+			contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
+		}
 
-        RequestMatcher notFavIcon = new NegatedRequestMatcher(new AntPathRequestMatcher("/**/favicon.ico"));
+		RequestMatcher notFavIcon = new NegatedRequestMatcher(new AntPathRequestMatcher(
+				"/**/favicon.ico"));
 
-        MediaTypeRequestMatcher jsonRequest = new MediaTypeRequestMatcher(contentNegotiationStrategy, MediaType.APPLICATION_JSON);
-        jsonRequest.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
-        RequestMatcher notJson = new NegatedRequestMatcher(jsonRequest);
+		MediaTypeRequestMatcher jsonRequest = new MediaTypeRequestMatcher(
+				contentNegotiationStrategy, MediaType.APPLICATION_JSON);
+		jsonRequest.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
+		RequestMatcher notJson = new NegatedRequestMatcher(jsonRequest);
 
-        RequestMatcher notXRequestedWith = new NegatedRequestMatcher(new RequestHeaderRequestMatcher("X-Requested-With","XMLHttpRequest"));
+		RequestMatcher notXRequestedWith = new NegatedRequestMatcher(
+				new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
 
-        boolean isCsrfEnabled = http.getConfigurer(CsrfConfigurer.class) != null;
+		boolean isCsrfEnabled = http.getConfigurer(CsrfConfigurer.class) != null;
 
-        List<RequestMatcher> matchers = new ArrayList<RequestMatcher>();
-        if(isCsrfEnabled) {
-            RequestMatcher getRequests = new AntPathRequestMatcher("/**", "GET");
-            matchers.add(0, getRequests);
-        }
-        matchers.add(notFavIcon);
-        matchers.add(notJson);
-        matchers.add(notXRequestedWith);
+		List<RequestMatcher> matchers = new ArrayList<RequestMatcher>();
+		if (isCsrfEnabled) {
+			RequestMatcher getRequests = new AntPathRequestMatcher("/**", "GET");
+			matchers.add(0, getRequests);
+		}
+		matchers.add(notFavIcon);
+		matchers.add(notJson);
+		matchers.add(notXRequestedWith);
 
-        return new AndRequestMatcher(matchers);
-    }
+		return new AndRequestMatcher(matchers);
+	}
 }

@@ -25,7 +25,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.Assert;
 
 /**
- * A {@link WithUserDetailsSecurityContextFactory} that works with {@link WithUserDetails}.
+ * A {@link WithUserDetailsSecurityContextFactory} that works with {@link WithUserDetails}
+ * .
  *
  * @see WithUserDetails
  *
@@ -33,22 +34,24 @@ import org.springframework.util.Assert;
  * @since 4.0
  */
 
-final class WithUserDetailsSecurityContextFactory implements WithSecurityContextFactory<WithUserDetails> {
+final class WithUserDetailsSecurityContextFactory implements
+		WithSecurityContextFactory<WithUserDetails> {
 
-    private UserDetailsService userDetailsService;
+	private UserDetailsService userDetailsService;
 
-    @Autowired
-    public WithUserDetailsSecurityContextFactory(UserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
-    }
+	@Autowired
+	public WithUserDetailsSecurityContextFactory(UserDetailsService userDetailsService) {
+		this.userDetailsService = userDetailsService;
+	}
 
-    public SecurityContext createSecurityContext(WithUserDetails withUser) {
-        String username = withUser.value();
-        Assert.hasLength(username, "value() must be non empty String");
-        UserDetails principal = userDetailsService.loadUserByUsername(username);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(principal, principal.getPassword(), principal.getAuthorities());
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(authentication);
-        return context;
-    }
+	public SecurityContext createSecurityContext(WithUserDetails withUser) {
+		String username = withUser.value();
+		Assert.hasLength(username, "value() must be non empty String");
+		UserDetails principal = userDetailsService.loadUserByUsername(username);
+		Authentication authentication = new UsernamePasswordAuthenticationToken(
+				principal, principal.getPassword(), principal.getAuthorities());
+		SecurityContext context = SecurityContextHolder.createEmptyContext();
+		context.setAuthentication(authentication);
+		return context;
+	}
 }

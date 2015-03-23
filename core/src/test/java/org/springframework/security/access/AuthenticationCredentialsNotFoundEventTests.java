@@ -21,7 +21,6 @@ import org.springframework.security.access.event.AuthenticationCredentialsNotFou
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.util.SimpleMethodInvocation;
 
-
 /**
  * Tests {@link AuthenticationCredentialsNotFoundEvent}.
  *
@@ -29,20 +28,22 @@ import org.springframework.security.util.SimpleMethodInvocation;
  */
 public class AuthenticationCredentialsNotFoundEventTests {
 
-    @Test(expected=IllegalArgumentException.class)
-    public void testRejectsNulls() {
-        new AuthenticationCredentialsNotFoundEvent(null, SecurityConfig.createList("TEST"),
-                new AuthenticationCredentialsNotFoundException("test"));
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void testRejectsNulls() {
+		new AuthenticationCredentialsNotFoundEvent(null,
+				SecurityConfig.createList("TEST"),
+				new AuthenticationCredentialsNotFoundException("test"));
+	}
 
-    @Test(expected=IllegalArgumentException.class)
-    public void testRejectsNulls2() {
-        new AuthenticationCredentialsNotFoundEvent(new SimpleMethodInvocation(), null,
-                new AuthenticationCredentialsNotFoundException("test"));
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void testRejectsNulls2() {
+		new AuthenticationCredentialsNotFoundEvent(new SimpleMethodInvocation(), null,
+				new AuthenticationCredentialsNotFoundException("test"));
+	}
 
-    @Test(expected=IllegalArgumentException.class)
-    public void testRejectsNulls3() {
-        new AuthenticationCredentialsNotFoundEvent(new SimpleMethodInvocation(), SecurityConfig.createList("TEST"), null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void testRejectsNulls3() {
+		new AuthenticationCredentialsNotFoundEvent(new SimpleMethodInvocation(),
+				SecurityConfig.createList("TEST"), null);
+	}
 }

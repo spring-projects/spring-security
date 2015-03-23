@@ -19,32 +19,35 @@ import org.springframework.security.web.PortResolver;
 
 import javax.servlet.ServletRequest;
 
-
 /**
  * Always returns the constructor-specified HTTP and HTTPS ports.
  *
  * @author Ben Alex
  */
 public class MockPortResolver implements PortResolver {
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private int http = 80;
-    private int https = 443;
+	private int http = 80;
+	private int https = 443;
 
-    //~ Constructors ===================================================================================================
+	// ~ Constructors
+	// ===================================================================================================
 
-    public MockPortResolver(int http, int https) {
-        this.http = http;
-        this.https = https;
-    }
+	public MockPortResolver(int http, int https) {
+		this.http = http;
+		this.https = https;
+	}
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public int getServerPort(ServletRequest request) {
-        if ((request.getScheme() != null) && request.getScheme().equals("https")) {
-            return https;
-        } else {
-            return http;
-        }
-    }
+	public int getServerPort(ServletRequest request) {
+		if ((request.getScheme() != null) && request.getScheme().equals("https")) {
+			return https;
+		}
+		else {
+			return http;
+		}
+	}
 }

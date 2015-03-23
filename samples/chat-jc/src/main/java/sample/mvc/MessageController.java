@@ -37,29 +37,30 @@ import sample.security.CurrentUser;
  */
 @Controller
 public class MessageController {
-    private SimpMessageSendingOperations messagingTemplate;
-    private ActiveWebSocketUserRepository activeUserRepository;
+	private SimpMessageSendingOperations messagingTemplate;
+	private ActiveWebSocketUserRepository activeUserRepository;
 
-    @Autowired
-    public MessageController(ActiveWebSocketUserRepository activeUserRepository,SimpMessageSendingOperations messagingTemplate) {
-        this.activeUserRepository = activeUserRepository;
-        this.messagingTemplate = messagingTemplate;
-    }
+	@Autowired
+	public MessageController(ActiveWebSocketUserRepository activeUserRepository,
+			SimpMessageSendingOperations messagingTemplate) {
+		this.activeUserRepository = activeUserRepository;
+		this.messagingTemplate = messagingTemplate;
+	}
 
-    @RequestMapping("/")
-    public String chat() {
-        return "chat";
-    }
+	@RequestMapping("/")
+	public String chat() {
+		return "chat";
+	}
 
-    @MessageMapping("/im")
-    public void im(InstantMessage im, @CurrentUser User user) {
-        im.setFrom(user.getEmail());
-        messagingTemplate.convertAndSendToUser(im.getTo(),"/queue/messages",im);
-        messagingTemplate.convertAndSendToUser(im.getFrom(),"/queue/messages",im);
-    }
+	@MessageMapping("/im")
+	public void im(InstantMessage im, @CurrentUser User user) {
+		im.setFrom(user.getEmail());
+		messagingTemplate.convertAndSendToUser(im.getTo(), "/queue/messages", im);
+		messagingTemplate.convertAndSendToUser(im.getFrom(), "/queue/messages", im);
+	}
 
-    @SubscribeMapping("/users")
-    public List<String> subscribeMessages() throws Exception {
-        return activeUserRepository.findAllActiveUsers();
-    }
+	@SubscribeMapping("/users")
+	public List<String> subscribeMessages() throws Exception {
+		return activeUserRepository.findAllActiveUsers();
+	}
 }

@@ -30,42 +30,42 @@ import org.springframework.util.Assert;
  * @since 3.2
  */
 public final class DelegatingRequestMatcherHeaderWriter implements HeaderWriter {
-    private final RequestMatcher requestMatcher;
+	private final RequestMatcher requestMatcher;
 
-    private final HeaderWriter delegateHeaderWriter;
+	private final HeaderWriter delegateHeaderWriter;
 
-    /**
-     * Creates a new instance
-     *
-     * @param requestMatcher
-     *            the {@link RequestMatcher} to use. If returns true, the
-     *            delegateHeaderWriter will be invoked.
-     * @param delegateHeaderWriter
-     *            the {@link HeaderWriter} to invoke if the
-     *            {@link RequestMatcher} returns true.
-     */
-    public DelegatingRequestMatcherHeaderWriter(RequestMatcher requestMatcher,
-            HeaderWriter delegateHeaderWriter) {
-        Assert.notNull(requestMatcher, "requestMatcher cannot be null");
-        Assert.notNull(delegateHeaderWriter, "delegateHeaderWriter cannot be null");
-        this.requestMatcher = requestMatcher;
-        this.delegateHeaderWriter = delegateHeaderWriter;
-    }
+	/**
+	 * Creates a new instance
+	 *
+	 * @param requestMatcher the {@link RequestMatcher} to use. If returns true, the
+	 * delegateHeaderWriter will be invoked.
+	 * @param delegateHeaderWriter the {@link HeaderWriter} to invoke if the
+	 * {@link RequestMatcher} returns true.
+	 */
+	public DelegatingRequestMatcherHeaderWriter(RequestMatcher requestMatcher,
+			HeaderWriter delegateHeaderWriter) {
+		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
+		Assert.notNull(delegateHeaderWriter, "delegateHeaderWriter cannot be null");
+		this.requestMatcher = requestMatcher;
+		this.delegateHeaderWriter = delegateHeaderWriter;
+	}
 
-    /* (non-Javadoc)
-     * @see org.springframework.security.web.headers.HeaderWriter#writeHeaders(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-     */
-    public void writeHeaders(HttpServletRequest request,
-            HttpServletResponse response) {
-        if(requestMatcher.matches(request)) {
-            delegateHeaderWriter.writeHeaders(request, response);
-        }
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.springframework.security.web.headers.HeaderWriter#writeHeaders(javax.servlet
+	 * .http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+	 */
+	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
+		if (requestMatcher.matches(request)) {
+			delegateHeaderWriter.writeHeaders(request, response);
+		}
+	}
 
-    @Override
-    public String toString() {
-        return getClass().getName()+ " [requestMatcher="
-                + requestMatcher + ", delegateHeaderWriter="
-                + delegateHeaderWriter + "]";
-    }
+	@Override
+	public String toString() {
+		return getClass().getName() + " [requestMatcher=" + requestMatcher
+				+ ", delegateHeaderWriter=" + delegateHeaderWriter + "]";
+	}
 }

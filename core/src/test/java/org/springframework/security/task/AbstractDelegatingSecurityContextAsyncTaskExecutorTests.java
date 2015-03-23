@@ -21,46 +21,48 @@ import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.security.concurrent.AbstractDelegatingSecurityContextExecutorTests;
 
 /**
- * Abstract class for testing {@link DelegatingSecurityContextAsyncTaskExecutor} which allows customization of
- * how {@link DelegatingSecurityContextAsyncTaskExecutor} and its mocks are created.
+ * Abstract class for testing {@link DelegatingSecurityContextAsyncTaskExecutor} which
+ * allows customization of how {@link DelegatingSecurityContextAsyncTaskExecutor} and its
+ * mocks are created.
  *
  * @author Rob Winch
  * @since 3.2
  * @see CurrentDelegatingSecurityContextAsyncTaskExecutorTests
  * @see ExplicitDelegatingSecurityContextAsyncTaskExecutorTests
  */
-public abstract class AbstractDelegatingSecurityContextAsyncTaskExecutorTests extends AbstractDelegatingSecurityContextExecutorTests {
-    @Mock
-    protected AsyncTaskExecutor taskExecutorDelegate;
+public abstract class AbstractDelegatingSecurityContextAsyncTaskExecutorTests extends
+		AbstractDelegatingSecurityContextExecutorTests {
+	@Mock
+	protected AsyncTaskExecutor taskExecutorDelegate;
 
-    private DelegatingSecurityContextAsyncTaskExecutor executor;
+	private DelegatingSecurityContextAsyncTaskExecutor executor;
 
-    @Before
-    public final void setUpExecutor() {
-        executor = create();
-    }
+	@Before
+	public final void setUpExecutor() {
+		executor = create();
+	}
 
-    @Test
-    public void executeStartTimeout() {
-        executor.execute(runnable, 1);
-        verify(getExecutor()).execute(wrappedRunnable, 1);
-    }
+	@Test
+	public void executeStartTimeout() {
+		executor.execute(runnable, 1);
+		verify(getExecutor()).execute(wrappedRunnable, 1);
+	}
 
-    @Test
-    public void submit() {
-        executor.submit(runnable);
-        verify(getExecutor()).submit(wrappedRunnable);
-    }
+	@Test
+	public void submit() {
+		executor.submit(runnable);
+		verify(getExecutor()).submit(wrappedRunnable);
+	}
 
-    @Test
-    public void submitCallable() {
-        executor.submit(callable);
-        verify(getExecutor()).submit(wrappedCallable);
-    }
+	@Test
+	public void submitCallable() {
+		executor.submit(callable);
+		verify(getExecutor()).submit(wrappedCallable);
+	}
 
-    protected AsyncTaskExecutor getExecutor() {
-        return taskExecutorDelegate;
-    }
+	protected AsyncTaskExecutor getExecutor() {
+		return taskExecutorDelegate;
+	}
 
-    protected abstract DelegatingSecurityContextAsyncTaskExecutor create();
+	protected abstract DelegatingSecurityContextAsyncTaskExecutor create();
 }

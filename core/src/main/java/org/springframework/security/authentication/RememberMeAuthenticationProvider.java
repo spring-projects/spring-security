@@ -24,53 +24,58 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.util.Assert;
 
-
 /**
- * An {@link AuthenticationProvider} implementation that validates {@link RememberMeAuthenticationToken}s.
+ * An {@link AuthenticationProvider} implementation that validates
+ * {@link RememberMeAuthenticationToken}s.
  * <p>
- * To be successfully validated, the {@link RememberMeAuthenticationToken#getKeyHash()} must match this class'
- * {@link #getKey()}.
+ * To be successfully validated, the {@link RememberMeAuthenticationToken#getKeyHash()}
+ * must match this class' {@link #getKey()}.
  */
-public class RememberMeAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
-    //~ Instance fields ================================================================================================
+public class RememberMeAuthenticationProvider implements AuthenticationProvider,
+		InitializingBean, MessageSourceAware {
+	// ~ Instance fields
+	// ================================================================================================
 
-    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
-    private String key;
+	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+	private String key;
 
+	public RememberMeAuthenticationProvider(String key) {
+		Assert.hasLength(key);
+		this.key = key;
+	}
 
-    public RememberMeAuthenticationProvider(String key) {
-        Assert.hasLength(key);
-        this.key = key;
-    }
+	// ~ Methods
+	// ========================================================================================================
 
-    //~ Methods ========================================================================================================
+	public void afterPropertiesSet() throws Exception {
+		Assert.notNull(this.messages, "A message source must be set");
+	}
 
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.messages, "A message source must be set");
-    }
+	public Authentication authenticate(Authentication authentication)
+			throws AuthenticationException {
+		if (!supports(authentication.getClass())) {
+			return null;
+		}
 
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        if (!supports(authentication.getClass())) {
-            return null;
-        }
+		if (this.key.hashCode() != ((RememberMeAuthenticationToken) authentication)
+				.getKeyHash()) {
+			throw new BadCredentialsException(
+					messages.getMessage("RememberMeAuthenticationProvider.incorrectKey",
+							"The presented RememberMeAuthenticationToken does not contain the expected key"));
+		}
 
-        if (this.key.hashCode() != ((RememberMeAuthenticationToken) authentication).getKeyHash()) {
-            throw new BadCredentialsException(messages.getMessage("RememberMeAuthenticationProvider.incorrectKey",
-                    "The presented RememberMeAuthenticationToken does not contain the expected key"));
-        }
+		return authentication;
+	}
 
-        return authentication;
-    }
+	public String getKey() {
+		return key;
+	}
 
-    public String getKey() {
-        return key;
-    }
+	public void setMessageSource(MessageSource messageSource) {
+		this.messages = new MessageSourceAccessor(messageSource);
+	}
 
-    public void setMessageSource(MessageSource messageSource) {
-        this.messages = new MessageSourceAccessor(messageSource);
-    }
-
-    public boolean supports(Class<?> authentication) {
-        return (RememberMeAuthenticationToken.class.isAssignableFrom(authentication));
-    }
+	public boolean supports(Class<?> authentication) {
+		return (RememberMeAuthenticationToken.class.isAssignableFrom(authentication));
+	}
 }

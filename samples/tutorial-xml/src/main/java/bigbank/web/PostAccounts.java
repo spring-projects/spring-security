@@ -13,26 +13,29 @@ import bigbank.BankService;
 
 public class PostAccounts implements Controller {
 
-    private final BankService bankService;
+	private final BankService bankService;
 
-    public PostAccounts(BankService bankService) {
-        Assert.notNull(bankService);
-        this.bankService = bankService;
-    }
+	public PostAccounts(BankService bankService) {
+		Assert.notNull(bankService);
+		this.bankService = bankService;
+	}
 
-    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        // Security check (this is unnecessary if Spring Security is performing the authorization)
-//        if (!request.isUserInRole("ROLE_TELLER")) {
-//            throw new AccessDeniedException("You must be a teller to post transactions (Spring Security message)");
-//        }
+	public ModelAndView handleRequest(HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+		// Security check (this is unnecessary if Spring Security is performing the
+		// authorization)
+		// if (!request.isUserInRole("ROLE_TELLER")) {
+		// throw new
+		// AccessDeniedException("You must be a teller to post transactions (Spring Security message)");
+		// }
 
-        // Actual business logic
-        Long id = ServletRequestUtils.getRequiredLongParameter(request, "id");
-        Double amount = ServletRequestUtils.getRequiredDoubleParameter(request, "amount");
-        Account a = bankService.readAccount(id);
-        bankService.post(a, amount);
+		// Actual business logic
+		Long id = ServletRequestUtils.getRequiredLongParameter(request, "id");
+		Double amount = ServletRequestUtils.getRequiredDoubleParameter(request, "amount");
+		Account a = bankService.readAccount(id);
+		bankService.post(a, amount);
 
-        return new ModelAndView("redirect:listAccounts.html");
-    }
+		return new ModelAndView("redirect:listAccounts.html");
+	}
 
 }

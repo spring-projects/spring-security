@@ -8,5 +8,5 @@ import org.springframework.ldap.core.DistinguishedName;
  * @author Luke Taylor
  */
 public interface LdapUsernameToDnMapper {
-    DistinguishedName buildDn(String username);
+	DistinguishedName buildDn(String username);
 }

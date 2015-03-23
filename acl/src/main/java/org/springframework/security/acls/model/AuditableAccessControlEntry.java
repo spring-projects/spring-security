@@ -14,7 +14,6 @@
  */
 package org.springframework.security.acls.model;
 
-
 /**
  * Represents an ACE that provides auditing information.
  *
@@ -22,9 +21,10 @@ package org.springframework.security.acls.model;
  *
  */
 public interface AuditableAccessControlEntry extends AccessControlEntry {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    boolean isAuditFailure();
+	boolean isAuditFailure();
 
-    boolean isAuditSuccess();
+	boolean isAuditSuccess();
 }

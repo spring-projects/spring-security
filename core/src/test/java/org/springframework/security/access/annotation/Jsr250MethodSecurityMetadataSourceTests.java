@@ -34,214 +34,249 @@ import org.springframework.security.access.intercept.method.MockMethodInvocation
  * @author Ben Alex
  */
 public class Jsr250MethodSecurityMetadataSourceTests {
-    Jsr250MethodSecurityMetadataSource mds;
-    A a;
-    UserAllowedClass userAllowed;
+	Jsr250MethodSecurityMetadataSource mds;
+	A a;
+	UserAllowedClass userAllowed;
 
-    @Before
-    public void setup() {
-        mds = new Jsr250MethodSecurityMetadataSource();
-        a = new A();
-        userAllowed = new UserAllowedClass();
-    }
+	@Before
+	public void setup() {
+		mds = new Jsr250MethodSecurityMetadataSource();
+		a = new A();
+		userAllowed = new UserAllowedClass();
+	}
 
-    private ConfigAttribute[] findAttributes(String methodName) throws Exception {
-        return mds.findAttributes(a.getClass().getMethod(methodName), null).toArray(new ConfigAttribute[0]);
-    }
+	private ConfigAttribute[] findAttributes(String methodName) throws Exception {
+		return mds.findAttributes(a.getClass().getMethod(methodName), null).toArray(
+				new ConfigAttribute[0]);
+	}
 
-    @Test
-    public void methodWithRolesAllowedHasCorrectAttribute() throws Exception {
-        ConfigAttribute[] accessAttributes = findAttributes("adminMethod");
-        assertEquals(1, accessAttributes.length);
-        assertEquals("ROLE_ADMIN", accessAttributes[0].toString());
-    }
+	@Test
+	public void methodWithRolesAllowedHasCorrectAttribute() throws Exception {
+		ConfigAttribute[] accessAttributes = findAttributes("adminMethod");
+		assertEquals(1, accessAttributes.length);
+		assertEquals("ROLE_ADMIN", accessAttributes[0].toString());
+	}
 
-    @Test
-    public void permitAllMethodHasPermitAllAttribute() throws Exception {
-        ConfigAttribute[] accessAttributes = findAttributes("permitAllMethod");
-        assertEquals(1, accessAttributes.length);
-        assertEquals("javax.annotation.security.PermitAll", accessAttributes[0].toString());
-    }
+	@Test
+	public void permitAllMethodHasPermitAllAttribute() throws Exception {
+		ConfigAttribute[] accessAttributes = findAttributes("permitAllMethod");
+		assertEquals(1, accessAttributes.length);
+		assertEquals("javax.annotation.security.PermitAll",
+				accessAttributes[0].toString());
+	}
 
-    @Test
-    public void noRoleMethodHasNoAttributes() throws Exception {
-        Collection<ConfigAttribute> accessAttributes = mds.findAttributes(a.getClass().getMethod("noRoleMethod"), null);
-        Assert.assertNull(accessAttributes);
-    }
+	@Test
+	public void noRoleMethodHasNoAttributes() throws Exception {
+		Collection<ConfigAttribute> accessAttributes = mds.findAttributes(a.getClass()
+				.getMethod("noRoleMethod"), null);
+		Assert.assertNull(accessAttributes);
+	}
 
-    @Test
-    public void classRoleIsAppliedToNoRoleMethod() throws Exception {
-        Collection<ConfigAttribute> accessAttributes = mds.findAttributes(userAllowed.getClass().getMethod("noRoleMethod"), null);
-        Assert.assertNull(accessAttributes);
-    }
+	@Test
+	public void classRoleIsAppliedToNoRoleMethod() throws Exception {
+		Collection<ConfigAttribute> accessAttributes = mds.findAttributes(userAllowed
+				.getClass().getMethod("noRoleMethod"), null);
+		Assert.assertNull(accessAttributes);
+	}
 
-    @Test
-    public void methodRoleOverridesClassRole() throws Exception {
-        Collection<ConfigAttribute> accessAttributes = mds.findAttributes(userAllowed.getClass().getMethod("adminMethod"), null);
-        assertEquals(1, accessAttributes.size());
-        assertEquals("ROLE_ADMIN", accessAttributes.toArray()[0].toString());
-    }
+	@Test
+	public void methodRoleOverridesClassRole() throws Exception {
+		Collection<ConfigAttribute> accessAttributes = mds.findAttributes(userAllowed
+				.getClass().getMethod("adminMethod"), null);
+		assertEquals(1, accessAttributes.size());
+		assertEquals("ROLE_ADMIN", accessAttributes.toArray()[0].toString());
+	}
 
-    @Test
-    public void customDefaultRolePrefix() throws Exception {
-        mds.setDefaultRolePrefix("CUSTOMPREFIX_");
+	@Test
+	public void customDefaultRolePrefix() throws Exception {
+		mds.setDefaultRolePrefix("CUSTOMPREFIX_");
 
-        ConfigAttribute[] accessAttributes = findAttributes("adminMethod");
-        assertEquals(1, accessAttributes.length);
-        assertEquals("CUSTOMPREFIX_ADMIN", accessAttributes[0].toString());
-    }
+		ConfigAttribute[] accessAttributes = findAttributes("adminMethod");
+		assertEquals(1, accessAttributes.length);
+		assertEquals("CUSTOMPREFIX_ADMIN", accessAttributes[0].toString());
+	}
 
-    @Test
-    public void emptyDefaultRolePrefix() throws Exception {
-        mds.setDefaultRolePrefix("");
+	@Test
+	public void emptyDefaultRolePrefix() throws Exception {
+		mds.setDefaultRolePrefix("");
 
-        ConfigAttribute[] accessAttributes = findAttributes("adminMethod");
-        assertEquals(1, accessAttributes.length);
-        assertEquals("ADMIN", accessAttributes[0].toString());
-    }
+		ConfigAttribute[] accessAttributes = findAttributes("adminMethod");
+		assertEquals(1, accessAttributes.length);
+		assertEquals("ADMIN", accessAttributes[0].toString());
+	}
 
-    @Test
-    public void nullDefaultRolePrefix() throws Exception {
-        mds.setDefaultRolePrefix(null);
+	@Test
+	public void nullDefaultRolePrefix() throws Exception {
+		mds.setDefaultRolePrefix(null);
 
-        ConfigAttribute[] accessAttributes = findAttributes("adminMethod");
-        assertEquals(1, accessAttributes.length);
-        assertEquals("ADMIN", accessAttributes[0].toString());
-    }
+		ConfigAttribute[] accessAttributes = findAttributes("adminMethod");
+		assertEquals(1, accessAttributes.length);
+		assertEquals("ADMIN", accessAttributes[0].toString());
+	}
 
-    @Test
-    public void alreadyHasDefaultPrefix() throws Exception {
-        ConfigAttribute[] accessAttributes = findAttributes("roleAdminMethod");
-        assertEquals(1, accessAttributes.length);
-        assertEquals("ROLE_ADMIN", accessAttributes[0].toString());
-    }
+	@Test
+	public void alreadyHasDefaultPrefix() throws Exception {
+		ConfigAttribute[] accessAttributes = findAttributes("roleAdminMethod");
+		assertEquals(1, accessAttributes.length);
+		assertEquals("ROLE_ADMIN", accessAttributes[0].toString());
+	}
 
-    // JSR-250 Spec Tests
+	// JSR-250 Spec Tests
 
-    /**
-     *  Class-level annotations only affect the class they annotate and their members, that
-     *  is, its methods and fields. They never affect a member declared by a superclass,
-     * even if it is not hidden or overridden by the class in question.
-     * @throws Exception
-     */
-    @Test
-    public void classLevelAnnotationsOnlyAffectTheClassTheyAnnotateAndTheirMembers() throws Exception {
-        Child target = new Child();
-        MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(), "notOverriden");
+	/**
+	 * Class-level annotations only affect the class they annotate and their members, that
+	 * is, its methods and fields. They never affect a member declared by a superclass,
+	 * even if it is not hidden or overridden by the class in question.
+	 * @throws Exception
+	 */
+	@Test
+	public void classLevelAnnotationsOnlyAffectTheClassTheyAnnotateAndTheirMembers()
+			throws Exception {
+		Child target = new Child();
+		MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(),
+				"notOverriden");
 
-        Collection<ConfigAttribute> accessAttributes = mds.getAttributes(mi);
-        assertThat(accessAttributes).isNull();
-    }
+		Collection<ConfigAttribute> accessAttributes = mds.getAttributes(mi);
+		assertThat(accessAttributes).isNull();
+	}
 
-    @Test
-    public void classLevelAnnotationsOnlyAffectTheClassTheyAnnotateAndTheirMembersOverriden() throws Exception {
-        Child target = new Child();
-        MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(), "overriden");
+	@Test
+	public void classLevelAnnotationsOnlyAffectTheClassTheyAnnotateAndTheirMembersOverriden()
+			throws Exception {
+		Child target = new Child();
+		MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(),
+				"overriden");
 
-        Collection<ConfigAttribute> accessAttributes = mds.getAttributes(mi);
-        assertEquals(1, accessAttributes.size());
-        assertEquals("ROLE_DERIVED", accessAttributes.toArray()[0].toString());
-    }
+		Collection<ConfigAttribute> accessAttributes = mds.getAttributes(mi);
+		assertEquals(1, accessAttributes.size());
+		assertEquals("ROLE_DERIVED", accessAttributes.toArray()[0].toString());
+	}
 
-    @Test
-    public void classLevelAnnotationsImpactMemberLevel() throws Exception {
-        Child target = new Child();
-        MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(), "defaults");
+	@Test
+	public void classLevelAnnotationsImpactMemberLevel() throws Exception {
+		Child target = new Child();
+		MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(),
+				"defaults");
 
-        Collection<ConfigAttribute> accessAttributes = mds.getAttributes(mi);
-        assertEquals(1, accessAttributes.size());
-        assertEquals("ROLE_DERIVED", accessAttributes.toArray()[0].toString());
-    }
+		Collection<ConfigAttribute> accessAttributes = mds.getAttributes(mi);
+		assertEquals(1, accessAttributes.size());
+		assertEquals("ROLE_DERIVED", accessAttributes.toArray()[0].toString());
+	}
 
-    @Test
-    public void classLevelAnnotationsIgnoredByExplicitMemberAnnotation() throws Exception {
-        Child target = new Child();
-        MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(), "explicitMethod");
+	@Test
+	public void classLevelAnnotationsIgnoredByExplicitMemberAnnotation() throws Exception {
+		Child target = new Child();
+		MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(),
+				"explicitMethod");
 
-        Collection<ConfigAttribute> accessAttributes = mds.getAttributes(mi);
-        assertEquals(1, accessAttributes.size());
-        assertEquals("ROLE_EXPLICIT", accessAttributes.toArray()[0].toString());
-    }
+		Collection<ConfigAttribute> accessAttributes = mds.getAttributes(mi);
+		assertEquals(1, accessAttributes.size());
+		assertEquals("ROLE_EXPLICIT", accessAttributes.toArray()[0].toString());
+	}
 
-    /**
-     * The interfaces implemented by a class never contribute annotations to the class
-     * itself or any of its members.
-     * @throws Exception
-     */
-    @Test
-    public void interfacesNeverContributeAnnotationsMethodLevel() throws Exception {
-        Parent target = new Parent();
-        MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(), "interfaceMethod");
+	/**
+	 * The interfaces implemented by a class never contribute annotations to the class
+	 * itself or any of its members.
+	 * @throws Exception
+	 */
+	@Test
+	public void interfacesNeverContributeAnnotationsMethodLevel() throws Exception {
+		Parent target = new Parent();
+		MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(),
+				"interfaceMethod");
 
-        Collection<ConfigAttribute> accessAttributes = mds.getAttributes(mi);
-        assertThat(accessAttributes).isEmpty();
-    }
+		Collection<ConfigAttribute> accessAttributes = mds.getAttributes(mi);
+		assertThat(accessAttributes).isEmpty();
+	}
 
-    @Test
-    public void interfacesNeverContributeAnnotationsClassLevel() throws Exception {
-        Parent target = new Parent();
-        MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(), "notOverriden");
+	@Test
+	public void interfacesNeverContributeAnnotationsClassLevel() throws Exception {
+		Parent target = new Parent();
+		MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(),
+				"notOverriden");
 
-        Collection<ConfigAttribute> accessAttributes = mds.getAttributes(mi);
-        assertThat(accessAttributes).isEmpty();
-    }
+		Collection<ConfigAttribute> accessAttributes = mds.getAttributes(mi);
+		assertThat(accessAttributes).isEmpty();
+	}
 
-    @Test
-    public void annotationsOnOverriddenMemberIgnored() throws Exception {
-        Child target = new Child();
-        MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(), "overridenIgnored");
+	@Test
+	public void annotationsOnOverriddenMemberIgnored() throws Exception {
+		Child target = new Child();
+		MockMethodInvocation mi = new MockMethodInvocation(target, target.getClass(),
+				"overridenIgnored");
 
-        Collection<ConfigAttribute> accessAttributes = mds.getAttributes(mi);
-        assertEquals(1, accessAttributes.size());
-        assertEquals("ROLE_DERIVED", accessAttributes.toArray()[0].toString());
-    }
+		Collection<ConfigAttribute> accessAttributes = mds.getAttributes(mi);
+		assertEquals(1, accessAttributes.size());
+		assertEquals("ROLE_DERIVED", accessAttributes.toArray()[0].toString());
+	}
 
-    //~ Inner Classes ======================================================================================================
+	// ~ Inner Classes
+	// ======================================================================================================
 
-    public static class A {
+	public static class A {
 
-        public void noRoleMethod() {}
+		public void noRoleMethod() {
+		}
 
-        @RolesAllowed("ADMIN")
-        public void adminMethod() {}
+		@RolesAllowed("ADMIN")
+		public void adminMethod() {
+		}
 
-        @RolesAllowed("ROLE_ADMIN")
-        public void roleAdminMethod() {}
+		@RolesAllowed("ROLE_ADMIN")
+		public void roleAdminMethod() {
+		}
 
-        @PermitAll
-        public void permitAllMethod() {}
-    }
+		@PermitAll
+		public void permitAllMethod() {
+		}
+	}
 
-    @RolesAllowed("USER")
-    public static class UserAllowedClass {
-        public void noRoleMethod() {}
+	@RolesAllowed("USER")
+	public static class UserAllowedClass {
+		public void noRoleMethod() {
+		}
 
-        @RolesAllowed("ADMIN")
-        public void adminMethod() {}
-    }
+		@RolesAllowed("ADMIN")
+		public void adminMethod() {
+		}
+	}
 
-    // JSR-250 Spec
+	// JSR-250 Spec
 
-    @RolesAllowed("IPARENT")
-    interface IParent {
-        @RolesAllowed("INTERFACEMETHOD")
-        void interfaceMethod();
-    }
+	@RolesAllowed("IPARENT")
+	interface IParent {
+		@RolesAllowed("INTERFACEMETHOD")
+		void interfaceMethod();
+	}
 
-    static class Parent implements IParent {
-        public void interfaceMethod() {}
-        public void notOverriden() {}
-        public void overriden() {}
-        @RolesAllowed("OVERRIDENIGNORED")
-        public void overridenIgnored() {}
-    }
+	static class Parent implements IParent {
+		public void interfaceMethod() {
+		}
 
-    @RolesAllowed("DERIVED")
-    class Child extends Parent {
-        public void overriden() {}
-        public void overridenIgnored() {}
-        public void defaults() {}
-        @RolesAllowed("EXPLICIT")
-        public void explicitMethod() {}
-    }
+		public void notOverriden() {
+		}
+
+		public void overriden() {
+		}
+
+		@RolesAllowed("OVERRIDENIGNORED")
+		public void overridenIgnored() {
+		}
+	}
+
+	@RolesAllowed("DERIVED")
+	class Child extends Parent {
+		public void overriden() {
+		}
+
+		public void overridenIgnored() {
+		}
+
+		public void defaults() {
+		}
+
+		@RolesAllowed("EXPLICIT")
+		public void explicitMethod() {
+		}
+	}
 }

@@ -21,6 +21,6 @@ package org.springframework.security.crypto.keygen;
  */
 public interface StringKeyGenerator {
 
-    String generateKey();
+	String generateKey();
 
 }

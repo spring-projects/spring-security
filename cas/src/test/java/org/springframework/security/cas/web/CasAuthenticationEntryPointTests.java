@@ -24,88 +24,92 @@ import org.springframework.security.cas.web.CasAuthenticationEntryPoint;
 
 import java.net.URLEncoder;
 
-
 /**
  * Tests {@link CasAuthenticationEntryPoint}.
  *
  * @author Ben Alex
  */
 public class CasAuthenticationEntryPointTests extends TestCase {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public void testDetectsMissingLoginFormUrl() throws Exception {
-        CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
-        ep.setServiceProperties(new ServiceProperties());
+	public void testDetectsMissingLoginFormUrl() throws Exception {
+		CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
+		ep.setServiceProperties(new ServiceProperties());
 
-        try {
-            ep.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("loginUrl must be specified", expected.getMessage());
-        }
-    }
+		try {
+			ep.afterPropertiesSet();
+			fail("Should have thrown IllegalArgumentException");
+		}
+		catch (IllegalArgumentException expected) {
+			assertEquals("loginUrl must be specified", expected.getMessage());
+		}
+	}
 
-    public void testDetectsMissingServiceProperties() throws Exception {
-        CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
-        ep.setLoginUrl("https://cas/login");
+	public void testDetectsMissingServiceProperties() throws Exception {
+		CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
+		ep.setLoginUrl("https://cas/login");
 
-        try {
-            ep.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("serviceProperties must be specified", expected.getMessage());
-        }
-    }
+		try {
+			ep.afterPropertiesSet();
+			fail("Should have thrown IllegalArgumentException");
+		}
+		catch (IllegalArgumentException expected) {
+			assertEquals("serviceProperties must be specified", expected.getMessage());
+		}
+	}
 
-    public void testGettersSetters() {
-        CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
-        ep.setLoginUrl("https://cas/login");
-        assertEquals("https://cas/login", ep.getLoginUrl());
+	public void testGettersSetters() {
+		CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
+		ep.setLoginUrl("https://cas/login");
+		assertEquals("https://cas/login", ep.getLoginUrl());
 
-        ep.setServiceProperties(new ServiceProperties());
-        assertTrue(ep.getServiceProperties() != null);
-    }
+		ep.setServiceProperties(new ServiceProperties());
+		assertTrue(ep.getServiceProperties() != null);
+	}
 
-    public void testNormalOperationWithRenewFalse() throws Exception {
-        ServiceProperties sp = new ServiceProperties();
-        sp.setSendRenew(false);
-        sp.setService("https://mycompany.com/bigWebApp/login/cas");
+	public void testNormalOperationWithRenewFalse() throws Exception {
+		ServiceProperties sp = new ServiceProperties();
+		sp.setSendRenew(false);
+		sp.setService("https://mycompany.com/bigWebApp/login/cas");
 
-        CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
-        ep.setLoginUrl("https://cas/login");
-        ep.setServiceProperties(sp);
+		CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
+		ep.setLoginUrl("https://cas/login");
+		ep.setServiceProperties(sp);
 
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRequestURI("/some_path");
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/some_path");
 
-        MockHttpServletResponse response = new MockHttpServletResponse();
+		MockHttpServletResponse response = new MockHttpServletResponse();
 
-        ep.afterPropertiesSet();
-        ep.commence(request, response, null);
+		ep.afterPropertiesSet();
+		ep.commence(request, response, null);
 
-        assertEquals("https://cas/login?service="
-            + URLEncoder.encode("https://mycompany.com/bigWebApp/login/cas", "UTF-8"),
-            response.getRedirectedUrl());
-    }
+		assertEquals(
+				"https://cas/login?service="
+						+ URLEncoder.encode("https://mycompany.com/bigWebApp/login/cas",
+								"UTF-8"), response.getRedirectedUrl());
+	}
 
-    public void testNormalOperationWithRenewTrue() throws Exception {
-        ServiceProperties sp = new ServiceProperties();
-        sp.setSendRenew(true);
-        sp.setService("https://mycompany.com/bigWebApp/login/cas");
+	public void testNormalOperationWithRenewTrue() throws Exception {
+		ServiceProperties sp = new ServiceProperties();
+		sp.setSendRenew(true);
+		sp.setService("https://mycompany.com/bigWebApp/login/cas");
 
-        CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
-        ep.setLoginUrl("https://cas/login");
-        ep.setServiceProperties(sp);
+		CasAuthenticationEntryPoint ep = new CasAuthenticationEntryPoint();
+		ep.setLoginUrl("https://cas/login");
+		ep.setServiceProperties(sp);
 
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRequestURI("/some_path");
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/some_path");
 
-        MockHttpServletResponse response = new MockHttpServletResponse();
+		MockHttpServletResponse response = new MockHttpServletResponse();
 
-        ep.afterPropertiesSet();
-        ep.commence(request, response, null);
-        assertEquals("https://cas/login?service="
-            + URLEncoder.encode("https://mycompany.com/bigWebApp/login/cas", "UTF-8") + "&renew=true",
-            response.getRedirectedUrl());
-    }
+		ep.afterPropertiesSet();
+		ep.commence(request, response, null);
+		assertEquals(
+				"https://cas/login?service="
+						+ URLEncoder.encode("https://mycompany.com/bigWebApp/login/cas",
+								"UTF-8") + "&renew=true", response.getRedirectedUrl());
+	}
 }

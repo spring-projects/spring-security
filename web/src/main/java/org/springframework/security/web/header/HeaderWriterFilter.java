@@ -26,8 +26,9 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * Filter implementation to add headers to the current request. Can be useful to add certain headers which enable
- * browser protection. Like X-Frame-Options, X-XSS-Protection and X-Content-Type-Options.
+ * Filter implementation to add headers to the current request. Can be useful to add
+ * certain headers which enable browser protection. Like X-Frame-Options, X-XSS-Protection
+ * and X-Content-Type-Options.
  *
  * @author Marten Deinum
  * @since 3.2
@@ -35,26 +36,32 @@ import java.util.*;
  */
 public class HeaderWriterFilter extends OncePerRequestFilter {
 
-    /** Collection of {@link HeaderWriter} instances to  write out the headers to the response . */
-    private final List<HeaderWriter> headerWriters;
+	/**
+	 * Collection of {@link HeaderWriter} instances to write out the headers to the
+	 * response .
+	 */
+	private final List<HeaderWriter> headerWriters;
 
-    /**
-     * Creates a new instance.
-     *
-     * @param headerWriters the {@link HeaderWriter} instances to write out headers to the {@link HttpServletResponse}.
-     */
-    public HeaderWriterFilter(List<HeaderWriter> headerWriters) {
-        Assert.notEmpty(headerWriters, "headerWriters cannot be null or empty");
-        this.headerWriters = headerWriters;
-    }
+	/**
+	 * Creates a new instance.
+	 *
+	 * @param headerWriters the {@link HeaderWriter} instances to write out headers to the
+	 * {@link HttpServletResponse}.
+	 */
+	public HeaderWriterFilter(List<HeaderWriter> headerWriters) {
+		Assert.notEmpty(headerWriters, "headerWriters cannot be null or empty");
+		this.headerWriters = headerWriters;
+	}
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+	@Override
+	protected void doFilterInternal(HttpServletRequest request,
+			HttpServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
 
-        for (HeaderWriter factory : headerWriters) {
-            factory.writeHeaders(request, response);
-        }
-        filterChain.doFilter(request, response);
-    }
+		for (HeaderWriter factory : headerWriters) {
+			factory.writeHeaders(request, response);
+		}
+		filterChain.doFilter(request, response);
+	}
 
 }

@@ -26,90 +26,91 @@ import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.PortMapperImpl;
 
 /**
- * Allows configuring a shared {@link PortMapper} instance used to determine the
- * ports when redirecting between HTTP and HTTPS. The {@link PortMapper} can be
- * obtained from {@link HttpSecurity#getSharedObject(Class)}.
+ * Allows configuring a shared {@link PortMapper} instance used to determine the ports
+ * when redirecting between HTTP and HTTPS. The {@link PortMapper} can be obtained from
+ * {@link HttpSecurity#getSharedObject(Class)}.
  *
  * @author Rob Winch
  * @since 3.2
  */
-public final class PortMapperConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<PortMapperConfigurer<H>,H> {
-    private PortMapper portMapper;
-    private Map<String, String> httpsPortMappings = new HashMap<String,String>();
+public final class PortMapperConfigurer<H extends HttpSecurityBuilder<H>> extends
+		AbstractHttpConfigurer<PortMapperConfigurer<H>, H> {
+	private PortMapper portMapper;
+	private Map<String, String> httpsPortMappings = new HashMap<String, String>();
 
-    /**
-     * Creates a new instance
-     */
-    public PortMapperConfigurer() {
-    }
+	/**
+	 * Creates a new instance
+	 */
+	public PortMapperConfigurer() {
+	}
 
-    /**
-     * Allows specifying the {@link PortMapper} instance.
-     * @param portMapper
-     * @return
-     */
-    public PortMapperConfigurer<H> portMapper(PortMapper portMapper) {
-        this.portMapper = portMapper;
-        return this;
-    }
+	/**
+	 * Allows specifying the {@link PortMapper} instance.
+	 * @param portMapper
+	 * @return
+	 */
+	public PortMapperConfigurer<H> portMapper(PortMapper portMapper) {
+		this.portMapper = portMapper;
+		return this;
+	}
 
-    /**
-     * Adds a port mapping
-     * @param httpPort the HTTP port that maps to a specific HTTPS port.
-     * @return {@link HttpPortMapping} to define the HTTPS port
-     */
-    public HttpPortMapping http(int httpPort) {
-        return new HttpPortMapping(httpPort);
-    }
+	/**
+	 * Adds a port mapping
+	 * @param httpPort the HTTP port that maps to a specific HTTPS port.
+	 * @return {@link HttpPortMapping} to define the HTTPS port
+	 */
+	public HttpPortMapping http(int httpPort) {
+		return new HttpPortMapping(httpPort);
+	}
 
-    @Override
-    public void init(H http) throws Exception {
-        http.setSharedObject(PortMapper.class, getPortMapper());
-    }
+	@Override
+	public void init(H http) throws Exception {
+		http.setSharedObject(PortMapper.class, getPortMapper());
+	}
 
-    /**
-     * Gets the {@link PortMapper} to use. If {@link #portMapper(PortMapper)}
-     * was not invoked, builds a {@link PortMapperImpl} using the port mappings
-     * specified with {@link #http(int)}.
-     *
-     * @return the {@link PortMapper} to use
-     */
-    private PortMapper getPortMapper() {
-        if(portMapper == null) {
-            PortMapperImpl portMapper = new PortMapperImpl();
-            portMapper.setPortMappings(httpsPortMappings);
-            this.portMapper = portMapper;
-        }
-        return portMapper;
-    }
+	/**
+	 * Gets the {@link PortMapper} to use. If {@link #portMapper(PortMapper)} was not
+	 * invoked, builds a {@link PortMapperImpl} using the port mappings specified with
+	 * {@link #http(int)}.
+	 *
+	 * @return the {@link PortMapper} to use
+	 */
+	private PortMapper getPortMapper() {
+		if (portMapper == null) {
+			PortMapperImpl portMapper = new PortMapperImpl();
+			portMapper.setPortMappings(httpsPortMappings);
+			this.portMapper = portMapper;
+		}
+		return portMapper;
+	}
 
-    /**
-     * Allows specifying the HTTPS port for a given HTTP port when redirecting
-     * between HTTP and HTTPS.
-     *
-     * @author Rob Winch
-     * @since 3.2
-     */
-    public final class HttpPortMapping {
-        private final int httpPort;
+	/**
+	 * Allows specifying the HTTPS port for a given HTTP port when redirecting between
+	 * HTTP and HTTPS.
+	 *
+	 * @author Rob Winch
+	 * @since 3.2
+	 */
+	public final class HttpPortMapping {
+		private final int httpPort;
 
-        /**
-         * Creates a new instance
-         * @param httpPort
-         * @see PortMapperConfigurer#http(int)
-         */
-        private HttpPortMapping(int httpPort) {
-            this.httpPort = httpPort;
-        }
+		/**
+		 * Creates a new instance
+		 * @param httpPort
+		 * @see PortMapperConfigurer#http(int)
+		 */
+		private HttpPortMapping(int httpPort) {
+			this.httpPort = httpPort;
+		}
 
-        /**
-         * Maps the given HTTP port to the provided HTTPS port and vice versa.
-         * @param httpsPort the HTTPS port to map to
-         * @return the {@link PortMapperConfigurer} for further customization
-         */
-        public PortMapperConfigurer<H> mapsTo(int httpsPort) {
-            httpsPortMappings.put(String.valueOf(httpPort), String.valueOf(httpsPort));
-            return PortMapperConfigurer.this;
-        }
-    }
+		/**
+		 * Maps the given HTTP port to the provided HTTPS port and vice versa.
+		 * @param httpsPort the HTTPS port to map to
+		 * @return the {@link PortMapperConfigurer} for further customization
+		 */
+		public PortMapperConfigurer<H> mapsTo(int httpsPort) {
+			httpsPortMappings.put(String.valueOf(httpPort), String.valueOf(httpsPort));
+			return PortMapperConfigurer.this;
+		}
+	}
 }

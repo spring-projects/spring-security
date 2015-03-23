@@ -31,73 +31,85 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 
-
 /**
  * Tests {@link AffirmativeBased}.
  *
  * @author Ben Alex
  */
 public class AffirmativeBasedTests {
-    private final List<ConfigAttribute> attrs = new ArrayList<ConfigAttribute>();
-    private final Authentication user = new TestingAuthenticationToken("somebody", "password","ROLE_1", "ROLE_2");
-    private AffirmativeBased mgr;
-    private AccessDecisionVoter grant;
-    private AccessDecisionVoter abstain;
-    private AccessDecisionVoter deny;
+	private final List<ConfigAttribute> attrs = new ArrayList<ConfigAttribute>();
+	private final Authentication user = new TestingAuthenticationToken("somebody",
+			"password", "ROLE_1", "ROLE_2");
+	private AffirmativeBased mgr;
+	private AccessDecisionVoter grant;
+	private AccessDecisionVoter abstain;
+	private AccessDecisionVoter deny;
 
-    @Before
-    @SuppressWarnings("unchecked")
-    public void setup() {
+	@Before
+	@SuppressWarnings("unchecked")
+	public void setup() {
 
-        grant = mock(AccessDecisionVoter.class);
-        abstain = mock(AccessDecisionVoter.class);
-        deny = mock(AccessDecisionVoter.class);
+		grant = mock(AccessDecisionVoter.class);
+		abstain = mock(AccessDecisionVoter.class);
+		deny = mock(AccessDecisionVoter.class);
 
-        when(grant.vote(any(Authentication.class), any(Object.class), any(List.class))).thenReturn(AccessDecisionVoter.ACCESS_GRANTED);
-        when(abstain.vote(any(Authentication.class), any(Object.class), any(List.class))).thenReturn(AccessDecisionVoter.ACCESS_ABSTAIN);
-        when(deny.vote(any(Authentication.class), any(Object.class), any(List.class))).thenReturn(AccessDecisionVoter.ACCESS_DENIED);
-    }
+		when(grant.vote(any(Authentication.class), any(Object.class), any(List.class)))
+				.thenReturn(AccessDecisionVoter.ACCESS_GRANTED);
+		when(abstain.vote(any(Authentication.class), any(Object.class), any(List.class)))
+				.thenReturn(AccessDecisionVoter.ACCESS_ABSTAIN);
+		when(deny.vote(any(Authentication.class), any(Object.class), any(List.class)))
+				.thenReturn(AccessDecisionVoter.ACCESS_DENIED);
+	}
 
-    @Test
-    public void oneAffirmativeVoteOneDenyVoteOneAbstainVoteGrantsAccess() throws Exception {
+	@Test
+	public void oneAffirmativeVoteOneDenyVoteOneAbstainVoteGrantsAccess()
+			throws Exception {
 
-        mgr = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>>asList(grant, deny, abstain));
-        mgr.afterPropertiesSet();
-        mgr.decide(user, new Object(), attrs);
-    }
+		mgr = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>> asList(
+				grant, deny, abstain));
+		mgr.afterPropertiesSet();
+		mgr.decide(user, new Object(), attrs);
+	}
 
-    @Test
-    public void oneDenyVoteOneAbstainVoteOneAffirmativeVoteGrantsAccess() throws Exception {
-        mgr = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>>asList(deny, abstain, grant));
-        mgr.decide(user, new Object(), attrs);
-    }
+	@Test
+	public void oneDenyVoteOneAbstainVoteOneAffirmativeVoteGrantsAccess()
+			throws Exception {
+		mgr = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>> asList(
+				deny, abstain, grant));
+		mgr.decide(user, new Object(), attrs);
+	}
 
-    @Test
-    public void oneAffirmativeVoteTwoAbstainVotesGrantsAccess() throws Exception {
-        mgr = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>>asList(grant, abstain, abstain));
-        mgr.decide(user, new Object(), attrs);
-    }
+	@Test
+	public void oneAffirmativeVoteTwoAbstainVotesGrantsAccess() throws Exception {
+		mgr = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>> asList(
+				grant, abstain, abstain));
+		mgr.decide(user, new Object(), attrs);
+	}
 
-    @Test(expected=AccessDeniedException.class)
-    public void oneDenyVoteTwoAbstainVotesDeniesAccess() throws Exception {
-        mgr = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>>asList(deny, abstain, abstain));
-        mgr.decide(user, new Object(), attrs);
-    }
+	@Test(expected = AccessDeniedException.class)
+	public void oneDenyVoteTwoAbstainVotesDeniesAccess() throws Exception {
+		mgr = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>> asList(
+				deny, abstain, abstain));
+		mgr.decide(user, new Object(), attrs);
+	}
 
-    @Test(expected=AccessDeniedException.class)
-    public void onlyAbstainVotesDeniesAccessWithDefault() throws Exception {
-        mgr = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>>asList(abstain, abstain, abstain));
-        assertTrue(!mgr.isAllowIfAllAbstainDecisions()); // check default
+	@Test(expected = AccessDeniedException.class)
+	public void onlyAbstainVotesDeniesAccessWithDefault() throws Exception {
+		mgr = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>> asList(
+				abstain, abstain, abstain));
+		assertTrue(!mgr.isAllowIfAllAbstainDecisions()); // check default
 
-        mgr.decide(user, new Object(), attrs);
-    }
+		mgr.decide(user, new Object(), attrs);
+	}
 
-    @Test
-    public void testThreeAbstainVotesGrantsAccessIfAllowIfAllAbstainDecisionsIsSet() throws Exception {
-        mgr = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>>asList(abstain, abstain, abstain));
-        mgr.setAllowIfAllAbstainDecisions(true);
-        assertTrue(mgr.isAllowIfAllAbstainDecisions()); // check changed
+	@Test
+	public void testThreeAbstainVotesGrantsAccessIfAllowIfAllAbstainDecisionsIsSet()
+			throws Exception {
+		mgr = new AffirmativeBased(Arrays.<AccessDecisionVoter<? extends Object>> asList(
+				abstain, abstain, abstain));
+		mgr.setAllowIfAllAbstainDecisions(true);
+		assertTrue(mgr.isAllowIfAllAbstainDecisions()); // check changed
 
-        mgr.decide(user, new Object(), attrs);
-    }
+		mgr.decide(user, new Object(), attrs);
+	}
 }

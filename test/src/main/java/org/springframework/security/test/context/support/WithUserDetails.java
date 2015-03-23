@@ -32,17 +32,17 @@ import org.springframework.test.web.servlet.MockMvc;
 
 /**
  * When used with {@link WithSecurityContextTestExecutionListener} this annotation can be
- * added to a test method to emulate running with a {@link UserDetails} returned
- * from the {@link UserDetailsService}. In order to work with {@link MockMvc}
- * The {@link SecurityContext} that is used will have the following properties:
+ * added to a test method to emulate running with a {@link UserDetails} returned from the
+ * {@link UserDetailsService}. In order to work with {@link MockMvc} The
+ * {@link SecurityContext} that is used will have the following properties:
  *
  * <ul>
  * <li>The {@link SecurityContext} created with be that of
  * {@link SecurityContextHolder#createEmptyContext()}</li>
- * <li>It will be populated with an {@link UsernamePasswordAuthenticationToken}
- * that uses the username of either {@link #value()} or {@link #username()},
- * {@link GrantedAuthority} that are specified by {@link #roles()}, and a
- * password specified by {@link #password()}.
+ * <li>It will be populated with an {@link UsernamePasswordAuthenticationToken} that uses
+ * the username of either {@link #value()} or {@link #username()},
+ * {@link GrantedAuthority} that are specified by {@link #roles()}, and a password
+ * specified by {@link #password()}.
  * </ul>
  *
  * @see WithMockUser
@@ -50,16 +50,16 @@ import org.springframework.test.web.servlet.MockMvc;
  * @author Rob Winch
  * @since 4.0
  */
-@Target({ElementType.METHOD, ElementType.TYPE})
+@Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-@WithSecurityContext(factory=WithUserDetailsSecurityContextFactory.class)
+@WithSecurityContext(factory = WithUserDetailsSecurityContextFactory.class)
 public @interface WithUserDetails {
-    /**
-     * The username to look up in the {@link UserDetailsService}
-     *
-     * @return
-     */
-    String value() default "user";
+	/**
+	 * The username to look up in the {@link UserDetailsService}
+	 *
+	 * @return
+	 */
+	String value() default "user";
 }

@@ -15,39 +15,39 @@ import org.springframework.security.authentication.event.AbstractAuthenticationF
  * @since 3.1
  */
 public class CollectingAppListener implements ApplicationListener {
-    Set<ApplicationEvent> events = new HashSet<ApplicationEvent>();
-    Set<AbstractAuthenticationEvent> authenticationEvents = new HashSet<AbstractAuthenticationEvent>();
-    Set<AbstractAuthenticationFailureEvent> authenticationFailureEvents = new HashSet<AbstractAuthenticationFailureEvent>();
-    Set<AbstractAuthorizationEvent> authorizationEvents = new HashSet<AbstractAuthorizationEvent>();
+	Set<ApplicationEvent> events = new HashSet<ApplicationEvent>();
+	Set<AbstractAuthenticationEvent> authenticationEvents = new HashSet<AbstractAuthenticationEvent>();
+	Set<AbstractAuthenticationFailureEvent> authenticationFailureEvents = new HashSet<AbstractAuthenticationFailureEvent>();
+	Set<AbstractAuthorizationEvent> authorizationEvents = new HashSet<AbstractAuthorizationEvent>();
 
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof AbstractAuthenticationEvent) {
-            events.add(event);
-            authenticationEvents.add((AbstractAuthenticationEvent) event);
-        }
-        if (event instanceof AbstractAuthenticationFailureEvent) {
-            events.add(event);
-            authenticationFailureEvents.add((AbstractAuthenticationFailureEvent) event);
-        }
-        if (event instanceof AbstractAuthorizationEvent) {
-            events.add(event);
-            authorizationEvents.add((AbstractAuthorizationEvent) event);
-        }
-    }
+	public void onApplicationEvent(ApplicationEvent event) {
+		if (event instanceof AbstractAuthenticationEvent) {
+			events.add(event);
+			authenticationEvents.add((AbstractAuthenticationEvent) event);
+		}
+		if (event instanceof AbstractAuthenticationFailureEvent) {
+			events.add(event);
+			authenticationFailureEvents.add((AbstractAuthenticationFailureEvent) event);
+		}
+		if (event instanceof AbstractAuthorizationEvent) {
+			events.add(event);
+			authorizationEvents.add((AbstractAuthorizationEvent) event);
+		}
+	}
 
-    public Set<ApplicationEvent> getEvents() {
-        return events;
-    }
+	public Set<ApplicationEvent> getEvents() {
+		return events;
+	}
 
-    public Set<AbstractAuthenticationEvent> getAuthenticationEvents() {
-        return authenticationEvents;
-    }
+	public Set<AbstractAuthenticationEvent> getAuthenticationEvents() {
+		return authenticationEvents;
+	}
 
-    public Set<AbstractAuthenticationFailureEvent> getAuthenticationFailureEvents() {
-        return authenticationFailureEvents;
-    }
+	public Set<AbstractAuthenticationFailureEvent> getAuthenticationFailureEvents() {
+		return authenticationFailureEvents;
+	}
 
-    public Set<AbstractAuthorizationEvent> getAuthorizationEvents() {
-        return authorizationEvents;
-    }
+	public Set<AbstractAuthorizationEvent> getAuthorizationEvents() {
+		return authorizationEvents;
+	}
 }

@@ -28,8 +28,8 @@ import org.springframework.security.core.context.SecurityContext;
 
 /**
  * <p>
- * An annotation to determine what {@link SecurityContext} to use. The
- * {@link #factory()} attribute must be provided with an instance of
+ * An annotation to determine what {@link SecurityContext} to use. The {@link #factory()}
+ * attribute must be provided with an instance of
  * {@link WithUserDetailsSecurityContextFactory}.
  * </p>
  *
@@ -40,23 +40,25 @@ import org.springframework.security.core.context.SecurityContext;
  *
  * <p>
  * If you would like to create your own implementation of
- * {@link WithSecurityContextFactory} you can do so by implementing the
- * interface. You can also use {@link Autowired} and other Spring semantics on
- * the {@link WithSecurityContextFactory} implementation.
+ * {@link WithSecurityContextFactory} you can do so by implementing the interface. You can
+ * also use {@link Autowired} and other Spring semantics on the
+ * {@link WithSecurityContextFactory} implementation.
  * </p>
  *
  * @author Rob Winch
  * @since 4.0
  */
-@Target({ElementType.ANNOTATION_TYPE})
+@Target({ ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
 public @interface WithSecurityContext {
-    /**
-     * The {@link WithUserDetailsSecurityContextFactory} to use to create the {@link SecurityContext}. It can contain {@link Autowired} and other Spring annotations.
-     *
-     * @return
-     */
-    Class<? extends WithSecurityContextFactory<? extends Annotation>> factory();
+	/**
+	 * The {@link WithUserDetailsSecurityContextFactory} to use to create the
+	 * {@link SecurityContext}. It can contain {@link Autowired} and other Spring
+	 * annotations.
+	 *
+	 * @return
+	 */
+	Class<? extends WithSecurityContextFactory<? extends Annotation>> factory();
 }

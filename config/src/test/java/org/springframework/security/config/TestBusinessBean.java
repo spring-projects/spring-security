@@ -5,13 +5,13 @@ package org.springframework.security.config;
  */
 public interface TestBusinessBean {
 
-    void setInteger(int i);
+	void setInteger(int i);
 
-    int getInteger();
+	int getInteger();
 
-    void setString(String s);
+	void setString(String s);
 
-    void doSomething();
+	void doSomething();
 
-    void unprotected();
+	void unprotected();
 }

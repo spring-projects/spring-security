@@ -26,15 +26,16 @@ import java.util.Map;
  * @author Rob Winch
  */
 class OnMissingBeanCondition implements ConfigurationCondition {
-    public ConfigurationPhase getConfigurationPhase() {
-        return ConfigurationPhase.REGISTER_BEAN;
-    }
+	public ConfigurationPhase getConfigurationPhase() {
+		return ConfigurationPhase.REGISTER_BEAN;
+	}
 
-    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-        Map<String,Object> attrs = metadata.getAnnotationAttributes(ConditionalOnMissingBean.class.getName());
+	public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+		Map<String, Object> attrs = metadata
+				.getAnnotationAttributes(ConditionalOnMissingBean.class.getName());
 
-        Class<?> type = (Class) attrs.get("value");
-        final Map<String, ?> beans = context.getBeanFactory().getBeansOfType(type);
-        return beans.isEmpty();
-    }
+		Class<?> type = (Class) attrs.get("value");
+		final Map<String, ?> beans = context.getBeanFactory().getBeansOfType(type);
+		return beans.isEmpty();
+	}
 }

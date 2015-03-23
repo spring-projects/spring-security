@@ -23,54 +23,59 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
-
 /**
- * An in memory implementation of Spring's {@link org.springframework.core.io.Resource} interface.
- * <p>Used to create a bean factory from an XML string, rather than a file.</p>
+ * An in memory implementation of Spring's {@link org.springframework.core.io.Resource}
+ * interface.
+ * <p>
+ * Used to create a bean factory from an XML string, rather than a file.
+ * </p>
  *
  * @author Luke Taylor
  */
 public class InMemoryResource extends AbstractResource {
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private final byte[] source;
-    private final String description;
+	private final byte[] source;
+	private final String description;
 
-    //~ Constructors ===================================================================================================
+	// ~ Constructors
+	// ===================================================================================================
 
-    public InMemoryResource(String source) {
-        this(source.getBytes());
-    }
+	public InMemoryResource(String source) {
+		this(source.getBytes());
+	}
 
-    public InMemoryResource(byte[] source) {
-        this(source, null);
-    }
+	public InMemoryResource(byte[] source) {
+		this(source, null);
+	}
 
-    public InMemoryResource(byte[] source, String description) {
-        Assert.notNull(source);
-        this.source = source;
-        this.description = description;
-    }
+	public InMemoryResource(byte[] source, String description) {
+		Assert.notNull(source);
+		this.source = source;
+		this.description = description;
+	}
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public String getDescription() {
-        return description;
-    }
+	public String getDescription() {
+		return description;
+	}
 
-    public InputStream getInputStream() throws IOException {
-        return new ByteArrayInputStream(source);
-    }
+	public InputStream getInputStream() throws IOException {
+		return new ByteArrayInputStream(source);
+	}
 
-    public int hashCode() {
-        return 1;
-    }
+	public int hashCode() {
+		return 1;
+	}
 
-    public boolean equals(Object res) {
-        if (!(res instanceof InMemoryResource)) {
-            return false;
-        }
+	public boolean equals(Object res) {
+		if (!(res instanceof InMemoryResource)) {
+			return false;
+		}
 
-        return Arrays.equals(source, ((InMemoryResource)res).source);
-    }
+		return Arrays.equals(source, ((InMemoryResource) res).source);
+	}
 }

@@ -6,3 +6,4 @@
  * {@link org.springframework.security.core.userdetails.AuthenticationUserDetailsService AuthenticationUserDetailsService}.
  */
 package org.springframework.security.core.userdetails;
+

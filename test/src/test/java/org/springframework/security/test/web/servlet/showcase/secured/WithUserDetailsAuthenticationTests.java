@@ -41,71 +41,71 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes=WithUserDetailsAuthenticationTests.Config.class)
+@ContextConfiguration(classes = WithUserDetailsAuthenticationTests.Config.class)
 @WebAppConfiguration
 public class WithUserDetailsAuthenticationTests {
 
-    @Autowired
-    private WebApplicationContext context;
+	@Autowired
+	private WebApplicationContext context;
 
-    private MockMvc mvc;
+	private MockMvc mvc;
 
-    @Before
-    public void setup() {
-        mvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .apply(springSecurity())
-                .build();
-    }
+	@Before
+	public void setup() {
+		mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+	}
 
-    @Test
-    @WithUserDetails
-    public void requestProtectedUrlWithUser() throws Exception {
-        mvc
-            .perform(get("/"))
-            // Ensure we got past Security
-            .andExpect(status().isNotFound())
-            // Ensure it appears we are authenticated with user
-            .andExpect(authenticated().withUsername("user"));
-    }
+	@Test
+	@WithUserDetails
+	public void requestProtectedUrlWithUser() throws Exception {
+		mvc.perform(get("/"))
+		// Ensure we got past Security
+				.andExpect(status().isNotFound())
+				// Ensure it appears we are authenticated with user
+				.andExpect(authenticated().withUsername("user"));
+	}
 
-    @Test
-    @WithUserDetails("admin")
-    public void requestProtectedUrlWithAdmin() throws Exception {
-        mvc
-            .perform(get("/admin"))
-            // Ensure we got past Security
-            .andExpect(status().isNotFound())
-            // Ensure it appears we are authenticated with user
-            .andExpect(authenticated().withUsername("admin").withRoles("ADMIN","USER"));
-    }
+	@Test
+	@WithUserDetails("admin")
+	public void requestProtectedUrlWithAdmin() throws Exception {
+		mvc.perform(get("/admin"))
+				// Ensure we got past Security
+				.andExpect(status().isNotFound())
+				// Ensure it appears we are authenticated with user
+				.andExpect(
+						authenticated().withUsername("admin").withRoles("ADMIN", "USER"));
+	}
 
-    @EnableWebSecurity
-    @EnableWebMvc
-    static class Config extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class Config extends WebSecurityConfigurerAdapter {
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .antMatchers("/admin/**").hasRole("ADMIN")
-                    .anyRequest().authenticated()
-                    .and()
-                .formLogin();
-        }
+		// @formatter:off
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.antMatchers("/admin/**").hasRole("ADMIN")
+					.anyRequest().authenticated()
+					.and()
+				.formLogin();
+		}
+		// @formatter:on
 
-        @Bean
-        @Override
-        public UserDetailsService userDetailsServiceBean() throws Exception {
-            return super.userDetailsServiceBean();
-        }
+		@Bean
+		@Override
+		public UserDetailsService userDetailsServiceBean() throws Exception {
+			return super.userDetailsServiceBean();
+		}
 
-        @Autowired
-        public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER").and()
-                    .withUser("admin").password("password").roles("USER","ADMIN");
-        }
-    }
+		// @formatter:off
+		@Autowired
+		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER").and()
+					.withUser("admin").password("password").roles("USER","ADMIN");
+		}
+		// @formatter:on
+	}
 }

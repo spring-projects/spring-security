@@ -13,46 +13,45 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 class MutableUser implements MutableUserDetails {
 
-    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-    private String password;
-    private final UserDetails delegate;
+	private String password;
+	private final UserDetails delegate;
 
-    public MutableUser(UserDetails user) {
-        this.delegate = user;
-        this.password = user.getPassword();
-    }
+	public MutableUser(UserDetails user) {
+		this.delegate = user;
+		this.password = user.getPassword();
+	}
 
-    public String getPassword() {
-        return password;
-    }
+	public String getPassword() {
+		return password;
+	}
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return delegate.getAuthorities();
-    }
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return delegate.getAuthorities();
+	}
 
-    public String getUsername() {
-        return delegate.getUsername();
-    }
+	public String getUsername() {
+		return delegate.getUsername();
+	}
 
-    public boolean isAccountNonExpired() {
-        return delegate.isAccountNonExpired();
-    }
+	public boolean isAccountNonExpired() {
+		return delegate.isAccountNonExpired();
+	}
 
-    public boolean isAccountNonLocked() {
-        return delegate.isAccountNonLocked();
-    }
+	public boolean isAccountNonLocked() {
+		return delegate.isAccountNonLocked();
+	}
 
-    public boolean isCredentialsNonExpired() {
-        return delegate.isCredentialsNonExpired();
-    }
+	public boolean isCredentialsNonExpired() {
+		return delegate.isCredentialsNonExpired();
+	}
 
-    public boolean isEnabled() {
-        return delegate.isEnabled();
-    }
+	public boolean isEnabled() {
+		return delegate.isEnabled();
+	}
 }
-

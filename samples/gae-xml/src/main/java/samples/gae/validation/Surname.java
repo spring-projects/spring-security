@@ -13,13 +13,13 @@ import org.hibernate.validator.constraints.NotBlank;
 /**
  * @author Luke Taylor
  */
-@Target( { METHOD, FIELD, ANNOTATION_TYPE })
+@Target({ METHOD, FIELD, ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = SurnameValidator.class)
 public @interface Surname {
-    String message() default "{samples.gae.surname}";
+	String message() default "{samples.gae.surname}";
 
-    Class<?>[] groups() default {};
+	Class<?>[] groups() default {};
 
-    Class<? extends Payload>[] payload() default {};
+	Class<? extends Payload>[] payload() default {};
 }

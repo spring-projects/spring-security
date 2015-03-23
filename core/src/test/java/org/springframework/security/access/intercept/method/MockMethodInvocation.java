@@ -7,32 +7,32 @@ import org.aopalliance.intercept.MethodInvocation;
 
 @SuppressWarnings("unchecked")
 public class MockMethodInvocation implements MethodInvocation {
-    private Method method;
-    private Object targetObject;
+	private Method method;
+	private Object targetObject;
 
-    public MockMethodInvocation(Object targetObject, Class clazz, String methodName, Class... parameterTypes)
-            throws NoSuchMethodException {
-        this.method = clazz.getMethod(methodName, parameterTypes);
-        this.targetObject = targetObject;
-    }
+	public MockMethodInvocation(Object targetObject, Class clazz, String methodName,
+			Class... parameterTypes) throws NoSuchMethodException {
+		this.method = clazz.getMethod(methodName, parameterTypes);
+		this.targetObject = targetObject;
+	}
 
-    public Object[] getArguments() {
-        return null;
-    }
+	public Object[] getArguments() {
+		return null;
+	}
 
-    public Method getMethod() {
-        return method;
-    }
+	public Method getMethod() {
+		return method;
+	}
 
-    public AccessibleObject getStaticPart() {
-        return null;
-    }
+	public AccessibleObject getStaticPart() {
+		return null;
+	}
 
-    public Object getThis() {
-        return targetObject;
-    }
+	public Object getThis() {
+		return targetObject;
+	}
 
-    public Object proceed() throws Throwable {
-        return null;
-    }
+	public Object proceed() throws Throwable {
+		return null;
+	}
 }

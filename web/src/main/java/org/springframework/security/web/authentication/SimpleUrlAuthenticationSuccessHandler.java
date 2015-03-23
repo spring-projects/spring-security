@@ -11,49 +11,55 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.WebAttributes;
 
 /**
- * <tt>AuthenticationSuccessHandler</tt> which can be configured with a default URL which users should be
- * sent to upon successful authentication.
+ * <tt>AuthenticationSuccessHandler</tt> which can be configured with a default URL which
+ * users should be sent to upon successful authentication.
  * <p>
- * The logic used is that of the {@link AbstractAuthenticationTargetUrlRequestHandler parent class}.
+ * The logic used is that of the {@link AbstractAuthenticationTargetUrlRequestHandler
+ * parent class}.
  *
  * @author Luke Taylor
  * @since 3.0
  */
-public class SimpleUrlAuthenticationSuccessHandler extends AbstractAuthenticationTargetUrlRequestHandler implements AuthenticationSuccessHandler {
+public class SimpleUrlAuthenticationSuccessHandler extends
+		AbstractAuthenticationTargetUrlRequestHandler implements
+		AuthenticationSuccessHandler {
 
-    public SimpleUrlAuthenticationSuccessHandler() {
-    }
+	public SimpleUrlAuthenticationSuccessHandler() {
+	}
 
-    /**
-     * Constructor which sets the <tt>defaultTargetUrl</tt> property of the base class.
-     * @param defaultTargetUrl the URL to which the user should be redirected on successful authentication.
-     */
-    public SimpleUrlAuthenticationSuccessHandler(String defaultTargetUrl) {
-        setDefaultTargetUrl(defaultTargetUrl);
-    }
+	/**
+	 * Constructor which sets the <tt>defaultTargetUrl</tt> property of the base class.
+	 * @param defaultTargetUrl the URL to which the user should be redirected on
+	 * successful authentication.
+	 */
+	public SimpleUrlAuthenticationSuccessHandler(String defaultTargetUrl) {
+		setDefaultTargetUrl(defaultTargetUrl);
+	}
 
-    /**
-     * Calls the parent class {@code handle()} method to forward or redirect to the target URL, and
-     * then calls {@code clearAuthenticationAttributes()} to remove any leftover session data.
-     */
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-            Authentication authentication) throws IOException, ServletException {
+	/**
+	 * Calls the parent class {@code handle()} method to forward or redirect to the target
+	 * URL, and then calls {@code clearAuthenticationAttributes()} to remove any leftover
+	 * session data.
+	 */
+	public void onAuthenticationSuccess(HttpServletRequest request,
+			HttpServletResponse response, Authentication authentication)
+			throws IOException, ServletException {
 
-        handle(request, response, authentication);
-        clearAuthenticationAttributes(request);
-    }
+		handle(request, response, authentication);
+		clearAuthenticationAttributes(request);
+	}
 
-    /**
-     * Removes temporary authentication-related data which may have been stored in the session
-     * during the authentication process.
-     */
-    protected final void clearAuthenticationAttributes(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
+	/**
+	 * Removes temporary authentication-related data which may have been stored in the
+	 * session during the authentication process.
+	 */
+	protected final void clearAuthenticationAttributes(HttpServletRequest request) {
+		HttpSession session = request.getSession(false);
 
-        if (session == null) {
-            return;
-        }
+		if (session == null) {
+			return;
+		}
 
-        session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
-    }
+		session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
+	}
 }

@@ -32,70 +32,78 @@ import org.springframework.security.ldap.AbstractLdapIntegrationTests;
  */
 public class FilterBasedLdapUserSearchTests extends AbstractLdapIntegrationTests {
 
-    @Test
-    public void basicSearchSucceeds() throws Exception {
-        FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people", "(uid={0})", getContextSource());
-        locator.setSearchSubtree(false);
-        locator.setSearchTimeLimit(0);
-        locator.setDerefLinkFlag(false);
+	@Test
+	public void basicSearchSucceeds() throws Exception {
+		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people",
+				"(uid={0})", getContextSource());
+		locator.setSearchSubtree(false);
+		locator.setSearchTimeLimit(0);
+		locator.setDerefLinkFlag(false);
 
-        DirContextOperations bob = locator.searchForUser("bob");
-        assertEquals("bob", bob.getStringAttribute("uid"));
+		DirContextOperations bob = locator.searchForUser("bob");
+		assertEquals("bob", bob.getStringAttribute("uid"));
 
-        assertEquals(new LdapName("uid=bob,ou=people"), bob.getDn());
-    }
+		assertEquals(new LdapName("uid=bob,ou=people"), bob.getDn());
+	}
 
-    @Test
-    public void searchForNameWithCommaSucceeds() throws Exception {
-        FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people", "(uid={0})", getContextSource());
-        locator.setSearchSubtree(false);
+	@Test
+	public void searchForNameWithCommaSucceeds() throws Exception {
+		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people",
+				"(uid={0})", getContextSource());
+		locator.setSearchSubtree(false);
 
-        DirContextOperations jerry = locator.searchForUser("jerry");
-        assertEquals("jerry", jerry.getStringAttribute("uid"));
+		DirContextOperations jerry = locator.searchForUser("jerry");
+		assertEquals("jerry", jerry.getStringAttribute("uid"));
 
-        assertEquals(new LdapName("cn=mouse\\, jerry,ou=people"), jerry.getDn());
-    }
+		assertEquals(new LdapName("cn=mouse\\, jerry,ou=people"), jerry.getDn());
+	}
 
-    // Try some funny business with filters.
-    @Test
-    public void extraFilterPartToExcludeBob() throws Exception {
-        FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people",
-                "(&(cn=*)(!(|(uid={0})(uid=rod)(uid=jerry)(uid=slashguy)(uid=javadude)(uid=groovydude)(uid=closuredude)(uid=scaladude))))", getContextSource());
+	// Try some funny business with filters.
+	@Test
+	public void extraFilterPartToExcludeBob() throws Exception {
+		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch(
+				"ou=people",
+				"(&(cn=*)(!(|(uid={0})(uid=rod)(uid=jerry)(uid=slashguy)(uid=javadude)(uid=groovydude)(uid=closuredude)(uid=scaladude))))",
+				getContextSource());
 
-        // Search for bob, get back ben...
-        DirContextOperations ben = locator.searchForUser("bob");
-        assertEquals("Ben Alex", ben.getStringAttribute("cn"));
-    }
+		// Search for bob, get back ben...
+		DirContextOperations ben = locator.searchForUser("bob");
+		assertEquals("Ben Alex", ben.getStringAttribute("cn"));
+	}
 
-    @Test(expected=IncorrectResultSizeDataAccessException.class)
-    public void searchFailsOnMultipleMatches() {
-        FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people", "(cn=*)", getContextSource());
-        locator.searchForUser("Ignored");
-    }
+	@Test(expected = IncorrectResultSizeDataAccessException.class)
+	public void searchFailsOnMultipleMatches() {
+		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people",
+				"(cn=*)", getContextSource());
+		locator.searchForUser("Ignored");
+	}
 
-    @Test(expected=UsernameNotFoundException.class)
-    public void searchForInvalidUserFails() {
-        FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people", "(uid={0})", getContextSource());
-        locator.searchForUser("Joe");
-    }
+	@Test(expected = UsernameNotFoundException.class)
+	public void searchForInvalidUserFails() {
+		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=people",
+				"(uid={0})", getContextSource());
+		locator.searchForUser("Joe");
+	}
 
-    @Test
-    public void subTreeSearchSucceeds() throws Exception {
-        // Don't set the searchBase, so search from the root.
-        FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("", "(cn={0})", getContextSource());
-        locator.setSearchSubtree(true);
+	@Test
+	public void subTreeSearchSucceeds() throws Exception {
+		// Don't set the searchBase, so search from the root.
+		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("", "(cn={0})",
+				getContextSource());
+		locator.setSearchSubtree(true);
 
-        DirContextOperations ben = locator.searchForUser("Ben Alex");
-        assertEquals("ben", ben.getStringAttribute("uid"));
+		DirContextOperations ben = locator.searchForUser("Ben Alex");
+		assertEquals("ben", ben.getStringAttribute("uid"));
 
-        assertEquals(new LdapName("uid=ben,ou=people"), ben.getDn());
-    }
+		assertEquals(new LdapName("uid=ben,ou=people"), ben.getDn());
+	}
 
-    @Test
-    public void searchWithDifferentSearchBaseIsSuccessful() throws Exception {
-        FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch("ou=otherpeople", "(cn={0})", getContextSource());
-        DirContextOperations joe = locator.searchForUser("Joe Smeth");
-        assertEquals("Joe Smeth", joe.getStringAttribute("cn"));
-    }
+	@Test
+	public void searchWithDifferentSearchBaseIsSuccessful() throws Exception {
+		FilterBasedLdapUserSearch locator = new FilterBasedLdapUserSearch(
+				"ou=otherpeople", "(cn={0})", getContextSource());
+		DirContextOperations joe = locator.searchForUser("Joe Smeth");
+		assertEquals("Joe Smeth", joe.getStringAttribute("cn"));
+	}
 
 }

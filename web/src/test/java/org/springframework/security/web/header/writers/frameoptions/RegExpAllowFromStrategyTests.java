@@ -15,40 +15,42 @@ import org.springframework.security.web.header.writers.frameoptions.RegExpAllowF
  */
 public class RegExpAllowFromStrategyTests {
 
-    @Test(expected = PatternSyntaxException.class)
-    public void invalidRegularExpressionShouldLeadToException() {
-        new RegExpAllowFromStrategy("[a-z");
-    }
+	@Test(expected = PatternSyntaxException.class)
+	public void invalidRegularExpressionShouldLeadToException() {
+		new RegExpAllowFromStrategy("[a-z");
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void nullRegularExpressionShouldLeadToException() {
-        new RegExpAllowFromStrategy(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void nullRegularExpressionShouldLeadToException() {
+		new RegExpAllowFromStrategy(null);
+	}
 
-    @Test
-    public void subdomainMatchingRegularExpression() {
-        RegExpAllowFromStrategy strategy = new RegExpAllowFromStrategy("^http://([a-z0-9]*?\\.)test\\.com");
-        strategy.setAllowFromParameterName("from");
-        MockHttpServletRequest request = new MockHttpServletRequest();
+	@Test
+	public void subdomainMatchingRegularExpression() {
+		RegExpAllowFromStrategy strategy = new RegExpAllowFromStrategy(
+				"^http://([a-z0-9]*?\\.)test\\.com");
+		strategy.setAllowFromParameterName("from");
+		MockHttpServletRequest request = new MockHttpServletRequest();
 
-        request.setParameter("from", "http://abc.test.com");
-        String result1 = strategy.getAllowFromValue(request);
-        assertThat(result1, is("http://abc.test.com"));
+		request.setParameter("from", "http://abc.test.com");
+		String result1 = strategy.getAllowFromValue(request);
+		assertThat(result1, is("http://abc.test.com"));
 
-        request.setParameter("from", "http://foo.test.com");
-        String result2 = strategy.getAllowFromValue(request);
-        assertThat(result2, is("http://foo.test.com"));
+		request.setParameter("from", "http://foo.test.com");
+		String result2 = strategy.getAllowFromValue(request);
+		assertThat(result2, is("http://foo.test.com"));
 
-        request.setParameter("from", "http://test.foobar.com");
-        String result3 = strategy.getAllowFromValue(request);
-        assertThat(result3, is("DENY"));
-    }
+		request.setParameter("from", "http://test.foobar.com");
+		String result3 = strategy.getAllowFromValue(request);
+		assertThat(result3, is("DENY"));
+	}
 
-    @Test
-    public void noParameterShouldDeny() {
-        RegExpAllowFromStrategy strategy = new RegExpAllowFromStrategy("^http://([a-z0-9]*?\\.)test\\.com");
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        String result1 = strategy.getAllowFromValue(request);
-        assertThat(result1, is("DENY"));
-    }
+	@Test
+	public void noParameterShouldDeny() {
+		RegExpAllowFromStrategy strategy = new RegExpAllowFromStrategy(
+				"^http://([a-z0-9]*?\\.)test\\.com");
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		String result1 = strategy.getAllowFromValue(request);
+		assertThat(result1, is("DENY"));
+	}
 }

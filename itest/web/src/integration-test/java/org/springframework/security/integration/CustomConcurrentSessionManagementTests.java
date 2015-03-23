@@ -9,45 +9,47 @@ import org.testng.annotations.Test;
 /**
  * @author Luke Taylor
  */
-public class CustomConcurrentSessionManagementTests extends AbstractWebServerIntegrationTests {
+public class CustomConcurrentSessionManagementTests extends
+		AbstractWebServerIntegrationTests {
 
-    protected String getContextConfigLocations() {
-        return "/WEB-INF/http-security-custom-concurrency.xml /WEB-INF/in-memory-provider.xml";
-    }
+	protected String getContextConfigLocations() {
+		return "/WEB-INF/http-security-custom-concurrency.xml /WEB-INF/in-memory-provider.xml";
+	}
 
-    @Test
-    public void maxConcurrentLoginsValueIsRespected() throws Exception {
-        beginAt("secure/index.html");
-        login("jimi", "jimispassword");
-        // Login again
-        System.out.println("Client: ******* Second login ******* ");
-        WebTester tester2 = new WebTester();
-        tester2.getTestContext().setBaseUrl(getBaseUrl());
-        tester2.beginAt("secure/index.html");
-        tester2.setTextField("username", "jimi");
-        tester2.setTextField("password", "jimispassword");
-        tester2.setIgnoreFailingStatusCodes(true);
-        tester2.submit();
-        Assert.assertTrue(tester2.getServerResponse().contains("Maximum sessions of 1 for this principal exceeded"));
-    }
+	@Test
+	public void maxConcurrentLoginsValueIsRespected() throws Exception {
+		beginAt("secure/index.html");
+		login("jimi", "jimispassword");
+		// Login again
+		System.out.println("Client: ******* Second login ******* ");
+		WebTester tester2 = new WebTester();
+		tester2.getTestContext().setBaseUrl(getBaseUrl());
+		tester2.beginAt("secure/index.html");
+		tester2.setTextField("username", "jimi");
+		tester2.setTextField("password", "jimispassword");
+		tester2.setIgnoreFailingStatusCodes(true);
+		tester2.submit();
+		Assert.assertTrue(tester2.getServerResponse().contains(
+				"Maximum sessions of 1 for this principal exceeded"));
+	}
 
-    @Test
-    public void logoutClearsSessionRegistryAndAllowsSecondLogin() throws Exception {
-        beginAt("secure/index.html");
-        login("bessie", "bessiespassword");
-        SessionRegistry reg = getAppContext().getBean(SessionRegistry.class);
+	@Test
+	public void logoutClearsSessionRegistryAndAllowsSecondLogin() throws Exception {
+		beginAt("secure/index.html");
+		login("bessie", "bessiespassword");
+		SessionRegistry reg = getAppContext().getBean(SessionRegistry.class);
 
-        tester.gotoPage("/logout");
+		tester.gotoPage("/logout");
 
-        // Login again
-        System.out.println("Client: ******* Second login ******* ");
-        WebTester tester2 = new WebTester();
-        tester2.getTestContext().setBaseUrl(getBaseUrl());
-        tester2.beginAt("secure/index.html");
-        tester2.setTextField("username", "bessie");
-        tester2.setTextField("password", "bessiespassword");
-        tester2.setIgnoreFailingStatusCodes(true);
-        tester2.submit();
-        Assert.assertTrue(tester2.getServerResponse().contains("A secure page"));
-    }
+		// Login again
+		System.out.println("Client: ******* Second login ******* ");
+		WebTester tester2 = new WebTester();
+		tester2.getTestContext().setBaseUrl(getBaseUrl());
+		tester2.beginAt("secure/index.html");
+		tester2.setTextField("username", "bessie");
+		tester2.setTextField("password", "bessiespassword");
+		tester2.setIgnoreFailingStatusCodes(true);
+		tester2.submit();
+		Assert.assertTrue(tester2.getServerResponse().contains("A secure page"));
+	}
 }

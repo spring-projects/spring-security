@@ -22,43 +22,48 @@ import org.springframework.security.ldap.authentication.NullLdapAuthoritiesPopul
  */
 public class LdapUserDetailsServiceTests {
 
-    @Test(expected = IllegalArgumentException.class)
-    public void rejectsNullSearchObject() {
-        new LdapUserDetailsService(null, new NullLdapAuthoritiesPopulator());
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void rejectsNullSearchObject() {
+		new LdapUserDetailsService(null, new NullLdapAuthoritiesPopulator());
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void rejectsNullAuthoritiesPopulator() {
-        new LdapUserDetailsService(new MockUserSearch(), null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void rejectsNullAuthoritiesPopulator() {
+		new LdapUserDetailsService(new MockUserSearch(), null);
+	}
 
-    @Test
-    public void correctAuthoritiesAreReturned() {
-        DirContextAdapter userData = new DirContextAdapter(new DistinguishedName("uid=joe"));
+	@Test
+	public void correctAuthoritiesAreReturned() {
+		DirContextAdapter userData = new DirContextAdapter(new DistinguishedName(
+				"uid=joe"));
 
-        LdapUserDetailsService service =
-                new LdapUserDetailsService(new MockUserSearch(userData), new MockAuthoritiesPopulator());
-        service.setUserDetailsMapper(new LdapUserDetailsMapper());
+		LdapUserDetailsService service = new LdapUserDetailsService(new MockUserSearch(
+				userData), new MockAuthoritiesPopulator());
+		service.setUserDetailsMapper(new LdapUserDetailsMapper());
 
-        UserDetails user = service.loadUserByUsername("doesntmatterwegetjoeanyway");
+		UserDetails user = service.loadUserByUsername("doesntmatterwegetjoeanyway");
 
-        Set<String> authorities = AuthorityUtils.authorityListToSet(user.getAuthorities());
-        assertEquals(1, authorities.size());
-        assertTrue(authorities.contains("ROLE_FROM_POPULATOR"));
-    }
+		Set<String> authorities = AuthorityUtils
+				.authorityListToSet(user.getAuthorities());
+		assertEquals(1, authorities.size());
+		assertTrue(authorities.contains("ROLE_FROM_POPULATOR"));
+	}
 
-    @Test
-    public void nullPopulatorConstructorReturnsEmptyAuthoritiesList() throws Exception {
-        DirContextAdapter userData = new DirContextAdapter(new DistinguishedName("uid=joe"));
+	@Test
+	public void nullPopulatorConstructorReturnsEmptyAuthoritiesList() throws Exception {
+		DirContextAdapter userData = new DirContextAdapter(new DistinguishedName(
+				"uid=joe"));
 
-        LdapUserDetailsService service = new LdapUserDetailsService(new MockUserSearch(userData));
-        UserDetails user = service.loadUserByUsername("doesntmatterwegetjoeanyway");
-        assertEquals(0, user.getAuthorities().size());
-    }
+		LdapUserDetailsService service = new LdapUserDetailsService(new MockUserSearch(
+				userData));
+		UserDetails user = service.loadUserByUsername("doesntmatterwegetjoeanyway");
+		assertEquals(0, user.getAuthorities().size());
+	}
 
-    class MockAuthoritiesPopulator implements LdapAuthoritiesPopulator {
-        public Collection<GrantedAuthority> getGrantedAuthorities(DirContextOperations userCtx, String username) {
-            return AuthorityUtils.createAuthorityList("ROLE_FROM_POPULATOR");
-        }
-    }
+	class MockAuthoritiesPopulator implements LdapAuthoritiesPopulator {
+		public Collection<GrantedAuthority> getGrantedAuthorities(
+				DirContextOperations userCtx, String username) {
+			return AuthorityUtils.createAuthorityList("ROLE_FROM_POPULATOR");
+		}
+	}
 }

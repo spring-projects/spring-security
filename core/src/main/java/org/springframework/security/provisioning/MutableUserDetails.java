@@ -9,6 +9,6 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 interface MutableUserDetails extends UserDetails {
 
-    void setPassword(String password);
+	void setPassword(String password);
 
 }

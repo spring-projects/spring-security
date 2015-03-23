@@ -19,18 +19,20 @@ import org.springframework.security.ldap.authentication.UserDetailsServiceLdapAu
  */
 public class UserDetailsServiceLdapAuthoritiesPopulatorTests {
 
-    @Test
-    public void delegationToUserDetailsServiceReturnsCorrectRoles() throws Exception {
-        UserDetailsService uds = mock(UserDetailsService.class);
-        UserDetails user = mock(UserDetails.class);
-        when(uds.loadUserByUsername("joe")).thenReturn(user);
-        List authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
-        when(user.getAuthorities()).thenReturn(authorities);
+	@Test
+	public void delegationToUserDetailsServiceReturnsCorrectRoles() throws Exception {
+		UserDetailsService uds = mock(UserDetailsService.class);
+		UserDetails user = mock(UserDetails.class);
+		when(uds.loadUserByUsername("joe")).thenReturn(user);
+		List authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
+		when(user.getAuthorities()).thenReturn(authorities);
 
-        UserDetailsServiceLdapAuthoritiesPopulator populator = new UserDetailsServiceLdapAuthoritiesPopulator(uds);
-        Collection<? extends GrantedAuthority> auths =  populator.getGrantedAuthorities(new DirContextAdapter(), "joe");
+		UserDetailsServiceLdapAuthoritiesPopulator populator = new UserDetailsServiceLdapAuthoritiesPopulator(
+				uds);
+		Collection<? extends GrantedAuthority> auths = populator.getGrantedAuthorities(
+				new DirContextAdapter(), "joe");
 
-        assertEquals(1, auths.size());
-        assertTrue(AuthorityUtils.authorityListToSet(auths).contains("ROLE_USER"));
-    }
+		assertEquals(1, auths.size());
+		assertTrue(AuthorityUtils.authorityListToSet(auths).contains("ROLE_USER"));
+	}
 }

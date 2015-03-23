@@ -29,8 +29,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration("sec2136.xml")
 public class Sec2136Tests {
 
-    @Test
-    public void configurationLoads() {
+	@Test
+	public void configurationLoads() {
 
-    }
+	}
 }

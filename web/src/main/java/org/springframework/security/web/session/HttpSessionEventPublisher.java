@@ -26,63 +26,68 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
-
 /**
  * Declared in web.xml as
+ * 
  * <pre>
  * &lt;listener&gt;
  *     &lt;listener-class&gt;org.springframework.security.web.session.HttpSessionEventPublisher&lt;/listener-class&gt;
  * &lt;/listener&gt;
  * </pre>
  *
- * Publishes <code>HttpSessionApplicationEvent</code>s to the Spring Root WebApplicationContext. Maps
- * javax.servlet.http.HttpSessionListener.sessionCreated() to {@link HttpSessionCreatedEvent}. Maps
- * javax.servlet.http.HttpSessionListener.sessionDestroyed() to {@link HttpSessionDestroyedEvent}.
+ * Publishes <code>HttpSessionApplicationEvent</code>s to the Spring Root
+ * WebApplicationContext. Maps javax.servlet.http.HttpSessionListener.sessionCreated() to
+ * {@link HttpSessionCreatedEvent}. Maps
+ * javax.servlet.http.HttpSessionListener.sessionDestroyed() to
+ * {@link HttpSessionDestroyedEvent}.
  *
  * @author Ray Krueger
  */
 public class HttpSessionEventPublisher implements HttpSessionListener {
-    //~ Static fields/initializers =====================================================================================
+	// ~ Static fields/initializers
+	// =====================================================================================
 
-    private static final String LOGGER_NAME = HttpSessionEventPublisher.class.getName();
+	private static final String LOGGER_NAME = HttpSessionEventPublisher.class.getName();
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    ApplicationContext getContext(ServletContext servletContext) {
-        return WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
-    }
+	ApplicationContext getContext(ServletContext servletContext) {
+		return WebApplicationContextUtils
+				.getRequiredWebApplicationContext(servletContext);
+	}
 
-    /**
-     * Handles the HttpSessionEvent by publishing a {@link HttpSessionCreatedEvent} to the application
-     * appContext.
-     *
-     * @param event HttpSessionEvent passed in by the container
-     */
-    public void sessionCreated(HttpSessionEvent event) {
-        HttpSessionCreatedEvent e = new HttpSessionCreatedEvent(event.getSession());
-        Log log = LogFactory.getLog(LOGGER_NAME);
+	/**
+	 * Handles the HttpSessionEvent by publishing a {@link HttpSessionCreatedEvent} to the
+	 * application appContext.
+	 *
+	 * @param event HttpSessionEvent passed in by the container
+	 */
+	public void sessionCreated(HttpSessionEvent event) {
+		HttpSessionCreatedEvent e = new HttpSessionCreatedEvent(event.getSession());
+		Log log = LogFactory.getLog(LOGGER_NAME);
 
-        if (log.isDebugEnabled()) {
-            log.debug("Publishing event: " + e);
-        }
+		if (log.isDebugEnabled()) {
+			log.debug("Publishing event: " + e);
+		}
 
-        getContext(event.getSession().getServletContext()).publishEvent(e);
-    }
+		getContext(event.getSession().getServletContext()).publishEvent(e);
+	}
 
-    /**
-     * Handles the HttpSessionEvent by publishing a {@link HttpSessionDestroyedEvent} to the application
-     * appContext.
-     *
-     * @param event The HttpSessionEvent pass in by the container
-     */
-    public void sessionDestroyed(HttpSessionEvent event) {
-        HttpSessionDestroyedEvent e = new HttpSessionDestroyedEvent(event.getSession());
-        Log log = LogFactory.getLog(LOGGER_NAME);
+	/**
+	 * Handles the HttpSessionEvent by publishing a {@link HttpSessionDestroyedEvent} to
+	 * the application appContext.
+	 *
+	 * @param event The HttpSessionEvent pass in by the container
+	 */
+	public void sessionDestroyed(HttpSessionEvent event) {
+		HttpSessionDestroyedEvent e = new HttpSessionDestroyedEvent(event.getSession());
+		Log log = LogFactory.getLog(LOGGER_NAME);
 
-        if (log.isDebugEnabled()) {
-            log.debug("Publishing event: " + e);
-        }
+		if (log.isDebugEnabled()) {
+			log.debug("Publishing event: " + e);
+		}
 
-        getContext(event.getSession().getServletContext()).publishEvent(e);
-    }
+		getContext(event.getSession().getServletContext()).publishEvent(e);
+	}
 }

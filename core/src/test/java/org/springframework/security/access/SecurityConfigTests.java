@@ -21,7 +21,6 @@ import org.junit.Test;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 
-
 /**
  * Tests {@link SecurityConfig}.
  *
@@ -29,72 +28,74 @@ import org.springframework.security.access.SecurityConfig;
  */
 public class SecurityConfigTests {
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    @Test
-    public void testHashCode() {
-        SecurityConfig config = new SecurityConfig("TEST");
-        Assert.assertEquals("TEST".hashCode(), config.hashCode());
-    }
+	@Test
+	public void testHashCode() {
+		SecurityConfig config = new SecurityConfig("TEST");
+		Assert.assertEquals("TEST".hashCode(), config.hashCode());
+	}
 
-    @Test(expected=IllegalArgumentException.class)
-    public void testCannotConstructWithNullAttribute() {
-           new SecurityConfig(null); // SEC-727
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void testCannotConstructWithNullAttribute() {
+		new SecurityConfig(null); // SEC-727
+	}
 
-    @Test(expected=IllegalArgumentException.class)
-    public void testCannotConstructWithEmptyAttribute() {
-           new SecurityConfig(""); // SEC-727
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void testCannotConstructWithEmptyAttribute() {
+		new SecurityConfig(""); // SEC-727
+	}
 
-    @Test(expected=NoSuchMethodException.class)
-    public void testNoArgConstructorDoesntExist() throws Exception {
-        SecurityConfig.class.getDeclaredConstructor((Class[]) null);
-    }
+	@Test(expected = NoSuchMethodException.class)
+	public void testNoArgConstructorDoesntExist() throws Exception {
+		SecurityConfig.class.getDeclaredConstructor((Class[]) null);
+	}
 
-    @Test
-    public void testObjectEquals() throws Exception {
-        SecurityConfig security1 = new SecurityConfig("TEST");
-        SecurityConfig security2 = new SecurityConfig("TEST");
-        Assert.assertEquals(security1, security2);
+	@Test
+	public void testObjectEquals() throws Exception {
+		SecurityConfig security1 = new SecurityConfig("TEST");
+		SecurityConfig security2 = new SecurityConfig("TEST");
+		Assert.assertEquals(security1, security2);
 
-        // SEC-311: Must observe symmetry requirement of Object.equals(Object) contract
-        String securityString1 = "TEST";
-        Assert.assertNotSame(security1, securityString1);
+		// SEC-311: Must observe symmetry requirement of Object.equals(Object) contract
+		String securityString1 = "TEST";
+		Assert.assertNotSame(security1, securityString1);
 
-        String securityString2 = "NOT_EQUAL";
-        Assert.assertTrue(!security1.equals(securityString2));
+		String securityString2 = "NOT_EQUAL";
+		Assert.assertTrue(!security1.equals(securityString2));
 
-        SecurityConfig security3 = new SecurityConfig("NOT_EQUAL");
-        Assert.assertTrue(!security1.equals(security3));
+		SecurityConfig security3 = new SecurityConfig("NOT_EQUAL");
+		Assert.assertTrue(!security1.equals(security3));
 
-        MockConfigAttribute mock1 = new MockConfigAttribute("TEST");
-        Assert.assertEquals(security1, mock1);
+		MockConfigAttribute mock1 = new MockConfigAttribute("TEST");
+		Assert.assertEquals(security1, mock1);
 
-        MockConfigAttribute mock2 = new MockConfigAttribute("NOT_EQUAL");
-        Assert.assertTrue(!security1.equals(mock2));
+		MockConfigAttribute mock2 = new MockConfigAttribute("NOT_EQUAL");
+		Assert.assertTrue(!security1.equals(mock2));
 
-        Integer int1 = Integer.valueOf(987);
-        Assert.assertTrue(!security1.equals(int1));
-    }
+		Integer int1 = Integer.valueOf(987);
+		Assert.assertTrue(!security1.equals(int1));
+	}
 
-    @Test
-    public void testToString() {
-        SecurityConfig config = new SecurityConfig("TEST");
-        Assert.assertEquals("TEST", config.toString());
-    }
+	@Test
+	public void testToString() {
+		SecurityConfig config = new SecurityConfig("TEST");
+		Assert.assertEquals("TEST", config.toString());
+	}
 
-    //~ Inner Classes ==================================================================================================
+	// ~ Inner Classes
+	// ==================================================================================================
 
-    private class MockConfigAttribute implements ConfigAttribute {
-        private String attribute;
+	private class MockConfigAttribute implements ConfigAttribute {
+		private String attribute;
 
-        public MockConfigAttribute(String configuration) {
-            this.attribute = configuration;
-        }
+		public MockConfigAttribute(String configuration) {
+			this.attribute = configuration;
+		}
 
-        public String getAttribute() {
-            return this.attribute;
-        }
-    }
+		public String getAttribute() {
+			return this.attribute;
+		}
+	}
 }

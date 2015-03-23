@@ -21,15 +21,16 @@ package org.springframework.security;
  * @author Ben Alex
  */
 public interface ITargetObject {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    Integer computeHashCode(String input);
+	Integer computeHashCode(String input);
 
-    int countLength(String input);
+	int countLength(String input);
 
-    String makeLowerCase(String input);
+	String makeLowerCase(String input);
 
-    String makeUpperCase(String input);
+	String makeUpperCase(String input);
 
-    String publicMakeLowerCase(String input);
+	String publicMakeLowerCase(String input);
 }

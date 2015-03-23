@@ -32,82 +32,83 @@ import org.springframework.security.web.util.matcher.RegexRequestMatcher;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class RegexRequestMatcherTests {
-    @Mock
-    private HttpServletRequest request;
+	@Mock
+	private HttpServletRequest request;
 
-    @Test
-    public void doesntMatchIfHttpMethodIsDifferent() throws Exception {
-        RegexRequestMatcher matcher = new RegexRequestMatcher(".*", "GET");
+	@Test
+	public void doesntMatchIfHttpMethodIsDifferent() throws Exception {
+		RegexRequestMatcher matcher = new RegexRequestMatcher(".*", "GET");
 
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/anything");
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/anything");
 
-        assertFalse(matcher.matches(request));
-    }
+		assertFalse(matcher.matches(request));
+	}
 
-    @Test
-    public void matchesIfHttpMethodAndPathMatch() throws Exception {
-        RegexRequestMatcher matcher = new RegexRequestMatcher(".*", "GET");
+	@Test
+	public void matchesIfHttpMethodAndPathMatch() throws Exception {
+		RegexRequestMatcher matcher = new RegexRequestMatcher(".*", "GET");
 
-        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/anything");
-        request.setServletPath("/anything");
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/anything");
+		request.setServletPath("/anything");
 
-        assertTrue(matcher.matches(request));
-    }
+		assertTrue(matcher.matches(request));
+	}
 
-    @Test
-    public void queryStringIsMatcherCorrectly() throws Exception {
-        RegexRequestMatcher matcher = new RegexRequestMatcher(".*\\?x=y", "GET");
+	@Test
+	public void queryStringIsMatcherCorrectly() throws Exception {
+		RegexRequestMatcher matcher = new RegexRequestMatcher(".*\\?x=y", "GET");
 
-        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/any/path?x=y");
-        request.setServletPath("/any");
-        request.setPathInfo("/path");
-        request.setQueryString("x=y");
+		MockHttpServletRequest request = new MockHttpServletRequest("GET",
+				"/any/path?x=y");
+		request.setServletPath("/any");
+		request.setPathInfo("/path");
+		request.setQueryString("x=y");
 
-        assertTrue(matcher.matches(request));
-    }
+		assertTrue(matcher.matches(request));
+	}
 
-    @Test
-    public void requestHasNullMethodMatches() {
-        RegexRequestMatcher matcher = new RegexRequestMatcher("/something/.*", "GET");
-        HttpServletRequest request = createRequestWithNullMethod("/something/here");
-        assertTrue(matcher.matches(request));
-    }
+	@Test
+	public void requestHasNullMethodMatches() {
+		RegexRequestMatcher matcher = new RegexRequestMatcher("/something/.*", "GET");
+		HttpServletRequest request = createRequestWithNullMethod("/something/here");
+		assertTrue(matcher.matches(request));
+	}
 
-    // SEC-2084
-    @Test
-    public void requestHasNullMethodNoMatch() {
-        RegexRequestMatcher matcher = new RegexRequestMatcher("/something/.*", "GET");
-        HttpServletRequest request = createRequestWithNullMethod("/nomatch");
-        assertFalse(matcher.matches(request));
-    }
+	// SEC-2084
+	@Test
+	public void requestHasNullMethodNoMatch() {
+		RegexRequestMatcher matcher = new RegexRequestMatcher("/something/.*", "GET");
+		HttpServletRequest request = createRequestWithNullMethod("/nomatch");
+		assertFalse(matcher.matches(request));
+	}
 
-    @Test
-    public void requestHasNullMethodAndNullMatcherMatches() {
-        RegexRequestMatcher matcher = new RegexRequestMatcher("/something/.*", null);
-        HttpServletRequest request = createRequestWithNullMethod("/something/here");
-        assertTrue(matcher.matches(request));
-    }
+	@Test
+	public void requestHasNullMethodAndNullMatcherMatches() {
+		RegexRequestMatcher matcher = new RegexRequestMatcher("/something/.*", null);
+		HttpServletRequest request = createRequestWithNullMethod("/something/here");
+		assertTrue(matcher.matches(request));
+	}
 
-    @Test
-    public void requestHasNullMethodAndNullMatcherNoMatch() {
-        RegexRequestMatcher matcher = new RegexRequestMatcher("/something/.*", null);
-        HttpServletRequest request = createRequestWithNullMethod("/nomatch");
-        assertFalse(matcher.matches(request));
-    }
+	@Test
+	public void requestHasNullMethodAndNullMatcherNoMatch() {
+		RegexRequestMatcher matcher = new RegexRequestMatcher("/something/.*", null);
+		HttpServletRequest request = createRequestWithNullMethod("/nomatch");
+		assertFalse(matcher.matches(request));
+	}
 
-    // SEC-2831
-    @Test
-    public void matchesWithInvalidMethod() {
-        RegexRequestMatcher matcher = new RegexRequestMatcher("/blah", "GET");
-        MockHttpServletRequest request = new MockHttpServletRequest("INVALID","/blah");
-        request.setMethod("INVALID");
+	// SEC-2831
+	@Test
+	public void matchesWithInvalidMethod() {
+		RegexRequestMatcher matcher = new RegexRequestMatcher("/blah", "GET");
+		MockHttpServletRequest request = new MockHttpServletRequest("INVALID", "/blah");
+		request.setMethod("INVALID");
 
-        assertThat(matcher.matches(request)).isFalse();
-    }
+		assertThat(matcher.matches(request)).isFalse();
+	}
 
-    private HttpServletRequest createRequestWithNullMethod(String path) {
-        when(request.getQueryString()).thenReturn("doesntMatter");
-        when(request.getServletPath()).thenReturn(path);
-        return request;
-    }
+	private HttpServletRequest createRequestWithNullMethod(String path) {
+		when(request.getQueryString()).thenReturn("doesntMatter");
+		when(request.getServletPath()).thenReturn(path);
+		return request;
+	}
 }

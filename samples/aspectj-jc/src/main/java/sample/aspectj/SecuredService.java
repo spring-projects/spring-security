@@ -11,8 +11,8 @@ import org.springframework.security.access.annotation.Secured;
 @Secured("ROLE_USER")
 public class SecuredService {
 
-    public void secureMethod() {
-        // nothing
-    }
+	public void secureMethod() {
+		// nothing
+	}
 
 }

@@ -34,24 +34,30 @@ import org.springframework.util.StringUtils;
  * @since 4.0
  * @see WithMockUser
  */
-final class WithMockUserSecurityContextFactory implements WithSecurityContextFactory<WithMockUser> {
+final class WithMockUserSecurityContextFactory implements
+		WithSecurityContextFactory<WithMockUser> {
 
-    public SecurityContext createSecurityContext(WithMockUser withUser) {
-        String username = StringUtils.hasLength(withUser.username()) ? withUser.username() : withUser.value();
-        if(username == null) {
-            throw new IllegalArgumentException(withUser + " cannot have null username on both username and value properites");
-        }
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-        for(String role : withUser.roles()) {
-            if(role.startsWith("ROLE_")) {
-                throw new IllegalArgumentException("roles cannot start with ROLE_ Got " + role);
-            }
-            authorities.add(new SimpleGrantedAuthority("ROLE_"+role));
-        }
-        User principal = new User(username, withUser.password(), true, true, true, true, authorities);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(principal, principal.getPassword(), principal.getAuthorities());
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(authentication);
-        return context;
-    }
+	public SecurityContext createSecurityContext(WithMockUser withUser) {
+		String username = StringUtils.hasLength(withUser.username()) ? withUser
+				.username() : withUser.value();
+		if (username == null) {
+			throw new IllegalArgumentException(withUser
+					+ " cannot have null username on both username and value properites");
+		}
+		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+		for (String role : withUser.roles()) {
+			if (role.startsWith("ROLE_")) {
+				throw new IllegalArgumentException("roles cannot start with ROLE_ Got "
+						+ role);
+			}
+			authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+		}
+		User principal = new User(username, withUser.password(), true, true, true, true,
+				authorities);
+		Authentication authentication = new UsernamePasswordAuthenticationToken(
+				principal, principal.getPassword(), principal.getAuthorities());
+		SecurityContext context = SecurityContextHolder.createEmptyContext();
+		context.setAuthentication(authentication);
+		return context;
+	}
 }

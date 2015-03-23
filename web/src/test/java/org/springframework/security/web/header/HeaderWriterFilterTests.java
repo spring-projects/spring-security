@@ -40,39 +40,40 @@ import org.springframework.security.web.header.HeaderWriterFilter;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class HeaderWriterFilterTests {
-    @Mock
-    private HeaderWriter writer1;
+	@Mock
+	private HeaderWriter writer1;
 
-    @Mock
-    private HeaderWriter writer2;
+	@Mock
+	private HeaderWriter writer2;
 
-    @Test(expected = IllegalArgumentException.class)
-    public void noHeadersConfigured() throws Exception {
-        List<HeaderWriter> headerWriters = new ArrayList<HeaderWriter>();
-        new HeaderWriterFilter(headerWriters);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void noHeadersConfigured() throws Exception {
+		List<HeaderWriter> headerWriters = new ArrayList<HeaderWriter>();
+		new HeaderWriterFilter(headerWriters);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullWriters() throws Exception {
-        new HeaderWriterFilter(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullWriters() throws Exception {
+		new HeaderWriterFilter(null);
+	}
 
-    @Test
-    public void additionalHeadersShouldBeAddedToTheResponse() throws Exception {
-        List<HeaderWriter> headerWriters = new ArrayList<HeaderWriter>();
-        headerWriters.add(writer1);
-        headerWriters.add(writer2);
+	@Test
+	public void additionalHeadersShouldBeAddedToTheResponse() throws Exception {
+		List<HeaderWriter> headerWriters = new ArrayList<HeaderWriter>();
+		headerWriters.add(writer1);
+		headerWriters.add(writer2);
 
-        HeaderWriterFilter filter = new HeaderWriterFilter(headerWriters);
+		HeaderWriterFilter filter = new HeaderWriterFilter(headerWriters);
 
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        MockFilterChain filterChain = new MockFilterChain();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain filterChain = new MockFilterChain();
 
-        filter.doFilter(request, response, filterChain);
+		filter.doFilter(request, response, filterChain);
 
-        verify(writer1).writeHeaders(request, response);
-        verify(writer2).writeHeaders(request, response);
-        assertThat(filterChain.getRequest()).isEqualTo(request); // verify the filterChain continued
-    }
+		verify(writer1).writeHeaders(request, response);
+		verify(writer2).writeHeaders(request, response);
+		assertThat(filterChain.getRequest()).isEqualTo(request); // verify the filterChain
+																	// continued
+	}
 }

@@ -22,40 +22,47 @@ import org.springframework.security.core.Authentication;
 import java.util.Collection;
 import java.util.Iterator;
 
-
 /**
- * Implementation of an {@link AccessDecisionVoter} for unit testing.<p>If the {@link
- * ConfigAttribute#getAttribute()} has a value of <code>DENY_FOR_SURE</code>, the voter will vote to deny access.</p>
- *  <p>All comparisons are case sensitive.</p>
+ * Implementation of an {@link AccessDecisionVoter} for unit testing.
+ * <p>
+ * If the {@link ConfigAttribute#getAttribute()} has a value of <code>DENY_FOR_SURE</code>
+ * , the voter will vote to deny access.
+ * </p>
+ * <p>
+ * All comparisons are case sensitive.
+ * </p>
  *
  * @author Ben Alex
  */
 public class DenyVoter implements AccessDecisionVoter<Object> {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public boolean supports(ConfigAttribute attribute) {
-        if ("DENY_FOR_SURE".equals(attribute.getAttribute())) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+	public boolean supports(ConfigAttribute attribute) {
+		if ("DENY_FOR_SURE".equals(attribute.getAttribute())) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
 
-    public boolean supports(Class<?> clazz) {
-        return true;
-    }
+	public boolean supports(Class<?> clazz) {
+		return true;
+	}
 
-    public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
-        Iterator<ConfigAttribute> iter = attributes.iterator();
+	public int vote(Authentication authentication, Object object,
+			Collection<ConfigAttribute> attributes) {
+		Iterator<ConfigAttribute> iter = attributes.iterator();
 
-        while (iter.hasNext()) {
-            ConfigAttribute attribute = iter.next();
+		while (iter.hasNext()) {
+			ConfigAttribute attribute = iter.next();
 
-            if (this.supports(attribute)) {
-                return ACCESS_DENIED;
-            }
-        }
+			if (this.supports(attribute)) {
+				return ACCESS_DENIED;
+			}
+		}
 
-        return ACCESS_ABSTAIN;
-    }
+		return ACCESS_ABSTAIN;
+	}
 }

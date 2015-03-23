@@ -25,28 +25,32 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
 /**
- * The default implementation of {@link SecurityExpressionHandler} which uses a {@link MessageSecurityExpressionRoot}.
+ * The default implementation of {@link SecurityExpressionHandler} which uses a
+ * {@link MessageSecurityExpressionRoot}.
  *
  * @param <T> the type for the body of the Message
  *
  * @since 4.0
  * @author Rob Winch
  */
-public class DefaultMessageSecurityExpressionHandler<T> extends AbstractSecurityExpressionHandler<Message<T>> {
+public class DefaultMessageSecurityExpressionHandler<T> extends
+		AbstractSecurityExpressionHandler<Message<T>> {
 
-    private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
-    @Override
-    protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication, Message<T> invocation) {
-        MessageSecurityExpressionRoot root = new MessageSecurityExpressionRoot(authentication,invocation);
-        root.setPermissionEvaluator(getPermissionEvaluator());
-        root.setTrustResolver(trustResolver);
-        root.setRoleHierarchy(getRoleHierarchy());
-        return root;
-    }
+	@Override
+	protected SecurityExpressionOperations createSecurityExpressionRoot(
+			Authentication authentication, Message<T> invocation) {
+		MessageSecurityExpressionRoot root = new MessageSecurityExpressionRoot(
+				authentication, invocation);
+		root.setPermissionEvaluator(getPermissionEvaluator());
+		root.setTrustResolver(trustResolver);
+		root.setRoleHierarchy(getRoleHierarchy());
+		return root;
+	}
 
-    public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
-        Assert.notNull(trustResolver,"trustResolver cannot be null");
-        this.trustResolver = trustResolver;
-    }
+	public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
+		Assert.notNull(trustResolver, "trustResolver cannot be null");
+		this.trustResolver = trustResolver;
+	}
 }

@@ -18,45 +18,50 @@ import org.springframework.security.access.prepost.PreInvocationAuthorizationAdv
 import org.springframework.security.core.Authentication;
 import org.springframework.util.ClassUtils;
 
-public class PythonInterpreterPreInvocationAdvice implements PreInvocationAuthorizationAdvice{
-    private final ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
+public class PythonInterpreterPreInvocationAdvice implements
+		PreInvocationAuthorizationAdvice {
+	private final ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
 
-    public boolean before(Authentication authentication, MethodInvocation mi, PreInvocationAttribute preAttr) {
-        PythonInterpreterPreInvocationAttribute pythonAttr = (PythonInterpreterPreInvocationAttribute) preAttr;
-        String script = pythonAttr.getScript();
+	public boolean before(Authentication authentication, MethodInvocation mi,
+			PreInvocationAttribute preAttr) {
+		PythonInterpreterPreInvocationAttribute pythonAttr = (PythonInterpreterPreInvocationAttribute) preAttr;
+		String script = pythonAttr.getScript();
 
-        PythonInterpreter python = new PythonInterpreter();
-        python.set("authentication", authentication);
-        python.set("args", createArgumentMap(mi));
-        python.set("method", mi.getMethod().getName());
-        Resource scriptResource = new PathMatchingResourcePatternResolver().getResource(script);
+		PythonInterpreter python = new PythonInterpreter();
+		python.set("authentication", authentication);
+		python.set("args", createArgumentMap(mi));
+		python.set("method", mi.getMethod().getName());
+		Resource scriptResource = new PathMatchingResourcePatternResolver()
+				.getResource(script);
 
-        try {
-            python.execfile(scriptResource.getInputStream());
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Couldn't run python script, " + script, e);
-        }
+		try {
+			python.execfile(scriptResource.getInputStream());
+		}
+		catch (IOException e) {
+			throw new IllegalArgumentException("Couldn't run python script, " + script, e);
+		}
 
-        PyObject allowed = python.get("allow");
+		PyObject allowed = python.get("allow");
 
-        if (allowed == null) {
-            throw new IllegalStateException("Python script did not set the permit flag");
-        }
+		if (allowed == null) {
+			throw new IllegalStateException("Python script did not set the permit flag");
+		}
 
-        return (Boolean)Py.tojava(allowed, Boolean.class);
-    }
+		return (Boolean) Py.tojava(allowed, Boolean.class);
+	}
 
-    private Map<String,Object> createArgumentMap(MethodInvocation mi) {
-        Object[] args = mi.getArguments();
-        Object targetObject = mi.getThis();
-        Method method = ClassUtils.getMostSpecificMethod(mi.getMethod(), targetObject.getClass());
-        String[] paramNames = parameterNameDiscoverer.getParameterNames(method);
+	private Map<String, Object> createArgumentMap(MethodInvocation mi) {
+		Object[] args = mi.getArguments();
+		Object targetObject = mi.getThis();
+		Method method = ClassUtils.getMostSpecificMethod(mi.getMethod(),
+				targetObject.getClass());
+		String[] paramNames = parameterNameDiscoverer.getParameterNames(method);
 
-        Map<String,Object> argMap = new HashMap<String,Object>();
-        for(int i=0; i < args.length; i++) {
-            argMap.put(paramNames[i], args[i]);
-        }
+		Map<String, Object> argMap = new HashMap<String, Object>();
+		for (int i = 0; i < args.length; i++) {
+			argMap.put(paramNames[i], args[i]);
+		}
 
-        return argMap;
-    }
+		return argMap;
+	}
 }

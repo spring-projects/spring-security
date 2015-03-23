@@ -41,225 +41,246 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.web.util.WebUtils;
 
-
 /**
  * Tests {@link BasicAuthenticationFilter}.
  *
  * @author Ben Alex
  */
 public class BasicAuthenticationFilterTests {
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private BasicAuthenticationFilter filter;
-    private AuthenticationManager manager;
+	private BasicAuthenticationFilter filter;
+	private AuthenticationManager manager;
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    @Before
-    public void setUp() throws Exception {
-        SecurityContextHolder.clearContext();
-        UsernamePasswordAuthenticationToken rodRequest = new UsernamePasswordAuthenticationToken("rod", "koala");
-        rodRequest.setDetails(new WebAuthenticationDetails(new MockHttpServletRequest()));
-        Authentication rod =
-            new UsernamePasswordAuthenticationToken("rod", "koala", AuthorityUtils.createAuthorityList("ROLE_1"));
+	@Before
+	public void setUp() throws Exception {
+		SecurityContextHolder.clearContext();
+		UsernamePasswordAuthenticationToken rodRequest = new UsernamePasswordAuthenticationToken(
+				"rod", "koala");
+		rodRequest.setDetails(new WebAuthenticationDetails(new MockHttpServletRequest()));
+		Authentication rod = new UsernamePasswordAuthenticationToken("rod", "koala",
+				AuthorityUtils.createAuthorityList("ROLE_1"));
 
-        manager = mock(AuthenticationManager.class);
-        when(manager.authenticate(rodRequest)).thenReturn(rod);
-        when(manager.authenticate(not(eq(rodRequest)))).thenThrow(new BadCredentialsException(""));
+		manager = mock(AuthenticationManager.class);
+		when(manager.authenticate(rodRequest)).thenReturn(rod);
+		when(manager.authenticate(not(eq(rodRequest)))).thenThrow(
+				new BadCredentialsException(""));
 
-        filter = new BasicAuthenticationFilter(manager,new BasicAuthenticationEntryPoint());
-    }
+		filter = new BasicAuthenticationFilter(manager,
+				new BasicAuthenticationEntryPoint());
+	}
 
-    @After
-    public void clearContext() throws Exception {
-        SecurityContextHolder.clearContext();
-    }
+	@After
+	public void clearContext() throws Exception {
+		SecurityContextHolder.clearContext();
+	}
 
-    @Test
-    public void testFilterIgnoresRequestsContainingNoAuthorizationHeader() throws Exception {
+	@Test
+	public void testFilterIgnoresRequestsContainingNoAuthorizationHeader()
+			throws Exception {
 
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setServletPath("/some_file.html");
-        final MockHttpServletResponse response = new MockHttpServletResponse();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setServletPath("/some_file.html");
+		final MockHttpServletResponse response = new MockHttpServletResponse();
 
-        FilterChain chain = mock(FilterChain.class);
-        filter.doFilter(request, response, chain);
+		FilterChain chain = mock(FilterChain.class);
+		filter.doFilter(request, response, chain);
 
-        verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
+		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 
-        // Test
-        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
-    }
+		// Test
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+	}
 
-    @Test
-    public void testGettersSetters() {
-        assertThat(filter.getAuthenticationManager()).isNotNull();
-        assertThat(filter.getAuthenticationEntryPoint()).isNotNull();
-    }
+	@Test
+	public void testGettersSetters() {
+		assertThat(filter.getAuthenticationManager()).isNotNull();
+		assertThat(filter.getAuthenticationEntryPoint()).isNotNull();
+	}
 
-    @Test
-    public void testInvalidBasicAuthorizationTokenIsIgnored() throws Exception {
-        String token = "NOT_A_VALID_TOKEN_AS_MISSING_COLON";
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
-        request.setServletPath("/some_file.html");
-        request.setSession(new MockHttpSession());
-        final MockHttpServletResponse response = new MockHttpServletResponse();
+	@Test
+	public void testInvalidBasicAuthorizationTokenIsIgnored() throws Exception {
+		String token = "NOT_A_VALID_TOKEN_AS_MISSING_COLON";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization",
+				"Basic " + new String(Base64.encodeBase64(token.getBytes())));
+		request.setServletPath("/some_file.html");
+		request.setSession(new MockHttpSession());
+		final MockHttpServletResponse response = new MockHttpServletResponse();
 
-        FilterChain chain = mock(FilterChain.class);
-        filter.doFilter(request, response, chain);
+		FilterChain chain = mock(FilterChain.class);
+		filter.doFilter(request, response, chain);
 
-        verify(chain, never()).doFilter(any(ServletRequest.class), any(ServletResponse.class));
-        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
-        assertThat(response.getStatus()).isEqualTo(401);
-    }
+		verify(chain, never()).doFilter(any(ServletRequest.class),
+				any(ServletResponse.class));
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		assertThat(response.getStatus()).isEqualTo(401);
+	}
 
-    @Test
-    public void invalidBase64IsIgnored() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader("Authorization", "Basic NOT_VALID_BASE64");
-        request.setServletPath("/some_file.html");
-        request.setSession(new MockHttpSession());
-        final MockHttpServletResponse response = new MockHttpServletResponse();
+	@Test
+	public void invalidBase64IsIgnored() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "Basic NOT_VALID_BASE64");
+		request.setServletPath("/some_file.html");
+		request.setSession(new MockHttpSession());
+		final MockHttpServletResponse response = new MockHttpServletResponse();
 
-        FilterChain chain = mock(FilterChain.class);
-        filter.doFilter(request, response, chain);
-        // The filter chain shouldn't proceed
-        verify(chain, never()).doFilter(any(ServletRequest.class), any(ServletResponse.class));
-        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
-        assertThat(response.getStatus()).isEqualTo(401);
-    }
+		FilterChain chain = mock(FilterChain.class);
+		filter.doFilter(request, response, chain);
+		// The filter chain shouldn't proceed
+		verify(chain, never()).doFilter(any(ServletRequest.class),
+				any(ServletResponse.class));
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		assertThat(response.getStatus()).isEqualTo(401);
+	}
 
-    @Test
-    public void testNormalOperation() throws Exception {
-        String token = "rod:koala";
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
-        request.setServletPath("/some_file.html");
+	@Test
+	public void testNormalOperation() throws Exception {
+		String token = "rod:koala";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization",
+				"Basic " + new String(Base64.encodeBase64(token.getBytes())));
+		request.setServletPath("/some_file.html");
 
-        // Test
-        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
-        FilterChain chain = mock(FilterChain.class);
-        filter.doFilter(request, new MockHttpServletResponse(), chain);
+		// Test
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		FilterChain chain = mock(FilterChain.class);
+		filter.doFilter(request, new MockHttpServletResponse(), chain);
 
-        verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
-        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-        assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("rod");
-    }
+		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getName())
+				.isEqualTo("rod");
+	}
 
-    @Test
-    public void testOtherAuthorizationSchemeIsIgnored() throws Exception {
+	@Test
+	public void testOtherAuthorizationSchemeIsIgnored() throws Exception {
 
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader("Authorization", "SOME_OTHER_AUTHENTICATION_SCHEME");
-        request.setServletPath("/some_file.html");
-        FilterChain chain = mock(FilterChain.class);
-        filter.doFilter(request, new MockHttpServletResponse(), chain);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "SOME_OTHER_AUTHENTICATION_SCHEME");
+		request.setServletPath("/some_file.html");
+		FilterChain chain = mock(FilterChain.class);
+		filter.doFilter(request, new MockHttpServletResponse(), chain);
 
-        verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
-        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
-    }
+		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+	}
 
-    @Test(expected=IllegalArgumentException.class)
-    public void testStartupDetectsMissingAuthenticationEntryPoint() throws Exception {
-        new BasicAuthenticationFilter(manager, null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void testStartupDetectsMissingAuthenticationEntryPoint() throws Exception {
+		new BasicAuthenticationFilter(manager, null);
+	}
 
-    @Test(expected=IllegalArgumentException.class)
-    public void testStartupDetectsMissingAuthenticationManager() throws Exception {
-        BasicAuthenticationFilter filter = new BasicAuthenticationFilter(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void testStartupDetectsMissingAuthenticationManager() throws Exception {
+		BasicAuthenticationFilter filter = new BasicAuthenticationFilter(null);
+	}
 
-    @Test
-    public void testSuccessLoginThenFailureLoginResultsInSessionLosingToken() throws Exception {
-        String token = "rod:koala";
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
-        request.setServletPath("/some_file.html");
-        final MockHttpServletResponse response1 = new MockHttpServletResponse();
+	@Test
+	public void testSuccessLoginThenFailureLoginResultsInSessionLosingToken()
+			throws Exception {
+		String token = "rod:koala";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization",
+				"Basic " + new String(Base64.encodeBase64(token.getBytes())));
+		request.setServletPath("/some_file.html");
+		final MockHttpServletResponse response1 = new MockHttpServletResponse();
 
-        FilterChain chain = mock(FilterChain.class);
-        filter.doFilter(request, response1, chain);
+		FilterChain chain = mock(FilterChain.class);
+		filter.doFilter(request, response1, chain);
 
-        verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
+		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 
-        // Test
-        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
-        assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("rod");
+		// Test
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getName())
+				.isEqualTo("rod");
 
-        // NOW PERFORM FAILED AUTHENTICATION
+		// NOW PERFORM FAILED AUTHENTICATION
 
-        token = "otherUser:WRONG_PASSWORD";
-        request = new MockHttpServletRequest();
-        request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
-        final MockHttpServletResponse response2 = new MockHttpServletResponse();
+		token = "otherUser:WRONG_PASSWORD";
+		request = new MockHttpServletRequest();
+		request.addHeader("Authorization",
+				"Basic " + new String(Base64.encodeBase64(token.getBytes())));
+		final MockHttpServletResponse response2 = new MockHttpServletResponse();
 
-        chain = mock(FilterChain.class);
-        filter.doFilter(request, response2, chain);
+		chain = mock(FilterChain.class);
+		filter.doFilter(request, response2, chain);
 
-        verify(chain, never()).doFilter(any(ServletRequest.class), any(ServletResponse.class));
-        request.setServletPath("/some_file.html");
+		verify(chain, never()).doFilter(any(ServletRequest.class),
+				any(ServletResponse.class));
+		request.setServletPath("/some_file.html");
 
-        // Test - the filter chain will not be invoked, as we get a 401 forbidden response
-        MockHttpServletResponse response = response2;
+		// Test - the filter chain will not be invoked, as we get a 401 forbidden response
+		MockHttpServletResponse response = response2;
 
-        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
-        assertThat(response.getStatus()).isEqualTo(401);
-    }
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		assertThat(response.getStatus()).isEqualTo(401);
+	}
 
-    @Test
-    public void testWrongPasswordContinuesFilterChainIfIgnoreFailureIsTrue() throws Exception {
-        String token = "rod:WRONG_PASSWORD";
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
-        request.setServletPath("/some_file.html");
-        request.setSession(new MockHttpSession());
+	@Test
+	public void testWrongPasswordContinuesFilterChainIfIgnoreFailureIsTrue()
+			throws Exception {
+		String token = "rod:WRONG_PASSWORD";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization",
+				"Basic " + new String(Base64.encodeBase64(token.getBytes())));
+		request.setServletPath("/some_file.html");
+		request.setSession(new MockHttpSession());
 
-        filter = new BasicAuthenticationFilter(manager);
-        assertThat(filter.isIgnoreFailure()).isTrue();
-        FilterChain chain = mock(FilterChain.class);
-        filter.doFilter(request, new MockHttpServletResponse(), chain);
+		filter = new BasicAuthenticationFilter(manager);
+		assertThat(filter.isIgnoreFailure()).isTrue();
+		FilterChain chain = mock(FilterChain.class);
+		filter.doFilter(request, new MockHttpServletResponse(), chain);
 
-        verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
+		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 
-        // Test - the filter chain will be invoked, as we've set ignoreFailure = true
-        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
-    }
+		// Test - the filter chain will be invoked, as we've set ignoreFailure = true
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+	}
 
-    @Test
-    public void testWrongPasswordReturnsForbiddenIfIgnoreFailureIsFalse() throws Exception {
-        String token = "rod:WRONG_PASSWORD";
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
-        request.setServletPath("/some_file.html");
-        request.setSession(new MockHttpSession());
-        assertThat(filter.isIgnoreFailure()).isFalse();
-        final MockHttpServletResponse response = new MockHttpServletResponse();
+	@Test
+	public void testWrongPasswordReturnsForbiddenIfIgnoreFailureIsFalse()
+			throws Exception {
+		String token = "rod:WRONG_PASSWORD";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization",
+				"Basic " + new String(Base64.encodeBase64(token.getBytes())));
+		request.setServletPath("/some_file.html");
+		request.setSession(new MockHttpSession());
+		assertThat(filter.isIgnoreFailure()).isFalse();
+		final MockHttpServletResponse response = new MockHttpServletResponse();
 
-        FilterChain chain = mock(FilterChain.class);
-        filter.doFilter(request, response, chain);
+		FilterChain chain = mock(FilterChain.class);
+		filter.doFilter(request, response, chain);
 
-        // Test - the filter chain will not be invoked, as we get a 401 forbidden response
-        verify(chain, never()).doFilter(any(ServletRequest.class), any(ServletResponse.class));
-        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
-        assertThat(response.getStatus()).isEqualTo(401);
-    }
+		// Test - the filter chain will not be invoked, as we get a 401 forbidden response
+		verify(chain, never()).doFilter(any(ServletRequest.class),
+				any(ServletResponse.class));
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		assertThat(response.getStatus()).isEqualTo(401);
+	}
 
-    // SEC-2054
-    @Test
-    public void skippedOnErrorDispatch() throws Exception {
+	// SEC-2054
+	@Test
+	public void skippedOnErrorDispatch() throws Exception {
 
-        String token = "bad:credentials";
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
-        request.setServletPath("/some_file.html");
-        request.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/error");
-        MockHttpServletResponse response = new MockHttpServletResponse();
+		String token = "bad:credentials";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization",
+				"Basic " + new String(Base64.encodeBase64(token.getBytes())));
+		request.setServletPath("/some_file.html");
+		request.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/error");
+		MockHttpServletResponse response = new MockHttpServletResponse();
 
-        FilterChain chain = mock(FilterChain.class);
+		FilterChain chain = mock(FilterChain.class);
 
-        filter.doFilter(request, response, chain);
+		filter.doFilter(request, response, chain);
 
-        assertThat(response.getStatus()).isEqualTo(200);
-    }
+		assertThat(response.getStatus()).isEqualTo(200);
+	}
 }

@@ -17,7 +17,6 @@ package org.springframework.security.acls.domain;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.util.Assert;
 
-
 /**
  * Utility methods for displaying ACL information.
  *
@@ -25,83 +24,88 @@ import org.springframework.util.Assert;
  */
 public abstract class AclFormattingUtils {
 
-    public static String demergePatterns(String original, String removeBits) {
-        Assert.notNull(original, "Original string required");
-        Assert.notNull(removeBits, "Bits To Remove string required");
-        Assert.isTrue(original.length() == removeBits.length(),
-            "Original and Bits To Remove strings must be identical length");
+	public static String demergePatterns(String original, String removeBits) {
+		Assert.notNull(original, "Original string required");
+		Assert.notNull(removeBits, "Bits To Remove string required");
+		Assert.isTrue(original.length() == removeBits.length(),
+				"Original and Bits To Remove strings must be identical length");
 
-        char[] replacement = new char[original.length()];
+		char[] replacement = new char[original.length()];
 
-        for (int i = 0; i < original.length(); i++) {
-            if (removeBits.charAt(i) == Permission.RESERVED_OFF) {
-                replacement[i] = original.charAt(i);
-            } else {
-                replacement[i] = Permission.RESERVED_OFF;
-            }
-        }
+		for (int i = 0; i < original.length(); i++) {
+			if (removeBits.charAt(i) == Permission.RESERVED_OFF) {
+				replacement[i] = original.charAt(i);
+			}
+			else {
+				replacement[i] = Permission.RESERVED_OFF;
+			}
+		}
 
-        return new String(replacement);
-    }
+		return new String(replacement);
+	}
 
-    public static String mergePatterns(String original, String extraBits) {
-        Assert.notNull(original, "Original string required");
-        Assert.notNull(extraBits, "Extra Bits string required");
-        Assert.isTrue(original.length() == extraBits.length(),
-            "Original and Extra Bits strings must be identical length");
+	public static String mergePatterns(String original, String extraBits) {
+		Assert.notNull(original, "Original string required");
+		Assert.notNull(extraBits, "Extra Bits string required");
+		Assert.isTrue(original.length() == extraBits.length(),
+				"Original and Extra Bits strings must be identical length");
 
-        char[] replacement = new char[extraBits.length()];
+		char[] replacement = new char[extraBits.length()];
 
-        for (int i = 0; i < extraBits.length(); i++) {
-            if (extraBits.charAt(i) == Permission.RESERVED_OFF) {
-                replacement[i] = original.charAt(i);
-            } else {
-                replacement[i] = extraBits.charAt(i);
-            }
-        }
+		for (int i = 0; i < extraBits.length(); i++) {
+			if (extraBits.charAt(i) == Permission.RESERVED_OFF) {
+				replacement[i] = original.charAt(i);
+			}
+			else {
+				replacement[i] = extraBits.charAt(i);
+			}
+		}
 
-        return new String(replacement);
-    }
+		return new String(replacement);
+	}
 
-    /**
-     * Returns a representation of the active bits in the presented mask, with each active bit being denoted by
-     * character '*'.
-     * <p>
-     * Inactive bits will be denoted by character {@link Permission#RESERVED_OFF}.
-     *
-     * @param i the integer bit mask to print the active bits for
-     *
-     * @return a 32-character representation of the bit mask
-     */
-    public static String printBinary(int i) {
-        return printBinary(i, '*', Permission.RESERVED_OFF);
-    }
+	/**
+	 * Returns a representation of the active bits in the presented mask, with each active
+	 * bit being denoted by character '*'.
+	 * <p>
+	 * Inactive bits will be denoted by character {@link Permission#RESERVED_OFF}.
+	 *
+	 * @param i the integer bit mask to print the active bits for
+	 *
+	 * @return a 32-character representation of the bit mask
+	 */
+	public static String printBinary(int i) {
+		return printBinary(i, '*', Permission.RESERVED_OFF);
+	}
 
-    /**
-     * Returns a representation of the active bits in the presented mask, with each active bit being denoted by
-     * the passed character.
-     * <p>
-     * Inactive bits will be denoted by character {@link Permission#RESERVED_OFF}.
-     *
-     * @param mask the integer bit mask to print the active bits for
-     * @param code the character to print when an active bit is detected
-     *
-     * @return a 32-character representation of the bit mask
-     */
-    public static String printBinary(int mask, char code) {
-        Assert.doesNotContain(Character.toString(code), Character.toString(Permission.RESERVED_ON),
-            Permission.RESERVED_ON + " is a reserved character code");
-        Assert.doesNotContain(Character.toString(code), Character.toString(Permission.RESERVED_OFF),
-            Permission.RESERVED_OFF + " is a reserved character code");
+	/**
+	 * Returns a representation of the active bits in the presented mask, with each active
+	 * bit being denoted by the passed character.
+	 * <p>
+	 * Inactive bits will be denoted by character {@link Permission#RESERVED_OFF}.
+	 *
+	 * @param mask the integer bit mask to print the active bits for
+	 * @param code the character to print when an active bit is detected
+	 *
+	 * @return a 32-character representation of the bit mask
+	 */
+	public static String printBinary(int mask, char code) {
+		Assert.doesNotContain(Character.toString(code),
+				Character.toString(Permission.RESERVED_ON), Permission.RESERVED_ON
+						+ " is a reserved character code");
+		Assert.doesNotContain(Character.toString(code),
+				Character.toString(Permission.RESERVED_OFF), Permission.RESERVED_OFF
+						+ " is a reserved character code");
 
-        return printBinary(mask, Permission.RESERVED_ON, Permission.RESERVED_OFF).replace(Permission.RESERVED_ON, code);
-    }
+		return printBinary(mask, Permission.RESERVED_ON, Permission.RESERVED_OFF)
+				.replace(Permission.RESERVED_ON, code);
+	}
 
-    private static String printBinary(int i, char on, char off) {
-        String s = Integer.toBinaryString(i);
-        String pattern = Permission.THIRTY_TWO_RESERVED_OFF;
-        String temp2 = pattern.substring(0, pattern.length() - s.length()) + s;
+	private static String printBinary(int i, char on, char off) {
+		String s = Integer.toBinaryString(i);
+		String pattern = Permission.THIRTY_TWO_RESERVED_OFF;
+		String temp2 = pattern.substring(0, pattern.length() - s.length()) + s;
 
-        return temp2.replace('0', off).replace('1', on);
-    }
+		return temp2.replace('0', off).replace('1', on);
+	}
 }

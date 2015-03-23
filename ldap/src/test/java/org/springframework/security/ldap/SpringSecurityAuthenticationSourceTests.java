@@ -18,53 +18,56 @@ import org.junit.Test;
  * @author Luke Taylor
  */
 public class SpringSecurityAuthenticationSourceTests {
-    @Before
-    @After
-    public void clearContext() {
-        SecurityContextHolder.clearContext();
-    }
+	@Before
+	@After
+	public void clearContext() {
+		SecurityContextHolder.clearContext();
+	}
 
-    @Test
-    public void principalAndCredentialsAreEmptyWithNoAuthentication() {
-        AuthenticationSource source = new SpringSecurityAuthenticationSource();
-        assertEquals("", source.getPrincipal());
-        assertEquals("", source.getCredentials());
-    }
+	@Test
+	public void principalAndCredentialsAreEmptyWithNoAuthentication() {
+		AuthenticationSource source = new SpringSecurityAuthenticationSource();
+		assertEquals("", source.getPrincipal());
+		assertEquals("", source.getCredentials());
+	}
 
-    @Test
-    public void principalIsEmptyForAnonymousUser() {
-        AuthenticationSource source = new SpringSecurityAuthenticationSource();
+	@Test
+	public void principalIsEmptyForAnonymousUser() {
+		AuthenticationSource source = new SpringSecurityAuthenticationSource();
 
-        SecurityContextHolder.getContext().setAuthentication(
-                new AnonymousAuthenticationToken("key", "anonUser", AuthorityUtils.createAuthorityList("ignored")));
-        assertEquals("", source.getPrincipal());
-    }
+		SecurityContextHolder.getContext().setAuthentication(
+				new AnonymousAuthenticationToken("key", "anonUser", AuthorityUtils
+						.createAuthorityList("ignored")));
+		assertEquals("", source.getPrincipal());
+	}
 
-    @Test(expected=IllegalArgumentException.class)
-    public void getPrincipalRejectsNonLdapUserDetailsObject() {
-        AuthenticationSource source = new SpringSecurityAuthenticationSource();
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(new Object(), "password"));
+	@Test(expected = IllegalArgumentException.class)
+	public void getPrincipalRejectsNonLdapUserDetailsObject() {
+		AuthenticationSource source = new SpringSecurityAuthenticationSource();
+		SecurityContextHolder.getContext().setAuthentication(
+				new TestingAuthenticationToken(new Object(), "password"));
 
-        source.getPrincipal();
-    }
+		source.getPrincipal();
+	}
 
-    @Test
-    public void expectedCredentialsAreReturned() {
-        AuthenticationSource source = new SpringSecurityAuthenticationSource();
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(new Object(), "password"));
+	@Test
+	public void expectedCredentialsAreReturned() {
+		AuthenticationSource source = new SpringSecurityAuthenticationSource();
+		SecurityContextHolder.getContext().setAuthentication(
+				new TestingAuthenticationToken(new Object(), "password"));
 
-        assertEquals("password", source.getCredentials());
-    }
+		assertEquals("password", source.getCredentials());
+	}
 
-    @Test
-    public void expectedPrincipalIsReturned() {
-        LdapUserDetailsImpl.Essence user = new LdapUserDetailsImpl.Essence();
-        user.setUsername("joe");
-        user.setDn(new DistinguishedName("uid=joe,ou=users"));
-        AuthenticationSource source = new SpringSecurityAuthenticationSource();
-        SecurityContextHolder.getContext().setAuthentication(
-                new TestingAuthenticationToken(user.createUserDetails(), null));
+	@Test
+	public void expectedPrincipalIsReturned() {
+		LdapUserDetailsImpl.Essence user = new LdapUserDetailsImpl.Essence();
+		user.setUsername("joe");
+		user.setDn(new DistinguishedName("uid=joe,ou=users"));
+		AuthenticationSource source = new SpringSecurityAuthenticationSource();
+		SecurityContextHolder.getContext().setAuthentication(
+				new TestingAuthenticationToken(user.createUserDetails(), null));
 
-        assertEquals("uid=joe,ou=users", source.getPrincipal());
-    }
+		assertEquals("uid=joe,ou=users", source.getPrincipal());
+	}
 }

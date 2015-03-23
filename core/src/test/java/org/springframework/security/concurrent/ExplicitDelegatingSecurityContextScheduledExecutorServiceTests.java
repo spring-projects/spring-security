@@ -16,22 +16,24 @@ import org.junit.Before;
 import org.springframework.security.core.context.SecurityContext;
 
 /**
- * Tests Explicitly specifying the {@link SecurityContext} on {@link DelegatingSecurityContextScheduledExecutorService}
+ * Tests Explicitly specifying the {@link SecurityContext} on
+ * {@link DelegatingSecurityContextScheduledExecutorService}
  *
  * @author Rob Winch
  * @since 3.2
  *
  */
 public class ExplicitDelegatingSecurityContextScheduledExecutorServiceTests extends
-        AbstractDelegatingSecurityContextScheduledExecutorServiceTests {
+		AbstractDelegatingSecurityContextScheduledExecutorServiceTests {
 
-    @Before
-    public void setUp() throws Exception {
-        this.explicitSecurityContextPowermockSetup();
-    }
+	@Before
+	public void setUp() throws Exception {
+		this.explicitSecurityContextPowermockSetup();
+	}
 
-    @Override
-    protected DelegatingSecurityContextScheduledExecutorService create() {
-        return new DelegatingSecurityContextScheduledExecutorService(delegate, securityContext);
-    }
+	@Override
+	protected DelegatingSecurityContextScheduledExecutorService create() {
+		return new DelegatingSecurityContextScheduledExecutorService(delegate,
+				securityContext);
+	}
 }

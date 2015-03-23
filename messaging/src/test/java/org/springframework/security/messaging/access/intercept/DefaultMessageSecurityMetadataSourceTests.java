@@ -35,63 +35,63 @@ import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultMessageSecurityMetadataSourceTests {
-    @Mock
-    MessageMatcher<Object> matcher1;
-    @Mock
-    MessageMatcher<Object> matcher2;
-    @Mock
-    Message<?> message;
-    @Mock
-    Authentication authentication;
+	@Mock
+	MessageMatcher<Object> matcher1;
+	@Mock
+	MessageMatcher<Object> matcher2;
+	@Mock
+	Message<?> message;
+	@Mock
+	Authentication authentication;
 
-    SecurityConfig config1;
+	SecurityConfig config1;
 
-    SecurityConfig config2;
+	SecurityConfig config2;
 
-    LinkedHashMap<MessageMatcher<?>,Collection<ConfigAttribute>> messageMap;
+	LinkedHashMap<MessageMatcher<?>, Collection<ConfigAttribute>> messageMap;
 
-    MessageSecurityMetadataSource source;
+	MessageSecurityMetadataSource source;
 
-    @Before
-    public void setup() {
-        messageMap = new LinkedHashMap<MessageMatcher<?>, Collection<ConfigAttribute>>();
-        messageMap.put(matcher1, Arrays.<ConfigAttribute>asList(config1));
-        messageMap.put(matcher2, Arrays.<ConfigAttribute>asList(config2));
+	@Before
+	public void setup() {
+		messageMap = new LinkedHashMap<MessageMatcher<?>, Collection<ConfigAttribute>>();
+		messageMap.put(matcher1, Arrays.<ConfigAttribute> asList(config1));
+		messageMap.put(matcher2, Arrays.<ConfigAttribute> asList(config2));
 
-        source = new DefaultMessageSecurityMetadataSource(messageMap);
-    }
+		source = new DefaultMessageSecurityMetadataSource(messageMap);
+	}
 
-    @Test
-    public void getAttributesNull() {
-        assertThat(source.getAttributes(message)).isNull();
-    }
+	@Test
+	public void getAttributesNull() {
+		assertThat(source.getAttributes(message)).isNull();
+	}
 
-    @Test
-    public void getAttributesFirst() {
-        when(matcher1.matches(message)).thenReturn(true);
+	@Test
+	public void getAttributesFirst() {
+		when(matcher1.matches(message)).thenReturn(true);
 
-        assertThat(source.getAttributes(message)).containsOnly(config1);
-    }
+		assertThat(source.getAttributes(message)).containsOnly(config1);
+	}
 
-    @Test
-    public void getAttributesSecond() {
-        when(matcher1.matches(message)).thenReturn(true);
+	@Test
+	public void getAttributesSecond() {
+		when(matcher1.matches(message)).thenReturn(true);
 
-        assertThat(source.getAttributes(message)).containsOnly(config2);
-    }
+		assertThat(source.getAttributes(message)).containsOnly(config2);
+	}
 
-    @Test
-    public void getAllConfigAttributes() {
-        assertThat(source.getAllConfigAttributes()).containsOnly(config1,config2);
-    }
+	@Test
+	public void getAllConfigAttributes() {
+		assertThat(source.getAllConfigAttributes()).containsOnly(config1, config2);
+	}
 
-    @Test
-    public void supportsFalse() {
-        assertThat(source.supports(Object.class)).isFalse();
-    }
+	@Test
+	public void supportsFalse() {
+		assertThat(source.supports(Object.class)).isFalse();
+	}
 
-    @Test
-    public void supportsTrue() {
-        assertThat(source.supports(Message.class)).isTrue();
-    }
+	@Test
+	public void supportsTrue() {
+		assertThat(source.supports(Message.class)).isTrue();
+	}
 }

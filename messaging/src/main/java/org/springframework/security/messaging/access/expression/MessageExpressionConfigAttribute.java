@@ -21,36 +21,36 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.util.Assert;
 
 /**
- * Simple expression configuration attribute for use in {@link Message}  authorizations.
+ * Simple expression configuration attribute for use in {@link Message} authorizations.
  *
  * @since 4.0
  * @author Rob Winch
  */
 @SuppressWarnings("serial")
 class MessageExpressionConfigAttribute implements ConfigAttribute {
-    private final Expression authorizeExpression;
+	private final Expression authorizeExpression;
 
-    /**
-     * Creates a new instance
-     *
-     * @param authorizeExpression the {@link Expression} to use. Cannot be null
-     */
-    public MessageExpressionConfigAttribute(Expression authorizeExpression) {
-        Assert.notNull(authorizeExpression, "authorizeExpression cannot be null");
+	/**
+	 * Creates a new instance
+	 *
+	 * @param authorizeExpression the {@link Expression} to use. Cannot be null
+	 */
+	public MessageExpressionConfigAttribute(Expression authorizeExpression) {
+		Assert.notNull(authorizeExpression, "authorizeExpression cannot be null");
 
-        this.authorizeExpression = authorizeExpression;
-    }
+		this.authorizeExpression = authorizeExpression;
+	}
 
-    Expression getAuthorizeExpression() {
-        return authorizeExpression;
-    }
+	Expression getAuthorizeExpression() {
+		return authorizeExpression;
+	}
 
-    public String getAttribute() {
-        return null;
-    }
+	public String getAttribute() {
+		return null;
+	}
 
-    @Override
-    public String toString() {
-        return authorizeExpression.getExpressionString();
-    }
+	@Override
+	public String toString() {
+		return authorizeExpression.getExpressionString();
+	}
 }

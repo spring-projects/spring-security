@@ -19,37 +19,41 @@ import java.util.*;
  * @author Luke Taylor
  */
 public class FilterChainBeanDefinitionParser implements BeanDefinitionParser {
-    private static final String ATT_REQUEST_MATCHER_REF = "request-matcher-ref";
+	private static final String ATT_REQUEST_MATCHER_REF = "request-matcher-ref";
 
-    public BeanDefinition parse(Element elt, ParserContext pc) {
-        MatcherType matcherType = MatcherType.fromElement(elt);
-        String path = elt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_PATH_PATTERN);
-        String requestMatcher = elt.getAttribute(ATT_REQUEST_MATCHER_REF);
-        String filters = elt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_FILTERS);
+	public BeanDefinition parse(Element elt, ParserContext pc) {
+		MatcherType matcherType = MatcherType.fromElement(elt);
+		String path = elt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_PATH_PATTERN);
+		String requestMatcher = elt.getAttribute(ATT_REQUEST_MATCHER_REF);
+		String filters = elt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_FILTERS);
 
-        BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(DefaultSecurityFilterChain.class);
+		BeanDefinitionBuilder builder = BeanDefinitionBuilder
+				.rootBeanDefinition(DefaultSecurityFilterChain.class);
 
-        if (StringUtils.hasText(path)) {
-            Assert.isTrue(!StringUtils.hasText(requestMatcher), "");
-            builder.addConstructorArgValue(matcherType.createMatcher(path, null));
-        } else {
-            Assert.isTrue(StringUtils.hasText(requestMatcher), "");
-            builder.addConstructorArgReference(requestMatcher);
-        }
+		if (StringUtils.hasText(path)) {
+			Assert.isTrue(!StringUtils.hasText(requestMatcher), "");
+			builder.addConstructorArgValue(matcherType.createMatcher(path, null));
+		}
+		else {
+			Assert.isTrue(StringUtils.hasText(requestMatcher), "");
+			builder.addConstructorArgReference(requestMatcher);
+		}
 
-        if (filters.equals(HttpSecurityBeanDefinitionParser.OPT_FILTERS_NONE)) {
-            builder.addConstructorArgValue(Collections.EMPTY_LIST);
-        } else {
-            String[] filterBeanNames = StringUtils.tokenizeToStringArray(filters, ",");
-            ManagedList<RuntimeBeanReference> filterChain = new ManagedList<RuntimeBeanReference>(filterBeanNames.length);
+		if (filters.equals(HttpSecurityBeanDefinitionParser.OPT_FILTERS_NONE)) {
+			builder.addConstructorArgValue(Collections.EMPTY_LIST);
+		}
+		else {
+			String[] filterBeanNames = StringUtils.tokenizeToStringArray(filters, ",");
+			ManagedList<RuntimeBeanReference> filterChain = new ManagedList<RuntimeBeanReference>(
+					filterBeanNames.length);
 
-            for (String name : filterBeanNames) {
-                filterChain.add(new RuntimeBeanReference(name));
-            }
+			for (String name : filterBeanNames) {
+				filterChain.add(new RuntimeBeanReference(name));
+			}
 
-            builder.addConstructorArgValue(filterChain);
-        }
+			builder.addConstructorArgValue(filterChain);
+		}
 
-        return builder.getBeanDefinition();
-    }
+		return builder.getBeanDefinition();
+	}
 }

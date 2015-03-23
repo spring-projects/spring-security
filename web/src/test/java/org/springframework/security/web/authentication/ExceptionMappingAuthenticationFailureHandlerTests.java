@@ -16,27 +16,31 @@ import java.util.HashMap;
  */
 public class ExceptionMappingAuthenticationFailureHandlerTests {
 
-    @Test
-    public void defaultTargetUrlIsUsedIfNoMappingExists() throws Exception {
-        ExceptionMappingAuthenticationFailureHandler fh = new ExceptionMappingAuthenticationFailureHandler();
-        fh.setDefaultFailureUrl("/failed");
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        fh.onAuthenticationFailure(new MockHttpServletRequest(), response, new BadCredentialsException(""));
+	@Test
+	public void defaultTargetUrlIsUsedIfNoMappingExists() throws Exception {
+		ExceptionMappingAuthenticationFailureHandler fh = new ExceptionMappingAuthenticationFailureHandler();
+		fh.setDefaultFailureUrl("/failed");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		fh.onAuthenticationFailure(new MockHttpServletRequest(), response,
+				new BadCredentialsException(""));
 
-        assertEquals("/failed", response.getRedirectedUrl());
-    }
+		assertEquals("/failed", response.getRedirectedUrl());
+	}
 
-    @Test
-    public void exceptionMapIsUsedIfMappingExists() throws Exception {
-        ExceptionMappingAuthenticationFailureHandler fh = new ExceptionMappingAuthenticationFailureHandler();
-        HashMap<String, String> mapping = new HashMap<String, String>();
-        mapping.put("org.springframework.security.authentication.BadCredentialsException", "/badcreds");
-        fh.setExceptionMappings(mapping);
-        fh.setDefaultFailureUrl("/failed");
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        fh.onAuthenticationFailure(new MockHttpServletRequest(), response, new BadCredentialsException(""));
+	@Test
+	public void exceptionMapIsUsedIfMappingExists() throws Exception {
+		ExceptionMappingAuthenticationFailureHandler fh = new ExceptionMappingAuthenticationFailureHandler();
+		HashMap<String, String> mapping = new HashMap<String, String>();
+		mapping.put(
+				"org.springframework.security.authentication.BadCredentialsException",
+				"/badcreds");
+		fh.setExceptionMappings(mapping);
+		fh.setDefaultFailureUrl("/failed");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		fh.onAuthenticationFailure(new MockHttpServletRequest(), response,
+				new BadCredentialsException(""));
 
-        assertEquals("/badcreds", response.getRedirectedUrl());
-    }
+		assertEquals("/badcreds", response.getRedirectedUrl());
+	}
 
 }

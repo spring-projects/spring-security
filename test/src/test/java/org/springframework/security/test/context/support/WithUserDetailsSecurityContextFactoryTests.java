@@ -31,40 +31,41 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 @RunWith(MockitoJUnitRunner.class)
 public class WithUserDetailsSecurityContextFactoryTests {
 
-    @Mock
-    private UserDetailsService userDetailsService;
-    @Mock
-    private UserDetails userDetails;
+	@Mock
+	private UserDetailsService userDetailsService;
+	@Mock
+	private UserDetails userDetails;
 
-    @Mock
-    private WithUserDetails withUserDetails;
+	@Mock
+	private WithUserDetails withUserDetails;
 
-    private WithUserDetailsSecurityContextFactory factory;
+	private WithUserDetailsSecurityContextFactory factory;
 
-    @Before
-    public void setup() {
-        factory = new WithUserDetailsSecurityContextFactory(userDetailsService);
-    }
+	@Before
+	public void setup() {
+		factory = new WithUserDetailsSecurityContextFactory(userDetailsService);
+	}
 
-    @Test(expected=IllegalArgumentException.class)
-    public void createSecurityContextNullValue() {
-        factory.createSecurityContext(withUserDetails);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void createSecurityContextNullValue() {
+		factory.createSecurityContext(withUserDetails);
+	}
 
-    @Test(expected=IllegalArgumentException.class)
-    public void createSecurityContextEmptyValue() {
-        when(withUserDetails.value()).thenReturn("");
-        factory.createSecurityContext(withUserDetails);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void createSecurityContextEmptyValue() {
+		when(withUserDetails.value()).thenReturn("");
+		factory.createSecurityContext(withUserDetails);
+	}
 
-    @Test
-    public void createSecurityContextWithExistingUser() {
-        String username = "user";
-        when(withUserDetails.value()).thenReturn(username);
-        when(userDetailsService.loadUserByUsername(username)).thenReturn(userDetails);
+	@Test
+	public void createSecurityContextWithExistingUser() {
+		String username = "user";
+		when(withUserDetails.value()).thenReturn(username);
+		when(userDetailsService.loadUserByUsername(username)).thenReturn(userDetails);
 
-        SecurityContext context = factory.createSecurityContext(withUserDetails);
-        assertThat(context.getAuthentication()).isInstanceOf(UsernamePasswordAuthenticationToken.class);
-        assertThat(context.getAuthentication().getPrincipal()).isEqualTo(userDetails);
-    }
+		SecurityContext context = factory.createSecurityContext(withUserDetails);
+		assertThat(context.getAuthentication()).isInstanceOf(
+				UsernamePasswordAuthenticationToken.class);
+		assertThat(context.getAuthentication().getPrincipal()).isEqualTo(userDetails);
+	}
 }

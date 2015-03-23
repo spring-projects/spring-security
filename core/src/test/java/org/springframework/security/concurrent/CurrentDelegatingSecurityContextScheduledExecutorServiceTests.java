@@ -15,23 +15,24 @@ package org.springframework.security.concurrent;
 import org.junit.Before;
 
 /**
- * Tests using the current {@link SecurityContext} on {@link DelegatingSecurityContextScheduledExecutorService}
+ * Tests using the current {@link SecurityContext} on
+ * {@link DelegatingSecurityContextScheduledExecutorService}
  *
  * @author Rob Winch
  * @since 3.2
  *
  */
 public class CurrentDelegatingSecurityContextScheduledExecutorServiceTests extends
-        AbstractDelegatingSecurityContextScheduledExecutorServiceTests {
+		AbstractDelegatingSecurityContextScheduledExecutorServiceTests {
 
-    @Before
-    public void setUp() throws Exception {
-        this.currentSecurityContextPowermockSetup();
-    }
+	@Before
+	public void setUp() throws Exception {
+		this.currentSecurityContextPowermockSetup();
+	}
 
-    @Override
-    protected DelegatingSecurityContextScheduledExecutorService create() {
-        return new DelegatingSecurityContextScheduledExecutorService(delegate);
-    }
+	@Override
+	protected DelegatingSecurityContextScheduledExecutorService create() {
+		return new DelegatingSecurityContextScheduledExecutorService(delegate);
+	}
 
 }

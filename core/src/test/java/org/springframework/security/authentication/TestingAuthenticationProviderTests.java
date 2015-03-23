@@ -29,23 +29,26 @@ import org.springframework.security.core.authority.AuthorityUtils;
  */
 public class TestingAuthenticationProviderTests extends TestCase {
 
-    public void testAuthenticates() {
-        TestingAuthenticationProvider provider = new TestingAuthenticationProvider();
-        TestingAuthenticationToken token = new TestingAuthenticationToken("Test", "Password","ROLE_ONE","ROLE_TWO");
-        Authentication result = provider.authenticate(token);
+	public void testAuthenticates() {
+		TestingAuthenticationProvider provider = new TestingAuthenticationProvider();
+		TestingAuthenticationToken token = new TestingAuthenticationToken("Test",
+				"Password", "ROLE_ONE", "ROLE_TWO");
+		Authentication result = provider.authenticate(token);
 
-        assertTrue(result instanceof TestingAuthenticationToken);
+		assertTrue(result instanceof TestingAuthenticationToken);
 
-        TestingAuthenticationToken castResult = (TestingAuthenticationToken) result;
-        assertEquals("Test", castResult.getPrincipal());
-        assertEquals("Password", castResult.getCredentials());
-        assertTrue(AuthorityUtils.authorityListToSet(castResult.getAuthorities()).contains("ROLE_ONE"));
-        assertTrue(AuthorityUtils.authorityListToSet(castResult.getAuthorities()).contains("ROLE_TWO"));
-    }
+		TestingAuthenticationToken castResult = (TestingAuthenticationToken) result;
+		assertEquals("Test", castResult.getPrincipal());
+		assertEquals("Password", castResult.getCredentials());
+		assertTrue(AuthorityUtils.authorityListToSet(castResult.getAuthorities())
+				.contains("ROLE_ONE"));
+		assertTrue(AuthorityUtils.authorityListToSet(castResult.getAuthorities())
+				.contains("ROLE_TWO"));
+	}
 
-    public void testSupports() {
-        TestingAuthenticationProvider provider = new TestingAuthenticationProvider();
-        assertTrue(provider.supports(TestingAuthenticationToken.class));
-        assertTrue(!provider.supports(String.class));
-    }
+	public void testSupports() {
+		TestingAuthenticationProvider provider = new TestingAuthenticationProvider();
+		assertTrue(provider.supports(TestingAuthenticationToken.class));
+		assertTrue(!provider.supports(String.class));
+	}
 }

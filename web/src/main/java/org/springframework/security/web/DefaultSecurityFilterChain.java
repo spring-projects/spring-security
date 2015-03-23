@@ -16,34 +16,34 @@ import java.util.*;
  * @since 3.1
  */
 public final class DefaultSecurityFilterChain implements SecurityFilterChain {
-    private static final Log logger = LogFactory.getLog(DefaultSecurityFilterChain.class);
-    private final RequestMatcher requestMatcher;
-    private final List<Filter> filters;
+	private static final Log logger = LogFactory.getLog(DefaultSecurityFilterChain.class);
+	private final RequestMatcher requestMatcher;
+	private final List<Filter> filters;
 
-    public DefaultSecurityFilterChain(RequestMatcher requestMatcher, Filter... filters) {
-        this(requestMatcher, Arrays.asList(filters));
-    }
+	public DefaultSecurityFilterChain(RequestMatcher requestMatcher, Filter... filters) {
+		this(requestMatcher, Arrays.asList(filters));
+	}
 
-    public DefaultSecurityFilterChain(RequestMatcher requestMatcher, List<Filter> filters) {
-        logger.info("Creating filter chain: " + requestMatcher + ", " + filters);
-        this.requestMatcher = requestMatcher;
-        this.filters = new ArrayList<Filter>(filters);
-    }
+	public DefaultSecurityFilterChain(RequestMatcher requestMatcher, List<Filter> filters) {
+		logger.info("Creating filter chain: " + requestMatcher + ", " + filters);
+		this.requestMatcher = requestMatcher;
+		this.filters = new ArrayList<Filter>(filters);
+	}
 
-    public RequestMatcher getRequestMatcher() {
-        return requestMatcher;
-    }
+	public RequestMatcher getRequestMatcher() {
+		return requestMatcher;
+	}
 
-    public List<Filter> getFilters() {
-        return filters;
-    }
+	public List<Filter> getFilters() {
+		return filters;
+	}
 
-    public boolean matches(HttpServletRequest request) {
-        return requestMatcher.matches(request);
-    }
+	public boolean matches(HttpServletRequest request) {
+		return requestMatcher.matches(request);
+	}
 
-    @Override
-    public String toString() {
-        return "[ " + requestMatcher + ", " + filters + "]";
-    }
+	@Override
+	public String toString() {
+		return "[ " + requestMatcher + ", " + filters + "]";
+	}
 }

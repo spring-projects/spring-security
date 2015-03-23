@@ -12,38 +12,38 @@ import static org.junit.Assert.*;
  */
 public class CsrfMetaTagsTagTests {
 
-    public CsrfMetaTagsTag tag;
+	public CsrfMetaTagsTag tag;
 
-    @Before
-    public void setUp() {
-        this.tag = new CsrfMetaTagsTag();
-    }
+	@Before
+	public void setUp() {
+		this.tag = new CsrfMetaTagsTag();
+	}
 
-    @Test
-    public void handleTokenRendersTags() {
-        CsrfToken token = new DefaultCsrfToken("X-Csrf-Token", "_csrf", "abc123def456ghi789");
+	@Test
+	public void handleTokenRendersTags() {
+		CsrfToken token = new DefaultCsrfToken("X-Csrf-Token", "_csrf",
+				"abc123def456ghi789");
 
-        String value = this.tag.handleToken(token);
+		String value = this.tag.handleToken(token);
 
-        assertNotNull("The returned value should not be null.", value);
-        assertEquals("The output is not correct.",
-                "<meta name=\"_csrf_parameter\" content=\"_csrf\" />" +
-                        "<meta name=\"_csrf_header\" content=\"X-Csrf-Token\" />" +
-                        "<meta name=\"_csrf\" content=\"abc123def456ghi789\" />",
-                value);
-    }
+		assertNotNull("The returned value should not be null.", value);
+		assertEquals("The output is not correct.",
+				"<meta name=\"_csrf_parameter\" content=\"_csrf\" />"
+						+ "<meta name=\"_csrf_header\" content=\"X-Csrf-Token\" />"
+						+ "<meta name=\"_csrf\" content=\"abc123def456ghi789\" />", value);
+	}
 
-    @Test
-    public void handleTokenRendersTagsDifferentToken() {
-        CsrfToken token = new DefaultCsrfToken("csrfHeader", "csrfParameter", "fooBarBazQux");
+	@Test
+	public void handleTokenRendersTagsDifferentToken() {
+		CsrfToken token = new DefaultCsrfToken("csrfHeader", "csrfParameter",
+				"fooBarBazQux");
 
-        String value = this.tag.handleToken(token);
+		String value = this.tag.handleToken(token);
 
-        assertNotNull("The returned value should not be null.", value);
-        assertEquals("The output is not correct.",
-                "<meta name=\"_csrf_parameter\" content=\"csrfParameter\" />" +
-                        "<meta name=\"_csrf_header\" content=\"csrfHeader\" />" +
-                        "<meta name=\"_csrf\" content=\"fooBarBazQux\" />",
-                value);
-    }
+		assertNotNull("The returned value should not be null.", value);
+		assertEquals("The output is not correct.",
+				"<meta name=\"_csrf_parameter\" content=\"csrfParameter\" />"
+						+ "<meta name=\"_csrf_header\" content=\"csrfHeader\" />"
+						+ "<meta name=\"_csrf\" content=\"fooBarBazQux\" />", value);
+	}
 }

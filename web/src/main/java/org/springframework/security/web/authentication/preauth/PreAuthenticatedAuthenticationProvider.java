@@ -16,118 +16,129 @@ import org.springframework.util.Assert;
 
 /**
  * <p>
- * Processes a pre-authenticated authentication request. The request will
- * typically originate from a {@link org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter}
+ * Processes a pre-authenticated authentication request. The request will typically
+ * originate from a
+ * {@link org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter}
  * subclass.
  *
  * <p>
- * This authentication provider will not perform any checks on authentication
- * requests, as they should already be pre-authenticated. However, the
- * AuthenticationUserDetailsService implementation may still throw a UsernameNotFoundException, for example.
+ * This authentication provider will not perform any checks on authentication requests, as
+ * they should already be pre-authenticated. However, the AuthenticationUserDetailsService
+ * implementation may still throw a UsernameNotFoundException, for example.
  *
  * @author Ruud Senden
  * @since 2.0
  */
-public class PreAuthenticatedAuthenticationProvider implements AuthenticationProvider, InitializingBean, Ordered {
-    private static final Log logger = LogFactory.getLog(PreAuthenticatedAuthenticationProvider.class);
+public class PreAuthenticatedAuthenticationProvider implements AuthenticationProvider,
+		InitializingBean, Ordered {
+	private static final Log logger = LogFactory
+			.getLog(PreAuthenticatedAuthenticationProvider.class);
 
-    private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> preAuthenticatedUserDetailsService = null;
-    private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
-    private boolean throwExceptionWhenTokenRejected = false;
+	private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> preAuthenticatedUserDetailsService = null;
+	private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
+	private boolean throwExceptionWhenTokenRejected = false;
 
-    private int order = -1; // default: same as non-ordered
+	private int order = -1; // default: same as non-ordered
 
-    /**
-     * Check whether all required properties have been set.
-     */
-    public void afterPropertiesSet() {
-        Assert.notNull(preAuthenticatedUserDetailsService, "An AuthenticationUserDetailsService must be set");
-    }
+	/**
+	 * Check whether all required properties have been set.
+	 */
+	public void afterPropertiesSet() {
+		Assert.notNull(preAuthenticatedUserDetailsService,
+				"An AuthenticationUserDetailsService must be set");
+	}
 
-    /**
-     * Authenticate the given PreAuthenticatedAuthenticationToken.
-     * <p>
-     * If the principal contained in the authentication object is null, the request will be ignored to allow other
-     * providers to authenticate it.
-     */
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        if (!supports(authentication.getClass())) {
-            return null;
-        }
+	/**
+	 * Authenticate the given PreAuthenticatedAuthenticationToken.
+	 * <p>
+	 * If the principal contained in the authentication object is null, the request will
+	 * be ignored to allow other providers to authenticate it.
+	 */
+	public Authentication authenticate(Authentication authentication)
+			throws AuthenticationException {
+		if (!supports(authentication.getClass())) {
+			return null;
+		}
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("PreAuthenticated authentication request: " + authentication);
-        }
+		if (logger.isDebugEnabled()) {
+			logger.debug("PreAuthenticated authentication request: " + authentication);
+		}
 
-        if (authentication.getPrincipal() == null) {
-            logger.debug("No pre-authenticated principal found in request.");
+		if (authentication.getPrincipal() == null) {
+			logger.debug("No pre-authenticated principal found in request.");
 
-            if (throwExceptionWhenTokenRejected) {
-                throw new BadCredentialsException("No pre-authenticated principal found in request.");
-            }
-            return null;
-        }
+			if (throwExceptionWhenTokenRejected) {
+				throw new BadCredentialsException(
+						"No pre-authenticated principal found in request.");
+			}
+			return null;
+		}
 
-        if (authentication.getCredentials() == null) {
-            logger.debug("No pre-authenticated credentials found in request.");
+		if (authentication.getCredentials() == null) {
+			logger.debug("No pre-authenticated credentials found in request.");
 
-            if (throwExceptionWhenTokenRejected) {
-                throw new BadCredentialsException("No pre-authenticated credentials found in request.");
-            }
-            return null;
-        }
+			if (throwExceptionWhenTokenRejected) {
+				throw new BadCredentialsException(
+						"No pre-authenticated credentials found in request.");
+			}
+			return null;
+		}
 
-        UserDetails ud = preAuthenticatedUserDetailsService.loadUserDetails((PreAuthenticatedAuthenticationToken)authentication);
+		UserDetails ud = preAuthenticatedUserDetailsService
+				.loadUserDetails((PreAuthenticatedAuthenticationToken) authentication);
 
-        userDetailsChecker.check(ud);
+		userDetailsChecker.check(ud);
 
-        PreAuthenticatedAuthenticationToken result =
-                new PreAuthenticatedAuthenticationToken(ud, authentication.getCredentials(), ud.getAuthorities());
-        result.setDetails(authentication.getDetails());
+		PreAuthenticatedAuthenticationToken result = new PreAuthenticatedAuthenticationToken(
+				ud, authentication.getCredentials(), ud.getAuthorities());
+		result.setDetails(authentication.getDetails());
 
-        return result;
-    }
+		return result;
+	}
 
-    /**
-     * Indicate that this provider only supports PreAuthenticatedAuthenticationToken (sub)classes.
-     */
-    public final boolean supports(Class<?> authentication) {
-        return PreAuthenticatedAuthenticationToken.class.isAssignableFrom(authentication);
-    }
+	/**
+	 * Indicate that this provider only supports PreAuthenticatedAuthenticationToken
+	 * (sub)classes.
+	 */
+	public final boolean supports(Class<?> authentication) {
+		return PreAuthenticatedAuthenticationToken.class.isAssignableFrom(authentication);
+	}
 
-    /**
-     * Set the AuthenticatedUserDetailsService to be used to load the {@code UserDetails} for the authenticated user.
-     *
-     * @param uds
-     */
-    public void setPreAuthenticatedUserDetailsService(AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> uds) {
-        this.preAuthenticatedUserDetailsService = uds;
-    }
+	/**
+	 * Set the AuthenticatedUserDetailsService to be used to load the {@code UserDetails}
+	 * for the authenticated user.
+	 *
+	 * @param uds
+	 */
+	public void setPreAuthenticatedUserDetailsService(
+			AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> uds) {
+		this.preAuthenticatedUserDetailsService = uds;
+	}
 
-    /**
-     * If true, causes the provider to throw a BadCredentialsException if the presented authentication
-     * request is invalid (contains a null principal or credentials). Otherwise it will just return
-     * null. Defaults to false.
-     */
-    public void setThrowExceptionWhenTokenRejected(boolean throwExceptionWhenTokenRejected) {
-        this.throwExceptionWhenTokenRejected = throwExceptionWhenTokenRejected;
-    }
+	/**
+	 * If true, causes the provider to throw a BadCredentialsException if the presented
+	 * authentication request is invalid (contains a null principal or credentials).
+	 * Otherwise it will just return null. Defaults to false.
+	 */
+	public void setThrowExceptionWhenTokenRejected(boolean throwExceptionWhenTokenRejected) {
+		this.throwExceptionWhenTokenRejected = throwExceptionWhenTokenRejected;
+	}
 
-    /**
-     * Sets the strategy which will be used to validate the loaded <tt>UserDetails</tt> object
-     * for the user. Defaults to an {@link AccountStatusUserDetailsChecker}.
-     * @param userDetailsChecker
-     */
-    public void setUserDetailsChecker(UserDetailsChecker userDetailsChecker) {
-        Assert.notNull(userDetailsChecker, "userDetailsChacker cannot be null");
-        this.userDetailsChecker = userDetailsChecker;
-    }
+	/**
+	 * Sets the strategy which will be used to validate the loaded <tt>UserDetails</tt>
+	 * object for the user. Defaults to an {@link AccountStatusUserDetailsChecker}.
+	 * @param userDetailsChecker
+	 */
+	public void setUserDetailsChecker(UserDetailsChecker userDetailsChecker) {
+		Assert.notNull(userDetailsChecker, "userDetailsChacker cannot be null");
+		this.userDetailsChecker = userDetailsChecker;
+	}
 
-    public int getOrder() {
-        return order;
-    }
+	public int getOrder() {
+		return order;
+	}
 
-    public void setOrder(int i) {
-        order = i;
-    }
+	public void setOrder(int i) {
+		order = i;
+	}
 }

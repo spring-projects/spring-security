@@ -33,13 +33,15 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @ContextConfiguration
 @WebAppConfiguration
 public class SecurityConfigTests {
-    @Configuration
-    @ComponentScan(basePackages = "org.springframework.security.samples.config")
-    public static class Config {}
+	@Configuration
+	@ComponentScan(basePackages = "org.springframework.security.samples.config")
+	public static class Config {
+	}
 
-    @Autowired
-    private FilterChainProxy springSecurityFilterChain;
+	@Autowired
+	private FilterChainProxy springSecurityFilterChain;
 
-    @Test
-    public void securityConfigurationLoads() {}
+	@Test
+	public void securityConfigurationLoads() {
+	}
 }

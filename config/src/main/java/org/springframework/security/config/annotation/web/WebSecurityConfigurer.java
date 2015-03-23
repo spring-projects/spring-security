@@ -25,17 +25,17 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 /**
- * Allows customization to the {@link WebSecurity}. In most instances
- * users will use {@link EnableWebSecurity} and a create {@link Configuration}
- * that extends {@link WebSecurityConfigurerAdapter} which will automatically be
- * applied to the {@link WebSecurity} by the {@link EnableWebSecurity}
- * annotation.
+ * Allows customization to the {@link WebSecurity}. In most instances users will use
+ * {@link EnableWebSecurity} and a create {@link Configuration} that extends
+ * {@link WebSecurityConfigurerAdapter} which will automatically be applied to the
+ * {@link WebSecurity} by the {@link EnableWebSecurity} annotation.
  *
  * @see WebSecurityConfigurerAdapter
  *
  * @author Rob Winch
  * @since 3.2
  */
-public interface WebSecurityConfigurer<T extends SecurityBuilder<Filter>> extends SecurityConfigurer<Filter, T> {
+public interface WebSecurityConfigurer<T extends SecurityBuilder<Filter>> extends
+		SecurityConfigurer<Filter, T> {
 
 }

@@ -23,42 +23,44 @@ import org.springframework.security.core.context.SecurityContext;
  * @since 3.2
  *
  */
-public class DelegatingSecurityContextSupportTests extends AbstractDelegatingSecurityContextTestSupport {
-    private AbstractDelegatingSecurityContextSupport support;
+public class DelegatingSecurityContextSupportTests extends
+		AbstractDelegatingSecurityContextTestSupport {
+	private AbstractDelegatingSecurityContextSupport support;
 
-    @Test
-    public void wrapCallable() throws Exception {
-        explicitSecurityContextPowermockSetup();
-        support = new ConcreteDelegatingSecurityContextSupport(securityContext);
-        assertThat(support.wrap(callable)).isSameAs(wrappedCallable);
-        assertThat(securityContextCaptor.getValue()).isSameAs(securityContext);
-    }
+	@Test
+	public void wrapCallable() throws Exception {
+		explicitSecurityContextPowermockSetup();
+		support = new ConcreteDelegatingSecurityContextSupport(securityContext);
+		assertThat(support.wrap(callable)).isSameAs(wrappedCallable);
+		assertThat(securityContextCaptor.getValue()).isSameAs(securityContext);
+	}
 
-    @Test
-    public void wrapCallableNullSecurityContext() throws Exception {
-        currentSecurityContextPowermockSetup();
-        support = new ConcreteDelegatingSecurityContextSupport(null);
-        assertThat(support.wrap(callable)).isSameAs(wrappedCallable);
-    }
+	@Test
+	public void wrapCallableNullSecurityContext() throws Exception {
+		currentSecurityContextPowermockSetup();
+		support = new ConcreteDelegatingSecurityContextSupport(null);
+		assertThat(support.wrap(callable)).isSameAs(wrappedCallable);
+	}
 
-    @Test
-    public void wrapRunnable() throws Exception {
-        explicitSecurityContextPowermockSetup();
-        support = new ConcreteDelegatingSecurityContextSupport(securityContext);
-        assertThat(support.wrap(runnable)).isSameAs(wrappedRunnable);
-        assertThat(securityContextCaptor.getValue()).isSameAs(securityContext);
-    }
+	@Test
+	public void wrapRunnable() throws Exception {
+		explicitSecurityContextPowermockSetup();
+		support = new ConcreteDelegatingSecurityContextSupport(securityContext);
+		assertThat(support.wrap(runnable)).isSameAs(wrappedRunnable);
+		assertThat(securityContextCaptor.getValue()).isSameAs(securityContext);
+	}
 
-    @Test
-    public void wrapRunnableNullSecurityContext() throws Exception {
-        currentSecurityContextPowermockSetup();
-        support = new ConcreteDelegatingSecurityContextSupport(null);
-        assertThat(support.wrap(runnable)).isSameAs(wrappedRunnable);
-    }
+	@Test
+	public void wrapRunnableNullSecurityContext() throws Exception {
+		currentSecurityContextPowermockSetup();
+		support = new ConcreteDelegatingSecurityContextSupport(null);
+		assertThat(support.wrap(runnable)).isSameAs(wrappedRunnable);
+	}
 
-    private static class ConcreteDelegatingSecurityContextSupport extends AbstractDelegatingSecurityContextSupport {
-        public ConcreteDelegatingSecurityContextSupport(SecurityContext securityContext) {
-            super(securityContext);
-        }
-    }
+	private static class ConcreteDelegatingSecurityContextSupport extends
+			AbstractDelegatingSecurityContextSupport {
+		public ConcreteDelegatingSecurityContextSupport(SecurityContext securityContext) {
+			super(securityContext);
+		}
+	}
 }

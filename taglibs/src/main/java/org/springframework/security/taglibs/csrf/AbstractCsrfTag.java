@@ -30,20 +30,22 @@ import java.io.IOException;
  */
 abstract class AbstractCsrfTag extends TagSupport {
 
-    @Override
-    public int doEndTag() throws JspException {
+	@Override
+	public int doEndTag() throws JspException {
 
-        CsrfToken token = (CsrfToken)this.pageContext.getRequest().getAttribute(CsrfToken.class.getName());
-        if (token != null) {
-            try {
-                this.pageContext.getOut().write(this.handleToken(token));
-            } catch (IOException e) {
-                throw new JspException(e);
-            }
-        }
+		CsrfToken token = (CsrfToken) this.pageContext.getRequest().getAttribute(
+				CsrfToken.class.getName());
+		if (token != null) {
+			try {
+				this.pageContext.getOut().write(this.handleToken(token));
+			}
+			catch (IOException e) {
+				throw new JspException(e);
+			}
+		}
 
-        return EVAL_PAGE;
-    }
+		return EVAL_PAGE;
+	}
 
-    protected abstract String handleToken(CsrfToken token);
+	protected abstract String handleToken(CsrfToken token);
 }

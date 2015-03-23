@@ -27,112 +27,122 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.channel.SecureChannelProcessor;
 
-
 /**
  * Tests {@link SecureChannelProcessor}.
  *
  * @author Ben Alex
  */
 public class SecureChannelProcessorTests extends TestCase {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public void testDecideDetectsAcceptableChannel() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setQueryString("info=true");
-        request.setServerName("localhost");
-        request.setContextPath("/bigapp");
-        request.setServletPath("/servlet");
-        request.setScheme("https");
-        request.setSecure(true);
-        request.setServerPort(8443);
+	public void testDecideDetectsAcceptableChannel() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setQueryString("info=true");
+		request.setServerName("localhost");
+		request.setContextPath("/bigapp");
+		request.setServletPath("/servlet");
+		request.setScheme("https");
+		request.setSecure(true);
+		request.setServerPort(8443);
 
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterInvocation fi = new FilterInvocation(request, response,
+				mock(FilterChain.class));
 
-        SecureChannelProcessor processor = new SecureChannelProcessor();
-        processor.decide(fi, SecurityConfig.createList("SOME_IGNORED_ATTRIBUTE", "REQUIRES_SECURE_CHANNEL"));
+		SecureChannelProcessor processor = new SecureChannelProcessor();
+		processor.decide(fi, SecurityConfig.createList("SOME_IGNORED_ATTRIBUTE",
+				"REQUIRES_SECURE_CHANNEL"));
 
-        assertFalse(fi.getResponse().isCommitted());
-    }
+		assertFalse(fi.getResponse().isCommitted());
+	}
 
-    public void testDecideDetectsUnacceptableChannel() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setQueryString("info=true");
-        request.setServerName("localhost");
-        request.setContextPath("/bigapp");
-        request.setServletPath("/servlet");
-        request.setScheme("http");
-        request.setServerPort(8080);
+	public void testDecideDetectsUnacceptableChannel() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setQueryString("info=true");
+		request.setServerName("localhost");
+		request.setContextPath("/bigapp");
+		request.setServletPath("/servlet");
+		request.setScheme("http");
+		request.setServerPort(8080);
 
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterInvocation fi = new FilterInvocation(request, response,
+				mock(FilterChain.class));
 
-        SecureChannelProcessor processor = new SecureChannelProcessor();
-        processor.decide(fi, SecurityConfig.createList(new String[]{"SOME_IGNORED_ATTRIBUTE", "REQUIRES_SECURE_CHANNEL"}));
+		SecureChannelProcessor processor = new SecureChannelProcessor();
+		processor.decide(
+				fi,
+				SecurityConfig.createList(new String[] { "SOME_IGNORED_ATTRIBUTE",
+						"REQUIRES_SECURE_CHANNEL" }));
 
-        assertTrue(fi.getResponse().isCommitted());
-    }
+		assertTrue(fi.getResponse().isCommitted());
+	}
 
-    public void testDecideRejectsNulls() throws Exception {
-        SecureChannelProcessor processor = new SecureChannelProcessor();
-        processor.afterPropertiesSet();
+	public void testDecideRejectsNulls() throws Exception {
+		SecureChannelProcessor processor = new SecureChannelProcessor();
+		processor.afterPropertiesSet();
 
-        try {
-            processor.decide(null, null);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-    }
+		try {
+			processor.decide(null, null);
+			fail("Should have thrown IllegalArgumentException");
+		}
+		catch (IllegalArgumentException expected) {
+			assertTrue(true);
+		}
+	}
 
-    public void testGettersSetters() {
-        SecureChannelProcessor processor = new SecureChannelProcessor();
-        assertEquals("REQUIRES_SECURE_CHANNEL", processor.getSecureKeyword());
-        processor.setSecureKeyword("X");
-        assertEquals("X", processor.getSecureKeyword());
+	public void testGettersSetters() {
+		SecureChannelProcessor processor = new SecureChannelProcessor();
+		assertEquals("REQUIRES_SECURE_CHANNEL", processor.getSecureKeyword());
+		processor.setSecureKeyword("X");
+		assertEquals("X", processor.getSecureKeyword());
 
-        assertTrue(processor.getEntryPoint() != null);
-        processor.setEntryPoint(null);
-        assertTrue(processor.getEntryPoint() == null);
-    }
+		assertTrue(processor.getEntryPoint() != null);
+		processor.setEntryPoint(null);
+		assertTrue(processor.getEntryPoint() == null);
+	}
 
-    public void testMissingEntryPoint() throws Exception {
-        SecureChannelProcessor processor = new SecureChannelProcessor();
-        processor.setEntryPoint(null);
+	public void testMissingEntryPoint() throws Exception {
+		SecureChannelProcessor processor = new SecureChannelProcessor();
+		processor.setEntryPoint(null);
 
-        try {
-            processor.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("entryPoint required", expected.getMessage());
-        }
-    }
+		try {
+			processor.afterPropertiesSet();
+			fail("Should have thrown IllegalArgumentException");
+		}
+		catch (IllegalArgumentException expected) {
+			assertEquals("entryPoint required", expected.getMessage());
+		}
+	}
 
-    public void testMissingSecureChannelKeyword() throws Exception {
-        SecureChannelProcessor processor = new SecureChannelProcessor();
-        processor.setSecureKeyword(null);
+	public void testMissingSecureChannelKeyword() throws Exception {
+		SecureChannelProcessor processor = new SecureChannelProcessor();
+		processor.setSecureKeyword(null);
 
-        try {
-            processor.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("secureKeyword required", expected.getMessage());
-        }
+		try {
+			processor.afterPropertiesSet();
+			fail("Should have thrown IllegalArgumentException");
+		}
+		catch (IllegalArgumentException expected) {
+			assertEquals("secureKeyword required", expected.getMessage());
+		}
 
-        processor.setSecureKeyword("");
+		processor.setSecureKeyword("");
 
-        try {
-            processor.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("secureKeyword required", expected.getMessage());
-        }
-    }
+		try {
+			processor.afterPropertiesSet();
+			fail("Should have thrown IllegalArgumentException");
+		}
+		catch (IllegalArgumentException expected) {
+			assertEquals("secureKeyword required", expected.getMessage());
+		}
+	}
 
-    public void testSupports() {
-        SecureChannelProcessor processor = new SecureChannelProcessor();
-        assertTrue(processor.supports(new SecurityConfig("REQUIRES_SECURE_CHANNEL")));
-        assertFalse(processor.supports(null));
-        assertFalse(processor.supports(new SecurityConfig("NOT_SUPPORTED")));
-    }
+	public void testSupports() {
+		SecureChannelProcessor processor = new SecureChannelProcessor();
+		assertTrue(processor.supports(new SecurityConfig("REQUIRES_SECURE_CHANNEL")));
+		assertFalse(processor.supports(null));
+		assertFalse(processor.supports(new SecurityConfig("NOT_SUPPORTED")));
+	}
 }

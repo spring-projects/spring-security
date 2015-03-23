@@ -23,30 +23,32 @@ import org.springframework.security.core.SpringSecurityMessageSource;
 
 import java.util.Locale;
 
-
 /**
  * Tests {@link org.springframework.security.core.SpringSecurityMessageSource}.
  */
 public class SpringSecurityMessageSourceTests extends TestCase {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public void testOperation() {
-        SpringSecurityMessageSource msgs = new SpringSecurityMessageSource();
-        assertEquals("\u4E0D\u5141\u8BB8\u8BBF\u95EE", msgs.getMessage("AbstractAccessDecisionManager.accessDenied", null, Locale.SIMPLIFIED_CHINESE));
-    }
+	public void testOperation() {
+		SpringSecurityMessageSource msgs = new SpringSecurityMessageSource();
+		assertEquals("\u4E0D\u5141\u8BB8\u8BBF\u95EE", msgs.getMessage(
+				"AbstractAccessDecisionManager.accessDenied", null,
+				Locale.SIMPLIFIED_CHINESE));
+	}
 
-    public void testReplacableLookup() {
-        // Change Locale to English
-        Locale before = LocaleContextHolder.getLocale();
-        LocaleContextHolder.setLocale(Locale.FRENCH);
+	public void testReplacableLookup() {
+		// Change Locale to English
+		Locale before = LocaleContextHolder.getLocale();
+		LocaleContextHolder.setLocale(Locale.FRENCH);
 
-        // Cause a message to be generated
-        MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
-        assertEquals("Le jeton nonce est compromis FOOBAR",
-            messages.getMessage("DigestAuthenticationFilter.nonceCompromised", new Object[] {"FOOBAR"},
-                "ERROR - FAILED TO LOOKUP"));
+		// Cause a message to be generated
+		MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+		assertEquals("Le jeton nonce est compromis FOOBAR", messages.getMessage(
+				"DigestAuthenticationFilter.nonceCompromised", new Object[] { "FOOBAR" },
+				"ERROR - FAILED TO LOOKUP"));
 
-        // Revert to original Locale
-        LocaleContextHolder.setLocale(before);
-    }
+		// Revert to original Locale
+		LocaleContextHolder.setLocale(before);
+	}
 }

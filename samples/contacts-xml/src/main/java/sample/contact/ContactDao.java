@@ -17,26 +17,26 @@ package sample.contact;
 
 import java.util.List;
 
-
 /**
  * Provides access to the application's persistence layer.
  *
  * @author Ben Alex
  */
 public interface ContactDao {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public void create(Contact contact);
+	public void create(Contact contact);
 
-    public void delete(Long contactId);
+	public void delete(Long contactId);
 
-    public List<Contact> findAll();
+	public List<Contact> findAll();
 
-    public List<String> findAllPrincipals();
+	public List<String> findAllPrincipals();
 
-    public List<String> findAllRoles();
+	public List<String> findAllRoles();
 
-    public Contact getById(Long id);
+	public Contact getById(Long id);
 
-    public void update(Contact contact);
+	public void update(Contact contact);
 }

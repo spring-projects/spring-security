@@ -29,123 +29,144 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 
 /**
- * Configures Anonymous authentication (i.e. populate an {@link Authentication} that represents an anonymous user
- * instead of having a null value) for an {@link HttpSecurity}. Specifically this will configure an
- * {@link AnonymousAuthenticationFilter} and an {@link AnonymousAuthenticationProvider}. All properties have reasonable
- * defaults, so no additional configuration is required other than applying this {@link SecurityConfigurer}.
+ * Configures Anonymous authentication (i.e. populate an {@link Authentication} that
+ * represents an anonymous user instead of having a null value) for an
+ * {@link HttpSecurity}. Specifically this will configure an
+ * {@link AnonymousAuthenticationFilter} and an {@link AnonymousAuthenticationProvider}.
+ * All properties have reasonable defaults, so no additional configuration is required
+ * other than applying this {@link SecurityConfigurer}.
  *
- * @author  Rob Winch
- * @since  3.2
+ * @author Rob Winch
+ * @since 3.2
  */
-public final class AnonymousConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<AnonymousConfigurer<H>,H> {
-    private String key;
-    private AuthenticationProvider authenticationProvider;
-    private AnonymousAuthenticationFilter authenticationFilter;
-    private Object principal = "anonymousUser";
-    private List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS");
+public final class AnonymousConfigurer<H extends HttpSecurityBuilder<H>> extends
+		AbstractHttpConfigurer<AnonymousConfigurer<H>, H> {
+	private String key;
+	private AuthenticationProvider authenticationProvider;
+	private AnonymousAuthenticationFilter authenticationFilter;
+	private Object principal = "anonymousUser";
+	private List<GrantedAuthority> authorities = AuthorityUtils
+			.createAuthorityList("ROLE_ANONYMOUS");
 
-    /**
-     * Creates a new instance
-     * @see HttpSecurity#anonymous()
-     */
-    public AnonymousConfigurer() {
-    }
+	/**
+	 * Creates a new instance
+	 * @see HttpSecurity#anonymous()
+	 */
+	public AnonymousConfigurer() {
+	}
 
-    /**
-     * Sets the key to identify tokens created for anonymous authentication. Default is a secure randomly generated
-     * key.
-     *
-     * @param key the key to identify tokens created for anonymous authentication. Default is a secure randomly generated
-     *            key.
-     * @return  the {@link AnonymousConfigurer} for further customization of anonymous authentication
-     */
-    public AnonymousConfigurer<H> key(String key) {
-        this.key = key;
-        return this;
-    }
+	/**
+	 * Sets the key to identify tokens created for anonymous authentication. Default is a
+	 * secure randomly generated key.
+	 *
+	 * @param key the key to identify tokens created for anonymous authentication. Default
+	 * is a secure randomly generated key.
+	 * @return the {@link AnonymousConfigurer} for further customization of anonymous
+	 * authentication
+	 */
+	public AnonymousConfigurer<H> key(String key) {
+		this.key = key;
+		return this;
+	}
 
-    /**
-     * Sets the principal for {@link Authentication} objects of anonymous users
-     *
-     * @param principal used for the {@link Authentication} object of anonymous users
-     * @return  the {@link AnonymousConfigurer} for further customization of anonymous authentication
-     */
-    public AnonymousConfigurer<H> principal(Object principal) {
-        this.principal = principal;
-        return this;
-    }
+	/**
+	 * Sets the principal for {@link Authentication} objects of anonymous users
+	 *
+	 * @param principal used for the {@link Authentication} object of anonymous users
+	 * @return the {@link AnonymousConfigurer} for further customization of anonymous
+	 * authentication
+	 */
+	public AnonymousConfigurer<H> principal(Object principal) {
+		this.principal = principal;
+		return this;
+	}
 
-    /**
-     * Sets the {@link org.springframework.security.core.Authentication#getAuthorities()} for anonymous users
-     *
-     * @param authorities Sets the {@link org.springframework.security.core.Authentication#getAuthorities()} for anonymous users
-     * @return the {@link AnonymousConfigurer} for further customization of anonymous authentication
-     */
-    public AnonymousConfigurer<H> authorities(List<GrantedAuthority> authorities) {
-        this.authorities = authorities;
-        return this;
-    }
+	/**
+	 * Sets the {@link org.springframework.security.core.Authentication#getAuthorities()}
+	 * for anonymous users
+	 *
+	 * @param authorities Sets the
+	 * {@link org.springframework.security.core.Authentication#getAuthorities()} for
+	 * anonymous users
+	 * @return the {@link AnonymousConfigurer} for further customization of anonymous
+	 * authentication
+	 */
+	public AnonymousConfigurer<H> authorities(List<GrantedAuthority> authorities) {
+		this.authorities = authorities;
+		return this;
+	}
 
-    /**
-     * Sets the {@link org.springframework.security.core.Authentication#getAuthorities()} for anonymous users
-     *
-     * @param authorities Sets the {@link org.springframework.security.core.Authentication#getAuthorities()} for
-     *                    anonymous users (i.e. "ROLE_ANONYMOUS")
-     * @return the {@link AnonymousConfigurer} for further customization of anonymous authentication
-     */
-    public AnonymousConfigurer<H> authorities(String... authorities) {
-        return authorities(AuthorityUtils.createAuthorityList(authorities));
-    }
+	/**
+	 * Sets the {@link org.springframework.security.core.Authentication#getAuthorities()}
+	 * for anonymous users
+	 *
+	 * @param authorities Sets the
+	 * {@link org.springframework.security.core.Authentication#getAuthorities()} for
+	 * anonymous users (i.e. "ROLE_ANONYMOUS")
+	 * @return the {@link AnonymousConfigurer} for further customization of anonymous
+	 * authentication
+	 */
+	public AnonymousConfigurer<H> authorities(String... authorities) {
+		return authorities(AuthorityUtils.createAuthorityList(authorities));
+	}
 
-    /**
-     * Sets the {@link AuthenticationProvider} used to validate an anonymous user. If this is set, no attributes
-     * on the {@link AnonymousConfigurer} will be set on the {@link AuthenticationProvider}.
-     *
-     * @param authenticationProvider the {@link AuthenticationProvider} used to validate an anonymous user. Default is
-     *                               {@link AnonymousAuthenticationProvider}
-     *
-     * @return the {@link AnonymousConfigurer} for further customization of anonymous authentication
-     */
-    public AnonymousConfigurer<H> authenticationProvider(AuthenticationProvider authenticationProvider) {
-        this.authenticationProvider = authenticationProvider;
-        return this;
-    }
+	/**
+	 * Sets the {@link AuthenticationProvider} used to validate an anonymous user. If this
+	 * is set, no attributes on the {@link AnonymousConfigurer} will be set on the
+	 * {@link AuthenticationProvider}.
+	 *
+	 * @param authenticationProvider the {@link AuthenticationProvider} used to validate
+	 * an anonymous user. Default is {@link AnonymousAuthenticationProvider}
+	 *
+	 * @return the {@link AnonymousConfigurer} for further customization of anonymous
+	 * authentication
+	 */
+	public AnonymousConfigurer<H> authenticationProvider(
+			AuthenticationProvider authenticationProvider) {
+		this.authenticationProvider = authenticationProvider;
+		return this;
+	}
 
-    /**
-     * Sets the {@link AnonymousAuthenticationFilter} used to populate an anonymous user. If this is set, no attributes
-     * on the {@link AnonymousConfigurer} will be set on the {@link AnonymousAuthenticationFilter}.
-     *
-     * @param authenticationFilter the {@link AnonymousAuthenticationFilter} used to populate an anonymous user.
-     *
-     * @return the {@link AnonymousConfigurer} for further customization of anonymous authentication
-     */
-    public AnonymousConfigurer<H> authenticationFilter(AnonymousAuthenticationFilter authenticationFilter) {
-        this.authenticationFilter = authenticationFilter;
-        return this;
-    }
+	/**
+	 * Sets the {@link AnonymousAuthenticationFilter} used to populate an anonymous user.
+	 * If this is set, no attributes on the {@link AnonymousConfigurer} will be set on the
+	 * {@link AnonymousAuthenticationFilter}.
+	 *
+	 * @param authenticationFilter the {@link AnonymousAuthenticationFilter} used to
+	 * populate an anonymous user.
+	 *
+	 * @return the {@link AnonymousConfigurer} for further customization of anonymous
+	 * authentication
+	 */
+	public AnonymousConfigurer<H> authenticationFilter(
+			AnonymousAuthenticationFilter authenticationFilter) {
+		this.authenticationFilter = authenticationFilter;
+		return this;
+	}
 
-    @Override
-    public void init(H http) throws Exception {
-        if(authenticationProvider == null) {
-            authenticationProvider = new AnonymousAuthenticationProvider(getKey());
-        }
-        if(authenticationFilter == null) {
-            authenticationFilter = new AnonymousAuthenticationFilter(getKey(), principal, authorities);
-        }
-        authenticationProvider = postProcess(authenticationProvider);
-        http.authenticationProvider(authenticationProvider);
-    }
+	@Override
+	public void init(H http) throws Exception {
+		if (authenticationProvider == null) {
+			authenticationProvider = new AnonymousAuthenticationProvider(getKey());
+		}
+		if (authenticationFilter == null) {
+			authenticationFilter = new AnonymousAuthenticationFilter(getKey(), principal,
+					authorities);
+		}
+		authenticationProvider = postProcess(authenticationProvider);
+		http.authenticationProvider(authenticationProvider);
+	}
 
-    @Override
-    public void configure(H http) throws Exception {
-        authenticationFilter.afterPropertiesSet();
-        http.addFilter(authenticationFilter);
-    }
+	@Override
+	public void configure(H http) throws Exception {
+		authenticationFilter.afterPropertiesSet();
+		http.addFilter(authenticationFilter);
+	}
 
-    private String getKey() {
-        if(key == null) {
-            key = UUID.randomUUID().toString();
-        }
-        return key;
-    }
+	private String getKey() {
+		if (key == null) {
+			key = UUID.randomUUID().toString();
+		}
+		return key;
+	}
 }

@@ -20,42 +20,40 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = "classpath:org/springframework/security/web/authentication/DelegatingAuthenticationEntryPointTest-context.xml")
 public class DelegatingAuthenticationEntryPointContextTests {
 
-    @Autowired
-    private DelegatingAuthenticationEntryPoint daep;
+	@Autowired
+	private DelegatingAuthenticationEntryPoint daep;
 
-    @Autowired
-    @Qualifier("firstAEP")
-    private AuthenticationEntryPoint firstAEP;
+	@Autowired
+	@Qualifier("firstAEP")
+	private AuthenticationEntryPoint firstAEP;
 
-    @Autowired
-    @Qualifier("defaultAEP")
-    private AuthenticationEntryPoint defaultAEP;
+	@Autowired
+	@Qualifier("defaultAEP")
+	private AuthenticationEntryPoint defaultAEP;
 
-    @Test
-    @DirtiesContext
-    public void testFirstAEP() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRemoteAddr("192.168.1.10");
-        request.addHeader("User-Agent", "Mozilla/5.0");
-        daep.commence(request, null, null);
-        verify(firstAEP).commence(request, null, null);
-        verify(defaultAEP, never()).commence(any(HttpServletRequest.class),
-                any(HttpServletResponse.class),
-                any(AuthenticationException.class));
+	@Test
+	@DirtiesContext
+	public void testFirstAEP() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRemoteAddr("192.168.1.10");
+		request.addHeader("User-Agent", "Mozilla/5.0");
+		daep.commence(request, null, null);
+		verify(firstAEP).commence(request, null, null);
+		verify(defaultAEP, never()).commence(any(HttpServletRequest.class),
+				any(HttpServletResponse.class), any(AuthenticationException.class));
 
-    }
+	}
 
-    @Test
-    @DirtiesContext
-    public void testDefaultAEP() throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setRemoteAddr("192.168.1.10");
-        daep.commence(request, null, null);
-        verify(defaultAEP).commence(request, null, null);
-        verify(firstAEP, never()).commence(any(HttpServletRequest.class),
-                any(HttpServletResponse.class),
-                any(AuthenticationException.class));
+	@Test
+	@DirtiesContext
+	public void testDefaultAEP() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRemoteAddr("192.168.1.10");
+		daep.commence(request, null, null);
+		verify(defaultAEP).commence(request, null, null);
+		verify(firstAEP, never()).commence(any(HttpServletRequest.class),
+				any(HttpServletResponse.class), any(AuthenticationException.class));
 
-    }
+	}
 
 }

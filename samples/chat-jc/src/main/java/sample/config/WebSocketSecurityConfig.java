@@ -26,24 +26,27 @@ import static org.springframework.messaging.simp.SimpMessageType.SUBSCRIBE;
  * @author Rob Winch
  */
 @Configuration
-public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
+public class WebSocketSecurityConfig extends
+		AbstractSecurityWebSocketMessageBrokerConfigurer {
 
-    protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
-        messages
-            // message types other than MESSAGE and SUBSCRIBE
-            .nullDestMatcher().authenticated()
-            // anyone can subscribe to the errors
-            .simpSubscribeDestMatchers("/user/queue/errors").permitAll()
-            // matches any destination that starts with /app/
-            .simpDestMatchers("/app/**").authenticated()
-            // matches any destination for SimpMessageType.SUBSCRIBE that starts with /user/ or /topic/friends/
-            .simpSubscribeDestMatchers("/user/**", "/topic/friends/*").authenticated()
+	protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
+		messages
+		// message types other than MESSAGE and SUBSCRIBE
+		.nullDestMatcher().authenticated()
+				// anyone can subscribe to the errors
+				.simpSubscribeDestMatchers("/user/queue/errors").permitAll()
+				// matches any destination that starts with /app/
+				.simpDestMatchers("/app/**").authenticated()
+				// matches any destination for SimpMessageType.SUBSCRIBE that starts with
+				// /user/ or /topic/friends/
+				.simpSubscribeDestMatchers("/user/**", "/topic/friends/*")
+				.authenticated()
 
-
-            // (i.e. cannot send messages directly to /topic/, /queue/)
-            // (i.e. cannot subscribe to /topic/messages/* to get messages sent to /topic/messages-user<id>)
-            .simpTypeMatchers(MESSAGE, SUBSCRIBE).denyAll()
-            // catch all
-            .anyMessage().denyAll();
-    }
+				// (i.e. cannot send messages directly to /topic/, /queue/)
+				// (i.e. cannot subscribe to /topic/messages/* to get messages sent to
+				// /topic/messages-user<id>)
+				.simpTypeMatchers(MESSAGE, SUBSCRIBE).denyAll()
+				// catch all
+				.anyMessage().denyAll();
+	}
 }

@@ -22,22 +22,22 @@ import java.util.Set;
 
 import org.springframework.security.authentication.jaas.AuthorityGranter;
 
-
 /**
  *
  * @author Ray Krueger
  */
 public class TestAuthorityGranter implements AuthorityGranter {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public Set<String> grant(Principal principal) {
-        Set<String> rtnSet = new HashSet<String>();
+	public Set<String> grant(Principal principal) {
+		Set<String> rtnSet = new HashSet<String>();
 
-        if (principal.getName().equals("TEST_PRINCIPAL")) {
-            rtnSet.add("ROLE_TEST1");
-            rtnSet.add("ROLE_TEST2");
-        }
+		if (principal.getName().equals("TEST_PRINCIPAL")) {
+			rtnSet.add("ROLE_TEST1");
+			rtnSet.add("ROLE_TEST2");
+		}
 
-        return rtnSet;
-    }
+		return rtnSet;
+	}
 }

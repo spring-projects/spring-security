@@ -41,26 +41,27 @@ import org.springframework.core.type.AnnotationMetadata;
  * @since 3.2
  */
 class GlobalMethodSecurityAspectJAutoProxyRegistrar implements
-        ImportBeanDefinitionRegistrar {
+		ImportBeanDefinitionRegistrar {
 
-    /**
-     * Register, escalate, and configure the AspectJ auto proxy creator based on
-     * the value of the @{@link EnableGlobalMethodSecurity#proxyTargetClass()}
-     * attribute on the importing {@code @Configuration} class.
-     */
-    public void registerBeanDefinitions(
-            AnnotationMetadata importingClassMetadata,
-            BeanDefinitionRegistry registry) {
+	/**
+	 * Register, escalate, and configure the AspectJ auto proxy creator based on the value
+	 * of the @{@link EnableGlobalMethodSecurity#proxyTargetClass()} attribute on the
+	 * importing {@code @Configuration} class.
+	 */
+	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata,
+			BeanDefinitionRegistry registry) {
 
-        BeanDefinition interceptor = registry.getBeanDefinition("methodSecurityInterceptor");
+		BeanDefinition interceptor = registry
+				.getBeanDefinition("methodSecurityInterceptor");
 
-        BeanDefinitionBuilder aspect =
-                BeanDefinitionBuilder.rootBeanDefinition("org.springframework.security.access.intercept.aspectj.aspect.AnnotationSecurityAspect");
-        aspect.setFactoryMethod("aspectOf");
-        aspect.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-        aspect.addPropertyValue("securityInterceptor", interceptor);
+		BeanDefinitionBuilder aspect = BeanDefinitionBuilder
+				.rootBeanDefinition("org.springframework.security.access.intercept.aspectj.aspect.AnnotationSecurityAspect");
+		aspect.setFactoryMethod("aspectOf");
+		aspect.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+		aspect.addPropertyValue("securityInterceptor", interceptor);
 
-        registry.registerBeanDefinition("annotationSecurityAspect$0", aspect.getBeanDefinition());
-    }
+		registry.registerBeanDefinition("annotationSecurityAspect$0",
+				aspect.getBeanDefinition());
+	}
 
 }

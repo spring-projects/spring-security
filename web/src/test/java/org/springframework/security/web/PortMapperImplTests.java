@@ -22,76 +22,83 @@ import java.util.Map;
 
 import org.springframework.security.web.PortMapperImpl;
 
-
 /**
  * Tests {@link PortMapperImpl}.
  *
  * @author Ben Alex
  */
 public class PortMapperImplTests extends TestCase {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public void testDefaultMappingsAreKnown() throws Exception {
-        PortMapperImpl portMapper = new PortMapperImpl();
-        assertEquals(Integer.valueOf(80), portMapper.lookupHttpPort(Integer.valueOf(443)));
-        assertEquals(Integer.valueOf(8080), portMapper.lookupHttpPort(Integer.valueOf(8443)));
-        assertEquals(Integer.valueOf(443), portMapper.lookupHttpsPort(Integer.valueOf(80)));
-        assertEquals(Integer.valueOf(8443), portMapper.lookupHttpsPort(Integer.valueOf(8080)));
-    }
+	public void testDefaultMappingsAreKnown() throws Exception {
+		PortMapperImpl portMapper = new PortMapperImpl();
+		assertEquals(Integer.valueOf(80), portMapper.lookupHttpPort(Integer.valueOf(443)));
+		assertEquals(Integer.valueOf(8080),
+				portMapper.lookupHttpPort(Integer.valueOf(8443)));
+		assertEquals(Integer.valueOf(443),
+				portMapper.lookupHttpsPort(Integer.valueOf(80)));
+		assertEquals(Integer.valueOf(8443),
+				portMapper.lookupHttpsPort(Integer.valueOf(8080)));
+	}
 
-    public void testDetectsEmptyMap() throws Exception {
-        PortMapperImpl portMapper = new PortMapperImpl();
+	public void testDetectsEmptyMap() throws Exception {
+		PortMapperImpl portMapper = new PortMapperImpl();
 
-        try {
-            portMapper.setPortMappings(new HashMap<String,String>());
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-    }
+		try {
+			portMapper.setPortMappings(new HashMap<String, String>());
+			fail("Should have thrown IllegalArgumentException");
+		}
+		catch (IllegalArgumentException expected) {
+			assertTrue(true);
+		}
+	}
 
-    public void testDetectsNullMap() throws Exception {
-        PortMapperImpl portMapper = new PortMapperImpl();
+	public void testDetectsNullMap() throws Exception {
+		PortMapperImpl portMapper = new PortMapperImpl();
 
-        try {
-            portMapper.setPortMappings(null);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-    }
+		try {
+			portMapper.setPortMappings(null);
+			fail("Should have thrown IllegalArgumentException");
+		}
+		catch (IllegalArgumentException expected) {
+			assertTrue(true);
+		}
+	}
 
-    public void testGetTranslatedPortMappings() {
-        PortMapperImpl portMapper = new PortMapperImpl();
-        assertEquals(2, portMapper.getTranslatedPortMappings().size());
-    }
+	public void testGetTranslatedPortMappings() {
+		PortMapperImpl portMapper = new PortMapperImpl();
+		assertEquals(2, portMapper.getTranslatedPortMappings().size());
+	}
 
-    public void testRejectsOutOfRangeMappings() {
-        PortMapperImpl portMapper = new PortMapperImpl();
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("79", "80559");
+	public void testRejectsOutOfRangeMappings() {
+		PortMapperImpl portMapper = new PortMapperImpl();
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("79", "80559");
 
-        try {
-            portMapper.setPortMappings(map);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-    }
+		try {
+			portMapper.setPortMappings(map);
+			fail("Should have thrown IllegalArgumentException");
+		}
+		catch (IllegalArgumentException expected) {
+			assertTrue(true);
+		}
+	}
 
-    public void testReturnsNullIfHttpPortCannotBeFound() {
-        PortMapperImpl portMapper = new PortMapperImpl();
-        assertTrue(portMapper.lookupHttpPort(Integer.valueOf("34343")) == null);
-    }
+	public void testReturnsNullIfHttpPortCannotBeFound() {
+		PortMapperImpl portMapper = new PortMapperImpl();
+		assertTrue(portMapper.lookupHttpPort(Integer.valueOf("34343")) == null);
+	}
 
-    public void testSupportsCustomMappings() {
-        PortMapperImpl portMapper = new PortMapperImpl();
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("79", "442");
+	public void testSupportsCustomMappings() {
+		PortMapperImpl portMapper = new PortMapperImpl();
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("79", "442");
 
-        portMapper.setPortMappings(map);
+		portMapper.setPortMappings(map);
 
-        assertEquals(Integer.valueOf(79), portMapper.lookupHttpPort(Integer.valueOf(442)));
-        assertEquals(Integer.valueOf(442), portMapper.lookupHttpsPort(Integer.valueOf(79)));
-    }
+		assertEquals(Integer.valueOf(79), portMapper.lookupHttpPort(Integer.valueOf(442)));
+		assertEquals(Integer.valueOf(442),
+				portMapper.lookupHttpsPort(Integer.valueOf(79)));
+	}
 }

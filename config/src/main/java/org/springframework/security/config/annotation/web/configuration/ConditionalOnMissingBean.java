@@ -9,5 +9,5 @@ import org.springframework.context.annotation.Conditional;
 @Conditional(OnMissingBeanCondition.class)
 @interface ConditionalOnMissingBean {
 
-    Class<?> value();
+	Class<?> value();
 }

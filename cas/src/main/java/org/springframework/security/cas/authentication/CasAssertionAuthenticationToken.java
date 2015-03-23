@@ -29,28 +29,28 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
  */
 public final class CasAssertionAuthenticationToken extends AbstractAuthenticationToken {
 
-    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-    private final Assertion assertion;
+	private final Assertion assertion;
 
-    private final String ticket;
+	private final String ticket;
 
-    public CasAssertionAuthenticationToken(final Assertion assertion, final String ticket) {
-        super(new ArrayList<GrantedAuthority>());
+	public CasAssertionAuthenticationToken(final Assertion assertion, final String ticket) {
+		super(new ArrayList<GrantedAuthority>());
 
-        this.assertion = assertion;
-        this.ticket = ticket;
-    }
+		this.assertion = assertion;
+		this.ticket = ticket;
+	}
 
-    public Object getPrincipal() {
-        return this.assertion.getPrincipal().getName();
-    }
+	public Object getPrincipal() {
+		return this.assertion.getPrincipal().getName();
+	}
 
-    public Object getCredentials() {
-        return this.ticket;
-    }
+	public Object getCredentials() {
+		return this.ticket;
+	}
 
-    public Assertion getAssertion() {
-        return this.assertion;
-    }
+	public Assertion getAssertion() {
+		return this.assertion;
+	}
 }

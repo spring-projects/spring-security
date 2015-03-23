@@ -22,8 +22,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * {@code HeaderWriter} implementation for the X-Frame-Options headers. When using the ALLOW-FROM directive the actual
- * value is determined by a {@code AllowFromStrategy}.
+ * {@code HeaderWriter} implementation for the X-Frame-Options headers. When using the
+ * ALLOW-FROM directive the actual value is determined by a {@code AllowFromStrategy}.
  *
  * @author Marten Deinum
  * @author Rob Winch
@@ -33,85 +33,83 @@ import javax.servlet.http.HttpServletResponse;
  */
 public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 
-    public static final String XFRAME_OPTIONS_HEADER = "X-Frame-Options";
+	public static final String XFRAME_OPTIONS_HEADER = "X-Frame-Options";
 
-    private final AllowFromStrategy allowFromStrategy;
-    private final XFrameOptionsMode frameOptionsMode;
+	private final AllowFromStrategy allowFromStrategy;
+	private final XFrameOptionsMode frameOptionsMode;
 
-    /**
-     * Creates an instance with {@link XFrameOptionsMode#DENY}
-     */
-    public XFrameOptionsHeaderWriter() {
-        this(XFrameOptionsMode.DENY);
-    }
+	/**
+	 * Creates an instance with {@link XFrameOptionsMode#DENY}
+	 */
+	public XFrameOptionsHeaderWriter() {
+		this(XFrameOptionsMode.DENY);
+	}
 
-    /**
-     * Creates a new instance
-     *
-     * @param frameOptionsMode
-     *            the {@link XFrameOptionsMode} to use. If using
-     *            {@link XFrameOptionsMode#ALLOW_FROM}, use
-     *            {@link #FrameOptionsHeaderWriter(AllowFromStrategy)}
-     *            instead.
-     */
-    public XFrameOptionsHeaderWriter(XFrameOptionsMode frameOptionsMode) {
-        Assert.notNull(frameOptionsMode, "frameOptionsMode cannot be null");
-        if(XFrameOptionsMode.ALLOW_FROM.equals(frameOptionsMode)) {
-            throw new IllegalArgumentException(
-                    "ALLOW_FROM requires an AllowFromStrategy. Please use FrameOptionsHeaderWriter(AllowFromStrategy allowFromStrategy) instead");
-        }
-        this.frameOptionsMode = frameOptionsMode;
-        this.allowFromStrategy = null;
-    }
+	/**
+	 * Creates a new instance
+	 *
+	 * @param frameOptionsMode the {@link XFrameOptionsMode} to use. If using
+	 * {@link XFrameOptionsMode#ALLOW_FROM}, use
+	 * {@link #FrameOptionsHeaderWriter(AllowFromStrategy)} instead.
+	 */
+	public XFrameOptionsHeaderWriter(XFrameOptionsMode frameOptionsMode) {
+		Assert.notNull(frameOptionsMode, "frameOptionsMode cannot be null");
+		if (XFrameOptionsMode.ALLOW_FROM.equals(frameOptionsMode)) {
+			throw new IllegalArgumentException(
+					"ALLOW_FROM requires an AllowFromStrategy. Please use FrameOptionsHeaderWriter(AllowFromStrategy allowFromStrategy) instead");
+		}
+		this.frameOptionsMode = frameOptionsMode;
+		this.allowFromStrategy = null;
+	}
 
-    /**
-     * Creates a new instance with {@link XFrameOptionsMode#ALLOW_FROM}.
-     *
-     * @param allowFromStrategy
-     *            the strategy for determining what the value for ALLOW_FROM is.
-     */
-    public XFrameOptionsHeaderWriter(AllowFromStrategy allowFromStrategy) {
-        Assert.notNull(allowFromStrategy, "allowFromStrategy cannot be null");
-        this.frameOptionsMode = XFrameOptionsMode.ALLOW_FROM;
-        this.allowFromStrategy = allowFromStrategy;
-    }
+	/**
+	 * Creates a new instance with {@link XFrameOptionsMode#ALLOW_FROM}.
+	 *
+	 * @param allowFromStrategy the strategy for determining what the value for ALLOW_FROM
+	 * is.
+	 */
+	public XFrameOptionsHeaderWriter(AllowFromStrategy allowFromStrategy) {
+		Assert.notNull(allowFromStrategy, "allowFromStrategy cannot be null");
+		this.frameOptionsMode = XFrameOptionsMode.ALLOW_FROM;
+		this.allowFromStrategy = allowFromStrategy;
+	}
 
-    public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
-        if (XFrameOptionsMode.ALLOW_FROM.equals(frameOptionsMode)) {
-            String allowFromValue = allowFromStrategy.getAllowFromValue(request);
-            if(allowFromValue != null) {
-                response.addHeader(XFRAME_OPTIONS_HEADER, XFrameOptionsMode.ALLOW_FROM.getMode() + " " + allowFromValue);
-            }
-        } else {
-            response.addHeader(XFRAME_OPTIONS_HEADER, frameOptionsMode.getMode());
-        }
-    }
+	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
+		if (XFrameOptionsMode.ALLOW_FROM.equals(frameOptionsMode)) {
+			String allowFromValue = allowFromStrategy.getAllowFromValue(request);
+			if (allowFromValue != null) {
+				response.addHeader(XFRAME_OPTIONS_HEADER,
+						XFrameOptionsMode.ALLOW_FROM.getMode() + " " + allowFromValue);
+			}
+		}
+		else {
+			response.addHeader(XFRAME_OPTIONS_HEADER, frameOptionsMode.getMode());
+		}
+	}
 
-    /**
-     * The possible values for the X-Frame-Options header.
-     *
-     * @author Rob Winch
-     * @since 3.2
-     */
-    public enum XFrameOptionsMode {
-        DENY("DENY"),
-        SAMEORIGIN("SAMEORIGIN"),
-        ALLOW_FROM("ALLOW-FROM");
+	/**
+	 * The possible values for the X-Frame-Options header.
+	 *
+	 * @author Rob Winch
+	 * @since 3.2
+	 */
+	public enum XFrameOptionsMode {
+		DENY("DENY"), SAMEORIGIN("SAMEORIGIN"), ALLOW_FROM("ALLOW-FROM");
 
-        private String mode;
+		private String mode;
 
-        private XFrameOptionsMode(String mode) {
-            this.mode = mode;
-        }
+		private XFrameOptionsMode(String mode) {
+			this.mode = mode;
+		}
 
-        /**
-         * Gets the mode for the X-Frame-Options header value. For example,
-         * DENY, SAMEORIGIN, ALLOW-FROM. Cannot be null.
-         *
-         * @return the mode for the X-Frame-Options header value.
-         */
-        private String getMode() {
-            return mode;
-        }
-    }
+		/**
+		 * Gets the mode for the X-Frame-Options header value. For example, DENY,
+		 * SAMEORIGIN, ALLOW-FROM. Cannot be null.
+		 *
+		 * @return the mode for the X-Frame-Options header value.
+		 */
+		private String getMode() {
+			return mode;
+		}
+	}
 }

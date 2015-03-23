@@ -6,13 +6,14 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Determines the behaviour of the {@code SessionManagementFilter} when an invalid session Id is submitted and
- * detected in the {@code SessionManagementFilter}.
+ * Determines the behaviour of the {@code SessionManagementFilter} when an invalid session
+ * Id is submitted and detected in the {@code SessionManagementFilter}.
  *
  * @author Luke Taylor
  */
 public interface InvalidSessionStrategy {
 
-    void onInvalidSessionDetected(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException;
+	void onInvalidSessionDetected(HttpServletRequest request, HttpServletResponse response)
+			throws IOException, ServletException;
 
 }

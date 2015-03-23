@@ -23,45 +23,47 @@ import org.springframework.security.core.session.SessionDestroyedEvent;
 import java.util.*;
 
 /**
- * Published by the {@link HttpSessionEventPublisher} when a HttpSession is created in the container
+ * Published by the {@link HttpSessionEventPublisher} when a HttpSession is created in the
+ * container
  *
  * @author Ray Krueger
  * @author Luke Taylor
  * @author Rob Winch
  */
 public class HttpSessionDestroyedEvent extends SessionDestroyedEvent {
-    //~ Constructors ===================================================================================================
+	// ~ Constructors
+	// ===================================================================================================
 
-    public HttpSessionDestroyedEvent(HttpSession session) {
-        super(session);
-    }
+	public HttpSessionDestroyedEvent(HttpSession session) {
+		super(session);
+	}
 
-    public HttpSession getSession() {
-        return (HttpSession) getSource();
-    }
+	public HttpSession getSession() {
+		return (HttpSession) getSource();
+	}
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public List<SecurityContext> getSecurityContexts() {
-        HttpSession session = getSession();
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<SecurityContext> getSecurityContexts() {
+		HttpSession session = getSession();
 
-        Enumeration<String> attributes = session.getAttributeNames();
+		Enumeration<String> attributes = session.getAttributeNames();
 
-        ArrayList<SecurityContext> contexts = new ArrayList<SecurityContext>();
+		ArrayList<SecurityContext> contexts = new ArrayList<SecurityContext>();
 
-        while(attributes.hasMoreElements()) {
-            String attributeName = attributes.nextElement();
-            Object attributeValue = session.getAttribute(attributeName);
-            if (attributeValue instanceof SecurityContext) {
-                contexts.add((SecurityContext) attributeValue);
-            }
-        }
+		while (attributes.hasMoreElements()) {
+			String attributeName = attributes.nextElement();
+			Object attributeValue = session.getAttribute(attributeName);
+			if (attributeValue instanceof SecurityContext) {
+				contexts.add((SecurityContext) attributeValue);
+			}
+		}
 
-        return contexts;
-    }
+		return contexts;
+	}
 
-    @Override
-    public String getId() {
-        return getSession().getId();
-    }
+	@Override
+	public String getId() {
+		return getSession().getId();
+	}
 }

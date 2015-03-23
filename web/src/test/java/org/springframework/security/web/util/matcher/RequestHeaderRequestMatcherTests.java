@@ -29,61 +29,70 @@ import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher
  */
 public class RequestHeaderRequestMatcherTests {
 
-    private final String headerName = "headerName";
+	private final String headerName = "headerName";
 
-    private final String headerValue = "headerValue";
+	private final String headerValue = "headerValue";
 
-    private MockHttpServletRequest request;
+	private MockHttpServletRequest request;
 
-    @Before
-    public void setup() {
-        request = new MockHttpServletRequest();
-    }
+	@Before
+	public void setup() {
+		request = new MockHttpServletRequest();
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullHeaderName() {
-        new RequestHeaderRequestMatcher(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullHeaderName() {
+		new RequestHeaderRequestMatcher(null);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullHeaderNameNonNullHeaderValue() {
-        new RequestHeaderRequestMatcher(null,"v");
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullHeaderNameNonNullHeaderValue() {
+		new RequestHeaderRequestMatcher(null, "v");
+	}
 
-    @Test
-    public void matchesHeaderNameMatches() {
-        request.addHeader(headerName, headerValue);
-        assertThat(new RequestHeaderRequestMatcher(headerName).matches(request)).isTrue();
-    }
+	@Test
+	public void matchesHeaderNameMatches() {
+		request.addHeader(headerName, headerValue);
+		assertThat(new RequestHeaderRequestMatcher(headerName).matches(request)).isTrue();
+	}
 
-    @Test
-    public void matchesHeaderNameDoesNotMatch() {
-        request.addHeader(headerName+"notMatch", headerValue);
-        assertThat(new RequestHeaderRequestMatcher(headerName).matches(request)).isFalse();
-    }
+	@Test
+	public void matchesHeaderNameDoesNotMatch() {
+		request.addHeader(headerName + "notMatch", headerValue);
+		assertThat(new RequestHeaderRequestMatcher(headerName).matches(request))
+				.isFalse();
+	}
 
-    @Test
-    public void matchesHeaderNameValueMatches() {
-        request.addHeader(headerName, headerValue);
-        assertThat(new RequestHeaderRequestMatcher(headerName, headerValue).matches(request)).isTrue();
-    }
+	@Test
+	public void matchesHeaderNameValueMatches() {
+		request.addHeader(headerName, headerValue);
+		assertThat(
+				new RequestHeaderRequestMatcher(headerName, headerValue).matches(request))
+				.isTrue();
+	}
 
-    @Test
-    public void matchesHeaderNameValueHeaderNameNotMatch() {
-        request.addHeader(headerName+"notMatch", headerValue);
-        assertThat(new RequestHeaderRequestMatcher(headerName, headerValue).matches(request)).isFalse();
-    }
+	@Test
+	public void matchesHeaderNameValueHeaderNameNotMatch() {
+		request.addHeader(headerName + "notMatch", headerValue);
+		assertThat(
+				new RequestHeaderRequestMatcher(headerName, headerValue).matches(request))
+				.isFalse();
+	}
 
-    @Test
-    public void matchesHeaderNameValueHeaderValueNotMatch() {
-        request.addHeader(headerName, headerValue+"notMatch");
-        assertThat(new RequestHeaderRequestMatcher(headerName, headerValue).matches(request)).isFalse();
-    }
+	@Test
+	public void matchesHeaderNameValueHeaderValueNotMatch() {
+		request.addHeader(headerName, headerValue + "notMatch");
+		assertThat(
+				new RequestHeaderRequestMatcher(headerName, headerValue).matches(request))
+				.isFalse();
+	}
 
-    @Test
-    public void matchesHeaderNameValueHeaderValueMultiNotMatch() {
-        request.addHeader(headerName, headerValue+"notMatch");
-        request.addHeader(headerName, headerValue);
-        assertThat(new RequestHeaderRequestMatcher(headerName, headerValue).matches(request)).isFalse();
-    }
+	@Test
+	public void matchesHeaderNameValueHeaderValueMultiNotMatch() {
+		request.addHeader(headerName, headerValue + "notMatch");
+		request.addHeader(headerName, headerValue);
+		assertThat(
+				new RequestHeaderRequestMatcher(headerName, headerValue).matches(request))
+				.isFalse();
+	}
 }

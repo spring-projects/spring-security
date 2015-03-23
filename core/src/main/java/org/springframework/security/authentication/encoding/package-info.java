@@ -8,3 +8,4 @@
  * can also be used.
  */
 package org.springframework.security.authentication.encoding;
+

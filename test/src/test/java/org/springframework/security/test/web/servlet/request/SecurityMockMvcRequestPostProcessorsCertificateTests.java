@@ -29,32 +29,37 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityMockMvcRequestPostProcessorsCertificateTests {
-    @Mock
-    private X509Certificate certificate;
+	@Mock
+	private X509Certificate certificate;
 
-    private MockHttpServletRequest request;
+	private MockHttpServletRequest request;
 
-    @Before
-    public void setup() {
-        request = new MockHttpServletRequest();
-    }
+	@Before
+	public void setup() {
+		request = new MockHttpServletRequest();
+	}
 
-    @Test
-    public void x509SingleCertificate() {
-        MockHttpServletRequest postProcessedRequest = x509(certificate).postProcessRequest(request);
+	@Test
+	public void x509SingleCertificate() {
+		MockHttpServletRequest postProcessedRequest = x509(certificate)
+				.postProcessRequest(request);
 
-        X509Certificate[] certificates = (X509Certificate[]) postProcessedRequest.getAttribute("javax.servlet.request.X509Certificate");
+		X509Certificate[] certificates = (X509Certificate[]) postProcessedRequest
+				.getAttribute("javax.servlet.request.X509Certificate");
 
-        assertThat(certificates).containsOnly(certificate);
-    }
+		assertThat(certificates).containsOnly(certificate);
+	}
 
-    @Test
-    public void x509ResourceName() throws Exception {
-        MockHttpServletRequest postProcessedRequest = x509("rod.cer").postProcessRequest(request);
+	@Test
+	public void x509ResourceName() throws Exception {
+		MockHttpServletRequest postProcessedRequest = x509("rod.cer").postProcessRequest(
+				request);
 
-        X509Certificate[] certificates = (X509Certificate[]) postProcessedRequest.getAttribute("javax.servlet.request.X509Certificate");
+		X509Certificate[] certificates = (X509Certificate[]) postProcessedRequest
+				.getAttribute("javax.servlet.request.X509Certificate");
 
-        assertThat(certificates.length).isEqualTo(1);
-        assertThat(certificates[0].getSubjectDN().getName()).isEqualTo("CN=rod, OU=Spring Security, O=Spring Framework");
-    }
+		assertThat(certificates.length).isEqualTo(1);
+		assertThat(certificates[0].getSubjectDN().getName()).isEqualTo(
+				"CN=rod, OU=Spring Security, O=Spring Framework");
+	}
 }

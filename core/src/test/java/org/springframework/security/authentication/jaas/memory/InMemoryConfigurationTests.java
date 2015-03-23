@@ -37,62 +37,70 @@ import org.springframework.security.authentication.jaas.TestLoginModule;
  */
 public class InMemoryConfigurationTests {
 
-    private AppConfigurationEntry[] defaultEntries;
-    private Map<String, AppConfigurationEntry[]> mappedEntries;
+	private AppConfigurationEntry[] defaultEntries;
+	private Map<String, AppConfigurationEntry[]> mappedEntries;
 
-    @Before
-    public void setUp() {
-        defaultEntries = new AppConfigurationEntry[] { new AppConfigurationEntry(TestLoginModule.class.getName(),
-                LoginModuleControlFlag.REQUIRED, Collections.<String, Object> emptyMap()) };
+	@Before
+	public void setUp() {
+		defaultEntries = new AppConfigurationEntry[] { new AppConfigurationEntry(
+				TestLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED,
+				Collections.<String, Object> emptyMap()) };
 
-        mappedEntries = Collections.<String, AppConfigurationEntry[]> singletonMap("name",
-                new AppConfigurationEntry[] { new AppConfigurationEntry(TestLoginModule.class.getName(),
-                        LoginModuleControlFlag.OPTIONAL, Collections.<String, Object> emptyMap()) });
-    }
+		mappedEntries = Collections.<String, AppConfigurationEntry[]> singletonMap(
+				"name", new AppConfigurationEntry[] { new AppConfigurationEntry(
+						TestLoginModule.class.getName(), LoginModuleControlFlag.OPTIONAL,
+						Collections.<String, Object> emptyMap()) });
+	}
 
-    @Test
-    public void constructorNullDefault() {
-        assertNull(new InMemoryConfiguration((AppConfigurationEntry[]) null).getAppConfigurationEntry("name"));
-    }
+	@Test
+	public void constructorNullDefault() {
+		assertNull(new InMemoryConfiguration((AppConfigurationEntry[]) null)
+				.getAppConfigurationEntry("name"));
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullMapped() {
-        new InMemoryConfiguration((Map<String, AppConfigurationEntry[]>) null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullMapped() {
+		new InMemoryConfiguration((Map<String, AppConfigurationEntry[]>) null);
+	}
 
-    @Test
-    public void constructorEmptyMap() {
-        assertNull(new InMemoryConfiguration(Collections.<String, AppConfigurationEntry[]> emptyMap())
-        .getAppConfigurationEntry("name"));
-    }
+	@Test
+	public void constructorEmptyMap() {
+		assertNull(new InMemoryConfiguration(
+				Collections.<String, AppConfigurationEntry[]> emptyMap())
+				.getAppConfigurationEntry("name"));
+	}
 
-    @Test
-    public void constructorEmptyMapNullDefault() {
-        assertNull(new InMemoryConfiguration(Collections.<String, AppConfigurationEntry[]> emptyMap(), null)
-        .getAppConfigurationEntry("name"));
-    }
+	@Test
+	public void constructorEmptyMapNullDefault() {
+		assertNull(new InMemoryConfiguration(
+				Collections.<String, AppConfigurationEntry[]> emptyMap(), null)
+				.getAppConfigurationEntry("name"));
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullMapNullDefault() {
-        new InMemoryConfiguration(null, null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullMapNullDefault() {
+		new InMemoryConfiguration(null, null);
+	}
 
-    @Test
-    public void nonnullDefault() {
-        InMemoryConfiguration configuration = new InMemoryConfiguration(defaultEntries);
-        assertArrayEquals(defaultEntries, configuration.getAppConfigurationEntry("name"));
-    }
+	@Test
+	public void nonnullDefault() {
+		InMemoryConfiguration configuration = new InMemoryConfiguration(defaultEntries);
+		assertArrayEquals(defaultEntries, configuration.getAppConfigurationEntry("name"));
+	}
 
-    @Test
-    public void mappedNonnullDefault() {
-        InMemoryConfiguration configuration = new InMemoryConfiguration(mappedEntries, defaultEntries);
-        assertArrayEquals(defaultEntries, configuration.getAppConfigurationEntry("missing"));
-        assertArrayEquals(mappedEntries.get("name"), configuration.getAppConfigurationEntry("name"));
-    }
+	@Test
+	public void mappedNonnullDefault() {
+		InMemoryConfiguration configuration = new InMemoryConfiguration(mappedEntries,
+				defaultEntries);
+		assertArrayEquals(defaultEntries,
+				configuration.getAppConfigurationEntry("missing"));
+		assertArrayEquals(mappedEntries.get("name"),
+				configuration.getAppConfigurationEntry("name"));
+	}
 
-    @Test
-    public void jdk5Compatable() throws Exception {
-        Method method = InMemoryConfiguration.class.getDeclaredMethod("refresh");
-        assertEquals(InMemoryConfiguration.class, method.getDeclaringClass());
-    }
+	@Test
+	public void jdk5Compatable() throws Exception {
+		Method method = InMemoryConfiguration.class.getDeclaredMethod("refresh");
+		assertEquals(InMemoryConfiguration.class, method.getDeclaringClass());
+	}
 }

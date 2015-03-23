@@ -20,16 +20,17 @@ import org.springframework.security.core.AuthenticationException;
 
 import javax.security.auth.login.LoginException;
 
-
 /**
- * This LoginExceptionResolver simply wraps the LoginException with an AuthenticationServiceException.
+ * This LoginExceptionResolver simply wraps the LoginException with an
+ * AuthenticationServiceException.
  *
  * @author Ray Krueger
  */
 public class DefaultLoginExceptionResolver implements LoginExceptionResolver {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public AuthenticationException resolveException(LoginException e) {
-        return new AuthenticationServiceException(e.getMessage(), e);
-    }
+	public AuthenticationException resolveException(LoginException e) {
+		return new AuthenticationServiceException(e.getMessage(), e);
+	}
 }

@@ -22,13 +22,13 @@ import org.springframework.security.access.expression.SecurityExpressionOperatio
  * @since 3.1.1
  */
 public interface MethodSecurityExpressionOperations extends SecurityExpressionOperations {
-    void setFilterObject(Object filterObject);
+	void setFilterObject(Object filterObject);
 
-    Object getFilterObject();
+	Object getFilterObject();
 
-    void setReturnObject(Object returnObject);
+	void setReturnObject(Object returnObject);
 
-    Object getReturnObject();
+	Object getReturnObject();
 
-    Object getThis();
+	Object getThis();
 }

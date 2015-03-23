@@ -65,8 +65,6 @@ public class CustomUserDetails implements UserDetails {
 
 	@Override
 	public String toString() {
-		return "CustomUserDetails{" +
-				"username='" + username + '\'' +
-				'}';
+		return "CustomUserDetails{" + "username='" + username + '\'' + '}';
 	}
 }

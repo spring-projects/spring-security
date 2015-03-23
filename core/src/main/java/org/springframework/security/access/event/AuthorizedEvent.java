@@ -20,47 +20,53 @@ import java.util.Collection;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 
-
 /**
- * Event indicating a secure object was invoked successfully.<P>Published just before the secure object attempts to
- * proceed.</p>
+ * Event indicating a secure object was invoked successfully.
+ * <P>
+ * Published just before the secure object attempts to proceed.
+ * </p>
  *
  * @author Ben Alex
  */
 public class AuthorizedEvent extends AbstractAuthorizationEvent {
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private Authentication authentication;
-    private Collection<ConfigAttribute> configAttributes;
+	private Authentication authentication;
+	private Collection<ConfigAttribute> configAttributes;
 
-    //~ Constructors ===================================================================================================
+	// ~ Constructors
+	// ===================================================================================================
 
-    /**
-     * Construct the event.
-     *
-     * @param secureObject the secure object
-     * @param attributes that apply to the secure object
-     * @param authentication that successfully called the secure object
-     *
-     */
-    public AuthorizedEvent(Object secureObject, Collection<ConfigAttribute> attributes, Authentication authentication) {
-        super(secureObject);
+	/**
+	 * Construct the event.
+	 *
+	 * @param secureObject the secure object
+	 * @param attributes that apply to the secure object
+	 * @param authentication that successfully called the secure object
+	 *
+	 */
+	public AuthorizedEvent(Object secureObject, Collection<ConfigAttribute> attributes,
+			Authentication authentication) {
+		super(secureObject);
 
-        if ((attributes == null) || (authentication == null)) {
-            throw new IllegalArgumentException("All parameters are required and cannot be null");
-        }
+		if ((attributes == null) || (authentication == null)) {
+			throw new IllegalArgumentException(
+					"All parameters are required and cannot be null");
+		}
 
-        this.configAttributes = attributes;
-        this.authentication = authentication;
-    }
+		this.configAttributes = attributes;
+		this.authentication = authentication;
+	}
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public Authentication getAuthentication() {
-        return authentication;
-    }
+	public Authentication getAuthentication() {
+		return authentication;
+	}
 
-    public Collection<ConfigAttribute> getConfigAttributes() {
-        return configAttributes;
-    }
+	public Collection<ConfigAttribute> getConfigAttributes() {
+		return configAttributes;
+	}
 }

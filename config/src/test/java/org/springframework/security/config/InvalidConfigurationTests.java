@@ -11,54 +11,56 @@ import org.springframework.security.config.authentication.AuthenticationManagerF
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 
 /**
- * Tests which make sure invalid configurations are rejected by the namespace. In particular invalid top-level
- * elements. These are likely to fail after the namespace has been updated using trang, but the spring-security.xsl
- * transform has not been applied.
+ * Tests which make sure invalid configurations are rejected by the namespace. In
+ * particular invalid top-level elements. These are likely to fail after the namespace has
+ * been updated using trang, but the spring-security.xsl transform has not been applied.
  *
  * @author Luke Taylor
  */
 public class InvalidConfigurationTests {
-    private InMemoryXmlApplicationContext appContext;
+	private InMemoryXmlApplicationContext appContext;
 
-    @After
-    public void closeAppContext() {
-        if (appContext != null) {
-            appContext.close();
-        }
-    }
+	@After
+	public void closeAppContext() {
+		if (appContext != null) {
+			appContext.close();
+		}
+	}
 
-    // Parser should throw a SAXParseException
-    @Test(expected=XmlBeanDefinitionStoreException.class)
-    public void passwordEncoderCannotAppearAtTopLevel() {
-        setContext("<password-encoder hash='md5'/>");
-    }
+	// Parser should throw a SAXParseException
+	@Test(expected = XmlBeanDefinitionStoreException.class)
+	public void passwordEncoderCannotAppearAtTopLevel() {
+		setContext("<password-encoder hash='md5'/>");
+	}
 
-    @Test(expected=XmlBeanDefinitionStoreException.class)
-    public void authenticationProviderCannotAppearAtTopLevel() {
-        setContext("<authentication-provider ref='blah'/>");
-    }
+	@Test(expected = XmlBeanDefinitionStoreException.class)
+	public void authenticationProviderCannotAppearAtTopLevel() {
+		setContext("<authentication-provider ref='blah'/>");
+	}
 
-    @Test
-    public void missingAuthenticationManagerGivesSensibleErrorMessage() {
-        try {
-            setContext("<http auto-config='true' />");
-        } catch (BeanCreationException e) {
-            Throwable cause = ultimateCause(e);
-            assertTrue(cause instanceof NoSuchBeanDefinitionException);
-            NoSuchBeanDefinitionException nsbe = (NoSuchBeanDefinitionException) cause;
-            assertEquals(BeanIds.AUTHENTICATION_MANAGER, nsbe.getBeanName());
-            assertTrue(nsbe.getMessage().endsWith(AuthenticationManagerFactoryBean.MISSING_BEAN_ERROR_MESSAGE));
-        }
-    }
+	@Test
+	public void missingAuthenticationManagerGivesSensibleErrorMessage() {
+		try {
+			setContext("<http auto-config='true' />");
+		}
+		catch (BeanCreationException e) {
+			Throwable cause = ultimateCause(e);
+			assertTrue(cause instanceof NoSuchBeanDefinitionException);
+			NoSuchBeanDefinitionException nsbe = (NoSuchBeanDefinitionException) cause;
+			assertEquals(BeanIds.AUTHENTICATION_MANAGER, nsbe.getBeanName());
+			assertTrue(nsbe.getMessage().endsWith(
+					AuthenticationManagerFactoryBean.MISSING_BEAN_ERROR_MESSAGE));
+		}
+	}
 
-    private Throwable ultimateCause(Throwable e) {
-        if (e.getCause() == null) {
-            return e;
-        }
-        return ultimateCause(e.getCause());
-    }
+	private Throwable ultimateCause(Throwable e) {
+		if (e.getCause() == null) {
+			return e;
+		}
+		return ultimateCause(e.getCause());
+	}
 
-    private void setContext(String context) {
-        appContext = new InMemoryXmlApplicationContext(context);
-    }
+	private void setContext(String context) {
+		appContext = new InMemoryXmlApplicationContext(context);
+	}
 }

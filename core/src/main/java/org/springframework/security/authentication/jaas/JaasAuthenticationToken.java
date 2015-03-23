@@ -17,43 +17,46 @@ package org.springframework.security.authentication.jaas;
 
 import java.util.List;
 
-
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 
 import javax.security.auth.login.LoginContext;
 
-
 /**
- * UsernamePasswordAuthenticationToken extension to carry the Jaas LoginContext that the user was logged into
+ * UsernamePasswordAuthenticationToken extension to carry the Jaas LoginContext that the
+ * user was logged into
  *
  * @author Ray Krueger
  */
 public class JaasAuthenticationToken extends UsernamePasswordAuthenticationToken {
 
-    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private final transient LoginContext loginContext;
+	private final transient LoginContext loginContext;
 
-    //~ Constructors ===================================================================================================
+	// ~ Constructors
+	// ===================================================================================================
 
-    public JaasAuthenticationToken(Object principal, Object credentials, LoginContext loginContext) {
-        super(principal, credentials);
-        this.loginContext = loginContext;
-    }
+	public JaasAuthenticationToken(Object principal, Object credentials,
+			LoginContext loginContext) {
+		super(principal, credentials);
+		this.loginContext = loginContext;
+	}
 
-    public JaasAuthenticationToken(Object principal, Object credentials, List<GrantedAuthority> authorities,
-            LoginContext loginContext) {
-        super(principal, credentials, authorities);
-        this.loginContext = loginContext;
-    }
+	public JaasAuthenticationToken(Object principal, Object credentials,
+			List<GrantedAuthority> authorities, LoginContext loginContext) {
+		super(principal, credentials, authorities);
+		this.loginContext = loginContext;
+	}
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public LoginContext getLoginContext() {
-        return loginContext;
-    }
+	public LoginContext getLoginContext() {
+		return loginContext;
+	}
 }

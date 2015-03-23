@@ -28,10 +28,14 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 /**
  * A RequestMatcher implementation which uses a SpEL expression
  *
- * <p>With the default EvaluationContext ({@link ELRequestMatcherContext}) you can use
- * <code>hasIpAdress()</code> and <code>hasHeader()</code></p>
+ * <p>
+ * With the default EvaluationContext ({@link ELRequestMatcherContext}) you can use
+ * <code>hasIpAdress()</code> and <code>hasHeader()</code>
+ * </p>
  *
- * <p>See {@link DelegatingAuthenticationEntryPoint} for an example configuration.</p>
+ * <p>
+ * See {@link DelegatingAuthenticationEntryPoint} for an example configuration.
+ * </p>
  *
  *
  * @author Mike Wiesner
@@ -39,25 +43,26 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  */
 public class ELRequestMatcher implements RequestMatcher {
 
-    private final Expression expression;
+	private final Expression expression;
 
-    public ELRequestMatcher(String el) {
-        SpelExpressionParser parser = new SpelExpressionParser();
-        expression = parser.parseExpression(el);
-    }
+	public ELRequestMatcher(String el) {
+		SpelExpressionParser parser = new SpelExpressionParser();
+		expression = parser.parseExpression(el);
+	}
 
-    public boolean matches(HttpServletRequest request) {
-        EvaluationContext context = createELContext(request);
-        return expression.getValue(context, Boolean.class).booleanValue();
-    }
+	public boolean matches(HttpServletRequest request) {
+		EvaluationContext context = createELContext(request);
+		return expression.getValue(context, Boolean.class).booleanValue();
+	}
 
-    /**
-     * Subclasses can override this methode if they want to use a different EL root context
-     *
-     * @return EL root context which is used to evaluate the expression
-     */
-    public EvaluationContext createELContext(HttpServletRequest request) {
-        return new StandardEvaluationContext(new ELRequestMatcherContext(request));
-    }
+	/**
+	 * Subclasses can override this methode if they want to use a different EL root
+	 * context
+	 *
+	 * @return EL root context which is used to evaluate the expression
+	 */
+	public EvaluationContext createELContext(HttpServletRequest request) {
+		return new StandardEvaluationContext(new ELRequestMatcherContext(request));
+	}
 
 }

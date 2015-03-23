@@ -37,78 +37,87 @@ import static org.springframework.security.access.AccessDecisionVoter.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MessageExpressionVoterTests {
-    @Mock
-    Authentication authentication;
-    @Mock
-    Message<Object> message;
-    Collection<ConfigAttribute> attributes;
-    @Mock
-    Expression expression;
-    @Mock
-    SecurityExpressionHandler<Message> expressionHandler;
-    @Mock
-    EvaluationContext evaluationContext;
+	@Mock
+	Authentication authentication;
+	@Mock
+	Message<Object> message;
+	Collection<ConfigAttribute> attributes;
+	@Mock
+	Expression expression;
+	@Mock
+	SecurityExpressionHandler<Message> expressionHandler;
+	@Mock
+	EvaluationContext evaluationContext;
 
-    MessageExpressionVoter voter;
+	MessageExpressionVoter voter;
 
-    @Before
-    public void setup() {
-        attributes = Arrays.<ConfigAttribute>asList(new MessageExpressionConfigAttribute(expression));
+	@Before
+	public void setup() {
+		attributes = Arrays
+				.<ConfigAttribute> asList(new MessageExpressionConfigAttribute(expression));
 
-        voter = new MessageExpressionVoter();
-    }
+		voter = new MessageExpressionVoter();
+	}
 
-    @Test
-    public void voteGranted() {
-        when(expression.getValue(any(EvaluationContext.class),eq(Boolean.class))).thenReturn(true);
-        assertThat(voter.vote(authentication, message, attributes)).isEqualTo(ACCESS_GRANTED);
-    }
+	@Test
+	public void voteGranted() {
+		when(expression.getValue(any(EvaluationContext.class), eq(Boolean.class)))
+				.thenReturn(true);
+		assertThat(voter.vote(authentication, message, attributes)).isEqualTo(
+				ACCESS_GRANTED);
+	}
 
-    @Test
-    public void voteDenied() {
-        when(expression.getValue(any(EvaluationContext.class),eq(Boolean.class))).thenReturn(false);
-        assertThat(voter.vote(authentication, message, attributes)).isEqualTo(ACCESS_DENIED);
-    }
+	@Test
+	public void voteDenied() {
+		when(expression.getValue(any(EvaluationContext.class), eq(Boolean.class)))
+				.thenReturn(false);
+		assertThat(voter.vote(authentication, message, attributes)).isEqualTo(
+				ACCESS_DENIED);
+	}
 
-    @Test
-    public void voteAbstain() {
-        attributes = Arrays.<ConfigAttribute>asList(new SecurityConfig("ROLE_USER"));
-        assertThat(voter.vote(authentication, message, attributes)).isEqualTo(ACCESS_ABSTAIN);
-    }
+	@Test
+	public void voteAbstain() {
+		attributes = Arrays.<ConfigAttribute> asList(new SecurityConfig("ROLE_USER"));
+		assertThat(voter.vote(authentication, message, attributes)).isEqualTo(
+				ACCESS_ABSTAIN);
+	}
 
-    @Test
-    public void supportsObjectClassFalse() {
-        assertThat(voter.supports(Object.class)).isFalse();
-    }
+	@Test
+	public void supportsObjectClassFalse() {
+		assertThat(voter.supports(Object.class)).isFalse();
+	}
 
-    @Test
-    public void supportsMessageClassTrue() {
-        assertThat(voter.supports(Message.class)).isTrue();
-    }
+	@Test
+	public void supportsMessageClassTrue() {
+		assertThat(voter.supports(Message.class)).isTrue();
+	}
 
-    @Test
-    public void supportsSecurityConfigFalse() {
-        assertThat(voter.supports(new SecurityConfig("ROLE_USER"))).isFalse();
-    }
+	@Test
+	public void supportsSecurityConfigFalse() {
+		assertThat(voter.supports(new SecurityConfig("ROLE_USER"))).isFalse();
+	}
 
-    @Test
-    public void supportsMessageExpressionConfigAttributeTrue() {
-        assertThat(voter.supports(new MessageExpressionConfigAttribute(expression))).isTrue();
-    }
+	@Test
+	public void supportsMessageExpressionConfigAttributeTrue() {
+		assertThat(voter.supports(new MessageExpressionConfigAttribute(expression)))
+				.isTrue();
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void setExpressionHandlerNull() {
-        voter.setExpressionHandler(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void setExpressionHandlerNull() {
+		voter.setExpressionHandler(null);
+	}
 
-    @Test
-    public void customExpressionHandler() {
-        voter.setExpressionHandler(expressionHandler);
-        when(expressionHandler.createEvaluationContext(authentication, message)).thenReturn(evaluationContext);
-        when(expression.getValue(evaluationContext, Boolean.class)).thenReturn(true);
+	@Test
+	public void customExpressionHandler() {
+		voter.setExpressionHandler(expressionHandler);
+		when(expressionHandler.createEvaluationContext(authentication, message))
+				.thenReturn(evaluationContext);
+		when(expression.getValue(evaluationContext, Boolean.class)).thenReturn(true);
 
-        assertThat(voter.vote(authentication, message, attributes)).isEqualTo(ACCESS_GRANTED);
+		assertThat(voter.vote(authentication, message, attributes)).isEqualTo(
+				ACCESS_GRANTED);
 
-        verify(expressionHandler).createEvaluationContext(authentication, message);
-    }
+		verify(expressionHandler).createEvaluationContext(authentication, message);
+	}
 }

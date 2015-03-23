@@ -25,40 +25,40 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 public class TestSecurityContextHolderTests {
 
-    private SecurityContext context;
+	private SecurityContext context;
 
-    @Before
-    public void setup() {
-        context = SecurityContextHolder.createEmptyContext();
-    }
+	@Before
+	public void setup() {
+		context = SecurityContextHolder.createEmptyContext();
+	}
 
-    @After
-    public void cleanup() {
-        TestSecurityContextHolder.clearContext();
-    }
+	@After
+	public void cleanup() {
+		TestSecurityContextHolder.clearContext();
+	}
 
-    @Test
-    public void clearContextClearsBoth() {
-        SecurityContextHolder.setContext(context);
-        TestSecurityContextHolder.setContext(context);
+	@Test
+	public void clearContextClearsBoth() {
+		SecurityContextHolder.setContext(context);
+		TestSecurityContextHolder.setContext(context);
 
-        TestSecurityContextHolder.clearContext();
+		TestSecurityContextHolder.clearContext();
 
-        assertThat(SecurityContextHolder.getContext()).isNotSameAs(context);
-        assertThat(TestSecurityContextHolder.getContext()).isNotSameAs(context);
-    }
+		assertThat(SecurityContextHolder.getContext()).isNotSameAs(context);
+		assertThat(TestSecurityContextHolder.getContext()).isNotSameAs(context);
+	}
 
-    @Test
-    public void getContextDefaultsNonNull() {
-        assertThat(TestSecurityContextHolder.getContext()).isNotNull();
-        assertThat(SecurityContextHolder.getContext()).isNotNull();
-    }
+	@Test
+	public void getContextDefaultsNonNull() {
+		assertThat(TestSecurityContextHolder.getContext()).isNotNull();
+		assertThat(SecurityContextHolder.getContext()).isNotNull();
+	}
 
-    @Test
-    public void setContextSetsBoth() {
-        TestSecurityContextHolder.setContext(context);
+	@Test
+	public void setContextSetsBoth() {
+		TestSecurityContextHolder.setContext(context);
 
-        assertThat(TestSecurityContextHolder.getContext()).isSameAs(context);
-        assertThat(SecurityContextHolder.getContext()).isSameAs(context);
-    }
+		assertThat(TestSecurityContextHolder.getContext()).isSameAs(context);
+		assertThat(SecurityContextHolder.getContext()).isSameAs(context);
+	}
 }

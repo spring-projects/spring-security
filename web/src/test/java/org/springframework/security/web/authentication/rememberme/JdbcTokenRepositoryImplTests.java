@@ -44,148 +44,155 @@ import org.springframework.test.util.ReflectionTestUtils;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class JdbcTokenRepositoryImplTests {
-    @Mock
-    private Log logger;
+	@Mock
+	private Log logger;
 
-    private static SingleConnectionDataSource dataSource;
-    private JdbcTokenRepositoryImpl repo;
-    private JdbcTemplate template;
+	private static SingleConnectionDataSource dataSource;
+	private JdbcTokenRepositoryImpl repo;
+	private JdbcTemplate template;
 
-    @BeforeClass
-    public static void createDataSource() {
-        dataSource = new SingleConnectionDataSource("jdbc:hsqldb:mem:tokenrepotest", "sa", "", true);
-        dataSource.setDriverClassName("org.hsqldb.jdbc.JDBCDriver");
-    }
+	@BeforeClass
+	public static void createDataSource() {
+		dataSource = new SingleConnectionDataSource("jdbc:hsqldb:mem:tokenrepotest",
+				"sa", "", true);
+		dataSource.setDriverClassName("org.hsqldb.jdbc.JDBCDriver");
+	}
 
-    @AfterClass
-    public static void clearDataSource() throws Exception {
-        dataSource.destroy();
-        dataSource = null;
-    }
+	@AfterClass
+	public static void clearDataSource() throws Exception {
+		dataSource.destroy();
+		dataSource = null;
+	}
 
-    @Before
-    public void populateDatabase() {
-        repo = new JdbcTokenRepositoryImpl();
-        ReflectionTestUtils.setField(repo, "logger", logger);
-        repo.setDataSource(dataSource);
-        repo.initDao();
-        template = repo.getJdbcTemplate();
-        template.execute("create table persistent_logins (username varchar(100) not null, " +
-                "series varchar(100) not null, token varchar(500) not null, last_used timestamp not null)");
-    }
+	@Before
+	public void populateDatabase() {
+		repo = new JdbcTokenRepositoryImpl();
+		ReflectionTestUtils.setField(repo, "logger", logger);
+		repo.setDataSource(dataSource);
+		repo.initDao();
+		template = repo.getJdbcTemplate();
+		template.execute("create table persistent_logins (username varchar(100) not null, "
+				+ "series varchar(100) not null, token varchar(500) not null, last_used timestamp not null)");
+	}
 
-    @After
-    public void clearData() {
-        template.execute("drop table persistent_logins");
-    }
+	@After
+	public void clearData() {
+		template.execute("drop table persistent_logins");
+	}
 
-    @Test
-    public void createNewTokenInsertsCorrectData() {
-        Date currentDate = new Date();
-        PersistentRememberMeToken token = new PersistentRememberMeToken("joeuser", "joesseries", "atoken", currentDate);
-        repo.createNewToken(token);
+	@Test
+	public void createNewTokenInsertsCorrectData() {
+		Date currentDate = new Date();
+		PersistentRememberMeToken token = new PersistentRememberMeToken("joeuser",
+				"joesseries", "atoken", currentDate);
+		repo.createNewToken(token);
 
-        Map<String,Object> results = template.queryForMap("select * from persistent_logins");
+		Map<String, Object> results = template
+				.queryForMap("select * from persistent_logins");
 
-        assertEquals(currentDate, results.get("last_used"));
-        assertEquals("joeuser", results.get("username"));
-        assertEquals("joesseries", results.get("series"));
-        assertEquals("atoken", results.get("token"));
-    }
+		assertEquals(currentDate, results.get("last_used"));
+		assertEquals("joeuser", results.get("username"));
+		assertEquals("joesseries", results.get("series"));
+		assertEquals("atoken", results.get("token"));
+	}
 
-    @Test
-    public void retrievingTokenReturnsCorrectData() {
+	@Test
+	public void retrievingTokenReturnsCorrectData() {
 
-        template.execute("insert into persistent_logins (series, username, token, last_used) values " +
-                "('joesseries', 'joeuser', 'atoken', '2007-10-09 18:19:25.000000000')");
-        PersistentRememberMeToken token = repo.getTokenForSeries("joesseries");
+		template.execute("insert into persistent_logins (series, username, token, last_used) values "
+				+ "('joesseries', 'joeuser', 'atoken', '2007-10-09 18:19:25.000000000')");
+		PersistentRememberMeToken token = repo.getTokenForSeries("joesseries");
 
-        assertEquals("joeuser", token.getUsername());
-        assertEquals("joesseries", token.getSeries());
-        assertEquals("atoken", token.getTokenValue());
-        assertEquals(Timestamp.valueOf("2007-10-09 18:19:25.000000000"), token.getDate());
-    }
+		assertEquals("joeuser", token.getUsername());
+		assertEquals("joesseries", token.getSeries());
+		assertEquals("atoken", token.getTokenValue());
+		assertEquals(Timestamp.valueOf("2007-10-09 18:19:25.000000000"), token.getDate());
+	}
 
-    @Test
-    public void retrievingTokenWithDuplicateSeriesReturnsNull() {
-        template.execute("insert into persistent_logins (series, username, token, last_used) values " +
-                "('joesseries', 'joeuser', 'atoken2', '2007-10-19 18:19:25.000000000')");
-        template.execute("insert into persistent_logins (series, username, token, last_used) values " +
-                "('joesseries', 'joeuser', 'atoken', '2007-10-09 18:19:25.000000000')");
+	@Test
+	public void retrievingTokenWithDuplicateSeriesReturnsNull() {
+		template.execute("insert into persistent_logins (series, username, token, last_used) values "
+				+ "('joesseries', 'joeuser', 'atoken2', '2007-10-19 18:19:25.000000000')");
+		template.execute("insert into persistent_logins (series, username, token, last_used) values "
+				+ "('joesseries', 'joeuser', 'atoken', '2007-10-09 18:19:25.000000000')");
 
-//        List results = template.queryForList("select * from persistent_logins where series = 'joesseries'");
+		// List results =
+		// template.queryForList("select * from persistent_logins where series = 'joesseries'");
 
-        assertNull(repo.getTokenForSeries("joesseries"));
-    }
+		assertNull(repo.getTokenForSeries("joesseries"));
+	}
 
-    // SEC-1964
-    @Test
-    public void retrievingTokenWithNoSeriesReturnsNull() {
-        when(logger.isDebugEnabled()).thenReturn(true);
+	// SEC-1964
+	@Test
+	public void retrievingTokenWithNoSeriesReturnsNull() {
+		when(logger.isDebugEnabled()).thenReturn(true);
 
-        assertNull(repo.getTokenForSeries("missingSeries"));
+		assertNull(repo.getTokenForSeries("missingSeries"));
 
-        verify(logger).isDebugEnabled();
-        verify(logger).debug(eq("Querying token for series 'missingSeries' returned no results."),
-                any(EmptyResultDataAccessException.class));
-        verifyNoMoreInteractions(logger);
-    }
+		verify(logger).isDebugEnabled();
+		verify(logger).debug(
+				eq("Querying token for series 'missingSeries' returned no results."),
+				any(EmptyResultDataAccessException.class));
+		verifyNoMoreInteractions(logger);
+	}
 
-    @Test
-    public void removingUserTokensDeletesData() {
-        template.execute("insert into persistent_logins (series, username, token, last_used) values " +
-                "('joesseries2', 'joeuser', 'atoken2', '2007-10-19 18:19:25.000000000')");
-        template.execute("insert into persistent_logins (series, username, token, last_used) values " +
-                "('joesseries', 'joeuser', 'atoken', '2007-10-09 18:19:25.000000000')");
+	@Test
+	public void removingUserTokensDeletesData() {
+		template.execute("insert into persistent_logins (series, username, token, last_used) values "
+				+ "('joesseries2', 'joeuser', 'atoken2', '2007-10-19 18:19:25.000000000')");
+		template.execute("insert into persistent_logins (series, username, token, last_used) values "
+				+ "('joesseries', 'joeuser', 'atoken', '2007-10-09 18:19:25.000000000')");
 
-       // List results = template.queryForList("select * from persistent_logins where series = 'joesseries'");
+		// List results =
+		// template.queryForList("select * from persistent_logins where series = 'joesseries'");
 
-        repo.removeUserTokens("joeuser");
+		repo.removeUserTokens("joeuser");
 
-        List<Map<String,Object>> results = template.queryForList("select * from persistent_logins where username = 'joeuser'");
+		List<Map<String, Object>> results = template
+				.queryForList("select * from persistent_logins where username = 'joeuser'");
 
-        assertEquals(0, results.size());
-    }
+		assertEquals(0, results.size());
+	}
 
-    @Test
-    public void updatingTokenModifiesTokenValueAndLastUsed() {
-        Timestamp ts = new Timestamp(System.currentTimeMillis() - 1);
-        template.execute("insert into persistent_logins (series, username, token, last_used) values " +
-                "('joesseries', 'joeuser', 'atoken', '" + ts.toString() + "')");
-        repo.updateToken("joesseries", "newtoken", new Date());
+	@Test
+	public void updatingTokenModifiesTokenValueAndLastUsed() {
+		Timestamp ts = new Timestamp(System.currentTimeMillis() - 1);
+		template.execute("insert into persistent_logins (series, username, token, last_used) values "
+				+ "('joesseries', 'joeuser', 'atoken', '" + ts.toString() + "')");
+		repo.updateToken("joesseries", "newtoken", new Date());
 
-        Map<String,Object> results = template.queryForMap("select * from persistent_logins where series = 'joesseries'");
+		Map<String, Object> results = template
+				.queryForMap("select * from persistent_logins where series = 'joesseries'");
 
-        assertEquals("joeuser", results.get("username"));
-        assertEquals("joesseries", results.get("series"));
-        assertEquals("newtoken", results.get("token"));
-        Date lastUsed = (Date) results.get("last_used");
-        assertTrue(lastUsed.getTime() > ts.getTime());
-    }
+		assertEquals("joeuser", results.get("username"));
+		assertEquals("joesseries", results.get("series"));
+		assertEquals("newtoken", results.get("token"));
+		Date lastUsed = (Date) results.get("last_used");
+		assertTrue(lastUsed.getTime() > ts.getTime());
+	}
 
-    @Test
-    public void createTableOnStartupCreatesCorrectTable() {
-        template.execute("drop table persistent_logins");
-        repo = new JdbcTokenRepositoryImpl();
-        repo.setDataSource(dataSource);
-        repo.setCreateTableOnStartup(true);
-        repo.initDao();
+	@Test
+	public void createTableOnStartupCreatesCorrectTable() {
+		template.execute("drop table persistent_logins");
+		repo = new JdbcTokenRepositoryImpl();
+		repo.setDataSource(dataSource);
+		repo.setCreateTableOnStartup(true);
+		repo.initDao();
 
-        template.queryForList("select username,series,token,last_used from persistent_logins");
-    }
+		template.queryForList("select username,series,token,last_used from persistent_logins");
+	}
 
+	// SEC-2879
+	@Test
+	public void updateUsesLastUsed() {
+		JdbcTemplate template = mock(JdbcTemplate.class);
+		Date lastUsed = new Date(1424841314059L);
+		JdbcTokenRepositoryImpl repository = new JdbcTokenRepositoryImpl();
+		repository.setJdbcTemplate(template);
 
-    // SEC-2879
-    @Test
-    public void updateUsesLastUsed() {
-        JdbcTemplate template = mock(JdbcTemplate.class);
-        Date lastUsed = new Date(1424841314059L);
-        JdbcTokenRepositoryImpl repository = new JdbcTokenRepositoryImpl();
-        repository.setJdbcTemplate(template);
+		repository.updateToken("series", "token", lastUsed);
 
-        repository.updateToken("series", "token", lastUsed);
-
-        verify(template).update(anyString(), anyString(), eq(lastUsed), anyString());
-    }
+		verify(template).update(anyString(), anyString(), eq(lastUsed), anyString());
+	}
 
 }

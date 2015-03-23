@@ -17,28 +17,29 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
  */
 public class Jsr250VoterTests {
 
-    // SEC-1443
-    @Test
-    public void supportsMultipleRolesCorrectly() throws Exception {
-        List<ConfigAttribute> attrs = new ArrayList<ConfigAttribute>();
-        Jsr250Voter voter = new Jsr250Voter();
+	// SEC-1443
+	@Test
+	public void supportsMultipleRolesCorrectly() throws Exception {
+		List<ConfigAttribute> attrs = new ArrayList<ConfigAttribute>();
+		Jsr250Voter voter = new Jsr250Voter();
 
-        attrs.add(new Jsr250SecurityConfig("A"));
-        attrs.add(new Jsr250SecurityConfig("B"));
-        attrs.add(new Jsr250SecurityConfig("C"));
+		attrs.add(new Jsr250SecurityConfig("A"));
+		attrs.add(new Jsr250SecurityConfig("B"));
+		attrs.add(new Jsr250SecurityConfig("C"));
 
-        assertEquals(AccessDecisionVoter.ACCESS_GRANTED,
-                voter.vote(new TestingAuthenticationToken("user", "pwd", "A"), new Object(), attrs));
-        assertEquals(AccessDecisionVoter.ACCESS_GRANTED,
-                voter.vote(new TestingAuthenticationToken("user", "pwd", "B"), new Object(), attrs));
-        assertEquals(AccessDecisionVoter.ACCESS_GRANTED,
-                voter.vote(new TestingAuthenticationToken("user", "pwd", "C"), new Object(), attrs));
+		assertEquals(AccessDecisionVoter.ACCESS_GRANTED, voter.vote(
+				new TestingAuthenticationToken("user", "pwd", "A"), new Object(), attrs));
+		assertEquals(AccessDecisionVoter.ACCESS_GRANTED, voter.vote(
+				new TestingAuthenticationToken("user", "pwd", "B"), new Object(), attrs));
+		assertEquals(AccessDecisionVoter.ACCESS_GRANTED, voter.vote(
+				new TestingAuthenticationToken("user", "pwd", "C"), new Object(), attrs));
 
-        assertEquals(AccessDecisionVoter.ACCESS_DENIED,
-                voter.vote(new TestingAuthenticationToken("user", "pwd", "NONE"), new Object(), attrs));
+		assertEquals(AccessDecisionVoter.ACCESS_DENIED, voter.vote(
+				new TestingAuthenticationToken("user", "pwd", "NONE"), new Object(),
+				attrs));
 
-        assertEquals(AccessDecisionVoter.ACCESS_ABSTAIN,
-                voter.vote(new TestingAuthenticationToken("user", "pwd", "A"), new Object(),
-                        SecurityConfig.createList("A","B","C")));
-    }
+		assertEquals(AccessDecisionVoter.ACCESS_ABSTAIN, voter.vote(
+				new TestingAuthenticationToken("user", "pwd", "A"), new Object(),
+				SecurityConfig.createList("A", "B", "C")));
+	}
 }

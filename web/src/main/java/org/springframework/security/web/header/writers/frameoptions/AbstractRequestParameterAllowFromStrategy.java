@@ -8,51 +8,53 @@ import org.springframework.util.StringUtils;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Base class for AllowFromStrategy implementations which use a request parameter to retrieve the origin. By default
- * the parameter named <code>x-frames-allow-from</code> is read from the request.
+ * Base class for AllowFromStrategy implementations which use a request parameter to
+ * retrieve the origin. By default the parameter named <code>x-frames-allow-from</code> is
+ * read from the request.
  *
  * @author Marten Deinum
  * @since 3.2
  */
 abstract class AbstractRequestParameterAllowFromStrategy implements AllowFromStrategy {
 
-    private static final String DEFAULT_ORIGIN_REQUEST_PARAMETER = "x-frames-allow-from";
+	private static final String DEFAULT_ORIGIN_REQUEST_PARAMETER = "x-frames-allow-from";
 
-    private String allowFromParameterName = DEFAULT_ORIGIN_REQUEST_PARAMETER;
+	private String allowFromParameterName = DEFAULT_ORIGIN_REQUEST_PARAMETER;
 
-    /** Logger for use by subclasses */
-    protected final Log log = LogFactory.getLog(getClass());
+	/** Logger for use by subclasses */
+	protected final Log log = LogFactory.getLog(getClass());
 
+	public String getAllowFromValue(HttpServletRequest request) {
+		String allowFromOrigin = request.getParameter(allowFromParameterName);
+		if (log.isDebugEnabled()) {
+			log.debug("Supplied origin '" + allowFromOrigin + "'");
+		}
+		if (StringUtils.hasText(allowFromOrigin) && allowed(allowFromOrigin)) {
+			return allowFromOrigin;
+		}
+		else {
+			return "DENY";
+		}
+	}
 
-    public String getAllowFromValue(HttpServletRequest request) {
-        String allowFromOrigin = request.getParameter(allowFromParameterName);
-        if (log.isDebugEnabled()) {
-            log.debug("Supplied origin '"+allowFromOrigin+"'");
-        }
-        if (StringUtils.hasText(allowFromOrigin) && allowed(allowFromOrigin)) {
-            return allowFromOrigin;
-        } else {
-            return "DENY";
-        }
-    }
+	/**
+	 * Sets the HTTP parameter used to retrieve the value for the origin that is allowed
+	 * from. The value of the parameter should be a valid URL. The default parameter name
+	 * is "x-frames-allow-from".
+	 *
+	 * @param allowFromParameterName the name of the HTTP parameter to
+	 */
+	public void setAllowFromParameterName(String allowFromParameterName) {
+		Assert.notNull(allowFromParameterName, "allowFromParameterName cannot be null");
+		this.allowFromParameterName = allowFromParameterName;
+	}
 
-    /**
-     * Sets the HTTP parameter used to retrieve the value for the origin that is
-     * allowed from. The value of the parameter should be a valid URL. The
-     * default parameter name is "x-frames-allow-from".
-     *
-     * @param allowFromParameterName the name of the HTTP parameter to
-     */
-    public void setAllowFromParameterName(String allowFromParameterName) {
-        Assert.notNull(allowFromParameterName, "allowFromParameterName cannot be null");
-        this.allowFromParameterName = allowFromParameterName;
-    }
-
-    /**
-     * Method to be implemented by base classes, used to determine if the supplied origin is allowed.
-     *
-     * @param allowFromOrigin the supplied origin
-     * @return <code>true</code> if the supplied origin is allowed.
-     */
-    protected abstract boolean allowed(String allowFromOrigin);
+	/**
+	 * Method to be implemented by base classes, used to determine if the supplied origin
+	 * is allowed.
+	 *
+	 * @param allowFromOrigin the supplied origin
+	 * @return <code>true</code> if the supplied origin is allowed.
+	 */
+	protected abstract boolean allowed(String allowFromOrigin);
 }

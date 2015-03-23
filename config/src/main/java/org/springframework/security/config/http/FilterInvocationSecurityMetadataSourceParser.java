@@ -23,141 +23,172 @@ import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Element;
 
 /**
- * Allows for convenient creation of a {@link FilterInvocationSecurityMetadataSource} bean for use with a FilterSecurityInterceptor.
+ * Allows for convenient creation of a {@link FilterInvocationSecurityMetadataSource} bean
+ * for use with a FilterSecurityInterceptor.
  *
  * @author Luke Taylor
  */
 public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinitionParser {
-    private static final String ATT_USE_EXPRESSIONS = "use-expressions";
-    private static final String ATT_HTTP_METHOD = "method";
-    private static final String ATT_PATTERN = "pattern";
-    private static final String ATT_ACCESS = "access";
-    private static final Log logger = LogFactory.getLog(FilterInvocationSecurityMetadataSourceParser.class);
+	private static final String ATT_USE_EXPRESSIONS = "use-expressions";
+	private static final String ATT_HTTP_METHOD = "method";
+	private static final String ATT_PATTERN = "pattern";
+	private static final String ATT_ACCESS = "access";
+	private static final Log logger = LogFactory
+			.getLog(FilterInvocationSecurityMetadataSourceParser.class);
 
-    public BeanDefinition parse(Element element, ParserContext parserContext) {
-        List<Element> interceptUrls = DomUtils.getChildElementsByTagName(element, "intercept-url");
+	public BeanDefinition parse(Element element, ParserContext parserContext) {
+		List<Element> interceptUrls = DomUtils.getChildElementsByTagName(element,
+				"intercept-url");
 
-        // Check for attributes that aren't allowed in this context
-        for(Element elt : interceptUrls) {
-            if (StringUtils.hasLength(elt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_REQUIRES_CHANNEL))) {
-                parserContext.getReaderContext().error("The attribute '" + HttpSecurityBeanDefinitionParser.ATT_REQUIRES_CHANNEL + "' isn't allowed here.", elt);
-            }
+		// Check for attributes that aren't allowed in this context
+		for (Element elt : interceptUrls) {
+			if (StringUtils.hasLength(elt
+					.getAttribute(HttpSecurityBeanDefinitionParser.ATT_REQUIRES_CHANNEL))) {
+				parserContext.getReaderContext().error(
+						"The attribute '"
+								+ HttpSecurityBeanDefinitionParser.ATT_REQUIRES_CHANNEL
+								+ "' isn't allowed here.", elt);
+			}
 
-            if (StringUtils.hasLength(elt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_FILTERS))) {
-                parserContext.getReaderContext().error("The attribute '" + HttpSecurityBeanDefinitionParser.ATT_FILTERS + "' isn't allowed here.", elt);
-            }
-        }
+			if (StringUtils.hasLength(elt
+					.getAttribute(HttpSecurityBeanDefinitionParser.ATT_FILTERS))) {
+				parserContext.getReaderContext().error(
+						"The attribute '" + HttpSecurityBeanDefinitionParser.ATT_FILTERS
+								+ "' isn't allowed here.", elt);
+			}
+		}
 
-        BeanDefinition mds = createSecurityMetadataSource(interceptUrls, false, element, parserContext);
+		BeanDefinition mds = createSecurityMetadataSource(interceptUrls, false, element,
+				parserContext);
 
-        String id = element.getAttribute(AbstractBeanDefinitionParser.ID_ATTRIBUTE);
+		String id = element.getAttribute(AbstractBeanDefinitionParser.ID_ATTRIBUTE);
 
-        if (StringUtils.hasText(id)) {
-            parserContext.registerComponent(new BeanComponentDefinition(mds, id));
-            parserContext.getRegistry().registerBeanDefinition(id, mds);
-        }
+		if (StringUtils.hasText(id)) {
+			parserContext.registerComponent(new BeanComponentDefinition(mds, id));
+			parserContext.getRegistry().registerBeanDefinition(id, mds);
+		}
 
-        return mds;
-    }
+		return mds;
+	}
 
-    static RootBeanDefinition createSecurityMetadataSource(List<Element> interceptUrls, boolean addAllAuth, Element httpElt, ParserContext pc) {
-        MatcherType matcherType = MatcherType.fromElement(httpElt);
-        boolean useExpressions = isUseExpressions(httpElt);
+	static RootBeanDefinition createSecurityMetadataSource(List<Element> interceptUrls,
+			boolean addAllAuth, Element httpElt, ParserContext pc) {
+		MatcherType matcherType = MatcherType.fromElement(httpElt);
+		boolean useExpressions = isUseExpressions(httpElt);
 
-        ManagedMap<BeanDefinition, BeanDefinition> requestToAttributesMap = parseInterceptUrlsForFilterInvocationRequestMap(
-                matcherType, interceptUrls, useExpressions, addAllAuth, pc);
-        BeanDefinitionBuilder fidsBuilder;
+		ManagedMap<BeanDefinition, BeanDefinition> requestToAttributesMap = parseInterceptUrlsForFilterInvocationRequestMap(
+				matcherType, interceptUrls, useExpressions, addAllAuth, pc);
+		BeanDefinitionBuilder fidsBuilder;
 
-        if (useExpressions) {
-            Element expressionHandlerElt = DomUtils.getChildElementByTagName(httpElt, Elements.EXPRESSION_HANDLER);
-            String expressionHandlerRef = expressionHandlerElt == null ? null : expressionHandlerElt.getAttribute("ref");
+		if (useExpressions) {
+			Element expressionHandlerElt = DomUtils.getChildElementByTagName(httpElt,
+					Elements.EXPRESSION_HANDLER);
+			String expressionHandlerRef = expressionHandlerElt == null ? null
+					: expressionHandlerElt.getAttribute("ref");
 
-            if (StringUtils.hasText(expressionHandlerRef)) {
-                logger.info("Using bean '" + expressionHandlerRef + "' as web SecurityExpressionHandler implementation");
-            } else {
-                expressionHandlerRef = registerDefaultExpressionHandler(pc);
-            }
+			if (StringUtils.hasText(expressionHandlerRef)) {
+				logger.info("Using bean '" + expressionHandlerRef
+						+ "' as web SecurityExpressionHandler implementation");
+			}
+			else {
+				expressionHandlerRef = registerDefaultExpressionHandler(pc);
+			}
 
-            fidsBuilder = BeanDefinitionBuilder.rootBeanDefinition(ExpressionBasedFilterInvocationSecurityMetadataSource.class);
-            fidsBuilder.addConstructorArgValue(requestToAttributesMap);
-            fidsBuilder.addConstructorArgReference(expressionHandlerRef);
-        } else {
-            fidsBuilder = BeanDefinitionBuilder.rootBeanDefinition(DefaultFilterInvocationSecurityMetadataSource.class);
-            fidsBuilder.addConstructorArgValue(requestToAttributesMap);
-        }
+			fidsBuilder = BeanDefinitionBuilder
+					.rootBeanDefinition(ExpressionBasedFilterInvocationSecurityMetadataSource.class);
+			fidsBuilder.addConstructorArgValue(requestToAttributesMap);
+			fidsBuilder.addConstructorArgReference(expressionHandlerRef);
+		}
+		else {
+			fidsBuilder = BeanDefinitionBuilder
+					.rootBeanDefinition(DefaultFilterInvocationSecurityMetadataSource.class);
+			fidsBuilder.addConstructorArgValue(requestToAttributesMap);
+		}
 
-        fidsBuilder.getRawBeanDefinition().setSource(pc.extractSource(httpElt));
+		fidsBuilder.getRawBeanDefinition().setSource(pc.extractSource(httpElt));
 
-        return (RootBeanDefinition) fidsBuilder.getBeanDefinition();
-    }
+		return (RootBeanDefinition) fidsBuilder.getBeanDefinition();
+	}
 
-    static String registerDefaultExpressionHandler(ParserContext pc) {
-        BeanDefinition expressionHandler = BeanDefinitionBuilder.rootBeanDefinition(DefaultWebSecurityExpressionHandler.class).getBeanDefinition();
-        String expressionHandlerRef = pc.getReaderContext().generateBeanName(expressionHandler);
-        pc.registerBeanComponent(new BeanComponentDefinition(expressionHandler, expressionHandlerRef));
+	static String registerDefaultExpressionHandler(ParserContext pc) {
+		BeanDefinition expressionHandler = BeanDefinitionBuilder.rootBeanDefinition(
+				DefaultWebSecurityExpressionHandler.class).getBeanDefinition();
+		String expressionHandlerRef = pc.getReaderContext().generateBeanName(
+				expressionHandler);
+		pc.registerBeanComponent(new BeanComponentDefinition(expressionHandler,
+				expressionHandlerRef));
 
-        return expressionHandlerRef;
-    }
+		return expressionHandlerRef;
+	}
 
-    static boolean isUseExpressions(Element elt) {
-        String useExpressions = elt.getAttribute(ATT_USE_EXPRESSIONS);
-        return !StringUtils.hasText(useExpressions) || "true".equals(useExpressions);
-    }
+	static boolean isUseExpressions(Element elt) {
+		String useExpressions = elt.getAttribute(ATT_USE_EXPRESSIONS);
+		return !StringUtils.hasText(useExpressions) || "true".equals(useExpressions);
+	}
 
-    private static ManagedMap<BeanDefinition, BeanDefinition>
-        parseInterceptUrlsForFilterInvocationRequestMap(MatcherType matcherType,
-                List<Element> urlElts, boolean useExpressions, boolean addAuthenticatedAll, ParserContext parserContext) {
+	private static ManagedMap<BeanDefinition, BeanDefinition> parseInterceptUrlsForFilterInvocationRequestMap(
+			MatcherType matcherType, List<Element> urlElts, boolean useExpressions,
+			boolean addAuthenticatedAll, ParserContext parserContext) {
 
-        ManagedMap<BeanDefinition, BeanDefinition> filterInvocationDefinitionMap = new ManagedMap<BeanDefinition, BeanDefinition>();
+		ManagedMap<BeanDefinition, BeanDefinition> filterInvocationDefinitionMap = new ManagedMap<BeanDefinition, BeanDefinition>();
 
-        for (Element urlElt : urlElts) {
-            String access = urlElt.getAttribute(ATT_ACCESS);
-            if (!StringUtils.hasText(access)) {
-                continue;
-            }
+		for (Element urlElt : urlElts) {
+			String access = urlElt.getAttribute(ATT_ACCESS);
+			if (!StringUtils.hasText(access)) {
+				continue;
+			}
 
-            String path = urlElt.getAttribute(ATT_PATTERN);
+			String path = urlElt.getAttribute(ATT_PATTERN);
 
-            if(!StringUtils.hasText(path)) {
-                parserContext.getReaderContext().error("path attribute cannot be empty or null", urlElt);
-            }
+			if (!StringUtils.hasText(path)) {
+				parserContext.getReaderContext().error(
+						"path attribute cannot be empty or null", urlElt);
+			}
 
-            String method = urlElt.getAttribute(ATT_HTTP_METHOD);
-            if (!StringUtils.hasText(method)) {
-                method = null;
-            }
+			String method = urlElt.getAttribute(ATT_HTTP_METHOD);
+			if (!StringUtils.hasText(method)) {
+				method = null;
+			}
 
-            BeanDefinition matcher = matcherType.createMatcher(path, method);
-            BeanDefinitionBuilder attributeBuilder = BeanDefinitionBuilder.rootBeanDefinition(SecurityConfig.class);
+			BeanDefinition matcher = matcherType.createMatcher(path, method);
+			BeanDefinitionBuilder attributeBuilder = BeanDefinitionBuilder
+					.rootBeanDefinition(SecurityConfig.class);
 
-            if (useExpressions) {
-                logger.info("Creating access control expression attribute '" + access + "' for " + path);
-                // The single expression will be parsed later by the ExpressionFilterInvocationSecurityMetadataSource
-                attributeBuilder.addConstructorArgValue(new String[] { access });
-                attributeBuilder.setFactoryMethod("createList");
+			if (useExpressions) {
+				logger.info("Creating access control expression attribute '" + access
+						+ "' for " + path);
+				// The single expression will be parsed later by the
+				// ExpressionFilterInvocationSecurityMetadataSource
+				attributeBuilder.addConstructorArgValue(new String[] { access });
+				attributeBuilder.setFactoryMethod("createList");
 
-            } else {
-                attributeBuilder.addConstructorArgValue(access);
-                attributeBuilder.setFactoryMethod("createListFromCommaDelimitedString");
-            }
+			}
+			else {
+				attributeBuilder.addConstructorArgValue(access);
+				attributeBuilder.setFactoryMethod("createListFromCommaDelimitedString");
+			}
 
-            if (filterInvocationDefinitionMap.containsKey(matcher)) {
-                logger.warn("Duplicate URL defined: " + path + ". The original attribute values will be overwritten");
-            }
+			if (filterInvocationDefinitionMap.containsKey(matcher)) {
+				logger.warn("Duplicate URL defined: " + path
+						+ ". The original attribute values will be overwritten");
+			}
 
-            filterInvocationDefinitionMap.put(matcher, attributeBuilder.getBeanDefinition());
-        }
+			filterInvocationDefinitionMap.put(matcher,
+					attributeBuilder.getBeanDefinition());
+		}
 
-        if(addAuthenticatedAll && filterInvocationDefinitionMap.isEmpty()) {
+		if (addAuthenticatedAll && filterInvocationDefinitionMap.isEmpty()) {
 
-            BeanDefinition matcher = matcherType.createMatcher("/**", null);
-            BeanDefinitionBuilder attributeBuilder = BeanDefinitionBuilder.rootBeanDefinition(SecurityConfig.class);
-            attributeBuilder.addConstructorArgValue(new String[] { "authenticated" });
-            attributeBuilder.setFactoryMethod("createList");
-            filterInvocationDefinitionMap.put(matcher, attributeBuilder.getBeanDefinition());
-        }
+			BeanDefinition matcher = matcherType.createMatcher("/**", null);
+			BeanDefinitionBuilder attributeBuilder = BeanDefinitionBuilder
+					.rootBeanDefinition(SecurityConfig.class);
+			attributeBuilder.addConstructorArgValue(new String[] { "authenticated" });
+			attributeBuilder.setFactoryMethod("createList");
+			filterInvocationDefinitionMap.put(matcher,
+					attributeBuilder.getBeanDefinition());
+		}
 
-        return filterInvocationDefinitionMap;
-    }
+		return filterInvocationDefinitionMap;
+	}
 
 }

@@ -25,11 +25,12 @@ import org.springframework.security.core.Authentication;
 
 /**
  * Annotation that binds a method parameter or method return value to the
- * {@link Authentication#getPrincipal()}. This is necessary to signal that the
- * argument should be resolved to the current user rather than a user that might
- * be edited on a form.
+ * {@link Authentication#getPrincipal()}. This is necessary to signal that the argument
+ * should be resolved to the current user rather than a user that might be edited on a
+ * form.
  *
- * @deprecated Use org.springframework.security.core.annotation.AuthenticationPrincipal instead
+ * @deprecated Use org.springframework.security.core.annotation.AuthenticationPrincipal
+ * instead
  *
  * @author Rob Winch
  * @since 3.2
@@ -39,12 +40,11 @@ import org.springframework.security.core.Authentication;
 @Documented
 public @interface AuthenticationPrincipal {
 
-    /**
-     * True if a {@link ClassCastException} should be thrown
-     * when the current {@link Authentication#getPrincipal()} is the incorrect
-     * type. Default is false.
-     *
-     * @return
-     */
-    boolean errorOnInvalidType() default false;
+	/**
+	 * True if a {@link ClassCastException} should be thrown when the current
+	 * {@link Authentication#getPrincipal()} is the incorrect type. Default is false.
+	 *
+	 * @return
+	 */
+	boolean errorOnInvalidType() default false;
 }

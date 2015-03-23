@@ -15,11 +15,9 @@
 
 package org.springframework.security.web.authentication.switchuser;
 
-
 import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-
 
 /**
  * Application event which indicates that a user context switch.
@@ -27,26 +25,30 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @author Mark St.Godard
  */
 public class AuthenticationSwitchUserEvent extends AbstractAuthenticationEvent {
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private final UserDetails targetUser;
+	private final UserDetails targetUser;
 
-    //~ Constructors ===================================================================================================
+	// ~ Constructors
+	// ===================================================================================================
 
-    /**
-     * Switch user context event constructor
-     *
-     * @param authentication The current <code>Authentication</code> object
-     * @param targetUser The target user
-     */
-    public AuthenticationSwitchUserEvent(Authentication authentication, UserDetails targetUser) {
-        super(authentication);
-        this.targetUser = targetUser;
-    }
+	/**
+	 * Switch user context event constructor
+	 *
+	 * @param authentication The current <code>Authentication</code> object
+	 * @param targetUser The target user
+	 */
+	public AuthenticationSwitchUserEvent(Authentication authentication,
+			UserDetails targetUser) {
+		super(authentication);
+		this.targetUser = targetUser;
+	}
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public UserDetails getTargetUser() {
-        return targetUser;
-    }
+	public UserDetails getTargetUser() {
+		return targetUser;
+	}
 }

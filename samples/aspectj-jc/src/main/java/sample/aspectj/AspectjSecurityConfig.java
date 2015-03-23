@@ -25,7 +25,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 /**
  * @author Rob Winch
  */
-@EnableGlobalMethodSecurity(mode = AdviceMode.ASPECTJ,securedEnabled = true)
+@EnableGlobalMethodSecurity(mode = AdviceMode.ASPECTJ, securedEnabled = true)
 public class AspectjSecurityConfig {
 	@Bean
 	public Service service() {

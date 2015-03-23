@@ -25,55 +25,59 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 /**
- * Class Containing the {@link Configuration} for
- * {@link PasswordEncoderConfigurerTests}. Separate to ensure the configuration
- * compiles in Java (i.e. we are not using hidden methods).
+ * Class Containing the {@link Configuration} for {@link PasswordEncoderConfigurerTests}.
+ * Separate to ensure the configuration compiles in Java (i.e. we are not using hidden
+ * methods).
  *
  * @author Rob Winch
  * @since 3.2
  */
 public class PasswordEncoderConfigurerConfigs {
 
-    @EnableWebSecurity
-    static class PasswordEncoderConfig extends WebSecurityConfigurerAdapter {
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            BCryptPasswordEncoder encoder = passwordEncoder();
-            auth
-                .inMemoryAuthentication()
-                    .withUser("user").password(encoder.encode("password")).roles("USER").and()
-                    .passwordEncoder(encoder);
-        }
+	@EnableWebSecurity
+	static class PasswordEncoderConfig extends WebSecurityConfigurerAdapter {
+		// @formatter:off
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			BCryptPasswordEncoder encoder = passwordEncoder();
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password(encoder.encode("password")).roles("USER").and()
+					.passwordEncoder(encoder);
+		}
+		// @formatter:on
 
-        @Bean
-        @Override
-        public AuthenticationManager authenticationManagerBean()
-                throws Exception {
-            return super.authenticationManagerBean();
-        }
+		@Bean
+		@Override
+		public AuthenticationManager authenticationManagerBean() throws Exception {
+			return super.authenticationManagerBean();
+		}
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-        }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+		}
 
-        @Bean
-        public BCryptPasswordEncoder passwordEncoder() {
-            return new BCryptPasswordEncoder();
-        }
-    }
+		@Bean
+		public BCryptPasswordEncoder passwordEncoder() {
+			return new BCryptPasswordEncoder();
+		}
+	}
 
-    @EnableWebSecurity
-    static class PasswordEncoderNoAuthManagerLoadsConfig extends WebSecurityConfigurerAdapter {
-        protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            BCryptPasswordEncoder encoder = passwordEncoder();
-            auth
-                .inMemoryAuthentication()
-                    .withUser("user").password(encoder.encode("password")).roles("USER").and()
-                    .passwordEncoder(encoder);
-        }
+	@EnableWebSecurity
+	static class PasswordEncoderNoAuthManagerLoadsConfig extends
+			WebSecurityConfigurerAdapter {
+		// @formatter:off
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			BCryptPasswordEncoder encoder = passwordEncoder();
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password(encoder.encode("password")).roles("USER").and()
+					.passwordEncoder(encoder);
+		}
+		// @formatter:on
 
-        @Bean
-        public BCryptPasswordEncoder passwordEncoder() {
-            return new BCryptPasswordEncoder();
-        }
-    }
+		@Bean
+		public BCryptPasswordEncoder passwordEncoder() {
+			return new BCryptPasswordEncoder();
+		}
+	}
 }

@@ -20,62 +20,64 @@ import org.springframework.security.openid.OpenIDConsumerException;
 
 import javax.servlet.http.HttpServletRequest;
 
-
 /**
  * @author Robin Bramley, Opsera Ltd
  */
 public class MockOpenIDConsumer implements OpenIDConsumer {
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private OpenIDAuthenticationToken token;
-    private String redirectUrl;
+	private OpenIDAuthenticationToken token;
+	private String redirectUrl;
 
-    public MockOpenIDConsumer() {
-    }
+	public MockOpenIDConsumer() {
+	}
 
-    public MockOpenIDConsumer(String redirectUrl, OpenIDAuthenticationToken token) {
-        this.redirectUrl = redirectUrl;
-        this.token = token;
-    }
+	public MockOpenIDConsumer(String redirectUrl, OpenIDAuthenticationToken token) {
+		this.redirectUrl = redirectUrl;
+		this.token = token;
+	}
 
-    public MockOpenIDConsumer(String redirectUrl) {
-        this.redirectUrl = redirectUrl;
-    }
+	public MockOpenIDConsumer(String redirectUrl) {
+		this.redirectUrl = redirectUrl;
+	}
 
-    public MockOpenIDConsumer(OpenIDAuthenticationToken token) {
-        this.token = token;
-    }
+	public MockOpenIDConsumer(OpenIDAuthenticationToken token) {
+		this.token = token;
+	}
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public String beginConsumption(HttpServletRequest req, String claimedIdentity, String returnToUrl, String realm) throws OpenIDConsumerException {
-        return redirectUrl;
-    }
+	public String beginConsumption(HttpServletRequest req, String claimedIdentity,
+			String returnToUrl, String realm) throws OpenIDConsumerException {
+		return redirectUrl;
+	}
 
-    public OpenIDAuthenticationToken endConsumption(HttpServletRequest req)
-            throws OpenIDConsumerException {
-        return token;
-    }
+	public OpenIDAuthenticationToken endConsumption(HttpServletRequest req)
+			throws OpenIDConsumerException {
+		return token;
+	}
 
-    /**
-     * Set the redirectUrl to be returned by beginConsumption
-     *
-     * @param redirectUrl
-     */
-    public void setRedirectUrl(String redirectUrl) {
-        this.redirectUrl = redirectUrl;
-    }
+	/**
+	 * Set the redirectUrl to be returned by beginConsumption
+	 *
+	 * @param redirectUrl
+	 */
+	public void setRedirectUrl(String redirectUrl) {
+		this.redirectUrl = redirectUrl;
+	}
 
-    public void setReturnToUrl(String returnToUrl) {
-        // TODO Auto-generated method stub
-    }
+	public void setReturnToUrl(String returnToUrl) {
+		// TODO Auto-generated method stub
+	}
 
-    /**
-     * Set the token to be returned by endConsumption
-     *
-     * @param token
-     */
-    public void setToken(OpenIDAuthenticationToken token) {
-        this.token = token;
-    }
+	/**
+	 * Set the token to be returned by endConsumption
+	 *
+	 * @param token
+	 */
+	public void setToken(OpenIDAuthenticationToken token) {
+		this.token = token;
+	}
 }

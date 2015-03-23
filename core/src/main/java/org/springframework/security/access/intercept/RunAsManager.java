@@ -21,82 +21,87 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 
 /**
- * Creates a new temporary {@link Authentication} object for the current secure
- * object invocation only.
+ * Creates a new temporary {@link Authentication} object for the current secure object
+ * invocation only.
  *
  * <p>
- * This interface permits implementations to replace the
- * <code>Authentication</code> object that applies to the current secure
- * object invocation only. The {@link
- * org.springframework.security.access.intercept.AbstractSecurityInterceptor} will replace
- * the <code>Authentication</code> object held in the
- * {@link org.springframework.security.core.context.SecurityContext SecurityContext}
- * for the duration of  the secure object callback only, returning it to
- * the original <code>Authentication</code> object when the callback ends.
+ * This interface permits implementations to replace the <code>Authentication</code>
+ * object that applies to the current secure object invocation only. The
+ * {@link org.springframework.security.access.intercept.AbstractSecurityInterceptor} will
+ * replace the <code>Authentication</code> object held in the
+ * {@link org.springframework.security.core.context.SecurityContext SecurityContext} for
+ * the duration of the secure object callback only, returning it to the original
+ * <code>Authentication</code> object when the callback ends.
  * </p>
  *
  * <p>
- * This is provided so that systems with two layers of objects can be
- * established. One layer is public facing and has normal secure methods with
- * the granted authorities expected to be held by external callers. The other
- * layer is private, and is only expected to be called by objects within the
- * public facing layer. The objects in this private layer still need security
- * (otherwise they would be public methods) and they also need security in
- * such a manner that prevents them being called directly by external callers.
- * The objects in the private layer would be configured to require granted
- * authorities never granted to external callers. The
- * <code>RunAsManager</code> interface provides a mechanism to elevate
- * security in this manner.
+ * This is provided so that systems with two layers of objects can be established. One
+ * layer is public facing and has normal secure methods with the granted authorities
+ * expected to be held by external callers. The other layer is private, and is only
+ * expected to be called by objects within the public facing layer. The objects in this
+ * private layer still need security (otherwise they would be public methods) and they
+ * also need security in such a manner that prevents them being called directly by
+ * external callers. The objects in the private layer would be configured to require
+ * granted authorities never granted to external callers. The <code>RunAsManager</code>
+ * interface provides a mechanism to elevate security in this manner.
  * </p>
  *
  * <p>
  * It is expected implementations will provide a corresponding concrete
- * <code>Authentication</code> and <code>AuthenticationProvider</code> so that
- * the replacement <code>Authentication</code> object can be authenticated.
- * Some form of security will need to be implemented to ensure the
- * <code>AuthenticationProvider</code> only accepts
- * <code>Authentication</code> objects created by an authorized concrete
+ * <code>Authentication</code> and <code>AuthenticationProvider</code> so that the
+ * replacement <code>Authentication</code> object can be authenticated. Some form of
+ * security will need to be implemented to ensure the <code>AuthenticationProvider</code>
+ * only accepts <code>Authentication</code> objects created by an authorized concrete
  * implementation of <code>RunAsManager</code>.
  * </p>
  *
  * @author Ben Alex
  */
 public interface RunAsManager {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    /**
-     * Returns a replacement <code>Authentication</code> object for the current secure object invocation, or
-     * <code>null</code> if replacement not required.
-     *
-     * @param authentication the caller invoking the secure object
-     * @param object the secured object being called
-     * @param attributes the configuration attributes associated with the secure object being invoked
-     *
-     * @return a replacement object to be used for duration of the secure object invocation, or <code>null</code> if
-     *         the <code>Authentication</code> should be left as is
-     */
-    Authentication buildRunAs(Authentication authentication, Object object, Collection<ConfigAttribute> attributes);
+	/**
+	 * Returns a replacement <code>Authentication</code> object for the current secure
+	 * object invocation, or <code>null</code> if replacement not required.
+	 *
+	 * @param authentication the caller invoking the secure object
+	 * @param object the secured object being called
+	 * @param attributes the configuration attributes associated with the secure object
+	 * being invoked
+	 *
+	 * @return a replacement object to be used for duration of the secure object
+	 * invocation, or <code>null</code> if the <code>Authentication</code> should be left
+	 * as is
+	 */
+	Authentication buildRunAs(Authentication authentication, Object object,
+			Collection<ConfigAttribute> attributes);
 
-    /**
-     * Indicates whether this <code>RunAsManager</code> is able to process the passed
-     * <code>ConfigAttribute</code>.<p>This allows the <code>AbstractSecurityInterceptor</code> to check every
-     * configuration attribute can be consumed by the configured <code>AccessDecisionManager</code> and/or
-     * <code>RunAsManager</code> and/or <code>AfterInvocationManager</code>.</p>
-     *
-     * @param attribute a configuration attribute that has been configured against the
-     *        <code>AbstractSecurityInterceptor</code>
-     *
-     * @return <code>true</code> if this <code>RunAsManager</code> can support the passed configuration attribute
-     */
-    boolean supports(ConfigAttribute attribute);
+	/**
+	 * Indicates whether this <code>RunAsManager</code> is able to process the passed
+	 * <code>ConfigAttribute</code>.
+	 * <p>
+	 * This allows the <code>AbstractSecurityInterceptor</code> to check every
+	 * configuration attribute can be consumed by the configured
+	 * <code>AccessDecisionManager</code> and/or <code>RunAsManager</code> and/or
+	 * <code>AfterInvocationManager</code>.
+	 * </p>
+	 *
+	 * @param attribute a configuration attribute that has been configured against the
+	 * <code>AbstractSecurityInterceptor</code>
+	 *
+	 * @return <code>true</code> if this <code>RunAsManager</code> can support the passed
+	 * configuration attribute
+	 */
+	boolean supports(ConfigAttribute attribute);
 
-    /**
-     * Indicates whether the <code>RunAsManager</code> implementation is able to provide run-as replacement for
-     * the indicated secure object type.
-     *
-     * @param clazz the class that is being queried
-     *
-     * @return true if the implementation can process the indicated class
-     */
-    boolean supports(Class<?> clazz);
+	/**
+	 * Indicates whether the <code>RunAsManager</code> implementation is able to provide
+	 * run-as replacement for the indicated secure object type.
+	 *
+	 * @param clazz the class that is being queried
+	 *
+	 * @return true if the implementation can process the indicated class
+	 */
+	boolean supports(Class<?> clazz);
 }

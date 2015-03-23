@@ -37,75 +37,77 @@ import org.springframework.security.web.header.writers.frameoptions.XFrameOption
  */
 @RunWith(MockitoJUnitRunner.class)
 public class FrameOptionsHeaderWriterTests {
-    @Mock
-    private AllowFromStrategy strategy;
+	@Mock
+	private AllowFromStrategy strategy;
 
-    private MockHttpServletResponse response;
+	private MockHttpServletResponse response;
 
-    private MockHttpServletRequest request;
+	private MockHttpServletRequest request;
 
-    private XFrameOptionsHeaderWriter writer;
+	private XFrameOptionsHeaderWriter writer;
 
-    @Before
-    public void setup() {
-        request = new MockHttpServletRequest();
-        response = new MockHttpServletResponse();
-    }
+	@Before
+	public void setup() {
+		request = new MockHttpServletRequest();
+		response = new MockHttpServletResponse();
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullMode() {
-        new XFrameOptionsHeaderWriter((XFrameOptionsMode)null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullMode() {
+		new XFrameOptionsHeaderWriter((XFrameOptionsMode) null);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorAllowFromNoAllowFromStrategy() {
-        new XFrameOptionsHeaderWriter(XFrameOptionsMode.ALLOW_FROM);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorAllowFromNoAllowFromStrategy() {
+		new XFrameOptionsHeaderWriter(XFrameOptionsMode.ALLOW_FROM);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullAllowFromStrategy() {
-        new XFrameOptionsHeaderWriter((AllowFromStrategy)null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullAllowFromStrategy() {
+		new XFrameOptionsHeaderWriter((AllowFromStrategy) null);
+	}
 
-    @Test
-    public void writeHeadersAllowFromReturnsNull() {
-        writer = new XFrameOptionsHeaderWriter(strategy);
+	@Test
+	public void writeHeadersAllowFromReturnsNull() {
+		writer = new XFrameOptionsHeaderWriter(strategy);
 
-        writer.writeHeaders(request, response);
+		writer.writeHeaders(request, response);
 
-        assertThat(response.getHeaderNames().isEmpty()).isTrue();
-    }
+		assertThat(response.getHeaderNames().isEmpty()).isTrue();
+	}
 
-    @Test
-    public void writeHeadersAllowFrom() {
-        String allowFromValue = "https://example.com/";
-        when(strategy.getAllowFromValue(request)).thenReturn(allowFromValue);
-        writer = new XFrameOptionsHeaderWriter(strategy);
+	@Test
+	public void writeHeadersAllowFrom() {
+		String allowFromValue = "https://example.com/";
+		when(strategy.getAllowFromValue(request)).thenReturn(allowFromValue);
+		writer = new XFrameOptionsHeaderWriter(strategy);
 
-        writer.writeHeaders(request, response);
+		writer.writeHeaders(request, response);
 
-        assertThat(response.getHeaderNames().size()).isEqualTo(1);
-        assertThat(response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER)).isEqualTo("ALLOW-FROM " + allowFromValue);
-    }
+		assertThat(response.getHeaderNames().size()).isEqualTo(1);
+		assertThat(response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER))
+				.isEqualTo("ALLOW-FROM " + allowFromValue);
+	}
 
-    @Test
-    public void writeHeadersDeny() {
-        writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.DENY);
+	@Test
+	public void writeHeadersDeny() {
+		writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.DENY);
 
-        writer.writeHeaders(request, response);
+		writer.writeHeaders(request, response);
 
-        assertThat(response.getHeaderNames().size()).isEqualTo(1);
-        assertThat(response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER)).isEqualTo("DENY");
-    }
+		assertThat(response.getHeaderNames().size()).isEqualTo(1);
+		assertThat(response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER))
+				.isEqualTo("DENY");
+	}
 
+	@Test
+	public void writeHeadersSameOrigin() {
+		writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.SAMEORIGIN);
 
-    @Test
-    public void writeHeadersSameOrigin() {
-        writer = new XFrameOptionsHeaderWriter(XFrameOptionsMode.SAMEORIGIN);
+		writer.writeHeaders(request, response);
 
-        writer.writeHeaders(request, response);
-
-        assertThat(response.getHeaderNames().size()).isEqualTo(1);
-        assertThat(response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER)).isEqualTo("SAMEORIGIN");
-    }
+		assertThat(response.getHeaderNames().size()).isEqualTo(1);
+		assertThat(response.getHeader(XFrameOptionsHeaderWriter.XFRAME_OPTIONS_HEADER))
+				.isEqualTo("SAMEORIGIN");
+	}
 }

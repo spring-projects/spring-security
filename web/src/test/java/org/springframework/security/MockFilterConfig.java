@@ -22,41 +22,43 @@ import java.util.Map;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 
-
 /**
  *
  * @author Ben Alex
  */
 @SuppressWarnings("unchecked")
 public class MockFilterConfig implements FilterConfig {
-    //~ Instance fields ================================================================================================
-    private Map map = new HashMap();
+	// ~ Instance fields
+	// ================================================================================================
+	private Map map = new HashMap();
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public String getFilterName() {
-        throw new UnsupportedOperationException("mock method not implemented");
-    }
+	public String getFilterName() {
+		throw new UnsupportedOperationException("mock method not implemented");
+	}
 
-    public String getInitParameter(String arg0) {
-        Object result = map.get(arg0);
+	public String getInitParameter(String arg0) {
+		Object result = map.get(arg0);
 
-        if (result != null) {
-            return (String) result;
-        } else {
-            return null;
-        }
-    }
+		if (result != null) {
+			return (String) result;
+		}
+		else {
+			return null;
+		}
+	}
 
-    public Enumeration getInitParameterNames() {
-        throw new UnsupportedOperationException("mock method not implemented");
-    }
+	public Enumeration getInitParameterNames() {
+		throw new UnsupportedOperationException("mock method not implemented");
+	}
 
-    public ServletContext getServletContext() {
-        throw new UnsupportedOperationException("mock method not implemented");
-    }
+	public ServletContext getServletContext() {
+		throw new UnsupportedOperationException("mock method not implemented");
+	}
 
-    public void setInitParmeter(String parameter, String value) {
-        map.put(parameter, value);
-    }
+	public void setInitParmeter(String parameter, String value) {
+		map.put(parameter, value);
+	}
 }

@@ -24,7 +24,7 @@ package org.springframework.security.web.csrf;
 @SuppressWarnings("serial")
 public class MissingCsrfTokenException extends CsrfException {
 
-    public MissingCsrfTokenException(String actualToken) {
-        super("Expected CSRF token not found. Has your session expired?");
-    }
+	public MissingCsrfTokenException(String actualToken) {
+		super("Expected CSRF token not found. Has your session expired?");
+	}
 }

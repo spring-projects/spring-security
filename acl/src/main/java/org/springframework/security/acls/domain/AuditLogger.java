@@ -16,7 +16,6 @@ package org.springframework.security.acls.domain;
 
 import org.springframework.security.acls.model.AccessControlEntry;
 
-
 /**
  * Used by <code>AclImpl</code> to log audit events.
  *
@@ -24,7 +23,8 @@ import org.springframework.security.acls.model.AccessControlEntry;
  *
  */
 public interface AuditLogger {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    void logIfNeeded(boolean granted, AccessControlEntry ace);
+	void logIfNeeded(boolean granted, AccessControlEntry ace);
 }

@@ -27,53 +27,57 @@ import org.springframework.util.StringUtils;
  * @author Ben Alex
  */
 public class SecurityConfig implements ConfigAttribute {
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private final String attrib;
+	private final String attrib;
 
-    //~ Constructors ===================================================================================================
+	// ~ Constructors
+	// ===================================================================================================
 
-    public SecurityConfig(String config) {
-        Assert.hasText(config, "You must provide a configuration attribute");
-        this.attrib = config;
-    }
+	public SecurityConfig(String config) {
+		Assert.hasText(config, "You must provide a configuration attribute");
+		this.attrib = config;
+	}
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public boolean equals(Object obj) {
-        if (obj instanceof ConfigAttribute) {
-            ConfigAttribute attr = (ConfigAttribute) obj;
+	public boolean equals(Object obj) {
+		if (obj instanceof ConfigAttribute) {
+			ConfigAttribute attr = (ConfigAttribute) obj;
 
-            return this.attrib.equals(attr.getAttribute());
-        }
+			return this.attrib.equals(attr.getAttribute());
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-    public String getAttribute() {
-        return this.attrib;
-    }
+	public String getAttribute() {
+		return this.attrib;
+	}
 
-    public int hashCode() {
-        return this.attrib.hashCode();
-    }
+	public int hashCode() {
+		return this.attrib.hashCode();
+	}
 
-    public String toString() {
-        return this.attrib;
-    }
+	public String toString() {
+		return this.attrib;
+	}
 
-    public static List<ConfigAttribute> createListFromCommaDelimitedString(String access) {
-        return createList(StringUtils.commaDelimitedListToStringArray(access));
-    }
+	public static List<ConfigAttribute> createListFromCommaDelimitedString(String access) {
+		return createList(StringUtils.commaDelimitedListToStringArray(access));
+	}
 
-    public static List<ConfigAttribute> createList(String... attributeNames) {
-        Assert.notNull(attributeNames, "You must supply an array of attribute names");
-        List<ConfigAttribute> attributes = new ArrayList<ConfigAttribute>(attributeNames.length);
+	public static List<ConfigAttribute> createList(String... attributeNames) {
+		Assert.notNull(attributeNames, "You must supply an array of attribute names");
+		List<ConfigAttribute> attributes = new ArrayList<ConfigAttribute>(
+				attributeNames.length);
 
-        for (String attribute : attributeNames) {
-            attributes.add(new SecurityConfig(attribute.trim()));
-        }
+		for (String attribute : attributeNames) {
+			attributes.add(new SecurityConfig(attribute.trim()));
+		}
 
-        return attributes;
-    }
+		return attributes;
+	}
 }

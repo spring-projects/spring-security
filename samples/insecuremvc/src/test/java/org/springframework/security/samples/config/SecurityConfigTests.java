@@ -38,29 +38,24 @@ import org.springframework.web.context.WebApplicationContext;
  *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes={RootConfiguration.class, WebMvcConfiguration.class})
+@ContextConfiguration(classes = { RootConfiguration.class, WebMvcConfiguration.class })
 @WebAppConfiguration
 public class SecurityConfigTests {
-    private MockMvc mvc;
+	private MockMvc mvc;
 
-    @Autowired
-    private WebApplicationContext context;
+	@Autowired
+	private WebApplicationContext context;
 
-    @Before
-    public void setup() {
-        mvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .build();
-    }
+	@Before
+	public void setup() {
+		mvc = MockMvcBuilders.webAppContextSetup(context).build();
+	}
 
-    @Test
-    public void composeMessage() throws Exception {
-        MockHttpServletRequestBuilder composeMessage =
-            post("/")
-                .param("summary", "New Message")
-                .param("text", "This is a new message");
+	@Test
+	public void composeMessage() throws Exception {
+		MockHttpServletRequestBuilder composeMessage = post("/").param("summary",
+				"New Message").param("text", "This is a new message");
 
-        mvc.perform(composeMessage)
-            .andExpect(redirectedUrlPattern("/*"));
-    }
+		mvc.perform(composeMessage).andExpect(redirectedUrlPattern("/*"));
+	}
 }

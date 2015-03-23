@@ -23,63 +23,78 @@ import org.springframework.security.access.prepost.PreInvocationAttribute;
 import org.springframework.security.access.prepost.PrePostInvocationAttributeFactory;
 
 /**
- * {@link PrePostInvocationAttributeFactory} which interprets the annotation value as
- * an expression to be evaluated at runtime.
+ * {@link PrePostInvocationAttributeFactory} which interprets the annotation value as an
+ * expression to be evaluated at runtime.
  *
  * @author Luke Taylor
  * @author Rob Winch
  * @since 3.0
  */
-public class ExpressionBasedAnnotationAttributeFactory implements PrePostInvocationAttributeFactory {
-    private final Object parserLock = new Object();
-    private ExpressionParser parser;
-    private MethodSecurityExpressionHandler handler;
+public class ExpressionBasedAnnotationAttributeFactory implements
+		PrePostInvocationAttributeFactory {
+	private final Object parserLock = new Object();
+	private ExpressionParser parser;
+	private MethodSecurityExpressionHandler handler;
 
-    public ExpressionBasedAnnotationAttributeFactory(MethodSecurityExpressionHandler handler) {
-        this.handler = handler;
-    }
+	public ExpressionBasedAnnotationAttributeFactory(
+			MethodSecurityExpressionHandler handler) {
+		this.handler = handler;
+	}
 
-    public PreInvocationAttribute createPreInvocationAttribute(String preFilterAttribute, String filterObject, String preAuthorizeAttribute) {
-        try {
-            // TODO: Optimization of permitAll
-            ExpressionParser parser = getParser();
-            Expression preAuthorizeExpression = preAuthorizeAttribute == null ? parser.parseExpression("permitAll") : parser.parseExpression(preAuthorizeAttribute);
-            Expression preFilterExpression = preFilterAttribute == null ? null : parser.parseExpression(preFilterAttribute);
-            return new PreInvocationExpressionAttribute(preFilterExpression, filterObject, preAuthorizeExpression);
-        } catch (ParseException e) {
-            throw new IllegalArgumentException("Failed to parse expression '" + e.getExpressionString() + "'", e);
-        }
-    }
+	public PreInvocationAttribute createPreInvocationAttribute(String preFilterAttribute,
+			String filterObject, String preAuthorizeAttribute) {
+		try {
+			// TODO: Optimization of permitAll
+			ExpressionParser parser = getParser();
+			Expression preAuthorizeExpression = preAuthorizeAttribute == null ? parser
+					.parseExpression("permitAll") : parser
+					.parseExpression(preAuthorizeAttribute);
+			Expression preFilterExpression = preFilterAttribute == null ? null : parser
+					.parseExpression(preFilterAttribute);
+			return new PreInvocationExpressionAttribute(preFilterExpression,
+					filterObject, preAuthorizeExpression);
+		}
+		catch (ParseException e) {
+			throw new IllegalArgumentException("Failed to parse expression '"
+					+ e.getExpressionString() + "'", e);
+		}
+	}
 
-    public PostInvocationAttribute createPostInvocationAttribute(String postFilterAttribute, String postAuthorizeAttribute) {
-        try {
-            ExpressionParser parser = getParser();
-            Expression postAuthorizeExpression = postAuthorizeAttribute == null ? null : parser.parseExpression(postAuthorizeAttribute);
-            Expression postFilterExpression = postFilterAttribute == null ? null : parser.parseExpression(postFilterAttribute);
+	public PostInvocationAttribute createPostInvocationAttribute(
+			String postFilterAttribute, String postAuthorizeAttribute) {
+		try {
+			ExpressionParser parser = getParser();
+			Expression postAuthorizeExpression = postAuthorizeAttribute == null ? null
+					: parser.parseExpression(postAuthorizeAttribute);
+			Expression postFilterExpression = postFilterAttribute == null ? null : parser
+					.parseExpression(postFilterAttribute);
 
-            if (postFilterExpression != null || postAuthorizeExpression != null) {
-                return new PostInvocationExpressionAttribute(postFilterExpression, postAuthorizeExpression);
-            }
-        } catch (ParseException e) {
-            throw new IllegalArgumentException("Failed to parse expression '" + e.getExpressionString() + "'", e);
-        }
+			if (postFilterExpression != null || postAuthorizeExpression != null) {
+				return new PostInvocationExpressionAttribute(postFilterExpression,
+						postAuthorizeExpression);
+			}
+		}
+		catch (ParseException e) {
+			throw new IllegalArgumentException("Failed to parse expression '"
+					+ e.getExpressionString() + "'", e);
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    /**
-     * Delay the lookup of the {@link ExpressionParser} to prevent SEC-2136
-     *
-     * @return
-     */
-    private ExpressionParser getParser() {
-        if(this.parser != null) {
-            return this.parser;
-        }
-        synchronized(parserLock) {
-            this.parser = handler.getExpressionParser();
-            this.handler = null;
-        }
-        return this.parser;
-    }
+	/**
+	 * Delay the lookup of the {@link ExpressionParser} to prevent SEC-2136
+	 *
+	 * @return
+	 */
+	private ExpressionParser getParser() {
+		if (this.parser != null) {
+			return this.parser;
+		}
+		synchronized (parserLock) {
+			this.parser = handler.getExpressionParser();
+			this.handler = null;
+		}
+		return this.parser;
+	}
 }

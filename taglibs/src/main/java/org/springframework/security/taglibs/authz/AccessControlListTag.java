@@ -30,160 +30,168 @@ import javax.servlet.jsp.tagext.Tag;
 import javax.servlet.jsp.tagext.TagSupport;
 import java.util.*;
 
-
 /**
- * An implementation of {@link Tag} that allows its body through if all authorizations are granted to the request's
- * principal.
+ * An implementation of {@link Tag} that allows its body through if all authorizations are
+ * granted to the request's principal.
  * <p>
- * One or more comma separate numeric are specified via the {@code hasPermission} attribute. The tag delegates
- * to the configured {@link PermissionEvaluator} which it obtains from the {@code ApplicationContext}.
+ * One or more comma separate numeric are specified via the {@code hasPermission}
+ * attribute. The tag delegates to the configured {@link PermissionEvaluator} which it
+ * obtains from the {@code ApplicationContext}.
  * <p>
  * For this class to operate it must be able to access the application context via the
- * {@code WebApplicationContextUtils} and attempt to locate the {@code PermissionEvaluator} instance.
- * There cannot be more than one of these present for the tag to function.
+ * {@code WebApplicationContextUtils} and attempt to locate the
+ * {@code PermissionEvaluator} instance. There cannot be more than one of these present
+ * for the tag to function.
  *
  * @author Ben Alex
  * @author Luke Taylor
  * @author Rob Winch
  */
 public class AccessControlListTag extends TagSupport {
-    //~ Static fields/initializers =====================================================================================
+	// ~ Static fields/initializers
+	// =====================================================================================
 
-    protected static final Log logger = LogFactory.getLog(AccessControlListTag.class);
+	protected static final Log logger = LogFactory.getLog(AccessControlListTag.class);
 
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private ApplicationContext applicationContext;
-    private Object domainObject;
-    private PermissionEvaluator permissionEvaluator;
-    private String hasPermission = "";
-    private String var;
+	private ApplicationContext applicationContext;
+	private Object domainObject;
+	private PermissionEvaluator permissionEvaluator;
+	private String hasPermission = "";
+	private String var;
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public int doStartTag() throws JspException {
-        if ((null == hasPermission) || "".equals(hasPermission)) {
-            return skipBody();
-        }
+	public int doStartTag() throws JspException {
+		if ((null == hasPermission) || "".equals(hasPermission)) {
+			return skipBody();
+		}
 
-        initializeIfRequired();
+		initializeIfRequired();
 
-        if (domainObject == null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("domainObject resolved to null, so including tag body");
-            }
+		if (domainObject == null) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("domainObject resolved to null, so including tag body");
+			}
 
-            // Of course they have access to a null object!
-            return evalBody();
-        }
+			// Of course they have access to a null object!
+			return evalBody();
+		}
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(
-                    "SecurityContextHolder did not return a non-null Authentication object, so skipping tag body");
-            }
+		Authentication authentication = SecurityContextHolder.getContext()
+				.getAuthentication();
+		if (authentication == null) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("SecurityContextHolder did not return a non-null Authentication object, so skipping tag body");
+			}
 
-            return skipBody();
-        }
+			return skipBody();
+		}
 
-        List<Object> requiredPermissions = parseHasPermission(hasPermission);
-        for(Object requiredPermission : requiredPermissions) {
-            if (!permissionEvaluator.hasPermission(authentication, domainObject, requiredPermission)) {
-                return skipBody();
-            }
-        }
+		List<Object> requiredPermissions = parseHasPermission(hasPermission);
+		for (Object requiredPermission : requiredPermissions) {
+			if (!permissionEvaluator.hasPermission(authentication, domainObject,
+					requiredPermission)) {
+				return skipBody();
+			}
+		}
 
-        return evalBody();
-    }
+		return evalBody();
+	}
 
-    private List<Object> parseHasPermission(String hasPermission) {
-        String[] requiredPermissions = hasPermission.split(",");
-        List<Object> parsedPermissions = new ArrayList<Object>(requiredPermissions.length);
-        for(String permissionToParse : requiredPermissions) {
-            Object parsedPermission = permissionToParse;
-            try {
-                parsedPermission = Integer.parseInt(permissionToParse);
-            }catch(NumberFormatException notBitMask) {}
-            parsedPermissions.add(parsedPermission);
-        }
-        return parsedPermissions;
-    }
+	private List<Object> parseHasPermission(String hasPermission) {
+		String[] requiredPermissions = hasPermission.split(",");
+		List<Object> parsedPermissions = new ArrayList<Object>(requiredPermissions.length);
+		for (String permissionToParse : requiredPermissions) {
+			Object parsedPermission = permissionToParse;
+			try {
+				parsedPermission = Integer.parseInt(permissionToParse);
+			}
+			catch (NumberFormatException notBitMask) {
+			}
+			parsedPermissions.add(parsedPermission);
+		}
+		return parsedPermissions;
+	}
 
-    private int skipBody() {
-        if (var != null) {
-            pageContext.setAttribute(var, Boolean.FALSE, PageContext.PAGE_SCOPE);
-        }
-        return TagLibConfig.evalOrSkip(false);
-    }
+	private int skipBody() {
+		if (var != null) {
+			pageContext.setAttribute(var, Boolean.FALSE, PageContext.PAGE_SCOPE);
+		}
+		return TagLibConfig.evalOrSkip(false);
+	}
 
-    private int evalBody() {
-        if (var != null) {
-            pageContext.setAttribute(var, Boolean.TRUE, PageContext.PAGE_SCOPE);
-        }
-        return TagLibConfig.evalOrSkip(true);
-    }
+	private int evalBody() {
+		if (var != null) {
+			pageContext.setAttribute(var, Boolean.TRUE, PageContext.PAGE_SCOPE);
+		}
+		return TagLibConfig.evalOrSkip(true);
+	}
 
+	/**
+	 * Allows test cases to override where application context obtained from.
+	 *
+	 * @param pageContext so the <code>ServletContext</code> can be accessed as required
+	 * by Spring's <code>WebApplicationContextUtils</code>
+	 *
+	 * @return the Spring application context (never <code>null</code>)
+	 */
+	protected ApplicationContext getContext(PageContext pageContext) {
+		ServletContext servletContext = pageContext.getServletContext();
 
-    /**
-     * Allows test cases to override where application context obtained from.
-     *
-     * @param pageContext so the <code>ServletContext</code> can be accessed as required by Spring's
-     *        <code>WebApplicationContextUtils</code>
-     *
-     * @return the Spring application context (never <code>null</code>)
-     */
-    protected ApplicationContext getContext(PageContext pageContext) {
-        ServletContext servletContext = pageContext.getServletContext();
+		return WebApplicationContextUtils
+				.getRequiredWebApplicationContext(servletContext);
+	}
 
-        return WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
-    }
+	public Object getDomainObject() {
+		return domainObject;
+	}
 
-    public Object getDomainObject() {
-        return domainObject;
-    }
+	public String getHasPermission() {
+		return hasPermission;
+	}
 
-    public String getHasPermission() {
-        return hasPermission;
-    }
+	private void initializeIfRequired() throws JspException {
+		if (applicationContext != null) {
+			return;
+		}
 
-    private void initializeIfRequired() throws JspException {
-        if (applicationContext != null) {
-            return;
-        }
+		this.applicationContext = getContext(pageContext);
 
-        this.applicationContext = getContext(pageContext);
+		permissionEvaluator = getBeanOfType(PermissionEvaluator.class);
+	}
 
-        permissionEvaluator = getBeanOfType(PermissionEvaluator.class);
-    }
+	private <T> T getBeanOfType(Class<T> type) throws JspException {
+		Map<String, T> map = applicationContext.getBeansOfType(type);
 
-    private <T> T getBeanOfType(Class<T> type) throws JspException {
-        Map<String, T> map = applicationContext.getBeansOfType(type);
+		for (ApplicationContext context = applicationContext.getParent(); context != null; context = context
+				.getParent()) {
+			map.putAll(context.getBeansOfType(type));
+		}
 
-        for (ApplicationContext context = applicationContext.getParent();
-            context != null; context = context.getParent()) {
-            map.putAll(context.getBeansOfType(type));
-        }
+		if (map.size() == 0) {
+			return null;
+		}
+		else if (map.size() == 1) {
+			return map.values().iterator().next();
+		}
 
-        if (map.size() == 0) {
-            return null;
-        } else if (map.size() == 1) {
-            return map.values().iterator().next();
-        }
+		throw new JspException("Found incorrect number of " + type.getSimpleName()
+				+ " instances in " + "application context - you must have only have one!");
+	}
 
-        throw new JspException("Found incorrect number of " + type.getSimpleName() +" instances in "
-                    + "application context - you must have only have one!");
-    }
+	public void setDomainObject(Object domainObject) {
+		this.domainObject = domainObject;
+	}
 
-    public void setDomainObject(Object domainObject) {
-        this.domainObject = domainObject;
-    }
+	public void setHasPermission(String hasPermission) {
+		this.hasPermission = hasPermission;
+	}
 
-    public void setHasPermission(String hasPermission) {
-        this.hasPermission = hasPermission;
-    }
-
-    public void setVar(String var) {
-        this.var = var;
-    }
+	public void setVar(String var) {
+		this.var = var;
+	}
 }

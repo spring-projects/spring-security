@@ -22,5 +22,5 @@ import org.springframework.stereotype.Repository;
  * @author Rob Winch
  */
 @Repository
-public interface MessageRepository extends JpaRepository<Message,Long> {
+public interface MessageRepository extends JpaRepository<Message, Long> {
 }

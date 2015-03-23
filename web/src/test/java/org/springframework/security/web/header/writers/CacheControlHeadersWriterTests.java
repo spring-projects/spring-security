@@ -30,26 +30,28 @@ import org.springframework.mock.web.MockHttpServletResponse;
  */
 public class CacheControlHeadersWriterTests {
 
-    private MockHttpServletRequest request;
+	private MockHttpServletRequest request;
 
-    private MockHttpServletResponse response;
+	private MockHttpServletResponse response;
 
-    private CacheControlHeadersWriter writer;
+	private CacheControlHeadersWriter writer;
 
-    @Before
-    public void setup() {
-        request = new MockHttpServletRequest();
-        response = new MockHttpServletResponse();
-        writer = new CacheControlHeadersWriter();
-    }
+	@Before
+	public void setup() {
+		request = new MockHttpServletRequest();
+		response = new MockHttpServletResponse();
+		writer = new CacheControlHeadersWriter();
+	}
 
-    @Test
-    public void writeHeaders() {
-        writer.writeHeaders(request, response);
+	@Test
+	public void writeHeaders() {
+		writer.writeHeaders(request, response);
 
-        assertThat(response.getHeaderNames().size()).isEqualTo(3);
-        assertThat(response.getHeaderValues("Cache-Control")).isEqualTo(Arrays.asList("no-cache, no-store, max-age=0, must-revalidate"));
-        assertThat(response.getHeaderValues("Pragma")).isEqualTo(Arrays.asList("no-cache"));
-        assertThat(response.getHeaderValues("Expires")).isEqualTo(Arrays.asList("0"));
-    }
+		assertThat(response.getHeaderNames().size()).isEqualTo(3);
+		assertThat(response.getHeaderValues("Cache-Control")).isEqualTo(
+				Arrays.asList("no-cache, no-store, max-age=0, must-revalidate"));
+		assertThat(response.getHeaderValues("Pragma")).isEqualTo(
+				Arrays.asList("no-cache"));
+		assertThat(response.getHeaderValues("Expires")).isEqualTo(Arrays.asList("0"));
+	}
 }

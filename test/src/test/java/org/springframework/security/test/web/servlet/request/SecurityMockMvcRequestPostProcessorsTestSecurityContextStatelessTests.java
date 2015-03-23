@@ -48,56 +48,56 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebAppConfiguration
 public class SecurityMockMvcRequestPostProcessorsTestSecurityContextStatelessTests {
 
-    @Autowired
-    private WebApplicationContext context;
+	@Autowired
+	private WebApplicationContext context;
 
-    @Autowired
-    private Filter springSecurityFilterChain;
+	@Autowired
+	private Filter springSecurityFilterChain;
 
-    private MockMvc mvc;
+	private MockMvc mvc;
 
-    @Before
-    public void setup() {
-        mvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .addFilters(springSecurityFilterChain)
-                .defaultRequest(get("/").with(testSecurityContext()))
-                .build();
-    }
+	@Before
+	public void setup() {
+		mvc = MockMvcBuilders.webAppContextSetup(context)
+				.addFilters(springSecurityFilterChain)
+				.defaultRequest(get("/").with(testSecurityContext())).build();
+	}
 
-    @Test
-    @WithMockUser
-    public void testSecurityContextWithMockUserWorksWithStateless() throws Exception {
-       mvc
-          .perform(get("/"))
-          .andExpect(status().is2xxSuccessful());
-    }
+	@Test
+	@WithMockUser
+	public void testSecurityContextWithMockUserWorksWithStateless() throws Exception {
+		mvc.perform(get("/")).andExpect(status().is2xxSuccessful());
+	}
 
-    @EnableWebSecurity
-    @EnableWebMvc
-    static class Config extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class Config extends WebSecurityConfigurerAdapter {
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            super.configure(http);
+		// @formatter:off
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			super.configure(http);
 
-            http
-                .sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        }
+			http
+				.sessionManagement()
+					.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+		}
+		// @formatter:on
 
-        @Autowired
-        public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication();
-        }
+		// @formatter:off
+		@Autowired
+		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication();
+		}
+		// @formatter:on
 
-        @RestController
-        static class Controller {
-            @RequestMapping
-            public String hello() {
-                return "Hello";
-            }
-        }
-    }
+		@RestController
+		static class Controller {
+			@RequestMapping
+			public String hello() {
+				return "Hello";
+			}
+		}
+	}
 }

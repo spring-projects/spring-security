@@ -40,69 +40,80 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CsrfAuthenticationStrategyTests {
-    @Mock
-    private CsrfTokenRepository csrfTokenRepository;
+	@Mock
+	private CsrfTokenRepository csrfTokenRepository;
 
-    private MockHttpServletRequest request;
+	private MockHttpServletRequest request;
 
-    private MockHttpServletResponse response;
+	private MockHttpServletResponse response;
 
-    private CsrfAuthenticationStrategy strategy;
+	private CsrfAuthenticationStrategy strategy;
 
-    private CsrfToken existingToken;
+	private CsrfToken existingToken;
 
-    private CsrfToken generatedToken;
+	private CsrfToken generatedToken;
 
-    @Before
-    public void setup() {
-        request = new MockHttpServletRequest();
-        response = new MockHttpServletResponse();
-        strategy = new CsrfAuthenticationStrategy(csrfTokenRepository);
-        existingToken = new DefaultCsrfToken("_csrf", "_csrf", "1");
-        generatedToken = new DefaultCsrfToken("_csrf", "_csrf", "2");
-    }
+	@Before
+	public void setup() {
+		request = new MockHttpServletRequest();
+		response = new MockHttpServletResponse();
+		strategy = new CsrfAuthenticationStrategy(csrfTokenRepository);
+		existingToken = new DefaultCsrfToken("_csrf", "_csrf", "1");
+		generatedToken = new DefaultCsrfToken("_csrf", "_csrf", "2");
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullCsrfTokenRepository() {
-        new CsrfAuthenticationStrategy(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullCsrfTokenRepository() {
+		new CsrfAuthenticationStrategy(null);
+	}
 
-    @Test
-    public void logoutRemovesCsrfTokenAndSavesNew() {
-        when(csrfTokenRepository.loadToken(request)).thenReturn(existingToken);
-        when(csrfTokenRepository.generateToken(request)).thenReturn(generatedToken);
-        strategy.onAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"), request, response);
+	@Test
+	public void logoutRemovesCsrfTokenAndSavesNew() {
+		when(csrfTokenRepository.loadToken(request)).thenReturn(existingToken);
+		when(csrfTokenRepository.generateToken(request)).thenReturn(generatedToken);
+		strategy.onAuthentication(new TestingAuthenticationToken("user", "password",
+				"ROLE_USER"), request, response);
 
-        verify(csrfTokenRepository).saveToken(null, request, response);
-        verify(csrfTokenRepository,never()).saveToken(eq(generatedToken), any(HttpServletRequest.class), any(HttpServletResponse.class));
-        // SEC-2404, SEC-2832
-        CsrfToken tokenInRequest = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-        assertThat(tokenInRequest.getToken()).isSameAs(generatedToken.getToken());
-        assertThat(tokenInRequest.getHeaderName()).isSameAs(generatedToken.getHeaderName());
-        assertThat(tokenInRequest.getParameterName()).isSameAs(generatedToken.getParameterName());
-        assertThat(request.getAttribute(generatedToken.getParameterName())).isSameAs(tokenInRequest);
-    }
+		verify(csrfTokenRepository).saveToken(null, request, response);
+		verify(csrfTokenRepository, never()).saveToken(eq(generatedToken),
+				any(HttpServletRequest.class), any(HttpServletResponse.class));
+		// SEC-2404, SEC-2832
+		CsrfToken tokenInRequest = (CsrfToken) request.getAttribute(CsrfToken.class
+				.getName());
+		assertThat(tokenInRequest.getToken()).isSameAs(generatedToken.getToken());
+		assertThat(tokenInRequest.getHeaderName()).isSameAs(
+				generatedToken.getHeaderName());
+		assertThat(tokenInRequest.getParameterName()).isSameAs(
+				generatedToken.getParameterName());
+		assertThat(request.getAttribute(generatedToken.getParameterName())).isSameAs(
+				tokenInRequest);
+	}
 
-    // SEC-2872
-    @Test
-    public void delaySavingCsrf() {
-        when(csrfTokenRepository.loadToken(request)).thenReturn(existingToken);
-        when(csrfTokenRepository.generateToken(request)).thenReturn(generatedToken);
-        strategy.onAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"), request, response);
+	// SEC-2872
+	@Test
+	public void delaySavingCsrf() {
+		when(csrfTokenRepository.loadToken(request)).thenReturn(existingToken);
+		when(csrfTokenRepository.generateToken(request)).thenReturn(generatedToken);
+		strategy.onAuthentication(new TestingAuthenticationToken("user", "password",
+				"ROLE_USER"), request, response);
 
-        verify(csrfTokenRepository).saveToken(null, request, response);
-        verify(csrfTokenRepository,never()).saveToken(eq(generatedToken), any(HttpServletRequest.class), any(HttpServletResponse.class));
+		verify(csrfTokenRepository).saveToken(null, request, response);
+		verify(csrfTokenRepository, never()).saveToken(eq(generatedToken),
+				any(HttpServletRequest.class), any(HttpServletResponse.class));
 
-        CsrfToken tokenInRequest = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-        tokenInRequest.getToken();
-        verify(csrfTokenRepository).saveToken(eq(generatedToken), any(HttpServletRequest.class), any(HttpServletResponse.class));
-    }
+		CsrfToken tokenInRequest = (CsrfToken) request.getAttribute(CsrfToken.class
+				.getName());
+		tokenInRequest.getToken();
+		verify(csrfTokenRepository).saveToken(eq(generatedToken),
+				any(HttpServletRequest.class), any(HttpServletResponse.class));
+	}
 
-    @Test
-    public void logoutRemovesNoActionIfNullToken() {
-        strategy.onAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"), request, response);
+	@Test
+	public void logoutRemovesNoActionIfNullToken() {
+		strategy.onAuthentication(new TestingAuthenticationToken("user", "password",
+				"ROLE_USER"), request, response);
 
-        verify(csrfTokenRepository,never()).saveToken(any(CsrfToken.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
-    }
+		verify(csrfTokenRepository, never()).saveToken(any(CsrfToken.class),
+				any(HttpServletRequest.class), any(HttpServletResponse.class));
+	}
 }
-

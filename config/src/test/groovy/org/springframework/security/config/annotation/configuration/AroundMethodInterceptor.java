@@ -19,7 +19,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 public class AroundMethodInterceptor implements MethodInterceptor {
-    public Object invoke(MethodInvocation methodInvocation) throws Throwable {
-        return String.valueOf(methodInvocation.proceed());
-    }
+	public Object invoke(MethodInvocation methodInvocation) throws Throwable {
+		return String.valueOf(methodInvocation.proceed());
+	}
 }

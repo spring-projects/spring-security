@@ -27,13 +27,17 @@ import java.util.Map;
 
 /**
  * <p>
- * By defining this object as a Bean, Spring Security is exposed as SpEL expressions for creating Spring Data
- * queries.
+ * By defining this object as a Bean, Spring Security is exposed as SpEL expressions for
+ * creating Spring Data queries.
  * </p>
  *
- * <p>With Java based configuration, we can define the bean using the following:</p>
+ * <p>
+ * With Java based configuration, we can define the bean using the following:
+ * </p>
  *
- * <p>For example, if you return a UserDetails that extends the following User object:</p>
+ * <p>
+ * For example, if you return a UserDetails that extends the following User object:
+ * </p>
  *
  * <pre>
  * @Entity
@@ -41,11 +45,13 @@ import java.util.Map;
  *     @GeneratedValue(strategy = GenerationType.AUTO)
  *     @Id
  *     private Long id;
- *
+ * 
  *     ...
  * </pre>
  *
- * <p>And you have a Message object that looks like the following:</p>
+ * <p>
+ * And you have a Message object that looks like the following:
+ * </p>
  *
  * <pre>
  * @Entity
@@ -53,64 +59,67 @@ import java.util.Map;
  *     @Id
  *     @GeneratedValue(strategy = GenerationType.AUTO)
  *     private Long id;
- *
+ * 
  *     @OneToOne
  *     private User to;
- *
+ * 
  *     ...
  * </pre>
  *
- * You can use the following {@code Query} annotation to search for only messages that are to the current user:
+ * You can use the following {@code Query} annotation to search for only messages that are
+ * to the current user:
  *
  * <pre>
- * @Repository
+ * &#064;Repository
  * public interface SecurityMessageRepository extends MessageRepository {
- *
- *     @Query("select m from Message m where m.to.id = ?#{ principal?.id }")
- *     List<Message> findAll();
+ * 
+ * 	&#064;Query(&quot;select m from Message m where m.to.id = ?#{ principal?.id }&quot;)
+ * 	List&lt;Message&gt; findAll();
  * }
  * </pre>
  *
- * This works because the principal in this instance is a User which has an id field on it.
+ * This works because the principal in this instance is a User which has an id field on
+ * it.
  *
  * @since 4.0
  * @author Rob Winch
  */
 public class SecurityEvaluationContextExtension extends EvaluationContextExtensionSupport {
-    private Authentication authentication;
+	private Authentication authentication;
 
-    /**
-     * Creates a new instance that uses the current {@link Authentication} found on the
-     * {@link org.springframework.security.core.context.SecurityContextHolder}.
-     */
-    public SecurityEvaluationContextExtension() {
-    }
+	/**
+	 * Creates a new instance that uses the current {@link Authentication} found on the
+	 * {@link org.springframework.security.core.context.SecurityContextHolder}.
+	 */
+	public SecurityEvaluationContextExtension() {
+	}
 
-    /**
-     * Creates a new instance that always uses the same {@link Authentication} object.
-     *
-     * @param authentication the {@link Authentication} to use
-     */
-    public SecurityEvaluationContextExtension(Authentication authentication) {
-        this.authentication = authentication;
-    }
+	/**
+	 * Creates a new instance that always uses the same {@link Authentication} object.
+	 *
+	 * @param authentication the {@link Authentication} to use
+	 */
+	public SecurityEvaluationContextExtension(Authentication authentication) {
+		this.authentication = authentication;
+	}
 
-    public String getExtensionId() {
-        return "security";
-    }
+	public String getExtensionId() {
+		return "security";
+	}
 
-    @Override
-    public Object getRootObject() {
-        Authentication authentication = getAuthentication();
-        return new SecurityExpressionRoot(authentication) {};
-    }
+	@Override
+	public Object getRootObject() {
+		Authentication authentication = getAuthentication();
+		return new SecurityExpressionRoot(authentication) {
+		};
+	}
 
-    private Authentication getAuthentication() {
-        if(authentication != null) {
-            return authentication;
-        }
+	private Authentication getAuthentication() {
+		if (authentication != null) {
+			return authentication;
+		}
 
-        SecurityContext context = SecurityContextHolder.getContext();
-        return context.getAuthentication();
-    }
+		SecurityContext context = SecurityContextHolder.getContext();
+		return context.getAuthentication();
+	}
 }

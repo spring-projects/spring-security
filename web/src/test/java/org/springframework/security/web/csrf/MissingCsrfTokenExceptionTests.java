@@ -24,10 +24,10 @@ import org.junit.Test;
  */
 public class MissingCsrfTokenExceptionTests {
 
-    // CsrfChannelInterceptor requires this to work
-    @Test
-    public void nullExpectedTokenDoesNotFail() {
-        new MissingCsrfTokenException(null);
-    }
+	// CsrfChannelInterceptor requires this to work
+	@Test
+	public void nullExpectedTokenDoesNotFail() {
+		new MissingCsrfTokenException(null);
+	}
 
 }

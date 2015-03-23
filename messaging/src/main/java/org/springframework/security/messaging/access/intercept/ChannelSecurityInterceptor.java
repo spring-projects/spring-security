@@ -25,10 +25,11 @@ import org.springframework.security.messaging.access.expression.ExpressionBasedM
 import org.springframework.util.Assert;
 
 /**
- * Performs security handling of Message resources via a ChannelInterceptor implementation.
+ * Performs security handling of Message resources via a ChannelInterceptor
+ * implementation.
  * <p>
- * The <code>SecurityMetadataSource</code> required by this security interceptor is of type {@link
- * MessageSecurityMetadataSource}.
+ * The <code>SecurityMetadataSource</code> required by this security interceptor is of
+ * type {@link MessageSecurityMetadataSource}.
  * </p>
  * <p>
  * Refer to {@link AbstractSecurityInterceptor} for details on the workflow.
@@ -37,66 +38,69 @@ import org.springframework.util.Assert;
  * @see 4.0
  * @author Rob Winch
  */
-public final class ChannelSecurityInterceptor extends AbstractSecurityInterceptor implements ChannelInterceptor {
-    private static final ThreadLocal<InterceptorStatusToken> tokenHolder = new ThreadLocal<InterceptorStatusToken>();
+public final class ChannelSecurityInterceptor extends AbstractSecurityInterceptor
+		implements ChannelInterceptor {
+	private static final ThreadLocal<InterceptorStatusToken> tokenHolder = new ThreadLocal<InterceptorStatusToken>();
 
-    private final MessageSecurityMetadataSource metadataSource;
+	private final MessageSecurityMetadataSource metadataSource;
 
-    /**
-     * Creates a new instance
-     *
-     * @param metadataSource the MessageSecurityMetadataSource to use. Cannot be null.
-     *
-     * @see DefaultMessageSecurityMetadataSource
-     * @see ExpressionBasedMessageSecurityMetadataSourceFactory
-     */
-    public ChannelSecurityInterceptor(MessageSecurityMetadataSource metadataSource) {
-        Assert.notNull(metadataSource, "metadataSource cannot be null");
-        this.metadataSource = metadataSource;
-    }
+	/**
+	 * Creates a new instance
+	 *
+	 * @param metadataSource the MessageSecurityMetadataSource to use. Cannot be null.
+	 *
+	 * @see DefaultMessageSecurityMetadataSource
+	 * @see ExpressionBasedMessageSecurityMetadataSourceFactory
+	 */
+	public ChannelSecurityInterceptor(MessageSecurityMetadataSource metadataSource) {
+		Assert.notNull(metadataSource, "metadataSource cannot be null");
+		this.metadataSource = metadataSource;
+	}
 
-    @Override
-    public Class<?> getSecureObjectClass() {
-        return Message.class;
-    }
+	@Override
+	public Class<?> getSecureObjectClass() {
+		return Message.class;
+	}
 
-    @Override
-    public SecurityMetadataSource obtainSecurityMetadataSource() {
-        return metadataSource;
-    }
+	@Override
+	public SecurityMetadataSource obtainSecurityMetadataSource() {
+		return metadataSource;
+	}
 
-    public Message<?> preSend(Message<?> message, MessageChannel channel) {
-        InterceptorStatusToken token = beforeInvocation(message);
-        if(token != null) {
-            tokenHolder.set(token);
-        }
-        return message;
-    }
+	public Message<?> preSend(Message<?> message, MessageChannel channel) {
+		InterceptorStatusToken token = beforeInvocation(message);
+		if (token != null) {
+			tokenHolder.set(token);
+		}
+		return message;
+	}
 
-    public void postSend(Message<?> message, MessageChannel channel, boolean sent) {
-        InterceptorStatusToken token = clearToken();
-        afterInvocation(token, null);
-    }
+	public void postSend(Message<?> message, MessageChannel channel, boolean sent) {
+		InterceptorStatusToken token = clearToken();
+		afterInvocation(token, null);
+	}
 
-    public void afterSendCompletion(Message<?> message, MessageChannel channel, boolean sent, Exception ex) {
-        InterceptorStatusToken token = clearToken();
-        finallyInvocation(token);
-    }
+	public void afterSendCompletion(Message<?> message, MessageChannel channel,
+			boolean sent, Exception ex) {
+		InterceptorStatusToken token = clearToken();
+		finallyInvocation(token);
+	}
 
-    public boolean preReceive(MessageChannel channel) {
-        return true;
-    }
+	public boolean preReceive(MessageChannel channel) {
+		return true;
+	}
 
-    public Message<?> postReceive(Message<?> message, MessageChannel channel) {
-        return message;
-    }
+	public Message<?> postReceive(Message<?> message, MessageChannel channel) {
+		return message;
+	}
 
-    public void afterReceiveCompletion(Message<?> message, MessageChannel channel, Exception ex) {
-    }
+	public void afterReceiveCompletion(Message<?> message, MessageChannel channel,
+			Exception ex) {
+	}
 
-    private InterceptorStatusToken clearToken() {
-        InterceptorStatusToken token = tokenHolder.get();
-        tokenHolder.remove();
-        return token;
-    }
+	private InterceptorStatusToken clearToken() {
+		InterceptorStatusToken token = tokenHolder.get();
+		tokenHolder.remove();
+		return token;
+	}
 }

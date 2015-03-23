@@ -15,14 +15,12 @@
  */
 package org.springframework.security.config.annotation.web.configurers;
 
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractConfigAttributeRequestMatcherRegistry.UrlMapping;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-
 
 /**
  * Configures non-null URL's to grant access to every URL
@@ -31,58 +29,71 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  */
 final class PermitAllSupport {
 
-    public static void permitAll(HttpSecurityBuilder<? extends HttpSecurityBuilder<?>> http, String... urls) {
-        for(String url : urls) {
-            if(url != null) {
-                permitAll(http, new ExactUrlRequestMatcher(url));
-            }
-        }
-    }
+	public static void permitAll(
+			HttpSecurityBuilder<? extends HttpSecurityBuilder<?>> http, String... urls) {
+		for (String url : urls) {
+			if (url != null) {
+				permitAll(http, new ExactUrlRequestMatcher(url));
+			}
+		}
+	}
 
-    @SuppressWarnings("unchecked")
-    public static void permitAll(HttpSecurityBuilder<? extends HttpSecurityBuilder<?>> http, RequestMatcher... requestMatchers) {
-        ExpressionUrlAuthorizationConfigurer<?> configurer = http.getConfigurer(ExpressionUrlAuthorizationConfigurer.class);
+	@SuppressWarnings("unchecked")
+	public static void permitAll(
+			HttpSecurityBuilder<? extends HttpSecurityBuilder<?>> http,
+			RequestMatcher... requestMatchers) {
+		ExpressionUrlAuthorizationConfigurer<?> configurer = http
+				.getConfigurer(ExpressionUrlAuthorizationConfigurer.class);
 
-        if(configurer == null) {
-            throw new IllegalStateException("permitAll only works with HttpSecurity.authorizeRequests()");
-        }
+		if (configurer == null) {
+			throw new IllegalStateException(
+					"permitAll only works with HttpSecurity.authorizeRequests()");
+		}
 
-        for(RequestMatcher matcher : requestMatchers) {
-            if(matcher != null) {
-                configurer.getRegistry().addMapping(0, new UrlMapping(matcher, SecurityConfig.createList(ExpressionUrlAuthorizationConfigurer.permitAll)));
-            }
-        }
-    }
+		for (RequestMatcher matcher : requestMatchers) {
+			if (matcher != null) {
+				configurer
+						.getRegistry()
+						.addMapping(
+								0,
+								new UrlMapping(
+										matcher,
+										SecurityConfig
+												.createList(ExpressionUrlAuthorizationConfigurer.permitAll)));
+			}
+		}
+	}
 
-    private final static class ExactUrlRequestMatcher implements RequestMatcher {
-        private String processUrl;
+	private final static class ExactUrlRequestMatcher implements RequestMatcher {
+		private String processUrl;
 
-        private ExactUrlRequestMatcher(String processUrl) {
-            this.processUrl = processUrl;
-        }
+		private ExactUrlRequestMatcher(String processUrl) {
+			this.processUrl = processUrl;
+		}
 
-        public boolean matches(HttpServletRequest request) {
-            String uri = request.getRequestURI();
-            String query = request.getQueryString();
+		public boolean matches(HttpServletRequest request) {
+			String uri = request.getRequestURI();
+			String query = request.getQueryString();
 
-            if(query != null) {
-                uri += "?" + query;
-            }
+			if (query != null) {
+				uri += "?" + query;
+			}
 
-            if ("".equals(request.getContextPath())) {
-                return uri.equals(processUrl);
-            }
+			if ("".equals(request.getContextPath())) {
+				return uri.equals(processUrl);
+			}
 
-            return uri.equals(request.getContextPath() + processUrl);
-        }
+			return uri.equals(request.getContextPath() + processUrl);
+		}
 
-        @Override
-        public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("ExactUrl [processUrl='").append(processUrl).append("']");
-            return sb.toString();
-        }
-    }
+		@Override
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			sb.append("ExactUrl [processUrl='").append(processUrl).append("']");
+			return sb.toString();
+		}
+	}
 
-    private PermitAllSupport() {}
+	private PermitAllSupport() {
+	}
 }

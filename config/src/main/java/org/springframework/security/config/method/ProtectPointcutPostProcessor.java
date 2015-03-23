@@ -21,145 +21,163 @@ import org.springframework.util.StringUtils;
  * traditional {@link MapBasedMethodSecurityMetadataSource}.
  *
  * <p>
- * This class provides a convenient way of declaring a list of pointcuts, and then
- * having every method of every bean defined in the Spring application context compared with
- * those pointcuts. Where a match is found, the matching method will be registered with the
- * {@link MapBasedMethodSecurityMetadataSource}.
+ * This class provides a convenient way of declaring a list of pointcuts, and then having
+ * every method of every bean defined in the Spring application context compared with
+ * those pointcuts. Where a match is found, the matching method will be registered with
+ * the {@link MapBasedMethodSecurityMetadataSource}.
  * <p>
- * It is very important to understand that only the <b>first</b> pointcut that matches a given
- * method will be taken as authoritative for that method. This is why pointcuts should be provided
- * as a <tt>LinkedHashMap</tt>, because their order is very important.
+ * It is very important to understand that only the <b>first</b> pointcut that matches a
+ * given method will be taken as authoritative for that method. This is why pointcuts
+ * should be provided as a <tt>LinkedHashMap</tt>, because their order is very important.
  * <p>
- * Note also that only beans defined in the Spring application context will be examined by this
- * class.
+ * Note also that only beans defined in the Spring application context will be examined by
+ * this class.
  * <p>
- * Because this class registers method security metadata with {@link MapBasedMethodSecurityMetadataSource},
- * normal Spring Security capabilities such as {@link MethodSecurityMetadataSourceAdvisor} can be used.
- * It does not matter the fact the method metadata was originally obtained from an AspectJ pointcut
- * expression evaluation.
+ * Because this class registers method security metadata with
+ * {@link MapBasedMethodSecurityMetadataSource}, normal Spring Security capabilities such
+ * as {@link MethodSecurityMetadataSourceAdvisor} can be used. It does not matter the fact
+ * the method metadata was originally obtained from an AspectJ pointcut expression
+ * evaluation.
  *
  * @author Ben Alex
  * @since 2.0
  */
 final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 
-    private static final Log logger = LogFactory.getLog(ProtectPointcutPostProcessor.class);
+	private static final Log logger = LogFactory
+			.getLog(ProtectPointcutPostProcessor.class);
 
-    private final Map<String,List<ConfigAttribute>> pointcutMap = new LinkedHashMap<String,List<ConfigAttribute>>();
-    private final MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource;
-    private final Set<PointcutExpression> pointCutExpressions = new LinkedHashSet<PointcutExpression>();
-    private final PointcutParser parser;
-    private final Set<String> processedBeans = new HashSet<String>();
+	private final Map<String, List<ConfigAttribute>> pointcutMap = new LinkedHashMap<String, List<ConfigAttribute>>();
+	private final MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource;
+	private final Set<PointcutExpression> pointCutExpressions = new LinkedHashSet<PointcutExpression>();
+	private final PointcutParser parser;
+	private final Set<String> processedBeans = new HashSet<String>();
 
+	public ProtectPointcutPostProcessor(
+			MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource) {
+		Assert.notNull(mapBasedMethodSecurityMetadataSource,
+				"MapBasedMethodSecurityMetadataSource to populate is required");
+		this.mapBasedMethodSecurityMetadataSource = mapBasedMethodSecurityMetadataSource;
 
-    public ProtectPointcutPostProcessor(MapBasedMethodSecurityMetadataSource mapBasedMethodSecurityMetadataSource) {
-        Assert.notNull(mapBasedMethodSecurityMetadataSource, "MapBasedMethodSecurityMetadataSource to populate is required");
-        this.mapBasedMethodSecurityMetadataSource = mapBasedMethodSecurityMetadataSource;
+		// Set up AspectJ pointcut expression parser
+		Set<PointcutPrimitive> supportedPrimitives = new HashSet<PointcutPrimitive>(3);
+		supportedPrimitives.add(PointcutPrimitive.EXECUTION);
+		supportedPrimitives.add(PointcutPrimitive.ARGS);
+		supportedPrimitives.add(PointcutPrimitive.REFERENCE);
+		// supportedPrimitives.add(PointcutPrimitive.THIS);
+		// supportedPrimitives.add(PointcutPrimitive.TARGET);
+		// supportedPrimitives.add(PointcutPrimitive.WITHIN);
+		// supportedPrimitives.add(PointcutPrimitive.AT_ANNOTATION);
+		// supportedPrimitives.add(PointcutPrimitive.AT_WITHIN);
+		// supportedPrimitives.add(PointcutPrimitive.AT_ARGS);
+		// supportedPrimitives.add(PointcutPrimitive.AT_TARGET);
+		parser = PointcutParser
+				.getPointcutParserSupportingSpecifiedPrimitivesAndUsingContextClassloaderForResolution(supportedPrimitives);
+	}
 
-        // Set up AspectJ pointcut expression parser
-        Set<PointcutPrimitive> supportedPrimitives = new HashSet<PointcutPrimitive>(3);
-        supportedPrimitives.add(PointcutPrimitive.EXECUTION);
-        supportedPrimitives.add(PointcutPrimitive.ARGS);
-        supportedPrimitives.add(PointcutPrimitive.REFERENCE);
-//        supportedPrimitives.add(PointcutPrimitive.THIS);
-//        supportedPrimitives.add(PointcutPrimitive.TARGET);
-//        supportedPrimitives.add(PointcutPrimitive.WITHIN);
-//        supportedPrimitives.add(PointcutPrimitive.AT_ANNOTATION);
-//        supportedPrimitives.add(PointcutPrimitive.AT_WITHIN);
-//        supportedPrimitives.add(PointcutPrimitive.AT_ARGS);
-//        supportedPrimitives.add(PointcutPrimitive.AT_TARGET);
-        parser = PointcutParser.getPointcutParserSupportingSpecifiedPrimitivesAndUsingContextClassloaderForResolution(supportedPrimitives);
-    }
+	public Object postProcessAfterInitialization(Object bean, String beanName)
+			throws BeansException {
+		return bean;
+	}
 
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        return bean;
-    }
+	public Object postProcessBeforeInitialization(Object bean, String beanName)
+			throws BeansException {
+		if (processedBeans.contains(beanName)) {
+			// We already have the metadata for this bean
+			return bean;
+		}
 
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        if (processedBeans.contains(beanName)) {
-            // We already have the metadata for this bean
-            return bean;
-        }
+		synchronized (processedBeans) {
+			// check again synchronized this time
+			if (processedBeans.contains(beanName)) {
+				return bean;
+			}
 
-        synchronized(processedBeans) {
-            // check again synchronized this time
-            if (processedBeans.contains(beanName)) {
-                return bean;
-            }
+			// Obtain methods for the present bean
+			Method[] methods;
+			try {
+				methods = bean.getClass().getMethods();
+			}
+			catch (Exception e) {
+				throw new IllegalStateException(e.getMessage());
+			}
 
-            // Obtain methods for the present bean
-            Method[] methods;
-            try {
-                methods = bean.getClass().getMethods();
-            } catch (Exception e) {
-                throw new IllegalStateException(e.getMessage());
-            }
+			// Check to see if any of those methods are compatible with our pointcut
+			// expressions
+			for (Method method : methods) {
+				for (PointcutExpression expression : pointCutExpressions) {
+					// Try for the bean class directly
+					if (attemptMatch(bean.getClass(), method, expression, beanName)) {
+						// We've found the first expression that matches this method, so
+						// move onto the next method now
+						break; // the "while" loop, not the "for" loop
+					}
+				}
+			}
 
-            // Check to see if any of those methods are compatible with our pointcut expressions
-            for (Method method : methods) {
-                for (PointcutExpression expression : pointCutExpressions) {
-                    // Try for the bean class directly
-                    if (attemptMatch(bean.getClass(), method, expression, beanName)) {
-                        // We've found the first expression that matches this method, so move onto the next method now
-                        break; // the "while" loop, not the "for" loop
-                    }
-                }
-            }
+			processedBeans.add(beanName);
+		}
 
-            processedBeans.add(beanName);
-        }
+		return bean;
+	}
 
+	private boolean attemptMatch(Class<?> targetClass, Method method,
+			PointcutExpression expression, String beanName) {
+		// Determine if the presented AspectJ pointcut expression matches this method
+		boolean matches = expression.matchesMethodExecution(method).alwaysMatches();
 
-        return bean;
-    }
+		// Handle accordingly
+		if (matches) {
+			List<ConfigAttribute> attr = pointcutMap.get(expression
+					.getPointcutExpression());
 
-    private boolean attemptMatch(Class<?> targetClass, Method method, PointcutExpression expression, String beanName) {
-        // Determine if the presented AspectJ pointcut expression matches this method
-        boolean matches = expression.matchesMethodExecution(method).alwaysMatches();
+			if (logger.isDebugEnabled()) {
+				logger.debug("AspectJ pointcut expression '"
+						+ expression.getPointcutExpression() + "' matches target class '"
+						+ targetClass.getName() + "' (bean ID '" + beanName
+						+ "') for method '" + method
+						+ "'; registering security configuration attribute '" + attr
+						+ "'");
+			}
 
-        // Handle accordingly
-        if (matches) {
-            List<ConfigAttribute> attr = pointcutMap.get(expression.getPointcutExpression());
+			mapBasedMethodSecurityMetadataSource.addSecureMethod(targetClass, method,
+					attr);
+		}
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("AspectJ pointcut expression '" + expression.getPointcutExpression() + "' matches target class '" + targetClass.getName() + "' (bean ID '" + beanName + "') for method '" + method + "'; registering security configuration attribute '" + attr + "'");
-            }
+		return matches;
+	}
 
-            mapBasedMethodSecurityMetadataSource.addSecureMethod(targetClass, method, attr);
-        }
+	public void setPointcutMap(Map<String, List<ConfigAttribute>> map) {
+		Assert.notEmpty(map);
+		for (String expression : map.keySet()) {
+			List<ConfigAttribute> value = map.get(expression);
+			addPointcut(expression, value);
+		}
+	}
 
-        return matches;
-    }
+	private void addPointcut(String pointcutExpression, List<ConfigAttribute> definition) {
+		Assert.hasText(pointcutExpression, "An AspectJ pointcut expression is required");
+		Assert.notNull(definition, "A List of ConfigAttributes is required");
+		pointcutExpression = replaceBooleanOperators(pointcutExpression);
+		pointcutMap.put(pointcutExpression, definition);
+		// Parse the presented AspectJ pointcut expression and add it to the cache
+		pointCutExpressions.add(parser.parsePointcutExpression(pointcutExpression));
 
-    public void setPointcutMap(Map<String, List<ConfigAttribute>> map) {
-        Assert.notEmpty(map);
-        for (String expression : map.keySet()) {
-            List<ConfigAttribute> value = map.get(expression);
-            addPointcut(expression, value);
-        }
-    }
+		if (logger.isDebugEnabled()) {
+			logger.debug("AspectJ pointcut expression '" + pointcutExpression
+					+ "' registered for security configuration attribute '" + definition
+					+ "'");
+		}
+	}
 
-    private void addPointcut(String pointcutExpression, List<ConfigAttribute> definition) {
-        Assert.hasText(pointcutExpression, "An AspectJ pointcut expression is required");
-        Assert.notNull(definition, "A List of ConfigAttributes is required");
-        pointcutExpression = replaceBooleanOperators(pointcutExpression);
-        pointcutMap.put(pointcutExpression, definition);
-     // Parse the presented AspectJ pointcut expression and add it to the cache
-        pointCutExpressions.add(parser.parsePointcutExpression(pointcutExpression));
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("AspectJ pointcut expression '" + pointcutExpression + "' registered for security configuration attribute '" + definition + "'");
-        }
-    }
-
-    /**
-     * @see org.springframework.aop.aspectj.AspectJExpressionPointcut#replaceBooleanOperators
-     */
-    private String replaceBooleanOperators(String pcExpr) {
-        pcExpr = StringUtils.replace(pcExpr," and "," && ");
-        pcExpr = StringUtils.replace(pcExpr, " or ", " || ");
-        pcExpr = StringUtils.replace(pcExpr, " not ", " ! ");
-        return pcExpr;
-    }
+	/**
+	 * @see org.springframework.aop.aspectj.AspectJExpressionPointcut#replaceBooleanOperators
+	 */
+	private String replaceBooleanOperators(String pcExpr) {
+		pcExpr = StringUtils.replace(pcExpr, " and ", " && ");
+		pcExpr = StringUtils.replace(pcExpr, " or ", " || ");
+		pcExpr = StringUtils.replace(pcExpr, " not ", " ! ");
+		return pcExpr;
+	}
 
 }

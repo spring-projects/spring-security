@@ -28,53 +28,60 @@ import org.apache.commons.collections.CollectionUtils;
  */
 public abstract class HierarchicalRolesTestHelper {
 
-    public static boolean containTheSameGrantedAuthorities(Collection<? extends GrantedAuthority> authorities1, Collection<? extends GrantedAuthority> authorities2) {
-        if (authorities1 == null && authorities2 == null) {
-            return true;
-        }
+	public static boolean containTheSameGrantedAuthorities(
+			Collection<? extends GrantedAuthority> authorities1,
+			Collection<? extends GrantedAuthority> authorities2) {
+		if (authorities1 == null && authorities2 == null) {
+			return true;
+		}
 
-        if (authorities1 == null || authorities2 == null) {
-            return false;
-        }
-        return CollectionUtils.isEqualCollection(authorities1, authorities2);
-    }
+		if (authorities1 == null || authorities2 == null) {
+			return false;
+		}
+		return CollectionUtils.isEqualCollection(authorities1, authorities2);
+	}
 
-    public static boolean containTheSameGrantedAuthoritiesCompareByAuthorityString(Collection<? extends GrantedAuthority> authorities1, Collection<? extends GrantedAuthority> authorities2) {
-        if (authorities1 == null && authorities2 == null) {
-            return true;
-        }
+	public static boolean containTheSameGrantedAuthoritiesCompareByAuthorityString(
+			Collection<? extends GrantedAuthority> authorities1,
+			Collection<? extends GrantedAuthority> authorities2) {
+		if (authorities1 == null && authorities2 == null) {
+			return true;
+		}
 
-        if (authorities1 == null || authorities2 == null) {
-            return false;
-        }
-        return CollectionUtils.isEqualCollection(toCollectionOfAuthorityStrings(authorities1), toCollectionOfAuthorityStrings(authorities2));
-    }
+		if (authorities1 == null || authorities2 == null) {
+			return false;
+		}
+		return CollectionUtils.isEqualCollection(
+				toCollectionOfAuthorityStrings(authorities1),
+				toCollectionOfAuthorityStrings(authorities2));
+	}
 
-    public static List<String> toCollectionOfAuthorityStrings(Collection<? extends GrantedAuthority> authorities) {
-        if (authorities == null) {
-            return null;
-        }
+	public static List<String> toCollectionOfAuthorityStrings(
+			Collection<? extends GrantedAuthority> authorities) {
+		if (authorities == null) {
+			return null;
+		}
 
-        List<String> result = new ArrayList<String>(authorities.size());
-        for (GrantedAuthority authority : authorities) {
-            result.add(authority.getAuthority());
-        }
-        return result;
-    }
+		List<String> result = new ArrayList<String>(authorities.size());
+		for (GrantedAuthority authority : authorities) {
+			result.add(authority.getAuthority());
+		}
+		return result;
+	}
 
-    public static List<GrantedAuthority> createAuthorityList(final String... roles) {
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(roles.length);
+	public static List<GrantedAuthority> createAuthorityList(final String... roles) {
+		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(roles.length);
 
-        for (final String role : roles) {
-            // Use non GrantedAuthorityImpl (SEC-863)
-            authorities.add(new GrantedAuthority() {
-                public String getAuthority() {
-                    return role;
-                }
-            });
-        }
+		for (final String role : roles) {
+			// Use non GrantedAuthorityImpl (SEC-863)
+			authorities.add(new GrantedAuthority() {
+				public String getAuthority() {
+					return role;
+				}
+			});
+		}
 
-        return authorities;
-    }
+		return authorities;
+	}
 
 }

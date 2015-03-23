@@ -20,31 +20,31 @@ import junit.framework.TestCase;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.intercept.NullRunAsManager;
 
-
 /**
  * Tests {@link NullRunAsManager}.
  *
  * @author Ben Alex
  */
 public class NullRunAsManagerTests extends TestCase {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+	public final void setUp() throws Exception {
+		super.setUp();
+	}
 
-    public void testAlwaysReturnsNull() {
-        NullRunAsManager runAs = new NullRunAsManager();
-        assertNull(runAs.buildRunAs(null, null, null));
-    }
+	public void testAlwaysReturnsNull() {
+		NullRunAsManager runAs = new NullRunAsManager();
+		assertNull(runAs.buildRunAs(null, null, null));
+	}
 
-    public void testAlwaysSupportsClass() {
-        NullRunAsManager runAs = new NullRunAsManager();
-        assertTrue(runAs.supports(String.class));
-    }
+	public void testAlwaysSupportsClass() {
+		NullRunAsManager runAs = new NullRunAsManager();
+		assertTrue(runAs.supports(String.class));
+	}
 
-    public void testNeverSupportsAttribute() {
-        NullRunAsManager runAs = new NullRunAsManager();
-        assertFalse(runAs.supports(new SecurityConfig("X")));
-    }
+	public void testNeverSupportsAttribute() {
+		NullRunAsManager runAs = new NullRunAsManager();
+		assertFalse(runAs.supports(new SecurityConfig("X")));
+	}
 }

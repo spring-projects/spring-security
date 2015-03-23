@@ -19,3 +19,4 @@
  * for the type of resources the secure object represents.
  */
 package org.springframework.security.access.intercept;
+

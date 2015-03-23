@@ -39,43 +39,45 @@ import org.springframework.security.web.context.SecurityContextRepository;
 @RunWith(PowerMockRunner.class)
 @PrepareOnlyThisForTest(WebTestUtils.class)
 public class SecurityMockMvcRequestPostProcessorsTestSecurityContextTests {
-    @Mock
-    private SecurityContext context;
-    @Mock
-    private SecurityContextRepository repository;
+	@Mock
+	private SecurityContext context;
+	@Mock
+	private SecurityContextRepository repository;
 
-    private MockHttpServletRequest request;
+	private MockHttpServletRequest request;
 
-    @Before
-    public void setup() {
-        request = new MockHttpServletRequest();
-        mockWebTestUtils();
-    }
+	@Before
+	public void setup() {
+		request = new MockHttpServletRequest();
+		mockWebTestUtils();
+	}
 
-    @After
-    public void cleanup() {
-        TestSecurityContextHolder.clearContext();
-    }
+	@After
+	public void cleanup() {
+		TestSecurityContextHolder.clearContext();
+	}
 
-    @Test
-    public void testSecurityContextSaves() {
-        TestSecurityContextHolder.setContext(context);
+	@Test
+	public void testSecurityContextSaves() {
+		TestSecurityContextHolder.setContext(context);
 
-        testSecurityContext().postProcessRequest(request);
+		testSecurityContext().postProcessRequest(request);
 
-        verify(repository).saveContext(eq(context), eq(request), any(HttpServletResponse.class));
-    }
+		verify(repository).saveContext(eq(context), eq(request),
+				any(HttpServletResponse.class));
+	}
 
-    // Ensure it does not fail if TestSecurityContextHolder is not initialized
-    @Test
-    public void testSecurityContextNoContext() {
-        testSecurityContext().postProcessRequest(request);
+	// Ensure it does not fail if TestSecurityContextHolder is not initialized
+	@Test
+	public void testSecurityContextNoContext() {
+		testSecurityContext().postProcessRequest(request);
 
-        verify(repository).saveContext(any(SecurityContext.class), eq(request), any(HttpServletResponse.class));
-    }
+		verify(repository).saveContext(any(SecurityContext.class), eq(request),
+				any(HttpServletResponse.class));
+	}
 
-    private void mockWebTestUtils() {
-        spy(WebTestUtils.class);
-        when(WebTestUtils.getSecurityContextRepository(request)).thenReturn(repository);
-    }
+	private void mockWebTestUtils() {
+		spy(WebTestUtils.class);
+		when(WebTestUtils.getSecurityContextRepository(request)).thenReturn(repository);
+	}
 }

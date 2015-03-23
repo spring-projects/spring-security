@@ -22,45 +22,47 @@ import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 
 import static org.junit.Assert.*;
 
-
 /**
- * Tests {@link org.springframework.security.cas.authentication.SpringCacheBasedTicketCache}.
+ * Tests
+ * {@link org.springframework.security.cas.authentication.SpringCacheBasedTicketCache}.
  *
  * @author Marten Deinum
  * @since 3.2
  */
 public class SpringCacheBasedTicketCacheTests extends AbstractStatelessTicketCacheTests {
-    private static CacheManager cacheManager;
+	private static CacheManager cacheManager;
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    @BeforeClass
-    public static void initCacheManaer() {
-        cacheManager = new ConcurrentMapCacheManager();
-        cacheManager.getCache("castickets");
-    }
+	@BeforeClass
+	public static void initCacheManaer() {
+		cacheManager = new ConcurrentMapCacheManager();
+		cacheManager.getCache("castickets");
+	}
 
-    @Test
-    public void testCacheOperation() throws Exception {
-        SpringCacheBasedTicketCache cache = new SpringCacheBasedTicketCache(cacheManager.getCache("castickets"));
+	@Test
+	public void testCacheOperation() throws Exception {
+		SpringCacheBasedTicketCache cache = new SpringCacheBasedTicketCache(
+				cacheManager.getCache("castickets"));
 
-        final CasAuthenticationToken token = getToken();
+		final CasAuthenticationToken token = getToken();
 
-        // Check it gets stored in the cache
-        cache.putTicketInCache(token);
-        assertEquals(token, cache.getByTicketId("ST-0-ER94xMJmn6pha35CQRoZ"));
+		// Check it gets stored in the cache
+		cache.putTicketInCache(token);
+		assertEquals(token, cache.getByTicketId("ST-0-ER94xMJmn6pha35CQRoZ"));
 
-        // Check it gets removed from the cache
-        cache.removeTicketFromCache(getToken());
-        assertNull(cache.getByTicketId("ST-0-ER94xMJmn6pha35CQRoZ"));
+		// Check it gets removed from the cache
+		cache.removeTicketFromCache(getToken());
+		assertNull(cache.getByTicketId("ST-0-ER94xMJmn6pha35CQRoZ"));
 
-        // Check it doesn't return values for null or unknown service tickets
-        assertNull(cache.getByTicketId(null));
-        assertNull(cache.getByTicketId("UNKNOWN_SERVICE_TICKET"));
-    }
+		// Check it doesn't return values for null or unknown service tickets
+		assertNull(cache.getByTicketId(null));
+		assertNull(cache.getByTicketId("UNKNOWN_SERVICE_TICKET"));
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testStartupDetectsMissingCache() throws Exception {
-        new SpringCacheBasedTicketCache(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void testStartupDetectsMissingCache() throws Exception {
+		new SpringCacheBasedTicketCache(null);
+	}
 }

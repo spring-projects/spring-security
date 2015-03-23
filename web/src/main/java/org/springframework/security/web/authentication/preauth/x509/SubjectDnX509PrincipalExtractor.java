@@ -14,70 +14,76 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 /**
- * Obtains the principal from a certificate using a regular expression match against the Subject (as returned by a call
- * to {@link X509Certificate#getSubjectDN()}).
+ * Obtains the principal from a certificate using a regular expression match against the
+ * Subject (as returned by a call to {@link X509Certificate#getSubjectDN()}).
  * <p>
- * The regular expression should contain a single group; for example the default expression "CN=(.*?)(?:,|$)" matches the
- * common name field. So "CN=Jimi Hendrix, OU=..." will give a user name of "Jimi Hendrix".
+ * The regular expression should contain a single group; for example the default
+ * expression "CN=(.*?)(?:,|$)" matches the common name field. So
+ * "CN=Jimi Hendrix, OU=..." will give a user name of "Jimi Hendrix".
  * <p>
- * The matches are case insensitive. So "emailAddress=(.?)," will match "EMAILADDRESS=jimi@hendrix.org, CN=..." giving a
- * user name "jimi@hendrix.org"
+ * The matches are case insensitive. So "emailAddress=(.?)," will match
+ * "EMAILADDRESS=jimi@hendrix.org, CN=..." giving a user name "jimi@hendrix.org"
  *
  * @author Luke Taylor
  */
 public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor {
-    //~ Instance fields ================================================================================================
-    protected final Log logger = LogFactory.getLog(getClass());
-    protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+	// ~ Instance fields
+	// ================================================================================================
+	protected final Log logger = LogFactory.getLog(getClass());
+	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
-    private Pattern subjectDnPattern;
+	private Pattern subjectDnPattern;
 
-    public SubjectDnX509PrincipalExtractor() {
-        setSubjectDnRegex("CN=(.*?)(?:,|$)");
-    }
+	public SubjectDnX509PrincipalExtractor() {
+		setSubjectDnRegex("CN=(.*?)(?:,|$)");
+	}
 
-    public Object extractPrincipal(X509Certificate clientCert) {
-        //String subjectDN = clientCert.getSubjectX500Principal().getName();
-        String subjectDN = clientCert.getSubjectDN().getName();
+	public Object extractPrincipal(X509Certificate clientCert) {
+		// String subjectDN = clientCert.getSubjectX500Principal().getName();
+		String subjectDN = clientCert.getSubjectDN().getName();
 
-        logger.debug("Subject DN is '" + subjectDN + "'");
+		logger.debug("Subject DN is '" + subjectDN + "'");
 
-        Matcher matcher = subjectDnPattern.matcher(subjectDN);
+		Matcher matcher = subjectDnPattern.matcher(subjectDN);
 
-        if (!matcher.find()) {
-            throw new BadCredentialsException(messages.getMessage("SubjectDnX509PrincipalExtractor.noMatching",
-                    new Object[] {subjectDN}, "No matching pattern was found in subject DN: {0}"));
-        }
+		if (!matcher.find()) {
+			throw new BadCredentialsException(messages.getMessage(
+					"SubjectDnX509PrincipalExtractor.noMatching",
+					new Object[] { subjectDN },
+					"No matching pattern was found in subject DN: {0}"));
+		}
 
-        if (matcher.groupCount() != 1) {
-            throw new IllegalArgumentException("Regular expression must contain a single group ");
-        }
+		if (matcher.groupCount() != 1) {
+			throw new IllegalArgumentException(
+					"Regular expression must contain a single group ");
+		}
 
-        String username = matcher.group(1);
+		String username = matcher.group(1);
 
-        logger.debug("Extracted Principal name is '" + username + "'");
+		logger.debug("Extracted Principal name is '" + username + "'");
 
-        return username;
-    }
+		return username;
+	}
 
-    /**
-     * Sets the regular expression which will by used to extract the user name from the certificate's Subject
-     * DN.
-     * <p>
-     * It should contain a single group; for example the default expression "CN=(.*?)(?:,|$)" matches the common
-     * name field. So "CN=Jimi Hendrix, OU=..." will give a user name of "Jimi Hendrix".
-     * <p>
-     * The matches are case insensitive. So "emailAddress=(.?)," will match "EMAILADDRESS=jimi@hendrix.org,
-     * CN=..." giving a user name "jimi@hendrix.org"
-     *
-     * @param subjectDnRegex the regular expression to find in the subject
-     */
-    public void setSubjectDnRegex(String subjectDnRegex) {
-        Assert.hasText(subjectDnRegex, "Regular expression may not be null or empty");
-        subjectDnPattern = Pattern.compile(subjectDnRegex, Pattern.CASE_INSENSITIVE);
-    }
+	/**
+	 * Sets the regular expression which will by used to extract the user name from the
+	 * certificate's Subject DN.
+	 * <p>
+	 * It should contain a single group; for example the default expression
+	 * "CN=(.*?)(?:,|$)" matches the common name field. So "CN=Jimi Hendrix, OU=..." will
+	 * give a user name of "Jimi Hendrix".
+	 * <p>
+	 * The matches are case insensitive. So "emailAddress=(.?)," will match
+	 * "EMAILADDRESS=jimi@hendrix.org, CN=..." giving a user name "jimi@hendrix.org"
+	 *
+	 * @param subjectDnRegex the regular expression to find in the subject
+	 */
+	public void setSubjectDnRegex(String subjectDnRegex) {
+		Assert.hasText(subjectDnRegex, "Regular expression may not be null or empty");
+		subjectDnPattern = Pattern.compile(subjectDnRegex, Pattern.CASE_INSENSITIVE);
+	}
 
-    public void setMessageSource(MessageSource messageSource) {
-        this.messages = new MessageSourceAccessor(messageSource);
-    }
+	public void setMessageSource(MessageSource messageSource) {
+		this.messages = new MessageSourceAccessor(messageSource);
+	}
 }

@@ -36,35 +36,41 @@ import org.springframework.util.ClassUtils;
  */
 final class GlobalMethodSecuritySelector implements ImportSelector {
 
-    public final String[] selectImports(AnnotationMetadata importingClassMetadata) {
-        Class<EnableGlobalMethodSecurity> annoType = EnableGlobalMethodSecurity.class;
-        Map<String, Object> annotationAttributes = importingClassMetadata.getAnnotationAttributes(annoType.getName(), false);
-        AnnotationAttributes attributes = AnnotationAttributes.fromMap(annotationAttributes);
-        Assert.notNull(attributes, String.format(
-                "@%s is not present on importing class '%s' as expected",
-                annoType.getSimpleName(), importingClassMetadata.getClassName()));
+	public final String[] selectImports(AnnotationMetadata importingClassMetadata) {
+		Class<EnableGlobalMethodSecurity> annoType = EnableGlobalMethodSecurity.class;
+		Map<String, Object> annotationAttributes = importingClassMetadata
+				.getAnnotationAttributes(annoType.getName(), false);
+		AnnotationAttributes attributes = AnnotationAttributes
+				.fromMap(annotationAttributes);
+		Assert.notNull(attributes, String.format(
+				"@%s is not present on importing class '%s' as expected",
+				annoType.getSimpleName(), importingClassMetadata.getClassName()));
 
-        // TODO would be nice if could use BeanClassLoaderAware (does not work)
-        Class<?> importingClass = ClassUtils.resolveClassName(importingClassMetadata.getClassName(), ClassUtils.getDefaultClassLoader());
-        boolean skipMethodSecurityConfiguration = GlobalMethodSecurityConfiguration.class.isAssignableFrom(importingClass);
+		// TODO would be nice if could use BeanClassLoaderAware (does not work)
+		Class<?> importingClass = ClassUtils
+				.resolveClassName(importingClassMetadata.getClassName(),
+						ClassUtils.getDefaultClassLoader());
+		boolean skipMethodSecurityConfiguration = GlobalMethodSecurityConfiguration.class
+				.isAssignableFrom(importingClass);
 
-        AdviceMode mode = attributes.getEnum("mode");
-        String autoProxyClassName = AdviceMode.PROXY == mode ? AutoProxyRegistrar.class.getName()
-                : GlobalMethodSecurityAspectJAutoProxyRegistrar.class.getName();
+		AdviceMode mode = attributes.getEnum("mode");
+		String autoProxyClassName = AdviceMode.PROXY == mode ? AutoProxyRegistrar.class
+				.getName() : GlobalMethodSecurityAspectJAutoProxyRegistrar.class
+				.getName();
 
-        boolean jsr250Enabled = attributes.getBoolean("jsr250Enabled");
+		boolean jsr250Enabled = attributes.getBoolean("jsr250Enabled");
 
-        List<String> classNames = new ArrayList<String>(4);
-        classNames.add(autoProxyClassName);
+		List<String> classNames = new ArrayList<String>(4);
+		classNames.add(autoProxyClassName);
 
-        if(!skipMethodSecurityConfiguration) {
-            classNames.add(GlobalMethodSecurityConfiguration.class.getName());
-        }
+		if (!skipMethodSecurityConfiguration) {
+			classNames.add(GlobalMethodSecurityConfiguration.class.getName());
+		}
 
-        if(jsr250Enabled) {
-            classNames.add(Jsr250MetadataSourceConfiguration.class.getName());
-        }
+		if (jsr250Enabled) {
+			classNames.add(Jsr250MetadataSourceConfiguration.class.getName());
+		}
 
-        return classNames.toArray(new String[0]);
-    }
+		return classNames.toArray(new String[0]);
+	}
 }

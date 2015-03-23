@@ -21,91 +21,101 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-
 /**
- * Concrete implementation of {@link PortMapper} that obtains HTTP:HTTPS pairs from the application context.
+ * Concrete implementation of {@link PortMapper} that obtains HTTP:HTTPS pairs from the
+ * application context.
  * <p>
- * By default the implementation will assume 80:443 and 8080:8443 are HTTP:HTTPS pairs respectively. If different pairs
- * are required, use {@link #setPortMappings(Map)}.
+ * By default the implementation will assume 80:443 and 8080:8443 are HTTP:HTTPS pairs
+ * respectively. If different pairs are required, use {@link #setPortMappings(Map)}.
  *
  * @author Ben Alex
  * @author colin sampaleanu
  */
 public class PortMapperImpl implements PortMapper {
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private final Map<Integer, Integer> httpsPortMappings;
+	private final Map<Integer, Integer> httpsPortMappings;
 
-    //~ Constructors ===================================================================================================
+	// ~ Constructors
+	// ===================================================================================================
 
-    public PortMapperImpl() {
-        httpsPortMappings = new HashMap<Integer, Integer>();
-        httpsPortMappings.put(Integer.valueOf(80), Integer.valueOf(443));
-        httpsPortMappings.put(Integer.valueOf(8080), Integer.valueOf(8443));
-    }
+	public PortMapperImpl() {
+		httpsPortMappings = new HashMap<Integer, Integer>();
+		httpsPortMappings.put(Integer.valueOf(80), Integer.valueOf(443));
+		httpsPortMappings.put(Integer.valueOf(8080), Integer.valueOf(8443));
+	}
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    /**
-     * Returns the translated (Integer -> Integer) version of the original port mapping specified via
-     * setHttpsPortMapping()
-     */
-    public Map<Integer, Integer> getTranslatedPortMappings() {
-        return httpsPortMappings;
-    }
+	/**
+	 * Returns the translated (Integer -> Integer) version of the original port mapping
+	 * specified via setHttpsPortMapping()
+	 */
+	public Map<Integer, Integer> getTranslatedPortMappings() {
+		return httpsPortMappings;
+	}
 
-    public Integer lookupHttpPort(Integer httpsPort) {
-        for (Integer httpPort : httpsPortMappings.keySet()) {
-            if (httpsPortMappings.get(httpPort).equals(httpsPort)) {
-                return httpPort;
-            }
-        }
+	public Integer lookupHttpPort(Integer httpsPort) {
+		for (Integer httpPort : httpsPortMappings.keySet()) {
+			if (httpsPortMappings.get(httpPort).equals(httpsPort)) {
+				return httpPort;
+			}
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    public Integer lookupHttpsPort(Integer httpPort) {
-        return httpsPortMappings.get(httpPort);
-    }
+	public Integer lookupHttpsPort(Integer httpPort) {
+		return httpsPortMappings.get(httpPort);
+	}
 
-    /**
-     * Set to override the default HTTP port to HTTPS port mappings of 80:443, and  8080:8443.
-     * In a Spring XML ApplicationContext, a definition would look something like this:
-     * <pre>
-     *  &lt;property name="portMappings">
-     *      &lt;map>
-     *          &lt;entry key="80">&lt;value>443&lt;/value>&lt;/entry>
-     *          &lt;entry key="8080">&lt;value>8443&lt;/value>&lt;/entry>
-     *      &lt;/map>
-     * &lt;/property></pre>
-     *
-     * @param newMappings A Map consisting of String keys and String values, where for each entry the key is the string
-     *        representation of an integer HTTP port number, and the value is the string representation of the
-     *        corresponding integer HTTPS port number.
-     *
-     * @throws IllegalArgumentException if input map does not consist of String keys and values, each representing an
-     *         integer port number in the range 1-65535 for that mapping.
-     */
-    public void setPortMappings(Map<String,String> newMappings) {
-        Assert.notNull(newMappings, "A valid list of HTTPS port mappings must be provided");
+	/**
+	 * Set to override the default HTTP port to HTTPS port mappings of 80:443, and
+	 * 8080:8443. In a Spring XML ApplicationContext, a definition would look something
+	 * like this:
+	 * 
+	 * <pre>
+	 *  &lt;property name="portMappings">
+	 *      &lt;map>
+	 *          &lt;entry key="80">&lt;value>443&lt;/value>&lt;/entry>
+	 *          &lt;entry key="8080">&lt;value>8443&lt;/value>&lt;/entry>
+	 *      &lt;/map>
+	 * &lt;/property>
+	 * </pre>
+	 *
+	 * @param newMappings A Map consisting of String keys and String values, where for
+	 * each entry the key is the string representation of an integer HTTP port number, and
+	 * the value is the string representation of the corresponding integer HTTPS port
+	 * number.
+	 *
+	 * @throws IllegalArgumentException if input map does not consist of String keys and
+	 * values, each representing an integer port number in the range 1-65535 for that
+	 * mapping.
+	 */
+	public void setPortMappings(Map<String, String> newMappings) {
+		Assert.notNull(newMappings,
+				"A valid list of HTTPS port mappings must be provided");
 
-        httpsPortMappings.clear();
+		httpsPortMappings.clear();
 
-        for (Map.Entry<String,String> entry : newMappings.entrySet()) {
-            Integer httpPort = Integer.valueOf(entry.getKey());
-            Integer httpsPort = Integer.valueOf(entry.getValue());
+		for (Map.Entry<String, String> entry : newMappings.entrySet()) {
+			Integer httpPort = Integer.valueOf(entry.getKey());
+			Integer httpsPort = Integer.valueOf(entry.getValue());
 
-            if ((httpPort.intValue() < 1) || (httpPort.intValue() > 65535) || (httpsPort.intValue() < 1)
-                || (httpsPort.intValue() > 65535)) {
-                throw new IllegalArgumentException("one or both ports out of legal range: " + httpPort + ", "
-                    + httpsPort);
-            }
+			if ((httpPort.intValue() < 1) || (httpPort.intValue() > 65535)
+					|| (httpsPort.intValue() < 1) || (httpsPort.intValue() > 65535)) {
+				throw new IllegalArgumentException(
+						"one or both ports out of legal range: " + httpPort + ", "
+								+ httpsPort);
+			}
 
-            httpsPortMappings.put(httpPort, httpsPort);
-        }
+			httpsPortMappings.put(httpPort, httpsPort);
+		}
 
-        if (httpsPortMappings.size() < 1) {
-            throw new IllegalArgumentException("must map at least one port");
-        }
-    }
+		if (httpsPortMappings.size() < 1) {
+			throw new IllegalArgumentException("must map at least one port");
+		}
+	}
 }

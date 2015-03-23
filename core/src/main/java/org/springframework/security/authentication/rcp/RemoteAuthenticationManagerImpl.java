@@ -24,42 +24,46 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
-
 /**
  * Server-side processor of a remote authentication request.
  * <p>
- * This bean requires no security interceptor to protect it. Instead, the bean uses the configured
- * <code>AuthenticationManager</code> to resolve an authentication request.
+ * This bean requires no security interceptor to protect it. Instead, the bean uses the
+ * configured <code>AuthenticationManager</code> to resolve an authentication request.
  *
  * @author Ben Alex
  */
-public class RemoteAuthenticationManagerImpl implements RemoteAuthenticationManager, InitializingBean {
-    //~ Instance fields ================================================================================================
+public class RemoteAuthenticationManagerImpl implements RemoteAuthenticationManager,
+		InitializingBean {
+	// ~ Instance fields
+	// ================================================================================================
 
-    private AuthenticationManager authenticationManager;
+	private AuthenticationManager authenticationManager;
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public void afterPropertiesSet() throws Exception {
-        Assert.notNull(this.authenticationManager, "authenticationManager is required");
-    }
+	public void afterPropertiesSet() throws Exception {
+		Assert.notNull(this.authenticationManager, "authenticationManager is required");
+	}
 
-    public Collection<? extends GrantedAuthority> attemptAuthentication(String username, String password)
-            throws RemoteAuthenticationException {
-        UsernamePasswordAuthenticationToken request = new UsernamePasswordAuthenticationToken(username, password);
+	public Collection<? extends GrantedAuthority> attemptAuthentication(String username,
+			String password) throws RemoteAuthenticationException {
+		UsernamePasswordAuthenticationToken request = new UsernamePasswordAuthenticationToken(
+				username, password);
 
-        try {
-            return authenticationManager.authenticate(request).getAuthorities();
-        } catch (AuthenticationException authEx) {
-            throw new RemoteAuthenticationException(authEx.getMessage());
-        }
-    }
+		try {
+			return authenticationManager.authenticate(request).getAuthorities();
+		}
+		catch (AuthenticationException authEx) {
+			throw new RemoteAuthenticationException(authEx.getMessage());
+		}
+	}
 
-    protected AuthenticationManager getAuthenticationManager() {
-        return authenticationManager;
-    }
+	protected AuthenticationManager getAuthenticationManager() {
+		return authenticationManager;
+	}
 
-    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
-    }
+	public void setAuthenticationManager(AuthenticationManager authenticationManager) {
+		this.authenticationManager = authenticationManager;
+	}
 }

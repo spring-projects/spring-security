@@ -20,19 +20,21 @@ import javax.servlet.http.HttpSession;
 import org.springframework.security.core.session.SessionCreationEvent;
 
 /**
- * Published by the {@link HttpSessionEventPublisher} when an {@code HttpSession} is created by the container
+ * Published by the {@link HttpSessionEventPublisher} when an {@code HttpSession} is
+ * created by the container
  *
  * @author Ray Krueger
  * @author Luke Taylor
  */
 public class HttpSessionCreatedEvent extends SessionCreationEvent {
-    //~ Constructors ===================================================================================================
+	// ~ Constructors
+	// ===================================================================================================
 
-    public HttpSessionCreatedEvent(HttpSession session) {
-        super(session);
-    }
+	public HttpSessionCreatedEvent(HttpSession session) {
+		super(session);
+	}
 
-    public HttpSession getSession() {
-        return (HttpSession) getSource();
-    }
+	public HttpSession getSession() {
+		return (HttpSession) getSource();
+	}
 }

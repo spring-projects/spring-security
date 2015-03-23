@@ -25,15 +25,18 @@ import org.springframework.util.Assert;
  * @see SecurityContextHolderAwareRequestWrapper
  */
 final class HttpServlet25RequestFactory implements HttpServletRequestFactory {
-    private final String rolePrefix;
-    private final AuthenticationTrustResolver trustResolver;
+	private final String rolePrefix;
+	private final AuthenticationTrustResolver trustResolver;
 
-    HttpServlet25RequestFactory(AuthenticationTrustResolver trustResolver, String rolePrefix) {
-        this.trustResolver = trustResolver;
-        this.rolePrefix = rolePrefix;
-    }
+	HttpServlet25RequestFactory(AuthenticationTrustResolver trustResolver,
+			String rolePrefix) {
+		this.trustResolver = trustResolver;
+		this.rolePrefix = rolePrefix;
+	}
 
-    public HttpServletRequest create(HttpServletRequest request, HttpServletResponse response) {
-        return new SecurityContextHolderAwareRequestWrapper(request, trustResolver, rolePrefix) ;
-    }
+	public HttpServletRequest create(HttpServletRequest request,
+			HttpServletResponse response) {
+		return new SecurityContextHolderAwareRequestWrapper(request, trustResolver,
+				rolePrefix);
+	}
 }

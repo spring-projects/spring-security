@@ -17,43 +17,45 @@ package org.springframework.security.core.context;
 
 import org.springframework.util.Assert;
 
-
 /**
- * An <code>InheritableThreadLocal</code>-based implementation of {@link
- * org.springframework.security.core.context.SecurityContextHolderStrategy}.
+ * An <code>InheritableThreadLocal</code>-based implementation of
+ * {@link org.springframework.security.core.context.SecurityContextHolderStrategy}.
  *
  * @author Ben Alex
  *
  * @see java.lang.ThreadLocal
  */
-final class InheritableThreadLocalSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
-    //~ Static fields/initializers =====================================================================================
+final class InheritableThreadLocalSecurityContextHolderStrategy implements
+		SecurityContextHolderStrategy {
+	// ~ Static fields/initializers
+	// =====================================================================================
 
-    private static final ThreadLocal<SecurityContext> contextHolder = new InheritableThreadLocal<SecurityContext>();
+	private static final ThreadLocal<SecurityContext> contextHolder = new InheritableThreadLocal<SecurityContext>();
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public void clearContext() {
-        contextHolder.remove();
-    }
+	public void clearContext() {
+		contextHolder.remove();
+	}
 
-    public SecurityContext getContext() {
-        SecurityContext ctx = contextHolder.get();
+	public SecurityContext getContext() {
+		SecurityContext ctx = contextHolder.get();
 
-        if (ctx == null) {
-            ctx = createEmptyContext();
-            contextHolder.set(ctx);
-        }
+		if (ctx == null) {
+			ctx = createEmptyContext();
+			contextHolder.set(ctx);
+		}
 
-        return ctx;
-    }
+		return ctx;
+	}
 
-    public void setContext(SecurityContext context) {
-        Assert.notNull(context, "Only non-null SecurityContext instances are permitted");
-        contextHolder.set(context);
-    }
+	public void setContext(SecurityContext context) {
+		Assert.notNull(context, "Only non-null SecurityContext instances are permitted");
+		contextHolder.set(context);
+	}
 
-    public SecurityContext createEmptyContext() {
-        return new SecurityContextImpl();
-    }
+	public SecurityContext createEmptyContext() {
+		return new SecurityContextImpl();
+	}
 }

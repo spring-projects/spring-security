@@ -6,18 +6,19 @@ package sample.dms;
  *
  */
 public class Directory extends AbstractElement {
-    public static final Directory ROOT_DIRECTORY = new Directory();
+	public static final Directory ROOT_DIRECTORY = new Directory();
 
-    private Directory() {
-        super();
-    }
+	private Directory() {
+		super();
+	}
 
-    public Directory(String name, Directory parent) {
-        super(name, parent);
-    }
+	public Directory(String name, Directory parent) {
+		super(name, parent);
+	}
 
-    public String toString() {
-        return "Directory[fullName='" + getFullName() + "'; name='" + getName() + "'; id='" + getId() + "'; parent='" + getParent() + "']";
-    }
+	public String toString() {
+		return "Directory[fullName='" + getFullName() + "'; name='" + getName()
+				+ "'; id='" + getId() + "'; parent='" + getParent() + "']";
+	}
 
 }

@@ -7,28 +7,29 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * @author Luke Taylor
  */
-public class TestBusinessBeanImpl implements TestBusinessBean, ApplicationListener<SessionCreationEvent> {
-    public void setInteger(int i) {
-    }
+public class TestBusinessBeanImpl implements TestBusinessBean,
+		ApplicationListener<SessionCreationEvent> {
+	public void setInteger(int i) {
+	}
 
-    public int getInteger() {
-        return 1314;
-    }
+	public int getInteger() {
+		return 1314;
+	}
 
-    public void setString(String s) {
-    }
+	public void setString(String s) {
+	}
 
-    public String getString() {
-        return "A string.";
-    }
+	public String getString() {
+		return "A string.";
+	}
 
-    public void doSomething() {
-    }
+	public void doSomething() {
+	}
 
-    public void unprotected() {
-    }
+	public void unprotected() {
+	}
 
-    public void onApplicationEvent(SessionCreationEvent event) {
-        System.out.println(event);
-    }
+	public void onApplicationEvent(SessionCreationEvent event) {
+		System.out.println(event);
+	}
 }

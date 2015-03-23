@@ -29,21 +29,22 @@ import org.junit.Test;
  */
 public class ObjectPostProcessorTests {
 
-    @Test
-    public void convertTypes() {
-        assertThat((Object)PerformConversion.perform(new ArrayList<Object>())).isInstanceOf(LinkedList.class);
-    }
+	@Test
+	public void convertTypes() {
+		assertThat((Object) PerformConversion.perform(new ArrayList<Object>()))
+				.isInstanceOf(LinkedList.class);
+	}
 }
 
-class ListToLinkedListObjectPostProcessor implements ObjectPostProcessor<List<?>>{
+class ListToLinkedListObjectPostProcessor implements ObjectPostProcessor<List<?>> {
 
-    public <O extends List<?>> O postProcess(O l) {
-        return (O) new LinkedList(l);
-    }
+	public <O extends List<?>> O postProcess(O l) {
+		return (O) new LinkedList(l);
+	}
 }
 
 class PerformConversion {
-    public static List<?> perform(ArrayList<?> l) {
-        return new ListToLinkedListObjectPostProcessor().postProcess(l);
-    }
+	public static List<?> perform(ArrayList<?> l) {
+		return new ListToLinkedListObjectPostProcessor().postProcess(l);
+	}
 }

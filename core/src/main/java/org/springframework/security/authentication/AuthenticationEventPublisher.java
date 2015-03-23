@@ -10,7 +10,8 @@ import org.springframework.security.core.AuthenticationException;
  */
 public interface AuthenticationEventPublisher {
 
-    void publishAuthenticationSuccess(Authentication authentication);
+	void publishAuthenticationSuccess(Authentication authentication);
 
-    void publishAuthenticationFailure(AuthenticationException exception, Authentication authentication);
+	void publishAuthenticationFailure(AuthenticationException exception,
+			Authentication authentication);
 }

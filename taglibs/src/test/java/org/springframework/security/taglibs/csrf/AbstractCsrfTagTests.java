@@ -21,71 +21,78 @@ import static org.junit.Assert.*;
  */
 public class AbstractCsrfTagTests {
 
-    public MockTag tag;
-    private MockHttpServletRequest request;
-    private MockHttpServletResponse response;
+	public MockTag tag;
+	private MockHttpServletRequest request;
+	private MockHttpServletResponse response;
 
-    @Before
-    public void setUp() {
-        MockServletContext servletContext = new MockServletContext();
-        this.request = new MockHttpServletRequest(servletContext);
-        this.response = new MockHttpServletResponse();
-        MockPageContext pageContext = new MockPageContext(servletContext, this.request, this.response);
-        this.tag = new MockTag();
-        this.tag.setPageContext(pageContext);
-    }
+	@Before
+	public void setUp() {
+		MockServletContext servletContext = new MockServletContext();
+		this.request = new MockHttpServletRequest(servletContext);
+		this.response = new MockHttpServletResponse();
+		MockPageContext pageContext = new MockPageContext(servletContext, this.request,
+				this.response);
+		this.tag = new MockTag();
+		this.tag.setPageContext(pageContext);
+	}
 
-    @Test
-    public void noCsrfDoesNotRender() throws JspException, UnsupportedEncodingException {
+	@Test
+	public void noCsrfDoesNotRender() throws JspException, UnsupportedEncodingException {
 
-        this.tag.handleReturn = "shouldNotBeRendered";
+		this.tag.handleReturn = "shouldNotBeRendered";
 
-        int returned = this.tag.doEndTag();
+		int returned = this.tag.doEndTag();
 
-        assertEquals("The returned value is not correct.", TagSupport.EVAL_PAGE, returned);
-        assertEquals("The output value is not correct.", "", this.response.getContentAsString());
-    }
+		assertEquals("The returned value is not correct.", TagSupport.EVAL_PAGE, returned);
+		assertEquals("The output value is not correct.", "",
+				this.response.getContentAsString());
+	}
 
-    @Test
-    public void hasCsrfRendersReturnedValue() throws JspException, UnsupportedEncodingException {
+	@Test
+	public void hasCsrfRendersReturnedValue() throws JspException,
+			UnsupportedEncodingException {
 
-        CsrfToken token = new DefaultCsrfToken("X-Csrf-Token", "_csrf", "abc123def456ghi789");
-        this.request.setAttribute(CsrfToken.class.getName(), token);
+		CsrfToken token = new DefaultCsrfToken("X-Csrf-Token", "_csrf",
+				"abc123def456ghi789");
+		this.request.setAttribute(CsrfToken.class.getName(), token);
 
-        this.tag.handleReturn = "fooBarBazQux";
+		this.tag.handleReturn = "fooBarBazQux";
 
-        int returned = this.tag.doEndTag();
+		int returned = this.tag.doEndTag();
 
-        assertEquals("The returned value is not correct.", TagSupport.EVAL_PAGE, returned);
-        assertEquals("The output value is not correct.", "fooBarBazQux", this.response.getContentAsString());
-        assertSame("The token is not correct.", token, this.tag.token);
-    }
+		assertEquals("The returned value is not correct.", TagSupport.EVAL_PAGE, returned);
+		assertEquals("The output value is not correct.", "fooBarBazQux",
+				this.response.getContentAsString());
+		assertSame("The token is not correct.", token, this.tag.token);
+	}
 
-    @Test
-    public void hasCsrfRendersDifferentValue() throws JspException, UnsupportedEncodingException {
+	@Test
+	public void hasCsrfRendersDifferentValue() throws JspException,
+			UnsupportedEncodingException {
 
-        CsrfToken token = new DefaultCsrfToken("X-Csrf-Token", "_csrf", "abc123def456ghi789");
-        this.request.setAttribute(CsrfToken.class.getName(), token);
+		CsrfToken token = new DefaultCsrfToken("X-Csrf-Token", "_csrf",
+				"abc123def456ghi789");
+		this.request.setAttribute(CsrfToken.class.getName(), token);
 
-        this.tag.handleReturn = "<input type=\"hidden\" />";
+		this.tag.handleReturn = "<input type=\"hidden\" />";
 
-        int returned = this.tag.doEndTag();
+		int returned = this.tag.doEndTag();
 
-        assertEquals("The returned value is not correct.", TagSupport.EVAL_PAGE, returned);
-        assertEquals("The output value is not correct.", "<input type=\"hidden\" />",
-                this.response.getContentAsString());
-        assertSame("The token is not correct.", token, this.tag.token);
-    }
+		assertEquals("The returned value is not correct.", TagSupport.EVAL_PAGE, returned);
+		assertEquals("The output value is not correct.", "<input type=\"hidden\" />",
+				this.response.getContentAsString());
+		assertSame("The token is not correct.", token, this.tag.token);
+	}
 
-    private static class MockTag extends AbstractCsrfTag {
+	private static class MockTag extends AbstractCsrfTag {
 
-        private CsrfToken token;
-        private String handleReturn;
+		private CsrfToken token;
+		private String handleReturn;
 
-        @Override
-        protected String handleToken(CsrfToken token) {
-            this.token = token;
-            return this.handleReturn;
-        }
-    }
+		@Override
+		protected String handleToken(CsrfToken token) {
+			this.token = token;
+			return this.handleReturn;
+		}
+	}
 }

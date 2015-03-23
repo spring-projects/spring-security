@@ -28,58 +28,67 @@ import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.util.Assert;
 
 /**
- * Allows registering Objects to participate with an
- * {@link AutowireCapableBeanFactory}'s post processing of {@link Aware}
- * methods, {@link InitializingBean#afterPropertiesSet()}, and
- * {@link DisposableBean#destroy()}.
+ * Allows registering Objects to participate with an {@link AutowireCapableBeanFactory}'s
+ * post processing of {@link Aware} methods, {@link InitializingBean#afterPropertiesSet()}
+ * , and {@link DisposableBean#destroy()}.
  *
  * @author Rob Winch
  * @since 3.2
  */
-final class AutowireBeanFactoryObjectPostProcessor implements ObjectPostProcessor<Object>, DisposableBean {
-    private final Log logger = LogFactory.getLog(getClass());
-    private final AutowireCapableBeanFactory autowireBeanFactory;
-    private final List<DisposableBean> disposableBeans = new ArrayList<DisposableBean>();
+final class AutowireBeanFactoryObjectPostProcessor implements
+		ObjectPostProcessor<Object>, DisposableBean {
+	private final Log logger = LogFactory.getLog(getClass());
+	private final AutowireCapableBeanFactory autowireBeanFactory;
+	private final List<DisposableBean> disposableBeans = new ArrayList<DisposableBean>();
 
-    public AutowireBeanFactoryObjectPostProcessor(
-            AutowireCapableBeanFactory autowireBeanFactory) {
-        Assert.notNull(autowireBeanFactory, "autowireBeanFactory cannot be null");
-        this.autowireBeanFactory = autowireBeanFactory;
-    }
+	public AutowireBeanFactoryObjectPostProcessor(
+			AutowireCapableBeanFactory autowireBeanFactory) {
+		Assert.notNull(autowireBeanFactory, "autowireBeanFactory cannot be null");
+		this.autowireBeanFactory = autowireBeanFactory;
+	}
 
-    /* (non-Javadoc)
-     * @see org.springframework.security.config.annotation.web.Initializer#initialize(java.lang.Object)
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T postProcess(T object) {
-        if(object == null) {
-            return null;
-        }
-        T result = null;
-        try {
-            result = (T) autowireBeanFactory.initializeBean(object, object.toString());
-        } catch (RuntimeException e) {
-            Class<?> type = object.getClass();
-            throw new RuntimeException("Could not postProcess " + object + " of type " + type, e);
-        }
-        autowireBeanFactory.autowireBean(object);
-        if(result instanceof DisposableBean) {
-            disposableBeans.add((DisposableBean) result);
-        }
-        return result;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.springframework.security.config.annotation.web.Initializer#initialize(java.
+	 * lang.Object)
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T postProcess(T object) {
+		if (object == null) {
+			return null;
+		}
+		T result = null;
+		try {
+			result = (T) autowireBeanFactory.initializeBean(object, object.toString());
+		}
+		catch (RuntimeException e) {
+			Class<?> type = object.getClass();
+			throw new RuntimeException("Could not postProcess " + object + " of type "
+					+ type, e);
+		}
+		autowireBeanFactory.autowireBean(object);
+		if (result instanceof DisposableBean) {
+			disposableBeans.add((DisposableBean) result);
+		}
+		return result;
+	}
 
-    /* (non-Javadoc)
-     * @see org.springframework.beans.factory.DisposableBean#destroy()
-     */
-    public void destroy() throws Exception {
-        for(DisposableBean disposable : disposableBeans) {
-            try {
-                disposable.destroy();
-            } catch(Exception error) {
-                logger.error(error);
-            }
-        }
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.springframework.beans.factory.DisposableBean#destroy()
+	 */
+	public void destroy() throws Exception {
+		for (DisposableBean disposable : disposableBeans) {
+			try {
+				disposable.destroy();
+			}
+			catch (Exception error) {
+				logger.error(error);
+			}
+		}
+	}
 
 }

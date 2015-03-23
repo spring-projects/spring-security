@@ -32,32 +32,33 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CsrfLogoutHandlerTests {
-    @Mock
-    private CsrfTokenRepository csrfTokenRepository;
+	@Mock
+	private CsrfTokenRepository csrfTokenRepository;
 
-    private MockHttpServletRequest request;
+	private MockHttpServletRequest request;
 
-    private MockHttpServletResponse response;
+	private MockHttpServletResponse response;
 
-    private CsrfLogoutHandler handler;
+	private CsrfLogoutHandler handler;
 
-    @Before
-    public void setup() {
-        request = new MockHttpServletRequest();
-        response = new MockHttpServletResponse();
-        handler = new CsrfLogoutHandler(csrfTokenRepository);
-    }
+	@Before
+	public void setup() {
+		request = new MockHttpServletRequest();
+		response = new MockHttpServletResponse();
+		handler = new CsrfLogoutHandler(csrfTokenRepository);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullCsrfTokenRepository() {
-        new CsrfLogoutHandler(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullCsrfTokenRepository() {
+		new CsrfLogoutHandler(null);
+	}
 
-    @Test
-    public void logoutRemovesCsrfToken() {
-        handler.logout(request, response, new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+	@Test
+	public void logoutRemovesCsrfToken() {
+		handler.logout(request, response, new TestingAuthenticationToken("user",
+				"password", "ROLE_USER"));
 
-        verify(csrfTokenRepository).saveToken(null, request, response);
-    }
+		verify(csrfTokenRepository).saveToken(null, request, response);
+	}
 
 }

@@ -32,42 +32,45 @@ import org.springframework.util.ReflectionUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WithSecurityContextTestExcecutionListenerTests {
-    private ConfigurableApplicationContext context;
+	private ConfigurableApplicationContext context;
 
-    @Mock
-    private TestContext testContext;
+	@Mock
+	private TestContext testContext;
 
-    private WithSecurityContextTestExecutionListener listener;
+	private WithSecurityContextTestExecutionListener listener;
 
-    @Before
-    public void setup() {
-        listener = new WithSecurityContextTestExecutionListener();
-        context = new AnnotationConfigApplicationContext(Config.class);
-    }
+	@Before
+	public void setup() {
+		listener = new WithSecurityContextTestExecutionListener();
+		context = new AnnotationConfigApplicationContext(Config.class);
+	}
 
-    @After
-    public void cleanup() {
-        TestSecurityContextHolder.clearContext();
-        if(context != null) {
-            context.close();
-        }
-    }
+	@After
+	public void cleanup() {
+		TestSecurityContextHolder.clearContext();
+		if (context != null) {
+			context.close();
+		}
+	}
 
-    @Test
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void beforeTestMethodNullSecurityContextNoError() throws Exception {
-        Class testClass = FakeTest.class;
-        when(testContext.getApplicationContext()).thenReturn(context);
-        when(testContext.getTestClass()).thenReturn(testClass);
-        when(testContext.getTestMethod()).thenReturn(ReflectionUtils.findMethod(testClass, "testNoAnnotation"));
+	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void beforeTestMethodNullSecurityContextNoError() throws Exception {
+		Class testClass = FakeTest.class;
+		when(testContext.getApplicationContext()).thenReturn(context);
+		when(testContext.getTestClass()).thenReturn(testClass);
+		when(testContext.getTestMethod()).thenReturn(
+				ReflectionUtils.findMethod(testClass, "testNoAnnotation"));
 
-        listener.beforeTestMethod(testContext);
-    }
+		listener.beforeTestMethod(testContext);
+	}
 
-    static class FakeTest {
-        public void testNoAnnotation() {}
-    }
+	static class FakeTest {
+		public void testNoAnnotation() {
+		}
+	}
 
-    @Configuration
-    static class Config {}
+	@Configuration
+	static class Config {
+	}
 }

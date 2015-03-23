@@ -32,70 +32,83 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 
-
 /**
- * Tests {@link org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator}.
+ * Tests
+ * {@link org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator}.
  *
  * @author Ben Alex
  */
 public class DefaultWebInvocationPrivilegeEvaluatorTests {
-    private AccessDecisionManager adm;
-    private FilterInvocationSecurityMetadataSource ods;
-    private RunAsManager ram;
-    private FilterSecurityInterceptor interceptor;
+	private AccessDecisionManager adm;
+	private FilterInvocationSecurityMetadataSource ods;
+	private RunAsManager ram;
+	private FilterSecurityInterceptor interceptor;
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    @Before
-    public final void setUp() {
-        interceptor = new FilterSecurityInterceptor();
-        ods = mock(FilterInvocationSecurityMetadataSource.class);
-        adm = mock(AccessDecisionManager.class);
-        ram = mock(RunAsManager.class);
-        interceptor.setAuthenticationManager(mock(AuthenticationManager.class));
-        interceptor.setSecurityMetadataSource(ods);
-        interceptor.setAccessDecisionManager(adm);
-        interceptor.setRunAsManager(ram);
-        interceptor.setApplicationEventPublisher(mock(ApplicationEventPublisher.class));
-        SecurityContextHolder.clearContext();
-    }
+	@Before
+	public final void setUp() {
+		interceptor = new FilterSecurityInterceptor();
+		ods = mock(FilterInvocationSecurityMetadataSource.class);
+		adm = mock(AccessDecisionManager.class);
+		ram = mock(RunAsManager.class);
+		interceptor.setAuthenticationManager(mock(AuthenticationManager.class));
+		interceptor.setSecurityMetadataSource(ods);
+		interceptor.setAccessDecisionManager(adm);
+		interceptor.setRunAsManager(ram);
+		interceptor.setApplicationEventPublisher(mock(ApplicationEventPublisher.class));
+		SecurityContextHolder.clearContext();
+	}
 
-    @Test
-    public void permitsAccessIfNoMatchingAttributesAndPublicInvocationsAllowed() throws Exception {
-        DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(interceptor);
-        when(ods.getAttributes(anyObject())).thenReturn(null);
-        assertTrue(wipe.isAllowed("/context", "/foo/index.jsp", "GET", mock(Authentication.class)));
-    }
+	@Test
+	public void permitsAccessIfNoMatchingAttributesAndPublicInvocationsAllowed()
+			throws Exception {
+		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(
+				interceptor);
+		when(ods.getAttributes(anyObject())).thenReturn(null);
+		assertTrue(wipe.isAllowed("/context", "/foo/index.jsp", "GET",
+				mock(Authentication.class)));
+	}
 
-    @Test
-    public void deniesAccessIfNoMatchingAttributesAndPublicInvocationsNotAllowed() throws Exception {
-        DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(interceptor);
-        when(ods.getAttributes(anyObject())).thenReturn(null);
-        interceptor.setRejectPublicInvocations(true);
-        assertFalse(wipe.isAllowed("/context", "/foo/index.jsp", "GET", mock(Authentication.class)));
-    }
+	@Test
+	public void deniesAccessIfNoMatchingAttributesAndPublicInvocationsNotAllowed()
+			throws Exception {
+		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(
+				interceptor);
+		when(ods.getAttributes(anyObject())).thenReturn(null);
+		interceptor.setRejectPublicInvocations(true);
+		assertFalse(wipe.isAllowed("/context", "/foo/index.jsp", "GET",
+				mock(Authentication.class)));
+	}
 
-    @Test
-    public void deniesAccessIfAuthenticationIsNull() throws Exception {
-        DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(interceptor);
-        assertFalse(wipe.isAllowed("/foo/index.jsp", null));
-    }
+	@Test
+	public void deniesAccessIfAuthenticationIsNull() throws Exception {
+		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(
+				interceptor);
+		assertFalse(wipe.isAllowed("/foo/index.jsp", null));
+	}
 
-    @Test
-    public void allowsAccessIfAccessDecisionMangerDoes() throws Exception {
-        Authentication token = new TestingAuthenticationToken("test", "Password", "MOCK_INDEX");
-        DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(interceptor);
-        assertTrue(wipe.isAllowed("/foo/index.jsp", token));
-    }
+	@Test
+	public void allowsAccessIfAccessDecisionMangerDoes() throws Exception {
+		Authentication token = new TestingAuthenticationToken("test", "Password",
+				"MOCK_INDEX");
+		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(
+				interceptor);
+		assertTrue(wipe.isAllowed("/foo/index.jsp", token));
+	}
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void deniesAccessIfAccessDecisionMangerDoes() throws Exception {
-        Authentication token = new TestingAuthenticationToken("test", "Password", "MOCK_INDEX");
-        DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(interceptor);
+	@SuppressWarnings("unchecked")
+	@Test
+	public void deniesAccessIfAccessDecisionMangerDoes() throws Exception {
+		Authentication token = new TestingAuthenticationToken("test", "Password",
+				"MOCK_INDEX");
+		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(
+				interceptor);
 
-        doThrow(new AccessDeniedException("")).when(adm).decide(any(Authentication.class), anyObject(), anyList());
+		doThrow(new AccessDeniedException("")).when(adm).decide(
+				any(Authentication.class), anyObject(), anyList());
 
-        assertFalse(wipe.isAllowed("/foo/index.jsp", token));
-    }
+		assertFalse(wipe.isAllowed("/foo/index.jsp", token));
+	}
 }

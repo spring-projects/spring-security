@@ -25,47 +25,50 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 
-
 /**
  * Tests {@link RemoteAuthenticationManagerImpl}.
  *
  * @author Ben Alex
  */
 public class RemoteAuthenticationManagerImplTests {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    @Test(expected=RemoteAuthenticationException.class)
-    public void testFailedAuthenticationReturnsRemoteAuthenticationException() {
-        RemoteAuthenticationManagerImpl manager = new RemoteAuthenticationManagerImpl();
-        AuthenticationManager am = mock(AuthenticationManager.class);
-        when(am.authenticate(any(Authentication.class))).thenThrow(new BadCredentialsException(""));
-        manager.setAuthenticationManager(am);
+	@Test(expected = RemoteAuthenticationException.class)
+	public void testFailedAuthenticationReturnsRemoteAuthenticationException() {
+		RemoteAuthenticationManagerImpl manager = new RemoteAuthenticationManagerImpl();
+		AuthenticationManager am = mock(AuthenticationManager.class);
+		when(am.authenticate(any(Authentication.class))).thenThrow(
+				new BadCredentialsException(""));
+		manager.setAuthenticationManager(am);
 
-        manager.attemptAuthentication("rod", "password");
-    }
+		manager.attemptAuthentication("rod", "password");
+	}
 
-    @Test
-    public void testStartupChecksAuthenticationManagerSet() throws Exception {
-        RemoteAuthenticationManagerImpl manager = new RemoteAuthenticationManagerImpl();
+	@Test
+	public void testStartupChecksAuthenticationManagerSet() throws Exception {
+		RemoteAuthenticationManagerImpl manager = new RemoteAuthenticationManagerImpl();
 
-        try {
-            manager.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-        }
+		try {
+			manager.afterPropertiesSet();
+			fail("Should have thrown IllegalArgumentException");
+		}
+		catch (IllegalArgumentException expected) {
+		}
 
-        manager.setAuthenticationManager(mock(AuthenticationManager.class));
-        manager.afterPropertiesSet();
-        assertTrue(true);
-    }
+		manager.setAuthenticationManager(mock(AuthenticationManager.class));
+		manager.afterPropertiesSet();
+		assertTrue(true);
+	}
 
-    @Test
-    public void testSuccessfulAuthentication() {
-        RemoteAuthenticationManagerImpl manager = new RemoteAuthenticationManagerImpl();
-        AuthenticationManager am = mock(AuthenticationManager.class);
-        when(am.authenticate(any(Authentication.class))).thenReturn(new TestingAuthenticationToken("u","p","A"));
-        manager.setAuthenticationManager(am);
+	@Test
+	public void testSuccessfulAuthentication() {
+		RemoteAuthenticationManagerImpl manager = new RemoteAuthenticationManagerImpl();
+		AuthenticationManager am = mock(AuthenticationManager.class);
+		when(am.authenticate(any(Authentication.class))).thenReturn(
+				new TestingAuthenticationToken("u", "p", "A"));
+		manager.setAuthenticationManager(am);
 
-        manager.attemptAuthentication("rod", "password");
-    }
+		manager.attemptAuthentication("rod", "password");
+	}
 }

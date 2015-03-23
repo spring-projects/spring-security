@@ -21,62 +21,64 @@ import org.springframework.security.authentication.dao.SystemWideSaltSource;
 
 import junit.framework.TestCase;
 
-
 /**
  * Tests {@link SystemWideSaltSource}.
  *
  * @author Ben Alex
  */
 public class SystemWideSaltSourceTests extends TestCase {
-    //~ Constructors ===================================================================================================
+	// ~ Constructors
+	// ===================================================================================================
 
-    public SystemWideSaltSourceTests() {
-        super();
-    }
+	public SystemWideSaltSourceTests() {
+		super();
+	}
 
-    public SystemWideSaltSourceTests(String arg0) {
-        super(arg0);
-    }
+	public SystemWideSaltSourceTests(String arg0) {
+		super(arg0);
+	}
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(SystemWideSaltSourceTests.class);
-    }
+	public static void main(String[] args) {
+		junit.textui.TestRunner.run(SystemWideSaltSourceTests.class);
+	}
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+	public final void setUp() throws Exception {
+		super.setUp();
+	}
 
-    public void testDetectsMissingSystemWideSalt() throws Exception {
-        SystemWideSaltSource saltSource = new SystemWideSaltSource();
+	public void testDetectsMissingSystemWideSalt() throws Exception {
+		SystemWideSaltSource saltSource = new SystemWideSaltSource();
 
-        try {
-            saltSource.afterPropertiesSet();
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertEquals("A systemWideSalt must be set", expected.getMessage());
-        }
-    }
+		try {
+			saltSource.afterPropertiesSet();
+			fail("Should have thrown IllegalArgumentException");
+		}
+		catch (IllegalArgumentException expected) {
+			assertEquals("A systemWideSalt must be set", expected.getMessage());
+		}
+	}
 
-    public void testGettersSetters() {
-        SystemWideSaltSource saltSource = new SystemWideSaltSource();
-        saltSource.setSystemWideSalt("helloWorld");
-        assertEquals("helloWorld", saltSource.getSystemWideSalt());
-    }
+	public void testGettersSetters() {
+		SystemWideSaltSource saltSource = new SystemWideSaltSource();
+		saltSource.setSystemWideSalt("helloWorld");
+		assertEquals("helloWorld", saltSource.getSystemWideSalt());
+	}
 
-    public void testNormalOperation() throws Exception {
-        SystemWideSaltSource saltSource = new SystemWideSaltSource();
-        saltSource.setSystemWideSalt("helloWorld");
-        saltSource.afterPropertiesSet();
-        assertEquals("helloWorld", saltSource.getSalt(null));
-    }
+	public void testNormalOperation() throws Exception {
+		SystemWideSaltSource saltSource = new SystemWideSaltSource();
+		saltSource.setSystemWideSalt("helloWorld");
+		saltSource.afterPropertiesSet();
+		assertEquals("helloWorld", saltSource.getSalt(null));
+	}
 
-    // SEC-2173
-    public void testToString() {
-        String systemWideSalt = "helloWorld";
-        SystemWideSaltSource saltSource = new SystemWideSaltSource();
-        saltSource.setSystemWideSalt(systemWideSalt);
-        assertThat(saltSource.toString()).isEqualTo(systemWideSalt);
-    }
+	// SEC-2173
+	public void testToString() {
+		String systemWideSalt = "helloWorld";
+		SystemWideSaltSource saltSource = new SystemWideSaltSource();
+		saltSource.setSystemWideSalt(systemWideSalt);
+		assertThat(saltSource.toString()).isEqualTo(systemWideSalt);
+	}
 }

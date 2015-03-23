@@ -30,7 +30,8 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 
 /**
- * Implements select methods from the {@link HttpServletRequest} using the {@link SecurityContext} from the {@link SecurityContextHolder}.
+ * Implements select methods from the {@link HttpServletRequest} using the
+ * {@link SecurityContext} from the {@link SecurityContextHolder}.
  *
  * <h2>Security Filters</h2>
  *
@@ -47,42 +48,50 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
  * <h2>Shared Objects Used</h2>
  *
  * <ul>
- * <li>{@link AuthenticationTrustResolver} is optionally used to populate the {@link SecurityContextHolderAwareRequestFilter}</li>
+ * <li>{@link AuthenticationTrustResolver} is optionally used to populate the
+ * {@link SecurityContextHolderAwareRequestFilter}</li>
  * </ul>
  *
  * @author Rob Winch
  * @since 3.2
  */
-public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<ServletApiConfigurer<H>,H> {
-    private SecurityContextHolderAwareRequestFilter securityContextRequestFilter = new SecurityContextHolderAwareRequestFilter();
+public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>> extends
+		AbstractHttpConfigurer<ServletApiConfigurer<H>, H> {
+	private SecurityContextHolderAwareRequestFilter securityContextRequestFilter = new SecurityContextHolderAwareRequestFilter();
 
-    /**
-     * Creates a new instance
-     * @see HttpSecurity#servletApi()
-     */
-    public ServletApiConfigurer() {
-    }
+	/**
+	 * Creates a new instance
+	 * @see HttpSecurity#servletApi()
+	 */
+	public ServletApiConfigurer() {
+	}
 
-    public ServletApiConfigurer<H> rolePrefix(String rolePrefix) {
-        securityContextRequestFilter.setRolePrefix(rolePrefix);
-        return this;
-    }
+	public ServletApiConfigurer<H> rolePrefix(String rolePrefix) {
+		securityContextRequestFilter.setRolePrefix(rolePrefix);
+		return this;
+	}
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public void configure(H http) throws Exception {
-        securityContextRequestFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
-        ExceptionHandlingConfigurer<H> exceptionConf = http.getConfigurer(ExceptionHandlingConfigurer.class);
-        AuthenticationEntryPoint authenticationEntryPoint = exceptionConf == null ? null : exceptionConf.getAuthenticationEntryPoint(http);
-        securityContextRequestFilter.setAuthenticationEntryPoint(authenticationEntryPoint);
-        LogoutConfigurer<H> logoutConf = http.getConfigurer(LogoutConfigurer.class);
-        List<LogoutHandler> logoutHandlers = logoutConf == null ? null : logoutConf.getLogoutHandlers();
-        securityContextRequestFilter.setLogoutHandlers(logoutHandlers);
-        AuthenticationTrustResolver trustResolver = http.getSharedObject(AuthenticationTrustResolver.class);
-        if(trustResolver != null) {
-            securityContextRequestFilter.setTrustResolver(trustResolver);
-        }
-        securityContextRequestFilter = postProcess(securityContextRequestFilter);
-        http.addFilter(securityContextRequestFilter);
-    }
+	@Override
+	@SuppressWarnings("unchecked")
+	public void configure(H http) throws Exception {
+		securityContextRequestFilter.setAuthenticationManager(http
+				.getSharedObject(AuthenticationManager.class));
+		ExceptionHandlingConfigurer<H> exceptionConf = http
+				.getConfigurer(ExceptionHandlingConfigurer.class);
+		AuthenticationEntryPoint authenticationEntryPoint = exceptionConf == null ? null
+				: exceptionConf.getAuthenticationEntryPoint(http);
+		securityContextRequestFilter
+				.setAuthenticationEntryPoint(authenticationEntryPoint);
+		LogoutConfigurer<H> logoutConf = http.getConfigurer(LogoutConfigurer.class);
+		List<LogoutHandler> logoutHandlers = logoutConf == null ? null : logoutConf
+				.getLogoutHandlers();
+		securityContextRequestFilter.setLogoutHandlers(logoutHandlers);
+		AuthenticationTrustResolver trustResolver = http
+				.getSharedObject(AuthenticationTrustResolver.class);
+		if (trustResolver != null) {
+			securityContextRequestFilter.setTrustResolver(trustResolver);
+		}
+		securityContextRequestFilter = postProcess(securityContextRequestFilter);
+		http.addFilter(securityContextRequestFilter);
+	}
 }

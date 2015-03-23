@@ -38,88 +38,87 @@ import org.springframework.security.web.util.matcher.AndRequestMatcher;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AndRequestMatcherTests {
-    @Mock
-    private RequestMatcher delegate;
+	@Mock
+	private RequestMatcher delegate;
 
-    @Mock
-    private RequestMatcher delegate2;
+	@Mock
+	private RequestMatcher delegate2;
 
-    @Mock
-    private HttpServletRequest request;
+	@Mock
+	private HttpServletRequest request;
 
-    private RequestMatcher matcher;
+	private RequestMatcher matcher;
 
-    @Test(expected = NullPointerException.class)
-    public void constructorNullArray() {
-        new AndRequestMatcher((RequestMatcher[]) null);
-    }
+	@Test(expected = NullPointerException.class)
+	public void constructorNullArray() {
+		new AndRequestMatcher((RequestMatcher[]) null);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorArrayContainsNull() {
-        new AndRequestMatcher((RequestMatcher)null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorArrayContainsNull() {
+		new AndRequestMatcher((RequestMatcher) null);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorEmptyArray() {
-        new AndRequestMatcher(new RequestMatcher[0]);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorEmptyArray() {
+		new AndRequestMatcher(new RequestMatcher[0]);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullList() {
-        new AndRequestMatcher((List<RequestMatcher>) null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullList() {
+		new AndRequestMatcher((List<RequestMatcher>) null);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorListContainsNull() {
-        new AndRequestMatcher(Arrays.asList((RequestMatcher)null));
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorListContainsNull() {
+		new AndRequestMatcher(Arrays.asList((RequestMatcher) null));
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorEmptyList() {
-        new AndRequestMatcher(Collections.<RequestMatcher>emptyList());
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorEmptyList() {
+		new AndRequestMatcher(Collections.<RequestMatcher> emptyList());
+	}
 
-    @Test
-    public void matchesSingleTrue() {
-        when(delegate.matches(request)).thenReturn(true);
-        matcher = new AndRequestMatcher(delegate);
+	@Test
+	public void matchesSingleTrue() {
+		when(delegate.matches(request)).thenReturn(true);
+		matcher = new AndRequestMatcher(delegate);
 
-        assertThat(matcher.matches(request)).isTrue();
-    }
+		assertThat(matcher.matches(request)).isTrue();
+	}
 
-    @Test
-    public void matchesMultiTrue() {
-        when(delegate.matches(request)).thenReturn(true);
-        when(delegate2.matches(request)).thenReturn(true);
-        matcher = new AndRequestMatcher(delegate, delegate2);
+	@Test
+	public void matchesMultiTrue() {
+		when(delegate.matches(request)).thenReturn(true);
+		when(delegate2.matches(request)).thenReturn(true);
+		matcher = new AndRequestMatcher(delegate, delegate2);
 
-        assertThat(matcher.matches(request)).isTrue();
-    }
+		assertThat(matcher.matches(request)).isTrue();
+	}
 
+	@Test
+	public void matchesSingleFalse() {
+		when(delegate.matches(request)).thenReturn(false);
+		matcher = new AndRequestMatcher(delegate);
 
-    @Test
-    public void matchesSingleFalse() {
-        when(delegate.matches(request)).thenReturn(false);
-        matcher = new AndRequestMatcher(delegate);
+		assertThat(matcher.matches(request)).isFalse();
+	}
 
-        assertThat(matcher.matches(request)).isFalse();
-    }
+	@Test
+	public void matchesMultiBothFalse() {
+		when(delegate.matches(request)).thenReturn(false);
+		when(delegate2.matches(request)).thenReturn(false);
+		matcher = new AndRequestMatcher(delegate, delegate2);
 
-    @Test
-    public void matchesMultiBothFalse() {
-        when(delegate.matches(request)).thenReturn(false);
-        when(delegate2.matches(request)).thenReturn(false);
-        matcher = new AndRequestMatcher(delegate, delegate2);
+		assertThat(matcher.matches(request)).isFalse();
+	}
 
-        assertThat(matcher.matches(request)).isFalse();
-    }
+	@Test
+	public void matchesMultiSingleFalse() {
+		when(delegate.matches(request)).thenReturn(true);
+		when(delegate2.matches(request)).thenReturn(false);
+		matcher = new AndRequestMatcher(delegate, delegate2);
 
-    @Test
-    public void matchesMultiSingleFalse() {
-        when(delegate.matches(request)).thenReturn(true);
-        when(delegate2.matches(request)).thenReturn(false);
-        matcher = new AndRequestMatcher(delegate, delegate2);
-
-        assertThat(matcher.matches(request)).isFalse();
-    }
+		assertThat(matcher.matches(request)).isFalse();
+	}
 }

@@ -19,50 +19,52 @@ import org.springframework.security.authentication.encoding.PlaintextPasswordEnc
 
 import junit.framework.TestCase;
 
-
 /**
- * <p>TestCase for PlaintextPasswordEncoder.</p>
+ * <p>
+ * TestCase for PlaintextPasswordEncoder.
+ * </p>
  *
  * @author colin sampaleanu
  * @author Ben Alex
  */
 public class PlaintextPasswordEncoderTests extends TestCase {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public void testBasicFunctionality() {
-        PlaintextPasswordEncoder pe = new PlaintextPasswordEncoder();
+	public void testBasicFunctionality() {
+		PlaintextPasswordEncoder pe = new PlaintextPasswordEncoder();
 
-        String raw = "abc123";
-        String rawDiffCase = "AbC123";
-        String badRaw = "abc321";
-        String salt = "THIS_IS_A_SALT";
+		String raw = "abc123";
+		String rawDiffCase = "AbC123";
+		String badRaw = "abc321";
+		String salt = "THIS_IS_A_SALT";
 
-        String encoded = pe.encodePassword(raw, salt);
-        assertEquals("abc123{THIS_IS_A_SALT}", encoded);
-        assertTrue(pe.isPasswordValid(encoded, raw, salt));
-        assertFalse(pe.isPasswordValid(encoded, badRaw, salt));
+		String encoded = pe.encodePassword(raw, salt);
+		assertEquals("abc123{THIS_IS_A_SALT}", encoded);
+		assertTrue(pe.isPasswordValid(encoded, raw, salt));
+		assertFalse(pe.isPasswordValid(encoded, badRaw, salt));
 
-        // make sure default is not to ignore password case
-        assertFalse(pe.isIgnorePasswordCase());
-        encoded = pe.encodePassword(rawDiffCase, salt);
-        assertFalse(pe.isPasswordValid(encoded, raw, salt));
+		// make sure default is not to ignore password case
+		assertFalse(pe.isIgnorePasswordCase());
+		encoded = pe.encodePassword(rawDiffCase, salt);
+		assertFalse(pe.isPasswordValid(encoded, raw, salt));
 
-        // now check for ignore password case
-        pe = new PlaintextPasswordEncoder();
-        pe.setIgnorePasswordCase(true);
+		// now check for ignore password case
+		pe = new PlaintextPasswordEncoder();
+		pe.setIgnorePasswordCase(true);
 
-        // should be able to validate even without encoding
-        encoded = pe.encodePassword(rawDiffCase, salt);
-        assertTrue(pe.isPasswordValid(encoded, raw, salt));
-        assertFalse(pe.isPasswordValid(encoded, badRaw, salt));
-    }
+		// should be able to validate even without encoding
+		encoded = pe.encodePassword(rawDiffCase, salt);
+		assertTrue(pe.isPasswordValid(encoded, raw, salt));
+		assertFalse(pe.isPasswordValid(encoded, badRaw, salt));
+	}
 
-    public void testMergeDemerge() {
-        PlaintextPasswordEncoder pwd = new PlaintextPasswordEncoder();
+	public void testMergeDemerge() {
+		PlaintextPasswordEncoder pwd = new PlaintextPasswordEncoder();
 
-        String merged = pwd.encodePassword("password", "foo");
-        String[] demerged = pwd.obtainPasswordAndSalt(merged);
-        assertEquals("password", demerged[0]);
-        assertEquals("foo", demerged[1]);
-    }
+		String merged = pwd.encodePassword("password", "foo");
+		String[] demerged = pwd.obtainPasswordAndSalt(merged);
+		assertEquals("password", demerged[0]);
+		assertEquals("foo", demerged[1]);
+	}
 }

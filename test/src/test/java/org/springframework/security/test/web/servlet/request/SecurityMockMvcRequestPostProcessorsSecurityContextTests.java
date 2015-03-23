@@ -43,38 +43,39 @@ import org.springframework.security.web.context.SecurityContextRepository;
 @RunWith(PowerMockRunner.class)
 @PrepareOnlyThisForTest(WebTestUtils.class)
 public class SecurityMockMvcRequestPostProcessorsSecurityContextTests {
-    @Captor
-    private ArgumentCaptor<SecurityContext> contextCaptor;
-    @Mock
-    private SecurityContextRepository repository;
+	@Captor
+	private ArgumentCaptor<SecurityContext> contextCaptor;
+	@Mock
+	private SecurityContextRepository repository;
 
-    private MockHttpServletRequest request;
+	private MockHttpServletRequest request;
 
-    @Mock
-    private SecurityContext expectedContext;
+	@Mock
+	private SecurityContext expectedContext;
 
-    @Before
-    public void setup() {
-        request = new MockHttpServletRequest();
-        mockWebTestUtils();
-    }
+	@Before
+	public void setup() {
+		request = new MockHttpServletRequest();
+		mockWebTestUtils();
+	}
 
-    @After
-    public void cleanup() {
-        TestSecurityContextHolder.clearContext();
-    }
+	@After
+	public void cleanup() {
+		TestSecurityContextHolder.clearContext();
+	}
 
-    @Test
-    public void userDetails() {
-        securityContext(expectedContext).postProcessRequest(request);
+	@Test
+	public void userDetails() {
+		securityContext(expectedContext).postProcessRequest(request);
 
-        verify(repository).saveContext(contextCaptor.capture(), eq(request), any(HttpServletResponse.class));
-        SecurityContext context = contextCaptor.getValue();
-        assertThat(context).isSameAs(this.expectedContext);
-    }
+		verify(repository).saveContext(contextCaptor.capture(), eq(request),
+				any(HttpServletResponse.class));
+		SecurityContext context = contextCaptor.getValue();
+		assertThat(context).isSameAs(this.expectedContext);
+	}
 
-    private void mockWebTestUtils() {
-        spy(WebTestUtils.class);
-        when(WebTestUtils.getSecurityContextRepository(request)).thenReturn(repository);
-    }
+	private void mockWebTestUtils() {
+		spy(WebTestUtils.class);
+		when(WebTestUtils.getSecurityContextRepository(request)).thenReturn(repository);
+	}
 }

@@ -27,30 +27,28 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.util.Assert;
 
 /**
- * An {@link AuthenticationEntryPoint} that sends a generic {@link HttpStatus}
- * as a response. Useful for JavaScript clients which cannot use Basic
- * authentication since the browser intercepts the response.
+ * An {@link AuthenticationEntryPoint} that sends a generic {@link HttpStatus} as a
+ * response. Useful for JavaScript clients which cannot use Basic authentication since the
+ * browser intercepts the response.
  *
  * @author Rob Winch
  * @since 4.0
  */
 public final class HttpStatusEntryPoint implements AuthenticationEntryPoint {
-    private final HttpStatus httpStatus;
+	private final HttpStatus httpStatus;
 
-    /**
-     * Creates a new instance.
-     *
-     * @param httpStatus the HttpSatus to set
-     */
-    public HttpStatusEntryPoint(HttpStatus httpStatus) {
-        Assert.notNull(httpStatus, "httpStatus cannot be null");
-        this.httpStatus = httpStatus;
-    }
+	/**
+	 * Creates a new instance.
+	 *
+	 * @param httpStatus the HttpSatus to set
+	 */
+	public HttpStatusEntryPoint(HttpStatus httpStatus) {
+		Assert.notNull(httpStatus, "httpStatus cannot be null");
+		this.httpStatus = httpStatus;
+	}
 
-    public void commence(HttpServletRequest request,
-            HttpServletResponse response,
-            AuthenticationException authException) throws IOException,
-            ServletException {
-        response.setStatus(httpStatus.value());
-    }
+	public void commence(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException authException) throws IOException, ServletException {
+		response.setStatus(httpStatus.value());
+	}
 }

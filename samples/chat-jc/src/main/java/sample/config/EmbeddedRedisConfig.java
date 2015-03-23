@@ -1,4 +1,5 @@
 package sample.config;
+
 /*
  * Copyright 2002-2014 the original author or authors.
  *
@@ -30,53 +31,58 @@ import org.springframework.context.annotation.Configuration;
 import redis.embedded.RedisServer;
 
 /**
- * Runs an embedded Redis instance. This is only necessary since we do not want
- * users to have to setup a Redis instance. In a production environment, this
- * would not be used since a Redis Server would be setup.
+ * Runs an embedded Redis instance. This is only necessary since we do not want users to
+ * have to setup a Redis instance. In a production environment, this would not be used
+ * since a Redis Server would be setup.
  *
  * @author Rob Winch
  */
 @Configuration
 public class EmbeddedRedisConfig {
 
-    @Bean
-    public static RedisServerBean redisServer() {
-        return new RedisServerBean();
-    }
+	@Bean
+	public static RedisServerBean redisServer() {
+		return new RedisServerBean();
+	}
 
-    /**
-     * Implements BeanDefinitionRegistryPostProcessor to ensure this Bean
-     * is initialized before any other Beans. Specifically, we want to ensure
-     * that the Redis Server is started before RedisHttpSessionConfiguration
-     * attempts to enable Keyspace notifications.
-     */
-    static class RedisServerBean implements InitializingBean, DisposableBean, BeanDefinitionRegistryPostProcessor, RedisConnectionProperties {
-        private RedisServer redisServer;
+	/**
+	 * Implements BeanDefinitionRegistryPostProcessor to ensure this Bean is initialized
+	 * before any other Beans. Specifically, we want to ensure that the Redis Server is
+	 * started before RedisHttpSessionConfiguration attempts to enable Keyspace
+	 * notifications.
+	 */
+	static class RedisServerBean implements InitializingBean, DisposableBean,
+			BeanDefinitionRegistryPostProcessor, RedisConnectionProperties {
+		private RedisServer redisServer;
 
-        public void afterPropertiesSet() throws Exception {
-            redisServer = new RedisServer(getPort());
-            redisServer.start();
-        }
+		public void afterPropertiesSet() throws Exception {
+			redisServer = new RedisServer(getPort());
+			redisServer.start();
+		}
 
-        public void destroy() throws Exception {
-            if(redisServer != null) {
-                redisServer.stop();
-            }
-        }
+		public void destroy() throws Exception {
+			if (redisServer != null) {
+				redisServer.stop();
+			}
+		}
 
-        public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {}
+		public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry)
+				throws BeansException {
+		}
 
-        public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {}
+		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)
+				throws BeansException {
+		}
 
-        private Integer availablePort;
+		private Integer availablePort;
 
-        public int getPort() throws IOException {
-            if(availablePort == null) {
-                ServerSocket socket = new ServerSocket(0);
-                availablePort = socket.getLocalPort();
-                socket.close();
-            }
-            return availablePort;
-        }
-    }
+		public int getPort() throws IOException {
+			if (availablePort == null) {
+				ServerSocket socket = new ServerSocket(0);
+				availablePort = socket.getLocalPort();
+				socket.close();
+			}
+			return availablePort;
+		}
+	}
 }

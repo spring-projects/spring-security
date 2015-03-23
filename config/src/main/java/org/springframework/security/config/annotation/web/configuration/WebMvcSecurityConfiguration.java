@@ -27,11 +27,10 @@ import org.springframework.web.servlet.support.RequestDataValueProcessor;
 import java.util.List;
 
 /**
- * Used to add a {@link RequestDataValueProcessor} for Spring MVC and Spring
- * Security CSRF integration. This configuration is added whenever
- * {@link EnableWebMvc} is added by {@link SpringWebMvcImportSelector} and the
- * DispatcherServlet is present on the classpath. It also adds the
- * {@link AuthenticationPrincipalArgumentResolver} as a
+ * Used to add a {@link RequestDataValueProcessor} for Spring MVC and Spring Security CSRF
+ * integration. This configuration is added whenever {@link EnableWebMvc} is added by
+ * {@link SpringWebMvcImportSelector} and the DispatcherServlet is present on the
+ * classpath. It also adds the {@link AuthenticationPrincipalArgumentResolver} as a
  * {@link HandlerMethodArgumentResolver}.
  *
  * @author Rob Winch
@@ -39,18 +38,18 @@ import java.util.List;
  */
 class WebMvcSecurityConfiguration extends WebMvcConfigurerAdapter {
 
-    @Override
-    @SuppressWarnings("deprecation")
-    public void addArgumentResolvers(
-            List<HandlerMethodArgumentResolver> argumentResolvers) {
-        argumentResolvers.add(new AuthenticationPrincipalArgumentResolver());
-        argumentResolvers.add(new org.springframework.security.web.bind.support.AuthenticationPrincipalArgumentResolver());
-        argumentResolvers.add(new CsrfTokenArgumentResolver());
-    }
+	@Override
+	@SuppressWarnings("deprecation")
+	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+		argumentResolvers.add(new AuthenticationPrincipalArgumentResolver());
+		argumentResolvers
+				.add(new org.springframework.security.web.bind.support.AuthenticationPrincipalArgumentResolver());
+		argumentResolvers.add(new CsrfTokenArgumentResolver());
+	}
 
-    @ConditionalOnMissingBean(RequestDataValueProcessor.class)
-    @Bean
-    public RequestDataValueProcessor requestDataValueProcessor() {
-        return new CsrfRequestDataValueProcessor();
-    }
+	@ConditionalOnMissingBean(RequestDataValueProcessor.class)
+	@Bean
+	public RequestDataValueProcessor requestDataValueProcessor() {
+		return new CsrfRequestDataValueProcessor();
+	}
 }

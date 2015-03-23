@@ -21,39 +21,41 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 /**
- * Abstract class for testing {@link DelegatingSecurityContextExecutor} which allows customization of
- * how {@link DelegatingSecurityContextExecutor} and its mocks are created.
+ * Abstract class for testing {@link DelegatingSecurityContextExecutor} which allows
+ * customization of how {@link DelegatingSecurityContextExecutor} and its mocks are
+ * created.
  *
  * @author Rob Winch
  * @since 3.2
  * @see CurrentDelegatingSecurityContextExecutorTests
  * @see ExplicitDelegatingSecurityContextExecutorTests
  */
-public abstract class AbstractDelegatingSecurityContextExecutorTests extends AbstractDelegatingSecurityContextTestSupport {
-    @Mock
-    protected ScheduledExecutorService delegate;
+public abstract class AbstractDelegatingSecurityContextExecutorTests extends
+		AbstractDelegatingSecurityContextTestSupport {
+	@Mock
+	protected ScheduledExecutorService delegate;
 
-    private DelegatingSecurityContextExecutor executor;
+	private DelegatingSecurityContextExecutor executor;
 
-    // --- constructor ---
+	// --- constructor ---
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullDelegate() {
-        new DelegatingSecurityContextExecutor(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullDelegate() {
+		new DelegatingSecurityContextExecutor(null);
+	}
 
-    // --- execute ---
+	// --- execute ---
 
-    @Test
-    public void execute() {
-        executor = create();
-        executor.execute(runnable);
-        verify(getExecutor()).execute(wrappedRunnable);
-    }
+	@Test
+	public void execute() {
+		executor = create();
+		executor.execute(runnable);
+		verify(getExecutor()).execute(wrappedRunnable);
+	}
 
-    protected Executor getExecutor() {
-        return delegate;
-    }
+	protected Executor getExecutor() {
+		return delegate;
+	}
 
-    protected abstract DelegatingSecurityContextExecutor create();
+	protected abstract DelegatingSecurityContextExecutor create();
 }

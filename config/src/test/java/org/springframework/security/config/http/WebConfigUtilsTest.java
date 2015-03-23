@@ -24,19 +24,20 @@ import org.powermock.core.classloader.annotations.PrepareOnlyThisForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.beans.factory.xml.ParserContext;
 
-
 @RunWith(PowerMockRunner.class)
 @PrepareOnlyThisForTest(ParserContext.class)
 public class WebConfigUtilsTest {
-    public final static String URL = "/url";
+	public final static String URL = "/url";
 
-    @Mock
-    private ParserContext parserContext;
+	@Mock
+	private ParserContext parserContext;
 
-    // SEC-1980
-    @Test
-    public void validateHttpRedirectSpELNoParserWarning() {
-        WebConfigUtils.validateHttpRedirect("#{T(org.springframework.security.config.http.WebConfigUtilsTest).URL}", parserContext, "fakeSource");
-        verifyZeroInteractions(parserContext);
-    }
+	// SEC-1980
+	@Test
+	public void validateHttpRedirectSpELNoParserWarning() {
+		WebConfigUtils.validateHttpRedirect(
+				"#{T(org.springframework.security.config.http.WebConfigUtilsTest).URL}",
+				parserContext, "fakeSource");
+		verifyZeroInteractions(parserContext);
+	}
 }

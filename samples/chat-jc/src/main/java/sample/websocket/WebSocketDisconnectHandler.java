@@ -26,29 +26,32 @@ import java.util.Arrays;
 /**
  * @author Rob Winch
  */
-public class WebSocketDisconnectHandler implements ApplicationListener<SessionDisconnectEvent> {
-    private ActiveWebSocketUserRepository repository;
-    private SimpMessageSendingOperations messagingTemplate;
+public class WebSocketDisconnectHandler implements
+		ApplicationListener<SessionDisconnectEvent> {
+	private ActiveWebSocketUserRepository repository;
+	private SimpMessageSendingOperations messagingTemplate;
 
-    public WebSocketDisconnectHandler(SimpMessageSendingOperations messagingTemplate, ActiveWebSocketUserRepository repository) {
-        super();
-        this.messagingTemplate = messagingTemplate;
-        this.repository = repository;
-    }
+	public WebSocketDisconnectHandler(SimpMessageSendingOperations messagingTemplate,
+			ActiveWebSocketUserRepository repository) {
+		super();
+		this.messagingTemplate = messagingTemplate;
+		this.repository = repository;
+	}
 
-    public void onApplicationEvent(SessionDisconnectEvent event) {
-        String id = event.getSessionId();
-        if(id == null) {
-            return;
-        }
-        ActiveWebSocketUser user = repository.findOne(id);
-        if(user == null) {
-            return;
-        }
+	public void onApplicationEvent(SessionDisconnectEvent event) {
+		String id = event.getSessionId();
+		if (id == null) {
+			return;
+		}
+		ActiveWebSocketUser user = repository.findOne(id);
+		if (user == null) {
+			return;
+		}
 
-        repository.delete(id);
+		repository.delete(id);
 
-        messagingTemplate.convertAndSend("/topic/friends/signout", Arrays.asList(user.getUsername()));
-    }
+		messagingTemplate.convertAndSend("/topic/friends/signout",
+				Arrays.asList(user.getUsername()));
+	}
 
 }

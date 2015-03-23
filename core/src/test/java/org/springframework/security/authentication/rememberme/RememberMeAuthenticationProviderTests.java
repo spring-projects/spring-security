@@ -24,67 +24,76 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 
-
 /**
  * Tests {@link RememberMeAuthenticationProvider}.
  *
  * @author Ben Alex
  */
 public class RememberMeAuthenticationProviderTests extends TestCase {
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public void testDetectsAnInvalidKey() throws Exception {
-        RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider("qwerty");
+	public void testDetectsAnInvalidKey() throws Exception {
+		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
+				"qwerty");
 
-        RememberMeAuthenticationToken token = new RememberMeAuthenticationToken("WRONG_KEY", "Test",
-                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
+		RememberMeAuthenticationToken token = new RememberMeAuthenticationToken(
+				"WRONG_KEY", "Test", AuthorityUtils.createAuthorityList("ROLE_ONE",
+						"ROLE_TWO"));
 
-        try {
-            aap.authenticate(token);
-            fail("Should have thrown BadCredentialsException");
-        } catch (BadCredentialsException expected) {
-        }
-    }
+		try {
+			aap.authenticate(token);
+			fail("Should have thrown BadCredentialsException");
+		}
+		catch (BadCredentialsException expected) {
+		}
+	}
 
-    public void testDetectsMissingKey() throws Exception {
-        try {
-            new RememberMeAuthenticationProvider(null);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-    }
+	public void testDetectsMissingKey() throws Exception {
+		try {
+			new RememberMeAuthenticationProvider(null);
+			fail("Should have thrown IllegalArgumentException");
+		}
+		catch (IllegalArgumentException expected) {
+			assertTrue(true);
+		}
+	}
 
-    public void testGettersSetters() throws Exception {
-        RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider("qwerty");
-        aap.afterPropertiesSet();
-        assertEquals("qwerty", aap.getKey());
-    }
+	public void testGettersSetters() throws Exception {
+		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
+				"qwerty");
+		aap.afterPropertiesSet();
+		assertEquals("qwerty", aap.getKey());
+	}
 
-    public void testIgnoresClassesItDoesNotSupport() throws Exception {
-        RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider("qwerty");
+	public void testIgnoresClassesItDoesNotSupport() throws Exception {
+		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
+				"qwerty");
 
-        TestingAuthenticationToken token = new TestingAuthenticationToken("user", "password","ROLE_A");
-        assertFalse(aap.supports(TestingAuthenticationToken.class));
+		TestingAuthenticationToken token = new TestingAuthenticationToken("user",
+				"password", "ROLE_A");
+		assertFalse(aap.supports(TestingAuthenticationToken.class));
 
-        // Try it anyway
-        assertNull(aap.authenticate(token));
-    }
+		// Try it anyway
+		assertNull(aap.authenticate(token));
+	}
 
-    public void testNormalOperation() throws Exception {
-        RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider("qwerty");
+	public void testNormalOperation() throws Exception {
+		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
+				"qwerty");
 
-        RememberMeAuthenticationToken token = new RememberMeAuthenticationToken("qwerty", "Test",
-                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
+		RememberMeAuthenticationToken token = new RememberMeAuthenticationToken("qwerty",
+				"Test", AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 
-        Authentication result = aap.authenticate(token);
+		Authentication result = aap.authenticate(token);
 
-        assertEquals(result, token);
-    }
+		assertEquals(result, token);
+	}
 
-    public void testSupports() {
-        RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider("qwerty");
-        assertTrue(aap.supports(RememberMeAuthenticationToken.class));
-        assertFalse(aap.supports(TestingAuthenticationToken.class));
-    }
+	public void testSupports() {
+		RememberMeAuthenticationProvider aap = new RememberMeAuthenticationProvider(
+				"qwerty");
+		assertTrue(aap.supports(RememberMeAuthenticationToken.class));
+		assertFalse(aap.supports(TestingAuthenticationToken.class));
+	}
 }

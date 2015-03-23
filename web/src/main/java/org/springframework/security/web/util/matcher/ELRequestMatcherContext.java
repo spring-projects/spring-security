@@ -15,34 +15,33 @@
  */
 package org.springframework.security.web.util.matcher;
 
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.util.StringUtils;
 
 class ELRequestMatcherContext {
 
-    private final HttpServletRequest request;
+	private final HttpServletRequest request;
 
-    public ELRequestMatcherContext(HttpServletRequest request) {
-        this.request = request;
-    }
+	public ELRequestMatcherContext(HttpServletRequest request) {
+		this.request = request;
+	}
 
-    public boolean hasIpAddress(String ipAddress) {
-        return (new IpAddressMatcher(ipAddress).matches(request));
-    }
+	public boolean hasIpAddress(String ipAddress) {
+		return (new IpAddressMatcher(ipAddress).matches(request));
+	}
 
-    public boolean hasHeader(String headerName, String value) {
-        String header = request.getHeader(headerName);
-        if (!StringUtils.hasText(header)) {
-            return false;
-        }
+	public boolean hasHeader(String headerName, String value) {
+		String header = request.getHeader(headerName);
+		if (!StringUtils.hasText(header)) {
+			return false;
+		}
 
-        if (header.contains(value)) {
-            return true;
-        }
+		if (header.contains(value)) {
+			return true;
+		}
 
-        return false;
-    }
+		return false;
+	}
 
 }

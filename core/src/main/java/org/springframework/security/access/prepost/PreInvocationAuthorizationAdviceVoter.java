@@ -10,59 +10,63 @@ import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 
 /**
- * Voter which performs the actions using a PreInvocationAuthorizationAdvice implementation
- * generated from @PreFilter and @PreAuthorize annotations.
+ * Voter which performs the actions using a PreInvocationAuthorizationAdvice
+ * implementation generated from @PreFilter and @PreAuthorize annotations.
  * <p>
- * In practice, if these annotations are being used, they will normally contain all the necessary
- * access control logic, so a voter-based system is not really necessary and a single <tt>AccessDecisionManager</tt>
- * which contained the same logic would suffice. However, this class fits in readily with the traditional
- * voter-based <tt>AccessDecisionManager</tt> implementations used by Spring Security.
+ * In practice, if these annotations are being used, they will normally contain all the
+ * necessary access control logic, so a voter-based system is not really necessary and a
+ * single <tt>AccessDecisionManager</tt> which contained the same logic would suffice.
+ * However, this class fits in readily with the traditional voter-based
+ * <tt>AccessDecisionManager</tt> implementations used by Spring Security.
  *
  * @author Luke Taylor
  * @since 3.0
  */
-public class PreInvocationAuthorizationAdviceVoter implements AccessDecisionVoter<MethodInvocation> {
-    protected final Log logger = LogFactory.getLog(getClass());
+public class PreInvocationAuthorizationAdviceVoter implements
+		AccessDecisionVoter<MethodInvocation> {
+	protected final Log logger = LogFactory.getLog(getClass());
 
-    private final PreInvocationAuthorizationAdvice preAdvice;
+	private final PreInvocationAuthorizationAdvice preAdvice;
 
-    public PreInvocationAuthorizationAdviceVoter(PreInvocationAuthorizationAdvice pre) {
-        this.preAdvice = pre;
-    }
+	public PreInvocationAuthorizationAdviceVoter(PreInvocationAuthorizationAdvice pre) {
+		this.preAdvice = pre;
+	}
 
-    public boolean supports(ConfigAttribute attribute) {
-        return attribute instanceof PreInvocationAttribute;
-    }
+	public boolean supports(ConfigAttribute attribute) {
+		return attribute instanceof PreInvocationAttribute;
+	}
 
-    public boolean supports(Class<?> clazz) {
-        return MethodInvocation.class.isAssignableFrom(clazz);
-    }
+	public boolean supports(Class<?> clazz) {
+		return MethodInvocation.class.isAssignableFrom(clazz);
+	}
 
-    public int vote(Authentication authentication, MethodInvocation method, Collection<ConfigAttribute> attributes) {
+	public int vote(Authentication authentication, MethodInvocation method,
+			Collection<ConfigAttribute> attributes) {
 
-        // Find prefilter and preauth (or combined) attributes
-        // if both null, abstain
-        // else call advice with them
+		// Find prefilter and preauth (or combined) attributes
+		// if both null, abstain
+		// else call advice with them
 
-        PreInvocationAttribute preAttr = findPreInvocationAttribute(attributes);
+		PreInvocationAttribute preAttr = findPreInvocationAttribute(attributes);
 
-        if (preAttr == null) {
-            // No expression based metadata, so abstain
-            return ACCESS_ABSTAIN;
-        }
+		if (preAttr == null) {
+			// No expression based metadata, so abstain
+			return ACCESS_ABSTAIN;
+		}
 
-        boolean allowed = preAdvice.before(authentication, method, preAttr);
+		boolean allowed = preAdvice.before(authentication, method, preAttr);
 
-        return allowed ? ACCESS_GRANTED : ACCESS_DENIED;
-    }
+		return allowed ? ACCESS_GRANTED : ACCESS_DENIED;
+	}
 
-    private PreInvocationAttribute findPreInvocationAttribute(Collection<ConfigAttribute> config) {
-        for (ConfigAttribute attribute : config) {
-            if (attribute instanceof PreInvocationAttribute) {
-                return (PreInvocationAttribute)attribute;
-            }
-        }
+	private PreInvocationAttribute findPreInvocationAttribute(
+			Collection<ConfigAttribute> config) {
+		for (ConfigAttribute attribute : config) {
+			if (attribute instanceof PreInvocationAttribute) {
+				return (PreInvocationAttribute) attribute;
+			}
+		}
 
-        return null;
-    }
+		return null;
+	}
 }

@@ -16,41 +16,44 @@ import org.w3c.dom.Element;
  * @since 2.0
  */
 class SaltSourceBeanDefinitionParser {
-    private static final String ATT_USER_PROPERTY = "user-property";
-    private static final String ATT_REF = "ref";
-    private static final String ATT_SYSTEM_WIDE = "system-wide";
+	private static final String ATT_USER_PROPERTY = "user-property";
+	private static final String ATT_REF = "ref";
+	private static final String ATT_SYSTEM_WIDE = "system-wide";
 
-    public BeanMetadataElement parse(Element element, ParserContext parserContext) {
-        String ref = element.getAttribute(ATT_REF);
+	public BeanMetadataElement parse(Element element, ParserContext parserContext) {
+		String ref = element.getAttribute(ATT_REF);
 
-        if (StringUtils.hasText(ref)) {
-            return new RuntimeBeanReference(ref);
-        }
+		if (StringUtils.hasText(ref)) {
+			return new RuntimeBeanReference(ref);
+		}
 
-        String userProperty = element.getAttribute(ATT_USER_PROPERTY);
-        RootBeanDefinition saltSource;
+		String userProperty = element.getAttribute(ATT_USER_PROPERTY);
+		RootBeanDefinition saltSource;
 
-        if (StringUtils.hasText(userProperty)) {
-            saltSource = new RootBeanDefinition(ReflectionSaltSource.class);
-            saltSource.getPropertyValues().addPropertyValue("userPropertyToUse", userProperty);
-            saltSource.setSource(parserContext.extractSource(element));
-            saltSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+		if (StringUtils.hasText(userProperty)) {
+			saltSource = new RootBeanDefinition(ReflectionSaltSource.class);
+			saltSource.getPropertyValues().addPropertyValue("userPropertyToUse",
+					userProperty);
+			saltSource.setSource(parserContext.extractSource(element));
+			saltSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 
-            return saltSource;
-        }
+			return saltSource;
+		}
 
-        String systemWideSalt = element.getAttribute(ATT_SYSTEM_WIDE);
+		String systemWideSalt = element.getAttribute(ATT_SYSTEM_WIDE);
 
-        if (StringUtils.hasText(systemWideSalt)) {
-            saltSource = new RootBeanDefinition(SystemWideSaltSource.class);
-            saltSource.getPropertyValues().addPropertyValue("systemWideSalt", systemWideSalt);
-            saltSource.setSource(parserContext.extractSource(element));
-            saltSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+		if (StringUtils.hasText(systemWideSalt)) {
+			saltSource = new RootBeanDefinition(SystemWideSaltSource.class);
+			saltSource.getPropertyValues().addPropertyValue("systemWideSalt",
+					systemWideSalt);
+			saltSource.setSource(parserContext.extractSource(element));
+			saltSource.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 
-            return saltSource;
-        }
+			return saltSource;
+		}
 
-        parserContext.getReaderContext().error(Elements.SALT_SOURCE + " requires an attribute", element);
-        return null;
-    }
+		parserContext.getReaderContext().error(
+				Elements.SALT_SOURCE + " requires an attribute", element);
+		return null;
+	}
 }

@@ -29,11 +29,11 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface HeaderWriter {
 
-    /**
-     * Create a {@code Header} instance.
-     *
-     * @param request the request
-     * @param response the response
-     */
-    void writeHeaders(HttpServletRequest request, HttpServletResponse response);
+	/**
+	 * Create a {@code Header} instance.
+	 *
+	 * @param request the request
+	 * @param response the response
+	 */
+	void writeHeaders(HttpServletRequest request, HttpServletResponse response);
 }

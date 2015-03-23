@@ -55,219 +55,227 @@ import org.springframework.security.core.session.SessionDestroyedEvent;
 import org.springframework.test.util.ReflectionTestUtils;
 
 public class DefaultJaasAuthenticationProviderTests {
-    private DefaultJaasAuthenticationProvider provider;
-    private UsernamePasswordAuthenticationToken token;
-    private ApplicationEventPublisher publisher;
-    private Log log;
+	private DefaultJaasAuthenticationProvider provider;
+	private UsernamePasswordAuthenticationToken token;
+	private ApplicationEventPublisher publisher;
+	private Log log;
 
-    @Before
-    public void setUp() throws Exception {
-        Configuration configuration = mock(Configuration.class);
-        publisher = mock(ApplicationEventPublisher.class);
-        log = mock(Log.class);
-        provider = new DefaultJaasAuthenticationProvider();
-        provider.setConfiguration(configuration);
-        provider.setApplicationEventPublisher(publisher);
-        provider.setAuthorityGranters(new AuthorityGranter[] { new TestAuthorityGranter() });
-        provider.afterPropertiesSet();
-        AppConfigurationEntry[] aces = new AppConfigurationEntry[] { new AppConfigurationEntry(
-                TestLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED,
-                Collections.<String, Object> emptyMap()) };
-        when(configuration.getAppConfigurationEntry(provider.getLoginContextName())).thenReturn(aces);
-        token = new UsernamePasswordAuthenticationToken("user", "password");
-        ReflectionTestUtils.setField(provider, "log", log);
+	@Before
+	public void setUp() throws Exception {
+		Configuration configuration = mock(Configuration.class);
+		publisher = mock(ApplicationEventPublisher.class);
+		log = mock(Log.class);
+		provider = new DefaultJaasAuthenticationProvider();
+		provider.setConfiguration(configuration);
+		provider.setApplicationEventPublisher(publisher);
+		provider.setAuthorityGranters(new AuthorityGranter[] { new TestAuthorityGranter() });
+		provider.afterPropertiesSet();
+		AppConfigurationEntry[] aces = new AppConfigurationEntry[] { new AppConfigurationEntry(
+				TestLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED,
+				Collections.<String, Object> emptyMap()) };
+		when(configuration.getAppConfigurationEntry(provider.getLoginContextName()))
+				.thenReturn(aces);
+		token = new UsernamePasswordAuthenticationToken("user", "password");
+		ReflectionTestUtils.setField(provider, "log", log);
 
-    }
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void afterPropertiesSetNullConfiguration() throws Exception {
-        provider.setConfiguration(null);
-        provider.afterPropertiesSet();
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void afterPropertiesSetNullConfiguration() throws Exception {
+		provider.setConfiguration(null);
+		provider.afterPropertiesSet();
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void afterPropertiesSetNullAuthorityGranters() throws Exception {
-        provider.setAuthorityGranters(null);
-        provider.afterPropertiesSet();
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void afterPropertiesSetNullAuthorityGranters() throws Exception {
+		provider.setAuthorityGranters(null);
+		provider.afterPropertiesSet();
+	}
 
-    @Test
-    public void authenticateUnsupportedAuthentication() {
-        assertEquals(null, provider.authenticate(new TestingAuthenticationToken("user", "password")));
-    }
+	@Test
+	public void authenticateUnsupportedAuthentication() {
+		assertEquals(null,
+				provider.authenticate(new TestingAuthenticationToken("user", "password")));
+	}
 
-    @Test
-    public void authenticateSuccess() throws Exception {
-        Authentication auth = provider.authenticate(token);
-        assertEquals(token.getPrincipal(), auth.getPrincipal());
-        assertEquals(token.getCredentials(), auth.getCredentials());
-        assertEquals(true, auth.isAuthenticated());
-        assertEquals(false, auth.getAuthorities().isEmpty());
-        verify(publisher).publishEvent(isA(JaasAuthenticationSuccessEvent.class));
-        verifyNoMoreInteractions(publisher);
-    }
+	@Test
+	public void authenticateSuccess() throws Exception {
+		Authentication auth = provider.authenticate(token);
+		assertEquals(token.getPrincipal(), auth.getPrincipal());
+		assertEquals(token.getCredentials(), auth.getCredentials());
+		assertEquals(true, auth.isAuthenticated());
+		assertEquals(false, auth.getAuthorities().isEmpty());
+		verify(publisher).publishEvent(isA(JaasAuthenticationSuccessEvent.class));
+		verifyNoMoreInteractions(publisher);
+	}
 
-    @Test
-    public void authenticateBadPassword() {
-        try {
-            provider.authenticate(new UsernamePasswordAuthenticationToken("user", "asdf"));
-            fail("LoginException should have been thrown for the bad password");
-        } catch (AuthenticationException success) {
-        }
+	@Test
+	public void authenticateBadPassword() {
+		try {
+			provider.authenticate(new UsernamePasswordAuthenticationToken("user", "asdf"));
+			fail("LoginException should have been thrown for the bad password");
+		}
+		catch (AuthenticationException success) {
+		}
 
-        verifyFailedLogin();
-    }
+		verifyFailedLogin();
+	}
 
-    @Test
-    public void authenticateBadUser() {
-        try {
-            provider.authenticate(new UsernamePasswordAuthenticationToken("asdf", "password"));
-            fail("LoginException should have been thrown for the bad user");
-        } catch (AuthenticationException success) {
-        }
+	@Test
+	public void authenticateBadUser() {
+		try {
+			provider.authenticate(new UsernamePasswordAuthenticationToken("asdf",
+					"password"));
+			fail("LoginException should have been thrown for the bad user");
+		}
+		catch (AuthenticationException success) {
+		}
 
-        verifyFailedLogin();
-    }
+		verifyFailedLogin();
+	}
 
-    @Test
-    public void logout() throws Exception {
-        SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
-        SecurityContext securityContext = mock(SecurityContext.class);
-        JaasAuthenticationToken token = mock(JaasAuthenticationToken.class);
-        LoginContext context = mock(LoginContext.class);
+	@Test
+	public void logout() throws Exception {
+		SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
+		SecurityContext securityContext = mock(SecurityContext.class);
+		JaasAuthenticationToken token = mock(JaasAuthenticationToken.class);
+		LoginContext context = mock(LoginContext.class);
 
-        when(event.getSecurityContexts()).thenReturn(Arrays.asList(securityContext));
-        when(securityContext.getAuthentication()).thenReturn(token);
-        when(token.getLoginContext()).thenReturn(context);
+		when(event.getSecurityContexts()).thenReturn(Arrays.asList(securityContext));
+		when(securityContext.getAuthentication()).thenReturn(token);
+		when(token.getLoginContext()).thenReturn(context);
 
-        provider.onApplicationEvent(event);
+		provider.onApplicationEvent(event);
 
-        verify(event).getSecurityContexts();
-        verify(securityContext).getAuthentication();
-        verify(token).getLoginContext();
-        verify(context).logout();
-        verifyNoMoreInteractions(event, securityContext, token, context);
-    }
+		verify(event).getSecurityContexts();
+		verify(securityContext).getAuthentication();
+		verify(token).getLoginContext();
+		verify(context).logout();
+		verifyNoMoreInteractions(event, securityContext, token, context);
+	}
 
-    @Test
-    public void logoutNullSession() {
-        SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
+	@Test
+	public void logoutNullSession() {
+		SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
 
-        provider.handleLogout(event);
+		provider.handleLogout(event);
 
-        verify(event).getSecurityContexts();
-        verify(log).debug(anyString());
-        verifyNoMoreInteractions(event);
-    }
+		verify(event).getSecurityContexts();
+		verify(log).debug(anyString());
+		verifyNoMoreInteractions(event);
+	}
 
-    @Test
-    public void logoutNullAuthentication() {
-        SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
-        SecurityContext securityContext = mock(SecurityContext.class);
+	@Test
+	public void logoutNullAuthentication() {
+		SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
+		SecurityContext securityContext = mock(SecurityContext.class);
 
-        when(event.getSecurityContexts()).thenReturn(Arrays.asList(securityContext));
+		when(event.getSecurityContexts()).thenReturn(Arrays.asList(securityContext));
 
-        provider.handleLogout(event);
+		provider.handleLogout(event);
 
-        verify(event).getSecurityContexts();
-        verify(event).getSecurityContexts();
-        verify(securityContext).getAuthentication();
-        verifyNoMoreInteractions(event, securityContext);
-    }
+		verify(event).getSecurityContexts();
+		verify(event).getSecurityContexts();
+		verify(securityContext).getAuthentication();
+		verifyNoMoreInteractions(event, securityContext);
+	}
 
-    @Test
-    public void logoutNonJaasAuthentication() {
-        SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
-        SecurityContext securityContext = mock(SecurityContext.class);
+	@Test
+	public void logoutNonJaasAuthentication() {
+		SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
+		SecurityContext securityContext = mock(SecurityContext.class);
 
-        when(event.getSecurityContexts()).thenReturn(Arrays.asList(securityContext));
-        when(securityContext.getAuthentication()).thenReturn(token);
+		when(event.getSecurityContexts()).thenReturn(Arrays.asList(securityContext));
+		when(securityContext.getAuthentication()).thenReturn(token);
 
-        provider.handleLogout(event);
+		provider.handleLogout(event);
 
-        verify(event).getSecurityContexts();
-        verify(event).getSecurityContexts();
-        verify(securityContext).getAuthentication();
-        verifyNoMoreInteractions(event, securityContext);
-    }
+		verify(event).getSecurityContexts();
+		verify(event).getSecurityContexts();
+		verify(securityContext).getAuthentication();
+		verifyNoMoreInteractions(event, securityContext);
+	}
 
-    @Test
-    public void logoutNullLoginContext() throws Exception {
-        SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
-        SecurityContext securityContext = mock(SecurityContext.class);
-        JaasAuthenticationToken token = mock(JaasAuthenticationToken.class);
+	@Test
+	public void logoutNullLoginContext() throws Exception {
+		SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
+		SecurityContext securityContext = mock(SecurityContext.class);
+		JaasAuthenticationToken token = mock(JaasAuthenticationToken.class);
 
-        when(event.getSecurityContexts()).thenReturn(Arrays.asList(securityContext));
-        when(securityContext.getAuthentication()).thenReturn(token);
+		when(event.getSecurityContexts()).thenReturn(Arrays.asList(securityContext));
+		when(securityContext.getAuthentication()).thenReturn(token);
 
-        provider.onApplicationEvent(event);
-        verify(event).getSecurityContexts();
-        verify(securityContext).getAuthentication();
-        verify(token).getLoginContext();
+		provider.onApplicationEvent(event);
+		verify(event).getSecurityContexts();
+		verify(securityContext).getAuthentication();
+		verify(token).getLoginContext();
 
-        verifyNoMoreInteractions(event, securityContext, token);
-    }
+		verifyNoMoreInteractions(event, securityContext, token);
+	}
 
-    @Test
-    public void logoutLoginException() throws Exception {
-        SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
-        SecurityContext securityContext = mock(SecurityContext.class);
-        JaasAuthenticationToken token = mock(JaasAuthenticationToken.class);
-        LoginContext context = mock(LoginContext.class);
-        LoginException loginException = new LoginException("Failed Login");
+	@Test
+	public void logoutLoginException() throws Exception {
+		SessionDestroyedEvent event = mock(SessionDestroyedEvent.class);
+		SecurityContext securityContext = mock(SecurityContext.class);
+		JaasAuthenticationToken token = mock(JaasAuthenticationToken.class);
+		LoginContext context = mock(LoginContext.class);
+		LoginException loginException = new LoginException("Failed Login");
 
-        when(event.getSecurityContexts()).thenReturn(Arrays.asList(securityContext));
-        when(securityContext.getAuthentication()).thenReturn(token);
-        when(token.getLoginContext()).thenReturn(context);
-        doThrow(loginException).when(context).logout();
+		when(event.getSecurityContexts()).thenReturn(Arrays.asList(securityContext));
+		when(securityContext.getAuthentication()).thenReturn(token);
+		when(token.getLoginContext()).thenReturn(context);
+		doThrow(loginException).when(context).logout();
 
-        provider.onApplicationEvent(event);
+		provider.onApplicationEvent(event);
 
-        verify(event).getSecurityContexts();
-        verify(securityContext).getAuthentication();
-        verify(token).getLoginContext();
-        verify(context).logout();
-        verify(log).warn(anyString(), eq(loginException));
-        verifyNoMoreInteractions(event, securityContext, token, context);
-    }
+		verify(event).getSecurityContexts();
+		verify(securityContext).getAuthentication();
+		verify(token).getLoginContext();
+		verify(context).logout();
+		verify(log).warn(anyString(), eq(loginException));
+		verifyNoMoreInteractions(event, securityContext, token, context);
+	}
 
-    @Test
-    public void publishNullPublisher() {
-        provider.setApplicationEventPublisher(null);
-        AuthenticationException ae = new BadCredentialsException("Failed to login");
+	@Test
+	public void publishNullPublisher() {
+		provider.setApplicationEventPublisher(null);
+		AuthenticationException ae = new BadCredentialsException("Failed to login");
 
-        provider.publishFailureEvent(token, ae);
-        provider.publishSuccessEvent(token);
-    }
+		provider.publishFailureEvent(token, ae);
+		provider.publishSuccessEvent(token);
+	}
 
-    @Test
-    public void javadocExample() {
-        String resName = "/" + getClass().getName().replace('.', '/') + ".xml";
-        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(resName);
-        context.registerShutdownHook();
-        try {
-            provider = context.getBean(DefaultJaasAuthenticationProvider.class);
-            Authentication auth = provider.authenticate(token);
-            assertEquals(true, auth.isAuthenticated());
-            assertEquals(token.getPrincipal(), auth.getPrincipal());
-        } finally {
-            context.close();
-        }
-    }
+	@Test
+	public void javadocExample() {
+		String resName = "/" + getClass().getName().replace('.', '/') + ".xml";
+		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+				resName);
+		context.registerShutdownHook();
+		try {
+			provider = context.getBean(DefaultJaasAuthenticationProvider.class);
+			Authentication auth = provider.authenticate(token);
+			assertEquals(true, auth.isAuthenticated());
+			assertEquals(token.getPrincipal(), auth.getPrincipal());
+		}
+		finally {
+			context.close();
+		}
+	}
 
-    private void verifyFailedLogin() {
-        verify(publisher).publishEvent(argThat(new BaseMatcher<JaasAuthenticationFailedEvent>() {
-            public void describeTo(Description desc) {
-                desc.appendText("isA(org.springframework.security.authentication.jaas.event.JaasAuthenticationFailedEvent)");
-                desc.appendText(" && event.getException() != null");
-            }
+	private void verifyFailedLogin() {
+		verify(publisher).publishEvent(
+				argThat(new BaseMatcher<JaasAuthenticationFailedEvent>() {
+					public void describeTo(Description desc) {
+						desc.appendText("isA(org.springframework.security.authentication.jaas.event.JaasAuthenticationFailedEvent)");
+						desc.appendText(" && event.getException() != null");
+					}
 
-            public boolean matches(Object arg) {
-                JaasAuthenticationFailedEvent e = (JaasAuthenticationFailedEvent) arg;
-                return e.getException() != null;
-            }
+					public boolean matches(Object arg) {
+						JaasAuthenticationFailedEvent e = (JaasAuthenticationFailedEvent) arg;
+						return e.getException() != null;
+					}
 
-        }));
-        verifyNoMoreInteractions(publisher);
-    }
+				}));
+		verifyNoMoreInteractions(publisher);
+	}
 }

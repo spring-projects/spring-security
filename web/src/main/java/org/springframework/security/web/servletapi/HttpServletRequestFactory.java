@@ -16,8 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Internal interface for creating a {@link HttpServletRequest}. This allows for creating a different implementation for
- * Servlet 2.5 and Servlet 3.0 environments.
+ * Internal interface for creating a {@link HttpServletRequest}. This allows for creating
+ * a different implementation for Servlet 2.5 and Servlet 3.0 environments.
  *
  * @author Rob Winch
  * @since 3.2
@@ -26,12 +26,13 @@ import javax.servlet.http.HttpServletResponse;
  */
 interface HttpServletRequestFactory {
 
-    /**
-     * Given a {@link HttpServletRequest} returns a {@link HttpServletRequest} that in most cases wraps the original
-     * {@link HttpServletRequest}.
-     * @param request the original {@link HttpServletRequest}. Cannot be null.
-     * @param response the original {@link HttpServletResponse}. Cannot be null.
-     * @return a non-null HttpServletRequest
-     */
-    public HttpServletRequest create(HttpServletRequest request, HttpServletResponse response);
+	/**
+	 * Given a {@link HttpServletRequest} returns a {@link HttpServletRequest} that in
+	 * most cases wraps the original {@link HttpServletRequest}.
+	 * @param request the original {@link HttpServletRequest}. Cannot be null.
+	 * @param response the original {@link HttpServletResponse}. Cannot be null.
+	 * @return a non-null HttpServletRequest
+	 */
+	public HttpServletRequest create(HttpServletRequest request,
+			HttpServletResponse response);
 }

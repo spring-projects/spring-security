@@ -35,28 +35,29 @@ import org.springframework.util.ReflectionUtils;
  *
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ReflectionUtils.class, Method.class})
+@PrepareForTest({ ReflectionUtils.class, Method.class })
 public class ChangeSessionIdAuthenticationStrategyTests {
-    @Mock
-    private Method method;
+	@Mock
+	private Method method;
 
-    @Test(expected = IllegalStateException.class)
-    public void constructChangeIdMethodNotFound() {
-        new ChangeSessionIdAuthenticationStrategy();
-    }
+	@Test(expected = IllegalStateException.class)
+	public void constructChangeIdMethodNotFound() {
+		new ChangeSessionIdAuthenticationStrategy();
+	}
 
-    @Test
-    public void applySessionFixation() throws Exception {
-        spy(ReflectionUtils.class);
-        Method method = mock(Method.class);
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.getSession();
-        when(ReflectionUtils.findMethod(HttpServletRequest.class, "changeSessionId")).thenReturn(method);
+	@Test
+	public void applySessionFixation() throws Exception {
+		spy(ReflectionUtils.class);
+		Method method = mock(Method.class);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.getSession();
+		when(ReflectionUtils.findMethod(HttpServletRequest.class, "changeSessionId"))
+				.thenReturn(method);
 
-        new ChangeSessionIdAuthenticationStrategy().applySessionFixation(request);
+		new ChangeSessionIdAuthenticationStrategy().applySessionFixation(request);
 
-        verifyStatic();
-        ReflectionUtils.invokeMethod(same(method), eq(request));
-    }
+		verifyStatic();
+		ReflectionUtils.invokeMethod(same(method), eq(request));
+	}
 
 }

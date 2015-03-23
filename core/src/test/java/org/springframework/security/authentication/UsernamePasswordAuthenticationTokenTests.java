@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 
-
 /**
  * Tests {@link UsernamePasswordAuthenticationToken}.
  *
@@ -31,49 +30,58 @@ import org.springframework.security.core.authority.AuthorityUtils;
  */
 public class UsernamePasswordAuthenticationTokenTests {
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    @Test
-    public void authenticatedPropertyContractIsSatisfied() {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password", AuthorityUtils.NO_AUTHORITIES);
+	@Test
+	public void authenticatedPropertyContractIsSatisfied() {
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+				"Test", "Password", AuthorityUtils.NO_AUTHORITIES);
 
-        // check default given we passed some GrantedAuthorty[]s (well, we passed empty list)
-        assertTrue(token.isAuthenticated());
+		// check default given we passed some GrantedAuthorty[]s (well, we passed empty
+		// list)
+		assertTrue(token.isAuthenticated());
 
-        // check explicit set to untrusted (we can safely go from trusted to untrusted, but not the reverse)
-        token.setAuthenticated(false);
-        assertTrue(!token.isAuthenticated());
+		// check explicit set to untrusted (we can safely go from trusted to untrusted,
+		// but not the reverse)
+		token.setAuthenticated(false);
+		assertTrue(!token.isAuthenticated());
 
-        // Now let's create a UsernamePasswordAuthenticationToken without any GrantedAuthorty[]s (different constructor)
-        token = new UsernamePasswordAuthenticationToken("Test", "Password");
+		// Now let's create a UsernamePasswordAuthenticationToken without any
+		// GrantedAuthorty[]s (different constructor)
+		token = new UsernamePasswordAuthenticationToken("Test", "Password");
 
-        assertTrue(!token.isAuthenticated());
+		assertTrue(!token.isAuthenticated());
 
-        // check we're allowed to still set it to untrusted
-        token.setAuthenticated(false);
-        assertTrue(!token.isAuthenticated());
+		// check we're allowed to still set it to untrusted
+		token.setAuthenticated(false);
+		assertTrue(!token.isAuthenticated());
 
-        // check denied changing it to trusted
-        try {
-            token.setAuthenticated(true);
-            fail("Should have prohibited setAuthenticated(true)");
-        } catch (IllegalArgumentException expected) {
-        }
-    }
+		// check denied changing it to trusted
+		try {
+			token.setAuthenticated(true);
+			fail("Should have prohibited setAuthenticated(true)");
+		}
+		catch (IllegalArgumentException expected) {
+		}
+	}
 
-    @Test
-    public void gettersReturnCorrectData() {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
-        assertEquals("Test", token.getPrincipal());
-        assertEquals("Password", token.getCredentials());
-        assertTrue(AuthorityUtils.authorityListToSet(token.getAuthorities()).contains("ROLE_ONE"));
-        assertTrue(AuthorityUtils.authorityListToSet(token.getAuthorities()).contains("ROLE_TWO"));
-    }
+	@Test
+	public void gettersReturnCorrectData() {
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+				"Test", "Password", AuthorityUtils.createAuthorityList("ROLE_ONE",
+						"ROLE_TWO"));
+		assertEquals("Test", token.getPrincipal());
+		assertEquals("Password", token.getCredentials());
+		assertTrue(AuthorityUtils.authorityListToSet(token.getAuthorities()).contains(
+				"ROLE_ONE"));
+		assertTrue(AuthorityUtils.authorityListToSet(token.getAuthorities()).contains(
+				"ROLE_TWO"));
+	}
 
-    @Test(expected=NoSuchMethodException.class)
-    public void testNoArgConstructorDoesntExist() throws Exception {
-        Class<?> clazz = UsernamePasswordAuthenticationToken.class;
-        clazz.getDeclaredConstructor((Class[]) null);
-    }
+	@Test(expected = NoSuchMethodException.class)
+	public void testNoArgConstructorDoesntExist() throws Exception {
+		Class<?> clazz = UsernamePasswordAuthenticationToken.class;
+		clazz.getDeclaredConstructor((Class[]) null);
+	}
 }

@@ -35,60 +35,65 @@ import org.springframework.security.web.header.writers.StaticHeadersWriter;
  * @since 3.2
  */
 public class StaticHeaderWriterTests {
-    private MockHttpServletRequest request;
-    private MockHttpServletResponse response;
+	private MockHttpServletRequest request;
+	private MockHttpServletResponse response;
 
-    @Before
-    public void setup() {
-        request = new MockHttpServletRequest();
-        response = new MockHttpServletResponse();
-    }
+	@Before
+	public void setup() {
+		request = new MockHttpServletRequest();
+		response = new MockHttpServletResponse();
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullHeaders() {
-        new StaticHeadersWriter(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullHeaders() {
+		new StaticHeadersWriter(null);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorEmptyHeaders() {
-        new StaticHeadersWriter(Collections.<Header>emptyList());
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorEmptyHeaders() {
+		new StaticHeadersWriter(Collections.<Header> emptyList());
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullHeaderName() {
-        new StaticHeadersWriter(null, "value1");
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullHeaderName() {
+		new StaticHeadersWriter(null, "value1");
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullHeaderValues() {
-        new StaticHeadersWriter("name", (String[]) null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullHeaderValues() {
+		new StaticHeadersWriter("name", (String[]) null);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorContainsNullHeaderValue() {
-        new StaticHeadersWriter("name", "value1", null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorContainsNullHeaderValue() {
+		new StaticHeadersWriter("name", "value1", null);
+	}
 
-    @Test
-    public void sameHeaderShouldBeReturned() {
-        String headerName = "X-header";
-        String headerValue = "foo";
-        StaticHeadersWriter factory = new StaticHeadersWriter(headerName, headerValue);
+	@Test
+	public void sameHeaderShouldBeReturned() {
+		String headerName = "X-header";
+		String headerValue = "foo";
+		StaticHeadersWriter factory = new StaticHeadersWriter(headerName, headerValue);
 
-        factory.writeHeaders(request, response);
-        assertThat(response.getHeaderValues(headerName)).isEqualTo(Arrays.asList(headerValue));
-    }
+		factory.writeHeaders(request, response);
+		assertThat(response.getHeaderValues(headerName)).isEqualTo(
+				Arrays.asList(headerValue));
+	}
 
-    @Test
-    public void writeHeadersMulti() {
-        Header pragma = new Header("Pragma","no-cache");
-        Header cacheControl= new Header("Cache-Control","no-cache","no-store","must-revalidate");
-        StaticHeadersWriter factory = new StaticHeadersWriter(Arrays.asList(pragma, cacheControl));
+	@Test
+	public void writeHeadersMulti() {
+		Header pragma = new Header("Pragma", "no-cache");
+		Header cacheControl = new Header("Cache-Control", "no-cache", "no-store",
+				"must-revalidate");
+		StaticHeadersWriter factory = new StaticHeadersWriter(Arrays.asList(pragma,
+				cacheControl));
 
-        factory.writeHeaders(request, response);
+		factory.writeHeaders(request, response);
 
-        assertThat(response.getHeaderNames().size()).isEqualTo(2);
-        assertThat(response.getHeaderValues(pragma.getName())).isEqualTo(pragma.getValues());
-        assertThat(response.getHeaderValues(cacheControl.getName())).isEqualTo(cacheControl.getValues());
-    }
+		assertThat(response.getHeaderNames().size()).isEqualTo(2);
+		assertThat(response.getHeaderValues(pragma.getName())).isEqualTo(
+				pragma.getValues());
+		assertThat(response.getHeaderValues(cacheControl.getName())).isEqualTo(
+				cacheControl.getValues());
+	}
 }

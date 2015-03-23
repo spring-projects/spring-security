@@ -44,26 +44,37 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 /**
- * An {@link AuthenticationProvider} implementation that retrieves user details from a JAAS login configuration.
+ * An {@link AuthenticationProvider} implementation that retrieves user details from a
+ * JAAS login configuration.
  *
- * <p>This <code>AuthenticationProvider</code> is capable of validating {@link
- * org.springframework.security.authentication.UsernamePasswordAuthenticationToken} requests contain the correct username and
- * password.</p>
- * <p>This implementation is backed by a <a
- * href="http://java.sun.com/j2se/1.5.0/docs/guide/security/jaas/JAASRefGuide.html">JAAS</a> configuration that is provided by
- * a subclass's implementation of {@link #createLoginContext(CallbackHandler)}.
- *
- * <p>When using JAAS login modules as the authentication source, sometimes the
- * <a href="http://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/login/LoginContext.html">LoginContext</a> will
- * require <i>CallbackHandler</i>s. The AbstractJaasAuthenticationProvider uses an internal
- * <a href="http://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/callback/CallbackHandler.html">CallbackHandler
- * </a> to wrap the {@link JaasAuthenticationCallbackHandler}s configured in the ApplicationContext.
- * When the LoginContext calls the internal CallbackHandler, control is passed to each
- * {@link JaasAuthenticationCallbackHandler} for each Callback passed.
+ * <p>
+ * This <code>AuthenticationProvider</code> is capable of validating
+ * {@link org.springframework.security.authentication.UsernamePasswordAuthenticationToken}
+ * requests contain the correct username and password.
  * </p>
- * <p>{@link JaasAuthenticationCallbackHandler}s are passed to the AbstractJaasAuthenticationProvider through the {@link
- * #setCallbackHandlers(org.springframework.security.authentication.jaas.JaasAuthenticationCallbackHandler[]) callbackHandlers}
- * property.
+ * <p>
+ * This implementation is backed by a <a
+ * href="http://java.sun.com/j2se/1.5.0/docs/guide/security/jaas/JAASRefGuide.html"
+ * >JAAS</a> configuration that is provided by a subclass's implementation of
+ * {@link #createLoginContext(CallbackHandler)}.
+ *
+ * <p>
+ * When using JAAS login modules as the authentication source, sometimes the <a href=
+ * "http://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/login/LoginContext.html"
+ * >LoginContext</a> will require <i>CallbackHandler</i>s. The
+ * AbstractJaasAuthenticationProvider uses an internal <a href=
+ * "http://java.sun.com/j2se/1.5.0/docs/api/javax/security/auth/callback/CallbackHandler.html"
+ * >CallbackHandler </a> to wrap the {@link JaasAuthenticationCallbackHandler}s configured
+ * in the ApplicationContext. When the LoginContext calls the internal CallbackHandler,
+ * control is passed to each {@link JaasAuthenticationCallbackHandler} for each Callback
+ * passed.
+ * </p>
+ * <p>
+ * {@link JaasAuthenticationCallbackHandler}s are passed to the
+ * AbstractJaasAuthenticationProvider through the
+ * {@link #setCallbackHandlers(org.springframework.security.authentication.jaas.JaasAuthenticationCallbackHandler[])
+ * callbackHandlers} property.
+ * 
  * <pre>
  * &lt;property name="callbackHandlers"&gt;
  *   &lt;list&gt;
@@ -73,15 +84,21 @@ import org.springframework.util.ObjectUtils;
  *  &lt;/list&gt;
  * &lt;/property&gt;
  * </pre>
+ * 
  * </p>
  * <p>
- * After calling LoginContext.login(), the AbstractJaasAuthenticationProvider will retrieve the returned Principals
- * from the Subject (LoginContext.getSubject().getPrincipals). Each returned principal is then passed to the
- * configured {@link AuthorityGranter}s. An AuthorityGranter is a mapping between a returned Principal, and a role
- * name. If an AuthorityGranter wishes to grant an Authorization a role, it returns that role name from it's {@link
- * AuthorityGranter#grant(java.security.Principal)} method. The returned role will be applied to the Authorization
- * object as a {@link GrantedAuthority}.</p>
- * <p>AuthorityGranters are configured in spring xml as follows...
+ * After calling LoginContext.login(), the AbstractJaasAuthenticationProvider will
+ * retrieve the returned Principals from the Subject
+ * (LoginContext.getSubject().getPrincipals). Each returned principal is then passed to
+ * the configured {@link AuthorityGranter}s. An AuthorityGranter is a mapping between a
+ * returned Principal, and a role name. If an AuthorityGranter wishes to grant an
+ * Authorization a role, it returns that role name from it's
+ * {@link AuthorityGranter#grant(java.security.Principal)} method. The returned role will
+ * be applied to the Authorization object as a {@link GrantedAuthority}.
+ * </p>
+ * <p>
+ * AuthorityGranters are configured in spring xml as follows...
+ * 
  * <pre>
  * &lt;property name="authorityGranters"&gt;
  *   &lt;list&gt;
@@ -93,273 +110,302 @@ import org.springframework.util.ObjectUtils;
  * @author Ray Krueger
  * @author Rob Winch
  */
-public abstract class AbstractJaasAuthenticationProvider implements AuthenticationProvider,
-ApplicationEventPublisherAware, InitializingBean, ApplicationListener<SessionDestroyedEvent> {
-    //~ Instance fields ================================================================================================
+public abstract class AbstractJaasAuthenticationProvider implements
+		AuthenticationProvider, ApplicationEventPublisherAware, InitializingBean,
+		ApplicationListener<SessionDestroyedEvent> {
+	// ~ Instance fields
+	// ================================================================================================
 
-    private ApplicationEventPublisher applicationEventPublisher;
-    private AuthorityGranter[] authorityGranters;
-    private JaasAuthenticationCallbackHandler[] callbackHandlers;
-    protected final Log log = LogFactory.getLog(getClass());
-    private LoginExceptionResolver loginExceptionResolver = new DefaultLoginExceptionResolver();
-    private String loginContextName = "SPRINGSECURITY";
+	private ApplicationEventPublisher applicationEventPublisher;
+	private AuthorityGranter[] authorityGranters;
+	private JaasAuthenticationCallbackHandler[] callbackHandlers;
+	protected final Log log = LogFactory.getLog(getClass());
+	private LoginExceptionResolver loginExceptionResolver = new DefaultLoginExceptionResolver();
+	private String loginContextName = "SPRINGSECURITY";
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    /**
-     * Validates the required properties are set. In addition, if
-     * {@link #setCallbackHandlers(JaasAuthenticationCallbackHandler[])} has not
-     * been called with valid handlers, initializes to use
-     * {@link JaasNameCallbackHandler} and {@link JaasPasswordCallbackHandler}.
-     */
-    public void afterPropertiesSet() throws Exception {
-        Assert.hasLength(loginContextName, "loginContextName cannot be null or empty");
-        Assert.notEmpty(authorityGranters, "authorityGranters cannot be null or empty");
-        if (ObjectUtils.isEmpty(callbackHandlers)) {
-            setCallbackHandlers(new JaasAuthenticationCallbackHandler[] { new JaasNameCallbackHandler(),
-                    new JaasPasswordCallbackHandler() });
-        }
-        Assert.notNull(loginExceptionResolver, "loginExceptionResolver cannot be null");
-    }
+	/**
+	 * Validates the required properties are set. In addition, if
+	 * {@link #setCallbackHandlers(JaasAuthenticationCallbackHandler[])} has not been
+	 * called with valid handlers, initializes to use {@link JaasNameCallbackHandler} and
+	 * {@link JaasPasswordCallbackHandler}.
+	 */
+	public void afterPropertiesSet() throws Exception {
+		Assert.hasLength(loginContextName, "loginContextName cannot be null or empty");
+		Assert.notEmpty(authorityGranters, "authorityGranters cannot be null or empty");
+		if (ObjectUtils.isEmpty(callbackHandlers)) {
+			setCallbackHandlers(new JaasAuthenticationCallbackHandler[] {
+					new JaasNameCallbackHandler(), new JaasPasswordCallbackHandler() });
+		}
+		Assert.notNull(loginExceptionResolver, "loginExceptionResolver cannot be null");
+	}
 
-    /**
-     * Attempts to login the user given the Authentication objects principal and credential
-     *
-     * @param auth The Authentication object to be authenticated.
-     *
-     * @return The authenticated Authentication object, with it's grantedAuthorities set.
-     *
-     * @throws AuthenticationException This implementation does not handle 'locked' or 'disabled' accounts. This method
-     *         only throws a AuthenticationServiceException, with the message of the LoginException that will be
-     *         thrown, should the loginContext.login() method fail.
-     */
-    public Authentication authenticate(Authentication auth) throws AuthenticationException {
-        if (!(auth instanceof UsernamePasswordAuthenticationToken)) {
-            return null;
-        }
+	/**
+	 * Attempts to login the user given the Authentication objects principal and
+	 * credential
+	 *
+	 * @param auth The Authentication object to be authenticated.
+	 *
+	 * @return The authenticated Authentication object, with it's grantedAuthorities set.
+	 *
+	 * @throws AuthenticationException This implementation does not handle 'locked' or
+	 * 'disabled' accounts. This method only throws a AuthenticationServiceException, with
+	 * the message of the LoginException that will be thrown, should the
+	 * loginContext.login() method fail.
+	 */
+	public Authentication authenticate(Authentication auth)
+			throws AuthenticationException {
+		if (!(auth instanceof UsernamePasswordAuthenticationToken)) {
+			return null;
+		}
 
-        UsernamePasswordAuthenticationToken request = (UsernamePasswordAuthenticationToken) auth;
-        Set<GrantedAuthority> authorities;
+		UsernamePasswordAuthenticationToken request = (UsernamePasswordAuthenticationToken) auth;
+		Set<GrantedAuthority> authorities;
 
-        try {
-            // Create the LoginContext object, and pass our InternallCallbackHandler
-            LoginContext loginContext = createLoginContext(new InternalCallbackHandler(auth));
+		try {
+			// Create the LoginContext object, and pass our InternallCallbackHandler
+			LoginContext loginContext = createLoginContext(new InternalCallbackHandler(
+					auth));
 
-            // Attempt to login the user, the LoginContext will call our InternalCallbackHandler at this point.
-            loginContext.login();
+			// Attempt to login the user, the LoginContext will call our
+			// InternalCallbackHandler at this point.
+			loginContext.login();
 
-            // Create a set to hold the authorities, and add any that have already been applied.
-            authorities = new HashSet<GrantedAuthority>();
+			// Create a set to hold the authorities, and add any that have already been
+			// applied.
+			authorities = new HashSet<GrantedAuthority>();
 
-            // Get the subject principals and pass them to each of the AuthorityGranters
-            Set<Principal> principals = loginContext.getSubject().getPrincipals();
+			// Get the subject principals and pass them to each of the AuthorityGranters
+			Set<Principal> principals = loginContext.getSubject().getPrincipals();
 
-            for (Principal principal : principals) {
-                for (AuthorityGranter granter : authorityGranters) {
-                    Set<String> roles = granter.grant(principal);
+			for (Principal principal : principals) {
+				for (AuthorityGranter granter : authorityGranters) {
+					Set<String> roles = granter.grant(principal);
 
-                    // If the granter doesn't wish to grant any authorities, it should return null.
-                    if ((roles != null) && !roles.isEmpty()) {
-                        for (String role : roles) {
-                            authorities.add(new JaasGrantedAuthority(role, principal));
-                        }
-                    }
-                }
-            }
+					// If the granter doesn't wish to grant any authorities, it should
+					// return null.
+					if ((roles != null) && !roles.isEmpty()) {
+						for (String role : roles) {
+							authorities.add(new JaasGrantedAuthority(role, principal));
+						}
+					}
+				}
+			}
 
-            //Convert the authorities set back to an array and apply it to the token.
-            JaasAuthenticationToken result = new JaasAuthenticationToken(request.getPrincipal(),
-                    request.getCredentials(), new ArrayList<GrantedAuthority>(authorities), loginContext);
+			// Convert the authorities set back to an array and apply it to the token.
+			JaasAuthenticationToken result = new JaasAuthenticationToken(
+					request.getPrincipal(), request.getCredentials(),
+					new ArrayList<GrantedAuthority>(authorities), loginContext);
 
-            //Publish the success event
-            publishSuccessEvent(result);
+			// Publish the success event
+			publishSuccessEvent(result);
 
-            //we're done, return the token.
-            return result;
+			// we're done, return the token.
+			return result;
 
-        } catch (LoginException loginException) {
-            AuthenticationException ase = loginExceptionResolver.resolveException(loginException);
+		}
+		catch (LoginException loginException) {
+			AuthenticationException ase = loginExceptionResolver
+					.resolveException(loginException);
 
-            publishFailureEvent(request, ase);
-            throw ase;
-        }
-    }
+			publishFailureEvent(request, ase);
+			throw ase;
+		}
+	}
 
-    /**
-     * Creates the LoginContext to be used for authentication.
-     *
-     * @param handler The CallbackHandler that should be used for the LoginContext (never <code>null</code>).
-     * @return the LoginContext to use for authentication.
-     * @throws LoginException
-     */
-    protected abstract LoginContext createLoginContext(CallbackHandler handler) throws LoginException;
+	/**
+	 * Creates the LoginContext to be used for authentication.
+	 *
+	 * @param handler The CallbackHandler that should be used for the LoginContext (never
+	 * <code>null</code>).
+	 * @return the LoginContext to use for authentication.
+	 * @throws LoginException
+	 */
+	protected abstract LoginContext createLoginContext(CallbackHandler handler)
+			throws LoginException;
 
-    /**
-     * Handles the logout by getting the security contexts for the destroyed session and invoking
-     * {@code LoginContext.logout()} for any which contain a {@code JaasAuthenticationToken}.
-     *
-     *
-     * @param event the session event which contains the current session
-     */
-    protected void handleLogout(SessionDestroyedEvent event) {
-        List<SecurityContext> contexts = event.getSecurityContexts();
+	/**
+	 * Handles the logout by getting the security contexts for the destroyed session and
+	 * invoking {@code LoginContext.logout()} for any which contain a
+	 * {@code JaasAuthenticationToken}.
+	 *
+	 *
+	 * @param event the session event which contains the current session
+	 */
+	protected void handleLogout(SessionDestroyedEvent event) {
+		List<SecurityContext> contexts = event.getSecurityContexts();
 
-        if (contexts.isEmpty()) {
-            log.debug("The destroyed session has no SecurityContexts");
+		if (contexts.isEmpty()) {
+			log.debug("The destroyed session has no SecurityContexts");
 
-            return;
-        }
+			return;
+		}
 
-        for(SecurityContext context : contexts) {
-            Authentication auth = context.getAuthentication();
+		for (SecurityContext context : contexts) {
+			Authentication auth = context.getAuthentication();
 
-            if ((auth != null) && (auth instanceof JaasAuthenticationToken)) {
-                JaasAuthenticationToken token = (JaasAuthenticationToken) auth;
+			if ((auth != null) && (auth instanceof JaasAuthenticationToken)) {
+				JaasAuthenticationToken token = (JaasAuthenticationToken) auth;
 
-                try {
-                    LoginContext loginContext = token.getLoginContext();
-                    boolean debug = log.isDebugEnabled();
-                    if (loginContext != null) {
-                        if (debug) {
-                            log.debug("Logging principal: [" + token.getPrincipal() + "] out of LoginContext");
-                        }
-                        loginContext.logout();
-                    } else if (debug) {
-                        log.debug("Cannot logout principal: [" + token.getPrincipal() + "] from LoginContext. "
-                                + "The LoginContext is unavailable");
-                    }
-                } catch (LoginException e) {
-                    log.warn("Error error logging out of LoginContext", e);
-                }
-            }
-        }
-    }
+				try {
+					LoginContext loginContext = token.getLoginContext();
+					boolean debug = log.isDebugEnabled();
+					if (loginContext != null) {
+						if (debug) {
+							log.debug("Logging principal: [" + token.getPrincipal()
+									+ "] out of LoginContext");
+						}
+						loginContext.logout();
+					}
+					else if (debug) {
+						log.debug("Cannot logout principal: [" + token.getPrincipal()
+								+ "] from LoginContext. "
+								+ "The LoginContext is unavailable");
+					}
+				}
+				catch (LoginException e) {
+					log.warn("Error error logging out of LoginContext", e);
+				}
+			}
+		}
+	}
 
-    public void onApplicationEvent(SessionDestroyedEvent event) {
-        handleLogout(event);
-    }
+	public void onApplicationEvent(SessionDestroyedEvent event) {
+		handleLogout(event);
+	}
 
-    /**
-     * Publishes the {@link JaasAuthenticationFailedEvent}. Can be overridden by subclasses for different
-     * functionality
-     *
-     * @param token The authentication token being processed
-     * @param ase The excetion that caused the authentication failure
-     */
-    protected void publishFailureEvent(UsernamePasswordAuthenticationToken token, AuthenticationException ase) {
-        if (applicationEventPublisher != null) {
-            applicationEventPublisher.publishEvent(new JaasAuthenticationFailedEvent(token, ase));
-        }
-    }
+	/**
+	 * Publishes the {@link JaasAuthenticationFailedEvent}. Can be overridden by
+	 * subclasses for different functionality
+	 *
+	 * @param token The authentication token being processed
+	 * @param ase The excetion that caused the authentication failure
+	 */
+	protected void publishFailureEvent(UsernamePasswordAuthenticationToken token,
+			AuthenticationException ase) {
+		if (applicationEventPublisher != null) {
+			applicationEventPublisher.publishEvent(new JaasAuthenticationFailedEvent(
+					token, ase));
+		}
+	}
 
-    /**
-     * Publishes the {@link JaasAuthenticationSuccessEvent}. Can be overridden by subclasses for different
-     * functionality.
-     *
-     * @param token The token being processed
-     */
-    protected void publishSuccessEvent(UsernamePasswordAuthenticationToken token) {
-        if (applicationEventPublisher != null) {
-            applicationEventPublisher.publishEvent(new JaasAuthenticationSuccessEvent(token));
-        }
-    }
+	/**
+	 * Publishes the {@link JaasAuthenticationSuccessEvent}. Can be overridden by
+	 * subclasses for different functionality.
+	 *
+	 * @param token The token being processed
+	 */
+	protected void publishSuccessEvent(UsernamePasswordAuthenticationToken token) {
+		if (applicationEventPublisher != null) {
+			applicationEventPublisher.publishEvent(new JaasAuthenticationSuccessEvent(
+					token));
+		}
+	}
 
-    /**
-     * Returns the AuthorityGrannter array that was passed to the {@link
-     * #setAuthorityGranters(AuthorityGranter[])} method, or null if it none were ever set.
-     *
-     * @return The AuthorityGranter array, or null
-     *
-     * @see #setAuthorityGranters(AuthorityGranter[])
-     */
-    AuthorityGranter[] getAuthorityGranters() {
-        return authorityGranters;
-    }
+	/**
+	 * Returns the AuthorityGrannter array that was passed to the
+	 * {@link #setAuthorityGranters(AuthorityGranter[])} method, or null if it none were
+	 * ever set.
+	 *
+	 * @return The AuthorityGranter array, or null
+	 *
+	 * @see #setAuthorityGranters(AuthorityGranter[])
+	 */
+	AuthorityGranter[] getAuthorityGranters() {
+		return authorityGranters;
+	}
 
-    /**
-     * Set the AuthorityGranters that should be consulted for role names to be granted to the Authentication.
-     *
-     * @param authorityGranters AuthorityGranter array
-     *
-     * @see JaasAuthenticationProvider
-     */
-    public void setAuthorityGranters(AuthorityGranter[] authorityGranters) {
-        this.authorityGranters = authorityGranters;
-    }
+	/**
+	 * Set the AuthorityGranters that should be consulted for role names to be granted to
+	 * the Authentication.
+	 *
+	 * @param authorityGranters AuthorityGranter array
+	 *
+	 * @see JaasAuthenticationProvider
+	 */
+	public void setAuthorityGranters(AuthorityGranter[] authorityGranters) {
+		this.authorityGranters = authorityGranters;
+	}
 
-    /**
-     * Returns the current JaasAuthenticationCallbackHandler array, or null if none are set.
-     *
-     * @return the JAASAuthenticationCallbackHandlers.
-     *
-     * @see #setCallbackHandlers(JaasAuthenticationCallbackHandler[])
-     */
-    JaasAuthenticationCallbackHandler[] getCallbackHandlers() {
-        return callbackHandlers;
-    }
+	/**
+	 * Returns the current JaasAuthenticationCallbackHandler array, or null if none are
+	 * set.
+	 *
+	 * @return the JAASAuthenticationCallbackHandlers.
+	 *
+	 * @see #setCallbackHandlers(JaasAuthenticationCallbackHandler[])
+	 */
+	JaasAuthenticationCallbackHandler[] getCallbackHandlers() {
+		return callbackHandlers;
+	}
 
-    /**
-     * Set the JAASAuthentcationCallbackHandler array to handle callback objects generated by the
-     * LoginContext.login method.
-     *
-     * @param callbackHandlers Array of JAASAuthenticationCallbackHandlers
-     */
-    public void setCallbackHandlers(JaasAuthenticationCallbackHandler[] callbackHandlers) {
-        this.callbackHandlers = callbackHandlers;
-    }
+	/**
+	 * Set the JAASAuthentcationCallbackHandler array to handle callback objects generated
+	 * by the LoginContext.login method.
+	 *
+	 * @param callbackHandlers Array of JAASAuthenticationCallbackHandlers
+	 */
+	public void setCallbackHandlers(JaasAuthenticationCallbackHandler[] callbackHandlers) {
+		this.callbackHandlers = callbackHandlers;
+	}
 
-    String getLoginContextName() {
-        return loginContextName;
-    }
+	String getLoginContextName() {
+		return loginContextName;
+	}
 
-    /**
-     * Set the loginContextName, this name is used as the index to the configuration specified in the
-     * loginConfig property.
-     *
-     * @param loginContextName
-     */
-    public void setLoginContextName(String loginContextName) {
-        this.loginContextName = loginContextName;
-    }
+	/**
+	 * Set the loginContextName, this name is used as the index to the configuration
+	 * specified in the loginConfig property.
+	 *
+	 * @param loginContextName
+	 */
+	public void setLoginContextName(String loginContextName) {
+		this.loginContextName = loginContextName;
+	}
 
-    LoginExceptionResolver getLoginExceptionResolver() {
-        return loginExceptionResolver;
-    }
+	LoginExceptionResolver getLoginExceptionResolver() {
+		return loginExceptionResolver;
+	}
 
-    public void setLoginExceptionResolver(LoginExceptionResolver loginExceptionResolver) {
-        this.loginExceptionResolver = loginExceptionResolver;
-    }
+	public void setLoginExceptionResolver(LoginExceptionResolver loginExceptionResolver) {
+		this.loginExceptionResolver = loginExceptionResolver;
+	}
 
-    public boolean supports(Class<?> aClass) {
-        return UsernamePasswordAuthenticationToken.class.isAssignableFrom(aClass);
-    }
+	public boolean supports(Class<?> aClass) {
+		return UsernamePasswordAuthenticationToken.class.isAssignableFrom(aClass);
+	}
 
-    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
-        this.applicationEventPublisher = applicationEventPublisher;
-    }
+	public void setApplicationEventPublisher(
+			ApplicationEventPublisher applicationEventPublisher) {
+		this.applicationEventPublisher = applicationEventPublisher;
+	}
 
-    protected ApplicationEventPublisher getApplicationEventPublisher() {
-        return applicationEventPublisher;
-    }
+	protected ApplicationEventPublisher getApplicationEventPublisher() {
+		return applicationEventPublisher;
+	}
 
-    //~ Inner Classes ==================================================================================================
+	// ~ Inner Classes
+	// ==================================================================================================
 
-    /**
-     * Wrapper class for JAASAuthenticationCallbackHandlers
-     */
-    private class InternalCallbackHandler implements CallbackHandler {
-        private final Authentication authentication;
+	/**
+	 * Wrapper class for JAASAuthenticationCallbackHandlers
+	 */
+	private class InternalCallbackHandler implements CallbackHandler {
+		private final Authentication authentication;
 
-        public InternalCallbackHandler(Authentication authentication) {
-            this.authentication = authentication;
-        }
+		public InternalCallbackHandler(Authentication authentication) {
+			this.authentication = authentication;
+		}
 
-        public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-            for (JaasAuthenticationCallbackHandler handler : callbackHandlers) {
-                for (Callback callback : callbacks) {
-                    handler.handle(callback, authentication);
-                }
-            }
-        }
-    }
+		public void handle(Callback[] callbacks) throws IOException,
+				UnsupportedCallbackException {
+			for (JaasAuthenticationCallbackHandler handler : callbackHandlers) {
+				for (Callback callback : callbacks) {
+					handler.handle(callback, authentication);
+				}
+			}
+		}
+	}
 }

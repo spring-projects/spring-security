@@ -40,7 +40,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
 /**
  * Tests {@link FilterSecurityInterceptor}.
  *
@@ -49,134 +48,145 @@ import javax.servlet.http.HttpServletResponse;
  * @author Rob Winch
  */
 public class FilterSecurityInterceptorTests {
-    private AuthenticationManager am;
-    private AccessDecisionManager adm;
-    private FilterInvocationSecurityMetadataSource ods;
-    private RunAsManager ram;
-    private FilterSecurityInterceptor interceptor;
-    private ApplicationEventPublisher publisher;
+	private AuthenticationManager am;
+	private AccessDecisionManager adm;
+	private FilterInvocationSecurityMetadataSource ods;
+	private RunAsManager ram;
+	private FilterSecurityInterceptor interceptor;
+	private ApplicationEventPublisher publisher;
 
+	// ~ Methods
+	// ========================================================================================================
 
-    //~ Methods ========================================================================================================
+	@Before
+	public final void setUp() throws Exception {
+		interceptor = new FilterSecurityInterceptor();
+		am = mock(AuthenticationManager.class);
+		ods = mock(FilterInvocationSecurityMetadataSource.class);
+		adm = mock(AccessDecisionManager.class);
+		ram = mock(RunAsManager.class);
+		publisher = mock(ApplicationEventPublisher.class);
+		interceptor.setAuthenticationManager(am);
+		interceptor.setSecurityMetadataSource(ods);
+		interceptor.setAccessDecisionManager(adm);
+		interceptor.setRunAsManager(ram);
+		interceptor.setApplicationEventPublisher(publisher);
+		SecurityContextHolder.clearContext();
+	}
 
-    @Before
-    public final void setUp() throws Exception {
-        interceptor = new FilterSecurityInterceptor();
-        am = mock(AuthenticationManager.class);
-        ods = mock(FilterInvocationSecurityMetadataSource.class);
-        adm = mock(AccessDecisionManager.class);
-        ram = mock(RunAsManager.class);
-        publisher = mock(ApplicationEventPublisher.class);
-        interceptor.setAuthenticationManager(am);
-        interceptor.setSecurityMetadataSource(ods);
-        interceptor.setAccessDecisionManager(adm);
-        interceptor.setRunAsManager(ram);
-        interceptor.setApplicationEventPublisher(publisher);
-        SecurityContextHolder.clearContext();
-    }
+	@After
+	public void tearDown() throws Exception {
+		SecurityContextHolder.clearContext();
+	}
 
-    @After
-    public void tearDown() throws Exception {
-        SecurityContextHolder.clearContext();
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void testEnsuresAccessDecisionManagerSupportsFilterInvocationClass()
+			throws Exception {
+		when(adm.supports(FilterInvocation.class)).thenReturn(true);
+		interceptor.afterPropertiesSet();
+	}
 
-    @Test(expected=IllegalArgumentException.class)
-    public void testEnsuresAccessDecisionManagerSupportsFilterInvocationClass() throws Exception {
-        when(adm.supports(FilterInvocation.class)).thenReturn(true);
-        interceptor.afterPropertiesSet();
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void testEnsuresRunAsManagerSupportsFilterInvocationClass() throws Exception {
+		when(adm.supports(FilterInvocation.class)).thenReturn(false);
+		interceptor.afterPropertiesSet();
+	}
 
-    @Test(expected=IllegalArgumentException.class)
-    public void testEnsuresRunAsManagerSupportsFilterInvocationClass() throws Exception {
-        when(adm.supports(FilterInvocation.class)).thenReturn(false);
-        interceptor.afterPropertiesSet();
-    }
+	/**
+	 * We just test invocation works in a success event. There is no need to test access
+	 * denied events as the abstract parent enforces that logic, which is extensively
+	 * tested separately.
+	 */
+	@Test
+	public void testSuccessfulInvocation() throws Throwable {
+		// Setup a Context
+		Authentication token = new TestingAuthenticationToken("Test", "Password",
+				"NOT_USED");
+		SecurityContextHolder.getContext().setAuthentication(token);
 
-    /**
-     * We just test invocation works in a success event. There is no need to test access denied events as the
-     * abstract parent enforces that logic, which is extensively tested separately.
-     */
-    @Test
-    public void testSuccessfulInvocation() throws Throwable {
-        // Setup a Context
-        Authentication token = new TestingAuthenticationToken("Test", "Password", "NOT_USED");
-        SecurityContextHolder.getContext().setAuthentication(token);
+		FilterInvocation fi = createinvocation();
 
-        FilterInvocation fi = createinvocation();
+		when(ods.getAttributes(fi)).thenReturn(SecurityConfig.createList("MOCK_OK"));
 
-        when(ods.getAttributes(fi)).thenReturn(SecurityConfig.createList("MOCK_OK"));
+		interceptor.invoke(fi);
 
-        interceptor.invoke(fi);
+		// SEC-1697
+		verify(publisher, never()).publishEvent(any(AuthorizedEvent.class));
+	}
 
-        // SEC-1697
-        verify(publisher, never()).publishEvent(any(AuthorizedEvent.class));
-    }
+	@Test
+	public void afterInvocationIsNotInvokedIfExceptionThrown() throws Exception {
+		Authentication token = new TestingAuthenticationToken("Test", "Password",
+				"NOT_USED");
+		SecurityContextHolder.getContext().setAuthentication(token);
 
-    @Test
-    public void afterInvocationIsNotInvokedIfExceptionThrown() throws Exception {
-        Authentication token = new TestingAuthenticationToken("Test", "Password", "NOT_USED");
-        SecurityContextHolder.getContext().setAuthentication(token);
+		FilterInvocation fi = createinvocation();
+		FilterChain chain = fi.getChain();
 
-        FilterInvocation fi = createinvocation();
-        FilterChain chain = fi.getChain();
+		doThrow(new RuntimeException()).when(chain).doFilter(
+				any(HttpServletRequest.class), any(HttpServletResponse.class));
+		when(ods.getAttributes(fi)).thenReturn(SecurityConfig.createList("MOCK_OK"));
 
-        doThrow(new RuntimeException()).when(chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
-        when(ods.getAttributes(fi)).thenReturn(SecurityConfig.createList("MOCK_OK"));
+		AfterInvocationManager aim = mock(AfterInvocationManager.class);
+		interceptor.setAfterInvocationManager(aim);
 
-        AfterInvocationManager aim = mock(AfterInvocationManager.class);
-        interceptor.setAfterInvocationManager(aim);
+		try {
+			interceptor.invoke(fi);
+			fail("Expected exception");
+		}
+		catch (RuntimeException expected) {
+		}
 
-        try {
-            interceptor.invoke(fi);
-            fail("Expected exception");
-        } catch (RuntimeException expected) {
-        }
+		verifyZeroInteractions(aim);
+	}
 
-        verifyZeroInteractions(aim);
-    }
+	// SEC-1967
+	@Test
+	@SuppressWarnings("unchecked")
+	public void finallyInvocationIsInvokedIfExceptionThrown() throws Exception {
+		SecurityContext ctx = SecurityContextHolder.getContext();
+		Authentication token = new TestingAuthenticationToken("Test", "Password",
+				"NOT_USED");
+		token.setAuthenticated(true);
+		ctx.setAuthentication(token);
 
-    // SEC-1967
-    @Test
-    @SuppressWarnings("unchecked")
-    public void finallyInvocationIsInvokedIfExceptionThrown() throws Exception {
-        SecurityContext ctx = SecurityContextHolder.getContext();
-        Authentication token = new TestingAuthenticationToken("Test", "Password", "NOT_USED");
-        token.setAuthenticated(true);
-        ctx.setAuthentication(token);
+		RunAsManager runAsManager = mock(RunAsManager.class);
+		when(runAsManager.buildRunAs(eq(token), any(), anyCollection())).thenReturn(
+				new RunAsUserToken("key", "someone", "creds", token.getAuthorities(),
+						token.getClass()));
+		interceptor.setRunAsManager(runAsManager);
 
-        RunAsManager runAsManager = mock(RunAsManager.class);
-        when(runAsManager.buildRunAs(eq(token), any(), anyCollection())).thenReturn(new RunAsUserToken("key", "someone", "creds", token.getAuthorities(), token.getClass()));
-        interceptor.setRunAsManager(runAsManager);
+		FilterInvocation fi = createinvocation();
+		FilterChain chain = fi.getChain();
 
-        FilterInvocation fi = createinvocation();
-        FilterChain chain = fi.getChain();
+		doThrow(new RuntimeException()).when(chain).doFilter(
+				any(HttpServletRequest.class), any(HttpServletResponse.class));
+		when(ods.getAttributes(fi)).thenReturn(SecurityConfig.createList("MOCK_OK"));
 
-        doThrow(new RuntimeException()).when(chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
-        when(ods.getAttributes(fi)).thenReturn(SecurityConfig.createList("MOCK_OK"));
+		AfterInvocationManager aim = mock(AfterInvocationManager.class);
+		interceptor.setAfterInvocationManager(aim);
 
-        AfterInvocationManager aim = mock(AfterInvocationManager.class);
-        interceptor.setAfterInvocationManager(aim);
+		try {
+			interceptor.invoke(fi);
+			fail("Expected exception");
+		}
+		catch (RuntimeException expected) {
+		}
 
-        try {
-            interceptor.invoke(fi);
-            fail("Expected exception");
-        } catch (RuntimeException expected) {
-        }
+		// Check we've changed back
+		assertSame(ctx, SecurityContextHolder.getContext());
+		assertSame(token, SecurityContextHolder.getContext().getAuthentication());
+	}
 
-        // Check we've changed back
-        assertSame(ctx, SecurityContextHolder.getContext());
-        assertSame(token, SecurityContextHolder.getContext().getAuthentication());
-    }
+	private FilterInvocation createinvocation() {
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setServletPath("/secure/page.html");
 
-    private FilterInvocation createinvocation() {
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setServletPath("/secure/page.html");
+		FilterChain chain = mock(FilterChain.class);
+		FilterInvocation fi = new FilterInvocation(request, response, chain);
 
-        FilterChain chain = mock(FilterChain.class);
-        FilterInvocation fi = new FilterInvocation(request, response, chain);
-
-        return fi;
-    }
+		return fi;
+	}
 
 }

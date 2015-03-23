@@ -22,12 +22,14 @@ import org.springframework.core.annotation.AnnotationUtils;
 
 public class WithUserDetailsTests {
 
-    @Test
-    public void defaults() {
-        WithUserDetails userDetails = AnnotationUtils.findAnnotation(Annotated.class, WithUserDetails.class);
-        assertThat(userDetails.value()).isEqualTo("user");
-    }
+	@Test
+	public void defaults() {
+		WithUserDetails userDetails = AnnotationUtils.findAnnotation(Annotated.class,
+				WithUserDetails.class);
+		assertThat(userDetails.value()).isEqualTo("user");
+	}
 
-    @WithUserDetails
-    private static class Annotated {}
+	@WithUserDetails
+	private static class Annotated {
+	}
 }

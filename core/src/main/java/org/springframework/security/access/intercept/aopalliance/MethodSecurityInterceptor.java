@@ -23,60 +23,65 @@ import org.springframework.security.access.method.MethodSecurityMetadataSource;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
-
 /**
  * Provides security interception of AOP Alliance based method invocations.
  * <p>
- * The <code>SecurityMetadataSource</code> required by this security interceptor is of type {@link
- * MethodSecurityMetadataSource}. This is shared with the AspectJ based security interceptor
- * (<code>AspectJSecurityInterceptor</code>), since both work with Java <code>Method</code>s.
+ * The <code>SecurityMetadataSource</code> required by this security interceptor is of
+ * type {@link MethodSecurityMetadataSource}. This is shared with the AspectJ based
+ * security interceptor (<code>AspectJSecurityInterceptor</code>), since both work with
+ * Java <code>Method</code>s.
  * <p>
  * Refer to {@link AbstractSecurityInterceptor} for details on the workflow.
  *
  * @author Ben Alex
  * @author Rob Winch
  */
-public class MethodSecurityInterceptor extends AbstractSecurityInterceptor implements MethodInterceptor {
-    //~ Instance fields ================================================================================================
+public class MethodSecurityInterceptor extends AbstractSecurityInterceptor implements
+		MethodInterceptor {
+	// ~ Instance fields
+	// ================================================================================================
 
-    private MethodSecurityMetadataSource securityMetadataSource;
+	private MethodSecurityMetadataSource securityMetadataSource;
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public Class<?> getSecureObjectClass() {
-        return MethodInvocation.class;
-    }
+	public Class<?> getSecureObjectClass() {
+		return MethodInvocation.class;
+	}
 
-    /**
-     * This method should be used to enforce security on a <code>MethodInvocation</code>.
-     *
-     * @param mi The method being invoked which requires a security decision
-     *
-     * @return The returned value from the method invocation (possibly modified by the {@code AfterInvocationManager}).
-     *
-     * @throws Throwable if any error occurs
-     */
-    public Object invoke(MethodInvocation mi) throws Throwable {
-        InterceptorStatusToken token = super.beforeInvocation(mi);
+	/**
+	 * This method should be used to enforce security on a <code>MethodInvocation</code>.
+	 *
+	 * @param mi The method being invoked which requires a security decision
+	 *
+	 * @return The returned value from the method invocation (possibly modified by the
+	 * {@code AfterInvocationManager}).
+	 *
+	 * @throws Throwable if any error occurs
+	 */
+	public Object invoke(MethodInvocation mi) throws Throwable {
+		InterceptorStatusToken token = super.beforeInvocation(mi);
 
-        Object result;
-        try {
-            result = mi.proceed();
-        } finally {
-            super.finallyInvocation(token);
-        }
-        return super.afterInvocation(token, result);
-    }
+		Object result;
+		try {
+			result = mi.proceed();
+		}
+		finally {
+			super.finallyInvocation(token);
+		}
+		return super.afterInvocation(token, result);
+	}
 
-    public MethodSecurityMetadataSource getSecurityMetadataSource() {
-        return this.securityMetadataSource;
-    }
+	public MethodSecurityMetadataSource getSecurityMetadataSource() {
+		return this.securityMetadataSource;
+	}
 
-    public SecurityMetadataSource obtainSecurityMetadataSource() {
-        return this.securityMetadataSource;
-    }
+	public SecurityMetadataSource obtainSecurityMetadataSource() {
+		return this.securityMetadataSource;
+	}
 
-    public void setSecurityMetadataSource(MethodSecurityMetadataSource newSource) {
-        this.securityMetadataSource = newSource;
-    }
+	public void setSecurityMetadataSource(MethodSecurityMetadataSource newSource) {
+		this.securityMetadataSource = newSource;
+	}
 }

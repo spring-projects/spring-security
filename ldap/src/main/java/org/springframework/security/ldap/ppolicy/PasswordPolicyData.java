@@ -5,7 +5,7 @@ package org.springframework.security.ldap.ppolicy;
  * @since 3.0
  */
 public interface PasswordPolicyData {
-    int getTimeBeforeExpiration();
+	int getTimeBeforeExpiration();
 
-    int getGraceLoginsRemaining();
+	int getGraceLoginsRemaining();
 }

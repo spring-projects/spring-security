@@ -23,11 +23,12 @@ import org.springframework.web.servlet.support.AbstractDispatcherServletInitiali
  *
  * @author Rob Winch
  */
-public class ChatSecurityWebApplicationInitializer extends AbstractSecurityWebApplicationInitializer {
+public class ChatSecurityWebApplicationInitializer extends
+		AbstractSecurityWebApplicationInitializer {
 
-    @Override
-    protected String getDispatcherWebApplicationContextSuffix() {
-        return AbstractDispatcherServletInitializer.DEFAULT_SERVLET_NAME;
-    }
+	@Override
+	protected String getDispatcherWebApplicationContextSuffix() {
+		return AbstractDispatcherServletInitializer.DEFAULT_SERVLET_NAME;
+	}
 
 }

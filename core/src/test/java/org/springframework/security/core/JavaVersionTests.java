@@ -26,24 +26,30 @@ import org.junit.Test;
  */
 public class JavaVersionTests {
 
-    private static final int JDK5_CLASS_VERSION = 49;
+	private static final int JDK5_CLASS_VERSION = 49;
 
-    @Test
-    public void authenticationCorrectJdkCompatibility() throws Exception {
-        assertClassVersion(Authentication.class);
-    }
+	@Test
+	public void authenticationCorrectJdkCompatibility() throws Exception {
+		assertClassVersion(Authentication.class);
+	}
 
-    private void assertClassVersion(Class<?> clazz) throws Exception {
-        String classResourceName = clazz.getName().replaceAll("\\.", "/") + ".class";
-        InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream(classResourceName);
-        try {
-            DataInputStream data = new DataInputStream(input);
-            data.readInt();
-            data.readShort(); // minor
-            int major = data.readShort();
-            assertThat(major).isEqualTo(JDK5_CLASS_VERSION);
-        } finally {
-            try { input.close(); } catch(Exception e) {}
-        }
-    }
+	private void assertClassVersion(Class<?> clazz) throws Exception {
+		String classResourceName = clazz.getName().replaceAll("\\.", "/") + ".class";
+		InputStream input = Thread.currentThread().getContextClassLoader()
+				.getResourceAsStream(classResourceName);
+		try {
+			DataInputStream data = new DataInputStream(input);
+			data.readInt();
+			data.readShort(); // minor
+			int major = data.readShort();
+			assertThat(major).isEqualTo(JDK5_CLASS_VERSION);
+		}
+		finally {
+			try {
+				input.close();
+			}
+			catch (Exception e) {
+			}
+		}
+	}
 }

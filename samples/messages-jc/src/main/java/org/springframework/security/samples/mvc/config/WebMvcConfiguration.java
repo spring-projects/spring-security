@@ -21,55 +21,57 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 @ComponentScan("org.springframework.security.samples.mvc")
 public class WebMvcConfiguration extends WebMvcConfigurerAdapter {
 
-    @Autowired
-    private FormattingConversionService mvcConversionService;
+	@Autowired
+	private FormattingConversionService mvcConversionService;
 
-    @Override
-    public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/login").setViewName("login");
-        registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
-    }
+	@Override
+	public void addViewControllers(ViewControllerRegistry registry) {
+		registry.addViewController("/login").setViewName("login");
+		registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
+	}
 
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/resources/**").addResourceLocations("classpath:/resources/").setCachePeriod(31556926);
-        registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
-    }
+	@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		registry.addResourceHandler("/resources/**")
+				.addResourceLocations("classpath:/resources/").setCachePeriod(31556926);
+		registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
+	}
 
-    @Bean
-    public ClassLoaderTemplateResolver templateResolver() {
-        ClassLoaderTemplateResolver result = new ClassLoaderTemplateResolver();
-        result.setPrefix("views/");
-        result.setSuffix(".html");
-        result.setTemplateMode("HTML5");
-        return result;
-    }
+	@Bean
+	public ClassLoaderTemplateResolver templateResolver() {
+		ClassLoaderTemplateResolver result = new ClassLoaderTemplateResolver();
+		result.setPrefix("views/");
+		result.setSuffix(".html");
+		result.setTemplateMode("HTML5");
+		return result;
+	}
 
-    @Bean
-    public ThymeleafTilesConfigurer tilesConfigurer() {
-        ThymeleafTilesConfigurer tilesConfigurer = new ThymeleafTilesConfigurer();
-        tilesConfigurer.setDefinitions(new String[] { "classpath:tiles/tiles-def.xml"});
-        return tilesConfigurer;
-    }
+	@Bean
+	public ThymeleafTilesConfigurer tilesConfigurer() {
+		ThymeleafTilesConfigurer tilesConfigurer = new ThymeleafTilesConfigurer();
+		tilesConfigurer.setDefinitions(new String[] { "classpath:tiles/tiles-def.xml" });
+		return tilesConfigurer;
+	}
 
-    @Bean
-    public SpringTemplateEngine templateEngine(ClassLoaderTemplateResolver templateResolver) {
-        SpringTemplateEngine templateEngine = new SpringTemplateEngine();
-        templateEngine.setTemplateResolver(templateResolver);
-        templateEngine.addDialect(new TilesDialect());
-        return templateEngine;
-    }
+	@Bean
+	public SpringTemplateEngine templateEngine(
+			ClassLoaderTemplateResolver templateResolver) {
+		SpringTemplateEngine templateEngine = new SpringTemplateEngine();
+		templateEngine.setTemplateResolver(templateResolver);
+		templateEngine.addDialect(new TilesDialect());
+		return templateEngine;
+	}
 
-    @Bean
-    public ThymeleafViewResolver viewResolver(SpringTemplateEngine templateEngine) {
-        ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
-        viewResolver.setTemplateEngine(templateEngine);
-        viewResolver.setViewClass(ThymeleafTilesView.class);
-        return viewResolver;
-    }
+	@Bean
+	public ThymeleafViewResolver viewResolver(SpringTemplateEngine templateEngine) {
+		ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
+		viewResolver.setTemplateEngine(templateEngine);
+		viewResolver.setViewClass(ThymeleafTilesView.class);
+		return viewResolver;
+	}
 
-    @Bean
-    public DomainClassConverter<?> domainClassConverter() {
-        return new DomainClassConverter<FormattingConversionService>(mvcConversionService);
-    }
+	@Bean
+	public DomainClassConverter<?> domainClassConverter() {
+		return new DomainClassConverter<FormattingConversionService>(mvcConversionService);
+	}
 }

@@ -30,50 +30,50 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 public class Sec2196Tests {
 
-    private ConfigurableApplicationContext context;
+	private ConfigurableApplicationContext context;
 
-    @Test(expected = AccessDeniedException.class)
-    public void genericMethodsProtected() {
-        loadContext("<global-method-security secured-annotations=\"enabled\" pre-post-annotations=\"enabled\"/>"
-                + "<b:bean class='" + Service.class.getName() + "'/>");
+	@Test(expected = AccessDeniedException.class)
+	public void genericMethodsProtected() {
+		loadContext("<global-method-security secured-annotations=\"enabled\" pre-post-annotations=\"enabled\"/>"
+				+ "<b:bean class='" + Service.class.getName() + "'/>");
 
-        SecurityContextHolder.getContext().setAuthentication(
-                new TestingAuthenticationToken("test", "pass", "ROLE_USER"));
-        Service service = context.getBean(Service.class);
-        service.save(new User());
-    }
+		SecurityContextHolder.getContext().setAuthentication(
+				new TestingAuthenticationToken("test", "pass", "ROLE_USER"));
+		Service service = context.getBean(Service.class);
+		service.save(new User());
+	}
 
-    @Test
-    public void genericMethodsAllowed() {
-        loadContext("<global-method-security secured-annotations=\"enabled\" pre-post-annotations=\"enabled\"/>"
-                + "<b:bean class='" + Service.class.getName() + "'/>");
+	@Test
+	public void genericMethodsAllowed() {
+		loadContext("<global-method-security secured-annotations=\"enabled\" pre-post-annotations=\"enabled\"/>"
+				+ "<b:bean class='" + Service.class.getName() + "'/>");
 
-        SecurityContextHolder.getContext().setAuthentication(
-                new TestingAuthenticationToken("test", "pass", "saveUsers"));
-        Service service = context.getBean(Service.class);
-        service.save(new User());
-    }
+		SecurityContextHolder.getContext().setAuthentication(
+				new TestingAuthenticationToken("test", "pass", "saveUsers"));
+		Service service = context.getBean(Service.class);
+		service.save(new User());
+	}
 
-    private void loadContext(String context) {
-        this.context = new InMemoryXmlApplicationContext(context);
-    }
+	private void loadContext(String context) {
+		this.context = new InMemoryXmlApplicationContext(context);
+	}
 
-    @After
-    public void closeAppContext() {
-        if (context != null) {
-            context.close();
-            context = null;
-        }
-        SecurityContextHolder.clearContext();
-    }
+	@After
+	public void closeAppContext() {
+		if (context != null) {
+			context.close();
+			context = null;
+		}
+		SecurityContextHolder.clearContext();
+	}
 
-    public static class Service {
-        @PreAuthorize("hasAuthority('saveUsers')")
-        public <T extends User> T save(T dto) {
-            return dto;
-        }
-    }
+	public static class Service {
+		@PreAuthorize("hasAuthority('saveUsers')")
+		public <T extends User> T save(T dto) {
+			return dto;
+		}
+	}
 
-    static class User {
-    }
+	static class User {
+	}
 }

@@ -13,7 +13,8 @@ import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
  * @since 3.0
  */
 public final class NullLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator {
-    public Collection<GrantedAuthority> getGrantedAuthorities(DirContextOperations userDetails, String username) {
-        return AuthorityUtils.NO_AUTHORITIES;
-    }
+	public Collection<GrantedAuthority> getGrantedAuthorities(
+			DirContextOperations userDetails, String username) {
+		return AuthorityUtils.NO_AUTHORITIES;
+	}
 }

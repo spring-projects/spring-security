@@ -20,7 +20,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationListener;
 import org.springframework.util.ClassUtils;
 
-
 /**
  * Outputs authentication-related application events to Commons Logging.
  * <p>
@@ -29,44 +28,51 @@ import org.springframework.util.ClassUtils;
  * @author Ben Alex
  */
 public class LoggerListener implements ApplicationListener<AbstractAuthenticationEvent> {
-    //~ Static fields/initializers =====================================================================================
+	// ~ Static fields/initializers
+	// =====================================================================================
 
-    private static final Log logger = LogFactory.getLog(LoggerListener.class);
+	private static final Log logger = LogFactory.getLog(LoggerListener.class);
 
-    /** If set to true, {@link InteractiveAuthenticationSuccessEvent} will be logged (defaults to true) */
-    private boolean logInteractiveAuthenticationSuccessEvents = true;
+	/**
+	 * If set to true, {@link InteractiveAuthenticationSuccessEvent} will be logged
+	 * (defaults to true)
+	 */
+	private boolean logInteractiveAuthenticationSuccessEvents = true;
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public void onApplicationEvent(AbstractAuthenticationEvent event) {
-        if (!logInteractiveAuthenticationSuccessEvents && event instanceof InteractiveAuthenticationSuccessEvent) {
-            return;
-        }
+	public void onApplicationEvent(AbstractAuthenticationEvent event) {
+		if (!logInteractiveAuthenticationSuccessEvents
+				&& event instanceof InteractiveAuthenticationSuccessEvent) {
+			return;
+		}
 
-        if (logger.isWarnEnabled()) {
-            final StringBuilder builder = new StringBuilder();
-            builder.append("Authentication event ");
-            builder.append(ClassUtils.getShortName(event.getClass()));
-            builder.append(": ");
-            builder.append(event.getAuthentication().getName());
-            builder.append("; details: ");
-            builder.append(event.getAuthentication().getDetails());
+		if (logger.isWarnEnabled()) {
+			final StringBuilder builder = new StringBuilder();
+			builder.append("Authentication event ");
+			builder.append(ClassUtils.getShortName(event.getClass()));
+			builder.append(": ");
+			builder.append(event.getAuthentication().getName());
+			builder.append("; details: ");
+			builder.append(event.getAuthentication().getDetails());
 
-            if (event instanceof AbstractAuthenticationFailureEvent) {
-                builder.append("; exception: ");
-                builder.append(((AbstractAuthenticationFailureEvent) event).getException().getMessage());
-            }
+			if (event instanceof AbstractAuthenticationFailureEvent) {
+				builder.append("; exception: ");
+				builder.append(((AbstractAuthenticationFailureEvent) event)
+						.getException().getMessage());
+			}
 
-            logger.warn(builder.toString());
-        }
-    }
+			logger.warn(builder.toString());
+		}
+	}
 
-    public boolean isLogInteractiveAuthenticationSuccessEvents() {
-        return logInteractiveAuthenticationSuccessEvents;
-    }
+	public boolean isLogInteractiveAuthenticationSuccessEvents() {
+		return logInteractiveAuthenticationSuccessEvents;
+	}
 
-    public void setLogInteractiveAuthenticationSuccessEvents(
-            boolean logInteractiveAuthenticationSuccessEvents) {
-        this.logInteractiveAuthenticationSuccessEvents = logInteractiveAuthenticationSuccessEvents;
-    }
+	public void setLogInteractiveAuthenticationSuccessEvents(
+			boolean logInteractiveAuthenticationSuccessEvents) {
+		this.logInteractiveAuthenticationSuccessEvents = logInteractiveAuthenticationSuccessEvents;
+	}
 }

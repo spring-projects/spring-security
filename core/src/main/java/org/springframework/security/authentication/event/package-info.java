@@ -6,3 +6,4 @@
  */
 
 package org.springframework.security.authentication.event;
+

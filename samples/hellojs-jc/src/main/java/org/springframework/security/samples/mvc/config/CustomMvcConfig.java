@@ -30,12 +30,12 @@ import org.thymeleaf.spring4.view.ThymeleafViewResolver;
 @Configuration
 public class CustomMvcConfig {
 
-    @Bean
-    public ThymeleafViewResolver thymeleafViewResolver(SpringTemplateEngine templateEngine) {
-        ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
-        viewResolver.setOrder(Ordered.HIGHEST_PRECEDENCE - 10);
-        viewResolver.setTemplateEngine(templateEngine);
-        return viewResolver;
-    }
+	@Bean
+	public ThymeleafViewResolver thymeleafViewResolver(SpringTemplateEngine templateEngine) {
+		ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
+		viewResolver.setOrder(Ordered.HIGHEST_PRECEDENCE - 10);
+		viewResolver.setTemplateEngine(templateEngine);
+		return viewResolver;
+	}
 
 }

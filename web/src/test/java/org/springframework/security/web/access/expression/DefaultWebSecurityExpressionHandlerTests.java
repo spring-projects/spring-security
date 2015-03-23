@@ -39,55 +39,59 @@ import org.springframework.security.web.FilterInvocation;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultWebSecurityExpressionHandlerTests {
-    @Mock
-    private AuthenticationTrustResolver trustResolver;
+	@Mock
+	private AuthenticationTrustResolver trustResolver;
 
-    @Mock
-    private Authentication authentication;
+	@Mock
+	private Authentication authentication;
 
-    @Mock
-    private FilterInvocation invocation;
+	@Mock
+	private FilterInvocation invocation;
 
-    private DefaultWebSecurityExpressionHandler handler;
+	private DefaultWebSecurityExpressionHandler handler;
 
-    @Before
-    public void setup() {
-        handler = new DefaultWebSecurityExpressionHandler();
-    }
+	@Before
+	public void setup() {
+		handler = new DefaultWebSecurityExpressionHandler();
+	}
 
-    @After
-    public void cleanup() {
-        SecurityContextHolder.clearContext();
-    }
+	@After
+	public void cleanup() {
+		SecurityContextHolder.clearContext();
+	}
 
-    @Test
-    public void expressionPropertiesAreResolvedAgainsAppContextBeans() throws Exception {
-        StaticApplicationContext appContext = new StaticApplicationContext();
-        RootBeanDefinition bean = new RootBeanDefinition(SecurityConfig.class);
-        bean.getConstructorArgumentValues().addGenericArgumentValue("ROLE_A");
-        appContext.registerBeanDefinition("role", bean);
-        handler.setApplicationContext(appContext);
+	@Test
+	public void expressionPropertiesAreResolvedAgainsAppContextBeans() throws Exception {
+		StaticApplicationContext appContext = new StaticApplicationContext();
+		RootBeanDefinition bean = new RootBeanDefinition(SecurityConfig.class);
+		bean.getConstructorArgumentValues().addGenericArgumentValue("ROLE_A");
+		appContext.registerBeanDefinition("role", bean);
+		handler.setApplicationContext(appContext);
 
-        EvaluationContext ctx = handler.createEvaluationContext(mock(Authentication.class), mock(FilterInvocation.class));
-        ExpressionParser parser = handler.getExpressionParser();
-        assertTrue(parser.parseExpression("@role.getAttribute() == 'ROLE_A'").getValue(ctx, Boolean.class));
-        assertTrue(parser.parseExpression("@role.attribute == 'ROLE_A'").getValue(ctx, Boolean.class));
-    }
+		EvaluationContext ctx = handler.createEvaluationContext(
+				mock(Authentication.class), mock(FilterInvocation.class));
+		ExpressionParser parser = handler.getExpressionParser();
+		assertTrue(parser.parseExpression("@role.getAttribute() == 'ROLE_A'").getValue(
+				ctx, Boolean.class));
+		assertTrue(parser.parseExpression("@role.attribute == 'ROLE_A'").getValue(ctx,
+				Boolean.class));
+	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void setTrustResolverNull() {
+		handler.setTrustResolver(null);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void setTrustResolverNull() {
-        handler.setTrustResolver(null);
-    }
+	@Test
+	public void createEvaluationContextCustomTrustResolver() {
+		handler.setTrustResolver(trustResolver);
 
-    @Test
-    public void createEvaluationContextCustomTrustResolver() {
-        handler.setTrustResolver(trustResolver);
+		Expression expression = handler.getExpressionParser()
+				.parseExpression("anonymous");
+		EvaluationContext context = handler.createEvaluationContext(authentication,
+				invocation);
+		assertThat(expression.getValue(context, Boolean.class)).isFalse();
 
-        Expression expression = handler.getExpressionParser().parseExpression("anonymous");
-        EvaluationContext context = handler.createEvaluationContext(authentication, invocation);
-        assertThat(expression.getValue(context, Boolean.class)).isFalse();
-
-        verify(trustResolver).isAnonymous(authentication);
-    }
+		verify(trustResolver).isAnonymous(authentication);
+	}
 }

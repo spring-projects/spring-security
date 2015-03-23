@@ -31,55 +31,61 @@ import org.springframework.security.core.authority.AuthorityUtils;
  */
 public class LdapUserDetailsMapperTests extends TestCase {
 
-    public void testMultipleRoleAttributeValuesAreMappedToAuthorities() throws Exception {
-        LdapUserDetailsMapper mapper = new LdapUserDetailsMapper();
-        mapper.setConvertToUpperCase(false);
-        mapper.setRolePrefix("");
+	public void testMultipleRoleAttributeValuesAreMappedToAuthorities() throws Exception {
+		LdapUserDetailsMapper mapper = new LdapUserDetailsMapper();
+		mapper.setConvertToUpperCase(false);
+		mapper.setRolePrefix("");
 
-        mapper.setRoleAttributes(new String[] {"userRole"});
+		mapper.setRoleAttributes(new String[] { "userRole" });
 
-        DirContextAdapter ctx = new DirContextAdapter();
+		DirContextAdapter ctx = new DirContextAdapter();
 
-        ctx.setAttributeValues("userRole", new String[] {"X", "Y", "Z"});
-        ctx.setAttributeValue("uid", "ani");
+		ctx.setAttributeValues("userRole", new String[] { "X", "Y", "Z" });
+		ctx.setAttributeValue("uid", "ani");
 
-        LdapUserDetailsImpl user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx, "ani", AuthorityUtils.NO_AUTHORITIES);
+		LdapUserDetailsImpl user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx,
+				"ani", AuthorityUtils.NO_AUTHORITIES);
 
-        assertEquals(3, user.getAuthorities().size());
-    }
+		assertEquals(3, user.getAuthorities().size());
+	}
 
-    /**
-     * SEC-303. Non-retrieved role attribute causes NullPointerException
-     */
-    public void testNonRetrievedRoleAttributeIsIgnored() throws Exception {
-        LdapUserDetailsMapper mapper = new LdapUserDetailsMapper();
+	/**
+	 * SEC-303. Non-retrieved role attribute causes NullPointerException
+	 */
+	public void testNonRetrievedRoleAttributeIsIgnored() throws Exception {
+		LdapUserDetailsMapper mapper = new LdapUserDetailsMapper();
 
-        mapper.setRoleAttributes(new String[] {"userRole", "nonRetrievedAttribute"});
+		mapper.setRoleAttributes(new String[] { "userRole", "nonRetrievedAttribute" });
 
-        BasicAttributes attrs = new BasicAttributes();
-        attrs.put(new BasicAttribute("userRole", "x"));
+		BasicAttributes attrs = new BasicAttributes();
+		attrs.put(new BasicAttribute("userRole", "x"));
 
-        DirContextAdapter ctx = new DirContextAdapter(attrs, new DistinguishedName("cn=someName"));
-        ctx.setAttributeValue("uid", "ani");
+		DirContextAdapter ctx = new DirContextAdapter(attrs, new DistinguishedName(
+				"cn=someName"));
+		ctx.setAttributeValue("uid", "ani");
 
-        LdapUserDetailsImpl user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx, "ani", AuthorityUtils.NO_AUTHORITIES);
+		LdapUserDetailsImpl user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx,
+				"ani", AuthorityUtils.NO_AUTHORITIES);
 
-        assertEquals(1, user.getAuthorities().size());
-        assertTrue(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains("ROLE_X"));
-    }
+		assertEquals(1, user.getAuthorities().size());
+		assertTrue(AuthorityUtils.authorityListToSet(user.getAuthorities()).contains(
+				"ROLE_X"));
+	}
 
-    public void testPasswordAttributeIsMappedCorrectly() throws Exception {
-        LdapUserDetailsMapper mapper = new LdapUserDetailsMapper();
+	public void testPasswordAttributeIsMappedCorrectly() throws Exception {
+		LdapUserDetailsMapper mapper = new LdapUserDetailsMapper();
 
-        mapper.setPasswordAttributeName("myappsPassword");
-        BasicAttributes attrs = new BasicAttributes();
-        attrs.put(new BasicAttribute("myappsPassword", "mypassword".getBytes()));
+		mapper.setPasswordAttributeName("myappsPassword");
+		BasicAttributes attrs = new BasicAttributes();
+		attrs.put(new BasicAttribute("myappsPassword", "mypassword".getBytes()));
 
-        DirContextAdapter ctx = new DirContextAdapter(attrs, new DistinguishedName("cn=someName"));
-        ctx.setAttributeValue("uid", "ani");
+		DirContextAdapter ctx = new DirContextAdapter(attrs, new DistinguishedName(
+				"cn=someName"));
+		ctx.setAttributeValue("uid", "ani");
 
-        LdapUserDetails user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx, "ani", AuthorityUtils.NO_AUTHORITIES);
+		LdapUserDetails user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx,
+				"ani", AuthorityUtils.NO_AUTHORITIES);
 
-        assertEquals("mypassword", user.getPassword());
-    }
+		assertEquals("mypassword", user.getPassword());
+	}
 }

@@ -16,7 +16,6 @@
 
 package org.springframework.security.remoting.dns;
 
-
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
@@ -31,11 +30,10 @@ import javax.naming.directory.InitialDirContext;
  */
 public interface InitialContextFactory {
 
-
-    /**
-     * Must return a DirContext which can be used for DNS queries
-     * @return JNDI DirContext
-     */
-    public DirContext getCtx();
+	/**
+	 * Must return a DirContext which can be used for DNS queries
+	 * @return JNDI DirContext
+	 */
+	public DirContext getCtx();
 
 }

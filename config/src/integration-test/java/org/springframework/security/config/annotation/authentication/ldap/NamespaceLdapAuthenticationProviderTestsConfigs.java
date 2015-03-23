@@ -15,7 +15,6 @@
  */
 package org.springframework.security.config.annotation.authentication.ldap;
 
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.encoding.PlaintextPasswordEncoder;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -28,18 +27,22 @@ import org.springframework.security.ldap.userdetails.PersonContextMapper;
  *
  */
 public class NamespaceLdapAuthenticationProviderTestsConfigs {
-    @EnableWebSecurity
-    static class LdapAuthenticationProviderConfig extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	static class LdapAuthenticationProviderConfig extends WebSecurityConfigurerAdapter {
+		filter-security-metadata-source
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .ldapAuthentication()
                     .groupSearchBase("ou=groups")
                     .userDnPatterns("uid={0},ou=people"); // ldap-server@user-dn-pattern
         }
-    }
+        // @formatter:on
+	}
 
-    @EnableWebSecurity
-    static class CustomLdapAuthenticationProviderConfig extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	static class CustomLdapAuthenticationProviderConfig extends
+			WebSecurityConfigurerAdapter {
+		filter-security-metadata-source
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .ldapAuthentication()
@@ -61,21 +64,26 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
                         // .url("ldap://localhost:33389/dc-springframework,dc=org") this overrides root and port and is used for external
                         ;
         }
-    }
+        // @formatter:on
+	}
 
-    @EnableWebSecurity
-    static class CustomAuthoritiesPopulatorConfig extends WebSecurityConfigurerAdapter {
-        static LdapAuthoritiesPopulator LAP;
+	@EnableWebSecurity
+	static class CustomAuthoritiesPopulatorConfig extends WebSecurityConfigurerAdapter {
+		static LdapAuthoritiesPopulator LAP;
+
+		filter-security-metadata-source
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .ldapAuthentication()
                     .userSearchFilter("(uid={0})")
                     .ldapAuthoritiesPopulator(LAP);
         }
-    }
+        // @formatter:on
+	}
 
-    @EnableWebSecurity
-    static class PasswordCompareLdapConfig extends WebSecurityConfigurerAdapter {
+	@EnableWebSecurity
+	static class PasswordCompareLdapConfig extends WebSecurityConfigurerAdapter {
+		filter-security-metadata-source
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                 .ldapAuthentication()
@@ -85,5 +93,6 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
                         .passwordEncoder(new PlaintextPasswordEncoder()) // ldap-authentication-provider/password-compare/password-encoder@ref
                         .passwordAttribute("userPassword"); // ldap-authentication-provider/password-compare@password-attribute
         }
-    }
+        // @formatter:on
+	}
 }

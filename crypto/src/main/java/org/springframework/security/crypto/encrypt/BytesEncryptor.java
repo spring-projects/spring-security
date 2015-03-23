@@ -21,14 +21,14 @@ package org.springframework.security.crypto.encrypt;
  */
 public interface BytesEncryptor {
 
-    /**
-     * Encrypt the byte array.
-     */
-    byte[] encrypt(byte[] byteArray);
+	/**
+	 * Encrypt the byte array.
+	 */
+	byte[] encrypt(byte[] byteArray);
 
-    /**
-     * Decrypt the byte array.
-     */
-    byte[] decrypt(byte[] encryptedByteArray);
+	/**
+	 * Decrypt the byte array.
+	 */
+	byte[] decrypt(byte[] encryptedByteArray);
 
 }

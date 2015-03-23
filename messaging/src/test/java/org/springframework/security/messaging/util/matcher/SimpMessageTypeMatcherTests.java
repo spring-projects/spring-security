@@ -25,44 +25,42 @@ import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.support.MessageBuilder;
 
 public class SimpMessageTypeMatcherTests {
-    private SimpMessageTypeMatcher matcher;
+	private SimpMessageTypeMatcher matcher;
 
-    @Before
-    public void setup() {
-        matcher = new SimpMessageTypeMatcher(SimpMessageType.MESSAGE);
-    }
+	@Before
+	public void setup() {
+		matcher = new SimpMessageTypeMatcher(SimpMessageType.MESSAGE);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullType() {
-        new SimpMessageTypeMatcher(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullType() {
+		new SimpMessageTypeMatcher(null);
+	}
 
-    @Test
-    public void matchesMessageMessageTrue() {
-        Message<String> message = MessageBuilder
-            .withPayload("Hi")
-            .setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.MESSAGE)
-            .build();
+	@Test
+	public void matchesMessageMessageTrue() {
+		Message<String> message = MessageBuilder
+				.withPayload("Hi")
+				.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER,
+						SimpMessageType.MESSAGE).build();
 
-        assertThat(matcher.matches(message)).isTrue();
-    }
+		assertThat(matcher.matches(message)).isTrue();
+	}
 
-    @Test
-    public void matchesMessageConnectFalse() {
-        Message<String> message = MessageBuilder
-            .withPayload("Hi")
-            .setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.CONNECT)
-            .build();
+	@Test
+	public void matchesMessageConnectFalse() {
+		Message<String> message = MessageBuilder
+				.withPayload("Hi")
+				.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER,
+						SimpMessageType.CONNECT).build();
 
-        assertThat(matcher.matches(message)).isFalse();
-    }
+		assertThat(matcher.matches(message)).isFalse();
+	}
 
-    @Test
-    public void matchesMessageNullFalse() {
-        Message<String> message = MessageBuilder
-            .withPayload("Hi")
-            .build();
+	@Test
+	public void matchesMessageNullFalse() {
+		Message<String> message = MessageBuilder.withPayload("Hi").build();
 
-        assertThat(matcher.matches(message)).isFalse();
-    }
+		assertThat(matcher.matches(message)).isFalse();
+	}
 }

@@ -27,41 +27,44 @@ import org.springframework.security.core.authority.AuthorityUtils;
  */
 @SuppressWarnings("unchecked")
 public class SidRetrievalStrategyTests {
-    Authentication authentication = new TestingAuthenticationToken("scott", "password", "A", "B", "C");
+	Authentication authentication = new TestingAuthenticationToken("scott", "password",
+			"A", "B", "C");
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    @Test
-    public void correctSidsAreRetrieved() throws Exception {
-        SidRetrievalStrategy retrStrategy = new SidRetrievalStrategyImpl();
-        List<Sid> sids = retrStrategy.getSids(authentication);
+	@Test
+	public void correctSidsAreRetrieved() throws Exception {
+		SidRetrievalStrategy retrStrategy = new SidRetrievalStrategyImpl();
+		List<Sid> sids = retrStrategy.getSids(authentication);
 
-        assertNotNull(sids);
-        assertEquals(4, sids.size());
-        assertNotNull(sids.get(0));
-        assertTrue(sids.get(0) instanceof PrincipalSid);
+		assertNotNull(sids);
+		assertEquals(4, sids.size());
+		assertNotNull(sids.get(0));
+		assertTrue(sids.get(0) instanceof PrincipalSid);
 
-        for (int i = 1; i < sids.size(); i++) {
-            assertTrue(sids.get(i) instanceof GrantedAuthoritySid);
-        }
+		for (int i = 1; i < sids.size(); i++) {
+			assertTrue(sids.get(i) instanceof GrantedAuthoritySid);
+		}
 
-        assertEquals("scott", ((PrincipalSid) sids.get(0)).getPrincipal());
-        assertEquals("A", ((GrantedAuthoritySid) sids.get(1)).getGrantedAuthority());
-        assertEquals("B", ((GrantedAuthoritySid) sids.get(2)).getGrantedAuthority());
-        assertEquals("C", ((GrantedAuthoritySid) sids.get(3)).getGrantedAuthority());
-    }
+		assertEquals("scott", ((PrincipalSid) sids.get(0)).getPrincipal());
+		assertEquals("A", ((GrantedAuthoritySid) sids.get(1)).getGrantedAuthority());
+		assertEquals("B", ((GrantedAuthoritySid) sids.get(2)).getGrantedAuthority());
+		assertEquals("C", ((GrantedAuthoritySid) sids.get(3)).getGrantedAuthority());
+	}
 
-    @Test
-    public void roleHierarchyIsUsedWhenSet() throws Exception {
-        RoleHierarchy rh =  mock(RoleHierarchy.class);
-        List rhAuthorities = AuthorityUtils.createAuthorityList("D");
-        when(rh.getReachableGrantedAuthorities(anyCollection())).thenReturn(rhAuthorities);
-        SidRetrievalStrategy strat = new SidRetrievalStrategyImpl(rh);
+	@Test
+	public void roleHierarchyIsUsedWhenSet() throws Exception {
+		RoleHierarchy rh = mock(RoleHierarchy.class);
+		List rhAuthorities = AuthorityUtils.createAuthorityList("D");
+		when(rh.getReachableGrantedAuthorities(anyCollection()))
+				.thenReturn(rhAuthorities);
+		SidRetrievalStrategy strat = new SidRetrievalStrategyImpl(rh);
 
-        List<Sid> sids = strat.getSids(authentication);
-        assertEquals(2, sids.size());
-        assertNotNull(sids.get(0));
-        assertTrue(sids.get(0) instanceof PrincipalSid);
-        assertEquals("D", ((GrantedAuthoritySid) sids.get(1)).getGrantedAuthority());
-    }
+		List<Sid> sids = strat.getSids(authentication);
+		assertEquals(2, sids.size());
+		assertNotNull(sids.get(0));
+		assertTrue(sids.get(0) instanceof PrincipalSid);
+		assertEquals("D", ((GrantedAuthoritySid) sids.get(1)).getGrantedAuthority());
+	}
 }

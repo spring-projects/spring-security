@@ -8,13 +8,13 @@ import java.net.URI;
  */
 public final class StaticAllowFromStrategy implements AllowFromStrategy {
 
-    private final URI uri;
+	private final URI uri;
 
-    public StaticAllowFromStrategy(URI uri) {
-        this.uri = uri;
-    }
+	public StaticAllowFromStrategy(URI uri) {
+		this.uri = uri;
+	}
 
-    public String getAllowFromValue(HttpServletRequest request) {
-        return uri.toString();
-    }
+	public String getAllowFromValue(HttpServletRequest request) {
+		return uri.toString();
+	}
 }

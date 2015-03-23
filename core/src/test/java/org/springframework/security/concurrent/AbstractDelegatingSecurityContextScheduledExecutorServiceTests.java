@@ -24,61 +24,73 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 /**
- * Abstract class for testing {@link DelegatingSecurityContextScheduledExecutorService} which allows customization of
- * how {@link DelegatingSecurityContextScheduledExecutorService} and its mocks are created.
+ * Abstract class for testing {@link DelegatingSecurityContextScheduledExecutorService}
+ * which allows customization of how
+ * {@link DelegatingSecurityContextScheduledExecutorService} and its mocks are created.
  *
  * @author Rob Winch
  * @since 3.2
  * @see CurrentDelegatingSecurityContextScheduledExecutorServiceTests
  * @see ExplicitDelegatingSecurityContextScheduledExecutorServiceTests
  */
-public abstract class AbstractDelegatingSecurityContextScheduledExecutorServiceTests extends
-        AbstractDelegatingSecurityContextExecutorServiceTests {
-    @Mock
-    private ScheduledFuture<Object> expectedResult;
+public abstract class AbstractDelegatingSecurityContextScheduledExecutorServiceTests
+		extends AbstractDelegatingSecurityContextExecutorServiceTests {
+	@Mock
+	private ScheduledFuture<Object> expectedResult;
 
-    private DelegatingSecurityContextScheduledExecutorService executor;
+	private DelegatingSecurityContextScheduledExecutorService executor;
 
-    @Before
-    public final void setUpExecutor() {
-        executor = create();
-    }
+	@Before
+	public final void setUpExecutor() {
+		executor = create();
+	}
 
-    @Test
-    @SuppressWarnings("unchecked")
-    public void scheduleRunnable() {
-        when((ScheduledFuture<Object>)delegate.schedule(wrappedRunnable, 1, TimeUnit.SECONDS)).thenReturn(expectedResult);
-        ScheduledFuture<?> result = executor.schedule(runnable, 1, TimeUnit.SECONDS);
-        assertThat(result).isEqualTo(expectedResult);
-        verify(delegate).schedule(wrappedRunnable, 1, TimeUnit.SECONDS);
-    }
+	@Test
+	@SuppressWarnings("unchecked")
+	public void scheduleRunnable() {
+		when(
+				(ScheduledFuture<Object>) delegate.schedule(wrappedRunnable, 1,
+						TimeUnit.SECONDS)).thenReturn(expectedResult);
+		ScheduledFuture<?> result = executor.schedule(runnable, 1, TimeUnit.SECONDS);
+		assertThat(result).isEqualTo(expectedResult);
+		verify(delegate).schedule(wrappedRunnable, 1, TimeUnit.SECONDS);
+	}
 
-    @Test
-    public void scheduleCallable() {
-        when((ScheduledFuture<Object>)delegate.schedule(wrappedCallable, 1, TimeUnit.SECONDS)).thenReturn(expectedResult);
-        ScheduledFuture<Object> result = executor.schedule(callable, 1, TimeUnit.SECONDS);
-        assertThat(result).isEqualTo(expectedResult);
-        verify(delegate).schedule(wrappedCallable, 1, TimeUnit.SECONDS);
-    }
+	@Test
+	public void scheduleCallable() {
+		when(
+				(ScheduledFuture<Object>) delegate.schedule(wrappedCallable, 1,
+						TimeUnit.SECONDS)).thenReturn(expectedResult);
+		ScheduledFuture<Object> result = executor.schedule(callable, 1, TimeUnit.SECONDS);
+		assertThat(result).isEqualTo(expectedResult);
+		verify(delegate).schedule(wrappedCallable, 1, TimeUnit.SECONDS);
+	}
 
-    @Test
-    @SuppressWarnings("unchecked")
-    public void scheduleAtFixedRate() {
-        when((ScheduledFuture<Object>)delegate.scheduleAtFixedRate(wrappedRunnable, 1, 2, TimeUnit.SECONDS)).thenReturn(expectedResult);
-        ScheduledFuture<?> result = executor.scheduleAtFixedRate(runnable, 1, 2, TimeUnit.SECONDS);
-        assertThat(result).isEqualTo(expectedResult);
-        verify(delegate).scheduleAtFixedRate(wrappedRunnable, 1, 2, TimeUnit.SECONDS);
-    }
+	@Test
+	@SuppressWarnings("unchecked")
+	public void scheduleAtFixedRate() {
+		when(
+				(ScheduledFuture<Object>) delegate.scheduleAtFixedRate(wrappedRunnable,
+						1, 2, TimeUnit.SECONDS)).thenReturn(expectedResult);
+		ScheduledFuture<?> result = executor.scheduleAtFixedRate(runnable, 1, 2,
+				TimeUnit.SECONDS);
+		assertThat(result).isEqualTo(expectedResult);
+		verify(delegate).scheduleAtFixedRate(wrappedRunnable, 1, 2, TimeUnit.SECONDS);
+	}
 
-    @Test
-    @SuppressWarnings("unchecked")
-    public void scheduleWithFixedDelay() {
-        when((ScheduledFuture<Object>)delegate.scheduleWithFixedDelay(wrappedRunnable, 1, 2, TimeUnit.SECONDS)).thenReturn(expectedResult);
-        ScheduledFuture<?> result = executor.scheduleWithFixedDelay(runnable, 1, 2, TimeUnit.SECONDS);
-        assertThat(result).isEqualTo(expectedResult);
-        verify(delegate).scheduleWithFixedDelay(wrappedRunnable, 1, 2, TimeUnit.SECONDS);
-    }
+	@Test
+	@SuppressWarnings("unchecked")
+	public void scheduleWithFixedDelay() {
+		when(
+				(ScheduledFuture<Object>) delegate.scheduleWithFixedDelay(
+						wrappedRunnable, 1, 2, TimeUnit.SECONDS)).thenReturn(
+				expectedResult);
+		ScheduledFuture<?> result = executor.scheduleWithFixedDelay(runnable, 1, 2,
+				TimeUnit.SECONDS);
+		assertThat(result).isEqualTo(expectedResult);
+		verify(delegate).scheduleWithFixedDelay(wrappedRunnable, 1, 2, TimeUnit.SECONDS);
+	}
 
-    @Override
-    protected abstract DelegatingSecurityContextScheduledExecutorService create();
+	@Override
+	protected abstract DelegatingSecurityContextScheduledExecutorService create();
 }

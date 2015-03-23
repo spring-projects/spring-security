@@ -31,7 +31,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-
 /**
  * Tests {@link ContactManager}.
  *
@@ -39,130 +38,137 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @author Ben Alex
  * @author Luke Taylor
  */
-@ContextConfiguration(locations={
-                "/applicationContext-security.xml",
-                "/applicationContext-common-authorization.xml",
-                "/applicationContext-common-business.xml"})
+@ContextConfiguration(locations = { "/applicationContext-security.xml",
+		"/applicationContext-common-authorization.xml",
+		"/applicationContext-common-business.xml" })
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ContactManagerTests {
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    @Autowired
-    protected ContactManager contactManager;
+	@Autowired
+	protected ContactManager contactManager;
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    void assertContainsContact(long id, List<Contact> contacts) {
-        for(Contact contact : contacts) {
-            if (contact.getId().equals(Long.valueOf(id))) {
-                return;
-            }
-        }
+	void assertContainsContact(long id, List<Contact> contacts) {
+		for (Contact contact : contacts) {
+			if (contact.getId().equals(Long.valueOf(id))) {
+				return;
+			}
+		}
 
-        fail("List of contacts should have contained: " + id);
-    }
+		fail("List of contacts should have contained: " + id);
+	}
 
-    void assertDoestNotContainContact(long id, List<Contact> contacts) {
-        for(Contact contact : contacts) {
-            if (contact.getId().equals(Long.valueOf(id))) {
-                fail("List of contact should NOT (but did) contain: " + id);
-            }
-        }
-    }
+	void assertDoestNotContainContact(long id, List<Contact> contacts) {
+		for (Contact contact : contacts) {
+			if (contact.getId().equals(Long.valueOf(id))) {
+				fail("List of contact should NOT (but did) contain: " + id);
+			}
+		}
+	}
 
-    /**
-     * Locates the first <code>Contact</code> of the exact name specified.
-     * <p>
-     * Uses the {@link ContactManager#getAll()} method.
-     *
-     * @param id Identify of the contact to locate (must be an exact match)
-     *
-     * @return the domain or <code>null</code> if not found
-     */
-    Contact getContact(String id) {
-        for(Contact contact : contactManager.getAll()) {
-            if (contact.getId().equals(id)) {
-                return contact;
-            }
-        }
+	/**
+	 * Locates the first <code>Contact</code> of the exact name specified.
+	 * <p>
+	 * Uses the {@link ContactManager#getAll()} method.
+	 *
+	 * @param id Identify of the contact to locate (must be an exact match)
+	 *
+	 * @return the domain or <code>null</code> if not found
+	 */
+	Contact getContact(String id) {
+		for (Contact contact : contactManager.getAll()) {
+			if (contact.getId().equals(id)) {
+				return contact;
+			}
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    private void makeActiveUser(String username) {
-        String password = "";
+	private void makeActiveUser(String username) {
+		String password = "";
 
-        if ("rod".equals(username)) {
-            password = "koala";
-        } else if ("dianne".equals(username)) {
-            password = "emu";
-        } else if ("scott".equals(username)) {
-            password = "wombat";
-        } else if ("peter".equals(username)) {
-            password = "opal";
-        }
+		if ("rod".equals(username)) {
+			password = "koala";
+		}
+		else if ("dianne".equals(username)) {
+			password = "emu";
+		}
+		else if ("scott".equals(username)) {
+			password = "wombat";
+		}
+		else if ("peter".equals(username)) {
+			password = "opal";
+		}
 
-        Authentication authRequest = new UsernamePasswordAuthenticationToken(username, password);
-        SecurityContextHolder.getContext().setAuthentication(authRequest);
-    }
+		Authentication authRequest = new UsernamePasswordAuthenticationToken(username,
+				password);
+		SecurityContextHolder.getContext().setAuthentication(authRequest);
+	}
 
-    @After
-    public void clearContext() {
-        SecurityContextHolder.clearContext();
-    }
+	@After
+	public void clearContext() {
+		SecurityContextHolder.clearContext();
+	}
 
-    @Test
-    public void testDianne() {
-        makeActiveUser("dianne"); // has ROLE_USER
+	@Test
+	public void testDianne() {
+		makeActiveUser("dianne"); // has ROLE_USER
 
-        List<Contact> contacts = contactManager.getAll();
-        assertEquals(4, contacts.size());
+		List<Contact> contacts = contactManager.getAll();
+		assertEquals(4, contacts.size());
 
-        assertContainsContact(4, contacts);
-        assertContainsContact(5, contacts);
-        assertContainsContact(6, contacts);
-        assertContainsContact(8, contacts);
+		assertContainsContact(4, contacts);
+		assertContainsContact(5, contacts);
+		assertContainsContact(6, contacts);
+		assertContainsContact(8, contacts);
 
-        assertDoestNotContainContact(1, contacts);
-        assertDoestNotContainContact(2, contacts);
-        assertDoestNotContainContact(3, contacts);
-    }
+		assertDoestNotContainContact(1, contacts);
+		assertDoestNotContainContact(2, contacts);
+		assertDoestNotContainContact(3, contacts);
+	}
 
-    @Test
-    public void testrod() {
-        makeActiveUser("rod"); // has ROLE_SUPERVISOR
+	@Test
+	public void testrod() {
+		makeActiveUser("rod"); // has ROLE_SUPERVISOR
 
-        List<Contact> contacts = contactManager.getAll();
+		List<Contact> contacts = contactManager.getAll();
 
-        assertEquals(4, contacts.size());
+		assertEquals(4, contacts.size());
 
-        assertContainsContact(1, contacts);
-        assertContainsContact(2, contacts);
-        assertContainsContact(3, contacts);
-        assertContainsContact(4, contacts);
+		assertContainsContact(1, contacts);
+		assertContainsContact(2, contacts);
+		assertContainsContact(3, contacts);
+		assertContainsContact(4, contacts);
 
-        assertDoestNotContainContact(5, contacts);
+		assertDoestNotContainContact(5, contacts);
 
-        Contact c1 = contactManager.getById(new Long(4));
+		Contact c1 = contactManager.getById(new Long(4));
 
-        contactManager.deletePermission(c1, new PrincipalSid("bob"), BasePermission.ADMINISTRATION);
-        contactManager.addPermission(c1, new PrincipalSid("bob"), BasePermission.ADMINISTRATION);
-    }
+		contactManager.deletePermission(c1, new PrincipalSid("bob"),
+				BasePermission.ADMINISTRATION);
+		contactManager.addPermission(c1, new PrincipalSid("bob"),
+				BasePermission.ADMINISTRATION);
+	}
 
-    @Test
-    public void testScott() {
-        makeActiveUser("scott"); // has ROLE_USER
+	@Test
+	public void testScott() {
+		makeActiveUser("scott"); // has ROLE_USER
 
-        List<Contact> contacts = contactManager.getAll();
+		List<Contact> contacts = contactManager.getAll();
 
-        assertEquals(5, contacts.size());
+		assertEquals(5, contacts.size());
 
-        assertContainsContact(4, contacts);
-        assertContainsContact(6, contacts);
-        assertContainsContact(7, contacts);
-        assertContainsContact(8, contacts);
-        assertContainsContact(9, contacts);
+		assertContainsContact(4, contacts);
+		assertContainsContact(6, contacts);
+		assertContainsContact(7, contacts);
+		assertContainsContact(8, contacts);
+		assertContainsContact(9, contacts);
 
-        assertDoestNotContainContact(1, contacts);
-    }
+		assertDoestNotContainContact(1, contacts);
+	}
 }

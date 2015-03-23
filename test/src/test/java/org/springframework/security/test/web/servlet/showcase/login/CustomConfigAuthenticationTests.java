@@ -43,84 +43,82 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes=CustomConfigAuthenticationTests.Config.class)
+@ContextConfiguration(classes = CustomConfigAuthenticationTests.Config.class)
 @WebAppConfiguration
 public class CustomConfigAuthenticationTests {
 
-    @Autowired
-    private WebApplicationContext context;
+	@Autowired
+	private WebApplicationContext context;
 
-    @Autowired
-    private SecurityContextRepository securityContextRepository;
+	@Autowired
+	private SecurityContextRepository securityContextRepository;
 
-    private MockMvc mvc;
+	private MockMvc mvc;
 
-    @Before
-    public void setup() {
-        mvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .apply(springSecurity())
-                .build();
-    }
+	@Before
+	public void setup() {
+		mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+	}
 
-    @Test
-    public void authenticationSuccess() throws Exception {
-        mvc
-            .perform(formLogin("/authenticate").user("user","user").password("pass","password"))
-            .andExpect(status().isMovedTemporarily())
-            .andExpect(redirectedUrl("/"))
-            .andExpect(authenticated().withUsername("user"));
-    }
+	@Test
+	public void authenticationSuccess() throws Exception {
+		mvc.perform(
+				formLogin("/authenticate").user("user", "user").password("pass",
+						"password")).andExpect(status().isMovedTemporarily())
+				.andExpect(redirectedUrl("/"))
+				.andExpect(authenticated().withUsername("user"));
+	}
 
+	@Test
+	public void withUserSuccess() throws Exception {
+		mvc.perform(get("/").with(user("user"))).andExpect(status().isNotFound())
+				.andExpect(authenticated().withUsername("user"));
+	}
 
-    @Test
-    public void withUserSuccess() throws Exception {
-        mvc
-            .perform(get("/").with(user("user")))
-            .andExpect(status().isNotFound())
-            .andExpect(authenticated().withUsername("user"));
-    }
+	@Test
+	public void authenticationFailed() throws Exception {
+		mvc.perform(
+				formLogin("/authenticate").user("user", "notfound").password("pass",
+						"invalid")).andExpect(status().isMovedTemporarily())
+				.andExpect(redirectedUrl("/authenticate?error"))
+				.andExpect(unauthenticated());
+	}
 
-    @Test
-    public void authenticationFailed() throws Exception {
-        mvc
-            .perform(formLogin("/authenticate").user("user","notfound").password("pass","invalid"))
-            .andExpect(status().isMovedTemporarily())
-            .andExpect(redirectedUrl("/authenticate?error"))
-            .andExpect(unauthenticated());
-    }
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class Config extends WebSecurityConfigurerAdapter {
 
-    @EnableWebSecurity
-    @EnableWebMvc
-    static class Config extends WebSecurityConfigurerAdapter {
+		// @formatter:off
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.securityContext()
+					.securityContextRepository(securityContextRepository())
+					.and()
+				.formLogin()
+					.usernameParameter("user")
+					.passwordParameter("pass")
+					.loginPage("/authenticate");
+		}
+		// @formatter:on
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .anyRequest().authenticated()
-                    .and()
-                .securityContext()
-                    .securityContextRepository(securityContextRepository())
-                    .and()
-                .formLogin()
-                    .usernameParameter("user")
-                    .passwordParameter("pass")
-                    .loginPage("/authenticate");
-        }
+		// @formatter:off
+		@Autowired
+		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			auth
+				.inMemoryAuthentication()
+					.withUser("user").password("password").roles("USER");
+		}
+		// @formatter:on
 
-        @Autowired
-        public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-            auth
-                .inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER");
-        }
-
-        @Bean
-        public SecurityContextRepository securityContextRepository() {
-            HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
-            repo.setSpringSecurityContextKey("CUSTOM");
-            return repo;
-        }
-    }
+		@Bean
+		public SecurityContextRepository securityContextRepository() {
+			HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+			repo.setSpringSecurityContextKey("CUSTOM");
+			return repo;
+		}
+	}
 }

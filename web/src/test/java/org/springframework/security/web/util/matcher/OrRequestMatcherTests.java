@@ -38,88 +38,87 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class OrRequestMatcherTests {
-    @Mock
-    private RequestMatcher delegate;
+	@Mock
+	private RequestMatcher delegate;
 
-    @Mock
-    private RequestMatcher delegate2;
+	@Mock
+	private RequestMatcher delegate2;
 
-    @Mock
-    private HttpServletRequest request;
+	@Mock
+	private HttpServletRequest request;
 
-    private RequestMatcher matcher;
+	private RequestMatcher matcher;
 
-    @Test(expected = NullPointerException.class)
-    public void constructorNullArray() {
-        new OrRequestMatcher((RequestMatcher[]) null);
-    }
+	@Test(expected = NullPointerException.class)
+	public void constructorNullArray() {
+		new OrRequestMatcher((RequestMatcher[]) null);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorArrayContainsNull() {
-        new OrRequestMatcher((RequestMatcher)null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorArrayContainsNull() {
+		new OrRequestMatcher((RequestMatcher) null);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorEmptyArray() {
-        new OrRequestMatcher(new RequestMatcher[0]);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorEmptyArray() {
+		new OrRequestMatcher(new RequestMatcher[0]);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullList() {
-        new OrRequestMatcher((List<RequestMatcher>) null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullList() {
+		new OrRequestMatcher((List<RequestMatcher>) null);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorListContainsNull() {
-        new OrRequestMatcher(Arrays.asList((RequestMatcher)null));
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorListContainsNull() {
+		new OrRequestMatcher(Arrays.asList((RequestMatcher) null));
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorEmptyList() {
-        new OrRequestMatcher(Collections.<RequestMatcher>emptyList());
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorEmptyList() {
+		new OrRequestMatcher(Collections.<RequestMatcher> emptyList());
+	}
 
-    @Test
-    public void matchesSingleTrue() {
-        when(delegate.matches(request)).thenReturn(true);
-        matcher = new OrRequestMatcher(delegate);
+	@Test
+	public void matchesSingleTrue() {
+		when(delegate.matches(request)).thenReturn(true);
+		matcher = new OrRequestMatcher(delegate);
 
-        assertThat(matcher.matches(request)).isTrue();
-    }
+		assertThat(matcher.matches(request)).isTrue();
+	}
 
-    @Test
-    public void matchesMultiTrue() {
-        when(delegate.matches(request)).thenReturn(true);
-        when(delegate2.matches(request)).thenReturn(true);
-        matcher = new OrRequestMatcher(delegate, delegate2);
+	@Test
+	public void matchesMultiTrue() {
+		when(delegate.matches(request)).thenReturn(true);
+		when(delegate2.matches(request)).thenReturn(true);
+		matcher = new OrRequestMatcher(delegate, delegate2);
 
-        assertThat(matcher.matches(request)).isTrue();
-    }
+		assertThat(matcher.matches(request)).isTrue();
+	}
 
+	@Test
+	public void matchesSingleFalse() {
+		when(delegate.matches(request)).thenReturn(false);
+		matcher = new OrRequestMatcher(delegate);
 
-    @Test
-    public void matchesSingleFalse() {
-        when(delegate.matches(request)).thenReturn(false);
-        matcher = new OrRequestMatcher(delegate);
+		assertThat(matcher.matches(request)).isFalse();
+	}
 
-        assertThat(matcher.matches(request)).isFalse();
-    }
+	@Test
+	public void matchesMultiBothFalse() {
+		when(delegate.matches(request)).thenReturn(false);
+		when(delegate2.matches(request)).thenReturn(false);
+		matcher = new OrRequestMatcher(delegate, delegate2);
 
-    @Test
-    public void matchesMultiBothFalse() {
-        when(delegate.matches(request)).thenReturn(false);
-        when(delegate2.matches(request)).thenReturn(false);
-        matcher = new OrRequestMatcher(delegate, delegate2);
+		assertThat(matcher.matches(request)).isFalse();
+	}
 
-        assertThat(matcher.matches(request)).isFalse();
-    }
+	@Test
+	public void matchesMultiSingleFalse() {
+		when(delegate.matches(request)).thenReturn(true);
+		when(delegate2.matches(request)).thenReturn(false);
+		matcher = new OrRequestMatcher(delegate, delegate2);
 
-    @Test
-    public void matchesMultiSingleFalse() {
-        when(delegate.matches(request)).thenReturn(true);
-        when(delegate2.matches(request)).thenReturn(false);
-        matcher = new OrRequestMatcher(delegate, delegate2);
-
-        assertThat(matcher.matches(request)).isTrue();
-    }
+		assertThat(matcher.matches(request)).isTrue();
+	}
 }

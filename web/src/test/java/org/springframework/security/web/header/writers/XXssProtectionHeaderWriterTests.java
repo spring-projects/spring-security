@@ -30,64 +30,67 @@ import org.springframework.mock.web.MockHttpServletResponse;
  */
 public class XXssProtectionHeaderWriterTests {
 
-    private MockHttpServletRequest request;
+	private MockHttpServletRequest request;
 
-    private MockHttpServletResponse response;
+	private MockHttpServletResponse response;
 
-    private XXssProtectionHeaderWriter writer;
+	private XXssProtectionHeaderWriter writer;
 
-    @Before
-    public void setup() {
-        request = new MockHttpServletRequest();
-        response = new MockHttpServletResponse();
-        writer = new XXssProtectionHeaderWriter();
-    }
+	@Before
+	public void setup() {
+		request = new MockHttpServletRequest();
+		response = new MockHttpServletResponse();
+		writer = new XXssProtectionHeaderWriter();
+	}
 
-    @Test
-    public void writeHeaders() {
-        writer.writeHeaders(request, response);
+	@Test
+	public void writeHeaders() {
+		writer.writeHeaders(request, response);
 
-        assertThat(response.getHeaderNames().size()).isEqualTo(1);
-        assertThat(response.getHeaderValues("X-XSS-Protection")).isEqualTo(Arrays.asList("1; mode=block"));
-    }
+		assertThat(response.getHeaderNames().size()).isEqualTo(1);
+		assertThat(response.getHeaderValues("X-XSS-Protection")).isEqualTo(
+				Arrays.asList("1; mode=block"));
+	}
 
-    @Test
-    public void writeHeadersNoBlock() {
-        writer.setBlock(false);
+	@Test
+	public void writeHeadersNoBlock() {
+		writer.setBlock(false);
 
-        writer.writeHeaders(request, response);
+		writer.writeHeaders(request, response);
 
-        assertThat(response.getHeaderNames().size()).isEqualTo(1);
-        assertThat(response.getHeaderValues("X-XSS-Protection")).isEqualTo(Arrays.asList("1"));
-    }
+		assertThat(response.getHeaderNames().size()).isEqualTo(1);
+		assertThat(response.getHeaderValues("X-XSS-Protection")).isEqualTo(
+				Arrays.asList("1"));
+	}
 
-    @Test
-    public void writeHeadersDisabled() {
-        writer.setBlock(false);
-        writer.setEnabled(false);
+	@Test
+	public void writeHeadersDisabled() {
+		writer.setBlock(false);
+		writer.setEnabled(false);
 
-        writer.writeHeaders(request, response);
+		writer.writeHeaders(request, response);
 
-        assertThat(response.getHeaderNames().size()).isEqualTo(1);
-        assertThat(response.getHeaderValues("X-XSS-Protection")).isEqualTo(Arrays.asList("0"));
-    }
+		assertThat(response.getHeaderNames().size()).isEqualTo(1);
+		assertThat(response.getHeaderValues("X-XSS-Protection")).isEqualTo(
+				Arrays.asList("0"));
+	}
 
-    @Test
-    public void setEnabledFalseWithBlockTrue() {
-        writer.setEnabled(false);
+	@Test
+	public void setEnabledFalseWithBlockTrue() {
+		writer.setEnabled(false);
 
-        writer.writeHeaders(request, response);
+		writer.writeHeaders(request, response);
 
-        assertThat(response.getHeaderNames().size()).isEqualTo(1);
-        assertThat(response.getHeaderValues("X-XSS-Protection")).isEqualTo(Arrays.asList("0"));
-    }
+		assertThat(response.getHeaderNames().size()).isEqualTo(1);
+		assertThat(response.getHeaderValues("X-XSS-Protection")).isEqualTo(
+				Arrays.asList("0"));
+	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void setBlockTrueWithEnabledFalse() {
+		writer.setBlock(false);
+		writer.setEnabled(false);
 
-    @Test(expected=IllegalArgumentException.class)
-    public void setBlockTrueWithEnabledFalse() {
-        writer.setBlock(false);
-        writer.setEnabled(false);
-
-        writer.setBlock(true);
-    }
+		writer.setBlock(true);
+	}
 }

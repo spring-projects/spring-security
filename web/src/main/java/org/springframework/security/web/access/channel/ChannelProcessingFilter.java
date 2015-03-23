@@ -33,130 +33,139 @@ import org.springframework.security.web.access.intercept.FilterInvocationSecurit
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
 
-
 /**
  * Ensures a web request is delivered over the required channel.
  * <p>
  * Internally uses a {@link FilterInvocation} to represent the request, allowing a
- * {@code FilterInvocationSecurityMetadataSource} to be used to lookup the attributes which apply.
+ * {@code FilterInvocationSecurityMetadataSource} to be used to lookup the attributes
+ * which apply.
  * <p>
  * Delegates the actual channel security decisions and necessary actions to the configured
- * {@link ChannelDecisionManager}. If a response is committed by the {@code ChannelDecisionManager},
- * the filter chain will not proceed.
+ * {@link ChannelDecisionManager}. If a response is committed by the
+ * {@code ChannelDecisionManager}, the filter chain will not proceed.
  * <p>
  * The most common usage is to ensure that a request takes place over HTTPS, where the
- * {@link ChannelDecisionManagerImpl} is configured with a {@link SecureChannelProcessor} and an
- * {@link InsecureChannelProcessor}. A typical configuration would be
+ * {@link ChannelDecisionManagerImpl} is configured with a {@link SecureChannelProcessor}
+ * and an {@link InsecureChannelProcessor}. A typical configuration would be
+ * 
  * <pre>
  *
-&lt;bean id="channelProcessingFilter" class="org.springframework.security.web.access.channel.ChannelProcessingFilter">
-  &lt;property name="channelDecisionManager" ref="channelDecisionManager"/>
-  &lt;property name="securityMetadataSource">
-    &lt;security:filter-security-metadata-source request-matcher="regex">
-      &lt;security:intercept-url pattern="\A/secure/.*\Z" access="REQUIRES_SECURE_CHANNEL"/>
-      &lt;security:intercept-url pattern="\A/login.jsp.*\Z" access="REQUIRES_SECURE_CHANNEL"/>
-      &lt;security:intercept-url pattern="\A/.*\Z" access="ANY_CHANNEL"/>
-    &lt;/security:filter-security-metadata-source>
-  &lt;/property>
-&lt;/bean>
-
-&lt;bean id="channelDecisionManager" class="org.springframework.security.web.access.channel.ChannelDecisionManagerImpl">
-  &lt;property name="channelProcessors">
-    &lt;list>
-    &lt;ref bean="secureChannelProcessor"/>
-    &lt;ref bean="insecureChannelProcessor"/>
-    &lt;/list>
-  &lt;/property>
-&lt;/bean>
-
-&lt;bean id="secureChannelProcessor"
-  class="org.springframework.security.web.access.channel.SecureChannelProcessor"/>
-&lt;bean id="insecureChannelProcessor"
-  class="org.springframework.security.web.access.channel.InsecureChannelProcessor"/>
-
+ * &lt;bean id="channelProcessingFilter" class="org.springframework.security.web.access.channel.ChannelProcessingFilter">
+ *   &lt;property name="channelDecisionManager" ref="channelDecisionManager"/>
+ *   &lt;property name="securityMetadataSource">
+ *     &lt;security:filter-security-metadata-source request-matcher="regex">
+ *       &lt;security:intercept-url pattern="\A/secure/.*\Z" access="REQUIRES_SECURE_CHANNEL"/>
+ *       &lt;security:intercept-url pattern="\A/login.jsp.*\Z" access="REQUIRES_SECURE_CHANNEL"/>
+ *       &lt;security:intercept-url pattern="\A/.*\Z" access="ANY_CHANNEL"/>
+ *     &lt;/security:filter-security-metadata-source>
+ *   &lt;/property>
+ * &lt;/bean>
+ * 
+ * &lt;bean id="channelDecisionManager" class="org.springframework.security.web.access.channel.ChannelDecisionManagerImpl">
+ *   &lt;property name="channelProcessors">
+ *     &lt;list>
+ *     &lt;ref bean="secureChannelProcessor"/>
+ *     &lt;ref bean="insecureChannelProcessor"/>
+ *     &lt;/list>
+ *   &lt;/property>
+ * &lt;/bean>
+ * 
+ * &lt;bean id="secureChannelProcessor"
+ *   class="org.springframework.security.web.access.channel.SecureChannelProcessor"/>
+ * &lt;bean id="insecureChannelProcessor"
+ *   class="org.springframework.security.web.access.channel.InsecureChannelProcessor"/>
+ * 
  * </pre>
- * which would force the login form and any access to the {@code /secure} path to be made over HTTPS.
+ * 
+ * which would force the login form and any access to the {@code /secure} path to be made
+ * over HTTPS.
  *
  * @author Ben Alex
  */
 public class ChannelProcessingFilter extends GenericFilterBean {
 
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private ChannelDecisionManager channelDecisionManager;
-    private FilterInvocationSecurityMetadataSource securityMetadataSource;
+	private ChannelDecisionManager channelDecisionManager;
+	private FilterInvocationSecurityMetadataSource securityMetadataSource;
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    @Override
-    public void afterPropertiesSet() {
-        Assert.notNull(securityMetadataSource, "securityMetadataSource must be specified");
-        Assert.notNull(channelDecisionManager, "channelDecisionManager must be specified");
+	@Override
+	public void afterPropertiesSet() {
+		Assert.notNull(securityMetadataSource, "securityMetadataSource must be specified");
+		Assert.notNull(channelDecisionManager, "channelDecisionManager must be specified");
 
-        Collection<ConfigAttribute> attrDefs = this.securityMetadataSource.getAllConfigAttributes();
+		Collection<ConfigAttribute> attrDefs = this.securityMetadataSource
+				.getAllConfigAttributes();
 
-        if (attrDefs == null) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("Could not validate configuration attributes as the FilterInvocationSecurityMetadataSource did "
-                        + "not return any attributes");
-            }
+		if (attrDefs == null) {
+			if (logger.isWarnEnabled()) {
+				logger.warn("Could not validate configuration attributes as the FilterInvocationSecurityMetadataSource did "
+						+ "not return any attributes");
+			}
 
-            return;
-        }
+			return;
+		}
 
-        Set<ConfigAttribute> unsupportedAttributes = new HashSet<ConfigAttribute>();
+		Set<ConfigAttribute> unsupportedAttributes = new HashSet<ConfigAttribute>();
 
-        for (ConfigAttribute attr : attrDefs) {
-            if (!this.channelDecisionManager.supports(attr)) {
-                unsupportedAttributes.add(attr);
-            }
-        }
+		for (ConfigAttribute attr : attrDefs) {
+			if (!this.channelDecisionManager.supports(attr)) {
+				unsupportedAttributes.add(attr);
+			}
+		}
 
-        if (unsupportedAttributes.size() == 0) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Validated configuration attributes");
-            }
-        } else {
-            throw new IllegalArgumentException("Unsupported configuration attributes: " + unsupportedAttributes);
-        }
-    }
+		if (unsupportedAttributes.size() == 0) {
+			if (logger.isInfoEnabled()) {
+				logger.info("Validated configuration attributes");
+			}
+		}
+		else {
+			throw new IllegalArgumentException("Unsupported configuration attributes: "
+					+ unsupportedAttributes);
+		}
+	}
 
-    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
-            throws IOException, ServletException {
-        HttpServletRequest request = (HttpServletRequest) req;
-        HttpServletResponse response = (HttpServletResponse) res;
+	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+			throws IOException, ServletException {
+		HttpServletRequest request = (HttpServletRequest) req;
+		HttpServletResponse response = (HttpServletResponse) res;
 
-        FilterInvocation fi = new FilterInvocation(request, response, chain);
-        Collection<ConfigAttribute> attr = this.securityMetadataSource.getAttributes(fi);
+		FilterInvocation fi = new FilterInvocation(request, response, chain);
+		Collection<ConfigAttribute> attr = this.securityMetadataSource.getAttributes(fi);
 
-        if (attr != null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Request: " + fi.toString() + "; ConfigAttributes: " + attr);
-            }
+		if (attr != null) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Request: " + fi.toString() + "; ConfigAttributes: " + attr);
+			}
 
-            channelDecisionManager.decide(fi, attr);
+			channelDecisionManager.decide(fi, attr);
 
-            if (fi.getResponse().isCommitted()) {
-                return;
-            }
-        }
+			if (fi.getResponse().isCommitted()) {
+				return;
+			}
+		}
 
-        chain.doFilter(request, response);
-    }
+		chain.doFilter(request, response);
+	}
 
-    protected ChannelDecisionManager getChannelDecisionManager() {
-        return channelDecisionManager;
-    }
+	protected ChannelDecisionManager getChannelDecisionManager() {
+		return channelDecisionManager;
+	}
 
-    protected FilterInvocationSecurityMetadataSource getSecurityMetadataSource() {
-        return securityMetadataSource;
-    }
+	protected FilterInvocationSecurityMetadataSource getSecurityMetadataSource() {
+		return securityMetadataSource;
+	}
 
-    public void setChannelDecisionManager(ChannelDecisionManager channelDecisionManager) {
-        this.channelDecisionManager = channelDecisionManager;
-    }
+	public void setChannelDecisionManager(ChannelDecisionManager channelDecisionManager) {
+		this.channelDecisionManager = channelDecisionManager;
+	}
 
-    public void setSecurityMetadataSource(FilterInvocationSecurityMetadataSource filterInvocationSecurityMetadataSource) {
-        this.securityMetadataSource = filterInvocationSecurityMetadataSource;
-    }
+	public void setSecurityMetadataSource(
+			FilterInvocationSecurityMetadataSource filterInvocationSecurityMetadataSource) {
+		this.securityMetadataSource = filterInvocationSecurityMetadataSource;
+	}
 }

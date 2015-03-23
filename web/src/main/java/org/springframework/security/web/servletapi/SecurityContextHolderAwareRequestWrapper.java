@@ -15,7 +15,6 @@
 
 package org.springframework.security.web.servletapi;
 
-
 import java.security.Principal;
 import java.util.Collection;
 
@@ -30,11 +29,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.Assert;
 
-
 /**
  * A Spring Security-aware <code>HttpServletRequestWrapper</code>, which uses the
- * <code>SecurityContext</code>-defined <code>Authentication</code> object to implement the servlet API security
- * methods:
+ * <code>SecurityContext</code>-defined <code>Authentication</code> object to implement
+ * the servlet API security methods:
  *
  * <ul>
  * <li>{@link #getUserPrincipal()}</li>
@@ -50,145 +48,152 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  */
 public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequestWrapper {
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private final AuthenticationTrustResolver trustResolver;
+	private final AuthenticationTrustResolver trustResolver;
 
-    /**
-     * The prefix passed by the filter. It will be prepended to any supplied role values before
-     * comparing it with the roles obtained from the security context.
-     */
-    private final String rolePrefix;
+	/**
+	 * The prefix passed by the filter. It will be prepended to any supplied role values
+	 * before comparing it with the roles obtained from the security context.
+	 */
+	private final String rolePrefix;
 
-    //~ Constructors ===================================================================================================
+	// ~ Constructors
+	// ===================================================================================================
 
-    /**
-     * Creates a new instance with {@link AuthenticationTrustResolverImpl}.
-     *
-     * @param request
-     * @param rolePrefix
-     */
-    public SecurityContextHolderAwareRequestWrapper(HttpServletRequest request, String rolePrefix) {
-        this(request, new AuthenticationTrustResolverImpl(), rolePrefix);
-    }
+	/**
+	 * Creates a new instance with {@link AuthenticationTrustResolverImpl}.
+	 *
+	 * @param request
+	 * @param rolePrefix
+	 */
+	public SecurityContextHolderAwareRequestWrapper(HttpServletRequest request,
+			String rolePrefix) {
+		this(request, new AuthenticationTrustResolverImpl(), rolePrefix);
+	}
 
-    /**
-     * Creates a new instance
-     *
-     * @param request the original {@link HttpServletRequest}
-     * @param trustResolver
-     *            the {@link AuthenticationTrustResolver} to use. Cannot be
-     *            null.
-     * @param rolePrefix The prefix to be added to {@link #isUserInRole(String)} or null if no prefix.
-     */
-    public SecurityContextHolderAwareRequestWrapper(HttpServletRequest request, AuthenticationTrustResolver trustResolver, String rolePrefix) {
-        super(request);
-        Assert.notNull(trustResolver, "trustResolver cannot be null");
-        this.rolePrefix = rolePrefix;
-        this.trustResolver = trustResolver;
-    }
+	/**
+	 * Creates a new instance
+	 *
+	 * @param request the original {@link HttpServletRequest}
+	 * @param trustResolver the {@link AuthenticationTrustResolver} to use. Cannot be
+	 * null.
+	 * @param rolePrefix The prefix to be added to {@link #isUserInRole(String)} or null
+	 * if no prefix.
+	 */
+	public SecurityContextHolderAwareRequestWrapper(HttpServletRequest request,
+			AuthenticationTrustResolver trustResolver, String rolePrefix) {
+		super(request);
+		Assert.notNull(trustResolver, "trustResolver cannot be null");
+		this.rolePrefix = rolePrefix;
+		this.trustResolver = trustResolver;
+	}
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    /**
-     * Obtain the current active <code>Authentication</code>
-     *
-     * @return the authentication object or <code>null</code>
-     */
-    private Authentication getAuthentication() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	/**
+	 * Obtain the current active <code>Authentication</code>
+	 *
+	 * @return the authentication object or <code>null</code>
+	 */
+	private Authentication getAuthentication() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if (!trustResolver.isAnonymous(auth)) {
-            return auth;
-        }
+		if (!trustResolver.isAnonymous(auth)) {
+			return auth;
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    /**
-     * Returns the principal's name, as obtained from the <code>SecurityContextHolder</code>. Properly handles
-     * both <code>String</code>-based and <code>UserDetails</code>-based principals.
-     *
-     * @return the username or <code>null</code> if unavailable
-     */
-    @Override
-    public String getRemoteUser() {
-        Authentication auth = getAuthentication();
+	/**
+	 * Returns the principal's name, as obtained from the
+	 * <code>SecurityContextHolder</code>. Properly handles both <code>String</code>-based
+	 * and <code>UserDetails</code>-based principals.
+	 *
+	 * @return the username or <code>null</code> if unavailable
+	 */
+	@Override
+	public String getRemoteUser() {
+		Authentication auth = getAuthentication();
 
-        if ((auth == null) || (auth.getPrincipal() == null)) {
-            return null;
-        }
+		if ((auth == null) || (auth.getPrincipal() == null)) {
+			return null;
+		}
 
-        if (auth.getPrincipal() instanceof UserDetails) {
-            return ((UserDetails) auth.getPrincipal()).getUsername();
-        }
+		if (auth.getPrincipal() instanceof UserDetails) {
+			return ((UserDetails) auth.getPrincipal()).getUsername();
+		}
 
-        return auth.getPrincipal().toString();
-    }
+		return auth.getPrincipal().toString();
+	}
 
-    /**
-     * Returns the <code>Authentication</code> (which is a subclass of <code>Principal</code>), or
-     * <code>null</code> if unavailable.
-     *
-     * @return the <code>Authentication</code>, or <code>null</code>
-     */
-    @Override
-    public Principal getUserPrincipal() {
-        Authentication auth = getAuthentication();
+	/**
+	 * Returns the <code>Authentication</code> (which is a subclass of
+	 * <code>Principal</code>), or <code>null</code> if unavailable.
+	 *
+	 * @return the <code>Authentication</code>, or <code>null</code>
+	 */
+	@Override
+	public Principal getUserPrincipal() {
+		Authentication auth = getAuthentication();
 
-        if ((auth == null) || (auth.getPrincipal() == null)) {
-            return null;
-        }
+		if ((auth == null) || (auth.getPrincipal() == null)) {
+			return null;
+		}
 
-        return auth;
-    }
+		return auth;
+	}
 
-    private boolean isGranted(String role) {
-        Authentication auth = getAuthentication();
+	private boolean isGranted(String role) {
+		Authentication auth = getAuthentication();
 
-        if( rolePrefix != null ) {
-            role = rolePrefix + role;
-        }
+		if (rolePrefix != null) {
+			role = rolePrefix + role;
+		}
 
-        if ((auth == null) || (auth.getPrincipal() == null)) {
-            return false;
-        }
+		if ((auth == null) || (auth.getPrincipal() == null)) {
+			return false;
+		}
 
-        Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
+		Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
 
-        if (authorities == null) {
-            return false;
-        }
+		if (authorities == null) {
+			return false;
+		}
 
+		for (GrantedAuthority grantedAuthority : authorities) {
+			if (role.equals(grantedAuthority.getAuthority())) {
+				return true;
+			}
+		}
 
-        for (GrantedAuthority grantedAuthority : authorities) {
-            if (role.equals(grantedAuthority.getAuthority())) {
-                return true;
-            }
-        }
+		return false;
+	}
 
-        return false;
-    }
+	/**
+	 * Simple searches for an exactly matching
+	 * {@link org.springframework.security.core.GrantedAuthority#getAuthority()}.
+	 * <p>
+	 * Will always return <code>false</code> if the <code>SecurityContextHolder</code>
+	 * contains an <code>Authentication</code> with <code>null</code>
+	 * <code>principal</code> and/or <code>GrantedAuthority[]</code> objects.
+	 *
+	 * @param role the <code>GrantedAuthority</code><code>String</code> representation to
+	 * check for
+	 *
+	 * @return <code>true</code> if an <b>exact</b> (case sensitive) matching granted
+	 * authority is located, <code>false</code> otherwise
+	 */
+	@Override
+	public boolean isUserInRole(String role) {
+		return isGranted(role);
+	}
 
-    /**
-     * Simple searches for an exactly matching {@link org.springframework.security.core.GrantedAuthority#getAuthority()}.
-     * <p>
-     * Will always return <code>false</code> if the <code>SecurityContextHolder</code> contains an
-     * <code>Authentication</code> with <code>null</code><code>principal</code> and/or <code>GrantedAuthority[]</code>
-     * objects.
-     *
-     * @param role the <code>GrantedAuthority</code><code>String</code> representation to check for
-     *
-     * @return <code>true</code> if an <b>exact</b> (case sensitive) matching granted authority is located,
-     *         <code>false</code> otherwise
-     */
-    @Override
-    public boolean isUserInRole(String role) {
-        return isGranted(role);
-    }
-
-    @Override
-    public String toString() {
-        return "SecurityContextHolderAwareRequestWrapper[ " + getRequest() + "]";
-    }
+	@Override
+	public String toString() {
+		return "SecurityContextHolderAwareRequestWrapper[ " + getRequest() + "]";
+	}
 }

@@ -14,13 +14,13 @@ import org.springframework.util.StringUtils;
  */
 public class SimpleMappableRolesRetrieverTests extends TestCase {
 
-    public final void testGetSetMappableRoles() {
-        Set<String> roles = StringUtils.commaDelimitedListToSet("Role1,Role2");
-        SimpleMappableAttributesRetriever r = new SimpleMappableAttributesRetriever();
-        r.setMappableAttributes(roles);
-        Set<String> result = r.getMappableAttributes();
-        assertTrue("Role collections do not match; result: " + result + ", expected: " + roles, roles.containsAll(result)
-                && result.containsAll(roles));
-    }
+	public final void testGetSetMappableRoles() {
+		Set<String> roles = StringUtils.commaDelimitedListToSet("Role1,Role2");
+		SimpleMappableAttributesRetriever r = new SimpleMappableAttributesRetriever();
+		r.setMappableAttributes(roles);
+		Set<String> result = r.getMappableAttributes();
+		assertTrue("Role collections do not match; result: " + result + ", expected: "
+				+ roles, roles.containsAll(result) && result.containsAll(roles));
+	}
 
 }

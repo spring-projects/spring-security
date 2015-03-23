@@ -19,7 +19,6 @@ import junit.framework.TestCase;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 
-
 /**
  * Tests {@link RunAsUserToken}.
  *
@@ -27,44 +26,51 @@ import org.springframework.security.core.authority.AuthorityUtils;
  */
 public class RunAsUserTokenTests extends TestCase {
 
-    public void testAuthenticationSetting() {
-        RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
-                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), UsernamePasswordAuthenticationToken.class);
-        assertTrue(token.isAuthenticated());
-        token.setAuthenticated(false);
-        assertTrue(!token.isAuthenticated());
-    }
+	public void testAuthenticationSetting() {
+		RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
+				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"),
+				UsernamePasswordAuthenticationToken.class);
+		assertTrue(token.isAuthenticated());
+		token.setAuthenticated(false);
+		assertTrue(!token.isAuthenticated());
+	}
 
-    public void testGetters() {
-        RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
-                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), UsernamePasswordAuthenticationToken.class);
-        assertEquals("Test", token.getPrincipal());
-        assertEquals("Password", token.getCredentials());
-        assertEquals("my_password".hashCode(), token.getKeyHash());
-        assertEquals(UsernamePasswordAuthenticationToken.class, token.getOriginalAuthentication());
-    }
+	public void testGetters() {
+		RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
+				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"),
+				UsernamePasswordAuthenticationToken.class);
+		assertEquals("Test", token.getPrincipal());
+		assertEquals("Password", token.getCredentials());
+		assertEquals("my_password".hashCode(), token.getKeyHash());
+		assertEquals(UsernamePasswordAuthenticationToken.class,
+				token.getOriginalAuthentication());
+	}
 
-    public void testNoArgConstructorDoesntExist() {
-        Class<RunAsUserToken> clazz = RunAsUserToken.class;
+	public void testNoArgConstructorDoesntExist() {
+		Class<RunAsUserToken> clazz = RunAsUserToken.class;
 
-        try {
-            clazz.getDeclaredConstructor((Class[]) null);
-            fail("Should have thrown NoSuchMethodException");
-        } catch (NoSuchMethodException expected) {
-            assertTrue(true);
-        }
-    }
+		try {
+			clazz.getDeclaredConstructor((Class[]) null);
+			fail("Should have thrown NoSuchMethodException");
+		}
+		catch (NoSuchMethodException expected) {
+			assertTrue(true);
+		}
+	}
 
-    public void testToString() {
-        RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
-                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), UsernamePasswordAuthenticationToken.class);
-        assertTrue(token.toString().lastIndexOf("Original Class: "+UsernamePasswordAuthenticationToken.class.getName().toString()) != -1);
-    }
+	public void testToString() {
+		RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
+				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"),
+				UsernamePasswordAuthenticationToken.class);
+		assertTrue(token.toString().lastIndexOf(
+				"Original Class: "
+						+ UsernamePasswordAuthenticationToken.class.getName().toString()) != -1);
+	}
 
-    // SEC-1792
-    public void testToStringNullOriginalAuthentication() {
-        RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
-                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), null);
-        assertTrue(token.toString().lastIndexOf("Original Class: null") != -1);
-    }
+	// SEC-1792
+	public void testToStringNullOriginalAuthentication() {
+		RunAsUserToken token = new RunAsUserToken("my_password", "Test", "Password",
+				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"), null);
+		assertTrue(token.toString().lastIndexOf("Original Class: null") != -1);
+	}
 }

@@ -24,27 +24,29 @@ import org.springframework.security.acls.model.Sid;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JdbcAclServiceTests {
-    @Mock
-    private DataSource dataSource;
+	@Mock
+	private DataSource dataSource;
 
-    @Mock
-    private LookupStrategy lookupStrategy;
+	@Mock
+	private LookupStrategy lookupStrategy;
 
-    private JdbcAclService aclService;
+	private JdbcAclService aclService;
 
-    @Before
-    public void setUp() {
-        aclService = new JdbcAclService(dataSource, lookupStrategy);
-    }
+	@Before
+	public void setUp() {
+		aclService = new JdbcAclService(dataSource, lookupStrategy);
+	}
 
-    // SEC-1898
-    @Test(expected = NotFoundException.class)
-    public void readAclByIdMissingAcl() {
-        Map<ObjectIdentity, Acl> result = new HashMap<ObjectIdentity, Acl>();
-        when(lookupStrategy.readAclsById(anyListOf(ObjectIdentity.class), anyListOf(Sid.class))).thenReturn(result);
-        ObjectIdentity objectIdentity = new ObjectIdentityImpl(Object.class, 1);
-        List<Sid> sids = Arrays.<Sid> asList(new PrincipalSid("user"));
+	// SEC-1898
+	@Test(expected = NotFoundException.class)
+	public void readAclByIdMissingAcl() {
+		Map<ObjectIdentity, Acl> result = new HashMap<ObjectIdentity, Acl>();
+		when(
+				lookupStrategy.readAclsById(anyListOf(ObjectIdentity.class),
+						anyListOf(Sid.class))).thenReturn(result);
+		ObjectIdentity objectIdentity = new ObjectIdentityImpl(Object.class, 1);
+		List<Sid> sids = Arrays.<Sid> asList(new PrincipalSid("user"));
 
-        aclService.readAclById(objectIdentity, sids);
-    }
+		aclService.readAclById(objectIdentity, sids);
+	}
 }

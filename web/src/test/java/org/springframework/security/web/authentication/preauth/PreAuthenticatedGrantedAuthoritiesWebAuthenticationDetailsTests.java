@@ -17,35 +17,37 @@ import java.util.Set;
  * @author TSARDD
  */
 public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetailsTests {
-    List<GrantedAuthority> gas = AuthorityUtils.createAuthorityList("Role1", "Role2");
+	List<GrantedAuthority> gas = AuthorityUtils.createAuthorityList("Role1", "Role2");
 
-    @Test
-    public void testToString() {
-        PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails details = new PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(
-                getRequest("testUser", new String[] {}), gas);
-        String toString = details.toString();
-        assertTrue("toString should contain Role1", toString.contains("Role1"));
-        assertTrue("toString should contain Role2", toString.contains("Role2"));
-    }
+	@Test
+	public void testToString() {
+		PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails details = new PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(
+				getRequest("testUser", new String[] {}), gas);
+		String toString = details.toString();
+		assertTrue("toString should contain Role1", toString.contains("Role1"));
+		assertTrue("toString should contain Role2", toString.contains("Role2"));
+	}
 
-    @Test
-    public void testGetSetPreAuthenticatedGrantedAuthorities() {
-        PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails details = new PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(
-                getRequest("testUser", new String[] {}), gas);
-        List<GrantedAuthority> returnedGas = details.getGrantedAuthorities();
-        assertTrue("Collections do not contain same elements; expected: " + gas + ", returned: " + returnedGas,
-                gas.containsAll(returnedGas) && returnedGas.containsAll(gas));
-    }
+	@Test
+	public void testGetSetPreAuthenticatedGrantedAuthorities() {
+		PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails details = new PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails(
+				getRequest("testUser", new String[] {}), gas);
+		List<GrantedAuthority> returnedGas = details.getGrantedAuthorities();
+		assertTrue("Collections do not contain same elements; expected: " + gas
+				+ ", returned: " + returnedGas, gas.containsAll(returnedGas)
+				&& returnedGas.containsAll(gas));
+	}
 
-    private HttpServletRequest getRequest(final String userName,final String[] aRoles) {
-        MockHttpServletRequest req = new MockHttpServletRequest() {
-            private Set<String> roles = new HashSet<String>(Arrays.asList(aRoles));
-            public boolean isUserInRole(String arg0) {
-                return roles.contains(arg0);
-            }
-        };
-        req.setRemoteUser(userName);
-        return req;
-    }
+	private HttpServletRequest getRequest(final String userName, final String[] aRoles) {
+		MockHttpServletRequest req = new MockHttpServletRequest() {
+			private Set<String> roles = new HashSet<String>(Arrays.asList(aRoles));
+
+			public boolean isUserInRole(String arg0) {
+				return roles.contains(arg0);
+			}
+		};
+		req.setRemoteUser(userName);
+		return req;
+	}
 
 }

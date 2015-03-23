@@ -41,64 +41,72 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CsrfTokenArgumentResolverTests {
-    @Mock
-    private ModelAndViewContainer mavContainer;
-    @Mock
-    private WebDataBinderFactory binderFactory;
+	@Mock
+	private ModelAndViewContainer mavContainer;
+	@Mock
+	private WebDataBinderFactory binderFactory;
 
-    private MockHttpServletRequest request;
-    private NativeWebRequest webRequest;
+	private MockHttpServletRequest request;
+	private NativeWebRequest webRequest;
 
-    private CsrfToken token;
+	private CsrfToken token;
 
-    private CsrfTokenArgumentResolver resolver;
+	private CsrfTokenArgumentResolver resolver;
 
-    @Before
-    public void setup() {
-        token = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "secret");
-        resolver = new CsrfTokenArgumentResolver();
-        request = new MockHttpServletRequest();
-        webRequest = new ServletWebRequest(request);
-    }
+	@Before
+	public void setup() {
+		token = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "secret");
+		resolver = new CsrfTokenArgumentResolver();
+		request = new MockHttpServletRequest();
+		webRequest = new ServletWebRequest(request);
+	}
 
-    @Test
-    public void supportsParameterFalse() {
-        assertThat(resolver.supportsParameter(noToken())).isFalse();
-    }
+	@Test
+	public void supportsParameterFalse() {
+		assertThat(resolver.supportsParameter(noToken())).isFalse();
+	}
 
-    @Test
-    public void supportsParameterTrue() {
-        assertThat(resolver.supportsParameter(token())).isTrue();
-    }
+	@Test
+	public void supportsParameterTrue() {
+		assertThat(resolver.supportsParameter(token())).isTrue();
+	}
 
-    @Test
-    public void resolveArgumentNotFound() throws Exception {
-        assertThat(resolver.resolveArgument(token(), mavContainer, webRequest, binderFactory)).isNull();
-    }
+	@Test
+	public void resolveArgumentNotFound() throws Exception {
+		assertThat(
+				resolver.resolveArgument(token(), mavContainer, webRequest, binderFactory))
+				.isNull();
+	}
 
-    @Test
-    public void resolveArgumentFound() throws Exception {
-        request.setAttribute(CsrfToken.class.getName(), token);
+	@Test
+	public void resolveArgumentFound() throws Exception {
+		request.setAttribute(CsrfToken.class.getName(), token);
 
-        assertThat(resolver.resolveArgument(token(), mavContainer, webRequest, binderFactory)).isSameAs(token);
-    }
+		assertThat(
+				resolver.resolveArgument(token(), mavContainer, webRequest, binderFactory))
+				.isSameAs(token);
+	}
 
-    private MethodParameter noToken() {
-        return getMethodParameter("noToken", String.class);
-    }
+	private MethodParameter noToken() {
+		return getMethodParameter("noToken", String.class);
+	}
 
-    private MethodParameter token() {
-        return getMethodParameter("token", CsrfToken.class);
-    }
+	private MethodParameter token() {
+		return getMethodParameter("token", CsrfToken.class);
+	}
 
-    private MethodParameter getMethodParameter(String methodName, Class<?>... paramTypes) {
-        Method method = ReflectionUtils.findMethod(TestController.class, methodName,paramTypes);
-        return new MethodParameter(method,0);
-    }
+	private MethodParameter getMethodParameter(String methodName, Class<?>... paramTypes) {
+		Method method = ReflectionUtils.findMethod(TestController.class, methodName,
+				paramTypes);
+		return new MethodParameter(method, 0);
+	}
 
-    public static class TestController {
-        public void noToken(String user) {}
-        public void token(CsrfToken token) {}
-    }
+	public static class TestController {
+		public void noToken(String user) {
+		}
+
+		public void token(CsrfToken token) {
+		}
+	}
 
 }

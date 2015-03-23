@@ -21,26 +21,30 @@ import org.w3c.dom.Element;
  * @author Luke Taylor
  * @since 3.1
  */
-public class MethodSecurityMetadataSourceBeanDefinitionParser extends AbstractBeanDefinitionParser {
-    static final String ATT_METHOD = "method";
-    static final String ATT_ACCESS = "access";
+public class MethodSecurityMetadataSourceBeanDefinitionParser extends
+		AbstractBeanDefinitionParser {
+	static final String ATT_METHOD = "method";
+	static final String ATT_ACCESS = "access";
 
-    public AbstractBeanDefinition parseInternal(Element elt, ParserContext pc) {
-        // Parse the included methods
-        List<Element> methods = DomUtils.getChildElementsByTagName(elt, Elements.PROTECT);
-        Map<String, List<ConfigAttribute>> mappings = new LinkedHashMap<String, List<ConfigAttribute>>();
+	public AbstractBeanDefinition parseInternal(Element elt, ParserContext pc) {
+		// Parse the included methods
+		List<Element> methods = DomUtils.getChildElementsByTagName(elt, Elements.PROTECT);
+		Map<String, List<ConfigAttribute>> mappings = new LinkedHashMap<String, List<ConfigAttribute>>();
 
-        for (Element protectmethodElt : methods) {
-            String[] tokens = StringUtils.commaDelimitedListToStringArray(protectmethodElt.getAttribute(ATT_ACCESS));
-            String methodName = protectmethodElt.getAttribute(ATT_METHOD);
+		for (Element protectmethodElt : methods) {
+			String[] tokens = StringUtils
+					.commaDelimitedListToStringArray(protectmethodElt
+							.getAttribute(ATT_ACCESS));
+			String methodName = protectmethodElt.getAttribute(ATT_METHOD);
 
-            mappings.put(methodName, SecurityConfig.createList(tokens));
-        }
+			mappings.put(methodName, SecurityConfig.createList(tokens));
+		}
 
-        RootBeanDefinition metadataSource = new RootBeanDefinition(MapBasedMethodSecurityMetadataSource.class);
-        metadataSource.getConstructorArgumentValues().addGenericArgumentValue(mappings);
+		RootBeanDefinition metadataSource = new RootBeanDefinition(
+				MapBasedMethodSecurityMetadataSource.class);
+		metadataSource.getConstructorArgumentValues().addGenericArgumentValue(mappings);
 
-        return metadataSource;
-    }
+		return metadataSource;
+	}
 
 }

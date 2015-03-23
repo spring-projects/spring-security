@@ -36,66 +36,66 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  */
 public class DelegatingAuthenticationEntryPointTests {
 
-    private DelegatingAuthenticationEntryPoint daep;
-    private LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints;
-    private AuthenticationEntryPoint defaultEntryPoint;
-    private HttpServletRequest request = new MockHttpServletRequest();
+	private DelegatingAuthenticationEntryPoint daep;
+	private LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints;
+	private AuthenticationEntryPoint defaultEntryPoint;
+	private HttpServletRequest request = new MockHttpServletRequest();
 
-    @Before
-    public void before() {
-        defaultEntryPoint = mock(AuthenticationEntryPoint.class);
-        entryPoints = new LinkedHashMap<RequestMatcher, AuthenticationEntryPoint>();
-        daep = new DelegatingAuthenticationEntryPoint(entryPoints);
-        daep.setDefaultEntryPoint(defaultEntryPoint);
-    }
+	@Before
+	public void before() {
+		defaultEntryPoint = mock(AuthenticationEntryPoint.class);
+		entryPoints = new LinkedHashMap<RequestMatcher, AuthenticationEntryPoint>();
+		daep = new DelegatingAuthenticationEntryPoint(entryPoints);
+		daep.setDefaultEntryPoint(defaultEntryPoint);
+	}
 
-    @Test
-    public void testDefaultEntryPoint() throws Exception {
-        AuthenticationEntryPoint firstAEP = mock(AuthenticationEntryPoint.class);
-        RequestMatcher firstRM = mock(RequestMatcher.class);
-        when(firstRM.matches(request)).thenReturn(false);
-        entryPoints.put(firstRM, firstAEP);
+	@Test
+	public void testDefaultEntryPoint() throws Exception {
+		AuthenticationEntryPoint firstAEP = mock(AuthenticationEntryPoint.class);
+		RequestMatcher firstRM = mock(RequestMatcher.class);
+		when(firstRM.matches(request)).thenReturn(false);
+		entryPoints.put(firstRM, firstAEP);
 
-        daep.commence(request, null, null);
+		daep.commence(request, null, null);
 
-        verify(defaultEntryPoint).commence(request, null, null);
-        verify(firstAEP, never()).commence(request, null, null);
-    }
+		verify(defaultEntryPoint).commence(request, null, null);
+		verify(firstAEP, never()).commence(request, null, null);
+	}
 
-    @Test
-    public void testFirstEntryPoint() throws Exception {
-        AuthenticationEntryPoint firstAEP = mock(AuthenticationEntryPoint.class);
-        RequestMatcher firstRM = mock(RequestMatcher.class);
-        AuthenticationEntryPoint secondAEP = mock(AuthenticationEntryPoint.class);
-        RequestMatcher secondRM = mock(RequestMatcher.class);
-        when(firstRM.matches(request)).thenReturn(true);
-        entryPoints.put(firstRM, firstAEP);
-        entryPoints.put(secondRM, secondAEP);
+	@Test
+	public void testFirstEntryPoint() throws Exception {
+		AuthenticationEntryPoint firstAEP = mock(AuthenticationEntryPoint.class);
+		RequestMatcher firstRM = mock(RequestMatcher.class);
+		AuthenticationEntryPoint secondAEP = mock(AuthenticationEntryPoint.class);
+		RequestMatcher secondRM = mock(RequestMatcher.class);
+		when(firstRM.matches(request)).thenReturn(true);
+		entryPoints.put(firstRM, firstAEP);
+		entryPoints.put(secondRM, secondAEP);
 
-        daep.commence(request, null, null);
+		daep.commence(request, null, null);
 
-        verify(firstAEP).commence(request, null, null);
-        verify(secondAEP, never()).commence(request, null, null);
-        verify(defaultEntryPoint, never()).commence(request, null, null);
-        verify(secondRM, never()).matches(request);
-    }
+		verify(firstAEP).commence(request, null, null);
+		verify(secondAEP, never()).commence(request, null, null);
+		verify(defaultEntryPoint, never()).commence(request, null, null);
+		verify(secondRM, never()).matches(request);
+	}
 
-    @Test
-    public void testSecondEntryPoint() throws Exception {
-        AuthenticationEntryPoint firstAEP = mock(AuthenticationEntryPoint.class);
-        RequestMatcher firstRM = mock(RequestMatcher.class);
-        AuthenticationEntryPoint secondAEP = mock(AuthenticationEntryPoint.class);
-        RequestMatcher secondRM = mock(RequestMatcher.class);
-        when(firstRM.matches(request)).thenReturn(false);
-        when(secondRM.matches(request)).thenReturn(true);
-        entryPoints.put(firstRM, firstAEP);
-        entryPoints.put(secondRM, secondAEP);
+	@Test
+	public void testSecondEntryPoint() throws Exception {
+		AuthenticationEntryPoint firstAEP = mock(AuthenticationEntryPoint.class);
+		RequestMatcher firstRM = mock(RequestMatcher.class);
+		AuthenticationEntryPoint secondAEP = mock(AuthenticationEntryPoint.class);
+		RequestMatcher secondRM = mock(RequestMatcher.class);
+		when(firstRM.matches(request)).thenReturn(false);
+		when(secondRM.matches(request)).thenReturn(true);
+		entryPoints.put(firstRM, firstAEP);
+		entryPoints.put(secondRM, secondAEP);
 
-        daep.commence(request, null, null);
+		daep.commence(request, null, null);
 
-        verify(secondAEP).commence(request, null, null);
-        verify(firstAEP, never()).commence(request, null, null);
-        verify(defaultEntryPoint, never()).commence(request, null, null);
-    }
+		verify(secondAEP).commence(request, null, null);
+		verify(firstAEP, never()).commence(request, null, null);
+		verify(defaultEntryPoint, never()).commence(request, null, null);
+	}
 
 }

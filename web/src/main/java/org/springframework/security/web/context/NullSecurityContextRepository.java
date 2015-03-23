@@ -12,15 +12,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 public final class NullSecurityContextRepository implements SecurityContextRepository {
 
-    public boolean containsContext(HttpServletRequest request) {
-        return false;
-    }
+	public boolean containsContext(HttpServletRequest request) {
+		return false;
+	}
 
-    public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
-        return SecurityContextHolder.createEmptyContext();
-    }
+	public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
+		return SecurityContextHolder.createEmptyContext();
+	}
 
-    public void saveContext(SecurityContext context, HttpServletRequest request, HttpServletResponse response) {
-    }
+	public void saveContext(SecurityContext context, HttpServletRequest request,
+			HttpServletResponse response) {
+	}
 
 }

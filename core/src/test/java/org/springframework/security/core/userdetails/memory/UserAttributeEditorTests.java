@@ -20,7 +20,6 @@ import junit.framework.TestCase;
 import org.springframework.security.core.userdetails.memory.UserAttribute;
 import org.springframework.security.core.userdetails.memory.UserAttributeEditor;
 
-
 /**
  * Tests {@link UserAttributeEditor} and associated {@link UserAttribute}.
  *
@@ -28,93 +27,93 @@ import org.springframework.security.core.userdetails.memory.UserAttributeEditor;
  */
 public class UserAttributeEditorTests extends TestCase {
 
-    public void testCorrectOperationWithTrailingSpaces() {
-        UserAttributeEditor editor = new UserAttributeEditor();
-        editor.setAsText("password ,ROLE_ONE,ROLE_TWO ");
+	public void testCorrectOperationWithTrailingSpaces() {
+		UserAttributeEditor editor = new UserAttributeEditor();
+		editor.setAsText("password ,ROLE_ONE,ROLE_TWO ");
 
-        UserAttribute user = (UserAttribute) editor.getValue();
-        assertEquals("password", user.getPassword());
-        assertEquals(2, user.getAuthorities().size());
-        assertEquals("ROLE_ONE", user.getAuthorities().get(0).getAuthority());
-        assertEquals("ROLE_TWO", user.getAuthorities().get(1).getAuthority());
-    }
+		UserAttribute user = (UserAttribute) editor.getValue();
+		assertEquals("password", user.getPassword());
+		assertEquals(2, user.getAuthorities().size());
+		assertEquals("ROLE_ONE", user.getAuthorities().get(0).getAuthority());
+		assertEquals("ROLE_TWO", user.getAuthorities().get(1).getAuthority());
+	}
 
-    public void testCorrectOperationWithoutEnabledDisabledKeyword() {
-        UserAttributeEditor editor = new UserAttributeEditor();
-        editor.setAsText("password,ROLE_ONE,ROLE_TWO");
+	public void testCorrectOperationWithoutEnabledDisabledKeyword() {
+		UserAttributeEditor editor = new UserAttributeEditor();
+		editor.setAsText("password,ROLE_ONE,ROLE_TWO");
 
-        UserAttribute user = (UserAttribute) editor.getValue();
-        assertTrue(user.isValid());
-        assertTrue(user.isEnabled()); // default
-        assertEquals("password", user.getPassword());
-        assertEquals(2, user.getAuthorities().size());
-        assertEquals("ROLE_ONE", user.getAuthorities().get(0).getAuthority());
-        assertEquals("ROLE_TWO", user.getAuthorities().get(1).getAuthority());
-    }
+		UserAttribute user = (UserAttribute) editor.getValue();
+		assertTrue(user.isValid());
+		assertTrue(user.isEnabled()); // default
+		assertEquals("password", user.getPassword());
+		assertEquals(2, user.getAuthorities().size());
+		assertEquals("ROLE_ONE", user.getAuthorities().get(0).getAuthority());
+		assertEquals("ROLE_TWO", user.getAuthorities().get(1).getAuthority());
+	}
 
-    public void testDisabledKeyword() {
-        UserAttributeEditor editor = new UserAttributeEditor();
-        editor.setAsText("password,disabled,ROLE_ONE,ROLE_TWO");
+	public void testDisabledKeyword() {
+		UserAttributeEditor editor = new UserAttributeEditor();
+		editor.setAsText("password,disabled,ROLE_ONE,ROLE_TWO");
 
-        UserAttribute user = (UserAttribute) editor.getValue();
-        assertTrue(user.isValid());
-        assertTrue(!user.isEnabled());
-        assertEquals("password", user.getPassword());
-        assertEquals(2, user.getAuthorities().size());
-        assertEquals("ROLE_ONE", user.getAuthorities().get(0).getAuthority());
-        assertEquals("ROLE_TWO", user.getAuthorities().get(1).getAuthority());
-    }
+		UserAttribute user = (UserAttribute) editor.getValue();
+		assertTrue(user.isValid());
+		assertTrue(!user.isEnabled());
+		assertEquals("password", user.getPassword());
+		assertEquals(2, user.getAuthorities().size());
+		assertEquals("ROLE_ONE", user.getAuthorities().get(0).getAuthority());
+		assertEquals("ROLE_TWO", user.getAuthorities().get(1).getAuthority());
+	}
 
-    public void testEmptyStringReturnsNull() {
-        UserAttributeEditor editor = new UserAttributeEditor();
-        editor.setAsText("");
+	public void testEmptyStringReturnsNull() {
+		UserAttributeEditor editor = new UserAttributeEditor();
+		editor.setAsText("");
 
-        UserAttribute user = (UserAttribute) editor.getValue();
-        assertTrue(user == null);
-    }
+		UserAttribute user = (UserAttribute) editor.getValue();
+		assertTrue(user == null);
+	}
 
-    public void testEnabledKeyword() {
-        UserAttributeEditor editor = new UserAttributeEditor();
-        editor.setAsText("password,ROLE_ONE,enabled,ROLE_TWO");
+	public void testEnabledKeyword() {
+		UserAttributeEditor editor = new UserAttributeEditor();
+		editor.setAsText("password,ROLE_ONE,enabled,ROLE_TWO");
 
-        UserAttribute user = (UserAttribute) editor.getValue();
-        assertTrue(user.isValid());
-        assertTrue(user.isEnabled());
-        assertEquals("password", user.getPassword());
-        assertEquals(2, user.getAuthorities().size());
-        assertEquals("ROLE_ONE", user.getAuthorities().get(0).getAuthority());
-        assertEquals("ROLE_TWO", user.getAuthorities().get(1).getAuthority());
-    }
+		UserAttribute user = (UserAttribute) editor.getValue();
+		assertTrue(user.isValid());
+		assertTrue(user.isEnabled());
+		assertEquals("password", user.getPassword());
+		assertEquals(2, user.getAuthorities().size());
+		assertEquals("ROLE_ONE", user.getAuthorities().get(0).getAuthority());
+		assertEquals("ROLE_TWO", user.getAuthorities().get(1).getAuthority());
+	}
 
-    public void testMalformedStringReturnsNull() {
-        UserAttributeEditor editor = new UserAttributeEditor();
-        editor.setAsText("MALFORMED_STRING");
+	public void testMalformedStringReturnsNull() {
+		UserAttributeEditor editor = new UserAttributeEditor();
+		editor.setAsText("MALFORMED_STRING");
 
-        UserAttribute user = (UserAttribute) editor.getValue();
-        assertTrue(user == null);
-    }
+		UserAttribute user = (UserAttribute) editor.getValue();
+		assertTrue(user == null);
+	}
 
-    public void testNoPasswordOrRolesReturnsNull() {
-        UserAttributeEditor editor = new UserAttributeEditor();
-        editor.setAsText("disabled");
+	public void testNoPasswordOrRolesReturnsNull() {
+		UserAttributeEditor editor = new UserAttributeEditor();
+		editor.setAsText("disabled");
 
-        UserAttribute user = (UserAttribute) editor.getValue();
-        assertTrue(user == null);
-    }
+		UserAttribute user = (UserAttribute) editor.getValue();
+		assertTrue(user == null);
+	}
 
-    public void testNoRolesReturnsNull() {
-        UserAttributeEditor editor = new UserAttributeEditor();
-        editor.setAsText("password,enabled");
+	public void testNoRolesReturnsNull() {
+		UserAttributeEditor editor = new UserAttributeEditor();
+		editor.setAsText("password,enabled");
 
-        UserAttribute user = (UserAttribute) editor.getValue();
-        assertTrue(user == null);
-    }
+		UserAttribute user = (UserAttribute) editor.getValue();
+		assertTrue(user == null);
+	}
 
-    public void testNullReturnsNull() {
-        UserAttributeEditor editor = new UserAttributeEditor();
-        editor.setAsText(null);
+	public void testNullReturnsNull() {
+		UserAttributeEditor editor = new UserAttributeEditor();
+		editor.setAsText(null);
 
-        UserAttribute user = (UserAttribute) editor.getValue();
-        assertTrue(user == null);
-    }
+		UserAttribute user = (UserAttribute) editor.getValue();
+		assertTrue(user == null);
+	}
 }

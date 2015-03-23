@@ -25,7 +25,6 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 
-
 /**
  * Tests {@link AnonymousAuthenticationProvider}.
  *
@@ -33,65 +32,75 @@ import org.springframework.security.core.authority.AuthorityUtils;
  */
 public class AnonymousAuthenticationProviderTests {
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    @Test
-    public void testDetectsAnInvalidKey() throws Exception {
-        AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider("qwerty");
+	@Test
+	public void testDetectsAnInvalidKey() throws Exception {
+		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider(
+				"qwerty");
 
-        AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("WRONG_KEY", "Test",
-                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
+		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken(
+				"WRONG_KEY", "Test", AuthorityUtils.createAuthorityList("ROLE_ONE",
+						"ROLE_TWO"));
 
-        try {
-            aap.authenticate(token);
-            fail("Should have thrown BadCredentialsException");
-        } catch (BadCredentialsException expected) {
-        }
-    }
+		try {
+			aap.authenticate(token);
+			fail("Should have thrown BadCredentialsException");
+		}
+		catch (BadCredentialsException expected) {
+		}
+	}
 
-    @Test
-    public void testDetectsMissingKey() throws Exception {
-        try {
-            new AnonymousAuthenticationProvider(null);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-    }
+	@Test
+	public void testDetectsMissingKey() throws Exception {
+		try {
+			new AnonymousAuthenticationProvider(null);
+			fail("Should have thrown IllegalArgumentException");
+		}
+		catch (IllegalArgumentException expected) {
+			assertTrue(true);
+		}
+	}
 
-    @Test
-    public void testGettersSetters() throws Exception {
-        AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider("qwerty");
-        assertEquals("qwerty", aap.getKey());
-    }
+	@Test
+	public void testGettersSetters() throws Exception {
+		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider(
+				"qwerty");
+		assertEquals("qwerty", aap.getKey());
+	}
 
-    @Test
-    public void testIgnoresClassesItDoesNotSupport() throws Exception {
-        AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider("qwerty");
+	@Test
+	public void testIgnoresClassesItDoesNotSupport() throws Exception {
+		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider(
+				"qwerty");
 
-        TestingAuthenticationToken token = new TestingAuthenticationToken("user", "password", "ROLE_A");
-        assertFalse(aap.supports(TestingAuthenticationToken.class));
+		TestingAuthenticationToken token = new TestingAuthenticationToken("user",
+				"password", "ROLE_A");
+		assertFalse(aap.supports(TestingAuthenticationToken.class));
 
-        // Try it anyway
-        assertNull(aap.authenticate(token));
-    }
+		// Try it anyway
+		assertNull(aap.authenticate(token));
+	}
 
-    @Test
-    public void testNormalOperation() throws Exception {
-        AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider("qwerty");
+	@Test
+	public void testNormalOperation() throws Exception {
+		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider(
+				"qwerty");
 
-        AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("qwerty", "Test",
-                AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
+		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("qwerty",
+				"Test", AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 
-        Authentication result = aap.authenticate(token);
+		Authentication result = aap.authenticate(token);
 
-        assertEquals(result, token);
-    }
+		assertEquals(result, token);
+	}
 
-    @Test
-    public void testSupports() {
-        AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider("qwerty");
-        assertTrue(aap.supports(AnonymousAuthenticationToken.class));
-        assertFalse(aap.supports(TestingAuthenticationToken.class));
-    }
+	@Test
+	public void testSupports() {
+		AnonymousAuthenticationProvider aap = new AnonymousAuthenticationProvider(
+				"qwerty");
+		assertTrue(aap.supports(AnonymousAuthenticationToken.class));
+		assertFalse(aap.supports(TestingAuthenticationToken.class));
+	}
 }

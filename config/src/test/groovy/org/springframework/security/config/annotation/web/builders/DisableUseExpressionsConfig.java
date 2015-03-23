@@ -15,19 +15,20 @@
  */
 package org.springframework.security.config.annotation.web.builders;
 
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.configuration.BaseWebConfig;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.UrlAuthorizationConfigurer;
 
 @EnableWebSecurity
 public class DisableUseExpressionsConfig extends BaseWebConfig {
-    protected void configure(HttpSecurity http) throws Exception {
-        // This config is also on UrlAuthorizationConfigurer javadoc
-        http
-            .apply(new UrlAuthorizationConfigurer<HttpSecurity>()).getRegistry()
-                .antMatchers("/users**","/sessions/**").hasRole("USER")
-                .antMatchers("/signup").hasRole("ANONYMOUS")
-                .anyRequest().hasRole("USER");
-    }
+	// @formatter:off
+	protected void configure(HttpSecurity http) throws Exception {
+		// This config is also on UrlAuthorizationConfigurer javadoc
+		http
+			.apply(new UrlAuthorizationConfigurer<HttpSecurity>()).getRegistry()
+				.antMatchers("/users**","/sessions/**").hasRole("USER")
+				.antMatchers("/signup").hasRole("ANONYMOUS")
+				.anyRequest().hasRole("USER");
+	}
+	// @formatter:on
 }

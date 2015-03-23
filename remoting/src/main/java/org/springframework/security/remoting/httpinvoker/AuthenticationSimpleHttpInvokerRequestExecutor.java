@@ -27,66 +27,82 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-
 /**
  * Adds BASIC authentication support to <code>SimpleHttpInvokerRequestExecutor</code>.
  *
  * @author Ben Alex
  * @author Rob Winch
  */
-public class AuthenticationSimpleHttpInvokerRequestExecutor extends SimpleHttpInvokerRequestExecutor {
-    //~ Static fields/initializers =====================================================================================
+public class AuthenticationSimpleHttpInvokerRequestExecutor extends
+		SimpleHttpInvokerRequestExecutor {
+	// ~ Static fields/initializers
+	// =====================================================================================
 
-    private static final Log logger = LogFactory.getLog(AuthenticationSimpleHttpInvokerRequestExecutor.class);
+	private static final Log logger = LogFactory
+			.getLog(AuthenticationSimpleHttpInvokerRequestExecutor.class);
 
-    //~ Instance fields ================================================================================================
+	// ~ Instance fields
+	// ================================================================================================
 
-    private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    /**
-     * Provided so subclasses can perform additional configuration if required (eg set additional request
-     * headers for non-security related information etc).
-     *
-     * @param con the HTTP connection to prepare
-     * @param contentLength the length of the content to send
-     *
-     * @throws IOException if thrown by HttpURLConnection methods
-     */
-    protected void doPrepareConnection(HttpURLConnection con, int contentLength)
-        throws IOException {}
+	/**
+	 * Provided so subclasses can perform additional configuration if required (eg set
+	 * additional request headers for non-security related information etc).
+	 *
+	 * @param con the HTTP connection to prepare
+	 * @param contentLength the length of the content to send
+	 *
+	 * @throws IOException if thrown by HttpURLConnection methods
+	 */
+	protected void doPrepareConnection(HttpURLConnection con, int contentLength)
+			throws IOException {
+	}
 
-    /**
-     * Called every time a HTTP invocation is made.<p>Simply allows the parent to setup the connection, and
-     * then adds an <code>Authorization</code> HTTP header property that will be used for BASIC authentication.</p>
-     *  <p>The <code>SecurityContextHolder</code> is used to obtain the relevant principal and credentials.</p>
-     *
-     * @param con the HTTP connection to prepare
-     * @param contentLength the length of the content to send
-     *
-     * @throws IOException if thrown by HttpURLConnection methods
-     */
-    protected void prepareConnection(HttpURLConnection con, int contentLength) throws IOException {
-        super.prepareConnection(con, contentLength);
+	/**
+	 * Called every time a HTTP invocation is made.
+	 * <p>
+	 * Simply allows the parent to setup the connection, and then adds an
+	 * <code>Authorization</code> HTTP header property that will be used for BASIC
+	 * authentication.
+	 * </p>
+	 * <p>
+	 * The <code>SecurityContextHolder</code> is used to obtain the relevant principal and
+	 * credentials.
+	 * </p>
+	 *
+	 * @param con the HTTP connection to prepare
+	 * @param contentLength the length of the content to send
+	 *
+	 * @throws IOException if thrown by HttpURLConnection methods
+	 */
+	protected void prepareConnection(HttpURLConnection con, int contentLength)
+			throws IOException {
+		super.prepareConnection(con, contentLength);
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        if ((auth != null) && (auth.getName() != null) && (auth.getCredentials() != null) && !trustResolver.isAnonymous(auth)) {
-            String base64 = auth.getName() + ":" + auth.getCredentials().toString();
-            con.setRequestProperty("Authorization", "Basic " + new String(Base64.encode(base64.getBytes())));
+		if ((auth != null) && (auth.getName() != null) && (auth.getCredentials() != null)
+				&& !trustResolver.isAnonymous(auth)) {
+			String base64 = auth.getName() + ":" + auth.getCredentials().toString();
+			con.setRequestProperty("Authorization",
+					"Basic " + new String(Base64.encode(base64.getBytes())));
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("HttpInvocation now presenting via BASIC authentication SecurityContextHolder-derived: "
-                    + auth.toString());
-            }
-        } else {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Unable to set BASIC authentication header as SecurityContext did not provide "
-                        + "valid Authentication: " + auth);
-            }
-        }
+			if (logger.isDebugEnabled()) {
+				logger.debug("HttpInvocation now presenting via BASIC authentication SecurityContextHolder-derived: "
+						+ auth.toString());
+			}
+		}
+		else {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Unable to set BASIC authentication header as SecurityContext did not provide "
+						+ "valid Authentication: " + auth);
+			}
+		}
 
-        doPrepareConnection(con, contentLength);
-    }
+		doPrepareConnection(con, contentLength);
+	}
 }

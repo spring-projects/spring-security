@@ -22,18 +22,20 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
- * Base class that allows access to the {@link UserDetailsService} for using as a default value with {@link AuthenticationManagerBuilder}.
+ * Base class that allows access to the {@link UserDetailsService} for using as a default
+ * value with {@link AuthenticationManagerBuilder}.
  *
  * @author Rob Winch
  *
  * @param <B> the type of the {@link ProviderManagerBuilder}
  * @param <U> the type of {@link UserDetailsService}
  */
-public abstract class UserDetailsAwareConfigurer<B extends ProviderManagerBuilder<B>, U extends UserDetailsService> extends SecurityConfigurerAdapter<AuthenticationManager,B> {
+public abstract class UserDetailsAwareConfigurer<B extends ProviderManagerBuilder<B>, U extends UserDetailsService>
+		extends SecurityConfigurerAdapter<AuthenticationManager, B> {
 
-    /**
-     * Gets the {@link UserDetailsService} or null if it is not available
-     * @return the {@link UserDetailsService} or null if it is not available
-     */
-    public abstract U getUserDetailsService();
+	/**
+	 * Gets the {@link UserDetailsService} or null if it is not available
+	 * @return the {@link UserDetailsService} or null if it is not available
+	 */
+	public abstract U getUserDetailsService();
 }

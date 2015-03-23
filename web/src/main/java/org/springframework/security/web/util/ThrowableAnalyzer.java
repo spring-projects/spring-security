@@ -20,221 +20,227 @@ import org.springframework.util.Assert;
  */
 public class ThrowableAnalyzer {
 
-    /**
-     * Default extractor for {@link Throwable} instances.
-     *
-     * @see Throwable#getCause()
-     */
-    public static final ThrowableCauseExtractor DEFAULT_EXTRACTOR
-        = new ThrowableCauseExtractor() {
-            public Throwable extractCause(Throwable throwable) {
-                return throwable.getCause();
-            }
-        };
+	/**
+	 * Default extractor for {@link Throwable} instances.
+	 *
+	 * @see Throwable#getCause()
+	 */
+	public static final ThrowableCauseExtractor DEFAULT_EXTRACTOR = new ThrowableCauseExtractor() {
+		public Throwable extractCause(Throwable throwable) {
+			return throwable.getCause();
+		}
+	};
 
-    /**
-     * Default extractor for {@link InvocationTargetException} instances.
-     *
-     * @see InvocationTargetException#getTargetException()
-     */
-    public static final ThrowableCauseExtractor INVOCATIONTARGET_EXTRACTOR
-        = new ThrowableCauseExtractor() {
-            public Throwable extractCause(Throwable throwable) {
-                verifyThrowableHierarchy(throwable, InvocationTargetException.class);
-                return ((InvocationTargetException) throwable).getTargetException();
-            }
-        };
+	/**
+	 * Default extractor for {@link InvocationTargetException} instances.
+	 *
+	 * @see InvocationTargetException#getTargetException()
+	 */
+	public static final ThrowableCauseExtractor INVOCATIONTARGET_EXTRACTOR = new ThrowableCauseExtractor() {
+		public Throwable extractCause(Throwable throwable) {
+			verifyThrowableHierarchy(throwable, InvocationTargetException.class);
+			return ((InvocationTargetException) throwable).getTargetException();
+		}
+	};
 
-    /**
-     * Comparator to order classes ascending according to their hierarchy relation.
-     * If two classes have a hierarchical relation, the "higher" class is considered
-     * to be greater by this comparator.<br>
-     * For hierarchically unrelated classes their fully qualified name will be compared.
-     */
-    private static final Comparator<Class<? extends Throwable>> CLASS_HIERARCHY_COMPARATOR =
-        new Comparator<Class<? extends Throwable>>() {
+	/**
+	 * Comparator to order classes ascending according to their hierarchy relation. If two
+	 * classes have a hierarchical relation, the "higher" class is considered to be
+	 * greater by this comparator.<br>
+	 * For hierarchically unrelated classes their fully qualified name will be compared.
+	 */
+	private static final Comparator<Class<? extends Throwable>> CLASS_HIERARCHY_COMPARATOR = new Comparator<Class<? extends Throwable>>() {
 
-        public int compare(Class<? extends Throwable> class1, Class<? extends Throwable> class2) {
-            if (class1.isAssignableFrom(class2)) {
-                return 1;
-            } else if (class2.isAssignableFrom(class1)) {
-                return -1;
-            } else {
-                return class1.getName().compareTo(class2.getName());
-            }
-        }
+		public int compare(Class<? extends Throwable> class1,
+				Class<? extends Throwable> class2) {
+			if (class1.isAssignableFrom(class2)) {
+				return 1;
+			}
+			else if (class2.isAssignableFrom(class1)) {
+				return -1;
+			}
+			else {
+				return class1.getName().compareTo(class2.getName());
+			}
+		}
 
-    };
+	};
 
+	/**
+	 * Map of registered cause extractors. key: Class<Throwable>; value:
+	 * ThrowableCauseExctractor
+	 */
+	private final Map<Class<? extends Throwable>, ThrowableCauseExtractor> extractorMap;
 
-    /**
-     * Map of registered cause extractors.
-     * key: Class<Throwable>; value: ThrowableCauseExctractor
-     */
-    private final Map<Class<? extends Throwable>, ThrowableCauseExtractor> extractorMap;
+	/**
+	 * Creates a new <code>ThrowableAnalyzer</code> instance.
+	 */
+	public ThrowableAnalyzer() {
+		this.extractorMap = new TreeMap<Class<? extends Throwable>, ThrowableCauseExtractor>(
+				CLASS_HIERARCHY_COMPARATOR);
 
+		initExtractorMap();
+	}
 
-    /**
-     * Creates a new <code>ThrowableAnalyzer</code> instance.
-     */
-    public ThrowableAnalyzer() {
-        this.extractorMap = new TreeMap<Class<? extends Throwable>, ThrowableCauseExtractor>(CLASS_HIERARCHY_COMPARATOR);
+	/**
+	 * Registers a <code>ThrowableCauseExtractor</code> for the specified type. <i>Can be
+	 * used in subclasses overriding {@link #initExtractorMap()}.</i>
+	 *
+	 * @param throwableType the type (has to be a subclass of <code>Throwable</code>)
+	 * @param extractor the associated <code>ThrowableCauseExtractor</code> (not
+	 * <code>null</code>)
+	 *
+	 * @throws IllegalArgumentException if one of the arguments is invalid
+	 */
+	protected final void registerExtractor(Class<? extends Throwable> throwableType,
+			ThrowableCauseExtractor extractor) {
+		Assert.notNull(extractor, "Invalid extractor: null");
 
-        initExtractorMap();
-    }
+		this.extractorMap.put(throwableType, extractor);
+	}
 
-    /**
-     * Registers a <code>ThrowableCauseExtractor</code> for the specified type.
-     * <i>Can be used in subclasses overriding {@link #initExtractorMap()}.</i>
-     *
-     * @param throwableType the type (has to be a subclass of <code>Throwable</code>)
-     * @param extractor the associated <code>ThrowableCauseExtractor</code> (not <code>null</code>)
-     *
-     * @throws IllegalArgumentException if one of the arguments is invalid
-     */
-    protected final void registerExtractor(Class<? extends Throwable> throwableType, ThrowableCauseExtractor extractor) {
-        Assert.notNull(extractor, "Invalid extractor: null");
+	/**
+	 * Initializes associations between <code>Throwable</code>s and
+	 * <code>ThrowableCauseExtractor</code>s. The default implementation performs the
+	 * following registrations: <li>{@link #DEFAULT_EXTRACTOR} for {@link Throwable}</li>
+	 * <li>{@link #INVOCATIONTARGET_EXTRACTOR} for {@link InvocationTargetException}</li> <br>
+	 * Subclasses overriding this method are encouraged to invoke the super method to
+	 * perform the default registrations. They can register additional extractors as
+	 * required.
+	 * <p>
+	 * Note: An extractor registered for a specific type is applicable for that type
+	 * <i>and all subtypes thereof</i>. However, extractors registered to more specific
+	 * types are guaranteed to be resolved first. So in the default case
+	 * InvocationTargetExceptions will be handled by {@link #INVOCATIONTARGET_EXTRACTOR}
+	 * while all other throwables are handled by {@link #DEFAULT_EXTRACTOR}.
+	 *
+	 * @see #registerExtractor(Class, ThrowableCauseExtractor)
+	 */
+	protected void initExtractorMap() {
+		registerExtractor(InvocationTargetException.class, INVOCATIONTARGET_EXTRACTOR);
+		registerExtractor(Throwable.class, DEFAULT_EXTRACTOR);
+	}
 
-        this.extractorMap.put(throwableType, extractor);
-    }
+	/**
+	 * Returns an array containing the classes for which extractors are registered. The
+	 * order of the classes is the order in which comparisons will occur for resolving a
+	 * matching extractor.
+	 *
+	 * @return the types for which extractors are registered
+	 */
+	@SuppressWarnings("unchecked")
+	final Class<? extends Throwable>[] getRegisteredTypes() {
+		Set<Class<? extends Throwable>> typeList = this.extractorMap.keySet();
+		return typeList.toArray(new Class[typeList.size()]);
+	}
 
-    /**
-     * Initializes associations between <code>Throwable</code>s and <code>ThrowableCauseExtractor</code>s.
-     * The default implementation performs the following registrations:
-     * <li>{@link #DEFAULT_EXTRACTOR} for {@link Throwable}</li>
-     * <li>{@link #INVOCATIONTARGET_EXTRACTOR} for {@link InvocationTargetException}</li>
-     * <br>
-     * Subclasses overriding this method are encouraged to invoke the super method to perform the
-     * default registrations. They can register additional extractors as required.
-     * <p>
-     * Note: An extractor registered for a specific type is applicable for that type <i>and all subtypes thereof</i>.
-     * However, extractors registered to more specific types are guaranteed to be resolved first.
-     * So in the default case InvocationTargetExceptions will be handled by {@link #INVOCATIONTARGET_EXTRACTOR}
-     * while all other throwables are handled by {@link #DEFAULT_EXTRACTOR}.
-     *
-     * @see #registerExtractor(Class, ThrowableCauseExtractor)
-     */
-    protected void initExtractorMap() {
-        registerExtractor(InvocationTargetException.class, INVOCATIONTARGET_EXTRACTOR);
-        registerExtractor(Throwable.class, DEFAULT_EXTRACTOR);
-    }
+	/**
+	 * Determines the cause chain of the provided <code>Throwable</code>. The returned
+	 * array contains all throwables extracted from the stacktrace, using the registered
+	 * {@link ThrowableCauseExtractor extractors}. The elements of the array are ordered:
+	 * The first element is the passed in throwable itself. The following elements appear
+	 * in their order downward the stacktrace.
+	 * <p>
+	 * Note: If no {@link ThrowableCauseExtractor} is registered for this instance then
+	 * the returned array will always only contain the passed in throwable.
+	 *
+	 * @param throwable the <code>Throwable</code> to analyze
+	 * @return an array of all determined throwables from the stacktrace
+	 *
+	 * @throws IllegalArgumentException if the throwable is <code>null</code>
+	 *
+	 * @see #initExtractorMap()
+	 */
+	public final Throwable[] determineCauseChain(Throwable throwable) {
+		if (throwable == null) {
+			throw new IllegalArgumentException("Invalid throwable: null");
+		}
 
-    /**
-     * Returns an array containing the classes for which extractors are registered.
-     * The order of the classes is the order in which comparisons will occur for
-     * resolving a matching extractor.
-     *
-     * @return the types for which extractors are registered
-     */
-    @SuppressWarnings("unchecked")
-    final Class<? extends Throwable>[] getRegisteredTypes() {
-        Set<Class<? extends Throwable>> typeList = this.extractorMap.keySet();
-        return typeList.toArray(new Class[typeList.size()]);
-    }
+		List<Throwable> chain = new ArrayList<Throwable>();
+		Throwable currentThrowable = throwable;
 
-    /**
-     * Determines the cause chain of the provided <code>Throwable</code>.
-     * The returned array contains all throwables extracted from the stacktrace, using the registered
-     * {@link ThrowableCauseExtractor extractors}. The elements of the array are ordered:
-     * The first element is the passed in throwable itself. The following elements
-     * appear in their order downward the stacktrace.
-     * <p>
-     * Note: If no {@link ThrowableCauseExtractor} is registered for this instance
-     * then the returned array will always only contain the passed in throwable.
-     *
-     * @param throwable the <code>Throwable</code> to analyze
-     * @return an array of all determined throwables from the stacktrace
-     *
-     * @throws IllegalArgumentException if the throwable is <code>null</code>
-     *
-     * @see #initExtractorMap()
-     */
-    public final Throwable[] determineCauseChain(Throwable throwable) {
-        if (throwable == null) {
-            throw new IllegalArgumentException("Invalid throwable: null");
-        }
+		while (currentThrowable != null) {
+			chain.add(currentThrowable);
+			currentThrowable = extractCause(currentThrowable);
+		}
 
-        List<Throwable> chain = new ArrayList<Throwable>();
-        Throwable currentThrowable = throwable;
+		return chain.toArray(new Throwable[chain.size()]);
+	}
 
-        while (currentThrowable != null) {
-            chain.add(currentThrowable);
-            currentThrowable = extractCause(currentThrowable);
-        }
+	/**
+	 * Extracts the cause of the given throwable using an appropriate extractor.
+	 *
+	 * @param throwable the <code>Throwable</code> (not <code>null</code>
+	 * @return the cause, may be <code>null</code> if none could be resolved
+	 */
+	private Throwable extractCause(Throwable throwable) {
+		for (Map.Entry<Class<? extends Throwable>, ThrowableCauseExtractor> entry : extractorMap
+				.entrySet()) {
+			Class<? extends Throwable> throwableType = entry.getKey();
+			if (throwableType.isInstance(throwable)) {
+				ThrowableCauseExtractor extractor = entry.getValue();
+				return extractor.extractCause(throwable);
+			}
+		}
 
-        return chain.toArray(new Throwable[chain.size()]);
-    }
+		return null;
+	}
 
-    /**
-     * Extracts the cause of the given throwable using an appropriate extractor.
-     *
-     * @param throwable the <code>Throwable</code> (not <code>null</code>
-     * @return the cause, may be <code>null</code> if none could be resolved
-     */
-    private Throwable extractCause(Throwable throwable) {
-        for (Map.Entry<Class<? extends Throwable>, ThrowableCauseExtractor> entry : extractorMap.entrySet()) {
-            Class<? extends Throwable> throwableType = entry.getKey();
-            if (throwableType.isInstance(throwable)) {
-                ThrowableCauseExtractor extractor = entry.getValue();
-                return extractor.extractCause(throwable);
-            }
-        }
+	/**
+	 * Returns the first throwable from the passed in array that is assignable to the
+	 * provided type. A returned instance is safe to be cast to the specified type.
+	 * <p>
+	 * If the passed in array is null or empty this method returns <code>null</code>.
+	 *
+	 * @param throwableType the type to look for
+	 * @param chain the array (will be processed in element order)
+	 * @return the found <code>Throwable</code>, <code>null</code> if not found
+	 *
+	 * @throws IllegalArgumentException if the provided type is <code>null</code> or no
+	 * subclass of <code>Throwable</code>
+	 */
+	public final Throwable getFirstThrowableOfType(
+			Class<? extends Throwable> throwableType, Throwable[] chain) {
+		if (chain != null) {
+			for (Throwable t : chain) {
+				if ((t != null) && throwableType.isInstance(t)) {
+					return t;
+				}
+			}
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    /**
-     * Returns the first throwable from the passed in array that is assignable to the provided type.
-     * A returned instance is safe to be cast to the specified type.
-     * <p>
-     * If the passed in array is null or empty this method returns <code>null</code>.
-     *
-     * @param throwableType the type to look for
-     * @param chain the array (will be processed in element order)
-     * @return the found <code>Throwable</code>, <code>null</code> if not found
-     *
-     * @throws IllegalArgumentException if the provided type is <code>null</code>
-     * or no subclass of <code>Throwable</code>
-     */
-    public final Throwable getFirstThrowableOfType(Class<? extends Throwable> throwableType, Throwable[] chain) {
-        if (chain != null) {
-            for (Throwable t : chain) {
-                if ((t != null) && throwableType.isInstance(t)) {
-                    return t;
-                }
-            }
-        }
+	/**
+	 * Verifies that the provided throwable is a valid subclass of the provided type (or
+	 * of the type itself). If <code>expectdBaseType</code> is <code>null</code>, no check
+	 * will be performed.
+	 * <p>
+	 * Can be used for verification purposes in implementations of
+	 * {@link ThrowableCauseExtractor extractors}.
+	 *
+	 * @param throwable the <code>Throwable</code> to check
+	 * @param expectedBaseType the type to check against
+	 *
+	 * @throws IllegalArgumentException if <code>throwable</code> is either
+	 * <code>null</code> or its type is not assignable to <code>expectedBaseType</code>
+	 */
+	public static void verifyThrowableHierarchy(Throwable throwable,
+			Class<? extends Throwable> expectedBaseType) {
+		if (expectedBaseType == null) {
+			return;
+		}
 
-        return null;
-    }
+		if (throwable == null) {
+			throw new IllegalArgumentException("Invalid throwable: null");
+		}
+		Class<? extends Throwable> throwableType = throwable.getClass();
 
-    /**
-     * Verifies that the provided throwable is a valid subclass of the provided type (or of the type itself).
-     * If <code>expectdBaseType</code> is <code>null</code>, no check will be performed.
-     * <p>
-     * Can be used for verification purposes in implementations
-     * of {@link ThrowableCauseExtractor extractors}.
-     *
-     * @param throwable the <code>Throwable</code> to check
-     * @param expectedBaseType the type to check against
-     *
-     * @throws IllegalArgumentException if <code>throwable</code> is either <code>null</code>
-     * or its type is not assignable to <code>expectedBaseType</code>
-     */
-    public static void verifyThrowableHierarchy(Throwable throwable, Class<? extends Throwable> expectedBaseType) {
-        if (expectedBaseType == null) {
-            return;
-        }
-
-        if (throwable == null) {
-            throw new IllegalArgumentException("Invalid throwable: null");
-        }
-        Class<? extends Throwable> throwableType = throwable.getClass();
-
-        if (!expectedBaseType.isAssignableFrom(throwableType)) {
-            throw new IllegalArgumentException("Invalid type: '"
-                    + throwableType.getName()
-                    + "'. Has to be a subclass of '" + expectedBaseType.getName() + "'");
-        }
-    }
+		if (!expectedBaseType.isAssignableFrom(throwableType)) {
+			throw new IllegalArgumentException("Invalid type: '"
+					+ throwableType.getName() + "'. Has to be a subclass of '"
+					+ expectedBaseType.getName() + "'");
+		}
+	}
 }

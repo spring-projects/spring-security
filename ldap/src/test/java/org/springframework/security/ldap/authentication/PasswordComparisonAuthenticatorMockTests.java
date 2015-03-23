@@ -29,39 +29,42 @@ import org.junit.Test;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
-
 /**
  *
  * @author Luke Taylor
  */
 public class PasswordComparisonAuthenticatorMockTests {
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    @Test
-    public void ldapCompareOperationIsUsedWhenPasswordIsNotRetrieved() throws Exception {
-        final DirContext dirCtx = mock(DirContext.class);
-        final BaseLdapPathContextSource source = mock(BaseLdapPathContextSource.class);
-        final BasicAttributes attrs = new BasicAttributes();
-        attrs.put(new BasicAttribute("uid", "bob"));
+	@Test
+	public void ldapCompareOperationIsUsedWhenPasswordIsNotRetrieved() throws Exception {
+		final DirContext dirCtx = mock(DirContext.class);
+		final BaseLdapPathContextSource source = mock(BaseLdapPathContextSource.class);
+		final BasicAttributes attrs = new BasicAttributes();
+		attrs.put(new BasicAttribute("uid", "bob"));
 
-        PasswordComparisonAuthenticator authenticator = new PasswordComparisonAuthenticator(source);
+		PasswordComparisonAuthenticator authenticator = new PasswordComparisonAuthenticator(
+				source);
 
-        authenticator.setUserDnPatterns(new String[] {"cn={0},ou=people"});
+		authenticator.setUserDnPatterns(new String[] { "cn={0},ou=people" });
 
-        // Get the mock to return an empty attribute set
-        when(source.getReadOnlyContext()).thenReturn(dirCtx);
-        when(dirCtx.getAttributes(eq("cn=Bob,ou=people"), any(String[].class))).thenReturn(attrs);
-        when(dirCtx.getNameInNamespace()).thenReturn("dc=springframework,dc=org");
+		// Get the mock to return an empty attribute set
+		when(source.getReadOnlyContext()).thenReturn(dirCtx);
+		when(dirCtx.getAttributes(eq("cn=Bob,ou=people"), any(String[].class)))
+				.thenReturn(attrs);
+		when(dirCtx.getNameInNamespace()).thenReturn("dc=springframework,dc=org");
 
-        // Setup a single return value (i.e. success)
-        final NamingEnumeration searchResults = new BasicAttributes("", null).getAll();
+		// Setup a single return value (i.e. success)
+		final NamingEnumeration searchResults = new BasicAttributes("", null).getAll();
 
-        when(dirCtx.search(eq("cn=Bob,ou=people"),
-                            eq("(userPassword={0})"),
-                            any(Object[].class),
-                            any(SearchControls.class))).thenReturn(searchResults);
+		when(
+				dirCtx.search(eq("cn=Bob,ou=people"), eq("(userPassword={0})"),
+						any(Object[].class), any(SearchControls.class))).thenReturn(
+				searchResults);
 
-        authenticator.authenticate(new UsernamePasswordAuthenticationToken("Bob","bobspassword"));
-    }
+		authenticator.authenticate(new UsernamePasswordAuthenticationToken("Bob",
+				"bobspassword"));
+	}
 }

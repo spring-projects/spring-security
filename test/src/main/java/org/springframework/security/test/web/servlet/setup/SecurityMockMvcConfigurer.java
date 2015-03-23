@@ -26,40 +26,47 @@ import javax.servlet.Filter;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.testSecurityContext;
 
 /**
- * Configures Spring Security by adding the springSecurityFilterChain and adding the {@link org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors#testSecurityContext()}.
+ * Configures Spring Security by adding the springSecurityFilterChain and adding the
+ * {@link org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors#testSecurityContext()}
+ * .
  *
  * @author Rob Winch
  * @since 4.0
  */
 final class SecurityMockMvcConfigurer extends MockMvcConfigurerAdapter {
-    private Filter springSecurityFilterChain;
+	private Filter springSecurityFilterChain;
 
-    /**
-     * Creates a new instance
-     */
-    SecurityMockMvcConfigurer() {}
+	/**
+	 * Creates a new instance
+	 */
+	SecurityMockMvcConfigurer() {
+	}
 
-    /**
-     * Creates a new instance with the provided {@link javax.servlet.Filter}
-     * @param springSecurityFilterChain the {@link javax.servlet.Filter} to use
-     */
-    SecurityMockMvcConfigurer(Filter springSecurityFilterChain) {
-        this.springSecurityFilterChain = springSecurityFilterChain;
-    }
+	/**
+	 * Creates a new instance with the provided {@link javax.servlet.Filter}
+	 * @param springSecurityFilterChain the {@link javax.servlet.Filter} to use
+	 */
+	SecurityMockMvcConfigurer(Filter springSecurityFilterChain) {
+		this.springSecurityFilterChain = springSecurityFilterChain;
+	}
 
-    @Override
-    public RequestPostProcessor beforeMockMvcCreated(ConfigurableMockMvcBuilder<?> builder, WebApplicationContext context) {
-        String securityBeanId = BeanIds.SPRING_SECURITY_FILTER_CHAIN;
-        if(springSecurityFilterChain == null && context.containsBean(securityBeanId)) {
-            springSecurityFilterChain = context.getBean(securityBeanId, Filter.class);
-        }
+	@Override
+	public RequestPostProcessor beforeMockMvcCreated(
+			ConfigurableMockMvcBuilder<?> builder, WebApplicationContext context) {
+		String securityBeanId = BeanIds.SPRING_SECURITY_FILTER_CHAIN;
+		if (springSecurityFilterChain == null && context.containsBean(securityBeanId)) {
+			springSecurityFilterChain = context.getBean(securityBeanId, Filter.class);
+		}
 
-        if(springSecurityFilterChain == null) {
-            throw new IllegalStateException("springSecurityFilterChain cannot be null. Ensure a Bean with the name "+ securityBeanId + " implementing Filter is present or inject the Filter to be used.");
-        }
+		if (springSecurityFilterChain == null) {
+			throw new IllegalStateException(
+					"springSecurityFilterChain cannot be null. Ensure a Bean with the name "
+							+ securityBeanId
+							+ " implementing Filter is present or inject the Filter to be used.");
+		}
 
-        builder.addFilters(springSecurityFilterChain);
+		builder.addFilters(springSecurityFilterChain);
 
-        return testSecurityContext();
-    }
+		return testSecurityContext();
+	}
 }

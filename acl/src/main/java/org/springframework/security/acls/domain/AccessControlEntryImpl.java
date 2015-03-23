@@ -24,151 +24,161 @@ import org.springframework.util.Assert;
 
 import java.io.Serializable;
 
-
 /**
  * An immutable default implementation of <code>AccessControlEntry</code>.
  *
  * @author Ben Alex
  */
-public class AccessControlEntryImpl implements AccessControlEntry, AuditableAccessControlEntry {
-    //~ Instance fields ================================================================================================
+public class AccessControlEntryImpl implements AccessControlEntry,
+		AuditableAccessControlEntry {
+	// ~ Instance fields
+	// ================================================================================================
 
-    private final Acl acl;
-    private Permission permission;
-    private final Serializable id;
-    private final Sid sid;
-    private boolean auditFailure = false;
-    private boolean auditSuccess = false;
-    private final boolean granting;
+	private final Acl acl;
+	private Permission permission;
+	private final Serializable id;
+	private final Sid sid;
+	private boolean auditFailure = false;
+	private boolean auditSuccess = false;
+	private final boolean granting;
 
-    //~ Constructors ===================================================================================================
+	// ~ Constructors
+	// ===================================================================================================
 
-    public AccessControlEntryImpl(Serializable id, Acl acl, Sid sid, Permission permission, boolean granting,
-        boolean auditSuccess, boolean auditFailure) {
-        Assert.notNull(acl, "Acl required");
-        Assert.notNull(sid, "Sid required");
-        Assert.notNull(permission, "Permission required");
-        this.id = id;
-        this.acl = acl; // can be null
-        this.sid = sid;
-        this.permission = permission;
-        this.granting = granting;
-        this.auditSuccess = auditSuccess;
-        this.auditFailure = auditFailure;
-    }
+	public AccessControlEntryImpl(Serializable id, Acl acl, Sid sid,
+			Permission permission, boolean granting, boolean auditSuccess,
+			boolean auditFailure) {
+		Assert.notNull(acl, "Acl required");
+		Assert.notNull(sid, "Sid required");
+		Assert.notNull(permission, "Permission required");
+		this.id = id;
+		this.acl = acl; // can be null
+		this.sid = sid;
+		this.permission = permission;
+		this.granting = granting;
+		this.auditSuccess = auditSuccess;
+		this.auditFailure = auditFailure;
+	}
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public boolean equals(Object arg0) {
-        if (!(arg0 instanceof AccessControlEntryImpl)) {
-            return false;
-        }
+	public boolean equals(Object arg0) {
+		if (!(arg0 instanceof AccessControlEntryImpl)) {
+			return false;
+		}
 
-        AccessControlEntryImpl rhs = (AccessControlEntryImpl) arg0;
+		AccessControlEntryImpl rhs = (AccessControlEntryImpl) arg0;
 
-        if (this.acl == null) {
-            if (rhs.getAcl() != null) {
-                return false;
-            }
-            // Both this.acl and rhs.acl are null and thus equal
-        } else {
-            // this.acl is non-null
-            if (rhs.getAcl() == null) {
-                return false;
-            }
+		if (this.acl == null) {
+			if (rhs.getAcl() != null) {
+				return false;
+			}
+			// Both this.acl and rhs.acl are null and thus equal
+		}
+		else {
+			// this.acl is non-null
+			if (rhs.getAcl() == null) {
+				return false;
+			}
 
-            // Both this.acl and rhs.acl are non-null, so do a comparison
-            if (this.acl.getObjectIdentity() == null) {
-                if (rhs.acl.getObjectIdentity() != null) {
-                    return false;
-                }
-                // Both this.acl and rhs.acl are null and thus equal
-            } else {
-                // Both this.acl.objectIdentity and rhs.acl.objectIdentity are non-null
-                if (!this.acl.getObjectIdentity().equals(rhs.getAcl().getObjectIdentity())) {
-                    return false;
-                }
-            }
-        }
+			// Both this.acl and rhs.acl are non-null, so do a comparison
+			if (this.acl.getObjectIdentity() == null) {
+				if (rhs.acl.getObjectIdentity() != null) {
+					return false;
+				}
+				// Both this.acl and rhs.acl are null and thus equal
+			}
+			else {
+				// Both this.acl.objectIdentity and rhs.acl.objectIdentity are non-null
+				if (!this.acl.getObjectIdentity()
+						.equals(rhs.getAcl().getObjectIdentity())) {
+					return false;
+				}
+			}
+		}
 
-        if (this.id == null) {
-            if (rhs.id != null) {
-                return false;
-            }
-            // Both this.id and rhs.id are null and thus equal
-        } else {
-            // this.id is non-null
-            if (rhs.id == null) {
-                return false;
-            }
+		if (this.id == null) {
+			if (rhs.id != null) {
+				return false;
+			}
+			// Both this.id and rhs.id are null and thus equal
+		}
+		else {
+			// this.id is non-null
+			if (rhs.id == null) {
+				return false;
+			}
 
-            // Both this.id and rhs.id are non-null
-            if (!this.id.equals(rhs.id)) {
-                return false;
-            }
-        }
+			// Both this.id and rhs.id are non-null
+			if (!this.id.equals(rhs.id)) {
+				return false;
+			}
+		}
 
-        if ((this.auditFailure != rhs.isAuditFailure()) || (this.auditSuccess != rhs.isAuditSuccess())
-            || (this.granting != rhs.isGranting())
-            || !this.permission.equals(rhs.getPermission()) || !this.sid.equals(rhs.getSid())) {
-            return false;
-        }
+		if ((this.auditFailure != rhs.isAuditFailure())
+				|| (this.auditSuccess != rhs.isAuditSuccess())
+				|| (this.granting != rhs.isGranting())
+				|| !this.permission.equals(rhs.getPermission())
+				|| !this.sid.equals(rhs.getSid())) {
+			return false;
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    public Acl getAcl() {
-        return acl;
-    }
+	public Acl getAcl() {
+		return acl;
+	}
 
-    public Serializable getId() {
-        return id;
-    }
+	public Serializable getId() {
+		return id;
+	}
 
-    public Permission getPermission() {
-        return permission;
-    }
+	public Permission getPermission() {
+		return permission;
+	}
 
-    public Sid getSid() {
-        return sid;
-    }
+	public Sid getSid() {
+		return sid;
+	}
 
-    public boolean isAuditFailure() {
-        return auditFailure;
-    }
+	public boolean isAuditFailure() {
+		return auditFailure;
+	}
 
-    public boolean isAuditSuccess() {
-        return auditSuccess;
-    }
+	public boolean isAuditSuccess() {
+		return auditSuccess;
+	}
 
-    public boolean isGranting() {
-        return granting;
-    }
+	public boolean isGranting() {
+		return granting;
+	}
 
-    void setAuditFailure(boolean auditFailure) {
-        this.auditFailure = auditFailure;
-    }
+	void setAuditFailure(boolean auditFailure) {
+		this.auditFailure = auditFailure;
+	}
 
-    void setAuditSuccess(boolean auditSuccess) {
-        this.auditSuccess = auditSuccess;
-    }
+	void setAuditSuccess(boolean auditSuccess) {
+		this.auditSuccess = auditSuccess;
+	}
 
-    void setPermission(Permission permission) {
-        Assert.notNull(permission, "Permission required");
-        this.permission = permission;
-    }
+	void setPermission(Permission permission) {
+		Assert.notNull(permission, "Permission required");
+		this.permission = permission;
+	}
 
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("AccessControlEntryImpl[");
-        sb.append("id: ").append(this.id).append("; ");
-        sb.append("granting: ").append(this.granting).append("; ");
-        sb.append("sid: ").append(this.sid).append("; ");
-        sb.append("permission: ").append(this.permission).append("; ");
-        sb.append("auditSuccess: ").append(this.auditSuccess).append("; ");
-        sb.append("auditFailure: ").append(this.auditFailure);
-        sb.append("]");
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("AccessControlEntryImpl[");
+		sb.append("id: ").append(this.id).append("; ");
+		sb.append("granting: ").append(this.granting).append("; ");
+		sb.append("sid: ").append(this.sid).append("; ");
+		sb.append("permission: ").append(this.permission).append("; ");
+		sb.append("auditSuccess: ").append(this.auditSuccess).append("; ");
+		sb.append("auditFailure: ").append(this.auditFailure);
+		sb.append("]");
 
-        return sb.toString();
-    }
+		return sb.toString();
+	}
 }

@@ -56,105 +56,102 @@ import org.springframework.util.ReflectionUtils;
  *
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ReflectionUtils.class, Method.class})
+@PrepareForTest({ ReflectionUtils.class, Method.class })
 public class SessionManagementConfigServlet31Tests {
-    private static final String XML_AUTHENTICATION_MANAGER =
-            "<authentication-manager>"+
-            "  <authentication-provider>"+
-            "    <user-service>"+
-            "      <user name='user' password='password' authorities='ROLE_USER' />" +
-            "    </user-service>"+
-            "  </authentication-provider>"+
-            "</authentication-manager>";
+	private static final String XML_AUTHENTICATION_MANAGER = "<authentication-manager>"
+			+ "  <authentication-provider>" + "    <user-service>"
+			+ "      <user name='user' password='password' authorities='ROLE_USER' />"
+			+ "    </user-service>" + "  </authentication-provider>"
+			+ "</authentication-manager>";
 
-    @Mock
-    Method method;
+	@Mock
+	Method method;
 
-    MockHttpServletRequest request;
-    MockHttpServletResponse response;
-    MockFilterChain chain;
+	MockHttpServletRequest request;
+	MockHttpServletResponse response;
+	MockFilterChain chain;
 
-    ConfigurableApplicationContext context;
+	ConfigurableApplicationContext context;
 
-    Filter springSecurityFilterChain;
+	Filter springSecurityFilterChain;
 
-    @Before
-    public void setup() {
-        request = new MockHttpServletRequest();
-        response = new MockHttpServletResponse();
-        chain = new MockFilterChain();
-    }
+	@Before
+	public void setup() {
+		request = new MockHttpServletRequest();
+		response = new MockHttpServletResponse();
+		chain = new MockFilterChain();
+	}
 
-    @After
-    public void teardown() {
-        if(context != null) {
-            context.close();
-        }
-    }
+	@After
+	public void teardown() {
+		if (context != null) {
+			context.close();
+		}
+	}
 
-    @Test
-    public void changeSessionIdDefaultsInServlet31Plus() throws Exception {
-        spy(ReflectionUtils.class);
-        Method method = mock(Method.class);
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.getSession();
-        request.setServletPath("/login");
-        request.setMethod("POST");
-        request.setParameter("username", "user");
-        request.setParameter("password", "password");
-        when(ReflectionUtils.findMethod(HttpServletRequest.class, "changeSessionId")).thenReturn(method);
+	@Test
+	public void changeSessionIdDefaultsInServlet31Plus() throws Exception {
+		spy(ReflectionUtils.class);
+		Method method = mock(Method.class);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.getSession();
+		request.setServletPath("/login");
+		request.setMethod("POST");
+		request.setParameter("username", "user");
+		request.setParameter("password", "password");
+		when(ReflectionUtils.findMethod(HttpServletRequest.class, "changeSessionId"))
+				.thenReturn(method);
 
-        loadContext("<http>\n" +
-                "        <form-login/>\n" +
-                "        <session-management/>\n" +
-                "        <csrf disabled='true'/>\n" +
-                "    </http>" +
-                XML_AUTHENTICATION_MANAGER);
+		loadContext("<http>\n" + "        <form-login/>\n"
+				+ "        <session-management/>\n" + "        <csrf disabled='true'/>\n"
+				+ "    </http>" + XML_AUTHENTICATION_MANAGER);
 
-        springSecurityFilterChain.doFilter(request,response,chain);
+		springSecurityFilterChain.doFilter(request, response, chain);
 
-        verifyStatic();
-        ReflectionUtils.invokeMethod(same(method), any(HttpServletRequest.class));
-    }
+		verifyStatic();
+		ReflectionUtils.invokeMethod(same(method), any(HttpServletRequest.class));
+	}
 
+	@Test
+	public void changeSessionId() throws Exception {
+		spy(ReflectionUtils.class);
+		Method method = mock(Method.class);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.getSession();
+		request.setServletPath("/login");
+		request.setMethod("POST");
+		request.setParameter("username", "user");
+		request.setParameter("password", "password");
+		when(ReflectionUtils.findMethod(HttpServletRequest.class, "changeSessionId"))
+				.thenReturn(method);
 
-    @Test
-    public void changeSessionId() throws Exception {
-        spy(ReflectionUtils.class);
-        Method method = mock(Method.class);
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.getSession();
-        request.setServletPath("/login");
-        request.setMethod("POST");
-        request.setParameter("username", "user");
-        request.setParameter("password", "password");
-        when(ReflectionUtils.findMethod(HttpServletRequest.class, "changeSessionId")).thenReturn(method);
+		loadContext("<http>\n"
+				+ "        <form-login/>\n"
+				+ "        <session-management session-fixation-protection='changeSessionId'/>\n"
+				+ "        <csrf disabled='true'/>\n" + "    </http>"
+				+ XML_AUTHENTICATION_MANAGER);
 
-        loadContext("<http>\n" +
-                "        <form-login/>\n" +
-                "        <session-management session-fixation-protection='changeSessionId'/>\n" +
-                "        <csrf disabled='true'/>\n" +
-                "    </http>" +
-                XML_AUTHENTICATION_MANAGER);
+		springSecurityFilterChain.doFilter(request, response, chain);
 
-        springSecurityFilterChain.doFilter(request,response,chain);
+		verifyStatic();
+		ReflectionUtils.invokeMethod(same(method), any(HttpServletRequest.class));
+	}
 
-        verifyStatic();
-        ReflectionUtils.invokeMethod(same(method), any(HttpServletRequest.class));
-    }
+	private void loadContext(String context) {
+		this.context = new InMemoryXmlApplicationContext(context);
+		this.springSecurityFilterChain = this.context.getBean(
+				"springSecurityFilterChain", Filter.class);
+	}
 
-    private void loadContext(String context) {
-        this.context = new InMemoryXmlApplicationContext(context);
-        this.springSecurityFilterChain = this.context.getBean("springSecurityFilterChain",Filter.class);
-    }
+	private void login(Authentication auth) {
+		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+		HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(
+				request, response);
+		repo.loadContext(requestResponseHolder);
 
-    private void login(Authentication auth) {
-        HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
-        HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(request, response);
-        repo.loadContext(requestResponseHolder);
-
-        SecurityContextImpl securityContextImpl = new SecurityContextImpl();
-        securityContextImpl.setAuthentication(auth);
-        repo.saveContext(securityContextImpl, requestResponseHolder.getRequest(), requestResponseHolder.getResponse());
-    }
+		SecurityContextImpl securityContextImpl = new SecurityContextImpl();
+		securityContextImpl.setAuthentication(auth);
+		repo.saveContext(securityContextImpl, requestResponseHolder.getRequest(),
+				requestResponseHolder.getResponse());
+	}
 }

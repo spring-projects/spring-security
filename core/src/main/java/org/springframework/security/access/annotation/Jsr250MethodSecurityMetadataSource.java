@@ -29,83 +29,85 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.method.AbstractFallbackMethodSecurityMetadataSource;
 
-
 /**
  * Sources method security metadata from major JSR 250 security annotations.
  *
  * @author Ben Alex
  * @since 2.0
  */
-public class Jsr250MethodSecurityMetadataSource extends AbstractFallbackMethodSecurityMetadataSource {
+public class Jsr250MethodSecurityMetadataSource extends
+		AbstractFallbackMethodSecurityMetadataSource {
 
-    private String defaultRolePrefix = "ROLE_";
+	private String defaultRolePrefix = "ROLE_";
 
-    /**
-     * <p>
-     * Sets the default prefix to be added to {@link RolesAllowed}. For example, if {@code @RolesAllowed("ADMIN")} or {@code @RolesAllowed("ADMIN")} is used,
-     * then the role ROLE_ADMIN will be used when the defaultRolePrefix is "ROLE_" (default).
-     * </p>
-     *
-     * <p>
-     * If null or empty, then no default role prefix is used.
-     * </p>
-     *
-     * @param defaultRolePrefix the default prefix to add to roles. Default "ROLE_".
-     */
-    public void setDefaultRolePrefix(String defaultRolePrefix) {
-        this.defaultRolePrefix = defaultRolePrefix;
-    }
+	/**
+	 * <p>
+	 * Sets the default prefix to be added to {@link RolesAllowed}. For example, if
+	 * {@code @RolesAllowed("ADMIN")} or {@code @RolesAllowed("ADMIN")} is used, then the
+	 * role ROLE_ADMIN will be used when the defaultRolePrefix is "ROLE_" (default).
+	 * </p>
+	 *
+	 * <p>
+	 * If null or empty, then no default role prefix is used.
+	 * </p>
+	 *
+	 * @param defaultRolePrefix the default prefix to add to roles. Default "ROLE_".
+	 */
+	public void setDefaultRolePrefix(String defaultRolePrefix) {
+		this.defaultRolePrefix = defaultRolePrefix;
+	}
 
-    protected Collection<ConfigAttribute> findAttributes(Class<?> clazz) {
-        return processAnnotations(clazz.getAnnotations());
-    }
+	protected Collection<ConfigAttribute> findAttributes(Class<?> clazz) {
+		return processAnnotations(clazz.getAnnotations());
+	}
 
-    protected Collection<ConfigAttribute> findAttributes(Method method, Class<?> targetClass) {
-        return processAnnotations(AnnotationUtils.getAnnotations(method));
-    }
+	protected Collection<ConfigAttribute> findAttributes(Method method,
+			Class<?> targetClass) {
+		return processAnnotations(AnnotationUtils.getAnnotations(method));
+	}
 
-    public Collection<ConfigAttribute> getAllConfigAttributes() {
-        return null;
-    }
+	public Collection<ConfigAttribute> getAllConfigAttributes() {
+		return null;
+	}
 
-    private List<ConfigAttribute> processAnnotations(Annotation[] annotations) {
-        if (annotations == null || annotations.length == 0) {
-            return null;
-        }
-        List<ConfigAttribute> attributes = new ArrayList<ConfigAttribute>();
+	private List<ConfigAttribute> processAnnotations(Annotation[] annotations) {
+		if (annotations == null || annotations.length == 0) {
+			return null;
+		}
+		List<ConfigAttribute> attributes = new ArrayList<ConfigAttribute>();
 
-        for (Annotation a: annotations) {
-            if (a instanceof DenyAll) {
-                attributes.add(Jsr250SecurityConfig.DENY_ALL_ATTRIBUTE);
-                return attributes;
-            }
-            if (a instanceof PermitAll) {
-                attributes.add(Jsr250SecurityConfig.PERMIT_ALL_ATTRIBUTE);
-                return attributes;
-            }
-            if (a instanceof RolesAllowed) {
-                RolesAllowed ra = (RolesAllowed) a;
+		for (Annotation a : annotations) {
+			if (a instanceof DenyAll) {
+				attributes.add(Jsr250SecurityConfig.DENY_ALL_ATTRIBUTE);
+				return attributes;
+			}
+			if (a instanceof PermitAll) {
+				attributes.add(Jsr250SecurityConfig.PERMIT_ALL_ATTRIBUTE);
+				return attributes;
+			}
+			if (a instanceof RolesAllowed) {
+				RolesAllowed ra = (RolesAllowed) a;
 
-                for (String allowed : ra.value()) {
-                    String defaultedAllowed = getRoleWithDefaultPrefix(allowed);
-                    attributes.add(new Jsr250SecurityConfig(defaultedAllowed));
-                }
-                return attributes;
-            }
-        }
-        return null;
-    }
+				for (String allowed : ra.value()) {
+					String defaultedAllowed = getRoleWithDefaultPrefix(allowed);
+					attributes.add(new Jsr250SecurityConfig(defaultedAllowed));
+				}
+				return attributes;
+			}
+		}
+		return null;
+	}
 
-    private String getRoleWithDefaultPrefix(String role) {
-        if(role == null) {
-            return role;
-        }
-        if(defaultRolePrefix == null || defaultRolePrefix.length() == 0) {
-            return role;
-        }
-        if(role.startsWith(defaultRolePrefix)) {
-            return role;
-        }
-        return defaultRolePrefix + role;
-    }
+	private String getRoleWithDefaultPrefix(String role) {
+		if (role == null) {
+			return role;
+		}
+		if (defaultRolePrefix == null || defaultRolePrefix.length() == 0) {
+			return role;
+		}
+		if (role.startsWith(defaultRolePrefix)) {
+			return role;
+		}
+		return defaultRolePrefix + role;
+	}
 }

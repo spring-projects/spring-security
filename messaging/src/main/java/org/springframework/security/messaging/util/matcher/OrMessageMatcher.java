@@ -20,42 +20,43 @@ import java.util.List;
 import org.springframework.messaging.Message;
 
 /**
- * {@link MessageMatcher} that will return true if any of the passed in {@link MessageMatcher} instances match.
+ * {@link MessageMatcher} that will return true if any of the passed in
+ * {@link MessageMatcher} instances match.
  *
  * @since 4.0
  */
 public final class OrMessageMatcher<T> extends AbstractMessageMatcherComposite<T> {
-    /**
-     * Creates a new instance
-     *
-     * @param messageMatchers the {@link MessageMatcher} instances to try
-     */
-    public OrMessageMatcher(List<MessageMatcher<T>> messageMatchers) {
-        super(messageMatchers);
-    }
+	/**
+	 * Creates a new instance
+	 *
+	 * @param messageMatchers the {@link MessageMatcher} instances to try
+	 */
+	public OrMessageMatcher(List<MessageMatcher<T>> messageMatchers) {
+		super(messageMatchers);
+	}
 
-    /**
-     * Creates a new instance
-     *
-     * @param messageMatchers the {@link MessageMatcher} instances to try
-     */
-    @SafeVarargs
-    public OrMessageMatcher(MessageMatcher<T>... messageMatchers) {
-        super(messageMatchers);
+	/**
+	 * Creates a new instance
+	 *
+	 * @param messageMatchers the {@link MessageMatcher} instances to try
+	 */
+	@SafeVarargs
+	public OrMessageMatcher(MessageMatcher<T>... messageMatchers) {
+		super(messageMatchers);
 
-    }
+	}
 
-    public boolean matches(Message<? extends T> message) {
-        for (MessageMatcher<T> matcher : getMessageMatchers()) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Trying to match using " + matcher);
-            }
-            if (matcher.matches(message)) {
-                LOGGER.debug("matched");
-                return true;
-            }
-        }
-        LOGGER.debug("No matches found");
-        return false;
-    }
+	public boolean matches(Message<? extends T> message) {
+		for (MessageMatcher<T> matcher : getMessageMatchers()) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Trying to match using " + matcher);
+			}
+			if (matcher.matches(message)) {
+				LOGGER.debug("matched");
+				return true;
+			}
+		}
+		LOGGER.debug("No matches found");
+		return false;
+	}
 }

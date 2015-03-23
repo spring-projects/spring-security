@@ -15,47 +15,53 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import java.util.Arrays;
 
 /**
- * Factory bean for the namespace AuthenticationManager, which allows a more meaningful error message
- * to be reported in the <tt>NoSuchBeanDefinitionException</tt>, if the user has forgotten to declare
- * the &lt;authentication-manager&gt; element.
+ * Factory bean for the namespace AuthenticationManager, which allows a more meaningful
+ * error message to be reported in the <tt>NoSuchBeanDefinitionException</tt>, if the user
+ * has forgotten to declare the &lt;authentication-manager&gt; element.
  *
  * @author Luke Taylor
  * @since 3.0
  */
-public class AuthenticationManagerFactoryBean implements FactoryBean<AuthenticationManager>, BeanFactoryAware {
-    private BeanFactory bf;
-    public static final String MISSING_BEAN_ERROR_MESSAGE = "Did you forget to add a gobal <authentication-manager> element " +
-            "to your configuration (with child <authentication-provider> elements)? Alternatively you can use the " +
-            "authentication-manager-ref attribute on your <http> and <global-method-security> elements.";
+public class AuthenticationManagerFactoryBean implements
+		FactoryBean<AuthenticationManager>, BeanFactoryAware {
+	private BeanFactory bf;
+	public static final String MISSING_BEAN_ERROR_MESSAGE = "Did you forget to add a gobal <authentication-manager> element "
+			+ "to your configuration (with child <authentication-provider> elements)? Alternatively you can use the "
+			+ "authentication-manager-ref attribute on your <http> and <global-method-security> elements.";
 
-    public AuthenticationManager getObject() throws Exception {
-        try {
-             return (AuthenticationManager) bf.getBean(BeanIds.AUTHENTICATION_MANAGER);
-        } catch (NoSuchBeanDefinitionException e) {
-            if (BeanIds.AUTHENTICATION_MANAGER.equals(e.getBeanName())) {
-                try {
-                    UserDetailsService uds = bf.getBean(UserDetailsService.class);
-                    DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-                    provider.setUserDetailsService(uds);
-                    provider.afterPropertiesSet();
-                    return new ProviderManager(Arrays.<AuthenticationProvider>asList(provider));
-                } catch(NoSuchBeanDefinitionException noUds) {}
-                throw new NoSuchBeanDefinitionException(BeanIds.AUTHENTICATION_MANAGER, MISSING_BEAN_ERROR_MESSAGE);
-            }
-            throw e;
-        }
-    }
+	public AuthenticationManager getObject() throws Exception {
+		try {
+			return (AuthenticationManager) bf.getBean(BeanIds.AUTHENTICATION_MANAGER);
+		}
+		catch (NoSuchBeanDefinitionException e) {
+			if (BeanIds.AUTHENTICATION_MANAGER.equals(e.getBeanName())) {
+				try {
+					UserDetailsService uds = bf.getBean(UserDetailsService.class);
+					DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+					provider.setUserDetailsService(uds);
+					provider.afterPropertiesSet();
+					return new ProviderManager(
+							Arrays.<AuthenticationProvider> asList(provider));
+				}
+				catch (NoSuchBeanDefinitionException noUds) {
+				}
+				throw new NoSuchBeanDefinitionException(BeanIds.AUTHENTICATION_MANAGER,
+						MISSING_BEAN_ERROR_MESSAGE);
+			}
+			throw e;
+		}
+	}
 
-    public Class<? extends AuthenticationManager> getObjectType() {
-        return ProviderManager.class;
-    }
+	public Class<? extends AuthenticationManager> getObjectType() {
+		return ProviderManager.class;
+	}
 
-    public boolean isSingleton() {
-        return true;
-    }
+	public boolean isSingleton() {
+		return true;
+	}
 
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        bf = beanFactory;
-    }
+	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+		bf = beanFactory;
+	}
 
 }

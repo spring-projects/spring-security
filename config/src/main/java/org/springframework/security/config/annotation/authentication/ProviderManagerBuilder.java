@@ -27,18 +27,18 @@ import org.springframework.security.config.annotation.SecurityBuilder;
  *
  * @param <B> the type of the {@link SecurityBuilder}
  */
-public interface ProviderManagerBuilder<B extends ProviderManagerBuilder<B>> extends SecurityBuilder<AuthenticationManager> {
+public interface ProviderManagerBuilder<B extends ProviderManagerBuilder<B>> extends
+		SecurityBuilder<AuthenticationManager> {
 
-    /**
-     * Add authentication based upon the custom {@link AuthenticationProvider}
-     * that is passed in. Since the {@link AuthenticationProvider}
-     * implementation is unknown, all customizations must be done externally and
-     * the {@link ProviderManagerBuilder} is returned immediately.
-     *
-     * @return a {@link ProviderManagerBuilder} to allow further authentication
-     *         to be provided to the {@link ProviderManagerBuilder}
-     * @throws Exception
-     *             if an error occurs when adding the {@link AuthenticationProvider}
-     */
-    B authenticationProvider(AuthenticationProvider authenticationProvider);
+	/**
+	 * Add authentication based upon the custom {@link AuthenticationProvider} that is
+	 * passed in. Since the {@link AuthenticationProvider} implementation is unknown, all
+	 * customizations must be done externally and the {@link ProviderManagerBuilder} is
+	 * returned immediately.
+	 *
+	 * @return a {@link ProviderManagerBuilder} to allow further authentication to be
+	 * provided to the {@link ProviderManagerBuilder}
+	 * @throws Exception if an error occurs when adding the {@link AuthenticationProvider}
+	 */
+	B authenticationProvider(AuthenticationProvider authenticationProvider);
 }

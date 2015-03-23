@@ -21,71 +21,73 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.web.PortMapperImpl;
 import org.springframework.security.web.PortResolverImpl;
 
-
 /**
  * Tests {@link PortResolverImpl}.
  *
  * @author Ben Alex
  */
 public class PortResolverImplTests extends TestCase {
-    //~ Constructors ===================================================================================================
+	// ~ Constructors
+	// ===================================================================================================
 
-    public PortResolverImplTests() {
-        super();
-    }
+	public PortResolverImplTests() {
+		super();
+	}
 
-    public PortResolverImplTests(String arg0) {
-        super(arg0);
-    }
+	public PortResolverImplTests(String arg0) {
+		super(arg0);
+	}
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    public final void setUp() throws Exception {
-        super.setUp();
-    }
+	public final void setUp() throws Exception {
+		super.setUp();
+	}
 
-    public void testDetectsBuggyIeHttpRequest() throws Exception {
-        PortResolverImpl pr = new PortResolverImpl();
+	public void testDetectsBuggyIeHttpRequest() throws Exception {
+		PortResolverImpl pr = new PortResolverImpl();
 
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setServerPort(8443);
-        request.setScheme("HTtP"); // proves case insensitive handling
-        assertEquals(8080, pr.getServerPort(request));
-    }
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setServerPort(8443);
+		request.setScheme("HTtP"); // proves case insensitive handling
+		assertEquals(8080, pr.getServerPort(request));
+	}
 
-    public void testDetectsBuggyIeHttpsRequest() throws Exception {
-        PortResolverImpl pr = new PortResolverImpl();
+	public void testDetectsBuggyIeHttpsRequest() throws Exception {
+		PortResolverImpl pr = new PortResolverImpl();
 
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setServerPort(8080);
-        request.setScheme("HTtPs"); // proves case insensitive handling
-        assertEquals(8443, pr.getServerPort(request));
-    }
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setServerPort(8080);
+		request.setScheme("HTtPs"); // proves case insensitive handling
+		assertEquals(8443, pr.getServerPort(request));
+	}
 
-    public void testDetectsEmptyPortMapper() throws Exception {
-        PortResolverImpl pr = new PortResolverImpl();
+	public void testDetectsEmptyPortMapper() throws Exception {
+		PortResolverImpl pr = new PortResolverImpl();
 
-        try {
-            pr.setPortMapper(null);
-            fail("Should have thrown IllegalArgumentException");
-        } catch (IllegalArgumentException expected) {
-            assertTrue(true);
-        }
-    }
+		try {
+			pr.setPortMapper(null);
+			fail("Should have thrown IllegalArgumentException");
+		}
+		catch (IllegalArgumentException expected) {
+			assertTrue(true);
+		}
+	}
 
-    public void testGettersSetters() throws Exception {
-        PortResolverImpl pr = new PortResolverImpl();
-        assertTrue(pr.getPortMapper() != null);
-        pr.setPortMapper(new PortMapperImpl());
-        assertTrue(pr.getPortMapper() != null);
-    }
+	public void testGettersSetters() throws Exception {
+		PortResolverImpl pr = new PortResolverImpl();
+		assertTrue(pr.getPortMapper() != null);
+		pr.setPortMapper(new PortMapperImpl());
+		assertTrue(pr.getPortMapper() != null);
+	}
 
-    public void testNormalOperation() throws Exception {
-        PortResolverImpl pr = new PortResolverImpl();
+	public void testNormalOperation() throws Exception {
+		PortResolverImpl pr = new PortResolverImpl();
 
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setScheme("http");
-        request.setServerPort(1021);
-        assertEquals(1021, pr.getServerPort(request));
-    }
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setScheme("http");
+		request.setServerPort(1021);
+		assertEquals(1021, pr.getServerPort(request));
+	}
 }

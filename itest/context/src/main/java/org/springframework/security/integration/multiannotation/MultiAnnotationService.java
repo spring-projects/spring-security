@@ -10,15 +10,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
  */
 public interface MultiAnnotationService {
 
-    @PreAuthorize("denyAll")
-    void preAuthorizeDenyAllMethod();
+	@PreAuthorize("denyAll")
+	void preAuthorizeDenyAllMethod();
 
-    @PreAuthorize("hasRole('ROLE_A')")
-    void preAuthorizeHasRoleAMethod();
+	@PreAuthorize("hasRole('ROLE_A')")
+	void preAuthorizeHasRoleAMethod();
 
-    @Secured("IS_AUTHENTICATED_ANONYMOUSLY")
-    void securedAnonymousMethod();
+	@Secured("IS_AUTHENTICATED_ANONYMOUSLY")
+	void securedAnonymousMethod();
 
-    @Secured("ROLE_A")
-    void securedRoleAMethod();
+	@Secured("ROLE_A")
+	void securedRoleAMethod();
 }

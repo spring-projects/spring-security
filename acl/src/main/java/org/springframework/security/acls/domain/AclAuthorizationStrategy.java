@@ -17,7 +17,6 @@ package org.springframework.security.acls.domain;
 
 import org.springframework.security.acls.model.Acl;
 
-
 /**
  * Strategy used by {@link AclImpl} to determine whether a principal is permitted to call
  * adminstrative methods on the <code>AclImpl</code>.
@@ -25,13 +24,15 @@ import org.springframework.security.acls.model.Acl;
  * @author Ben Alex
  */
 public interface AclAuthorizationStrategy {
-    //~ Static fields/initializers =====================================================================================
+	// ~ Static fields/initializers
+	// =====================================================================================
 
-    int CHANGE_OWNERSHIP = 0;
-    int CHANGE_AUDITING = 1;
-    int CHANGE_GENERAL = 2;
+	int CHANGE_OWNERSHIP = 0;
+	int CHANGE_AUDITING = 1;
+	int CHANGE_GENERAL = 2;
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    void securityCheck(Acl acl, int changeType);
+	void securityCheck(Acl acl, int changeType);
 }

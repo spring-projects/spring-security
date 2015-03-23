@@ -8,6 +8,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
  */
 public interface PreAuthorizeService {
 
-    @PreAuthorize("hasRole('ROLE_A')")
-    void preAuthorizedMethod();
+	@PreAuthorize("hasRole('ROLE_A')")
+	void preAuthorizedMethod();
 }

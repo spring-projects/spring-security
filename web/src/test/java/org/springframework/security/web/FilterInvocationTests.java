@@ -36,100 +36,109 @@ import org.springframework.security.web.util.UrlUtils;
  */
 public class FilterInvocationTests {
 
-    //~ Methods ========================================================================================================
+	// ~ Methods
+	// ========================================================================================================
 
-    @Test
-    public void testGettersAndStringMethods() {
-        MockHttpServletRequest request = new MockHttpServletRequest(null, null);
-        request.setServletPath("/HelloWorld");
-        request.setPathInfo("/some/more/segments.html");
-        request.setServerName("www.example.com");
-        request.setScheme("http");
-        request.setServerPort(80);
-        request.setContextPath("/mycontext");
-        request.setRequestURI("/mycontext/HelloWorld/some/more/segments.html");
+	@Test
+	public void testGettersAndStringMethods() {
+		MockHttpServletRequest request = new MockHttpServletRequest(null, null);
+		request.setServletPath("/HelloWorld");
+		request.setPathInfo("/some/more/segments.html");
+		request.setServerName("www.example.com");
+		request.setScheme("http");
+		request.setServerPort(80);
+		request.setContextPath("/mycontext");
+		request.setRequestURI("/mycontext/HelloWorld/some/more/segments.html");
 
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        FilterChain chain = mock(FilterChain.class);
-        FilterInvocation fi = new FilterInvocation(request, response, chain);
-        assertEquals(request, fi.getRequest());
-        assertEquals(request, fi.getHttpRequest());
-        assertEquals(response, fi.getResponse());
-        assertEquals(response, fi.getHttpResponse());
-        assertEquals(chain, fi.getChain());
-        assertEquals("/HelloWorld/some/more/segments.html", fi.getRequestUrl());
-        assertEquals("FilterInvocation: URL: /HelloWorld/some/more/segments.html", fi.toString());
-        assertEquals("http://www.example.com/mycontext/HelloWorld/some/more/segments.html", fi.getFullRequestUrl());
-    }
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterChain chain = mock(FilterChain.class);
+		FilterInvocation fi = new FilterInvocation(request, response, chain);
+		assertEquals(request, fi.getRequest());
+		assertEquals(request, fi.getHttpRequest());
+		assertEquals(response, fi.getResponse());
+		assertEquals(response, fi.getHttpResponse());
+		assertEquals(chain, fi.getChain());
+		assertEquals("/HelloWorld/some/more/segments.html", fi.getRequestUrl());
+		assertEquals("FilterInvocation: URL: /HelloWorld/some/more/segments.html",
+				fi.toString());
+		assertEquals(
+				"http://www.example.com/mycontext/HelloWorld/some/more/segments.html",
+				fi.getFullRequestUrl());
+	}
 
-    @Test(expected=IllegalArgumentException.class)
-    public void testRejectsNullFilterChain() {
-        MockHttpServletRequest request = new MockHttpServletRequest(null, null);
-        MockHttpServletResponse response = new MockHttpServletResponse();
+	@Test(expected = IllegalArgumentException.class)
+	public void testRejectsNullFilterChain() {
+		MockHttpServletRequest request = new MockHttpServletRequest(null, null);
+		MockHttpServletResponse response = new MockHttpServletResponse();
 
-        new FilterInvocation(request, response, null);
-    }
+		new FilterInvocation(request, response, null);
+	}
 
-    @Test(expected=IllegalArgumentException.class)
-    public void testRejectsNullServletRequest() {
-        MockHttpServletResponse response = new MockHttpServletResponse();
+	@Test(expected = IllegalArgumentException.class)
+	public void testRejectsNullServletRequest() {
+		MockHttpServletResponse response = new MockHttpServletResponse();
 
-        new FilterInvocation(null, response, mock(FilterChain.class));
-    }
+		new FilterInvocation(null, response, mock(FilterChain.class));
+	}
 
-    @Test(expected=IllegalArgumentException.class)
-    public void testRejectsNullServletResponse() {
-        MockHttpServletRequest request = new MockHttpServletRequest(null, null);
+	@Test(expected = IllegalArgumentException.class)
+	public void testRejectsNullServletResponse() {
+		MockHttpServletRequest request = new MockHttpServletRequest(null, null);
 
-        new FilterInvocation(request, null, mock(FilterChain.class));
-    }
+		new FilterInvocation(request, null, mock(FilterChain.class));
+	}
 
-    @Test
-    public void testStringMethodsWithAQueryString() {
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setQueryString("foo=bar");
-        request.setServletPath("/HelloWorld");
-        request.setServerName("www.example.com");
-        request.setScheme("http");
-        request.setServerPort(80);
-        request.setContextPath("/mycontext");
-        request.setRequestURI("/mycontext/HelloWorld");
+	@Test
+	public void testStringMethodsWithAQueryString() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setQueryString("foo=bar");
+		request.setServletPath("/HelloWorld");
+		request.setServerName("www.example.com");
+		request.setScheme("http");
+		request.setServerPort(80);
+		request.setContextPath("/mycontext");
+		request.setRequestURI("/mycontext/HelloWorld");
 
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
-        assertEquals("/HelloWorld?foo=bar", fi.getRequestUrl());
-        assertEquals("FilterInvocation: URL: /HelloWorld?foo=bar", fi.toString());
-        assertEquals("http://www.example.com/mycontext/HelloWorld?foo=bar", fi.getFullRequestUrl());
-    }
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterInvocation fi = new FilterInvocation(request, response,
+				mock(FilterChain.class));
+		assertEquals("/HelloWorld?foo=bar", fi.getRequestUrl());
+		assertEquals("FilterInvocation: URL: /HelloWorld?foo=bar", fi.toString());
+		assertEquals("http://www.example.com/mycontext/HelloWorld?foo=bar",
+				fi.getFullRequestUrl());
+	}
 
-    @Test
-    public void testStringMethodsWithoutAnyQueryString() {
-        MockHttpServletRequest request = new MockHttpServletRequest(null, null);
-        request.setServletPath("/HelloWorld");
-        request.setServerName("www.example.com");
-        request.setScheme("http");
-        request.setServerPort(80);
-        request.setContextPath("/mycontext");
-        request.setRequestURI("/mycontext/HelloWorld");
+	@Test
+	public void testStringMethodsWithoutAnyQueryString() {
+		MockHttpServletRequest request = new MockHttpServletRequest(null, null);
+		request.setServletPath("/HelloWorld");
+		request.setServerName("www.example.com");
+		request.setScheme("http");
+		request.setServerPort(80);
+		request.setContextPath("/mycontext");
+		request.setRequestURI("/mycontext/HelloWorld");
 
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
-        assertEquals("/HelloWorld", fi.getRequestUrl());
-        assertEquals("FilterInvocation: URL: /HelloWorld", fi.toString());
-        assertEquals("http://www.example.com/mycontext/HelloWorld", fi.getFullRequestUrl());
-    }
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterInvocation fi = new FilterInvocation(request, response,
+				mock(FilterChain.class));
+		assertEquals("/HelloWorld", fi.getRequestUrl());
+		assertEquals("FilterInvocation: URL: /HelloWorld", fi.toString());
+		assertEquals("http://www.example.com/mycontext/HelloWorld",
+				fi.getFullRequestUrl());
+	}
 
-    @Test(expected=UnsupportedOperationException.class)
-    public void dummyChainRejectsInvocation() throws Exception {
-        FilterInvocation.DUMMY_CHAIN.doFilter(mock(HttpServletRequest.class), mock(HttpServletResponse.class));
-    }
+	@Test(expected = UnsupportedOperationException.class)
+	public void dummyChainRejectsInvocation() throws Exception {
+		FilterInvocation.DUMMY_CHAIN.doFilter(mock(HttpServletRequest.class),
+				mock(HttpServletResponse.class));
+	}
 
-    @Test
-    public void dummyRequestIsSupportedByUrlUtils() throws Exception {
-        DummyRequest request = new DummyRequest();
-        request.setContextPath("");
-        request.setRequestURI("/something");
-        UrlUtils.buildRequestUrl(request);
-    }
+	@Test
+	public void dummyRequestIsSupportedByUrlUtils() throws Exception {
+		DummyRequest request = new DummyRequest();
+		request.setContextPath("");
+		request.setRequestURI("/something");
+		UrlUtils.buildRequestUrl(request);
+	}
 
 }
