@@ -47,7 +47,9 @@ public class MessageSecurityMetadataSourceRegistry {
 
 	private final LinkedHashMap<MatcherBuilder, String> matcherToExpression = new LinkedHashMap<MatcherBuilder, String>();
 
-	private PathMatcher pathMatcher = new AntPathMatcher();
+	private DelegatingPathMatcher pathMatcher = new DelegatingPathMatcher();
+
+	private boolean defaultPathMatcher = true;
 
 	/**
 	 * Maps any {@link Message} to a security expression.
@@ -169,8 +171,18 @@ public class MessageSecurityMetadataSourceRegistry {
 	public MessageSecurityMetadataSourceRegistry simpDestPathMatcher(
 			PathMatcher pathMatcher) {
 		Assert.notNull(pathMatcher, "pathMatcher cannot be null");
-		this.pathMatcher = pathMatcher;
+		this.pathMatcher.setPathMatcher(pathMatcher);
+		this.defaultPathMatcher = false;
 		return this;
+	}
+
+	/**
+	 * Determines if the {@link #simpDestPathMatcher(PathMatcher)} has been explicitly set.
+	 *
+	 * @return true if {@link #simpDestPathMatcher(PathMatcher)} has been explicitly set, else false.
+	 */
+	protected boolean isSimpDestPathMatcherConfigured() {
+		return !this.defaultPathMatcher;
 	}
 
 	/**
@@ -438,5 +450,43 @@ public class MessageSecurityMetadataSourceRegistry {
 
 	private interface MatcherBuilder {
 		MessageMatcher<?> build();
+	}
+
+
+	static class DelegatingPathMatcher implements PathMatcher {
+
+		private PathMatcher delegate = new AntPathMatcher();
+
+		public boolean isPattern(String path) {
+			return delegate.isPattern(path);
+		}
+
+		public boolean match(String pattern, String path) {
+			return delegate.match(pattern, path);
+		}
+
+		public boolean matchStart(String pattern, String path) {
+			return delegate.matchStart(pattern, path);
+		}
+
+		public String extractPathWithinPattern(String pattern, String path) {
+			return delegate.extractPathWithinPattern(pattern, path);
+		}
+
+		public Map<String, String> extractUriTemplateVariables(String pattern, String path) {
+			return delegate.extractUriTemplateVariables(pattern, path);
+		}
+
+		public Comparator<String> getPatternComparator(String path) {
+			return delegate.getPatternComparator(path);
+		}
+
+		public String combine(String pattern1, String pattern2) {
+			return delegate.combine(pattern1, pattern2);
+		}
+
+		void setPathMatcher(PathMatcher pathMatcher) {
+			this.delegate = pathMatcher;
+		}
 	}
 }
