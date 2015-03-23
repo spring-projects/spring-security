@@ -248,7 +248,7 @@ public class NamespaceHttpTests extends BaseSpringSpec {
 	static class EnableUrlRewritingConfig extends BaseWebConfig {
 		protected void configure(HttpSecurity http) throws Exception {
 			HttpSessionSecurityContextRepository repository = new HttpSessionSecurityContextRepository()
-			repository.disableUrlRewriting = false // explicitly configured (not necessary due to default values)
+			repository.disableUrlRewriting = false // explicitly configured
 
 			http.
 				securityContext()

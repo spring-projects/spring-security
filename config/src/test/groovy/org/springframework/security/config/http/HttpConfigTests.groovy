@@ -12,31 +12,16 @@
  */
 package org.springframework.security.config.http
 
-import org.springframework.mock.web.MockFilterChain
-import org.springframework.mock.web.MockHttpServletRequest
-import org.springframework.mock.web.MockHttpServletResponse
-import org.springframework.security.access.AccessDeniedException
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.Authentication
-import org.springframework.security.core.authority.AuthorityUtils
-import org.springframework.security.core.context.SecurityContextImpl
-import org.springframework.security.web.access.AccessDeniedHandler
-import org.springframework.security.web.context.HttpRequestResponseHolder
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository
-import org.springframework.security.web.csrf.CsrfFilter
-import org.springframework.security.web.csrf.CsrfToken
-import org.springframework.security.web.csrf.CsrfTokenRepository
-import org.springframework.security.web.csrf.DefaultCsrfToken
-import org.springframework.security.web.util.matcher.RequestMatcher
-import org.springframework.web.servlet.support.RequestDataValueProcessor
-import spock.lang.Unroll
-
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
-
 import static org.mockito.Matchers.any
 import static org.mockito.Matchers.eq
 import static org.mockito.Mockito.*
+
+import javax.servlet.http.HttpServletResponse
+import javax.servlet.http.HttpServletResponseWrapper
+
+import org.springframework.mock.web.MockFilterChain
+import org.springframework.mock.web.MockHttpServletRequest
+import org.springframework.mock.web.MockHttpServletResponse
 
 /**
  *
@@ -55,6 +40,38 @@ class HttpConfigTests extends AbstractHttpConfigTests {
 	</user-service>""")
 		when: 'request protected URL'
 		springSecurityFilterChain.doFilter(request,response,chain)
+		then: 'sent to login page'
+		response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
+		response.redirectedUrl == 'http://localhost/login'
+	}
+
+	def 'http disable-url-rewriting defaults to true'() {
+		setup:
+		xml.http() {}
+		createAppContext("""<user-service>
+		<user name="user" password="password" authorities="ROLE_USER" />
+	</user-service>""")
+		HttpServletResponse testResponse = new HttpServletResponseWrapper(response) {
+			public String encodeURL(String url) {
+				throw new RuntimeException("Unexpected invocation of encodeURL")
+			}
+			public String encodeRedirectURL(String url) {
+				throw new RuntimeException("Unexpected invocation of encodeURL")
+			}
+			public String encodeUrl(String url) {
+				throw new RuntimeException("Unexpected invocation of encodeURL")
+			}
+			public String encodeRedirectUrl(String url) {
+				throw new RuntimeException("Unexpected invocation of encodeURL")
+			}
+		}
+		when: 'request protected URL'
+		springSecurityFilterChain.doFilter(request,testResponse,{ request,response->
+			response.encodeURL("/url")
+			response.encodeRedirectURL("/url")
+			response.encodeUrl("/url")
+			response.encodeRedirectUrl("/url")
+		})
 		then: 'sent to login page'
 		response.status == HttpServletResponse.SC_MOVED_TEMPORARILY
 		response.redirectedUrl == 'http://localhost/login'

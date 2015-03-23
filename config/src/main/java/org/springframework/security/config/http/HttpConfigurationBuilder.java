@@ -232,6 +232,9 @@ class HttpConfigurationBuilder {
 
 		String repoRef = httpElt.getAttribute(ATT_SECURITY_CONTEXT_REPOSITORY);
 		String disableUrlRewriting = httpElt.getAttribute(ATT_DISABLE_URL_REWRITING);
+		if(!StringUtils.hasText(disableUrlRewriting)) {
+			disableUrlRewriting = "true";
+		}
 
 		if (StringUtils.hasText(repoRef)) {
 			if (sessionPolicy == SessionCreationPolicy.ALWAYS) {

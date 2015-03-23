@@ -148,17 +148,17 @@ A minimal Spring Security Maven set of dependencies typically looks like the fol
 [subs="verbatim,attributes"]
 ----
 <dependencies>
-  <!-- ... other dependency elements ... -->
-  <dependency>
-    <groupId>org.springframework.security</groupId>
-    <artifactId>spring-security-web</artifactId>
-    <version>{spring-security-version}</version>
-  </dependency>
-  <dependency>
-    <groupId>org.springframework.security</groupId>
-    <artifactId>spring-security-config</artifactId>
-    <version>{spring-security-version}</version>
-  </dependency>
+<!-- ... other dependency elements ... -->
+<dependency>
+	<groupId>org.springframework.security</groupId>
+	<artifactId>spring-security-web</artifactId>
+	<version>{spring-security-version}</version>
+</dependency>
+<dependency>
+	<groupId>org.springframework.security</groupId>
+	<artifactId>spring-security-config</artifactId>
+	<version>{spring-security-version}</version>
+</dependency>
 </dependencies>
 ----
 
@@ -174,12 +174,12 @@ If you are using a SNAPSHOT version, you will need to ensure you have the Spring
 [source,xml]
 ----
 <repositories>
-  <!-- ... possibly other repository elements ... -->
-  <repository>
-    <id>spring-snapshot</id>
-    <name>Spring Snapshot Repository</name>
-    <url>http://repo.springsource.org/snapshot</url>
-  </repository>
+<!-- ... possibly other repository elements ... -->
+<repository>
+	<id>spring-snapshot</id>
+	<name>Spring Snapshot Repository</name>
+	<url>http://repo.springsource.org/snapshot</url>
+</repository>
 </repositories>
 ----
 
@@ -189,12 +189,12 @@ If you are using a milestone or release candidate version, you will need to ensu
 [source,xml]
 ----
 <repositories>
-  <!-- ... possibly other repository elements ... -->
-  <repository>
-    <id>spring-milestone</id>
-    <name>Spring Milestone Repository</name>
-    <url>http://repo.springsource.org/milestone</url>
-  </repository>
+<!-- ... possibly other repository elements ... -->
+<repository>
+	<id>spring-milestone</id>
+	<name>Spring Milestone Repository</name>
+	<url>http://repo.springsource.org/milestone</url>
+</repository>
 </repositories>
 ----
 
@@ -210,15 +210,15 @@ One (tedious) way to circumvent this issue would be to include all the Spring Fr
 [subs="verbatim,attributes"]
 ----
 <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-framework-bom</artifactId>
-        <version>{spring-version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
+	<dependencies>
+	  <dependency>
+		<groupId>org.springframework</groupId>
+		<artifactId>spring-framework-bom</artifactId>
+		<version>{spring-version}</version>
+		<type>pom</type>
+		<scope>import</scope>
+	  </dependency>
+	</dependencies>
 </dependencyManagement>
 ----
 
@@ -235,8 +235,8 @@ A minimal Spring Security Gradle set of dependencies typically looks like the fo
 [subs="verbatim,attributes"]
 ----
 dependencies {
-    compile 'org.springframework.security:spring-security-web:{spring-security-version}'
-    compile 'org.springframework.security:spring-security-config:{spring-security-version}'
+	compile 'org.springframework.security:spring-security-web:{spring-security-version}'
+	compile 'org.springframework.security:spring-security-config:{spring-security-version}'
 }
 ----
 
@@ -250,7 +250,7 @@ All GA releases (i.e. versions ending in .RELEASE) are deployed to Maven Central
 [source,groovy]
 ----
 repositories {
-    mavenCentral()
+	mavenCentral()
 }
 ----
 
@@ -260,7 +260,7 @@ If you are using a SNAPSHOT version, you will need to ensure you have the Spring
 [source,groovy]
 ----
 repositories {
-    maven { url 'https://repo.spring.io/snapshot' }
+	maven { url 'https://repo.spring.io/snapshot' }
 }
 ----
 
@@ -270,7 +270,7 @@ If you are using a milestone or release candidate version, you will need to ensu
 [source,groovy]
 ----
 repositories {
-    maven { url 'https://repo.spring.io/milestone' }
+	maven { url 'https://repo.spring.io/milestone' }
 }
 ----
 
@@ -284,11 +284,11 @@ By default Gradle will use the newest version when resolving transitive versions
 [subs="verbatim,attributes"]
 ----
 configurations.all {
-    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-        if (details.requested.group == 'org.springframework') {
-            details.useVersion '{spring-version}'
-        }
-    }
+	resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+		if (details.requested.group == 'org.springframework') {
+			details.useVersion '{spring-version}'
+		}
+	}
 }
 ----
 
@@ -468,12 +468,12 @@ import org.springframework.security.config.annotation.web.configuration.*;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-            .inMemoryAuthentication()
-                .withUser("user").password("password").roles("USER");
-    }
+	@Autowired
+	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		auth
+			.inMemoryAuthentication()
+				.withUser("user").password("password").roles("USER");
+	}
 }
 ----
 
@@ -516,11 +516,11 @@ If you are not using Spring or Spring MVC, you will need to pass in the `Securit
 import org.springframework.security.web.context.*;
 
 public class SecurityWebApplicationInitializer
-      extends AbstractSecurityWebApplicationInitializer {
+	  extends AbstractSecurityWebApplicationInitializer {
 
-    public SecurityWebApplicationInitializer() {
-        super(SecurityConfig.class);
-    }
+	public SecurityWebApplicationInitializer() {
+		super(SecurityConfig.class);
+	}
 }
 ----
 
@@ -538,7 +538,7 @@ If we were using Spring elsewhere in our application we probably already had a `
 import org.springframework.security.web.context.*;
 
 public class SecurityWebApplicationInitializer
-      extends AbstractSecurityWebApplicationInitializer {
+	  extends AbstractSecurityWebApplicationInitializer {
 
 }
 ----
@@ -549,14 +549,14 @@ This would simply only register the springSecurityFilterChain Filter for every U
 [source,java]
 ----
 public class MvcWebApplicationInitializer extends
-        AbstractAnnotationConfigDispatcherServletInitializer {
+		AbstractAnnotationConfigDispatcherServletInitializer {
 
-    @Override
-    protected Class<?>[] getRootConfigClasses() {
-        return new Class[] { SecurityConfig.class };
-    }
+	@Override
+	protected Class<?>[] getRootConfigClasses() {
+		return new Class[] { SecurityConfig.class };
+	}
 
-    // ... other overrides ...
+	// ... other overrides ...
 }
 ----
 
@@ -568,13 +568,13 @@ Thus far our <<jc-hello-wsca,SecurityConfig>> only contains information about ho
 [source,java]
 ----
 protected void configure(HttpSecurity http) throws Exception {
-    http
-        .authorizeRequests()
-            .anyRequest().authenticated()
-            .and()
-        .formLogin()
-            .and()
-        .httpBasic();
+	http
+		.authorizeRequests()
+			.anyRequest().authenticated()
+			.and()
+		.formLogin()
+			.and()
+		.httpBasic();
 }
 ----
 
@@ -589,9 +589,9 @@ You will notice that this configuration is quite similar the XML Namespace confi
 [source,xml]
 ----
 <http>
-    <intercept-url pattern="/**" access="authenticated"/>
-    <form-login />
-    <http-basic />
+	<intercept-url pattern="/**" access="authenticated"/>
+	<form-login />
+	<http-basic />
 </http>
 ----
 
@@ -609,13 +609,13 @@ While the automatically generated log in page is convenient to get up and runnin
 [source,java]
 ----
 protected void configure(HttpSecurity http) throws Exception {
-    http
-        .authorizeRequests()
-            .anyRequest().authenticated()
-            .and()
-        .formLogin()
-            .loginPage("/login") // <1>
-            .permitAll();        // <2>
+	http
+		.authorizeRequests()
+			.anyRequest().authenticated()
+			.and()
+		.formLogin()
+			.loginPage("/login") // <1>
+			.permitAll();        // <2>
 }
 ----
 
@@ -630,28 +630,28 @@ NOTE: The login page below represents our current configuration. We could easily
 ----
 <c:url value="/login" var="loginUrl"/>
 <form action="${loginUrl}" method="post">       <1>
-    <c:if test="${param.error != null}">        <2>
-        <p>
-            Invalid username and password.
-        </p>
-    </c:if>
-    <c:if test="${param.logout != null}">       <3>
-        <p>
-            You have been logged out.
-        </p>
-    </c:if>
-    <p>
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username"/>	<4>
-    </p>
-    <p>
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password"/>	<5>
-    </p>
-    <input type="hidden"                        <6>
-        name="${_csrf.parameterName}"
-        value="${_csrf.token}"/>
-    <button type="submit" class="btn">Log in</button>
+	<c:if test="${param.error != null}">        <2>
+		<p>
+			Invalid username and password.
+		</p>
+	</c:if>
+	<c:if test="${param.logout != null}">       <3>
+		<p>
+			You have been logged out.
+		</p>
+	</c:if>
+	<p>
+		<label for="username">Username</label>
+		<input type="text" id="username" name="username"/>	<4>
+	</p>
+	<p>
+		<label for="password">Password</label>
+		<input type="password" id="password" name="password"/>	<5>
+	</p>
+	<input type="hidden"                        <6>
+		name="${_csrf.parameterName}"
+		value="${_csrf.token}"/>
+	<button type="submit" class="btn">Log in</button>
 </form>
 ----
 
@@ -670,15 +670,15 @@ Our examples have only required users to be authenticated and have done so for e
 [source,java]
 ----
 protected void configure(HttpSecurity http) throws Exception {
-    http
-        .authorizeRequests()                                                                <1>
-            .antMatchers("/resources/**", "/signup", "/about").permitAll()                  <2>
-            .antMatchers("/admin/**").hasRole("ADMIN")                                      <3>
-            .antMatchers("/db/**").access("hasRole('ADMIN') and hasRole('DBA')")            <4>
-            .anyRequest().authenticated()                                                   <5>
-            .and()
-        // ...
-        .formLogin();
+	http
+		.authorizeRequests()                                                                <1>
+			.antMatchers("/resources/**", "/signup", "/about").permitAll()                  <2>
+			.antMatchers("/admin/**").hasRole("ADMIN")                                      <3>
+			.antMatchers("/db/**").access("hasRole('ADMIN') and hasRole('DBA')")            <4>
+			.anyRequest().authenticated()                                                   <5>
+			.and()
+		// ...
+		.formLogin();
 }
 ----
 
@@ -702,10 +702,10 @@ We have already seen an example of configuring in memory authentication for a si
 ----
 @Autowired
 public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-    auth
-        .inMemoryAuthentication()
-            .withUser("user").password("password").roles("USER").and()
-            .withUser("admin").password("password").roles("USER", "ADMIN");
+	auth
+		.inMemoryAuthentication()
+			.withUser("user").password("password").roles("USER").and()
+			.withUser("admin").password("password").roles("USER", "ADMIN");
 }
 ----
 
@@ -721,12 +721,12 @@ private DataSource dataSource;
 
 @Autowired
 public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-    auth
-        .jdbcAuthentication()
-            .dataSource(dataSource)
-            .withDefaultSchema()
-            .withUser("user").password("password").roles("USER").and()
-            .withUser("admin").password("password").roles("USER", "ADMIN");
+	auth
+		.jdbcAuthentication()
+			.dataSource(dataSource)
+			.withDefaultSchema()
+			.withUser("user").password("password").roles("USER").and()
+			.withUser("admin").password("password").roles("USER", "ADMIN");
 }
 ----
 
@@ -741,10 +741,10 @@ private DataSource dataSource;
 
 @Autowired
 public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-    auth
-        .ldapAuthentication()
-            .userDnPatterns("uid={0},ou=people")
-            .groupSearchBase("ou=groups");
+	auth
+		.ldapAuthentication()
+			.userDnPatterns("uid={0},ou=people")
+			.groupSearchBase("ou=groups");
 }
 ----
 
@@ -804,39 +804,39 @@ We can configure multiple HttpSecurity instances just as we can have multiple `<
 ----
 @EnableWebSecurity
 public class MultiHttpSecurityConfig {
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) { <1>
-        auth
-            .inMemoryAuthentication()
-                .withUser("user").password("password").roles("USER").and()
-                .withUser("admin").password("password").roles("USER", "ADMIN");
-    }
+	@Autowired
+	public void configureGlobal(AuthenticationManagerBuilder auth) { <1>
+		auth
+			.inMemoryAuthentication()
+				.withUser("user").password("password").roles("USER").and()
+				.withUser("admin").password("password").roles("USER", "ADMIN");
+	}
 
-    @Configuration
-    @Order(1)                                                        <2>
-    public static class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .antMatcher("/api/**")                               <3>
-                .authorizeRequests()
-                    .anyRequest().hasRole("ADMIN")
-                    .and()
-                .httpBasic();
-        }
-    }
+	@Configuration
+	@Order(1)                                                        <2>
+	public static class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.antMatcher("/api/**")                               <3>
+				.authorizeRequests()
+					.anyRequest().hasRole("ADMIN")
+					.and()
+				.httpBasic();
+		}
+	}
 
-    @Configuration                                                   <4>
-    public static class FormLoginWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
+	@Configuration                                                   <4>
+	public static class FormLoginWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .authorizeRequests()
-                    .anyRequest().authenticated()
-                    .and()
-                .formLogin();
-        }
-    }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http
+				.authorizeRequests()
+					.anyRequest().authenticated()
+					.and()
+				.formLogin();
+		}
+	}
 }
 ----
 
@@ -859,7 +859,7 @@ We can enable annotation-based security using the `@EnableGlobalMethodSecurity` 
 ----
 @EnableGlobalMethodSecurity(securedEnabled = true)
 public class MethodSecurityConfig {
-   // ...
+// ...
 }
 ----
 
@@ -869,14 +869,14 @@ Adding an annotation to a method (on an class or interface) would then limit the
 ----
 public interface BankService {
 
-  @Secured("IS_AUTHENTICATED_ANONYMOUSLY")
-  public Account readAccount(Long id);
+@Secured("IS_AUTHENTICATED_ANONYMOUSLY")
+public Account readAccount(Long id);
 
-  @Secured("IS_AUTHENTICATED_ANONYMOUSLY")
-  public Account[] findAccounts();
+@Secured("IS_AUTHENTICATED_ANONYMOUSLY")
+public Account[] findAccounts();
 
-  @Secured("ROLE_TELLER")
-  public Account post(Account account, double amount);
+@Secured("ROLE_TELLER")
+public Account post(Account account, double amount);
 }
 ----
 
@@ -886,7 +886,7 @@ Support for JSR-250 annotations can be enabled using
 ----
 @EnableGlobalMethodSecurity(jsr250Enabled = true)
 public class MethodSecurityConfig {
-   // ...
+// ...
 }
 ----
 
@@ -896,7 +896,7 @@ These are standards-based and allow simple role-based constraints to be applied 
 ----
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class MethodSecurityConfig {
-   // ...
+// ...
 }
 ----
 
@@ -906,14 +906,14 @@ and the equivalent Java code would be
 ----
 public interface BankService {
 
-  @PreAuthorize("isAnonymous()")
-  public Account readAccount(Long id);
+@PreAuthorize("isAnonymous()")
+public Account readAccount(Long id);
 
-  @PreAuthorize("isAnonymous()")
-  public Account[] findAccounts();
+@PreAuthorize("isAnonymous()")
+public Account[] findAccounts();
 
-  @PreAuthorize("hasAuthority('ROLE_TELLER')")
-  public Account post(Account account, double amount);
+@PreAuthorize("hasAuthority('ROLE_TELLER')")
+public Account post(Account account, double amount);
 }
 ----
 
@@ -925,11 +925,11 @@ Sometimes you may need to perform operations that are more complicated than are 
 ----
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
-    @Override
-    protected MethodSecurityExpressionHandler createExpressionHandler() {
-        // ... create and return custom MethodSecurityExpressionHandler ...
-        return expressionHander;
-    }
+	@Override
+	protected MethodSecurityExpressionHandler createExpressionHandler() {
+		// ... create and return custom MethodSecurityExpressionHandler ...
+		return expressionHander;
+	}
 }
 ----
 
@@ -945,16 +945,16 @@ While there are good reasons to not directly expose every property, users may st
 ----
 @Override
 protected void configure(HttpSecurity http) throws Exception {
-    http
-        .authorizeRequests()
-            .anyRequest().authenticated()
-            .withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
-                public <O extends FilterSecurityInterceptor> O postProcess(
-                        O fsi) {
-                    fsi.setPublishAuthorizationSuccess(true);
-                    return fsi;
-                }
-            });
+	http
+		.authorizeRequests()
+			.anyRequest().authenticated()
+			.withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
+				public <O extends FilterSecurityInterceptor> O postProcess(
+						O fsi) {
+					fsi.setPublishAuthorizationSuccess(true);
+					return fsi;
+				}
+			});
 }
 ----
 
@@ -981,33 +981,33 @@ To start using the security namespace in your application context, you need to h
 [source,xml]
 ----
 <beans xmlns="http://www.springframework.org/schema/beans"
-  xmlns:security="http://www.springframework.org/schema/security"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans
-          http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-          http://www.springframework.org/schema/security
-          http://www.springframework.org/schema/security/spring-security.xsd">
-    ...
+xmlns:security="http://www.springframework.org/schema/security"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.springframework.org/schema/beans
+		  http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		  http://www.springframework.org/schema/security
+		  http://www.springframework.org/schema/security/spring-security.xsd">
+	...
 </beans>
 ----
 
 In many of the examples you will see (and in the sample) applications, we
-            will often use "security" as the default namespace rather than "beans", which means we
-            can omit the prefix on all the security namespace elements, making the content easier to
-            read. You may also want to do this if you have your application context divided up into
-            separate files and have most of your security configuration in one of them. Your
-            security application context file would then start like this
+			will often use "security" as the default namespace rather than "beans", which means we
+			can omit the prefix on all the security namespace elements, making the content easier to
+			read. You may also want to do this if you have your application context divided up into
+			separate files and have most of your security configuration in one of them. Your
+			security application context file would then start like this
 
 [source,xml]
 ----
 <beans:beans xmlns="http://www.springframework.org/schema/security"
-  xmlns:beans="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-           http://www.springframework.org/schema/security
-           http://www.springframework.org/schema/security/spring-security.xsd">
-    ...
+xmlns:beans="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.springframework.org/schema/beans
+		   http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		   http://www.springframework.org/schema/security
+		   http://www.springframework.org/schema/security/spring-security.xsd">
+	...
 </beans:beans>
 ----
 
@@ -1042,13 +1042,13 @@ The first thing you need to do is add the following filter declaration to your `
 [source,xml]
 ----
 <filter>
-  <filter-name>springSecurityFilterChain</filter-name>
-  <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+<filter-name>springSecurityFilterChain</filter-name>
+<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
 </filter>
 
 <filter-mapping>
-  <filter-name>springSecurityFilterChain</filter-name>
-  <url-pattern>/*</url-pattern>
+<filter-name>springSecurityFilterChain</filter-name>
+<url-pattern>/*</url-pattern>
 </filter-mapping>
 ----
 
@@ -1063,9 +1063,9 @@ All you need to enable web security to begin with is
 [source,xml]
 ----
 <http>
-  <intercept-url pattern="/**" access="hasRole('USER')" />
-  <form-login />
-  <logout />
+<intercept-url pattern="/**" access="hasRole('USER')" />
+<form-login />
+<logout />
 </http>
 ----
 
@@ -1091,12 +1091,12 @@ To add some users, you can define a set of test data directly in the namespace:
 [source,xml]
 ----
 <authentication-manager>
-  <authentication-provider>
-    <user-service>
-      <user name="jimi" password="jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />
-      <user name="bob" password="bobspassword" authorities="ROLE_USER" />
-    </user-service>
-  </authentication-provider>
+<authentication-provider>
+	<user-service>
+	  <user name="jimi" password="jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />
+	  <user name="bob" password="bobspassword" authorities="ROLE_USER" />
+	</user-service>
+</authentication-provider>
 </authentication-manager>
 ----
 
@@ -1119,9 +1119,9 @@ You might be wondering where the login form came from when you were prompted to 
 [source,xml]
 ----
 <http>
-  <intercept-url pattern="/login.jsp*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
-  <intercept-url pattern="/**" access="ROLE_USER" />
-  <form-login login-page='/login.jsp'/>
+<intercept-url pattern="/login.jsp*" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+<intercept-url pattern="/**" access="ROLE_USER" />
+<form-login login-page='/login.jsp'/>
 </http>
 ----
 
@@ -1137,8 +1137,8 @@ secured. It is also possible to have all requests matching a particular pattern 
 <http pattern="/login.jsp*" security="none"/>
 
 <http use-expressions="false">
-  <intercept-url pattern="/**" access="ROLE_USER" />
-  <form-login login-page='/login.jsp'/>
+<intercept-url pattern="/**" access="ROLE_USER" />
+<form-login login-page='/login.jsp'/>
 </http>
 ----
 
@@ -1152,8 +1152,8 @@ If you want to use basic authentication instead of form login, then change the c
 [source,xml]
 ----
 <http use-expressions="false">
-  <intercept-url pattern="/**" access="ROLE_USER" />
-  <http-basic />
+<intercept-url pattern="/**" access="ROLE_USER" />
+<http-basic />
 </http>
 ----
 
@@ -1167,9 +1167,9 @@ If a form login isn't prompted by an attempt to access a protected resource, the
 ----
 <http pattern="/login.htm*" security="none"/>
 <http use-expressions="false">
-  <intercept-url pattern='/**' access='ROLE_USER' />
-  <form-login login-page='/login.htm' default-target-url='/home.htm'
-          always-use-default-target='true' />
+<intercept-url pattern='/**' access='ROLE_USER' />
+<form-login login-page='/login.htm' default-target-url='/home.htm'
+		  always-use-default-target='true' />
 </http>
 ----
 
@@ -1186,9 +1186,9 @@ In practice you will need a more scalable source of user information than a few 
 [source,xml]
 ----
 
-  <authentication-manager>
-    <authentication-provider user-service-ref='myUserDetailsService'/>
-  </authentication-manager>
+<authentication-manager>
+	<authentication-provider user-service-ref='myUserDetailsService'/>
+</authentication-manager>
 
 ----
 
@@ -1197,9 +1197,9 @@ If you want to use a database, then you can use
 [source,xml]
 ----
 <authentication-manager>
-  <authentication-provider>
-    <jdbc-user-service data-source-ref="securityDataSource"/>
-  </authentication-provider>
+<authentication-provider>
+	<jdbc-user-service data-source-ref="securityDataSource"/>
+</authentication-provider>
 </authentication-manager>
 ----
 
@@ -1208,12 +1208,12 @@ Where "securityDataSource" is the name of a `DataSource` bean in the application
 [source,xml]
 ----
 <authentication-manager>
-  <authentication-provider user-service-ref='myUserDetailsService'/>
+<authentication-provider user-service-ref='myUserDetailsService'/>
 </authentication-manager>
 
 <beans:bean id="myUserDetailsService"
-    class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl">
-  <beans:property name="dataSource" ref="dataSource"/>
+	class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl">
+<beans:property name="dataSource" ref="dataSource"/>
 </beans:bean>
 ----
 
@@ -1222,9 +1222,9 @@ You can also use standard `AuthenticationProvider` beans as follows
 [source,xml]
 ----
 
-  <authentication-manager>
-    <authentication-provider ref='myAuthenticationProvider'/>
-  </authentication-manager>
+<authentication-manager>
+	<authentication-provider ref='myAuthenticationProvider'/>
+</authentication-manager>
 
 ----
 
@@ -1237,18 +1237,18 @@ Passwords should always be encoded using a secure hashing algorithm designed for
 [source,xml]
 ----
 <beans:bean name="bcryptEncoder"
-    class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/>
+	class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/>
 
 <authentication-manager>
-  <authentication-provider>
-    <password-encoder ref="bcryptEncoder"/>
-    <user-service>
-      <user name="jimi" password="d7e6351eaa13189a5a3641bab846c8e8c69ba39f"
-            authorities="ROLE_USER, ROLE_ADMIN" />
-      <user name="bob" password="4e7421b1b8765d8f9406d87e7cc6aa784c4ab97f"
-            authorities="ROLE_USER" />
-    </user-service>
-  </authentication-provider>
+<authentication-provider>
+	<password-encoder ref="bcryptEncoder"/>
+	<user-service>
+	  <user name="jimi" password="d7e6351eaa13189a5a3641bab846c8e8c69ba39f"
+			authorities="ROLE_USER, ROLE_ADMIN" />
+	  <user name="bob" password="4e7421b1b8765d8f9406d87e7cc6aa784c4ab97f"
+			authorities="ROLE_USER" />
+	</user-service>
+</authentication-provider>
 </authentication-manager>
 
 ----
@@ -1271,9 +1271,9 @@ If your application supports both HTTP and HTTPS, and you require that particula
 [source,xml]
 ----
 <http>
-  <intercept-url pattern="/secure/**" access="ROLE_USER" requires-channel="https"/>
-  <intercept-url pattern="/**" access="ROLE_USER" requires-channel="any"/>
-  ...
+<intercept-url pattern="/secure/**" access="ROLE_USER" requires-channel="https"/>
+<intercept-url pattern="/**" access="ROLE_USER" requires-channel="any"/>
+...
 </http>
 ----
 
@@ -1284,10 +1284,10 @@ If your application uses non-standard ports for HTTP and/or HTTPS, you can speci
 [source,xml]
 ----
 <http>
-  ...
-  <port-mappings>
-    <port-mapping http="9080" https="9443"/>
-  </port-mappings>
+...
+<port-mappings>
+	<port-mapping http="9080" https="9443"/>
+</port-mappings>
 </http>
 ----
 
@@ -1302,8 +1302,8 @@ You can configure Spring Security to detect the submission of an invalid session
 [source,xml]
 ----
 <http>
-  ...
-  <session-management invalid-session-url="/invalidSession.htm" />
+...
+<session-management invalid-session-url="/invalidSession.htm" />
 </http>
 ----
 
@@ -1312,7 +1312,7 @@ Note that if you use this mechanism to detect session timeouts, it may falsely r
 [source,xml]
 ----
 <http>
-  <logout delete-cookies="JSESSIONID" />
+<logout delete-cookies="JSESSIONID" />
 </http>
 ----
 
@@ -1325,7 +1325,7 @@ If you are running your application behind a proxy, you may also be able to remo
 [source,xml]
 ----
 <LocationMatch "/tutorial/logout">
-  Header always set Set-Cookie "JSESSIONID=;Path=/tutorial;Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+Header always set Set-Cookie "JSESSIONID=;Path=/tutorial;Expires=Thu, 01 Jan 1970 00:00:00 GMT"
 </LocationMatch>
 ----
 ====
@@ -1338,9 +1338,9 @@ If you wish to place constraints on a single user's ability to log in to your ap
 [source,xml]
 ----
 <listener>
-  <listener-class>
-    org.springframework.security.web.session.HttpSessionEventPublisher
-  </listener-class>
+<listener-class>
+	org.springframework.security.web.session.HttpSessionEventPublisher
+</listener-class>
 </listener>
 ----
 
@@ -1349,10 +1349,10 @@ Then add the following lines to your application context:
 [source,xml]
 ----
 <http>
-  ...
-  <session-management>
-     <concurrency-control max-sessions="1" />
-  </session-management>
+...
+<session-management>
+	 <concurrency-control max-sessions="1" />
+</session-management>
 </http>
 ----
 
@@ -1361,10 +1361,10 @@ This will prevent a user from logging in multiple times - a second login will ca
 [source,xml]
 ----
 <http>
-  ...
-  <session-management>
-     <concurrency-control max-sessions="1" error-if-maximum-exceeded="true" />
-  </session-management>
+...
+<session-management>
+	 <concurrency-control max-sessions="1" error-if-maximum-exceeded="true" />
+</session-management>
 </http>
 ----
 
@@ -1395,8 +1395,8 @@ The namespace supports http://openid.net/[OpenID] login either instead of, or in
 [source,xml]
 ----
 <http>
-  <intercept-url pattern="/**" access="ROLE_USER" />
-  <openid-login />
+<intercept-url pattern="/**" access="ROLE_USER" />
+<openid-login />
 </http>
 ----
 
@@ -1416,10 +1416,10 @@ Support for OpenID http://openid.net/specs/openid-attribute-exchange-1_0.html[at
 [source,xml]
 ----
 <openid-login>
-  <attribute-exchange>
-    <openid-attribute name="email" type="http://axschema.org/contact/email" required="true"/>
-    <openid-attribute name="name" type="http://axschema.org/namePerson"/>
-  </attribute-exchange>
+<attribute-exchange>
+	<openid-attribute name="email" type="http://axschema.org/contact/email" required="true"/>
+	<openid-attribute name="name" type="http://axschema.org/namePerson"/>
+</attribute-exchange>
 </openid-login>
 ----
 
@@ -1428,7 +1428,7 @@ The "type" of each OpenID attribute is a URI, determined by a particular schema,
 [source,java]
 ----
 OpenIDAuthenticationToken token =
-    (OpenIDAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
+	(OpenIDAuthenticationToken)SecurityContextHolder.getContext().getAuthentication();
 List<OpenIDAttribute> attributes = token.getAttributes();
 ----
 
@@ -1540,7 +1540,7 @@ You can add your own filter to the stack, using the `custom-filter` element and 
 [source,xml]
 ----
 <http>
-   <custom-filter position="FORM_LOGIN_FILTER" ref="myFilter" />
+<custom-filter position="FORM_LOGIN_FILTER" ref="myFilter" />
 </http>
 
 <beans:bean id="myFilter" class="com.mycompany.MySpecialAuthenticationFilter"/>
@@ -1588,14 +1588,14 @@ Adding an annotation to a method (on an class or interface) would then limit the
 ----
 public interface BankService {
 
-  @Secured("IS_AUTHENTICATED_ANONYMOUSLY")
-  public Account readAccount(Long id);
+@Secured("IS_AUTHENTICATED_ANONYMOUSLY")
+public Account readAccount(Long id);
 
-  @Secured("IS_AUTHENTICATED_ANONYMOUSLY")
-  public Account[] findAccounts();
+@Secured("IS_AUTHENTICATED_ANONYMOUSLY")
+public Account[] findAccounts();
 
-  @Secured("ROLE_TELLER")
-  public Account post(Account account, double amount);
+@Secured("ROLE_TELLER")
+public Account post(Account account, double amount);
 }
 ----
 
@@ -1619,14 +1619,14 @@ and the equivalent Java code would be
 ----
 public interface BankService {
 
-  @PreAuthorize("isAnonymous()")
-  public Account readAccount(Long id);
+@PreAuthorize("isAnonymous()")
+public Account readAccount(Long id);
 
-  @PreAuthorize("isAnonymous()")
-  public Account[] findAccounts();
+@PreAuthorize("isAnonymous()")
+public Account[] findAccounts();
 
-  @PreAuthorize("hasAuthority('ROLE_TELLER')")
-  public Account post(Account account, double amount);
+@PreAuthorize("hasAuthority('ROLE_TELLER')")
+public Account post(Account account, double amount);
 }
 ----
 
@@ -1650,8 +1650,8 @@ The use of `protect-pointcut` is particularly powerful, as it allows you to appl
 [source,xml]
 ----
 <global-method-security>
-  <protect-pointcut expression="execution(* com.mycompany.*Service.*(..))"
-       access="ROLE_USER"/>
+<protect-pointcut expression="execution(* com.mycompany.*Service.*(..))"
+	   access="ROLE_USER"/>
 </global-method-security>
 ----
 
@@ -1675,7 +1675,7 @@ For method security, you do this by setting the `access-decision-manager-ref` at
 [source,xml]
 ----
 <global-method-security access-decision-manager-ref="myAccessDecisionManagerBean">
-  ...
+...
 </global-method-security>
 ----
 
@@ -1684,7 +1684,7 @@ The syntax for web security is the same, but on the `http` element:
 [source,xml]
 ----
 <http access-decision-manager-ref="myAccessDecisionManagerBean">
-  ...
+...
 </http>
 ----
 
@@ -1697,12 +1697,12 @@ You may want to register additional `AuthenticationProvider` beans with the `Pro
 [source,xml]
 ----
 <authentication-manager>
-  <authentication-provider ref="casAuthenticationProvider"/>
+<authentication-provider ref="casAuthenticationProvider"/>
 </authentication-manager>
 
 <bean id="casAuthenticationProvider"
-    class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
-  ...
+	class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
+...
 </bean>
 ----
 
@@ -1711,13 +1711,13 @@ Another common requirement is that another bean in the context may require a ref
 [source,xml]
 ----
 <security:authentication-manager alias="authenticationManager">
-   ...
+...
 </security:authentication-manager>
 
 <bean id="customizedFormLoginFilter"
-      class="com.somecompany.security.web.CustomFormLoginFilter">
-   <property name="authenticationManager" ref="authenticationManager"/>
-   ...
+	  class="com.somecompany.security.web.CustomFormLoginFilter">
+<property name="authenticationManager" ref="authenticationManager"/>
+...
 </bean>
 ----
 
@@ -1866,9 +1866,9 @@ Inside the `SecurityContextHolder` we store details of the principal currently i
 Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
 if (principal instanceof UserDetails) {
-  String username = ((UserDetails)principal).getUsername();
+String username = ((UserDetails)principal).getUsername();
 } else {
-  String username = principal.toString();
+String username = principal.toString();
 }
 ----
 
@@ -1885,12 +1885,12 @@ By now you're probably wondering, so when do I provide a `UserDetails` object? H
 [source,java]
 ----
 
-  UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
+UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
 ----
 
 This is the most common approach to loading information for a user within Spring
-                Security and you will see it used throughout the framework whenever information on a
-                user is required.
+				Security and you will see it used throughout the framework whenever information on a
+				user is required.
 
 On successful authentication, `UserDetails` is used to build the `Authentication` object that is stored in the `SecurityContextHolder` (more on this <<tech-intro-authentication,below>>). The good news is that we provide a number of `UserDetailsService` implementations, including one that uses an in-memory map (`InMemoryDaoImpl`) and another that uses JDBC (`JdbcDaoImpl`). Most users tend to write their own, though, with their implementations often simply sitting on top of an existing Data Access Object (DAO) that represents their employees, customers, or other users of the application. Remember the advantage that whatever your `UserDetailsService` returns can always be obtained from the `SecurityContextHolder` using the above code fragment.
 
@@ -1962,51 +1962,51 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 public class AuthenticationExample {
-  private static AuthenticationManager am = new SampleAuthenticationManager();
+private static AuthenticationManager am = new SampleAuthenticationManager();
 
-  public static void main(String[] args) throws Exception {
-    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+public static void main(String[] args) throws Exception {
+	BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 
-    while(true) {
-      System.out.println("Please enter your username:");
-      String name = in.readLine();
-      System.out.println("Please enter your password:");
-      String password = in.readLine();
-      try {
-        Authentication request = new UsernamePasswordAuthenticationToken(name, password);
-        Authentication result = am.authenticate(request);
-        SecurityContextHolder.getContext().setAuthentication(result);
-        break;
-      } catch(AuthenticationException e) {
-        System.out.println("Authentication failed: " + e.getMessage());
-      }
-    }
-    System.out.println("Successfully authenticated. Security context contains: " +
-              SecurityContextHolder.getContext().getAuthentication());
-  }
+	while(true) {
+	  System.out.println("Please enter your username:");
+	  String name = in.readLine();
+	  System.out.println("Please enter your password:");
+	  String password = in.readLine();
+	  try {
+		Authentication request = new UsernamePasswordAuthenticationToken(name, password);
+		Authentication result = am.authenticate(request);
+		SecurityContextHolder.getContext().setAuthentication(result);
+		break;
+	  } catch(AuthenticationException e) {
+		System.out.println("Authentication failed: " + e.getMessage());
+	  }
+	}
+	System.out.println("Successfully authenticated. Security context contains: " +
+			  SecurityContextHolder.getContext().getAuthentication());
+}
 }
 
 class SampleAuthenticationManager implements AuthenticationManager {
-  static final List<GrantedAuthority> AUTHORITIES = new ArrayList<GrantedAuthority>();
+static final List<GrantedAuthority> AUTHORITIES = new ArrayList<GrantedAuthority>();
 
-  static {
-    AUTHORITIES.add(new SimpleGrantedAuthority("ROLE_USER"));
-  }
+static {
+	AUTHORITIES.add(new SimpleGrantedAuthority("ROLE_USER"));
+}
 
-  public Authentication authenticate(Authentication auth) throws AuthenticationException {
-    if (auth.getName().equals(auth.getCredentials())) {
-      return new UsernamePasswordAuthenticationToken(auth.getName(),
-        auth.getCredentials(), AUTHORITIES);
-      }
-      throw new BadCredentialsException("Bad Credentials");
-  }
+public Authentication authenticate(Authentication auth) throws AuthenticationException {
+	if (auth.getName().equals(auth.getCredentials())) {
+	  return new UsernamePasswordAuthenticationToken(auth.getName(),
+		auth.getCredentials(), AUTHORITIES);
+	  }
+	  throw new BadCredentialsException("Bad Credentials");
+}
 }
 ----
 
 Here
-                we have written a little program that asks the user to enter a username and password
-                and performs the above sequence. The
-                `AuthenticationManager` which we've implemented here will authenticate any user whose username and password are the same. It assigns a single role to every user. The output from the above will be something like:
+				we have written a little program that asks the user to enter a username and password
+				and performs the above sequence. The
+				`AuthenticationManager` which we've implemented here will authenticate any user whose username and password are the same. It assigns a single role to every user. The output from the above will be something like:
 
 [source,txt]
 ----
@@ -2021,10 +2021,10 @@ bob
 Please enter your password:
 bob
 Successfully authenticated. Security context contains: \
- org.springframework.security.authentication.UsernamePasswordAuthenticationToken@441d0230: \
- Principal: bob; Password: [PROTECTED]; \
- Authenticated: true; Details: null; \
- Granted Authorities: ROLE_USER
+org.springframework.security.authentication.UsernamePasswordAuthenticationToken@441d0230: \
+Principal: bob; Password: [PROTECTED]; \
+Authenticated: true; Details: null; \
+Granted Authorities: ROLE_USER
 
 ----
 
@@ -2145,8 +2145,8 @@ Shipping in the `spring-security-core-xx.jar` you will find an `org.springframew
 [source,xml]
 ----
 <bean id="messageSource"
-    class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
-  <property name="basename" value="classpath:org/springframework/security/messages"/>
+	class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+<property name="basename" value="classpath:org/springframework/security/messages"/>
 </bean>
 ----
 
@@ -2176,14 +2176,14 @@ If you are using the namespace, an instance of `ProviderManager` is created and 
 ----
 
 <bean id="authenticationManager"
-     class="org.springframework.security.authentication.ProviderManager">
-  <property name="providers">
-    <list>
-      <ref local="daoAuthenticationProvider"/>
-      <ref local="anonymousAuthenticationProvider"/>
-      <ref local="ldapAuthenticationProvider"/>
-    </list>
-  </property>
+	 class="org.springframework.security.authentication.ProviderManager">
+<property name="providers">
+	<list>
+	  <ref local="daoAuthenticationProvider"/>
+	  <ref local="anonymousAuthenticationProvider"/>
+	  <ref local="ldapAuthenticationProvider"/>
+	</list>
+</property>
 </bean>
 ----
 
@@ -2207,9 +2207,9 @@ The simplest `AuthenticationProvider` implemented by Spring Security is `DaoAuth
 ----
 
 <bean id="daoAuthenticationProvider"
-    class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
-  <property name="userDetailsService" ref="inMemoryDaoImpl"/>
-  <property name="passwordEncoder" ref="passwordEncoder"/>
+	class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+<property name="userDetailsService" ref="inMemoryDaoImpl"/>
+<property name="passwordEncoder" ref="passwordEncoder"/>
 </bean>
 ----
 
@@ -2236,8 +2236,8 @@ Is easy to use create a custom `UserDetailsService` implementation that extracts
 [source,xml]
 ----
 <user-service id="userDetailsService">
-  <user name="jimi" password="jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />
-  <user name="bob" password="bobspassword" authorities="ROLE_USER" />
+<user name="jimi" password="jimispassword" authorities="ROLE_USER, ROLE_ADMIN" />
+<user name="bob" password="bobspassword" authorities="ROLE_USER" />
 </user-service>
 ----
 
@@ -2270,15 +2270,15 @@ Spring Security also includes a `UserDetailsService` that can obtain authenticat
 [source,xml]
 ----
 <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-  <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
-  <property name="url" value="jdbc:hsqldb:hsql://localhost:9001"/>
-  <property name="username" value="sa"/>
-  <property name="password" value=""/>
+<property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
+<property name="url" value="jdbc:hsqldb:hsql://localhost:9001"/>
+<property name="username" value="sa"/>
+<property name="password" value=""/>
 </bean>
 
 <bean id="userDetailsService"
-      class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl">
-  <property name="dataSource" ref="dataSource"/>
+	  class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl">
+<property name="dataSource" ref="dataSource"/>
 </bean>
 ----
 
@@ -2342,13 +2342,13 @@ When using `DelegatingFilterProxy`, you will see something like this in the `web
 [source,xml]
 ----
 <filter>
-  <filter-name>myFilter</filter-name>
-  <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+<filter-name>myFilter</filter-name>
+<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
 </filter>
 
 <filter-mapping>
-  <filter-name>myFilter</filter-name>
-  <url-pattern>/*</url-pattern>
+<filter-name>myFilter</filter-name>
+<url-pattern>/*</url-pattern>
 </filter-mapping>
 ----
 
@@ -2362,20 +2362,20 @@ Spring Security's web infrastructure should only be used by delegating to an ins
 [source,xml]
 ----
 <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
-  <constructor-arg>
-    <list>
-      <sec:filter-chain pattern="/restful/**" filters="
-           securityContextPersistenceFilterWithASCFalse,
-           basicAuthenticationFilter,
-           exceptionTranslationFilter,
-           filterSecurityInterceptor" />
-      <sec:filter-chain pattern="/**" filters="
-           securityContextPersistenceFilterWithASCTrue,
-           formLoginFilter,
-           exceptionTranslationFilter,
-           filterSecurityInterceptor" />
-    </list>
-  </constructor-arg>
+<constructor-arg>
+	<list>
+	  <sec:filter-chain pattern="/restful/**" filters="
+		   securityContextPersistenceFilterWithASCFalse,
+		   basicAuthenticationFilter,
+		   exceptionTranslationFilter,
+		   filterSecurityInterceptor" />
+	  <sec:filter-chain pattern="/**" filters="
+		   securityContextPersistenceFilterWithASCTrue,
+		   formLoginFilter,
+		   exceptionTranslationFilter,
+		   filterSecurityInterceptor" />
+	</list>
+</constructor-arg>
 </bean>
 ----
 
@@ -2434,8 +2434,8 @@ As we saw earlier in the namespace chapter, it's possible to use multiple `http`
 ----
 <!-- Stateless RESTful service using Basic authentication -->
 <http pattern="/restful/**" create-session="stateless">
-  <intercept-url pattern='/**' access="hasRole('REMOTE')" />
-  <http-basic />
+<intercept-url pattern='/**' access="hasRole('REMOTE')" />
+<http-basic />
 </http>
 
 <!-- Empty filter chain for the login page -->
@@ -2443,9 +2443,9 @@ As we saw earlier in the namespace chapter, it's possible to use multiple `http`
 
 <!-- Additional filter chain for normal users, matching all other requests -->
 <http>
-  <intercept-url pattern='/**' access="hasRole('USER')" />
-  <form-login login-page='/login.htm' default-target-url="/home.htm"/>
-  <logout />
+<intercept-url pattern='/**' access="hasRole('USER')" />
+<form-login login-page='/login.htm' default-target-url="/home.htm"/>
+<logout />
 </http>
 ----
 
@@ -2460,15 +2460,15 @@ We've already seen `FilterSecurityInterceptor` briefly when discussing <<tech-in
 [source,xml]
 ----
 <bean id="filterSecurityInterceptor"
-      class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
-  <property name="authenticationManager" ref="authenticationManager"/>
-  <property name="accessDecisionManager" ref="accessDecisionManager"/>
-  <property name="securityMetadataSource">
-    <security:filter-security-metadata-source>
-      <security:intercept-url pattern="/secure/super/**" access="ROLE_WE_DONT_HAVE"/>
-      <security:intercept-url pattern="/secure/**" access="ROLE_SUPERVISOR,ROLE_TELLER"/>
-    </security:filter-security-metadata-source>
-  </property>
+	  class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+<property name="authenticationManager" ref="authenticationManager"/>
+<property name="accessDecisionManager" ref="accessDecisionManager"/>
+<property name="securityMetadataSource">
+	<security:filter-security-metadata-source>
+	  <security:intercept-url pattern="/secure/super/**" access="ROLE_WE_DONT_HAVE"/>
+	  <security:intercept-url pattern="/secure/**" access="ROLE_SUPERVISOR,ROLE_TELLER"/>
+	</security:filter-security-metadata-source>
+</property>
 </bean>
 ----
 
@@ -2483,16 +2483,16 @@ The `SecurityMetadataSource` created by the namespace syntax obtains the configu
 [source,xml]
 ----
 <bean id="filterInvocationInterceptor"
-      class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
-  <property name="authenticationManager" ref="authenticationManager"/>
-  <property name="accessDecisionManager" ref="accessDecisionManager"/>
-  <property name="runAsManager" ref="runAsManager"/>
-  <property name="securityMetadataSource">
-    <security:filter-security-metadata-source request-matcher="regex">
-      <security:intercept-url pattern="\A/secure/super/.*\Z" access="ROLE_WE_DONT_HAVE"/>
-      <security:intercept-url pattern="\A/secure/.*\" access="ROLE_SUPERVISOR,ROLE_TELLER"/>
-    </security:filter-security-metadata-source>
-  </property>
+	  class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+<property name="authenticationManager" ref="authenticationManager"/>
+<property name="accessDecisionManager" ref="accessDecisionManager"/>
+<property name="runAsManager" ref="runAsManager"/>
+<property name="securityMetadataSource">
+	<security:filter-security-metadata-source request-matcher="regex">
+	  <security:intercept-url pattern="\A/secure/super/.*\Z" access="ROLE_WE_DONT_HAVE"/>
+	  <security:intercept-url pattern="\A/secure/.*\" access="ROLE_SUPERVISOR,ROLE_TELLER"/>
+	</security:filter-security-metadata-source>
+</property>
 </bean>
 ----
 
@@ -2506,19 +2506,19 @@ The `ExceptionTranslationFilter` sits above the `FilterSecurityInterceptor` in t
 ----
 
 <bean id="exceptionTranslationFilter"
-  class="org.springframework.security.web.access.ExceptionTranslationFilter">
- <property name="authenticationEntryPoint" ref="authenticationEntryPoint"/>
- <property name="accessDeniedHandler" ref="accessDeniedHandler"/>
+class="org.springframework.security.web.access.ExceptionTranslationFilter">
+<property name="authenticationEntryPoint" ref="authenticationEntryPoint"/>
+<property name="accessDeniedHandler" ref="accessDeniedHandler"/>
 </bean>
 
 <bean id="authenticationEntryPoint"
-  class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
- <property name="loginFormUrl" value="/login.jsp"/>
+class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+<property name="loginFormUrl" value="/login.jsp"/>
 </bean>
 
 <bean id="accessDeniedHandler"
-     class="org.springframework.security.web.access.AccessDeniedHandlerImpl">
-  <property name="errorPage" value="/accessDenied.htm"/>
+	 class="org.springframework.security.web.access.AccessDeniedHandlerImpl">
+<property name="errorPage" value="/accessDenied.htm"/>
 </bean>
 
 ----
@@ -2555,7 +2555,7 @@ We covered the purpose of this all-important filter in the <<tech-intro-sec-cont
 [source,xml]
 ----
 <bean id="securityContextPersistenceFilter"
-  class="org.springframework.security.web.context.SecurityContextPersistenceFilter"/>
+class="org.springframework.security.web.context.SecurityContextPersistenceFilter"/>
 ----
 
 As we saw previously, this filter has two main tasks. It is responsible for storage of the `SecurityContext` contents between HTTP requests and for clearing the `SecurityContextHolder` when a request is completed. Clearing the `ThreadLocal` in which the context is stored is essential, as it might otherwise be possible for a thread to be replaced into the servlet container's thread pool, with the security context for a particular user still attached. This thread might then be used at a later stage, performing operations with the wrong credentials.
@@ -2569,10 +2569,10 @@ From Spring Security 3.0, the job of loading and storing the security context is
 ----
 public interface SecurityContextRepository {
 
-  SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder);
+SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder);
 
-  void saveContext(SecurityContext context, HttpServletRequest request,
-         HttpServletResponse response);
+void saveContext(SecurityContext context, HttpServletRequest request,
+		 HttpServletResponse response);
 }
 ----
 
@@ -2583,12 +2583,12 @@ The default implementation is `HttpSessionSecurityContextRepository`, which stor
 [source,xml]
 ----
 <bean id="securityContextPersistenceFilter"
-    class="org.springframework.security.web.context.SecurityContextPersistenceFilter">
-  <property name='securityContextRepository'>
-    <bean class='org.springframework.security.web.context.HttpSessionSecurityContextRepository'>
-      <property name='allowSessionCreation' value='false' />
-    </bean>
-  </property>
+	class="org.springframework.security.web.context.SecurityContextPersistenceFilter">
+<property name='securityContextRepository'>
+	<bean class='org.springframework.security.web.context.HttpSessionSecurityContextRepository'>
+	  <property name='allowSessionCreation' value='false' />
+	</bean>
+</property>
 </bean>
 ----
 
@@ -2610,7 +2610,7 @@ The login form simply contains `username` and `password` input fields, and posts
 ----
 <bean id="authenticationFilter" class=
 "org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
-  <property name="authenticationManager" ref="authenticationManager"/>
+<property name="authenticationManager" ref="authenticationManager"/>
 </bean>
 ----
 
@@ -2689,9 +2689,9 @@ The http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.ht
 [source,java]
 ----
 try {
-  httpServletRequest.login("user","password");
+httpServletRequest.login("user","password");
 } catch(ServletException e) {
-  // fail to authenticate
+// fail to authenticate
 }
 ----
 
@@ -2714,17 +2714,17 @@ The http://docs.oracle.com/javaee/6/api/javax/servlet/AsyncContext.html#start%28
 ----
 final AsyncContext async = httpServletRequest.startAsync();
 async.start(new Runnable() {
-    public void run() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        try {
-            final HttpServletResponse asyncResponse = (HttpServletResponse) async.getResponse();
-            asyncResponse.setStatus(HttpServletResponse.SC_OK);
-            asyncResponse.getWriter().write(String.valueOf(authentication));
-            async.complete();
-        } catch(Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+	public void run() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		try {
+			final HttpServletResponse asyncResponse = (HttpServletResponse) async.getResponse();
+			asyncResponse.setStatus(HttpServletResponse.SC_OK);
+			asyncResponse.getWriter().write(String.valueOf(authentication));
+			async.complete();
+		} catch(Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 });
 ----
 
@@ -2735,9 +2735,9 @@ If you are using Java Based configuration, you are ready to go. If you are using
 [source,xml]
 ----
 <web-app xmlns="http://java.sun.com/xml/ns/javaee"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
-  version="3.0">
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+version="3.0">
 
 </web-app>
 ----
@@ -2747,17 +2747,17 @@ Next you need to ensure that your springSecurityFilterChain is setup for process
 [source,xml]
 ----
 <filter>
-  <filter-name>springSecurityFilterChain</filter-name>
-  <filter-class>
-    org.springframework.web.filter.DelegatingFilterProxy
-  </filter-class>
-  <async-supported>true</async-supported>
+<filter-name>springSecurityFilterChain</filter-name>
+<filter-class>
+	org.springframework.web.filter.DelegatingFilterProxy
+</filter-class>
+<async-supported>true</async-supported>
 </filter>
 <filter-mapping>
-  <filter-name>springSecurityFilterChain</filter-name>
-  <url-pattern>/*</url-pattern>
-  <dispatcher>REQUEST</dispatcher>
-  <dispatcher>ASYNC</dispatcher>
+<filter-name>springSecurityFilterChain</filter-name>
+<url-pattern>/*</url-pattern>
+<dispatcher>REQUEST</dispatcher>
+<dispatcher>ASYNC</dispatcher>
 </filter-mapping>
 ----
 
@@ -2769,18 +2769,18 @@ So how does it work? If you are not really interested, feel free to skip the rem
 ----
 httpServletRequest.startAsync();
 new Thread("AsyncThread") {
-    @Override
-    public void run() {
-        try {
-            // Do work
-            TimeUnit.SECONDS.sleep(1);
+	@Override
+	public void run() {
+		try {
+			// Do work
+			TimeUnit.SECONDS.sleep(1);
 
-            // Write to and commit the httpServletResponse
-            httpServletResponse.getOutputStream().flush();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+			// Write to and commit the httpServletResponse
+			httpServletResponse.getOutputStream().flush();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }.start();
 ----
 
@@ -2812,14 +2812,14 @@ To implement HTTP Basic Authentication, you need to add a `BasicAuthenticationFi
 [source,xml]
 ----
 <bean id="basicAuthenticationFilter"
-  class="org.springframework.security.web.authentication.www.BasicAuthenticationFilter">
-  <property name="authenticationManager" ref="authenticationManager"/>
-  <property name="authenticationEntryPoint" ref="authenticationEntryPoint"/>
+class="org.springframework.security.web.authentication.www.BasicAuthenticationFilter">
+<property name="authenticationManager" ref="authenticationManager"/>
+<property name="authenticationEntryPoint" ref="authenticationEntryPoint"/>
 </bean>
 
 <bean id="authenticationEntryPoint"
-  class="org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint">
-  <property name="realmName" value="Name Of Your Realm"/>
+class="org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint">
+<property name="realmName" value="Name Of Your Realm"/>
 </bean>
 ----
 
@@ -2854,17 +2854,17 @@ Now that we've reviewed the theory, let's see how to use it. To implement HTTP D
 [source,xml]
 ----
 <bean id="digestFilter" class=
-    "org.springframework.security.web.authentication.www.DigestAuthenticationFilter">
-  <property name="userDetailsService" ref="jdbcDaoImpl"/>
-  <property name="authenticationEntryPoint" ref="digestEntryPoint"/>
-  <property name="userCache" ref="userCache"/>
+	"org.springframework.security.web.authentication.www.DigestAuthenticationFilter">
+<property name="userDetailsService" ref="jdbcDaoImpl"/>
+<property name="authenticationEntryPoint" ref="digestEntryPoint"/>
+<property name="userCache" ref="userCache"/>
 </bean>
 
 <bean id="digestEntryPoint" class=
-    "org.springframework.security.web.authentication.www.DigestAuthenticationEntryPoint">
-  <property name="realmName" value="Contacts Realm via Digest Authentication"/>
-  <property name="key" value="acegi"/>
-  <property name="nonceValiditySeconds" value="10"/>
+	"org.springframework.security.web.authentication.www.DigestAuthenticationEntryPoint">
+<property name="realmName" value="Contacts Realm via Digest Authentication"/>
+<property name="key" value="acegi"/>
+<property name="nonceValiditySeconds" value="10"/>
 </bean>
 ----
 
@@ -2908,8 +2908,8 @@ If you are familiar with the topics discussed in the chapter on <<ns-config,name
 [source,xml]
 ----
 <http>
-  ...
-  <remember-me key="myAppKey"/>
+...
+<remember-me key="myAppKey"/>
 </http>
 ----
 
@@ -2922,8 +2922,8 @@ This approach is based on the article http://jaspan.com/improved_persistent_logi
 [source,xml]
 ----
 <http>
-  ...
-  <remember-me data-source-ref="someDataSource"/>
+...
+<remember-me data-source-ref="someDataSource"/>
 </http>
 ----
 
@@ -2932,9 +2932,9 @@ The database should contain a `persistent_logins` table, created using the follo
 [source,ddl]
 ----
 create table persistent_logins (username varchar(64) not null,
-                                series varchar(64) primary key,
-                                token varchar(64) not null,
-                                last_used timestamp not null)
+								series varchar(64) primary key,
+								token varchar(64) not null,
+								last_used timestamp not null)
 ----
 
 [[remember-me-impls]]
@@ -2948,7 +2948,7 @@ Authentication autoLogin(HttpServletRequest request, HttpServletResponse respons
 void loginFail(HttpServletRequest request, HttpServletResponse response);
 
 void loginSuccess(HttpServletRequest request, HttpServletResponse response,
-    Authentication successfulAuthentication);
+	Authentication successfulAuthentication);
 ----
 
 Please refer to the JavaDocs for a fuller discussion on what the methods do, although note at this stage that `AbstractAuthenticationProcessingFilter` only calls the `loginFail()` and `loginSuccess()` methods. The `autoLogin()` method is called by `RememberMeAuthenticationFilter` whenever the `SecurityContextHolder` does not contain an `Authentication`. This interface therefore provides the underlying remember-me implementation with sufficient notification of authentication-related events, and delegates to the implementation whenever a candidate web request might contain a cookie and wish to be remembered. This design allows any number of remember-me implementation strategies. We've seen above that Spring Security provides two implementations. We'll look at these in turn.
@@ -2961,20 +2961,20 @@ The beans required in an application context to enable remember-me services are 
 [source,xml]
 ----
 <bean id="rememberMeFilter" class=
- "org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter">
-  <property name="rememberMeServices" ref="rememberMeServices"/>
-  <property name="authenticationManager" ref="theAuthenticationManager" />
+"org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter">
+<property name="rememberMeServices" ref="rememberMeServices"/>
+<property name="authenticationManager" ref="theAuthenticationManager" />
 </bean>
 
 <bean id="rememberMeServices" class=
- "org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
-  <property name="userDetailsService" ref="myUserDetailsService"/>
-  <property name="key" value="springRocks"/>
+"org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
+<property name="userDetailsService" ref="myUserDetailsService"/>
+<property name="key" value="springRocks"/>
 </bean>
 
 <bean id="rememberMeAuthenticationProvider" class=
- "org.springframework.security.authentication.RememberMeAuthenticationProvider">
-  <property name="key" value="springRocks"/>
+"org.springframework.security.authentication.RememberMeAuthenticationProvider">
+<property name="key" value="springRocks"/>
 </bean>
 ----
 
@@ -3015,17 +3015,17 @@ Now pretend you authenticate to your bank's website and then, without logging ou
 [source,xml]
 ----
 <form action="https://bank.example.com/transfer" method="post">
-  <input type="hidden"
-      name="amount"
-      value="100.00"/>
-  <input type="hidden"
-      name="routingNumber"
-      value="evilsRoutingNumber"/>
-  <input type="hidden"
-      name="account"
-      value="evilsAccountNumber"/>
-  <input type="submit"
-      value="Win Money!"/>
+<input type="hidden"
+	  name="amount"
+	  value="100.00"/>
+<input type="hidden"
+	  name="routingNumber"
+	  value="evilsRoutingNumber"/>
+<input type="hidden"
+	  name="account"
+	  value="evilsAccountNumber"/>
+<input type="submit"
+	  value="Win Money!"/>
 </form>
 ----
 
@@ -3068,9 +3068,9 @@ A common question is "do I need to protect JSON requests made by javascript?" Th
 [source,xml]
 ----
 <form action="https://bank.example.com/transfer" method="post" enctype="text/plain">
-  <input name='{"amount":100,"routingNumber":"evilsRoutingNumber","account":"evilsAccountNumber", "ignore_me":"' value='test"}' type='hidden'>
-  <input type="submit"
-      value="Win Money!"/>
+<input name='{"amount":100,"routingNumber":"evilsRoutingNumber","account":"evilsAccountNumber", "ignore_me":"' value='test"}' type='hidden'>
+<input type="submit"
+	  value="Win Money!"/>
 </form>
 ----
 
@@ -3081,9 +3081,9 @@ This will produce the following JSON structure
 [source,javascript]
 ----
 { "amount": 100,
-  "routingNumber": "evilsRoutingNumber",
-  "account": "evilsAccountNumber",
-  "ignore_me": "=test"
+"routingNumber": "evilsRoutingNumber",
+"account": "evilsAccountNumber",
+"ignore_me": "=test"
 }
 ----
 
@@ -3092,9 +3092,9 @@ If an application were not validating the Content-Type, then it would be exposed
 [source,xml]
 ----
 <form action="https://bank.example.com/transfer.json" method="post" enctype="text/plain">
-  <input name='{"amount":100,"routingNumber":"evilsRoutingNumber","account":"evilsAccountNumber", "ignore_me":"' value='test"}' type='hidden'>
-  <input type="submit"
-      value="Win Money!"/>
+<input name='{"amount":100,"routingNumber":"evilsRoutingNumber","account":"evilsAccountNumber", "ignore_me":"' value='test"}' type='hidden'>
+<input type="submit"
+	  value="Win Money!"/>
 </form>
 ----
 
@@ -3129,8 +3129,8 @@ As of Spring Security 4.0, CSRF protection is enabled by default with XML config
 [source,xml]
 ----
 <http>
-    <!-- ... -->
-    <csrf disabled="true"/>
+	<!-- ... -->
+	<csrf disabled="true"/>
 </http>
 ----
 
@@ -3140,13 +3140,13 @@ CSRF protection is enabled by default with Java configuration. If you would like
 ----
 @EnableWebSecurity
 public class WebSecurityConfig extends
-   WebSecurityConfigurerAdapter {
+WebSecurityConfigurerAdapter {
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http
-      .csrf().disable();
-  }
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+	http
+	  .csrf().disable();
+}
 }
 ----
 
@@ -3161,12 +3161,12 @@ The last step is to ensure that you include the CSRF token in all PATCH, POST, P
 ----
 <c:url var="logoutUrl" value="/logout"/>
 <form action="${logoutUrl}"
-    method="post">
-  <input type="submit"
-    value="Log out" />
-  <input type="hidden"
-    name="${_csrf.parameterName}"
-    value="${_csrf.token}"/>
+	method="post">
+<input type="submit"
+	value="Log out" />
+<input type="hidden"
+	name="${_csrf.parameterName}"
+	value="${_csrf.token}"/>
 </form>
 ----
 
@@ -3185,13 +3185,13 @@ If you are using JSON, then it is not possible to submit the CSRF token within a
 [source,xml]
 ----
 <html>
-  <head>
-    <meta name="_csrf" content="${_csrf.token}"/>
-    <!-- default header name is X-CSRF-TOKEN -->
-    <meta name="_csrf_header" content="${_csrf.headerName}"/>
-    <!-- ... -->
-  </head>
-  <!-- ... -->
+<head>
+	<meta name="_csrf" content="${_csrf.token}"/>
+	<!-- default header name is X-CSRF-TOKEN -->
+	<meta name="_csrf_header" content="${_csrf.headerName}"/>
+	<!-- ... -->
+</head>
+<!-- ... -->
 ----
 
 Instead of manually creating the meta tags, you can use the simpler <<the-csrfmetatags-tag,csrfMetaTags tag>> from the Spring Security JSP tag library.
@@ -3201,11 +3201,11 @@ You can then include the token within all your Ajax requests. If you were using 
 [source,javascript]
 ----
 $(function () {
-  var token = $("meta[name='_csrf']").attr("content");
-  var header = $("meta[name='_csrf_header']").attr("content");
-  $(document).ajaxSend(function(e, xhr, options) {
-    xhr.setRequestHeader(header, token);
-  });
+var token = $("meta[name='_csrf']").attr("content");
+var header = $("meta[name='_csrf_header']").attr("content");
+$(document).ajaxSend(function(e, xhr, options) {
+	xhr.setRequestHeader(header, token);
+});
 });
 ----
 
@@ -3214,8 +3214,8 @@ As an alternative to jQuery, we recommend using http://cujojs.com/[cujoJS's] res
 [source,javascript]
 ----
 var client = rest.chain(csrf, {
-  token: $("meta[name='_csrf']").attr("content"),
-  name: $("meta[name='_csrf_header']").attr("content")
+token: $("meta[name='_csrf']").attr("content"),
+name: $("meta[name='_csrf_header']").attr("content")
 });
 ----
 
@@ -3259,14 +3259,14 @@ If you really want to use HTTP GET with logout you can do so, but remember this 
 ----
 @EnableWebSecurity
 public class WebSecurityConfig extends
-   WebSecurityConfigurerAdapter {
+WebSecurityConfigurerAdapter {
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http
-      .logout()
-          .logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
-  }
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+	http
+	  .logout()
+		  .logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
+}
 }
 ----
 
@@ -3292,10 +3292,10 @@ To ensure `MultipartFilter` is specified before the Spring Security filter with 
 ----
 public class SecurityApplicationInitializer extends AbstractSecurityWebApplicationInitializer {
 
-    @Override
-    protected void beforeSpringSecurityFilterChain(ServletContext servletContext) {
-        insertFilters(servletContext, new MultipartFilter());
-    }
+	@Override
+	protected void beforeSpringSecurityFilterChain(ServletContext servletContext) {
+		insertFilters(servletContext, new MultipartFilter());
+	}
 }
 ----
 
@@ -3304,20 +3304,20 @@ To ensure `MultipartFilter` is specified before the Spring Security filter with 
 [source,xml]
 ----
 <filter>
-    <filter-name>MultipartFilter</filter-name>
-    <filter-class>org.springframework.web.multipart.support.MultipartFilter</filter-class>
+	<filter-name>MultipartFilter</filter-name>
+	<filter-class>org.springframework.web.multipart.support.MultipartFilter</filter-class>
 </filter>
 <filter>
-    <filter-name>springSecurityFilterChain</filter-name>
-    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+	<filter-name>springSecurityFilterChain</filter-name>
+	<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
 </filter>
 <filter-mapping>
-    <filter-name>MultipartFilter</filter-name>
-    <url-pattern>/*</url-pattern>
+	<filter-name>MultipartFilter</filter-name>
+	<url-pattern>/*</url-pattern>
 </filter-mapping>
 <filter-mapping>
-    <filter-name>springSecurityFilterChain</filter-name>
-    <url-pattern>/*</url-pattern>
+	<filter-name>springSecurityFilterChain</filter-name>
+	<url-pattern>/*</url-pattern>
 </filter-mapping>
 ----
 
@@ -3399,18 +3399,18 @@ You can easily do this with the following Java Configuration:
 ----
 @EnableWebSecurity
 public class WebSecurityConfig extends
-   WebSecurityConfigurerAdapter {
+WebSecurityConfigurerAdapter {
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http
-      // ...
-      .headers()
-        .frameOptions()
-            .sameOrigin()
-            .and()
-        .hsts().disable();
-  }
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+	http
+	  // ...
+	  .headers()
+		.frameOptions()
+			.sameOrigin()
+			.and()
+		.hsts().disable();
+}
 }
 ----
 
@@ -3419,12 +3419,12 @@ Alternatively, if you are using Spring Security XML Configuration, you can use t
 [source,xml]
 ----
 <http>
-    <!-- ... -->
+	<!-- ... -->
 
-    <headers>
-        <frame-options policy="SAMEORIGIN" />
-        <hsts disable="true"/>
-    </headers>
+	<headers>
+		<frame-options policy="SAMEORIGIN" />
+		<hsts disable="true"/>
+	</headers>
 </http>
 ----
 
@@ -3437,17 +3437,17 @@ If you are using Spring Security's Java Configuration the following will only ad
 ----
 @EnableWebSecurity
 public class WebSecurityConfig extends
-   WebSecurityConfigurerAdapter {
+WebSecurityConfigurerAdapter {
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http
-      // ...
-      .headers()
-         // do not use any default headers unless explicitly listed
-        .defaultsDisabled()
-        .cacheControl();
-  }
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+	http
+	  // ...
+	  .headers()
+		 // do not use any default headers unless explicitly listed
+		.defaultsDisabled()
+		.cacheControl();
+}
 }
 ----
 
@@ -3456,11 +3456,11 @@ The following XML will only add <<headers-cache-control,Cache Control>>.
 [source,xml]
 ----
 <http>
-    <!-- ... -->
+	<!-- ... -->
 
-    <headers defaults-disabled="true">
-        <cache-control/>
-    </headers>
+	<headers defaults-disabled="true">
+		<cache-control/>
+	</headers>
 </http>
 ----
 
@@ -3471,14 +3471,14 @@ If necessary, you can disable all of the HTTP Security response headers with the
 ----
 @EnableWebSecurity
 public class WebSecurityConfig extends
-   WebSecurityConfigurerAdapter {
+WebSecurityConfigurerAdapter {
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http
-      // ...
-      .headers().disable();
-  }
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+	http
+	  // ...
+	  .headers().disable();
+}
 }
 ----
 
@@ -3487,9 +3487,9 @@ If necessary, you can disable all of the HTTP Security response headers with the
 [source,xml]
 ----
 <http>
-    <!-- ... -->
+	<!-- ... -->
 
-    <headers disabled="true" />
+	<headers disabled="true" />
 </http>
 ----
 
@@ -3510,11 +3510,11 @@ However, if you only want cache control, you can enable this feature using Sprin
 [source,xml]
 ----
 <http>
-    <!-- ... -->
+	<!-- ... -->
 
-    <headers defaults-disable="true">
-        <cache-control />
-    </headers>
+	<headers defaults-disable="true">
+		<cache-control />
+	</headers>
 </http>
 ----
 
@@ -3524,16 +3524,16 @@ Similarly, you can enable only cache control within Java Configuration with the 
 ----
 @EnableWebSecurity
 public class WebSecurityConfig extends
-   WebSecurityConfigurerAdapter {
+WebSecurityConfigurerAdapter {
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http
-      // ...
-      .headers()
-        .defaultsDisabled()
-        .cacheControl();
-  }
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+	http
+	  // ...
+	  .headers()
+		.defaultsDisabled()
+		.cacheControl();
+}
 }
 ----
 
@@ -3546,15 +3546,15 @@ When using Spring Web MVC, this is typically done within your configuration. For
 @EnableWebMvc
 public class WebMvcConfiguration extends WebMvcConfigurerAdapter {
 
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry
-            .addResourceHandler("/resources/**")
-            .addResourceLocations("/resources/")
-            .setCachePeriod(31556926);
-    }
+	@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		registry
+			.addResourceHandler("/resources/**")
+			.addResourceLocations("/resources/")
+			.setCachePeriod(31556926);
+	}
 
-    // ...
+	// ...
 }
 ----
 
@@ -3582,11 +3582,11 @@ However, if you want more control over which headers are added you can use the <
 [source,xml]
 ----
 <http>
-    <!-- ... -->
+	<!-- ... -->
 
-    <headers defaults-disabled="true">
-        <content-type-options />
-    </headers>
+	<headers defaults-disabled="true">
+		<content-type-options />
+	</headers>
 </http>
 ----
 
@@ -3596,16 +3596,16 @@ The X-Content-Type-Options header is added by default with Spring Security Java 
 ----
 @EnableWebSecurity
 public class WebSecurityConfig extends
-   WebSecurityConfigurerAdapter {
+WebSecurityConfigurerAdapter {
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http
-      // ...
-      .headers()
-        .defaultsDisabled()
-        .contentTypeOptions();
-  }
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+	http
+	  // ...
+	  .headers()
+		.defaultsDisabled()
+		.contentTypeOptions();
+}
 }
 ----
 
@@ -3634,13 +3634,13 @@ As with the other headers, Spring Security adds HSTS by default. You can customi
 [source,xml]
 ----
 <http>
-    <!-- ... -->
+	<!-- ... -->
 
-    <headers>
-        <hsts
-            include-subdomains="true"
-            max-age-seconds="31536000" />
-    </headers>
+	<headers>
+		<hsts
+			include-subdomains="true"
+			max-age-seconds="31536000" />
+	</headers>
 </http>
 ----
 
@@ -3650,17 +3650,17 @@ Similarly, you can enable only HSTS headers with Java Configuration:
 ----
 @EnableWebSecurity
 public class WebSecurityConfig extends
-   WebSecurityConfigurerAdapter {
+WebSecurityConfigurerAdapter {
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http
-      // ...
-      .headers()
-        .httpStrictTransportSecurity()
-            .includeSubdomains(true)
-            .maxAgeSeconds(31536000);
-  }
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+	http
+	  // ...
+	  .headers()
+		.httpStrictTransportSecurity()
+			.includeSubdomains(true)
+			.maxAgeSeconds(31536000);
+}
 }
 ----
 
@@ -3691,12 +3691,12 @@ For example, the following will instruct Spring Security to use "X-Frame-Options
 [source,xml]
 ----
 <http>
-    <!-- ... -->
+	<!-- ... -->
 
-    <headers>
-        <frame-options
-          policy="SAMEORIGIN" />
-    </headers>
+	<headers>
+		<frame-options
+		  policy="SAMEORIGIN" />
+	</headers>
 </http>
 ----
 
@@ -3706,16 +3706,16 @@ Similarly, you can customize frame options to use the same origin within Java Co
 ----
 @EnableWebSecurity
 public class WebSecurityConfig extends
-   WebSecurityConfigurerAdapter {
+WebSecurityConfigurerAdapter {
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http
-      // ...
-      .headers()
-        .frameOptions()
-            .sameOrigin();
-  }
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+	http
+	  // ...
+	  .headers()
+		.frameOptions()
+			.sameOrigin();
+}
 }
 ----
 
@@ -3735,11 +3735,11 @@ This header is included by default. However, we can customize it if we wanted. F
 [source,xml]
 ----
 <http>
-    <!-- ... -->
+	<!-- ... -->
 
-    <headers>
-        <xss-protection block="false"/>
-    </headers>
+	<headers>
+		<xss-protection block="false"/>
+	</headers>
 </http>
 ----
 
@@ -3749,16 +3749,16 @@ Similarly, you can customize xss protection within Java Configuration with the f
 ----
 @EnableWebSecurity
 public class WebSecurityConfig extends
-   WebSecurityConfigurerAdapter {
+WebSecurityConfigurerAdapter {
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http
-      // ...
-      .headers()
-        .xssProtection()
-            .block(false);
-  }
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+	http
+	  // ...
+	  .headers()
+		.xssProtection()
+			.block(false);
+}
 }
 ----
 
@@ -3785,13 +3785,13 @@ When using the XML namespace, these headers can be added to the response using t
 [source,xml]
 ----
 <http>
-      <!-- ... -->
+	  <!-- ... -->
 
-      <headers>
-          <header name="X-Content-Security-Policy" value="default-src 'self'"/>
-          <header name="X-WebKit-CSP" value="default-src 'self'"/>
-      </headers>
-  </http>
+	  <headers>
+		  <header name="X-Content-Security-Policy" value="default-src 'self'"/>
+		  <header name="X-WebKit-CSP" value="default-src 'self'"/>
+	  </headers>
+</http>
 ----
 
 Similarly, the headers could be added to the response using Java Configuration as shown in the following:
@@ -3800,16 +3800,16 @@ Similarly, the headers could be added to the response using Java Configuration a
 ----
 @EnableWebSecurity
 public class WebSecurityConfig extends
-   WebSecurityConfigurerAdapter {
+WebSecurityConfigurerAdapter {
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http
-      // ...
-      .headers()
-        .addHeaderWriter(new StaticHeadersWriter("X-Content-Security-Policy","default-src 'self'"))
-        .addHeaderWriter(new StaticHeadersWriter("X-WebKit-CSP","default-src 'self'"));
-  }
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+	http
+	  // ...
+	  .headers()
+		.addHeaderWriter(new StaticHeadersWriter("X-Content-Security-Policy","default-src 'self'"))
+		.addHeaderWriter(new StaticHeadersWriter("X-WebKit-CSP","default-src 'self'"));
+}
 }
 ----
 
@@ -3822,18 +3822,18 @@ Let's take a look at an example of using an custom instance of `XFrameOptionsHea
 [source,xml]
 ----
 <http>
-    <!-- ... -->
+	<!-- ... -->
 
-    <headers>
-        <header ref="frameOptionsWriter"/>
-    </headers>
+	<headers>
+		<header ref="frameOptionsWriter"/>
+	</headers>
 </http>
 <!-- Requires the c-namespace.
-  See http://static.springsource.org/spring/docs/3.2.x/spring-framework-reference/html/beans.html#beans-c-namespace
+See http://static.springsource.org/spring/docs/3.2.x/spring-framework-reference/html/beans.html#beans-c-namespace
 -->
 <beans:bean id="frameOptionsWriter"
-    class="org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter"
-    c:frameOptionsMode="SAMEORIGIN"/>
+	class="org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter"
+	c:frameOptionsMode="SAMEORIGIN"/>
 ----
 
 
@@ -3844,15 +3844,15 @@ We could also restrict framing of content to the same origin with Java configura
 ----
 @EnableWebSecurity
 public class WebSecurityConfig extends
-   WebSecurityConfigurerAdapter {
+WebSecurityConfigurerAdapter {
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http
-      // ...
-      .headers()
-        .addHeaderWriter(new XFrameOptionsHeaderWriter(XFrameOptionsMode.SAMEORIGIN));
-  }
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+	http
+	  // ...
+	  .headers()
+		.addHeaderWriter(new XFrameOptionsHeaderWriter(XFrameOptionsMode.SAMEORIGIN));
+}
 }
 ----
 
@@ -3866,24 +3866,24 @@ At times you may want to only write a header for certain requests. For example, 
 [source,xml]
 ----
 <http>
-    <!-- ... -->
+	<!-- ... -->
 
-    <headers>
-        <frame-options disabled="true"/>
-        <header ref="headerWriter"/>
-    </headers>
+	<headers>
+		<frame-options disabled="true"/>
+		<header ref="headerWriter"/>
+	</headers>
 </http>
 
 <beans:bean id="headerWriter"
-    class="org.springframework.security.web.header.writers.DelegatingRequestMatcherHeaderWriter">
-    <beans:constructor-arg>
-        <bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher"
-            c:pattern="/login"/>
-    </beans:constructor-arg>
-    <beans:constructor-arg>
-        <beans:bean
-            class="org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter"/>
-    </beans:constructor-arg>
+	class="org.springframework.security.web.header.writers.DelegatingRequestMatcherHeaderWriter">
+	<beans:constructor-arg>
+		<bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher"
+			c:pattern="/login"/>
+	</beans:constructor-arg>
+	<beans:constructor-arg>
+		<beans:bean
+			class="org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter"/>
+	</beans:constructor-arg>
 </beans:bean>
 ----
 
@@ -3895,19 +3895,19 @@ We could also prevent framing of content to the log in page using java configura
 ----
 @EnableWebSecurity
 public class WebSecurityConfig extends
-   WebSecurityConfigurerAdapter {
+WebSecurityConfigurerAdapter {
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    RequestMatcher matcher = new AntPathRequestMatcher("/login");
-    DelegatingRequestMatcherHeaderWriter headerWriter =
-        new DelegatingRequestMatcherHeaderWriter(matcher,new XFrameOptionsHeaderWriter());
-    http
-      // ...
-      .headers()
-        .frameOptions().disabled()
-        .addHeaderWriter(headerWriter);
-  }
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+	RequestMatcher matcher = new AntPathRequestMatcher("/login");
+	DelegatingRequestMatcherHeaderWriter headerWriter =
+		new DelegatingRequestMatcherHeaderWriter(matcher,new XFrameOptionsHeaderWriter());
+	http
+	  // ...
+	  .headers()
+		.frameOptions().disabled()
+		.addHeaderWriter(headerWriter);
+}
 }
 ----
 
@@ -3933,18 +3933,18 @@ If the user is not currently authenticated, the filter will check whether an inv
 ----
 
 <http>
-  <custom-filter position="FORM_LOGIN_FILTER" ref="myAuthFilter" />
-  <session-management session-authentication-strategy-ref="sas"/>
+<custom-filter position="FORM_LOGIN_FILTER" ref="myAuthFilter" />
+<session-management session-authentication-strategy-ref="sas"/>
 </http>
 
 <beans:bean id="myAuthFilter" class=
-  "org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
-    <beans:property name="sessionAuthenticationStrategy" ref="sas" />
-    ...
+"org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
+	<beans:property name="sessionAuthenticationStrategy" ref="sas" />
+	...
 </beans:bean>
 
 <beans:bean id="sas" class=
-  "org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy" />
+"org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy" />
 
 ----
 
@@ -3970,11 +3970,11 @@ To use concurrent session support, you'll need to add the following to `web.xml`
 [source,xml]
 ----
 
-  <listener>
-    <listener-class>
-      org.springframework.security.web.session.HttpSessionEventPublisher
-    </listener-class>
-  </listener>
+<listener>
+	<listener-class>
+	  org.springframework.security.web.session.HttpSessionEventPublisher
+	</listener-class>
+</listener>
 ----
 
 
@@ -3985,43 +3985,43 @@ In addition, you will need to add the `ConcurrentSessionFilter` to your `FilterC
 ----
 
 <http>
-  <custom-filter position="CONCURRENT_SESSION_FILTER" ref="concurrencyFilter" />
-  <custom-filter position="FORM_LOGIN_FILTER" ref="myAuthFilter" />
+<custom-filter position="CONCURRENT_SESSION_FILTER" ref="concurrencyFilter" />
+<custom-filter position="FORM_LOGIN_FILTER" ref="myAuthFilter" />
 
-  <session-management session-authentication-strategy-ref="sas"/>
+<session-management session-authentication-strategy-ref="sas"/>
 </http>
 
 <beans:bean id="concurrencyFilter"
-   class="org.springframework.security.web.session.ConcurrentSessionFilter">
-  <beans:property name="sessionRegistry" ref="sessionRegistry" />
-  <beans:property name="expiredUrl" value="/session-expired.htm" />
+class="org.springframework.security.web.session.ConcurrentSessionFilter">
+<beans:property name="sessionRegistry" ref="sessionRegistry" />
+<beans:property name="expiredUrl" value="/session-expired.htm" />
 </beans:bean>
 
 <beans:bean id="myAuthFilter" class=
-   "org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
-  <beans:property name="sessionAuthenticationStrategy" ref="sas" />
-  <beans:property name="authenticationManager" ref="authenticationManager" />
+"org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
+<beans:property name="sessionAuthenticationStrategy" ref="sas" />
+<beans:property name="authenticationManager" ref="authenticationManager" />
 </beans:bean>
 
 <beans:bean id="sas" class="org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy">
-  <beans:constructor-arg>
-    <beans:list>
-      <beans:bean class="org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy">
-        <beans:constructor-arg ref="sessionRegistry"/>
-        <beans:property name="maximumSessions" value="1" />
-        <beans:property name="exceptionIfMaximumExceeded" value="true" />
-      </beans:bean>
-      <beans:bean class="org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy">
-      </beans:bean>
-      <beans:bean class="org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy">
-        <beans:constructor-arg ref="sessionRegistry"/>
-      </beans:bean>
-    </beans:list>
-  </beans:constructor-arg>
+<beans:constructor-arg>
+	<beans:list>
+	  <beans:bean class="org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy">
+		<beans:constructor-arg ref="sessionRegistry"/>
+		<beans:property name="maximumSessions" value="1" />
+		<beans:property name="exceptionIfMaximumExceeded" value="true" />
+	  </beans:bean>
+	  <beans:bean class="org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy">
+	  </beans:bean>
+	  <beans:bean class="org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy">
+		<beans:constructor-arg ref="sessionRegistry"/>
+	  </beans:bean>
+	</beans:list>
+</beans:constructor-arg>
 </beans:bean>
 
 <beans:bean id="sessionRegistry"
-    class="org.springframework.security.core.session.SessionRegistryImpl" />
+	class="org.springframework.security.core.session.SessionRegistryImpl" />
 
 ----
 
@@ -4062,14 +4062,14 @@ Three classes that together provide the anonymous authentication feature. `Anony
 ----
 
 <bean id="anonymousAuthFilter"
-    class="org.springframework.security.web.authentication.AnonymousAuthenticationFilter">
-  <property name="key" value="foobar"/>
-  <property name="userAttribute" value="anonymousUser,ROLE_ANONYMOUS"/>
+	class="org.springframework.security.web.authentication.AnonymousAuthenticationFilter">
+<property name="key" value="foobar"/>
+<property name="userAttribute" value="anonymousUser,ROLE_ANONYMOUS"/>
 </bean>
 
 <bean id="anonymousAuthenticationProvider"
-    class="org.springframework.security.authentication.AnonymousAuthenticationProvider">
-  <property name="key" value="foobar"/>
+	class="org.springframework.security.authentication.AnonymousAuthenticationProvider">
+<property name="key" value="foobar"/>
 </bean>
 ----
 
@@ -4087,18 +4087,18 @@ As explained earlier, the benefit of anonymous authentication is that all URI pa
 ----
 
 <bean id="filterSecurityInterceptor"
-    class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
-  <property name="authenticationManager" ref="authenticationManager"/>
-  <property name="accessDecisionManager" ref="httpRequestAccessDecisionManager"/>
-  <property name="securityMetadata">
-    <security:filter-security-metadata-source>
-      <security:intercept-url pattern='/index.jsp' access='ROLE_ANONYMOUS,ROLE_USER'/>
-      <security:intercept-url pattern='/hello.htm' access='ROLE_ANONYMOUS,ROLE_USER'/>
-      <security:intercept-url pattern='/logoff.jsp' access='ROLE_ANONYMOUS,ROLE_USER'/>
-      <security:intercept-url pattern='/login.jsp' access='ROLE_ANONYMOUS,ROLE_USER'/>
-      <security:intercept-url pattern='/**' access='ROLE_USER'/>
-    </security:filter-security-metadata-source>" +
-  </property>
+	class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+<property name="authenticationManager" ref="authenticationManager"/>
+<property name="accessDecisionManager" ref="httpRequestAccessDecisionManager"/>
+<property name="securityMetadata">
+	<security:filter-security-metadata-source>
+	  <security:intercept-url pattern='/index.jsp' access='ROLE_ANONYMOUS,ROLE_USER'/>
+	  <security:intercept-url pattern='/hello.htm' access='ROLE_ANONYMOUS,ROLE_USER'/>
+	  <security:intercept-url pattern='/logoff.jsp' access='ROLE_ANONYMOUS,ROLE_USER'/>
+	  <security:intercept-url pattern='/login.jsp' access='ROLE_ANONYMOUS,ROLE_USER'/>
+	  <security:intercept-url pattern='/**' access='ROLE_USER'/>
+	</security:filter-security-metadata-source>" +
+</property>
 </bean>
 ----
 
@@ -4133,12 +4133,12 @@ As we saw in the <<tech-granted-authority,technical overview>>, all `Authenticat
 [source,java]
 ----
 
-  String getAuthority();
+String getAuthority();
 
 ----
 
 This method allows
-            `AccessDecisionManager` s to obtain a precise `String` representation of the `GrantedAuthority`. By returning a representation as a `String`, a `GrantedAuthority` can be easily "read" by most `AccessDecisionManager` s. If a `GrantedAuthority` cannot be precisely represented as a `String`, the `GrantedAuthority` is considered "complex" and `getAuthority()` must return `null`.
+			`AccessDecisionManager` s to obtain a precise `String` representation of the `GrantedAuthority`. By returning a representation as a `String`, a `GrantedAuthority` can be easily "read" by most `AccessDecisionManager` s. If a `GrantedAuthority` cannot be precisely represented as a `String`, the `GrantedAuthority` is considered "complex" and `getAuthority()` must return `null`.
 
 An example of a "complex" `GrantedAuthority` would be an implementation that stores a list of operations and authority thresholds that apply to different customer account numbers. Representing this complex `GrantedAuthority` as a `String` would be quite difficult, and as a result the `getAuthority()` method should return `null`. This will indicate to any `AccessDecisionManager` that it will need to specifically support the `GrantedAuthority` implementation in order to understand its contents.
 
@@ -4157,7 +4157,7 @@ The `AccessDecisionManager` is called by the `AbstractSecurityInterceptor` and i
 [source,java]
 ----
 void decide(Authentication authentication, Object secureObject,
-    Collection<ConfigAttribute> attrs) throws AccessDeniedException;
+	Collection<ConfigAttribute> attrs) throws AccessDeniedException;
 
 boolean supports(ConfigAttribute attribute);
 
@@ -4242,17 +4242,17 @@ The use of a role-hierarchy allows you to configure which roles (or authorities)
 ----
 
 <bean id="roleVoter" class="org.springframework.security.access.vote.RoleHierarchyVoter">
-    <constructor-arg ref="roleHierarchy" />
+	<constructor-arg ref="roleHierarchy" />
 </bean>
 <bean id="roleHierarchy"
-        class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl">
-    <property name="hierarchy">
-        <value>
-            ROLE_ADMIN > ROLE_STAFF
-            ROLE_STAFF > ROLE_USER
-            ROLE_USER > ROLE_GUEST
-        </value>
-    </property>
+		class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl">
+	<property name="hierarchy">
+		<value>
+			ROLE_ADMIN > ROLE_STAFF
+			ROLE_STAFF > ROLE_USER
+			ROLE_USER > ROLE_GUEST
+		</value>
+	</property>
 </bean>
 ----
 
@@ -4276,16 +4276,16 @@ You can of course configure a `MethodSecurityIterceptor` directly in your applic
 ----
 
 <bean id="bankManagerSecurity" class=
-    "org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor">
-  <property name="authenticationManager" ref="authenticationManager"/>
-  <property name="accessDecisionManager" ref="accessDecisionManager"/>
-  <property name="afterInvocationManager" ref="afterInvocationManager"/>
-  <property name="securityMetadataSource">
-    <sec:method-security-metadata-source>
-      <sec:protect method="com.mycompany.BankManager.delete*" access="ROLE_SUPERVISOR"/>
-      <sec:protect method="com.mycompany.BankManager.getBalance" access="ROLE_TELLER,ROLE_SUPERVISOR"/>
-    </sec:method-security-metadata-source>
-  </property>
+	"org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor">
+<property name="authenticationManager" ref="authenticationManager"/>
+<property name="accessDecisionManager" ref="accessDecisionManager"/>
+<property name="afterInvocationManager" ref="afterInvocationManager"/>
+<property name="securityMetadataSource">
+	<sec:method-security-metadata-source>
+	  <sec:protect method="com.mycompany.BankManager.delete*" access="ROLE_SUPERVISOR"/>
+	  <sec:protect method="com.mycompany.BankManager.getBalance" access="ROLE_TELLER,ROLE_SUPERVISOR"/>
+	</sec:method-security-metadata-source>
+</property>
 </bean>
 ----
 
@@ -4302,15 +4302,15 @@ Let's first consider how the `AspectJSecurityInterceptor` is configured in the S
 ----
 
 <bean id="bankManagerSecurity" class=
-    "org.springframework.security.access.intercept.aspectj.AspectJMethodSecurityInterceptor">
-  <property name="authenticationManager" ref="authenticationManager"/>
-  <property name="accessDecisionManager" ref="accessDecisionManager"/>
-  <property name="afterInvocationManager" ref="afterInvocationManager"/>
-  <property name="securityMetadataSource">
-    <sec:method-security-metadata-source>
-      <sec:protect method="com.mycompany.BankManager.delete*" access="ROLE_SUPERVISOR"/>
-      <sec:protect method="com.mycompany.BankManager.getBalance" access="ROLE_TELLER,ROLE_SUPERVISOR"/>
-    </sec:method-security-metadata-source>
+	"org.springframework.security.access.intercept.aspectj.AspectJMethodSecurityInterceptor">
+<property name="authenticationManager" ref="authenticationManager"/>
+<property name="accessDecisionManager" ref="accessDecisionManager"/>
+<property name="afterInvocationManager" ref="afterInvocationManager"/>
+<property name="securityMetadataSource">
+	<sec:method-security-metadata-source>
+	  <sec:protect method="com.mycompany.BankManager.delete*" access="ROLE_SUPERVISOR"/>
+	  <sec:protect method="com.mycompany.BankManager.getBalance" access="ROLE_TELLER,ROLE_SUPERVISOR"/>
+	</sec:method-security-metadata-source>
 </property>
 </bean>
 ----
@@ -4332,38 +4332,38 @@ import org.springframework.beans.factory.InitializingBean;
 
 public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
 
-    private AspectJSecurityInterceptor securityInterceptor;
+	private AspectJSecurityInterceptor securityInterceptor;
 
-    pointcut domainObjectInstanceExecution(): target(PersistableEntity)
-        && execution(public * *(..)) && !within(DomainObjectInstanceSecurityAspect);
+	pointcut domainObjectInstanceExecution(): target(PersistableEntity)
+		&& execution(public * *(..)) && !within(DomainObjectInstanceSecurityAspect);
 
-    Object around(): domainObjectInstanceExecution() {
-        if (this.securityInterceptor == null) {
-            return proceed();
-        }
+	Object around(): domainObjectInstanceExecution() {
+		if (this.securityInterceptor == null) {
+			return proceed();
+		}
 
-        AspectJCallback callback = new AspectJCallback() {
-            public Object proceedWithObject() {
-                return proceed();
-            }
-        };
+		AspectJCallback callback = new AspectJCallback() {
+			public Object proceedWithObject() {
+				return proceed();
+			}
+		};
 
-        return this.securityInterceptor.invoke(thisJoinPoint, callback);
-    }
+		return this.securityInterceptor.invoke(thisJoinPoint, callback);
+	}
 
-    public AspectJSecurityInterceptor getSecurityInterceptor() {
-        return securityInterceptor;
-    }
+	public AspectJSecurityInterceptor getSecurityInterceptor() {
+		return securityInterceptor;
+	}
 
-    public void setSecurityInterceptor(AspectJSecurityInterceptor securityInterceptor) {
-        this.securityInterceptor = securityInterceptor;
-    }
+	public void setSecurityInterceptor(AspectJSecurityInterceptor securityInterceptor) {
+		this.securityInterceptor = securityInterceptor;
+	}
 
-    public void afterPropertiesSet() throws Exception {
-        if (this.securityInterceptor == null)
-            throw new IllegalArgumentException("securityInterceptor required");
-        }
-    }
+	public void afterPropertiesSet() throws Exception {
+		if (this.securityInterceptor == null)
+			throw new IllegalArgumentException("securityInterceptor required");
+		}
+	}
 }
 ----
 
@@ -4377,9 +4377,9 @@ You will need to configure Spring to load the aspect and wire it with the `Aspec
 ----
 
 <bean id="domainObjectInstanceSecurityAspect"
-     class="security.samples.aspectj.DomainObjectInstanceSecurityAspect"
-     factory-method="aspectOf">
-  <property name="securityInterceptor" ref="bankManagerSecurity"/>
+	 class="security.samples.aspectj.DomainObjectInstanceSecurityAspect"
+	 factory-method="aspectOf">
+<property name="securityInterceptor" ref="bankManagerSecurity"/>
 </bean>
 ----
 
@@ -4457,11 +4457,11 @@ To use expressions to secure individual URLs, you would first need to set the `u
 [source,xml]
 ----
 
-  <http>
-    <intercept-url pattern="/admin*"
-        access="hasRole('admin') and hasIpAddress('192.168.1.0/24')"/>
-    ...
-  </http>
+<http>
+	<intercept-url pattern="/admin*"
+		access="hasRole('admin') and hasIpAddress('192.168.1.0/24')"/>
+	...
+</http>
 
 ----
 
@@ -4588,10 +4588,10 @@ There are some built-in expressions which are specific to method security, which
 [source,java]
 ----
 boolean hasPermission(Authentication authentication, Object targetDomainObject,
-                             Object permission);
+							 Object permission);
 
 boolean hasPermission(Authentication authentication, Serializable targetId,
-                              String targetType, Object permission);
+							  String targetType, Object permission);
 ----
 
 which map directly to the available versions of the expression, with the exception that the first argument (the `Authentication` object) is not supplied. The first is used in situations where the domain object, to which access is being controlled, is already loaded. Then expression will return true if the current user has the given permission for that object. The second version is used in cases where the object is not loaded, but its identifier is known. An abstract "type" specifier for the domain object is also required, allowing the correct ACL permissions to be loaded. This has traditionally been the Java class of the object, but does not have to be as long as it is consistent with how the permissions are loaded.
@@ -4601,12 +4601,12 @@ To use `hasPermission()` expressions, you have to explicitly configure a `Permis
 [source,xml]
 ----
 <security:global-method-security pre-post-annotations="enabled">
-  <security:expression-handler ref="expressionHandler"/>
+<security:expression-handler ref="expressionHandler"/>
 </security:global-method-security>
 
 <bean id="expressionHandler" class=
-  "org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
-     <property name="permissionEvaluator" ref="myPermissionEvaluator"/>
+"org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
+	 <property name="permissionEvaluator" ref="myPermissionEvaluator"/>
 </bean>
 ----
 
@@ -4708,9 +4708,9 @@ Permission p = BasePermission.ADMINISTRATION;
 // Create or update the relevant ACL
 MutableAcl acl = null;
 try {
-  acl = (MutableAcl) aclService.readAclById(oi);
+acl = (MutableAcl) aclService.readAclById(oi);
 } catch (NotFoundException nfe) {
-  acl = aclService.createAcl(oi);
+acl = aclService.createAcl(oi);
 }
 
 // Now grant some permissions via an access control entry (ACE)
@@ -4772,7 +4772,7 @@ The pre-authenticated provider has little more to do than load the `UserDetails`
 [source,java]
 ----
 public interface AuthenticationUserDetailsService {
-  UserDetails loadUserDetails(Authentication token) throws UsernameNotFoundException;
+UserDetails loadUserDetails(Authentication token) throws UsernameNotFoundException;
 }
 ----
 
@@ -4800,26 +4800,26 @@ A typical configuration using this filter would look like this:
 [source,xml]
 ----
 <security:http>
-  <!-- Additional http configuration omitted -->
-  <security:custom-filter position="PRE_AUTH_FILTER" ref="siteminderFilter" />
+<!-- Additional http configuration omitted -->
+<security:custom-filter position="PRE_AUTH_FILTER" ref="siteminderFilter" />
 </security:http>
 
 <bean id="siteminderFilter" class="org.springframework.security.web.authentication.preauth.RequestHeaderAuthenticationFilter">
-  <property name="principalRequestHeader" value="SM_USER"/>
-  <property name="authenticationManager" ref="authenticationManager" />
+<property name="principalRequestHeader" value="SM_USER"/>
+<property name="authenticationManager" ref="authenticationManager" />
 </bean>
 
 <bean id="preauthAuthProvider" class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">
-  <property name="preAuthenticatedUserDetailsService">
-    <bean id="userDetailsServiceWrapper"
-          class="org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper">
-      <property name="userDetailsService" ref="userDetailsService"/>
-    </bean>
-  </property>
+<property name="preAuthenticatedUserDetailsService">
+	<bean id="userDetailsServiceWrapper"
+		  class="org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper">
+	  <property name="userDetailsService" ref="userDetailsService"/>
+	</bean>
+</property>
 </bean>
 
 <security:authentication-manager alias="authenticationManager">
-   <security:authentication-provider ref="preauthAuthProvider" />
+<security:authentication-provider ref="preauthAuthProvider" />
 </security:authentication-manager>
 ----
 
@@ -4899,7 +4899,7 @@ This simple example would obtain the DN for the user by substituting the user lo
 [source,xml]
 ----
 <ldap-authentication-provider user-search-filter="(uid={0})"
-       user-search-base="ou=people"/>
+	   user-search-base="ou=people"/>
 ----
 
 If used with the server definition above, this would perform a search under the DN `ou=people,dc=springframework,dc=org` using the value of the `user-search-filter` attribute as a filter. Again the user login name is substituted for the parameter in the filter name, so it will search for an entry with the `uid` attribute equal to the user name. If `user-search-base` isn't supplied, the search will be performed from the root.
@@ -4916,7 +4916,7 @@ So if we used the following configuration
 [source,xml]
 ----
 <ldap-authentication-provider user-dn-pattern="uid={0},ou=people"
-        group-search-base="ou=groups" />
+		group-search-base="ou=groups" />
 ----
 
 and authenticated successfully as user "ben", the subsequent loading of authorities would perform a search under the directory entry`ou=groups,dc=springframework,dc=org`, looking for entries which contain the attribute `uniqueMember` with value `uid=ben,ou=people,dc=springframework,dc=org`. By default the authority names will have the prefix `ROLE_` prepended. You can change this using the `role-prefix` attribute. If you don't want any prefix, use `role-prefix="none"`. For more information on loading authorities, see the Javadoc for the `DefaultLdapAuthoritiesPopulator` class.
@@ -4980,30 +4980,30 @@ A typical configuration, using some of the beans we've discussed here, might loo
 [source,xml]
 ----
 <bean id="contextSource"
-        class="org.springframework.security.ldap.DefaultSpringSecurityContextSource">
-  <constructor-arg value="ldap://monkeymachine:389/dc=springframework,dc=org"/>
-  <property name="userDn" value="cn=manager,dc=springframework,dc=org"/>
-  <property name="password" value="password"/>
+		class="org.springframework.security.ldap.DefaultSpringSecurityContextSource">
+<constructor-arg value="ldap://monkeymachine:389/dc=springframework,dc=org"/>
+<property name="userDn" value="cn=manager,dc=springframework,dc=org"/>
+<property name="password" value="password"/>
 </bean>
 
 <bean id="ldapAuthProvider"
-    class="org.springframework.security.ldap.authentication.LdapAuthenticationProvider">
- <constructor-arg>
-   <bean class="org.springframework.security.ldap.authentication.BindAuthenticator">
-     <constructor-arg ref="contextSource"/>
-     <property name="userDnPatterns">
-       <list><value>uid={0},ou=people</value></list>
-     </property>
-   </bean>
- </constructor-arg>
- <constructor-arg>
-   <bean
-     class="org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator">
-     <constructor-arg ref="contextSource"/>
-     <constructor-arg value="ou=groups"/>
-     <property name="groupRoleAttribute" value="ou"/>
-   </bean>
- </constructor-arg>
+	class="org.springframework.security.ldap.authentication.LdapAuthenticationProvider">
+<constructor-arg>
+<bean class="org.springframework.security.ldap.authentication.BindAuthenticator">
+	 <constructor-arg ref="contextSource"/>
+	 <property name="userDnPatterns">
+	   <list><value>uid={0},ou=people</value></list>
+	 </property>
+</bean>
+</constructor-arg>
+<constructor-arg>
+<bean
+	 class="org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator">
+	 <constructor-arg ref="contextSource"/>
+	 <constructor-arg value="ou=groups"/>
+	 <property name="groupRoleAttribute" value="ou"/>
+</bean>
+</constructor-arg>
 </bean>
 ----
 
@@ -5015,10 +5015,10 @@ To configure a user search object, which uses the filter `(uid=<user-login-name>
 ----
 
 <bean id="userSearch"
-    class="org.springframework.security.ldap.search.FilterBasedLdapUserSearch">
-  <constructor-arg index="0" value=""/>
-  <constructor-arg index="1" value="(uid={0})"/>
-  <constructor-arg index="2" ref="contextSource" />
+	class="org.springframework.security.ldap.search.FilterBasedLdapUserSearch">
+<constructor-arg index="0" value=""/>
+<constructor-arg index="1" value="(uid={0})"/>
+<constructor-arg index="2" ref="contextSource" />
 </bean>
 ----
 
@@ -5033,10 +5033,10 @@ The net result of an authentication using `LdapAuthenticationProvider` is the sa
 ----
 public interface UserDetailsContextMapper {
 
-  UserDetails mapUserFromContext(DirContextOperations ctx, String username,
-          Collection<GrantedAuthority> authorities);
+UserDetails mapUserFromContext(DirContextOperations ctx, String username,
+		  Collection<GrantedAuthority> authorities);
 
-  void mapUserToContext(UserDetails user, DirContextAdapter ctx);
+void mapUserToContext(UserDetails user, DirContextAdapter ctx);
 }
 ----
 
@@ -5057,9 +5057,9 @@ Configuring `ActiveDirectoryLdapAuthenticationProvider` is quite straightforward
 ----
 
 <bean id="adAuthenticationProvider"
-  class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
-    <constructor-arg value="mydomain.com" />
-    <constructor-arg value="ldap://adserver.mydomain.com/" />
+class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
+	<constructor-arg value="mydomain.com" />
+	<constructor-arg value="ldap://adserver.mydomain.com/" />
 </bean>
 }
 ----
@@ -5095,7 +5095,7 @@ The legacy options from Spring Security 2.0 are also supported, but discouraged.
 ----
 <sec:authorize access="hasRole('supervisor')">
 
-  This content will only be visible to users who have the "supervisor" authority in their list of <tt>GrantedAuthority</tt>s.
+This content will only be visible to users who have the "supervisor" authority in their list of <tt>GrantedAuthority</tt>s.
 
 </sec:authorize>
 ----
@@ -5106,7 +5106,7 @@ When used in conjuction with Spring Security's PermissionEvaluator, the tag can 
 ----
 <sec:authorize access="hasPermission(#domain,'read') or hasPermission(#domain,'write')">
 
-  This content will only be visible to users who have read or write permission to the Object found as a request attribute named "domain".
+This content will only be visible to users who have read or write permission to the Object found as a request attribute named "domain".
 
 </sec:authorize>
 ----
@@ -5117,7 +5117,7 @@ A common requirement is to only show a particular link, if the user is actually 
 ----
 <sec:authorize url="/admin">
 
-  This content will only be visible to users who are authorized to send requests to the "/admin" URL.
+This content will only be visible to users who are authorized to send requests to the "/admin" URL.
 
 </sec:authorize>
 ----
@@ -5148,7 +5148,7 @@ CAUTION: In general this tag should be considered deprecated. Instead use the <<
 ----
 <sec:accesscontrollist hasPermission="1,2" domainObject="${someObject}">
 
-  This will be shown if the user has all of the permissions represented by the values "1" or "2" on the given object.
+This will be shown if the user has all of the permissions represented by the values "1" or "2" on the given object.
 
 </sec:accesscontrollist>
 ----
@@ -5167,12 +5167,12 @@ You should place this tag within an HTML `<form></form>` block, where you would 
 
 [source,xml]
 ----
-    <form method="post" action="/do/something">
-        <sec:csrfInput />
-        Name:<br />
-        <input type="text" name="name" />
-        ...
-    </form>
+	<form method="post" action="/do/something">
+		<sec:csrfInput />
+		Name:<br />
+		<input type="text" name="name" />
+		...
+	</form>
 ----
 
 
@@ -5185,55 +5185,55 @@ You should place `csrfMetaTags` within an HTML `<head></head>` block, where you 
 ----
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>CSRF Protected JavaScript Page</title>
-        <meta name="description" content="This is the description for this page" />
-        <sec:csrfMetaTags />
-        <script type="text/javascript" language="javascript">
+	<head>
+		<title>CSRF Protected JavaScript Page</title>
+		<meta name="description" content="This is the description for this page" />
+		<sec:csrfMetaTags />
+		<script type="text/javascript" language="javascript">
 
-            var csrfParameter = $("meta[name='_csrf_parameter']").attr("content");
-            var csrfHeader = $("meta[name='_csrf_header']").attr("content");
-            var csrfToken = $("meta[name='_csrf']").attr("content");
+			var csrfParameter = $("meta[name='_csrf_parameter']").attr("content");
+			var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+			var csrfToken = $("meta[name='_csrf']").attr("content");
 
-            // using XMLHttpRequest directly to send an x-www-form-urlencoded request
-            var ajax = new XMLHttpRequest();
-            ajax.open("POST", "http://www.example.org/do/something", true);
-            ajax.setRequestHeader("Content-Type", "application/x-www-form-urlencoded data");
-            ajax.send(csrfParameter + "=" + csrfToken + "&name=John&...");
+			// using XMLHttpRequest directly to send an x-www-form-urlencoded request
+			var ajax = new XMLHttpRequest();
+			ajax.open("POST", "http://www.example.org/do/something", true);
+			ajax.setRequestHeader("Content-Type", "application/x-www-form-urlencoded data");
+			ajax.send(csrfParameter + "=" + csrfToken + "&name=John&...");
 
-            // using XMLHttpRequest directly to send a non-x-www-form-urlencoded request
-            var ajax = new XMLHttpRequest();
-            ajax.open("POST", "http://www.example.org/do/something", true);
-            ajax.setRequestHeader(csrfHeader, csrfToken);
-            ajax.send("...");
+			// using XMLHttpRequest directly to send a non-x-www-form-urlencoded request
+			var ajax = new XMLHttpRequest();
+			ajax.open("POST", "http://www.example.org/do/something", true);
+			ajax.setRequestHeader(csrfHeader, csrfToken);
+			ajax.send("...");
 
-            // using JQuery to send an x-www-form-urlencoded request
-            var data = {};
-            data[csrfParameter] = csrfToken;
-            data["name"] = "John";
-            ...
-            $.ajax({
-                url: "http://www.example.org/do/something",
-                type: "POST",
-                data: data,
-                ...
-            });
+			// using JQuery to send an x-www-form-urlencoded request
+			var data = {};
+			data[csrfParameter] = csrfToken;
+			data["name"] = "John";
+			...
+			$.ajax({
+				url: "http://www.example.org/do/something",
+				type: "POST",
+				data: data,
+				...
+			});
 
-            // using JQuery to send a non-x-www-form-urlencoded request
-            var headers = {};
-            headers[csrfHeader] = csrfToken;
-            $.ajax({
-                url: "http://www.example.org/do/something",
-                type: "POST",
-                headers: headers,
-                ...
-            });
+			// using JQuery to send a non-x-www-form-urlencoded request
+			var headers = {};
+			headers[csrfHeader] = csrfToken;
+			$.ajax({
+				url: "http://www.example.org/do/something",
+				type: "POST",
+				headers: headers,
+				...
+			});
 
-        <script>
-    </head>
-    <body>
-        ...
-    </body>
+		<script>
+	</head>
+	<body>
+		...
+	</body>
 </html>
 ----
 
@@ -5294,39 +5294,39 @@ An example configuration of `DefaultJaasAuthenticationProvider` using `InMemoryC
 ----
 
 <bean id="jaasAuthProvider"
-   class="org.springframework.security.authentication.jaas.DefaultJaasAuthenticationProvider">
- <property name="configuration">
-  <bean class="org.springframework.security.authentication.jaas.memory.InMemoryConfiguration">
-   <constructor-arg>
-    <map>
-     <!--
-       SPRINGSECURITY is the default loginContextName
-       for AbstractJaasAuthenticationProvider
-     -->
-     <entry key="SPRINGSECURITY">
-      <array>
-       <bean class="javax.security.auth.login.AppConfigurationEntry">
-        <constructor-arg value="sample.SampleLoginModule" />
-         <constructor-arg>
-          <util:constant static-field=
-            "javax.security.auth.login.AppConfigurationEntry$LoginModuleControlFlag.REQUIRED"/>
-         </constructor-arg>
-         <constructor-arg>
-          <map></map>
-         </constructor-arg>
-        </bean>
-       </array>
-      </entry>
-     </map>
-    </constructor-arg>
-   </bean>
-  </property>
-  <property name="authorityGranters">
-   <list>
-    <!-- You will need to write your own implementation of AuthorityGranter -->
-    <bean class="org.springframework.security.authentication.jaas.TestAuthorityGranter"/>
-   </list>
-  </property>
+class="org.springframework.security.authentication.jaas.DefaultJaasAuthenticationProvider">
+<property name="configuration">
+<bean class="org.springframework.security.authentication.jaas.memory.InMemoryConfiguration">
+<constructor-arg>
+	<map>
+	 <!--
+	   SPRINGSECURITY is the default loginContextName
+	   for AbstractJaasAuthenticationProvider
+	 -->
+	 <entry key="SPRINGSECURITY">
+	  <array>
+	   <bean class="javax.security.auth.login.AppConfigurationEntry">
+		<constructor-arg value="sample.SampleLoginModule" />
+		 <constructor-arg>
+		  <util:constant static-field=
+			"javax.security.auth.login.AppConfigurationEntry$LoginModuleControlFlag.REQUIRED"/>
+		 </constructor-arg>
+		 <constructor-arg>
+		  <map></map>
+		 </constructor-arg>
+		</bean>
+	   </array>
+	  </entry>
+	 </map>
+	</constructor-arg>
+</bean>
+</property>
+<property name="authorityGranters">
+<list>
+	<!-- You will need to write your own implementation of AuthorityGranter -->
+	<bean class="org.springframework.security.authentication.jaas.TestAuthorityGranter"/>
+</list>
+</property>
 </bean>
 
 ----
@@ -5342,7 +5342,7 @@ Let's assume we have a JAAS login configuration file, `/WEB-INF/login.conf`, wit
 [source,txt]
 ----
 JAASTest {
-    sample.SampleLoginModule required;
+	sample.SampleLoginModule required;
 };
 ----
 
@@ -5352,22 +5352,22 @@ Like all Spring Security beans, the `JaasAuthenticationProvider` is configured v
 ----
 
 <bean id="jaasAuthenticationProvider"
-   class="org.springframework.security.authentication.jaas.JaasAuthenticationProvider">
- <property name="loginConfig" value="/WEB-INF/login.conf"/>
- <property name="loginContextName" value="JAASTest"/>
- <property name="callbackHandlers">
-  <list>
-   <bean
-     class="org.springframework.security.authentication.jaas.JaasNameCallbackHandler"/>
-   <bean
-     class="org.springframework.security.authentication.jaas.JaasPasswordCallbackHandler"/>
-  </list>
-  </property>
-  <property name="authorityGranters">
-    <list>
-      <bean class="org.springframework.security.authentication.jaas.TestAuthorityGranter"/>
-    </list>
-  </property>
+class="org.springframework.security.authentication.jaas.JaasAuthenticationProvider">
+<property name="loginConfig" value="/WEB-INF/login.conf"/>
+<property name="loginContextName" value="JAASTest"/>
+<property name="callbackHandlers">
+<list>
+<bean
+	 class="org.springframework.security.authentication.jaas.JaasNameCallbackHandler"/>
+<bean
+	 class="org.springframework.security.authentication.jaas.JaasPasswordCallbackHandler"/>
+</list>
+</property>
+<property name="authorityGranters">
+	<list>
+	  <bean class="org.springframework.security.authentication.jaas.TestAuthorityGranter"/>
+	</list>
+</property>
 </bean>
 ----
 
@@ -5438,10 +5438,10 @@ This section describes how to setup Spring Security to authenticate Service Tick
 [source,xml]
 ----
 <bean id="serviceProperties"
-      class="org.springframework.security.cas.ServiceProperties">
-  <property name="service"
-      value="https://localhost:8443/cas-sample/login/cas"/>
-  <property name="sendRenew" value="false"/>
+	  class="org.springframework.security.cas.ServiceProperties">
+<property name="service"
+	  value="https://localhost:8443/cas-sample/login/cas"/>
+<property name="sendRenew" value="false"/>
 </bean>
 ----
 
@@ -5452,19 +5452,19 @@ The following beans should be configured to commence the CAS authentication proc
 [source,xml]
 ----
 <security:http entry-point-ref="casEntryPoint">
- ...
-   <security:custom-filter position="CAS_FILTER" ref="casFilter" />
+...
+<security:custom-filter position="CAS_FILTER" ref="casFilter" />
 </security:http>
 
 <bean id="casFilter"
-      class="org.springframework.security.cas.web.CasAuthenticationFilter">
-  <property name="authenticationManager" ref="authenticationManager"/>
+	  class="org.springframework.security.cas.web.CasAuthenticationFilter">
+<property name="authenticationManager" ref="authenticationManager"/>
 </bean>
 
 <bean id="casEntryPoint"
-      class="org.springframework.security.cas.web.CasAuthenticationEntryPoint">
-  <property name="loginUrl" value="https://localhost:9443/cas/login"/>
-  <property name="serviceProperties" ref="serviceProperties"/>
+	  class="org.springframework.security.cas.web.CasAuthenticationEntryPoint">
+<property name="loginUrl" value="https://localhost:9443/cas/login"/>
+<property name="serviceProperties" ref="serviceProperties"/>
 </bean>
 ----
 
@@ -5477,28 +5477,28 @@ Next you need to add a `CasAuthenticationProvider` and its collaborators:
 [source,xml]
 ----
 <security:authentication-manager alias="authenticationManager">
-  <security:authentication-provider ref="casAuthenticationProvider" />
+<security:authentication-provider ref="casAuthenticationProvider" />
 </security:authentication-manager>
 
 <bean id="casAuthenticationProvider"
-      class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
-  <property name="authenticationUserDetailsService">
-    <bean class="org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper">
-      <constructor-arg ref="userService" />
-    </bean>
-  </property>
-  <property name="serviceProperties" ref="serviceProperties" />
-  <property name="ticketValidator">
-    <bean class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
-      <constructor-arg index="0" value="https://localhost:9443/cas" />
-    </bean>
-  </property>
-  <property name="key" value="an_id_for_this_auth_provider_only"/>
+	  class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
+<property name="authenticationUserDetailsService">
+	<bean class="org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper">
+	  <constructor-arg ref="userService" />
+	</bean>
+</property>
+<property name="serviceProperties" ref="serviceProperties" />
+<property name="ticketValidator">
+	<bean class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
+	  <constructor-arg index="0" value="https://localhost:9443/cas" />
+	</bean>
+</property>
+<property name="key" value="an_id_for_this_auth_provider_only"/>
 </bean>
 
 <security:user-service id="userService">
-  <security:user name="joe" password="joe" authorities="ROLE_USER" />
-  ...
+<security:user name="joe" password="joe" authorities="ROLE_USER" />
+...
 </security:user-service>
 ----
 
@@ -5516,10 +5516,10 @@ The CAS protocol supports Single Logout and can be easily added to your Spring S
 [source,xml]
 ----
 <security:http entry-point-ref="casEntryPoint">
-  ...
-  <security:logout logout-success-url="/cas-logout.jsp"/>
-  <security:custom-filter ref="requestSingleLogoutFilter" before="LOGOUT_FILTER"/>
-  <security:custom-filter ref="singleLogoutFilter" before="CAS_FILTER"/>
+...
+<security:logout logout-success-url="/cas-logout.jsp"/>
+<security:custom-filter ref="requestSingleLogoutFilter" before="LOGOUT_FILTER"/>
+<security:custom-filter ref="singleLogoutFilter" before="CAS_FILTER"/>
 </security:http>
 
 <!-- This filter handles a Single Logout Request from the CAS Server -->
@@ -5527,13 +5527,13 @@ The CAS protocol supports Single Logout and can be easily added to your Spring S
 
 <!-- This filter redirects to the CAS Server to signal Single Logout should be performed -->
 <bean id="requestSingleLogoutFilter"
-      class="org.springframework.security.web.authentication.logout.LogoutFilter">
-  <constructor-arg value="https://localhost:9443/cas/logout"/>
-  <constructor-arg>
-    <bean class=
-          "org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler"/>
-  </constructor-arg>
-  <property name="filterProcessesUrl" value="/logout/cas"/>
+	  class="org.springframework.security.web.authentication.logout.LogoutFilter">
+<constructor-arg value="https://localhost:9443/cas/logout"/>
+<constructor-arg>
+	<bean class=
+		  "org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler"/>
+</constructor-arg>
+<property name="filterProcessesUrl" value="/logout/cas"/>
 </bean>
 ----
 
@@ -5553,23 +5553,23 @@ The next step is to add the following to your web.xml
 [source,xml]
 ----
 <filter>
-  <filter-name>characterEncodingFilter</filter-name>
-  <filter-class>
-    org.springframework.web.filter.CharacterEncodingFilter
-  </filter-class>
-  <init-param>
-    <param-name>encoding</param-name>
-    <param-value>UTF-8</param-value>
-  </init-param>
+<filter-name>characterEncodingFilter</filter-name>
+<filter-class>
+	org.springframework.web.filter.CharacterEncodingFilter
+</filter-class>
+<init-param>
+	<param-name>encoding</param-name>
+	<param-value>UTF-8</param-value>
+</init-param>
 </filter>
 <filter-mapping>
-  <filter-name>characterEncodingFilter</filter-name>
-  <url-pattern>/*</url-pattern>
+<filter-name>characterEncodingFilter</filter-name>
+<url-pattern>/*</url-pattern>
 </filter-mapping>
 <listener>
-  <listener-class>
-    org.jasig.cas.client.session.SingleSignOutHttpSessionListener
-  </listener-class>
+<listener-class>
+	org.jasig.cas.client.session.SingleSignOutHttpSessionListener
+</listener-class>
 </listener>
 ----
 
@@ -5590,9 +5590,9 @@ The first step is to include a `ProxyGrantingTicketStorage` in your Spring Secur
 [source,xml]
 ----
 <!--
-  NOTE: In a real application you should not use an in
-        memory implementation. You will also want to ensure
-        to clean up expired tickets by calling ProxyGrantingTicketStorage.cleanup()
+NOTE: In a real application you should not use an in
+		memory implementation. You will also want to ensure
+		to clean up expired tickets by calling ProxyGrantingTicketStorage.cleanup()
 -->
 <bean id="pgtStorage" class="org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl"/>
 ----
@@ -5602,16 +5602,16 @@ The next step is to update the `CasAuthenticationProvider` to be able to obtain 
 [source,xml]
 ----
 <bean id="casAuthenticationProvider"
-    class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
-  ...
-  <property name="ticketValidator">
-    <bean class="org.jasig.cas.client.validation.Cas20ProxyTicketValidator">
-      <constructor-arg value="https://localhost:9443/cas"/>
-        <property name="proxyCallbackUrl"
-          value="https://localhost:8443/cas-sample/login/cas/proxyreceptor"/>
-      <property name="proxyGrantingTicketStorage" ref="pgtStorage"/>
-    </bean>
-  </property>
+	class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
+...
+<property name="ticketValidator">
+	<bean class="org.jasig.cas.client.validation.Cas20ProxyTicketValidator">
+	  <constructor-arg value="https://localhost:9443/cas"/>
+		<property name="proxyCallbackUrl"
+		  value="https://localhost:8443/cas-sample/login/cas/proxyreceptor"/>
+	  <property name="proxyGrantingTicketStorage" ref="pgtStorage"/>
+	</bean>
+</property>
 </bean>
 ----
 
@@ -5620,12 +5620,12 @@ The last step is to update the `CasAuthenticationFilter` to accept PGT and to st
 [source,xml]
 ----
 
-  <bean id="casFilter"
-        class="org.springframework.security.cas.web.CasAuthenticationFilter">
-    ...
-    <property name="proxyGrantingTicketStorage" ref="pgtStorage"/>
-    <property name="proxyReceptorUrl" value="/login/cas/proxyreceptor"/>
-  </bean>
+<bean id="casFilter"
+		class="org.springframework.security.cas.web.CasAuthenticationFilter">
+	...
+	<property name="proxyGrantingTicketStorage" ref="pgtStorage"/>
+	<property name="proxyReceptorUrl" value="/login/cas/proxyreceptor"/>
+</bean>
 
 ----
 
@@ -5636,18 +5636,18 @@ Now that Spring Security obtains PGTs, you can use them to create proxy tickets 
 [source,java]
 ----
 protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-  // NOTE: The CasAuthenticationToken can also be obtained using
-  // SecurityContextHolder.getContext().getAuthentication()
-  final CasAuthenticationToken token = (CasAuthenticationToken) request.getUserPrincipal();
-  // proxyTicket could be reused to make calls to the CAS service even if the
-  // target url differs
-  final String proxyTicket = token.getAssertion().getPrincipal().getProxyTicketFor(targetUrl);
+	throws ServletException, IOException {
+// NOTE: The CasAuthenticationToken can also be obtained using
+// SecurityContextHolder.getContext().getAuthentication()
+final CasAuthenticationToken token = (CasAuthenticationToken) request.getUserPrincipal();
+// proxyTicket could be reused to make calls to the CAS service even if the
+// target url differs
+final String proxyTicket = token.getAssertion().getPrincipal().getProxyTicketFor(targetUrl);
 
-  // Make a remote call using the proxy ticket
-  final String serviceUrl = targetUrl+"?ticket="+URLEncoder.encode(proxyTicket, "UTF-8");
-  String proxyResponse = CommonUtils.getResponseFromServer(serviceUrl, "UTF-8");
-  ...
+// Make a remote call using the proxy ticket
+final String serviceUrl = targetUrl+"?ticket="+URLEncoder.encode(proxyTicket, "UTF-8");
+String proxyResponse = CommonUtils.getResponseFromServer(serviceUrl, "UTF-8");
+...
 }
 ----
 
@@ -5664,9 +5664,9 @@ This section builds upon the previous sections to accomodate proxy ticket authen
 [source,xml]
 ----
 <bean id="serviceProperties"
-      class="org.springframework.security.cas.ServiceProperties">
-  ...
-  <property name="authenticateAllArtifacts" value="true"/>
+	  class="org.springframework.security.cas.ServiceProperties">
+...
+<property name="authenticateAllArtifacts" value="true"/>
 </bean>
 ----
 
@@ -5675,15 +5675,15 @@ The next step is to specify `serviceProperties` and the `authenticationDetailsSo
 [source,xml]
 ----
 <bean id="casFilter"
-      class="org.springframework.security.cas.web.CasAuthenticationFilter">
-  ...
-  <property name="serviceProperties" ref="serviceProperties"/>
-  <property name="authenticationDetailsSource">
-    <bean class=
-      "org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource">
-      <constructor-arg ref="serviceProperties"/>
-    </bean>
-  </property>
+	  class="org.springframework.security.cas.web.CasAuthenticationFilter">
+...
+<property name="serviceProperties" ref="serviceProperties"/>
+<property name="authenticationDetailsSource">
+	<bean class=
+	  "org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource">
+	  <constructor-arg ref="serviceProperties"/>
+	</bean>
+</property>
 </bean>
 ----
 
@@ -5693,29 +5693,29 @@ You will also need to update the `CasAuthenticationProvider` to handle proxy tic
 ----
 
 <bean id="casAuthenticationProvider"
-    class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
-  ...
-  <property name="ticketValidator">
-    <bean class="org.jasig.cas.client.validation.Cas20ProxyTicketValidator">
-      <constructor-arg value="https://localhost:9443/cas"/>
-      <property name="acceptAnyProxy" value="true"/>
-    </bean>
-  </property>
-  <property name="statelessTicketCache">
-    <bean class="org.springframework.security.cas.authentication.EhCacheBasedTicketCache">
-      <property name="cache">
-        <bean class="net.sf.ehcache.Cache"
-            init-method="initialise" destroy-method="dispose">
-          <constructor-arg value="casTickets"/>
-          <constructor-arg value="50"/>
-          <constructor-arg value="true"/>
-          <constructor-arg value="false"/>
-          <constructor-arg value="3600"/>
-          <constructor-arg value="900"/>
-        </bean>
-      </property>
-    </bean>
-  </property>
+	class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
+...
+<property name="ticketValidator">
+	<bean class="org.jasig.cas.client.validation.Cas20ProxyTicketValidator">
+	  <constructor-arg value="https://localhost:9443/cas"/>
+	  <property name="acceptAnyProxy" value="true"/>
+	</bean>
+</property>
+<property name="statelessTicketCache">
+	<bean class="org.springframework.security.cas.authentication.EhCacheBasedTicketCache">
+	  <property name="cache">
+		<bean class="net.sf.ehcache.Cache"
+			init-method="initialise" destroy-method="dispose">
+		  <constructor-arg value="casTickets"/>
+		  <constructor-arg value="50"/>
+		  <constructor-arg value="true"/>
+		  <constructor-arg value="false"/>
+		  <constructor-arg value="3600"/>
+		  <constructor-arg value="900"/>
+		</bean>
+	  </property>
+	</bean>
+</property>
 </bean>
 ----
 
@@ -5738,8 +5738,8 @@ Enabling X.509 client authentication is very straightforward. Just add the `<x50
 [source,xml]
 ----
 <http>
- ...
-    <x509 subject-principal-regex="CN=(.*?)," user-service-ref="userService"/>;
+...
+	<x509 subject-principal-regex="CN=(.*?)," user-service-ref="userService"/>;
 </http>
 ----
 
@@ -5760,11 +5760,11 @@ To run tomcat with SSL support, drop the `server.jks` file into the tomcat `conf
 ----
 
 <Connector port="8443" protocol="HTTP/1.1" SSLEnabled="true" scheme="https" secure="true"
-            clientAuth="true" sslProtocol="TLS"
-            keystoreFile="${catalina.home}/conf/server.jks"
-            keystoreType="JKS" keystorePass="password"
-            truststoreFile="${catalina.home}/conf/server.jks"
-            truststoreType="JKS" truststorePass="password"
+			clientAuth="true" sslProtocol="TLS"
+			keystoreFile="${catalina.home}/conf/server.jks"
+			keystoreType="JKS" keystorePass="password"
+			truststoreFile="${catalina.home}/conf/server.jks"
+			truststoreType="JKS" truststorePass="password"
 />
 
 ----
@@ -5788,7 +5788,7 @@ A `RunAsManager` interface is provided by Spring Security:
 [source,java]
 ----
 Authentication buildRunAs(Authentication authentication, Object object,
-    List<ConfigAttribute> config);
+	List<ConfigAttribute> config);
 
 boolean supports(ConfigAttribute attribute);
 
@@ -5809,13 +5809,13 @@ To ensure malicious code does not create a `RunAsUserToken` and present it for g
 ----
 
 <bean id="runAsManager"
-    class="org.springframework.security.access.intercept.RunAsManagerImpl">
-  <property name="key" value="my_run_as_password"/>
+	class="org.springframework.security.access.intercept.RunAsManagerImpl">
+<property name="key" value="my_run_as_password"/>
 </bean>
 
 <bean id="runAsAuthenticationProvider"
-    class="org.springframework.security.access.intercept.RunAsImplAuthenticationProvider">
-  <property name="key" value="my_run_as_password"/>
+	class="org.springframework.security.access.intercept.RunAsImplAuthenticationProvider">
+<property name="key" value="my_run_as_password"/>
 </bean>
 ----
 
@@ -5919,9 +5919,9 @@ The password package of the spring-security-crypto module provides support for e
 ----
 public interface PasswordEncoder {
 
-  String encode(String rawPassword);
+String encode(String rawPassword);
 
-  boolean matches(String rawPassword, String encodedPassword);
+boolean matches(String rawPassword, String encodedPassword);
 }
 ----
 
@@ -5950,12 +5950,12 @@ One of the most fundamental building blocks within Spring Security's concurrency
 [source,java]
 ----
 public void run() {
-  try {
-    SecurityContextHolder.setContext(securityContext);
-    delegate.run();
-  } finally {
-    SecurityContextHolder.clearContext();
-  }
+try {
+	SecurityContextHolder.setContext(securityContext);
+	delegate.run();
+} finally {
+	SecurityContextHolder.clearContext();
+}
 }
 ----
 
@@ -5964,14 +5964,14 @@ While very simple, it makes it seamless to transfer the SecurityContext from one
 [source,java]
 ----
 Runnable originalRunnable = new Runnable() {
-  public void run() {
-    // invoke secured service
-  }
+public void run() {
+	// invoke secured service
+}
 };
 
 SecurityContext context = SecurityContextHolder.getContext();
 DelegatingSecurityContextRunnable wrappedRunnable =
-    new DelegatingSecurityContextRunnable(originalRunnable, context);
+	new DelegatingSecurityContextRunnable(originalRunnable, context);
 
 new Thread(wrappedRunnable).start();
 ----
@@ -5989,13 +5989,13 @@ Since it is quite common to create a `DelegatingSecurityContextRunnable` with th
 [source,java]
 ----
 Runnable originalRunnable = new Runnable() {
-  public void run() {
-    // invoke secured service
-  }
+public void run() {
+	// invoke secured service
+}
 };
 
 DelegatingSecurityContextRunnable wrappedRunnable =
-    new DelegatingSecurityContextRunnable(originalRunnable);
+	new DelegatingSecurityContextRunnable(originalRunnable);
 
 new Thread(wrappedRunnable).start();
 ----
@@ -6013,18 +6013,18 @@ The design of `DelegatingSecurityContextExecutor` is very similar to that of `De
 ----
 SecurityContext context = SecurityContextHolder.createEmptyContext();
 Authentication authentication =
-    new UsernamePasswordAuthenticationToken("user","doesnotmatter", AuthorityUtils.createAuthorityList("ROLE_USER"));
+	new UsernamePasswordAuthenticationToken("user","doesnotmatter", AuthorityUtils.createAuthorityList("ROLE_USER"));
 context.setAuthentication(authentication);
 
 SimpleAsyncTaskExecutor delegateExecutor =
-    new SimpleAsyncTaskExecutor();
+	new SimpleAsyncTaskExecutor();
 DelegatingSecurityContextExecutor executor =
-    new DelegatingSecurityContextExecutor(delegateExecutor, context);
+	new DelegatingSecurityContextExecutor(delegateExecutor, context);
 
 Runnable originalRunnable = new Runnable() {
-  public void run() {
-    // invoke secured service
-  }
+public void run() {
+	// invoke secured service
+}
 };
 
 executor.execute(originalRunnable);
@@ -6043,12 +6043,12 @@ The code performs the following steps:
 private Executor executor; // becomes an instance of our DelegatingSecurityContextExecutor
 
 public void submitRunnable() {
-  Runnable originalRunnable = new Runnable() {
-    public void run() {
-      // invoke secured service
-    }
-  };
-  executor.execute(originalRunnable);
+Runnable originalRunnable = new Runnable() {
+	public void run() {
+	  // invoke secured service
+	}
+};
+executor.execute(originalRunnable);
 }
 ----
 
@@ -6059,7 +6059,7 @@ Now our code is unaware that the `SecurityContext` is being propagated to the `T
 ----
 SimpleAsyncTaskExecutor delegateExecutor = new SimpleAsyncTaskExecutor();
 DelegatingSecurityContextExecutor executor =
-    new DelegatingSecurityContextExecutor(delegateExecutor);
+	new DelegatingSecurityContextExecutor(delegateExecutor);
 ----
 
 Now anytime `executor.execute(Runnable)` is executed the `SecurityContext` is first obtained by the `SecurityContextHolder` and then that `SecurityContext` is used to create our `DelegatingSecurityContextRunnable`. This means that we are executing our `Runnable` with the same user that was used to invoke the `executor.execute(Runnable)` code.
@@ -6107,11 +6107,11 @@ import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
 
 @RequestMapping("/messages/inbox")
 public ModelAndView findMessagesForUser() {
-    Authentication authentication =
-      SecurityContextHolder.getContext().getAuthentication();
-    CustomUser custom = (CustomUser) authentication == null ? null : authentication.getPrincipal();
+	Authentication authentication =
+	  SecurityContextHolder.getContext().getAuthentication();
+	CustomUser custom = (CustomUser) authentication == null ? null : authentication.getPrincipal();
 
-    // .. find messags for this user and return them ...
+	// .. find messags for this user and return them ...
 }
 ----
 
@@ -6122,7 +6122,7 @@ As of Spring Security 3.2 we can resolve the argument more directly by adding an
 @RequestMapping("/messages/inbox")
 public ModelAndView findMessagesForUser(@AuthenticationPrincipal CustomUser customUser) {
 
-    // .. find messags for this user and return them ...
+	// .. find messags for this user and return them ...
 }
 ----
 
@@ -6146,7 +6146,7 @@ Now that `@CurrentUser` has been specified, we can use it to signal to resolve o
 @RequestMapping("/messages/inbox")
 public ModelAndView findMessagesForUser(@CurrentUser CustomUser customUser) {
 
-    // .. find messags for this user and return them ...
+	// .. find messags for this user and return them ...
 }
 ----
 
@@ -6161,12 +6161,12 @@ Spring Web MVC 3.2+ has excellent support for http://docs.spring.io/spring/docs/
 @RequestMapping(method=RequestMethod.POST)
 public Callable<String> processUpload(final MultipartFile file) {
 
-  return new Callable<String>() {
-    public Object call() throws Exception {
-      // ...
-      return "someView";
-    }
-  };
+return new Callable<String>() {
+	public Object call() throws Exception {
+	  // ...
+	  return "someView";
+	}
+};
 }
 ----
 
@@ -6188,23 +6188,23 @@ Spring Security will automatically <<csrf-include-csrf-token,include the CSRF To
 [source,xml]
 ----
 <jsp:root xmlns:jsp="http://java.sun.com/JSP/Page"
-    xmlns:c="http://java.sun.com/jsp/jstl/core"
-    xmlns:form="http://www.springframework.org/tags/form" version="2.0">
-    <jsp:directive.page language="java" contentType="text/html" />
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:form="http://www.springframework.org/tags/form" version="2.0">
+	<jsp:directive.page language="java" contentType="text/html" />
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-    <!-- ... -->
+	<!-- ... -->
 
-    <c:url var="logoutUrl" value="/logout"/>
-    <form:form action="${logoutUrl}"
-        method="post">
-      <input type="submit"
-        value="Log out" />
-      <input type="hidden"
-        name="${_csrf.parameterName}"
-        value="${_csrf.token}"/>
-    </form:form>
+	<c:url var="logoutUrl" value="/logout"/>
+	<form:form action="${logoutUrl}"
+		method="post">
+	  <input type="submit"
+		value="Log out" />
+	  <input type="hidden"
+		name="${_csrf.parameterName}"
+		value="${_csrf.token}"/>
+	</form:form>
 
-    <!-- ... -->
+	<!-- ... -->
 </html>
 </jsp:root>
 ----
@@ -6216,8 +6216,8 @@ Will output HTML that is similar to the following:
 <!-- ... -->
 
 <form action="/context/logout" method="post">
-  <input type="submit" value="Log out"/>
-  <input type="hidden" name="_csrf" value="f81d4fae-7dec-11d0-a765-00a0c91e6bf6"/>
+<input type="submit" value="Log out"/>
+<input type="hidden" name="_csrf" value="f81d4fae-7dec-11d0-a765-00a0c91e6bf6"/>
 </form>
 
 <!-- ... -->
@@ -6237,10 +6237,10 @@ Once `CsrfTokenResolver` is properly configured, you can expose the `CsrfToken` 
 @RestController
 public class CsrfController {
 
-    @RequestMapping("/csrf")
-    public CsrfToken csrf(CsrfToken token) {
-        return token;
-    }
+	@RequestMapping("/csrf")
+	public CsrfToken csrf(CsrfToken token) {
+		return token;
+	}
 }
 ----
 
@@ -6263,7 +6263,7 @@ In Java Configuration, this would look like:
 ----
 @Bean
 public SecurityEvaluationContextExtension securityEvaluationContextExtension() {
-    return new SecurityEvaluationContextExtension();
+	return new SecurityEvaluationContextExtension();
 }
 ----
 
@@ -6284,8 +6284,8 @@ For example:
 ----
 @Repository
 public interface MessageRepository extends PagingAndSortingRepository<Message,Long> {
-    @Query("select m from Message m where m.to.id = ?#{ principal?.id }")
-    Page<Message> findInbox(Pageable pageable);
+	@Query("select m from Message m where m.to.id = ?#{ principal?.id }")
+	Page<Message> findInbox(Pageable pageable);
 }
 ----
 
@@ -6309,15 +6309,15 @@ The standard JDBC implementation of the `UserDetailsService` (`JdbcDaoImpl`) req
 ----
 
 create table users(
-    username varchar_ignorecase(50) not null primary key,
-    password varchar_ignorecase(50) not null,
-    enabled boolean not null
+	username varchar_ignorecase(50) not null primary key,
+	password varchar_ignorecase(50) not null,
+	enabled boolean not null
 );
 
 create table authorities (
-    username varchar_ignorecase(50) not null,
-    authority varchar_ignorecase(50) not null,
-    constraint fk_authorities_users foreign key(username) references users(username)
+	username varchar_ignorecase(50) not null,
+	authority varchar_ignorecase(50) not null,
+	constraint fk_authorities_users foreign key(username) references users(username)
 );
 create unique index ix_auth_username on authorities (username,authority);
 ----
@@ -6329,21 +6329,21 @@ Spring Security 2.0 introduced support for group authorities in `JdbcDaoImpl`. T
 ----
 
 create table groups (
-    id bigint generated by default as identity(start with 0) primary key,
-    group_name varchar_ignorecase(50) not null
+	id bigint generated by default as identity(start with 0) primary key,
+	group_name varchar_ignorecase(50) not null
 );
 
 create table group_authorities (
-    group_id bigint not null,
-    authority varchar(50) not null,
-    constraint fk_group_authorities_group foreign key(group_id) references groups(id)
+	group_id bigint not null,
+	authority varchar(50) not null,
+	constraint fk_group_authorities_group foreign key(group_id) references groups(id)
 );
 
 create table group_members (
-    id bigint generated by default as identity(start with 0) primary key,
-    username varchar(50) not null,
-    group_id bigint not null,
-    constraint fk_group_members_group foreign key(group_id) references groups(id)
+	id bigint generated by default as identity(start with 0) primary key,
+	username varchar(50) not null,
+	group_id bigint not null,
+	constraint fk_group_members_group foreign key(group_id) references groups(id)
 );
 ----
 
@@ -6357,10 +6357,10 @@ This table is used to store data used by the more secure <<remember-me-persisten
 ----
 
 create table persistent_logins (
-    username varchar(64) not null,
-    series varchar(64) primary key,
-    token varchar(64) not null,
-    last_used timestamp not null
+	username varchar(64) not null,
+	series varchar(64) primary key,
+	token varchar(64) not null,
+	last_used timestamp not null
 );
 
 ----
@@ -6385,43 +6385,43 @@ The default schema works with the embedded HSQLDB database that is used in unit 
 ----
 
 create table acl_sid(
-    id bigint generated by default as identity(start with 100) not null primary key,
-    principal boolean not null,
-    sid varchar_ignorecase(100) not null,
-    constraint unique_uk_1 unique(sid,principal)
+	id bigint generated by default as identity(start with 100) not null primary key,
+	principal boolean not null,
+	sid varchar_ignorecase(100) not null,
+	constraint unique_uk_1 unique(sid,principal)
 );
 
 create table acl_class(
-    id bigint generated by default as identity(start with 100) not null primary key,
-    class varchar_ignorecase(100) not null,
-    constraint unique_uk_2 unique(class)
+	id bigint generated by default as identity(start with 100) not null primary key,
+	class varchar_ignorecase(100) not null,
+	constraint unique_uk_2 unique(class)
 );
 
 create table acl_object_identity(
-    id bigint generated by default as identity(start with 100) not null primary key,
-    object_id_class bigint not null,
-    object_id_identity bigint not null,
-    parent_object bigint,
-    owner_sid bigint,
-    entries_inheriting boolean not null,
-    constraint unique_uk_3 unique(object_id_class,object_id_identity),
-    constraint foreign_fk_1 foreign key(parent_object)references acl_object_identity(id),
-    constraint foreign_fk_2 foreign key(object_id_class)references acl_class(id),
-    constraint foreign_fk_3 foreign key(owner_sid)references acl_sid(id)
+	id bigint generated by default as identity(start with 100) not null primary key,
+	object_id_class bigint not null,
+	object_id_identity bigint not null,
+	parent_object bigint,
+	owner_sid bigint,
+	entries_inheriting boolean not null,
+	constraint unique_uk_3 unique(object_id_class,object_id_identity),
+	constraint foreign_fk_1 foreign key(parent_object)references acl_object_identity(id),
+	constraint foreign_fk_2 foreign key(object_id_class)references acl_class(id),
+	constraint foreign_fk_3 foreign key(owner_sid)references acl_sid(id)
 );
 
 create table acl_entry(
-    id bigint generated by default as identity(start with 100) not null primary key,
-    acl_object_identity bigint not null,
-    ace_order int not null,
-    sid bigint not null,
-    mask integer not null,
-    granting boolean not null,
-    audit_success boolean not null,
-    audit_failure boolean not null,
-    constraint unique_uk_4 unique(acl_object_identity,ace_order),
-    constraint foreign_fk_4 foreign key(acl_object_identity) references acl_object_identity(id),
-    constraint foreign_fk_5 foreign key(sid) references acl_sid(id)
+	id bigint generated by default as identity(start with 100) not null primary key,
+	acl_object_identity bigint not null,
+	ace_order int not null,
+	sid bigint not null,
+	mask integer not null,
+	granting boolean not null,
+	audit_success boolean not null,
+	audit_failure boolean not null,
+	constraint unique_uk_4 unique(acl_object_identity,ace_order),
+	constraint foreign_fk_4 foreign key(acl_object_identity) references acl_object_identity(id),
+	constraint foreign_fk_5 foreign key(sid) references acl_sid(id)
 );
 ----
 
@@ -6429,43 +6429,43 @@ create table acl_entry(
 [source,ddl]
 ----
 create table acl_sid(
-    id bigserial not null primary key,
-    principal boolean not null,
-    sid varchar(100) not null,
-    constraint unique_uk_1 unique(sid,principal)
+	id bigserial not null primary key,
+	principal boolean not null,
+	sid varchar(100) not null,
+	constraint unique_uk_1 unique(sid,principal)
 );
 
 create table acl_class(
-    id bigserial not null primary key,
-    class varchar(100) not null,
-    constraint unique_uk_2 unique(class)
+	id bigserial not null primary key,
+	class varchar(100) not null,
+	constraint unique_uk_2 unique(class)
 );
 
 create table acl_object_identity(
-    id bigserial primary key,
-    object_id_class bigint not null,
-    object_id_identity bigint not null,
-    parent_object bigint,
-    owner_sid bigint,
-    entries_inheriting boolean not null,
-    constraint unique_uk_3 unique(object_id_class,object_id_identity),
-    constraint foreign_fk_1 foreign key(parent_object)references acl_object_identity(id),
-    constraint foreign_fk_2 foreign key(object_id_class)references acl_class(id),
-    constraint foreign_fk_3 foreign key(owner_sid)references acl_sid(id)
+	id bigserial primary key,
+	object_id_class bigint not null,
+	object_id_identity bigint not null,
+	parent_object bigint,
+	owner_sid bigint,
+	entries_inheriting boolean not null,
+	constraint unique_uk_3 unique(object_id_class,object_id_identity),
+	constraint foreign_fk_1 foreign key(parent_object)references acl_object_identity(id),
+	constraint foreign_fk_2 foreign key(object_id_class)references acl_class(id),
+	constraint foreign_fk_3 foreign key(owner_sid)references acl_sid(id)
 );
 
 create table acl_entry(
-    id bigserial primary key,
-    acl_object_identity bigint not null,
-    ace_order int not null,
-    sid bigint not null,
-    mask integer not null,
-    granting boolean not null,
-    audit_success boolean not null,
-    audit_failure boolean not null,
-    constraint unique_uk_4 unique(acl_object_identity,ace_order),
-    constraint foreign_fk_4 foreign key(acl_object_identity) references acl_object_identity(id),
-    constraint foreign_fk_5 foreign key(sid) references acl_sid(id)
+	id bigserial primary key,
+	acl_object_identity bigint not null,
+	ace_order int not null,
+	sid bigint not null,
+	mask integer not null,
+	granting boolean not null,
+	audit_success boolean not null,
+	audit_failure boolean not null,
+	constraint unique_uk_4 unique(acl_object_identity,ace_order),
+	constraint foreign_fk_4 foreign key(acl_object_identity) references acl_object_identity(id),
+	constraint foreign_fk_5 foreign key(sid) references acl_sid(id)
 );
 ----
 
@@ -6478,43 +6478,43 @@ You will have to set the `classIdentityQuery` and `sidIdentityQuery` properties 
 [source,ddl]
 ----
 CREATE TABLE acl_sid (
-    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    principal BOOLEAN NOT NULL,
-    sid VARCHAR(100) NOT NULL,
-    UNIQUE KEY unique_acl_sid (sid, principal)
+	id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	principal BOOLEAN NOT NULL,
+	sid VARCHAR(100) NOT NULL,
+	UNIQUE KEY unique_acl_sid (sid, principal)
 ) ENGINE=InnoDB;
 
 CREATE TABLE acl_class (
-    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    class VARCHAR(100) NOT NULL,
-    UNIQUE KEY uk_acl_class (class)
+	id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	class VARCHAR(100) NOT NULL,
+	UNIQUE KEY uk_acl_class (class)
 ) ENGINE=InnoDB;
 
 CREATE TABLE acl_object_identity (
-    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    object_id_class BIGINT UNSIGNED NOT NULL,
-    object_id_identity BIGINT NOT NULL,
-    parent_object BIGINT UNSIGNED,
-    owner_sid BIGINT UNSIGNED,
-    entries_inheriting BOOLEAN NOT NULL,
-    UNIQUE KEY uk_acl_object_identity (object_id_class, object_id_identity),
-    CONSTRAINT fk_acl_object_identity_parent FOREIGN KEY (parent_object) REFERENCES acl_object_identity (id),
-    CONSTRAINT fk_acl_object_identity_class FOREIGN KEY (object_id_class) REFERENCES acl_class (id),
-    CONSTRAINT fk_acl_object_identity_owner FOREIGN KEY (owner_sid) REFERENCES acl_sid (id)
+	id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	object_id_class BIGINT UNSIGNED NOT NULL,
+	object_id_identity BIGINT NOT NULL,
+	parent_object BIGINT UNSIGNED,
+	owner_sid BIGINT UNSIGNED,
+	entries_inheriting BOOLEAN NOT NULL,
+	UNIQUE KEY uk_acl_object_identity (object_id_class, object_id_identity),
+	CONSTRAINT fk_acl_object_identity_parent FOREIGN KEY (parent_object) REFERENCES acl_object_identity (id),
+	CONSTRAINT fk_acl_object_identity_class FOREIGN KEY (object_id_class) REFERENCES acl_class (id),
+	CONSTRAINT fk_acl_object_identity_owner FOREIGN KEY (owner_sid) REFERENCES acl_sid (id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE acl_entry (
-    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    acl_object_identity BIGINT UNSIGNED NOT NULL,
-    ace_order INTEGER NOT NULL,
-    sid BIGINT UNSIGNED NOT NULL,
-    mask INTEGER UNSIGNED NOT NULL,
-    granting BOOLEAN NOT NULL,
-    audit_success BOOLEAN NOT NULL,
-    audit_failure BOOLEAN NOT NULL,
-    UNIQUE KEY unique_acl_entry (acl_object_identity, ace_order),
-    CONSTRAINT fk_acl_entry_object FOREIGN KEY (acl_object_identity) REFERENCES acl_object_identity (id),
-    CONSTRAINT fk_acl_entry_acl FOREIGN KEY (sid) REFERENCES acl_sid (id)
+	id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	acl_object_identity BIGINT UNSIGNED NOT NULL,
+	ace_order INTEGER NOT NULL,
+	sid BIGINT UNSIGNED NOT NULL,
+	mask INTEGER UNSIGNED NOT NULL,
+	granting BOOLEAN NOT NULL,
+	audit_success BOOLEAN NOT NULL,
+	audit_failure BOOLEAN NOT NULL,
+	UNIQUE KEY unique_acl_entry (acl_object_identity, ace_order),
+	CONSTRAINT fk_acl_entry_object FOREIGN KEY (acl_object_identity) REFERENCES acl_object_identity (id),
+	CONSTRAINT fk_acl_entry_acl FOREIGN KEY (sid) REFERENCES acl_sid (id)
 ) ENGINE=InnoDB;
 ----
 
@@ -6522,43 +6522,43 @@ CREATE TABLE acl_entry (
 [source,ddl]
 ----
 CREATE TABLE acl_sid (
-    id BIGINT NOT NULL IDENTITY PRIMARY KEY,
-    principal BIT NOT NULL,
-    sid VARCHAR(100) NOT NULL,
-    CONSTRAINT unique_acl_sid UNIQUE (sid, principal)
+	id BIGINT NOT NULL IDENTITY PRIMARY KEY,
+	principal BIT NOT NULL,
+	sid VARCHAR(100) NOT NULL,
+	CONSTRAINT unique_acl_sid UNIQUE (sid, principal)
 );
 
 CREATE TABLE acl_class (
-    id BIGINT NOT NULL IDENTITY PRIMARY KEY,
-    class VARCHAR(100) NOT NULL,
-    CONSTRAINT uk_acl_class UNIQUE (class)
+	id BIGINT NOT NULL IDENTITY PRIMARY KEY,
+	class VARCHAR(100) NOT NULL,
+	CONSTRAINT uk_acl_class UNIQUE (class)
 );
 
 CREATE TABLE acl_object_identity (
-    id BIGINT NOT NULL IDENTITY PRIMARY KEY,
-    object_id_class BIGINT NOT NULL,
-    object_id_identity BIGINT NOT NULL,
-    parent_object BIGINT,
-    owner_sid BIGINT,
-    entries_inheriting BIT NOT NULL,
-    CONSTRAINT uk_acl_object_identity UNIQUE (object_id_class, object_id_identity),
-    CONSTRAINT fk_acl_object_identity_parent FOREIGN KEY (parent_object) REFERENCES acl_object_identity (id),
-    CONSTRAINT fk_acl_object_identity_class FOREIGN KEY (object_id_class) REFERENCES acl_class (id),
-    CONSTRAINT fk_acl_object_identity_owner FOREIGN KEY (owner_sid) REFERENCES acl_sid (id)
+	id BIGINT NOT NULL IDENTITY PRIMARY KEY,
+	object_id_class BIGINT NOT NULL,
+	object_id_identity BIGINT NOT NULL,
+	parent_object BIGINT,
+	owner_sid BIGINT,
+	entries_inheriting BIT NOT NULL,
+	CONSTRAINT uk_acl_object_identity UNIQUE (object_id_class, object_id_identity),
+	CONSTRAINT fk_acl_object_identity_parent FOREIGN KEY (parent_object) REFERENCES acl_object_identity (id),
+	CONSTRAINT fk_acl_object_identity_class FOREIGN KEY (object_id_class) REFERENCES acl_class (id),
+	CONSTRAINT fk_acl_object_identity_owner FOREIGN KEY (owner_sid) REFERENCES acl_sid (id)
 );
 
 CREATE TABLE acl_entry (
-    id BIGINT NOT NULL IDENTITY PRIMARY KEY,
-    acl_object_identity BIGINT NOT NULL,
-    ace_order INTEGER NOT NULL,
-    sid BIGINT NOT NULL,
-    mask INTEGER NOT NULL,
-    granting BIT NOT NULL,
-    audit_success BIT NOT NULL,
-    audit_failure BIT NOT NULL,
-    CONSTRAINT unique_acl_entry UNIQUE (acl_object_identity, ace_order),
-    CONSTRAINT fk_acl_entry_object FOREIGN KEY (acl_object_identity) REFERENCES acl_object_identity (id),
-    CONSTRAINT fk_acl_entry_acl FOREIGN KEY (sid) REFERENCES acl_sid (id)
+	id BIGINT NOT NULL IDENTITY PRIMARY KEY,
+	acl_object_identity BIGINT NOT NULL,
+	ace_order INTEGER NOT NULL,
+	sid BIGINT NOT NULL,
+	mask INTEGER NOT NULL,
+	granting BIT NOT NULL,
+	audit_success BIT NOT NULL,
+	audit_failure BIT NOT NULL,
+	CONSTRAINT unique_acl_entry UNIQUE (acl_object_identity, ace_order),
+	CONSTRAINT fk_acl_entry_object FOREIGN KEY (acl_object_identity) REFERENCES acl_object_identity (id),
+	CONSTRAINT fk_acl_entry_acl FOREIGN KEY (sid) REFERENCES acl_sid (id)
 );
 ----
 
@@ -6566,71 +6566,71 @@ CREATE TABLE acl_entry (
 [source,ddl]
 ----
 CREATE TABLE acl_sid (
-    id NUMBER(38) NOT NULL PRIMARY KEY,
-    principal NUMBER(1) NOT NULL CHECK (principal in (0, 1)),
-    sid NVARCHAR2(100) NOT NULL,
-    CONSTRAINT unique_acl_sid UNIQUE (sid, principal)
+	id NUMBER(38) NOT NULL PRIMARY KEY,
+	principal NUMBER(1) NOT NULL CHECK (principal in (0, 1)),
+	sid NVARCHAR2(100) NOT NULL,
+	CONSTRAINT unique_acl_sid UNIQUE (sid, principal)
 );
 CREATE SEQUENCE acl_sid_sequence START WITH 1 INCREMENT BY 1 NOMAXVALUE;
 CREATE OR REPLACE TRIGGER acl_sid_id_trigger
-    BEFORE INSERT ON acl_sid
-    FOR EACH ROW
+	BEFORE INSERT ON acl_sid
+	FOR EACH ROW
 BEGIN
-    SELECT acl_sid_sequence.nextval INTO :new.id FROM dual;
+	SELECT acl_sid_sequence.nextval INTO :new.id FROM dual;
 END;
 
 CREATE TABLE acl_class (
-    id NUMBER(38) NOT NULL PRIMARY KEY,
-    class NVARCHAR2(100) NOT NULL,
-    CONSTRAINT uk_acl_class UNIQUE (class)
+	id NUMBER(38) NOT NULL PRIMARY KEY,
+	class NVARCHAR2(100) NOT NULL,
+	CONSTRAINT uk_acl_class UNIQUE (class)
 );
 CREATE SEQUENCE acl_class_sequence START WITH 1 INCREMENT BY 1 NOMAXVALUE;
 CREATE OR REPLACE TRIGGER acl_class_id_trigger
-    BEFORE INSERT ON acl_class
-    FOR EACH ROW
+	BEFORE INSERT ON acl_class
+	FOR EACH ROW
 BEGIN
-    SELECT acl_class_sequence.nextval INTO :new.id FROM dual;
+	SELECT acl_class_sequence.nextval INTO :new.id FROM dual;
 END;
 
 CREATE TABLE acl_object_identity (
-    id NUMBER(38) NOT NULL PRIMARY KEY,
-    object_id_class NUMBER(38) NOT NULL,
-    object_id_identity NUMBER(38) NOT NULL,
-    parent_object NUMBER(38),
-    owner_sid NUMBER(38),
-    entries_inheriting NUMBER(1) NOT NULL CHECK (entries_inheriting in (0, 1)),
-    CONSTRAINT uk_acl_object_identity UNIQUE (object_id_class, object_id_identity),
-    CONSTRAINT fk_acl_object_identity_parent FOREIGN KEY (parent_object) REFERENCES acl_object_identity (id),
-    CONSTRAINT fk_acl_object_identity_class FOREIGN KEY (object_id_class) REFERENCES acl_class (id),
-    CONSTRAINT fk_acl_object_identity_owner FOREIGN KEY (owner_sid) REFERENCES acl_sid (id)
+	id NUMBER(38) NOT NULL PRIMARY KEY,
+	object_id_class NUMBER(38) NOT NULL,
+	object_id_identity NUMBER(38) NOT NULL,
+	parent_object NUMBER(38),
+	owner_sid NUMBER(38),
+	entries_inheriting NUMBER(1) NOT NULL CHECK (entries_inheriting in (0, 1)),
+	CONSTRAINT uk_acl_object_identity UNIQUE (object_id_class, object_id_identity),
+	CONSTRAINT fk_acl_object_identity_parent FOREIGN KEY (parent_object) REFERENCES acl_object_identity (id),
+	CONSTRAINT fk_acl_object_identity_class FOREIGN KEY (object_id_class) REFERENCES acl_class (id),
+	CONSTRAINT fk_acl_object_identity_owner FOREIGN KEY (owner_sid) REFERENCES acl_sid (id)
 );
 CREATE SEQUENCE acl_object_identity_sequence START WITH 1 INCREMENT BY 1 NOMAXVALUE;
 CREATE OR REPLACE TRIGGER acl_object_identity_id_trigger
-    BEFORE INSERT ON acl_object_identity
-    FOR EACH ROW
+	BEFORE INSERT ON acl_object_identity
+	FOR EACH ROW
 BEGIN
-    SELECT acl_object_identity_sequence.nextval INTO :new.id FROM dual;
+	SELECT acl_object_identity_sequence.nextval INTO :new.id FROM dual;
 END;
 
 CREATE TABLE acl_entry (
-    id NUMBER(38) NOT NULL PRIMARY KEY,
-    acl_object_identity NUMBER(38) NOT NULL,
-    ace_order INTEGER NOT NULL,
-    sid NUMBER(38) NOT NULL,
-    mask INTEGER NOT NULL,
-    granting NUMBER(1) NOT NULL CHECK (granting in (0, 1)),
-    audit_success NUMBER(1) NOT NULL CHECK (audit_success in (0, 1)),
-    audit_failure NUMBER(1) NOT NULL CHECK (audit_failure in (0, 1)),
-    CONSTRAINT unique_acl_entry UNIQUE (acl_object_identity, ace_order),
-    CONSTRAINT fk_acl_entry_object FOREIGN KEY (acl_object_identity) REFERENCES acl_object_identity (id),
-    CONSTRAINT fk_acl_entry_acl FOREIGN KEY (sid) REFERENCES acl_sid (id)
+	id NUMBER(38) NOT NULL PRIMARY KEY,
+	acl_object_identity NUMBER(38) NOT NULL,
+	ace_order INTEGER NOT NULL,
+	sid NUMBER(38) NOT NULL,
+	mask INTEGER NOT NULL,
+	granting NUMBER(1) NOT NULL CHECK (granting in (0, 1)),
+	audit_success NUMBER(1) NOT NULL CHECK (audit_success in (0, 1)),
+	audit_failure NUMBER(1) NOT NULL CHECK (audit_failure in (0, 1)),
+	CONSTRAINT unique_acl_entry UNIQUE (acl_object_identity, ace_order),
+	CONSTRAINT fk_acl_entry_object FOREIGN KEY (acl_object_identity) REFERENCES acl_object_identity (id),
+	CONSTRAINT fk_acl_entry_acl FOREIGN KEY (sid) REFERENCES acl_sid (id)
 );
 CREATE SEQUENCE acl_entry_sequence START WITH 1 INCREMENT BY 1 NOMAXVALUE;
 CREATE OR REPLACE TRIGGER acl_entry_id_trigger
-    BEFORE INSERT ON acl_entry
-    FOR EACH ROW
+	BEFORE INSERT ON acl_entry
+	FOR EACH ROW
 BEGIN
-    SELECT acl_entry_sequence.nextval INTO :new.id FROM dual;
+	SELECT acl_entry_sequence.nextval INTO :new.id FROM dual;
 END;
 ----
 
@@ -6690,7 +6690,7 @@ Controls the eagerness with which an HTTP session is created by Spring Security 
 
 [[nsa-http-disable-url-rewriting]]
 * **disable-url-rewriting**
-Prevents session IDs from being appended to URLs in the application. Clients must use cookies if this attribute is set to `true`. The default is `false`.
+Prevents session IDs from being appended to URLs in the application. Clients must use cookies if this attribute is set to `true`. The default is `true`.
 
 
 [[nsa-http-entry-point-ref]]
@@ -8013,7 +8013,7 @@ If you have written your own `AuthenticationProvider` implementation (or want to
 ----
 
 <security:authentication-manager>
-  <security:authentication-provider ref="myAuthenticationProvider" />
+<security:authentication-provider ref="myAuthenticationProvider" />
 </security:authentication-manager>
 <bean id="myAuthenticationProvider" class="com.something.MyAuthenticationProvider"/>
 
@@ -8080,11 +8080,11 @@ An SQL statement to query user's group authorities given a username. The default
 [source]
 ----
 select
-  g.id, g.group_name, ga.authority
+g.id, g.group_name, ga.authority
 from
-  groups g, group_members gm, group_authorities ga
+groups g, group_members gm, group_authorities ga
 where
-  gm.username = ? and g.id = ga.group_id and g.id = gm.group_id
+gm.username = ? and g.id = ga.group_id and g.id = gm.group_id
 ----
 
 

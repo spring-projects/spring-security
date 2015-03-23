@@ -67,7 +67,7 @@ class SessionManagementConfigTests extends AbstractHttpConfigTests {
 		expect:
 		filter.forceEagerSessionCreation
 		filter.repo.allowSessionCreation
-		!filter.repo.disableUrlRewriting
+		filter.repo.disableUrlRewriting
 	}
 
 	def settingCreateSessionToNeverSetsFilterPropertiesCorrectly() {
